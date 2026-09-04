@@ -1,0 +1,217 @@
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Dataset of 3 Python functions used for OLS regression with VIF filtering
+    and k-fold cross-validation
+  claim_id: c_9acc9123
+  context: We analyze the relationship between original code structural metrics and
+    the resulting improvements in code quality metrics. Using a dataset of 3 valid
+    Python functions, we employed Multiple Linear Regression (OLS)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Using a dataset of 3 valid Python functions, we employed Multiple Linear
+    Regression (OLS) with Variance Inflation Factor (VIF) filtering and k-fold cross-validation
+    to predict refactoring outcomes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:44:55Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: bigcode/the-stack-dedup dataset used to extract Python functions
+  claim_id: c_cc2e1e24
+  context: We utilized the `bigcode/the-stack-dedup` dataset to extract Python functions.
+    A strict validation pipeline was applied to ensure code parsability...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bigcode/the-stack-dedup_dataset_used_to_extract_Python_funct
+  kind: entity_fact
+  raw_text: We utilized the bigcode/the-stack-dedup dataset to extract Python functions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:45:24Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Zero-shot prompts sent to WizardCoder-13B model via HuggingFace Inference
+    API
+  claim_id: c_26b29760
+  context: 'Refactoring: Zero-shot prompts were sent to the WizardCoder-13B model
+    via HuggingFace Inference API. Baselines: Identity transformations were generated...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zero-shot_prompts_sent_to_WizardCoder-13B_model_via_HuggingF
+  kind: entity_fact
+  raw_text: Zero-shot prompts were sent to the WizardCoder-13B model via HuggingFace
+    Inference API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:46:00Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Final regression model retained 5 structural predictors after VIF filtering
+  claim_id: c_62b20a93
+  context: "The final regression model, after VIF filtering, retained all five structural\
+    \ predictors. Adjusted R\xB2: 0.82..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final regression model, after VIF filtering, retained all five structural
+    predictors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:46:00Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: F-Statistic of 12.5 with p-value of 0.0001
+  claim_id: c_fc036212
+  context: "Adjusted R\xB2: 0.82. F-Statistic: 12.5 (p = 0.0001). VIF Filtered Predictors:\
+    \ loc, nesting_depth, param_count, pep8_violations, docstring_present"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The F-Statistic was 12.5 with a p-value of 0.0001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:46:28Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for LOC was 0.10 with p-value of 0.001
+  claim_id: c_176fc366
+  context: Lines of Code (LOC) | 0.10 | 0.001. Nesting Depth | 0.05 | 0.050...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for Lines of Code (LOC) was 0.10 with a P-Value of
+    0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:46:59Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for Nesting Depth was 0.05 with p-value of 0.050
+  claim_id: c_3067a9aa
+  context: Nesting Depth | 0.05 | 0.050. Parameter Count | 0.02 | 0.100...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for Nesting Depth was 0.05 with a P-Value of 0.050.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:47:23Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for Parameter Count was 0.02 with p-value of 0.100
+  claim_id: c_2c36ead5
+  context: Parameter Count | 0.02 | 0.100. PEP-8 Violations | 0.01 | 0.200...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for Parameter Count was 0.02 with a P-Value of 0.100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:47:45Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for PEP-8 Violations was 0.01 with p-value of 0.200
+  claim_id: c_3beb034a
+  context: PEP-8 Violations | 0.01 | 0.200. Docstring Present | 0.03 | 0.150...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for PEP-8 Violations was 0.01 with a P-Value of 0.200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:48:13Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for Docstring Present was 0.03 with p-value of 0.150
+  claim_id: c_d8a454da
+  context: 'Docstring Present | 0.03 | 0.150. Interpretation: The number of Lines
+    of Code (LOC) shows the strongest positive association...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for Docstring Present was 0.03 with a P-Value of
+    0.150.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:48:30Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: T-Statistic for Complexity Delta was -0.50 with p-value of 0.62
+  claim_id: c_e8bd56f7
+  context: Complexity Delta (Delta Complexity) | -0.50 | 0.62 | No. Pylint Delta (Delta
+    Pylint) | -0.30 | 0.77 | No...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The T-Statistic for Complexity Delta was -0.50 with a P-Value of 0.62.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:49:03Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: T-Statistic for Pylint Delta was -0.30 with p-value of 0.77
+  claim_id: c_19a46a9a
+  context: Pylint Delta (Delta Pylint) | -0.30 | 0.77 | No. Maintainability Delta
+    (Delta Maintainability) | 0.20 | 0.85 | No...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The T-Statistic for Pylint Delta was -0.30 with a P-Value of 0.77.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:49:17Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: T-Statistic for Maintainability Delta was 0.20 with p-value of 0.85
+  claim_id: c_a0d9be2d
+  context: 'Maintainability Delta (Delta Maintainability) | 0.20 | 0.85 | No. Observation:
+    Despite the high explanatory power...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The T-Statistic for Maintainability Delta was 0.20 with a P-Value of 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:49:36Z'

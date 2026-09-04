@@ -4,13 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of a `code/` directory at the repository root is provided; the artifact list is empty, so the required directory has not been demonstrated as existing. The implementer must add the `code/` folder (non‑empty) to satisfy the task.
-- `T001b` (rejected 1x): No evidence was provided that a `data/` directory exists at the repository root; the claim lacks any artifact (e.g., directory listing, screenshot, or file) confirming its creation. The required directory is missing from the supplied information.
-- `T001c` (rejected 1x): No artifact showing a `tests/` directory at the repository root was provided; without evidence of the directory’s existence, the requirement cannot be confirmed as satisfied. The implementer must add proof (e.g., a directory listing or a file inside `tests/`).
-- `T001d` (rejected 1x): No evidence of a `paper/` directory at the repository root is provided; the artifact list is empty, so the required directory has not been demonstrated as existing. The implementer must add the `paper/` folder to satisfy the task.
-- `T003` (rejected 1x): declared artifact(s) missing/empty/invalid: pyproject.toml, ruff.toml
-- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T009` (rejected 1x): The required artifact `tests/unit/test_static_analysis.py` does not exist in the repository, so no unit test for metric calculation is present. The task cannot be considered completed until this file is added with appropriate tests.
+- `T014` (rejected 1x): The repository lacks the required `data/processed/raw_metrics.json` file (the processor never created it) and the schema file `contracts/output.schema.yaml` is absent, so the output cannot be validated against the specified schema. Additionally, the provided `processor.py` is truncated, leaving uncertainty that it fully implements the waiting, filtering, timing, and efficiency‑reporting steps. These missing artifacts prevent the task from being considered complete.
+- `T022` (rejected 1x): The repository contains `code/llm/pipeline.py`, but the file is truncated and does not show the full implementation (e.g., the loop body is cut off). More critically, the required output artifact `data/processed/refactoring_results.json` is absent, so the pipeline does not actually save the deltas as specified. The missing result file must be generated for the task to be considered complete.
 
 ## Required change
 

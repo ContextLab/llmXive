@@ -1,11 +1,12 @@
-T014:
+T001:
   c: false
-  h: 0e9359b09abe1a657af7a279beebd91c7cf5f993257a273ad306c31e8c859ea7
-  r: The provided `code/data/processor.py` is truncated (ends with an incomplete `except
-    Exception as` block) and does not show the final steps that write the JSON file.
-    Moreover, the required output `data/processed/raw_metrics.json` is absent from
-    the repository. The implementation therefore does not demonstrably fulfill the
-    saving requirement.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for the four required top\u2011level directories (`code/`, `data/`,\
+    \ `tests/`, `paper/`) in the provided artifact list, but no directory entries\
+    \ or file listings were supplied. Since there is no evidence that these directories\
+    \ were actually created, the task\u2019s requirement is not satisfied. The implementer\
+    \ must add the missing directory structure (or provide a manifest showing they\
+    \ exist)."
 T018:
   c: false
   h: cfd198c02874cc5872fbe2ff842ff50d5a36032515da0f19a3e3815aec26db71
@@ -13,11 +14,3 @@ T018:
     exist in the repository, so the integration test for the refactoring batch processing
     is missing. The task cannot be considered complete until this file is created
     with appropriate test code.
-T022:
-  c: false
-  h: 4b744c01e5b797724358eaf6418d3506db39382729d3d40de583293b30a49faa
-  r: "The repository contains a `code/llm/pipeline.py` file, but it is truncated and\
-    \ does not show the final steps that write the results to `data/processed/refactoring_results.json`.\
-    \ Moreover, the required output file `data/processed/refactoring_results.json`\
-    \ is absent from the project. Without this saved JSON of deltas, the task\u2019\
-    s core requirement is not fulfilled."

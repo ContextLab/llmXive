@@ -1,8 +1,1 @@
-# Paper Directory
-
-This directory contains artifacts related to the research paper generation,
-including draft manuscripts, figures, and final results.
-
-- `draft.md`: Draft of the research paper.
-- `figures/`: Generated plots and charts.
-- `results/`: Final statistical analysis outputs.
+# Placeholder to ensure paper/ directory exists in version control

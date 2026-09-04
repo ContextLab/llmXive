@@ -1,32 +1,41 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: LLM Refactoring Configuration
-description: Configuration schema for the LLM Refactoring Pipeline
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ConfigSchema
+description: "Schema for the configuration snapshot used to validate experiment parameters."
 type: object
 properties:
   hf_api_key:
     type: string
-    description: HuggingFace API Key
-    pattern: "^hf_"
+    description: "Hugging Face API key (masked in logs)."
+    minLength: 1
   random_seed:
     type: integer
-    description: Random seed for reproducibility
-    minimum: 0
+    description: "Random seed for reproducibility."
     default: 42
   max_attempts:
     type: integer
-    description: Maximum attempts to fetch valid data
+    description: "Maximum number of attempts to fetch valid samples."
     minimum: 1
-    default: 400
+    default: 50
   min_valid_functions:
     type: integer
-    description: Minimum number of valid functions required
-    minimum: 1
+    description: "Minimum number of valid functions required to proceed."
+    minimum: 100
     default: 100
   batch_size:
     type: integer
-    description: Batch size for LLM API calls
+    description: "Batch size for LLM processing."
     minimum: 1
-    maximum: 10
     default: 10
+  log_level:
+    type: string
+    description: "Logging level."
+    enum: ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    default: "INFO"
 required:
   - hf_api_key
+  - random_seed
+  - max_attempts
+  - min_valid_functions
+  - batch_size
+  - log_level
+additionalProperties: false

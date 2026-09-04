@@ -1,220 +1,276 @@
+"""
+Orchestration pipeline for User Story 2: Refactoring, Baseline, and Quality Measurement.
+
+This module coordinates the execution of:
+1. Loading processed data from US1 (raw_metrics.json)
+2. Generating null baselines (identity transformation)
+3. Invoking LLM for zero-shot refactoring
+4. Calculating quality metrics and deltas
+5. Saving results to data/processed/refactoring_results.json
+
+It handles syntax errors in LLM output by marking them as "Refactoring Failed"
+and logs total execution time to satisfy SC-003 efficiency requirements.
+"""
+
 import json
 import logging
 import sys
+import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-from data.download import download_valid_functions
-from data.static_analysis import run_static_analysis_on_dataset
+from config import Config, get_secret
+from utils.logging import get_logger, LLMRefactoringError
+from models.entities import FunctionSample, MetricDelta
 from llm.refactoring import refactor_batch
-from llm.baseline import generate_identity_baseline, validate_identity_baseline
-from llm.quality import compute_deltas, validate_baseline_identity
-from utils.logging import get_logger, LLMRefactoringError, ValidationFailedError
-from utils.cache import get_cache
-from models.entities import FunctionSample
+from llm.baseline import generate_identity_baseline
+from llm.quality import calculate_metrics, compute_deltas
 
 logger = get_logger(__name__)
 
-def load_processed_data(filepath: str) -> List[Dict[str, Any]]:
-    """Load the pre-computed raw metrics from the data pipeline."""
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Required input file not found: {filepath}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
+
+def load_processed_data(input_path: Path) -> List[Dict[str, Any]]:
+    """
+    Load the processed raw metrics from US1.
+
+    Args:
+        input_path: Path to data/processed/raw_metrics.json
+
+    Returns:
+        List of function samples with structural metrics.
+
+    Raises:
+        FileNotFoundError: If input file does not exist.
+        json.JSONDecodeError: If file is not valid JSON.
+    """
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    logger.info(f"Loading processed data from {input_path}")
+    with open(input_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    
-    logger.info(f"Loaded {len(data)} samples from {filepath}")
+
+    if not isinstance(data, list):
+        raise ValueError(f"Expected list of samples, got {type(data)}")
+
+    logger.info(f"Loaded {len(data)} function samples")
     return data
+
 
 def process_refactoring_batch(
     samples: List[Dict[str, Any]],
-    batch_size: int = 10,
-    timeout: int = 60
+    batch_size: int = 10
 ) -> List[Dict[str, Any]]:
     """
-    Orchestrate refactoring and baseline generation for a batch of samples.
-    
-    1. Refactor functions using LLM (with caching).
-    2. Generate identity baselines.
-    3. Compute quality deltas.
-    4. Handle syntax errors gracefully (mark as "Refactoring Failed").
+    Process a batch of function samples through the refactoring pipeline.
+
+    For each sample:
+    1. Generate identity baseline
+    2. Attempt LLM refactoring (handles syntax errors)
+    3. Calculate quality metrics for original, refactored, and baseline
+    4. Compute deltas
+
+    Args:
+        samples: List of function samples from US1.
+        batch_size: Maximum number of samples to process in one batch.
+
+    Returns:
+        List of results with refactored code, baselines, and deltas.
     """
     results = []
-    cache = get_cache()
-    
+    total_samples = len(samples)
+    processed = 0
+
+    logger.info(f"Starting refactoring pipeline for {total_samples} samples")
+
     for i, sample in enumerate(samples):
-        logger.info(f"Processing sample {i+1}/{len(samples)}: {sample.get('hash', 'unknown')[:8]}...")
+        processed += 1
+        function_code = sample.get('code', '')
+        function_hash = sample.get('hash', '')
         
-        original_code = sample.get('code')
-        if not original_code:
-            logger.warning("Skipping sample with missing code.")
+        if not function_code:
+            logger.warning(f"Skipping sample {i} with empty code (hash: {function_hash})")
+            results.append({
+                'hash': function_hash,
+                'status': 'Skipped',
+                'reason': 'Empty code',
+                'original_metrics': None,
+                'refactored_metrics': None,
+                'baseline_metrics': None,
+                'deltas': None
+            })
             continue
 
-        # 1. Refactoring
         try:
-            # Check cache first
-            cache_key = f"refactor_{sample.get('hash')}"
-            cached_result = cache.get(cache_key)
+            # Step 1: Generate identity baseline
+            logger.debug(f"Generating baseline for hash {function_hash}")
+            baseline_code = generate_identity_baseline([{'code': function_code}])[0]['code']
             
-            if cached_result:
-                logger.info("Cache hit for refactoring.")
-                refactored_code = cached_result
-            else:
-                # Perform refactoring
-                # Note: refactor_batch expects a list of code strings, returns list of (code, success, error)
-                # We adapt the single sample to a batch of 1 for the API
-                refactor_results = refactor_batch([original_code], batch_size=1, timeout=timeout)
-                
-                if not refactor_results or len(refactor_results) == 0:
-                    raise LLMRefactoringError("No result returned from refactoring API.")
-                
-                refactored_code, success, error_msg = refactor_results[0]
-                
-                if not success:
-                    logger.warning(f"Refactoring failed for {sample.get('hash')}: {error_msg}")
-                    # Mark as failed but continue to baseline
-                    refactored_code = None
-                else:
-                    # Cache the successful result
-                    cache.set(cache_key, refactored_code, ttl=86400)
-                    
-        except Exception as e:
-            logger.error(f"Exception during refactoring: {e}")
+            # Validate baseline is identical (log warning if not, per T021)
+            if baseline_code != function_code:
+                logger.warning(f"Baseline mismatch for hash {function_hash}: delta detected")
+
+            # Step 2: Attempt refactoring
+            logger.debug(f"Refactoring function {i+1}/{total_samples} (hash: {function_hash})")
             refactored_code = None
-
-        # 2. Baseline Generation (Identity)
-        try:
-            baseline_code = generate_identity_baseline(original_code)
-            # Validate identity baseline is truly identical
-            if baseline_code != original_code:
-                logger.warning(f"Identity baseline mismatch for {sample.get('hash')}.")
-                # This is a logic error in baseline generation, but we proceed with the code we got
-        except Exception as e:
-            logger.error(f"Error generating baseline: {e}")
-            baseline_code = None
-
-        # 3. Compute Deltas and Metrics
-        # We need to compute metrics for original, refactored, and baseline
-        # The quality module functions expect code strings or handle None
-        
-        entry = {
-            "hash": sample.get('hash'),
-            "original_metrics": sample.get('metrics', {}),
-            "original_code": original_code,
-            "refactored_code": refactored_code,
-            "baseline_code": baseline_code,
-            "status": "Success",
-            "deltas": {}
-        }
-
-        if refactored_code is None:
-            entry["status"] = "Refactoring Failed"
-            entry["refactored_metrics"] = None
-            entry["baseline_metrics"] = None
-            entry["deltas"] = {
-                "complexity_delta": None,
-                "pylint_delta": None,
-                "maintainability_delta": None
-            }
-        else:
-            # Calculate metrics for refactored and baseline
-            from llm.quality import calculate_metrics
+            refactoring_status = "Success"
             
             try:
-                refactored_metrics = calculate_metrics(refactored_code)
-                entry["refactored_metrics"] = refactored_metrics
-            except Exception as e:
-                logger.error(f"Could not calculate metrics for refactored code: {e}")
-                refactored_metrics = None
-                entry["refactored_metrics"] = None
-
-            if baseline_code:
-                try:
-                    baseline_metrics = calculate_metrics(baseline_code)
-                    entry["baseline_metrics"] = baseline_metrics
-                except Exception as e:
-                    logger.error(f"Could not calculate metrics for baseline code: {e}")
-                    baseline_metrics = None
-                    entry["baseline_metrics"] = None
-            else:
-                baseline_metrics = None
-                entry["baseline_metrics"] = None
-
-            # Compute deltas
-            # Original metrics are in sample['metrics']
-            # We need to ensure keys match
-            orig_m = sample.get('metrics', {})
-            
-            if refactored_metrics and orig_m:
-                delta_complexity = refactored_metrics.get('cyclomatic_complexity', 0) - orig_m.get('cyclomatic_complexity', 0)
-                delta_pylint = refactored_metrics.get('pylint_score', 0) - orig_m.get('pylint_score', 0)
-                # Maintainability might be derived or missing in original sample, handle gracefully
-                delta_maintainability = refactored_metrics.get('maintainability_index', 0) - orig_m.get('maintainability_index', 0)
+                # refactor_batch expects list of dicts with 'code' key
+                batch_input = [{'code': function_code, 'hash': function_hash}]
+                refactored_results = refactor_batch(batch_input)
                 
-                entry["deltas"] = {
-                    "complexity_delta": delta_complexity,
-                    "pylint_delta": delta_pylint,
-                    "maintainability_delta": delta_maintainability
-                }
-            else:
-                entry["deltas"] = {
-                    "complexity_delta": None,
-                    "pylint_delta": None,
-                    "maintainability_delta": None
-                }
+                if refactored_results and len(refactored_results) > 0:
+                    refactored_code = refactored_results[0].get('refactored_code')
+                    if not refactored_code:
+                        refactoring_status = "Refactoring Failed"
+                        logger.warning(f"LLM returned empty refactored code for {function_hash}")
+                else:
+                    refactoring_status = "Refactoring Failed"
+                    logger.warning(f"Refactoring returned no results for {function_hash}")
+                    
+            except SyntaxError as e:
+                refactoring_status = "Refactoring Failed"
+                logger.error(f"Syntax error in LLM output for {function_hash}: {e}")
+            except Exception as e:
+                refactoring_status = "Refactoring Failed"
+                logger.error(f"Refactoring error for {function_hash}: {e}")
 
-        results.append(entry)
+            # Step 3: Calculate metrics
+            # Original metrics
+            original_metrics = calculate_metrics(function_code)
+            
+            # Baseline metrics
+            baseline_metrics = calculate_metrics(baseline_code)
+            
+            # Refactored metrics (if successful)
+            refactored_metrics = None
+            if refactored_code and refactoring_status == "Success":
+                try:
+                    refactored_metrics = calculate_metrics(refactored_code)
+                except Exception as e:
+                    logger.error(f"Error calculating metrics for refactored code {function_hash}: {e}")
+                    refactoring_status = "Refactoring Failed"
+                    refactored_metrics = None
+            else:
+                refactored_metrics = None
+
+            # Step 4: Compute deltas
+            deltas = None
+            if original_metrics and baseline_metrics:
+                deltas = compute_deltas(original_metrics, baseline_metrics, refactored_metrics)
+            else:
+                logger.warning(f"Cannot compute deltas for {function_hash} due to missing metrics")
+
+            result = {
+                'hash': function_hash,
+                'original_code': function_code,
+                'baseline_code': baseline_code,
+                'refactored_code': refactored_code,
+                'status': refactoring_status,
+                'original_metrics': original_metrics,
+                'baseline_metrics': baseline_metrics,
+                'refactored_metrics': refactored_metrics,
+                'deltas': deltas
+            }
+            results.append(result)
+
+        except Exception as e:
+            logger.exception(f"Unexpected error processing sample {i} (hash: {function_hash}): {e}")
+            results.append({
+                'hash': function_hash,
+                'status': 'Error',
+                'reason': str(e),
+                'original_metrics': None,
+                'refactored_metrics': None,
+                'baseline_metrics': None,
+                'deltas': None
+            })
+
+        # Progress logging
+        if processed % 10 == 0 or processed == total_samples:
+            logger.info(f"Progress: {processed}/{total_samples} samples processed")
 
     return results
 
-def save_results(results: List[Dict[str, Any]], output_path: str):
-    """Save the refactoring results to a JSON file."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+
+def save_results(results: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Save the refactoring results to JSON.
+
+    Args:
+        results: List of processing results.
+        output_path: Path to save the JSON file.
+    """
+    if not output_path.parent.exists():
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Saving results to {output_path}")
     
-    with open(path, 'w', encoding='utf-8') as f:
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2, default=str)
-    
+
     logger.info(f"Saved {len(results)} results to {output_path}")
 
-def main():
+
+def main() -> int:
     """
-    Main entry point for the refactoring pipeline (T022).
-    Loads processed raw metrics, runs refactoring and baseline generation,
-    and saves results to data/processed/refactoring_results.json.
+    Main entry point for the refactoring pipeline.
+
+    Returns:
+        0 on success, 1 on failure.
     """
+    start_time = time.time()
+    
     # Configuration
-    input_file = "data/processed/raw_metrics.json"
-    output_file = "data/processed/refactoring_results.json"
+    config = Config()
+    input_path = Path(config.DATA_DIR) / "processed" / "raw_metrics.json"
+    output_path = Path(config.DATA_DIR) / "processed" / "refactoring_results.json"
     
-    # Validate input exists
-    if not Path(input_file).exists():
-        logger.error(f"Input file not found: {input_file}. Please run T014 first.")
-        sys.exit(1)
+    logger.info("Starting LLM Refactoring Pipeline (T022)")
+    logger.info(f"Input: {input_path}")
+    logger.info(f"Output: {output_path}")
 
-    logger.info("Starting Refactoring Pipeline (T022)...")
-    
-    # Load data
-    samples = load_processed_data(input_file)
-    
-    if not samples:
-        logger.warning("No samples found in input file.")
-        sys.exit(0)
+    try:
+        # Step 1: Load data
+        samples = load_processed_data(input_path)
+        
+        if not samples:
+            logger.error("No samples found in input file. Halting.")
+            return 1
 
-    # Process
-    results = process_refactoring_batch(samples)
-    
-    # Validate results
-    success_count = sum(1 for r in results if r["status"] == "Success")
-    failed_count = sum(1 for r in results if r["status"] == "Refactoring Failed")
-    
-    logger.info(f"Pipeline complete. Success: {success_count}, Failed: {failed_count}")
-    
-    # Save
-    save_results(results, output_file)
-    
-    logger.info("Refactoring Pipeline finished successfully.")
+        # Step 2: Process refactoring batch
+        results = process_refactoring_batch(samples, batch_size=config.BATCH_SIZE)
+
+        # Step 3: Save results
+        save_results(results, output_path)
+
+        # Efficiency metrics
+        elapsed_time = time.time() - start_time
+        success_count = sum(1 for r in results if r.get('status') == 'Success')
+        failed_count = sum(1 for r in results if r.get('status') in ['Refactoring Failed', 'Error', 'Skipped'])
+
+        logger.info("=" * 50)
+        logger.info("Pipeline Execution Summary")
+        logger.info(f"Total samples: {len(results)}")
+        logger.info(f"Successful refactoring: {success_count}")
+        logger.info(f"Failed/Skipped: {failed_count}")
+        logger.info(f"Total execution time: {elapsed_time:.2f} seconds")
+        logger.info(f"Average time per sample: {elapsed_time / len(results):.2f} seconds")
+        logger.info("=" * 50)
+
+        return 0
+
+    except FileNotFoundError as e:
+        logger.error(f"Input file not found: {e}")
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in input file: {e}")
+        return 1
+    except Exception as e:
+        logger.exception(f"Pipeline failed with unexpected error: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

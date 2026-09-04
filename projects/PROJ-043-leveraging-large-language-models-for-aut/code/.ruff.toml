@@ -1,18 +1,18 @@
-# Ruff configuration file (redundant with pyproject.toml but explicitly requested by task T003)
-# This file ensures ruff picks up settings if run with `--config .ruff.toml`
-
-line-length = 88
-target-version = "py311"
-src = ["code"]
+# Ruff configuration for llmXive
+# Enforces rules E (pycodestyle errors), F (pyflakes), W (pycodestyle warnings), I (isort)
 
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), Warnings (`W`), and isort (`I`).
+# Enable specific rule sets
 select = ["E", "F", "W", "I"]
+
+# Ignore specific rules if necessary (add to this list as needed)
 ignore = []
 
+# Allow autofix for all enabled rules
 fixable = ["ALL"]
 unfixable = []
 
+# Exclude a few specific directories
 exclude = [
     ".bzr",
     ".direnv",
@@ -22,6 +22,7 @@ exclude = [
     ".mypy_cache",
     ".nox",
     ".pants.d",
+    ".pytype",
     ".ruff_cache",
     ".svn",
     ".tox",
@@ -33,13 +34,17 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
-    "data",
-    "paper",
 ]
 
+# Same as Black.
+line-length = 100
+target-version = "py311"
+
 [lint.per-file-ignores]
-"code/__init__.py" = ["F401"]
-"tests/__init__.py" = ["F401"]
+# Ignore specific rules for specific files if needed
+"__init__.py" = ["F401"]
 
 [lint.isort]
-known-first-party = ["config", "models", "utils", "data", "llm"]
+known-first-party = ["config", "data", "llm", "models", "utils"]
+force-sort-within-sections = false
+lines-after-imports = 2

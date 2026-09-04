@@ -1,115 +1,47 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: LLM Refactoring Output
-description: Output schema for the LLM Refactoring Pipeline results
-type: object
-properties:
-  metadata:
-    type: object
-    properties:
-      version:
-        type: string
-      generated_at:
-        type: string
-        format: date-time
-      source_dataset:
-        type: string
-      model_used:
-        type: string
-    required:
-      - version
-      - generated_at
-  config_snapshot:
-    type: object
-    properties:
-      hf_api_key_masked:
-        type: string
-      random_seed:
-        type: integer
-      max_attempts:
-        type: integer
-      min_valid_functions:
-        type: integer
-      batch_size:
-        type: integer
-      timestamp:
-        type: string
-    required:
-      - hf_api_key_masked
-      - random_seed
-      - max_attempts
-      - min_valid_functions
-      - batch_size
-  data:
-    type: array
-    items:
-      type: object
-      properties:
-        code:
-          type: string
-        metrics:
-          type: object
-        hash:
-          type: string
-        refactored_code:
-          type: string
-        baseline_code:
-          type: string
-        deltas:
-          type: object
-        status:
-          type: string
-      required:
-        - code
-        - metrics
-        - hash
-        - status
-  statistics:
-    type: object
-    properties:
-      paired_t_test:
-        type: object
-      one_sample_t_test:
-        type: object
-      baseline_delta_check:
-        type: boolean
-  models:
-    type: object
-    properties:
-      ols:
-        type: object
-      ridge:
-        type: object
-      glm:
-        type: object
-      cross_validation:
-        type: object
-  summary:
-    type: object
-    properties:
-      total_functions:
-        type: integer
-      valid_functions:
-        type: integer
-      refactored_count:
-        type: integer
-      failed_count:
-        type: integer
-      primary_test:
-        type: string
-      significant:
-        type: boolean
-      p_value:
-        type: number
-    required:
-      - total_functions
-      - valid_functions
-      - primary_test
-      - significant
-      - p_value
-required:
-  - metadata
-  - config_snapshot
-  - data
-  - statistics
-  - models
-  - summary
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw Metrics Output Schema"
+description: "Schema for the output of the static analysis pipeline (User Story 1)."
+type: array
+items:
+  type: object
+  required:
+    - code
+    - hash
+    - loc
+    - nesting_depth
+    - param_count
+    - pep8_violations
+    - maintainability_index
+    - docstring_present
+  properties:
+    code:
+      type: string
+      description: "The original Python function source code."
+    hash:
+      type: string
+      description: "SHA-256 hash of the code string for deduplication and caching."
+    loc:
+      type: integer
+      description: "Lines of Code."
+      minimum: 0
+    nesting_depth:
+      type: integer
+      description: "Maximum nesting depth of control structures."
+      minimum: 0
+    param_count:
+      type: integer
+      description: "Number of parameters in the function signature."
+      minimum: 0
+    pep8_violations:
+      type: integer
+      description: "Count of PEP-8 style violations."
+      minimum: 0
+    maintainability_index:
+      type: number
+      description: "Maintainability Index score (0-100)."
+      minimum: 0
+      maximum: 100
+    docstring_present:
+      type: boolean
+      description: "Whether the function has a docstring."
+  additionalProperties: false

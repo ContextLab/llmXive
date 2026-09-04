@@ -3,21 +3,20 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llm-refactoring-research"
+name = "llmXive-refactoring"
 version = "0.1.0"
-description = "Automated code refactoring using Large Language Models"
+description = "Leveraging Large Language Models for Automated Code Refactoring"
 requires-python = ">=3.11"
 dependencies = [
     "datasets>=2.14.0",
-    "pydantic>=2.0.0",
+    "pydantic>=1.10.0",
     "radon>=6.0.0",
     "pylint>=3.0.0",
-    "scikit-learn>=1.3.0",
     "statsmodels>=0.14.0",
+    "scipy>=1.11.0",
     "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "pyyaml>=6.0",
     "requests>=2.31.0",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -25,16 +24,16 @@ dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
     "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -46,49 +45,8 @@ exclude = '''
 )/
 '''
 
-[tool.ruff]
-# Same as Black.
-line-length = 88
-target-version = "py311"
-src = ["code"]
+[tool.setuptools]
+packages = ["code", "code.data", "code.llm", "code.models", "code.utils"]
 
-[tool.ruff.lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`).
-# W (pycodestyle warnings) is also enabled as per task requirements.
-select = ["E", "F", "W", "I"]
-ignore = []
-
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few specific files/directories if needed (project root relative).
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-[tool.ruff.lint.per-file-ignores]
-# Ignore specific rules in __init__.py if necessary (e.g., unused imports for exports)
-"code/__init__.py" = ["F401"]
-"tests/__init__.py" = ["F401"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["config", "models", "utils", "data", "llm"]
+[tool.setuptools.package-dir]
+"" = "code"

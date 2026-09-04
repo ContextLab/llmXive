@@ -6,6 +6,7 @@ Orchestrates the download of Python functions and the computation of static metr
 import json
 import logging
 import sys
+import time
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -14,11 +15,13 @@ from data.download import download_valid_functions
 from data.static_analysis import run_static_analysis_on_dataset
 from utils.logging import get_logger, DataFetchError
 from models.entities import FunctionSample
+from utils.schema_validation import validate_output
 
 logger = get_logger(__name__)
 
 # Configuration constants
 MIN_VALID_SAMPLES = 100
+WARNING_THRESHOLD = 200
 OUTPUT_FILE_PATH = "data/processed/raw_metrics.json"
 
 
@@ -32,7 +35,7 @@ def ensure_output_directory() -> Path:
 def validate_sample_count(samples: List[Dict[str, Any]], min_count: int) -> None:
     """
     Validates that the number of processed samples meets the minimum requirement.
-    Raises a ValueError if the count is insufficient.
+    Logs a warning if between min_count and WARNING_THRESHOLD, raises ValueError if below min_count.
     """
     count = len(samples)
     if count < min_count:
@@ -43,6 +46,13 @@ def validate_sample_count(samples: List[Dict[str, Any]], min_count: int) -> None
         )
         logger.error(error_msg)
         raise ValueError(error_msg)
+    
+    if min_count <= count < WARNING_THRESHOLD:
+        logger.warning(
+            f"Sample count ({count}) is between {min_count} and {WARNING_THRESHOLD}. "
+            "Proceeding with available data, but results may be limited."
+        )
+    
     logger.info(f"Validation passed: {count} valid samples meet the minimum requirement of {min_count}.")
 
 
@@ -61,9 +71,11 @@ def process_pipeline() -> List[Dict[str, Any]]:
     1. Downloads valid Python functions.
     2. Runs static analysis (metrics calculation).
     3. Filters out unparseable functions (handled internally by download/analysis).
-    4. Validates the count >= 100.
+    4. Validates the count >= 100 (warns if 100-199).
     5. Saves to data/processed/raw_metrics.json.
+    6. Validates output against schema.
     """
+    start_time = time.time()
     logger.info("Starting User Story 1 pipeline: Download and Static Analysis.")
 
     # Step 1: Download valid functions
@@ -110,7 +122,20 @@ def process_pipeline() -> List[Dict[str, Any]]:
     output_path = ensure_output_directory()
     save_processed_data(analyzed_samples, output_path)
 
-    logger.info("User Story 1 pipeline completed successfully.")
+    # Step 5: Schema Validation
+    logger.info("Validating output against schema...")
+    try:
+        validate_output(analyzed_samples, str(output_path))
+        logger.info("Output validation passed.")
+    except Exception as e:
+        logger.error(f"Output validation failed: {e}")
+        raise
+
+    elapsed_time = time.time() - start_time
+    logger.info(f"User Story 1 pipeline completed successfully in {elapsed_time:.2f} seconds.")
+    logger.info(f"Efficiency Metrics: {len(analyzed_samples)} samples processed in {elapsed_time:.2f}s "
+                f"({len(analyzed_samples)/elapsed_time:.2f} samples/sec).")
+    
     return analyzed_samples
 
 
