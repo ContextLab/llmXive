@@ -1,3 +1,3 @@
 """
-Unit tests for the Impact of Social Media Doomscrolling project.
+Unit and integration tests for the research pipeline.
 """

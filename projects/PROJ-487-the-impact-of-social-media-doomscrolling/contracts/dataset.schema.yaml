@@ -1,28 +1,20 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: TimeSeriesRecord
-description: Schema for raw and processed time-series data records.
+description: Schema for raw time-series data records (GDELT and Google Trends)
 type: object
-required:
-  - date
-  - value
 properties:
   date:
     type: string
-    description: ISO 8601 date string (YYYY-MM-DD).
+    description: Date in YYYY-MM-DD format
     pattern: "^\\d{4}-\\d{2}-\\d{2}$"
   value:
     type: number
-    description: The numeric value for the time series at this date.
+    description: Numeric value of the metric
   source:
     type: string
-    description: Source of the data (e.g., 'gdelt', 'google_trends').
-    enum:
-      - gdelt
-      - google_trends
-  metric:
-    type: string
-    description: The specific metric measured.
-    enum:
-      - event_count
-      - search_volume
+    description: Source of the data (e.g., 'GDELT', 'Google Trends')
+required:
+  - date
+  - value
+  - source
 additionalProperties: false

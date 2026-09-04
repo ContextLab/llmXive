@@ -1,3 +1,1 @@
-# Data Directory for Processed Data
-# This directory stores cleaned, aligned, and normalized time-series data.
-# Output files from preprocess.py will be stored here.
+# This file ensures the data/processed directory is tracked by version control.

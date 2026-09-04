@@ -1,14 +1,10 @@
-"""
-Tests for GDELT data fetching logic.
-Specifically tests retry logic on failure.
-"""
 import unittest
 import time
 from unittest.mock import patch, MagicMock, call, Mock
 import sys
 import os
 
-# Add project root to path for imports
+# Add parent directory to path for imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.logging import get_logger
@@ -16,74 +12,66 @@ from data.fetch_gdelt import fetch_with_retry
 
 logger = get_logger(__name__)
 
-
 class TestGDELTRetryLogic(unittest.TestCase):
-    """Test suite for GDELT retry mechanisms."""
+    """Unit tests for GDELT fetch retry logic."""
 
     @patch('data.fetch_gdelt.requests.get')
     def test_retry_logic_on_failure(self, mock_get):
         """
-        Verify the function retries exactly 3 times (mock.call_count == 3)
-        and returns the success response on the final attempt.
-
-        Scenario:
-        - Call 1: 500 Error
-        - Call 2: 500 Error
-        - Call 3: 200 Success
+        Test that the function retries exactly 3 times (1 initial + 2 retries)
+        when encountering 500 errors, and returns the success response on the 3rd attempt.
         """
-        # Setup mock responses
-        error_response = Mock()
-        error_response.status_code = 500
-        error_response.raise_for_status.side_effect = Exception("Server Error")
+        # Setup mock responses: 2 failures (500), then 1 success
+        mock_response_500 = Mock()
+        mock_response_500.status_code = 500
+        mock_response_500.raise_for_status.side_effect = Exception("500 Internal Server Error")
 
-        success_response = Mock()
-        success_response.status_code = 200
-        success_response.json.return_value = {"data": "success"}
+        mock_response_success = Mock()
+        mock_response_success.status_code = 200
+        mock_response_success.json.return_value = {"EventCount": 150, "date": "2023-01-01"}
+        mock_response_success.raise_for_status = Mock()  # No exception on success
 
-        # Configure the mock to return error, error, then success
-        mock_get.side_effect = [error_response, error_response, success_response]
+        # Configure the mock to return 500 twice, then success
+        mock_get.side_effect = [
+            mock_response_500,
+            mock_response_500,
+            mock_response_success
+        ]
 
-        # Call the function with a short backoff for testing speed
-        # We pass max_retries=3 explicitly to ensure we test exactly 3 attempts
-        result = fetch_with_retry(
-            url="http://example.com/gdelt",
-            max_retries=3,
-            backoff_factor=0.01  # Very short backoff for unit test speed
-        )
+        # Call the function
+        result = fetch_with_retry("http://fake-gdelt-api.com/query", max_retries=3)
 
-        # Assertion 1: Verify the function was called exactly 3 times
+        # Assert that requests.get was called exactly 3 times
         self.assertEqual(mock_get.call_count, 3)
 
-        # Assertion 2: Verify the returned result is the success response data
-        self.assertEqual(result, {"data": "success"})
+        # Assert the result is the success response data
+        self.assertEqual(result, {"EventCount": 150, "date": "2023-01-01"})
 
-        # Assertion 3: Verify the calls were made in sequence
-        # We don't need to check exact arguments for this specific task,
-        # but verifying the count is the primary requirement.
-        self.assertTrue(mock_get.called)
+        # Verify the call arguments (optional but good for completeness)
+        expected_calls = [
+            call("http://fake-gdelt-api.com/query"),
+            call("http://fake-gdelt-api.com/query"),
+            call("http://fake-gdelt-api.com/query")
+        ]
+        mock_get.assert_has_calls(expected_calls, any_order=False)
 
     @patch('data.fetch_gdelt.requests.get')
-    def test_retry_exhaustion_raises_exception(self, mock_get):
+    def test_retry_exhaustion_raises_error(self, mock_get):
         """
-        Verify that if all retries fail, the function raises an exception.
+        Test that the function raises an error after max_retries are exhausted.
         """
-        error_response = Mock()
-        error_response.status_code = 500
-        error_response.raise_for_status.side_effect = Exception("Server Error")
+        # Setup mock to always fail
+        mock_response_500 = Mock()
+        mock_response_500.status_code = 500
+        mock_response_500.raise_for_status.side_effect = Exception("500 Internal Server Error")
+        mock_get.return_value = mock_response_500
 
-        # Always fail
-        mock_get.side_effect = [error_response, error_response, error_response]
+        # Assert that calling with max_retries=3 raises an exception
+        with self.assertRaises(Exception):
+            fetch_with_retry("http://fake-gdelt-api.com/query", max_retries=3)
 
-        with self.assertRaises(Exception) as context:
-            fetch_with_retry(
-                url="http://example.com/gdelt",
-                max_retries=3,
-                backoff_factor=0.01
-            )
-
-        self.assertIn("Server Error", str(context.exception))
+        # Verify it was called 3 times (1 initial + 2 retries)
         self.assertEqual(mock_get.call_count, 3)
-
 
 if __name__ == '__main__':
     unittest.main()

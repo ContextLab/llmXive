@@ -1,7 +1,6 @@
 """
 Script to install project dependencies from requirements.txt.
-This script ensures all dependencies listed in code/requirements.txt are installed
-in the current Python environment.
+This script is the implementation of task T005b.
 """
 import os
 import sys
@@ -16,59 +15,76 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def install_dependencies():
+def install_dependencies(venv_path: Path, requirements_path: Path) -> bool:
     """
-    Install dependencies from code/requirements.txt.
-    
-    Raises:
-        SystemExit: If installation fails.
+    Install dependencies from requirements.txt into the virtual environment.
+
+    Args:
+        venv_path: Path to the virtual environment directory
+        requirements_path: Path to the requirements.txt file
+
+    Returns:
+        bool: True if installation was successful, False otherwise
     """
-    # Determine the project root (parent of 'code' directory)
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-    requirements_path = code_dir / "requirements.txt"
+    if not venv_path.exists():
+        logger.error(f"Virtual environment not found at: {venv_path}")
+        return False
 
     if not requirements_path.exists():
         logger.error(f"Requirements file not found at: {requirements_path}")
-        sys.exit(1)
+        return False
 
-    logger.info(f"Installing dependencies from: {requirements_path}")
+    # Determine the pip executable path based on OS
+    if sys.platform == 'win32':
+        pip_path = venv_path / 'Scripts' / 'pip.exe'
+    else:
+        pip_path = venv_path / 'bin' / 'pip'
+
+    if not pip_path.exists():
+        logger.error(f"pip executable not found at: {pip_path}")
+        return False
+
+    logger.info(f"Installing dependencies from {requirements_path}...")
+    logger.info(f"Using pip at: {pip_path}")
 
     try:
-        # Use pip from the current interpreter to ensure we install into the right env
         result = subprocess.run(
-            [sys.executable, "-m", "pip", "install", "-r", str(requirements_path), "--upgrade"],
+            [str(pip_path), 'install', '-r', str(requirements_path)],
             check=True,
-            capture_output=True,
+            capture_output=False,
             text=True
         )
-        
-        logger.info("Installation output:")
-        if result.stdout:
-            for line in result.stdout.splitlines():
-                logger.info(line)
-        
-        if result.stderr:
-            for line in result.stderr.splitlines():
-                logger.warning(line)
-
         logger.info("Dependencies installed successfully.")
-        
+        return True
     except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to install dependencies. Exit code: {e.returncode}")
-        if e.stdout:
-            logger.error(e.stdout)
-        if e.stderr:
-            logger.error(e.stderr)
-        sys.exit(1)
+        logger.error(f"Failed to install dependencies: {e}")
+        logger.error(f"Return code: {e.returncode}")
+        return False
     except Exception as e:
-        logger.error(f"Unexpected error during installation: {e}")
-        sys.exit(1)
+        logger.error(f"Unexpected error during dependency installation: {e}")
+        return False
 
 def main():
-    """Entry point for the script."""
-    install_dependencies()
+    """Main entry point for the dependency installation script."""
+    # Determine project root based on script location
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
 
-if __name__ == "__main__":
+    venv_path = project_root / 'venv'
+    requirements_path = project_root / 'code' / 'requirements.txt'
+
+    logger.info(f"Project root: {project_root}")
+    logger.info(f"Virtual environment path: {venv_path}")
+    logger.info(f"Requirements file path: {requirements_path}")
+
+    success = install_dependencies(venv_path, requirements_path)
+
+    if success:
+        logger.info("Task T005b completed successfully.")
+        sys.exit(0)
+    else:
+        logger.error("Task T005b failed.")
+        sys.exit(1)
+
+if __name__ == '__main__':
     main()

@@ -11,4 +11,3 @@ reportlab
 pytest
 responses
 python-dotenv
-jsonschema

@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a CPU-tractable time-series analysis pipeline to investigate the relationship between aggregate negative news publication volume (proxied via GDELT EventCount) and population-level anticipatory anxiety (proxied via Google Trends search volume). The system fetches raw daily data, aligns timestamps, handles missing data via forward fill, and performs stationarity/cointegration testing. If cointegrated, an Error Correction Model (ECM) is used; otherwise, differencing is applied. The system then performs correlation and Granger causality tests using AIC/BIC for lag selection and Joint F-tests, avoiding Bonferroni correction. The analysis adheres to strict reproducibility and data hygiene standards defined in the project constitution, ensuring all results are reproducible on a free-tier GitHub Actions runner (CPU, ~7 GB RAM).
+This feature implements a CPU-tractable time-series analysis pipeline to investigate the relationship between aggregate negative news publication volume (proxied via GDELT EventCount) and population-level anticipatory anxiety (proxied via Google Trends search volume). The system fetches raw daily data, aligns timestamps, handles missing data via forward fill, and performs stationarity/cointegration testing. If cointegrated, an Error Correction Model (ECM) is used; otherwise, differencing is applied. The system then performs correlation and Granger causality tests using AIC/BIC for lag selection and Joint F-tests, avoiding Bonferroni correction. The analysis adheres to strict reproducibility and data hygiene standards defined in the project constitution, ensuring all results are reproducible on a free-tier GitHub Actions runner with standard CPU and memory constraints.
 
 ## Technical Context
 

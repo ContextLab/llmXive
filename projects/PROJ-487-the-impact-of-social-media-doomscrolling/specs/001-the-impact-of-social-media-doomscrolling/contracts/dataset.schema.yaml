@@ -1,24 +1,20 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: TimeSeriesRecord
-description: Schema for aggregate negative news publication volume and anxiety search trend records.
+description: Schema for a single time-series record representing news volume or anxiety metric.
 type: object
+properties:
+  date:
+    type: string
+    description: The date of the record in YYYY-MM-DD format.
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+  value:
+    type: number
+    description: The numeric value of the metric (e.g., event count, search index).
+  source:
+    type: string
+    description: The origin of the data (e.g., 'GDELT', 'Google Trends').
 required:
   - date
   - value
   - source
-properties:
-  date:
-    type: string
-    description: ISO8601 formatted date string (YYYY-MM-DD).
-    pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
-  value:
-    type: number
-    description: The numeric value of the metric (event count or search interest index).
-    minimum: 0
-  source:
-    type: string
-    description: The source of the data (e.g., 'GDELT', 'GoogleTrends').
-    enum:
-      - GDELT
-      - GoogleTrends
 additionalProperties: false

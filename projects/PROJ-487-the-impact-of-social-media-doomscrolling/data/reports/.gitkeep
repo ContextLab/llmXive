@@ -1,3 +1,1 @@
-# Data Directory for Reports and Figures
-# This directory stores generated PDF reports, CSV summaries, and visualization images.
-# Output files from analyze.py will be stored here.
+# This file ensures the data/reports directory is tracked by version control.

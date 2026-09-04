@@ -1,38 +1,30 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AnalysisResult
-description: Schema for statistical analysis results (Granger causality, correlation).
-type: object
-required:
-  - metric
-  - coefficient
-  - p_value
-  - lag
-  - significance_flag
-  - stationarity_status
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the output of the statistical analysis pipeline, representing a single metric result."
+type: "object"
 properties:
   metric:
-    type: string
-    description: The name of the metric being analyzed (e.g., 'GrangerCausality', 'PearsonCorrelation').
+    type: "string"
+    description: "Name of the metric being reported (e.g., 'pearson_correlation', 'granger_causality')."
   coefficient:
-    type: number
-    description: The calculated coefficient (e.g., F-statistic, correlation coefficient).
+    type: "number"
+    description: "The calculated coefficient value (e.g., r, F-statistic converted, or standardized coefficient)."
   p_value:
-    type: number
-    description: The p-value associated with the test statistic.
-    minimum: 0
-    maximum: 1
+    type: "number"
+    description: "The p-value associated with the test statistic."
   lag:
-    type: integer
-    description: The lag order used for the test.
-    minimum: 1
+    type: "integer"
+    description: "The time lag used for the analysis (e.g., 1, 2, 7, 14 days). For non-lagged metrics, this may be 0."
   significance_flag:
-    type: boolean
-    description: True if the result is statistically significant (p < alpha), False otherwise.
+    type: "boolean"
+    description: "True if the result is statistically significant (e.g., p_value < threshold after correction), False otherwise."
   stationarity_status:
-    type: string
-    description: The stationarity status of the underlying series used for this result.
-    enum:
-      - stationary
-      - non-stationary
-      - differenced
-additionalProperties: false
+    type: "string"
+    description: "Status of the stationarity check for the data used in this analysis. Allowed values: 'stationary', 'non-stationary', 'unknown'."
+required:
+  - "metric"
+  - "coefficient"
+  - "p_value"
+  - "lag"
+  - "significance_flag"
+  - "stationarity_status"
