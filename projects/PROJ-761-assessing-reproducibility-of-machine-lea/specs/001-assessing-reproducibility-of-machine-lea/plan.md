@@ -88,7 +88,7 @@ projects/PROJ-761-assessing-reproducibility-of-machine-lea/
 | Covariate Extraction & Missing Data Handling | Spec FR-003 requires verifying the dataset contains necessary covariates (temperature, solvent, etc.). | Ignoring missing covariates (removing T020-T022) would violate the spec's requirement to flag studies that cannot be fully reproduced due to data gaps, leading to "silent failures". |
 | Seed Sweep (seeds) | Spec FR-010 requires reporting maximum metric variance across seeds to assess stability. | A single-run approach cannot quantify the sensitivity of the model to random initialization, which is a core aspect of reproducibility. |
 | Heterogeneity (I²) & Qualitative Log | Required for the meta-analysis and guideline synthesis (Phase 3). | Omitting these prevents the calculation of pooled effect sizes and the generation of evidence-based guidelines (T030, T034). |
-| Timeout Protection | The A time limit per paper on 2 vCPU may not suffice for 3 seeds. | Skipping the sweep for a paper (recording 'sweep_incomplete') is better than failing the entire pipeline, ensuring partial progress is recorded. |
+| Timeout Protection | The A time limit per paper on a limited vCPU allocation may not suffice for 3 seeds. | Skipping the sweep for a paper (recording 'sweep_incomplete') is better than failing the entire pipeline, ensuring partial progress is recorded. |
 
 ## Implementation Phases
 

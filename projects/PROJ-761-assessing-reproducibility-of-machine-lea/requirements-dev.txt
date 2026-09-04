@@ -1,0 +1,4 @@
+# Development dependencies for linting and formatting
+ruff==0.4.0
+black==24.4.0
+pytest==8.1.0

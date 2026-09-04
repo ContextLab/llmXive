@@ -1,23 +1,34 @@
-T006:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `contracts/` directory or JSON Schema files for `PaperManifest`, `ReproResult`,
-    or `StatSummary` are present in the provided evidence; the implementer has not
-    supplied the required artifacts.
-T013:
+  r: "No evidence of the required directory tree (e.g., `data/raw`, `code`, `artifacts/logs`,\
+    \ etc.) is provided; the implementer did not supply any file\u2011system listing,\
+    \ script output, or screenshot confirming that the `mkdir -p \u2026` command was\
+    \ run. The task therefore lacks the mandatory artifact."
+T003:
   c: false
-  h: 0ec15616a2750a999f343aa272171d6c18656e92d006e92721dfd6cee24a67f8
-  r: "The repository lacks the required `artifacts/reports/repro_results.json` output\
-    \ file, and the provided `code/model_runner.py` is incomplete (truncated at `encode_smiles`\
-    \ with a syntax error) and does not show the model\u2011substitution logic or\
-    \ logging of \u201CModel Substitution\u201D. Consequently the task\u2019s core\
-    \ requirements are not met."
-T020:
+  h: 23bf389df195166bba9b909396c996c56169a061585ec266a8dbca9e700c6b6e
+  r: The required schema file `contracts/PaperManifest.schema.yaml` is absent, and
+    the provided `code/ingest.py` snippet does not show any actual validation against
+    a schema (the code is truncated and only warns if `jsonschema` is missing). Without
+    the schema and a working validator, the manifest cannot be validated as the task
+    demands.
+T003b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `contracts/ReproResult.json` file (or its updated contents) was provided;
-    without the schema file we cannot confirm that the three new fields were added
-    with the correct types and nullability. The required artifact is missing.
+  r: "No linting/formatting configuration files or command\u2011line output are present,\
+    \ and there is no evidence that `ruff check .` and `black --check .` were executed\
+    \ with a zero exit code. The required artifacts to prove the task\u2019s success\
+    \ are missing."
+T018:
+  c: false
+  h: c131140011a504482334654d71cc7ef41de5d6e227fdf51a4ff44362d5d7755a
+  r: "The repository contains `code/main.py`, but the script does not include code\
+    \ that writes the aggregated list to `artifacts/reports/repro_results.json`, nor\
+    \ does it ensure the required fields (e.g., `max_metric_std`) are present. Moreover,\
+    \ the expected output file `reports/repro_results.json` is absent. The task\u2019\
+    s core deliverable\u2014producing the aggregated JSON report\u2014is therefore\
+    \ missing."
 T029:
   c: false
   h: 6a9b43d689649368ff7720c6addaae481ed31386720629d634248b3657ac5bb4
@@ -26,13 +37,13 @@ T029:
     \ (I\xB2) or a pooled effect size from mixed\u2011effects model results nor does\
     \ it write those results to the specified JSON file. The script is truncated and\
     \ focuses on paired t\u2011tests instead of the requested meta\u2011analysis output."
-T030:
+T030b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or output files were presented that implement a qualitative\
-    \ failure log for excluded papers or that flag these exclusions in the results\
-    \ log. Without any artifact showing the required logic or logs, the task\u2019\
-    s requirement is not satisfied."
+  r: "No `artifacts/logs/failure_log.json` file was presented, and there is no evidence\
+    \ that such a JSON file exists or contains objects with the required keys (`paper_doi`,\
+    \ `failure_mode`, `details`). The implementer must create the file at the specified\
+    \ path and populate it with the correctly\u2011structured data."
 T034:
   c: false
   h: db2c9badb2669bbcdd9bc0e3d9eb6732359d038e160a2a2026f4935eecffbf9b

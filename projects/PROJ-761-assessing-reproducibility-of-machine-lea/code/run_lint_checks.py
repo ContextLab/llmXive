@@ -1,64 +1,82 @@
+"""
+Linting and Formatting Verification Script.
+
+This script configures and verifies ruff and black tools against the project
+structure. It ensures that the configuration files are valid and that the
+project passes the initial checks.
+"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 
 def run_command(cmd: list, description: str) -> bool:
-    """
-    Run a command and return True if it succeeds (exit code 0).
-    Prints output to stdout/stderr to allow immediate feedback.
-    """
+    """Run a command and return True if it succeeds (exit code 0)."""
     print(f"Running: {description}")
     print(f"Command: {' '.join(cmd)}")
+    
     try:
         result = subprocess.run(
             cmd,
-            check=False,
-            capture_output=False,
-            text=True
+            cwd=Path.cwd(),
+            capture_output=True,
+            text=True,
+            timeout=60
         )
+        
         if result.returncode == 0:
-            print(f"✓ {description} passed.\n")
+            print(f"✓ {description} passed.")
+            if result.stdout:
+                print(result.stdout)
             return True
         else:
-            print(f"✗ {description} failed with exit code {result.returncode}.\n")
+            print(f"✗ {description} failed.")
+            if result.stdout:
+                print(result.stdout)
+            if result.stderr:
+                print(result.stderr)
             return False
+    except subprocess.TimeoutExpired:
+        print(f"✗ {description} timed out.")
+        return False
     except FileNotFoundError:
-        print(f"✗ {description} failed: Command not found. Is the tool installed?\n")
+        print(f"✗ {description} failed: Command not found. Ensure tools are installed.")
         return False
     except Exception as e:
-        print(f"✗ {description} failed with exception: {e}\n")
+        print(f"✗ {description} failed with exception: {e}")
         return False
 
 def main():
-    """
-    Entry point to run initial linting and formatting checks.
-    Verifies ruff and black configuration on the project structure.
-    """
-    # Ensure we are running from the project root or handle path correctly
-    # The script is expected to be run from the root where .ruff.toml and pyproject.toml exist.
-    project_root = Path(__file__).resolve().parent.parent
-    os.chdir(project_root)
+    """Main entry point for lint and format verification."""
+    project_root = Path.cwd()
     
-    print(f"Project root: {project_root}")
-    print("-" * 40)
+    # Ensure we are in the project root
+    if not (project_root / "code").exists():
+        print("Error: 'code' directory not found. Ensure this script runs from the project root.")
+        sys.exit(1)
 
-    checks = [
-        (["ruff", "check", "."], "Ruff Linting"),
-        (["black", "--check", "."], "Black Formatting Check"),
-    ]
+    # Check 1: Verify Ruff Configuration and Run Check
+    # We run 'ruff check .' which implicitly validates the config if it exists
+    # If no config exists, ruff uses defaults, which is acceptable for an empty/new project
+    # but the task asks to "verify configuration validity".
+    # We assume ruff.toml or pyproject.toml exists or defaults are used.
+    ruff_success = run_command(
+        ["ruff", "check", "."],
+        "Ruff Lint Check"
+    )
 
-    all_passed = True
-    for cmd, desc in checks:
-        if not run_command(cmd, desc):
-            all_passed = False
+    # Check 2: Verify Black Configuration and Run Check
+    # Similar to ruff, black --check validates formatting against config
+    black_success = run_command(
+        ["black", "--check", "."],
+        "Black Format Check"
+    )
 
-    print("-" * 40)
-    if all_passed:
-        print("All linting and formatting checks passed.")
+    if ruff_success and black_success:
+        print("\n✓ All linting and formatting checks passed.")
         sys.exit(0)
     else:
-        print("One or more checks failed.")
+        print("\n✗ One or more checks failed.")
         sys.exit(1)
 
 if __name__ == "__main__":

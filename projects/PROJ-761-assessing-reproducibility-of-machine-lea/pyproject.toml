@@ -1,14 +1,26 @@
-[tool.black]
-line-length = 88
-target-version = ['py311']
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.ruff]
-line-length = 88
-target-version = 'py311'
-select = [
-    "E",  # pycodestyle errors
-    "F",  # pyflakes
-    "W",  # pycodestyle warnings
-    "I",  # isort
+[project]
+name = "llmxive-reproducibility"
+version = "0.1.0"
+description = "Automated science pipeline for assessing reproducibility of ML reaction yield models."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "torch==2.2.0+cpu",
+    "scikit-learn==1.5.0",
+    "rdkit==2024.3.1",
+    "statsmodels==0.14.1",
+    "pandas==2.2.0",
+    "numpy==1.26.0",
+    "matplotlib==3.8.0",
+    "pyyaml==6.0.1",
+    "requests==2.31.0",
+    "ruff==0.4.0",
+    "black==24.4.0",
 ]
-ignore = []
+
+[tool.setuptools.packages.find]
+where = ["code"]

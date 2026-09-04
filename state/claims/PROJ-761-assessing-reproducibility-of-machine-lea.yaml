@@ -1082,3 +1082,249 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T11:50:29Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: PyTorch version 2.2.0+cpu
+  claim_id: c_46b56705
+  context: 'Initialize Python 3.11 project with requirements.txt containing exact
+    pinned versions: torch==2.2.0+cpu'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.2.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:38:04Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.5.0
+  claim_id: c_05f7d836
+  context: 'Initialize Python 3.11 project with requirements.txt containing exact
+    pinned versions: scikit-learn==1.5.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:38:25Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: RDKit version 2024.3.1
+  claim_id: c_87e27aef
+  context: 'Initialize Python 3.11 project with requirements.txt containing exact
+    pinned versions: rdkit==2024.3.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: rdkit==2024.3.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:38:52Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_b061675e
+  context: 'Initialize Python 3.11 project with requirements.txt containing exact
+    pinned versions: statsmodels==0.14.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:39:14Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_553001cc
+  context: 'Initialize Python 3.11 project with requirements.txt containing exact
+    pinned versions: pandas==2.2.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:39:54Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_7946a3e5
+  context: 'Initialize Python 3.11 project with requirements.txt containing exact
+    pinned versions: numpy==1.26.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:40:14Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.0
+  claim_id: c_c5471ba5
+  context: 'Initialize Python 3.11 project with requirements.txt containing exact
+    pinned versions: matplotlib==3.8.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:40:33Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: PyYAML version 6.0.1
+  claim_id: c_c6e28af6
+  context: 'Initialize Python 3.11 project with requirements.txt containing exact
+    pinned versions: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:40:47Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_59ec8091
+  context: 'Initialize Python 3.11 project with requirements.txt containing exact
+    pinned versions: requests==2.31.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests==2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:41:09Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_5e0ff997
+  context: Create Dockerfile with Python 3.11, CPU-only PyTorch 2.2, scikit-learn
+    1.5, RDKit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:41:26Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Random Forest baseline with 100 estimators
+  claim_id: c_77a1b699
+  context: Substitute models exceeding a moderate parameter scale with a Random Forest
+    baseline (n_estimators=100, max_depth=5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:41:51Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Random Forest baseline with max depth 5
+  claim_id: c_b487793c
+  context: Substitute models exceeding a moderate parameter scale with a Random Forest
+    baseline (n_estimators=100, max_depth=5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_depth=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:42:33Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Model parameter scale exceeding 1 million
+  claim_id: c_fe6d70e0
+  context: Verify log contains Model Substitution for any paper with >1M parameters
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '>1M parameters'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:42:33Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis seeds 42, 123, and 999
+  claim_id: c_57594f6b
+  context: Implement sensitivity analysis to sweep seeds {42, 123, 999}, compute metric_variance
+    for each metric
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seeds {42, 123, 999}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T11:43:22Z'
+- artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/specs/001-assessing-reproducibility-of-machine-lea/tasks.md
+  attempts: 1
+  canonical: Checklist contains at least 5 numbered items
+  claim_id: c_8118687f
+  context: "Generate artifacts/reports/reproducibility_checklist.md with \u22655 numbered\
+    \ items, each citing a published guideline"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: (6005570).......................................... ................................................................4
+      source_id: '1404.6764'
+      url: https://arxiv.org/abs/1404.6764
+      value: '6'
+    filled: true
+  kind: magnitude
+  raw_text: "\u22655 numbered items"
+  resolved_value: '6'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T11:44:38Z'

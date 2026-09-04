@@ -1,15 +1,16 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: StatSummary
-description: Schema for the aggregated statistical summary of reproducibility across studies.
+description: "Schema for the aggregated statistical summary of reproducibility across papers."
 type: object
 required:
   - t_test_results
-  - mixed_effects_results
+  - lme_results
   - heterogeneity
+  - bland_altman_files
 properties:
   t_test_results:
     type: object
-    description: Results of paired t-tests for each metric.
+    description: "Results of paired t-tests for each metric."
     properties:
       mae:
         type: object
@@ -18,7 +19,7 @@ properties:
             type: number
           pvalue:
             type: number
-          pvalue_corrected:
+          corrected_pvalue:
             type: number
       r2:
         type: object
@@ -27,7 +28,7 @@ properties:
             type: number
           pvalue:
             type: number
-          pvalue_corrected:
+          corrected_pvalue:
             type: number
       rho:
         type: object
@@ -36,96 +37,84 @@ properties:
             type: number
           pvalue:
             type: number
-          pvalue_corrected:
+          corrected_pvalue:
             type: number
-  tost_results:
+  lme_results:
     type: object
-    description: Results of Two One-Sided Tests for equivalence.
+    description: "Results of the Linear Mixed-Effects Model."
     properties:
-      mae:
+      fixed_effects:
         type: object
-        properties:
-          pvalue_lower:
-            type: number
-          pvalue_upper:
-            type: number
-          equivalent:
-            type: boolean
-      r2:
-        type: object
-        properties:
-          pvalue_lower:
-            type: number
-          pvalue_upper:
-            type: number
-          equivalent:
-            type: boolean
-      rho:
-        type: object
-        properties:
-          pvalue_lower:
-            type: number
-          pvalue_upper:
-            type: number
-          equivalent:
-            type: boolean
-  mixed_effects_results:
-    type: object
-    description: Results of the Linear Mixed-Effects Model.
-    properties:
-      fixed_effects_variance_explained:
-        type: number
-        description: R-squared of fixed effects.
-      random_effects_variance:
-        type: number
-        description: Variance of random intercepts.
-      residual_variance:
-        type: number
-        description: Residual variance.
-      fixed_effects_summary:
-        type: array
-        items:
+        description: "Fixed effects estimates and statistics."
+        additionalProperties:
           type: object
           properties:
-            term:
-              type: string
             estimate:
               type: number
-            std_err:
+            std_error:
               type: number
             t_value:
               type: number
             p_value:
               type: number
+      random_effects:
+        type: object
+        description: "Random effects variance components."
+        properties:
+          paper_variance:
+            type: number
+          residual_variance:
+            type: number
+      variance_explained_original_factors:
+        type: number
+        description: "R-squared of fixed effects (variance explained by original factors)."
+        nullable: true
+      fallback_used:
+        type: boolean
+        description: "True if a fallback model (random intercept only) was used."
+        default: false
   heterogeneity:
     type: object
-    description: Heterogeneity statistics.
+    description: "Heterogeneity metrics (I², pooled effect size)."
     properties:
       I2:
         type: number
-        description: I-squared statistic.
+        description: "I-squared statistic."
       pooled_effect_size:
         type: number
-        description: Pooled effect size (mean absolute deviation).
+        description: "Pooled effect size (e.g., mean absolute deviation)."
       confidence_interval:
         type: array
         items:
           type: number
-        description: 95% confidence interval [lower, upper].
-  bland_altman_plots:
+        minItems: 2
+        maxItems: 2
+        description: "95% Confidence interval [lower, upper]."
+  bland_altman_files:
     type: array
-    description: List of generated Bland-Altman plot filenames.
     items:
       type: string
+    description: "List of generated Bland-Altman plot filenames."
   failure_log_summary:
-    type: array
-    description: Summary of failures from the failure log.
-    items:
-      type: object
-      properties:
-        paper_doi:
-          type: string
-        failure_mode:
-          type: string
-        details:
-          type: string
+    type: object
+    description: "Summary of failure modes from the failure log."
+    properties:
+      total_papers:
+        type: integer
+      excluded_papers:
+        type: integer
+      failure_modes:
+        type: object
+        additionalProperties:
+          type: integer
+  generated_at:
+    type: string
+    format: date-time
+    description: "Timestamp of summary generation."
+  python_version:
+    type: string
+    description: "Python version used for generation."
+  environment_hash:
+    type: string
+    description: "Hash of the environment (Docker image or similar)."
+    nullable: true

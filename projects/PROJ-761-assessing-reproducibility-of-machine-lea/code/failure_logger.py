@@ -12,210 +12,148 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Define the failure reason enum-like class
+# Define failure reason types as a simple class/named tuple equivalent
 class FailureReason:
-    MODEL_SUBSTITUTION = "Model Substitution/Unavailable"
-    DATA_GAP = "Data Unavailable"
-    MISSING_SEED = "Missing Random Seed"
-    PARAMETER_LIMIT_EXCEEDED = "Parameter Limit Exceeded (>1M)"
-    MANIFEST_VALIDATION_ERROR = "Manifest Validation Error"
-    DATASET_FETCH_ERROR = "Dataset Fetch Error"
-    VARIABLE_MISMATCH = "Variable Mismatch"
-    UNKNOWN = "Unknown Failure"
+    """Enum-like class for failure modes."""
+    MODEL_SUBSTITUTION = "model_substitution"
+    DATA_UNAVAILABLE = "data_unavailable"
+    COVARIATE_MISSING = "covariate_missing"
+    MISSING_SEED = "missing_seed"
+    VALIDATION_FAILED = "validation_failed"
+    OTHER = "other"
 
-# File paths
-FAILURE_LOG_PATH = Path("artifacts/logs/failure_log.json")
-FAILURE_SUMMARY_PATH = Path("artifacts/logs/failure_summary.json")
-FAILURE_REPORT_PATH = Path("artifacts/reports/failure_report.md")
-
-def load_existing_failure_log() -> List[Dict[str, Any]]:
-    """Load existing failure log from disk if it exists."""
-    if FAILURE_LOG_PATH.exists():
-        try:
-            with open(FAILURE_LOG_PATH, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Failed to load existing failure log: {e}. Starting fresh.")
-            return []
-    return []
+def load_existing_failure_log(log_path: str = "artifacts/logs/failure_log.json") -> List[Dict[str, Any]]:
+    """
+    Loads an existing failure log if it exists, otherwise returns an empty list.
+    """
+    path = Path(log_path)
+    if not path.exists():
+        logger.info(f"No existing failure log found at {log_path}. Starting fresh.")
+        return []
+    
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if not isinstance(data, list):
+                logger.warning("Existing failure log is not a list. Resetting.")
+                return []
+            return data
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Failed to load existing failure log: {e}")
+        return []
 
 def record_failure(
-    paper_id: str,
-    reason: str,
-    details: Optional[str] = None,
-    source_file: Optional[str] = None
-) -> Dict[str, Any]:
+    log_entries: List[Dict[str, Any]],
+    paper_doi: str,
+    failure_mode: str,
+    details: str
+) -> None:
     """
-    Record a failure event for a specific paper.
-    
-    Args:
-        paper_id: Unique identifier for the paper (e.g., DOI or repo ID)
-        reason: The FailureReason constant describing the failure type
-        details: Additional context about the failure
-        source_file: The file or module where the failure originated
-        
-    Returns:
-        The recorded failure entry
+    Appends a failure record to the in-memory list.
     """
     entry = {
-        "paper_id": paper_id,
-        "reason": reason,
-        "details": details or "",
-        "source_file": source_file or "unknown",
+        "paper_doi": paper_doi,
+        "failure_mode": failure_mode,
+        "details": details,
         "timestamp": datetime.now().isoformat()
     }
-    
-    # Load existing log, append, and save
-    log = load_existing_failure_log()
-    log.append(entry)
-    
-    # Ensure directory exists
-    FAILURE_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(FAILURE_LOG_PATH, 'w', encoding='utf-8') as f:
-        json.dump(log, f, indent=2)
-        
-    logger.info(f"Recorded failure for paper {paper_id}: {reason}")
-    return entry
+    log_entries.append(entry)
+    logger.info(f"Recorded failure for {paper_doi}: {failure_mode}")
 
-def compile_failure_summary() -> Dict[str, Any]:
+def compile_failure_summary(
+    repro_results_path: str = "artifacts/reports/repro_results.json"
+) -> List[Dict[str, Any]]:
     """
-    Compile a summary of all recorded failures.
-    
-    Returns:
-        A dictionary containing counts by reason, list of affected papers,
-        and total failure count.
+    Reads the aggregated repro_results.json and compiles a failure log
+    based on flags and null values found in the results.
     """
-    log = load_existing_failure_log()
+    log_entries: List[Dict[str, Any]] = []
+    path = Path(repro_results_path)
     
-    if not log:
-        return {
-            "total_failures": 0,
-            "by_reason": {},
-            "affected_papers": [],
-            "generated_at": datetime.now().isoformat()
-        }
-    
-    # Count by reason
-    reason_counts = {}
-    affected_papers = set()
-    
-    for entry in log:
-        reason = entry.get("reason", FailureReason.UNKNOWN)
-        reason_counts[reason] = reason_counts.get(reason, 0) + 1
-        affected_papers.add(entry.get("paper_id"))
-    
-    summary = {
-        "total_failures": len(log),
-        "by_reason": reason_counts,
-        "affected_papers": sorted(list(affected_papers)),
-        "generated_at": datetime.now().isoformat()
-    }
-    
-    # Save summary
-    FAILURE_SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(FAILURE_SUMMARY_PATH, 'w', encoding='utf-8') as f:
-        json.dump(summary, f, indent=2)
-        
-    logger.info(f"Compiled failure summary: {summary['total_failures']} failures")
-    return summary
+    if not path.exists():
+        logger.warning(f"Repro results file not found at {repro_results_path}. Cannot compile failure log.")
+        return log_entries
 
-def write_failure_report() -> str:
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            results = json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Failed to read repro results: {e}")
+        return log_entries
+
+    if not isinstance(results, list):
+        logger.error("Repro results file does not contain a list of results.")
+        return log_entries
+
+    for entry in results:
+        doi = entry.get("doi", "unknown")
+        flags = entry.get("flags", [])
+        mae = entry.get("mae")
+        r2 = entry.get("r2")
+        
+        # Check for specific failure modes based on flags and missing data
+        if "model_substitution" in flags:
+            record_failure(
+                log_entries, doi, FailureReason.MODEL_SUBSTITUTION,
+                "Model exceeded parameter limit (>1M) and was substituted with Random Forest baseline."
+            )
+        
+        if "covariate_missing" in flags:
+            record_failure(
+                log_entries, doi, FailureReason.COVARIATE_MISSING,
+                "Required experimental covariates (temp, solvent, etc.) were missing from source data."
+            )
+
+        if "data_unavailable" in flags:
+            record_failure(
+                log_entries, doi, FailureReason.DATA_UNAVAILABLE,
+                "Dataset variables (SMILES, yield) could not be verified or loaded."
+            )
+
+        if "missing_seed" in flags:
+            record_failure(
+                log_entries, doi, FailureReason.MISSING_SEED,
+                "Random seed was not reported in the source paper; default seed 42 was used."
+            )
+
+        # Check for null metrics that imply failure to reproduce
+        if mae is None and "model_substitution" not in flags and "data_unavailable" not in flags:
+            # If MAE is null but no specific flag, it might be a generic failure
+            record_failure(
+                log_entries, doi, FailureReason.OTHER,
+                "Reproduction failed resulting in null MAE (generic failure)."
+            )
+
+    return log_entries
+
+def write_failure_report(
+    log_entries: List[Dict[str, Any]],
+    output_path: str = "artifacts/logs/failure_log.json"
+) -> None:
     """
-    Generate a human-readable Markdown report of failures.
-    
-    Returns:
-        Path to the generated report file
+    Writes the compiled failure log to the specified JSON file.
     """
-    summary = compile_failure_summary()
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    if summary["total_failures"] == 0:
-        report_content = "# Failure Report\n\nNo failures recorded.\n"
-    else:
-        report_lines = [
-            "# Qualitative Failure Report",
-            "",
-            f"**Generated**: {summary['generated_at']}",
-            f"**Total Failures**: {summary['total_failures']}",
-            "",
-            "## Summary by Reason",
-            ""
-        ]
-        
-        # Add reason counts
-        for reason, count in sorted(summary["by_reason"].items()):
-            report_lines.append(f"- **{reason}**: {count}")
-        
-        report_lines.extend([
-            "",
-            "## Affected Papers",
-            ""
-        ])
-        
-        # Add affected papers
-        for paper in summary["affected_papers"]:
-            report_lines.append(f"- {paper}")
-        
-        # Add detailed log
-        report_lines.extend([
-            "",
-            "## Detailed Failure Log",
-            ""
-        ])
-        
-        log = load_existing_failure_log()
-        for entry in log:
-            report_lines.append(f"### {entry['paper_id']}")
-            report_lines.append(f"- **Reason**: {entry['reason']}")
-            report_lines.append(f"- **Details**: {entry['details']}")
-            report_lines.append(f"- **Source**: {entry['source_file']}")
-            report_lines.append(f"- **Time**: {entry['timestamp']}")
-            report_lines.append("")
-        
-        report_content = "\n".join(report_lines)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(log_entries, f, indent=2)
     
-    # Ensure directory exists
-    FAILURE_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(FAILURE_REPORT_PATH, 'w', encoding='utf-8') as f:
-        f.write(report_content)
-        
-    logger.info(f"Written failure report to {FAILURE_REPORT_PATH}")
-    return str(FAILURE_REPORT_PATH)
+    logger.info(f"Failure log written to {output_path} with {len(log_entries)} entries.")
 
 def main():
-    """Main entry point for failure logging demonstration."""
-    # Example usage
-    logger.info("Starting failure logger demonstration...")
+    """
+    Main entry point to compile and write the failure log.
+    """
+    logger.info("Starting failure log compilation.")
     
-    # Record some sample failures
-    record_failure(
-        paper_id="10.1021/jacs.123456",
-        reason=FailureReason.MODEL_SUBSTITUTION,
-        details="Model had 2.5M parameters, exceeded 1M limit",
-        source_file="model_runner.py"
-    )
+    # 1. Compile failures from repro results
+    log_entries = compile_failure_summary()
     
-    record_failure(
-        paper_id="10.1038/nature.789012",
-        reason=FailureReason.DATA_GAP,
-        details="Missing 'yield' column in dataset",
-        source_file="ingest.py"
-    )
+    # 2. Write to file
+    write_failure_report(log_entries)
     
-    record_failure(
-        paper_id="10.1016/j.chem.345678",
-        reason=FailureReason.MISSING_SEED,
-        details="No random seed specified in paper",
-        source_file="model_runner.py"
-    )
-    
-    # Compile and write report
-    summary = compile_failure_summary()
-    report_path = write_failure_report()
-    
-    print(f"Failure summary: {json.dumps(summary, indent=2)}")
-    print(f"Report written to: {report_path}")
+    logger.info("Failure log compilation complete.")
 
 if __name__ == "__main__":
     main()

@@ -1,75 +1,102 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: ReproResult
-description: Schema for the reproducibility results of a single paper.
+description: "Schema for the reproducibility results of a single paper."
 type: object
 required:
   - doi
+  - reproduced_metrics
+  - deviations
+  - score_s
   - flags
 properties:
   doi:
     type: string
-    description: Digital Object Identifier of the paper.
-  mae:
-    type: number
-    nullable: true
-    description: Reproduced Mean Absolute Error.
-  r2:
-    type: number
-    nullable: true
-    description: Reproduced R-squared value.
-  rho:
-    type: number
-    nullable: true
-    description: Reproduced Spearman's rank correlation coefficient.
-  deviation_mae:
-    type: number
-    nullable: true
-    description: Deviation of reproduced MAE from reported MAE.
-  deviation_r2:
-    type: number
-    nullable: true
-    description: Deviation of reproduced R2 from reported R2.
-  deviation_rho:
-    type: number
-    nullable: true
-    description: Deviation of reproduced rho from reported rho.
+    description: "Digital Object Identifier of the paper."
+  reproduced_metrics:
+    type: object
+    required:
+      - mae
+      - r2
+      - rho
+    properties:
+      mae:
+        type: number
+        description: "Reproduced Mean Absolute Error."
+      r2:
+        type: number
+        description: "Reproduced R-squared value."
+      rho:
+        type: number
+        description: "Reproduced Spearman's Rho."
+      max_metric_std:
+        type: number
+        description: "Maximum standard deviation of metrics across sensitivity seeds."
+        nullable: true
+  deviations:
+    type: object
+    required:
+      - deviation_mae
+      - deviation_r2
+      - deviation_rho
+    properties:
+      deviation_mae:
+        type: number
+        description: "Absolute deviation in MAE (|reported - reproduced|)."
+      deviation_r2:
+        type: number
+        description: "Absolute deviation in R2."
+      deviation_rho:
+        type: number
+        description: "Absolute deviation in Rho."
   score_s:
     type: number
-    nullable: true
-    description: Reproducibility score S (1 - average relative deviation).
-  max_metric_std_dev:
-    type: number
-    nullable: true
-    description: Maximum standard deviation of metrics across seed sensitivity analysis.
+    minimum: 0
+    maximum: 1
+    description: "Overall reproducibility score (0-1)."
   flags:
     type: array
-    description: List of flags indicating issues (e.g., 'Model Substitution', 'Data Unavailable').
     items:
       type: string
+    description: "List of flags indicating issues (e.g., 'model_substituted', 'missing_seed')."
+    default: []
   experimental_replicates:
     type: integer
+    minimum: 0
+    description: "Number of experimental replicates found in the source data."
     nullable: true
-    description: Number of experimental replicates found in the dataset.
   reaction_conditions:
     type: object
-    nullable: true
-    description: Extracted reaction conditions.
+    description: "Extracted reaction conditions."
     properties:
-      temperature:
+      temperature_c:
         type: number
+        nullable: true
       solvent:
         type: string
+        nullable: true
       catalyst_loading:
-        type: number
+        type: string
+        nullable: true
+    nullable: true
   yield_std_dev:
     type: number
+    description: "Standard deviation of yields across experimental replicates."
     nullable: true
-    description: Standard deviation of yields across experimental replicates.
-  failure_mode:
+  seed_used:
+    type: integer
+    description: "Random seed used for reproducibility."
+    default: 42
+  model_substituted:
+    type: boolean
+    description: "True if the original model was substituted with a baseline."
+    default: false
+  substitution_reason:
     type: string
+    description: "Reason for substitution (e.g., 'parameter_limit_exceeded')."
     nullable: true
-    description: Specific failure mode if the paper could not be reproduced.
-  details:
-    type: string
-    nullable: true
-    description: Detailed log of the reproduction attempt.
+  processing_log:
+    type: array
+    items:
+      type: string
+    description: "List of log messages regarding processing steps."
+    default: []
