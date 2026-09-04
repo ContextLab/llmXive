@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T21:23:27.362369Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-546-predicting-molecular-properties-from-qua
-last_run_id: cb7e9c50-a69f-43d2-a135-18565b3a2732
+last_run_id: 5bef34e6-7ee1-4283-b1bf-2eda7ac0340e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua
 title: Predicting Molecular Properties from Quantum Chemical Calculations with Limited
   Computational Resources
-updated_at: '2026-08-21T06:41:34.552033Z'
+updated_at: '2026-09-04T07:01:51.971032Z'

@@ -85,15 +85,15 @@
  - Must compute `delta = p_{n+1} - p_n` (gap between starts of consecutive pairs)
  - Must compute `normalized_gap = delta / log(p_n)`
  - Must handle edge cases (log(0 (Theorem DB: math/0506067, https://arxiv.org/abs/math/0506067)) guards)
-- [ ] T013b [US1] [FR-002] [SC-001] Compute expected twin prime count using Hardy-Littlewood constant and compare against actual count. **Verification**: Log the deviation percentage between actual count and theoretical expectation in the console output. <!-- FAILED: unspecified -->
+- [ ] T013b [US1] [FR-002] [SC-001] Compute expected twin prime count using Hardy-Littlewood constant and compare against actual count. **Verification**: Log the deviation percentage between actual count and theoretical expectation in the console output. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T014 [US1] [FR-007] [SC-004] [SC-005] Implement CSV output and memory monitoring in `code/generate_primes.py`
  - Ensure RAM usage < 2 GiB and execution time < 45 mins
  - Output columns: `p`, `p_next`, `delta`, `normalized_gap`
 - [ ] T014b [US1] [SC-004] [SC-005] Measure and record execution time and peak memory usage for the generation pipeline. **Output**: Save metrics to `data/results/performance_gen.json`.
  - **Dependency**: Must run sequentially immediately after T014 to capture metrics of the just-completed run.
-- [ ] T015 [US1] [P] Implement `code/validate_schema.py` to validate `data/raw/twin_primes.csv` against `contracts/twin_prime_schema.schema.yaml`
+- [ ] T015 [US1] [P] Implement `code/validate_schema.py` to validate `data/raw/twin_primes.csv` against `contracts/twin_prime_schema.schema.yaml` <!-- FAILED: unspecified -->
  - **Dependency**: Must run sequentially immediately after T014 to validate the generated artifact.
-- [ ] T016 [US1] [P] Add execution guard in `code/generate_primes.py` to detect dependency failures (e.g., missing `primesieve` binary) and exit with code 1. Also run `code/hash_artifacts.py` to hash the generated CSV and update state.
+- [X] T016 [US1] [P] Add execution guard in `code/generate_primes.py` to detect dependency failures (e.g., missing `primesieve` binary) and exit with code 1. Also run `code/hash_artifacts.py` to hash the generated CSV and update state.
  - **Dependency**: Must run after T015.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -200,7 +200,7 @@ Goldston, Pintz, Yıldırım (n.d.) (Addresses Rockmore Review)
  - Discuss the robustness of the claim given the finite sample size.
  - Explicitly state the limitations of the CPU-only approach on the tail behavior.
 - [ ] T037 [P] Update `specs/001-twin-prime-gaps/research.md` to include the missing lineage paragraph before the validation verdict (Addresses Rockmore Review)
- - **Content**: Insert the following specific paragraph: "The normalized gap metric Δₙ / log pₙ derives from Cramér's probabilistic model of primes, which posits that prime gaps follow an exponential distribution. [UNRESOLVED-CLAIM: c_9afb23b4 — status=not_enough_info] This heuristic was refined by Goldston, Pintz, and Yıldıldırım (2005) in the context of small gaps between primes, and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes."
+ - **Content**: Insert the following specific paragraph: "The normalized gap metric Δₙ / log pₙ derives from Cramér's probabilistic model of primes, which posits that prime gaps follow an exponential distribution.. This heuristic was refined by Goldston, Pintz, and Yıldıldırım (2005) in the context of small gaps between primes, and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes. "
 
 ---
 

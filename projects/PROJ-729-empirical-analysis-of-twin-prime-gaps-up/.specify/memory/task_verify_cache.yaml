@@ -1,9 +1,10 @@
 T012:
   c: false
-  h: 5d48cf35695b02e798af023f8f130616965298cff1a5237911ffa316d18f671b
-  r: "The required output file `data/raw/twin_primes.csv` does not exist, so the script\u2019\
-    s execution cannot be verified for row count or NaN values. The missing CSV means\
-    \ the task\u2019s core deliverable is absent."
+  h: 84ec6adbac6ab8b532afb6b2fa81baaed0242ad970c528b684c24e566dbd4389
+  r: "The `data/raw/twin_primes.csv` file does not exist, and the provided `code/generate_primes.py`\
+    \ is truncated (ends abruptly before writing any output), so it cannot produce\
+    \ the required CSV with the correct columns and values. The task\u2019s verification\
+    \ conditions are therefore unmet."
 T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

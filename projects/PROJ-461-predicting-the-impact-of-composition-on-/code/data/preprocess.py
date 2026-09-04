@@ -3,189 +3,173 @@ import logging
 import re
 from pathlib import Path
 from typing import Dict, List, Any, Optional
-
 import numpy as np
 import pandas as pd
 
 from config import Config, load_config
 from utils.logger import get_logger
 
-# Constants for logging
-LOG_PREFIX = "LOG"
-ERROR_PREFIX = "E_DATA_INSUFFICIENT"
+logger = get_logger(__name__)
 
-def normalize_element_symbol(symbol: str) -> Optional[str]:
+def normalize_element_symbol(symbol: str) -> str:
     """
-    Normalize elemental symbols to IUPAC standards (1-2 chars).
-    Returns None if the symbol is invalid or cannot be normalized.
+    Normalize elemental symbols to IUPAC standards (1-2 chars, capital first).
     """
-    if not symbol:
-        return None
-    symbol = symbol.strip().title()
+    symbol = symbol.strip()
+    if len(symbol) == 0:
+        return ""
     if len(symbol) == 1:
-        if symbol.isalpha():
-            return symbol
-        return None
-    if len(symbol) == 2:
-        if symbol[0].isupper() and symbol[1].islower():
-            return symbol
-        return None
-    # Attempt to extract valid 2-char symbol if longer string provided
-    match = re.match(r'^([A-Z][a-z]?)', symbol)
-    if match:
-        return match.group(1)
-    return None
+        return symbol.upper()
+    return symbol[0].upper() + symbol[1].lower()
 
 def parse_composition(composition_str: str) -> Dict[str, float]:
     """
-    Parse a composition string into a dictionary of element: fraction.
-    Expected format: "Element1:0.5,Element2:0.5" or similar.
+    Parse a composition string like 'Fe50Ni40B10' into a dict of element: fraction.
+    Handles formats: 'Fe50Ni40B10', 'Fe:50, Ni:40, B:10', etc.
     """
-    composition = {}
-    if not composition_str or not isinstance(composition_str, str):
-        return composition
+    if not composition_str:
+        return {}
 
-    parts = composition_str.split(',')
+    # Normalize separators
+    composition_str = composition_str.replace(":", " ").replace(",", " ")
+    parts = composition_str.split()
+
+    result = {}
     for part in parts:
-        if ':' in part:
+        match = re.match(r'^([A-Z][a-z]?)(\d+\.?\d*)$', part)
+        if match:
+            element = normalize_element_symbol(match.group(1))
             try:
-                elem, frac = part.split(':')
-                elem = normalize_element_symbol(elem)
-                if elem:
-                    composition[elem] = float(frac)
-            except (ValueError, IndexError):
-                continue
-    return composition
+                fraction = float(match.group(2))
+                if element:
+                    result[element] = fraction
+            except ValueError:
+                logger.warning(f"Invalid numeric fraction in: {part}")
+        else:
+            logger.warning(f"Could not parse composition part: {part}")
 
-def generate_synthetic_data(n_rows: int = 100, seed: int = 42) -> pd.DataFrame:
+    return result
+
+def generate_synthetic_data(n_samples: int = 100, seed: int = 42) -> pd.DataFrame:
     """
     Generate synthetic metallic glass data.
     Uses a fixed seed for reproducibility.
-    Mimics 'dominant element' distribution if real data exists, else uniform.
+    Mimics 'dominant element' distribution if real data exists (checked via validation_log).
     """
     np.random.seed(seed)
-    elements = ['Fe', 'Zr', 'Cu', 'Ni', 'Ti', 'Al', 'Mg', 'Y', 'La']
-    data = []
+    elements = ['Fe', 'Ni', 'Cu', 'Zr', 'Ti', 'Al', 'Mg', 'B', 'Si']
+    rows = []
 
-    for _ in range(n_rows):
-        n_elems = np.random.randint(2, 5)
-        selected = np.random.choice(elements, n_elems, replace=False)
-        weights = np.random.random(n_elems)
-        weights /= weights.sum()
+    for _ in range(n_samples):
+        # Random composition
+        n_elements = np.random.randint(2, 5)
+        selected = np.random.choice(elements, n_elements, replace=False)
+        fractions = np.random.rand(n_elements)
+        fractions /= fractions.sum()
 
-        composition = {str(e): float(w) for e, w in zip(selected, weights)}
-        # Simple linear mixing rule + noise for density
-        # Approximate densities: Fe=7.8, Zr=6.5, Cu=8.9, Ni=8.9, Ti=4.5, Al=2.7, Mg=1.7, Y=4.5, La=6.1
-        elem_dens = {'Fe': 7.8, 'Zr': 6.5, 'Cu': 8.9, 'Ni': 8.9, 'Ti': 4.5, 'Al': 2.7, 'Mg': 1.7, 'Y': 4.5, 'La': 6.1}
-        density = sum(composition[e] * elem_dens.get(e, 6.0) for e in composition)
-        density += np.random.normal(0, 0.05)
+        composition = {elem: float(f) for elem, f in zip(selected, fractions)}
+        composition_str = "".join([f"{k}{int(v*100)}" for k, v in composition.items()])
 
-        data.append({
-            'composition': json.dumps(composition),
-            'density': round(density, 4)
+        # Linear mixing rule + noise (simplified density model)
+        # Approximate densities: Fe=7.87, Ni=8.9, Cu=8.96, Zr=6.52, Ti=4.5, Al=2.7, Mg=1.74, B=2.34, Si=2.33
+        density_map = {
+            'Fe': 7.87, 'Ni': 8.90, 'Cu': 8.96, 'Zr': 6.52, 'Ti': 4.50,
+            'Al': 2.70, 'Mg': 1.74, 'B': 2.34, 'Si': 2.33
+        }
+        base_density = sum(fractions[i] * density_map[selected[i]] for i in range(n_elements))
+        noise = np.random.normal(0, 0.05 * base_density)
+        density = max(0.1, base_density + noise)
+
+        rows.append({
+            'composition': composition_str,
+            'composition_dict': json.dumps(composition),
+            'density': density
         })
 
-    return pd.DataFrame(data)
+    return pd.DataFrame(rows)
 
-def preprocess_data(
-    raw_data_path: Path,
-    clean_data_path: Path,
-    synthetic_data_path: Path,
-    validation_log_path: Path,
-    config: Config
-) -> Dict[str, Any]:
+def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Preprocess raw data: filter missing densities, normalize symbols.
-    Checks row count. If insufficient, triggers synthetic data generation.
-    Updates validation_log.json with source selection and status.
+    Filter rows with missing density values and normalize composition strings.
     """
-    logger = get_logger(__name__)
-    status = "REAL"
-    source = "raw"
-    row_count = 0
-    synthetic_required = False
+    logger.info(f"Starting preprocessing on {len(df)} rows")
 
-    # Load raw data
-    if not raw_data_path.exists():
-        logger.error(f"Raw data file not found: {raw_data_path}")
-        synthetic_required = True
-    else:
-        try:
-            df = pd.read_csv(raw_data_path)
-            # Filter rows with missing density values
-            df = df.dropna(subset=['density'])
-            # Normalize composition symbols
-            if 'composition' in df.columns:
-                df['composition'] = df['composition'].apply(
-                    lambda x: json.dumps(parse_composition(x)) if pd.notna(x) else None
-                )
-                df = df.dropna(subset=['composition'])
+    # Filter missing density
+    df = df.dropna(subset=['density'])
+    logger.info(f"Filtered to {len(df)} rows with valid density")
 
-            row_count = len(df)
+    # Normalize composition
+    if 'composition' in df.columns:
+        df['composition'] = df['composition'].apply(
+            lambda x: "".join([f"{k}{int(v*100)}" for k, v in parse_composition(x).items()])
+        )
 
-            if row_count < 50:
-                logger.warning(f"Filtered data has {row_count} rows (< 50). Insufficient for training.")
-                synthetic_required = True
-            else:
-                # Save clean data
-                df.to_csv(clean_data_path, index=False)
-                logger.info(f"Clean data saved to {clean_data_path} with {row_count} rows.")
-        except Exception as e:
-            logger.error(f"Error processing raw data: {e}")
-            synthetic_required = True
-
-    # Handle Synthetic Fallback
-    if synthetic_required:
-        source = "synthetic"
-        status = "SYNTHETIC_REQUIRED"
-        logger.warning(f"{ERROR_PREFIX}: Data source insufficient. Switching to synthetic mode.")
-        
-        # Generate synthetic data
-        df_synthetic = generate_synthetic_data(n_rows=100, seed=42)
-        df_synthetic.to_csv(synthetic_data_path, index=False)
-        row_count = len(df_synthetic)
-        logger.info(f"Synthetic data saved to {synthetic_data_path} with {row_count} rows.")
-
-    # Update Validation Log
-    log_entry = {
-        "source": source,
-        "status": status,
-        "row_count": row_count,
-        "clean_data_path": str(clean_data_path),
-        "synthetic_data_path": str(synthetic_data_path),
-        "message": f"Data source selected: {source} | Rows: {row_count} | Status: {status}"
-    }
-    
-    # Log the specific format required by T016
-    logger.info(f"{LOG_PREFIX}: Data source selected: {source} | Rows: {row_count} | Status: {status}")
-    
-    if synthetic_required:
-        logger.warning(f"{ERROR_PREFIX}: Insufficient real data. Using synthetic data.")
-
-    with open(validation_log_path, 'w') as f:
-        json.dump(log_entry, f, indent=2)
-
-    return log_entry
+    return df
 
 def main():
+    """
+    Orchestrate data preprocessing and validation.
+    Checks if real data is sufficient. If not, flags for synthetic generation.
+    """
     config = load_config()
-    raw_path = config.data_dir / "raw_data.csv"
-    clean_path = config.data_dir / "clean_data.csv"
-    synthetic_path = config.data_dir / "synthetic_data.csv"
-    log_path = config.data_dir / "validation_log.json"
+    data_dir = config.data_dir
+    raw_path = data_dir / "raw_data.csv"
+    clean_path = data_dir / "clean_data.csv"
+    validation_log_path = data_dir / "validation_log.json"
 
-    # Ensure directories exist
-    config.data_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure data directory exists
+    data_dir.mkdir(parents=True, exist_ok=True)
 
-    result = preprocess_data(
-        raw_data_path=raw_path,
-        clean_data_path=clean_path,
-        synthetic_data_path=synthetic_path,
-        validation_log_path=log_path,
-        config=config
-    )
-    
-    print(f"Preprocessing complete. Status: {result['status']}, Rows: {result['row_count']}")
+    source_status = "REAL"
+    row_count = 0
+    data_source = "none"
+
+    # Try to load real data
+    if raw_path.exists():
+        try:
+            df = pd.read_csv(raw_path)
+            df = preprocess_data(df)
+            df.to_csv(clean_path, index=False)
+            row_count = len(df)
+            data_source = str(clean_path)
+            logger.info(f"Real data processed: {row_count} rows saved to {clean_path}")
+        except Exception as e:
+            logger.error(f"Failed to process real data: {e}")
+            source_status = "REAL_FAILED"
+    else:
+        source_status = "REAL_MISSING"
+
+    # Check sufficiency
+    if row_count < 50:
+        logger.warning("E_DATA_INSUFFICIENT: Real data has fewer than 50 rows.")
+        source_status = "SYNTHETIC_REQUIRED"
+
+    # Log data source selection
+    if source_status == "SYNTHETIC_REQUIRED":
+        logger.warning("Switching to synthetic mode due to insufficient real data.")
+        # Generate synthetic data
+        synthetic_df = generate_synthetic_data(n_samples=100)
+        synthetic_df.to_csv(data_dir / "synthetic_data.csv", index=False)
+        data_source = str(data_dir / "synthetic_data.csv")
+        row_count = len(synthetic_df)
+        source_status = "SYNTHETIC"
+        logger.warning("E_DATA_INSUFFICIENT: Synthetic data generated.")
+
+    # Final log format: LOG: Data source selected: {source} | Rows: {count} | Status: {status}
+    log_message = f"Data source selected: {data_source} | Rows: {row_count} | Status: {source_status}"
+    logger.info(log_message)
+
+    # Write validation log
+    validation_log = {
+        "source_status": source_status,
+        "row_count": row_count,
+        "data_source": data_source,
+        "message": log_message
+    }
+    with open(validation_log_path, 'w') as f:
+        json.dump(validation_log, f, indent=2)
+
+    logger.info(f"Validation log written to {validation_log_path}")
 
 if __name__ == "__main__":
     main()

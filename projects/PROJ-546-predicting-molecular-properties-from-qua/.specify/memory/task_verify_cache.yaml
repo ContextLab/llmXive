@@ -13,13 +13,6 @@ T004a:
     \ a non\u2011empty string ID, but no artifact (e.g., a text file, JSON, or log\
     \ entry) containing that ID was provided. The implementer must supply the extracted\
     \ Zenodo ID (and optionally the URL) as a concrete output."
-T011:
-  c: false
-  h: f4751624a54cb98778ca45f29efc2653e0eb85064984cf3bb3b11af10f3b6857
-  r: "The repository lacks the required input file `data/raw/barrier_dataset.csv`\
-    \ and the output file `data/confounds.csv`. Moreover, `code/confounds.py` is truncated\
-    \ (the `calculate_molecular_properties` function is incomplete) and does not actually\
-    \ generate the CSV. The task\u2019s core artifacts are missing or non\u2011functional."
 T012:
   c: false
   h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
@@ -27,14 +20,6 @@ T012:
     \ in the repository, so there is no test that runs `code/generate_descriptors.py`\
     \ on 50 molecules or validates its output. Without this artifact, the task\u2019\
     s requirement is unmet."
-T020a:
-  c: false
-  h: 068558e2d241668592d41b278f5a3d108e9d17890920f0eef46058b36a1e4077
-  r: "The repository lacks `data/raw/barrier_dataset.csv` and `data/confounds.csv`,\
-    \ so the dependency check cannot pass. Moreover, `code/dft_calculator.py` contains\
-    \ DFT execution code but does not implement the required subset\u2011selection\
-    \ logic (reading the barrier dataset, computing N, stratified qcut binning, and\
-    \ selecting 50 or fewer samples). These core pieces are missing."
 T020b:
   c: false
   h: e89be11981bbb9d9fb791df6cb9751bbf6cdae793d7436f26c0ab33e636bc866
@@ -43,13 +28,14 @@ T020b:
     \ before showing full implementation of geometry handling, missing\u2011file logging,\
     \ Psi4 execution, HOMO/LUMO parsing, and split\u2011locking. Without the generated\
     \ descriptor CSV, the task\u2019s primary deliverable is not met."
-T022:
+T029:
   c: false
-  h: 3e81542e33bef2db6878d301a16ad498281375ae17fca73dd6d77d4a7ba61c30
-  r: "The required `reports/evaluation.json` file is absent, and the provided `code/evaluate_models.py`\
-    \ is truncated and contains a syntax error (`...open(csv_path, 'r', newline='',\
-    \ encoding='utf-8') a`), indicating the implementation does not fully compute\
-    \ MAE, run the paired t\u2011test, or write the specified JSON output."
+  h: 0131451bc0c9e4e5044ba089292fbc698f5ea066f6ebaf690494d061543c576a
+  r: "The repository contains `code/sensitivity_analysis.py`, but the script does\
+    \ not produce the required `reports/sensitivity.csv` (the file is missing) and\
+    \ the visible code does not demonstrate extracting `feature_importances_` and\
+    \ writing a CSV with the columns `rank`, `descriptor`, `importance`, `cumulative_importance`.\
+    \ The task\u2019s verification criteria are therefore not met."
 T031c:
   c: false
   h: 7bf56f9c6bfb9ebabba58ccdb29ba49ac6d684ff54efe1e43a84f438585fc24d

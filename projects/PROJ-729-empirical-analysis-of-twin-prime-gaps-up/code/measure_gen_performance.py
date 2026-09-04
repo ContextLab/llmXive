@@ -1,15 +1,3 @@
-"""
-Measure execution time and peak memory usage for the twin prime generation pipeline.
-
-This script runs the generate_primes.py pipeline, captures resource usage metrics,
-and saves them to data/results/performance_gen.json as required by task T014b.
-
-The metrics are captured using:
-- time.perf_counter() for execution time
-- resource.getrusage(resource.RUSAGE_SELF) for peak memory (maxrss)
-
-Output: data/results/performance_gen.json
-"""
 import sys
 import time
 import json
@@ -17,14 +5,9 @@ import resource
 import os
 import logging
 
-# Add project root to path to import sibling modules
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from generate_primes import main as generate_main
 from config import get_config, ensure_directories
 
 def setup_logging():
-    """Configure logging for the performance measurement script."""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
@@ -36,81 +19,76 @@ def setup_logging():
 
 def get_memory_usage_mb():
     """
-    Get current memory usage in MB.
-    Uses resource.getrusage for cross-platform compatibility.
+    Get the current peak memory usage of the process in MB.
+    Uses resource.getrusage for POSIX systems (Linux/macOS).
     """
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    # maxrss is in KB on Linux, MB on macOS
-    # Normalize to MB
+    # ru_maxrss is in kilobytes on Linux, bytes on macOS? 
+    # Actually on Linux it's KB, on macOS it's bytes. 
+    # Standardizing to MB:
     if sys.platform == 'darwin':
-        return usage.ru_maxrss
+        # macOS reports in bytes
+        return usage.ru_maxrss / (1024 * 1024)
     else:
+        # Linux reports in KB
         return usage.ru_maxrss / 1024.0
 
 def main():
-    """
-    Run the generation pipeline and measure performance metrics.
-    
-    Returns:
-        dict: Performance metrics including execution time and peak memory
-    """
     logger = setup_logging()
-    logger.info("Starting performance measurement for twin prime generation pipeline")
+    logger.info("Starting performance measurement for twin prime generation.")
 
-    # Get configuration
     config = get_config()
-    output_dir = config.get('data_dirs', {}).get('results', 'data/results')
-    
-    # Ensure output directory exists
-    ensure_directories([output_dir])
-    
-    metrics_file = os.path.join(output_dir, 'performance_gen.json')
-    
-    # Record start time
-    start_time = time.perf_counter()
-    logger.info(f"Starting generation at {start_time}")
+    ensure_directories()
 
-    # Capture initial memory
-    initial_memory = get_memory_usage_mb()
-    logger.info(f"Initial memory usage: {initial_memory:.2f} MB")
+    output_path = os.path.join(config['paths']['results'], 'performance_gen.json')
+    
+    # We need to run the generation to capture the metrics.
+    # Since T014 (generate_primes.py) is the source of truth for the data,
+    # we will import and run its main logic here to capture the timing
+    # and memory usage of that specific execution within this process.
+    # This ensures we measure the actual run that produces the output.
+    
+    # Import the generation logic
+    # Note: We assume generate_primes.py has a main() that does the work.
+    # If it has side effects at import time, we must be careful.
+    # Based on the API surface, it has a 'main' function.
+    
+    from generate_primes import main as generate_main
 
+    start_time = time.time()
+    
+    # Track peak memory before execution
+    # resource.getrusage resets or accumulates? It accumulates for the process.
+    # We want the peak during the run. 
+    # We'll check maxrss again after the run.
+    
     try:
-        # Run the generation pipeline
-        # Note: This will generate the twin_primes.csv file
-        logger.info("Executing generate_primes pipeline...")
         generate_main()
-        logger.info("Generation pipeline completed successfully")
     except Exception as e:
-        logger.error(f"Generation pipeline failed: {e}")
-        raise
+        logger.error(f"Generation failed: {e}")
+        sys.exit(1)
 
-    # Record end time
-    end_time = time.perf_counter()
-    execution_time = end_time - start_time
-    logger.info(f"Generation completed in {execution_time:.2f} seconds")
+    end_time = time.time()
+    execution_time_seconds = end_time - start_time
+    peak_memory_mb = get_memory_usage_mb()
 
-    # Capture peak memory
-    peak_memory = get_memory_usage_mb()
-    logger.info(f"Peak memory usage: {peak_memory:.2f} MB")
-
-    # Prepare metrics dictionary
     metrics = {
-        'execution_time_seconds': round(execution_time, 4),
-        'peak_memory_mb': round(peak_memory, 2),
-        'initial_memory_mb': round(initial_memory, 2),
-        'memory_delta_mb': round(peak_memory - initial_memory, 2),
-        'timestamp': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-        'status': 'success'
+        "task_id": "T014b",
+        "description": "Execution time and peak memory for twin prime generation up to 10^9",
+        "execution_time_seconds": round(execution_time_seconds, 4),
+        "peak_memory_mb": round(peak_memory_mb, 2),
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     }
 
-    # Save metrics to JSON file
-    with open(metrics_file, 'w') as f:
+    # Write metrics to JSON
+    with open(output_path, 'w') as f:
         json.dump(metrics, f, indent=2)
-    
-    logger.info(f"Performance metrics saved to {metrics_file}")
-    print(json.dumps(metrics, indent=2))
-    
+
+    logger.info(f"Performance metrics saved to {output_path}")
+    logger.info(f"Execution Time: {execution_time_seconds:.2f} seconds")
+    logger.info(f"Peak Memory: {peak_memory_mb:.2f} MB")
+
     return metrics
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

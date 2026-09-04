@@ -1,63 +1,57 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environments
-venv/
-ENV/
-env/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Project Specific Artifacts
-# Exclude generated data files (CSV)
+# Data artifacts (exclude raw and processed data)
 data/*.csv
+data/*.json
+data/*.pkl
+data/*.parquet
+data/*.txt
+data/*.log
 
-# Exclude generated model files (PKL)
+# Model artifacts
 models/*.pkl
+models/*.joblib
+models/*.onnx
+models/*.h5
+models/*.pt
+models/*.pth
 
-# Exclude generated report images (PNG)
+# Reports and figures
 reports/*.png
-figures/*.png
-
-# Exclude generated HTML reports
+reports/*.jpg
+reports/*.jpeg
+reports/*.pdf
 reports/*.html
-docs/*.html
-
-# Keep metrics.json (Single Source of Truth)
+reports/*.svg
+reports/*.json
 !reports/metrics.json
 
 # Logs
 logs/
 *.log
 
+# Python cache
+__pycache__/
+*.py[cod]
+$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
 # Temporary files
 tmp/
-.tmp/
+temp/
+*.tmp
+*.bak

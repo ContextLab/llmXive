@@ -1,0 +1,614 @@
+{
+  "fetched_at": "2026-09-04T06:51:53Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published SOTA of Nature-Fami\"",
+      "target_n": 5
+    },
+    "duration_seconds": 84.904,
+    "ended_at": "2026-09-04T06:51:53Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "large language models for automated linguistic analysis"
+        ],
+        [
+          2,
+          "coding agents in computational linguistics"
+        ],
+        [
+          3,
+          "automated evaluation of linguistic benchmarks"
+        ],
+        [
+          4,
+          "state-of-the-art performance in natural language processing"
+        ],
+        [
+          5,
+          "AI agents for syntax and semantics analysis"
+        ],
+        [
+          6,
+          "benchmarking generative models on linguistic tasks"
+        ],
+        [
+          7,
+          "automated code generation for NLP experiments"
+        ],
+        [
+          8,
+          "reproducibility of SOTA results in linguistics"
+        ],
+        [
+          9,
+          "language model capabilities in morphological analysis"
+        ],
+        [
+          10,
+          "autonomous agents for corpus linguistics"
+        ],
+        [
+          11,
+          "comparative analysis of human vs. agent linguistic performance"
+        ],
+        [
+          12,
+          "natural language understanding benchmarks for AI"
+        ],
+        [
+          13,
+          "automated hypothesis testing in linguistics"
+        ],
+        [
+          14,
+          "large language models for syntactic parsing"
+        ],
+        [
+          15,
+          "agent-based simulation of linguistic phenomena"
+        ],
+        [
+          16,
+          "performance gaps in automated language research"
+        ],
+        [
+          17,
+          "neural machine translation as a proxy for linguistic competence"
+        ],
+        [
+          18,
+          "automated generation of linguistic datasets"
+        ],
+        [
+          19,
+          "evaluation frameworks for AI-driven linguistic discovery"
+        ],
+        [
+          20,
+          "multi-agent systems for complex linguistic reasoning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "large language models for automated linguistic analysis": 5,
+        "llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published SOTA of Nature-Fami\" linguistics": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "code generation natural language processing linguistics",
+      "NatureBench benchmark coding agents SOTA",
+      "homophily syntax tree linguistic structure",
+      "perplexity linguistic evaluation held-out corpus",
+      "training data contamination language model leakage"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.24530"
+      ]
+    },
+    "per_query_hit_count": {
+      "NatureBench benchmark coding agents SOTA": 3,
+      "code generation natural language processing linguistics": 3,
+      "homophily syntax tree linguistic structure": 3,
+      "llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published SOTA of Nature-Fami\" linguistics": 3,
+      "perplexity linguistic evaluation held-out corpus": 3,
+      "training data contamination language model leakage": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper discusses general techniques for making LLMs \"human-like\" (conversational coherence, emotional intelligence) but does not address the specific domain of \"coding agents,\" \"NatureBench,\" or the evaluation of SOTA performance in scientific coding tasks required by the user's question. It fails to meet criteria (a) or (b) as it lacks the specific mechanism (coding agent evaluation) and domain (NatureBench/Nature-family benchmarks) necessary for inclusion in a literature review for this spe",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2603.21389",
+          "rationale": "The paper focuses on general NLP task efficiency and the performance of small vs. large language models, which does not address the user's specific question regarding \"linguistics\" benchmarks, \"NatureBench,\" or \"coding agents\" matching SOTA in that specific domain. It fails to meet any inclusion criteria (a-f) as it studies a different domain (general NLP efficiency) and does not measure the specific variables (coding agent performance on linguistics benchmarks) or mechanisms central to the user",
+          "title": "Task-Specific Efficiency Analysis: When Small Language Models Outperform Large Language Models"
+        },
+        {
+          "primary_pointer": "2603.23611",
+          "rationale": "The paper focuses on automated testing methodologies (Metamorphic Testing) for general NLP tasks and does not address the specific domain of \"linguistics\" evaluation, \"NatureBench\" benchmarks, or the performance of coding agents on scientific literature, which are the core components of the user's question. It fails to meet any inclusion criteria (a-f) as it studies a different mechanism (testing robustness vs. benchmarking scientific coding capability) and lacks the specific empirical populatio",
+          "title": "LLMORPH: Automated Metamorphic Testing of Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-04T06:50:28Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"naturebench: can coding agents match the published sota of nature-fami\" linguistics",
+      "raw": "llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published SOTA of Nature-Fami\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While we pay attention to the latest advances in clinical natural language processing (NLP), we can notice some resistance in the clinical and translational research community to adopt NLP models due to limited transparency, interpretability, and usability. In this study, we proposed an open natural language processing development framework. We evaluated it through the implementation of NLP algorithms for the National COVID Cohort Collaborative (N3C). Based on the interests in information extraction from COVID-19 related clinical notes, our work includes 1) an open data annotation process using COVID-19 signs and symptoms as the use case, 2) a community-driven ruleset composing platform, and 3) a synthetic text data generation workflow to generate texts for information extraction tasks without involving human subjects. The corpora were derived from texts from three different institutions (Mayo Clinic, University of Kentucky, University of Minnesota). The gold standard annotations were tested with a single institution's (Mayo) ruleset. This resulted in performances of 0.876, 0.706, and 0.694 in F-scores for Mayo, Minnesota, and Kentucky test datasets, respectively. The study as a consortium effort of the N3C NLP subgroup demonstrates the feasibility of creating a federated NLP algorithm development and benchmarking platform to enhance multi-institution clinical NLP study and adoption. Although we use COVID-19 as a use case in this effort, our framework is general enough to be applied to other domains of interest in clinical NLP.",
+          "claimed_authors": [
+            "Sijia Liu",
+            "Andrew Wen",
+            "Liwei Wang",
+            "Huan He",
+            "Sunyang Fu",
+            "Robert Miller",
+            "Andrew Williams",
+            "Daniel Harris",
+            "Ramakanth Kavuluru",
+            "Mei Liu",
+            "Noor Abu-el-rub",
+            "Dalton Schutte",
+            "Rui Zhang",
+            "Masoud Rouhizadeh",
+            "John D. Osborne",
+            "Yongqun He",
+            "Umit Topaloglu",
+            "Stephanie S Hong",
+            "Joel H Saltz",
+            "Thomas Schaffter",
+            "Emily Pfaff",
+            "Christopher G. Chute",
+            "Tim Duong",
+            "Melissa A. Haendel",
+            "Rafael Fuentes",
+            "Peter Szolovits",
+            "Hua Xu",
+            "Hongfang Liu",
+            "National COVID Cohort Collaborative",
+            "Natural Language Processing",
+            " Subgroup",
+            "National COVID Cohort Collaborative"
+          ],
+          "claimed_title": "An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10780"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='An Open Natural Language Processing Development Framework for EHR-based Clinical Research: A case demonstration using the National COVID Cohort Collaborative (N3C)')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "El Mehdi Chouham",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.06371"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
+          "claimed_authors": [
+            "Chidinma A. Nwafor",
+            "Ikechukwu E. Onyenwe"
+          ],
+          "claimed_title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14757"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Coding agents often finish a session by returning one squashed patch that mixes feature implementation, bug fixes, refactorings, tests, and configuration edits. While the final code may be correct, collapsing unrelated edits into one patch removes the history structure needed for review, selective revert, and later maintenance. We study retrospective commit-history reconstruction: given a completed squashed change, an agent groups its hunks into commits and materializes a replayable commit sequence. We formalize the task as hunk-to-commit partitioning with a replay requirement and build AtomicCommitBench, containing 800 real consecutive-commit episodes from 10 Python projects. Because multiple decompositions may be reasonable, we evaluate outputs using complementary metrics: PPAR for replay validity, ARI for reference-based grouping quality, and TCR for failure containment on scoreable modified-test episodes. Natural retrospective reconstruction proves substantially harder than replay checking or synthetic tangling. Although nearly all non-random methods achieve replay validity (PPAR >= 0.988), grouping quality ranges from 0.03 to 0.46 ARI. Matched synthetic composites are much easier than real same-author squashed diffs (+0.333 ARI). In our evaluation, the GPT-5.4 setup driven by Codex CLI (0.46 ARI) and the GLM-5 setup driven by Claude Code (0.43 ARI) outperform MiniMax (0.31) and Kimi (0.29). Qualitative analysis identifies same-file lumping and support-hunk drift as recurring failure modes. Dependency-Aware Commit Evidence (DACE) improves the lower-scoring setups by 0.05 to 0.08 ARI, indicating that dependency cues and hunk-role information help agents avoid locality-driven grouping errors. AtomicCommitBench enables evaluation of the commit histories produced by coding agents alongside the final code.",
+          "claimed_authors": [
+            "Zhihao Lin",
+            "Mingyi Zhou",
+            "Li Li"
+          ],
+          "claimed_title": "AtomicCommitBench: Can Coding Agents Reconstruct Commit Histories from Squashed Patches?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.03332"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='AtomicCommitBench: Can Coding Agents Reconstruct Commit Histories from Squashed Patches?')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI coding agents are commonly evaluated as models but deployed as systems. Their reliability depends not only on model capability, but on the harness, execution state, retrieval, memory and state management, permissions, review interfaces, and resource allocation. This monograph examines those boundaries and develops a framework for evaluating and operating coding agents reliably. It synthesizes 164 scholarly works, 100 practitioner records, 29 benchmark records, and 17 author-system case records through a structured multivocal review, targeted update audits, software-engineering coverage analysis, and distributed-systems evidence synthesis. Across this evidence, many apparent model failures originate elsewhere in the system, while improvements at one layer often fail to propagate to end-to-end outcomes. Evaluation and operation are treated as a dependency chain in which weaknesses in task construction, execution environments, retrieval, state management, verification, or observability can invalidate downstream conclusions. The monograph contributes a versioned catalog of 206 reliability records: 193 gated practices, including 56 developed in depth, plus 13 research leads; an evidence ledger; a framework for dependency and repair asymmetry across the agent lifecycle; measurements and failure cases from operated agent systems; runnable evaluation and reliability protocols; and five reusable agent skills with evidence maps. Together, these provide a system-level methodology for distinguishing model capability from infrastructure effects, designing defensible evaluations, and building systems that recover safely when components fail. The review is structured rather than exhaustive, evidence strength varies by topic, and results depend on workload and configuration. The methods record which search lanes were executed, which remain unexecuted, and limits on evidence-grading claims.",
+          "claimed_authors": [
+            "Stephanie Jarmak"
+          ],
+          "claimed_title": "Engineering Reliable Coding Agents: Evaluating and Operating the System Around the Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.13867"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='Engineering Reliable Coding Agents: Evaluating and Operating the System Around the Model')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Much recent work suggests that incorporating syntax information from dependency trees can improve task-specific transformer models. However, the effect of incorporating dependency tree information into pre-trained transformer models (e.g., BERT) remains unclear, especially given recent studies highlighting how these models implicitly encode syntax. In this work, we systematically study the utility of incorporating dependency trees into pre-trained transformers on three representative information extraction tasks: semantic role labeling (SRL), named entity recognition, and relation extraction.\n  We propose and investigate two distinct strategies for incorporating dependency structure: a late fusion approach, which applies a graph neural network on the output of a transformer, and a joint fusion approach, which infuses syntax structure into the transformer attention layers. These strategies are representative of prior work, but we introduce additional model design elements that are necessary for obtaining improved performance. Our empirical analysis demonstrates that these syntax-infused transformers obtain state-of-the-art results on SRL and relation extraction tasks. However, our analysis also reveals a critical shortcoming of these models: we find that their performance gains are highly contingent on the availability of human-annotated dependency parses, which raises important questions regarding the viability of syntax-augmented transformers in real-world applications.",
+          "claimed_authors": [
+            "Devendra Singh Sachan",
+            "Yuhao Zhang",
+            "Peng Qi",
+            "William Hamilton"
+          ],
+          "claimed_title": "Do Syntax Trees Help Pre-trained Transformers Extract Information?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.09084"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='Do Syntax Trees Help Pre-trained Transformers Extract Information?')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models generate code one token at a time. Their autoregressive generation process lacks the feedback of observing the program's output. Training LLMs to suggest edits directly can be challenging due to the scarcity of rich edit data. To address these problems, we propose neural diffusion models that operate on syntax trees of any context-free grammar. Similar to image diffusion models, our method also inverts ``noise'' applied to syntax trees. Rather than generating code sequentially, we iteratively edit it while preserving syntactic validity, which makes it easy to combine this neural model with search. We apply our approach to inverse graphics tasks, where our model learns to convert images into programs that produce those images. Combined with search, our model is able to write graphics programs, see the execution result, and debug them to meet the required specifications. We additionally show how our system can write graphics programs for hand-drawn sketches.",
+          "claimed_authors": [
+            "Shreyas Kapur",
+            "Erik Jenner",
+            "Stuart Russell"
+          ],
+          "claimed_title": "Diffusion On Syntax Trees For Program Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.20519"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='Diffusion On Syntax Trees For Program Synthesis')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The derivation trees of a tree adjoining grammar provide a first insight into the sentence semantics, and are thus prime targets for generation systems. We define a formalism, feature-based regular tree grammars, and a translation from feature based tree adjoining grammars into this new formalism. The translation preserves the derivation structures of the original grammar, and accounts for feature unification.",
+          "claimed_authors": [
+            "Sylvain Schmitz",
+            "Joseph Le Roux"
+          ],
+          "claimed_title": "Feature Unification in TAG Derivation Trees",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0804.4584"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='Feature Unification in TAG Derivation Trees')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic temporal ordering of events described in discourse has been of great interest in recent years. Event orderings are conveyed in text via va rious linguistic mechanisms including the use of expressions such as \"before\", \"after\" or \"during\" that explicitly assert a temporal relation -- temporal signals. In this paper, we investigate the role of temporal signals in temporal relation extraction and provide a quantitative analysis of these expres sions in the TimeBank annotated corpus.",
+          "claimed_authors": [
+            "Leon Derczynski",
+            "Robert Gaizauskas"
+          ],
+          "claimed_title": "A Corpus-based Study of Temporal Signals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1203.5066"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='A Corpus-based Study of Temporal Signals')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a novel treebank-driven approach to comparing syntactic structures in speech and writing using dependency-parsed corpora. Adopting a fully inductive, bottom-up method, we define syntactic structures as delexicalized dependency (sub)trees and extract them from spoken and written Universal Dependencies (UD) treebanks in two syntactically distinct languages, English and Slovenian. For each corpus, we analyze the size, diversity, and distribution of syntactic inventories, their overlap across modalities, and the structures most characteristic of speech. Results show that, across both languages, spoken corpora contain fewer and less diverse syntactic structures than their written counterparts, with consistent cross-linguistic preferences for certain structural types across modalities. Strikingly, the overlap between spoken and written syntactic inventories is very limited: most structures attested in speech do not occur in writing, pointing to modality-specific preferences in syntactic organization that reflect the distinct demands of real-time interaction and elaborated writing. This contrast is further supported by a keyness analysis of the most frequent speech-specific structures, which highlights patterns associated with interactivity, context-grounding, and economy of expression. We argue that this scalable, language-independent framework offers a useful general method for systematically studying syntactic variation across corpora, laying the groundwork for more comprehensive data-driven theories of grammar in use.",
+          "claimed_authors": [
+            "Kaja Dobrovoljc"
+          ],
+          "claimed_title": "Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.22774"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='Counting trees: A treebank-driven exploration of syntactic variation in speech and writing across languages')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Identifying which string produces a given pitch in monophonic electric guitar audio is a classification challenge: a single pitch can often be produced on multiple strings, with timbral differences largely imperceptible to untrained humans. We present Fretiq, a preliminary single-instrument, single-player browser-based string classification system using a 26-dimensional feature representation of frequency band energies, spectral statistics, and 13 Mel-Frequency Cepstral Coefficients. Across five seeds, a shuffled frame-level validation split yields 97.25 +/- 0.32 percent accuracy, with an ablation study identifying MFCCs as the primary accuracy driver (92.09 +/- 0.50 percent without MFCCs). We introduce Comparison Training, a data collection method recording same-pitch pairs on adjacent strings in deliberate alternation. An initial shuffled-split comparison found no net benefit but was confounded by non-comparable validation sets across conditions. A corrected matched evaluation, using an identical recording session held out from training and model selection, shows including comparison-session data improves accuracy by 25.78 +/- 1.46 percentage points; a size-matched control shows this is not explained by training-set size alone. A recording-session-held-out evaluation yields 86.53 +/- 1.23 percent accuracy, closely matching an independently collected free-play evaluation (87.8 percent), both well below the shuffled-split figure, showing shuffled validation substantially overestimates real generalization here. We describe the feature extraction pipeline in Python and TypeScript for training-inference parity and document two implementation failure modes. The system runs entirely in-browser with no specialized hardware required.",
+          "claimed_authors": [
+            "Aadi Garg"
+          ],
+          "claimed_title": "Fretiq: Browser-Native Electric Guitar String Classification via Engineered Spectral Features and Held-Out Free-Play Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.18303"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='Fretiq: Browser-Native Electric Guitar String Classification via Engineered Spectral Features and Held-Out Free-Play Evaluation')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models pretrained on extensive web corpora demonstrate remarkable performance across a wide range of downstream tasks. However, a growing concern is data contamination, where evaluation datasets may be contained in the pretraining corpus, inflating model performance. Decontamination, the process of detecting and removing such data, is a potential solution; yet these contaminants may originate from altered versions of the test set, evading detection during decontamination. How different types of contamination impact the performance of language models on downstream tasks is not fully understood. We present a taxonomy that categorizes the various types of contamination encountered by LLMs during the pretraining phase and identify which types pose the highest risk. We analyze the impact of contamination on two key NLP tasks -- summarization and question answering -- revealing how different types of contamination influence task performance during evaluation.",
+          "claimed_authors": [
+            "Medha Palavalli",
+            "Amanda Bertsch",
+            "Matthew R. Gormley"
+          ],
+          "claimed_title": "A Taxonomy for Data Contamination in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.08716"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='A Taxonomy for Data Contamination in Large Language Models')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data contamination poses a significant threat to the reliable evaluation of Large Language Models (LLMs). This issue arises when benchmark samples may inadvertently appear in training sets, compromising the validity of reported performance. While detection methods have been developed for the pre-training and Supervised Fine-Tuning stages, a critical research gap exists for the increasingly significant phase of Reinforcement Learning (RL) post-training. As RL post-training becomes pivotal for advancing LLM reasoning, the absence of specialized contamination detection methods in this paradigm presents a critical vulnerability. To address this, we conduct the first systematic study of data detection within RL post-training scenario and propose Self-Critique. Our method is motivated by a key observation: after RL phase, the output entropy distribution of LLMs tends to collapse into highly specific and sparse modes. Self-Critique probes for the underlying policy collapse, i.e., the model's convergence to a narrow reasoning path, which causes this entropy reduction. To facilitate this research, we also introduce RL-MIA, a benchmark constructed to simulate this specific contamination scenario. Extensive experiments show that Self-Critique significantly outperforms baseline methods across multiple models and contamination tasks, achieving an AUC improvement of up to 30%. Whereas existing methods are close to a random guess for RL-phase contamination, our method makes detection possible.",
+          "claimed_authors": [
+            "Yongding Tao",
+            "Tian Wang",
+            "Yihong Dong",
+            "Huanyu Liu",
+            "Kechi Zhang",
+            "Xiaolong Hu",
+            "Ge Li"
+          ],
+          "claimed_title": "Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.09259"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a data model describing the structure of spectrophotometric datasets with spectral and temporal coordinates and associated metadata. This data model may be used to represent spectra, time series data, segments of SED (Spectral Energy Distributions) and other spectral or temporal associations.",
+          "claimed_authors": [
+            "Jonathan McDowell",
+            "Doug Tody",
+            "Tamas Budavari",
+            "Markus Dolensky",
+            "Inga Kamp",
+            "Kelly McCusker",
+            "Pavlos Protopapas",
+            "Arnold Rots",
+            "Randy Thompson",
+            "Frank Valdes",
+            "Petr Skoda",
+            "Bruno Rino",
+            "Sebastien Derriere",
+            "Jesus Salgado",
+            "Omar Laurino",
+            "the IVOA Data Access Layer",
+            "Data Model Working Groups"
+          ],
+          "claimed_title": "IVOA Recommendation: Spectrum Data Model 1.1",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1204.3055"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"NatureBench: Can Coding Agents Match the Published', candidate_title='IVOA Recommendation: Spectrum Data Model 1.1')",
+        "failed_at": "2026-09-04T06:50:58Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuru Wang",
+            "Lejun Cheng",
+            "Yuxin Zuo",
+            "Sihang Zeng",
+            "Bingxiang He",
+            "Che Jiang",
+            "Junlin Yang",
+            "Yuchong Wang",
+            "Kaikai Zhao",
+            "Weifeng Huang",
+            "Kai Tian",
+            "Zhenzhao Yuan",
+            "Jincheng Zhong",
+            "Weizhi Wang",
+            "Ning Ding",
+            "Bowen Zhou",
+            "Kaiyan Zhang"
+          ],
+          "title": "NatureBench: Can Coding Agents Match the Published SOTA of Nature-Family Papers?",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.24530",
+        "summary": "We introduce NatureBench, a cross-discipline benchmark of 90 tasks distilled from peer-reviewed Nature-family publications, designed to evaluate whether AI coding agents can move beyond reproduction toward discovery on real scientific problems. NatureBench is built on NatureGym, an automated pipeline that constructs a standardized, per-task containerized environment from a source paper, addressing the environment-fragmentation problem that has limited the credibility of prior agent-on-research benchmarks. Evaluating ten frontier agent configurations under a strict web-search-disabled protocol, we find that the strongest model surpasses SOTA on only 17.8% of tasks under the g>0.1 criterion. Analysis of method pathways reveals that agents succeed primarily through methodological translation, converting scientific tasks into familiar supervised prediction problems, rather than through genuine scientific invention. Failures are dominated by wrong method choice and insufficient compute budget, not by task misunderstanding. We release the benchmark, the NatureGym pipeline, and a public leaderboard with maintainer-side reproduction. Code: https://github.com/FrontisAI/NatureBench",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.24530",
+          "http_status": 200,
+          "pdf_sample_score": 0.2744,
+          "query_relevance_score": 0.5833,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-04T06:50:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhiqing Yang",
+            "Yilun Liu",
+            "Yunpu Ma",
+            "Volker Tresp",
+            "Hinrich Schütze"
+          ],
+          "title": "Behavioral and Representational Evidence of Binomial Ordering Preferences in Large Language Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.21645",
+        "summary": "Large language models (LLMs) can readily reproduce conventional expressions, yet their ability to model gradient frequency distributions remains underexplored. We investigate this using linguistic binomials, such as men and women, where both word permutations are grammatically valid but exhibit distinct, cross-linguistic variations in conventionality. We formalize binomial ordering as a distributional alignment problem, and construct a multilingual dataset of 600 binomial pairs across 8 languages. With categorical and distributional metrics, we measure and compare the corpus-derived preferences with model-induced ordering probabilities of 6 open-weight LLMs. While models often behaviorally recover the dominant corpus-preferred order, particularly for strongly conventionalized pairs, they align less well with the exact corpus preference distributions. This suggests that apparent directional order overstates how faithfully LLMs capture the statistical nuances of language use. Sparse probing verifies that the concept of preference strength is partially encoded among middle-to-late layers, and steering along probe-derived directions alters model-induced ordering distributions, demonstrating that the statistical behavioral preference of LLMs can be mechanistically measured and manipulated via internal representations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.21645",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-04T06:51:05Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hanlin Wu",
+            "Xufeng Duan",
+            "Zhenguang Cai"
+          ],
+          "title": "Distinct social-linguistic processing between humans and large audio-language models: Evidence from model-brain alignment",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.19586",
+        "summary": "Voice-based AI development faces unique challenges in processing both linguistic and paralinguistic information. This study compares how large audio-language models (LALMs) and humans integrate speaker characteristics during speech comprehension, asking whether LALMs process speaker-contextualized language in ways that parallel human cognitive mechanisms. We compared two LALMs' (Qwen2-Audio and Ultravox 0.5) processing patterns with human EEG responses. Using surprisal and entropy metrics from the models, we analyzed their sensitivity to speaker-content incongruency across social stereotype violations (e.g., a man claiming to regularly get manicures) and biological knowledge violations (e.g., a man claiming to be pregnant). Results revealed that Qwen2-Audio exhibited increased surprisal for speaker-incongruent content and its surprisal values significantly predicted human N400 responses, while Ultravox 0.5 showed limited sensitivity to speaker characteristics. Importantly, neither model replicated the human-like processing distinction between social violations (eliciting N400 effects) and biological violations (eliciting P600 effects). These findings reveal both the potential and limitations of current LALMs in processing speaker-contextualized language, and suggest differences in social-linguistic processing mechanisms between humans and LALMs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.19586",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-04T06:51:06Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"naturebench: can coding agents match the published sota of nature-fami\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

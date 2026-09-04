@@ -1915,6 +1915,10 @@
     "classified_at": "2026-07-04T12:37:43Z",
     "verdict": false
   },
+  "PROJ-980-llmxive-follow-up-extending-naturebench::1.6.0": {
+    "classified_at": "2026-09-04T06:50:58Z",
+    "verdict": false
+  },
   "PROJ-982-llmxive-follow-up-extending-dopd-dual-on::1.6.0": {
     "classified_at": "2026-07-23T07:34:28Z",
     "verdict": false

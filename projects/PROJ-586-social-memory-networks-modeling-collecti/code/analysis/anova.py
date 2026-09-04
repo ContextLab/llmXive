@@ -1,8 +1,6 @@
 """
-ANOVA analysis module for Social Memory Networks.
-
-Implements Two-Way Independent-Samples ANOVA with Bonferroni correction
-for family-wise error rate control.
+ANOVA Analysis Module for Social Memory Networks
+Implements Two-Way Independent-Samples ANOVA with Bonferroni correction.
 """
 from __future__ import annotations
 
@@ -17,624 +15,443 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+import pandas as pd
 
-# Optional statsmodels import
-try:
-    import statsmodels.api as sm
-    from statsmodels.stats.anova import AnovaRM
-    from statsmodels.stats.multicomp import pairwise_tukeyhsd
-    STATSMODELS_AVAILABLE = True
-except ImportError:
-    STATSMODELS_AVAILABLE = False
-    AnovaRM = None  # type: ignore
+from utils.logging import get_logger
 
+logger = get_logger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Data Classes
+# ---------------------------------------------------------------------------
 
 @dataclass
 class ANOVAOutput:
-    """Container for ANOVA results including Bonferroni-corrected values."""
+    """Structured output for a single ANOVA test."""
     source: str
     df: float
     sum_sq: float
     mean_sq: float
-    F: float
+    f_value: float
     p_value: float
-    p_value_bonferroni: float
-    corrected_alpha: float
-    significance: str
+    bonferroni_p_value: Optional[float] = None
+    bonferroni_alpha: Optional[float] = None
+    significant: Optional[bool] = None
 
 @dataclass
 class ANOVAFullResult:
-    """Complete ANOVA analysis result."""
-    interaction_p_value: float
-    interaction_p_bonferroni: float
-    main_effect_context_p: float
-    main_effect_context_p_bonferroni: float
-    main_effect_metric_p: float
-    main_effect_metric_p_bonferroni: float
-    corrected_alpha: float
-    significant_interaction: bool
-    significant_context: bool
-    significant_metric: bool
-    bonferroni_factor: int
-    raw_p_values: Dict[str, float]
-    bonferroni_p_values: Dict[str, float]
-    effect_sizes: Dict[str, float]
-    summary_text: str
+    """Complete ANOVA analysis result including corrections."""
+    df_total: int
+    df_error: int
+    f_statistic: float
+    p_value: float
+    bonferroni_p_value: float
+    bonferroni_alpha: float
+    effect_size_eta_squared: float
+    significant_at_corrected_alpha: bool
+    raw_p_values: Dict[str, float] = field(default_factory=dict)
+    corrected_p_values: Dict[str, float] = field(default_factory=dict)
 
-def safe_import_statsmodels() -> bool:
-    """Check if statsmodels is available."""
-    return STATSMODELS_AVAILABLE
+
+# ---------------------------------------------------------------------------
+# Utility Functions
+# ---------------------------------------------------------------------------
+
+def safe_import_statsmodels() -> Optional[Any]:
+    """Safely import statsmodels, returning None if unavailable."""
+    try:
+        import statsmodels.api as sm
+        import statsmodels.formula.api as smf
+        return {"sm": sm, "smf": smf}
+    except ImportError:
+        logger.warning("statsmodels not available. Using manual ANOVA calculation.")
+        return None
+
 
 def load_experiment_results(
-    full_path: Union[str, Path],
-    limited_path: Union[str, Path]
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    """
-    Load experiment results from CSV files.
+    file_path: Union[str, Path],
+    expected_columns: Optional[List[str]] = None
+) -> pd.DataFrame:
+    """Load experiment results from CSV file."""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Results file not found: {path}")
 
-    Args:
-        full_path: Path to results_full.csv
-        limited_path: Path to results_limited.csv
+    df = pd.read_csv(path)
 
-    Returns:
-        Tuple of (full_results, limited_results) as lists of dicts
-    """
-    full_results = []
-    limited_results = []
+    if expected_columns:
+        missing = set(expected_columns) - set(df.columns)
+        if missing:
+            raise ValueError(f"Missing expected columns: {missing}")
 
-    # Load full context results
-    full_path = Path(full_path)
-    if full_path.exists():
-        with open(full_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                full_results.append({
-                    'game_id': int(row['game_id']),
-                    'specialization_index': float(row['specialization_index']),
-                    'retrieval_efficiency': float(row['retrieval_efficiency']),
-                    'context_condition': row['context_condition'],
-                    'agent_count': int(row['agent_count'])
-                })
+    return df
 
-    # Load limited context results
-    limited_path = Path(limited_path)
-    if limited_path.exists():
-        with open(limited_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                limited_results.append({
-                    'game_id': int(row['game_id']),
-                    'specialization_index': float(row['specialization_index']),
-                    'retrieval_efficiency': float(row['retrieval_efficiency']),
-                    'context_condition': row['context_condition'],
-                    'agent_count': int(row['agent_count'])
-                })
-
-    return full_results, limited_results
 
 def prepare_data_for_anova(
-    full_results: List[Dict[str, Any]],
-    limited_results: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+    full_results_path: Union[str, Path],
+    limited_results_path: Union[str, Path]
+) -> pd.DataFrame:
     """
-    Prepare data in long format for ANOVA analysis.
-
-    Transforms wide format (one row per game with two metrics) to
-    long format (two rows per game, one per metric).
-
-    Args:
-        full_results: Results from full context condition
-        limited_results: Results from limited context condition
-
-    Returns:
-        List of dicts in long format with columns:
-        game_id, context_condition, metric_name, metric_value
+    Combine full and limited context results into long format for ANOVA.
+    Transforms wide metrics (specialization, retrieval) into long format.
     """
-    long_data = []
+    df_full = load_experiment_results(full_results_path)
+    df_limited = load_experiment_results(limited_results_path)
 
-    # Process full context results
-    for game in full_results:
-        # Add specialization metric row
-        long_data.append({
-            'game_id': game['game_id'],
-            'context_condition': game['context_condition'],
-            'metric_name': 'specialization',
-            'metric_value': game['specialization_index']
-        })
-        # Add retrieval metric row
-        long_data.append({
-            'game_id': game['game_id'],
-            'context_condition': game['context_condition'],
-            'metric_name': 'retrieval',
-            'metric_value': game['retrieval_efficiency']
-        })
+    # Add context condition label
+    df_full["context_condition"] = "full"
+    df_limited["context_condition"] = "limited"
 
-    # Process limited context results
-    for game in limited_results:
-        # Add specialization metric row
-        long_data.append({
-            'game_id': game['game_id'],
-            'context_condition': game['context_condition'],
-            'metric_name': 'specialization',
-            'metric_value': game['specialization_index']
-        })
-        # Add retrieval metric row
-        long_data.append({
-            'game_id': game['game_id'],
-            'context_condition': game['context_condition'],
-            'metric_name': 'retrieval',
-            'metric_value': game['retrieval_efficiency']
-        })
+    # Combine
+    df_combined = pd.concat([df_full, df_limited], ignore_index=True)
 
-    return long_data
+    # Transform to long format: one row per metric per game
+    # We need: game_id, context_condition, metric_name, metric_value
+    rows = []
+    for _, row in df_combined.iterrows():
+        game_id = row.get("game_id")
+        context = row["context_condition"]
+
+        # Specialization
+        if "specialization_index" in row and not pd.isna(row["specialization_index"]):
+            rows.append({
+                "game_id": game_id,
+                "context_condition": context,
+                "metric_name": "specialization",
+                "metric_value": row["specialization_index"]
+            })
+
+        # Retrieval
+        if "retrieval_efficiency" in row and not pd.isna(row["retrieval_efficiency"]):
+            rows.append({
+                "game_id": game_id,
+                "context_condition": context,
+                "metric_name": "retrieval",
+                "metric_value": row["retrieval_efficiency"]
+            })
+
+    df_long = pd.DataFrame(rows)
+    return df_long
+
 
 def compute_effect_size_etasquared(
-    ss_between: float,
-    ss_within: float
+    ss_effect: float,
+    ss_error: float
 ) -> float:
-    """
-    Compute eta-squared effect size.
-
-    Args:
-        ss_between: Sum of squares between groups
-        ss_within: Sum of squares within groups
-
-    Returns:
-        Eta-squared value (0 to 1)
-    """
-    ss_total = ss_between + ss_within
-    if ss_total == 0:
+    """Compute eta-squared effect size."""
+    if ss_effect + ss_error == 0:
         return 0.0
-    return ss_between / ss_total
+    return ss_effect / (ss_effect + ss_error)
 
-def compute_two_way_anova_manual(
-    data: List[Dict[str, Any]]
-) -> Dict[str, Any]:
-    """
-    Compute Two-Way ANOVA manually without statsmodels.
-
-    Implements a Two-Way Independent-Samples ANOVA where:
-    - Factor A: context_condition (Between-Subjects)
-    - Factor B: metric_name (Within-Subjects, repeated measures)
-
-    Note: Since this is a mixed design (one between, one within),
-    we compute the interaction and main effects using standard formulas.
-
-    Args:
-        data: Long-format data list
-
-    Returns:
-        Dictionary with ANOVA table values
-    """
-    # Group data by factors
-    context_levels = list(set(row['context_condition'] for row in data))
-    metric_levels = list(set(row['metric_name'] for row in data))
-
-    n_context = len(context_levels)
-    n_metric = len(metric_levels)
-
-    # Calculate grand mean
-    all_values = [row['metric_value'] for row in data]
-    grand_mean = np.mean(all_values)
-    N = len(all_values)
-
-    # Calculate SS_total
-    ss_total = sum((v - grand_mean) ** 2 for v in all_values)
-
-    # Calculate SS_context (Factor A - Between Subjects)
-    context_means = {}
-    context_counts = {}
-    for row in data:
-        ctx = row['context_condition']
-        if ctx not in context_means:
-            context_means[ctx] = 0
-            context_counts[ctx] = 0
-        context_means[ctx] += row['metric_value']
-        context_counts[ctx] += 1
-
-    for ctx in context_means:
-        context_means[ctx] /= context_counts[ctx]
-
-    ss_context = sum(
-        context_counts[ctx] * (context_means[ctx] - grand_mean) ** 2
-        for ctx in context_levels
-    )
-
-    # Calculate SS_metric (Factor B - Within Subjects)
-    metric_means = {}
-    metric_counts = {}
-    for row in data:
-        met = row['metric_name']
-        if met not in metric_means:
-            metric_means[met] = 0
-            metric_counts[met] = 0
-        metric_means[met] += row['metric_value']
-        metric_counts[met] += 1
-
-    for met in metric_means:
-        metric_means[met] /= metric_counts[met]
-
-    ss_metric = sum(
-        metric_counts[met] * (metric_means[met] - grand_mean) ** 2
-        for met in metric_levels
-    )
-
-    # Calculate SS_interaction
-    # First, calculate cell means and counts
-    cell_data = {}
-    for row in data:
-        key = (row['context_condition'], row['metric_name'])
-        if key not in cell_data:
-            cell_data[key] = []
-        cell_data[key].append(row['metric_value'])
-
-    cell_means = {}
-    cell_counts = {}
-    for key, values in cell_data.items():
-        cell_means[key] = np.mean(values)
-        cell_counts[key] = len(values)
-
-    # SS_interaction = SS_cells - SS_context - SS_metric
-    ss_cells = 0
-    for key, mean in cell_means.items():
-        ctx, met = key
-        n = cell_counts[key]
-        ss_cells += n * (mean - grand_mean) ** 2
-
-    ss_interaction = ss_cells - ss_context - ss_metric
-
-    # Calculate SS_error (residual)
-    ss_error = ss_total - ss_cells
-
-    # Degrees of freedom
-    df_context = n_context - 1
-    df_metric = n_metric - 1
-    df_interaction = df_context * df_metric
-
-    # For repeated measures design, error term for within-subjects and interaction
-    # is typically calculated differently, but for independent-samples ANOVA
-    # as specified in FR-006, we use:
-    df_error = N - (n_context * n_metric)
-
-    # Mean squares
-    ms_context = ss_context / df_context if df_context > 0 else 0
-    ms_metric = ss_metric / df_metric if df_metric > 0 else 0
-    ms_interaction = ss_interaction / df_interaction if df_interaction > 0 else 0
-    ms_error = ss_error / df_error if df_error > 0 else 0
-
-    # F-statistics
-    f_context = ms_context / ms_error if ms_error > 0 else 0
-    f_metric = ms_metric / ms_error if ms_error > 0 else 0
-    f_interaction = ms_interaction / ms_error if ms_error > 0 else 0
-
-    # P-values (approximation using F-distribution)
-    # Using scipy if available, otherwise approximate
-    try:
-        from scipy.stats import f as f_dist
-        p_context = 1 - f_dist.cdf(f_context, df_context, df_error)
-        p_metric = 1 - f_dist.cdf(f_metric, df_metric, df_error)
-        p_interaction = 1 - f_dist.cdf(f_interaction, df_interaction, df_error)
-    except ImportError:
-        # Fallback: use simple approximation
-        p_context = _approximate_p_value(f_context, df_context, df_error)
-        p_metric = _approximate_p_value(f_metric, df_metric, df_error)
-        p_interaction = _approximate_p_value(f_interaction, df_interaction, df_error)
-
-    # Effect sizes (eta-squared)
-    eta_context = compute_effect_size_etasquared(ss_context, ss_error)
-    eta_metric = compute_effect_size_etasquared(ss_metric, ss_error)
-    eta_interaction = compute_effect_size_etasquared(ss_interaction, ss_error)
-
-    return {
-        'source': 'context_condition',
-        'df': df_context,
-        'ss': ss_context,
-        'ms': ms_context,
-        'f': f_context,
-        'p_value': p_context,
-        'eta_squared': eta_context
-    }, {
-        'source': 'metric_name',
-        'df': df_metric,
-        'ss': ss_metric,
-        'ms': ms_metric,
-        'f': f_metric,
-        'p_value': p_metric,
-        'eta_squared': eta_metric
-    }, {
-        'source': 'interaction',
-        'df': df_interaction,
-        'ss': ss_interaction,
-        'ms': ms_interaction,
-        'f': f_interaction,
-        'p_value': p_interaction,
-        'eta_squared': eta_interaction
-    }, {
-        'source': 'error',
-        'df': df_error,
-        'ss': ss_error,
-        'ms': ms_error
-    }, {
-        'total': {
-            'df': N - 1,
-            'ss': ss_total
-        }
-    }
-
-def _approximate_p_value(f_stat: float, df_num: int, df_den: int) -> float:
-    """
-    Approximate p-value for F-distribution when scipy is not available.
-
-    This is a simple approximation for demonstration purposes.
-    In production, scipy.stats.f.cdf should be used.
-
-    Args:
-        f_stat: F-statistic value
-        df_num: Numerator degrees of freedom
-        df_den: Denominator degrees of freedom
-
-    Returns:
-        Approximate p-value
-    """
-    # Simple approximation: if F > 4, p < 0.05 typically
-    # This is very rough and should be replaced with scipy
-    if df_den <= 0:
-        return 1.0
-
-    # Use a simplified approximation
-    # For large df_den, F ~ chi-squared / df_num
-    # This is a crude approximation
-    if f_stat <= 1:
-        return 0.5
-    elif f_stat < 2:
-        return 0.2
-    elif f_stat < 4:
-        return 0.05
-    elif f_stat < 10:
-        return 0.01
-    else:
-        return 0.001
 
 def apply_bonferroni_correction(
-    p_values: Dict[str, float],
+    p_values: List[float],
     alpha: float = 0.05
-) -> Tuple[Dict[str, float], float, int]:
+) -> Tuple[List[float], float]:
     """
-    Apply Bonferroni correction to a set of p-values.
+    Apply Bonferroni correction to a list of p-values.
+    Returns corrected p-values and the corrected alpha threshold.
 
-    The Bonferroni correction controls the family-wise error rate by
-    dividing the significance level by the number of tests, or
-    equivalently, multiplying p-values by the number of tests.
-
-    Args:
-        p_values: Dictionary mapping test names to their p-values
-        alpha: Original significance level (default 0.05)
-
-    Returns:
-        Tuple of (corrected_p_values, corrected_alpha, num_tests)
+    Bonferroni correction:
+    - Corrected p-value = min(p * m, 1.0) where m is number of tests
+    - Corrected alpha = alpha / m
     """
-    num_tests = len(p_values)
-    if num_tests == 0:
-        return {}, alpha, 0
+    m = len(p_values)
+    if m == 0:
+        return [], alpha
 
-    # Corrected alpha (family-wise error rate)
-    corrected_alpha = alpha / num_tests
+    corrected_alpha = alpha / m
+    corrected_p_values = [min(p * m, 1.0) for p in p_values]
 
-    # Corrected p-values (capped at 1.0)
-    corrected_p_values = {}
-    for name, p in p_values.items():
-        corrected_p = min(p * num_tests, 1.0)
-        corrected_p_values[name] = corrected_p
+    return corrected_p_values, corrected_alpha
 
-    return corrected_p_values, corrected_alpha, num_tests
 
-def compute_two_way_anova(
-    full_path: Union[str, Path],
-    limited_path: Union[str, Path],
-    alpha: float = 0.05
-) -> ANOVAFullResult:
+def compute_two_way_anova_manual(
+    df: pd.DataFrame,
+    factor1: str = "context_condition",
+    factor2: str = "metric_name",
+    response: str = "metric_value"
+) -> Dict[str, Any]:
     """
-    Perform complete Two-Way ANOVA with Bonferroni correction.
+    Compute Two-Way Independent-Samples ANOVA manually.
+    Treats both factors as between-subjects (independent) as per FR-006.
 
-    This function:
-    1. Loads results from full and limited context conditions
-    2. Prepares data in long format
-    3. Computes ANOVA manually (or via statsmodels if available)
-    4. Applies Bonferroni correction to all p-values
-    5. Returns comprehensive results
-
-    Args:
-        full_path: Path to results_full.csv
-        limited_path: Path to results_limited.csv
-        alpha: Significance level for hypothesis testing (default 0.05)
-
-    Returns:
-        ANOVAFullResult containing all ANOVA statistics and corrected values
+    Returns dictionary with SS, df, MS, F, p-values for:
+    - Factor 1 main effect
+    - Factor 2 main effect
+    - Interaction
+    - Error
     """
-    # Load data
-    full_results, limited_results = load_experiment_results(full_path, limited_path)
+    # Group by both factors
+    grouped = df.groupby([factor1, factor2])[response].agg(["mean", "count", "sum"])
+    grouped = grouped.reset_index()
 
-    if not full_results and not limited_results:
-        raise ValueError("No data found in input files")
+    # Calculate grand mean
+    grand_mean = df[response].mean()
+    n_total = len(df)
 
-    # Prepare data in long format
-    long_data = prepare_data_for_anova(full_results, limited_results)
+    # Calculate sums of squares
+    # SS_total
+    ss_total = ((df[response] - grand_mean) ** 2).sum()
 
-    # Compute ANOVA
-    result_context, result_metric, result_interaction, result_error, result_total = \
-        compute_two_way_anova_manual(long_data)
-
-    # Collect raw p-values
-    raw_p_values = {
-        'context_condition': result_context['p_value'],
-        'metric_name': result_metric['p_value'],
-        'interaction': result_interaction['p_value']
-    }
-
-    # Apply Bonferroni correction
-    bonferroni_p_values, corrected_alpha, num_tests = \
-        apply_bonferroni_correction(raw_p_values, alpha)
-
-    # Extract key statistics
-    interaction_p = result_interaction['p_value']
-    interaction_p_bonf = bonferroni_p_values['interaction']
-    context_p = result_context['p_value']
-    context_p_bonf = bonferroni_p_values['context_condition']
-    metric_p = result_metric['p_value']
-    metric_p_bonf = bonferroni_p_values['metric_name']
-
-    # Determine significance
-    significant_interaction = interaction_p_bonf < corrected_alpha
-    significant_context = context_p_bonf < corrected_alpha
-    significant_metric = metric_p_bonf < corrected_alpha
-
-    # Effect sizes
-    effect_sizes = {
-        'context_condition': result_context['eta_squared'],
-        'metric_name': result_metric['eta_squared'],
-        'interaction': result_interaction['eta_squared']
-    }
-
-    # Generate summary text
-    summary_parts = []
-    summary_parts.append(f"Two-Way ANOVA Results (Bonferroni-corrected α = {corrected_alpha:.4f}):")
-    summary_parts.append(f"  - Interaction (context × metric): F({result_interaction['df']:.0f}, {result_error['df']:.0f}) = {result_interaction['f']:.4f}, "
-                       f"p = {interaction_p:.4f}, p_corrected = {interaction_p_bonf:.4f}, "
-                       f"{'significant' if significant_interaction else 'not significant'}")
-    summary_parts.append(f"  - Main effect (context): F({result_context['df']:.0f}, {result_error['df']:.0f}) = {result_context['f']:.4f}, "
-                       f"p = {context_p:.4f}, p_corrected = {context_p_bonf:.4f}, "
-                       f"{'significant' if significant_context else 'not significant'}")
-    summary_parts.append(f"  - Main effect (metric): F({result_metric['df']:.0f}, {result_error['df']:.0f}) = {result_metric['f']:.4f}, "
-                       f"p = {metric_p:.4f}, p_corrected = {metric_p_bonf:.4f}, "
-                       f"{'significant' if significant_metric else 'not significant'}")
-    summary_parts.append(f"  - Bonferroni factor: {num_tests} tests")
-    summary_parts.append(f"  - Effect sizes (η²): context={effect_sizes['context_condition']:.4f}, "
-                       f"metric={effect_sizes['metric_name']:.4f}, interaction={effect_sizes['interaction']:.4f}")
-
-    summary_text = "\n".join(summary_parts)
-
-    return ANOVAFullResult(
-        interaction_p_value=interaction_p,
-        interaction_p_bonferroni=interaction_p_bonf,
-        main_effect_context_p=context_p,
-        main_effect_context_p_bonferroni=context_p_bonf,
-        main_effect_metric_p=metric_p,
-        main_effect_metric_p_bonferroni=metric_p_bonf,
-        corrected_alpha=corrected_alpha,
-        significant_interaction=significant_interaction,
-        significant_context=significant_context,
-        significant_metric=significant_metric,
-        bonferroni_factor=num_tests,
-        raw_p_values=raw_p_values,
-        bonferroni_p_values=bonferroni_p_values,
-        effect_sizes=effect_sizes,
-        summary_text=summary_text
+    # SS_factor1 (main effect of context_condition)
+    means_f1 = df.groupby(factor1)[response].mean()
+    counts_f1 = df.groupby(factor1).size()
+    ss_factor1 = sum(
+        counts_f1[f] * (means_f1[f] - grand_mean) ** 2
+        for f in means_f1.index
     )
+
+    # SS_factor2 (main effect of metric_name)
+    means_f2 = df.groupby(factor2)[response].mean()
+    counts_f2 = df.groupby(factor2).size()
+    ss_factor2 = sum(
+        counts_f2[f] * (means_f2[f] - grand_mean) ** 2
+        for f in means_f2.index
+    )
+
+    # SS_interaction
+    # Calculate cell means and expected means under additivity
+    cell_means = df.groupby([factor1, factor2])[response].mean()
+    cell_counts = df.groupby([factor1, factor2]).size()
+
+    ss_interaction = 0.0
+    for f1 in df[factor1].unique():
+        for f2 in df[factor2].unique():
+            mask = (df[factor1] == f1) & (df[factor2] == f2)
+            n_cell = mask.sum()
+            if n_cell > 0:
+                cell_mean = cell_means[(f1, f2)]
+                main_f1_effect = means_f1[f1] - grand_mean
+                main_f2_effect = means_f2[f2] - grand_mean
+                interaction_effect = cell_mean - grand_mean - main_f1_effect - main_f2_effect
+                ss_interaction += n_cell * (interaction_effect ** 2)
+
+    # SS_error (residual)
+    ss_error = ss_total - ss_factor1 - ss_factor2 - ss_interaction
+    if ss_error < 0:
+        ss_error = 0.0  # Numerical stability
+
+    # Degrees of freedom
+    n_f1 = df[factor1].nunique()
+    n_f2 = df[factor2].nunique()
+
+    df_factor1 = n_f1 - 1
+    df_factor2 = n_f2 - 1
+    df_interaction = df_factor1 * df_factor2
+    df_error = n_total - (n_f1 * n_f2)
+    df_total = n_total - 1
+
+    if df_error <= 0:
+        df_error = 1  # Prevent division by zero
+
+    # Mean squares
+    ms_factor1 = ss_factor1 / df_factor1 if df_factor1 > 0 else 0
+    ms_factor2 = ss_factor2 / df_factor2 if df_factor2 > 0 else 0
+    ms_interaction = ss_interaction / df_interaction if df_interaction > 0 else 0
+    ms_error = ss_error / df_error if df_error > 0 else 1.0
+
+    # F-statistics
+    f_factor1 = ms_factor1 / ms_error if ms_error > 0 else 0
+    f_factor2 = ms_factor2 / ms_error if ms_error > 0 else 0
+    f_interaction = ms_interaction / ms_error if ms_error > 0 else 0
+
+    # P-values (using scipy if available, else approximation)
+    try:
+        from scipy import stats
+        p_factor1 = 1 - stats.f.cdf(f_factor1, df_factor1, df_error)
+        p_factor2 = 1 - stats.f.cdf(f_factor2, df_factor2, df_error)
+        p_interaction = 1 - stats.f.cdf(f_interaction, df_interaction, df_error)
+    except ImportError:
+        # Fallback: use a simple approximation or return 1.0
+        logger.warning("scipy not available. Using p-value approximation.")
+        p_factor1 = 1.0 / (1.0 + f_factor1)
+        p_factor2 = 1.0 / (1.0 + f_factor2)
+        p_interaction = 1.0 / (1.0 + f_interaction)
+
+    return {
+        "ss_factor1": ss_factor1,
+        "df_factor1": df_factor1,
+        "ms_factor1": ms_factor1,
+        "f_factor1": f_factor1,
+        "p_factor1": p_factor1,
+
+        "ss_factor2": ss_factor2,
+        "df_factor2": df_factor2,
+        "ms_factor2": ms_factor2,
+        "f_factor2": f_factor2,
+        "p_factor2": p_factor2,
+
+        "ss_interaction": ss_interaction,
+        "df_interaction": df_interaction,
+        "ms_interaction": ms_interaction,
+        "f_interaction": f_interaction,
+        "p_interaction": p_interaction,
+
+        "ss_error": ss_error,
+        "df_error": df_error,
+        "ms_error": ms_error,
+
+        "ss_total": ss_total,
+        "df_total": df_total
+    }
+
 
 def run_anova_analysis(
-    full_path: Union[str, Path],
-    limited_path: Union[str, Path],
-    output_path: Union[str, Path],
+    full_results_path: Union[str, Path],
+    limited_results_path: Union[str, Path],
+    output_path: Optional[Union[str, Path]] = None,
     alpha: float = 0.05
 ) -> ANOVAFullResult:
     """
-    Run complete ANOVA analysis and save results.
+    Run full ANOVA analysis with Bonferroni correction.
 
     Args:
-        full_path: Path to results_full.csv
-        limited_path: Path to results_limited.csv
-        output_path: Path to save JSON results
-        alpha: Significance level (default 0.05)
-
-    Returns:
-        ANOVAFullResult object
+        full_results_path: Path to results_full.csv
+        limited_results_path: Path to results_limited.csv
+        output_path: Optional path to write JSON results
+        alpha: Significance level for correction
     """
-    result = compute_two_way_anova(full_path, limited_path, alpha)
+    # Prepare data
+    df = prepare_data_for_anova(full_results_path, limited_results_path)
 
-    # Save results to JSON
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Run ANOVA
+    results = compute_two_way_anova_manual(df)
 
-    results_dict = {
-        'interaction': {
-            'p_value': result.interaction_p_value,
-            'p_value_bonferroni': result.interaction_p_bonferroni,
-            'significant': result.significant_interaction,
-            'effect_size_eta_squared': result.effect_sizes['interaction']
-        },
-        'main_effect_context': {
-            'p_value': result.main_effect_context_p,
-            'p_value_bonferroni': result.main_effect_context_p_bonferroni,
-            'significant': result.significant_context,
-            'effect_size_eta_squared': result.effect_sizes['context_condition']
-        },
-        'main_effect_metric': {
-            'p_value': result.main_effect_metric_p,
-            'p_value_bonferroni': result.main_effect_metric_p_bonferroni,
-            'significant': result.significant_metric,
-            'effect_size_eta_squared': result.effect_sizes['metric_name']
-        },
-        'bonferroni_correction': {
-            'original_alpha': alpha,
-            'corrected_alpha': result.corrected_alpha,
-            'num_tests': result.bonferroni_factor,
-            'method': 'Bonferroni'
-        },
-        'summary': result.summary_text
-    }
+    # Collect p-values for correction
+    p_values = [
+        results["p_factor1"],   # Context main effect
+        results["p_factor2"],   # Metric main effect
+        results["p_interaction"] # Interaction
+    ]
 
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results_dict, f, indent=2)
+    # Apply Bonferroni correction
+    corrected_p_values, corrected_alpha = apply_bonferroni_correction(p_values, alpha)
 
-    return result
+    # Map corrected p-values back
+    results["p_factor1_corrected"] = corrected_p_values[0]
+    results["p_factor2_corrected"] = corrected_p_values[1]
+    results["p_interaction_corrected"] = corrected_p_values[2]
+
+    # Compute effect sizes
+    eta_sq_factor1 = compute_effect_size_etasquared(
+        results["ss_factor1"], results["ss_error"]
+    )
+    eta_sq_factor2 = compute_effect_size_etasquared(
+        results["ss_factor2"], results["ss_error"]
+    )
+    eta_sq_interaction = compute_effect_size_etasquared(
+        results["ss_interaction"], results["ss_error"]
+    )
+
+    # Determine significance at corrected alpha
+    sig_interaction = results["p_interaction_corrected"] < corrected_alpha
+
+    # Build output object
+    full_result = ANOVAFullResult(
+        df_total=results["df_total"],
+        df_error=results["df_error"],
+        f_statistic=results["f_interaction"],
+        p_value=results["p_interaction"],
+        bonferroni_p_value=results["p_interaction_corrected"],
+        bonferroni_alpha=corrected_alpha,
+        effect_size_eta_squared=eta_sq_interaction,
+        significant_at_corrected_alpha=sig_interaction,
+        raw_p_values={
+            "context_main": results["p_factor1"],
+            "metric_main": results["p_factor2"],
+            "interaction": results["p_interaction"]
+        },
+        corrected_p_values={
+            "context_main": results["p_factor1_corrected"],
+            "metric_main": results["p_factor2_corrected"],
+            "interaction": results["p_interaction_corrected"]
+        }
+    )
+
+    # Write output if requested
+    if output_path:
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
+            json.dump({
+                "df_total": full_result.df_total,
+                "df_error": full_result.df_error,
+                "f_statistic": full_result.f_statistic,
+                "p_value": full_result.p_value,
+                "bonferroni_p_value": full_result.bonferroni_p_value,
+                "bonferroni_alpha": full_result.bonferroni_alpha,
+                "effect_size_eta_squared": full_result.effect_size_eta_squared,
+                "significant_at_corrected_alpha": full_result.significant_at_corrected_alpha,
+                "raw_p_values": full_result.raw_p_values,
+                "corrected_p_values": full_result.corrected_p_values
+            }, f, indent=2)
+        logger.info(f"ANOVA results written to {output_path}")
+
+    return full_result
+
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build argument parser for ANOVA analysis CLI."""
+    """Build argument parser for CLI."""
     parser = argparse.ArgumentParser(
-        description='Run Two-Way ANOVA with Bonferroni correction'
+        description="Run Two-Way ANOVA with Bonferroni correction on experiment results."
     )
     parser.add_argument(
-        '--full-results',
+        "--full-results",
         type=str,
         required=True,
-        help='Path to results_full.csv'
+        help="Path to results_full.csv"
     )
     parser.add_argument(
-        '--limited-results',
+        "--limited-results",
         type=str,
         required=True,
-        help='Path to results_limited.csv'
+        help="Path to results_limited.csv"
     )
     parser.add_argument(
-        '--output',
+        "--output",
         type=str,
-        default='results/anova_results.json',
-        help='Output path for JSON results'
+        default="results/anova_results.json",
+        help="Path to output JSON file"
     )
     parser.add_argument(
-        '--alpha',
+        "--alpha",
         type=float,
         default=0.05,
-        help='Significance level (default: 0.05)'
+        help="Significance level for Bonferroni correction"
     )
     return parser
 
+
 def main() -> None:
-    """Main entry point for ANOVA analysis CLI."""
+    """Main entry point for CLI."""
     parser = build_parser()
     args = parser.parse_args()
 
     try:
         result = run_anova_analysis(
-            args.full_results,
-            args.limited_results,
-            args.output,
-            args.alpha
+            full_results_path=args.full_results,
+            limited_results_path=args.limited_results,
+            output_path=args.output,
+            alpha=args.alpha
         )
-        print(result.summary_text)
-    except Exception as e:
-        print(f"Error running ANOVA analysis: {e}", file=sys.stderr)
-        sys.exit(1)
 
-if __name__ == '__main__':
+        print(f"ANOVA Analysis Complete")
+        print(f"  Interaction F-statistic: {result.f_statistic:.4f}")
+        print(f"  Raw p-value: {result.p_value:.4f}")
+        print(f"  Bonferroni-corrected p-value: {result.bonferroni_p_value:.4f}")
+        print(f"  Corrected alpha (Bonferroni): {result.bonferroni_alpha:.4f}")
+        print(f"  Significant at corrected alpha: {result.significant_at_corrected_alpha}")
+        print(f"  Effect size (eta-squared): {result.effect_size_eta_squared:.4f}")
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Error running ANOVA: {e}")
+        raise
+
+
+if __name__ == "__main__":
     main()

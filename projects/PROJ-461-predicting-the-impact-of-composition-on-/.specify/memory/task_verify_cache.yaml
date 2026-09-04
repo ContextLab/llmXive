@@ -8,11 +8,11 @@ T001:
     \ or similar proof that these directories exist and are non\u2011empty."
 T003:
   c: false
-  h: f71619fd4b184b4cf46c46ce31d3bfc4e45152aef23eb896da15bbf5995b2264
-  r: The `pyproject.toml` correctly includes the `[tool.black]` configuration, but
-    the required `.ruff.toml` file is missing entirely, so the linting tool configuration
-    is not provided as specified. The next implementer must add a `.ruff.toml` containing
-    `line-length = 88` and `target-version = "py310"`.
+  h: c3b531a8a2f39f0858e3e829cac061e3cc6cd31ee20b83edab4e11a758b403e9
+  r: The `pyproject.toml` correctly includes the required `[tool.black]` settings,
+    but the required `.ruff.toml` file does not exist, so the linting configuration
+    is incomplete. The missing `.ruff.toml` with the specified `line-length = 88`
+    and `target-version = "py310"` must be added.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,12 +37,12 @@ T010:
     dataset, so the task is not genuinely completed.
 T012:
   c: false
-  h: 3071f2938b41fcce9eb0421748a4c9b1d78bd812582cc832f836f1b8df2946ce
-  r: "The provided `code/data/download.py` contains only placeholder URLs, comments,\
-    \ and no concrete download logic, timeout handling, exponential backoff, or file\u2011\
-    writing code; the file is truncated and does not implement the required behavior.\
-    \ Moreover, the expected output `data/raw_data.csv` is absent. Both the implementation\
-    \ and the required artifact are missing."
+  h: 36f378a2aab1ac4aa5ba3e9df6a1c915c1e8b2e4182c09b046bdde8645b3dc76
+  r: "The provided `code/data/download.py` is incomplete (truncated) and does not\
+    \ show the required exponential\u2011backoff retry loop, nor any code that writes\
+    \ a `data/raw_data.csv` file. Moreover, the expected output file `data/raw_data.csv`\
+    \ is absent from the repository. Both the implementation and the required artifact\
+    \ are missing."
 T013:
   c: false
   h: 4aedd64059de8ab824d8db24e8ae902badb48cc1539477dc78b5359de62f6576
@@ -53,15 +53,6 @@ T013:
     \ has not been demonstrated. The implementer must add the fallback that checks\
     \ the filtered row count, generates \u2265100 rows with the specified columns\
     \ using seed\u202F42, and ensure the CSV is created."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, log files, or other artifacts were provided that demonstrate the addition\
-    \ of logging for data source selection or the emission of `E_DATA_INSUFFICIENT`\
-    \ warnings in synthetic\u2011mode fallback. Without concrete files showing the\
-    \ required log format (`LOG: Data source selected: {source} | Rows: {count} |\
-    \ Status: {status}`) the claim cannot be verified. The implementer must supply\
-    \ the updated script/module and example log output confirming the behavior."
 T023:
   c: false
   h: 476ad33127aa86c0bed1c6a1a59b555b1221e1ad3ed8413b66e8dcb30792e906
@@ -69,3 +60,36 @@ T023:
     baseline density via the linear mixing rule, nor does it calculate the residual
     density or write a `clean_data.csv` file. Additionally, the required `data/clean_data.csv`
     file is missing entirely. The task therefore remains unfinished.
+T025:
+  c: false
+  h: 51419188df4a96ad88e20b2639896db799a60a79051ad1c4993f8ba3a79af60b
+  r: "The provided `code/models/train.py` is truncated (the training function ends\
+    \ mid\u2011parameter definition) and does not contain code that saves the trained\
+    \ model to `models/model.pkl` or logs MAE/R\xB2 on a test set. Moreover, the required\
+    \ `models/model.pkl` file is absent from the repository. These missing pieces\
+    \ mean the task\u2019s core requirements are not satisfied."
+T030:
+  c: false
+  h: d2bb9084394fa208752104a03d30c3fb1f0b4be710020decf0250ae8bd73bf6e
+  r: "The `code/analysis/report.py` contains a broken implementation: the R\xB2 in\
+    \ the plot title calls `calculate_model_metrics(None, None, y_true)`, which will\
+    \ raise an error because the function expects a model and test data. Moreover,\
+    \ the required output file `reports/predicted_vs_actual.png` does not exist on\
+    \ disk. Both the functional code and the saved plot artifact are missing/incorrect."
+T031:
+  c: false
+  h: 3162c6b043d64ff59dd414e329fb85424937c3a374b8cc020dd3a28f68521f2b
+  r: "The `code/analysis/report.py` file does not contain logic that explicitly compares\
+    \ \u201CMean Atomic Mass\u201D against \u201CRadius Mismatch\u201D in the SHAP\
+    \ summary, and the script never invokes the SHAP generation to produce the required\
+    \ image. Moreover, the expected output file `reports/shap_summary.png` is absent.\
+    \ The implementation therefore does not meet the task\u2019s specification."
+T032:
+  c: false
+  h: f66f90ce7ba0eb21c3ce116fc4e7016a9a9c3a962bc8adae127a0b803fd6487d
+  r: "The `code/analysis/report.py` file ends abruptly with an unfinished `run_sensitivity_analysis`\
+    \ function that uses an invalid expression (`np.random.norm`) and never computes\
+    \ or logs MAE variance nor writes a JSON file. Moreover, the required output file\
+    \ `reports/sensitivity_analysis.json` does not exist. The task\u2019s core requirement\u2014\
+    running sensitivity analysis with Gaussian noise and producing the JSON report\u2014\
+    is therefore not satisfied."

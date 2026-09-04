@@ -67,7 +67,7 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Contract test for data schema in `tests/contract/test_dataset_schema.py`. Verify `clean_data.csv` matches `contracts/dataset.schema.yaml`. **Dependency**: Must run after T008-SHEMA-GEN.
+- [ ] T010 [P] [US1] Contract test for data schema in `tests/contract/test_dataset_schema.py`. Verify `clean_data.csv` matches `contracts/dataset.schema.yaml`. **Dependency**: Must run after T008-SHEMA-GEN. <!-- ATOMIZE: requested -->
 - [X] T011 [US1] Integration test for download fallback logic in `tests/integration/test_data_fallback.py`. **Must run after T013-ORCHESTRATE**. Mock network failures to verify fallback to synthetic generation.
 
 ### Implementation for User Story 1
@@ -115,7 +115,7 @@
 
 - [ ] T023-BASELINE-CALC [US2] Implement `code/features/engineering.py` to calculate baseline density (Linear Mixing Rule: `ρ_baseline = Σ(w_i × ρ_element_i)`) and derive residual target (`ρ_residual = ρ_actual - ρ_baseline`). **Constraint**: This MUST be a deterministic calculation, NOT a trained model. **Input**: `data/clean_data.csv` (with descriptors from T020). **Output**: Append `ρ_baseline` and `ρ_residual` columns to `data/clean_data.csv`. **Dependency**: Must run AFTER T020.
 
-- [~] T025 [US2] Implement `code/models/train.py` to train LightGBM Gradient Boosting Regressor on `ρ_residual` (CPU-only). Save model to `models/model.pkl`. Log MAE/R² on test set. **Dependency**: Must run after T023-BASELINE-CALC.
+- [ ] T025 [US2] Implement `code/models/train.py` to train LightGBM Gradient Boosting Regressor on `ρ_residual` (CPU-only). Save model to `models/model.pkl`. Log MAE/R² on test set. **Dependency**: Must run after T023-BASELINE-CALC.
 
 - [ ] T025-MASS-ONLY [US2] **Satisfies Plan.md Complexity Tracking**: Implement `code/models/train.py` to train a **Mass-Only Model** (Linear Regression on `mean_atomic_mass`) on `ρ_residual`. Calculate its MAE. **Purpose**: Compare against the main model per Plan.md Complexity Tracking as an *additional* comparison (Model vs Mass-Only). **Dependency**: Must run after T023-BASELINE-CALC.
 
@@ -142,11 +142,11 @@
 
 ### Implementation for User Story 3
 
-- [~] T030 [P] [US3] Implement `code/analysis/report.py` to generate scatter plot (Predicted vs Actual) with R² in title. Save to `reports/predicted_vs_actual.png`.
+- [ ] T030 [P] [US3] Implement `code/analysis/report.py` to generate scatter plot (Predicted vs Actual) with R² in title. Save to `reports/predicted_vs_actual.png`.
 
-- [~] T031 [US3] Implement `code/analysis/report.py` to perform SHAP analysis and generate summary plot ranking features (explicitly comparing Mean Atomic Mass vs Radius Mismatch). Save to `reports/shap_summary.png`.
+- [ ] T031 [US3] Implement `code/analysis/report.py` to perform SHAP analysis and generate summary plot ranking features (explicitly comparing Mean Atomic Mass vs Radius Mismatch). Save to `reports/shap_summary.png`.
 
-- [~] T032 [US3] Implement `code/analysis/report.py` to run sensitivity analysis (add Gaussian noise with varying small magnitudes to target) and log MAE variance. Output table to `reports/sensitivity_analysis.json`.
+- [ ] T032 [US3] Implement `code/analysis/report.py` to run sensitivity analysis (add Gaussian noise with varying small magnitudes to target) and log MAE variance. Output table to `reports/sensitivity_analysis.json`.
 
 - [~] T033 [US3] Implement `code/analysis/report.py` conditional logic: **Read MAE from `reports/metrics.json`**. If MAE > 0.1, generate Partial Dependence Plots for radius mismatch. **Output**: `reports/pdp_radius_mismatch.png`. Include explicit variance analysis as a distinct finding. **Dependency**: Must run after T026.
 
@@ -173,7 +173,7 @@
 - [ ] T039-ENG [P] Unit tests for `code/features/engineering.py` (atomic fraction conversion, descriptor formulas).
 - [ ] T039-TRAIN [P] Unit tests for `code/models/train.py` (Group K-Fold split, model training).
 - [ ] T039-REPORT [P] Unit tests for `code/analysis/report.py` (plot generation, sensitivity analysis).
-- [ ] T040 [P] Run `python -m code.main --validate` and verify exit code 0 and `state/` hash match. Verify all artifacts are reproducible.
+- [~] T040 [P] Run `python -m code.main --validate` and verify exit code 0 and `state/` hash match. Verify all artifacts are reproducible. <!-- FAILED: unspecified -->
 
 ---
 

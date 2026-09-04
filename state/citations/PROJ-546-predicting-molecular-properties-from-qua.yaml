@@ -43,14 +43,3 @@
   verification_status: pending
   verified_against_url: https://zenodo.org/records/1234567
   verified_at: '2026-08-21T00:34:28.748523Z'
-- artifact_hash: 1d652bf08f4468e286d48a1d9be45352816f61cd833e13542e94d1591515a9d8
-  artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.1234567
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
-  verified_at: '2026-08-21T00:59:30.449406Z'

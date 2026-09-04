@@ -1,19 +1,17 @@
-# Ruff configuration for llmXive Metallic Glass Density project
-# Enforces style consistent with Black (line-length 88, Python 3.10+)
-
+# Ruff configuration for llmXive project
 line-length = 88
 target-version = "py310"
 
 [lint]
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG", "SIM"]
 ignore = []
 
-# Allow autofix for all enabled rules
+# Allow autofix for all enabled rules (when `--fix` is provided).
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude specific files/directories
+# Exclude a few files/directories from linting.
 exclude = [
     ".bzr",
     ".direnv",
@@ -39,16 +37,6 @@ exclude = [
 ]
 
 # Per-rule configuration
-per-file-ignores = {}
-
-# Allow unused variables when underscore-prefixed
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[format]
-# Enable Black-compatible formatting
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-docstring-code-format = false
-docstring-code-line-length = "dynamic"
+[lint.per-file-ignores]
+# Ignore imported but unused in __init__.py files
+"__init__.py" = ["F401"]

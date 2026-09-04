@@ -1,12 +1,9 @@
 """
-Fetch the experimental barrier dataset from Zenodo and prepare it for analysis.
+Fetch experimental barrier dataset from Zenodo.
 
-This script:
-1. Reads the Zenodo ID from the idea file (resolved by T004a).
-2. Downloads the dataset archive.
-3. Extracts and converts the data to a CSV file.
-4. Verifies the checksum and logs the result.
-5. Writes the final CSV to data/raw/barrier_dataset.csv.
+This script implements FR-001: Data Fetching and Verification.
+It retrieves the dataset using the Zenodo ID defined in config.py,
+verifies the checksum, and ensures the output file exists in data/raw/.
 """
 import hashlib
 import logging
@@ -14,256 +11,207 @@ import os
 import sys
 import tarfile
 import tempfile
-import requests
 from pathlib import Path
-from typing import Optional, Dict, Any
 
-# Ensure project root is in path for imports if running from code/
-# (Handled by runner environment, but safe to include)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-LOGS_DIR = PROJECT_ROOT / "logs"
-IDEA_DIR = PROJECT_ROOT / "idea"
+import requests
 
-# Zenodo ID to fetch (Placeholder - T004a should have resolved this to a real ID)
-# We will read it from the idea file to ensure consistency with T004a.
-IDEA_FILE_PATTERN = "*.md"
+# Import the Zenodo ID from config (set by T004a)
+# If T004a failed to set this, this import will fail or the value will be empty,
+# triggering the required failure mode.
+try:
+    from config import ZENODO_ID
+except ImportError:
+    # Fallback if config is not in path (should not happen in normal execution)
+    sys.path.insert(0, str(Path(__file__).parent))
+    from config import ZENODO_ID
 
-def setup_logger(name: str, log_file: Optional[Path] = None) -> logging.Logger:
-    """Set up a logger that writes to both console and a file."""
-    logger = logging.getLogger(name)
+# Setup logging
+LOG_DIR = Path(__file__).parent.parent / "logs"
+LOG_FILE = LOG_DIR / "verification.log"
+
+def setup_logger():
+    logger = logging.getLogger("fetch_data")
     logger.setLevel(logging.INFO)
-
     if not logger.handlers:
+        handler = logging.FileHandler(LOG_FILE)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-        # Console handler
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-
-        # File handler
-        if log_file:
-            LOGS_DIR.mkdir(parents=True, exist_ok=True)
-            fh = logging.FileHandler(log_file)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
-
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     return logger
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA256 checksum of a file."""
+def compute_sha256(filepath):
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, output_path: Path) -> Path:
-    """Download a file from a URL."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        with open(output_path, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-    return output_path
-
-def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
-    """Verify the SHA256 checksum of a file."""
-    actual_checksum = compute_sha256(file_path)
-    return actual_checksum == expected_checksum
-
-def extract_tarball(tar_path: Path, extract_to: Path) -> Path:
-    """Extract a tarball to a directory."""
-    extract_to.mkdir(parents=True, exist_ok=True)
-    with tarfile.open(tar_path, 'r:gz') as tar:
-        tar.extractall(path=extract_to)
-    return extract_to
-
-def convert_to_csv(extracted_dir: Path, output_csv: Path) -> Path:
-    """
-    Convert the extracted data to a CSV file.
-    Assumes the extracted data contains a file named 'barrier_data.csv' or similar.
-    If the data is in a different format (e.g., JSON, multiple CSVs), this logic
-    would need to be adapted based on the actual Zenodo archive structure.
-    For this implementation, we assume the archive contains a single CSV or we
-    consolidate them.
-    """
-    # Look for CSV files in the extracted directory
-    csv_files = list(extracted_dir.glob("**/*.csv"))
-    
-    if not csv_files:
-        # If no CSV found, check for common data file names
-        potential_files = list(extracted_dir.glob("*"))
-        if potential_files:
-            # Just copy the first file found if it's not a directory, assuming it's the data
-            # This is a fallback; real logic depends on Zenodo content
-            src = potential_files[0]
-            if src.is_file():
-                import shutil
-                shutil.copy(src, output_csv)
-                return output_csv
-        raise FileNotFoundError(f"No CSV files found in extracted directory: {extracted_dir}")
-    
-    # If there are multiple CSVs, we might need to merge them.
-    # For now, assume the first one is the main dataset or we concatenate.
-    # A robust implementation would inspect headers.
-    import pandas as pd
-    dfs = []
-    for csv_file in csv_files:
-        df = pd.read_csv(csv_file)
-        dfs.append(df)
-    
-    if len(dfs) == 1:
-        df_final = dfs[0]
-    else:
-        # Concatenate if headers match
-        df_final = pd.concat(dfs, ignore_index=True)
-    
-    df_final.to_csv(output_csv, index=False)
-    return output_csv
-
-def fetch_and_verify_data(logger: logging.Logger) -> bool:
-    """
-    Main logic to fetch data from Zenodo.
-    """
-    # 1. Resolve Zenodo ID from idea file
-    # We look for the file mentioned in the prompt: idea/predicting-molecular-properties-from-qua.md
-    idea_file = IDEA_DIR / "predicting-molecular-properties-from-qua.md"
-    if not idea_file.exists():
-        logger.error(f"Idea file not found: {idea_file}")
-        return False
-
-    zenodo_id = None
-    zenodo_url = None
-    
-    # Simple regex to find Zenodo ID or URL in the file
-    # Expected pattern: "Zenodo ID: 1234567" or "https://doi.org/10.5281/zenodo.XXXXXXX"
-    import re
-    with open(idea_file, 'r') as f:
-        content = f.read()
-    
-    # Look for DOI pattern
-    doi_match = re.search(r'10\.5281/zenodo\.\d+', content)
-    if doi_match:
-        zenodo_id = doi_match.group()
-        zenodo_url = f"https://doi.org/{zenodo_id}"
-    else:
-        # Look for just the ID number if formatted differently
-        id_match = re.search(r'Zenodo.*?(\d+)', content)
-        if id_match:
-            zenodo_id = id_match.group(1)
-            zenodo_url = f"https://zenodo.org/api/records/{zenodo_id}"
-    
-    if not zenodo_id:
-        logger.error("Could not resolve Zenodo ID from idea file.")
-        return False
-
-    logger.info(f"Resolved Zenodo ID: {zenodo_id}")
-
-    # 2. Construct download URL
-    # Zenodo API to get the latest version's download link
+def download_file(url, dest_path, logger):
+    """Download a file from URL with progress logging."""
+    logger.info(f"Downloading from {url} to {dest_path}")
     try:
-        # Try the DOI redirect first for the archive
-        # Zenodo usually provides a direct download link for the archive
-        # Format: https://zenodo.org/record/{id}/files/{filename}
-        # We need to know the filename. Let's try to get record info.
-        api_url = f"https://zenodo.org/api/records/{zenodo_id.split('.')[-1]}"
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        with open(dest_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        percent = (downloaded / total_size) * 100
+                        logger.debug(f"Progress: {percent:.1f}%")
+        logger.info(f"Download complete: {dest_path}")
+        return True
+    except requests.RequestException as e:
+        logger.error(f"Download failed: {e}")
+        return False
+
+def verify_checksum(filepath, expected_checksum, logger):
+    """Verify file checksum."""
+    if not expected_checksum:
+        logger.warning("No expected checksum provided; skipping verification.")
+        return True
+    actual_checksum = compute_sha256(filepath)
+    if actual_checksum == expected_checksum:
+        logger.info(f"Checksum verification passed: {actual_checksum}")
+        return True
+    else:
+        logger.error(f"Checksum mismatch! Expected: {expected_checksum}, Got: {actual_checksum}")
+        return False
+
+def extract_tarball(tar_path, dest_dir, logger):
+    """Extract tarball to destination directory."""
+    logger.info(f"Extracting {tar_path} to {dest_dir}")
+    try:
+        with tarfile.open(tar_path, 'r:*') as tar:
+            tar.extractall(path=dest_dir)
+        logger.info("Extraction complete.")
+        return True
+    except Exception as e:
+        logger.error(f"Extraction failed: {e}")
+        return False
+
+def convert_to_csv(tarball_path, output_csv_path, logger):
+    """
+    Extract CSV from the tarball if it's not already a CSV.
+    For Zenodo datasets that are direct CSVs, this might just be a rename/copy.
+    For this implementation, we assume the tarball contains a CSV or we look for it.
+    """
+    logger.info(f"Processing tarball {tarball_path} to find CSV for {output_csv_path}")
+    
+    # If the input is already a CSV (some Zenodo records allow direct download), handle it
+    if tarball_path.endswith('.csv'):
+        import shutil
+        shutil.copy(tarball_path, output_csv_path)
+        logger.info(f"Copied CSV directly to {output_csv_path}")
+        return True
+
+    # Otherwise, assume it's a tarball and look for the CSV inside
+    try:
+        with tarfile.open(tarball_path, 'r:*') as tar:
+            members = tar.getnames()
+            csv_member = None
+            for member in members:
+                if member.endswith('.csv'):
+                    csv_member = member
+                    break
+            
+            if csv_member:
+                logger.info(f"Found CSV inside tarball: {csv_member}")
+                with tar.extractfile(csv_member) as src:
+                    with open(output_csv_path, 'wb') as dst:
+                        dst.write(src.read())
+                logger.info(f"Extracted CSV to {output_csv_path}")
+                return True
+            else:
+                logger.error("No CSV file found inside the tarball.")
+                return False
+    except Exception as e:
+        logger.error(f"Error processing tarball: {e}")
+        return False
+
+def fetch_and_verify_data(logger):
+    """Main logic to fetch and verify data."""
+    if not ZENODO_ID:
+        logger.error("ZENODO_ID is empty. Cannot fetch data.")
+        return False
+
+    # Construct Zenodo API URL
+    # Zenodo API endpoint for file download
+    # Format: https://zenodo.org/api/files/{record_id}/{filename}
+    # However, often the direct download link is: https://zenodo.org/record/{id}/files/{filename}
+    # We need to find the filename. Let's try to get the record metadata first.
+    
+    api_url = f"https://zenodo.org/api/records/{ZENODO_ID}"
+    try:
         response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()
         
-        if 'files' not in data or not data['files']:
-            logger.error("No files found in Zenodo record.")
+        # Find the first file in the 'files' list
+        files = data.get('files', [])
+        if not files:
+            logger.error(f"No files found in Zenodo record {ZENODO_ID}")
             return False
         
-        # Assume the first file or look for a specific one (e.g., .tar.gz, .zip)
-        # We'll pick the largest file or the first one that looks like data
-        target_file = None
-        for file_entry in data['files']:
-            if file_entry.get('type', '').startswith('archive') or file_entry.get('type') == 'data':
-                target_file = file_entry
-                break
+        # Assume the first file is our dataset (or the only one)
+        file_info = files[0]
+        filename = file_info.get('key')
+        download_url = f"https://zenodo.org/record/{ZENODO_ID}/files/{filename}"
         
-        if not target_file:
-            target_file = data['files'][0]
+        # Checksum from Zenodo metadata
+        expected_checksum = file_info.get('checksum', '').replace('sha256:', '')
+        
+        logger.info(f"Found file: {filename}")
+        logger.info(f"Expected checksum: {expected_checksum}")
 
-        file_name = target_file['key']
-        download_link = f"https://zenodo.org/api/records/{zenodo_id.split('.')[-1]}/files/{file_name}/content"
-        
-    except Exception as e:
+    except requests.RequestException as e:
         logger.error(f"Failed to fetch Zenodo metadata: {e}")
         return False
 
-    logger.info(f"Downloading from: {download_link}")
+    # Define paths
+    DATA_RAW_DIR = Path(__file__).parent.parent / "data" / "raw"
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    
+    temp_dir = Path(tempfile.mkdtemp())
+    tarball_path = temp_dir / filename
+    output_csv_path = DATA_RAW_DIR / "barrier_dataset.csv"
 
-    # 3. Download the file
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        archive_path = tmp_path / file_name
-        
-        try:
-            download_file(download_link, archive_path)
-            logger.info(f"Downloaded archive: {archive_path}")
-        except Exception as e:
-            logger.error(f"Failed to download file: {e}")
-            return False
+    # Step 1: Download
+    if not download_file(download_url, tarball_path, logger):
+        return False
 
-        # 4. Extract
-        extract_dir = tmp_path / "extracted"
-        try:
-            if archive_path.suffix == '.gz' or 'tar' in archive_path.name:
-                extract_tarball(archive_path, extract_dir)
-            elif archive_path.suffix == '.zip':
-                import zipfile
-                with zipfile.ZipFile(archive_path, 'r') as zip_ref:
-                    zip_ref.extractall(extract_dir)
-            else:
-                # Assume it's already a CSV or raw file
-                extract_dir = archive_path.parent
-                # Move file to extract_dir if it's not already
-                import shutil
-                shutil.move(str(archive_path), str(extract_dir / archive_path.name))
-                extract_dir = archive_path.parent
-        except Exception as e:
-            logger.error(f"Failed to extract archive: {e}")
-            return False
+    # Step 2: Verify Checksum
+    if not verify_checksum(tarball_path, expected_checksum, logger):
+        return False
 
-        # 5. Convert to CSV
-        output_csv = DATA_RAW_DIR / "barrier_dataset.csv"
-        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-        
-        try:
-            convert_to_csv(extract_dir, output_csv)
-            logger.info(f"Converted data to: {output_csv}")
-        except Exception as e:
-            logger.error(f"Failed to convert data to CSV: {e}")
-            return False
+    # Step 3: Extract/Convert to CSV
+    if not convert_to_csv(tarball_path, output_csv_path, logger):
+        return False
 
-        # 6. Verify
-        if output_csv.exists():
-            logger.info(f"Verification: {output_csv} exists and is non-empty ({output_csv.stat().st_size} bytes).")
-            return True
-        else:
-            logger.error("Output CSV was not created.")
-            return False
+    # Step 4: Final Verification
+    if not output_csv_path.exists():
+        logger.error(f"Output file {output_csv_path} does not exist after processing.")
+        return False
+
+    logger.info(f"Data fetch and verification successful. File: {output_csv_path}")
+    return True
 
 def main():
-    """Entry point for the fetch_data script."""
-    log_file = LOGS_DIR / "verification.log"
-    logger = setup_logger("fetch_data", log_file)
-    
+    logger = setup_logger()
     logger.info("Starting data fetch and verification process.")
     
     success = fetch_and_verify_data(logger)
     
-    if success:
-        logger.info("Data fetch and verification completed successfully.")
-        sys.exit(0)
-    else:
+    if not success:
         logger.error("Data fetch and verification failed.")
         sys.exit(1)
+    else:
+        logger.info("Data fetch and verification completed successfully.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

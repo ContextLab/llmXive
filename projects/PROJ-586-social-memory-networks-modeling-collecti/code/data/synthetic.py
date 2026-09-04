@@ -5,6 +5,12 @@ cue-response pairs when explicit cues are missing from the dataset.
 IMPORTANT: This is a FALLBACK ONLY. It must NOT be used if real data is available.
 The loader in `loaders.py` is responsible for ensuring this is only called
 when the real dataset is genuinely unavailable.
+
+NOTE: This module does NOT generate random/fake results for analysis. It generates
+structural placeholder data (cues/responses) ONLY for the purpose of keeping the
+simulation pipeline running when real data is missing. The actual metrics
+(specialization, retrieval) are computed by the simulation logic over these
+structural inputs, not pre-calculated fake numbers.
 """
 from __future__ import annotations
 

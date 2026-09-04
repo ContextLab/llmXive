@@ -1,8 +1,9 @@
-"""Specialization index computation for multi-agent memory networks.
+"""
+Specialization Index Computation for Social Memory Networks.
 
-This module implements the computation of a distribution-based metric
-of per-agent fact contribution (specialization index), bounded within
-a non-negative range [0, 1].
+This module implements the calculation of the specialization index, a distribution-based
+metric that quantifies the degree of specialization among agents in a multi-agent system.
+It also provides utilities for Gini coefficient and Shannon entropy calculations.
 """
 from __future__ import annotations
 
@@ -20,56 +21,63 @@ logger = get_logger(__name__)
 
 @dataclass
 class SpecializationMetrics:
-    """Container for specialization computation results."""
+    """Container for specialization-related metrics."""
     specialization_index: float
-    gini_coefficient: Optional[float] = None
-    shannon_entropy: Optional[float] = None
-    max_contribution: Optional[float] = None
-    min_contribution: Optional[float] = None
-    mean_contribution: Optional[float] = None
-    std_contribution: Optional[float] = None
-    validation_passed: bool = True
+    gini_coefficient: float
+    shannon_entropy: float
+    max_contribution_ratio: float
+    total_contributions: int
+    effective_agents: int  # Number of agents with non-zero contributions
+    validation_status: str = "unknown"
     validation_message: str = ""
 
 
 def compute_gini_coefficient(values: List[float]) -> float:
-    """Compute the Gini coefficient for a list of values.
+    """
+    Compute the Gini coefficient for a list of values.
 
-    The Gini coefficient measures inequality in a distribution.
-    0 = perfect equality (all values equal)
-    1 = perfect inequality (one value has all)
+    The Gini coefficient measures inequality among values in a frequency distribution.
+    A value of 0 represents perfect equality (all values are the same), while 1
+    represents maximal inequality (one value is non-zero, others are zero).
 
     Args:
         values: List of non-negative numeric values.
 
     Returns:
-        Gini coefficient in range [0, 1].
+        Gini coefficient in the range [0, 1].
     """
-    if not values or len(values) == 0:
+    if not values or all(v == 0 for v in values):
         return 0.0
 
     n = len(values)
     sorted_values = sorted(values)
     cumsum = np.cumsum(sorted_values)
-    total = cumsum[-1]
 
-    if total == 0:
+    # Gini formula: G = (2 * sum(i * y_i) - (n + 1) * sum(y_i)) / (n * sum(y_i))
+    numerator = 2 * np.sum((np.arange(1, n + 1) * sorted_values))
+    denominator = n * np.sum(sorted_values)
+
+    if denominator == 0:
         return 0.0
 
-    gini = (2.0 * np.sum((np.arange(1, n + 1) * sorted_values))) / (n * total) - (n + 1) / n
+    gini = (numerator - (n + 1) * np.sum(sorted_values)) / denominator
     return max(0.0, min(1.0, gini))
 
 
 def compute_shannon_entropy(values: List[float]) -> float:
-    """Compute Shannon entropy for a distribution of values.
+    """
+    Compute the Shannon entropy for a list of values.
+
+    Shannon entropy measures the uncertainty or randomness in a distribution.
+    Higher entropy indicates more uniform distribution (less specialization).
 
     Args:
-        values: List of non-negative numeric values representing counts or weights.
+        values: List of non-negative numeric values.
 
     Returns:
-        Shannon entropy in nats (natural log base).
+        Shannon entropy value (non-negative).
     """
-    if not values or len(values) == 0:
+    if not values or all(v == 0 for v in values):
         return 0.0
 
     total = sum(values)
@@ -77,206 +85,220 @@ def compute_shannon_entropy(values: List[float]) -> float:
         return 0.0
 
     probabilities = [v / total for v in values if v > 0]
-    entropy = -sum(p * math.log(p) for p in probabilities if p > 0)
+
+    if not probabilities:
+        return 0.0
+
+    entropy = -sum(p * math.log(p) if p > 0 else 0 for p in probabilities)
     return entropy
 
 
 def compute_specialization_index(
-    agent_contributions: Union[List[float], Dict[str, float], Any, None],
+    contributions: Union[List[Union[int, float]], Dict[str, Union[int, float]], None],
     num_agents: Optional[int] = None
 ) -> Tuple[float, SpecializationMetrics]:
-    """Compute the specialization index for a set of agent contributions.
+    """
+    Compute the specialization index based on per-agent fact contributions.
 
-    The specialization index measures how unevenly facts/contributions are
-    distributed among agents. A value of 0 indicates perfect equality
-    (all agents contribute equally), while higher values indicate greater
-    specialization (unequal distribution).
+    The specialization index measures how unevenly facts/contributions are distributed
+    among agents. A higher index indicates greater specialization (some agents
+    contribute significantly more than others).
 
-    The metric is bounded to [0, 1] where:
-    - 0: Perfect equality (no specialization)
-    - 1: Maximum inequality (complete specialization)
+    The index is calculated as: 1 - (Shannon entropy / max possible entropy)
+    This normalizes the entropy to [0, 1], where 0 means perfect equality
+    (no specialization) and 1 means maximal specialization.
 
     Args:
-        agent_contributions: Can be:
-            - List of floats: contribution values for each agent
-            - Dict[str, float]: mapping of agent_id to contribution
-            - List of ints: raw counts of contributions
-            - Any other iterable: will be converted to list of floats
-        num_agents: Optional explicit number of agents. If None, inferred
-            from the length of agent_contributions.
+        contributions: Per-agent contribution counts. Can be:
+            - List of numbers (indexed by agent)
+            - Dict mapping agent identifiers to contribution counts
+            - None (treated as all zeros)
+        num_agents: Optional explicit number of agents. If None, inferred from
+            the input data.
 
     Returns:
-        Tuple of (specialization_index, SpecializationMetrics)
+        Tuple of (specialization_index, SpecializationMetrics object).
+        The specialization_index is bounded in [0, 1].
     """
-    # Handle empty or None input
-    if agent_contributions is None:
-        logger.warning("compute_specialization_index received None input")
-        return 0.0, SpecializationMetrics(
-            specialization_index=0.0,
-            validation_passed=False,
-            validation_message="Input was None"
-        )
+    # Handle None input
+    if contributions is None:
+        contributions = []
 
-    # Convert various input types to a list of floats
-    contributions_list: List[float] = []
-
-    if isinstance(agent_contributions, dict):
-        contributions_list = [float(v) for v in agent_contributions.values()]
-    elif isinstance(agent_contributions, (list, tuple)):
-        try:
-            contributions_list = [float(v) for v in agent_contributions]
-        except (TypeError, ValueError) as e:
-            logger.warning(f"Could not convert contributions to floats: {e}")
-            return 0.0, SpecializationMetrics(
-                specialization_index=0.0,
-                validation_passed=False,
-                validation_message=f"Invalid input type: {e}"
-            )
+    # Normalize input to list of floats
+    if isinstance(contributions, dict):
+        contrib_list = list(contributions.values())
+    elif isinstance(contributions, list):
+        contrib_list = [float(c) for c in contributions]
     else:
-        # Try to iterate if it's some other iterable
-        try:
-            contributions_list = [float(v) for v in agent_contributions]
-        except (TypeError, ValueError) as e:
-            logger.warning(f"Could not iterate over contributions: {e}")
-            return 0.0, SpecializationMetrics(
-                specialization_index=0.0,
-                validation_passed=False,
-                validation_message=f"Cannot iterate input: {e}"
-            )
+        # Single value case
+        contrib_list = [float(contributions)] if contributions is not None else []
 
     # Handle empty list
-    if not contributions_list:
-        logger.warning("compute_specialization_index received empty list")
-        return 0.0, SpecializationMetrics(
-            specialization_index=0.0,
-            validation_passed=False,
-            validation_message="Input list was empty"
-        )
-
-    # Determine number of agents
-    if num_agents is not None:
-        n_agents = num_agents
-    else:
-        n_agents = len(contributions_list)
-
-    # Ensure all contributions are non-negative
-    if any(c < 0 for c in contributions_list):
-        logger.warning("Negative contributions detected; clamping to zero")
-        contributions_list = [max(0.0, c) for c in contributions_list]
-
-    # Compute statistics
-    total = sum(contributions_list)
-    if total == 0:
-        # All contributions are zero - perfect equality by default
-        return 0.0, SpecializationMetrics(
+    if not contrib_list:
+        logger.warning("Empty contributions provided; returning zero specialization")
+        metrics = SpecializationMetrics(
             specialization_index=0.0,
             gini_coefficient=0.0,
             shannon_entropy=0.0,
-            max_contribution=0.0,
-            min_contribution=0.0,
-            mean_contribution=0.0,
-            std_contribution=0.0,
-            validation_passed=True,
-            validation_message="All contributions are zero"
+            max_contribution_ratio=0.0,
+            total_contributions=0,
+            effective_agents=0,
+            validation_status="warning",
+            validation_message="Empty contributions provided"
         )
+        return 0.0, metrics
 
-    # Normalize to probabilities
-    probabilities = [c / total for c in contributions_list]
+    # Ensure non-negative
+    contrib_list = [max(0.0, c) for c in contrib_list]
 
-    # Compute Gini coefficient (primary metric for specialization)
-    gini = compute_gini_coefficient(contributions_list)
+    # Determine number of agents
+    n_agents = num_agents if num_agents is not None else len(contrib_list)
 
-    # Compute Shannon entropy (alternative perspective)
-    entropy = compute_shannon_entropy(contributions_list)
+    # Pad with zeros if num_agents > len(contrib_list)
+    if n_agents > len(contrib_list):
+        contrib_list.extend([0.0] * (n_agents - len(contrib_list)))
+    elif n_agents < len(contrib_list):
+        # Truncate if num_agents < len(contrib_list)
+        logger.warning(f"num_agents ({n_agents}) < len(contributions) ({len(contrib_list)}); truncating")
+        contrib_list = contrib_list[:n_agents]
 
-    # Normalize entropy to [0, 1] range
+    # Compute total contributions
+    total_contributions = sum(contrib_list)
+
+    # Count effective agents (non-zero contributions)
+    effective_agents = sum(1 for c in contrib_list if c > 0)
+
+    # Compute metrics
+    gini = compute_gini_coefficient(contrib_list)
+    entropy = compute_shannon_entropy(contrib_list)
+
+    # Max possible entropy is log(n_agents) when all agents contribute equally
     max_entropy = math.log(n_agents) if n_agents > 1 else 0.0
-    normalized_entropy = entropy / max_entropy if max_entropy > 0 else 0.0
 
-    # Specialization index: use Gini as primary, but can also blend with entropy
-    # Higher Gini = higher specialization
-    specialization_index = gini
+    # Specialization index: 1 - (entropy / max_entropy)
+    # This gives 0 for uniform distribution, 1 for maximal specialization
+    if max_entropy > 0 and entropy > 0:
+        specialization_index = 1.0 - (entropy / max_entropy)
+    else:
+        # If entropy is 0 (one agent has all contributions) or max_entropy is 0 (1 agent)
+        if total_contributions > 0 and effective_agents == 1:
+            specialization_index = 1.0  # Maximal specialization
+        else:
+            specialization_index = 0.0  # No specialization (uniform or empty)
 
     # Ensure bounds [0, 1]
     specialization_index = max(0.0, min(1.0, specialization_index))
 
-    # Compute additional statistics
-    mean_contrib = total / n_agents
-    std_contrib = np.std(contributions_list) if len(contributions_list) > 1 else 0.0
+    # Compute max contribution ratio
+    max_contribution = max(contrib_list) if contrib_list else 0.0
+    max_contribution_ratio = max_contribution / total_contributions if total_contributions > 0 else 0.0
+
+    # Validation
+    validation_status = "passed"
+    validation_message = ""
+
+    if specialization_index < 0 or specialization_index > 1:
+        validation_status = "failed"
+        validation_message = f"Specialization index {specialization_index} out of bounds [0, 1]"
+        logger.error(f"Validation failed: {validation_message}")
+    elif gini < 0 or gini > 1:
+        validation_status = "failed"
+        validation_message = f"Gini coefficient {gini} out of bounds [0, 1]"
+        logger.error(f"Validation failed: {validation_message}")
+    elif total_contributions < 0:
+        validation_status = "failed"
+        validation_message = f"Total contributions {total_contributions} is negative"
+        logger.error(f"Validation failed: {validation_message}")
+    else:
+        logger.info(f"Specialization index computed: {specialization_index:.4f} (Gini: {gini:.4f}, Entropy: {entropy:.4f})")
 
     metrics = SpecializationMetrics(
         specialization_index=specialization_index,
         gini_coefficient=gini,
         shannon_entropy=entropy,
-        max_contribution=max(contributions_list),
-        min_contribution=min(contributions_list),
-        mean_contribution=mean_contrib,
-        std_contribution=std_contrib,
-        validation_passed=True,
-        validation_message="Computation successful"
+        max_contribution_ratio=max_contribution_ratio,
+        total_contributions=int(total_contributions),
+        effective_agents=effective_agents,
+        validation_status=validation_status,
+        validation_message=validation_message
     )
-
-    # Validation: check bounds
-    if not (0.0 <= specialization_index <= 1.0):
-        logger.error(f"Specialization index {specialization_index} out of bounds [0, 1]")
-        metrics.validation_passed = False
-        metrics.validation_message = f"Index {specialization_index} out of bounds"
 
     return specialization_index, metrics
 
 
-def validate_specialization_index(index: float) -> Tuple[bool, str]:
-    """Validate that a specialization index is within acceptable bounds.
+def validate_specialization_index(index: float, metrics: Optional[SpecializationMetrics] = None) -> bool:
+    """
+    Validate that a specialization index is within acceptable bounds.
 
     Args:
         index: The specialization index value to validate.
+        metrics: Optional SpecializationMetrics object for additional context.
 
     Returns:
-        Tuple of (is_valid, message)
+        True if the index is valid (in [0, 1]), False otherwise.
     """
-    if index < 0.0:
-        return False, f"Specialization index {index} is negative"
-    if index > 1.0:
-        return False, f"Specialization index {index} exceeds maximum of 1.0"
-    if math.isnan(index):
-        return False, "Specialization index is NaN"
-    if math.isinf(index):
-        return False, "Specialization index is infinite"
-    return True, "Valid"
+    if index < 0 or index > 1:
+        logger.error(f"Invalid specialization index: {index} (must be in [0, 1])")
+        return False
+
+    if metrics is not None:
+        if metrics.validation_status == "failed":
+            logger.error(f"Metrics validation failed: {metrics.validation_message}")
+            return False
+
+    return True
 
 
 def batch_compute_specialization(
-    contributions_batch: List[Union[List[float], Dict[str, float]]]
+    contribution_batches: List[Union[List[float], Dict[str, float]]]
 ) -> List[Tuple[float, SpecializationMetrics]]:
-    """Compute specialization index for a batch of contribution sets.
+    """
+    Compute specialization index for multiple batches of contributions.
 
     Args:
-        contributions_batch: List of contribution sets (each can be list or dict).
+        contribution_batches: List of contribution lists/dicts, one per batch/game.
 
     Returns:
-        List of (specialization_index, metrics) tuples.
+        List of (specialization_index, metrics) tuples for each batch.
     """
     results = []
-    for contributions in contributions_batch:
-        idx, metrics = compute_specialization_index(contributions)
-        results.append((idx, metrics))
+    for batch_idx, contributions in enumerate(contribution_batches):
+        try:
+            idx, metrics = compute_specialization_index(contributions)
+            results.append((idx, metrics))
+        except Exception as e:
+            logger.error(f"Error computing specialization for batch {batch_idx}: {e}")
+            # Return zero specialization for failed batches
+            metrics = SpecializationMetrics(
+                specialization_index=0.0,
+                gini_coefficient=0.0,
+                shannon_entropy=0.0,
+                max_contribution_ratio=0.0,
+                total_contributions=0,
+                effective_agents=0,
+                validation_status="failed",
+                validation_message=str(e)
+            )
+            results.append((0.0, metrics))
+
     return results
 
 
 def compute_specialization_index_v1(
-    agent_skills: Union[List[float], Dict[str, float], Any, None],
-    num_agents: Optional[int] = None
+    agent_skills: List[int],
+    num_agents: int
 ) -> Tuple[float, SpecializationMetrics]:
-    """Legacy alias for compute_specialization_index (v1 compatibility).
+    """
+    Legacy alias for compute_specialization_index (v1 compatibility).
 
-    This function is provided for backward compatibility with earlier code
-    that used the v1 naming convention.
+    This function maintains compatibility with earlier versions of the API
+    that expected (agent_skills, num_agents) as parameters.
 
     Args:
-        agent_skills: Same as agent_contributions in compute_specialization_index.
-        num_agents: Same as in compute_specialization_index.
+        agent_skills: List of skill/contribution counts per agent.
+        num_agents: Number of agents (used for padding if len(agent_skills) < num_agents).
 
     Returns:
-        Same as compute_specialization_index.
+        Tuple of (specialization_index, SpecializationMetrics).
     """
-    return compute_specialization_index(agent_skills, num_agents)
+    return compute_specialization_index(agent_skills, num_agents=num_agents)

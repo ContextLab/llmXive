@@ -1,207 +1,189 @@
-"""
-T013c: Descriptor Pipeline Implementation
-Orchestrates the full-dataset pipeline for User Story 1.
-"""
 import csv
 import json
 import logging
 import os
 import sys
 import time
-from datetime import datetime
+import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from datetime import datetime
+
+# Ensure project root is in path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
 import pandas as pd
-
-# Import existing utilities and calculators
+from utils.error_utils import ConvergenceError, handle_convergence_failure
+from utils.logging_utils import setup_logger
 from dftb_calculator import calculate_descriptors_for_molecule
-from error_handlers import ConvergenceError, OOMError, setup_logger, handle_convergence_failure, handle_oom
-from physical_validator import validate_homo_lumo_relationship, log_structural_failure
-from utils.logging_utils import log_dftb_invocation, log_resource_snapshot
+from physical_validator import validate_homo_lumo_relationship
 
-def setup_pipeline_logging(log_dir: Path) -> logging.Logger:
-    """Setup dedicated logger for the pipeline."""
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / "pipeline_execution.log"
+# Constants
+LOG_FILE = "logs/dft_execution.log"
+STRUCTURAL_FAILURES_LOG = "logs/structural_failures.log"
+CONVERGENCE_FAILURES_LOG = "logs/convergence_failures.log"
+OOM_FAILURES_LOG = "logs/oom_failures.log"
+
+def setup_pipeline_logging():
+    """Set up logging for the descriptor pipeline."""
+    # Ensure logs directory exists
+    logs_dir = Path("logs")
+    logs_dir.mkdir(exist_ok=True)
     
-    logger = logging.getLogger("descriptor_pipeline")
-    logger.setLevel(logging.DEBUG)
-    
-    # Clear existing handlers to avoid duplicates
-    logger.handlers.clear()
-    
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-    
+    # Configure root logger
+    logger = setup_logger("descriptor_pipeline", LOG_FILE)
+    logger.setLevel(logging.INFO)
     return logger
 
-def write_geometry_xyz(molecule_id: str, coordinates: List[Dict[str, Any]], output_dir: Path):
+def write_geometry_xyz(molecule_id, coordinates, output_dir):
     """
-    Save optimized geometry to XYZ format.
-    Format:
-      <atom_count>
-      <molecule_id>
-      <Element> <x> <y> <z>
-      ...
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    filepath = output_dir / f"{molecule_id}.xyz"
+    Write optimized geometry to XYZ file.
     
-    with open(filepath, 'w') as f:
+    Args:
+        molecule_id: Unique identifier for the molecule
+        coordinates: List of tuples (element, x, y, z)
+        output_dir: Directory to write the file
+    """
+    output_path = Path(output_dir) / f"{molecule_id}.xyz"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
         f.write(f"{len(coordinates)}\n")
         f.write(f"{molecule_id}\n")
-        for atom in coordinates:
-            f.write(f"{atom['element']} {atom['x']} {atom['y']} {atom['z']}\n")
+        for element, x, y, z in coordinates:
+            f.write(f"{element} {x:.6f} {y:.6f} {z:.6f}\n")
+
+def log_execution_status(logger, molecule_id, command, exit_code, duration, peak_memory_mb):
+    """
+    Log execution status as a JSON line to dft_execution.log.
+    
+    Args:
+        logger: Logger instance
+        molecule_id: Unique identifier for the molecule
+        command: Command executed
+        exit_code: Exit code of the command
+        duration: Execution duration in seconds
+        peak_memory_mb: Peak memory usage in MB
+    """
+    log_entry = {
+        "molecule_id": molecule_id,
+        "command": command,
+        "exit_code": exit_code,
+        "duration": duration,
+        "peak_memory_mb": peak_memory_mb
+    }
+    
+    # Write JSON line to log file
+    log_path = Path(LOG_FILE)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(log_path, 'a') as f:
+        f.write(json.dumps(log_entry) + '\n')
 
 def run_pipeline(input_df: pd.DataFrame, output_dir: str) -> pd.DataFrame:
     """
-    Orchestrate the full-dataset pipeline.
+    Run the descriptor pipeline on the input dataset.
     
     Args:
         input_df: DataFrame containing SMILES and molecule_id
-        output_dir: Directory to write outputs (descriptors CSV and geometries)
+        output_dir: Directory to save optimized geometries and descriptors
         
     Returns:
-        DataFrame with calculated descriptors
+        DataFrame with computed descriptors
     """
-    # Setup paths
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    geometries_dir = output_path.parent / "optimized_geometries"
-    logs_dir = output_path.parent / "logs"
-    
-    # Setup logging
-    logger = setup_pipeline_logging(logs_dir)
+    logger = setup_pipeline_logging()
     logger.info("Starting descriptor pipeline")
     
-    # Initialize result storage
     results = []
-    structural_failures = []
-    skipped_count = 0
-    success_count = 0
+    failed_molecules = []
     
-    # Iterate over molecules
     for idx, row in input_df.iterrows():
         molecule_id = row['molecule_id']
         smiles = row['SMILES']
         
-        logger.info(f"Processing molecule {molecule_id}")
-        start_time = time.time()
+        logger.info(f"Processing molecule: {molecule_id}")
         
+        start_time = time.time()
         try:
-            # 1. Calculate descriptors using DFTB+
-            # This invokes DFTB+ for geometry optimization and descriptor extraction
-            descriptors = calculate_descriptors_for_molecule(molecule_id, smiles, logs_dir)
+            # Calculate descriptors
+            command = f"dftb+ {molecule_id}"
+            descriptors, coordinates, exit_code, peak_memory_mb = calculate_descriptors_for_molecule(
+                molecule_id, smiles
+            )
             
-            if descriptors is None:
-                logger.warning(f"Skipping {molecule_id}: DFTB+ calculation failed or returned None")
-                skipped_count += 1
-                continue
-            
-            # 2. Validate HOMO < LUMO (Physical Constraint)
-            homo = descriptors.get('HOMO_energy')
-            lumo = descriptors.get('LUMO_energy')
-            
-            if homo is None or lumo is None:
-                logger.warning(f"Skipping {molecule_id}: Missing HOMO or LUMO energy")
-                skipped_count += 1
-                continue
-                
-            if not validate_homo_lumo_relationship(homo, lumo):
-                error_msg = f"HOMO ({homo}) >= LUMO ({lumo})"
-                log_structural_failure(molecule_id, logs_dir, "PHYSICAL_VIOLATION", error_msg)
-                logger.warning(f"Skipping {molecule_id}: {error_msg}")
-                structural_failures.append({
-                    "molecule_id": molecule_id,
-                    "timestamp": datetime.now().isoformat(),
-                    "error_code": "PHYSICAL_VIOLATION",
-                    "error_message": error_msg
-                })
-                skipped_count += 1
-                continue
-            
-            # 3. Export Geometry
-            if 'geometry' in descriptors and descriptors['geometry']:
-                write_geometry_xyz(molecule_id, descriptors['geometry'], geometries_dir)
-                logger.debug(f"Geometry saved for {molecule_id}")
-            
-            # 4. Log invocation details
             duration = time.time() - start_time
-            log_resource_snapshot(logs_dir, "dftb", molecule_id, duration)
             
-            # 5. Store results
+            # Log execution status
+            log_execution_status(
+                logger, molecule_id, command, exit_code, duration, peak_memory_mb
+            )
+            
+            # Validate HOMO < LUMO
+            if not validate_homo_lumo_relationship(descriptors['HOMO_energy'], descriptors['LUMO_energy']):
+                log_path = Path(STRUCTURAL_FAILURES_LOG)
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(log_path, 'a') as f:
+                    f.write(f"{molecule_id},{datetime.now().isoformat()},structural_failure,HOMO >= LUMO\n")
+                logger.warning(f"Structural validation failed for {molecule_id}: HOMO >= LUMO")
+                continue
+            
+            # Write optimized geometry
+            write_geometry_xyz(molecule_id, coordinates, output_dir)
+            
+            # Add to results
             results.append({
-                "molecule_id": molecule_id,
-                "HOMO_energy": float(homo),
-                "LUMO_energy": float(lumo),
-                "mayer_bond_order": float(descriptors.get('mayer_bond_order', 0.0))
+                'molecule_id': molecule_id,
+                'HOMO_energy': descriptors['HOMO_energy'],
+                'LUMO_energy': descriptors['LUMO_energy'],
+                'mayer_bond_order': descriptors['mayer_bond_order']
             })
-            success_count += 1
             
         except ConvergenceError as e:
-            handle_convergence_failure(molecule_id, str(e), logs_dir)
-            logger.error(f"Convergence failure for {molecule_id}: {e}")
-            skipped_count += 1
-        except OOMError as e:
-            handle_oom(molecule_id, str(e), logs_dir)
-            logger.error(f"OOM failure for {molecule_id}: {e}")
-            skipped_count += 1
+            duration = time.time() - start_time
+            log_execution_status(
+                logger, molecule_id, f"dftb+ {molecule_id}", -1, duration, 0
+            )
+            handle_convergence_failure(molecule_id, str(e), CONVERGENCE_FAILURES_LOG)
+            logger.error(f"Convergence failed for {molecule_id}: {e}")
+            failed_molecules.append(molecule_id)
+            
         except Exception as e:
-            logger.exception(f"Unexpected error for {molecule_id}: {e}")
-            skipped_count += 1
+            duration = time.time() - start_time
+            log_execution_status(
+                logger, molecule_id, f"dftb+ {molecule_id}", -1, duration, 0
+            )
+            logger.error(f"Unexpected error for {molecule_id}: {e}")
+            failed_molecules.append(molecule_id)
     
-    # Write final CSV
-    output_csv = output_path / "descriptors_semi.csv"
-    if results:
-        df_results = pd.DataFrame(results)
-        df_results.to_csv(output_csv, index=False)
-        logger.info(f"Successfully wrote {len(results)} descriptors to {output_csv}")
-    else:
-        logger.warning("No successful descriptors to write")
-        # Write empty CSV with headers to satisfy schema requirements
-        pd.DataFrame(columns=["molecule_id", "HOMO_energy", "LUMO_energy", "mayer_bond_order"]).to_csv(output_csv, index=False)
+    logger.info(f"Pipeline completed. Success: {len(results)}, Failed: {len(failed_molecules)}")
     
-    # Log summary
-    logger.info(f"Pipeline complete. Success: {success_count}, Skipped: {skipped_count}, Structural Failures: {len(structural_failures)}")
-    
-    return df_results if results else pd.DataFrame(columns=["molecule_id", "HOMO_energy", "LUMO_energy", "mayer_bond_order"])
+    return pd.DataFrame(results)
 
 def main():
-    """Main entry point for the pipeline."""
+    """Main entry point for the descriptor pipeline."""
     parser = argparse.ArgumentParser(description="Run descriptor pipeline on barrier dataset")
     parser.add_argument("--input", type=str, default="data/raw/barrier_dataset.csv",
-                      help="Path to input CSV with SMILES")
-    parser.add_argument("--output", type=str, default="data",
-                      help="Output directory for descriptors and geometries")
+                      help="Path to input CSV file")
+    parser.add_argument("--output", type=str, default="data/descriptors_semi.csv",
+                      help="Path to output CSV file")
+    parser.add_argument("--geometry-dir", type=str, default="data/optimized_geometries",
+                      help="Directory to save optimized geometries")
+    
     args = parser.parse_args()
     
-    input_path = Path(args.input)
-    if not input_path.exists():
-        print(f"Error: Input file not found: {input_path}")
+    # Load input data
+    if not os.path.exists(args.input):
+        print(f"Error: Input file not found: {args.input}")
         sys.exit(1)
     
-    # Load input data
-    try:
-        df = pd.read_csv(input_path)
-        required_cols = ['molecule_id', 'SMILES']
-        if not all(col in df.columns for col in required_cols):
-            print(f"Error: Input CSV missing required columns. Found: {df.columns.tolist()}")
-            sys.exit(1)
-    except Exception as e:
-        print(f"Error loading input data: {e}")
-        sys.exit(1)
+    input_df = pd.read_csv(args.input)
     
     # Run pipeline
-    try:
-        result_df = run_pipeline(df, args.output)
-        print(f"Pipeline completed. Output written to {args.output}/descriptors_semi.csv")
-    except Exception as e:
-        print(f"Pipeline failed: {e}")
-        sys.exit(1)
+    output_df = run_pipeline(input_df, args.geometry_dir)
+    
+    # Write output
+    output_df.to_csv(args.output, index=False)
+    print(f"Descriptors written to {args.output}")
 
 if __name__ == "__main__":
     main()

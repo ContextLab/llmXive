@@ -1,40 +1,36 @@
+"""
+Script to setup data directory structure for the project.
+Creates data/, models/, and reports/ directories if they don't exist.
+"""
 import os
 from pathlib import Path
 
 def setup_directories():
-    """
-    Create the required directory structure for the project.
-    This function ensures that data, models, reports, and test directories exist.
-    """
-    base_dir = Path(__file__).resolve().parent.parent
+    """Create the required directory structure."""
+    base_dir = Path(__file__).parent.parent
     
     directories = [
         base_dir / "data",
         base_dir / "models",
         base_dir / "reports",
         base_dir / "logs",
-        base_dir / "figures",
-        base_dir / "code" / "data",
-        base_dir / "code" / "features",
-        base_dir / "code" / "models",
-        base_dir / "code" / "analysis",
-        base_dir / "tests" / "unit",
-        base_dir / "tests" / "contract",
-        base_dir / "tests" / "integration",
-        base_dir / "contracts",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "data" / "external",
         base_dir / "docs",
         base_dir / "docs" / "deviations",
         base_dir / "docs" / "kickback_requests",
-        base_dir / "state",
     ]
-
+    
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
         print(f"Created directory: {directory}")
+    
+    print("\nDirectory structure setup complete.")
 
 def main():
+    """Main entry point."""
     setup_directories()
-    print("Directory structure setup complete.")
 
 if __name__ == "__main__":
     main()
