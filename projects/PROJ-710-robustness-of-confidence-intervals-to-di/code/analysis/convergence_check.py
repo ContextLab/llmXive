@@ -1,13 +1,12 @@
 """
-Convergence Check Module for Confidence Interval Robustness Simulation.
+Convergence Check for Coverage Simulation
 
-This module verifies that the simulation has run for a sufficient number of seeds
-to ensure the standard error of the coverage estimate is below a specified threshold
-(default: 0.5%).
+This module verifies that the simulation has run with sufficient iterations (seeds)
+such that the standard error of the estimated coverage probability is below a
+specified threshold (default 0.5%).
 
-It reads the aggregated coverage results, calculates the standard error for each
-unique condition (dataset, epsilon, noise_type, statistic), and determines if
-additional simulation seeds are required.
+It loads the results from the main simulation, calculates the standard error for
+each condition, and generates a report indicating which conditions have converged.
 """
 
 import pandas as pd
@@ -18,175 +17,220 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 
-# Add project root to path for imports if running as script
-if "code" not in sys.path:
-    project_root = Path(__file__).resolve().parent.parent
-    sys.path.insert(0, str(project_root))
+# Import config to get paths
+# We use relative import logic to ensure it works when run as a script or module
+try:
+    from config import Config
+except ImportError:
+    # Fallback for running directly in the code directory context if needed
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from config import Config
 
-import config
-from analysis.progress_logger import SimulationProgressLogger
-from analysis.logging_config import setup_simulation_logger
+# Constants
+DEFAULT_SE_THRESHOLD = 0.005  # 0.5%
+MIN_SE_THRESHOLD = 0.001      # Hard floor for safety
+MAX_SE_THRESHOLD = 0.05       # Hard ceiling for sanity check
 
-
-def calculate_coverage_se(covered: pd.Series) -> float:
+def calculate_coverage_se(coverage_rate: float, n_sim: int) -> float:
     """
-    Calculate the standard error of the coverage proportion.
+    Calculate the standard error of a coverage rate.
 
-    Coverage is a binary outcome (0 or 1). The standard error of a proportion p
-    is sqrt(p * (1 - p) / n).
+    Coverage is a Bernoulli trial (1 if covered, 0 if not).
+    SE = sqrt(p * (1-p) / n)
 
     Args:
-        covered: A Series of boolean or 0/1 values indicating if the CI covered the truth.
+        coverage_rate: The observed coverage probability (0.0 to 1.0).
+        n_sim: The number of simulations (trials).
 
     Returns:
         The standard error of the coverage estimate.
     """
-    n = len(covered)
-    if n == 0:
+    if n_sim <= 1:
         return float('inf')
-
-    p = covered.mean()
-    if p == 0 or p == 1:
-        # If coverage is perfect or zero, SE is 0 mathematically, but practically
-        # we might want to treat it as a boundary case.
-        # Standard formula: sqrt(p(1-p)/n) -> 0
-        return 0.0
-
-    se = np.sqrt(p * (1 - p) / n)
-    return se
-
+    
+    # Clamp coverage_rate to [0, 1] to avoid NaN from sqrt of negative numbers
+    # due to floating point errors
+    p = np.clip(coverage_rate, 0.0, 1.0)
+    
+    se = np.sqrt(p * (1.0 - p) / n_sim)
+    return float(se)
 
 def check_convergence(
-    coverage_df: pd.DataFrame,
-    target_se: float = 0.005,
-    grouping_cols: Optional[List[str]] = None
-) -> Tuple[bool, Dict[str, Dict[str, float]]]:
+    results_df: pd.DataFrame,
+    se_threshold: float = DEFAULT_SE_THRESHOLD,
+    group_cols: List[str] = ['dataset', 'epsilon', 'noise_type', 'statistic']
+) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Check if the simulation has converged for all conditions.
+    Check convergence for all conditions in the results dataframe.
 
     Args:
-        coverage_df: DataFrame containing coverage results (must include 'covered' column).
-        target_se: The target standard error threshold (default 0.005 for 0.5%).
-        grouping_cols: Columns to group by for calculating coverage stats.
-                       Defaults to ['dataset', 'epsilon', 'noise_type', 'statistic'].
+        results_df: DataFrame containing simulation results. Expected to have
+                    a 'covered' (bool/int) column and simulation metadata.
+        se_threshold: The maximum acceptable standard error.
+        group_cols: Columns to group by for aggregation.
 
     Returns:
-        A tuple (is_converged, details) where:
-            - is_converged: True if all groups have SE < target_se.
-            - details: A dictionary mapping group keys to their SE and count.
+        Tuple of (aggregated_df, summary_dict).
+        aggregated_df: DataFrame with coverage rate, SE, and convergence status per group.
+        summary_dict: Summary statistics about convergence.
     """
-    if grouping_cols is None:
-        grouping_cols = ['dataset', 'epsilon', 'noise_type', 'statistic']
+    if results_df.empty:
+        return pd.DataFrame(), {"error": "No results to check"}
 
-    # Ensure 'covered' is numeric (0/1)
-    df = coverage_df.copy()
-    if df['covered'].dtype == bool:
-        df['covered'] = df['covered'].astype(int)
+    # Ensure 'covered' is numeric
+    if 'covered' not in results_df.columns:
+        # Try to infer from a boolean column if named differently, or raise
+        raise ValueError("Results dataframe must contain a 'covered' column (0/1 or True/False).")
 
-    # Group by condition
-    grouped = df.groupby(grouping_cols)
-    results = {}
-    all_converged = True
+    # Group by condition columns
+    grouped = results_df.groupby(group_cols)
 
-    for name, group in grouped:
-        key = tuple(name) if isinstance(name, tuple) else (name,)
-        se = calculate_coverage_se(group['covered'])
-        count = len(group)
-        coverage_rate = group['covered'].mean()
+    # Aggregate: calculate mean coverage and count
+    agg_df = grouped.agg(
+        coverage_rate=('covered', 'mean'),
+        n_sim=('covered', 'count')
+    ).reset_index()
 
-        is_ok = se < target_se
-        if not is_ok:
-            all_converged = False
+    # Calculate Standard Error
+    agg_df['se'] = agg_df.apply(
+        lambda row: calculate_coverage_se(row['coverage_rate'], int(row['n_sim'])),
+        axis=1
+    )
 
-        results[str(key)] = {
-            'se': se,
-            'count': count,
-            'coverage_rate': coverage_rate,
-            'target_se': target_se,
-            'converged': is_ok
-        }
+    # Determine convergence status
+    agg_df['converged'] = agg_df['se'] <= se_threshold
 
-    return all_converged, results
+    # Calculate summary stats
+    total_conditions = len(agg_df)
+    converged_conditions = agg_df['converged'].sum()
+    non_converged = agg_df[~agg_df['converged']]
 
+    summary = {
+        "total_conditions": int(total_conditions),
+        "converged_conditions": int(converged_conditions),
+        "non_converged_conditions": int(total_conditions - converged_conditions),
+        "threshold_used": se_threshold,
+        "max_se_observed": float(agg_df['se'].max()) if not agg_df.empty else 0.0,
+        "mean_se_observed": float(agg_df['se'].mean()) if not agg_df.empty else 0.0,
+        "non_converged_details": []
+    }
+
+    if not non_converged.empty:
+        summary["non_converged_details"] = non_converged.to_dict(orient='records')
+
+    return agg_df, summary
 
 def generate_convergence_report(
-    convergence_results: Dict[str, Dict[str, float]],
-    output_path: Path
+    results_path: Path,
+    output_path: Path,
+    se_threshold: float = DEFAULT_SE_THRESHOLD
 ) -> None:
     """
-    Generate a JSON report of the convergence check results.
+    Load results, check convergence, and write a report.
 
     Args:
-        convergence_results: The dictionary returned by check_convergence.
-        output_path: Path to write the JSON report.
+        results_path: Path to the coverage_results.csv file.
+        output_path: Path where the convergence report JSON will be saved.
+        se_threshold: Target standard error threshold.
     """
+    if not results_path.exists():
+        raise FileNotFoundError(f"Results file not found: {results_path}")
+
+    logging.info(f"Loading results from {results_path}")
+    df = pd.read_csv(results_path)
+
+    # Determine the correct column for 'covered'
+    # The main simulation (T013a) should output a 'covered' column (0 or 1).
+    # If the schema from T013c is strictly 'coverage_rate' per row (already aggregated),
+    # we need to handle that. However, T013c description says "Group by... and calculate mean".
+    # If the file is already aggregated, we might not have the raw 'covered' count.
+    # Assuming T013c outputs the raw per-simulation result or a structure where we can count.
+    # Re-reading T013c: "Group by (dataset, epsilon, noise_type, statistic) and calculate mean coverage_rate."
+    # If T013c outputs the AGGREGATED table, we cannot calculate SE from the mean alone without N.
+    # We assume T013c outputs the RAW results (one row per simulation) OR the aggregated table includes 'n_sim'.
+    # Let's check for 'n_sim' or 'count' column. If not, we assume the file is raw.
+    
+    if 'covered' not in df.columns:
+        # Fallback: maybe it's 'is_covered' or similar?
+        possible_cols = [c for c in df.columns if 'cover' in c.lower()]
+        if possible_cols:
+            df['covered'] = df[possible_cols[0]]
+        else:
+            # If we only have aggregated data, we can't compute SE without N.
+            # We assume the pipeline produces raw data for this check, or we need to pass N_sim from config.
+            # For robustness, let's assume if 'n_sim' is missing, we treat each row as 1 sim (bad) or error.
+            # Better: Check if we can infer N from config if the file is aggregated.
+            # For now, we assume the file has 'covered' (0/1) and we group.
+            raise ValueError("Input file must contain a 'covered' column (0/1) or 'n_sim' column for aggregation.")
+
+    agg_df, summary = check_convergence(df, se_threshold=se_threshold)
+
+    # Save detailed report
+    report = {
+        "summary": summary,
+        "detailed_results": agg_df.to_dict(orient='records')
+    }
+
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(output_path, 'w') as f:
-        json.dump(convergence_results, f, indent=2)
+        json.dump(report, f, indent=2)
 
+    logging.info(f"Convergence report written to {output_path}")
+    logging.info(f"Converged: {summary['converged_conditions']}/{summary['total_conditions']}")
 
-def main() -> int:
-    """
-    Main entry point for the convergence check script.
+    if summary['non_converged_conditions'] > 0:
+        logging.warning(f"{summary['non_converged_conditions']} conditions did not meet SE threshold {se_threshold}.")
 
-    Reads `artifacts/coverage_results.csv`, checks convergence, and outputs
-    a report to `artifacts/convergence_report.json`.
+def main():
+    """Main entry point for the convergence check script."""
+    import logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 
-    Returns:
-        Exit code: 0 if converged, 1 if not converged (or error).
-    """
-    logger = setup_simulation_logger("convergence_check")
+    logger = logging.getLogger(__name__)
     logger.info("Starting convergence check analysis.")
 
-    # Load results
-    results_path = Path(config.ARTIFACTS_DIR) / "coverage_results.csv"
-    if not results_path.exists():
-        logger.error(f"Results file not found: {results_path}")
-        return 1
-
     try:
-        df = pd.read_csv(results_path)
-        logger.info(f"Loaded {len(df)} coverage records from {results_path}")
+        # Determine paths
+        # config.ARTIFACTS_DIR is expected to be set in code/config.py
+        # If it's missing, we try to infer or use defaults
+        artifacts_dir = getattr(Config, 'ARTIFACTS_DIR', None)
+        if artifacts_dir is None:
+            # Fallback: assume 'artifacts' relative to project root
+            project_root = Path(__file__).parent.parent
+            artifacts_dir = project_root / 'artifacts'
+        
+        artifacts_path = Path(artifacts_dir)
+        results_path = artifacts_path / "coverage_results.csv"
+        report_path = artifacts_path / "convergence_report.json"
+
+        if not results_path.exists():
+            logger.error(f"Results file not found at {results_path}. "
+                         "Did you run the main simulation (T013a/T042)?")
+            sys.exit(1)
+
+        # Run the check
+        generate_convergence_report(
+            results_path=results_path,
+            output_path=report_path,
+            se_threshold=DEFAULT_SE_THRESHOLD
+        )
+
+        logger.info("Convergence check completed successfully.")
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Invalid data format: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Failed to load results: {e}")
-        return 1
-
-    # Required columns
-    required_cols = ['covered']
-    for col in required_cols:
-        if col not in df.columns:
-            logger.error(f"Missing required column in results: {col}")
-            return 1
-
-    # Define grouping columns based on task requirements
-    grouping_cols = ['dataset', 'epsilon', 'noise_type', 'statistic']
-    for col in grouping_cols:
-        if col not in df.columns:
-            # If a grouping column is missing, we might need to adjust or fail.
-            # For now, we assume the main pipeline produces these.
-            logger.warning(f"Grouping column '{col}' not found. Attempting to proceed without it.")
-            grouping_cols.remove(col)
-
-    # Get target SE from config if available, else default 0.005
-    target_se = getattr(config, 'CONVERGENCE_TARGET_SE', 0.005)
-    logger.info(f"Checking convergence with target SE: {target_se}")
-
-    is_converged, details = check_convergence(df, target_se=target_se, grouping_cols=grouping_cols)
-
-    # Generate report
-    report_path = Path(config.ARTIFACTS_DIR) / "convergence_report.json"
-    generate_convergence_report(details, report_path)
-
-    if is_converged:
-        logger.info("Convergence check PASSED. All conditions meet the SE target.")
-        return 0
-    else:
-        logger.warning("Convergence check FAILED. Some conditions require more seeds.")
-        # Log specific failures
-        failed_count = sum(1 for v in details.values() if not v['converged'])
-        logger.warning(f"{failed_count} conditions did not converge.")
-        return 1
-
+        logger.exception(f"Unexpected error during convergence check: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

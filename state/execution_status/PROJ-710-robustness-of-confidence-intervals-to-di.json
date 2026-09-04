@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-710-robustness-of-confidence-intervals-to-di",
+  "ok": false,
+  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/synthetic_pop.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rator for Ground Truth.  Generates three separate synthetic populations (N=1,000,000\u2026\u201d; code/data/synthetic_pop.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026[str, Any]]:     \"\"\"     Generate a synthetic UCI Adult-like populatio\u2026\u201d; code/data/synthetic_pop.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026[str, Any]]:     \"\"\"     Generate a synthetic UCI Iris-like population\u2026\u201d; every produced artifact is gitignored (data/synthetic_populations/adult_population.csv, data/synthetic_populations/iris_population.csv, data/synthetic_populations/wine_population.csv) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 command(s) failed: python code/main.py (rc=1); python code/analysis/convergence_check.py (rc=1)",
+  "artifacts": [
+    "data/synthetic_populations/adult_population.csv",
+    "data/synthetic_populations/iris_population.csv",
+    "data/synthetic_populations/wine_population.csv"
+  ],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-710-robustness-of-confidence-intervals-to-di/code/main.py\", line 22, in <module>\n    from data.dp_noise import inject_laplace_noise, inject_gaussian_noise\nModuleNotFoundError: No module named 'data.dp_noise'",
+    "python code/analysis/convergence_check.py -> rc=1\n    2026-09-04 15:03:56,947 - INFO - Starting convergence check analysis.\n2026-09-04 15:03:56,947 - ERROR - Results file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-710-robustness-of-confidence-intervals-to-di/artifacts/coverage_results.csv. Did you run the main simulation (T013a/T042)?"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-04T15:03:58Z"
+}

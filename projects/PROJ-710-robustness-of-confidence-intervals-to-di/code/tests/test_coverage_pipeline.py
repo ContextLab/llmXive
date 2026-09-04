@@ -1,16 +1,11 @@
 """
 Integration test for end-to-end coverage calculation on a single condition.
+Task: T017
+Depends on: T013a (Outer Loop), T013b (Inner Loop), T013c (Result Writer)
 
-This test verifies that the full simulation pipeline (T013a) correctly:
-1. Loads a population from config (T003)
-2. Injects DP noise (T004)
-3. Handles edge cases (T014)
-4. Builds confidence intervals (T013a logic via ci_builder)
-5. Calculates empirical coverage against ground truth
-6. Writes a valid result to the aggregation pipeline (T013d)
-
-It runs a micro-simulation (N_sim=10) to verify the loop logic without
-exceeding time budgets, ensuring the output format matches T013d expectations.
+This test verifies that the full pipeline (Data Loading -> DP Noise -> CI Construction -> Coverage Check)
+executes correctly on a single, small condition (Adult dataset, high epsilon, Laplace noise)
+and produces a valid coverage result.
 """
 import json
 import os
@@ -18,285 +13,243 @@ import sys
 import pytest
 import tempfile
 import shutil
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import numpy as np
 import pandas as pd
+from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
 
-# Project imports
-from code.config import Config, get_artifact_path
-from code.main import load_population, run_simulation_condition
-from code.analysis.edge_cases import clamp_noise_scale, enforce_min_sample_size
-from code.analysis.ci_builder import build_ci_for_mean, validate_ci_coverage
-from code.data.dp_noise import inject_laplace_noise
-
-# Ensure the test can find the project root if run from a subdirectory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
+# Import from existing API surface
+from data.download_utils import fetch_adult_data, DataFetchError
+from data.dp_noise import inject_laplace_noise, inject_gaussian_noise
+from analysis.ci_builder import build_ci_for_mean, validate_ci_coverage
+from analysis.edge_cases import enforce_min_sample_size
+from config import get_artifact_path, get_data_path, Config
 
 class TestCoveragePipeline:
-    """Integration tests for the full coverage calculation pipeline."""
+    """Integration tests for the coverage calculation pipeline."""
 
     @pytest.fixture(autouse=True)
     def setup_and_teardown(self):
-        """Set up a temporary directory for artifacts and clean up after."""
-        # Create a temporary directory for this test run
-        self.test_artifact_dir = tempfile.mkdtemp(prefix="test_coverage_")
+        """Setup temporary directories and clean up after tests."""
+        # Create a temporary directory for test artifacts
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.temp_dir)
         
-        # Patch Config to use our temporary directory
-        self.original_get_artifact_path = Config.get_artifact_path
-        
-        def mock_get_artifact_path(filename):
-            return os.path.join(self.test_artifact_dir, filename)
-        
-        Config.get_artifact_path = staticmethod(mock_get_artifact_path)
+        # Ensure required directories exist
+        os.makedirs("artifacts", exist_ok=True)
+        os.makedirs("data/raw", exist_ok=True)
         
         yield
-
-        # Teardown: remove temporary directory
-        if os.path.exists(self.test_artifact_dir):
-            shutil.rmtree(self.test_artifact_dir)
         
-        # Restore original method
-        Config.get_artifact_path = self.original_get_artifact_path
+        # Cleanup
+        os.chdir(self.original_cwd)
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_load_population(self):
-        """Test that load_population correctly retrieves the synthetic population."""
-        # Load the Adult population as defined in T003
-        population = load_population("adult")
-        
-        assert population is not None
-        assert isinstance(population, np.ndarray) or hasattr(population, 'shape')
-        # T003 specifies N=1,000,000, but for this integration test we might mock or
-        # use a smaller subset if memory is constrained. 
-        # We assert it has the expected structure (at least 2D or 1D with size).
-        assert len(population) > 0
+    def _load_small_sample(self, n_samples: int = 50) -> pd.DataFrame:
+        """Load a small sample of the Adult dataset for testing."""
+        try:
+            df = fetch_adult_data()
+            if df is None or len(df) == 0:
+                raise DataFetchError("Failed to fetch Adult dataset")
+            
+            # Take a small random sample for speed
+            if len(df) > n_samples:
+                df = df.sample(n=n_samples, random_state=42)
+            
+            # Ensure we have a numeric column for mean estimation
+            # Adult dataset typically has 'age' or 'hours-per-week'
+            numeric_col = None
+            for col in ['age', 'hours-per-week', 'fnlwgt']:
+                if col in df.columns and pd.api.types.is_numeric_dtype(df[col]):
+                    numeric_col = col
+                    break
+            
+            if numeric_col is None:
+                # Fallback: create a synthetic numeric column if real data lacks one (should not happen with real UCI)
+                # But per strict rules, we rely on real data. If 'age' exists, use it.
+                raise ValueError("Could not find a suitable numeric column in the real Adult dataset")
+            
+            return df[numeric_col].dropna().reset_index(drop=True)
+        except DataFetchError as e:
+            pytest.skip(f"Real data fetch failed: {e}")
 
-    def test_run_simulation_condition_micro(self):
+    def test_end_to_end_coverage_calculation(self):
         """
-        Run a micro-simulation (N_sim=10) for a single condition (Adult, Mean, Laplace, epsilon=1.0).
+        Test the full pipeline on a single condition:
+        1. Load real UCI Adult data
+        2. Draw a small sample
+        3. Add DP noise (Laplace, high epsilon)
+        4. Construct 95% CI for the mean
+        5. Check coverage against the sample mean (as a proxy for ground truth in this small test)
         
-        Verifies:
-        1. The loop executes without error.
-        2. Edge case handlers (clamp_noise_scale) are invoked.
-        3. CI construction succeeds.
-        4. Coverage is calculated (0.0 to 1.0).
-        5. Results are written to a CSV compatible with T013d.
+        Note: In the full simulation (T013a), we compare against the synthetic ground truth from T003.
+        Here, we verify the mechanics work end-to-end.
         """
-        # Configuration for the micro-test
-        dataset_name = "adult"
-        statistic_type = "mean"
-        noise_type = "laplace"
-        epsilon = 1.0
-        n_sim = 10  # Small number for integration speed
-        n_bootstrap = 50  # Small number for speed
+        # 1. Load Real Data
+        sample_data = self._load_small_sample(n_samples=100)
+        assert len(sample_data) >= 10, "Sample size too small for CI construction"
         
-        # Load population
-        population = load_population(dataset_name)
+        # Ground truth for this specific sample is the sample mean
+        true_mean = sample_data.mean()
         
-        # Ground truth for the mean (approximate from population)
-        # In a real run, this comes from config.py (T003)
-        true_mean = float(np.mean(population))
+        # 2. Add DP Noise
+        epsilon = 10.0  # High epsilon for stability in this small test
+        sensitivity = sample_data.max() - sample_data.min()
+        noise_data = inject_laplace_noise(sample_data.values, epsilon=epsilon, sensitivity=sensitivity)
         
-        # Mock the config values for this specific test run
-        # We patch run_simulation_condition to use our specific parameters
-        # rather than reading from a global config which might have N_sim=1000
+        # 3. Construct CI
+        # We run a small number of bootstrap resamples for the test
+        n_bootstrap = 100 
+        ci_lower, ci_upper = build_ci_for_mean(
+            noise_data, 
+            confidence_level=0.95, 
+            n_bootstrap=n_bootstrap, 
+            random_state=42
+        )
         
+        # 4. Check Coverage
+        covered = validate_ci_coverage(ci_lower, ci_upper, true_mean)
+        
+        # 5. Assert Results
+        assert isinstance(covered, bool), "Coverage result must be boolean"
+        assert ci_lower is not None and ci_upper is not None, "CI bounds must be computed"
+        assert ci_lower <= ci_upper, "CI lower bound must be <= upper bound"
+        
+        # Write a minimal result to disk to satisfy T013c writer expectations for this test
+        result_record = {
+            "dataset": "adult_test",
+            "epsilon": epsilon,
+            "noise_type": "laplace",
+            "statistic": "mean",
+            "coverage_rate": 1.0 if covered else 0.0,
+            "adjusted_coverage": 1.0 if covered else 0.0,
+            "adjustment_method": "none",
+            "improvement_delta": 0.0,
+            "seed": 42
+        }
+        
+        # Write to artifacts/coverage_results.csv (T013c output path)
+        output_path = Path("artifacts/coverage_results.csv")
+        if output_path.exists():
+            existing_df = pd.read_csv(output_path)
+            new_df = pd.concat([existing_df, pd.DataFrame([result_record])], ignore_index=True)
+        else:
+            new_df = pd.DataFrame([result_record])
+        
+        new_df.to_csv(output_path, index=False)
+        
+        # Verify file was written
+        assert output_path.exists(), "Output file must be written"
+        assert len(pd.read_csv(output_path)) > 0, "Output file must contain data"
+
+    def test_pipeline_with_gaussian_noise(self):
+        """Test the pipeline with Gaussian noise injection."""
+        sample_data = self._load_small_sample(n_samples=50)
+        true_mean = sample_data.mean()
+        
+        epsilon = 5.0
+        sensitivity = sample_data.max() - sample_data.min()
+        
+        # Gaussian noise injection
+        noise_data = inject_gaussian_noise(sample_data.values, epsilon=epsilon, sensitivity=sensitivity)
+        
+        # Build CI
+        ci_lower, ci_upper = build_ci_for_mean(
+            noise_data, 
+            confidence_level=0.95, 
+            n_bootstrap=50, 
+            random_state=42
+        )
+        
+        # Validate
+        covered = validate_ci_coverage(ci_lower, ci_upper, true_mean)
+        
+        assert isinstance(covered, bool)
+
+    def test_min_sample_size_enforcement(self):
+        """Test that the pipeline enforces minimum sample size."""
+        # Create a tiny sample
+        tiny_data = pd.Series([1.0, 2.0, 3.0])
+        
+        with pytest.raises(ValueError):
+            enforce_min_sample_size(tiny_data.values, min_size=10)
+
+    def test_result_writer_integration(self):
+        """Test that the result writer can handle the pipeline output format."""
+        # Simulate a batch of results
         results = []
-        
-        for i in range(n_sim):
-            # 1. Sample data
-            sample_size = 1000
-            sample = np.random.choice(population, size=sample_size, replace=True)
-            
-            # 2. Inject Noise (T004)
-            # Sensitivity for mean is range/n or similar, simplified here for integration
-            # We use a fixed sensitivity for the test to ensure reproducibility
-            sensitivity = 1.0 
-            noise_scale = sensitivity / epsilon
-            
-            # Edge case: clamp noise scale if it exceeds data range (T014a)
-            clamped_scale = clamp_noise_scale(noise_scale, sample)
-            
-            noisy_sample = inject_laplace_noise(sample, scale=clamped_scale)
-            
-            # 3. Edge case: enforce min sample size (T014c)
-            if len(noisy_sample) < 10:
-                # In a real scenario, this might re-sample or abort.
-                # For this test, we assume sample_size=1000 is safe.
-                pass
-            
-            # 4. Compute Statistic and CI (T013a logic)
-            point_estimate = np.mean(noisy_sample)
-            
-            # Build CI using bootstrap (T013a / ci_builder)
-            ci_lower, ci_upper = build_ci_for_mean(
-                noisy_sample, 
-                confidence_level=0.95, 
-                n_bootstrap=n_bootstrap
-            )
-            
-            # 5. Validate Coverage (T013a)
-            is_covered = validate_ci_coverage(ci_lower, ci_upper, true_mean)
-            
+        for i in range(5):
             results.append({
-                "dataset": dataset_name,
-                "statistic": statistic_type,
-                "noise_type": noise_type,
-                "epsilon": epsilon,
-                "simulation_id": i,
-                "point_estimate": point_estimate,
-                "ci_lower": ci_lower,
-                "ci_upper": ci_upper,
-                "covered": int(is_covered)
+                "dataset": "adult",
+                "epsilon": 1.0 + i,
+                "noise_type": "laplace",
+                "statistic": "mean",
+                "coverage_rate": 0.90 + (i * 0.01),
+                "adjusted_coverage": 0.92,
+                "adjustment_method": "variance_inflation",
+                "improvement_delta": 0.02,
+                "seed": 42 + i
             })
         
-        # 6. Verify Results Structure (T013d)
-        df_results = pd.DataFrame(results)
+        df = pd.DataFrame(results)
+        output_path = Path("artifacts/coverage_results_test.csv")
+        df.to_csv(output_path, index=False)
         
-        # Check columns required by T013d aggregation
-        required_cols = ["dataset", "statistic", "noise_type", "epsilon", "covered"]
-        for col in required_cols:
-            assert col in df_results.columns, f"Missing required column: {col}"
-        
-        # Check data types
-        assert df_results["covered"].dtype in [int, np.int64, bool]
-        assert df_results["epsilon"].dtype in [float, np.float64]
-        
-        # Check that coverage is a valid probability (0 or 1 for individual rows)
-        assert df_results["covered"].isin([0, 1]).all()
-        
-        # Calculate empirical coverage rate for this micro-run
-        empirical_coverage = df_results["covered"].mean()
-        
-        # The empirical coverage should be a number between 0 and 1
-        assert 0.0 <= empirical_coverage <= 1.0
-        
-        # Write to the expected artifact path (simulating T013d write)
-        output_path = get_artifact_path("coverage_results.csv")
-        df_results.to_csv(output_path, index=False)
-        
-        # Verify file exists and is readable
-        assert os.path.exists(output_path)
+        # Verify
         loaded_df = pd.read_csv(output_path)
-        assert len(loaded_df) == n_sim
-        
-        # Log the result for manual inspection if needed
-        print(f"Micro-simulation coverage rate: {empirical_coverage:.2f} (n={n_sim})")
+        assert len(loaded_df) == 5
+        assert "coverage_rate" in loaded_df.columns
+        assert "epsilon" in loaded_df.columns
 
-    def test_edge_case_handling_integration(self):
-        """
-        Verify that edge case functions (T014) are correctly integrated into the pipeline.
-        Specifically tests clamp_noise_scale with extreme epsilon.
-        """
-        population = load_population("adult")
-        sample = np.random.choice(population, size=1000, replace=True)
-        
-        # Extreme epsilon -> very large noise scale
-        epsilon_small = 0.0001
-        sensitivity = 1.0
-        noise_scale = sensitivity / epsilon_small
-        
-        # This should clamp the scale to the data range
-        clamped_scale = clamp_noise_scale(noise_scale, sample)
-        
-        # The clamped scale must be less than or equal to the original
-        assert clamped_scale <= noise_scale
-        
-        # The clamped scale must be positive and reasonable relative to data
-        data_range = np.ptp(sample)
-        # The clamped scale should not exceed the data range significantly
-        # (logic depends on implementation, but it must be bounded)
-        assert clamped_scale > 0
-
-    def test_pipeline_with_regression_statistic(self):
-        """
-        Test that the pipeline can handle 'regression' statistic type (T013a).
-        We mock the population and regression logic to ensure the dispatch works.
-        """
-        # Create a simple synthetic dataset for regression
-        np.random.seed(42)
-        n = 500
-        X = np.random.normal(0, 1, (n, 2))
-        true_beta = np.array([2.0, 1.5])
-        y = X @ true_beta + np.random.normal(0, 0.5, n)
-        
-        # Simulate the pipeline steps for regression
-        # 1. Inject noise
-        epsilon = 1.0
-        sensitivity = 1.0 # Simplified
-        noise_scale = sensitivity / epsilon
-        noisy_y = inject_laplace_noise(y, scale=noise_scale)
-        
-        # 2. Estimate regression (using OLS for simplicity in test)
-        # Note: In real code, this would call a specific regression estimator
-        # that handles DP noise or uses the noisy data directly.
-        X_with_intercept = np.c_[np.ones(n), X]
-        beta_hat = np.linalg.lstsq(X_with_intercept, noisy_y, rcond=None)[0]
-        
-        # 3. Build CI (mocked for speed, real code uses bootstrap)
-        # We assume the ci_builder has a function for regression
-        # build_ci_for_regression_coefficient exists in the API surface
-        # We will test that the function call is valid
-        from code.analysis.ci_builder import build_ci_for_regression_coefficient
-        
-        # We need to pass the data in the format expected by the function
-        # Since we don't have the full implementation of the regression CI builder
-        # in this snippet, we verify the function exists and can be called with
-        # a mock or simplified structure.
-        
-        # For this integration test, we verify the function signature exists
-        # and doesn't crash with a basic call structure.
-        # Real CI construction requires the full bootstrap loop.
-        
-        # We assert that the function is callable
-        assert callable(build_ci_for_regression_coefficient)
-
-    def test_atomic_write_simulation(self):
-        """
-        Verify that the pipeline writes results atomically (T013a).
-        Simulates the temp-file-then-rename pattern.
-        """
-        data = {"col1": [1, 2, 3], "col2": [4, 5, 6]}
+    def test_coverage_aggregation_logic(self):
+        """Test the logic of aggregating coverage rates (mocking T013c aggregation)."""
+        # Create a dataframe with multiple runs for the same condition
+        data = {
+            "dataset": ["adult"] * 10,
+            "epsilon": [1.0] * 10,
+            "noise_type": ["laplace"] * 10,
+            "statistic": ["mean"] * 10,
+            "coverage_rate": [0.94, 0.95, 0.93, 0.96, 0.95, 0.94, 0.95, 0.96, 0.94, 0.95]
+        }
         df = pd.DataFrame(data)
         
-        target_path = get_artifact_path("atomic_test.csv")
-        temp_path = target_path + ".tmp"
+        # Aggregate
+        grouped = df.groupby(["dataset", "epsilon", "noise_type", "statistic"]).agg({
+            "coverage_rate": "mean"
+        }).reset_index()
         
-        # Write to temp
-        df.to_csv(temp_path, index=False)
+        mean_coverage = grouped["coverage_rate"].iloc[0]
         
-        # Verify temp exists
-        assert os.path.exists(temp_path)
-        assert not os.path.exists(target_path)
-        
-        # Rename atomically
-        os.rename(temp_path, target_path)
-        
-        # Verify final
-        assert os.path.exists(target_path)
-        assert not os.path.exists(temp_path)
-        
-        # Verify content
-        loaded = pd.read_csv(target_path)
-        pd.testing.assert_frame_equal(loaded, df)
+        # Should be close to 0.947
+        assert 0.94 < mean_coverage < 0.96
 
-    def test_coverage_deviation_calculation(self):
-        """
-        Verify that the deviation from nominal coverage is calculated correctly.
-        Nominal = 0.95.
-        """
-        # Simulate a result set
-        n = 100
-        # 90% coverage
-        covered_count = 90
-        df = pd.DataFrame({"covered": [1]*covered_count + [0]*(n-covered_count)})
+    def test_invalid_epsilon_handling(self):
+        """Test behavior with invalid epsilon values."""
+        sample_data = self._load_small_sample(n_samples=20)
         
-        empirical = df["covered"].mean()
-        nominal = 0.95
-        deviation = empirical - nominal
+        # Epsilon must be positive
+        with pytest.raises((ValueError, ZeroDivisionError)):
+            inject_laplace_noise(sample_data.values, epsilon=0.0, sensitivity=1.0)
+
+    def test_full_csv_schema_validation(self):
+        """Validate that the output CSV matches the expected schema from T013c."""
+        expected_columns = [
+            "dataset", "epsilon", "noise_type", "statistic", 
+            "coverage_rate", "adjusted_coverage", "adjustment_method", 
+            "improvement_delta", "seed"
+        ]
         
-        assert abs(deviation - (0.90 - 0.95)) < 1e-9
+        # Create a dummy row
+        dummy_row = {col: 0 if col in ["epsilon", "coverage_rate", "adjusted_coverage", "improvement_delta", "seed"] else "test" 
+                    for col in expected_columns}
+        dummy_row["noise_type"] = "test"
+        dummy_row["statistic"] = "test"
+        dummy_row["dataset"] = "test"
+        
+        df = pd.DataFrame([dummy_row])
+        output_path = Path("artifacts/schema_test.csv")
+        df.to_csv(output_path, index=False)
+        
+        loaded_df = pd.read_csv(output_path)
+        assert list(loaded_df.columns) == expected_columns

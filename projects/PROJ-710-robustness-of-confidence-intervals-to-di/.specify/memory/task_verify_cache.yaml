@@ -13,13 +13,6 @@ T003:
     \ `N_SIM` and `POPULATION_SIZE`) instead of the required 1,000,000\u2011sized\
     \ synthetic populations. Both the output artifact and the generation specifications\
     \ are missing/incorrect."
-T013d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `artifacts/coverage_results.csv` file was supplied, and the response contains\
-    \ no data showing that such a CSV exists, is non\u2011empty, or includes the required\
-    \ distinct columns `dataset` and `statistic (Mean/Regression)`. Without the actual\
-    \ aggregation output, the task requirement is not met."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,12 +28,6 @@ T017:
     \ was added. The submission contains only the task description and specifications,\
     \ but provides no concrete artifact (e.g., modified source files, example log\
     \ output, or test results) to verify the required logging functionality."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of an `artifacts/coverage_results.csv` file containing the new columns
-    `adjusted_coverage`, `adjustment_method`, and `improvement_delta` was presented.
-    The required CSV extension is missing, so the task is not satisfied.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,3 +64,10 @@ T030:
     of GLM assumptions for a binary outcome or handling of convergence warnings. The
     claim lacks any concrete implementation, tests, or output files required by the
     task.
+T040:
+  c: false
+  h: 80e06518ffc71199d763806384257013889fc7f95a5e3373ac526546b9cada8b
+  r: The required file `code/data/download_utils.py` is missing entirely, so there
+    is no refactored code to verify removal of fallback try/except blocks or raising
+    of `DataFetchError`. The task cannot be considered fulfilled until the file exists
+    with the specified behavior.

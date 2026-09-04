@@ -13,3 +13,8 @@ scikit-learn==1.5.0
 pytest==8.2.2
 ruff==0.4.8
 black==24.4.2
+data  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+seaborn  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
+pmlb  # auto-added: verified real data source (discovery)
