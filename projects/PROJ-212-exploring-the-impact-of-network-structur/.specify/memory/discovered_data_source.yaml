@@ -1,0 +1,16 @@
+status: none
+intent: network graph datasets KONECT SNAP Network Repository UCI Network Data Repository
+  python package dataset
+required_fields:
+- graph_id
+- num_nodes
+- num_edges
+- degree_distribution
+- average_clustering_coefficient
+- average_path_length
+- critical_coupling_strength
+- is_connected
+- source_dataset_name
+cache_key: e2953da796ea2968c9efe0f9d1ef179ddf7fdec4dab2298389f9474bf4078b21
+searched_at: '2026-09-04T16:52:45.061966+00:00'
+retry_count: 1

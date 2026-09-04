@@ -1,0 +1,69 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RegressionModel
+description: Schema for the statistical regression model results.
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model run."
+  predictors:
+    type: array
+    items:
+      type: string
+    description: "List of topological features used as predictors."
+  target:
+    type: string
+    const: "synchronization_threshold"
+    description: "The target variable being predicted."
+  coefficients:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Regression coefficients for each predictor."
+  r_squared:
+    type: number
+    description: "R-squared value of the model."
+  p_values:
+    type: object
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    description: "P-values for each predictor."
+  cv_score:
+    type: number
+    description: "Mean cross-validation R-squared score."
+  cv_std:
+    type: number
+    description: "Standard deviation of cross-validation scores."
+  vif_scores:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Variance Inflation Factor for each predictor."
+  model_type:
+    type: string
+    enum:
+      - "linear"
+      - "polynomial"
+      - "ridge"
+    description: "Type of regression model used."
+  anova_f_statistic:
+    type: number
+    description: "F-statistic from the ANOVA test."
+  anova_p_value:
+    type: number
+    description: "P-value from the ANOVA test."
+required:
+  - model_id
+  - predictors
+  - target
+  - coefficients
+  - r_squared
+  - p_values
+  - cv_score
+  - cv_std
+  - vif_scores
+  - model_type
+  - anova_f_statistic
+  - anova_p_value

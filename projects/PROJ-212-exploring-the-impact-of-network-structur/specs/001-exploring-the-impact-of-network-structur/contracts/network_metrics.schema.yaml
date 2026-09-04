@@ -1,0 +1,53 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: NetworkMetrics
+description: Schema for topological metrics of a single network graph.
+type: object
+properties:
+  network_id:
+    type: string
+    description: "Unique identifier for the network (e.g., filename or hash)."
+  node_count:
+    type: integer
+    minimum: 1
+    description: "Number of nodes in the graph."
+  edge_count:
+    type: integer
+    minimum: 0
+    description: "Number of edges in the graph."
+  is_connected:
+    type: boolean
+    description: "True if the graph is a single connected component."
+  topology_metrics:
+    type: object
+    properties:
+      degree_mean:
+        type: number
+        description: "Mean degree of the nodes."
+      degree_std:
+        type: number
+        description: "Standard deviation of the degree distribution."
+      clustering_coeff:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: "Average clustering coefficient."
+      avg_path_length:
+        type: ["number", "null"]
+        description: "Average path length. Null if graph is disconnected."
+    required:
+      - degree_mean
+      - degree_std
+      - clustering_coeff
+      - avg_path_length
+    required:
+      - network_id
+      - node_count
+      - edge_count
+      - is_connected
+      - topology_metrics
+required:
+  - network_id
+  - node_count
+  - edge_count
+  - is_connected
+  - topology_metrics

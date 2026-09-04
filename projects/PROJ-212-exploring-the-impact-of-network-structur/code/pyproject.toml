@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "network-synchronization-impact"
+version = "0.1.0"
+description = "Exploring the impact of network structure on synchronization in complex physical systems"
+requires-python = ">=3.11"
+dependencies = [
+    "networkx",
+    "scipy",
+    "scikit-learn",
+    "pandas",
+    "matplotlib",
+    "datasets",
+    "pyyaml",
+    "pytest",
+    "hypothesis",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Same as Black
+line-length = 88
+target-version = "py311"
+src = ["code", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (black handles this)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["data_models", "loader", "main", "simulation", "stats", "topology", "utils", "validators", "verify_snap_subset", "viz", "config"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"

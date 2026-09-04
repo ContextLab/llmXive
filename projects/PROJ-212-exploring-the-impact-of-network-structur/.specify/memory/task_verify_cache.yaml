@@ -1,0 +1,37 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory `projects/PROJ-212-exploring-the-impact-of-network-structur/code/`
+    or any files within it was provided; without a visible project structure the task
+    requirement is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `ruff.toml`, or a pre\u2011commit hook) are present\
+    \ in the provided artifacts, nor any documentation showing that Ruff and Black\
+    \ have been set up for the project. Without these concrete files, the task of\
+    \ configuring linting and formatting tools is not satisfied."
+T010:
+  c: false
+  h: bf91d3b69ef148f5676efd416bbc029c80d24f2ba1d05428db697cb8fe40c75d
+  r: The test file `tests/test_topology.py` is present and contains realistic assertions,
+    but the required source module `src/topology.py` does not exist, so the tests
+    cannot be imported or executed. The missing implementation file must be added
+    (or the import path corrected) for the unit test to be functional.
+T011:
+  c: false
+  h: 90b2858322798ddf936e0dca925ebe54bbfc5568b79f58aa2f85b39f45129374
+  r: The required source file `src/simulation.py` is missing, so the imported functions
+    (`check_disconnected`, `kuramoto_derivative`, `run_kuramoto_simulation`) do not
+    exist. Additionally, the provided `tests/test_simulation.py` is truncated and
+    incomplete (e.g., an unfinished fixture definition), meaning the unit tests are
+    not fully defined or runnable. Both the implementation and the complete test suite
+    are absent.
+T018:
+  c: false
+  h: 4e665652558df746609fa535a0785eac751a0c3c54b51997d7d17e80b7cccb84
+  r: The required `src/stats.py` file does not exist, so there is no code to test,
+    and consequently no unit test for VIF calculation or Ridge fallback logic can
+    be present or validated. The missing source file must be added (with the VIF and
+    Ridge logic) and a corresponding unit test created to satisfy the task.

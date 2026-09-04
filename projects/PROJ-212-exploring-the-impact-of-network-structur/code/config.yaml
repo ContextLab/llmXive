@@ -1,0 +1,42 @@
+# Configuration for PROJ-212: Exploring the Impact of Network Structure on Synchronization
+# This file defines seeds, thresholds, and path constants for the pipeline.
+
+# Random seeds for reproducibility
+seeds:
+  global_seed: 42
+  numpy_seed: 42
+  random_seed: 42
+
+# Simulation and Analysis Thresholds
+# Synchronization is considered achieved if order parameter r > r_threshold
+# for a duration t > t_duration_threshold
+thresholds:
+  r_threshold: 0.8
+  t_duration_threshold: 100
+  k_sweep_start: 0.0
+  k_sweep_end: 5.0
+  k_sweep_step: 0.1
+  n_oscillators: 200
+
+# Statistical Analysis Parameters
+stats:
+  alpha: 0.05
+  vif_threshold: 5.0
+  min_samples_regression: 10
+  cv_folds: 5
+  cv_repeats: 5
+
+# File System Paths (relative to project root)
+paths:
+  data_dir: "data"
+  results_dir: "results"
+  figures_dir: "figures"
+  logs_dir: "logs"
+  snap_data_dir: "data/snap"
+  processed_metrics_file: "data/processed_metrics.csv"
+  sim_results_file: "results/sim_results.json"
+  regression_summary_file: "results/regression_summary.json"
+  cv_report_file: "results/cv_report.json"
+  verification_report_file: "results/verification_report.json"
+  pipeline_status_file: "results/pipeline_status.json"
+  synthetic_fallback_file: "data/synthetic_fallback_N30.csv"

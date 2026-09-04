@@ -1,0 +1,13 @@
+# Configuration for PROJ-212
+seeds:
+  random_seed: 42
+thresholds:
+  r_threshold: 0.8
+  time_threshold: 100
+  vif_threshold: 5.0
+  alpha: 0.05
+paths:
+  data_dir: "data"
+  results_dir: "results"
+  figures_dir: "figures"
+  config_file: "config.yaml"

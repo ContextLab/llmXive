@@ -1,0 +1,3 @@
+# This file is a duplicate of the configuration in pyproject.toml
+# for environments that prefer a standalone ruff configuration file.
+extend = "pyproject.toml"

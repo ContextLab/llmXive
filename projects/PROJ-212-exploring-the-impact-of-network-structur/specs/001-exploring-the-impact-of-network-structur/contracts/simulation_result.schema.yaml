@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SimulationResult
+description: Schema for the outcome of a Kuramoto simulation on a network.
+type: object
+properties:
+  network_id:
+    type: string
+    description: "Reference to the network graph."
+  synchronization_threshold:
+    type: ["number", "null"]
+    description: "Minimum coupling strength K where r(t) > 0.8 sustained for 100 units. Null if disconnected."
+  status:
+    type: string
+    enum:
+      - "synchronized"
+      - "failed"
+      - "disconnected"
+    description: "Outcome status of the simulation."
+  convergence_time:
+    type: ["number", "null"]
+    description: "Time step at which the threshold was reached."
+  order_parameter_series:
+    type: array
+    items:
+      type: number
+    description: "Time series of the order parameter r(t)."
+  theoretical_kc:
+    type: ["number", "null"]
+    description: "Theoretical critical coupling for validation (e.g., 2.0 for Ring Graph)."
+  residual_kc:
+    type: ["number", "null"]
+    description: "Residual (empirical Kc - theoretical Kc) for tautology check."
+required:
+  - network_id
+  - synchronization_threshold
+  - status
+  - order_parameter_series
+  - theoretical_kc
+  - residual_kc
