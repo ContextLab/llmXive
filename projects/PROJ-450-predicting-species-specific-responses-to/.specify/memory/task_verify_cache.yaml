@@ -36,38 +36,3 @@ T036a:
     \ \u226590\u202F% of the supplied species with \u226550 valid records produced\
     \ complete centroid records for both periods. Consequently the required validation\
     \ artifact is missing."
-T036b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No regression summary per region, count of valid vs total regions, or any validation\
-    \ output is present; the implementer provided no artifact or data to demonstrate\
-    \ that \u226580\u202F% of regions produced computable results. The claim cannot\
-    \ be verified without such evidence."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No PNG plot files were supplied, and there is no way to check their dimensions;\
-    \ thus the requirement to verify that all plots meet the 1200\u202F\xD7\u202F\
-    800\u202Fpx resolution cannot be confirmed."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No log file, warning count, or total\u2011record metrics were provided, nor\
-    \ any script or report showing that the warning\u2011to\u2011record ratio was\
-    \ calculated and verified to be \u22645\u202F%. The required artifact to demonstrate\
-    \ this validation is missing."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the `quickstart.md` validation was actually executed,\
-    \ nor any logs, timestamps, or output showing the end\u2011to\u2011end pipeline\
-    \ completed within the required 6\u2011hour window. The claim lacks the required\
-    \ artifact (e.g., a validation report or execution log) to verify the task was\
-    \ fulfilled."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` or `data-model.md` files were provided, and there is no evidence\
-    \ that these documents were updated to include the final query parameters and\
-    \ checksums. The implementer\u2019s response only discusses user stories and testing,\
-    \ not the required documentation changes."
