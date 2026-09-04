@@ -1,39 +1,54 @@
-T016:
+T012b:
   c: false
-  h: bbdba8026c0eae10eff26b5030329613d48be477db828464ef860e2a77dbc801
-  r: "The repository contains a `code/preprocess.py` file, but it only includes placeholder\
-    \ stubs and no actual implementation of the Markov surprisal calculation or code\
-    \ that writes `data/processed/markov_state.json`. Moreover, the required output\
-    \ file `data/processed/markov_state.json` is absent. The task\u2019s core output\
-    \ is therefore missing."
-T017b:
+  h: 4b29d36e212d93f40bc8efd2d691ddad7e9441613389877f738b8d5a06021822
+  r: "The provided `code/download.py` stops after defining `validate_checksum` (truncated)\
+    \ and does not show any logic for filtering datasets by the required columns,\
+    \ handling missing source checksums (the \u201CFAIL\u201D condition), or writing\
+    \ exclusions to `data/processed/exclusion_log.json` (the file is absent). Consequently\
+    \ the script does not fulfill the full set of requirements."
+T012c:
+  c: false
+  h: 5344bf8b7232406edf2465d249fa989016adf12a53dead84a7a37703918aab1e
+  r: The required `data/processed/exclusion_log.json` file is missing, so the script
+    cannot read the exclusion data, and the `data/README.md` still contains only placeholder
+    text rather than a populated status table. The implementation does not demonstrate
+    that it actually writes the updated markdown to the README. Both the input data
+    and the resulting updated README are absent.
+T013:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The task entry itself states \u201CRemoved: Logic merged into T012b,\u201D indicating\
+    \ no deliverable artifacts are required. Since the specification explicitly marks\
+    \ the task as removed, the absence of code, data, or figures satisfies the requirement."
+T014a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of `data/processed/transition_probs.json` or `data/processed/markov_state.json`
-    (or any equivalent files) was provided; thus the required versioned artifacts
-    are missing. The task is not satisfied.
-T023:
+  r: "The implementer only noted that the filtering logic was removed and moved to\
+    \ another task, but no download or preprocessing scripts, CSV outputs, logs, or\
+    \ README documentation are present. Consequently, the mandatory artifacts for\
+    \ User Story\u202F1 (data acquisition, preprocessing, surprisal calculation, and\
+    \ \u2265100 valid rows) are missing."
+T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code implementing Bonferroni or Benjamini\u2011Hochberg correction, no conditional\
-    \ logic checking `num_tests > 1`, and no `analysis/results.json` containing an\
-    \ `adjusted_pvalues` list are present in the provided artifacts. The required\
-    \ files and functionality are missing."
-T024:
+  r: "No data download or preprocessing scripts, no generated CSV files, and no exclusion\u2011\
+    logging implementation are present. The required artifacts for User Story\u202F\
+    1 (scripts, processed CSV with required columns, README logging) are missing,\
+    \ so the task\u2019s core requirement is not satisfied."
+T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output file implementing Cohen's\u202Fd with a\
-    \ 95\u202F% confidence interval using the `pingouin` library is present; the claim\
-    \ lacks any tangible artifact to verify the required functionality. The implementer\
-    \ must provide the actual implementation (e.g., a Python function or analysis\
-    \ script) and its output demonstrating the calculation."
-T025:
+  r: "No download or preprocessing scripts, no generated CSV files with the required\
+    \ columns, and no statistical analysis code or output (effect sizes, confidence\
+    \ intervals, MDE) are present. The task\u2019s mandatory user stories are unfulfilled,\
+    \ so the required artifacts are missing."
+T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output implementing a sensitivity analysis that\
-    \ computes the Minimum Detectable Effect for power\u202F=\u202F0.80 is provided,\
-    \ nor is there any logic that checks \u201Cobserved effect\u202F<\u202FMDE\u201D\
-    \ and reports it as a limitation. The required artifact is missing."
+  r: "No code implementing the Bonferroni or Benjamini\u2011Hochberg correction verification\
+    \ logic is present, and there is no `analysis/results.json` file (or entry) containing\
+    \ a `fwer_control_status` boolean. The required artifact is missing, so the task\
+    \ is not satisfied."
 T025b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

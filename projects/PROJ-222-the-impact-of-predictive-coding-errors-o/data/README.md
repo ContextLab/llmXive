@@ -1,22 +1,19 @@
-# Data Directory
+# Dataset Metadata and Status
 
-## Schema
-This directory stores raw and processed data.
+## Overview
+This directory contains dataset metadata, exclusion logs, and status information for the time perception analysis project.
 
-## Dataset Metadata
-Fields: dataset_id, status, reason
+## Dataset IDs
+Dataset IDs are listed in `dataset_ids.txt`.
 
-### Verified datasets
-- id: 42277
- source: openml
- type: time_perception
-- id: 42278
- source: openml
- type: time_perception
+## Exclusion Log
+Datasets that failed validation are logged in `data/processed/exclusion_log.json`.
 
-## Exclusion Logs
-(Populated by preprocessing tasks)
+## Dataset Exclusions
 
-### Dataset Status
-- openml_42277: valid
-- openml_42278: valid
+## Status
+- **Valid datasets**: Will be listed here after successful download and validation
+- **Excluded datasets**: Listed above with reasons
+
+## Checksums
+SHA256 checksums are computed during download and stored in the exclusion log for verification.

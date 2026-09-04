@@ -1,142 +1,260 @@
 """
-Unit tests for T013: update_readme.py
+Unit tests for code/update_readme.py (T012c).
 """
+
 import json
+import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pytest
 
 # Import the functions to test
-# We need to mock config.get_data_dir and config.get_processed_dir
-# to avoid needing the real project structure in tests.
 from code.update_readme import (
     load_exclusion_log,
     parse_verified_datasets,
     generate_dataset_status_section,
-    update_readme
+    update_readme,
+    run_t013,
+    get_data_dir,
+    get_processed_dir
 )
 
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+class TestLoadExclusionLog:
+    def test_load_existing_log(self, tmp_path):
+        """Test loading an existing exclusion log."""
+        exclusion_log_path = tmp_path / "exclusion_log.json"
+        test_data = [
+            {"dataset_id": "123", "reason": "Missing columns"},
+            {"dataset_id": "456", "reason": "Invalid format"}
+        ]
+        exclusion_log_path.write_text(json.dumps(test_data))
+
+        result = load_exclusion_log(exclusion_log_path)
+        assert result == test_data
+
+    def test_load_nonexistent_log(self, tmp_path):
+        """Test loading a non-existent exclusion log returns empty list."""
+        exclusion_log_path = tmp_path / "nonexistent.json"
+
+        result = load_exclusion_log(exclusion_log_path)
+        assert result == []
+
+    def test_load_invalid_json(self, tmp_path):
+        """Test loading invalid JSON returns empty list."""
+        exclusion_log_path = tmp_path / "invalid.json"
+        exclusion_log_path.write_text("not valid json")
+
+        result = load_exclusion_log(exclusion_log_path)
+        assert result == []
+
+    def test_load_non_list_json(self, tmp_path):
+        """Test loading JSON that is not a list returns empty list."""
+        exclusion_log_path = tmp_path / "non_list.json"
+        exclusion_log_path.write_text(json.dumps({"key": "value"}))
+
+        result = load_exclusion_log(exclusion_log_path)
+        assert result == []
 
 
-def test_load_exclusion_log_file_not_found(temp_dir):
-    """Test loading exclusion log when file does not exist."""
-    log_path = temp_dir / "nonexistent.json"
-    result = load_exclusion_log(log_path)
-    assert result == []
+class TestParseVerifiedDatasets:
+    def test_parse_valid_readme(self, tmp_path):
+        """Test parsing a valid README with verified datasets."""
+        readme_path = tmp_path / "README.md"
+        readme_content = """
+        # Data Directory
+
+        ## Verified datasets
+        - id: 123
+          source: openml
+          type: time_perception
+        - id: 456
+          source: huggingface
+          type: time_perception
+
+        ## Other Section
+        Content here.
+        """
+        readme_path.write_text(readme_content)
+
+        result = parse_verified_datasets(readme_path)
+
+        assert "123" in result
+        assert result["123"]["source"] == "openml"
+        assert result["123"]["type"] == "time_perception"
+        assert "456" in result
+        assert result["456"]["source"] == "huggingface"
+
+    def test_parse_empty_readme(self, tmp_path):
+        """Test parsing an empty README returns empty dict."""
+        readme_path = tmp_path / "README.md"
+        readme_path.write_text("# Data Directory")
+
+        result = parse_verified_datasets(readme_path)
+        assert result == {}
+
+    def test_parse_readme_no_verified_section(self, tmp_path):
+        """Test parsing README without verified datasets section."""
+        readme_path = tmp_path / "README.md"
+        readme_path.write_text("# Data Directory\n\nSome content.")
+
+        result = parse_verified_datasets(readme_path)
+        assert result == {}
 
 
-def test_load_exclusion_log_empty_file(temp_dir):
-    """Test loading exclusion log from an empty file."""
-    log_path = temp_dir / "empty.json"
-    log_path.write_text("")
-    result = load_exclusion_log(log_path)
-    assert result == []
+class TestGenerateDatasetStatusSection:
+    def test_generate_with_exclusions(self):
+        """Test generating status section with excluded datasets."""
+        verified_datasets = {
+            "123": {"source": "openml", "type": "time_perception"},
+            "456": {"source": "huggingface", "type": "time_perception"}
+        }
+        exclusion_log = [
+            {"dataset_id": "123", "reason": "Missing columns"}
+        ]
+
+        result = generate_dataset_status_section(verified_datasets, exclusion_log)
+
+        assert "### Dataset Status" in result
+        assert "openml_123: excluded (reason: Missing columns)" in result
+        assert "huggingface_456: valid" in result
+
+    def test_generate_no_exclusions(self):
+        """Test generating status section with no exclusions."""
+        verified_datasets = {
+            "123": {"source": "openml", "type": "time_perception"}
+        }
+        exclusion_log = []
+
+        result = generate_dataset_status_section(verified_datasets, exclusion_log)
+
+        assert "### Dataset Status" in result
+        assert "openml_123: valid" in result
+        assert "excluded" not in result
 
 
-def test_load_exclusion_log_valid_json(temp_dir):
-    """Test loading exclusion log with valid JSON."""
-    log_path = temp_dir / "valid.json"
-    data = [
-        {"dataset_id": "openml_42277", "reason": "Missing columns"},
-        {"dataset_id": "openml_42278", "reason": "Non-sequential"}
-    ]
-    log_path.write_text(json.dumps(data))
-    result = load_exclusion_log(log_path)
-    assert len(result) == 2
-    assert result[0]["dataset_id"] == "openml_42277"
+class TestUpdateReadme:
+    def test_update_existing_readme(self, tmp_path):
+        """Test updating an existing README with new status section."""
+        readme_path = tmp_path / "README.md"
+        readme_content = """
+        # Data Directory
+
+        ## Verified datasets
+        - id: 123
+          source: openml
+          type: time_perception
+
+        ## Exclusion Logs
+        Old content.
+        """
+        readme_path.write_text(readme_content)
+
+        exclusion_log = [
+            {"dataset_id": "123", "reason": "Missing columns"}
+        ]
+        verified_datasets = {
+            "123": {"source": "openml", "type": "time_perception"}
+        }
+
+        success = update_readme(readme_path, exclusion_log, verified_datasets)
+
+        assert success
+        updated_content = readme_path.read_text()
+        assert "### Dataset Status" in updated_content
+        assert "openml_123: excluded (reason: Missing columns)" in updated_content
+
+    def test_update_readme_adds_section(self, tmp_path):
+        """Test updating README adds status section if missing."""
+        readme_path = tmp_path / "README.md"
+        readme_content = """
+        # Data Directory
+
+        ## Verified datasets
+        - id: 123
+          source: openml
+          type: time_perception
+        """
+        readme_path.write_text(readme_content)
+
+        exclusion_log = []
+        verified_datasets = {
+            "123": {"source": "openml", "type": "time_perception"}
+        }
+
+        success = update_readme(readme_path, exclusion_log, verified_datasets)
+
+        assert success
+        updated_content = readme_path.read_text()
+        assert "### Dataset Status" in updated_content
+        assert "openml_123: valid" in updated_content
+
+    def test_update_nonexistent_readme(self, tmp_path):
+        """Test updating a non-existent README fails."""
+        readme_path = tmp_path / "nonexistent.md"
+
+        exclusion_log = []
+        verified_datasets = {}
+
+        success = update_readme(readme_path, exclusion_log, verified_datasets)
+
+        assert not success
 
 
-def test_parse_verified_datasets(temp_dir):
-    """Test parsing verified datasets from README."""
-    readme_path = temp_dir / "README.md"
-    content = """
-    # Data Directory
+class TestRunT013:
+    @patch('code.update_readme.get_data_dir')
+    @patch('code.update_readme.get_processed_dir')
+    def test_run_success(self, mock_processed_dir, mock_data_dir, tmp_path):
+        """Test successful execution of T013."""
+        # Setup mocks
+        mock_data_dir.return_value = tmp_path
+        mock_processed_dir.return_value = tmp_path / 'processed'
+        (tmp_path / 'processed').mkdir()
 
-    ## Verified datasets
-    - id: 42277
-     source: openml
-     type: time_perception
-    - id: 42278
-     source: openml
-     type: time_perception
+        # Create test files
+        exclusion_log_path = tmp_path / 'processed' / 'exclusion_log.json'
+        exclusion_log_path.write_text(json.dumps([{"dataset_id": "123", "reason": "Test"}]))
 
-    ## Exclusion Logs
-    """
-    readme_path.write_text(content)
-    result = parse_verified_datasets(readme_path)
-    assert len(result) == 2
-    assert "42277" in result
-    assert result["42277"]["source"] == "openml"
-    assert result["42277"]["type"] == "time_perception"
+        readme_path = tmp_path / 'README.md'
+        readme_path.write_text("""
+        # Data Directory
+        ## Verified datasets
+        - id: 123
+          source: openml
+          type: time_perception
+        """)
 
+        success = run_t013()
 
-def test_generate_dataset_status_section(temp_dir):
-    """Test generating the dataset status section."""
-    verified = {
-        "42277": {"id": "42277", "source": "openml", "type": "time_perception"},
-        "42278": {"id": "42278", "source": "openml", "type": "time_perception"}
-    }
-    exclusion_log = [
-        {"dataset_id": "openml_42277", "reason": "Missing columns"}
-    ]
+        assert success
+        assert readme_path.exists()
+        content = readme_path.read_text()
+        assert "### Dataset Status" in content
 
-    section = generate_dataset_status_section(verified, exclusion_log)
+    @patch('code.update_readme.get_data_dir')
+    @patch('code.update_readme.get_processed_dir')
+    def test_run_no_exclusion_log(self, mock_processed_dir, mock_data_dir, tmp_path):
+        """Test execution with missing exclusion log (should succeed with empty log)."""
+        # Setup mocks
+        mock_data_dir.return_value = tmp_path
+        mock_processed_dir.return_value = tmp_path / 'processed'
+        (tmp_path / 'processed').mkdir()
 
-    assert "### Dataset Status" not in section  # The function returns the content, not the header
-    # Actually, the function returns the lines joined, let's check the content
-    # The function returns the lines joined by newline.
-    # Let's check the actual output format
-    lines = section.split("\n")
-    assert any("openml_42277: excluded (Missing columns)" in line for line in lines)
-    assert any("openml_42278: valid" in line for line in lines)
+        # Create README only
+        readme_path = tmp_path / 'README.md'
+        readme_path.write_text("""
+        # Data Directory
+        ## Verified datasets
+        - id: 123
+          source: openml
+          type: time_perception
+        """)
 
+        success = run_t013()
 
-def test_update_readme_replace_section(temp_dir):
-    """Test updating README by replacing existing section."""
-    readme_path = temp_dir / "README.md"
-    initial_content = """
-    # Data Directory
-
-    ### Dataset Status
-    - openml_42277: valid
-
-    ## Other Section
-    """
-    readme_path.write_text(initial_content)
-
-    new_status = "### Dataset Status\n- openml_42277: excluded (Test reason)\n- openml_42278: valid"
-
-    update_readme(readme_path, new_status)
-
-    updated_content = readme_path.read_text()
-    assert "openml_42277: excluded (Test reason)" in updated_content
-    assert "openml_42278: valid" in updated_content
-    assert "Other Section" in updated_content
-
-
-def test_update_readme_append_section(temp_dir):
-    """Test updating README by appending section if not present."""
-    readme_path = temp_dir / "README.md"
-    initial_content = """
-    # Data Directory
-
-    ## Exclusion Logs
-    Some text
-    """
-    readme_path.write_text(initial_content)
-
-    new_status = "### Dataset Status\n- openml_42277: valid"
-
-    update_readme(readme_path, new_status)
-
-    updated_content = readme_path.read_text()
-    assert "openml_42277: valid" in updated_content
-    assert "## Exclusion Logs" in updated_content
+        assert success
+        assert readme_path.exists()
+        content = readme_path.read_text()
+        assert "### Dataset Status" in content

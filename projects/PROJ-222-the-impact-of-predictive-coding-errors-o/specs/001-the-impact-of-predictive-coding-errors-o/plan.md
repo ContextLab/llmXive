@@ -139,7 +139,7 @@ projects/PROJ-222-the-impact-of-predictive-coding-errors-o/
 
 ### Phase 3: Visualization & Reporting
 1.  **Action**: `visualize.py` generates forest plots and residual diagnostics.
-2.  **Output**: `figures/` directory with 300+ DPI plots.
+2.  **Output**: `figures/` directory with + DPI plots.
 
 ## Data Gap Resolution Protocol
 If Gate 0 fails (no valid dataset found):

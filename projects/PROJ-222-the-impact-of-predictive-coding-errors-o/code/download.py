@@ -7,272 +7,277 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-import requests
-import pandas as pd
-from datasets import load_dataset, get_dataset_config_names, get_dataset_split_names
+# Ensure config is available for paths
+try:
+    from config import get_data_dir, get_processed_dir
+except ImportError:
+    # Fallback if run directly without package context
+    from pathlib import Path
+    def get_data_dir():
+        return Path("data")
+    def get_processed_dir():
+        return Path("data/processed")
 
-# Configure logging
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("data/processed/download.log")
+    ]
 )
 logger = logging.getLogger(__name__)
 
-# Paths
-DATA_DIR = Path("data")
-PROCESSED_DIR = DATA_DIR / "processed"
-RAW_DIR = DATA_DIR / "raw"
-README_PATH = DATA_DIR / "README.md"
-EXCLUSION_LOG_PATH = PROCESSED_DIR / "exclusion_log.json"
-BLOCKED_STATUS_PATH = DATA_DIR / "blocked_status.json"
-DATASET_IDS_PATH = DATA_DIR / "dataset_ids.txt"
-
 class ChecksumError(Exception):
-    """Raised when a checksum verification fails."""
+    """Raised when checksum verification fails."""
     pass
 
-def compute_sha256(filepath: Path) -> str:
+def compute_sha256(file_path: Path) -> str:
     """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def parse_dataset_ids(filepath: Path) -> List[Dict[str, Any]]:
-    """
-    Parse dataset_ids.txt.
-    Expected format: id,source,type (e.g., 42277,openml,time_perception)
-    Returns list of dicts: [{'id': '42277', 'source': 'openml', 'type': 'time_perception'}, ...]
-    """
-    if not filepath.exists():
-        logger.error(f"Dataset IDs file not found: {filepath}")
+def parse_dataset_ids(ids_file: Path) -> List[str]:
+    """Read dataset IDs from file."""
+    if not ids_file.exists():
+        logger.error(f"Dataset IDs file not found: {ids_file}")
         return []
+    
+    with open(ids_file, 'r') as f:
+        ids = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+    logger.info(f"Read {len(ids)} dataset IDs from {ids_file}")
+    return ids
 
-    datasets = []
-    with open(filepath, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-            parts = line.split(',')
-            if len(parts) >= 2:
-                datasets.append({
-                    'id': parts[0].strip(),
-                    'source': parts[1].strip().lower(),
-                    'type': parts[2].strip() if len(parts) > 2 else 'unknown'
-                })
-            else:
-                logger.warning(f"Skipping malformed line in dataset_ids.txt: {line}")
-    return datasets
-
-def fetch_openml_dataset(dataset_id: str) -> Optional[Path]:
-    """
-    Fetch dataset from OpenML using the datasets library.
-    Returns path to downloaded dataset or None if failed.
-    """
+def fetch_openml_dataset(dataset_id: str, target_dir: Path) -> Optional[Path]:
+    """Fetch dataset from OpenML."""
     try:
-        logger.info(f"Fetching OpenML dataset {dataset_id}...")
-        # Load dataset directly into memory, then save to a temporary parquet/arrow file
-        # Note: OpenML datasets in HuggingFace datasets are often under 'openml' with the ID as config
-        ds = load_dataset('openml', str(dataset_id), split='train')
+        import openml
+        import pandas as pd
         
-        # Create a unique filename
-        safe_id = str(dataset_id).replace('/', '_')
-        output_path = RAW_DIR / f"openml_{safe_id}.parquet"
+        logger.info(f"Fetching OpenML dataset: {dataset_id}")
+        dataset = openml.datasets.get_dataset(dataset_id)
+        X, y, categorical, attribute_names = dataset.get_data(dataset_format="dataframe")
         
-        # Save to parquet for efficient reading later
-        ds.to_parquet(str(output_path))
-        logger.info(f"Saved OpenML dataset to {output_path}")
-        return output_path
+        output_file = target_dir / f"openml_{dataset_id}.csv"
+        X.to_csv(output_file, index=False)
+        
+        logger.info(f"Saved OpenML dataset to {output_file}")
+        return output_file
     except Exception as e:
         logger.error(f"Failed to fetch OpenML dataset {dataset_id}: {e}")
         return None
 
-def fetch_huggingface_dataset(dataset_id: str) -> Optional[Path]:
-    """
-    Fetch dataset from HuggingFace Hub.
-    Returns path to downloaded dataset or None if failed.
-    """
+def fetch_huggingface_dataset(dataset_id: str, target_dir: Path) -> Optional[Path]:
+    """Fetch dataset from HuggingFace."""
     try:
-        logger.info(f"Fetching HuggingFace dataset {dataset_id}...")
-        ds = load_dataset(dataset_id, split='train')
+        from datasets import load_dataset
         
-        safe_id = dataset_id.replace('/', '_')
-        output_path = RAW_DIR / f"hf_{safe_id}.parquet"
+        logger.info(f"Fetching HuggingFace dataset: {dataset_id}")
+        ds = load_dataset(dataset_id, split="train")
         
-        ds.to_parquet(str(output_path))
-        logger.info(f"Saved HuggingFace dataset to {output_path}")
-        return output_path
+        output_file = target_dir / f"hf_{dataset_id}.csv"
+        ds.to_csv(output_file)
+        
+        logger.info(f"Saved HuggingFace dataset to {output_file}")
+        return output_file
     except Exception as e:
         logger.error(f"Failed to fetch HuggingFace dataset {dataset_id}: {e}")
         return None
 
-def validate_checksum(filepath: Path, expected_hash: Optional[str]) -> bool:
-    """
-    Validate checksum of a file.
-    If expected_hash is None, generate and return True (will be recorded later).
-    """
-    if expected_hash is None:
-        logger.info(f"No expected checksum provided for {filepath}, generating new one.")
-        return True
-    
-    actual_hash = compute_sha256(filepath)
-    if actual_hash == expected_hash:
-        logger.info(f"Checksum verified for {filepath}")
-        return True
-    else:
-        logger.error(f"Checksum mismatch for {filepath}. Expected: {expected_hash}, Got: {actual_hash}")
+def validate_checksum(file_path: Path, expected_checksum: str) -> bool:
+    """Validate file checksum against expected value."""
+    if not expected_checksum:
+        # If no checksum provided, we cannot validate - FAIL as per spec
+        logger.error(f"No checksum provided for {file_path} - cannot validate")
         return False
+    
+    actual_checksum = compute_sha256(file_path)
+    if actual_checksum != expected_checksum:
+        logger.error(f"Checksum mismatch for {file_path}: expected {expected_checksum}, got {actual_checksum}")
+        return False
+    
+    logger.info(f"Checksum validated for {file_path}")
+    return True
 
-def filter_dataset_columns(filepath: Path, required_cols: List[str]) -> bool:
-    """
-    Check if a dataset (parquet file) contains required columns.
-    Returns True if valid, False otherwise.
-    """
+def filter_dataset_columns(file_path: Path, required_columns: List[str]) -> bool:
+    """Check if dataset has required columns."""
     try:
-        # Load just the schema to check columns
-        df = pd.read_parquet(filepath)
-        cols = set(df.columns)
-        missing = [c for c in required_cols if c not in cols]
+        import pandas as pd
         
+        # Read just the header to check columns
+        df = pd.read_csv(file_path, nrows=0)
+        columns = df.columns.tolist()
+        
+        missing = [col for col in required_columns if col not in columns]
         if missing:
-            logger.warning(f"Dataset {filepath} missing required columns: {missing}")
+            logger.warning(f"Dataset {file_path} missing required columns: {missing}")
             return False
         
-        logger.info(f"Dataset {filepath} has all required columns: {required_cols}")
+        logger.info(f"Dataset {file_path} has all required columns")
         return True
     except Exception as e:
-        logger.error(f"Error checking columns in {filepath}: {e}")
+        logger.error(f"Error checking columns for {file_path}: {e}")
         return False
 
-def write_exclusion_log(dataset_id: str, source: str, reason: str, exclusion_log: List[Dict]) -> List[Dict]:
-    """Add an entry to the exclusion log."""
-    exclusion_log.append({
-        'dataset_id': dataset_id,
-        'source': source,
-        'reason': reason,
-        'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
-    })
-    return exclusion_log
+def write_exclusion_log(exclusions: List[Dict[str, Any]], log_path: Path):
+    """Write exclusion log to JSON file."""
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, 'w') as f:
+        json.dump(exclusions, f, indent=2)
+    logger.info(f"Wrote exclusion log to {log_path}")
 
-def write_blocked_status(reason: str) -> None:
-    """Write the blocked status file."""
+def write_blocked_status(reason: str, status_path: Path):
+    """Write blocked status file."""
+    status_path.parent.mkdir(parents=True, exist_ok=True)
     status = {
         "status": "blocked",
         "reason": reason,
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
-    with open(BLOCKED_STATUS_PATH, 'w') as f:
+    with open(status_path, 'w') as f:
         json.dump(status, f, indent=2)
-    logger.error(f"BLOCKED: {reason}")
+    logger.info(f"Wrote blocked status to {status_path}")
 
-def update_readme_status(dataset_id: str, source: str, status: str, reason: Optional[str] = None) -> None:
-    """
-    Update the README.md with the status of a dataset.
-    Note: This function is called by T013, but we define it here for completeness.
-    T012 writes to exclusion_log, T013 reads exclusion_log and updates README.
-    """
-    pass 
+def update_readme_status(exclusions: List[Dict[str, Any]], readme_path: Path):
+    """Update README with dataset status information."""
+    if not readme_path.exists():
+        logger.warning(f"README not found at {readme_path}, creating new one")
+        readme_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(readme_path, 'w') as f:
+            f.write("# Dataset Status\n\n")
+    
+    with open(readme_path, 'r') as f:
+        content = f.read()
+    
+    # Append or update status section
+    status_section = "\n## Dataset Exclusions\n\n"
+    for exclusion in exclusions:
+        status_section += f"- **{exclusion['dataset_id']}**: {exclusion['reason']}\n"
+    
+    if "## Dataset Exclusions" in content:
+        # Update existing section
+        content = content.split("## Dataset Exclusions")[0] + status_section
+    else:
+        content += status_section
+    
+    with open(readme_path, 'w') as f:
+        f.write(content)
+    
+    logger.info(f"Updated README at {readme_path}")
 
-def run_download_pipeline() -> int:
-    """
-    Main pipeline logic for T012.
-    1. Read IDs from dataset_ids.txt.
-    2. Fetch datasets.
-    3. Compute/Verify checksums.
-    4. Filter for required columns.
-    5. Log exclusions.
-    6. If 0 valid, write blocked_status.json and exit.
-    """
-    REQUIRED_COLS = ['duration_estimate', 'stimulus_sequence', 'participant_id']
+def run_download_pipeline():
+    """Main pipeline for downloading and validating datasets."""
+    data_dir = get_data_dir()
+    processed_dir = get_processed_dir()
     
     # Ensure directories exist
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
     
-    # 1. Read IDs
-    datasets = parse_dataset_ids(DATASET_IDS_PATH)
-    if not datasets:
-        write_blocked_status("No dataset IDs found in data/dataset_ids.txt")
-        return 1
+    # Read dataset IDs
+    ids_file = data_dir / "dataset_ids.txt"
+    dataset_ids = parse_dataset_ids(ids_file)
     
-    logger.info(f"Found {len(datasets)} dataset IDs to process.")
+    if not dataset_ids:
+        logger.error("No dataset IDs found")
+        write_blocked_status("No dataset IDs found in data/dataset_ids.txt", data_dir / "blocked_status.json")
+        update_readme_status([{"dataset_id": "N/A", "reason": "No dataset IDs found"}], data_dir / "README.md")
+        return False
     
+    required_columns = ["duration_estimate", "stimulus_sequence", "participant_id"]
+    exclusions = []
     valid_datasets = []
-    exclusion_log = []
     
-    # Load existing exclusion log if present
-    if EXCLUSION_LOG_PATH.exists():
-        try:
-            with open(EXCLUSION_LOG_PATH, 'r') as f:
-                exclusion_log = json.load(f)
-        except json.JSONDecodeError:
-            exclusion_log = []
-
-    for ds_info in datasets:
-        ds_id = ds_info['id']
-        source = ds_info['source']
-        logger.info(f"Processing dataset: {ds_id} ({source})")
+    # Checksums map - in a real scenario, this would come from a verified source
+    # For now, we'll skip checksum validation if not provided and fail loudly if required
+    checksums_map = {}  # Would be populated from a verified source file
+    
+    for dataset_id in dataset_ids:
+        logger.info(f"Processing dataset: {dataset_id}")
         
-        # 2. Fetch dataset
-        if source == 'openml':
-            filepath = fetch_openml_dataset(ds_id)
-        elif source == 'huggingface':
-            filepath = fetch_huggingface_dataset(ds_id)
+        # Try to fetch from OpenML first, then HuggingFace
+        downloaded_file = None
+        
+        # Attempt OpenML
+        if dataset_id.isdigit():  # OpenML IDs are typically numeric
+            downloaded_file = fetch_openml_dataset(dataset_id, processed_dir)
+        
+        # Attempt HuggingFace if OpenML failed
+        if not downloaded_file:
+            downloaded_file = fetch_huggingface_dataset(dataset_id, processed_dir)
+        
+        if not downloaded_file:
+            exclusions.append({
+                "dataset_id": dataset_id,
+                "status": "excluded",
+                "reason": "Failed to download from any source"
+            })
+            continue
+        
+        # Validate checksum if available
+        expected_checksum = checksums_map.get(dataset_id)
+        if expected_checksum:
+            if not validate_checksum(downloaded_file, expected_checksum):
+                exclusions.append({
+                    "dataset_id": dataset_id,
+                    "status": "excluded",
+                    "reason": "Checksum validation failed"
+                })
+                continue
         else:
-            reason = f"Unknown source: {source}"
-            exclusion_log = write_exclusion_log(ds_id, source, reason, exclusion_log)
+            # Spec says: "If a hash is missing in the source file, FAIL (do NOT generate)"
+            # Since we have no source file with hashes, we cannot validate - exclude
+            exclusions.append({
+                "dataset_id": dataset_id,
+                "status": "excluded",
+                "reason": "No checksum available for validation"
+            })
             continue
         
-        if filepath is None:
-            reason = "Failed to download dataset"
-            exclusion_log = write_exclusion_log(ds_id, source, reason, exclusion_log)
+        # Filter for required columns
+        if not filter_dataset_columns(downloaded_file, required_columns):
+            exclusions.append({
+                "dataset_id": dataset_id,
+                "status": "excluded",
+                "reason": f"Missing required columns: {required_columns}"
+            })
             continue
         
-        # 3. Checksum (Simplified: generate if missing, verify if present in README)
-        # Since T012c handles README updates, we assume no expected hash here for now
-        # or we could parse README to find it. For T012, we generate and log.
-        # Implementation note: T012c is the one that updates README with checksums.
-        # So here we just ensure the file is valid.
-        
-        # 4. Filter columns
-        if not filter_dataset_columns(filepath, REQUIRED_COLS):
-            reason = f"Missing required columns: {REQUIRED_COLS}"
-            exclusion_log = write_exclusion_log(ds_id, source, reason, exclusion_log)
-            continue
-        
-        # Valid
-        valid_datasets.append({
-            'id': ds_id,
-            'source': source,
-            'path': str(filepath),
-            'checksum': compute_sha256(filepath)
+        # Dataset is valid
+        valid_datasets.append(str(downloaded_file))
+        exclusions.append({
+            "dataset_id": dataset_id,
+            "status": "valid",
+            "reason": "Passed all validations"
         })
-        logger.info(f"Dataset {ds_id} is valid.")
     
-    # 5. Write exclusion log
-    with open(EXCLUSION_LOG_PATH, 'w') as f:
-        json.dump(exclusion_log, f, indent=2)
-    logger.info(f"Exclusion log written to {EXCLUSION_LOG_PATH}")
+    # Write exclusion log
+    exclusion_log_path = processed_dir / "exclusion_log.json"
+    write_exclusion_log(exclusions, exclusion_log_path)
     
-    # 6. CRITICAL BLOCKER
-    if len(valid_datasets) == 0:
-        write_blocked_status(
-            f"No valid datasets found after download and filtering. "
-            f"The provided dataset IDs ({', '.join([d['id'] for d in datasets])}) "
-            f"do not exist or do not contain the required columns."
-        )
-        return 1
+    # Check if any valid datasets found
+    if not valid_datasets:
+        logger.error("No valid datasets found after filtering")
+        write_blocked_status("No valid datasets found after download and validation", data_dir / "blocked_status.json")
+        update_readme_status(exclusions, data_dir / "README.md")
+        return False
     
-    logger.info(f"Pipeline completed successfully. {len(valid_datasets)} valid datasets found.")
-    return 0
+    logger.info(f"Successfully processed {len(valid_datasets)} datasets")
+    update_readme_status(exclusions, data_dir / "README.md")
+    return True
 
 def main():
-    logger.info("Starting T012: Data Download & Validation")
-    exit_code = run_download_pipeline()
-    sys.exit(exit_code)
+    """Entry point for the download script."""
+    success = run_download_pipeline()
+    if not success:
+        logger.error("Download pipeline failed - no valid datasets available")
+        sys.exit(1)
+    logger.info("Download pipeline completed successfully")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
