@@ -1,0 +1,13 @@
+{
+  "search_query": "subject-type:human AND modality:neurophysiology AND task:reward",
+  "candidates": [
+    {
+      "id": "ds003775",
+      "label": "Neural correlates of reward processing in the human brain",
+      "accessionNumber": "ds003775",
+      "description": "ECoG data from reward task",
+      "verified_url": "https://openneuro.org/datasets/ds003775",
+      "search_query": "subject-type:human AND modality:neurophysiology AND task:reward"
+    }
+  ]
+}

@@ -1,110 +1,46 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Neural Correlates of Anticipatory Reward Dataset Schema
-description: >
-  Schema for the neural correlates of anticipatory reward processing in vocal learning.
-  Defines the structure for trial-level data including spike timestamps, reward magnitudes,
-  and spike sorting metadata.
-type: object
-required:
-  - trial_id
-  - neuron_id
-  - spike_timestamps
-  - reward_magnitude
-  - cue_timestamps
-  - spike_sorting_metadata
-properties:
-  trial_id:
+# Dataset Schema for Neural Correlates of Anticipatory Reward Processing
+# Defines the flat structure for streaming-compatible spike train data
+schema_name: "neural_reward_dataset"
+version: "1.0"
+description: "Flat schema for spike train data with trial metadata"
+
+fields:
+  - name: trial_id
     type: string
-    description: Unique identifier for the trial.
-    pattern: "^T[0-9]{4}$"
-    examples:
-      - "T0001"
-      - "T0042"
-  
-  neuron_id:
+    description: "Unique identifier for the trial"
+    required: true
+    pattern: "^T[0-9]{4,}$"
+    
+  - name: neuron_id
     type: string
-    description: Unique identifier for the neuron recording.
-    pattern: "^N[0-9]{3}$"
-    examples:
-      - "N001"
-      - "N123"
-  
-  spike_timestamps:
-    type: array
-    description: List of spike timestamps in milliseconds relative to trial start.
-    items:
-      type: number
-      format: float
-    minItems: 0
-    examples:
-      - [150.5, 152.3, 155.0, 200.1]
-  
-  reward_magnitude:
-    type: number
-    description: Magnitude of the reward delivered (e.g., volume of juice, number of pellets).
-    minimum: 0
-    examples:
-      - 0.0
-      - 0.5
-      - 1.0
-  
-  cue_timestamps:
-    type: object
-    description: Timestamps for cue onset and offset relative to trial start (ms).
-    required:
-      - cue_onset
-    properties:
-      cue_onset:
-        type: number
-        format: float
-        description: Time of cue onset in ms.
-      cue_offset:
-        type: number
-        format: float
-        description: Time of cue offset in ms.
-        nullable: true
-    examples:
-      cue_onset: -500.0
-      cue_offset: -200.0
-  
-  spike_sorting_metadata:
-    type: object
-    description: Metadata regarding the quality of spike sorting for this neuron in this trial.
-    required:
-      - snr
-      - isolation_distance
-    properties:
-      snr:
-        type: number
-        format: float
-        description: Signal-to-Noise Ratio.
-        minimum: 0
-        examples:
-          - 3.5
-          - 5.2
-      isolation_distance:
-        type: number
-        format: float
-        description: Isolation distance metric.
-        minimum: 0
-        examples:
-          - 25.0
-          - 15.0
-      l_ratio:
-        type: number
-        format: float
-        description: L-ratio metric for cluster quality.
-        minimum: 0
-        maximum: 1
-        nullable: true
-        examples:
-          - 0.02
-      isi_violations:
-        type: number
-        format: float
-        description: Percentage of inter-spike interval violations.
-        minimum: 0
-        examples:
-          - 0.5
-          - 2.1
-additionalProperties: false
+    description: "Unique identifier for the neuron"
+    required: true
+    
+  - name: spike_time_ms
+    type: float
+    description: "Timestamp of the spike in milliseconds"
+    required: true
+    min: 0
+    
+  - name: cue_time_ms
+    type: float
+    description: "Timestamp of the cue in milliseconds"
+    required: true
+    min: 0
+    
+  - name: reward_magnitude
+    type: float
+    description: "Magnitude of the reward delivered"
+    required: true
+    
+  - name: snr
+    type: float
+    description: "Signal-to-noise ratio for spike sorting quality"
+    required: true
+    min: 0
+    
+  - name: isolation_distance
+    type: float
+    description: "Isolation distance for spike sorting quality"
+    required: true
+    min: 0

@@ -1,12 +1,3 @@
-"""
-Virtual Environment Initialization Script for PROJ-517.
-
-This script automates the creation of a Python virtual environment in the project root
-and installs dependencies from requirements.txt.
-
-It ensures Python 3.10+ is used and handles the installation process robustly.
-"""
-
 import os
 import subprocess
 import sys
@@ -14,38 +5,32 @@ from pathlib import Path
 
 def main():
     """
-    Initialize the virtual environment and install dependencies.
-
-    Steps:
-    1. Verify Python version is 3.10 or higher.
-    2. Create a .venv directory in the project root if it doesn't exist.
-    3. Install packages from requirements.txt into the virtual environment.
+    Initialize virtualenv in project root:
+    1. Check Python version >= 3.10
+    2. Check requirements.txt exists
+    3. Run: python -m venv .venv
+    4. Activate venv and install requirements.txt
+    
+    Exits with code 1 if requirements.txt is missing or Python < 3.10.
     """
+    # Determine project root (parent of code/)
     project_root = Path(__file__).resolve().parent.parent
+    requirements_path = project_root / "requirements.txt"
     venv_path = project_root / ".venv"
-    requirements_path = project_root / "projects" / "PROJ-517-neural-correlates-of-anticipatory-reward" / "requirements.txt"
-
-    # Check if requirements.txt exists
-    if not requirements_path.exists():
-        print(f"ERROR: requirements.txt not found at {requirements_path}")
-        sys.exit(1)
-
+    
     # Check Python version
     if sys.version_info < (3, 10):
-        print(f"ERROR: Python 3.10+ is required. Current version: {sys.version}")
+        print("ERROR: Python version must be 3.10 or higher.", file=sys.stderr)
         sys.exit(1)
-
-    print(f"Project Root: {project_root}")
-    print(f"Virtual Environment Target: {venv_path}")
-    print(f"Requirements File: {requirements_path}")
-
-    # Create virtual environment
-    if venv_path.exists():
-        print("Virtual environment already exists. Removing it to ensure a clean state...")
-        import shutil
-        shutil.rmtree(venv_path)
-
-    print("Creating virtual environment...")
+    
+    # Check requirements.txt exists
+    if not requirements_path.exists():
+        print(f"ERROR: requirements.txt not found at {requirements_path}", file=sys.stderr)
+        sys.exit(1)
+    
+    print(f"Initializing virtualenv at {venv_path}...")
+    
+    # Create virtualenv
     try:
         subprocess.run(
             [sys.executable, "-m", "venv", str(venv_path)],
@@ -53,57 +38,39 @@ def main():
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        print("Virtual environment created successfully.")
     except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to create virtual environment: {e.stderr.decode()}")
+        print(f"ERROR: Failed to create virtualenv: {e.stderr.decode()}", file=sys.stderr)
         sys.exit(1)
-
-    # Determine the path to pip within the virtual environment
-    if sys.platform == "win32":
+    
+    # Determine activate script path based on OS
+    if os.name == "nt":  # Windows
+        activate_script = venv_path / "Scripts" / "activate.bat"
         pip_path = venv_path / "Scripts" / "pip.exe"
-        python_path = venv_path / "Scripts" / "python.exe"
-    else:
+    else:  # Unix/Linux/macOS
+        activate_script = venv_path / "bin" / "activate"
         pip_path = venv_path / "bin" / "pip"
-        python_path = venv_path / "bin" / "python"
-
-    if not pip_path.exists():
-        print(f"ERROR: pip not found at {pip_path}")
+    
+    if not activate_script.exists():
+        print(f"ERROR: Activate script not found at {activate_script}", file=sys.stderr)
         sys.exit(1)
-
-    # Upgrade pip first
-    print("Upgrading pip...")
+    
+    # Install requirements using the venv's pip directly
+    print("Installing dependencies from requirements.txt...")
     try:
-        subprocess.run(
-            [str(python_path), "-m", "pip", "install", "--upgrade", "pip"],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-    except subprocess.CalledProcessError as e:
-        print(f"WARNING: Failed to upgrade pip: {e.stderr.decode()}")
-        # Continue anyway, as older pip might still work
-
-    # Install dependencies
-    print(f"Installing dependencies from {requirements_path}...")
-    try:
+        # Use pip from the virtualenv directly to avoid shell activation issues
         subprocess.run(
             [str(pip_path), "install", "-r", str(requirements_path)],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        print("Dependencies installed successfully.")
     except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to install dependencies: {e.stderr.decode()}")
+        print(f"ERROR: Failed to install requirements: {e.stderr.decode()}", file=sys.stderr)
         sys.exit(1)
-
-    print("\nSetup complete.")
-    print(f"To activate the environment, run:")
-    if sys.platform == "win32":
-        print(f"  .venv\\Scripts\\activate")
-    else:
-        print(f"  source .venv/bin/activate")
-
+    
+    print("Virtualenv setup complete. Dependencies installed.")
+    print(f"To activate, run: source {activate_script} (Unix) or {activate_script} (Windows)")
+    
     return 0
 
 if __name__ == "__main__":

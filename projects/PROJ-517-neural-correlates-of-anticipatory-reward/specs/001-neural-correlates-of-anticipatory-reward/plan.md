@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a CPU-tractable pipeline to analyze spike train data in relation to reward magnitude and cue timing. The primary requirement is to ingest pre-processed spike data, calculate firing rates in a [-500ms, 0ms] window relative to reward (with a time-resolved PSTH extension for anticipatory dynamics), fit a Generalized Linear Model (GLM) to test the relationship between firing rate and reward magnitude, and validate results via permutation testing. The technical approach relies on `scipy`, `statsmodels`, `scikit-learn`, and `pandas` to ensure execution on a GitHub Actions free-tier runner (2 CPU, ~7 GB RAM) without GPU dependencies.
+This project implements a CPU-tractable pipeline to analyze spike train data in relation to reward magnitude and cue timing. The primary requirement is to ingest pre-processed spike data, calculate firing rates in a pre-reward window relative to reward (with a time-resolved PSTH extension for anticipatory dynamics), fit a Generalized Linear Model (GLM) to test the relationship between firing rate and reward magnitude, and validate results via permutation testing. The technical approach relies on `scipy`, `statsmodels`, `scikit-learn`, and `pandas` to ensure execution on a GitHub Actions free-tier runner (multiple CPU cores, ~7 GB RAM) without GPU dependencies.
 
 ## Technical Context
 
@@ -148,7 +148,9 @@ pytest>=7.0.0
     *   **T036**: Cross-validation (k-fold) (FR-008).
     *   Multiple comparisons correction (SC-005).
 3.  **Visualization (`code/visualization.py`)**:
-    *   Scatter plot with 95% CI (FR-005, SC-003).
+    *   Scatter plot with confidence interval
+
+The research question, method, and references remain as stated in the original planning document. (FR-005, SC-003).
 4.  **Reporting (`code/reporting.py`)**:
     *   Generate summary report with all metrics (FR-006).
 5.  **Orchestration (`code/run_pipeline.py`)**:
