@@ -95,9 +95,9 @@ As a researcher, I need to perform a Generalized Linear Model (GLM) with a binom
 
 - The UCI Adult, Iris, and Wine Quality datasets are available via public URLs and can be downloaded without authentication or rate-limiting issues during the CI run.
 - The "true" population parameters can be approximated with sufficient accuracy by calculating statistics on the full available sample of the public datasets, treating them as the population proxy, OR by generating a large synthetic population with known parameters as defined in FR-008.
-- The sensitivity of the data attributes is estimated using a known global bound (e.g., [0, 1] for normalized data) for the purpose of calibrating the Laplace/Gaussian noise, ensuring the DP guarantee is not broken by data-dependent sensitivity.
+- The sensitivity of the data attributes is estimated using a known global bound (e.g., a normalized range) for the purpose of calibrating the Laplace/Gaussian noise, ensuring the DP guarantee is not broken by data-dependent sensitivity.
 - The standard multi-way ANOVA assumptions (normality of residuals, homogeneity of variance) are not met for coverage rates; therefore, a GLM with binomial link is used instead.
-- The "bias-correction" and "variance-inflation" methods referenced in the related work (Covington et al., Karwa & Vadhan 2017) are applicable to the specific low-dimensional mean and regression models considered in this study.
+- The "bias-correction" and "variance-inflation" methods referenced in the related work (Covington et al., Karwa & Vadhan) are applicable to the specific low-dimensional mean and regression models considered in this study.
 - The GitHub Actions runner environment provides a standard recent Python environment. with `numpy`, `pandas`, `scipy`, and `statsmodels` pre-installed or installable within the time limit.
 - The noise generation uses double-precision floating-point arithmetic to avoid precision errors that could distort the coverage calculation at very small ε.
-- The dataset sizes are small enough that loading the full dataset into memory for a sufficient number of bootstrap iterations does not exceed the 7 GB RAM limit. (verified by the small size of Adult/Iris/Wine Quality).
+- The dataset sizes are small enough that loading the full dataset into memory for a sufficient number of bootstrap iterations does not exceed the available system memory limit. (verified by the small size of Adult/Iris/Wine Quality).

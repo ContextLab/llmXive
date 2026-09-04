@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-16T16:41:06.392102Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-710-robustness-of-confidence-intervals-to-di
-last_run_id: cd6440d5-b9dd-47e7-b7bb-db559ca034c3
+last_run_id: f36c204a-bead-4846-84bd-49198ea3835c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di
 title: Robustness of Confidence Intervals to Differential Privacy Noise
-updated_at: '2026-09-01T05:55:22.410738Z'
+updated_at: '2026-09-04T05:53:19.441883Z'

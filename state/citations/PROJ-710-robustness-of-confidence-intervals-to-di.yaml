@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 59a83db7d844a91e0655ab34a7cae165e5ec78d0b1a752581c64035d229aa130
+  artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/...`
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases
+  verified_at: '2026-09-04T05:52:49.725905Z'

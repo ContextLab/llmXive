@@ -17,7 +17,7 @@ The implementation must run entirely on CPU within 6 hours and 7 GB RAM.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+  
+**Language/Version**: Python +  
 **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `statsmodels`, `scikit-learn` (all CPU-compatible, no CUDA).  
 **Storage**: Local filesystem (`data/` for raw/synthetic data, `artifacts/` for results); no external database.  
 **Testing**: `pytest` (unit tests for DP noise calibration, CI construction, and GLM setup).  
