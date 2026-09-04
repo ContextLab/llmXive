@@ -118,7 +118,7 @@ projects/PROJ-166-quantifying-the-impact-of-code-authorshi/
 
 *   **Cloning**: `git clone` is I/O bound but CPU light. Sequential processing ensures memory safety (<7GB RAM).
 *   **Statistics**: `statsmodels` runs efficiently on CPU for N=500. No GPU required for GLM fitting.
-*   **Data Processing**: Pandas operations on a 500-row dataset are instantaneous.
+*   **Data Processing**: Pandas operations on a small-scale dataset are instantaneous..
 *   **Disk**: A large number of repos with substantial average storage per repository result in a significant total storage requirement. Fits within 14GB limit. NVD JSON files (streamed or partial) fit within remaining space.
 
 ## GPU Escape Hatch

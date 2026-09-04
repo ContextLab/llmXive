@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://nvd.nist.gov/vuln/data-feeds
   verified_at: '2026-09-03T06:33:01.924153Z'
-- artifact_hash: 37c19b4e14ae6c791cd9c9a46b73b961871bf5bddbae7a02d2d25f8790970d4d
+- artifact_hash: 6bbf1e5c0c6f11428e9f2455b13fd8f5f0a5e208e58b4f00d8aba1f6b0b1b721
   artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,15 +30,26 @@
   value: https://api.github.com/search/repositories?q=stars
   verification_status: pending
   verified_against_url: https://api.github.com/search/repositories?q=stars
-  verified_at: '2026-09-03T07:03:47.516263Z'
-- artifact_hash: 37c19b4e14ae6c791cd9c9a46b73b961871bf5bddbae7a02d2d25f8790970d4d
+  verified_at: '2026-09-04T00:29:24.891555Z'
+- artifact_hash: 6bbf1e5c0c6f11428e9f2455b13fd8f5f0a5e208e58b4f00d8aba1f6b0b1b721
   artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://nvd.nist.gov/feeds/json/cve/1.2/nvdcve-1.2-CVE.json.gz.manifest`
+  value: https://nvd.nist.gov/feeds/json/cve/1.2/nvdcve-1.2-{YEAR}.json.gz`
   verification_status: mismatch
-  verified_against_url: https://nvd.nist.gov/feeds/json/cve/1.2/nvdcve-1.2-CVE.json.gz.manifest
-  verified_at: '2026-09-03T07:03:47.516263Z'
+  verified_against_url: https://nvd.nist.gov/feeds/json/cve/1.2/nvdcve-1.2-%7Byear%7D.json.gz
+  verified_at: '2026-09-04T00:29:24.891555Z'
+- artifact_hash: 6bbf1e5c0c6f11428e9f2455b13fd8f5f0a5e208e58b4f00d8aba1f6b0b1b721
+  artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://nvd.nist.gov/feeds/json/cve/1.2/nvdcve-1.2-{YEAR}.json.gz.meta`
+  verification_status: mismatch
+  verified_against_url: https://nvd.nist.gov/feeds/json/cve/1.2/nvdcve-1.2-%7Byear%7D.json.gz.meta
+  verified_at: '2026-09-04T00:29:24.891555Z'
