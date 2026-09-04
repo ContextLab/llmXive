@@ -1,156 +1,194 @@
 """
-Data fetcher utility with retry logic and exponential backoff.
-
-This module provides functions to safely fetch data from external APIs,
-handling transient failures with configurable retry strategies.
-
-Specific implementation for T006:
-- Up to 3 retries (total 4 attempts).
-- Exponential backoff: base_delay, base_delay, 4*base_delay.
+Data fetching utilities with configurable retry logic and exponential backoff.
 """
 import time
 import logging
-from typing import Optional, Callable, Any
+import yaml
+from pathlib import Path
+from typing import Optional, Callable, Any, Dict, Tuple
 from urllib.error import URLError, HTTPError
-from urllib.request import urlopen, Request
-from urllib.parse import urlparse
+import requests
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class FetchError(Exception):
-    """Custom exception for data fetching failures."""
+    """Custom exception for data fetching errors."""
     pass
 
+def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Load configuration from a YAML file.
+
+    Args:
+        config_path: Path to the config.yaml file. Defaults to project root.
+
+    Returns:
+        Dictionary containing configuration values.
+
+    Raises:
+        FileNotFoundError: If config file is not found.
+        yaml.YAMLError: If YAML parsing fails.
+    """
+    if config_path is None:
+        # Default to project root config.yaml
+        config_path = Path(__file__).parent.parent.parent / "code" / "config.yaml"
+
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found at {config_path}")
+
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
 def fetch_with_retry(
     url: str,
-    max_retries: int = 3,
-    base_delay: float = 60.0,
-    max_delay: float = 240.0,
-    backoff_factor: float = 2.0,
-    timeout: float = 30.0,
-    headers: Optional[dict] = None
-) -> bytes:
+    fetch_func: Optional[Callable[[str], Any]] = None,
+    config_path: Optional[Path] = None,
+    **kwargs
+) -> Any:
     """
-    Fetch data from a URL with exponential backoff retry logic.
+    Fetch data from a URL with configurable retry logic and exponential backoff.
 
-    Implements T006 requirement:
-    - Up to 3 retries (total 4 attempts).
-    - Delays: min (60s), min (60s), 4*min (240s).
+    The retry logic uses: delay = base_delay * (delay_multiplier ** retry_count)
+    Values are read from config.yaml.
 
     Args:
         url: The URL to fetch data from.
-        max_retries: Maximum number of retry attempts (default 3).
-        base_delay: Initial delay in seconds between retries (default 60.0).
-        max_delay: Maximum delay in seconds between retries (default 240.0).
-        backoff_factor: Multiplier for delay after each retry (default 2.0).
-        timeout: Request timeout in seconds.
-        headers: Optional HTTP headers to include in the request.
+        fetch_func: Optional custom fetch function. Defaults to requests.get.
+        config_path: Optional path to config file.
+        **kwargs: Additional arguments to pass to the fetch function.
 
     Returns:
-        The raw bytes of the response.
+        The response content (or processed data if fetch_func is provided).
 
     Raises:
-        FetchError: If all retry attempts fail or the URL is invalid.
-        URLError: If the URL is malformed or unreachable after retries.
+        FetchError: If all retry attempts fail.
+        FileNotFoundError: If config file is not found.
     """
-    if not url:
-        raise FetchError("URL cannot be empty")
+    # Load configuration
+    config = load_config(config_path)
+    retry_config = config.get('retry', {})
 
-    parsed_url = urlparse(url)
-    if parsed_url.scheme not in ('http', 'https'):
-        raise FetchError(f"Invalid URL scheme: {parsed_url.scheme}. Only http/https allowed.")
+    max_attempts = retry_config.get('max_attempts', 3)
+    base_delay = retry_config.get('base_delay_seconds', 1.0)
+    delay_multiplier = retry_config.get('delay_multiplier', 2.0)
+    max_delay = retry_config.get('max_delay_seconds', 60.0)
 
-    request = Request(url, headers=headers or {})
-    attempt = 0
-    current_delay = base_delay
+    # Use default fetch function if not provided
+    if fetch_func is None:
+        fetch_func = lambda u, **kw: requests.get(u, **kw)
 
-    while attempt <= max_retries:
+    last_exception = None
+
+    for attempt in range(max_attempts):
         try:
-            logger.info(f"Fetching {url} (attempt {attempt + 1}/{max_retries + 1})")
-            with urlopen(request, timeout=timeout) as response:
-                if response.status == 200:
-                    logger.info(f"Successfully fetched {url}")
-                    return response.read()
-                else:
-                    # Non-200 status codes are treated as failures
-                    logger.warning(f"HTTP {response.status} for {url}")
-                    if attempt == max_retries:
-                        raise FetchError(f"HTTP {response.status} after {max_retries + 1} attempts")
-        except HTTPError as e:
-            # HTTP errors (4xx, 5xx)
-            logger.warning(f"HTTP Error {e.code}: {e.reason} for {url}")
-            if e.code < 500:
-                # Client errors (4xx) are usually not retryable
-                raise FetchError(f"Client error {e.code}: {e.reason}")
-            if attempt == max_retries:
-                raise FetchError(f"HTTP {e.code} after {max_retries + 1} attempts")
-        except URLError as e:
-            # Network errors, DNS failures, etc.
-            logger.warning(f"URL Error for {url}: {e.reason}")
-            if attempt == max_retries:
-                raise FetchError(f"URL Error after {max_retries + 1} attempts: {e.reason}")
-        except TimeoutError:
-            logger.warning(f"Timeout for {url}")
-            if attempt == max_retries:
-                raise FetchError(f"Timeout after {max_retries + 1} attempts")
-        except Exception as e:
-            # Unexpected errors
-            logger.error(f"Unexpected error fetching {url}: {e}")
-            if attempt == max_retries:
-                raise FetchError(f"Unexpected error after {max_retries + 1} attempts: {e}")
+            logger.info(f"Fetching {url} (attempt {attempt + 1}/{max_attempts})")
+            response = fetch_func(url, **kwargs)
 
-        # Wait before retrying with exponential backoff
-        if attempt < max_retries:
-            logger.info(f"Retrying in {current_delay:.2f} seconds...")
-            time.sleep(current_delay)
-            # Exponentially increase delay, capped at max_delay
-            # Sequence: base, base*2 (capped), base*4 (capped)
-            current_delay = min(current_delay * backoff_factor, max_delay)
+            # Check for HTTP errors
+            if isinstance(response, requests.Response):
+                response.raise_for_status()
+                return response
+            else:
+                return response
 
-        attempt += 1
+        except (URLError, HTTPError, requests.RequestException) as e:
+            last_exception = e
+            logger.warning(f"Attempt {attempt + 1} failed: {str(e)}")
 
-    # Should not reach here, but just in case
-    raise FetchError(f"Failed to fetch {url} after {max_retries + 1} attempts")
+            if attempt < max_attempts - 1:
+                # Calculate delay with exponential backoff
+                delay = min(base_delay * (delay_multiplier ** attempt), max_delay)
+                logger.info(f"Retrying in {delay:.2f} seconds...")
+                time.sleep(delay)
+            else:
+                logger.error(f"All {max_attempts} attempts failed for {url}")
 
+    raise FetchError(f"Failed to fetch {url} after {max_attempts} attempts: {last_exception}")
 
 def fetch_text_with_retry(
     url: str,
-    max_retries: int = 3,
-    base_delay: float = 60.0,
-    max_delay: float = 240.0,
-    backoff_factor: float = 2.0,
-    timeout: float = 30.0,
-    headers: Optional[dict] = None,
-    encoding: str = 'utf-8'
+    config_path: Optional[Path] = None,
+    **kwargs
 ) -> str:
     """
-    Fetch text data from a URL with exponential backoff retry logic.
+    Fetch text data from a URL with retry logic.
 
     Args:
-        url: The URL to fetch data from.
-        max_retries: Maximum number of retry attempts (default 3).
-        base_delay: Initial delay in seconds between retries (default 60.0).
-        max_delay: Maximum delay in seconds between retries (default 240.0).
-        backoff_factor: Multiplier for delay after each retry (default 2.0).
-        timeout: Request timeout in seconds.
-        headers: Optional HTTP headers to include in the request.
-        encoding: Character encoding for the response text.
+        url: The URL to fetch text from.
+        config_path: Optional path to config file.
+        **kwargs: Additional arguments for the request.
 
     Returns:
-        The response text decoded as a string.
+        The response text content.
 
     Raises:
-        FetchError: If all retry attempts fail or the URL is invalid.
+        FetchError: If all retry attempts fail.
     """
-    raw_data = fetch_with_retry(
-        url,
-        max_retries=max_retries,
-        base_delay=base_delay,
-        max_delay=max_delay,
-        backoff_factor=backoff_factor,
-        timeout=timeout,
-        headers=headers
-    )
-    return raw_data.decode(encoding)
+    response = fetch_with_retry(url, config_path=config_path, **kwargs)
+
+    if isinstance(response, requests.Response):
+        return response.text
+    elif isinstance(response, str):
+        return response
+    else:
+        raise FetchError(f"Unexpected response type: {type(response)}")
+
+def extract_and_validate_instrumentation(
+    metadata: Dict[str, Any],
+    config_path: Optional[Path] = None
+) -> Tuple[Optional[str], Optional[str], bool]:
+    """
+    Extract and validate instrumentation metadata from source data.
+
+    Args:
+        metadata: Dictionary containing source metadata.
+        config_path: Optional path to config file.
+
+    Returns:
+        Tuple of (instrument_model, manufacturer, is_valid)
+        Returns (None, None, False) if instrumentation is missing.
+    """
+    instrument_model = metadata.get('instrument_model')
+    manufacturer = metadata.get('manufacturer')
+
+    # Validate that at least one field is present
+    if instrument_model or manufacturer:
+        return instrument_model, manufacturer, True
+    else:
+        logger.warning("Missing instrumentation metadata in source data")
+        return None, None, False
+
+def main():
+    """
+    Main function to demonstrate retry logic with a test URL.
+    """
+    # Example usage with a test URL
+    test_urls = [
+        "https://httpbin.org/status/200",  # Should succeed
+        "https://httpbin.org/status/500",  # Should fail after retries
+    ]
+
+    for url in test_urls:
+        try:
+            logger.info(f"\n--- Testing: {url} ---")
+            response = fetch_with_retry(url)
+            logger.info(f"Success! Status: {response.status_code}")
+        except FetchError as e:
+            logger.error(f"Failed: {e}")
+
+    # Show configuration values
+    try:
+        config = load_config()
+        retry_config = config.get('retry', {})
+        logger.info("\n--- Configuration ---")
+        logger.info(f"Max attempts: {retry_config.get('max_attempts')}")
+        logger.info(f"Base delay: {retry_config.get('base_delay_seconds')}s")
+        logger.info(f"Delay multiplier: {retry_config.get('delay_multiplier')}")
+        logger.info(f"Max delay: {retry_config.get('max_delay_seconds')}s")
+    except Exception as e:
+        logger.error(f"Could not load config: {e}")
+
+if __name__ == "__main__":
+    main()

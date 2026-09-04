@@ -1,136 +1,207 @@
 """
-Unit tests for Materials Project data fetching (Task T012b).
+Unit tests for fetch_mp_perovskites.py
 """
-
 import pytest
 import pandas as pd
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-# Import the module under test
+from unittest.mock import Mock, patch, MagicMock
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+import json
 
-from fetch_mp_perovskites import (
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.fetch_mp_perovskites import (
     fetch_mp_material_data,
+    fetch_experimental_tga_data,
     validate_data_checksum,
-    PEROVSKITE_SPACE_GROUPS
+    save_to_csv,
+    create_retry_session
 )
+from code.utils.data_fetcher import FetchError
 
 
 class TestFetchMpPerovskites:
-    """Tests for Materials Project data fetching functionality."""
-
-    @patch('fetch_mp_perovskites.get_api_key')
-    @patch('fetch_mp_perovskites.create_retry_session')
-    def test_fetch_with_valid_api_key(self, mock_session, mock_get_key):
-        """Test fetching data with a valid API key."""
-        # Setup mocks
-        mock_get_key.return_value = "test_api_key_123"
-        mock_response = MagicMock()
+    """Test suite for Materials Project perovskite data fetching."""
+    
+    def test_create_retry_session(self):
+        """Test that retry session is created correctly."""
+        session = create_retry_session()
+        assert session is not None
+        assert hasattr(session, 'get')
+        assert hasattr(session, 'request')
+    
+    @patch('code.fetch_mp_perovskites.fetch_with_retry')
+    def test_fetch_mp_material_data_success(self, mock_fetch):
+        """Test successful fetch of material data."""
+        # Setup mock response
+        mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {
-            "data": [
-                {
-                    "materials_id": "mp-12345",
-                    "formula_pretty": "CsPbI3",
-                    "nsites": 5,
-                    "symmetry": {"space_group_number": 221},
-                    "task_ids": ["mp-12345-task1"]
+            "data": {
+                "material_id": "mp-12345",
+                "formula": "CsPbI3",
+                "properties": {
+                    "decomposition_temp": 450
                 }
-            ]
+            }
         }
-        mock_session.return_value.get.return_value = mock_response
-
-        # Execute
-        result = fetch_mp_material_data()
-
-        # Assert
-        assert len(result) == 1
-        assert result[0]["formula"] == "CsPbI3"
-        assert result[0]["space_group"] == 221
-        assert result[0]["source"] == "Materials Project"
-        mock_get_key.assert_called_once_with("MATERIALS_PROJECT_API_KEY")
-
-    @patch('fetch_mp_perovskites.get_api_key')
-    def test_fetch_raises_on_missing_api_key(self, mock_get_key):
-        """Test that fetching raises an error when API key is missing."""
-        mock_get_key.return_value = None
-
-        with pytest.raises(RuntimeError, match="Materials Project API key not found"):
-            fetch_mp_material_data()
-
-    @patch('fetch_mp_perovskites.get_api_key')
-    @patch('fetch_mp_perovskites.create_retry_session')
-    def test_filter_non_perovskite_space_groups(self, mock_session, mock_get_key):
-        """Test that non-perovskite space groups are filtered out."""
-        mock_get_key.return_value = "test_key"
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "data": [
-                {
-                    "materials_id": "mp-1",
-                    "formula_pretty": "CsPbI3",
-                    "nsites": 5,
-                    "symmetry": {"space_group_number": 221},  # Perovskite
-                    "task_ids": []
-                },
-                {
-                    "materials_id": "mp-2",
-                    "formula_pretty": "NonPerovskite",
-                    "nsites": 10,
-                    "symmetry": {"space_group_number": 123},  # Not perovskite
-                    "task_ids": []
+        mock_fetch.return_value = mock_response
+        
+        # Call function
+        result = fetch_mp_material_data(Mock(), "CsPbI3", "test_api_key")
+        
+        # Verify
+        assert result is not None
+        assert result["material_id"] == "mp-12345"
+        assert result["formula"] == "CsPbI3"
+        mock_fetch.assert_called_once()
+    
+    @patch('code.fetch_mp_perovskites.fetch_with_retry')
+    def test_fetch_mp_material_data_not_found(self, mock_fetch):
+        """Test handling of 404 response."""
+        mock_response = Mock()
+        mock_response.status_code = 404
+        mock_fetch.return_value = mock_response
+        
+        result = fetch_mp_material_data(Mock(), "NonExistent", "test_api_key")
+        
+        assert result is None
+    
+    @patch('code.fetch_mp_perovskites.fetch_with_retry')
+    def test_fetch_mp_material_data_fetch_error(self, mock_fetch):
+        """Test handling of FetchError."""
+        mock_fetch.side_effect = FetchError("Network error")
+        
+        result = fetch_mp_material_data(Mock(), "CsPbI3", "test_api_key")
+        
+        assert result is None
+    
+    def test_fetch_experimental_tga_data_success(self):
+        """Test extraction of TGA data from material data."""
+        material_data = {
+            "material_id": "mp-12345",
+            "experimental": {
+                "thermogravimetric": {
+                    "decomposition_temp": 450,
+                    "instrument_model": "TA Instruments Q500",
+                    "manufacturer": "TA Instruments",
+                    "temperature_precision": 2
                 }
-            ]
+            }
         }
-        mock_session.return_value.get.return_value = mock_response
-
-        result = fetch_mp_material_data()
-
-        assert len(result) == 1
-        assert result[0]["materials_id"] == "mp-1"
-
-    @patch('fetch_mp_perovskites.get_api_key')
-    @patch('fetch_mp_perovskites.create_retry_session')
-    def test_handles_api_error(self, mock_session, mock_get_key):
-        """Test handling of API errors."""
-        from fetch_mp_perovskites import FetchError
-
-        mock_get_key.return_value = "test_key"
-        mock_session.return_value.get.side_effect = Exception("API Error")
-
-        with pytest.raises(FetchError, match="Materials Project API request failed"):
-            fetch_mp_material_data()
-
-    def test_perovskite_space_groups_defined(self):
-        """Test that perovskite space groups are properly defined."""
-        assert 221 in PEROVSKITE_SPACE_GROUPS  # Pm-3m
-        assert 123 not in PEROVSKITE_SPACE_GROUPS  # Non-perovskite
-
-    @patch('fetch_mp_perovskites.verify_single_artifact')
-    def test_validate_checksum_success(self, mock_verify):
-        """Test successful checksum validation."""
-        mock_verify.return_value = "abc123checksum"
-
-        test_data = [
-            {"materials_id": "mp-1", "formula": "CsPbI3", "T_d": None}
-        ]
-        output_path = Path("data/raw/test_mp.csv")
-
-        # Create a temporary file for the test
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        df = pd.DataFrame(test_data)
-        df.to_csv(output_path)
-
-        result = validate_data_checksum(test_data, output_path)
-
+        
+        result = fetch_experimental_tga_data(material_data, "CsPbI3")
+        
+        assert result is not None
+        assert result["formula"] == "CsPbI3"
+        assert result["T_d"] == 450
+        assert result["source"] == "Materials Project"
+        assert result["material_id"] == "mp-12345"
+        assert result["instrument_model"] == "TA Instruments Q500"
+        assert result["manufacturer"] == "TA Instruments"
+        assert result["temperature_precision"] == 2
+    
+    def test_fetch_experimental_tga_data_no_tga(self):
+        """Test handling of missing TGA data."""
+        material_data = {
+            "material_id": "mp-12345",
+            "properties": {
+                "band_gap": 1.5
+            }
+        }
+        
+        result = fetch_experimental_tga_data(material_data, "CsPbI3")
+        
+        assert result is None
+    
+    def test_fetch_experimental_tga_data_no_material_data(self):
+        """Test handling of None material data."""
+        result = fetch_experimental_tga_data(None, "CsPbI3")
+        
+        assert result is None
+    
+    @patch('code.fetch_mp_perovskites.compute_sha256')
+    @patch('builtins.open')
+    def test_validate_data_checksum(self, mock_open, mock_compute):
+        """Test checksum validation and manifest generation."""
+        mock_compute.return_value = "abc123def456"
+        
+        data = [{"formula": "CsPbI3", "T_d": 450}]
+        checksum_path = Path("/tmp/test_checksums.json")
+        
+        result = validate_data_checksum(data, checksum_path)
+        
         assert result is True
-        assert output_path.exists()
-        output_path.unlink()  # Cleanup
-
-    def test_validate_checksum_empty_data(self):
-        """Test checksum validation with empty data."""
-        result = validate_data_checksum([], Path("data/raw/test_empty.csv"))
-        assert result is False
+        mock_compute.assert_called_once_with(data)
+        mock_open.assert_called_once()
+    
+    @patch('code.fetch_mp_perovskites.Path')
+    def test_save_to_csv(self, mock_path):
+        """Test saving data to CSV."""
+        mock_path.return_value.parent.mkdir = Mock()
+        mock_path.return_value.parent.exists.return_value = False
+        
+        data = [
+            {"formula": "CsPbI3", "T_d": 450, "source": "Materials Project"},
+            {"formula": "MAPbI3", "T_d": 350, "source": "Materials Project"}
+        ]
+        
+        with patch('code.fetch_mp_perovskites.pd.DataFrame') as mock_df:
+            save_to_csv(data, Path("/tmp/test.csv"))
+            
+            mock_df.assert_called_once_with(data)
+            mock_df.return_value.to_csv.assert_called_once()
+    
+    @patch('code.fetch_mp_perovskites.load_config')
+    @patch('code.fetch_mp_perovskites.get_api_key')
+    @patch('code.fetch_mp_perovskites.create_retry_session')
+    @patch('code.fetch_mp_perovskites.fetch_mp_material_data')
+    @patch('code.fetch_mp_perovskites.fetch_experimental_tga_data')
+    @patch('code.fetch_mp_perovskites.validate_data_checksum')
+    @patch('code.fetch_mp_perovskites.save_to_csv')
+    @patch('code.fetch_mp_perovskites.Path')
+    def test_main_success(
+        self, mock_path, mock_save, mock_validate, mock_fetch_tga, 
+        mock_fetch_material, mock_session, mock_get_key, mock_load_config
+    ):
+        """Test successful main execution."""
+        # Setup mocks
+        mock_load_config.return_value = {}
+        mock_get_key.return_value = "test_api_key"
+        mock_session.return_value = Mock()
+        mock_fetch_material.return_value = {
+            "material_id": "mp-12345",
+            "experimental": {
+                "thermogravimetric": {"decomposition_temp": 450}
+            }
+        }
+        mock_fetch_tga.return_value = {
+            "formula": "CsPbI3",
+            "T_d": 450,
+            "source": "Materials Project"
+        }
+        mock_validate.return_value = True
+        mock_path.return_value.exists.return_value = True
+        
+        # Mock DataFrame for verification
+        mock_df = Mock()
+        mock_df.columns = ['T_d']
+        mock_df['T_d'].isna.return_value = False
+        
+        with patch('code.fetch_mp_perovskites.pd.read_csv', return_value=mock_df):
+            result = __import__('code.fetch_mp_perovskites', fromlist=['main']).main()
+            
+            assert result == 0
+            mock_save.assert_called_once()
+            mock_validate.assert_called_once()
+    
+    @patch('code.fetch_mp_perovskites.get_api_key')
+    def test_main_missing_api_key(self, mock_get_key):
+        """Test main execution with missing API key."""
+        mock_get_key.return_value = None
+        
+        result = __import__('code.fetch_mp_perovskites', fromlist=['main']).main()
+        
+        assert result == 1
+        mock_get_key.assert_called_once_with("MP_API_KEY")
