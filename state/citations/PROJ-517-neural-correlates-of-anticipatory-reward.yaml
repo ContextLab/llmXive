@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 8947ce86537ef5322b86e39308e3503e60abee7c702014e9c11dc3f24fd01d8f
+  artifact_path: projects/PROJ-517-neural-correlates-of-anticipatory-reward/specs/001-neural-correlates-of-anticipatory-reward/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://api.openneuro.org/datasets?q=...`
+  verification_status: unreachable
+  verified_against_url: https://api.openneuro.org/datasets?q=
+  verified_at: '2026-09-04T07:24:25.849616Z'

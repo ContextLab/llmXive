@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-517-neural-correlates-of-anticipatory-reward
-last_run_id: 3f911247-7a09-4f8e-afe6-b20621890c1d
+last_run_id: 784badeb-8bb1-44e0-bd03-941d77e3bf56
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-517-neural-correlates-of-anticipatory-reward/specs/001-neural-correlates-of-anticipatory-reward
 title: Neural Correlates of Anticipatory Reward Processing in Vocal Learning
-updated_at: '2026-09-03T15:48:50.145558Z'
+updated_at: '2026-09-04T07:24:28.155313Z'
