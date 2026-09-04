@@ -1,10 +1,3 @@
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No mathematical derivation, code, synthetic environment generator, heuristic
-    implementation, or statistical validation artifacts were supplied; the claim lacks
-    any concrete output to verify that the explicit i.i.d. noise assumption was logged
-    in the derivation output. The required documents and scripts are missing.
 T032:
   c: false
   h: 5fd5440414cd3a433ccb07afd8d3fe387833632a7f7196eb7ebe621c032d78ae

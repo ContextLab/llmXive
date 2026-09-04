@@ -2031,3 +2031,203 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T20:22:43Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: n_objectives range includes 5, 10, 20, 50
+  claim_id: c_11344a2f
+  context: 'Create src/config/defaults.yaml with hyperparameters: N (a range of values
+    including 5, 10, 20, 50)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file must contain: n_objectives: [, 10, 20, 50]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:33:35Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: noise_correlation values are 0, 0.2, 0.5
+  claim_id: c_010cb854
+  context: "Create src/config/defaults.yaml with hyperparameters: ... noise_correlation\
+    \ (\u03C1 \u2208 {0, 0.2, 0.5})..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert d['noise_correlation'] == [0, 0.2, 0.5]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:33:51Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: k_sweep values are 0.05, 0.1
+  claim_id: c_1bc6b057
+  context: 'Create src/config/defaults.yaml with hyperparameters: ... k (window size
+    ratios)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert d['k_sweep'] == [0.05, 0.1]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:33:52Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: MDP state space size is at least 10
+  claim_id: c_d9e93c2b
+  context: 'Verification: Run python -c ... assert len(mdp.state_space) >= 10...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MDP_state_space_size_is_at_least_10
+  kind: magnitude
+  raw_text: assert len(mdp.state_space) >= 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:34:17Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Theoretical noise variance for N=5, std=0.1 is 0.01
+  claim_id: c_8923901f
+  context: 'Verification: Run python -c ... assert v > 0 and abs(v - 0.01) < 1e-9...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: abs(v - 0.01) < 1e-9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:34:58Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Peak memory usage is less than 7GB
+  claim_id: c_ae4431b8
+  context: 'Verification: ... assert peak < 7 * 1024 * 1024 * 1024...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_is_less_than_7GB
+  kind: magnitude
+  raw_text: peak < 7 * 1024 * 1024 * 1024
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:35:12Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Process is pinned to 2 CPU cores
+  claim_id: c_6f4817a9
+  context: 'Verification: ... assert len(os.sched_getaffinity(0)) == 2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert len(os.sched_getaffinity(0)) == 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:35:12Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Variance ratio stability within 0.9 to 1.1 for 95% of steps
+  claim_id: c_7d56be97
+  context: "Implement stability check: ratio of heuristic/full-batch variance must\
+    \ remain within [0.9, 1.1] for \u2265 95% of steps."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ratio of heuristic/full-batch variance must remain within [0.9, 1.1]\
+    \ for \u2265 95% of steps"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:35:36Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Sample complexity bound result within 5% of expected analytical value
+  claim_id: c_32dde6c9
+  context: 'Expected Output: A float value (e.g., 1000). ... asserts the result is
+    within 5% of the expected analytical value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: expected analytical value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:35:37Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Sparse distribution sparsity ratio is greater than 0.9
+  claim_id: c_d46f9cf9
+  context: Implement generation of reward functions with 'Sparse' (sparsity ratio
+    > 0.9) distribution.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sparse_distribution_sparsity_ratio_is_greater_than_0.9
+  kind: magnitude
+  raw_text: sparsity ratio > 0.9
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:35:58Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: Scaling law deviation is less than 10% of theoretical bound
+  claim_id: c_e229a143
+  context: 'Verification: ... verify the report shows deviation < 10% for all distributions
+    (SC-006).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scaling_law_deviation_is_less_than_10%25_of_theoretical_bound
+  kind: magnitude
+  raw_text: deviation < 10% for all distributions
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:36:20Z'
+- artifact_path: projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/specs/001-llmxive-follow-up-extending-dvao-dynamic/tasks.md
+  attempts: 1
+  canonical: For N > 50, theoretical bound calculated for original N while empirical
+    state space is degraded
+  claim_id: c_44a37b5e
+  context: 'The section must state: ''For N > 50, the empirical state space is degraded
+    to fit memory constraints, but the theoretical bound is calculated for the original
+    N to preserve the scaling law''s validity.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For N > 50, the empirical state space is degraded to fit memory constraints,
+    but the theoretical bound is calculated for the original N
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T10:36:21Z'
