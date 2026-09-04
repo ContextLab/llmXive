@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureImportance Schema"
+description: "Schema for feature importance and SHAP analysis results."
+type: "object"
+properties:
+  feature_name:
+    type: "string"
+    description: "Name of the feature."
+  mean_abs_shap:
+    type: "number"
+    description: "Mean absolute SHAP value."
+  p_value_perm:
+    type: "number"
+    description: "P-value from conditional permutation test."
+  permutation_count:
+    type: "integer"
+    description: "Actual number of permutations performed (e.g., 2000)."
+    minimum: 1
+  rank:
+    type: "integer"
+    description: "Rank by importance."
+  vif_score:
+    type: ["number", "null"]
+    description: "Variance Inflation Factor."
+  validation_status:
+    type: "string"
+    description: "Status of physical validation."
+    enum:
+      - "validated"
+      - "associational_only"
+      - "validation_target_unavailable"
+required:
+  - feature_name
+  - mean_abs_shap
+  - p_value_perm
+  - permutation_count
+  - rank
+  - vif_score
+  - validation_status

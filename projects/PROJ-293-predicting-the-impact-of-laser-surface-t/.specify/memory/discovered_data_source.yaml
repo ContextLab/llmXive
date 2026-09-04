@@ -1,0 +1,16 @@
+status: none
+intent: laser surface texturing wear dataset OpenML HuggingFace literature supplements
+  python package dataset
+required_fields:
+- laser_power
+- scan_speed
+- pulse_duration
+- material_hardness
+- material_density
+- geometry_type
+- wear_rate
+- wear_volume
+- test_duration
+cache_key: f3cfbba61188713df3594d6ca2444bc5d25674dd28a2f56ffc3010691565d8ef
+searched_at: '2026-09-04T20:11:40.841285+00:00'
+retry_count: 1

@@ -1,0 +1,117 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformance"
+description: "Schema for model evaluation metrics and SHAP analysis output."
+type: "object"
+properties:
+  best_model:
+    type: "string"
+    description: "Name of the best-performing model (e.g., 'GradientBoosting')."
+  best_hyperparameters:
+    type: "object"
+    description: "Hyperparameters of the best model."
+  metrics:
+    type: "object"
+    properties:
+      r2:
+        type: "number"
+        description: "Coefficient of determination."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+      rmse:
+        type: "number"
+        description: "Root Mean Square Error."
+    required:
+      - r2
+      - mae
+      - rmse
+  generalization_error:
+    type: ["number", "null"]
+    description: "Drop in R² during Leave-One-Material-Class-Out CV (null if fallback used or insufficient samples)."
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        mean_abs_shap:
+          type: "number"
+        p_value:
+          type: "number"
+          description: "Conditional permutation-based p-value."
+        permutation_count:
+          type: "integer"
+          description: "Number of permutations performed."
+        bootstrap_ci_lower:
+          type: "number"
+          description: "95% Bootstrap CI lower bound."
+        bootstrap_ci_upper:
+          type: "number"
+          description: "95% Bootstrap CI upper bound."
+      required:
+        - feature_name
+        - mean_abs_shap
+        - p_value
+        - permutation_count
+        - bootstrap_ci_lower
+        - bootstrap_ci_upper
+  record_count:
+    type: "integer"
+    description: "Number of valid records in the final dataset."
+  normalized_count:
+    type: "integer"
+    description: "Number of records with valid Archard normalization."
+  raw_count:
+    type: "integer"
+    description: "Number of records with raw wear rate."
+  power_limitation_warning:
+    type: "boolean"
+    description: "True if record_count < 300."
+  data_insufficiency_error:
+    type: "boolean"
+    description: "True if normalized_count < 100 (primary analysis halted)."
+  loco_fallback_warning:
+    type: "boolean"
+    description: "True if LOCO was skipped due to low class counts."
+  loco_insufficient_samples:
+    type: "array"
+    description: "List of material classes skipped in LOCO due to small sample size (<15)."
+    items:
+      type: "string"
+  pca_applied:
+    type: "boolean"
+    description: "True if PCA was applied due to low class counts."
+  secondary_analysis_skipped:
+    type: "boolean"
+    description: "True if the normalized (Archard) analysis was skipped due to insufficient data (N < 100)."
+  analysis_stage:
+    type: "string"
+    description: "Indicates which analysis stage provided the results: 'primary' (raw wear_rate), 'normalized' (K), or 'descriptive_only'."
+    enum:
+      - "primary"
+      - "normalized"
+      - "descriptive_only"
+  validation_status:
+    type: "string"
+    description: "Overall validation status of the physical interpretation."
+    enum:
+      - "validated"
+      - "associational_only"
+      - "validation_target_unavailable"
+required:
+  - best_model
+  - best_hyperparameters
+  - metrics
+  - feature_importance
+  - record_count
+  - normalized_count
+  - raw_count
+  - power_limitation_warning
+  - data_insufficiency_error
+  - loco_fallback_warning
+  - loco_insufficient_samples
+  - secondary_analysis_skipped
+  - analysis_stage
+  - validation_status
+additionalProperties: false

@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformance Schema"
+description: "Schema for the model performance report."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique ID for the model configuration."
+  algorithm:
+    type: "string"
+    description: "Algorithm used."
+    enum:
+      - "Linear"
+      - "RandomForest"
+      - "GradientBoosting"
+  hyperparameters:
+    type: "object"
+    description: "Dictionary of hyperparameters."
+  cv_r2_mean:
+    type: "number"
+    description: "Mean R² from cross-validation."
+  cv_r2_std:
+    type: "number"
+    description: "Standard deviation of R²."
+  test_r2:
+    type: "number"
+    description: "R² on held-out test set."
+  test_mae:
+    type: "number"
+    description: "Mean Absolute Error."
+  test_rmse:
+    type: "number"
+    description: "Root Mean Squared Error."
+  loo_r2_ratio:
+    type: ["number", "null"]
+    description: "Ratio of LOMO R² to standard test R²."
+  transferability_failure:
+    type: "boolean"
+    description: "True if transferability ratio < 0.8."
+required:
+  - model_id
+  - algorithm
+  - cv_r2_mean
+  - test_r2
+  - test_mae
+  - test_rmse
+  - transferability_failure

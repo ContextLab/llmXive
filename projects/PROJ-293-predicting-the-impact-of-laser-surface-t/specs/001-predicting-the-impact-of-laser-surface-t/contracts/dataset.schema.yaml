@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LSTRecord Schema"
+description: "Schema for the aggregated and cleaned LST wear dataset."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record."
+  pulse_duration:
+    type: "number"
+    description: "Laser pulse duration."
+    minimum: 0
+  power:
+    type: "number"
+    description: "Laser power in Watts."
+    minimum: 0
+  scanning_speed:
+    type: "number"
+    description: "Scanning speed in mm/s."
+    minimum: 0
+  pattern_geometry:
+    type: "string"
+    description: "Geometry of the laser pattern."
+  hardness:
+    type: "number"
+    description: "Material hardness (HV)."
+    minimum: 0
+  elastic_modulus:
+    type: "number"
+    description: "Elastic modulus (GPa)."
+    minimum: 0
+  wear_rate:
+    type: "number"
+    description: "Wear rate."
+  contact_load:
+    type: ["number", "null"]
+    description: "Contact load (N). Can be null."
+  sliding_speed:
+    type: ["number", "null"]
+    description: "Sliding speed (m/s). Can be null."
+  material_class:
+    type: "string"
+    description: "Material category."
+  normalization_method:
+    type: "string"
+    description: "Method used for normalization."
+    enum:
+      - "archard"
+      - "raw"
+  specific_wear_coef:
+    type: ["number", "null"]
+    description: "Calculated specific wear coefficient K."
+required:
+  - record_id
+  - pulse_duration
+  - power
+  - scanning_speed
+  - pattern_geometry
+  - hardness
+  - elastic_modulus
+  - wear_rate
+  - material_class
+  - normalization_method
