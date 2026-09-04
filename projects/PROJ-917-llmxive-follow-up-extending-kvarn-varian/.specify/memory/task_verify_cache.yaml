@@ -1,9 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `code/` directory being created is provided; the only artifacts\
-    \ shown relate to higher\u2011level feature specifications, not the required filesystem\
-    \ change. The deliverable (a non\u2011empty `code/` folder) is missing."
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

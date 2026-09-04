@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-08-03T04:39:44.068818Z'
-- artifact_hash: bc819fe0308666064c555643d0ded3943d2c89b2afc26ec6585d3364c197a40c
+- artifact_hash: b03f67316be1f4c983cd08e5352ff2ce6de8f345cf76b983d2560fe0d829c9aa
   artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-31T09:00:17.092598Z'
+  verified_at: '2026-09-04T04:49:24.247051Z'

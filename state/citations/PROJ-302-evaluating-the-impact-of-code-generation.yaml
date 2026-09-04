@@ -31,3 +31,69 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llm-code-review-impact
   verified_at: '2026-07-13T04:31:27.046471Z'
+- artifact_hash: e14ce44c6c6a90bef945ff1db0b4181ec5358306090c459093045c2962ac35b3
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/docs/CHANGELOG.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Keep a Changelog
+  fetched_title: Keep a Changelog
+  kind: url
+  value: https://keepachangelog.com/en/1.0.0/
+  verification_status: verified
+  verified_against_url: https://keepachangelog.com/en/1.0.0/
+  verified_at: '2026-09-04T05:14:33.795666Z'
+- artifact_hash: e14ce44c6c6a90bef945ff1db0b4181ec5358306090c459093045c2962ac35b3
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/docs/CHANGELOG.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Semantic Versioning
+  fetched_title: Semantic Versioning 2.0.0 | Semantic Versioning
+  kind: url
+  value: https://semver.org/spec/v2.0.0.html
+  verification_status: verified
+  verified_against_url: https://semver.org/spec/v2.0.0.html
+  verified_at: '2026-09-04T05:14:33.795666Z'
+- artifact_hash: e14ce44c6c6a90bef945ff1db0b4181ec5358306090c459093045c2962ac35b3
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/docs/CHANGELOG.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/PROJ-302/compare/v1.0.0...HEAD
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/PROJ-302/compare/v1.0.0...HEAD
+  verified_at: '2026-09-04T05:14:33.795666Z'
+- artifact_hash: e14ce44c6c6a90bef945ff1db0b4181ec5358306090c459093045c2962ac35b3
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/docs/CHANGELOG.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/PROJ-302/releases/tag/v1.0.0
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/PROJ-302/releases/tag/v1.0.0
+  verified_at: '2026-09-04T05:14:33.795666Z'
+- artifact_hash: e14ce44c6c6a90bef945ff1db0b4181ec5358306090c459093045c2962ac35b3
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/docs/CHANGELOG.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/PROJ-302/releases/tag/v0.1.0
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/PROJ-302/releases/tag/v0.1.0
+  verified_at: '2026-09-04T05:14:33.795666Z'
+- artifact_hash: e14ce44c6c6a90bef945ff1db0b4181ec5358306090c459093045c2962ac35b3
+  artifact_path: projects/PROJ-302-evaluating-the-impact-of-code-generation/docs/CHANGELOG.md
+  cite_id: c-006
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/PROJ-302/releases/tag/v0.0.1
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/PROJ-302/releases/tag/v0.0.1
+  verified_at: '2026-09-04T05:14:33.795666Z'

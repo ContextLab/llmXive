@@ -89,7 +89,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T012 [P] [US1] Implement `code/data_acquisition/github_scraper.py` to fetch PR metadata and file content for repos ≥1,000 stars (FR-001)
 - [X] T014 [US1] Implement `code/data_acquisition/classifier_runner.py` using CPU-tractable CodeBERT to classify code snippets as "LLM-like" or "Human" (for secondary diagnostic purposes only, not primary generation).
-- [ ] T014b [US1] **MANDATORY GENERATION**: Implement `code/data_acquisition/synthetic_generator.py` to generate synthetic code snippets using a CPU-tractable LLM (CodeLlama) with a -second timeout per snippet (FR-002). **CRITICAL**: If generation fails or exceeds time limit, the task MUST generate `spec_amendment_request.md` detailing the failure and HALT the pipeline. Do NOT silently fall back to classification. Output: `data/processed/generated_snippets.parquet`. <!-- FAILED: unspecified -->
+- [ ] T014b [US1] **MANDATORY GENERATION**: Implement `code/data_acquisition/synthetic_generator.py` to generate synthetic code snippets using a CPU-tractable LLM (CodeLlama) with a -second timeout per snippet (FR-002). **CRITICAL**: If generation fails or exceeds time limit, the task MUST generate `spec_amendment_request.md` detailing the failure and HALT the pipeline. Do NOT silently fall back to classification. Output: `data/processed/generated_snippets.parquet`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T015 [US1] Implement `code/feature_extraction/complexity.py` to calculate LOC and Cyclomatic Complexity via `radon` (FR-003, FR-009)
 - [X] T016 [US1] Implement `code/feature_extraction/timestamps.py` to extract review duration (PR open to first comment/merge) (FR-003)
 - [X] T017 [US1] Implement `code/feature_extraction/style_features.py` to compute style metrics required for classification (FR-009)
@@ -109,7 +109,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for matching algorithm balance check in `tests/contract/test_matching.py`
+- [X] T020 [P] [US2] Contract test for matching algorithm balance check in `tests/contract/test_matching.py`
 - [X] T021 [P] [US2] Integration test for statistical test selection (t-test vs Mann-Whitney) in `tests/integration/test_statistical_test.py`
 
 ### Implementation for User Story 2
@@ -121,7 +121,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T024 [US2] Implement `code/analysis/statistical_test.py` to run Shapiro-Wilk, select t-test or Mann-Whitney U, and output p-value/Cohen's d (FR-005)
 - [X] T025 [US2] Implement `code/analysis/matching.py` to generate "Covariate Balance Report" listing SMD for all covariates (FR-010) <!-- FAILED: unspecified -->
 - [ ] T026 [US2] Add logic to flag result as "statistically significant" only if p < 0.05 (SC-002)
-- [~] T034 [US2/US4] Implement matching logic for the Prompt-Based cohort (from T033) using the same covariates as US2. **Dependency**: Requires matching infrastructure from T022/T025. (FR-008 adjusted)
+- [ ] T034 [US2/US4] Implement matching logic for the Prompt-Based cohort (from T033) using the same covariates as US2. **Dependency**: Requires matching infrastructure from T022/T025. (FR-008 adjusted)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -141,9 +141,9 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 3
 
 - [X] T029 [P] [US3] Implement `code/analysis/sensitivity.py` to repeat statistical test across Multiple subsets stratified by star-count quartiles (FR-006)
-- [~] T030 [US3] Implement `code/analysis/sensitivity.py` to check if p < 0.05 in ≥ 80% of subsets. **Output**: `data/processed/sensitivity_summary.json` with a "consistent" boolean flag. (SC-005)
+- [ ] T030 [US3] Implement `code/analysis/sensitivity.py` to check if p < 0.05 in ≥ 80% of subsets. **Output**: `data/processed/sensitivity_summary.json` with a "consistent" boolean flag. (SC-005)
 - [X] T031 [US3] Implement `code/analysis/visualization.py` to generate box plots and CDF curves comparing review-time distributions (FR-007)
-- [~] T032 [US3] Implement report generation (PDF/HTML) containing p-value, effect size, and visualizations (US-3)
+- [ ] T032 [US3] Implement report generation (PDF/HTML) containing p-value, effect size, and visualizations (US-3)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -158,7 +158,7 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 4
 
 - [~] T033 [US4] **MANDATORY GENERATION**: Implement `code/data_acquisition/prompt_cohort_generator.py` to generate a "Prompt-Based" cohort of LLM code using natural language prompts derived from commit messages, without access to the original file content (FR-008). **CRITICAL**: If generation fails, the task MUST generate `spec_amendment_request.md` detailing the failure and HALT the pipeline. Do NOT fall back to filtering. Output: `data/processed/prompt_based_cohort.parquet`.
-- [ ] T035 [US4] Add validation to ensure prompt-based cohort snippets (from T033) are syntactically valid (FR-008 adjusted)
+- [~] T035 [US4] Add validation to ensure prompt-based cohort snippets (from T033) are syntactically valid (FR-008 adjusted)
 
 **Checkpoint**: Prompt-based cohort validation complete
 
@@ -168,7 +168,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `docs/` including `quickstart.md`
+- [~] T036 [P] Documentation updates in `docs/` including `quickstart.md`
 - [ ] T037 Code cleanup and refactoring
 - [ ] T038 Performance optimization across all stories (ensure ≤ 6h runtime)
 - [ ] T039 [P] Additional unit tests in `tests/unit/`

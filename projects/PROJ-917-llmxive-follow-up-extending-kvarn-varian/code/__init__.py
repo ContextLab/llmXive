@@ -1,3 +1,4 @@
-# llmXive Code Package
-# This package contains the implementation for the KVarN follow-up study.
+"""
+Initialize the code package.
+"""
 pass

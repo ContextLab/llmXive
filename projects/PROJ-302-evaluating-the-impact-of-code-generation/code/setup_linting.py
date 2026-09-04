@@ -2,15 +2,16 @@ import subprocess
 import sys
 from pathlib import Path
 import os
+import json
 
 def install_tools():
-    """Install ruff and black if not present."""
+    """Install ruff and black using pip."""
     print("Installing linting and formatting tools...")
     try:
         subprocess.check_call([sys.executable, "-m", "pip", "install", "ruff", "black", "--quiet"])
         print("Tools installed successfully.")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to install tools: {e}")
+        print(f"Error installing tools: {e}")
         sys.exit(1)
 
 def create_ruff_config(project_root: Path):
@@ -30,21 +31,23 @@ ignore = [
     "B008", # do not perform function calls in argument defaults
 ]
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
+[lint.isort]
+known-first-party = ["code"]
 
 [format]
-# Same as Black.
-line-length = 88
+quote-style = "double"
 indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 """
     config_path = project_root / ".ruff.toml"
     with open(config_path, "w") as f:
         f.write(config_content)
-    print(f"Created ruff config at {config_path}")
+    print(f"Created {config_path}")
 
 def create_black_config(project_root: Path):
-    """Create a pyproject.toml configuration for Black if not exists, or update it."""
+    """Create a pyproject.toml section for Black if not present, or a separate .black.toml if preferred.
+    We will append to pyproject.toml as per standard practice."""
     pyproject_path = project_root / "pyproject.toml"
     
     black_section = """
@@ -52,35 +55,47 @@ def create_black_config(project_root: Path):
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
+exclude = '''
+/(
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 """
-    
+
     if pyproject_path.exists():
-        content = pyproject_path.read_text()
+        with open(pyproject_path, "r") as f:
+            content = f.read()
         if "[tool.black]" not in content:
             with open(pyproject_path, "a") as f:
                 f.write(black_section)
-            print(f"Updated pyproject.toml with Black config at {pyproject_path}")
+            print(f"Appended Black config to {pyproject_path}")
         else:
-            print("Black config already exists in pyproject.toml")
+            print(f"Black config already exists in {pyproject_path}")
     else:
+        # Create new pyproject.toml if it doesn't exist
         with open(pyproject_path, "w") as f:
+            f.write("[project]\nname = \"llmXive\"\nversion = \"0.1.0\"\n")
             f.write(black_section)
-        print(f"Created pyproject.toml with Black config at {pyproject_path}")
+        print(f"Created {pyproject_path} with Black config")
 
 def main():
-    """Main entry point for linting setup."""
-    # Determine project root (assume script is in code/ directory)
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-    
-    print(f"Setting up linting in project root: {project_root}")
+    """Main entry point to configure linting and formatting."""
+    project_root = Path(__file__).resolve().parent.parent
+    print(f"Project root: {project_root}")
     
     install_tools()
     create_ruff_config(project_root)
     create_black_config(project_root)
     
     print("Linting and formatting configuration complete.")
-    print("You can now run: ruff check . && black .")
 
 if __name__ == "__main__":
     main()

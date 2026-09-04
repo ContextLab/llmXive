@@ -1,0 +1,9 @@
+data/
+artifacts/
+__pycache__/
+*.egg-info/
+.git/
+.venv/
+venv/
+build/
+dist/

@@ -3,4 +3,3 @@
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
 - **T001a** — No evidence of a `code/` directory being created is provided; the only artifacts shown relate to higher‑level feature specifications, not the required filesystem change. The deliverable (a non‑empty `code/` folder) is missing.
-- **T001b** — No evidence of a `data/` directory with the required `raw`, `processed`, and `results` subfolders is provided; the artifact is missing, so the task’s deliverable has not been demonstrated.

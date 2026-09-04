@@ -9,3 +9,7 @@ tiktoken
 hypothesis
 pytest
 sentence-transformers
+vaderSentiment
+ruff
+black
+mypy

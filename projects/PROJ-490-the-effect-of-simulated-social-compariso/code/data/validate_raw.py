@@ -1,8 +1,3 @@
-"""
-Validation module for ensuring data/raw contains all required variables.
-Implements FR-009: Verify presence of avatar_condition, pre_self_esteem,
-post_self_esteem, and comparison_tendency before proceeding.
-"""
 import os
 import sys
 import logging
@@ -11,15 +6,11 @@ from typing import List, Set
 
 import pandas as pd
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from utils.logger import get_logger, log_execution_start, log_execution_end
-from utils.validators import validate_dataframe_schema
+from utils.logger import get_logger
+from utils.validators import load_schema, validate_dataframe_schema
 from data.config import get_config
 
+# Required variables for the social comparison study
 REQUIRED_VARIABLES: Set[str] = {
     "avatar_condition",
     "pre_self_esteem",
@@ -32,110 +23,105 @@ logger = get_logger(__name__)
 
 def validate_raw_data_variables(data_path: Path) -> bool:
     """
-    Validates that the CSV file at data_path contains all required variables.
+    Validates that a CSV file in data/raw contains ALL required variables.
     
     Args:
-        data_path: Path to the CSV file in data/raw to validate.
+        data_path: Path to the CSV file to validate.
         
     Returns:
         bool: True if all required variables are present, False otherwise.
         
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the file is not a valid CSV or is empty.
+        ValueError: If the file is empty or not a valid CSV.
     """
     if not data_path.exists():
-        logger.error(f"File not found: {data_path}")
-        raise FileNotFoundError(f"File not found: {data_path}")
+        raise FileNotFoundError(f"Raw data file not found: {data_path}")
+    
+    logger.info(f"Validating variables in {data_path}")
     
     try:
         df = pd.read_csv(data_path)
     except Exception as e:
-        logger.error(f"Failed to read CSV {data_path}: {e}")
-        raise ValueError(f"Invalid CSV file: {data_path}") from e
+        raise ValueError(f"Failed to read CSV file {data_path}: {e}")
     
     if df.empty:
-        logger.error(f"Dataset at {data_path} is empty.")
         raise ValueError(f"Dataset at {data_path} is empty.")
     
-    available_columns = set(df.columns)
-    missing_columns = REQUIRED_VARIABLES - available_columns
+    existing_columns = set(df.columns)
+    missing_columns = REQUIRED_VARIABLES - existing_columns
     
     if missing_columns:
         logger.error(f"Missing required variables in {data_path}: {missing_columns}")
-        logger.error(f"Available columns: {available_columns}")
+        logger.error(f"Found columns: {existing_columns}")
         return False
     
-    logger.info(f"Validation successful for {data_path}. All required variables present.")
+    logger.info(f"Validation passed for {data_path}. All {len(REQUIRED_VARIABLES)} required variables present.")
     return True
 
 
 def validate_raw_directory(raw_dir: Path) -> bool:
     """
-    Validates that all CSV files in the raw directory contain required variables.
-    Stops at the first valid file found and returns True, or returns False if
-    no valid file is found.
+    Validates that the data/raw directory contains at least one valid CSV
+    with all required variables.
     
     Args:
         raw_dir: Path to the data/raw directory.
         
     Returns:
-        bool: True if at least one valid file is found, False otherwise.
+        bool: True if validation passes for at least one file, False otherwise.
     """
     if not raw_dir.exists():
-        logger.error(f"Directory not found: {raw_dir}")
+        logger.error(f"Raw data directory does not exist: {raw_dir}")
         return False
     
     csv_files = list(raw_dir.glob("*.csv"))
     
     if not csv_files:
-        logger.warning(f"No CSV files found in {raw_dir}")
+        logger.error(f"No CSV files found in {raw_dir}")
         return False
     
-    valid_count = 0
+    validation_passed = False
+    
     for csv_file in csv_files:
         try:
             if validate_raw_data_variables(csv_file):
-                valid_count += 1
-                # We only need one valid file to proceed
-                return True
+                validation_passed = True
+                # If we found one valid file, we can proceed (or break if we only expect one)
+                # For robustness, we log success and continue checking others if needed,
+                # but strictly speaking, finding one valid dataset allows the pipeline to proceed.
+                break
         except (FileNotFoundError, ValueError) as e:
             logger.warning(f"Skipping {csv_file} due to error: {e}")
             continue
     
-    logger.error(f"No valid CSV files found in {raw_dir} containing all required variables.")
-    return False
+    if not validation_passed:
+        logger.error("No valid dataset found in data/raw with required variables.")
+    
+    return validation_passed
 
 
 def run_validation() -> bool:
     """
-    Entry point for the validation script. Loads config, checks the raw data
-    directory, and returns the validation status.
+    Entry point for the validation script.
+    Loads config to find data/raw, validates the content, and returns status.
     
     Returns:
-        bool: True if validation passes, False otherwise.
+        bool: True if validation succeeds, False otherwise.
     """
-    log_execution_start(logger, "validate_raw_data")
-    
     config = get_config()
-    raw_dir = config.get("paths", {}).get("raw_data_dir")
+    raw_dir = Path(config.data_raw_dir)
     
-    if not raw_dir:
-        # Fallback to default if not in config
-        raw_dir = Path(project_root) / "data" / "raw"
+    logger.info("Starting raw data validation (T013)...")
     
-    logger.info(f"Validating raw data directory: {raw_dir}")
+    success = validate_raw_directory(raw_dir)
     
-    success = validate_raw_directory(Path(raw_dir))
+    if success:
+        logger.info("T013 Validation: PASSED. Pipeline can proceed.")
+    else:
+        logger.error("T013 Validation: FAILED. Required variables missing.")
     
-    log_execution_end(logger, "validate_raw_data", success=success)
-    
-    if not success:
-        logger.error("Validation failed. Please ensure data/raw contains CSV files with all required variables.")
-        return False
-    
-    logger.info("Validation passed. Pipeline can proceed.")
-    return True
+    return success
 
 
 if __name__ == "__main__":

@@ -1,89 +1,50 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Social Comparison Dataset Schema
-description: Schema for the raw/processed dataset containing self-esteem and social comparison variables.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema for Social Comparison Study"
+description: "Schema for the raw dataset containing participant responses on self-esteem and social comparison metrics."
 type: object
 required:
-  - fields
-  - description
-  - version
+  - participant_id
+  - avatar_condition
+  - pre_self_esteem
+  - post_self_esteem
+  - comparison_tendency
 properties:
-  version:
+  participant_id:
     type: string
-    description: Schema version identifier.
-    default: "1.0.0"
-  description:
+    description: "Unique identifier for the participant"
+  avatar_condition:
+    type: integer
+    description: "Experimental condition (0: Control, 1: High Status Avatar)"
+    enum: [0, 1]
+  pre_self_esteem:
+    type: number
+    description: "Rosenberg Self-Esteem Scale (RSES) score before intervention"
+    minimum: 0
+    maximum: 40
+  post_self_esteem:
+    type: number
+    description: "Rosenberg Self-Esteem Scale (RSES) score after intervention"
+    minimum: 0
+    maximum: 40
+  comparison_tendency:
+    type: number
+    description: "INCOM (Integrative Comparison Scale) baseline score"
+    minimum: 0
+    maximum: 50
+  data_source_type:
     type: string
-    description: Human-readable description of the dataset schema.
-  fields:
-    type: array
-    description: List of field definitions.
-    items:
-      type: object
-      required:
-        - name
-        - type
-        - description
-      properties:
-        name:
-          type: string
-          description: Column name in the dataset.
-        type:
-          type: string
-          enum:
-            - integer
-            - float
-            - string
-            - boolean
-            - category
-          description: Data type of the column.
-        description:
-          type: string
-          description: Detailed description of the variable.
-        required:
-          type: boolean
-          description: Whether this field is mandatory.
-          default: true
-        min:
-          type: number
-          description: Minimum allowed value for numeric types.
-        max:
-          type: number
-          description: Maximum allowed value for numeric types.
-        categories:
-          type: array
-          items:
-            type: string
-          description: Allowed values if type is 'category'.
-examples:
-  - version: "1.0.0"
-    description: "Schema for social comparison experiment data."
-    fields:
-      - name: participant_id
-        type: integer
-        description: Unique participant identifier.
-        required: true
-      - name: avatar_condition
-        type: category
-        description: Experimental condition (0: Low Status, 1: High Status).
-        required: true
-        categories:
-          - 0
-          - 1
-      - name: pre_self_esteem
-        type: float
-        description: Pre-intervention RSES score.
-        required: true
-        min: 0
-        max: 30
-      - name: post_self_esteem
-        type: float
-        description: Post-intervention RSES score.
-        required: true
-        min: 0
-        max: 30
-      - name: comparison_tendency
-        type: float
-        description: INCOM scale score measuring tendency to compare.
-        required: true
-        min: 0
-        max: 100
+    description: "Source of the data"
+    enum: ["real", "synthetic"]
+  source_metadata:
+    type: object
+    description: "Metadata regarding the source (license, IRB status, dataset ID)"
+    properties:
+      license:
+        type: string
+      irb_approved:
+        type: boolean
+      dataset_id:
+        type: string
+      download_url:
+        type: string
+additionalProperties: true

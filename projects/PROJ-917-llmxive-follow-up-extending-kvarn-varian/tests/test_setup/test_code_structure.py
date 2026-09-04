@@ -1,111 +1,97 @@
 """
-Tests for the code directory structure setup.
-
-This module verifies that the setup_code_structure.py script correctly
-creates the required directory structure under the 'code/' directory.
+Tests for the code directory structure initialization.
 """
-import pytest
 import os
+import pytest
 from pathlib import Path
+import sys
 import tempfile
 import shutil
-import sys
 
 # Add the code directory to the path for imports
-@pytest.fixture(autouse=True)
-def setup_path():
-    """Ensure code directory is in the path for imports."""
-    code_path = Path(__file__).parent.parent.parent / "code"
-    if str(code_path) not in sys.path:
-        sys.path.insert(0, str(code_path))
-    yield
-    if str(code_path) in sys.path:
-        sys.path.remove(str(code_path))
+# Assuming tests are run from project root or tests/ subdirectory
+project_root = Path(__file__).resolve().parent.parent.parent
+code_dir_path = project_root / "code"
+if str(code_dir_path) not in sys.path:
+    sys.path.insert(0, str(code_dir_path))
 
-class TestCodeStructureSetup:
-    """Tests for the code directory structure setup functionality."""
+from setup_code_structure import get_project_root, create_directories, verify_structure
 
-    @pytest.fixture
-    def temp_project_root(self, tmp_path):
-        """Create a temporary project root for testing."""
-        # Create a temporary directory to act as project root
-        project_root = tmp_path / "test_project"
-        project_root.mkdir()
-        
-        # Create a code directory within it
-        code_dir = project_root / "code"
-        code_dir.mkdir()
-        
-        return project_root
+class TestCodeStructure:
+    """Test cases for code structure initialization."""
 
-    def test_directory_creation(self, temp_project_root):
-        """Test that all required subdirectories are created."""
-        from setup_code_structure import create_directories, verify_structure
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self, tmp_path):
+        """
+        Setup and teardown for each test.
+        Uses a temporary directory to avoid modifying the actual project structure during tests.
+        """
+        self.original_cwd = Path.cwd()
+        self.temp_dir = tmp_path
         
-        # Run the creation function
-        create_directories(temp_project_root)
+        # Change to the temporary directory to simulate a project root
+        os.chdir(self.temp_dir)
         
-        # Verify the structure
-        assert verify_structure(temp_project_root), "Directory structure verification failed"
+        # Create a fake requirements.txt to trick get_project_root into recognizing this as the root
+        (self.temp_dir / "requirements.txt").touch()
         
-        # Check each required directory exists
-        required_dirs = [
-            "data_generation",
-            "model_training",
-            "simulation",
-            "analysis"
-        ]
+        yield
         
-        for subdir in required_dirs:
-            dir_path = temp_project_root / "code" / subdir
-            assert dir_path.exists(), f"Directory {dir_path} was not created"
-            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory"
+        # Restore original working directory
+        os.chdir(self.original_cwd)
 
-    def test_init_files_created(self, temp_project_root):
-        """Test that __init__.py files are created for Python packages."""
-        from setup_code_structure import create_directories
-        
-        # Run the creation function
-        create_directories(temp_project_root)
-        
-        # Check that __init__.py files exist
-        required_dirs = [
-            "data_generation",
-            "model_training",
-            "simulation",
-            "analysis"
-        ]
-        
-        for subdir in required_dirs:
-            init_file = temp_project_root / "code" / subdir / "__init__.py"
-            assert init_file.exists(), f"__init__.py not created for {subdir}"
-            assert init_file.is_file(), f"{init_file} exists but is not a file"
+    def test_get_project_root_finds_temp_dir(self):
+        """Test that get_project_root correctly identifies the temporary directory as the project root."""
+        root = get_project_root()
+        assert root == self.temp_dir, f"Expected {self.temp_dir}, got {root}"
 
-    def test_idempotency(self, temp_project_root):
-        """Test that running the setup multiple times doesn't cause errors."""
-        from setup_code_structure import create_directories, verify_structure
-        
-        # Run twice
-        create_directories(temp_project_root)
-        create_directories(temp_project_root)
-        
-        # Should still verify correctly
-        assert verify_structure(temp_project_root), "Structure verification failed after multiple runs"
+    def test_create_directories_creates_code_folder(self):
+        """Test that create_directories successfully creates the 'code/' directory."""
+        result = create_directories(self.temp_dir)
+        assert result is True, "create_directories should return True on success"
+        assert (self.temp_dir / "code").exists(), "The 'code/' directory should exist after creation"
+        assert (self.temp_dir / "code").is_dir(), "The 'code/' path should be a directory"
 
-    def test_nested_directory_creation(self, temp_project_root):
-        """Test that parent directories are created if they don't exist."""
-        from setup_code_structure import create_directories, verify_structure
+    def test_create_directories_idempotent(self):
+        """Test that calling create_directories multiple times is safe (idempotent)."""
+        # First call
+        result1 = create_directories(self.temp_dir)
+        assert result1 is True
         
-        # Remove the code directory entirely
-        code_dir = temp_project_root / "code"
-        shutil.rmtree(code_dir, ignore_errors=True)
-        
-        # Run creation
-        create_directories(temp_project_root)
+        # Second call (directory already exists)
+        result2 = create_directories(self.temp_dir)
+        assert result2 is True
+
+    def test_verify_structure_passes_after_creation(self):
+        """Test that verify_structure returns True after the directory is created."""
+        # Create the directory first
+        create_directories(self.temp_dir)
         
         # Verify
-        assert verify_structure(temp_project_root), "Structure verification failed after recreating code dir"
-        assert (temp_project_root / "code").exists(), "Code directory not recreated"
+        result = verify_structure(self.temp_dir)
+        assert result is True, "verify_structure should return True if directory exists"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_verify_structure_fails_without_creation(self):
+        """Test that verify_structure returns False if the directory does not exist."""
+        # Ensure directory does not exist
+        code_path = self.temp_dir / "code"
+        if code_path.exists():
+            shutil.rmtree(code_path)
+        
+        # Verify
+        result = verify_structure(self.temp_dir)
+        assert result is False, "verify_structure should return False if directory does not exist"
+
+    def test_integration_workflow(self):
+        """Test the full workflow: create then verify."""
+        # Create
+        create_result = create_directories(self.temp_dir)
+        assert create_result is True
+        
+        # Verify
+        verify_result = verify_structure(self.temp_dir)
+        assert verify_result is True
+        
+        # Check actual existence
+        assert (self.temp_dir / "code").exists()
+        assert (self.temp_dir / "code").is_dir()

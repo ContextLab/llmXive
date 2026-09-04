@@ -1,7 +1,16 @@
-pandas>=2.0.0
-numpy>=1.24.0
-pyyaml>=6.0
-pytest>=7.0.0
-scikit-learn>=1.3.0
-miceforest>=5.0.0
-statsmodels>=0.14.0
+# Core dependencies for the project
+pandas
+numpy
+pyyaml
+pydantic
+# Linting and formatting tools
+flake8
+black
+# Data handling and modelling libraries used elsewhere in the codebase
+scikit-learn
+miceforest
+statsmodels
+# Other utilities
+tqdm
+# Note: Versions are intentionally left unspecified to allow flexibility
+# in the execution environment.  Pinning can be added as needed.

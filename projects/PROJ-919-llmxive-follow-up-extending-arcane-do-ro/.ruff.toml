@@ -1,3 +1,8 @@
-# This file is deprecated in favor of pyproject.toml [tool.ruff] section.
-# Keeping for legacy compatibility only.
+# This file extends the pyproject.toml settings for Ruff.
+# It is provided for explicit configuration overrides if needed.
 extend = "pyproject.toml"
+
+[lint]
+# Add specific ignores or rules here if the global pyproject.toml needs overriding
+# for this specific project context.
+extend-ignore = []

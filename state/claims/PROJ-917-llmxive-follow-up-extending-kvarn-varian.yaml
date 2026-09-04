@@ -4882,3 +4882,62 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T09:00:16Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Sample size of 30 derived from statistical power analysis for paired
+    t-tests
+  claim_id: c_084303ee
+  context: 'Requirement: Each run must be of config.SIMULATION_STEPS steps (per Plan.md
+    Phase 3 T006). Requirement: Each run file must contain both Static and KVarN results
+    paired by seed. Requirement: Source for n=30: Standard statistical power analysis
+    for paired t-tests (target power >= 0.8).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Source for n=30: Standard statistical power analysis for paired t-tests
+    (target power >= 0.8).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:24:52Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: OOD detection uses 3-sigma threshold based on training set standard deviation
+  claim_id: c_eaa9b906
+  context: 'Implement Out-of-Distribution (OOD) Detection mechanism in code/simulation/ood_detector.py.
+    Requirement: Must compute a statistical distance metric using a 3-sigma threshold
+    based on training set std between input matrix moments and training distribution
+    moments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute a statistical distance metric using a 3-sigma threshold based
+    on training set std between input matrix moments and training distribution moments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:25:29Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 2
+  canonical: Quantization step size calculation for Uniform INT8
+  claim_id: c_a2258dc0
+  context: 'Requirement: Must include the derivation of the noise model variance based
+    on a uniform distribution over the quantization step, where the step size is defined
+    as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN) / 255.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_step_size_calculation_for_Uniform_INT8
+  kind: entity_fact
+  raw_text: The step size is defined as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:49:23Z'

@@ -139,7 +139,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Documentation updates in `docs/analysis_plan.md` and `README.md`
+- [X] T031 [P] Documentation updates in `docs/analysis_plan.md` and `README.md`
 - [ ] T032a [P] Run `flake8` on `code/` and fix all errors/warnings (errors required)
 - [ ] T032b [P] Run `black` on `code/` and `tests/` and fix all formatting violations
 - [ ] T033 [P] Run `pytest` on all unit and contract tests in `tests/`

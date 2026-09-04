@@ -1,158 +1,39 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Output Schema
-description: Schema for the primary analysis output (regression coefficients and diagnostics).
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema for Preprocessed Data"
+description: "Schema for the cleaned and preprocessed dataset ready for analysis."
 type: object
 required:
-  - metadata
-  - coefficients
-  - diagnostics
+  - participant_id
+  - avatar_condition
+  - pre_self_esteem
+  - post_self_esteem
+  - comparison_tendency
+  - imputation_method
 properties:
-  metadata:
-    type: object
-    required:
-      - timestamp
-      - data_source
-      - data_source_type
-      - sample_size
-    properties:
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation.
-      data_source:
-        type: string
-        description: Path or identifier of the source data.
-      data_source_type:
-        type: string
-        enum:
-          - real
-          - synthetic
-        description: Origin of the data used.
-      sample_size:
-        type: integer
-        description: Number of participants in the analysis.
-  coefficients:
-    type: object
-    description: Regression model coefficients.
-    required:
-      - intercept
-      - terms
-    properties:
-      intercept:
-        type: number
-        description: Model intercept.
-      terms:
-        type: array
-        description: List of regression terms.
-        items:
-          type: object
-          required:
-            - name
-            - estimate
-            - std_error
-            - t_stat
-            - p_value
-          properties:
-            name:
-              type: string
-              description: Term name (e.g., avatar_condition, pre_self_esteem).
-            estimate:
-              type: number
-              description: Coefficient estimate.
-            std_error:
-              type: number
-              description: Standard error of the estimate.
-            t_stat:
-              type: number
-              description: T-statistic.
-            p_value:
-              type: number
-              description: P-value.
-            ci_lower:
-              type: number
-              description: Lower bound of 95% confidence interval.
-            ci_upper:
-              type: number
-              description: Upper bound of 95% confidence interval.
-  diagnostics:
-    type: object
-    description: Model assumption diagnostics.
-    required:
-      - normality
-      - homoscedasticity
-      - collinearity
-    properties:
-      normality:
-        type: object
-        required:
-          - test
-          - statistic
-          - p_value
-          - passed
-        properties:
-          test:
-            type: string
-            enum:
-              - Shapiro-Wilk
-            description: Name of the normality test.
-          statistic:
-            type: number
-            description: Test statistic.
-          p_value:
-            type: number
-            description: P-value of the test.
-          passed:
-            type: boolean
-            description: Whether the assumption holds (p > 0.05).
-      homoscedasticity:
-        type: object
-        required:
-          - test
-          - statistic
-          - p_value
-          - passed
-        properties:
-          test:
-            type: string
-            enum:
-              - Breusch-Pagan
-            description: Name of the homoscedasticity test.
-          statistic:
-            type: number
-            description: Test statistic.
-          p_value:
-            type: number
-            description: P-value of the test.
-          passed:
-            type: boolean
-            description: Whether the assumption holds (p > 0.05).
-      collinearity:
-        type: object
-        required:
-          - method
-          - terms
-        properties:
-          method:
-            type: string
-            enum:
-              - VIF
-            description: Method used for collinearity check.
-          terms:
-            type: array
-            description: VIF values for each term.
-            items:
-              type: object
-              required:
-                - name
-                - vif
-                - flagged
-              properties:
-                name:
-                  type: string
-                  description: Term name.
-                vif:
-                  type: number
-                  description: Variance Inflation Factor.
-                flagged:
-                  type: boolean
-                  description: True if VIF >= 5.
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant"
+  avatar_condition:
+    type: integer
+    description: "Normalized experimental condition (0 or 1)"
+    enum: [0, 1]
+  pre_self_esteem:
+    type: number
+    description: "RSES score after missing value imputation"
+  post_self_esteem:
+    type: number
+    description: "RSES score after missing value imputation"
+  comparison_tendency:
+    type: number
+    description: "INCOM score after missing value imputation"
+  imputation_method:
+    type: string
+    description: "Method used for imputation (e.g., 'miceforest', 'iterative_imputer')"
+  imputed:
+    type: boolean
+    description: "Whether this row was originally missing and has been imputed"
+  data_source_type:
+    type: string
+    description: "Source of the data"
+    enum: ["real", "synthetic"]
+additionalProperties: false

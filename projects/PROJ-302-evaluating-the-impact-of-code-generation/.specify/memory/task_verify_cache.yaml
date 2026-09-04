@@ -1,46 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required core directories (`code/`, `data/`, `tests/`, `docs/`)
-    being present was provided; the implementer supplied no artifact list or screenshots
-    showing these folders. The task remains undone until those directories exist in
-    the project repository.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw/` and `data/processed/` directories (or
-    any files within them) is provided; without tangible artifacts the claim that
-    the subdirectories were created cannot be verified. The implementer must add the
-    actual directories (and optionally placeholder files) to the repository.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory structure was presented in the evidence; there is no listing or\
-    \ contents showing that the required subfolders (`code/data_acquisition/`, `code/feature_extraction/`,\
-    \ `code/analysis/`, `code/utils/`) actually exist. The implementer\u2019s claim\
-    \ cannot be verified without these artifacts."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`)
-    or scripts setting up ruff linting and black formatting are present in the provided
-    evidence, so the required artifact for task T003 is missing.
-T014b:
-  c: false
-  h: 0e347d83bbac564ebd8307afff2f170b25a403ee757507671331c6543d35d6ae
-  r: The repository contains `code/data_acquisition/synthetic_generator.py`, but the
-    required output file `data/processed/generated_snippets.parquet` is missing, and
-    the shown script is truncated before any logic that writes the Parquet file or
-    fully creates the amendment markdown. Without the generated dataset, the mandatory
-    generation requirement is not satisfied.
-T017b:
-  c: false
-  h: 17e0ddac776570dd335872bf1ae2caa823c66bbc18da9958ec7c9319e2d5c342
-  r: "The repository contains `code/feature_extraction/semantic_similarity.py`, but\
-    \ the shown code is incomplete (truncated) and does not demonstrate that it computes\
-    \ similarity scores and writes them to `data/processed/diagnostic_scores.parquet`.\
-    \ Moreover, the required parquet file is absent from the filesystem. The task\u2019\
-    s primary output is therefore missing."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -64,20 +21,20 @@ T020:
     test content.
 T022:
   c: false
-  h: a9d16fe8c6d680ffd3811a2d700a59f71fc06b5baedf62020d8ad768684a6729
-  r: The required `data/processed/diagnostic_scores.parquet` file is absent, so the
-    implementation cannot document the exclusion of semantic similarity scores as
-    mandated. Additionally, the matching script does not explicitly show that only
-    file size, complexity, and activity are used (and semantic similarity is excluded).
-    These missing artifacts prevent the task from being fully satisfied.
+  h: 93f231f539dc0cb3e4cf0fc3edd8c0c095226415fe333087e8576a8bb7063236
+  r: "The `code/analysis/matching.py` file exists, but the required dependency `data/processed/diagnostic_scores.parquet`\
+    \ is missing, so the implementation cannot document the exclusion of semantic\
+    \ similarity scores as specified. Additionally, without this file the module cannot\
+    \ fully satisfy the FR\u2011004 requirement."
 T023b:
   c: false
-  h: 08b473019ca5b5fd06f6dc20c037ee636272309d8d57676db303dd2e1fdbe07c
-  r: "The `matching.py` file does not contain any logic that retries matching, checks\
-    \ the SMD after each attempt, writes a `data/processed/matching_failure_report.json`\
-    \ with SMD values and retry count, or halts execution. Moreover, the required\
-    \ `matching_failure_report.json` file is absent. The task\u2019s failure\u2011\
-    handling feature is therefore not implemented."
+  h: 47e586ccbc0ef52001cc83102243f51252accf1528bd7f40a251da6b5d3ae302
+  r: "The provided `matching.py` defines constants for retries and a failure report\
+    \ path but contains no logic that performs up\u2011to\u2011three retries, checks\
+    \ the SMD against the 0.1 threshold, writes `data/processed/matching_failure_report.json`\
+    \ with the SMD values and retry count, or halts the analysis. Moreover, the required\
+    \ `matching_failure_report.json` file does not exist on disk. The task\u2019s\
+    \ failure\u2011handling requirement is therefore unmet."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -88,3 +45,25 @@ T026:
     \ The next implementer must supply the relevant source file(s) and a demonstration\
     \ (e.g., unit test or example run) confirming the flag is set only when p\u202F\
     <\u202F0.05."
+T030:
+  c: false
+  h: 0b10b3c2b800e61bbd05f0512a2a8b503e5292cacb1baf2f300e2f64b2c62953
+  r: "The required output file `data/processed/sensitivity_summary.json` does not\
+    \ exist, and the provided `code/analysis/sensitivity.py` is incomplete (truncated)\
+    \ and lacks the logic to compute the 80% consistency check and write the JSON\
+    \ flag. The task\u2019s core functionality and output are missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No PDF or HTML report was supplied, and there are no files containing the required\
+    \ p\u2011value, effect size, or visualizations. The implementer provided no tangible\
+    \ artifact to verify that a report generation feature was built. The missing deliverable\
+    \ is a generated report (PDF/HTML) that includes the statistical results and accompanying\
+    \ figures."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or other artifact implementing the matching logic\
+    \ for the Prompt\u2011Based cohort is present; the only evidence is the task description\
+    \ itself. The required implementation (e.g., a function/module that performs propensity\u2011\
+    score matching using the US2 covariates) is missing, so the task is not satisfied."

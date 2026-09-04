@@ -1,138 +1,126 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Final Results Report Schema
-description: Schema for the comprehensive final report including robustness and sensitivity analysis.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Results Schema for ANCOVA Analysis"
+description: "Schema for the regression coefficients and diagnostic metrics."
 type: object
 required:
-  - project_info
-  - data_summary
-  - model_results
-  - robustness_analysis
-  - sensitivity_analysis
-  - conclusion
+  - model_type
+  - coefficients
+  - diagnostics
+  - interpretation_label
 properties:
-  project_info:
+  model_type:
+    type: string
+    description: "Type of model fitted"
+    enum: ["ANCOVA"]
+  coefficients:
     type: object
-    required:
-      - project_id
-      - project_name
-      - version
+    description: "Regression coefficients for the model"
     properties:
-      project_id:
-        type: string
-        description: Project identifier (e.g., PROJ-490).
-      project_name:
-        type: string
-        description: Full project name.
-      version:
-        type: string
-        description: Pipeline version.
-  data_summary:
-    type: object
-    required:
-      - source_path
-      - source_type
-      - n_participants
-      - missing_ratio
-      - variables_validated
-    properties:
-      source_path:
-        type: string
-        description: Path to the data file used.
-      source_type:
-        type: string
-        enum:
-          - real
-          - synthetic
-        description: Data origin.
-      n_participants:
-        type: integer
-        description: Number of participants after cleaning.
-      missing_ratio:
+      intercept:
         type: number
-        description: Ratio of missing data before imputation.
-      variables_validated:
-        type: boolean
-        description: Whether required variables were found.
-  model_results:
-    type: object
-    description: Aggregated regression results.
+      avatar_condition:
+        type: number
+      pre_self_esteem:
+        type: number
+      comparison_tendency:
+        type: number
+      interaction_term:
+        type: number
     required:
-      - coefficients
-      - diagnostics
-      - interpretation
+      - intercept
+      - avatar_condition
+      - pre_self_esteem
+      - comparison_tendency
+  diagnostics:
+    type: object
+    description: "Model assumption validation results"
     properties:
-      coefficients:
-        type: array
-        description: Final model coefficients.
-        items:
-          type: object
-      diagnostics:
+      normality:
         type: object
-        description: Assumption validation results.
-      interpretation:
-        type: string
-        enum:
-          - Empirical Association
-          - Simulated Causal Effect
-        description: Context-aware interpretation label.
-  robustness_analysis:
-    type: object
-    description: Bootstrap stability results.
+        properties:
+          test:
+            type: string
+            enum: ["Shapiro-Wilk"]
+          statistic:
+            type: number
+          p_value:
+            type: number
+          passed:
+            type: boolean
+      homoscedasticity:
+        type: object
+        properties:
+          test:
+            type: string
+            enum: ["Breusch-Pagan"]
+          statistic:
+            type: number
+          p_value:
+            type: number
+          passed:
+            type: boolean
+      collinearity:
+        type: object
+        properties:
+          vif_values:
+            type: object
+            additionalProperties:
+              type: number
+          max_vif:
+            type: number
+          passed:
+            type: boolean
+          flagged:
+            type: boolean
+            description: "True if any VIF >= 5"
     required:
-      - bootstrap_iterations
-      - ci_width_variance
-      - stability_flag
-    properties:
-      bootstrap_iterations:
-        type: integer
-        description: Number of bootstrap samples.
-      ci_width_variance:
-        type: number
-        description: Variance of confidence interval widths.
-      stability_flag:
-        type: boolean
-        description: True if variance < 0.01 (stable).
-  sensitivity_analysis:
+      - normality
+      - homoscedasticity
+      - collinearity
+  interpretation_label:
+    type: string
+    description: "Dynamic interpretation based on data source"
+    enum: ["Empirical Association", "Simulated Causal Effect"]
+  confidence_intervals:
     type: object
-    description: Sensitivity sweep results.
-    required:
-      - thresholds_tested
-      - parameter_recovery_error
-      - error_correction_applied
+    description: "95% Confidence intervals for coefficients"
     properties:
-      thresholds_tested:
+      avatar_condition:
         type: array
         items:
           type: number
-        description: List of p-value thresholds tested.
+        minItems: 2
+        maxItems: 2
+      pre_self_esteem:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      comparison_tendency:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+  bootstrap_stability:
+    type: object
+    description: "Bootstrap stability metrics"
+    properties:
+      ci_width_variance:
+        type: number
+      stable:
+        type: boolean
+  sensitivity_findings:
+    type: object
+    description: "Results from sensitivity analysis"
+    properties:
       parameter_recovery_error:
         type: number
-        description: Absolute error for synthetic data (|beta_hat - beta_true|).
-        nullable: true
-      error_correction_applied:
-        type: string
-        enum:
-          - Bonferroni
-          - Holm
-          - None
-        description: Family-wise error correction method used.
-  conclusion:
-    type: object
-    required:
-      - summary
-      - limitations
-      - next_steps
-    properties:
-      summary:
-        type: string
-        description: High-level summary of findings.
-      limitations:
-        type: array
-        items:
-          type: string
-        description: List of identified limitations.
-      next_steps:
-        type: array
-        items:
-          type: string
-        description: Recommended future actions.
+      threshold_sensitivity:
+        type: object
+        additionalProperties:
+          type: boolean
+      fwe_corrected_significance:
+        type: boolean
+additionalProperties: false

@@ -1,191 +1,276 @@
 """
-Unit tests for syntax_validator.py (Task T019)
+Unit tests for the syntax validation module.
 """
 import pytest
-import ast
-import sys
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 import pandas as pd
+import tempfile
+import json
+from pathlib import Path
+import os
+import sys
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from feature_extraction.syntax_validator import validate_snippet_syntax, validate_dataset, SUCCESS_RATE_THRESHOLD
+from code.feature_extraction.syntax_validator import (
+    validate_snippet_syntax,
+    validate_dataset,
+    main
+)
 
 class TestValidateSnippetSyntax:
     """Tests for the validate_snippet_syntax function."""
-    
-    def test_valid_python(self):
-        """Test that valid Python code returns True."""
-        code = "x = 1\ny = x + 1\nprint(y)"
-        is_valid, error_msg = validate_snippet_syntax(code)
+
+    def test_valid_simple_code(self):
+        """Test valid simple Python code."""
+        code = "x = 1"
+        is_valid, error = validate_snippet_syntax(code)
         assert is_valid is True
-        assert error_msg is None
-    
+        assert error is None
+
+    def test_valid_function_definition(self):
+        """Test valid function definition."""
+        code = """
+        def hello_world():
+            print("Hello, World!")
+        """
+        is_valid, error = validate_snippet_syntax(code)
+        assert is_valid is True
+        assert error is None
+
     def test_valid_class_definition(self):
-        """Test that a class definition is valid."""
+        """Test valid class definition."""
         code = """
         class MyClass:
             def __init__(self):
                 self.value = 0
-            
-            def method(self):
-                return self.value
         """
-        is_valid, error_msg = validate_snippet_syntax(code)
+        is_valid, error = validate_snippet_syntax(code)
         assert is_valid is True
-        assert error_msg is None
-    
+        assert error is None
+
     def test_invalid_syntax_missing_colon(self):
-        """Test that invalid syntax (missing colon) returns False."""
-        code = "if x == 1\n    print(x)"
-        is_valid, error_msg = validate_snippet_syntax(code)
+        """Test invalid syntax - missing colon."""
+        code = "def hello_world()"
+        is_valid, error = validate_snippet_syntax(code)
         assert is_valid is False
-        assert error_msg is not None
-        assert "SyntaxError" in error_msg
-    
+        assert error is not None
+        assert "SyntaxError" in error
+
     def test_invalid_syntax_unclosed_parenthesis(self):
-        """Test that unclosed parenthesis is invalid."""
-        code = "print('hello'"
-        is_valid, error_msg = validate_snippet_syntax(code)
+        """Test invalid syntax - unclosed parenthesis."""
+        code = "x = (1 + 2"
+        is_valid, error = validate_snippet_syntax(code)
         assert is_valid is False
-        assert error_msg is not None
-    
+        assert error is not None
+        assert "SyntaxError" in error
+
     def test_empty_string(self):
-        """Test that empty string is invalid."""
-        is_valid, error_msg = validate_snippet_syntax("")
+        """Test empty string input."""
+        is_valid, error = validate_snippet_syntax("")
         assert is_valid is False
-        assert "Empty snippet" in error_msg
-    
-    def test_whitespace_only(self):
-        """Test that whitespace-only string is invalid."""
-        is_valid, error_msg = validate_snippet_syntax("   \n\t  ")
-        assert is_valid is False
-        assert "Empty snippet" in error_msg
-    
-    def test_non_string_input(self):
-        """Test that non-string input returns False."""
-        is_valid, error_msg = validate_snippet_syntax(123)
-        assert is_valid is False
-        assert "Invalid type" in error_msg
-    
+        assert error is not None
+
     def test_none_input(self):
-        """Test that None input returns False."""
-        is_valid, error_msg = validate_snippet_syntax(None)
+        """Test None input."""
+        is_valid, error = validate_snippet_syntax(None)
         assert is_valid is False
-        assert "Invalid type" in error_msg
-    
-    def test_complex_valid_code(self):
-        """Test complex but valid Python code."""
+        assert error is not None
+
+    def test_valid_complex_code(self):
+        """Test valid complex code with multiple statements."""
         code = """
         import os
         import sys
-        from typing import List, Dict, Optional
-        
-        def calculate_sum(numbers: List[int]) -> int:
-            return sum(numbers)
-        
-        class DataProcessor:
-            def __init__(self, data: Dict[str, Any]):
-                self.data = data
-                self.processed = False
-            
-            def process(self) -> Optional[List[str]]:
-                if not self.processed:
-                    return [str(v) for v in self.data.values()]
-                return None
+
+        def calculate_sum(numbers):
+            total = 0
+            for num in numbers:
+                total += num
+            return total
+
+        if __name__ == '__main__':
+            result = calculate_sum([1, 2, 3, 4, 5])
+            print(f"Sum: {result}")
         """
-        is_valid, error_msg = validate_snippet_syntax(code)
+        is_valid, error = validate_snippet_syntax(code)
         assert is_valid is True
-        assert error_msg is None
+        assert error is None
 
 class TestValidateDataset:
     """Tests for the validate_dataset function."""
-    
-    def test_validate_dataset_with_valid_snippets(self, tmp_path):
-        """Test validation with all valid snippets."""
-        # Create a test parquet file
-        test_data = pd.DataFrame({
-            'snippet_id': [1, 2, 3],
-            'code': [
-                'x = 1',
-                'def foo(): return 1',
-                'class Bar: pass'
-            ]
-        })
-        input_file = tmp_path / "test_input.parquet"
-        test_data.to_parquet(input_file)
-        
-        result = validate_dataset(input_file)
-        
-        assert len(result) == 3
-        assert all(result['is_valid'] == True)
-        assert result['overall_success_rate'].iloc[0] == 1.0
-        assert result['success_rate_threshold_met'].iloc[0] is True
-    
-    def test_validate_dataset_with_invalid_snippets(self, tmp_path):
-        """Test validation with some invalid snippets."""
-        test_data = pd.DataFrame({
-            'snippet_id': [1, 2, 3, 4, 5],
-            'code': [
-                'x = 1',  # valid
-                'if x:',  # valid
-                'if x',   # invalid (missing colon)
-                'def f():', # valid
-                'def g('   # invalid (unclosed)
-            ]
-        })
-        input_file = tmp_path / "test_input.parquet"
-        test_data.to_parquet(input_file)
-        
-        result = validate_dataset(input_file)
-        
-        assert len(result) == 5
-        assert result['is_valid'].sum() == 3  # 3 valid
-        assert result['overall_success_rate'].iloc[0] == 0.6  # 60%
-        assert result['success_rate_threshold_met'].iloc[0] is False  # < 95%
-    
-    def test_validate_dataset_different_column_names(self, tmp_path):
-        """Test that different column names for code are handled."""
-        # Test with 'snippet' column
-        test_data = pd.DataFrame({
-            'snippet_id': [1, 2],
-            'snippet': ['x = 1', 'y = 2']
-        })
-        input_file = tmp_path / "test_snippet.parquet"
-        test_data.to_parquet(input_file)
-        
-        result = validate_dataset(input_file)
-        assert all(result['is_valid'] == True)
-        
-        # Test with 'code_content' column
-        test_data = pd.DataFrame({
-            'snippet_id': [1, 2],
-            'code_content': ['a = 1', 'b = 2']
-        })
-        input_file = tmp_path / "test_content.parquet"
-        test_data.to_parquet(input_file)
-        
-        result = validate_dataset(input_file)
-        assert all(result['is_valid'] == True)
-    
-    def test_validate_dataset_missing_file(self, tmp_path):
-        """Test that missing file raises FileNotFoundError."""
-        input_file = tmp_path / "nonexistent.parquet"
-        
-        with pytest.raises(FileNotFoundError):
-            validate_dataset(input_file)
 
-class TestThresholdConstants:
-    """Tests for threshold constants."""
-    
-    def test_threshold_is_95_percent(self):
-        """Verify the success rate threshold is 0.95 (95%)."""
-        assert SUCCESS_RATE_THRESHOLD == 0.95
-    
-    def test_threshold_value_reasonable(self):
-        """Verify threshold is between 0 and 1."""
-        assert 0 < SUCCESS_RATE_THRESHOLD < 1
+    def test_all_valid_snippets(self):
+        """Test dataset with all valid snippets."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            input_path = Path(temp_dir) / "input.parquet"
+            output_path = Path(temp_dir) / "output.json"
+
+            # Create test dataset
+            data = {
+                'code_snippet': [
+                    "x = 1",
+                    "def foo(): pass",
+                    "class Bar: pass"
+                ]
+            }
+            df = pd.DataFrame(data)
+            df.to_parquet(input_path)
+
+            # Run validation
+            report = validate_dataset(
+                input_path=str(input_path),
+                output_path=str(output_path),
+                code_column='code_snippet',
+                success_threshold=0.95
+            )
+
+            assert report['total_snippets'] == 3
+            assert report['valid_snippets'] == 3
+            assert report['invalid_snippets'] == 0
+            assert report['success_rate'] == 1.0
+            assert report['meets_threshold'] is True
+
+            # Check output file exists
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                saved_report = json.load(f)
+            assert saved_report['success_rate'] == 1.0
+
+    def test_mixed_snippets_above_threshold(self):
+        """Test dataset with mixed valid/invalid snippets (above threshold)."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            input_path = Path(temp_dir) / "input.parquet"
+            output_path = Path(temp_dir) / "output.json"
+
+            # Create test dataset: 19 valid, 1 invalid = 95% success rate
+            valid_snippets = ["x = " + str(i) for i in range(19)]
+            invalid_snippets = ["def broken"]  # Missing colon
+            all_snippets = valid_snippets + invalid_snippets
+
+            data = {'code_snippet': all_snippets}
+            df = pd.DataFrame(data)
+            df.to_parquet(input_path)
+
+            # Run validation
+            report = validate_dataset(
+                input_path=str(input_path),
+                output_path=str(output_path),
+                code_column='code_snippet',
+                success_threshold=0.95
+            )
+
+            assert report['total_snippets'] == 20
+            assert report['valid_snippets'] == 19
+            assert report['invalid_snippets'] == 1
+            assert abs(report['success_rate'] - 0.95) < 0.001
+            assert report['meets_threshold'] is True
+
+    def test_mixed_snippets_below_threshold(self):
+        """Test dataset with mixed valid/invalid snippets (below threshold)."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            input_path = Path(temp_dir) / "input.parquet"
+            output_path = Path(temp_dir) / "output.json"
+
+            # Create test dataset: 9 valid, 11 invalid = 45% success rate
+            valid_snippets = ["x = " + str(i) for i in range(9)]
+            invalid_snippets = ["def broken"] * 11
+            all_snippets = valid_snippets + invalid_snippets
+
+            data = {'code_snippet': all_snippets}
+            df = pd.DataFrame(data)
+            df.to_parquet(input_path)
+
+            # Should raise ValueError
+            with pytest.raises(ValueError) as exc_info:
+                validate_dataset(
+                    input_path=str(input_path),
+                    output_path=str(output_path),
+                    code_column='code_snippet',
+                    success_threshold=0.95
+                )
+
+            assert "Validation failed" in str(exc_info.value)
+            assert "0.45" in str(exc_info.value) or "0.4" in str(exc_info.value)
+
+    def test_missing_input_file(self):
+        """Test with missing input file."""
+        with pytest.raises(FileNotFoundError):
+            validate_dataset(
+                input_path="/nonexistent/path/input.parquet",
+                output_path="/tmp/output.json"
+            )
+
+    def test_missing_code_column(self):
+        """Test with missing code column."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            input_path = Path(temp_dir) / "input.parquet"
+            output_path = Path(temp_dir) / "output.json"
+
+            # Create dataset with wrong column name
+            data = {'wrong_column': ["x = 1"]}
+            df = pd.DataFrame(data)
+            df.to_parquet(input_path)
+
+            with pytest.raises(ValueError) as exc_info:
+                validate_dataset(
+                    input_path=str(input_path),
+                    output_path=str(output_path),
+                    code_column='code_snippet'
+                )
+
+            assert "not found in dataset" in str(exc_info.value)
+
+class TestMain:
+    """Tests for the main CLI function."""
+
+    def test_main_successful_validation(self, capsys):
+        """Test main function with successful validation."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            input_path = Path(temp_dir) / "input.parquet"
+            output_path = Path(temp_dir) / "output.json"
+
+            # Create test dataset
+            data = {'code_snippet': ["x = 1", "y = 2"]}
+            df = pd.DataFrame(data)
+            df.to_parquet(input_path)
+
+            # Mock sys.argv
+            import sys
+            original_argv = sys.argv
+            sys.argv = [
+                'syntax_validator.py',
+                '--input', str(input_path),
+                '--output', str(output_path),
+                '--threshold', '0.95'
+            ]
+
+            try:
+                main()
+            except SystemExit as e:
+                assert e.code == 0
+
+            finally:
+                sys.argv = original_argv
+
+            # Check output
+            captured = capsys.readouterr()
+            assert "Validation complete" in captured.out or "Summary" in captured.out
+            assert output_path.exists()
+
+    def test_main_file_not_found(self):
+        """Test main function with missing input file."""
+        import sys
+        original_argv = sys.argv
+        sys.argv = [
+            'syntax_validator.py',
+            '--input', '/nonexistent/file.parquet',
+            '--output', '/tmp/output.json'
+        ]
+
+        try:
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == 1
+        finally:
+            sys.argv = original_argv

@@ -109,3 +109,72 @@
   source_type: external
   status: verified
   updated_at: '2026-06-29T18:47:03Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: dataset size limit of 100k rows
+  claim_id: c_331645b7
+  context: "Implement `02_preprocessing.py` to: \n - Load raw CSVs. \n - Extract binary\
+    \ protected attributes (e.g., gender 0/1, race 0/1) and binary outcomes. \n -\
+    \ Perform stratified sampling to \u2264100k rows per dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform stratified sampling to \u2264100k rows per dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:21:47Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: regression predictors
+  claim_id: c_4548ffe8
+  context: 'Implement fixed-effects regression in `03_model_training.py` per FR-006.
+    Use dataset and model as categorical covariates with predictors: base_rate_difference,
+    feature_dimensionality, class_imbalance_ratio.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_predictors
+  kind: entity_fact
+  raw_text: base-rate difference, feature dimensionality, class imbalance ratio.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:22:49Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: power of 0.80
+  claim_id: c_7c02268f
+  context: "Document detectable effect size given n = 15, \u03B1 = 0.05, power = 0.80,\
+    \ and reference the calculation."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: power = 0.80
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T04:23:06Z'
