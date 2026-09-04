@@ -1,314 +1,295 @@
-"""
-Statistical hypothesis testing and analysis (T031-T036).
-Implements KS tests, Spearman correlations, and Benjamini-Hochberg correction.
-"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
 import numpy as np
 import pandas as pd
-from scipy import stats
-from scipy.optimize import curve_fit
+from scipy import stats as scipy_stats
 
+from config import RHO_CRITICAL, ENVIRONMENT_THRESHOLD, BULLOCK_C200, BULLOCK_ALPHA, BH_THRESHOLD
 from utils.logging import get_logger
-from config import ALPHA_THRESHOLD, BH_CORRECTION_METHOD
 
 logger = get_logger(__name__)
 
-def mass_binning(
-    df: pd.DataFrame,
-    mass_col: str = 'halo_mass',
-    bins: Optional[List[float]] = None
-) -> pd.DataFrame:
+def mass_binning(df: pd.DataFrame, column: str = "mass", bins: Optional[List[float]] = None) -> pd.DataFrame:
     """
-    Bin halos by mass spanning multiple orders of magnitude.
+    Bin halos by mass across multiple orders of magnitude.
     
     Args:
-        df: Input DataFrame.
-        mass_col: Column name for mass.
-        bins: Custom bin edges. If None, uses log-spaced bins.
-        
+        df: DataFrame containing halo data.
+        column: Name of the mass column.
+        bins: List of bin edges. If None, generates logarithmic bins.
+    
     Returns:
-        DataFrame with 'mass_bin' column.
+        DataFrame with an added 'mass_bin' column.
     """
     if bins is None:
-        min_mass = df[mass_col].min()
-        max_mass = df[mass_col].max()
-        # Create 5 bins spanning the range
-        bins = np.logspace(np.log10(min_mass), np.log10(max_mass), num=6)
+        # Generate logarithmic bins spanning typical halo masses
+        # Assuming mass is in Msun/h
+        min_mass = df[column].min()
+        max_mass = df[column].max()
+        if min_mass <= 0 or max_mass <= 0:
+            raise ValueError("Mass values must be positive for logarithmic binning.")
+        n_bins = int(np.log10(max_mass) - np.log10(min_mass)) + 5
+        bins = np.logspace(np.log10(min_mass), np.log10(max_mass), n_bins)
     
+    logger.info(f"Creating {len(bins)-1} mass bins from {min(bins):.2e} to {max(bins):.2e}")
     df = df.copy()
-    df['mass_bin'] = pd.cut(df[mass_col], bins=bins, labels=False)
+    df['mass_bin'] = pd.cut(df[column], bins=bins, labels=False)
     return df
 
-def environment_binning(
-    df: pd.DataFrame,
-    overdensity_col: str = 'local_overdensity',
-    threshold: float = 200.0
-) -> pd.DataFrame:
+def environment_binning(df: pd.DataFrame, overdensity_col: str = "overdensity") -> pd.DataFrame:
     """
-    Bin halos by environment (low vs high overdensity).
+    Bin halos by environment using overdensity relative to critical density.
+    
+    Requirement: Explicitly use RHO_CRITICAL from code/config.py for overdensity normalization.
+    Environment bins: Δ < 200 vs Δ ≥ 200.
     
     Args:
-        df: Input DataFrame.
-        overdensity_col: Column name for overdensity.
-        threshold: Threshold for high environment (default 200).
-        
+        df: DataFrame containing halo data.
+        overdensity_col: Name of the column containing local overdensity values (Δ).
+    
     Returns:
-        DataFrame with 'env_bin' column (0: low, 1: high).
+        DataFrame with an added 'environment_bin' column (0 for low, 1 for high).
     """
+    if overdensity_col not in df.columns:
+        # If overdensity is not pre-calculated, we might need to compute it or assume
+        # the column exists based on US1/US2 pipeline. For this task, we assume it exists.
+        logger.warning(f"Column '{overdensity_col}' not found. Attempting to normalize raw density if 'density' exists.")
+        if "density" in df.columns:
+            # Normalize density by critical density to get overdensity
+            df = df.copy()
+            df[overdensity_col] = df["density"] / RHO_CRITICAL
+            logger.info(f"Calculated overdensity using RHO_CRITICAL={RHO_CRITICAL}")
+        else:
+            raise ValueError(f"Column '{overdensity_col}' not found and 'density' column not available for calculation.")
+    
     df = df.copy()
-    df['env_bin'] = (df[overdensity_col] >= threshold).astype(int)
+    # Bin: 0 if overdensity < threshold, 1 if >= threshold
+    df['environment_bin'] = (df[overdensity_col] >= ENVIRONMENT_THRESHOLD).astype(int)
+    logger.info(f"Environment binning applied with threshold {ENVIRONMENT_THRESHOLD} using RHO_CRITICAL={RHO_CRITICAL}")
     return df
 
-def run_ks_tests(
-    df: pd.DataFrame,
-    metrics: List[str],
-    group_col: str = 'env_bin',
-    groups: List[int] = [0, 1]
-) -> Dict[str, Any]:
+def run_ks_tests(df: pd.DataFrame, metrics: List[str], bin_col: str = "environment_bin") -> List[Dict[str, Any]]:
     """
-    Perform two-sample KS tests between environmental bins for each metric.
+    Run two-sample Kolmogorov-Smirnov tests between low/high environmental bins.
     
     Args:
-        df: Input DataFrame.
-        metrics: List of metric columns to test.
-        group_col: Column name for grouping.
-        groups: List of group labels to compare.
-        
+        df: DataFrame with metrics and bin column.
+        metrics: List of metric column names to test.
+        bin_col: Column name for environment bins.
+    
     Returns:
-        Dictionary of KS test results.
+        List of dicts containing test results.
     """
-    results = {}
+    results = []
     for metric in metrics:
         if metric not in df.columns:
-            logger.warning(f"Metric {metric} not found, skipping KS test.")
+            logger.warning(f"Metric '{metric}' not found in dataframe, skipping.")
             continue
         
-        # Filter for valid groups
-        mask = df[group_col].isin(groups)
-        if mask.sum() < 2:
-            logger.warning(f"Not enough data points for KS test on {metric}.")
+        low_group = df[df[bin_col] == 0][metric].dropna()
+        high_group = df[df[bin_col] == 1][metric].dropna()
+        
+        if len(low_group) == 0 or len(high_group) == 0:
+            logger.warning(f"Insufficient data in one bin for metric '{metric}', skipping KS test.")
             continue
         
-        group_data = {g: df.loc[df[group_col] == g, metric].dropna() for g in groups}
-        
-        # Check if we have data in both groups
-        if any(len(gd) < 2 for gd in group_data.values()):
-            logger.warning(f"Insufficient data for KS test on {metric}.")
-            continue
-        
-        stat, pvalue = stats.ks_2samp(group_data[groups[0]], group_data[groups[1]])
-        results[metric] = {
-            'statistic': float(stat),
-            'pvalue': float(pvalue),
-            'n1': len(group_data[groups[0]]),
-            'n2': len(group_data[groups[1]])
-        }
+        stat, pvalue = scipy_stats.ks_2samp(low_group, high_group)
+        results.append({
+            "metric": metric,
+            "test": "ks_2samp",
+            "statistic": float(stat),
+            "p_value": float(pvalue),
+            "n_low": len(low_group),
+            "n_high": len(high_group)
+        })
+        logger.debug(f"KS test for {metric}: stat={stat:.4f}, p={pvalue:.4f}")
     
     return results
 
-def apply_benjamini_hochberg(
-    pvalues: List[float],
-    alpha: float = ALPHA_THRESHOLD,
-    method: str = BH_CORRECTION_METHOD
-) -> Tuple[List[float], List[bool]]:
+def apply_benjamini_hochberg(p_values: List[float], alpha: float = BH_THRESHOLD) -> List[bool]:
     """
     Apply Benjamini-Hochberg correction for multiple hypothesis testing.
     
     Args:
-        pvalues: List of raw p-values.
-        alpha: Significance threshold.
-        method: Correction method (currently only 'bh' supported).
-        
+        p_values: List of p-values from hypothesis tests.
+        alpha: Significance level.
+    
     Returns:
-        Tuple of (adjusted p-values, boolean mask of significant tests).
+        List of booleans indicating whether to reject the null hypothesis.
     """
-    if method != 'bh':
-        logger.warning(f"Method {method} not implemented, defaulting to 'bh'.")
-        method = 'bh'
+    if not p_values:
+        return []
     
-    # Use scipy's multipletests if available, else implement manually
-    try:
-        from statsmodels.stats.multitest import multipletests
-        reject, pvals_corrected, _, _ = multipletests(pvalues, alpha=alpha, method=method)
-    except ImportError:
-        # Fallback implementation
-        n = len(pvalues)
-        if n == 0:
-            return [], []
-        
-        # Sort p-values and track original indices
-        sorted_indices = np.argsort(pvalues)
-        sorted_pvals = np.array(pvalues)[sorted_indices]
-        
-        # Calculate adjusted p-values
-        adjusted = np.zeros(n)
-        for i in range(n):
-            # BH formula: p_adj = p * n / rank
-            # Ensure non-decreasing
-            rank = i + 1
-            adj_val = sorted_pvals[i] * n / rank
-            adj_val = min(adj_val, 1.0)
-            adjusted[i] = adj_val
-        
-        # Make non-decreasing from the end
-        for i in range(n - 2, -1, -1):
-            adjusted[i] = min(adjusted[i], adjusted[i + 1])
-        
-        pvals_corrected = np.zeros(n)
-        pvals_corrected[sorted_indices] = adjusted
-        
-        reject = pvals_corrected < alpha
+    m = len(p_values)
+    sorted_indices = np.argsort(p_values)
+    sorted_p_values = np.array(p_values)[sorted_indices]
     
-    return list(pvals_corrected), list(reject)
+    # BH critical values
+    critical_values = (np.arange(1, m + 1) / m) * alpha
+    
+    # Find the largest k such that p_(k) <= critical_k
+    # Reject all hypotheses up to k
+    reject = np.zeros(m, dtype=bool)
+    for i in range(m - 1, -1, -1):
+        if sorted_p_values[i] <= critical_values[i]:
+            reject[:i+1] = True
+            break
+    
+    # Map back to original order
+    final_reject = np.zeros(m, dtype=bool)
+    final_reject[sorted_indices] = reject
+    return final_reject.tolist()
 
-def run_spearman_correlations(
-    df: pd.DataFrame,
-    mass_col: str = 'halo_mass',
-    metrics: List[str] = ['shape_s', 'spin_lambda', 'concentration_c']
-) -> Dict[str, Any]:
+def run_spearman_correlations(df: pd.DataFrame, mass_col: str = "mass", metrics: List[str] = None) -> List[Dict[str, Any]]:
     """
-    Compute Spearman's rho between halo mass and each metric.
+    Compute Spearman's rho correlation between halo mass and each structural metric.
     
     Args:
-        df: Input DataFrame.
-        mass_col: Column name for mass.
-        metrics: List of metric columns.
-        
+        df: DataFrame with mass and metrics.
+        mass_col: Name of the mass column.
+        metrics: List of metric column names.
+    
     Returns:
-        Dictionary of correlation results.
+        List of dicts containing correlation results.
     """
-    results = {}
+    if metrics is None:
+        metrics = ["shape", "spin", "concentration"]
+    
+    results = []
     for metric in metrics:
-        if metric not in df.columns:
+        if metric not in df.columns or mass_col not in df.columns:
+            logger.warning(f"Missing columns for correlation: {metric} or {mass_col}")
             continue
         
         # Drop NaNs
         valid_data = df[[mass_col, metric]].dropna()
         if len(valid_data) < 3:
-            logger.warning(f"Insufficient data for correlation on {metric}.")
+            logger.warning("Insufficient data for Spearman correlation.")
             continue
         
-        rho, pvalue = stats.spearmanr(valid_data[mass_col], valid_data[metric])
-        results[metric] = {
-            'rho': float(rho),
-            'pvalue': float(pvalue),
-            'n': len(valid_data)
-        }
+        rho, p_value = scipy_stats.spearmanr(valid_data[mass_col], valid_data[metric])
+        results.append({
+            "metric": metric,
+            "correlation_type": "spearman",
+            "rho": float(rho),
+            "p_value": float(p_value),
+            "n_samples": len(valid_data)
+        })
+        logger.debug(f"Spearman correlation {metric} vs mass: rho={rho:.4f}, p={p_value:.4f}")
     
     return results
 
-def bullock_comparison(
-    df: pd.DataFrame,
-    mass_col: str = 'halo_mass',
-    concentration_col: str = 'concentration_c',
-    c_200: float = 10.0,
-    alpha: float = -0.1
-) -> Dict[str, Any]:
+def bullock_comparison(df: pd.DataFrame, mass_col: str = "mass", conc_col: str = "concentration") -> Dict[str, Any]:
     """
-    Compare observed concentrations to Bullock et al. (2001) analytic fit.
-    
-    c(M) = c_200 * (M / M_200)^alpha
+    Compare measured mass-concentration relation against Bullock et al. (2001) analytic fit.
     
     Args:
-        df: Input DataFrame.
-        mass_col: Column name for mass.
-        concentration_col: Column name for concentration.
-        c_200: Normalization constant.
-        alpha: Power law slope.
-        
+        df: DataFrame with mass and concentration.
+        mass_col: Name of the mass column.
+        conc_col: Name of the concentration column.
+    
     Returns:
-        Dictionary with deviation statistics.
+        Dict containing fit parameters, RMSE, and mean difference.
     """
-    # Normalize mass by a reference M_200 (e.g., 1e14 Msun)
-    M_ref = 1e14
-    M_norm = df[mass_col] / M_ref
+    if conc_col not in df.columns or mass_col not in df.columns:
+        return {"error": "Missing required columns"}
+    
+    # Bullock et al. (2001) fit: c(M) = c_200 * (M / M_200)^alpha
+    # We need a pivot mass M_200. Often taken as 10^12 Msun/h or similar.
+    # For this implementation, we assume M_200 is a characteristic mass, e.g., 1e12
+    M_pivot = 1e12 
+    
+    c200 = BULLOCK_C200
+    alpha = BULLOCK_ALPHA
+    
+    measured_mass = df[mass_col].values
+    measured_conc = df[conc_col].values
     
     # Predicted concentration
-    c_pred = c_200 * (M_norm ** alpha)
+    predicted_conc = c200 * (measured_mass / M_pivot) ** alpha
     
-    # Calculate deviations
-    observed = df[concentration_col].dropna()
-    predicted = c_pred.loc[observed.index]
+    # Calculate statistics
+    rmse = np.sqrt(np.mean((measured_conc - predicted_conc) ** 2))
+    mean_diff = np.mean(measured_conc - predicted_conc)
     
-    if len(observed) == 0:
-        return {'error': 'No data available'}
-    
-    residuals = observed - predicted
-    mean_res = float(np.mean(residuals))
-    std_res = float(np.std(residuals))
-    rmse = float(np.sqrt(np.mean(residuals**2)))
+    logger.info(f"Bullock comparison: RMSE={rmse:.4f}, Mean Diff={mean_diff:.4f}")
     
     return {
-        'c_200': c_200,
-        'alpha': alpha,
-        'mean_residual': mean_res,
-        'std_residual': std_res,
-        'rmse': rmse,
-        'n_points': len(observed)
+        "model": "Bullock2001",
+        "params": {"c_200": c200, "alpha": alpha, "M_pivot": M_pivot},
+        "rmse": float(rmse),
+        "mean_difference": float(mean_diff),
+        "n_samples": len(measured_mass)
     }
 
-def run_full_analysis_pipeline(
-    df: pd.DataFrame,
-    output_path: str,
-    figures_dir: Optional[str] = None
-) -> Dict[str, Any]:
+def run_full_analysis_pipeline(input_path: str, output_path: str) -> Dict[str, Any]:
     """
-    Run the complete statistical analysis pipeline.
+    Run the full statistical analysis pipeline.
+    
+    1. Load data
+    2. Mass binning
+    3. Environment binning (using RHO_CRITICAL)
+    4. Run KS tests
+    5. Apply BH correction
+    6. Run Spearman correlations
+    7. Bullock comparison
+    8. Save results
     
     Args:
-        df: Input DataFrame with metrics and mass.
+        input_path: Path to the processed parquet file.
         output_path: Path to save results JSON.
-        figures_dir: Directory to save figures.
-        
-    Returns:
-        Dictionary of all results.
-    """
-    results = {}
     
-    # 1. Binning
-    df_binned = mass_binning(df)
-    df_binned = environment_binning(df_binned)
-    results['binning'] = {
-        'mass_bins': int(df_binned['mass_bin'].nunique()),
-        'env_bins': int(df_binned['env_bin'].nunique())
+    Returns:
+        Dictionary of all analysis results.
+    """
+    logger.info(f"Starting full analysis pipeline. Input: {input_path}, Output: {output_path}")
+    
+    # Load data
+    df = pd.read_parquet(input_path)
+    logger.info(f"Loaded {len(df)} halos")
+    
+    # Binning
+    df = mass_binning(df)
+    df = environment_binning(df)
+    
+    # Metrics to test
+    metrics = ["shape", "spin", "concentration"]
+    
+    # KS Tests
+    ks_results = run_ks_tests(df, metrics)
+    p_values = [r["p_value"] for r in ks_results]
+    bh_rejections = apply_benjamini_hochberg(p_values)
+    
+    for i, res in enumerate(ks_results):
+        res["rejected_bh"] = bh_rejections[i]
+    
+    # Spearman Correlations
+    spearman_results = run_spearman_correlations(df)
+    
+    # Bullock Comparison
+    bullock_results = bullock_comparison(df)
+    
+    # Compile results
+    final_results = {
+        "ks_tests": ks_results,
+        "spearman_correlations": spearman_results,
+        "bullock_comparison": bullock_results,
+        "config": {
+            "rho_critical": RHO_CRITICAL,
+            "environment_threshold": ENVIRONMENT_THRESHOLD,
+            "bullock_c200": BULLOCK_C200,
+            "bullock_alpha": BULLOCK_ALPHA
+        }
     }
     
-    # 2. KS Tests
-    metrics = ['shape_s', 'spin_lambda', 'concentration_c']
-    ks_results = run_ks_tests(df_binned, metrics)
-    results['ks_tests'] = ks_results
+    # Save results
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, 'w') as f:
+        json.dump(final_results, f, indent=2)
     
-    # 3. BH Correction
-    pvalues = [res['pvalue'] for res in ks_results.values()]
-    if pvalues:
-        adj_pvals, significant = apply_benjamini_hochberg(pvalues)
-        results['bh_correction'] = {
-            'adjusted_pvalues': adj_pvals,
-            'significant': significant,
-            'threshold': ALPHA_THRESHOLD
-        }
-    
-    # 4. Spearman Correlations
-    spearman_results = run_spearman_correlations(df_binned)
-    results['spearman_correlations'] = spearman_results
-    
-    # 5. Bullock Comparison
-    bullock_res = bullock_comparison(df_binned)
-    results['bullock_comparison'] = bullock_res
-    
-    # 6. Save Results
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Saved analysis results to {output_path}")
-    
-    # 7. Generate Figures
-    if figures_dir:
-        from analysis.visualize import generate_all_visualizations
-        generate_all_visualizations(df_binned, figures_dir)
-    
-    return results
+    logger.info(f"Analysis complete. Results saved to {output_path}")
+    return final_results

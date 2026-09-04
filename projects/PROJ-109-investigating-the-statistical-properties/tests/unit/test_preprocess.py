@@ -1,116 +1,140 @@
-"""
-Unit tests for the preprocessing module.
-"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import tempfile
 import json
+import yaml
 
-# Import the function to test
-from code.data.preprocess import filter_halos_by_particles, load_schema, validate_schema
+# Import the functions to test
+from code.data.preprocess import (
+    filter_halos_by_particles,
+    load_schema,
+    validate_schema,
+    stream_write_parquet,
+    run_preprocessing_pipeline
+)
 
-class TestFilterHalosByParticles:
-    """Tests for filter_halos_by_particles function."""
+@pytest.fixture
+def sample_halo_data():
+    """Create a sample DataFrame with halo data."""
+    data = {
+        'mass': [1e10, 1e11, 1e12, 1e9, 5e11],
+        'position': [[0, 0, 0], [10, 10, 10], [20, 20, 20], [5, 5, 5], [15, 15, 15]],
+        'velocity': [[100, 100, 100], [200, 200, 200], [300, 300, 300], [50, 50, 50], [250, 250, 250]],
+        'particle_count': [100, 400, 500, 50, 350]
+    }
+    return pd.DataFrame(data)
 
-    def test_filter_halos_300_particles(self):
-        """Test that halos with < 300 particles are removed."""
-        # Create a mock dataframe
-        data = {
-            'mass': [1e10, 1e11, 1e12, 1e13],
-            'particle_count': [100, 299, 300, 5000],
-            'position': [[0,0,0], [1,1,1], [2,2,2], [3,3,3]]
-        }
-        df = pd.DataFrame(data)
+@pytest.fixture
+def temp_schema_file(tmp_path):
+    """Create a temporary JSON schema file for testing."""
+    schema = {
+        "type": "object",
+        "properties": {
+            "mass": {"type": "number"},
+            "position": {"type": "array", "items": {"type": "number"}},
+            "velocity": {"type": "array", "items": {"type": "number"}},
+            "particle_count": {"type": "integer"}
+        },
+        "required": ["mass", "position", "velocity", "particle_count"]
+    }
+    schema_path = tmp_path / "test_schema.json"
+    with open(schema_path, 'w') as f:
+        json.dump(schema, f)
+    return str(schema_path)
 
-        # Apply filter
-        filtered_df = filter_halos_by_particles(df, min_particles=300)
+def test_filter_halos_300_particles(sample_halo_data):
+    """Test that filter_halos_by_particles correctly filters halos with < 300 particles."""
+    filtered_df = filter_halos_by_particles(sample_halo_data, min_particles=300)
+    
+    # Check that all remaining halos have >= 300 particles
+    assert all(filtered_df['particle_count'] >= 300)
+    
+    # Check that we removed the expected halos (100 and 50 particle counts)
+    assert len(filtered_df) == 3
+    
+    # Verify the specific halos that should remain
+    remaining_counts = set(filtered_df['particle_count'].tolist())
+    assert remaining_counts == {400, 500, 350}
 
-        # Assertions
-        assert len(filtered_df) == 2, f"Expected 2 rows, got {len(filtered_df)}"
-        assert filtered_df['particle_count'].min() >= 300, "Minimum particle count should be >= 300"
-        assert 300 in filtered_df['particle_count'].values, "Row with 300 particles should be kept"
-        assert 5000 in filtered_df['particle_count'].values, "Row with 5000 particles should be kept"
+def test_filter_halos_no_removal(sample_halo_data):
+    """Test filtering with a threshold that removes nothing."""
+    filtered_df = filter_halos_by_particles(sample_halo_data, min_particles=50)
+    assert len(filtered_df) == len(sample_halo_data)
+    assert all(filtered_df['particle_count'] >= 50)
 
-    def test_filter_halos_all_removed(self):
-        """Test behavior when all halos are below threshold."""
-        data = {
-            'mass': [1e10, 1e11],
-            'particle_count': [100, 200],
-            'position': [[0,0,0], [1,1,1]]
-        }
-        df = pd.DataFrame(data)
+def test_filter_halos_all_removed(sample_halo_data):
+    """Test filtering with a threshold that removes everything."""
+    filtered_df = filter_halos_by_particles(sample_halo_data, min_particles=600)
+    assert len(filtered_df) == 0
 
-        filtered_df = filter_halos_by_particles(df, min_particles=300)
+def test_filter_halos_missing_column(sample_halo_data):
+    """Test that filtering raises an error if particle_count column is missing."""
+    df_no_col = sample_halo_data.drop(columns=['particle_count'])
+    with pytest.raises(ValueError, match="Input DataFrame must contain 'particle_count' column"):
+        filter_halos_by_particles(df_no_col)
 
-        assert len(filtered_df) == 0, "Expected empty dataframe"
+def test_load_schema(temp_schema_file):
+    """Test loading a JSON schema."""
+    schema = load_schema(temp_schema_file)
+    assert 'type' in schema
+    assert 'properties' in schema
+    assert schema['type'] == 'object'
 
-    def test_filter_halos_none_removed(self):
-        """Test behavior when all halos are above threshold."""
-        data = {
-            'mass': [1e12, 1e13],
-            'particle_count': [301, 5000],
-            'position': [[0,0,0], [1,1,1]]
-        }
-        df = pd.DataFrame(data)
+def test_validate_schema_valid(temp_schema_file, sample_halo_data):
+    """Test validating a valid DataFrame against a schema."""
+    schema = load_schema(temp_schema_file)
+    result = validate_schema(sample_halo_data, schema)
+    assert result is True
 
-        filtered_df = filter_halos_by_particles(df, min_particles=300)
+def test_validate_schema_invalid_structure(temp_schema_file):
+    """Test validation fails for invalid data structure."""
+    # Create data with wrong types
+    invalid_data = pd.DataFrame({
+        'mass': ['not a number'],
+        'position': ['not', 'an', 'array'],
+        'velocity': ['not', 'an', 'array'],
+        'particle_count': ['not', 'an', 'integer']
+    })
+    schema = load_schema(temp_schema_file)
+    with pytest.raises(Exception):  # jsonschema.ValidationError or similar
+        validate_schema(invalid_data, schema)
 
-        assert len(filtered_df) == 2, "Expected 2 rows"
-        assert filtered_df['particle_count'].min() >= 300
+def test_stream_write_parquet(sample_halo_data, tmp_path):
+    """Test writing DataFrame to Parquet file."""
+    output_path = tmp_path / "test_output.parquet"
+    stream_write_parquet(sample_halo_data, str(output_path), chunk_size=2)
+    
+    # Verify file exists
+    assert output_path.exists()
+    
+    # Read back and verify content
+    df_read = pd.read_parquet(output_path)
+    assert len(df_read) == len(sample_halo_data)
+    assert list(df_read.columns) == ['mass', 'position', 'velocity', 'particle_count']
 
-class TestSchemaValidation:
-    """Tests for schema loading and validation."""
-
-    def test_load_schema(self):
-        """Test loading a valid schema."""
-        # Create a temporary schema file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            schema = {
-                "type": "object",
-                "properties": {
-                    "particle_count": {"type": "integer"}
-                },
-                "required": ["particle_count"]
-            }
-            json.dump(schema, f)
-            temp_path = f.name
-
-        try:
-            loaded = load_schema(temp_path)
-            assert loaded is not None
-            assert "properties" in loaded
-        finally:
-            os.remove(temp_path)
-
-    def test_validate_schema_success(self):
-        """Test successful validation."""
-        schema = {
-            "type": "object",
-            "properties": {
-                "particle_count": {"type": "integer", "minimum": 0}
-            },
-            "required": ["particle_count"]
-        }
-        
-        df = pd.DataFrame({"particle_count": [300, 400]})
-        assert validate_schema(df, schema) is True
-
-    def test_validate_schema_failure(self):
-        """Test validation failure."""
-        schema = {
-            "type": "object",
-            "properties": {
-                "particle_count": {"type": "integer", "minimum": 0}
-            },
-            "required": ["particle_count"]
-        }
-        
-        # Create a row that violates the schema (if we could pass a dict that doesn't match)
-        # Since validate_schema takes a DF and converts to dict, we test the logic.
-        # Actually, jsonschema.validate raises on failure.
-        df = pd.DataFrame({"particle_count": ["string"]}) # Type mismatch
-        
-        with pytest.raises(Exception): # jsonschema.ValidationError
-            validate_schema(df, schema)
+def test_run_preprocessing_pipeline(sample_halo_data, temp_schema_file, tmp_path):
+    """Test the full preprocessing pipeline."""
+    # Save sample data to a temporary parquet file to simulate input
+    input_path = tmp_path / "input.parquet"
+    sample_halo_data.to_parquet(input_path)
+    
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+    
+    result_path = run_preprocessing_pipeline(
+        input_path=str(input_path),
+        output_dir=str(output_dir),
+        min_particles=300,
+        schema_path=temp_schema_file
+    )
+    
+    # Verify output file exists
+    assert Path(result_path).exists()
+    
+    # Verify content
+    df_out = pd.read_parquet(result_path)
+    assert all(df_out['particle_count'] >= 300)
+    assert len(df_out) == 3
+    assert list(df_out.columns) == ['mass', 'position', 'velocity', 'particle_count']

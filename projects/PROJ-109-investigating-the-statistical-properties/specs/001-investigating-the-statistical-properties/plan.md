@@ -94,7 +94,7 @@ projects/PROJ-109-investigating-the-statistical-properties/
 | **Memory-Mapped Particle Stream** | Full particle catalog for overdensity (FR-003) exceeds RAM. | Loading all particles into memory for cKDTree construction exceeds available RAM capacity. |
 | **Subsampled Plummer-Softened Potential** | Direct N-body potential summation is O(N²) and too slow. | Simplified uniform sphere approximation (U ≈ -G M²/R) is physically incorrect and invalidates spin measurement validity. |
 | **Controlled Deviations** | Synthetic data mimicking NFW perfectly cannot test deviation detection. | Perfectly matching NFW would make the pipeline blind to deviations (tautology). |
-| **Multiple Hypothesis Correction** | Multiple tests (3 metrics × 3 bins) require FWER control. | Uncorrected p-values inflate Type I error. |
+| **Multiple Hypothesis Correction** | Multiple tests (multiple metrics × multiple bins) require FWER control. | Uncorrected p-values inflate Type I error. |
 
 ## Phases
 
@@ -116,7 +116,12 @@ projects/PROJ-109-investigating-the-statistical-properties/
 6. **Concentration (FR-006)**: Fit NFW profile via `scipy.optimize.curve_fit`. Log convergence status (success/fail). Track **Convergence Rate** (SC-004).
 
 ### Phase 2: Statistical Analysis (FR-007 to FR-011)
-1. **Binning**: Bin by Mass (3 bins) and Environment (Low/High, Δ < 200 vs ≥ 200).
+1. **Binning**: Bin by Mass (multiple bins)
+
+The specific value to remove/generalize: 'multiple'
+
+Rewritten passage:
+Bin by Mass (multiple bins) and Environment (Low/High, Δ < 200 vs ≥ 200).
 2. **KS Tests**: Two-sample KS tests for Shape, Spin, Concentration across bins.
 3. **Correction**: Apply Benjamini-Hochberg correction for multiple comparisons.
 4. **Spearman**: Compute mass-concentration correlation.

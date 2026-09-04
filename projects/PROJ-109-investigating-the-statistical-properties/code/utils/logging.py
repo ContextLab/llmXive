@@ -1,40 +1,36 @@
-"""
-Logging infrastructure for the pipeline.
-"""
 import logging
 import os
 from pathlib import Path
-
 from config import LOG_LEVEL, LOG_FORMAT, LOGS_DIR
 
 def setup_logging():
-    """Configure global logging."""
-    log_file = LOGS_DIR / "pipeline.log"
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-
-    # Create logger
-    logger = logging.getLogger()
-    logger.setLevel(getattr(logging, LOG_LEVEL))
-
-    # Clear existing handlers to avoid duplicates on re-import
-    logger.handlers = []
-
-    # File handler
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.DEBUG)
+    """
+    Configure the root logger.
+    """
+    # Ensure logs directory exists
+    log_path = Path(LOGS_DIR)
+    log_path.mkdir(parents=True, exist_ok=True)
+    
+    # Define handlers
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(LOG_LEVEL)
+    
+    file_handler = logging.FileHandler(log_path / "pipeline.log")
+    file_handler.setLevel(LOG_LEVEL)
+    
+    # Define formatter
     formatter = logging.Formatter(LOG_FORMAT)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    console_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(LOG_LEVEL)
+    root_logger.addHandler(console_handler)
+    root_logger.addHandler(file_handler)
 
 def get_logger(name: str) -> logging.Logger:
-    """Get a logger instance with the given name."""
+    """
+    Get a logger with the specified name.
+    """
     return logging.getLogger(name)
-
-# Initialize logging on module import
-setup_logging()

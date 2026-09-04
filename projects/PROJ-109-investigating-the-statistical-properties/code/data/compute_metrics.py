@@ -1,314 +1,309 @@
-"""
-compute_metrics.py
-
-Implements local overdensity calculation and other halo metrics.
-Uses cKDTree with periodic boundary wrapping and sparse/subsampled strategies
-as mandated by Plan Phase 1 (Complexity Tracking) and FR-003.
-"""
 import os
 import logging
+import json
 import numpy as np
 from scipy.spatial import cKDTree
+from scipy.optimize import curve_fit
 from pathlib import Path
-from typing import Dict, Any, Optional, Generator, Tuple
+from typing import Dict, Any, Optional, Generator, Tuple, List
 
-# Import from existing project modules
 from utils.logging import get_logger
-from data.preprocess import stream_write_parquet, load_halo_data
-from data.synthetic_generator import generate_synthetic_halos
-from config import (
-    BOX_SIZE_MPC, 
-    RANDOM_SEED, 
-    OVERDENSITY_RADIUS_MPC, 
-    SUBSAMPLE_FRACTION
-)
+from config import BOX_SIZE, RHO_CRITICAL, BULLOCK_C200, BULLOCK_ALPHA
 
+# Configure logger
 logger = get_logger(__name__)
 
-def _apply_periodic_wrap(coords: np.ndarray, box_size: float) -> np.ndarray:
-    """
-    Apply periodic boundary wrapping to coordinates.
-    Ensures coordinates are within [0, box_size).
-    """
-    return np.mod(coords, box_size)
+# Constants for NFW fitting
+G = 4.302e-6  # kpc km^2 s^-2 Msol^-1
 
-def _build_periodic_kdtree(
-    positions: np.ndarray, 
-    box_size: float
-) -> cKDTree:
+def nfw_profile(r, rs, vrs):
     """
-    Build a cKDTree with periodic boundary conditions.
-    Note: cKDTree does not natively support periodic boundaries in all versions,
-    so we use the 'boxsize' parameter if available, or implement a manual wrap
-    for nearest neighbor queries if necessary.
+    NFW profile function for fitting.
+    r: radius
+    rs: scale radius
+    vrs: velocity scale at rs
     """
-    # scipy.spatial.cKDTree supports boxsize for periodic queries in newer versions
-    # If boxsize is not supported, we fall back to manual wrapping for nearest neighbors
-    try:
-        tree = cKDTree(positions, boxsize=box_size)
-        logger.debug("cKDTree created with native periodic support.")
-    except TypeError:
-        # Fallback for older scipy versions
-        logger.warning("cKDTree does not support boxsize. Using manual periodic wrapping for queries.")
-        tree = cKDTree(positions)
-    return tree
+    x = r / rs
+    return vrs / (x * (1 + x)**2)
 
-def calculate_local_overdensity(
-    positions: np.ndarray,
-    box_size: float,
-    radius: float,
-    seed: int = 42
-) -> np.ndarray:
+def calculate_local_overdensity(positions: np.ndarray, particle_masses: np.ndarray, 
+                                center: Optional[np.ndarray] = None) -> Dict[str, float]:
     """
-    Calculate local overdensity (delta) for each particle/halo center.
-    
-    Uses a spherical top-hat filter of radius `radius`.
-    Implements Memory-Mapped Sparse Particle Stream and Subsampled strategy.
-    
-    Args:
-        positions: Array of shape (N, 3) with particle/halo positions.
-        box_size: Simulation box size in Mpc (from config).
-        radius: Spherical top-hat radius in Mpc.
-        seed: Random seed for subsampling.
-        
-    Returns:
-        Array of overdensity values (delta) for each point.
+    Calculate local overdensity using cKDTree with periodic boundary wrapping.
     """
-    logger.info(f"Starting overdensity calculation with radius={radius} Mpc, box={box_size} Mpc.")
+    if center is None:
+        center = np.mean(positions, axis=0)
     
-    # 1. Subsample Strategy (Plan Phase 1, Complexity Tracking)
-    # To handle memory constraints, we subsample the particle stream.
-    # This is statistically valid for large-scale structure (5 Mpc radius) 
-    # provided the subsample density is sufficient to resolve the mean density.
-    n_total = len(positions)
-    n_sample = int(n_total * SUBSAMPLE_FRACTION)
+    # Wrap positions relative to center
+    wrapped_positions = (positions - center + BOX_SIZE/2) % BOX_SIZE - BOX_SIZE/2
     
-    if n_sample < n_total:
-        logger.info(f"Subsampling: {n_total} -> {n_sample} particles (fraction={SUBSAMPLE_FRACTION}).")
-        rng = np.random.default_rng(seed)
-        indices = rng.choice(n_total, size=n_sample, replace=False)
-        sampled_positions = positions[indices]
-    else:
-        sampled_positions = positions
-        
-    # 2. Wrap coordinates
-    wrapped_positions = _apply_periodic_wrap(sampled_positions, box_size)
+    tree = cKDTree(wrapped_positions, boxsize=BOX_SIZE)
     
-    # 3. Build KDTree
-    tree = _build_periodic_kdtree(wrapped_positions, box_size)
+    # Find neighbors within 5 Mpc/h
+    radius = 5.0
+    indices = tree.query_ball_point(np.zeros(3), radius)
     
-    # 4. Query neighbors within radius
-    # count_neighbors returns the number of points within radius for each point
-    # We use query_ball_point which supports boxsize if the tree was built with it
-    counts = np.zeros(len(sampled_positions), dtype=int)
+    total_mass = 0.0
+    for idx in indices:
+        total_mass += particle_masses[idx]
+    
+    volume = (4.0/3.0) * np.pi * (radius**3)
+    local_density = total_mass / volume
+    overdensity = local_density / RHO_CRITICAL
+    
+    return {"overdensity": overdensity, "local_density": local_density}
+
+def compute_shape_from_inertia_tensor(particle_positions: np.ndarray, 
+                                      particle_masses: np.ndarray) -> float:
+    """
+    Compute shape parameter s = c/a from inertia tensor.
+    """
+    if len(particle_positions) < 3:
+        raise ValueError("Need at least 3 particles to compute inertia tensor")
+    
+    # Center the positions
+    center = np.average(particle_positions, axis=0, weights=particle_masses)
+    centered_positions = particle_positions - center
+    
+    # Compute inertia tensor
+    I = np.zeros((3, 3))
+    for i in range(3):
+        for j in range(3):
+            sum_term = 0.0
+            for k, pos in enumerate(centered_positions):
+                sum_term += particle_masses[k] * pos[i] * pos[j]
+            I[i, j] = sum_term
+    
+    # Eigenvalues
+    eigenvalues = np.linalg.eigvalsh(I)
+    eigenvalues = np.sort(eigenvalues)
+    
+    # s = c/a (smallest / largest)
+    if eigenvalues[-1] == 0:
+        return 0.0
+    
+    s = eigenvalues[0] / eigenvalues[-1]
+    return float(np.clip(s, 0.0, 1.0))
+
+def compute_spin_parameter(particle_positions: np.ndarray, 
+                           particle_masses: np.ndarray,
+                           particle_velocities: np.ndarray) -> float:
+    """
+    Compute spin parameter λ using subsampled Plummer-softened potential.
+    """
+    n_particles = len(particle_positions)
+    if n_particles == 0:
+        raise ValueError("No particles to compute spin parameter")
+    
+    # Subsample if necessary
+    n_sample = min(500, n_particles)
+    indices = np.random.choice(n_particles, size=n_sample, replace=False)
+    
+    pos = particle_positions[indices]
+    mass = particle_masses[indices]
+    vel = particle_velocities[indices]
+    
+    # Center of mass
+    center_mass = np.average(pos, axis=0, weights=mass)
+    pos_centered = pos - center_mass
+    
+    # Total mass
+    M = np.sum(mass)
+    
+    # Angular momentum J
+    J = 0.0
+    for i in range(n_sample):
+        r = pos_centered[i]
+        v = vel[i]
+        J += mass[i] * np.linalg.norm(np.cross(r, v))
+    
+    # Kinetic energy
+    E_kin = 0.5 * np.sum(mass * np.sum(vel**2, axis=1))
+    
+    # Potential energy (subsampled Plummer)
+    epsilon = 0.01 * np.std(np.linalg.norm(pos_centered, axis=1))
+    E_pot = 0.0
+    for i in range(n_sample):
+        for j in range(i+1, n_sample):
+            r_ij = np.linalg.norm(pos_centered[i] - pos_centered[j])
+            E_pot -= G * mass[i] * mass[j] / np.sqrt(r_ij**2 + epsilon**2)
+    
+    E_total = E_kin + E_pot
+    
+    if E_total == 0:
+        return 0.0
+    
+    # Spin parameter
+    lambda_val = J * np.sqrt(np.abs(E_total)) / (G * M**2.5)
+    return float(np.clip(lambda_val, 0.0, 1.0))
+
+def compute_concentration_from_nfw_fit(radii: np.ndarray, 
+                                       density_profile: np.ndarray) -> Optional[float]:
+    """
+    Fit NFW profile and return concentration parameter.
+    """
+    if len(radii) < 3:
+        return None
+    
+    # Filter out zero or negative radii
+    valid = (radii > 0) & (density_profile > 0)
+    if np.sum(valid) < 3:
+        return None
+    
+    r_fit = radii[valid]
+    rho_fit = density_profile[valid]
     
     try:
-        # Attempt native periodic query
-        neighbors = tree.query_ball_point(wrapped_positions, r=radius)
-        counts = np.array([len(n) for n in neighbors])
+        # Initial guess for rs and vrs
+        p0 = [0.5 * np.median(r_fit), np.median(rho_fit)]
+        
+        bounds = ([1e-3, 1e-3], [100.0, 1e6])
+        
+        popt, pcov = curve_fit(nfw_profile, r_fit, rho_fit, p0=p0, bounds=bounds, maxfev=5000)
+        
+        rs = popt[0]
+        # Concentration c = R_vir / rs (assume R_vir ~ 1.0 for normalized units)
+        c = 1.0 / rs if rs > 0 else None
+        
+        return float(c) if c is not None and c > 0 else None
     except Exception as e:
-        logger.error(f"Periodic query failed: {e}. Falling back to manual wrapping.")
-        # Manual fallback: replicate box to handle periodicity
-        # This is expensive, so we only do it if necessary and on the subsample
-        # For 5 Mpc radius, we might need to check 3x3x3 boxes
-        # But since we subsampled, we hope the density is low enough to skip complex replication
-        # or we simply accept the edge effects for the subsample if the box is large.
-        # Given the constraint, we assume the box is large enough that edge effects 
-        # are minimized on the subsample, or we rely on the tree's boxsize if available.
-        # If the tree didn't have boxsize, we must manually handle it.
-        # For this implementation, if boxsize failed, we assume the user's box is large 
-        # relative to radius, or we accept the approximation.
-        # A robust manual implementation would replicate the box, but that's memory intensive.
-        # We rely on the subsample and the fact that 5 Mpc is small compared to typical TNG100 box (100+ Mpc).
-        neighbors = tree.query_ball_point(wrapped_positions, r=radius)
-        counts = np.array([len(n) for n in neighbors])
+        logger.warning(f"NFW fit failed: {e}")
+        return None
 
-    # 5. Calculate Overdensity
-    # Mean number density in the subsample
-    volume = (4.0/3.0) * np.pi * (radius ** 3)
-    # The mean density in the subsample should be close to the global mean
-    # delta = (n_local / n_mean) - 1
-    # n_mean = N_sample / V_box
-    # But for local overdensity, we compare local count to expected count in that volume
-    # Expected count = (N_total / V_box) * volume
-    # However, we only have N_sample. We scale back to full density if we subsampled.
-    
-    mean_density = n_total / (box_size ** 3)
-    expected_count = mean_density * volume
-    
-    if expected_count == 0:
-        logger.warning("Expected count is zero. Check box size and radius.")
-        overdensities = np.zeros_like(counts, dtype=float)
-    else:
-        overdensities = (counts / expected_count) - 1.0
-        
-    logger.info(f"Overdensity calculation complete. Mean delta: {np.mean(overdensities):.4f}")
-    
-    return overdensities
-
-def compute_halo_metrics(
-    halo_data: Dict[str, Any],
-    particle_positions: np.ndarray,
-    box_size: float,
-    radius: float = OVERDENSITY_RADIUS_MPC
-) -> Dict[str, np.ndarray]:
+def compute_halo_metrics(halo_data: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Compute metrics for a batch of halos.
-    
-    Args:
-        halo_data: Dictionary containing halo properties (mass, position, etc.).
-        particle_positions: Array of particle positions associated with the halos.
-        box_size: Simulation box size.
-        radius: Overdensity radius.
-        
-    Returns:
-        Dictionary of computed metrics.
+    Compute all structural metrics for a single halo.
     """
-    metrics = {}
-    
-    # 1. Local Overdensity
-    # We assume particle_positions are the particles within the halo or the field
-    # For local overdensity of the halo center, we use the halo center position
-    # and query the surrounding field particles.
-    # If particle_positions is the full field, we compute overdensity for all,
-    # then map to halos.
-    # For this task, we compute overdensity for the halo centers.
-    
-    if 'center' in halo_data:
-        centers = np.array(halo_data['center'])
-        # Compute overdensity at centers
-        # We need the full field particle stream for this.
-        # Assuming particle_positions is the field stream.
-        overdensities = calculate_local_overdensity(
-            particle_positions, 
-            box_size, 
-            radius, 
-            seed=RANDOM_SEED
-        )
-        # This is a simplified mapping. In a real pipeline, we would map 
-        # the overdensity field to the halo centers.
-        # For now, we return the field overdensities or a sample.
-        metrics['local_overdensity'] = overdensities
-    else:
-        logger.warning("Halo center not found. Skipping overdensity for this batch.")
-        metrics['local_overdensity'] = np.array([])
-        
-    return metrics
-
-def run_compute_metrics_pipeline(
-    input_path: str,
-    output_path: str,
-    use_synthetic: bool = False
-) -> None:
-    """
-    Main pipeline to compute metrics on halo data.
-    
-    Args:
-        input_path: Path to input halo data (HDF5 or Parquet).
-        output_path: Path to save results.
-        use_synthetic: If True, use synthetic data generator as fallback.
-    """
-    logger.info(f"Starting metrics computation pipeline. Input: {input_path}")
-    
-    # 1. Load Data
-    if use_synthetic:
-        logger.info("Using synthetic data generator (fallback).")
-        # Generate synthetic data
-        synthetic_data = generate_synthetic_halos(
-            n_halos=1000,
-            seed=RANDOM_SEED,
-            output_path=input_path
-        )
-        particle_positions = synthetic_data.get('particle_positions', np.array([]))
-        halo_data = synthetic_data.get('halos', {})
-    else:
-        # Load from file
-        if not os.path.exists(input_path):
-            logger.error(f"Input file not found: {input_path}. Cannot proceed.")
-            raise FileNotFoundError(f"Input file not found: {input_path}")
-        
-        # Use streaming to load particles
-        # We assume the file contains particle positions and halo info
-        # For simplicity, we load the whole thing into memory if it fits, 
-        # otherwise we stream.
-        # Given the constraints, we assume the input is the filtered parquet from T014
-        # which contains halo centers and possibly particle counts, but not full particle positions.
-        # The task requires "Memory-Mapped Sparse Particle Stream".
-        # We will simulate this by loading a subset or assuming the input has the positions.
-        
-        # For this implementation, we assume the input file has a 'positions' column
-        # or we load from a separate particle file.
-        # Let's assume the input_path is the filtered halos, and we need to load particles separately.
-        # But the task says "process on synthetic/filtered particle stream".
-        # We will assume the input_path is the particle stream file.
-        
-        # Load particles
-        try:
-            import pandas as pd
-            df = pd.read_parquet(input_path)
-            if 'position_x' in df.columns and 'position_y' in df.columns and 'position_z' in df.columns:
-                positions = np.vstack([df['position_x'], df['position_y'], df['position_z']]).T
-            elif 'position' in df.columns:
-                positions = np.array(df['position'].tolist())
-            else:
-                logger.error("No position data found in input file.")
-                raise ValueError("No position data found in input file.")
-            
-            particle_positions = positions
-            halo_data = {
-                'center': np.vstack([df['position_x'], df['position_y'], df['position_z']]).T
-            }
-        except Exception as e:
-            logger.error(f"Failed to load input file: {e}")
-            raise
-    
-    # 2. Compute Metrics
-    metrics = compute_halo_metrics(
-        halo_data,
-        particle_positions,
-        BOX_SIZE_MPC,
-        OVERDENSITY_RADIUS_MPC
-    )
-    
-    # 3. Save Results
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save as a simple text or JSON for now, or extend to Parquet
-    import json
     results = {
-        'overdensity_mean': float(np.mean(metrics['local_overdensity'])) if len(metrics['local_overdensity']) > 0 else 0.0,
-        'overdensity_std': float(np.std(metrics['local_overdensity'])) if len(metrics['local_overdensity']) > 0 else 0.0,
-        'n_points': len(metrics['local_overdensity']),
-        'radius_mpc': OVERDENSITY_RADIUS_MPC,
-        'box_size_mpc': BOX_SIZE_MPC,
-        'subsample_fraction': SUBSAMPLE_FRACTION,
-        'validity_note': (
-            "The 5 Mpc radius calculation remains statistically valid on the subsample "
-            "because the subsample fraction (default 10%) preserves the mean density "
-            "of the full field. The variance of the estimator increases with lower "
-            "subsample fraction, but for large-scale structure (5 Mpc), the signal-to-noise "
-            "ratio remains sufficient to detect overdensities > 1. This is consistent with "
-            "Plan Phase 1 Complexity Tracking which mandates subsampling for memory constraints."
-        )
+        "halo_id": halo_data.get("halo_id", "unknown"),
+        "shape": None,
+        "spin": None,
+        "concentration": None,
+        "overdensity": None,
+        "fit_success": False
     }
     
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    try:
+        positions = halo_data.get("particle_positions")
+        masses = halo_data.get("particle_masses")
+        velocities = halo_data.get("particle_velocities")
         
-    logger.info(f"Metrics computation complete. Results saved to {output_path}")
+        if positions is None or masses is None:
+            logger.warning(f"Missing particle data for halo {results['halo_id']}")
+            return results
+        
+        # Shape
+        results["shape"] = compute_shape_from_inertia_tensor(positions, masses)
+        
+        # Spin
+        if velocities is not None:
+            results["spin"] = compute_spin_parameter(positions, masses, velocities)
+        
+        # Overdensity
+        center = np.average(positions, axis=0, weights=masses)
+        overdensity_result = calculate_local_overdensity(positions, masses, center)
+        results["overdensity"] = overdensity_result["overdensity"]
+        
+        # Concentration (NFW fit)
+        if "radii" in halo_data and "density_profile" in halo_data:
+            c = compute_concentration_from_nfw_fit(
+                halo_data["radii"], 
+                halo_data["density_profile"]
+            )
+            results["concentration"] = c
+            results["fit_success"] = (c is not None)
+        
+    except Exception as e:
+        logger.error(f"Error computing metrics for halo {results['halo_id']}: {e}")
+    
+    return results
+
+def run_compute_metrics_pipeline(input_path: str, output_path: str) -> Dict[str, Any]:
+    """
+    Main pipeline to compute metrics for all halos in input file.
+    Logs convergence statistics and saves to results/convergence_stats.json.
+    """
+    logger.info(f"Starting metrics computation pipeline for {input_path}")
+    
+    # Ensure results directory exists
+    results_dir = Path("results")
+    results_dir.mkdir(exist_ok=True)
+    stats_path = results_dir / "convergence_stats.json"
+    
+    total_halos = 0
+    successful_fits = 0
+    failed_fits = 0
+    
+    # Process input (assuming parquet or similar structured format)
+    try:
+        import pandas as pd
+        df = pd.read_parquet(input_path)
+    except Exception as e:
+        logger.error(f"Failed to read input file {input_path}: {e}")
+        raise
+    
+    metrics_results = []
+    
+    for idx, row in df.iterrows():
+        total_halos += 1
+        
+        # Construct halo data dict
+        halo_data = {
+            "halo_id": row.get("halo_id", idx),
+            "particle_positions": row.get("particle_positions"),
+            "particle_masses": row.get("particle_masses"),
+            "particle_velocities": row.get("particle_velocities"),
+            "radii": row.get("radii"),
+            "density_profile": row.get("density_profile")
+        }
+        
+        metrics = compute_halo_metrics(halo_data)
+        metrics_results.append(metrics)
+        
+        if metrics["fit_success"]:
+            successful_fits += 1
+        else:
+            failed_fits += 1
+        
+        # Log every 1000 halos
+        if total_halos % 1000 == 0:
+            logger.info(f"Processed {total_halos} halos...")
+    
+    # Calculate and log convergence stats
+    success_rate = (successful_fits / total_halos * 100) if total_halos > 0 else 0.0
+    logger.info(f"CONVERGENCE: {success_rate:.2f}% success, {failed_fits} failed fits")
+    
+    # Save stats to JSON
+    stats = {
+        "total_halos": total_halos,
+        "successful_fits": successful_fits,
+        "failed_fits": failed_fits,
+        "success_rate_percent": round(success_rate, 2)
+    }
+    
+    with open(stats_path, 'w') as f:
+        json.dump(stats, f, indent=2)
+    
+    logger.info(f"Convergence stats saved to {stats_path}")
+    
+    # Save full metrics results
+    try:
+        metrics_df = pd.DataFrame(metrics_results)
+        metrics_df.to_parquet(output_path, index=False)
+        logger.info(f"Metrics saved to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save metrics: {e}")
+        raise
+    
+    return stats
 
 if __name__ == "__main__":
-    # Example usage
-    input_file = "data/processed/filtered_halos.parquet"
-    output_file = "results/metrics/overdensity_stats.json"
+    import sys
+    if len(sys.argv) < 3:
+        print("Usage: python compute_metrics.py <input_parquet> <output_parquet>")
+        sys.exit(1)
     
-    # Check if input exists, if not, generate synthetic for demo
-    use_synthetic = not os.path.exists(input_file)
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
     
-    if use_synthetic:
-        logger.warning(f"Input file {input_file} not found. Generating synthetic data.")
-        # Create a dummy input file path for the generator
-        synthetic_input = "data/raw/synthetic_halos.h5"
-        run_compute_metrics_pipeline(synthetic_input, output_file, use_synthetic=True)
-    else:
-        run_compute_metrics_pipeline(input_file, output_file, use_synthetic=False)
+    run_compute_metrics_pipeline(input_file, output_file)

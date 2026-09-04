@@ -127,11 +127,7 @@ def run_data_pipeline():
     success_illustris = fetch_illustris_halos(illustris_path)
 
     if not success_illustris:
-        # Check specifically for 403 or Timeout conditions to trigger the specific log message
-        # The fetch function logs the specific error, but we need to trigger the "DATA_GAP" message here
-        # as per the task requirement for the pipeline flow.
-        # We assume fetch_illustris_halos returned False due to a data gap (403, Timeout, 404)
-        # rather than a logic error, as per the task description.
+        # Log the specific data gap message as required by T016
         logger.info("DATA_GAP: Real data unavailable, switching to synthetic")
         generate_synthetic_halos(illustris_path)
         logger.info("Synthetic IllustrisTNG data generated.")
@@ -143,6 +139,7 @@ def run_data_pipeline():
     success_millennium = fetch_millennium_halos(millennium_path)
 
     if not success_millennium:
+        # Log the specific data gap message as required by T016
         logger.info("DATA_GAP: Real data unavailable, switching to synthetic")
         generate_synthetic_halos(millennium_path)
         logger.info("Synthetic Millennium data generated.")

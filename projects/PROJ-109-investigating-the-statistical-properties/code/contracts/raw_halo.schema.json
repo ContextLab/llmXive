@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "properties": {
+    "mass": {
+      "type": "number",
+      "description": "Halo mass in solar masses"
+    },
+    "position": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "3D position coordinates (x, y, z)"
+    },
+    "velocity": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3,
+      "description": "3D velocity components (vx, vy, vz)"
+    },
+    "particle_count": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of particles in the halo"
+    }
+  },
+  "required": ["mass", "position", "velocity", "particle_count"]
+}

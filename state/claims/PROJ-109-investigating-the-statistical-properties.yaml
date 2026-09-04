@@ -2342,3 +2342,353 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T18:41:41Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: halo filtering threshold 300 particles
+  claim_id: c_aac28606
+  context: "Implement halo filtering logic in code/data/preprocess.py to retain only\
+    \ halos with \u2265300 particles. Verification: Assert output dataset contains\
+    \ only rows where particle_count >= 300."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Retain only halos with \u2265300 particles."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:47:24Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: overdensity calculation spherical top-hat radius 5 Mpc h-1
+  claim_id: c_bcc228c7
+  context: "Implement local overdensity calculation in code/data/compute_metrics.py\
+    \ using cKDTree with periodic boundary wrapping. Specification: Use a spherical\
+    \ top-hat of 5 Mpc h\u207B\xB9 radius (constant R_TOP_HAT = 5.0)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use a spherical top-hat of 5 Mpc h\u207B\xB9 radius for local overdensity\
+    \ calculation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:47:42Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: spin parameter calculation subsample 500 particles
+  claim_id: c_665e7ba2
+  context: "Due to O(N\xB2) computational complexity of full direct summation being\
+    \ infeasible on CPU-only CI, this task implements a Subsampled Plummer-Softened\
+    \ Potential using N=500 random particles per halo. Algorithm: Randomly select\
+    \ N=500 particles from the halo's particle set (or all if <500)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate potential energy using a subsample of 500 particles per halo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:48:20Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Plummer softening parameter epsilon 0.01 halo radius
+  claim_id: c_52b8ce9e
+  context: "Calculate potential energy E_pot using the Plummer-softened formula: E_pot\
+    \ = -G * \u03A3_i \u03A3_j (m_i * m_j) / sqrt(r_ij\xB2 + \u03B5\xB2), where \u03B5\
+    \ = 0.01 * halo_radius."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Plummer softening parameter epsilon equal to 0.01 times halo radius.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:48:45Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction for multiple hypothesis testing
+  claim_id: c_e39d917e
+  context: Implement Benjamini-Hochberg correction for multiple hypothesis testing
+    across multiple KS tests (multiple metrics x multiple bins) in code/analysis/stats.py
+    (FR-009).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_for_multiple_hypothesis_testin
+  kind: entity_fact
+  raw_text: Perform Benjamini-Hochberg correction for multiple hypothesis testing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:49:14Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 analytic fit mass-concentration relation
+  claim_id: c_3a4365f6
+  context: 'Implement comparison against Bullock et al. (2001) analytic fit in code/analysis/stats.py.
+    Dependency: Requires parameters verified in T036A and fit function from T036B.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Bullock et al. (2001) analytic fit for mass-concentration relation
+    comparison.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:49:31Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: pipeline execution time limit 6 hours GitHub Actions free-tier
+  claim_id: c_7b0a60a3
+  context: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (limited cores, 7GB RAM) using the stratified
+    sample size defined in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute pipeline within 6 hours on GitHub Actions free-tier runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:49:56Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier runner memory 7GB
+  claim_id: c_629e591a
+  context: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (limited cores, 7GB RAM) using the stratified
+    sample size defined in code/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_runner_memory_7GB
+  kind: entity_fact
+  raw_text: GitHub Actions free-tier runner has 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:50:25Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction method configured for analysis
+  claim_id: c_5756aacb
+  context: T005A [P] Configure Benjamini-Hochberg correction method in code/config.py
+    as parameters for the analysis logic (See T033 for implementation).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_method_configured_for_analysis
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg correction method is configured as parameters for
+    the analysis logic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:52:27Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. (2001) parameters defined as constants
+  claim_id: c_ed04f6c8
+  context: 'T004D [P] [US1] Define Bullock et al. (2001) analytic fit parameters as
+    numerical constants in code/config.py (variables: BULLOCK_C200, BULLOCK_ALPHA).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bullock et al. (2001) analytic fit parameters are defined as numerical
+    constants in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:52:46Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic data generator output path
+  claim_id: c_64c33f03
+  context: 'Output: HDF5 file at data/raw/synthetic_halos.h5 with controlled deviations
+    (offset NFW concentration).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_generator_output_path
+  kind: entity_fact
+  raw_text: The synthetic data generator creates an HDF5 file at data/raw/synthetic_halos.h5.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:53:08Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Halo filtering threshold 300 particles
+  claim_id: c_1719ce94
+  context: "T013 [US1] Implement halo filtering logic in code/data/preprocess.py to\
+    \ retain only halos with \u2265300 particles."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The halo filtering logic retains only halos with 300 or more particles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:53:33Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Chunked streaming writer chunk size 10000
+  claim_id: c_47529cde
+  context: 'Note: Derived metrics (overdensity, shape, spin, concentration) are NOT
+    included in this US1 output. (chunk_size=10k, compression=snappy)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The chunked streaming writer saves filtered data with a chunk size of
+    10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:54:05Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Overdensity calculation top-hat radius 5 Mpc h-1
+  claim_id: c_6fa66297
+  context: "Specification: Use a spherical top-hat of 5 Mpc h\u207B\xB9 radius (constant\
+    \ R_TOP_HAT = 5.0)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The local overdensity calculation uses a spherical top-hat of 5 Mpc h\u207B\
+    \xB9 radius."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:54:05Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Spin parameter calculation subsample size 500
+  claim_id: c_c8b4eb83
+  context: "Due to O(N\xB2) computational complexity of full direct summation being\
+    \ infeasible on CPU-only CI, this task implements a Subsampled Plummer-Softened\
+    \ Potential using N=500 random particles per halo."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spin parameter calculation uses a subsample of 500 random particles
+    per halo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:54:34Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Plummer softening length 0.01 halo radius
+  claim_id: c_68b91951
+  context: "Calculate potential energy E_pot using the Plummer-softened formula: E_pot\
+    \ = -G * \u03A3_i \u03A3_j (m_i * m_j) / sqrt(r_ij\xB2 + \u03B5\xB2), where \u03B5\
+    \ = 0.01 * halo_radius"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plummer-softened potential formula uses a softening length epsilon
+    equal to 0.01 times the halo radius.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:55:02Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Spin parameter formula lambda J E M
+  claim_id: c_fdddb0d4
+  context: "Compute spin parameter \u03BB = J * |E|^(1/2) / (G * M^(5/2))."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spin parameter is calculated using the formula lambda = J * |E|^(1/2)
+    / (G * M^(5/2)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:56:56Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Mass binning environment threshold 200
+  claim_id: c_2d767c36
+  context: "Implement mass binning with specific boundaries across multiple orders\
+    \ of magnitude in stellar mass and environment binning (\u0394 < 200 vs \u2265\
+    \ 200) in code/analysis/stats.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mass binning uses an environment threshold of overdensity 200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:57:19Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours
+  claim_id: c_0143286f
+  context: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (limited cores, 7GB RAM) using the stratified
+    sample size defined in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline execution is required to complete within 6 hours on a GitHub
+    Actions free-tier runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:57:44Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution duration limit 21600 seconds
+  claim_id: c_da2827e7
+  context: 'Assertion: Assert duration < 21600s based on the generated results/timing.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_duration_limit_21600_seconds
+  kind: magnitude
+  raw_text: The pipeline execution duration is asserted to be less than 21,600 seconds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:58:04Z'

@@ -1,0 +1,36 @@
+T015:
+  c: false
+  h: 5b31517dbefccef9ff884a98395865c3f89e80f3883fb8fc8ad10c23b7317a5a
+  r: The provided `preprocess.py` defines helper functions (`load_schema`, `validate_schema`)
+    but the file is truncated before the implementation of `validate_schema` and there
+    is no code shown that calls `jsonschema.validate` on the filtered DataFrame. Consequently,
+    we cannot confirm that the schema is loaded and validation is performed after
+    filtering, as required. The task needs a concrete call to `jsonschema.validate`
+    (or equivalent) on the filtered data.
+T026:
+  c: false
+  h: ec7f3d0eff83a7927d7c3a22d84de824c67b3539610c7a2b744718ca1d79cea8
+  r: "The repository lacks the required `results/convergence_stats.json` file, and\
+    \ the shown portion of `code/data/compute_metrics.py` does not contain any code\
+    \ that logs a \u201CCONVERGENCE: X% success, Y failed fits\u201D message or aggregates\
+    \ such statistics. The implementation is incomplete and does not meet the task\
+    \ specification."
+T031:
+  c: false
+  h: 99f3fee4a6c76cef548dcc56c5cb6a061d23659c8af23aa419b07c2b52d86c1d
+  r: "The `code/analysis/stats.py` file references `RHO_CRITICAL` (and `ENVIRONMENT_THRESHOLD`)\
+    \ from `code/config.py`, but the required `code/config.py` file is missing, so\
+    \ the import and the explicit use of the critical density cannot work. Additionally,\
+    \ the environment binning relies on an undefined `ENVIRONMENT_THRESHOLD` rather\
+    \ than the hard\u2011coded \u0394\u202F=\u202F200 boundary required by the task.\
+    \ The next implementer must add a proper `code/config.py` defining `RHO_CRITICAL`\
+    \ (and set the threshold to 200) and ensure the mass\u2011binning uses the specified\
+    \ boundaries."
+T033:
+  c: false
+  h: 99f3fee4a6c76cef548dcc56c5cb6a061d23659c8af23aa419b07c2b52d86c1d
+  r: "The provided `stats.py` file does not contain any implementation of the Benjamini\u2011\
+    Hochberg multiple\u2011testing correction, nor does it reference a threshold from\
+    \ `code/config.py`. Moreover, the required `code/config.py` file is missing entirely,\
+    \ so the function cannot obtain the needed threshold. The task\u2019s core requirement\
+    \ is therefore not satisfied."
