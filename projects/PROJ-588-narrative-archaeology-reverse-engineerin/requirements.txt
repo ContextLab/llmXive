@@ -1,11 +1,19 @@
-numpy>=1.21.0
-pandas>=1.3.0
-scipy>=1.7.0
-scikit-learn>=1.0.0
-statsmodels>=0.13.0
-matplotlib>=3.5.0
-nilearn>=0.9.0
-transformers>=4.20.0
-torch>=1.10.0
-h5py>=3.6.0
-openneuro-py>=2.0.0
+# Existing dependencies
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+h5py
+statsmodels
+nibabel
+nilearn
+transformers
+torch
+openneuro-cli
+pyyaml
+
+# New dependencies for T031 (already covered by scikit-learn/statsmodels above)
+# No new external packages required beyond the existing set.
+# scikit-learn provides KFold and RidgeClassifier.
+# statsmodels provides FDR correction (used in T032, imported here for completeness).

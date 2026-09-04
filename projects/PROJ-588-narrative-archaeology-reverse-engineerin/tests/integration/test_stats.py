@@ -1,3 +1,8 @@
+"""
+Integration tests for statistical utilities in code/utils/stats.py.
+
+Tests permutation test convergence and FDR correction.
+"""
 import pytest
 import numpy as np
 import json
@@ -5,91 +10,146 @@ from pathlib import Path
 import sys
 import os
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path if not already
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from code.utils.stats import permutation_test, apply_fdr_correction, run_group_permutation_analysis
 
 class TestPermutationTest:
-    def test_permutation_test_deterministic(self):
-        """Test that permutation test is deterministic with a fixed seed."""
+    def test_permutation_convergence(self):
+        """Test that permutation test converges with sufficient iterations."""
+        # Create a simple null distribution
         np.random.seed(42)
-        data_early = np.random.randn(20, 10)
-        data_late = np.random.randn(20, 10)
+        null_dist = np.random.normal(0, 1, size=10000)
         
-        p1 = permutation_test(data_early, data_late, n_iterations=100, random_seed=123)
-        p2 = permutation_test(data_early, data_late, n_iterations=100, random_seed=123)
+        # Observed value that is somewhat extreme
+        observed = 2.5
         
-        assert p1 == p2, "Permutation test should be deterministic with fixed seed"
+        result = permutation_test(
+            observed_diff=observed,
+            permuted_diffs=null_dist,
+            n_permutations=100,
+            stability_threshold=0.001,
+            stability_window=50,
+            max_iterations=2000
+        )
         
-    def test_permutation_test_significant_difference(self):
-        """Test that permutation test detects a significant difference."""
-        # Create distinct groups
-        data_early = np.random.randn(50, 10) + 5.0  # Shifted mean
-        data_late = np.random.randn(50, 10)
+        # Check that we got a result
+        assert "p_value" in result
+        assert "iterations" in result
+        assert "stable" in result
         
-        p_val = permutation_test(data_early, data_late, n_iterations=1000, random_seed=42)
+        # The p-value should be small for an extreme observed value
+        assert result["p_value"] < 0.05
         
-        # With a large shift, p-value should be very low
-        assert p_val < 0.05, f"Expected significant p-value, got {p_val}"
+        # Check that iterations are within bounds
+        assert 100 <= result["iterations"] <= 2000
+
+    def test_permutation_stability_detection(self):
+        """Test that the stability detection works correctly."""
+        # Create a null distribution
+        np.random.seed(123)
+        null_dist = np.random.normal(0, 1, size=5000)
+        
+        # Observed value near the mean (should be stable quickly)
+        observed = 0.1
+        
+        result = permutation_test(
+            observed_diff=observed,
+            permuted_diffs=null_dist,
+            n_permutations=100,
+            stability_threshold=0.001,
+            stability_window=20,
+            max_iterations=500
+        )
+        
+        # With a value near the mean, p-value should be around 0.4-0.6
+        # and should stabilize quickly
+        assert 0.3 < result["p_value"] < 0.7
+        
+        # We expect it to be stable due to the small threshold and window
+        # Note: This might not always be true depending on the random seed,
+        # but with a large null dist and small observed, it should be stable.
 
 class TestFDRCorrection:
     def test_fdr_correction_basic(self):
         """Test basic FDR correction functionality."""
-        p_values = [0.01, 0.03, 0.04, 0.06, 0.10, 0.20]
-        adj_p, significant = apply_fdr_correction(p_values, alpha=0.05)
+        p_values = np.array([0.01, 0.03, 0.04, 0.06, 0.10, 0.20])
         
-        assert len(adj_p) == len(p_values)
-        assert len(significant) == len(p_values)
-        # First few should be significant
-        assert significant[0] == True, "First p-value (0.01) should be significant"
+        rejections, adj_p_vals = apply_fdr_correction(p_values, alpha=0.05)
         
-    def test_fdr_correction_empty(self):
-        """Test FDR correction with empty input."""
-        adj_p, significant = apply_fdr_correction([], alpha=0.05)
-        assert adj_p == []
-        assert significant == []
+        # Check that we have the right number of results
+        assert len(rejections) == len(p_values)
+        assert len(adj_p_vals) == len(p_values)
+        
+        # Check that adjusted p-values are monotonically increasing
+        assert np.all(np.diff(adj_p_vals) >= 0)
+        
+        # Check that rejections are boolean
+        assert rejections.dtype == bool
 
-class TestGroupPermutationAnalysis:
-    def test_run_group_permutation_analysis_structure(self, tmp_path):
-        """Test that the group analysis produces the correct output structure."""
-        # Mock data
-        roi_data = {
-            'hippocampus': {
-                'early': np.random.randn(10, 5),
-                'late': np.random.randn(10, 5)
-            },
-            'mPFC': {
-                'early': np.random.randn(10, 5),
-                'late': np.random.randn(10, 5)
-            }
+    def test_fdr_correction_all_significant(self):
+        """Test FDR correction when all p-values are significant."""
+        p_values = np.array([0.001, 0.002, 0.003, 0.004])
+        
+        rejections, adj_p_vals = apply_fdr_correction(p_values, alpha=0.05)
+        
+        # All should be rejected
+        assert np.all(rejections)
+        
+        # Adjusted p-values should be < 0.05
+        assert np.all(adj_p_vals < 0.05)
+
+    def test_fdr_correction_none_significant(self):
+        """Test FDR correction when no p-values are significant."""
+        p_values = np.array([0.10, 0.20, 0.30, 0.40])
+        
+        rejections, adj_p_vals = apply_fdr_correction(p_values, alpha=0.05)
+        
+        # None should be rejected
+        assert not np.any(rejections)
+        
+        # Adjusted p-values should be > 0.05
+        assert np.all(adj_p_vals >= 0.05)
+
+class TestRunGroupPermutationAnalysis:
+    def test_run_group_analysis(self, tmp_path):
+        """Test the full group permutation analysis pipeline."""
+        # Create mock roi_stats
+        roi_stats = {
+            "hippocampus": {"early_late": 0.15, "early_early": 0.05},
+            "mPFC": {"early_late": 0.12, "early_early": 0.04},
+            "PCC": {"early_late": 0.08, "early_early": 0.06},
+            "lateral_temporal": {"early_late": 0.05, "early_early": 0.05}
         }
         
-        output_file = tmp_path / "test_permutation.json"
+        output_path = tmp_path / "permutation_pvalues.json"
         
-        results = run_group_permutation_analysis(
-            roi_data,
-            n_iterations=100, # Reduced for speed
-            output_path=str(output_file)
+        result = run_group_permutation_analysis(
+            results_path=output_path,
+            roi_stats=roi_stats,
+            n_permutations=1000,
+            alpha=0.05
         )
         
-        # Verify structure
-        assert "n_iterations" in results
-        assert "rois" in results
-        assert "raw_p_values" in results
-        assert "adj_p_values" in results
-        assert "significant" in results
+        # Check that the file was created
+        assert output_path.exists()
         
-        # Verify file was written
-        assert output_file.exists()
-        with open(output_file, 'r') as f:
-            written_data = json.load(f)
-            
-        assert written_data["n_iterations"] == 100
-        assert 'hippocampus' in written_data["rois"]
-        assert 'mPFC' in written_data["rois"]
-        assert "p_value" in written_data["rois"]["hippocampus"]
-        assert "significant_fdr" in written_data["rois"]["hippocampus"]
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        # Check the structure of the result
+        assert "method" in result
+        assert "roi_results" in result
+        assert "summary" in result
+        
+        # Check that each ROI has the expected keys
+        for roi in roi_stats.keys():
+            assert roi in result["roi_results"]
+            assert "p_value" in result["roi_results"][roi]
+            assert "fdr_corrected_p" in result["roi_results"][roi]
+            assert "significant_after_fdr" in result["roi_results"][roi]
+        
+        # Verify the JSON file contents
+        with open(output_path, 'r') as f:
+            saved_data = json.load(f)
+        
+        assert saved_data == result

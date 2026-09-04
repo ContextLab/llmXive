@@ -17,7 +17,7 @@ This project implements a reproducible pipeline to download the OpenNeuro Natura
 **Testing**: `pytest` with `pytest-cov`, `pytest-mock` for pipeline mocking.
 **Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).
 **Project Type**: Computational Neuroscience / Data Pipeline.
-**Performance Goals**: Complete preprocessing and analysis for a 2-subject subset within 6 hours on 2 vCPU / 7GB RAM, escalating to additional subjects if needed.
+**Performance Goals**: Complete preprocessing and analysis for a -subject subset within 6 hours on 2 vCPU / 7GB RAM, escalating to additional subjects if needed.
 **Constraints**: No local GPU; must use CPU-tractable methods or scaled-down GPU offload (Kaggle) only if strictly necessary. No PII in output.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -92,7 +92,7 @@ projects/PROJ-588-narrative-archaeology-reverse-engineerin/
 
 ### Phase 0: Data Ingestion & Preprocessing (US-1)
 *   **T001-DOWNLOAD**: Implement `code/data/download.py` to fetch `ds000234` (subset) from OpenNeuro/HF. Compute and verify checksums. **Hard Stop**: Run PII scan immediately after download. If PII is detected, halt pipeline and log error. Log PII scan results to `data/hygiene.log`.
-*   **T002-PREPROCESS**: Wrap fMRIPrep (v.0) via Docker. Implement motion artifact detection (threshold >3mm). Skip subjects exceeding threshold, log to `data/errors.log` (JSON), proceeding with the remaining subjects rather than halting the entire pipeline. **Escalation**: If 2 subjects fail to complete within 6 hours, trigger a paid runner or Kaggle GPU to process 5 subjects as per FR-001.
+*   **T002-PREPROCESS**: Wrap fMRIPrep (v.0) via Docker. Implement motion artifact detection (threshold >3mm). Skip subjects exceeding threshold, log to `data/errors.log` (JSON), proceeding with the remaining subjects rather than halting the entire pipeline. **Escalation**: If 2 subjects fail to complete within 6 hours, trigger a paid runner or Kaggle GPU to process a small cohort of subjects as per FR-001.
 *   **T003-INIT-ENV**: Initialize project directory structure, create `requirements.txt`, `pyproject.toml` (with black/flake8 config), and `.flake8` files.
 *   **T004-SEGMENT**: Align event annotations with BOLD signal using a canonical HRF convolution. **T004b-LABEL-DERIVE**: Derive 'plot', 'character', 'theme' labels from the official story script using a deterministic rule-based parser (keyword matching) to ensure ground truth independence from BERT features. Output `events_aligned.csv`.
 *   **T009-ERROR-HANDLING**: Implement `code/utils/logging.py` to detect motion artifacts, skip subjects, and write JSON entries to `data/errors.log` with fields: `{timestamp, subject_id, error_code, motion_mm}`.

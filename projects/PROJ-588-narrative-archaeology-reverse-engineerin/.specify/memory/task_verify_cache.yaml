@@ -6,17 +6,32 @@ T017:
     \ and there is no implementation shown that actually skips subjects with excessive\
     \ motion or writes JSON\u2011formatted error entries to that log. The core artifact\
     \ (the error log with entries) is missing, so the task is not fulfilled."
+T021:
+  c: false
+  h: 12a407e0e4fa3632421ab5ee4dec98a8fd0e14fa30bdb4c54faa4976a498e5ff
+  r: "The repository contains a partially\u2011implemented `code/models/rsa.py` (functions\
+    \ are defined but the script does not load the ROI timecourses, compute per\u2011\
+    ROI metrics, or write `results/rsa_matrices.json`). Moreover, the required output\
+    \ file `results/rsa_matrices.json` is absent. The task\u2019s core deliverable\
+    \ \u2013 a JSON file with `early_late` and `early_early` float values per ROI\
+    \ \u2013 is therefore not present."
 T022:
   c: false
   h: 7fc35885ad4ae6bda57cd9d7fc51a22aaf0c2c4ddbdc09df78be38975dfba1ae
   r: "The repository contains a `stats.py` with a permutation test (default 1000 iterations)\
     \ and an FDR\u2011correction helper, but the required output file `results/permutation_pvalues.json`\
     \ is absent, so the task\u2019s specified artifact is missing."
-T032:
+T024:
+  c: false
+  h: 1efd3125b0837d5b1a56da9109b85cca87c8aae24ffd848b4483eafb51b4f73b
+  r: "The `code/utils/viz.py` file is truncated and the `plot_early_late_roi_comparison`\
+    \ function is incomplete (ends abruptly at `early_late_vals`), so it does not\
+    \ actually generate the required plot. Moreover, the expected output file `results/rsa_heatmaps.png`\
+    \ is absent. The task\u2019s visualization and output artifact are therefore not\
+    \ provided."
+T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or result file was provided that actually performs\
-    \ an FDR multiple\u2011comparison correction across the narrative categories and\
-    \ ROIs. The evidence consists only of the task description; there is no artifact\
-    \ demonstrating the correction was applied or its output saved. The required deliverable\
-    \ is missing."
+  r: "No code, notebook, script, or output files implementing a 5\u2011fold cross\u2011\
+    validation and reporting accuracy versus a chance baseline are present. The claim\
+    \ cannot be verified because the required artifact is missing."
