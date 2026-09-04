@@ -1,32 +1,19 @@
+import os
+import tempfile
 import pytest
 import pandas as pd
-import os
 import yaml
 from pathlib import Path
-import tempfile
-import shutil
 
-# Import the module under test
-# Assuming the test runs from project root or PYTHONPATH is set correctly
-try:
-    from data.schema_validator import validate_csv_schema, load_schema
-except ImportError:
-    # Fallback for direct execution from tests directory
-    import sys
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
-    from data.schema_validator import validate_csv_schema, load_schema
+# Adjust import based on project structure
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
+from data.schema_validator import load_schema, validate_csv_schema, setup_logger
 
 @pytest.fixture
-def temp_schema_dir():
-    """Create a temporary directory for schema files."""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    shutil.rmtree(temp_dir)
-
-@pytest.fixture
-def valid_schema_path(temp_schema_dir):
-    """Create a valid schema file."""
-    schema = {
+def temp_schema_file():
+    schema_content = {
         "type": "object",
         "properties": {
             "laser_power": {"type": "number"},
@@ -38,80 +25,81 @@ def valid_schema_path(temp_schema_dir):
         },
         "required": ["laser_power", "scan_speed", "layer_thickness", "yield_strength", "ductility"]
     }
-    path = os.path.join(temp_schema_dir, "test_schema.yaml")
-    with open(path, 'w') as f:
-        yaml.dump(schema, f)
-    return path
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(schema_content, f)
+        yield f.name
+    os.unlink(f.name)
 
 @pytest.fixture
-def valid_df():
-    """Create a valid dataframe."""
-    return pd.DataFrame({
-        'laser_power': [100.0, 200.0],
-        'scan_speed': [500.0, 600.0],
-        'layer_thickness': [0.03, 0.04],
-        'yield_strength': [300.0, 400.0],
-        'ductility': [10.0, 15.0]
-    })
+def valid_csv_file():
+    data = {
+        'laser_power': [200, 300, 400],
+        'scan_speed': [500, 600, 700],
+        'layer_thickness': [0.03, 0.04, 0.05],
+        'yield_strength': [400, 500, 600],
+        'ductility': [10, 12, 14]
+    }
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        pd.DataFrame(data).to_csv(f, index=False)
+        yield f.name
+    os.unlink(f.name)
 
 @pytest.fixture
-def df_missing_column():
-    """Create a dataframe missing a required column."""
-    return pd.DataFrame({
-        'laser_power': [100.0, 200.0],
-        'scan_speed': [500.0, 600.0],
-        'layer_thickness': [0.03, 0.04],
-        'yield_strength': [300.0, 400.0]
-        # Missing 'ductility'
-    })
+def invalid_csv_missing_col():
+    data = {
+        'laser_power': [200, 300],
+        'scan_speed': [500, 600],
+        # Missing layer_thickness
+        'yield_strength': [400, 500],
+        'ductility': [10, 12]
+    }
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        pd.DataFrame(data).to_csv(f, index=False)
+        yield f.name
+    os.unlink(f.name)
 
 @pytest.fixture
-def df_non_numeric():
-    """Create a dataframe with non-numeric required column."""
-    return pd.DataFrame({
-        'laser_power': [100.0, 200.0],
-        'scan_speed': [500.0, 600.0],
+def invalid_csv_non_numeric():
+    data = {
+        'laser_power': ['high', 'low'], # Non-numeric
+        'scan_speed': [500, 600],
         'layer_thickness': [0.03, 0.04],
-        'yield_strength': [300.0, 400.0],
-        'ductility': ['high', 'low']  # Non-numeric
-    })
+        'yield_strength': [400, 500],
+        'ductility': [10, 12]
+    }
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        pd.DataFrame(data).to_csv(f, index=False)
+        yield f.name
+    os.unlink(f.name)
 
-def test_validate_csv_schema_success(valid_df, valid_schema_path):
-    """Test successful validation."""
-    assert validate_csv_schema(valid_df, valid_schema_path) is True
+def test_load_schema_valid(temp_schema_file):
+    schema = load_schema(temp_schema_file)
+    assert 'properties' in schema
+    assert 'required' in schema
+    assert 'laser_power' in schema['properties']
 
-def test_validate_csv_schema_missing_column(df_missing_column, valid_schema_path):
-    """Test validation fails when required column is missing."""
-    with pytest.raises(ValueError) as excinfo:
-        validate_csv_schema(df_missing_column, valid_schema_path)
-    assert "Missing required columns" in str(excinfo.value)
-
-def test_validate_csv_schema_non_numeric(df_non_numeric, valid_schema_path):
-    """Test validation fails when required column is not numeric."""
-    with pytest.raises(ValueError) as excinfo:
-        validate_csv_schema(df_non_numeric, valid_schema_path)
-    assert "is not numeric" in str(excinfo.value)
-
-def test_load_schema_file_not_found(temp_schema_dir):
-    """Test loading a non-existent schema file."""
+def test_load_schema_missing_file():
     with pytest.raises(FileNotFoundError):
-        load_schema(os.path.join(temp_schema_dir, "non_existent.yaml"))
+        load_schema("non_existent_file.yaml")
 
-def test_validate_csv_schema_optional_column(valid_df, valid_schema_path):
-    """Test that optional columns (fatigue_life) are allowed but not required."""
-    # Add an optional column
-    valid_df_with_optional = valid_df.copy()
-    valid_df_with_optional['fatigue_life'] = [1000.0, 2000.0]
-    
-    # Should still pass
-    assert validate_csv_schema(valid_df_with_optional, valid_schema_path) is True
+def test_validate_csv_schema_valid(valid_csv_file, temp_schema_file):
+    df = pd.read_csv(valid_csv_file)
+    schema = load_schema(temp_schema_file)
+    logger = setup_logger("test")
+    assert validate_csv_schema(df, schema, logger) is True
 
-def test_validate_csv_schema_extra_column_warning(valid_df, valid_schema_path):
-    """Test that extra columns not in schema are handled (should not raise error based on current impl, but might log warning)."""
-    df_extra = valid_df.copy()
-    df_extra['extra_col'] = [1, 2]
-    # Current implementation logs warning but returns True. 
-    # If the requirement is strict, this might need to raise. 
-    # Based on T006 description: "verify all required columns exist and contain numeric data".
-    # It does not explicitly say "fail on extra columns".
-    assert validate_csv_schema(df_extra, valid_schema_path) is True
+def test_validate_csv_schema_missing_columns(invalid_csv_missing_col, temp_schema_file):
+    df = pd.read_csv(invalid_csv_missing_col)
+    schema = load_schema(temp_schema_file)
+    logger = setup_logger("test")
+    with pytest.raises(ValueError) as exc_info:
+        validate_csv_schema(df, schema, logger)
+    assert "Missing required columns" in str(exc_info.value)
+
+def test_validate_csv_schema_non_numeric(invalid_csv_non_numeric, temp_schema_file):
+    df = pd.read_csv(invalid_csv_non_numeric)
+    schema = load_schema(temp_schema_file)
+    logger = setup_logger("test")
+    with pytest.raises(ValueError) as exc_info:
+        validate_csv_schema(df, schema, logger)
+    assert "cannot be converted to numeric" in str(exc_info.value)

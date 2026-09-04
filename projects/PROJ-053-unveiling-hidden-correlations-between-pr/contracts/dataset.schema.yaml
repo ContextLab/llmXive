@@ -1,9 +1,20 @@
 type: object
 properties:
-  laser_power: { type: number }
-  scan_speed: { type: number }
-  layer_thickness: { type: number }
-  yield_strength: { type: number }
-  ductility: { type: number }
-  fatigue_life: { type: number }
-required: [laser_power, scan_speed, layer_thickness, yield_strength, ductility]
+  laser_power:
+    type: number
+  scan_speed:
+    type: number
+  layer_thickness:
+    type: number
+  yield_strength:
+    type: number
+  ductility:
+    type: number
+  fatigue_life:
+    type: number
+required:
+  - laser_power
+  - scan_speed
+  - layer_thickness
+  - yield_strength
+  - ductility

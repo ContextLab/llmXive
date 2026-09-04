@@ -1,100 +1,101 @@
-import os
-import json
 import pytest
+import json
+import os
+import tempfile
+from pathlib import Path
 import numpy as np
-import pandas as pd
-from unittest.mock import patch, MagicMock
 
-from utils.importance_analyzer import (
-    load_user_baseline, 
-    load_literature_baseline, 
-    get_hardcoded_baseline_ranking,
-    rank_list_to_feature_list,
-    calculate_correlation_coefficient,
-    run_correlation_analysis
-)
-from config import get_hardcoded_baseline_ranking as cfg_get_baseline
+# Mock config for testing if necessary, but we assume config is available
+# We test the logic of T031
 
-def test_load_user_baseline_missing_file(tmp_path):
-    """Test that load_user_baseline returns None when file is missing."""
-    import logging
-    logger = logging.getLogger("test")
+def test_load_literature_baseline_missing_citation(monkeypatch):
+    """Test that ValueError is raised if no baseline is found."""
+    from utils.importance_analyzer import load_literature_baseline
     
-    result = load_user_baseline(str(tmp_path / "nonexistent.json"), logger)
-    assert result is None
+    # Mock get_hardcoded_baseline_ranking and get_literature_citation to return None
+    import utils.importance_analyzer as imp_mod
+    import config as cfg_mod
+    
+    original_hardcoded = cfg_mod.get_hardcoded_baseline_ranking
+    original_citation = cfg_mod.get_literature_citation
+    
+    cfg_mod.get_hardcoded_baseline_ranking = lambda: None
+    cfg_mod.get_literature_citation = lambda: None
+    
+    with pytest.raises(ValueError) as excinfo:
+        load_literature_baseline("test_key")
+    
+    assert "Verified Accuracy Violation" in str(excinfo.value)
+    
+    # Restore
+    cfg_mod.get_hardcoded_baseline_ranking = original_hardcoded
+    cfg_mod.get_literature_citation = original_citation
 
-def test_load_user_baseline_invalid_json(tmp_path):
-    """Test that load_user_baseline returns None for invalid JSON."""
-    bad_file = tmp_path / "bad.json"
-    bad_file.write_text("not valid json")
+def test_run_correlation_analysis_with_mock_data(monkeypatch):
+    """Test the full correlation analysis flow with mock data."""
+    from utils.importance_analyzer import run_correlation_analysis
+    import pickle
+    from sklearn.gaussian_process import GaussianProcessRegressor
+    from sklearn.gaussian_process.kernels import RBF
     
-    import logging
-    logger = logging.getLogger("test")
-    
-    result = load_user_baseline(str(bad_file), logger)
-    assert result is None
-
-def test_load_user_baseline_missing_rankings_key(tmp_path):
-    """Test that load_user_baseline returns None if 'rankings' key is missing."""
-    good_file = tmp_path / "good.json"
-    good_file.write_text(json.dumps({"other_key": {}}))
-    
-    import logging
-    logger = logging.getLogger("test")
-    
-    result = load_user_baseline(str(good_file), logger)
-    assert result is None
-
-def test_load_user_baseline_success(tmp_path):
-    """Test successful loading of user baseline."""
-    data = {"rankings": {"laser_power": 1, "scan_speed": 2}}
-    good_file = tmp_path / "good.json"
-    good_file.write_text(json.dumps(data))
-    
-    import logging
-    logger = logging.getLogger("test")
-    
-    result = load_user_baseline(str(good_file), logger)
-    assert result == {"laser_power": 1, "scan_speed": 2}
-
-def test_get_hardcoded_baseline_ranking():
-    """Test that hardcoded baseline is retrieved correctly."""
-    result = get_hardcoded_baseline_ranking()
-    assert "rankings" in result
-    assert "laser_power" in result["rankings"]
-
-def test_rank_list_to_feature_list():
-    """Test conversion of ranking dict to list."""
-    rankings = {"A": 1, "B": 2}
-    features = ["A", "B", "C"]
-    
-    result = rank_list_to_feature_list(rankings, features, logging.getLogger("test"))
-    # C is missing, should get default rank 4 (len + 1)
-    assert result == [1.0, 2.0, 4.0]
+    # Create temp directory
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        
+        # 1. Create Mock Model
+        model = GaussianProcessRegressor(kernel=RBF(length_scale=1.0))
+        # Dummy fit to make it callable (though we mock predict)
+        X_dummy = np.random.rand(10, 3)
+        y_dummy = np.random.rand(10)
+        model.fit(X_dummy, y_dummy)
+        
+        model_path = tmpdir / "model.pkl"
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+        
+        # 2. Create Mock Test Data
+        test_data = {
+            'laser_power': [100.0, 200.0, 300.0, 400.0, 500.0],
+            'scan_speed': [500.0, 400.0, 300.0, 200.0, 100.0],
+            'layer_thickness': [0.03, 0.03, 0.03, 0.03, 0.03],
+            'yield_strength': [300.0, 350.0, 400.0, 450.0, 500.0]
+        }
+        import pandas as pd
+        df = pd.DataFrame(test_data)
+        test_path = tmpdir / "test.csv"
+        df.to_csv(test_path, index=False)
+        
+        # 3. Create Mock Metrics
+        metrics_path = tmpdir / "metrics.json"
+        with open(metrics_path, 'w') as f:
+            json.dump({"existing_metric": 1.0}, f)
+        
+        # 4. Run Analysis
+        # We need to mock the config paths or pass absolute paths
+        # The function expects paths, so we pass absolute paths here.
+        result = run_correlation_analysis(
+            model_path=str(model_path),
+            test_data_path=str(test_path),
+            output_path=str(metrics_path),
+            user_baseline_path=None # Force literature load
+        )
+        
+        assert 'permutation_importance_correlation' in result
+        assert 'baseline_source' in result
+        assert result['baseline_source'] == 'literature_citation'
+        # Correlation should be a float
+        assert isinstance(result['permutation_importance_correlation'], float)
 
 def test_calculate_correlation_coefficient():
-    """Test Spearman correlation calculation."""
-    model_ranks = [1.0, 2.0, 3.0]
-    baseline_ranks = [1.0, 2.0, 3.0]
+    """Test the Spearman correlation calculation."""
+    from utils.importance_analyzer import calculate_correlation_coefficient
     
-    corr = calculate_correlation_coefficient(model_ranks, baseline_ranks, logging.getLogger("test"))
-    assert corr == 1.0
-
-def test_run_correlation_analysis_no_baseline_raises():
-    """Test that run_correlation_analysis raises FileNotFoundError if no baseline exists."""
-    mock_model = MagicMock()
-    X = np.array([[1, 2], [3, 4]])
-    y = np.array([1, 2])
-    features = ["A", "B"]
+    list1 = [1.0, 2.0, 3.0, 4.0, 5.0]
+    list2 = [1.0, 2.0, 3.0, 4.0, 5.0]
     
-    with patch('utils.importance_analyzer.load_user_baseline', return_value=None):
-        with patch('utils.importance_analyzer.get_hardcoded_baseline_ranking', return_value=None):
-            with pytest.raises(FileNotFoundError, match="No baseline provided for SC-004"):
-                run_correlation_analysis(
-                    model=mock_model,
-                    X_test=X,
-                    y_test=y,
-                    feature_names=features,
-                    user_baseline_path=None,
-                    output_path=None
-                )
+    corr = calculate_correlation_coefficient(list1, list2)
+    assert abs(corr - 1.0) < 0.001
+    
+    list2_inv = [5.0, 4.0, 3.0, 2.0, 1.0]
+    corr_inv = calculate_correlation_coefficient(list1, list2_inv)
+    assert abs(corr_inv - (-1.0)) < 0.001

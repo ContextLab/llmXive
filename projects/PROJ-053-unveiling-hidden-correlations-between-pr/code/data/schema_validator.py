@@ -30,7 +30,14 @@ def load_schema(schema_path: str) -> Dict[str, Any]:
         return yaml.safe_load(f)
 
 def validate_csv_schema(df: pd.DataFrame, schema: Dict[str, Any], logger: logging.Logger) -> bool:
-    """Validate DataFrame against the schema."""
+    """Validate DataFrame against the schema.
+    
+    Checks:
+    1. All required columns exist.
+    2. Columns defined as 'number' in the schema are numeric.
+    
+    Raises ValueError if validation fails.
+    """
     properties = schema.get('properties', {})
     required = schema.get('required', [])
     
@@ -41,7 +48,7 @@ def validate_csv_schema(df: pd.DataFrame, schema: Dict[str, Any], logger: loggin
         logger.error(error_msg)
         raise ValueError(error_msg)
     
-    # Check types
+    # Check types for all defined properties
     for col, spec in properties.items():
         if col in df.columns:
             if spec.get('type') == 'number':
@@ -49,12 +56,18 @@ def validate_csv_schema(df: pd.DataFrame, schema: Dict[str, Any], logger: loggin
                     logger.warning(f"Column '{col}' is not numeric. Attempting conversion.")
                     try:
                         df[col] = pd.to_numeric(df[col], errors='raise')
-                    except (ValueError, TypeError):
-                        raise ValueError(f"Column '{col}' cannot be converted to numeric.")
+                    except (ValueError, TypeError) as e:
+                        error_msg = f"Column '{col}' cannot be converted to numeric: {e}"
+                        logger.error(error_msg)
+                        raise ValueError(error_msg)
+    
     return True
 
 def validate_and_report(csv_path: str, schema_path: str, log_path: Optional[str] = None) -> bool:
-    """Validate a CSV file against a schema and log results."""
+    """Validate a CSV file against a schema and log results.
+    
+    Returns True if validation passes, False otherwise.
+    """
     logger = setup_logger("schema_validator", log_path)
     
     try:

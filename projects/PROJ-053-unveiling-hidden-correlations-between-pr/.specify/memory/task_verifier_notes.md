@@ -2,4 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T006** — The `schema_validator.py` file is present and contains logic to load a YAML schema and validate required numeric columns, but the required schema file `contracts/dataset.schema.yaml` (or `schema.yaml`) is missing, so the validator cannot actually perform the validation as specified. The missing schema file must be added for the task to be complete.
+- **T031** — No code, data, or output files were presented for the “permutation importance correlation analysis” (e.g., a script computing permutation importance, a correlation matrix or plot, and accompanying results). Without any tangible artifact, the requirement cannot be verified as satisfied. The next implementer must provide the actual implementation and its output (e.g., a notebook or script, generated correlation figures, and a summary report).
