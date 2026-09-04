@@ -1,9 +1,9 @@
-T010a:
+T012b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `test_features.py` file or `test_mixing_enthalpy` unit test is present, nor
-    any test run output showing it passes after T014 & T015. The required artifact
-    (the unit test) is missing, so the task is not satisfied.
+  r: "No dataset CSV, ingestion script, logs, or any generated files were presented.\
+    \ The claim lacks the required artifact (a CSV with \u2265500 rows and computed\
+    \ thermodynamic features) to verify that the dataset size meets the FR-001 target."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -16,28 +16,6 @@ T015:
   r: No `features.py` file or any code implementing `atomic_size_mismatch` and `electronegativity_variance`
     was provided; without the artifact we cannot verify that the required computations
     exist or are correct. The task therefore remains unfinished.
-T016b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact such as a processed CSV file, ingestion/feature\u2011engineering\
-    \ script, logs, or any evidence of the required 500\u2011row dataset with thermodynamic\
-    \ columns and `critical_cooling_rate` was provided. The claim lacks the concrete\
-    \ output needed to verify that the data validation step was completed."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test, or documentation was provided showing that a validation\
-    \ step was added to check that `critical_cooling_rate` has non\u2011zero variance\
-    \ and at least 500 entries, nor any error handling for the failure case. The required\
-    \ artifact (e.g., updated ingestion/validation module or a test confirming the\
-    \ check) is missing."
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only a description of the required train\u2011test split\
-    \ but no actual artifact (e.g., code, notebook, or resulting split data) is present.\
-    \ There is no `processed_alloys.csv` loaded, no split performed, and no output\
-    \ showing the 80/20 split with `random_state=42`. The required evidence is missing."
 T021:
   c: false
   h: b4402bfab20da3309d5c60de7e77f3a0b472a2c5eb6dd96c616d2d386f09b353
@@ -46,20 +24,6 @@ T021:
     \ to `data/models/cv_metrics.json`. Moreover, the required `cv_metrics.json` file\
     \ does not exist on disk, so the verification command would fail. The task\u2019\
     s core output is missing."
-T022b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or generated predictions were provided; the implementer\
-    \ only restated the specification without delivering the required null\u2011model\
-    \ baseline generation script, output CSV, or any prediction results. The task\
-    \ therefore lacks the essential artifacts to be considered complete."
-T024a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or results were supplied; the implementer did not provide\
-    \ the required null\u2011model statistical test implementation, nor any accompanying\
-    \ scripts, outputs, or documentation. Consequently the task\u2019s deliverable\
-    \ is missing."
 T024c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,6 +41,21 @@ T028:
     \ were derived, or that a thermodynamic feature meets the top\u20112 / p\u202F\
     <\u202F0.05 criterion. The implementer must supply the stable model, the computed\
     \ importance data, and the JSON output meeting the specified conditions."
+T029a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, logs, or model artifacts for \u201CStability Check & Retrain\
+    \ if needed\u201D were provided; the implementer\u2019s claim contains only a\
+    \ placeholder comment and no concrete implementation or output. Consequently,\
+    \ the required stability\u2011check procedure and any retraining logic are missing."
+T029b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts (e.g., ingestion script, engineered\
+    \ CSV with \u2265500 rows, trained Random Forest model, or metrics report) were\
+    \ provided, so the required pipeline and model results cannot be verified. The\
+    \ implementer must supply the actual scripts and generated files to satisfy the\
+    \ user stories."
 T030b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -98,10 +77,9 @@ T037:
     \ output file, or confirmation that the script was executed and that all artifacts\
     \ were checked against their contracts. The required artifact (validation results)\
     \ is missing."
-T041:
+T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test script, or log file was supplied that shows the null\u2011model\
-    \ statistical test (T024a) performing a one\u2011sample t\u2011test against a\
-    \ dummy regressor baseline, nor any explicit log entry confirming the method used.\
-    \ The required artifact is missing."
+  r: No `REPORT.md` file was supplied; the response contains only the task description
+    and no summary document covering data, model performance, feature importance,
+    sensitivity analysis, or caveats. The required artifact is missing.

@@ -1,13 +1,10 @@
 """
-Task T024c: Statistical Significance Gate (SC-002)
+Task T024c: SC-002 Statistical Significance Gate.
 
-This script acts as a gate for the pipeline. It loads the results of the
-statistical comparison (T024a) and verifies that the model is statistically
-distinguishable from the null model.
-
-If the p-value is >= 0.05 (sc002_met is false), it raises a ValueError
-to halt the pipeline, as the model has not demonstrated statistical
-significance over a dummy baseline.
+This script loads the statistical comparison results from T024a and
+determines if the model is statistically distinguishable from the null model.
+It logs a WARNING if the condition is not met but does NOT raise an exception,
+allowing the pipeline to continue and report the negative finding.
 """
 import json
 import logging
@@ -21,71 +18,94 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Path constants
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-STAT_COMPARISON_PATH = os.path.join(
-    PROJECT_ROOT, "data", "models", "statistical_comparison.json"
-)
+# Paths
+STAT_COMPARISON_PATH = "data/models/statistical_comparison.json"
+STATUS_OUTPUT_PATH = "data/models/sc002_status.json"
 
-def load_statistical_comparison():
-    """Load the statistical comparison results from JSON."""
-    if not os.path.exists(STAT_COMPARISON_PATH):
-        raise FileNotFoundError(
-            f"Statistical comparison file not found at {STAT_COMPARISON_PATH}. "
-            "Ensure T024a (statistical_test.py) has been run successfully."
-        )
+
+def load_statistical_comparison(path: str) -> dict:
+    """Load the statistical comparison JSON file."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Statistical comparison file not found at {path}. "
+                                "Ensure T024a has run successfully.")
     
-    with open(STAT_COMPARISON_PATH, 'r') as f:
+    with open(path, 'r') as f:
         return json.load(f)
 
-def check_sc002_gate(results: dict) -> bool:
+
+def check_sc002_gate(comparison_data: dict) -> bool:
     """
-    Check if the SC-002 requirement is met.
+    Check if the SC-002 condition is met (p_value < 0.05).
     
     Args:
-        results: Dictionary containing 'sc002_met', 'p_value', 't_statistic'.
-        
+        comparison_data: Dictionary containing 'p_value', 't_statistic', 'sc002_met'.
+    
     Returns:
-        True if the gate passes, False otherwise.
-        
-    Raises:
-        ValueError: If the gate fails (model not statistically distinguishable).
+        True if sc002_met is True, False otherwise.
     """
-    sc002_met = results.get('sc002_met', False)
-    p_value = results.get('p_value', 1.0)
-    t_statistic = results.get('t_statistic', 0.0)
-    
-    logger.info(f"Loaded statistical test results: p_value={p_value:.6f}, t_statistic={t_statistic:.6f}")
-    
-    if not sc002_met:
-        error_msg = (
-            f"SC-002 failed: Model is not statistically distinguishable from null. "
-            f"p_value ({p_value:.6f}) >= 0.05. "
-            "The model does not significantly outperform the dummy baseline."
-        )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info("SC-002 PASSED: Model is statistically distinguishable from null (p < 0.05).")
-    return True
+    return comparison_data.get('sc002_met', False)
+
 
 def run_gate():
-    """Main entry point for the gate task."""
+    """
+    Main execution logic for T024c.
+    
+    1. Load statistical_comparison.json.
+    2. Check if sc002_met is True.
+    3. Log WARNING if False, SUCCESS if True.
+    4. Save status to sc002_status.json.
+    """
+    logger.info("Starting SC-002 Gate Check (T024c)...")
+    
     try:
-        logger.info("Starting SC-002 Statistical Significance Gate check...")
-        results = load_statistical_comparison()
-        check_sc002_gate(results)
-        logger.info("Gate check successful. Proceeding with pipeline.")
-        return 0
+        # 1. Load data
+        comparison_data = load_statistical_comparison(STAT_COMPARISON_PATH)
+        logger.info(f"Loaded statistical comparison: {comparison_data}")
+        
+        # 2. Check condition
+        is_met = check_sc002_gate(comparison_data)
+        
+        # 3. Log result and prepare status
+        status = "PASSED"
+        if not is_met:
+            logger.warning("SC-002 failed: Model not statistically distinguishable from null.")
+            logger.warning(f"P-value: {comparison_data.get('p_value')}, T-statistic: {comparison_data.get('t_statistic')}")
+            status = "FAILED"
+        else:
+            logger.info("SC-002 PASSED: Model is statistically distinguishable from null.")
+        
+        # 4. Save status file
+        status_data = {
+            "sc002_status": status,
+            "p_value": comparison_data.get('p_value'),
+            "t_statistic": comparison_data.get('t_statistic'),
+            "sc002_met": is_met
+        }
+        
+        # Ensure output directory exists
+        os.makedirs(os.path.dirname(STATUS_OUTPUT_PATH), exist_ok=True)
+        
+        with open(STATUS_OUTPUT_PATH, 'w') as f:
+            json.dump(status_data, f, indent=2)
+        
+        logger.info(f"Gate check complete. Status saved to {STATUS_OUTPUT_PATH}")
+        logger.info(f"Result: {status}")
+        
     except FileNotFoundError as e:
-        logger.critical(f"Missing required data file: {e}")
-        return 1
-    except ValueError as e:
-        logger.critical(f"Gate failed: {e}")
-        return 1
+        logger.error(f"Critical dependency missing: {e}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in statistical comparison file: {e}")
+        raise
     except Exception as e:
-        logger.critical(f"Unexpected error during gate check: {e}")
-        return 1
+        logger.error(f"Unexpected error during gate check: {e}")
+        raise
+
+
+def main():
+    """Entry point for the script."""
+    run_gate()
+
 
 if __name__ == "__main__":
-    sys.exit(run_gate())
+    main()
