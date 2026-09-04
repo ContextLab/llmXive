@@ -1,164 +1,313 @@
-"""
-Feature extraction module for EEG time-frequency analysis.
-Implements T018-T022 logic.
-"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
+import mne
 
-# Note: We do not import MNE here to avoid heavy dependencies in this specific fix
-# unless the script is actually running on real MNE data.
-# For T050, we assume the preprocessing step (T017) produced epochs_cleaned.fif.
-# We need to load it, compute TFR, and save results.
-
-try:
-    import mne
-    HAS_MNE = True
-except ImportError:
-    HAS_MNE = False
-    logging.warning("MNE not installed. Feature extraction will fail on real data.")
-
-from config import load_config, get_paths
 from logger import get_logger
+from config import get_config
+from preprocessing import SampleSizeError
 
-def load_epochs(epochs_path: Path) -> Any:
-    """Load cleaned epochs from FIF file."""
-    if not HAS_MNE:
-        raise ImportError("MNE-Python is required to load epochs.")
-    return mne.read_epochs(str(epochs_path))
+# Ensure imports from sibling modules exist in the public API surface
+# The API surface lists these names for feature_extraction.py:
+# load_epochs, compute_time_frequency, baseline_normalize, extract_mean_power, run_extraction, main
 
-def compute_time_frequency(epochs: Any, freqs: np.ndarray, n_cycles: float = 3.0) -> np.ndarray:
-    """Compute Morlet wavelet time-frequency decomposition (T018)."""
-    if not HAS_MNE:
-        raise ImportError("MNE-Python is required for TFR.")
-    # TFR using MNE
-    # n_cycles can be a float or array-like. For simplicity, use a scalar or compute per freq.
-    # Standard: n_cycles = freqs / freqs[0] * constant, but spec says "default float64".
-    # We use a simple constant for demo, but real code should vary.
-    power = mne.time_frequency.tfr_morlet(epochs, freqs=freqs, n_cycles=n_cycles, use_fft=True)
-    return power.power  # Shape: (n_epochs, n_channels, n_freqs, n_times)
+def load_epochs(epochs_path: str) -> mne.Epochs:
+    """Load preprocessed epochs from a .fif file."""
+    logger = get_logger(__name__)
+    path = Path(epochs_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Epochs file not found: {epochs_path}")
+    
+    logger.info(f"Loading epochs from {epochs_path}")
+    epochs = mne.read_epochs(str(path))
+    logger.info(f"Loaded {len(epochs)} epochs")
+    return epochs
 
-def baseline_normalize(power: np.ndarray, baseline: Tuple[float, float], mode: str = 'db') -> np.ndarray:
-    """Baseline normalize power to dB (T019)."""
-    # baseline is (start, end) in seconds.
-    # We need the time axis. For this simplified version, we assume we have time info.
-    # In real MNE TFR object, we have times.
-    # This function signature is simplified for the mock.
-    # Real implementation: power.apply_baseline(baseline, mode)
-    return power  # Placeholder: MNE handles this internally or we do it manually.
-
-def extract_mean_power(power_data: np.ndarray, times: np.ndarray, 
-                       baseline_window: Tuple[float, float], 
-                       target_electrodes: List[str], 
-                       freq_bands: Dict[str, Tuple[float, float]]) -> Dict[str, Any]:
+def compute_time_frequency(epochs: mne.Epochs, freqs: List[float], n_cycles: float = 3.0) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Extract mean power for specific electrodes and frequency bands (T020, T021).
-    Returns a dictionary suitable for saving as JSON.
+    Compute Morlet wavelet time-frequency decomposition.
+    
+    Args:
+        epochs: MNE Epochs object
+        freqs: List of frequencies to compute
+        n_cycles: Number of cycles for Morlet wavelets
+        
+    Returns:
+        Tuple of (tf_power, freqs, times)
     """
-    # This is a simplified logic. Real implementation requires mapping channel names to indices.
-    # We assume power_data is (n_epochs, n_channels, n_freqs, n_times)
-    # and we have a mapping of channel names to indices.
+    logger = get_logger(__name__)
+    logger.info(f"Computing time-frequency decomposition for {len(freqs)} frequencies")
     
-    results = {
-        "epoch_id": [],
-        "condition": [],
-        "P_alpha": [],
-        "Pz_alpha": [],
-        "P4_alpha": [],
-        "F3_beta": [],
-        "Fz_beta": [],
-        "F4_beta": []
-    }
+    # Use mne.time_frequency.tfr_morlet
+    tf_power = mne.time_frequency.tfr_morlet(
+        epochs, 
+        freqs=freqs, 
+        n_cycles=n_cycles, 
+        use_fft=True, 
+        return_itc=False, 
+        decim=1
+    )
     
-    # Mock extraction logic for T050 fix if real data is missing
-    # In a real run, this would iterate over epochs and compute actual values.
-    # Since we are fixing a missing file, we assume the previous steps failed to produce
-    # the intermediate data, so we cannot generate real values without re-running T010-T017.
-    # However, T050 requires the pipeline to run.
-    # We will raise an error if the input file is missing, but if it exists, we try to process.
+    # tf_power.data shape: (n_epochs, n_channels, n_freqs, n_times)
+    # We return the power array
+    return tf_power.data, np.array(freqs), tf_power.times
+
+def baseline_normalize(tf_power: np.ndarray, baseline: Tuple[float, float], mode: str = 'db') -> np.ndarray:
+    """
+    Apply baseline normalization to time-frequency power.
     
-    # For this fix, we assume the user has run T010-T017 successfully (or we are in a state where we can't).
-    # If we are here, we must produce the output.
-    # We will generate a placeholder structure if real data is not accessible,
-    # but the rule says "Fail Loudly". 
-    # So we will just return a structure that indicates failure if we can't compute.
+    Args:
+        tf_power: Time-frequency power array (n_epochs, n_channels, n_freqs, n_times)
+        baseline: Tuple of (start, end) in seconds for baseline period
+        mode: Normalization mode ('db' for decibels)
+        
+    Returns:
+        Normalized power array
+    """
+    logger = get_logger(__name__)
+    logger.info(f"Applying baseline normalization: mode={mode}, baseline={baseline}")
     
-    # Actually, the task T050 is to fix the pipeline. If T010-T017 failed, we can't fix T018.
-    # We assume T010-T017 are fixed or we are testing the fix of T050 which calls main.py.
-    # If T010-T017 are fixed, then epochs_cleaned.fif exists.
-    # We try to load it. If it fails, we raise.
+    # Create a dummy MNE EpochsArray to use mne's baseline functionality
+    # Or implement manually
+    # Manual implementation for db mode:
+    # 1. Identify baseline time indices
+    # 2. Compute mean baseline power per epoch, channel, freq
+    # 3. Convert to dB: 10 * log10(power / baseline_mean)
+    
+    times = np.arange(tf_power.shape[-1])  # We need actual times, but we don't have them here
+    # This function assumes we have access to times or we pass them
+    # For now, let's assume we get times from the caller or use indices
+    # Better: pass times as well or compute from epoch info
+    
+    # Simplified: assume we have times passed or we use a standard approach
+    # Let's re-implement to be more robust
+    raise NotImplementedError("Baseline normalization requires times array; refactor to accept times")
+
+def baseline_normalize_with_times(tf_power: np.ndarray, times: np.ndarray, baseline: Tuple[float, float], mode: str = 'db') -> np.ndarray:
+    """
+    Apply baseline normalization to time-frequency power with explicit times.
+    
+    Args:
+        tf_power: Time-frequency power array (n_epochs, n_channels, n_freqs, n_times)
+        times: Array of time points in seconds
+        baseline: Tuple of (start, end) in seconds for baseline period
+        mode: Normalization mode ('db' for decibels)
+        
+    Returns:
+        Normalized power array (same shape as input)
+    """
+    logger = get_logger(__name__)
+    logger.info(f"Applying baseline normalization: mode={mode}, baseline={baseline}")
+    
+    # Find baseline time indices
+    baseline_mask = (times >= baseline[0]) & (times <= baseline[1])
+    baseline_times = times[baseline_mask]
+    
+    if len(baseline_times) == 0:
+        raise ValueError(f"No time points in baseline range {baseline}")
+    
+    # Compute mean baseline power for each epoch, channel, frequency
+    baseline_power = tf_power[..., baseline_mask].mean(axis=-1, keepdims=True)
+    
+    # Avoid division by zero
+    baseline_power = np.where(baseline_power == 0, 1e-10, baseline_power)
+    
+    if mode == 'db':
+        # Convert to decibels: 10 * log10(power / baseline)
+        normalized = 10 * np.log10(tf_power / baseline_power)
+    elif mode == 'ratio':
+        normalized = tf_power / baseline_power
+    else:
+        raise ValueError(f"Unknown normalization mode: {mode}")
+    
+    logger.info(f"Baseline normalization complete. Output range: [{normalized.min():.2f}, {normalized.max():.2f}]")
+    return normalized
+
+def extract_mean_power(normalized_tf_power: np.ndarray, 
+                      times: np.ndarray, 
+                      freqs: np.ndarray, 
+                      ch_names: List[str],
+                      electrode_band_map: Dict[str, Tuple[str, float, float]]) -> Dict[str, np.ndarray]:
+    """
+    Extract mean power for specific electrode-band combinations.
+    
+    Args:
+        normalized_tf_power: Normalized time-frequency power (n_epochs, n_channels, n_freqs, n_times)
+        times: Time points in seconds
+        freqs: Frequencies in Hz
+        ch_names: List of channel names
+        electrode_band_map: Dict mapping electrode name to (band_name, freq_low, freq_high)
+                           Example: {'P3': ('alpha', 8.0, 12.0), 'F3': ('beta', 13.0, 30.0)}
+                           
+    Returns:
+        Dict mapping electrode_band_key to mean power array (n_epochs,)
+    """
+    logger = get_logger(__name__)
+    logger.info(f"Extracting mean power for {len(electrode_band_map)} electrode-band combinations")
+    
+    results = {}
+    
+    for electrode, (band, freq_low, freq_high) in electrode_band_map.items():
+        # Find channel index
+        if electrode not in ch_names:
+            logger.warning(f"Electrode {electrode} not found in channels. Skipping.")
+            continue
+        
+        ch_idx = ch_names.index(electrode)
+        
+        # Find frequency indices for the band
+        freq_mask = (freqs >= freq_low) & (freqs <= freq_high)
+        freq_indices = np.where(freq_mask)[0]
+        
+        if len(freq_indices) == 0:
+            logger.warning(f"No frequencies found for band {band} ({freq_low}-{freq_high} Hz) for {electrode}. Skipping.")
+            continue
+        
+        # Find time indices for the analysis window (e.g., post-stimulus 0.0 to 2.0s)
+        # Assuming we want the entire epoch or a specific window
+        # For visuospatial attention, we might look at 0.5-2.0s post-stimulus
+        time_window = (0.0, 2.0)  # Default to full epoch or adjust
+        time_mask = (times >= time_window[0]) & (times <= time_window[1])
+        time_indices = np.where(time_mask)[0]
+        
+        if len(time_indices) == 0:
+            logger.warning(f"No time points found in window {time_window}. Skipping.")
+            continue
+        
+        # Extract power for this electrode and frequency band
+        # Shape: (n_epochs, n_freqs, n_times)
+        power_subset = normalized_tf_power[:, ch_idx, freq_indices, :][:, :, time_indices]
+        
+        # Compute mean across frequencies and time
+        mean_power = power_subset.mean(axis=(1, 2))  # Average over freq and time, keep epochs
+        
+        key = f"{electrode}_{band}"
+        results[key] = mean_power
+        logger.info(f"Extracted {key}: shape={mean_power.shape}, mean={mean_power.mean():.4f}, std={mean_power.std():.4f}")
     
     return results
 
-def run_extraction(epochs_path: Path, config: Dict[str, Any]) -> None:
-    """Run the full extraction pipeline and save intermediate results."""
+def run_extraction(epochs_path: str, 
+                  output_path: str,
+                  freqs: List[float] = None,
+                  baseline: Tuple[float, float] = (-0.2, 0.0),
+                  electrode_band_map: Dict[str, Tuple[str, float, float]] = None) -> Dict[str, Any]:
+    """
+    Run the full feature extraction pipeline.
+    
+    Args:
+        epochs_path: Path to preprocessed epochs .fif file
+        output_path: Path to save feature matrix CSV
+        freqs: List of frequencies for TFR (default: alpha and beta ranges)
+        baseline: Baseline period for normalization
+        electrode_band_map: Mapping of electrodes to bands and frequencies
+        
+    Returns:
+        Dict with extraction results and metadata
+    """
     logger = get_logger(__name__)
+    logger.info("Starting feature extraction pipeline")
     
-    if not HAS_MNE:
-        logger.error("MNE-Python is not installed. Cannot run extraction.")
-        raise ImportError("MNE required")
+    # Load epochs
+    epochs = load_epochs(epochs_path)
+    ch_names = epochs.ch_names
     
-    try:
-        epochs = load_epochs(epochs_path)
-        logger.info(f"Loaded {len(epochs)} epochs.")
-        
-        # Define frequencies (e.g., 1-30 Hz)
-        freqs = np.linspace(1, 30, 15)
-        n_cycles = 3.0
-        
-        # Compute TFR
-        power = compute_time_frequency(epochs, freqs, n_cycles)
-        logger.info(f"Computed TFR: shape {power.shape}")
-        
-        # Extract features (simplified)
-        # We need to map channel names to indices.
-        # Assuming standard 10-20 system.
-        ch_names = epochs.ch_names
-        # Mock extraction for the sake of producing a file if real computation is too heavy for this snippet
-        # In a real scenario, we would call extract_mean_power.
-        
-        # Create a mock result for T050 to ensure the file is written if the logic is too complex
-        # but the goal is to run the real code.
-        # We will try to extract real data if possible.
-        
-        # For T050, we need to ensure the output file is written.
-        # We will create a minimal valid JSON structure if the real computation fails or is too slow.
-        # But the rule says "Fail Loudly".
-        # So we will just run the real code. If it fails, we report the error.
-        
-        # Mock data for demonstration if real data is not available in the environment
-        # (e.g. if MNE is installed but data is missing or corrupted)
-        n_epochs = len(epochs)
-        mock_data = {
-            "epoch_id": list(range(n_epochs)),
-            "condition": ["active" if i % 2 == 0 else "passive" for i in range(n_epochs)],
-            "P_alpha": np.random.rand(n_epochs) * 10,
-            "Pz_alpha": np.random.rand(n_epochs) * 10,
-            "P4_alpha": np.random.rand(n_epochs) * 10,
-            "F3_beta": np.random.rand(n_epochs) * 10,
-            "Fz_beta": np.random.rand(n_epochs) * 10,
-            "F4_beta": np.random.rand(n_epochs) * 10
+    # Default frequencies: alpha (8-12 Hz) and beta (13-30 Hz)
+    if freqs is None:
+        freqs = list(np.arange(4.0, 35.0, 1.0))
+    
+    # Default electrode-band map for parietal alpha and frontal beta
+    if electrode_band_map is None:
+        electrode_band_map = {
+            'P3': ('alpha', 8.0, 12.0),
+            'Pz': ('alpha', 8.0, 12.0),
+            'P4': ('alpha', 8.0, 12.0),
+            'F3': ('beta', 13.0, 30.0),
+            'Fz': ('beta', 13.0, 30.0),
+            'F4': ('beta', 13.0, 30.0)
         }
-        
-        # Save to JSON for T023 to consume
-        output_path = Path(config['OUTPUT_PATH']) / 'extraction_results.json'
-        with open(output_path, 'w') as f:
-            json.dump(mock_data, f)
-        
-        logger.info(f"Saved extraction results to {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Extraction failed: {e}")
-        raise
+    
+    # Compute time-frequency decomposition
+    tf_power, freqs_array, times = compute_time_frequency(epochs, freqs)
+    
+    # Baseline normalize
+    normalized_tf_power = baseline_normalize_with_times(tf_power, times, baseline)
+    
+    # Extract mean power
+    power_results = extract_mean_power(normalized_tf_power, times, freqs_array, ch_names, electrode_band_map)
+    
+    # Save results
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save individual power arrays as npy (for debugging/inspection)
+    for key, values in power_results.items():
+        npy_path = output_dir / f"{key}_power.npy"
+        np.save(str(npy_path), values)
+        logger.info(f"Saved {key} power to {npy_path}")
+    
+    # Create feature matrix DataFrame
+    import pandas as pd
+    n_epochs = len(epochs)
+    feature_dict = {
+        'epoch_id': np.arange(n_epochs),
+        'condition': epochs.events[:, 2]  # Assuming condition is in the third column of events
+    }
+    feature_dict.update({key: values for key, values in power_results.items()})
+    
+    df = pd.DataFrame(feature_dict)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved feature matrix to {output_path}")
+    
+    # Return metadata
+    metadata = {
+        'n_epochs': n_epochs,
+        'n_channels': len(ch_names),
+        'freqs': freqs_array.tolist(),
+        'baseline': baseline,
+        'electrode_band_map': electrode_band_map,
+        'output_file': output_path,
+        'features_extracted': list(power_results.keys())
+    }
+    
+    return metadata
 
 def main():
-    config = load_config()
-    paths = get_paths(config)
-    epochs_path = Path(paths['data_processed']) / 'epochs_cleaned.fif'
-    run_extraction(epochs_path, config)
+    """Main entry point for feature extraction."""
+    logger = get_logger(__name__)
+    config = get_config()
+    
+    epochs_path = config.get('OUTPUT_PATH', 'data/processed') + '/epochs_cleaned.fif'
+    output_path = config.get('OUTPUT_PATH', 'data/processed') + '/features_matrix.csv'
+    
+    # Default parameters
+    freqs = list(np.arange(4.0, 35.0, 1.0))
+    baseline = (-0.2, 0.0)
+    electrode_band_map = {
+        'P3': ('alpha', 8.0, 12.0),
+        'Pz': ('alpha', 8.0, 12.0),
+        'P4': ('alpha', 8.0, 12.0),
+        'F3': ('beta', 13.0, 30.0),
+        'Fz': ('beta', 13.0, 30.0),
+        'F4': ('beta', 13.0, 30.0)
+    }
+    
+    try:
+        metadata = run_extraction(
+            epochs_path=epochs_path,
+            output_path=output_path,
+            freqs=freqs,
+            baseline=baseline,
+            electrode_band_map=electrode_band_map
+        )
+        logger.info(f"Feature extraction completed successfully. Output: {output_path}")
+        return metadata
+    except Exception as e:
+        logger.error(f"Feature extraction failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -14,3 +14,11 @@ T022:
     \ (e.g., a validation script, test results, or failure logs), the claim cannot\
     \ be verified. The implementer must provide the actual validation implementation\
     \ and accompanying logs."
+T056:
+  c: false
+  h: c646670c6768a8a8198e25ee918726b7b0d8ef142a5db765cfcee5d580366fa8
+  r: The provided `main.py` defines a `verify_data_source()` function that meets the
+    verification logic, but there is no evidence that this function is actually invoked
+    in the pipeline, nor that it is called **after** the T010/T044 steps as required.
+    Additionally, the truncated file prevents confirming the ordering of calls. The
+    missing integration makes the task not fully satisfied.

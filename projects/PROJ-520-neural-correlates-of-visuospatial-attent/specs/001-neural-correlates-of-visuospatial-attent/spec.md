@@ -64,7 +64,7 @@ Train LDA classifier to distinguish active shift epochs from passive navigation 
 ### Functional Requirements
 
 - **FR-001**: System MUST download an OpenNeuro dataset and verify dataset contains EEG recordings with navigation task conditions (See US-1)
-- **FR-002**: System MUST apply bandpass filter (low-frequency cutoff) and remove line noise at /60 Hz before epoch extraction (See US-1)
+- **FR-002**: System MUST apply bandpass filter (low-frequency cutoff) and remove line noise at standard power-line frequency before epoch extraction. (See US-1)
 - **FR-003**: System MUST apply ICA-based artifact rejection with automatic component classification and manual review capability via log file or visual inspection interface (See US-1)
 - **FR-004**: System MUST segment data into -second epochs centered on attention shift events with ≥100 epochs per condition (See US-1)
 - **FR-005**: System MUST compute Morlet wavelet time-frequency decomposition for the low-to-mid frequency range across all epochs (See US-2)
