@@ -11,12 +11,12 @@
         "page": 40
       }
     ],
-    "audited_at": "2026-09-04T11:53:50.851817+00:00"
+    "audited_at": "2026-09-04T12:23:46.298263+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-781-memgui-agent-an-end-to-end-long-horizon",
-  "updated_at": "2026-09-04T11:53:50.851830+00:00"
+  "updated_at": "2026-09-04T12:23:46.298277+00:00"
 }
