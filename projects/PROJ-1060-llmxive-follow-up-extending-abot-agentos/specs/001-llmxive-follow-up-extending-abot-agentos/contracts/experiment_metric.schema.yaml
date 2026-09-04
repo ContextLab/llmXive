@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Metric Schema"
+description: "Schema for aggregated experimental results using Logistic Mixed Effects Model."
+type: "object"
+properties:
+  config_id:
+    type: "string"
+    description: "Unique identifier for the configuration."
+  success_rate:
+    type: "number"
+    description: "Fraction of successful tasks."
+    minimum: 0.0
+    maximum: 1.0
+  latency_mean_ms:
+    type: "number"
+    description: "Mean query latency in milliseconds."
+  latency_std_ms:
+    type: "number"
+    description: "Standard deviation of query latency."
+  memory_peak_mb:
+    type: "number"
+    description: "Peak RAM usage in megabytes."
+  glmm_fixed_effects:
+    type: "object"
+    description: "Fixed effect coefficients from the Logistic Mixed Effects Model."
+    additionalProperties:
+      type: "number"
+  glmm_random_effects_variance:
+    type: "number"
+    description: "Variance of the task-level random effect."
+  p_value_architecture:
+    type: "number"
+    description: "P-value for the architecture effect (Symbolic vs Neural)."
+  p_value_interaction:
+    type: "number"
+    description: "P-value for the architecture * granularity interaction."
+  error_counts:
+    type: "object"
+    description: "Counts of failure categories."
+    properties:
+      discretization_ambiguity:
+        type: "integer"
+        minimum: 0
+      logical_inference:
+        type: "integer"
+        minimum: 0
+    required:
+      - discretization_ambiguity
+      - logical_inference
+  baseline_comparison:
+    type: "object"
+    description: "Comparison with neural baseline."
+    properties:
+      success_rate_diff:
+        type: "number"
+        description: "Difference in success rate (Symbolic - Neural)."
+      memory_reduction_percent:
+        type: "number"
+        description: "Percentage reduction in memory usage."
+required:
+  - config_id
+  - success_rate
+  - latency_mean_ms
+  - memory_peak_mb
+  - glmm_fixed_effects
+  - p_value_architecture
+  - error_counts
+  - baseline_comparison
+additionalProperties: false
