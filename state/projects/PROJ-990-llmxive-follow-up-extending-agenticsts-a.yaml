@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-04T21:55:19.825857Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-990-llmxive-follow-up-extending-agenticsts-a
-last_run_id: f35c6dbe-ca1a-4774-a7bb-1f8c9d419c0c
+last_run_id: f5cd42d6-3763-4408-88ce-2945060764a3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a
 title: 'llmXive follow-up: extending "AgenticSTS: A Bounded-Memory Testbed for Long-Horizon
   LLM Agents"'
-updated_at: '2026-09-01T08:05:03.324232Z'
+updated_at: '2026-09-04T08:23:23.490343Z'
