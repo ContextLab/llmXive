@@ -4,389 +4,238 @@ import hashlib
 import warnings
 import torch
 import numpy as np
-from typing import Dict, Any, Optional, Tuple, List, Union
+import json
+import pandas as pd
 from pathlib import Path
+from typing import Dict, Any, Optional, Tuple, List, Iterator, Union
+from torch.utils.data import Dataset, DataLoader
+import pyarrow.parquet as pq
 
-from transformers import LayoutLMv3Processor
-import torchvision.transforms as transforms
-from PIL import Image, ImageChops, ImageFilter
-
-from config import get_config_dict
+from config import get_config_dict, ensure_dirs
 from models.rf_encoder import RFEncoder, create_rf_encoder
+from data.loaders import load_publaynet
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ImagePreprocessingError(Exception):
-    """Custom exception for image preprocessing failures."""
+    """Custom exception for preprocessing errors."""
     pass
 
-def _is_blank_or_corrupted(image: Image.Image, threshold: int = 10) -> bool:
+def load_image(image_path: str) -> np.ndarray:
     """
-    Detects if an image is blank (uniform) or corrupted.
-    
-    Args:
-        image: PIL Image object.
-        threshold: Maximum allowed standard deviation for an image to be considered blank.
-        
-    Returns:
-        True if the image is blank or corrupted, False otherwise.
+    Load an image from disk using PIL and convert to numpy array.
     """
     try:
-        # Convert to grayscale for uniformity check
-        gray = image.convert('L')
-        np_img = np.array(gray)
-        
-        # Check for extreme corruption (e.g., all NaNs or Inf if somehow loaded weirdly)
-        if np.any(np.isnan(np_img)) or np.any(np.isinf(np_img)):
-            logger.warning("Image contains NaN or Inf values, treating as corrupted.")
-            return True
-        
-        # Check standard deviation to detect blank/white pages
-        std_dev = np.std(np_img)
-        
-        # If standard deviation is very low, the image is likely blank (white or black)
-        if std_dev < threshold:
-            logger.warning(f"Image detected as blank (std_dev={std_dev:.2f} < {threshold}).")
-            return True
-        
-        # Optional: Check if the image is completely white (often indicates a failed render)
-        if np.all(np_img == 255):
-            logger.warning("Image detected as completely white (blank).")
-            return True
-            
-        return False
+        from PIL import Image
+        img = Image.open(image_path).convert("RGB")
+        return np.array(img)
     except Exception as e:
-        logger.error(f"Error during blank/corruption check: {e}")
-        return True
+        raise ImagePreprocessingError(f"Failed to load image {image_path}: {e}")
 
-def load_image(path: Union[str, Path]) -> Image.Image:
+def resize_image(image: np.ndarray, target_size: Tuple[int, int] = (224, 224)) -> np.ndarray:
     """
-    Load an image from disk.
-    
-    Args:
-        path: Path to the image file.
-        
-    Returns:
-        PIL Image object.
-        
-    Raises:
-        ImagePreprocessingError: If the image cannot be loaded.
+    Resize image to target dimensions.
     """
     try:
-        img = Image.open(path)
-        img.load()  # Force load to catch corruption early
-        # Ensure RGB mode for consistency
-        if img.mode != 'RGB':
-            img = img.convert('RGB')
-        return img
+        from PIL import Image
+        img_pil = Image.fromarray(image)
+        resized = img_pil.resize(target_size, Image.Resampling.LANCZOS)
+        return np.array(resized)
     except Exception as e:
-        raise ImagePreprocessingError(f"Failed to load image {path}: {e}")
+        raise ImagePreprocessingError(f"Failed to resize image: {e}")
 
-def resize_image(image: Image.Image, size: Tuple[int, int] = (224, 224)) -> Image.Image:
+def normalize_image(image: np.ndarray) -> np.ndarray:
     """
-    Resize an image to the target dimensions.
-    
-    Args:
-        image: PIL Image object.
-        size: Target (width, height).
-        
-    Returns:
-        Resized PIL Image.
+    Normalize image pixel values to [0, 1] range if in 0-255 range.
     """
-    return image.resize(size, Image.Resampling.LANCZOS)
+    if image.max() > 1.0:
+        return image.astype(np.float32) / 255.0
+    return image.astype(np.float32)
 
-def normalize_image(image: Image.Image, mean: List[float] = [0.485, 0.456, 0.406], 
-                    std: List[float] = [0.229, 0.224, 0.225]) -> torch.Tensor:
+def image_to_tensor(image: np.ndarray) -> torch.Tensor:
     """
-    Normalize an image tensor.
-    
-    Args:
-        image: PIL Image.
-        mean: Mean values for normalization.
-        std: Standard deviation values for normalization.
-        
-    Returns:
-        Normalized torch tensor.
+    Convert numpy image array to PyTorch tensor (C, H, W).
     """
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=mean, std=std)
-    ])
-    return transform(image)
+    if image.ndim == 3:
+        # H, W, C -> C, H, W
+        tensor = torch.from_numpy(image).permute(2, 0, 1)
+    else:
+        tensor = torch.from_numpy(image)
+    return tensor.float()
 
 def detect_and_clamp_nans(tensor: torch.Tensor) -> torch.Tensor:
     """
-    Detects NaNs in a tensor and clamps them to zero.
-    
-    Args:
-        tensor: Input tensor.
-        
-    Returns:
-        Tensor with NaNs replaced by 0.
+    Detect NaNs and Inf in tensor and clamp them to zero.
     """
-    if torch.isnan(tensor).any():
-        logger.warning("NaN detected in tensor. Clamping to 0.")
-        tensor = torch.nan_to_num(tensor, nan=0.0)
+    if torch.isnan(tensor).any() or torch.isinf(tensor).any():
+        logger.warning("Detected NaN or Inf values in tensor. Clamping to 0.")
+        tensor = torch.where(torch.isnan(tensor), torch.tensor(0.0), tensor)
+        tensor = torch.where(torch.isinf(tensor), torch.tensor(0.0), tensor)
     return tensor
 
-def image_to_tensor(image: Image.Image) -> torch.Tensor:
+def pad_or_truncate_sequence(sequence: List[float], target_len: int, pad_value: float = 0.0) -> List[float]:
     """
-    Convert PIL Image to normalized torch tensor.
-    
-    Args:
-        image: PIL Image.
-        
-    Returns:
-        Normalized tensor.
+    Pad or truncate a sequence to target length.
     """
-    return normalize_image(image)
+    if len(sequence) >= target_len:
+        return sequence[:target_len]
+    return sequence + [pad_value] * (target_len - len(sequence))
 
-def pad_or_truncate_sequence(sequence: torch.Tensor, max_length: int, padding_value: float = 0.0) -> torch.Tensor:
+def handle_corruption(image_shape: Tuple[int, int]) -> List[float]:
     """
-    Pads or truncates a sequence to a fixed length.
-    
-    Args:
-        sequence: Input tensor sequence.
-        max_length: Target length.
-        padding_value: Value to use for padding.
-        
-    Returns:
-        Padded or truncated tensor.
+    Return a minimal valid structure for blank/corrupted images.
+    Returns a sequence of zeros representing a minimal token sequence.
     """
-    current_length = sequence.shape[0]
-    if current_length == max_length:
-        return sequence
-    elif current_length < max_length:
-        padding_shape = (max_length - current_length,) + sequence.shape[1:]
-        padding = torch.full(padding_shape, padding_value, dtype=sequence.dtype)
-        return torch.cat([sequence, padding], dim=0)
-    else:
-        return sequence[:max_length]
+    # Assuming a minimal token sequence length of 10 for corruption handling
+    return [0.0] * 10
 
-def extract_rf_tokens(image: Image.Image, encoder: RFEncoder, processor: LayoutLMv3Processor, 
-                      max_seq_length: int = 512, device: str = "cpu") -> torch.Tensor:
+def extract_tokens(model: RFEncoder, image_tensor: torch.Tensor) -> List[float]:
     """
-    Extracts RF tokens from an image using a frozen RF encoder.
-    
-    Args:
-        image: PIL Image.
-        encoder: Frozen RFEncoder instance.
-        processor: LayoutLMv3Processor.
-        max_seq_length: Maximum sequence length for tokens.
-        device: Device to run inference on.
-        
-    Returns:
-        Extracted token tensor (padded/truncated).
+    Extract intermediate representation tokens from the frozen RF encoder.
+    Expects image_tensor in shape (C, H, W).
+    Returns a list of token embeddings (flattened).
     """
-    # Prepare inputs
-    # Since we are using LayoutLMv3, we need dummy bounding boxes if not provided, 
-    # or we rely on the encoder's internal handling if it's a vision-only wrapper.
-    # Assuming the RFEncoder handles the vision part and expects standard inputs.
-    
-    inputs = processor(
-        images=image, 
-        return_tensors="pt", 
-        padding="max_length", 
-        max_length=max_seq_length
-    )
-    
-    # Move to device
-    inputs = {k: v.to(device) for k, v in inputs.items()}
-    
-    # Disable gradients for frozen encoder
+    model.eval()
     with torch.no_grad():
-        outputs = encoder(**inputs)
-        # Assuming the encoder returns hidden states or a specific token representation
-        # Adjust key based on actual RFEncoder output structure
-        if isinstance(outputs, dict):
-            # Common case: 'last_hidden_state' or 'pooler_output'
-            tokens = outputs.get('last_hidden_state', outputs.get('pooler_output'))
-        else:
-            tokens = outputs
+        # Ensure input is batched: (B, C, H, W)
+        if image_tensor.dim() == 3:
+            image_tensor = image_tensor.unsqueeze(0)
         
-        if tokens is None:
-            raise ImagePreprocessingError("Encoder returned None tokens.")
-        
-        # Ensure it's a tensor
-        if not isinstance(tokens, torch.Tensor):
-            tokens = torch.tensor(tokens)
-        
-        # Handle NaNs
-        tokens = detect_and_clamp_nans(tokens)
-        
-        # If tokens are 3D (batch, seq, dim), squeeze batch
-        if tokens.dim() == 3:
-            tokens = tokens.squeeze(0)
-        
-        # Pad or truncate
-        tokens = pad_or_truncate_sequence(tokens, max_seq_length)
-        
-    return tokens
-
-def load_and_preprocess_image(image_path: Union[str, Path], encoder: Optional[RFEncoder] = None,
-                              processor: Optional[LayoutLMv3Processor] = None,
-                              max_seq_length: int = 512,
-                              device: str = "cpu") -> Dict[str, Any]:
-    """
-    Main function to load, validate, and preprocess an image for RF token extraction.
-    Handles corrupted/blank images by returning a minimal valid structure.
-    
-    Args:
-        image_path: Path to image.
-        encoder: RFEncoder instance.
-        processor: LayoutLMv3Processor instance.
-        max_seq_length: Max sequence length.
-        device: Device.
-        
-    Returns:
-        Dictionary containing 'tokens', 'is_valid', 'error' (if any).
-    """
-    result = {
-        "tokens": None,
-        "is_valid": False,
-        "error": None,
-        "path": str(image_path)
-    }
-    
-    try:
-        # 1. Load Image
-        image = load_image(image_path)
-        
-        # 2. Check for Blank/Corrupted
-        if _is_blank_or_corrupted(image):
-            logger.warning(f"Skipping blank or corrupted image: {image_path}")
-            result["error"] = "Blank or corrupted image detected"
-            # Return minimal valid structure (zeros)
-            result["tokens"] = torch.zeros((max_seq_length, 768)) # Assuming 768 dim for LayoutLMv3
-            result["is_valid"] = True # Considered "processed" successfully as a valid empty case
-            return result
-        
-        # 3. Extract Tokens if encoder provided
-        if encoder is not None and processor is not None:
-            result["tokens"] = extract_rf_tokens(image, encoder, processor, max_seq_length, device)
-            result["is_valid"] = True
-        else:
-            # If no encoder, just return the processed image tensor
-            result["tokens"] = image_to_tensor(image)
-            result["is_valid"] = True
+        try:
+            # Forward pass through encoder only
+            # The RFEncoder wrapper should handle the LayoutLMv3 extraction
+            # and return the hidden states (tokens)
+            output = model(image_tensor)
             
-    except ImagePreprocessingError as e:
-        logger.error(f"Preprocessing error for {image_path}: {e}")
-        result["error"] = str(e)
-        result["tokens"] = torch.zeros((max_seq_length, 768))
-        result["is_valid"] = True # Graceful degradation
+            # output is expected to be a dict or tensor containing hidden states
+            if isinstance(output, dict):
+                # Assuming 'last_hidden_state' or similar key
+                tokens = output.get('last_hidden_state', output.get('hidden_states', None))
+                if tokens is None:
+                    raise ImagePreprocessingError("Model output does not contain expected token keys.")
+            else:
+                tokens = output
+            
+            # Flatten tokens to a 1D list of floats
+            # Shape: (B, Seq_Len, Hidden_Dim) -> (Seq_Len * Hidden_Dim)
+            tokens_np = tokens.cpu().numpy().flatten()
+            return tokens_np.tolist()
+            
+        except Exception as e:
+            raise ImagePreprocessingError(f"Failed to extract tokens: {e}")
+
+def pad_sequences(tokens_list: List[List[float]], max_len: int) -> List[List[float]]:
+    """
+    Pad a list of token sequences to a fixed context window (max_len).
+    """
+    return [pad_or_truncate_sequence(seq, max_len) for seq in tokens_list]
+
+def load_and_preprocess_image(model: RFEncoder, image_path: str, max_tokens: int = 512) -> List[float]:
+    """
+    Full pipeline: load, resize, normalize, extract tokens, clamp nans.
+    """
+    try:
+        img = load_image(image_path)
+        img = resize_image(img)
+        img = normalize_image(img)
+        tensor = image_to_tensor(img)
+        tensor = detect_and_clamp_nans(tensor)
+        
+        tokens = extract_tokens(model, tensor)
+        return tokens
     except Exception as e:
-        logger.error(f"Unexpected error for {image_path}: {e}")
-        result["error"] = str(e)
-        result["tokens"] = torch.zeros((max_seq_length, 768))
-        result["is_valid"] = True
-        
-    return result
+        logger.error(f"Error processing {image_path}: {e}")
+        # Return minimal valid structure on error
+        return handle_corruption((224, 224))
 
-class PubLayNetPreprocessedDataset(torch.utils.data.Dataset):
-    """Dataset wrapper for PubLayNet with preprocessing and error handling."""
-    
-    def __init__(self, dataset, encoder: Optional[RFEncoder] = None, 
-                 processor: Optional[LayoutLMv3Processor] = None,
-                 max_seq_length: int = 512, device: str = "cpu"):
-        self.dataset = dataset
-        self.encoder = encoder
-        self.processor = processor
-        self.max_seq_length = max_seq_length
-        self.device = device
+class PubLayNetPreprocessedDataset(Dataset):
+    """
+    Dataset class for RF token pairs.
+    Loads from the parquet file produced by T016.
+    """
+    def __init__(self, parquet_path: str, config: Dict[str, Any]):
+        super().__init__()
+        self.parquet_path = parquet_path
+        self.config = config
+        self.max_len = config.get('max_context_window', 512)
         
+        if not os.path.exists(parquet_path):
+            raise FileNotFoundError(f"Token artifact not found: {parquet_path}")
+        
+        # Load parquet into pandas
+        self.df = pd.read_parquet(parquet_path)
+        
+        # Ensure necessary columns exist
+        if 'tokens' not in self.df.columns:
+            raise ValueError("Parquet file must contain 'tokens' column.")
+        
+        logger.info(f"Loaded {len(self.df)} samples from {parquet_path}")
+
     def __len__(self):
-        return len(self.dataset)
-        
-    def __getitem__(self, idx):
-        item = self.dataset[idx]
-        # Assume item has 'image_path' or 'image' key
-        image_path = item.get('image_path') or item.get('file_path')
-        
-        if not image_path:
-            # Fallback if image is already loaded in item
-            image = item.get('image')
-            if image is None:
-                raise ImagePreprocessingError(f"No image data at index {idx}")
-            # Process in-memory image
-            result = load_and_preprocess_image(image, self.encoder, self.processor, 
-                                               self.max_seq_length, self.device)
-        else:
-            result = load_and_preprocess_image(image_path, self.encoder, self.processor, 
-                                               self.max_seq_length, self.device)
-        
-        return {
-            "tokens": result["tokens"],
-            "is_valid": result["is_valid"],
-            "error": result["error"],
-            "original_index": idx
-        }
+        return len(self.df)
 
-def create_preprocessing_dataloader(dataset, encoder: Optional[RFEncoder] = None,
-                                    processor: Optional[LayoutLMv3Processor] = None,
-                                    max_seq_length: int = 512, 
-                                    batch_size: int = 8, 
-                                    device: str = "cpu",
-                                    num_workers: int = 0):
+    def __getitem__(self, idx):
+        row = self.df.iloc[idx]
+        tokens = row['tokens']
+        
+        # If tokens is stored as a string (e.g. JSON), parse it
+        if isinstance(tokens, str):
+            tokens = json.loads(tokens)
+        
+        # Pad or truncate to fixed context window
+        tokens = pad_or_truncate_sequence(tokens, self.max_len)
+        
+        # Convert to tensor
+        x = torch.tensor(tokens, dtype=torch.float32)
+        
+        # Create a dummy target for now (US2 will define real targets)
+        # For T023, we just need the DataLoader structure for RF tokens
+        # Target could be the original text/structure if available, or dummy
+        y = torch.zeros(1, dtype=torch.long) # Placeholder target
+        
+        return x, y
+
+def create_preprocessing_dataloader(parquet_path: str, config: Dict[str, Any], batch_size: int = 4) -> DataLoader:
     """
-    Creates a DataLoader for the preprocessed dataset.
+    Create a PyTorch DataLoader for the RF token pairs.
     """
-    preprocessed_ds = PubLayNetPreprocessedDataset(
-        dataset, encoder, processor, max_seq_length, device
-    )
-    
-    return torch.utils.data.DataLoader(
-        preprocessed_ds, 
+    dataset = PubLayNetPreprocessedDataset(parquet_path, config)
+    dataloader = DataLoader(
+        dataset, 
         batch_size=batch_size, 
-        shuffle=False,
-        num_workers=num_workers,
-        collate_fn=lambda batch: {
-            "tokens": torch.stack([b["tokens"] for b in batch]),
-            "is_valid": torch.tensor([b["is_valid"] for b in batch]),
-            "error": [b["error"] for b in batch],
-            "original_index": [b["original_index"] for b in batch]
-        }
+        shuffle=False, 
+        num_workers=0, # Keep 0 for CPU-only compatibility as per constraints
+        drop_last=False
     )
+    return dataloader
 
 def main():
     """
-    Entry point for testing preprocessing with error handling.
+    Main entry point to test the DataLoader creation.
     """
     config = get_config_dict()
-    device = "cpu" # Enforce CPU as per constraints
+    ensure_dirs(config)
     
-    # Load encoder and processor
-    logger.info("Loading RF Encoder and Processor...")
-    encoder = create_rf_encoder()
-    processor = LayoutLMv3Processor.from_pretrained("microsoft/layoutlmv3-base")
+    # Path to the tokens.parquet produced by T016
+    # Assuming standard output path from T016
+    tokens_path = Path(config.get('data_dir', 'data')) / 'processed' / 'tokens.parquet'
     
-    # Create a dummy test case for blank image handling
-    # Since we don't have a real blank image file guaranteed, we simulate one
-    # by creating a blank PIL image and passing it to the logic if we had a path.
-    # Instead, we test the logic directly.
+    if not tokens_path.exists():
+        logger.error(f"Required artifact {tokens_path} not found. Run T016 first.")
+        # In a real pipeline, this would be a hard failure
+        return
     
-    logger.info("Testing blank image handling...")
-    from PIL import Image
-    blank_img = Image.new('RGB', (224, 224), color=(255, 255, 255))
+    logger.info(f"Creating DataLoader for {tokens_path}")
+    dataloader = create_preprocessing_dataloader(str(tokens_path), config, batch_size=4)
     
-    # Save to temp to test file path logic
-    import tempfile
-    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-        blank_img.save(tmp.name)
-        temp_path = tmp.name
+    # Iterate over a few batches to verify
+    for i, (x, y) in enumerate(dataloader):
+        logger.info(f"Batch {i}: x shape {x.shape}, y shape {y.shape}")
+        if i >= 2:
+            break
     
-    try:
-        result = load_and_preprocess_image(temp_path, encoder, processor, device=device)
-        print(f"Result for blank image: valid={result['is_valid']}, error={result['error']}")
-        assert result['is_valid'] == True, "Blank image should be handled gracefully"
-        assert result['tokens'] is not None, "Tokens should be generated (zeros)"
-        print("Blank image handling test PASSED.")
-    finally:
-        os.unlink(temp_path)
-        
-    logger.info("Preprocessing module test completed.")
+    logger.info("DataLoader verification successful.")
 
 if __name__ == "__main__":
     main()

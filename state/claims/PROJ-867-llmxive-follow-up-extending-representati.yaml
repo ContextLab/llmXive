@@ -903,24 +903,6 @@
   status: verified
   updated_at: '2026-08-06T13:03:01Z'
 - artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
-  attempts: 2
-  canonical: fetch PubLayNet dataset from HuggingFace facebook/publaynet with SHA-256
-    checksum verification
-  claim_id: c_0429abf4
-  context: T005 [P] Implement code/data/loaders.py to fetch PubLayNet dataset from
-    HuggingFace (facebook/publaynet) with SHA-256 checksum verification
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement code/data/loaders.py to fetch PubLayNet dataset from HuggingFace
-    (facebook/publaynet) with SHA-256 checksum verification
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-01T09:24:07Z'
-- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
   attempts: 1
   canonical: wrap microsoft/layoutlmv3-base with frozen weights and disabled pixel-decoder
     layers
@@ -1205,3 +1187,686 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T09:34:21Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: RF encoder wraps microsoft/layoutlmv3-base with frozen weights
+  claim_id: c_658eba6d
+  context: 'T015 [S] [US1] Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen. Critical: Verify pixel-decoder weights are NOT loaded into
+    memory; ensure decoder layers are explicitly excluded during model initialization.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RF_encoder_wraps_microsoft/layoutlmv3-base_with_frozen_weigh
+  kind: entity_fact
+  raw_text: Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:33:30Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Pixel-Baseline Model trained with maximum 2 epochs, 4GB RAM limit, and
+    12GB disk limit
+  claim_id: c_2f71060c
+  context: T026 [S] [US2] Implement code/train.py logic to train the Pixel-Baseline
+    Model under identical constraints (max 2 epochs, 4GB RAM/12GB disk limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train the Pixel-Baseline Model under identical constraints (max 2 epochs,
+    4GB RAM/12GB disk limit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:34:00Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Training loop stopping criterion is hard epoch limit only, plateau detection
+    disabled
+  claim_id: c_70c1b45b
+  context: 'T025 [S] [US2] Implement code/train.py training loop (depends on T022,
+    T023, T024). Critical: Implement validation loss plateau detection logic only
+    for logging/diagnostics. Formal waiver of FR-003 convergence stop condition: The
+    training loop must NOT stop on plateau; the hard epoch limit (Constitution VII)
+    is the ONLY stopping criterion.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_loop_stopping_criterion_is_hard_epoch_limit_only,_p
+  kind: entity_fact
+  raw_text: The training loop must NOT stop on plateau; the hard epoch limit (Constitution
+    VII) is the ONLY stopping criterion
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:34:43Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 2
+  canonical: resource monitor enforces 4GB memory limit and 12GB disk usage limit
+    checked every 10 seconds
+  claim_id: c_b6b19d1f
+  context: T004 [P] Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage) derived from FR-007, with active monitoring,
+    logging of resource trends, and process kill on overflow; include mock test for
+    verification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:40:48Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: resource monitor checks disk usage every 10 seconds
+  claim_id: c_f664c6cd
+  context: T004 [P] Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage) derived from FR-007, with active monitoring,
+    logging of resource trends, and process kill on overflow; include mock test for
+    verification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:40:48Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 2
+  canonical: PubLayNet dataset fetched from HuggingFace facebook/publaynet with SHA-256
+    checksum verification
+  claim_id: c_734a9093
+  context: T005 [P] Implement code/data/loaders.py to fetch PubLayNet dataset from
+    HuggingFace (facebook/publaynet) with SHA-256 checksum verification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/loaders.py to fetch PubLayNet dataset from HuggingFace
+    (facebook/publaynet) with SHA-256 checksum verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:40:48Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: rf_encoder wraps microsoft/layoutlmv3-base with frozen weights
+  claim_id: c_8d68f65f
+  context: 'T015 [S] [US1] Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen. Critical: Verify pixel-decoder weights are NOT loaded into
+    memory; ensure decoder layers are explicitly excluded during model initialization.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Rf_encoder_wraps_microsoft/layoutlmv3-base_with_frozen_weigh
+  kind: entity_fact
+  raw_text: Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:40:51Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: training loop uses hard epoch limit as only stopping criterion
+  claim_id: c_528283f6
+  context: 'T025 [S] [US2] Implement code/train.py training loop (depends on T022,
+    T023, T024). Critical: Implement validation loss plateau detection logic only
+    for logging/diagnostics. Formal waiver of FR-003 convergence stop condition: The
+    training loop must NOT stop on plateau; the hard epoch limit (Constitution VII)
+    is the ONLY stopping criterion.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_loop_uses_hard_epoch_limit_as_only_stopping_criteri
+  kind: entity_fact
+  raw_text: The training loop must NOT stop on plateau; the hard epoch limit (Constitution
+    VII) is the ONLY stopping criterion
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:40:55Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Pixel-Baseline Model trained for max 2 epochs with 4GB RAM and 12GB disk
+    limit
+  claim_id: c_4aae78fc
+  context: T026 [S] [US2] Implement code/train.py logic to train the Pixel-Baseline
+    Model under identical constraints (max 2 epochs, 4GB RAM/12GB disk limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/train.py logic to train the Pixel-Baseline Model under
+    identical constraints (max 2 epochs, 4GB RAM/12GB disk limit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:41:33Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Pixel-Baseline Model trained with 4GB RAM limit
+  claim_id: c_20e10884
+  context: T026 [S] [US2] Implement code/train.py logic to train the Pixel-Baseline
+    Model under identical constraints (max 2 epochs, 4GB RAM/12GB disk limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/train.py logic to train the Pixel-Baseline Model under
+    identical constraints (max 2 epochs, 4GB RAM/12GB disk limit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:41:33Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Pixel-Baseline Model trained with 12GB disk limit
+  claim_id: c_76542104
+  context: T026 [S] [US2] Implement code/train.py logic to train the Pixel-Baseline
+    Model under identical constraints (max 2 epochs, 4GB RAM/12GB disk limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/train.py logic to train the Pixel-Baseline Model under
+    identical constraints (max 2 epochs, 4GB RAM/12GB disk limit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:41:33Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test performed on aggregated scores
+  claim_id: c_d415a880
+  context: 'T035 [S] [US3] Implement code/utils/stats.py logic to perform Wilcoxon
+    signed-rank test on data/results/aggregated_scores.json (depends on T034). Critical:
+    Perform test on the per-image distribution to determine statistical significance
+    (FR-006).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_performed_on_aggregated_scores
+  kind: entity_fact
+  raw_text: Implement code/utils/stats.py logic to perform Wilcoxon signed-rank test
+    on data/results/aggregated_scores.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:42:17Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: McNemar's test performed on binary validity rates
+  claim_id: c_50d9b49d
+  context: 'T034 [S] [US3] Implement code/main.py orchestration to run RF and Baseline
+    training, evaluation, and statistical comparison sequentially across multiple
+    random seeds. Critical: Must generate and structure data/results/aggregated_scores.json
+    with per-image scores for each random seed (raw data). Verify input structure
+    before aggregation. Perform McNemar''s test on binary validity rates (FR-006).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_performed_on_binary_validity_rates
+  kind: entity_fact
+  raw_text: Perform McNemar's test on binary validity rates
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:43:27Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: frozen RF encoder processes single image without CUDA or pixel-decoding
+    layers
+  claim_id: c_8a9b9431
+  context: 'Independent Test: The system loads a frozen encoder, processes a single
+    image, and outputs a tensor of correct dimensionality without CUDA or pixel-decoding
+    layers.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Frozen_RF_encoder_processes_single_image_without_CUDA_or_pix
+  kind: entity_fact
+  raw_text: The system loads a frozen encoder, processes a single image, and outputs
+    a tensor of correct dimensionality without CUDA or pixel-decoding layers.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:45:35Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: model produces syntactically valid JSON/Markdown for validation samples
+    after limited epochs
+  claim_id: c_7a24ffe8
+  context: 'Independent Test: The system trains the model for a limited number of
+    epochs (Constitution VII) and produces syntactically valid JSON/Markdown strings
+    for a subset of validation samples.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_produces_syntactically_valid_JSON/Markdown_for_validat
+  kind: entity_fact
+  raw_text: The system trains the model for a limited number of epochs (Constitution
+    VII) and produces syntactically valid JSON/Markdown strings for a subset of validation
+    samples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:46:28Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: RF model reports superior validity rates on low-contrast/high-complexity
+    images compared to baseline
+  claim_id: c_594dc489
+  context: 'Independent Test: The system evaluates both models on low-contrast/high-complexity
+    images and reports superior RF validity rates.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RF_model_reports_superior_validity_rates_on_low-contrast/hig
+  kind: entity_fact
+  raw_text: The system evaluates both models on low-contrast/high-complexity images
+    and reports superior RF validity rates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:47:14Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 3
+  canonical: enforce 4GB memory limit and 12GB disk usage limit checked every 10 seconds
+  claim_id: c_13367071
+  context: T004 [P] Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage) derived from FR-007...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:49:26Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 3
+  canonical: fetch PubLayNet dataset from HuggingFace facebook/publaynet with SHA-256
+    checksum verification
+  claim_id: c_0429abf4
+  context: T005 [P] Implement code/data/loaders.py to fetch PubLayNet dataset from
+    HuggingFace (facebook/publaynet) with SHA-256 checksum verification
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/loaders.py to fetch PubLayNet dataset from HuggingFace
+    (facebook/publaynet) with SHA-256 checksum verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:49:27Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: wrap microsoft/layoutlmv3-base with weights frozen
+  claim_id: c_bddb3fb2
+  context: T015 [S] [US1] Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wrap_microsoft/layoutlmv3-base_with_weights_frozen
+  kind: entity_fact
+  raw_text: Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:49:29Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 3
+  canonical: train Pixel-Baseline Model with max 2 epochs, 4GB RAM, and 12GB disk
+    limit
+  claim_id: c_172bb387
+  context: T026 [S] [US2] Implement code/train.py logic to train the Pixel-Baseline
+    Model under identical constraints (max 2 epochs, 4GB RAM/12GB disk limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train the Pixel-Baseline Model under identical constraints (max 2 epochs,
+    4GB RAM/12GB disk limit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:49:30Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Enforce 4GB memory limit and 12GB disk usage limit checked every 10 seconds
+  claim_id: c_11838521
+  context: T004 [P] Implement code/utils/resource_monitor.py... derived from FR-007
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:50:27Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Enforce 12GB disk usage limit checked every 10 seconds
+  claim_id: c_6e2bf8cc
+  context: T004 [P] Implement code/utils/resource_monitor.py... derived from FR-007
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils/resource_monitor.py... with significant disk usage
+    limit (12GB, checked every 10s via os.disk_usage)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:51:01Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Resource monitoring check interval is 10 seconds
+  claim_id: c_e25ef695
+  context: T004 [P] Implement code/utils/resource_monitor.py... derived from FR-007
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/utils/resource_monitor.py... checked every 10s via os.disk_usage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:51:16Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Fetch PubLayNet dataset from HuggingFace using SHA-256 checksum verification
+  claim_id: c_5be005b1
+  context: T005 [P] Implement code/data/loaders.py...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/loaders.py to fetch PubLayNet dataset from HuggingFace
+    (facebook/publaynet) with SHA-256 checksum verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:51:16Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Wrap microsoft/layoutlmv3-base model with frozen weights
+  claim_id: c_b05af8b2
+  context: T015 [S] [US1] Implement code/models/rf_encoder.py...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wrap_microsoft/layoutlmv3-base_model_with_frozen_weights
+  kind: entity_fact
+  raw_text: Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:51:20Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Train Pixel-Baseline Model for maximum 2 epochs with 4GB RAM and 12GB
+    disk limit
+  claim_id: c_a5624924
+  context: T026 [S] [US2] Implement code/train.py logic...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/train.py logic to train the Pixel-Baseline Model under
+    identical constraints (max 2 epochs, 4GB RAM/12GB disk limit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:51:20Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Train Pixel-Baseline Model with 4GB RAM limit
+  claim_id: c_1b16b951
+  context: T026 [S] [US2] Implement code/train.py logic...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/train.py logic to train the Pixel-Baseline Model under
+    identical constraints (max 2 epochs, 4GB RAM/12GB disk limit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:51:20Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Train Pixel-Baseline Model with 12GB disk limit
+  claim_id: c_d544c138
+  context: T026 [S] [US2] Implement code/train.py logic...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/train.py logic to train the Pixel-Baseline Model under
+    identical constraints (max 2 epochs, 4GB RAM/12GB disk limit)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:51:20Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Perform Wilcoxon signed-rank test on aggregated scores
+  claim_id: c_e23ceec4
+  context: T035 [S] [US3] Implement code/utils/stats.py logic...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Wilcoxon_signed-rank_test_on_aggregated_scores
+  kind: entity_fact
+  raw_text: Perform Wilcoxon signed-rank test on data/results/aggregated_scores.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:51:37Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: PubLayNet dataset source is facebook/publaynet on HuggingFace
+  claim_id: c_4cd3b3ed
+  context: Implement code/data/loaders.py to fetch PubLayNet dataset from HuggingFace
+    (facebook/publaynet) with SHA-256 checksum verification
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PubLayNet_dataset_source_is_facebook/publaynet_on_HuggingFac
+  kind: entity_fact
+  raw_text: The PubLayNet dataset is fetched from HuggingFace under the identifier
+    'facebook/publaynet'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:54:32Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: RF encoder uses microsoft/layoutlmv3-base model
+  claim_id: c_e7b51a9b
+  context: Implement code/models/rf_encoder.py wrapping microsoft/layoutlmv3-base
+    with weights frozen.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RF_encoder_uses_microsoft/layoutlmv3-base_model
+  kind: entity_fact
+  raw_text: The microsoft/layoutlmv3-base model is used as the RF encoder.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:54:46Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: System memory limit is 4GB
+  claim_id: c_ce020d42
+  context: Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage) derived from FR-007
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_memory_limit_is_4GB
+  kind: entity_fact
+  raw_text: The memory limit is configured to 4GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:55:04Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: System disk usage limit is 12GB
+  claim_id: c_4dc3db3c
+  context: Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage) derived from FR-007
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_disk_usage_limit_is_12GB
+  kind: entity_fact
+  raw_text: The disk usage limit is configured to 12GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:55:27Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Disk usage monitoring interval is 10 seconds
+  claim_id: c_98c9e27a
+  context: Implement code/utils/resource_monitor.py as a context manager/decorator
+    to enforce configurable memory limit (4GB) and significant disk usage limit (12GB,
+    checked every 10s via os.disk_usage) derived from FR-007
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Resource monitoring checks disk usage every 10 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:55:45Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Pixel-Baseline Model training limit is 2 epochs
+  claim_id: c_0bba27ec
+  context: Implement code/train.py logic to train the Pixel-Baseline Model under identical
+    constraints (max 2 epochs, 4GB RAM/12GB disk limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pixel-Baseline Model is trained for a maximum of 2 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:55:58Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Data loader batch size is 4
+  claim_id: c_f78de03d
+  context: 'Performance optimization: Implement batching strategy (batch size 4) in
+    data loaders to stay within 6h runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data loader batching strategy uses a batch size of 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:56:59Z'
+- artifact_path: projects/PROJ-867-llmxive-follow-up-extending-representati/specs/001-llmxive-follow-up-extending-representati/tasks.md
+  attempts: 1
+  canonical: Pipeline target runtime is 6 hours
+  claim_id: c_f3974fad
+  context: 'Performance optimization: Implement batching strategy (batch size 4) in
+    data loaders to stay within 6h runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target runtime for the pipeline is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T09:57:22Z'

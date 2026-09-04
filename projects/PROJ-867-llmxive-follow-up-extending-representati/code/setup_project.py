@@ -1,108 +1,68 @@
-"""
-Project setup module for creating the required directory structure.
-"""
 import os
 import sys
 from pathlib import Path
 
-
-def create_directory_structure(base_path: str = None) -> Path:
+def create_directory_structure(root_path: Path) -> None:
     """
-    Creates the project directory structure as per the implementation plan.
+    Initialize the project directory structure for llmXive.
     
-    Args:
-        base_path: The base directory where the project structure will be created.
-                   If None, uses the current working directory.
-    
-    Returns:
-        Path: The path to the created project root directory.
-    
-    Raises:
-        OSError: If directory creation fails.
+    Creates the following hierarchy relative to root_path:
+    - code/
+    - data/
+      - raw/
+      - processed/
+      - interim/
+    - tests/
+      - unit/
+      - contract/
+      - integration/
+    - docs/
+      - contracts/
     """
-    if base_path is None:
-        base_path = os.getcwd()
-    
-    base = Path(base_path)
-    
-    # Project root directory name
-    project_name = "PROJ-867-llmxive-follow-up-extending-representati"
-    project_root = base / project_name
-    
-    # Required subdirectories
-    required_dirs = [
+    directories = [
         "code",
-        "data",
-        "tests",
-        "docs",
-        "specs",
         "data/raw",
         "data/processed",
-        "data/results",
-        "figures",
+        "data/interim",
         "tests/unit",
         "tests/contract",
         "tests/integration",
         "docs/contracts",
     ]
-    
-    # Create the project root
-    project_root.mkdir(parents=True, exist_ok=True)
-    
-    # Create all required subdirectories
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-    
-    # Create a .gitkeep file in each directory to ensure they are tracked
-    # even if they are empty (important for version control)
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        gitkeep_path = dir_path / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.touch()
-    
-    # Create a README.md in the project root if it doesn't exist
-    readme_path = project_root / "README.md"
-    if not readme_path.exists():
-        readme_path.write_text(
-            f"# {project_name}\n\n"
-            "Automated science pipeline for extending Representation Forcing "
-            "for Structured Text Generation.\n\n"
-            "## Directory Structure\n\n"
-            "- `code/`: Source code\n"
-            "- `data/`: Data files (raw, processed, results)\n"
-            "- `tests/`: Test suites\n"
-            "- `docs/`: Documentation\n"
-            "- `specs/`: Specification documents\n"
-            "- `figures/`: Generated figures and plots\n"
-        )
-    
-    return project_root
 
-
-def main():
-    """
-    Main entry point for the setup script.
+    for dir_path in directories:
+        full_path = root_path / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        # Create .gitkeep files to ensure directories are tracked by git
+        (full_path / ".gitkeep").touch()
     
-    Creates the project directory structure and prints a summary.
-    """
-    try:
-        project_root = create_directory_structure()
-        print(f"✓ Project directory structure created at: {project_root}")
-        
-        # List the created directories
-        print("\nCreated directories:")
-        for item in sorted(project_root.iterdir()):
-            if item.is_dir():
-                print(f"  - {item.name}/")
-        
-        print("\n✓ Setup complete.")
-        return 0
-    except Exception as e:
-        print(f"✗ Error creating directory structure: {e}", file=sys.stderr)
-        return 1
+    # Create specific files required by the project structure
+    (root_path / "code" / "requirements.txt").touch()
+    (root_path / "code" / "config.py").touch()
+    
+    print(f"Project structure initialized at: {root_path}")
 
+def main() -> None:
+    """Entry point for the setup script."""
+    # Determine the project root. 
+    # Based on task description: "in projects/PROJ-867-llmxive-follow-up-extending-representati/"
+    # We assume the script is run from the repository root or the project root is passed.
+    # For safety, we check if we are inside the specific project folder.
+    
+    current_dir = Path.cwd()
+    project_name = "PROJ-867-llmxive-follow-up-extending-representati"
+    
+    # Check if current dir is the project root or inside it
+    if current_dir.name == project_name:
+        root = current_dir
+    else:
+        # Look for the project folder in parent directories or assume current is root if it matches
+        # If running from repo root, we might need to navigate into the project folder.
+        # However, standard practice for these tasks is that the working directory IS the project root.
+        # We will assume the current working directory is the intended project root.
+        root = current_dir
+    
+    create_directory_structure(root)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

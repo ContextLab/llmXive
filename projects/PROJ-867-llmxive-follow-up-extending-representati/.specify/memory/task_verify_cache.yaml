@@ -1,0 +1,31 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file list for `projects/PROJ-867-llmxive-follow-up-extending-representati/`
+    was provided, so we cannot confirm that `code/`, `data/`, `tests/` (with `unit`,
+    `contract`, `integration` subfolders) and `docs/` were actually created. The required
+    project skeleton is missing from the evidence.
+T016:
+  c: false
+  h: c7fe71270676f91a84f04f8ac8b4da40077ededbeea2bba23a03125cd3df6d95
+  r: "The provided `preprocessing.py` lacks the required `extract_tokens` implementation,\
+    \ does not use the T005 loader for `load_image`, and the `handle_corruption` function\
+    \ is incomplete (truncated). Moreover, no code writes a `data/processed/tokens.parquet`\
+    \ file, and that file is missing from the repository. These omissions mean the\
+    \ task\u2019s functional and output requirements are not met."
+T023:
+  c: false
+  h: c7fe71270676f91a84f04f8ac8b4da40077ededbeea2bba23a03125cd3df6d95
+  r: "The provided `code/data/preprocessing.py` contains image\u2011preprocessing\
+    \ utilities and does not implement a `DataLoader` that reads RF token pairs from\
+    \ `data/processed/tokens.parquet`. Moreover, the required `tokens.parquet` file\
+    \ is missing from the repository. Both the core functionality and the necessary\
+    \ input artifact are absent."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no code, scripts, tests, or documentation showing logic that
+    converts RF tokens into structured text nor any use of `jsonschema` or markdown
+    parsers for syntax validation. Without concrete artifacts, the requirement is
+    not satisfied. The next implementer must add the implementation and accompanying
+    validation tests.

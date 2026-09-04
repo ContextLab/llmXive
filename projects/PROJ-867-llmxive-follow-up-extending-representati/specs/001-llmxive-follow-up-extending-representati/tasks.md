@@ -5,11 +5,12 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
+- **[S]**: Must run sequentially (same file or data dependency)
 - **[Story]**: Which user story this belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
@@ -20,33 +21,13 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure per implementation plan: `projects/PROJ-867-llmxive-follow-up-extending-representati/` including `code/`, `data/`, `tests/`, `docs/` subdirectories
-- [X] T001b [P] Initialize `code/requirements.txt` with CPU-only dependencies: `torch`, `transformers`, `datasets`, `scikit-learn`, `jsonschema`, `pyyaml`, `psutil`
+- [ ] T001 [P] Initialize project structure: Create `code/`, `data/`, `tests/`, `docs/` directories and their sub-skeletons (`tests/unit`, `tests/contract`, `tests/integration`) in `projects/PROJ-867-llmxive-follow-up-extending-representati/`
+- [X] T001d [P] Initialize `code/requirements.txt` with CPU-only dependencies: `torch`, `transformers`, `datasets`, `scikit-learn`, `jsonschema`, `pyyaml`, `psutil`
 - [X] T002 [P] Create `code/config.py` skeleton with placeholders for hyperparameters, paths, and seeds
-- [ ] T003 [P] Create `tests/unit/`, `tests/contract/`, `tests/integration/` directory skeletons
 
 ---
 
@@ -56,9 +37,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/utils/resource_monitor.py` as a context manager/decorator to enforce a configurable memory limit (default 4GB) derived from the 7GB runner constraint (FR-007), with active monitoring, logging of resource trends, and process kill on overflow; include mock test for verification
+- [X] T004 [P] Implement `code/utils/resource_monitor.py` as a context manager/decorator to enforce configurable memory limit (4GB) and significant disk usage limit (12GB, checked every 10s via `os.disk_usage`) derived from FR-007, with active monitoring, logging of resource trends, and process kill on overflow; include mock test for verification
 - [X] T005 [P] Implement `code/data/loaders.py` to fetch PubLayNet dataset from HuggingFace (`facebook/publaynet`) with SHA-256 checksum verification
-- [X] T006a [P] Implement `code/data/verify_schema.py` to perform semantic verification of PubLayNet annotations (confirming presence of structural boxes and text content) as required by Plan Phase 0 Step 1, before processing begins
+- [X] T006 [P] Implement `code/data/verify_schema.py` to perform semantic verification of PubLayNet annotations: parse JSONL, assert presence of 'bbox' and 'text' fields per image, and raise a descriptive error if missing (Plan Phase 0 Step 1, FR-003)
 - [X] T007 [P] Create `docs/contracts/rf_token_sequence.yaml` schema definition
 - [X] T008 [P] Create `docs/contracts/structured_text_output.yaml` schema definition
 - [X] T009 [P] Create `docs/contracts/evaluation_metrics.yaml` schema definition
@@ -85,11 +66,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [P] [US1] Implement `code/models/rf_encoder.py` wrapping `microsoft/layoutlmv3-base` with weights frozen and pixel-decoder layers disabled
-- [X] T016 [US1] Implement `code/data/preprocessing.py` logic to load images (using T005 loader), resize to 224x224, and extract RF token sequences via T015
-- [X] T017 [US1] Implement NaN detection and clamping logic in `code/data/preprocessing.py` to handle floating-point instability on CPU
-- [X] T018 [US1] Implement logic to pad/truncate token sequences to a fixed context window in `code/data/preprocessing.py`
-- [X] T019 [US1] Add error handling for corrupted/blank images to return minimal valid structure in `code/data/preprocessing.py`
+- [X] T015 [S] [US1] Implement `code/models/rf_encoder.py` wrapping `microsoft/layoutlmv3-base` with weights frozen. **Critical**: Verify pixel-decoder weights are NOT loaded into memory; ensure decoder layers are explicitly excluded during model initialization. Add a unit test in `tests/unit/test_rf_encoder.py` that asserts `model.decoder` is None or not instantiated. Verify via graph inspection that the forward pass does not invoke pixel-decoding layers (FR-001, US-1).
+- [ ] T016 [S] [US1] Implement `code/data/preprocessing.py` logic to: 1) `load_image` (using T005 loader), 2) `extract_tokens` (via T015), 3) `clamp_nans` (handle CPU floating-point instability), 4) `pad_sequences` (fixed context window), and 5) `handle_corruption` (return minimal valid structure for blank/corrupted images). **Must run after T015**. Output: Must produce `data/processed/tokens.parquet`.
+- [X] T017 [S] [US1] Implement logic to pad/truncate token sequences to a fixed context window in `code/data/preprocessing.py`. **Must run after T016** to process the cleaned tokens. (Note: Merged into T016, kept for dependency tracking if split later).
+- [X] T018 [S] [US1] Implement error handling for corrupted/blank images to return minimal valid structure in `code/data/preprocessing.py`. **Must run after T017**. (Note: Merged into T016).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,20 +83,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for model output parsing in `tests/contract/test_ar_model.py`
-- [ ] T021 [P] [US2] Integration test for training loop convergence in `tests/integration/test_training.py`
+- [X] T020 [P] [US2] Contract test for model output parsing in `tests/contract/test_ar_model.py`
+- [X] T021 [P] [US2] Integration test for training loop convergence in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `code/models/autoregressive.py` defining a lightweight transformer (~30M params) accepting RF tokens as embeddings
-- [ ] T023 [P] [US2] Implement `code/data/preprocessing.py` logic to create a `DataLoader` for RF token pairs (depends on T005 and T016)
-- [ ] T024 [US2] Implement `code/train.py` training loop (depends on T023) with configuration for max 2 epochs (Constitution VII)
-- [ ] T025 [US2] Implement `code/train.py` stopping logic (depends on T024) to enforce a hard limit of 2 epochs (Plan override of FR-003/Constitution VII) and log convergence diagnostics
-- [ ] T026 [US2] Integrate `code/utils/resource_monitor.py` into training loop (depends on T004)
-- [ ] T027 [US2] Implement logic to generate structured text from RF tokens and validate syntax using `jsonschema` or `markdown` parsers (depends on T011)
-- [ ] T028 [US2] Implement `code/models/baseline.py` defining a simple CNN encoder for raw downsampled pixel inputs
-- [ ] T029 [US2] Implement `code/train.py` logic to train the Pixel-Baseline Model under identical constraints (max 2 epochs, 4GB limit)
-- [ ] T030 [US2] Implement logging of training loss and syntactic validity rate to `data/results/training_log.json`
+- [X] T022 [P] [US2] Implement `code/models/autoregressive.py` defining a lightweight transformer accepting RF tokens as embeddings
+- [ ] T023 [S] [US2] Implement `code/data/preprocessing.py` logic to create a `DataLoader` for RF token pairs. **Must consume extracted token artifacts (data/processed/tokens.parquet) produced by T016**. Depends on T005 and T016 completion.
+- [X] T024 [S] [US2] Implement `code/models/baseline.py` defining a simple CNN encoder (limited depth) for raw downsampled (224x224) image pixels, strictly adhering to the constraints defined in T028a (FR-004, Plan Phase 0 Step 3).
+- [X] T025 [S] [US2] Implement `code/train.py` training loop (depends on T022, T023, T024). **Critical**: Implement validation loss plateau detection logic *only* for logging/diagnostics. **Formal waiver of FR-003 convergence stop condition**: The training loop must NOT stop on plateau; the hard epoch limit (Constitution VII) is the ONLY stopping criterion. Explicitly document this override in code comments referencing Constitution VII. Integrate `code/utils/resource_monitor.py` (T004) for both RF and Baseline training paths.
+- [X] T026 [S] [US2] Implement `code/train.py` logic to train the Pixel-Baseline Model under identical constraints (max 2 epochs, 4GB RAM/12GB disk limit).
+- [ ] T027 [S] [US2] Implement logic to generate structured text from RF tokens and validate syntax using `jsonschema` or `markdown` parsers (depends on T011).
+- [ ] T028 [S] [US2] Log training loss and syntactic validity rate to `data/results/training_log.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently; Baseline model ready for comparison
 
@@ -126,7 +104,7 @@
 
 **Goal**: Compare RF model performance against a pixel-based baseline and perform statistical significance testing.
 
-**Independent Test**: {{claim:c_af3b40e4}}
+**Independent Test**:
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -135,12 +113,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/evaluate.py` to compute syntactic validity rates and AST edit distance for both RF and Baseline models
-- [ ] T036 [US3] Implement `code/utils/stats.py` logic to perform Wilcoxon signed-rank test on `data/results/aggregated_scores.json` (seed-level metrics) to determine statistical significance (FR-006)
-- [ ] T034 [US3] Implement `code/main.py` orchestration to run RF and Baseline training, evaluation, and statistical comparison sequentially across multiple random seeds (depends on T033, T036)
-- [ ] T035 [US3] Implement logic to aggregate per-seed results from `data/results/` into `data/results/aggregated_scores.json` (seed-level metrics)
-- [ ] T037 [US3] Log total runtime and memory peak usage to `data/results/metrics.json` (SC-005, FR-007)
-- [ ] T038 [US3] Implement verification logic to compare logged runtime against the 6-hour CI job threshold and raise `SystemExit(1)` if exceeded (SC-005)
+- [ ] T033 [S] [US3] Implement `code/evaluate.py` to compute syntactic validity rates and AST edit distance for both RF and Baseline models.
+- [ ] T034 [S] [US3] Implement `code/main.py` orchestration to run RF and Baseline training, evaluation, and statistical comparison sequentially across multiple random seeds. **Critical**: Must generate and structure `data/results/aggregated_scores.json` with per-image scores for *each random seed* (raw data). Verify input structure before aggregation. Perform McNemar's test on binary validity rates (FR-006).
+- [ ] T035 [S] [US3] Implement `code/utils/stats.py` logic to perform Wilcoxon signed-rank test on `data/results/aggregated_scores.json` (depends on T034). **Critical**: Perform test on the per-image distribution to determine statistical significance (FR-006).
+- [ ] T036 [S] [US3] Log total runtime and memory peak usage to `data/results/metrics.json` (SC-005, FR-007).
+- [ ] T037 [S] [US3] Implement verification logic to compare logged runtime against the CI job threshold and raise `SystemExit(1)` if exceeded (SC-005).
 
 **Checkpoint**: All user stories should now be independently functional; Statistical significance computed
 
@@ -154,14 +131,14 @@
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T039 [P] [US4] Unit test for structure-only subset filtering logic in `tests/unit/test_subset_filter.py`
-- [ ] T040 [P] [US4] Integration test for structural independence validation in `tests/integration/test_structure_independence.py`
+- [ ] T038 [P] [US4] Unit test for structure-only subset filtering logic in `tests/unit/test_subset_filter.py`
+- [ ] T039 [P] [US4] Integration test for structural independence validation in `tests/integration/test_structure_independence.py`
 
 ### Implementation for User Story 4
 
-- [ ] T041 [US4] Implement `code/data/preprocessing.py` logic to filter for "structure-only" subset (low visual contrast, high structural complexity) and `code/evaluate.py` logic to run specific evaluation on this subset (depends on T012, T033)
-- [ ] T042 [US4] Implement `code/main.py` logic to report comparative validity rates on the structure-only subset
-- [ ] T043 [US4] Log "complexity overflow" metrics for images exceeding token capacity in `data/results/complexity_metrics.json`
+- [ ] T040 [S] [US4] Implement `code/data/preprocessing.py` logic to filter for "structure-only" subset (low visual contrast, high structural complexity). Depends on T012, T033.
+- [ ] T041 [S] [US4] Implement `code/main.py` logic to run evaluation on the structure-only subset and report comparative validity rates. Depends on T040.
+- [ ] T042 [S] [US4] Log "complexity overflow" metrics for images exceeding token capacity in `data/results/complexity_metrics.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -171,11 +148,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T044 [P] Documentation updates in `docs/quickstart.md` and `docs/contracts/`
-- [ ] T045 Code cleanup and refactoring of `code/` directory
-- [ ] T046 Performance optimization for data loading (batching) to stay within 6h runtime
-- [ ] T047 [P] Additional unit tests for edge cases (blank pages, NaNs) in `tests/unit/`
-- [ ] T048 Run `quickstart.md` validation to ensure full pipeline reproducibility on CPU-only runner
+- [ ] T043 [P] Update `docs/quickstart.md` with specific sections: "Environment Setup", "Running the Pipeline", "Interpreting Results". Update `docs/contracts/` with final schema versions.
+- [ ] T044 [P] Code cleanup: Remove unused imports, simplify `config.py` defaults, and refactor `code/utils/` for modularity.
+- [ ] T045 [P] Performance optimization: Implement batching strategy (batch size 4) in data loaders to stay within 6h runtime.
+- [ ] T046 [P] Add specific unit tests for edge cases: blank pages, NaNs, and complexity overflow in `tests/unit/`.
+- [ ] T047 [P] Run `quickstart.md` validation to ensure full pipeline reproducibility on CPU-only runner.
 
 ---
 
@@ -264,10 +241,11 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
+- [S] tasks = sequential dependencies (same file or data flow)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: {{claim:c_0d5459d4}}. No GPU/CUDA tasks allowed. 
+- **CRITICAL**: No GPU/CUDA tasks allowed.
