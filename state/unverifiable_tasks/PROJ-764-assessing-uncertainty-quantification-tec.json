@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-764-assessing-uncertainty-quantification-tec",
+  "tasks": [
+    {
+      "task_key": "T009",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-04T15:03:01.673959+00:00",
+      "last_seen": "2026-09-04T15:03:01.673959+00:00"
+    },
+    {
+      "task_key": "T012",
+      "reject_count": 1,
+      "last_reason": "The provided `baseline_nn.py` defines a heteroscedastic network with two hidden layers and correctly stays under 10\u202fk parameters, but it lacks any code that computes the total parameter count, asserts the \u226410\u202f000 limit before saving, and actually saves a checkpoint. Consequently the required artifact `results/models/baseline_seed42.pt` is missing. The task\u2019s verification and output steps are not implemented.",
+      "first_seen": "2026-09-04T15:03:06.165000+00:00",
+      "last_seen": "2026-09-04T15:03:06.165000+00:00"
+    },
+    {
+      "task_key": "T018",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: results/uq_predictions_base.csv",
+      "first_seen": "2026-09-04T15:03:11.180449+00:00",
+      "last_seen": "2026-09-04T15:03:11.180449+00:00"
+    }
+  ],
+  "updated_at": "2026-09-04T15:03:11.180449+00:00"
+}

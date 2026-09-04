@@ -1,12 +1,41 @@
-T012:
+T001a:
   c: false
-  h: 7c31ad82d6a8b01a473164955bd2b34cdc9d0cbf7a209d3caa7a2b3b2121137f
-  r: "The repository contains `code/models/baseline_nn.py` with a 2\u2011layer heteroscedastic\
-    \ network, but the file does not include the required pre\u2011save parameter\u2011\
-    count assertion nor any code that saves a model checkpoint to `results/models/baseline_seed42.pt`.\
-    \ Moreover, the expected model file is absent from the `results/models` directory.\
-    \ The task\u2019s core requirement\u2014producing and saving the validated model\
-    \ artifact\u2014is therefore unmet."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/`, `results/`, `tests/`,
+    `docs/`) is provided; the implementer did not supply a directory listing or any
+    files showing that the project structure exists. The task remains undone.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`,
+    `.ruff.toml`, `.pre-commit-config.yaml`) or any related setup scripts are present
+    in the provided artifacts, so the requirement to configure these tools is not
+    satisfied. The evidence only contains a feature specification unrelated to linting/formatting.
+T005a:
+  c: false
+  h: 307c012e1a21b78a635ac83ab8a2bed0f03b2e51afa38bd3019d43e486473166
+  r: "The repository contains `code/data/download.py` with retry logic and parquet\
+    \ materialization, but the required output file `data/raw/oqmd.parquet` was never\
+    \ created, and `data/checksums.json` is absent (and its intended schema would\
+    \ not match the specification). The task\u2019s materialization and checksum recording\
+    \ requirements are therefore unmet."
+T006a:
+  c: false
+  h: 1253062d1a096f759aaf4dc621f37d0a9a1669efea28b2599dfaca184f67d555
+  r: "The `code/data/preprocess.py` file is truncated and never writes the train/val/test\
+    \ CSVs, and the three required output files (`data/processed/raw_train.csv`, `raw_val.csv`,\
+    \ `raw_test.csv`) are absent from the repository. Consequently the task\u2019\
+    s core requirement\u2014producing processed CSVs with a `target_bin` column\u2014\
+    is not met."
+T015a:
+  c: false
+  h: 7c068a16cad083bf0d45cbdfafc62997a2d9ff7154559dfff3b7b49d17ada26b
+  r: "The `sparse_gp.py` file does not contain any logic that checks for the presence\
+    \ of `data/processed/features_test_20pca.csv` or `data/processed/pca_transformer.pkl`,\
+    \ nor does it raise an error if they are absent. Additionally, both required data\
+    \ files are missing from the repository, and the provided code is truncated and\
+    \ incomplete (e.g., the `forward` method is unfinished). These issues mean the\
+    \ task\u2019s verification requirement is not satisfied."
 T016b:
   c: false
   h: 5a08642a0da35c7193ebd6bbcacb3c57471e1b63f69558df0e7fd1588dbf3ab3

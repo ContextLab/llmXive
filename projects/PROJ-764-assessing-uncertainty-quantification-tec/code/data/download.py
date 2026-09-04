@@ -5,117 +5,195 @@ import time
 import json
 import hashlib
 from pathlib import Path
-from datasets import load_dataset
+from typing import Dict, Any, Optional, Tuple
 
+import pandas as pd
+import numpy as np
+
+# Configure logger
 logger = logging.getLogger(__name__)
 
-def calculate_sha256(file_path: Path) -> str:
-    """
-    Calculate SHA-256 hash of a file.
-    
-    Args:
-        file_path: Path to the file.
-    
-    Returns:
-        Hex digest of the SHA-256 hash.
-    """
+def calculate_sha256(file_path: str) -> str:
+    """Calculate SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_oqmd_dataset(output_dir: str = "data/raw", checksum_dir: str = "data"):
+def download_oqmd_dataset(output_path: str, max_retries: int = 3) -> str:
     """
-    Download the OQMD Formation Energy dataset via HuggingFace with retry logic.
-    
-    Implements exponential backoff (2^attempt seconds) for up to 3 attempts.
-    If the download fails after all retries, it raises the exception (fails loudly).
-    Materializes the dataset to a parquet file and calculates a SHA-256 checksum.
-    
-    Args:
-        output_dir: Directory to save the parquet file. Defaults to 'data/raw'.
-        checksum_dir: Directory to save the checksums.json file. Defaults to 'data'.
-    
-    Returns:
-        Path to the saved parquet file.
-    
-    Raises:
-        Exception: If download fails after max retries.
+    Fetch the OQMD Formation Energy dataset via HuggingFace.
+    Implements retry logic with exponential backoff.
+    Materializes the stream into a parquet file.
     """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    parquet_file = output_path / "oqmd.parquet"
-    
-    checksum_path = Path(checksum_dir) / "checksums.json"
+    from datasets import load_dataset
 
-    if parquet_file.exists():
-        logger.info(f"Dataset already exists at {parquet_file}, skipping download.")
+    local_path = Path(output_path)
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+
+    attempt = 0
+    while attempt < max_retries:
+        try:
+            logger.info(f"Downloading OQMD dataset (attempt {attempt + 1}/{max_retries})...")
+            dataset = load_dataset("oqmd/formation-energy", streaming=False)
+            
+            # Materialize to parquet
+            logger.info("Materializing dataset to parquet...")
+            dataset.to_parquet(str(local_path))
+            
+            # Calculate checksum
+            checksum = calculate_sha256(str(local_path))
+            checksum_file = Path("data/checksums.json")
+            
+            # Load existing checksums or create new
+            if checksum_file.exists():
+                with open(checksum_file, 'r') as f:
+                    checksums = json.load(f)
+            else:
+                checksums = {}
+            
+            # Update checksums
+            checksums["oqmd.parquet"] = {
+                "sha256": checksum,
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            with open(checksum_file, 'w') as f:
+                json.dump(checksums, f, indent=2)
+            
+            logger.info(f"Dataset saved to {local_path} with checksum {checksum}")
+            return str(local_path)
+            
+        except Exception as e:
+            attempt += 1
+            if attempt < max_retries:
+                wait_time = 2 ** attempt
+                logger.warning(f"Download failed: {e}. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                logger.error(f"Download failed after {max_retries} attempts: {e}")
+                raise
+
+def validate_structural_descriptors(df: pd.DataFrame) -> Tuple[bool, Optional[str]]:
+    """
+    Check if structural descriptors (radius, packing_fraction) exist.
+    Returns (is_valid, error_message).
+    """
+    required_cols = ['radius', 'packing_fraction']
+    missing = [col for col in required_cols if col not in df.columns]
+    
+    if missing:
+        error_msg = f"OQMD schema does not support FR-001 requirements. Missing columns: {missing}"
+        logger.error(error_msg)
+        return False, error_msg
+    
+    # Check for missing values in structural descriptors
+    for col in required_cols:
+        if df[col].isna().any():
+            logger.warning(f"Column '{col}' contains {df[col].isna().sum()} missing values")
+    
+    return True, None
+
+def extract_structural_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extract radius and packing_fraction from the dataset.
+    Assumes these columns already exist (validated by validate_structural_descriptors).
+    """
+    is_valid, error_msg = validate_structural_descriptors(df)
+    if not is_valid:
+        raise FileNotFoundError(error_msg)
+    
+    # Ensure columns are present and numeric
+    df['radius'] = pd.to_numeric(df['radius'], errors='coerce')
+    df['packing_fraction'] = pd.to_numeric(df['packing_fraction'], errors='coerce')
+    
+    # Validate at least one descriptor is present for every row
+    valid_rows = df[['radius', 'packing_fraction']].notna().any(axis=1)
+    if not valid_rows.all():
+        invalid_count = (~valid_rows).sum()
+        logger.warning(f"{invalid_count} rows missing structural descriptors")
+        # We proceed but log the issue; the task requires assertion
+        assert invalid_count == 0, f"{invalid_count} rows missing structural descriptors"
+    
+    logger.info("Structural features extracted successfully")
+    return df
+
+def update_validation_report(df: pd.DataFrame, report_path: str = "data/validation_report.json") -> None:
+    """
+    Update validation_report.json with counts of rows where structural descriptors were extracted.
+    Dependency: T005c (extract_structural_features must have run).
+    """
+    # Ensure report directory exists
+    Path(report_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing report or create new
+    if os.path.exists(report_path):
+        with open(report_path, 'r') as f:
+            report = json.load(f)
     else:
-        max_retries = 3
-        for attempt in range(1, max_retries + 1):
-            try:
-                logger.info(f"Downloading OQMD dataset (attempt {attempt}/{max_retries})...")
-                # Load the specific dataset and split as per task requirements
-                # Using streaming=False to ensure we get the full dataset for conversion
-                # The dataset is large; if memory is an issue, the runner will OOM,
-                # which is preferable to silently faking data.
-                dataset = load_dataset("oqmd/formation-energy", split="train", streaming=False)
-                
-                # Convert to pandas for easier parquet handling
-                df = dataset.to_pandas()
-                
-                # Save as parquet
-                df.to_parquet(parquet_file, index=False)
-                
-                logger.info(f"Dataset successfully saved to {parquet_file}")
-                logger.info(f"Dataset shape: {df.shape}")
-                break
-
-            except Exception as e:
-                logger.warning(f"Attempt {attempt} failed: {type(e).__name__}: {e}")
-                if attempt < max_retries:
-                    # Exponential backoff: 2^1=2s, 2^2=4s
-                    wait_time = 2 ** attempt
-                    logger.info(f"Retrying in {wait_time} seconds...")
-                    time.sleep(wait_time)
-                else:
-                    logger.error("Failed to download dataset after all retry attempts.")
-                    raise
-
-    # Calculate checksum
-    logger.info(f"Calculating SHA-256 checksum for {parquet_file}...")
-    sha256_hash = calculate_sha256(parquet_file)
-    logger.info(f"SHA-256: {sha256_hash}")
-
-    # Record checksum
-    checksum_data = {
-        "filename": "oqmd.parquet",
-        "sha256": sha256_hash
+        report = {}
+    
+    # Extract counts
+    total_rows = len(df)
+    rows_with_radius = df['radius'].notna().sum()
+    rows_with_packing_fraction = df['packing_fraction'].notna().sum()
+    rows_with_both = df[['radius', 'packing_fraction']].notna().all(axis=1).sum()
+    
+    # Update report
+    report['structural_descriptors'] = {
+        'total_rows': int(total_rows),
+        'rows_with_radius': int(rows_with_radius),
+        'rows_with_packing_fraction': int(rows_with_packing_fraction),
+        'rows_with_both': int(rows_with_both),
+        'extraction_timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    checksum_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(checksum_path, 'w') as f:
-        json.dump(checksum_data, f, indent=2)
+    # Write report
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
     
-    logger.info(f"Checksum recorded in {checksum_path}")
-
-    return parquet_file
+    logger.info(f"Validation report updated at {report_path}")
+    logger.info(f"  Total rows: {total_rows}")
+    logger.info(f"  Rows with radius: {rows_with_radius}")
+    logger.info(f"  Rows with packing_fraction: {rows_with_packing_fraction}")
+    logger.info(f"  Rows with both: {rows_with_both}")
 
 def main():
-    """Entry point for the download script."""
-    # Configure logging to stdout
+    """Main entry point for data download and validation."""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    logger.info("Starting OQMD dataset download...")
+    output_path = "data/raw/oqmd.parquet"
+    
     try:
-        output_file = download_oqmd_dataset()
-        logger.info(f"Download complete. Output: {output_file}")
+        # Download dataset
+        logger.info("Starting OQMD dataset download...")
+        dataset_path = download_oqmd_dataset(output_path)
+        
+        # Load dataset
+        logger.info("Loading dataset for validation...")
+        df = pd.read_parquet(dataset_path)
+        
+        # Validate structural descriptors
+        is_valid, error_msg = validate_structural_descriptors(df)
+        if not is_valid:
+            raise FileNotFoundError(error_msg)
+        
+        # Extract structural features
+        logger.info("Extracting structural features...")
+        df = extract_structural_features(df)
+        
+        # Update validation report
+        logger.info("Updating validation report...")
+        update_validation_report(df)
+        
+        logger.info("Pipeline completed successfully.")
+        
     except Exception as e:
-        logger.critical(f"Download failed: {e}")
+        logger.error(f"Pipeline failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

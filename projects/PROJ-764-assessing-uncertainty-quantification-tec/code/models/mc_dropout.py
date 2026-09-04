@@ -145,7 +145,7 @@ def main(seed: int = 42):
     
     logger.info(f"MC Dropout model saved to {output_path}")
     
-    # Verify inference works
+    # Verify inference works (30 stochastic passes)
     logger.info("Verifying inference with 30 stochastic passes...")
     model.load_state_dict(torch.load(output_path, weights_only=True)['model_state_dict'])
     test_means, test_vars = run_mc_dropout_inference(model, X[:10], n_samples=30)

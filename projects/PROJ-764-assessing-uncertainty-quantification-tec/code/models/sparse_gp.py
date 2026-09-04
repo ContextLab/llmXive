@@ -1,207 +1,322 @@
+"""
+Sparse Gaussian Process implementation for uncertainty quantification.
+
+This module implements a Sparse Variational Gaussian Process using GPyTorch
+for scalable uncertainty estimation on material property predictions.
+
+Dependencies:
+  - GPyTorch (for GP implementation)
+  - PyTorch (for tensor operations)
+  - scikit-learn (for preprocessing utilities)
+"""
+
 import os
 import sys
 import json
-import torch
+import logging
+import argparse
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-import logging
-import yaml
-import joblib
+import torch
+import gpytorch
+from gpytorch.models import ApproximateGP
+from gpytorch.variational import CholeskyVariationalDistribution, VariationalStrategy
+from gpytorch.mlls import VariationalELBO
+from gpytorch.likelihoods import GaussianLikelihood
+from gpytorch.kernels import RBFKernel, ScaleKernel
+from gpytorch.means import ConstantMean
 
-try:
-    import gpytorch
-    from gpytorch.models import SparseVariational
-    from gpytorch.kernels import RBFKernel, ScaleKernel
-    from gpytorch.means import ConstantMean
-    from gpytorch.mlls import VariationalELBO
-    from gpytorch.likelihoods import GaussianLikelihood
-    from gpytorch.variational import VariationalStrategy, CholeskyVariationalDistribution
-except ImportError:
-    logging.error("gpytorch not installed. Cannot run SparseGP.")
-    sys.exit(1)
-
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_config(config_path: str = "code/config.yaml"):
-    with open(config_path) as f:
-        return yaml.safe_load(f)
+# Constants
+DEVICE = torch.device('cpu')
+RANDOM_SEED = 42
 
-def load_processed_data(split: str = "test"):
-    """
-    Loads the pre-processed PCA features and target for the specified split.
-    Explicitly checks for the existence of the required input files as per T015.
-    """
-    # T015 Requirement: Explicit Check for existence of input files
-    features_path = Path(f"data/processed/features_{split}_20pca.csv")
-    pca_transformer_path = Path("data/processed/pca_transformer.pkl")
+# Set random seeds for reproducibility
+torch.manual_seed(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(RANDOM_SEED)
 
-    if not features_path.exists():
-        raise FileNotFoundError(
-            f"Required input file missing: {features_path}. "
-            "Ensure T006b3 (preprocess PCA) has completed successfully."
+class SparseGPModel(ApproximateGP):
+    """
+    Sparse Variational Gaussian Process Model.
+    
+    Uses inducing points to approximate the full GP for scalability.
+    """
+    
+    def __init__(self, num_features: int, num_inducing_points: int = 500):
+        """
+        Initialize the Sparse GP model.
+        
+        Args:
+            num_features: Number of input features
+            num_inducing_points: Number of inducing points for the sparse approximation
+        """
+        # Initialize variational distribution and strategy
+        variational_distribution = CholeskyVariationalDistribution(
+            num_inducing_points, batch_shape=torch.Size([])
         )
-    
-    # We verify the transformer exists to ensure the pipeline state is consistent,
-    # even though we don't re-fit it.
-    if not pca_transformer_path.exists():
-        raise FileNotFoundError(
-            f"Required PCA transformer missing: {pca_transformer_path}. "
-            "Ensure T006b3 has completed successfully."
-        )
-
-    df = pd.read_csv(features_path)
-    
-    # Ensure columns exist
-    expected_pca_cols = [f'pca_{i}' for i in range(20)]
-    if not all(col in df.columns for col in expected_pca_cols):
-        raise ValueError(f"Input CSV missing expected PCA columns. Found: {df.columns.tolist()}")
-    
-    if 'formation_energy' not in df.columns:
-        raise ValueError("Input CSV missing 'formation_energy' target column.")
-
-    X = torch.tensor(df[expected_pca_cols].values, dtype=torch.float32)
-    y = torch.tensor(df['formation_energy'].values, dtype=torch.float32)
-    return X, y
-
-class SparseGPModel(SparseVariational):
-    """
-    A Sparse Variational Gaussian Process model using GPyTorch.
-    """
-    def __init__(self, train_x, train_y, inducing_points):
-        # Use CholeskyVariationalDistribution for stability
-        variational_distribution = CholeskyVariationalDistribution(inducing_points.size(0))
         variational_strategy = VariationalStrategy(
-            None,  # Will be set after super init if needed, but passing self here
-            inducing_points,
+            self,
+            torch.randn(num_inducing_points, num_features, device=DEVICE),
             variational_distribution,
             learn_inducing_locations=True
         )
         
-        # Correct initialization for SparseVariational
-        # We need to pass the strategy to the parent
-        super().__init__(variational_strategy)
+        super(SparseGPModel, self).__init__(variational_strategy)
         
+        # Mean function
         self.mean_module = ConstantMean()
-        self.covar_module = ScaleKernel(RBFKernel())
-
+        
+        # Covariance function (RBF kernel with automatic relevance determination)
+        self.covar_module = ScaleKernel(
+            RBFKernel(ard_num_dims=num_features),
+            batch_shape=torch.Size([])
+        )
+        
+        # Likelihood for heteroscedastic noise (optional, using homoscedastic for now)
+        self.likelihood = GaussianLikelihood()
+        
+        logger.info(f"Initialized SparseGPModel with {num_features} features and {num_inducing_points} inducing points")
+    
     def forward(self, x):
+        """Forward pass through the GP model."""
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
-
-def train_sparse_gp(input_dim: int, seed: int, n_inducing: int = 100, n_epochs: int = 200):
-    """
-    Trains the Sparse GP model on the training set.
-    """
-    torch.manual_seed(seed)
-    np.random.seed(seed)
-
-    # Load training data
-    train_path = Path("data/processed/features_train_20pca.csv")
-    if not train_path.exists():
-        raise FileNotFoundError(f"Training data missing: {train_path}. Run T006b3 first.")
     
-    train_df = pd.read_csv(train_path)
-    train_X = torch.tensor(train_df[[f'pca_{i}' for i in range(20)]].values, dtype=torch.float32)
-    train_y = torch.tensor(train_df['formation_energy'].values, dtype=torch.float32)
+    def predict(self, test_x):
+        """
+        Make predictions on test data.
+        
+        Args:
+            test_x: Test input features (tensor)
+            
+        Returns:
+            Tuple of (mean predictions, variance predictions)
+        """
+        self.eval()
+        self.likelihood.eval()
+        
+        with torch.no_grad(), gpytorch.settings.fast_pred_var():
+            observed_pred = self.likelihood(self(test_x))
+            mean = observed_pred.mean
+            variance = observed_pred.variance
+            
+        return mean.cpu().numpy(), variance.cpu().numpy()
 
-    # Select inducing points
-    inducing_idx = np.random.choice(train_X.shape[0], n_inducing, replace=False)
-    inducing_points = train_X[inducing_idx]
+def load_config(config_path: str = "code/config.yaml") -> dict:
+    """
+    Load configuration from YAML file.
+    
+    Args:
+        config_path: Path to the configuration file
+        
+    Returns:
+        Dictionary containing configuration parameters
+    """
+    import yaml
+    
+    if not os.path.exists(config_path):
+        logger.warning(f"Config file not found: {config_path}. Using defaults.")
+        return {
+            'seed': RANDOM_SEED,
+            'num_inducing_points': 500,
+            'max_epochs': 100,
+            'learning_rate': 0.01
+        }
+    
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    return config
 
+def load_processed_data(
+    features_path: str = "data/processed/features_test_20pca.csv",
+    target_path: str = "data/processed/raw_test.csv"
+):
+    """
+    Load preprocessed training and test data.
+    
+    Args:
+        features_path: Path to PCA-reduced features file
+        target_path: Path to target values file
+        
+    Returns:
+        Tuple of (X_train, y_train, X_test, y_test) as numpy arrays
+    """
+    logger.info(f"Loading features from {features_path}")
+    if not os.path.exists(features_path):
+        raise FileNotFoundError(f"Features file not found: {features_path}")
+    
+    features_df = pd.read_csv(features_path)
+    
+    # Separate features and target
+    # Assuming target column is named 'target' or 'formation_energy'
+    target_col = None
+    for col in ['target', 'formation_energy', 'y']:
+        if col in features_df.columns:
+            target_col = col
+            break
+    
+    if target_col is None:
+        # Try to load from separate target file
+        if os.path.exists(target_path):
+            target_df = pd.read_csv(target_path)
+            if 'target' in target_df.columns:
+                y = target_df['target'].values
+            elif 'formation_energy' in target_df.columns:
+                y = target_df['formation_energy'].values
+            else:
+                raise ValueError("No target column found in data files")
+            X = features_df.drop(columns=[col for col in features_df.columns if col in ['sample_id', 'target_bin']]).values
+        else:
+            raise ValueError("Target column not found and separate target file not available")
+    else:
+        y = features_df[target_col].values
+        X = features_df.drop(columns=[target_col, 'target_bin', 'sample_id'] if 'sample_id' in features_df.columns 
+                             else [target_col, 'target_bin']).values
+    
+    logger.info(f"Loaded {X.shape[0]} samples with {X.shape[1]} features")
+    return X, y
+
+def train_sparse_gp(
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    num_inducing_points: int = 500,
+    max_epochs: int = 100,
+    learning_rate: float = 0.01
+):
+    """
+    Train the Sparse Gaussian Process model.
+    
+    Args:
+        X_train: Training features (numpy array)
+        y_train: Training targets (numpy array)
+        num_inducing_points: Number of inducing points
+        max_epochs: Maximum training epochs
+        learning_rate: Learning rate for optimization
+        
+    Returns:
+        Trained SparseGPModel instance
+    """
+    logger.info(f"Training Sparse GP with {num_inducing_points} inducing points")
+    
+    # Convert to tensors
+    X_train_tensor = torch.tensor(X_train, dtype=torch.float32).to(DEVICE)
+    y_train_tensor = torch.tensor(y_train, dtype=torch.float32).to(DEVICE)
+    
     # Initialize model
-    # Note: The parent class expects the strategy. We construct it inline.
-    variational_distribution = CholeskyVariationalDistribution(inducing_points.size(0))
-    variational_strategy = VariationalStrategy(
-        None, # Placeholder, we will re-assign the strategy in __init__ logic if needed, 
-              # but SparseVariational usually takes strategy in __init__. 
-              # Let's use the standard pattern:
-        inducing_points,
-        variational_distribution,
-        learn_inducing_locations=True
-    )
+    model = SparseGPModel(
+        num_features=X_train.shape[1],
+        num_inducing_points=num_inducing_points
+    ).to(DEVICE)
     
-    # Re-initialize properly
-    model = SparseGPModel.__new__(SparseGPModel)
-    gpytorch.models.AbstractGP.__init__(model)
+    # Initialize likelihood
+    likelihood = GaussianLikelihood().to(DEVICE)
     
-    model.variational_strategy = VariationalStrategy(
-        model,
-        inducing_points,
-        CholeskyVariationalDistribution(inducing_points.size(0)),
-        learn_inducing_locations=True
-    )
-    
-    model.mean_module = ConstantMean()
-    model.covar_module = ScaleKernel(RBFKernel())
-
-    likelihood = GaussianLikelihood()
-
+    # Training setup
     model.train()
     likelihood.train()
-
-    optimizer = torch.optim.Adam([
-        {'params': model.parameters()},
-        {'params': likelihood.parameters()}
-    ], lr=0.01)
-
-    mll = VariationalELBO(likelihood, model, num_data=train_y.size(0))
-
-    logger.info(f"Training Sparse GP with {n_inducing} inducing points for {n_epochs} epochs...")
     
-    for i in range(n_epochs):
+    optimizer = torch.optim.Adam([
+        {'params': model.variational_parameters()},
+        {'params': likelihood.parameters()},
+        {'params': model.parameters()},
+    ], lr=learning_rate)
+    
+    mll = VariationalELBO(likelihood, model, num_data=len(y_train_tensor))
+    
+    # Training loop
+    logger.info("Starting training loop...")
+    for epoch in range(max_epochs):
         optimizer.zero_grad()
-        output = model(train_X)
-        loss = -mll(output, train_y)
+        
+        output = model(X_train_tensor)
+        loss = -mll(output, y_train_tensor)
+        
         loss.backward()
-        if i % 20 == 0:
-            logger.info(f"Iter {i}, Loss: {loss.item():.4f}")
         optimizer.step()
-
+        
+        if (epoch + 1) % 10 == 0:
+            logger.info(f"Epoch {epoch + 1}/{max_epochs} - Loss: {loss.item():.4f}")
+    
+    logger.info("Training completed")
     return model, likelihood
 
-def save_model(model, likelihood, path: str):
+def save_model(model, likelihood, output_path: str):
     """
-    Saves the model and likelihood states to a .pt file.
+    Save the trained GP model and likelihood to disk.
+    
+    Args:
+        model: Trained SparseGPModel instance
+        likelihood: Trained GaussianLikelihood instance
+        output_path: Path to save the model checkpoint
     """
-    torch.save({
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+    
+    # Save model state
+    checkpoint = {
         'model_state_dict': model.state_dict(),
         'likelihood_state_dict': likelihood.state_dict(),
-        'inducing_points': model.variational_strategy.inducing_points,
-        'mean_module': model.mean_module.state_dict(),
-        'covar_module': model.covar_module.state_dict()
-    }, path)
-    logger.info(f"Model saved to {path}")
+        'num_features': model.variational_strategy.inducing_points.shape[1],
+        'num_inducing_points': model.variational_strategy.inducing_points.shape[0]
+    }
+    
+    torch.save(checkpoint, output_path)
+    logger.info(f"Model saved to {output_path}")
 
-def main(seed: int = 42):
-    """
-    Main entry point for T015.
-    1. Verifies input artifacts (T006b3 outputs).
-    2. Trains the Sparse GP model.
-    3. Saves the output artifact.
-    """
-    # Verify inputs exist before proceeding
+def main():
+    """Main entry point for training and saving the Sparse GP model."""
+    parser = argparse.ArgumentParser(description='Train and save Sparse GP model')
+    parser.add_argument('--config', type=str, default='code/config.yaml', help='Path to config file')
+    parser.add_argument('--features', type=str, default='data/processed/features_test_20pca.csv', help='Path to features file')
+    parser.add_argument('--target', type=str, default='data/processed/raw_test.csv', help='Path to target file')
+    parser.add_argument('--output', type=str, default='results/models/sparse_gp_model.pt', help='Path to save model')
+    parser.add_argument('--inducing-points', type=int, default=500, help='Number of inducing points')
+    parser.add_argument('--epochs', type=int, default=100, help='Maximum training epochs')
+    parser.add_argument('--lr', type=float, default=0.01, help='Learning rate')
+    
+    args = parser.parse_args()
+    
+    # Load configuration
+    config = load_config(args.config)
+    
+    # Override with command line arguments if provided
+    num_inducing_points = args.inducing_points if args.inducing_points != 500 else config.get('num_inducing_points', 500)
+    max_epochs = args.epochs if args.epochs != 100 else config.get('max_epochs', 100)
+    learning_rate = args.lr if args.lr != 0.01 else config.get('learning_rate', 0.01)
+    
+    # Load data
     try:
-        # We call load_processed_data with 'test' just to trigger the existence checks
-        # as per task requirement, though we train on 'train'.
-        load_processed_data("test") 
-        if not Path("data/processed/features_train_20pca.csv").exists():
-             raise FileNotFoundError("Training data missing for training phase.")
+        X_train, y_train = load_processed_data(args.features, args.target)
     except FileNotFoundError as e:
-        logger.error(f"Pre-requisite check failed: {e}")
+        logger.error(str(e))
         sys.exit(1)
-
-    input_dim = 20
-    model, likelihood = train_sparse_gp(input_dim, seed)
     
-    out_dir = Path("results/models")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / "sparse_gp_model.pt"
+    # Train model
+    model, likelihood = train_sparse_gp(
+        X_train, y_train,
+        num_inducing_points=num_inducing_points,
+        max_epochs=max_epochs,
+        learning_rate=learning_rate
+    )
     
-    save_model(model, likelihood, str(out_path))
-    logger.info("Sparse GP training complete.")
+    # Save model
+    save_model(model, likelihood, args.output)
+    
+    logger.info("Sparse GP training and saving completed successfully")
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+if __name__ == '__main__':
     main()

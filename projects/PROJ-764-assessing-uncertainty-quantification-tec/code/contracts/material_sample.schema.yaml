@@ -1,50 +1,43 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Material Sample Schema
-description: Schema for material property data used in the OQMD dataset.
+description: |
+  Schema for material sample data used in the uncertainty quantification pipeline.
+  Represents the input features and properties of a material sample.
 type: object
 required:
-  - material_id
-  - elements
-  - structure
+  - sample_id
+  - composition
   - formation_energy
-  - band_gap
 properties:
-  material_id:
+  sample_id:
+    type: integer
+    description: Unique identifier for the material sample
+  composition:
     type: string
-    description: Unique identifier for the material.
+    description: Chemical composition in standard notation (e.g., "Fe2O3")
   elements:
     type: array
+    description: List of element symbols in the composition
     items:
       type: string
-    description: List of chemical elements in the material.
-  structure:
-    type: object
-    description: Structural information (e.g., lattice parameters, atomic positions).
-    properties:
-      lattice_vectors:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
-        minItems: 3
-        maxItems: 3
-      atomic_positions:
-        type: array
-        items:
-          type: object
-          properties:
-            element:
-              type: string
-            position:
-              type: array
-              items:
-                type: number
-              minItems: 3
-              maxItems: 3
+  structure_type:
+    type: string
+    description: Crystal structure type (e.g., "cubic", "tetragonal")
+  radius:
+    type: number
+    description: Atomic radius feature
+    minimum: 0
+  packing_fraction:
+    type: number
+    description: Packing fraction feature
+    minimum: 0
+    maximum: 1
   formation_energy:
     type: number
-    description: Formation energy per atom in eV.
-  band_gap:
-    type: number
-    description: Band gap in eV.
+    description: Formation energy in eV/atom
+  descriptors:
+    type: object
+    description: Additional structural descriptors
+    additionalProperties:
+      type: number
+additionalProperties: false

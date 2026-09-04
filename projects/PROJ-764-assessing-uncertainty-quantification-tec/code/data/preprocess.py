@@ -32,7 +32,7 @@ def load_data(parquet_path: str = "data/raw/oqmd.parquet") -> pd.DataFrame:
 def apply_quantile_binning(df: pd.DataFrame, target_col: str, n_bins: int = 10) -> pd.DataFrame:
     """
     Apply quantile binning to the target variable to create discrete bins
-    for stratification. Returns a copy of the dataframe with a 'bin_id' column.
+    for stratification. Returns a copy of the dataframe with a 'target_bin' column.
     """
     if target_col not in df.columns:
         raise ValueError(f"Target column '{target_col}' not found in dataframe.")
@@ -50,7 +50,7 @@ def apply_quantile_binning(df: pd.DataFrame, target_col: str, n_bins: int = 10) 
         bins = pd.qcut(df[target_col], q=n_unique, labels=False, duplicates='drop')
     
     df_copy = df.copy()
-    df_copy['bin_id'] = bins
+    df_copy['target_bin'] = bins
     return df_copy
 
 def stratified_split(df: pd.DataFrame, config: dict) -> tuple:
@@ -72,8 +72,6 @@ def stratified_split(df: pd.DataFrame, config: dict) -> tuple:
     target_col = "formation_energy" # Standard target for OQMD formation energy task
     
     if target_col not in df.columns:
-        # Attempt to find a column that might be the target if naming differs
-        # But strictly following spec, we expect 'formation_energy'
         raise KeyError(f"Target column '{target_col}' not found. Available columns: {list(df.columns)}")
     
     # Apply quantile binning for stratification
@@ -94,7 +92,7 @@ def stratified_split(df: pd.DataFrame, config: dict) -> tuple:
     train_df, temp_df = train_test_split(
         df_binned, 
         train_size=train_ratio, 
-        stratify=df_binned['bin_id'],
+        stratify=df_binned['target_bin'],
         random_state=seed
     )
     
@@ -102,15 +100,12 @@ def stratified_split(df: pd.DataFrame, config: dict) -> tuple:
     val_df, test_df = train_test_split(
         temp_df,
         train_size=val_ratio_intermediate,
-        stratify=temp_df['bin_id'],
+        stratify=temp_df['target_bin'],
         random_state=seed
     )
     
-    # Drop the temporary bin_id column before returning
-    train_df = train_df.drop(columns=['bin_id'])
-    val_df = val_df.drop(columns=['bin_id'])
-    test_df = test_df.drop(columns=['bin_id'])
-    
+    # Do NOT drop the target_bin column as per T006a requirements
+    # The output CSVs MUST include a new column 'target_bin'
     return train_df, val_df, test_df
 
 def save_split_data(train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame, output_dir: str = "data/processed"):

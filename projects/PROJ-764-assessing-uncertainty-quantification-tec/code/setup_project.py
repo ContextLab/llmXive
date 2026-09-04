@@ -1,79 +1,59 @@
 """
-Project setup script for llmXive automated science pipeline.
-Creates the required directory structure and initializes empty files.
+Project Setup Script for PROJ-764-assessing-uncertainty-quantification-tec
+
+This script initializes the project directory structure as defined in Task T001a.
+It creates the following directories relative to the project root:
+- code/
+- data/
+- results/
+- tests/
+- docs/
+
+It also ensures parent directories exist to support nested structures used by the pipeline.
 """
 import os
 from pathlib import Path
 
-def main():
-    """Create the project directory structure."""
-    # Define the root directory (project root)
-    root = Path(".")
 
-    # Define the directories to create based on tasks.md
+def main():
+    """Create the standard project directory structure."""
+    # Define the project root (assumed to be the directory containing this script's parent,
+    # or we assume the script is run from the project root).
+    # Based on task description, paths are relative to project root.
+    project_root = Path(os.getcwd())
+
+    # Define required directories
     directories = [
         "code",
         "data",
         "results",
         "tests",
-        "docs"
-    ]
-
-    # Create directories
-    for dir_name in directories:
-        dir_path = root / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
-
-    # Create subdirectories for data organization
-    data_subdirs = [
+        "docs",
+        # Subdirectories required by later tasks (T005, T006, etc.)
         "data/raw",
         "data/processed",
-        "data/checksums"
-    ]
-    for dir_name in data_subdirs:
-        dir_path = root / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
-
-    # Create results subdirectories
-    results_subdirs = [
         "results/models",
         "results/models/ensemble",
-        "results/models/mc_dropout"
+        "results/models/mc_dropout",
+        "results/models/sparse_gp",
+        "logs",
+        "specs",
+        "contracts",
     ]
-    for dir_name in results_subdirs:
-        dir_path = root / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
 
-    # Create tests subdirectories
-    tests_subdirs = [
-        "tests/unit",
-        "tests/contract",
-        "tests/integration"
-    ]
-    for dir_name in tests_subdirs:
-        dir_path = root / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    created_count = 0
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
 
-    # Create docs subdirectories
-    docs_subdirs = [
-        "docs/api",
-        "docs/specs"
-    ]
-    for dir_name in docs_subdirs:
-        dir_path = root / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    print(f"\nSetup complete. Created {created_count} new directories.")
+    return 0
 
-    # Create logs directory
-    logs_dir = root / "logs"
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    print(f"Created directory: {logs_dir}")
-
-    print("Project directory structure created successfully.")
 
 if __name__ == "__main__":
-    main()
+    exit(main())

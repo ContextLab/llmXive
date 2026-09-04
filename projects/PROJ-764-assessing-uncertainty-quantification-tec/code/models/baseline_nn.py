@@ -119,14 +119,16 @@ def main(seed: int = 42):
     config = load_config()
     input_dim = 20  # From PCA (20 components)
     
-    # Count parameters to ensure <= 10k
+    # Initialize model
     model = HeteroscedasticNN(input_dim, hidden_dims=[32, 16])
+    
+    # Verification: Calculate total parameter count BEFORE training/saving
     total_params = sum(p.numel() for p in model.parameters())
     logger.info(f"Model total parameters: {total_params}")
     
-    # Verification: Assert total_params <= 10000 before saving
+    # Assert total_params <= 10000. If fails, raise error and do NOT save.
     if total_params > 10000:
-        raise ValueError(f"Model has {total_params} parameters, which exceeds the 10k limit.")
+        raise ValueError(f"Model has {total_params} parameters, which exceeds the 10k limit. Aborting save.")
     else:
         logger.info(f"Parameter count {total_params} is within 10k limit.")
 
@@ -148,9 +150,10 @@ def main(seed: int = 42):
     val_dataset = torch.utils.data.TensorDataset(X_val, y_val)
     val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=32, shuffle=False)
 
+    # Train model
     model = train_model(model, train_loader, val_loader, epochs=100, lr=1e-3)
 
-    # Save model
+    # Save model ONLY after successful training and parameter verification
     out_dir = Path("results/models")
     out_dir.mkdir(parents=True, exist_ok=True)
     output_path = out_dir / "baseline_seed42.pt"

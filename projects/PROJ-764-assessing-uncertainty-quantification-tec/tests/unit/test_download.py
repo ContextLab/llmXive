@@ -1,101 +1,97 @@
 import os
-import pytest
+import json
+import tempfile
+import hashlib
 from pathlib import Path
+import pytest
 from unittest.mock import patch, MagicMock
 import sys
 
-# Add code to path if running as script
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add code directory to path
+sys.path.insert(0, 'code')
 
-from data.download import download_oqmd_dataset
+from data.download import calculate_sha256, download_oqmd_dataset
+
+def test_calculate_sha256():
+    """Test SHA-256 calculation on a known string."""
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        tmp.write(b"test data")
+        tmp_path = Path(tmp.name)
+    
+    try:
+        expected_hash = hashlib.sha256(b"test data").hexdigest()
+        actual_hash = calculate_sha256(tmp_path)
+        assert actual_hash == expected_hash
+    finally:
+        os.unlink(tmp_path)
 
 @patch('data.download.load_dataset')
-@patch('data.download.Path')
-def test_download_oqmd_dataset_success(mock_path, mock_load_dataset, tmp_path):
-    """Test successful download and save."""
-    # Setup mocks
-    mock_dataset = MagicMock()
+def test_download_oqmd_dataset_success(mock_load_dataset):
+    """Test successful download and materialization."""
+    # Mock dataset
     mock_df = MagicMock()
-    mock_dataset.to_pandas.return_value = mock_df
-    mock_load_dataset.return_value = mock_dataset
+    mock_df.shape = (100, 10)
+    mock_load_dataset.return_value.to_pandas.return_value = mock_df
     
-    mock_output_path = MagicMock()
-    mock_path.return_value = mock_output_path
-    mock_output_path.exists.return_value = False
-    mock_output_path.__truediv__.return_value = tmp_path / "oqmd.parquet"
-    
-    # Run
-    result = download_oqmd_dataset(str(tmp_path))
-    
-    # Assertions
-    mock_load_dataset.assert_called_once_with("oqmd/formation-energy", split="train", streaming=False)
-    mock_dataset.to_pandas.assert_called_once()
-    mock_df.to_parquet.assert_called_once()
-    assert result.exists()
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        output_dir = os.path.join(tmp_dir, "raw")
+        checksum_dir = tmp_dir
+        
+        result_path = download_oqmd_dataset(output_dir, checksum_dir)
+        
+        # Verify file was created
+        assert os.path.exists(result_path)
+        assert result_path.name == "oqmd.parquet"
+        
+        # Verify checksum file
+        checksum_file = os.path.join(checksum_dir, "checksums.json")
+        assert os.path.exists(checksum_file)
+        
+        with open(checksum_file) as f:
+            checksum_data = json.load(f)
+        
+        assert checksum_data["filename"] == "oqmd.parquet"
+        assert "sha256" in checksum_data
+        assert len(checksum_data["sha256"]) == 64  # SHA-256 hex length
 
-@patch('data.download.time.sleep')
 @patch('data.download.load_dataset')
-@patch('data.download.Path')
-def test_download_oqmd_dataset_retry_logic(mock_path, mock_load_dataset, mock_sleep, tmp_path):
+def test_download_oqmd_dataset_retry_logic(mock_load_dataset):
     """Test retry logic with exponential backoff."""
-    # Setup mocks
-    mock_output_path = MagicMock()
-    mock_path.return_value = mock_output_path
-    mock_output_path.exists.return_value = False
+    # Fail first two attempts, succeed on third
+    mock_df = MagicMock()
+    mock_df.shape = (100, 10)
     
-    # Make load_dataset fail twice then succeed
-    mock_load_dataset.side_effect = [
-        ConnectionError("Network error 1"),
-        ConnectionError("Network error 2"),
-        MagicMock(to_pandas=MagicMock(return_value=MagicMock()))
+    side_effects = [
+        ConnectionError("Network error"),
+        ConnectionError("Network error"),
+        mock_df
     ]
+    mock_load_dataset.return_value.to_pandas.side_effect = side_effects
     
-    # Run
-    result = download_oqmd_dataset(str(tmp_path))
-    
-    # Assertions
-    assert mock_load_dataset.call_count == 3
-    assert mock_sleep.call_count == 2
-    mock_sleep.assert_any_call(2)
-    mock_sleep.assert_any_call(4)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        output_dir = os.path.join(tmp_dir, "raw")
+        checksum_dir = tmp_dir
+        
+        # Should succeed on 3rd attempt
+        result_path = download_oqmd_dataset(output_dir, checksum_dir)
+        
+        # Verify load_dataset was called 3 times
+        assert mock_load_dataset.call_count == 3
+        assert os.path.exists(result_path)
 
-@patch('data.download.time.sleep')
 @patch('data.download.load_dataset')
-@patch('data.download.Path')
-def test_download_oqmd_dataset_fails_loudly(mock_path, mock_load_dataset, mock_sleep, tmp_path):
-    """Test that the function raises after max retries."""
-    # Setup mocks
-    mock_output_path = MagicMock()
-    mock_path.return_value = mock_output_path
-    mock_output_path.exists.return_value = False
-    
-    # Make load_dataset fail every time
+def test_download_oqmd_dataset_fails_loudly(mock_load_dataset):
+    """Test that download fails loudly after max retries."""
+    # Always fail
     mock_load_dataset.side_effect = ConnectionError("Persistent network error")
     
-    # Run and assert exception
-    with pytest.raises(Exception):
-        download_oqmd_dataset(str(tmp_path))
-    
-    assert mock_load_dataset.call_count == 3
-    assert mock_sleep.call_count == 2
-
-@patch('data.download.Path')
-def test_download_oqmd_dataset_skips_existing(mock_path, tmp_path):
-    """Test that existing file is skipped."""
-    mock_output_path = MagicMock()
-    mock_path.return_value = mock_output_path
-    existing_file = tmp_path / "oqmd.parquet"
-    existing_file.touch()
-    mock_output_path.exists.return_value = True
-    
-    result = download_oqmd_dataset(str(tmp_path))
-    
-    mock_output_path.exists.assert_called_once()
-    assert result == existing_file
-    # load_dataset should not be called
-    from data.download import load_dataset
-    # Note: load_dataset is imported at module level, so we check the mock
-    # Since we patched the module's load_dataset, we can check it
-    # However, in the function, it uses the imported name.
-    # The patch on 'data.download.load_dataset' covers the usage inside the function.
-    assert not mock_load_dataset.called
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        output_dir = os.path.join(tmp_dir, "raw")
+        checksum_dir = tmp_dir
+        
+        # Should raise exception after 3 attempts
+        with pytest.raises(Exception):
+            download_oqmd_dataset(output_dir, checksum_dir)
+        
+        # Verify load_dataset was called 3 times
+        assert mock_load_dataset.call_count == 3

@@ -23,10 +23,13 @@ from models.deep_ensemble import main as deep_ensemble_main
 from models.mc_dropout import main as mc_dropout_main
 from models.sparse_gp import main as sparse_gp_main
 from models.run_single_seed import main as run_single_seed_main
+from uq.decompose_and_update_predictions import main as decompose_main
+from uq.compute_calibration_report import main as calibration_main
+from uq.compute_robustness import main as robustness_main
 
 # Configuration
 GLOBAL_TIMEOUT_HOURS = 5.0
-SEEDS_TO_RUN = [42, 43, 44]  # Based on T025a requirements
+SEEDS_TO_RUN = [42, 43, 44]
 OUTPUT_FILE = "results/uq_predictions_base.csv"
 
 logger = logging.getLogger(__name__)
@@ -42,7 +45,6 @@ def run_command(cmd_list, description):
     logger.info(f"Starting: {description}")
     start_time = time.time()
     try:
-        # Run the script as a subprocess to isolate execution and handle exit codes cleanly
         result = subprocess.run(
             [sys.executable] + cmd_list,
             check=True,
@@ -89,13 +91,15 @@ def run_pipeline():
 
     # Step 1: Preprocessing (T006a, T006b1, T006b2, T006b3)
     # This generates the processed data and PCA artifacts needed for models
+    # Note: T005 (Download) is assumed complete or run separately.
     run_command(
         ["data/preprocess.py"],
         "Preprocessing (Split, Binning, PCA, Exclusion)"
     )
 
     # Step 2: Train Models (T012, T013, T014, T015)
-    # These must complete before inference (T016a) can start
+    # These must complete before inference (T016a) can start.
+    # Explicitly wait for T013 (Deep Ensemble) and T014 (MC Dropout) as per requirements.
     logger.info("Waiting for model training to complete...")
 
     # Train Baseline (T012)
@@ -130,8 +134,29 @@ def run_pipeline():
             f"Running Inference for Seed {seed}"
         )
 
-    # Step 4: Merge Results
+    # Step 4: Merge Results (T016a outputs -> T016b base)
     merge_predictions(SEEDS_TO_RUN, OUTPUT_FILE)
+
+    # Step 5: Uncertainty Decomposition (T022b, T022d)
+    # Populates results/uq_predictions.csv with aleatoric/epistemic columns
+    run_command(
+        ["uq/decompose_and_update_predictions.py"],
+        "Decomposing Uncertainty and Updating Predictions"
+    )
+
+    # Step 6: Calibration Report (T024)
+    # Computes ECE, Interval Score, etc.
+    run_command(
+        ["uq/compute_calibration_report.py"],
+        "Computing Calibration Report"
+    )
+
+    # Step 7: Robustness Gate (T025a, T025b, T026)
+    # Runs seeds, computes CV, and exits if gate fails
+    run_command(
+        ["uq/compute_robustness.py"],
+        "Computing Robustness and Checking Gate"
+    )
 
     log_pipeline_end("UQ Pipeline")
     logger.info("Pipeline completed successfully.")
