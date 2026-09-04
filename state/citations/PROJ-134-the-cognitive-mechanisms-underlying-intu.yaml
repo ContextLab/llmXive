@@ -86,14 +86,3 @@
   verification_status: pending
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-09-03T18:30:14.381563Z'
-- artifact_hash: df802cfecdee0c5fe00630bb629203531ed164d14740dfcbaac9a0ab5425a32e
-  artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: "Root \u2013 Django REST framework"
-  kind: url
-  value: https://api.osf.io/v2/
-  verification_status: pending
-  verified_against_url: https://api.osf.io/v2/
-  verified_at: '2026-09-03T19:05:17.265239Z'

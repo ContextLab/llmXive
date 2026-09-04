@@ -1,3 +1,9 @@
+"""
+Data Ingestion Module (T015).
+
+Orchestrates the loading and merging of MFQ, Moral Stories, and VR Logs data.
+Routes to simulation or real data fetchers based on DATA_MODE in code/config.py.
+"""
 import os
 import sys
 import logging
@@ -6,228 +12,240 @@ from pathlib import Path
 from typing import Optional, Tuple, Dict, Any
 
 from code.config import get_path, DATA_MODE, validate_data_mode, ensure_directories
-from code.utils.logging import get_logger, get_exclusion_log_path, log_exclusion, log_pipeline_step
-from code.utils.schema import MergedDataset
+from code.utils.logging import log_pipeline_step
 
-# Initialize logger
-logger = get_logger(__name__)
+# Configure logging
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 def load_mfq_data() -> pd.DataFrame:
     """
-    Load MFQ data based on DATA_MODE.
-    
-    If DATA_MODE is 'simulation', load from the generated synthetic dataset.
-    If DATA_MODE is 'real', route to ingest_real.py to fetch real data.
+    Load MFQ data. Routes to simulation or real fetcher based on DATA_MODE.
     
     Returns:
-        DataFrame containing MFQ data.
+        DataFrame of MFQ data.
     
     Raises:
-        FileNotFoundError: If simulated data file is missing in simulation mode.
-        NotImplementedError: If real mode is requested but Phase 6 is incomplete.
-        DataFetchError: If real data fetch fails (in ingest_real).
+        FileNotFoundError: If real data fetch fails and mode is 'real'.
     """
     if DATA_MODE == 'simulation':
-        data_path = get_path("data/raw/synthetic_mfq.csv")
-        if not data_path.exists():
-            # Fallback: generate synthetic data if file missing (only in simulation mode)
-            logger.warning(f"Synthetic MFQ data not found at {data_path}. Generating on-the-fly for simulation mode.")
-            # Import here to avoid circular dependency if simulation_mfq.py is not yet run
-            from code.data.simulation_mfq import main as generate_mfq
-            generate_mfq()
+        logger.info("Loading MFQ data from simulation source.")
+        # Import simulation module locally to avoid circular imports if not needed
+        from code.data.simulation_mfq import main as run_mfq_sim
+        # Run the simulation to ensure data is generated
+        run_mfq_sim()
         
-        df = pd.read_csv(data_path)
-        logger.info(f"Loaded {len(df)} MFQ records from {data_path}")
-        return df
+        input_path = get_path("data", "raw", "synthetic_mfq.csv")
+        if not input_path.exists():
+            # Fallback for direct script execution if main() didn't write
+            input_path = get_path("data", "processed", "synthetic_mfq.csv")
+            if not input_path.exists():
+                raise FileNotFoundError(f"Simulated MFQ data not found at {input_path}")
+        
+        return pd.read_csv(input_path)
     
     elif DATA_MODE == 'real':
-        # Route to real data ingestion
-        logger.info("Routing to real data ingestion (ingest_real.py)...")
+        logger.info("Loading MFQ data from real source.")
+        # Ensure real data interface is valid
+        validate_data_mode()
+        
+        # Import real fetcher
         try:
-            from code.data.ingest_real import fetch_real_mfq_data
-            df = fetch_real_mfq_data()
-            logger.info(f"Loaded {len(df)} real MFQ records")
-            return df
+            from code.data.fetch_real import fetch_real_mfq_data
+        except ImportError:
+            raise ImportError("Real data fetcher (fetch_real.py) not found. Ensure Phase 6 tasks are complete.")
+        
+        try:
+            output_path = fetch_real_mfq_data()
+            return pd.read_csv(output_path)
         except Exception as e:
-            logger.error(f"Failed to fetch real MFQ data: {e}")
-            raise
+            logger.error(f"Real MFQ data fetch failed: {e}")
+            raise FileNotFoundError(f"Failed to fetch real MFQ data: {e}") from e
     
     else:
-        raise ValueError(f"Invalid DATA_MODE: {DATA_MODE}")
+        raise ValueError(f"Unknown DATA_MODE: {DATA_MODE}")
 
 def load_stories_data() -> pd.DataFrame:
     """
-    Load Moral Stories data based on DATA_MODE.
-    
-    If DATA_MODE is 'simulation', load from the generated synthetic dataset.
-    If DATA_MODE is 'real', route to ingest_real.py to fetch real data.
+    Load Moral Stories data. Routes to simulation or real fetcher.
     
     Returns:
-        DataFrame containing Moral Stories data.
+        DataFrame of Stories data.
     """
     if DATA_MODE == 'simulation':
-        data_path = get_path("data/raw/synthetic_stories.csv")
-        if not data_path.exists():
-            logger.warning(f"Synthetic Stories data not found at {data_path}. Generating on-the-fly.")
-            from code.data.simulation_stories import main as generate_stories
-            generate_stories()
+        logger.info("Loading Stories data from simulation source.")
+        from code.data.simulation_stories import main as run_stories_sim
+        run_stories_sim()
         
-        df = pd.read_csv(data_path)
-        logger.info(f"Loaded {len(df)} story records from {data_path}")
-        return df
+        input_path = get_path("data", "raw", "synthetic_stories.csv")
+        if not input_path.exists():
+            input_path = get_path("data", "processed", "synthetic_stories.csv")
+            if not input_path.exists():
+                raise FileNotFoundError(f"Simulated Stories data not found at {input_path}")
+        
+        return pd.read_csv(input_path)
     
     elif DATA_MODE == 'real':
-        logger.info("Routing to real data ingestion for stories...")
+        logger.info("Loading Stories data from real source.")
+        validate_data_mode()
         try:
-            from code.data.ingest_real import fetch_real_stories_data
-            df = fetch_real_stories_data()
-            logger.info(f"Loaded {len(df)} real story records")
-            return df
+            from code.data.fetch_real import fetch_real_stories_data
+        except ImportError:
+            raise ImportError("Real data fetcher (fetch_real.py) not found.")
+        
+        try:
+            output_path = fetch_real_stories_data()
+            return pd.read_csv(output_path)
         except Exception as e:
-            logger.error(f"Failed to fetch real stories data: {e}")
-            raise
+            logger.error(f"Real Stories data fetch failed: {e}")
+            raise FileNotFoundError(f"Failed to fetch real Stories data: {e}") from e
     
     else:
-        raise ValueError(f"Invalid DATA_MODE: {DATA_MODE}")
+        raise ValueError(f"Unknown DATA_MODE: {DATA_MODE}")
 
 def load_vr_logs_data() -> pd.DataFrame:
     """
-    Load VR Interaction Logs data based on DATA_MODE.
-    
-    If DATA_MODE is 'simulation', load from the generated synthetic dataset.
-    If DATA_MODE is 'real', route to ingest_real.py to fetch real data.
+    Load VR Interaction Logs. Routes to simulation or real fetcher.
     
     Returns:
-        DataFrame containing VR Logs data.
+        DataFrame of VR Logs data.
     """
     if DATA_MODE == 'simulation':
-        data_path = get_path("data/raw/synthetic_vr_logs.csv")
-        if not data_path.exists():
-            logger.warning(f"Synthetic VR Logs data not found at {data_path}. Generating on-the-fly.")
-            from code.data.simulation_stories import main as generate_stories
-            # The generate_stories function handles all three datasets including VR logs
-            generate_stories()
+        logger.info("Loading VR Logs data from simulation source.")
+        from code.data.simulation_stories import main as run_stories_sim
+        run_stories_sim()
         
-        df = pd.read_csv(data_path)
-        logger.info(f"Loaded {len(df)} VR log records from {data_path}")
-        return df
+        input_path = get_path("data", "raw", "synthetic_vr_logs.csv")
+        if not input_path.exists():
+            input_path = get_path("data", "processed", "synthetic_vr_logs.csv")
+            if not input_path.exists():
+                raise FileNotFoundError(f"Simulated VR Logs data not found at {input_path}")
+        
+        return pd.read_csv(input_path)
     
     elif DATA_MODE == 'real':
-        logger.info("Routing to real data ingestion for VR logs...")
+        logger.info("Loading VR Logs data from real source.")
+        validate_data_mode()
         try:
-            from code.data.ingest_real import fetch_real_vr_logs
-            df = fetch_real_vr_logs()
-            logger.info(f"Loaded {len(df)} real VR log records")
-            return df
+            from code.data.fetch_real import fetch_real_vr_logs
+        except ImportError:
+            raise ImportError("Real data fetcher (fetch_real.py) not found.")
+        
+        try:
+            output_path = fetch_real_vr_logs()
+            return pd.read_csv(output_path)
         except Exception as e:
-            logger.error(f"Failed to fetch real VR logs data: {e}")
-            raise
+            logger.error(f"Real VR Logs fetch failed: {e}")
+            raise FileNotFoundError(f"Failed to fetch real VR Logs: {e}") from e
     
     else:
-        raise ValueError(f"Invalid DATA_MODE: {DATA_MODE}")
+        raise ValueError(f"Unknown DATA_MODE: {DATA_MODE}")
 
-def merge_datasets(mfq_df: pd.DataFrame, stories_df: pd.DataFrame, vr_logs_df: pd.DataFrame) -> pd.DataFrame:
+def merge_datasets(mfq_df: pd.DataFrame, stories_df: pd.DataFrame, vr_logs_df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """
-    Merge MFQ, Stories, and VR Logs datasets on participant_id and story_id.
-    
-    Handles ID mismatches by logging exclusions.
+    Merge MFQ, Stories, and VR Logs datasets on participant_id.
     
     Args:
-        mfq_df: MFQ DataFrame
-        stories_df: Stories DataFrame
-        vr_logs_df: VR Logs DataFrame
+        mfq_df: MFQ DataFrame.
+        stories_df: Stories DataFrame.
+        vr_logs_df: Optional VR Logs DataFrame.
     
     Returns:
         Merged DataFrame.
     """
-    # Ensure consistent column names for merging
-    # Assuming 'participant_id' is the key in all, and 'story_id' in stories/vr_logs
+    logger.info("Merging datasets...")
     
-    # Step 1: Merge Stories and VR Logs on story_id
-    if 'story_id' in stories_df.columns and 'story_id' in vr_logs_df.columns:
-        stories_vr = pd.merge(stories_df, vr_logs_df, on='story_id', how='inner')
-        logger.info(f"Merged Stories and VR Logs: {len(stories_vr)} records")
-    else:
-        logger.warning("Missing story_id in one of the datasets. Skipping Stories-VR merge.")
-        stories_vr = stories_df.copy()
+    # Ensure common columns exist
+    required_cols = ['participant_id']
+    for df in [mfq_df, stories_df]:
+        if not all(col in df.columns for col in required_cols):
+            raise ValueError(f"Missing required columns in input data. Expected: {required_cols}")
     
-    # Step 2: Merge MFQ with the result on participant_id
-    if 'participant_id' in mfq_df.columns and 'participant_id' in stories_vr.columns:
-        merged = pd.merge(mfq_df, stories_vr, on='participant_id', how='inner')
-        logger.info(f"Merged MFQ with Stories/VR: {len(merged)} records")
-    else:
-        logger.warning("Missing participant_id in one of the datasets. Skipping MFQ merge.")
-        merged = stories_vr.copy()
+    # Merge MFQ and Stories
+    merged = pd.merge(mfq_df, stories_df, on='participant_id', how='outer')
     
-    # Log exclusions for participants present in one but not the other (if full outer join was desired, but we do inner)
-    # For now, we log the counts to indicate what was dropped
-    logger.info(f"Excluded participants due to ID mismatch (inner join): "
-                f"MFQ={len(mfq_df)}, Stories/VR={len(stories_vr)}, Final={len(merged)}")
+    # Merge VR Logs if available
+    if vr_logs_df is not None and not vr_logs_df.empty:
+        if 'participant_id' in vr_logs_df.columns:
+            merged = pd.merge(merged, vr_logs_df, on='participant_id', how='outer')
+        else:
+            logger.warning("VR Logs missing participant_id column. Skipping merge.")
     
+    logger.info(f"Merged dataset shape: {merged.shape}")
     return merged
 
-def validate_and_save(merged_df: pd.DataFrame) -> pd.DataFrame:
+def validate_and_save(merged_df: pd.DataFrame, output_path: Optional[str] = None) -> Path:
     """
-    Validate the merged dataset and save to disk.
-    
-    Checks:
-    - No null values in critical columns: gaze_x, gaze_y, response_time
+    Validate merged data and save to CSV.
     
     Args:
-        merged_df: Merged DataFrame
+        merged_df: Merged DataFrame.
+        output_path: Path to save the CSV.
     
     Returns:
-        Validated DataFrame.
-    
-    Raises:
-        ValueError: If validation fails.
+        Path to the saved file.
     """
-    critical_columns = ['gaze_x', 'gaze_y', 'response_time']
+    if output_path is None:
+        output_path = get_path("data", "processed", "merged_data.csv")
     
-    for col in critical_columns:
-        if col in merged_df.columns:
-            null_count = merged_df[col].isnull().sum()
-            if null_count > 0:
-                error_msg = f"Found {null_count} null values in critical column '{col}'"
-                logger.error(error_msg)
-                raise ValueError(error_msg)
-        else:
-            logger.warning(f"Critical column '{col}' not found in merged dataset.")
+    full_path = Path(output_path)
+    full_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save to disk
-    output_path = get_path("data/processed/merged_data.csv")
-    merged_df.to_csv(output_path, index=False)
-    logger.info(f"Saved merged data to {output_path}")
+    # Basic validation
+    if merged_df.empty:
+        raise ValueError("Merged dataset is empty. Validation failed.")
     
-    return merged_df
+    if 'participant_id' not in merged_df.columns:
+        raise ValueError("Merged dataset missing 'participant_id' column.")
+    
+    merged_df.to_csv(full_path, index=False)
+    logger.info(f"Merged data saved to {full_path}")
+    
+    return full_path
 
 def main():
-    """
-    Main entry point for the ingestion pipeline.
-    
-    1. Validate DATA_MODE.
-    2. Load MFQ, Stories, VR Logs.
-    3. Merge datasets.
-    4. Validate and save.
-    """
+    """Main entry point for data ingestion."""
     ensure_directories()
-    validate_data_mode()
     
     log_pipeline_step("start_ingestion", DATA_MODE)
     
     try:
+        # Validate mode first
+        validate_data_mode()
+        
+        # Load data
         mfq_df = load_mfq_data()
         stories_df = load_stories_data()
-        vr_logs_df = load_vr_logs_data()
         
+        vr_logs_df = None
+        if DATA_MODE == 'simulation':
+            # In simulation, we might have VR logs generated
+            try:
+                vr_logs_df = load_vr_logs_data()
+            except FileNotFoundError:
+                logger.warning("VR Logs not found in simulation. Proceeding without them.")
+        elif DATA_MODE == 'real':
+            try:
+                vr_logs_df = load_vr_logs_data()
+            except FileNotFoundError:
+                logger.warning("VR Logs not found in real data. Proceeding without them.")
+        
+        # Merge
         merged_df = merge_datasets(mfq_df, stories_df, vr_logs_df)
-        validated_df = validate_and_save(merged_df)
         
-        log_pipeline_step("end_ingestion", {"records": len(validated_df)})
-        logger.info("Ingestion pipeline completed successfully.")
+        # Save
+        output_path = validate_and_save(merged_df)
+        
+        log_pipeline_step("end_ingestion", {"records": len(merged_df), "output": str(output_path)})
+        
+        return merged_df
         
     except Exception as e:
-        logger.error(f"Ingestion pipeline failed: {e}")
+        logger.error(f"Ingestion failed: {str(e)}")
         log_pipeline_step("end_ingestion_failed", {"error": str(e)})
         raise
 

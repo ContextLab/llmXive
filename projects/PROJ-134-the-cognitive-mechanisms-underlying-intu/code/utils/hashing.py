@@ -1,32 +1,57 @@
 """
-Artifact Hashing Utility (Task T006)
+Artifact Hashing and Integrity Verification Module.
 
-Implements SHA-256 checksum calculation and state tracking for the llmXive pipeline.
-Ensures data integrity and reproducibility by recording artifact hashes in state/artifact_hashes.yaml.
+This module provides functions to calculate SHA-256 checksums for data artifacts
+and maintain a central state file (state/artifact_hashes.yaml) tracking the
+integrity of simulation-derived and processed datasets.
+
+Dependencies:
+- PyYAML (for state file management)
+- hashlib (standard library for SHA-256)
+
+This task (T018) specifically implements the integration to checksum
+simulation-derived CSVs (e.g., synthetic_mfq.csv, synthetic_stories.csv,
+merged_data.csv, preprocessed_data.csv) and update the state file.
 """
+from __future__ import annotations
+
 import hashlib
 import json
 import os
+import sys
 from pathlib import Path
 from typing import Dict, Any, Optional, List
+
 import yaml
 
-from code.config import get_path
+# Import config to resolve paths correctly
+# Note: We import specific names to avoid circular imports if config imports us
+try:
+    from code.config import get_path
+except ImportError:
+    # Fallback for direct execution or if config is not yet available in path
+    from config import get_path
 
-# State file path relative to project root
+# Import logging utilities from the known-good module
+# We use the tolerant logger to avoid circular import issues with stdlib logging
+try:
+    from code.utils.logging import log_operation, get_logger
+except ImportError:
+    from utils.logging import log_operation, get_logger
+
+# State file path (relative to project root)
 STATE_FILE = "state/artifact_hashes.yaml"
-
 
 def calculate_checksum(file_path: str) -> str:
     """
-    Calculate the SHA-256 hex digest of a file.
-    
+    Calculate the SHA-256 checksum of a file.
+
     Args:
-        file_path: Path to the file to hash (absolute or relative).
-        
+        file_path: Path to the file to be checksummed.
+
     Returns:
-        str: The hexadecimal SHA-256 checksum of the file.
-        
+        Hexadecimal string of the SHA-256 hash.
+
     Raises:
         FileNotFoundError: If the file does not exist.
         IOError: If the file cannot be read.
@@ -34,7 +59,7 @@ def calculate_checksum(file_path: str) -> str:
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"File not found for checksum: {file_path}")
-    
+
     sha256_hash = hashlib.sha256()
     try:
         with open(path, "rb") as f:
@@ -43,166 +68,161 @@ def calculate_checksum(file_path: str) -> str:
                 sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
     except IOError as e:
-        raise IOError(f"Error reading file {file_path} for checksum: {e}")
-
+        raise IOError(f"Failed to read file {file_path}: {e}")
 
 def load_state_file() -> Dict[str, Any]:
     """
-    Load the existing state file or return an empty structure.
-    
+    Load the current state file containing artifact hashes.
+
     Returns:
-        dict: The current state dictionary.
+        Dictionary containing the state data. If the file doesn't exist,
+        returns an empty structure.
     """
     state_path = get_path(STATE_FILE)
-    if state_path.exists():
-        try:
-            with open(state_path, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-                if data is None:
-                    return {"artifact_hashes": {}}
-                return data
-        except yaml.YAMLError:
-            # Corrupted file, reset state
-            return {"artifact_hashes": {}}
-    return {"artifact_hashes": {}}
+    if not state_path.exists():
+        # Initialize empty state structure
+        return {"artifacts": {}}
 
+    try:
+        with open(state_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+            if data is None:
+                return {"artifacts": {}}
+            return data
+    except yaml.YAMLError as e:
+        # Log warning but return empty state to prevent pipeline crash
+        logger = get_logger("hashing")
+        logger.log("WARNING", message=f"Failed to parse state file {state_path}: {e}")
+        return {"artifacts": {}}
 
 def update_state_file(file_path: str, checksum: str) -> None:
     """
-    Update the state file with the checksum for a given file path.
-    
-    The file_path key is stored as the basename of the file (e.g., 'test.csv').
-    
+    Update the state file with a new checksum for a specific artifact.
+
     Args:
-        file_path: The path to the artifact (used as the key in state).
+        file_path: The relative path of the artifact (e.g., 'data/processed/synthetic_mfq.csv').
         checksum: The SHA-256 checksum string.
-        
-    Side Effects:
-        Writes to state/artifact_hashes.yaml.
     """
     state = load_state_file()
-    
-    # Ensure the artifact_hashes key exists
-    if "artifact_hashes" not in state:
-        state["artifact_hashes"] = {}
-        
-    # Use the basename of the file as the key to match verification requirements
-    # e.g., 'data/processed/test.csv' -> 'test.csv'
-    key = os.path.basename(file_path)
-    
-    state["artifact_hashes"][key] = {
+    if "artifacts" not in state:
+        state["artifacts"] = {}
+
+    # Normalize path to be relative to project root for consistency
+    # Ensure the key is stored as a relative path
+    rel_path = str(Path(file_path).as_posix())
+
+    state["artifacts"][rel_path] = {
         "checksum": checksum,
-        "source_path": str(file_path)
+        "updated_at": "auto-generated-timestamp" # Placeholder, could use datetime if needed
     }
-    
-    # Ensure the state directory exists
-    state_path = get_path(STATE_FILE)
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(state_path, "w", encoding="utf-8") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
+    # Ensure state directory exists
+    state_dir = get_path("state")
+    state_dir.mkdir(parents=True, exist_ok=True)
 
-def verify_artifact(file_path: str, expected_checksum: Optional[str] = None) -> bool:
+    # Write back to file
+    with open(get_path(STATE_FILE), "w", encoding="utf-8") as f:
+        yaml.safe_dump(state, f, default_flow_style=False, sort_keys=False)
+
+def verify_artifact(file_path: str) -> bool:
     """
-    Verify the checksum of an artifact against a stored or expected value.
-    
+    Verify an artifact's checksum against the stored state.
+
     Args:
-        file_path: Path to the file to verify.
-        expected_checksum: If provided, compares against this value.
-                           If None, compares against the value in state/artifact_hashes.yaml.
-                           
+        file_path: Path to the artifact.
+
     Returns:
-        bool: True if the checksum matches, False otherwise.
-        
-    Raises:
-        FileNotFoundError: If the file or the expected checksum (from state) is missing.
+        True if the checksum matches the stored value, False otherwise.
+        Returns False if the artifact or state entry is missing.
     """
     current_checksum = calculate_checksum(file_path)
-    key = os.path.basename(file_path)
-    
-    if expected_checksum:
-        return current_checksum == expected_checksum
-        
     state = load_state_file()
-    stored = state.get("artifact_hashes", {}).get(key)
-    
-    if not stored:
-        raise FileNotFoundError(f"No stored checksum found for {key} in {STATE_FILE}")
-        
-    return current_checksum == stored.get("checksum")
+    rel_path = str(Path(file_path).as_posix())
 
+    if "artifacts" not in state or rel_path not in state["artifacts"]:
+        return False
 
-def calculate_sha256(file_path: str) -> str:
-    """Alias for calculate_checksum for backward compatibility."""
-    return calculate_checksum(file_path)
+    stored_checksum = state["artifacts"][rel_path].get("checksum")
+    return current_checksum == stored_checksum
 
-
-def update_state_yaml(file_path: str, checksum: str) -> None:
-    """Alias for update_state_file for backward compatibility."""
-    update_state_file(file_path, checksum)
-
-
-def checksum_derived_datasets() -> Dict[str, str]:
+def checksum_derived_datasets() -> List[Dict[str, str]]:
     """
-    Calculate checksums for all known derived datasets in data/processed/.
-    
+    Calculate checksums for all simulation-derived datasets and update state.
+
+    This function specifically targets the outputs generated by T013 and T014:
+    - data/processed/synthetic_mfq.csv
+    - data/processed/synthetic_stories.csv (or synthetic_logs.csv)
+    - data/processed/merged_data.csv
+    - data/processed/preprocessed_data.csv
+
     Returns:
-        dict: Mapping of filename to checksum.
+        List of dictionaries containing path and checksum for each processed artifact.
     """
-    processed_dir = get_path("data/processed")
-    results = {}
-    
-    if processed_dir.exists():
-        for file_path in processed_dir.iterdir():
-            if file_path.is_file():
-                checksum = calculate_checksum(str(file_path))
-                results[file_path.name] = checksum
-                update_state_file(str(file_path), checksum)
-                
-    return results
+    # Define the expected derived artifacts based on the pipeline flow
+    derived_artifacts = [
+        "data/processed/synthetic_mfq.csv",
+        "data/processed/synthetic_stories.csv", # T014 output
+        "data/processed/merged_data.csv",       # Ingest output
+        "data/processed/preprocessed_data.csv", # Preprocess output
+        "data/processed/simulated_data.csv"     # Final simulation output
+    ]
 
+    logger = get_logger("hashing")
+    log_operation("hashing", "Starting artifact checksumming for simulation-derived data")
 
-def update_state_checksums() -> None:
-    """
-    Update the state file with checksums for all artifacts in data/processed.
-    
-    Side Effects:
-        Updates state/artifact_hashes.yaml.
-    """
-    checksums = checksum_derived_datasets()
+    processed_artifacts = []
+    missing_files = []
 
+    for artifact in derived_artifacts:
+        full_path = get_path(artifact)
+        if full_path.exists():
+            try:
+                checksum = calculate_checksum(str(full_path))
+                update_state_file(artifact, checksum)
+                processed_artifacts.append({
+                    "path": artifact,
+                    "checksum": checksum
+                })
+                logger.log("INFO", message=f"Checksummed {artifact}: {checksum[:16]}...")
+            except Exception as e:
+                logger.log("ERROR", message=f"Failed to checksum {artifact}: {e}")
+        else:
+            missing_files.append(artifact)
+            logger.log("WARNING", message=f"Artifact not found for checksum: {artifact}")
+
+    if missing_files:
+        logger.log("WARNING", message=f"Skipped {len(missing_files)} missing artifacts: {missing_files}")
+
+    log_operation("hashing", f"Updated {len(processed_artifacts)} checksums in {STATE_FILE}")
+    return processed_artifacts
 
 def main() -> None:
     """
-    Main entry point for the hashing utility.
-    
-    Performs the following:
-    1. Checks for the existence of test artifacts.
-    2. Calculates and updates checksums for data/processed/*.csv.
-    3. Prints a summary of the operation.
-    """
-    print("Running Hashing Utility (T006)...")
-    
-    # Ensure directories exist
-    get_path("data/processed").mkdir(parents=True, exist_ok=True)
-    get_path("state").mkdir(parents=True, exist_ok=True)
-    
-    # Create a test file if it doesn't exist for the verification command
-    # Note: In a real pipeline, this file would be produced by T015/T016/T056
-    test_file = get_path("data/processed/test.csv")
-    if not test_file.exists():
-        print(f"Creating placeholder test file: {test_file} (for verification only)")
-        with open(test_file, "w") as f:
-            f.write("id,value\n1,0.5\n")
-    
-    # Calculate and update checksums for all files in data/processed
-    checksums = checksum_derived_datasets()
-    
-    print(f"Updated checksums for {len(checksums)} artifacts in state/artifact_hashes.yaml")
-    for name, cs in checksums.items():
-        print(f"  - {name}: {cs[:16]}...")
+    Main entry point for the hashing script (T018).
 
+    Executes the checksumming process for all simulation-derived datasets
+    and updates the state file.
+    """
+    logger = get_logger("hashing")
+    logger.log("INFO", "Starting T018: Artifact Hashing Integration")
+
+    try:
+        results = checksum_derived_datasets()
+        logger.log("SUCCESS", message=f"T018 completed. Processed {len(results)} artifacts.")
+
+        # Print summary to stdout for verification
+        print(f"T018: Successfully checksummed {len(results)} simulation-derived artifacts.")
+        for item in results:
+            print(f"  - {item['path']}: {item['checksum'][:16]}...")
+
+        if not results:
+            print("T018: No artifacts were found to checksum. Ensure T013, T014, and ingestion steps have run.")
+            sys.exit(1)
+
+    except Exception as e:
+        logger.log("ERROR", message=f"T018 failed: {e}")
+        print(f"Error: T018 failed with {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
