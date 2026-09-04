@@ -1,0 +1,13 @@
+torch
+torchvision
+scikit-learn
+networkx
+pandas
+datasets
+opencv-python
+pyyaml
+pyarrow
+pytest
+black
+ruff
+numpy

@@ -20,61 +20,38 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
-## Phase 0: Baseline Re-Execution (Priority: P0)
-
-**Goal**: Generate paired baseline data for statistical validity.
-
-- [ ] T000 [P] [US3] Execute the original GPU-based RoboDojo Neural Policy on all 18 tasks in a high-fidelity simulated environment to generate `data/interim/baseline_results.parquet` labeled as 'Sim-Baseline'.
-  - **Implementation**: Load the original RoboDojo Neural Policy weights from the RoboDojo v3.0.1 commit. Run the baseline model on each task in the high-fidelity simulated environment. **Run this task on a dedicated GPU instance (e.g., Kaggle GPU or separate CI job)** as the original policy is GPU-based. Record `ExecutionOutcome` (Success/Failure) for each task. Persist results to `data/interim/baseline_results.parquet` with a 'Sim-Baseline' label to distinguish from real-world execution (per SC-002, FR-004).
-
----
-
-## Phase 0.5: Adapter Construction (Sim-to-Real) (Priority: P0.5)
-
-**Goal**: Train the low-level controller adapter without overfitting to the test set, then retrain on all data for final evaluation.
-**Dependencies**: This phase depends on Phase 2 (Foundational) completion.
-
-- [ ] T010 [P] Implement `code/src/controller_adapter.py` to define the "Linear Probe" architecture, then execute the following steps in order: 1. Split the tasks into training and validation sets. 2. Train the probe on the training tasks. 3. Validate on the hold-out tasks. 4. **Discard the split weights**. 5. **Retrain the probe on ALL 18 tasks** for the final evaluation. 6. Save the final weights to `data/processed/adapter_weights.pt`.
-  - **Implementation**: Use a set of real-world videos. Split 14/4 for validation of generalization. Train Linear Probe on frozen MobileViT features. **Retrain on all 18 tasks for final evaluation to ensure N=18 statistical power.** Save weights.
-- [ ] T011 [P] Implement the logic in `code/src/controller_adapter.py` to load the generated `adapter_weights.pt` and adapt the pre-trained RoboDojo weights for real-world execution.
-- [ ] T012 [P] Update `code/src/controller_adapter.py` to load the adapted weights and expose the execution interface for the symbolic planner output.
-
-**Checkpoint**: Adapter ready - US2 execution can now begin
-
----
-
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a Create project directory structure in `code/` (src/, tests/, data/)
-- [ ] T001b Initialize Python 3.11 virtual environment and create `code/requirements.txt` (torch-cpu, scikit-learn, networkx, pandas, datasets, opencv-python, pyyaml)
+- [X] T001b Initialize Python 3.11 virtual environment and create `code/requirements.txt` (torch-cpu, scikit-learn, networkx, pandas, datasets, opencv-python, pyyaml)
 - [ ] T001c Create `code/src/config.py` with paths, seeds, and RoboDojo dataset commit hash `v3.0.1`
-- [ ] T001d Create `code/src/data_loader.py`
-- [ ] T001e Create `code/src/vision_encoder.py`
-- [ ] T001f Create `code/src/state_mapper.py`
-- [ ] T001g Create `code/src/planner.py`
-- [ ] T001h Create `code/src/controller_adapter.py`
-- [ ] T001i Create `code/src/oracle_executor.py`
+- [X] T001d Create `code/src/data_loader.py`
+- [X] T001e Create `code/src/vision_encoder.py`
+- [X] T001f Create `code/src/state_mapper.py`
+- [X] T001g Create `code/src/planner.py`
+- [X] T001h Create `code/src/controller_adapter.py`
+- [X] T001i Create `code/src/oracle_executor.py`
 - [ ] T001j Create `code/src/metrics_logger.py`
 - [ ] T001k Create `code/src/stats_analysis.py`
 - [ ] T001l Create `code/tests/` directory structure
@@ -89,12 +66,41 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T003 [P] Implement `code/src/data_loader.py` to stream RoboDojo parquet files from HuggingFace without loading full dataset into RAM
+ - **Implementation**: Use `datasets.load_dataset(..., streaming=True)` to iterate over the RoboDojo dataset shards. Do NOT load the full dataset into memory. Accumulate statistics online or process frame-by-frame. Explicitly raise an error if the stream fails to open a verified real source; do NOT fall back to synthetic data.
 - [ ] T004 [P] Implement `code/src/metrics_logger.py` to record CPU cycles, RAM usage, and wall-clock time for every task
 - [ ] T005 Create base entity schemas in `specs/001-symbolic-dojo-extend/contracts/` (SymbolicState, ExecutionOutcome, ComputeMetric)
 - [ ] T006 [P] Setup contract validation tests in `code/tests/contract/` using `pyyaml` and `jsonschema`
+- [ ] T046 [P] [Foundational] Define `replan_support` boolean flag in `SymbolicState` schema in `specs/001-symbolic-dojo-extend/contracts/symbolic_state.schema.yaml` to enable deterministic replanning logic in T028.
+ - **Implementation**: Add `replan_support: boolean` field to the `SymbolicState` schema. Update `code/src/state_mapper.py` to populate this flag based on task metadata.
 - [ ] T007 Implement `code/src/main.py` orchestration script to chain data loading, planning, and logging
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+---
+
+## Phase 2.5: Baseline Re-Execution (Priority: P0)
+
+**Goal**: Generate paired baseline data for statistical validity.
+**Dependencies**: Depends on Phase 2 (Foundational) completion.
+
+- [ ] T000 [P] Execute the original GPU-based RoboDojo Neural Policy on a comprehensive suite of tasks in a high-fidelity simulated environment to generate `data/interim/baseline_results.parquet` labeled as 'Sim-Baseline'.
+ - **Implementation**: Load the original RoboDojo Neural Policy weights from the RoboDojo v3.0.1 commit. Run the baseline model on each task in the high-fidelity simulated environment. **Run this task on a dedicated GPU instance (e.g., Kaggle GPU or separate CI job)** as the original policy is GPU-based. Record `ExecutionOutcome` (Success/Failure) for each task. **CRITICAL**: If the simulation environment fails to initialize or the model fails to load, the task MUST raise a `SimulationFailureError` and abort. Do NOT fallback to real-world execution or synthetic data. The 'Sim-Baseline' is the primary method for reproducibility (Plan.md Phase 0).
+
+---
+
+## Phase 2.7: Adapter Construction (Sim-to-Real) (Priority: P0.5)
+
+**Goal**: Train the low-level controller adapter without overfitting to the test set, then retrain on all data for final evaluation.
+**Dependencies**: This phase depends on Phase 2 (Foundational) completion.
+
+- [ ] T010 [P] Implement `code/src/controller_adapter.py` to define the "Linear Probe" architecture, then execute the following steps in order: 1. Split the tasks into a training set and a hold-out validation set using a fixed seed.. 2. Train the probe on the training tasks. 3. Save intermediate weights to `data/processed/adapter_weights_interim.pt`. 4. Validate on the hold-out tasks and record metrics.
+ - **Implementation**: Use a set of real-world videos. Split 14/4 for validation of generalization. Train Linear Probe on frozen MobileViT features. **If validation metrics are below threshold, halt and report error; do not proceed to final retrain.**
+- [ ] T011 [P] Implement the logic in `code/src/controller_adapter.py` to validate the trained probe on the hold-out set and record metrics.
+ - **Implementation**: Load `adapter_weights_interim.pt`. Run evaluation on Tasks 14-17. If validation fails, raise `ValidationFailedError`.
+- [ ] T012 [P] Implement the logic in `code/src/controller_adapter.py` to retrain the probe on ALL 18 tasks for the final evaluation if validation passed, and save the final weights to `data/processed/adapter_weights.pt`.
+ - **Implementation**: Only proceed if T011 validation passed. Retrain on all 18 tasks. Save final weights.
+
+**Checkpoint**: Adapter ready for integration with US2
 
 ---
 
@@ -118,8 +124,8 @@
 - [ ] T015 [US1] Implement `code/src/planner.py` with A* algorithm to generate `ActionSequence` of sub-goals
 - [ ] T016 [US1] Add validation in `code/src/planner.py` to ensure generated sequences respect object affordances defined in the input graph
 - [ ] T017 [US1] Add logging in `code/src/planner.py` to record planning time and verify ≤ 60s constraint per task
-- [ ] T018 [US1] Implement memory monitoring in `code/src/metrics_logger.py` to ensure total RAM usage ≤ 6 GB during planning, including a check that raises `ResourceLimitExceeded` error if RAM exceeds 6 GB to halt execution.
-  - **Implementation**: Monitor RAM usage. If > 6 GB, raise `ResourceLimitExceeded` and stop.
+- [ ] T022 [US1] Implement memory-efficient streaming in `code/src/metrics_logger.py` to ensure total RAM usage remains ≤ 6 GB during planning. If RAM approaches 6 GB, **automatically reduce batch size to 1, downsample input frames, or skip non-critical logging**. Do NOT raise `ResourceLimitExceeded` or crash.
+ - **Implementation**: Monitor RAM. If > 5.5 GB, trigger fallback (batch=1, downsample). If > 6 GB after fallback, log warning but continue (do not crash).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -138,13 +144,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/src/executor.py` to run `ActionSequence` on the physical robot using the adapted controller (from T011).
-- [ ] T022 [US2] Implement logic in `code/src/executor.py` to detect task completion (pose deviation ≤ 5cm, orientation ≤ 15°) and record `ExecutionOutcome`.
-- [ ] T023 [US2] Implement failure detection in `code/src/executor.py` to label failures as "Planner Infeasibility" or "Controller Execution Failure" and explicitly append this label and the outcome to `data/interim/execution_logs.parquet`.
-  - **Implementation**: Ensure `failure_mode` column is written to the parquet file.
-- [ ] T024 [US2] Implement conditional check in `code/src/executor.py` to attempt to replan from the last known valid state ONLY IF the policy supports it (per spec), otherwise record as a hard failure. **Do not implement a new replanning algorithm.**
-  - **Implementation**: Check if policy supports replanning. If yes, attempt replan. If no, log hard failure. Do not implement a new replanning algorithm.
-- [ ] T025 [US2] Log all execution metrics (time, success/failure, failure mode) to `data/interim/execution_logs.parquet`.
+- [ ] T021 [US2] Implement `code/src/executor.py` to run `ActionSequence` on the physical robot using the adapted controller (from T012).
+- [ ] T023 [US2] Implement logic in `code/src/executor.py` to detect task completion (pose deviation ≤ 5cm, orientation ≤ 15°) and record `ExecutionOutcome`.
+- [ ] T024 [US2] Implement failure detection in `code/src/executor.py` to label failures as "Planner Infeasibility" or "Controller Execution Failure" and explicitly append this label and the outcome to `data/interim/execution_logs.parquet`.
+ - **Implementation**: Ensure `failure_mode` column is written to the parquet file.
+- [ ] T025 [US2] Implement conditional check in `code/src/executor.py` to attempt to replan from the last known valid state ONLY IF the `replan_support` flag in `SymbolicState` is true (per T046). If false, record as a hard failure. **Do not implement a new replanning algorithm.**
+ - **Implementation**: Check `replan_support` flag from `SymbolicState`. If true, attempt replan. If false, log hard failure.
+- [ ] T026 [US2] Log all execution metrics (time, success/failure, failure mode) to `data/interim/execution_logs.parquet`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -158,16 +164,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `code/tests/unit/test_stats.py`
-- [ ] T027 [P] [US3] Integration test for full statistical report generation in `code/tests/integration/test_report.py`
+- [ ] T030 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `code/tests/unit/test_stats.py`
+- [ ] T031 [P] [US3] Integration test for full statistical report generation in `code/tests/integration/test_report.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `code/src/stats_analysis.py` to load baseline results from `data/interim/baseline_results.parquet` (from T000) and symbolic results from `data/interim/execution_logs.parquet`.
-- [ ] T029 [US3] Implement Wilcoxon signed-rank test in `code/src/stats_analysis.py` (null hypothesis: median difference = 0).
-- [ ] T030 [US3] Calculate percentage reduction in compute overhead (CPU cycles, memory) in `code/src/stats_analysis.py`. **Depends on T027 and T000 completion.**
-- [ ] T031 [US3] Generate report in `code/src/stats_analysis.py` explicitly stating whether the null hypothesis is rejected at α = 0.05.
-- [ ] T032 [US3] Implement calculation of catastrophic failure rate, compare the calculated rate against the explicit threshold of ≤ 5% defined in SC-005, and flag the result as Pass/Fail in the final report.
+- [ ] T032 [P] [US3] Implement `code/src/stats_analysis.py` to load baseline results from `data/interim/baseline_results.parquet` (from T000) and symbolic results from `data/interim/execution_logs.parquet`.
+- [ ] T033 [US3] Implement Wilcoxon signed-rank test in `code/src/stats_analysis.py` (null hypothesis: median difference = 0).
+- [ ] T034 [US3] Calculate percentage reduction in compute overhead (CPU cycles, memory) in `code/src/stats_analysis.py`. **Depends on T032 and T000 completion.**
+- [ ] T035 [US3] Generate report in `code/src/stats_analysis.py` explicitly stating whether the null hypothesis is rejected at α = 0.05.
+- [ ] T036 [US3] Implement calculation of catastrophic failure rate, compare the calculated rate against the explicit threshold of ≤ 5% defined in SC-005, and flag the result as Pass/Fail in the final report.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -181,17 +187,16 @@
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T033 [P] [US4] Unit test for Oracle executor logic in `code/tests/unit/test_oracle.py`
-- [ ] T034 [P] [US4] Integration test for Physics Fidelity Gap calculation in `code/tests/integration/test_gap_analysis.py`
+- [ ] T039 [P] [US4] Unit test for Oracle executor logic in `code/tests/unit/test_oracle.py`
+- [ ] T040 [P] [US4] Integration test for Physics Fidelity Gap calculation in `code/tests/integration/test_gap_analysis.py`
 
 ### Implementation for User Story 4
 
-- [ ] T035 [P] [US4] Implement `code/src/oracle_executor.py` as a simulated "Perfect Low-Level Executor" with ground-truth physics.
-- [ ] T036 [US4] Execute `ActionSequence` (from T015) against the Oracle in `code/src/oracle_executor.py` and record success rate, generating `data/interim/oracle_results.json`.
-  - **Implementation**: Run the full loop of symbolic plans against the Oracle and persist results to JSON.
-- [ ] T037 [US4] Calculate "Physics Fidelity Gap" (Oracle success rate - Real-World success rate) in `code/src/oracle_executor.py` using data from T036 and T023, and write the result to `data/interim/oracle_results.json` as a distinct diagnostic output.
-  - **Implementation**: Calculate gap and save to oracle_results.json.
-- [ ] T038 [US4] Log Oracle results to `data/interim/oracle_results.json`. **Depends on T036 and T037 completion.**
+- [ ] T037 [P] [US4] Implement `code/src/oracle_executor.py` as a simulated "Perfect Low-Level Executor" with ground-truth physics.
+- [ ] T038 [US4] Execute `ActionSequence` (from T015) against the Oracle in `code/src/oracle_executor.py` and record success rate, generating `data/interim/oracle_results.json`.
+ - **Implementation**: Run the full loop of symbolic plans against the Oracle and persist results to JSON.
+- [ ] T041 [US4] Calculate "Physics Fidelity Gap" (Oracle success rate - Real-World success rate) in `code/src/stats_analysis.py` using data from T038 and T026, and write the result to `data/interim/oracle_results.json` as a distinct diagnostic output.
+ - **Implementation**: Calculate gap in `stats_analysis.py` and save to `oracle_results.json`. **Depends on T038 and T026.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -205,11 +210,11 @@
 
 ### Implementation for Ablation Study
 
-- [ ] T039 [P] [US3] Implement "Full Affordance Graph" mode in `code/src/state_mapper.py`
-- [ ] T040 [P] [US3] Implement "Simplified Connectivity Graph" mode in `code/src/state_mapper.py`
-- [ ] T041 [US3] Orchestrate the comparative execution of both graph modes (Full vs Simplified) using the pipeline from US1 and US2, and generate `data/interim/ablation_results.parquet`. **Depends on T039, T040, and US1/US2 completion.**
-  - **Implementation**: Run US1 & US2 with Full Graph, then with Simplified Graph. Compare results and save to parquet. Requires US1 and US2 completion.
-- [ ] T042 [US3] Generate final statistical report in `data/final/statistical_report.txt` including limitations (N=18).
+- [ ] T042 [P] [US3] Implement "Full Affordance Graph" mode in `code/src/state_mapper.py`
+- [ ] T043 [P] [US3] Implement "Simplified Connectivity Graph" mode in `code/src/state_mapper.py`
+- [ ] T044 [US3] Orchestrate the comparative execution of both graph modes (Full vs Simplified) using the pipeline from US1 and US2, and generate `data/interim/ablation_results.parquet`. **Depends on T042, T043, and US1/US2 completion.**
+ - **Implementation**: Run US1 & US2 with Full Graph, then with Simplified Graph. Compare results and save to parquet. Requires US1 and US2 completion.
+- [ ] T045 [US3] Generate final statistical report in `data/final/statistical_report.txt` including limitations (N=18).
 
 ---
 
@@ -217,13 +222,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T043a Update README.md with installation instructions, usage examples, and project structure overview
-- [ ] T043b Add API documentation for planner.py and state_mapper.py in `docs/`
-- [ ] T043c Add coding standards section and PR template instructions to CONTRIBUTING.md
-- [ ] T044 Code cleanup and refactoring in `code/src/`
-- [ ] T045 Performance optimization for streaming data loader in `code/src/data_loader.py`
-- [ ] T046 [P] Additional unit tests for edge cases (ambiguous embeddings, mid-sequence failures) in `code/tests/unit/`
-- [ ] T047 Run `quickstart.md` validation and ensure all scripts execute on CPU
+- [ ] T046a Update README.md with installation instructions, usage examples, and project structure overview
+- [ ] T046b Add API documentation for planner.py and state_mapper.py in `docs/`
+- [ ] T046c Add coding standards section and PR template instructions to CONTRIBUTING.md
+- [ ] T047 Code cleanup and refactoring in `code/src/`
+- [ ] T048 Performance optimization for streaming data loader in `code/src/data_loader.py`
+- [ ] T049 [P] Additional unit tests for edge cases (ambiguous embeddings, mid-sequence failures) in `code/tests/unit/`
+- [ ] T050 Run `quickstart.md` validation and ensure all scripts execute on CPU
 
 ---
 
@@ -231,20 +236,20 @@
 
 ### Phase Dependencies
 
-- **Phase 0 (Baseline)**: No dependencies - can start immediately. Produces `data/interim/baseline_results.parquet`. **Requires GPU instance.**
-- **Phase 0.5 (Adapter)**: Depends on Phase 2 (Foundational) completion. Produces `data/processed/adapter_weights.pt`.
-- **Setup (Phase 1)**: No dependencies - can start immediately.
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
+- **Phase 0 (Setup)**: No dependencies - can start immediately.
+- **Phase 2 (Foundational)**: Depends on Setup completion - BLOCKS all user stories.
+- **Phase 2.5 (Baseline)**: Depends on Phase 2 (Foundational) completion.
+- **Phase 2.7 (Adapter)**: Depends on Phase 2 (Foundational) completion.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion.
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3 → P4)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3 → P4)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories.
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (ActionSequence) and Phase 0.5 output (adapter_weights.pt).
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1, US2, and Phase 0 outputs.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (ActionSequence) and Phase 2.7 output (adapter_weights.pt).
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1, US2, and Phase 2.5 outputs.
 - **User Story 4 (P4)**: Can start after Foundational (Phase 2) - Depends on US1 output (ActionSequence).
 
 ### Within Each User Story
@@ -285,7 +290,7 @@ Task: "Implement code/src/state_mapper.py to map embeddings to discrete Symbolic
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
+1. Complete Phase 0: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
@@ -306,10 +311,10 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-   - Developer D: User Story 4 (depends on A's completion)
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
+ - Developer D: User Story 4 (depends on A's completion)
 3. Stories complete and integrate independently
 
 ---

@@ -13,7 +13,7 @@ This project investigates whether high-fidelity continuous physics simulation is
 **Primary Dependencies**: `torch` (CPU-only), `scikit-learn`, `networkx`, `pandas`, `datasets`, `opencv-python`, `pyyaml`  
 **Storage**: Local filesystem (`data/` for raw/processed data, `data/interim/` for embeddings), JSON logs for execution metrics.  
 **Testing**: `pytest` (unit tests for state mapping, integration tests for planner logic, contract tests for schema validation).  
-**Target Platform**: GitHub Actions Free Tier (Linux, multiple CPU cores, ~7 GB RAM, ~14 GB disk).  
+**Target Platform**: GitHub Actions Free Tier (Linux, multiple CPU cores, ~7 GB RAM, ~ GB disk).  
 **Project Type**: Research Pipeline / Benchmarking Suite  
 **Performance Goals**: Planner execution ≤ 60s per task; Total memory ≤ 6 GB; No GPU dependency for the symbolic layer.  
 **Constraints**: Must run entirely on CPU for the planning phase; Real-world execution data is the ground truth (no synthetic data generation for final metrics).  
