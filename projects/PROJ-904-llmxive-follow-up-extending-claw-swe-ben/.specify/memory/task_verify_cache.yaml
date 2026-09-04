@@ -1,43 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory structure under `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/`\
-    \ was provided; the claim lacks any listing, screenshots, or file tree confirming\
-    \ that the implementation plan\u2019s folders have been created. The task cannot\
-    \ be considered done until the actual directories are present and non\u2011empty."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any `__init__.py` files in the `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/`
-    directory hierarchy was provided; without seeing the actual files, we cannot confirm
-    they exist for all new directories. The required artifacts are missing.
-T002:
-  c: false
-  h: deafdc52bf636a584dad67a5a10be29d55ff009a41298f63c8b52793dffbf528
-  r: The required file `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/requirements.txt`
-    does not exist, so the specified dependencies are not initialized at the correct
-    location. The existing `code/requirements.txt` is irrelevant to the task.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `ruff.toml`, or a `pre-commit` config) are present in
-    the indicated directory, nor any evidence that ruff/black have been set up or
-    run. The required artifacts are missing.
-T006b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I inspected the path `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-context-fidelity-scaling-tradeoff/contracts/`
-    for the three required YAML schema files (Task Instance, Context Configuration,
-    Execution Result) and found no such files present. The task therefore lacks the
-    required entity schema artifacts.
-T012b:
-  c: false
-  h: 6f99abbed881ea0c3dbd0a58208ce78a23e59bd9a0e69108eb7e74eff1d51c66
-  r: "The repository contains `loader.py`, but the required output file `data/filtered_swe_bench_v1.parquet`\
-    \ is absent, and there is no evidence that the script records a checksum in the\
-    \ `state/` directory. Without the persisted filtered dataset and its checksum,\
-    \ the task\u2019s core requirement is not satisfied."
 T016b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -58,3 +18,25 @@ T017b:
   r: "The required input file `data/intermediate/baseline_run.jsonl` is missing, so\
     \ the failure classifier could not be applied and no annotated output was produced.\
     \ The task\u2019s core artifact is absent."
+T017c:
+  c: false
+  h: 0a89c117c130271ec9c4c6ae68b00bdd51c7449db7a53f3ad05ba22b480af761
+  r: "The required input file `data/intermediate/hf_run_1b.jsonl` is missing, so there\
+    \ is no evidence that `failure_classifier.py` was run or that any annotated failure\u2011\
+    mode output was produced. Without the source data and resulting annotations, the\
+    \ task is not satisfied."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `glm_analyzer.py` file was presented in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/`,\
+    \ and there is no code snippet or description showing a GLM with a binomial link\
+    \ that tests the interaction between \u201Ccontext strategy\u201D and \u201Cmodel\
+    \ size\u201D. The required artifact is missing, so the task is not satisfied."
+T030#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `glm_analyzer.py` is provided, nor any code, tests,\
+    \ or output showing the required pairwise comparison calculations (difference\
+    \ in Pass@1 rates between 1B and 7B models per strategy and detection of \u2265\
+    5% margins with p\u202F<\u202F0.05). The implementer must supply the updated file\
+    \ (or excerpts) and demonstrate that it performs the specified analysis."

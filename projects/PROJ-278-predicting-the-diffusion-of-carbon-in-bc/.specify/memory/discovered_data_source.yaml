@@ -1,15 +1,16 @@
 status: none
-intent: MeLiDC BCC diffusion dataset NIST Materials Project HuggingFace python package
+intent: MeLiDC BCC diffusion dataset HuggingFace NIST Materials Project python package
   dataset
 required_fields:
 - material_id
 - composition
+- atomic_fractions
 - crystal_structure
 - diffusion_coefficient
 - log_diffusion_coefficient
 - atomic_radius
 - valence_electron_count
 - electronegativity
-cache_key: 9aa8f8d924e85bda1e0233c956dbb729bd76555ee8c2675528dfc566d77c34aa
-searched_at: '2026-07-23T20:03:45.318472+00:00'
+cache_key: 49bb01de7608b4ab9b8bf78f0e4422fbefbea0941ddbf69bafd4e004c1ae9be4
+searched_at: '2026-09-04T00:54:51.851247+00:00'
 retry_count: 1

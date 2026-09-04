@@ -46,7 +46,7 @@ def validate_physical_bounds(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[
     
     return df[valid_mask].reset_index(drop=True), log
 
-def impute_missing_composition(df: pd.DataFrame) -> pd.DataFrame:
+def impute_missing_composition(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
     Impute missing composition values using the mean of the specific alloy series.
     Since we don't have explicit alloy series, we group by composition ranges.
@@ -62,7 +62,7 @@ def impute_missing_composition(df: pd.DataFrame) -> pd.DataFrame:
             df[col] = df[col].fillna(mean_val)
             missing_log.append({
                 'column': col,
-                'imputed_value': mean_val,
+                'imputed_value': float(mean_val),
                 'count': int(df[col].isnull().sum())
             })
     
@@ -119,7 +119,7 @@ def run_ingestion_pipeline(input_path: str, output_path: str, log_path: str):
     
     # Prepare validation log
     validation_log = {
-        'input_rows': len(df), # This is after dropping missing, but we want original
+        'input_rows': len(df), 
         'bound_violations': bound_log,
         'imputed_values': imp_log,
         'clipped_outliers': clip_log

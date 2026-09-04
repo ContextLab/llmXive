@@ -9,4 +9,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T053** — No code, script, or configuration file implementing the required control‑flow logic was provided. The claim lacks any artifact that consumes the `balance_status` flag, conditionally invokes T054 (DiD) or proceeds to T028 (OLS), and handles the missing‑data error path for DiD. The necessary implementation is missing.
 - **T031** — declared artifact(s) missing/empty/invalid: src/models/output.py
 - **T033** — declared artifact(s) missing/empty/invalid: tests/unit/test_causal.py
-- **T014** — declared artifact(s) missing/empty/invalid: src/scaling/scaling.py
+- **T051** — No code, functions, or documentation were provided showing a report generator with separate causal and descriptive sections, nor any evidence that scaling results are produced separately and omitted from the causal claims block. The required artifact is missing.

@@ -26,7 +26,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T001 Create project root directories: `code`, `tests`, `data`, `artifacts` in `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/`.
+- [ ] T001 Create project root directories: `code`, `tests`, `data`, `artifacts` in `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/`. <!-- FAILED: unspecified -->
 - [ ] T002 Create data subdirectories: `data/raw`, `data/processed`, `data/split`.
 - [ ] T003 Create artifacts subdirectories: `artifacts/models`, `artifacts/reports`, `artifacts/figures`.
 - [X] T004 Configure `pyproject.toml` with initial configuration for ruff and black (line-length 88, rules E, W, F).
@@ -61,9 +61,9 @@
 - [X] T015 [US1] Implement missing composition value handling in `code/ingest.py`: Impute using the mean of the specific alloy series (group by alloy type or concentration range) or flag for exclusion as per spec Edge Cases. Do NOT use a global mean for all rows.
 - [X] T016 [US1] Implement unit normalization for time-to-peak (minutes) in `code/ingest.py`.
 - [X] T017 [US1] Implement outlier clipping on target variable at 99th percentile in `code/ingest.py` (FR-007) before any statistical analysis. Log clipped values.
-- [ ] T018 [US1] Implement interaction feature engineering in `code/engineer.py`: Calculate `cold_work * Mn_content`, `cold_work * Mg_content`, `cold_work * Si_content`, and `cold_work * Cu_content`. Include annealing temperature as a direct feature. Output `data/processed/engineered_features.csv`.
+- [ ] T018 [US1] Implement interaction feature engineering in `code/engineer.py`: Calculate `cold_work * Mn_content`, `cold_work * Mg_content`, `cold_work * Si_content`, and `cold_work * Cu_content`. Include annealing temperature as a direct feature. Output `data/processed/engineered_features.csv`. <!-- FAILED: unspecified -->
 - [X] T019 [US1] Implement dataset size validation in `code/engineer.py`: Raise `ValueError` if rows < 50 (FR-008).
-- [ ] T020 [US1] Generate final dataset artifact `data/processed/final_dataset.csv` ready for modeling. Enforce a hard cap on the number of rows here if the generator produced more, ensuring the training set does not exceed the limit.
+- [X] T020 [US1] Generate final dataset artifact `data/processed/final_dataset.csv` ready for modeling. Enforce a hard cap on the number of rows here if the generator produced more, ensuring the training set does not exceed the limit.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

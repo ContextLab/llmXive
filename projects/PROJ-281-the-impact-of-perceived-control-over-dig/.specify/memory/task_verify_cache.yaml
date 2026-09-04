@@ -1,17 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `data/raw/` and `data/processed/` directories or their required
-    `.gitkeep` placeholder files is present; without these artifacts the task requirement
-    is not satisfied.
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration files (e.g.,\u202Fpytest.ini, setup.cfg, or pyproject.toml)\
-    \ or test suite files that enable `pytest-cov` are present in the provided evidence,\
-    \ so the requirement to configure pytest with coverage in the `tests/` directory\
-    \ is not satisfied. The implementer must add the appropriate configuration and\
-    \ ensure it is non\u2011empty."
 T013:
   c: true
   h: c9bd7839247de717fbac9e63b535216e499e93890ea5b7054c8cc8373a124f05
@@ -46,3 +32,49 @@ T021:
     file is missing from the repository, making it impossible for the module to read
     the intended input. The implementation must include code that loads the CSV and
     the CSV file itself must be present.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data file implementing the `filter_applied` contribution
+    to the `control_proxy` was provided; the claim lacks any tangible artifact to
+    verify that the required logic (e.g., adding +1.0 when the flag is present) exists
+    or works. The implementer must add the actual implementation (e.g., a function
+    or pipeline step) and show the updated `proxy_results.csv` or relevant source
+    file.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, or other artifact showing the `control_proxy` calculation\
+    \ was provided, and there is no evidence (e.g., function implementation, unit\
+    \ test, or documentation) that the proxy is derived solely from metadata fields\
+    \ (`filter_applied`, `timestamp_regularity`) without accessing any text content.\
+    \ The required implementation and proof of compliance with Constitution Principle\u202F\
+    VI are missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or logs were provided that show missing metadata fields\
+    \ are defaulted to\u202F0.0 and that a warning is emitted; the required artifact\
+    \ demonstrating this behavior is absent."
+T031:
+  c: false
+  h: dd285a04838a7bf2233cf9e7d30ef241572c6658ccbb6f8f977ee93960eb4d02
+  r: The `code/main.py` shown does not contain any code that reads `scoring_results.csv`
+    and `proxy_results.csv` or joins them on `post_id`; it only calls a separate service.
+    Moreover, both required CSV files are absent from the repository. Consequently
+    the merging requirement is not satisfied.
+T033:
+  c: false
+  h: b8c65f6fb411e489b73137b0b4c52c41ae101eb0adf4b07e2986a216c78d49e7
+  r: "The repository contains a partially implemented `statistical_test.py` that defines\
+    \ helper functions but never reads `data/processed/final_analysis.csv`, runs the\
+    \ full pipeline, or writes `normality_check.json`. Moreover, both `data/processed/final_analysis.csv`\
+    \ and `data/processed/normality_check.json` are absent. The required output files\
+    \ and end\u2011to\u2011end functionality are missing."
+T034:
+  c: false
+  h: 4b766bb675f6f8e5446c199a35fdf5ffbb6a7ae064324ed7711eaa29d9d28f5e
+  r: The required output file `data/processed/analysis_results.json` does not exist,
+    and the provided `statistical_test.py` is truncated before showing any logic that
+    writes results to that JSON (including the `is_significant` flag). The implementation
+    is therefore incomplete.

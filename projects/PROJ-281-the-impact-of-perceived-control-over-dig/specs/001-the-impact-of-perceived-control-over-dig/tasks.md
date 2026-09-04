@@ -70,7 +70,7 @@
 - [X] T016 [US1] Implement confidence score filtering (threshold ≥ 0.6) in `code/services/anxiety_scoring.py` to exclude low-confidence predictions before saving
 - [ ] T017 [US1] Save scored and filtered data to `data/processed/scoring_results.csv` with columns: `text`, `anxiety_score`, `confidence_score`
 - [X] T018 [US1] Add error handling for empty datasets or download failures in `code/services/data_ingestion.py`
-- [ ] T018a [US1] Implement coverage validation logic to verify ≥95% scoring coverage by comparing row counts of `preprocessed_text.csv` (T014a) and `scoring_results.csv` (T017), generating `data/processed/coverage_report.json`
+- [X] T018a [US1] Implement coverage validation logic to verify ≥95% scoring coverage by comparing row counts of `preprocessed_text.csv` (T014a) and `scoring_results.csv` (T017), generating `data/processed/coverage_report.json`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -89,11 +89,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/services/proxy_extractor.py` to read `data/raw/social_media.csv` (produced by T013)
-- [~] T022 [US2] Implement logic to calculate `filter_applied` contribution to `control_proxy` (e.g., +1.0 if flag present)
+- [ ] T021 [US2] Implement `code/services/proxy_extractor.py` to read `data/raw/social_media.csv` (produced by T013) <!-- FAILED: unspecified -->
+- [ ] T022 [US2] Implement logic to calculate `filter_applied` contribution to `control_proxy` (e.g., +1.0 if flag present)
 - [X] T023 [US2] Implement logic to calculate `timestamp_regularity` metric per user in `code/services/proxy_extractor.py`
-- [~] T024 [US2] Ensure `control_proxy` calculation uses ONLY metadata fields (no text content access) to satisfy Constitution Principle VI
-- [~] T025 [US2] Handle missing metadata fields by defaulting to 0.0 and logging a warning
+- [ ] T024 [US2] Ensure `control_proxy` calculation uses ONLY metadata fields (no text content access) to satisfy Constitution Principle VI
+- [ ] T025 [US2] Handle missing metadata fields by defaulting to 0.0 and logging a warning
 - [ ] T026 [US2] Save extracted proxies to `data/processed/proxy_results.csv` with columns: `post_id`, `user_id`, `control_proxy`, `timestamp_regularity`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -115,10 +115,10 @@
 ### Implementation for User Story 3
 
 - [X] T030 [US3] Implement `code/main.py` pipeline logic to orchestrate the merge and save steps (skeleton only, calls T031/T032)
-- [~] T031 [US3] Implement merging logic in `code/main.py` to read from `data/processed/scoring_results.csv` (T017, pre-filtered) and `data/processed/proxy_results.csv` (T026) and join on `post_id`
+- [ ] T031 [US3] Implement merging logic in `code/main.py` to read from `data/processed/scoring_results.csv` (T017, pre-filtered) and `data/processed/proxy_results.csv` (T026) and join on `post_id`
 - [ ] T032 [US3] Implement confidence filtering confirmation (ensure data is pre-filtered) and save the final merged dataset to `data/processed/final_analysis.csv` (Note: Filtering logic is in T016; this task handles the final merge and save of the pre-filtered data)
-- [~] T033 [US3] Implement `code/analysis/statistical_test.py` to perform preliminary linear fit, perform Shapiro-Wilk test on the resulting RESIDUALS (not marginal distributions), and save residuals + normality p-value to `data/processed/normality_check.json`, reading from `data/processed/final_analysis.csv`. Note: Plan.md Phase 2 Step 5 incorrectly specifies "marginal distributions"; this task enforces the Spec requirement for residuals.
-- [~] T034 [US3] Implement logic in `code/analysis/statistical_test.py` to switch to Spearman correlation if normality violated (p < 0.05), otherwise use Pearson, and calculate correlation coefficient (r) and p-value, saving results to `data/processed/analysis_results.json` with an `is_significant` flag (true if p < 0.05)
+- [ ] T033 [US3] Implement `code/analysis/statistical_test.py` to perform preliminary linear fit, perform Shapiro-Wilk test on the resulting RESIDUALS (not marginal distributions), and save residuals + normality p-value to `data/processed/normality_check.json`, reading from `data/processed/final_analysis.csv`. Note: Plan.md Phase 2 Step 5 incorrectly specifies "marginal distributions"; this task enforces the Spec requirement for residuals.
+- [ ] T034 [US3] Implement logic in `code/analysis/statistical_test.py` to switch to Spearman correlation if normality violated (p < 0.05), otherwise use Pearson, and calculate correlation coefficient (r) and p-value, saving results to `data/processed/analysis_results.json` with an `is_significant` flag (true if p < 0.05)
 - [X] T035 [US3] Implement `code/viz/plot_results.py` to generate scatter plot with regression line (OLS or rank-based) and axis labels
 - [ ] T036 [US3] Save final visualization as `data/processed/correlation_plot.png`
 

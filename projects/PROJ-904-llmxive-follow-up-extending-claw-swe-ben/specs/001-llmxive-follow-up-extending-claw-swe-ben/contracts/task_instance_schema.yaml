@@ -1,0 +1,123 @@
+# Task Instance Schema
+# Defines the structure of a single task instance from the Claw-SWE-Bench dataset
+# used for context fidelity experiments.
+#
+# Source: Claw-SWE-Bench dataset (Hugging Face)
+# Version: 1.0.0
+#
+# This schema aligns with the TaskInstance dataclass in code/config.py
+
+schema_name: task_instance
+version: "1.0.0"
+description: >
+  Represents a single software engineering task instance extracted from
+  the Claw-SWE-Bench dataset. Includes the issue description, repository
+  information, and relevant file paths for context construction.
+
+fields:
+  - name: instance_id
+    type: string
+    required: true
+    description: Unique identifier for the task instance (e.g., "django__django-12345")
+    example: "django__django-12345"
+
+  - name: repo
+    type: string
+    required: true
+    description: Repository name in owner/repo format
+    example: "django/django"
+
+  - name: base_commit
+    type: string
+    required: true
+    description: Git commit hash (SHA) of the base repository state
+    pattern: "^[a-f0-9]{40}$"
+    example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0"
+
+  - name: patch
+    type: string
+    required: true
+    description: The ground-truth patch (diff) that solves the issue
+    format: multi-line text
+
+  - name: test_patch
+    type: string
+    required: true
+    description: The test patch to validate the solution
+    format: multi-line text
+
+  - name: issue
+    type: object
+    required: true
+    description: Issue metadata including title, description, and related files
+    properties:
+      - name: title
+        type: string
+        required: true
+      - name: description
+        type: string
+        required: true
+      - name: reported_by
+        type: string
+        required: false
+      - name: created_at
+        type: string
+        format: date-time
+        required: false
+
+  - name: relevant_files
+    type: array
+    required: true
+    description: List of file paths relevant to the issue (target files)
+    items:
+      type: string
+      example: "django/core/validators.py"
+
+  - name: imports_graph
+    type: object
+    required: false
+    description: Pre-computed import dependency graph for the relevant files
+    properties:
+      - name: nodes
+        type: array
+        items:
+          type: string
+      - name: edges
+        type: array
+        items:
+          type: object
+          properties:
+            source:
+              type: string
+            target:
+              type: string
+
+  - name: total_context_lines
+    type: integer
+    required: false
+    description: Total number of lines in the traversed import graph
+    minimum: 0
+    example: 1250
+
+  - name: metadata
+    type: object
+    required: false
+    description: Additional metadata for filtering and analysis
+    properties:
+      - name: complexity_score
+        type: number
+        description: Computed complexity score based on file history
+      - name: filtered_out
+        type: boolean
+        description: Flag indicating if the instance was filtered out due to low complexity
+
+constraints:
+  - instance_id must be unique across the dataset
+  - base_commit must be a valid 40-character SHA-1 hash
+  - relevant_files must be a non-empty list of valid file paths
+  - total_context_lines must be >= 0
+
+usage_notes:
+  - Instances with total_context_lines <= 500 are typically filtered out for high-complexity experiments
+  - The imports_graph is used by the static analysis logic in loader.py to compute context size
+  - This schema is used for validation during data loading and filtering phases

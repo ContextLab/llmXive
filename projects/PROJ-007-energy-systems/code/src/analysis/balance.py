@@ -1,3 +1,7 @@
+"""
+Balance validation and placebo testing module.
+Implements SMD calculation, love plots, and placebo tests for causal inference.
+"""
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
@@ -5,283 +9,288 @@ import matplotlib.pyplot as plt
 from typing import Dict, List, Optional, Tuple
 import warnings
 
-def calculate_smd(df: pd.DataFrame) -> dict:
+from src.utils.logging import get_logger
+
+logger = get_logger(__name__)
+
+
+def calculate_smd(df: pd.DataFrame, treatment_col: str = 'treatment') -> Dict[str, float]:
     """
-    Calculate Standardized Mean Differences (SMD) for covariates between treatment and control groups.
-    
+    Calculate the Standardized Mean Difference (SMD) for all covariates.
+
     Args:
-        df: DataFrame containing covariates and a binary 'treatment' column.
-        
+        df: DataFrame with treatment indicator and covariates.
+        treatment_col: Name of the treatment column.
+
     Returns:
         Dictionary mapping column names to their SMD values.
     """
-    if 'treatment' not in df.columns:
-        raise ValueError("DataFrame must contain a 'treatment' column.")
-    
-    treatment_group = df[df['treatment'] == 1]
-    control_group = df[df['treatment'] == 0]
-    
+    if treatment_col not in df.columns:
+        raise ValueError(f"Column '{treatment_col}' not found in data.")
+
+    treat_mask = df[treatment_col] == 1
+    ctrl_mask = df[treatment_col] == 0
+
+    if treat_mask.sum() == 0 or ctrl_mask.sum() == 0:
+        raise ValueError("Both treatment and control groups must be present.")
+
     smd_results = {}
-    
-    # Identify numeric columns for SMD calculation
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    if 'treatment' in numeric_cols:
-        numeric_cols.remove('treatment')
-        
-    for col in numeric_cols:
-        mean_t = treatment_group[col].mean()
-        mean_c = control_group[col].mean()
-        std_t = treatment_group[col].std()
-        std_c = control_group[col].std()
-        
-        # Avoid division by zero
-        if std_t == 0 and std_c == 0:
+
+    for col in df.columns:
+        if col == treatment_col:
+            continue
+
+        if not np.issubdtype(df[col].dtype, np.number):
+            # Skip non-numeric columns for SMD
+            continue
+
+        mean_t = df.loc[treat_mask, col].mean()
+        mean_c = df.loc[ctrl_mask, col].mean()
+        std_t = df.loc[treat_mask, col].std()
+        std_c = df.loc[ctrl_mask, col].std()
+
+        # Pooled standard deviation
+        n_t = treat_mask.sum()
+        n_c = ctrl_mask.sum()
+        pooled_std = np.sqrt(((n_t - 1) * std_t**2 + (n_c - 1) * std_c**2) / (n_t + n_c - 2))
+
+        if pooled_std == 0:
             smd = 0.0
         else:
-            # Pooled standard deviation
-            pooled_std = np.sqrt((std_t**2 + std_c**2) / 2)
-            if pooled_std == 0:
-                smd = 0.0
-            else:
-                smd = (mean_t - mean_c) / pooled_std
-        
+            smd = (mean_t - mean_c) / pooled_std
+
         smd_results[col] = smd
-        
+
     return smd_results
 
-def plot_balance(smd_data: dict, threshold: float = 0.1) -> plt.Figure:
+
+def plot_balance(smd_data: Dict[str, float], threshold: float = 0.1) -> plt.Figure:
     """
-    Generate a balance plot (Love plot) showing SMD values before and after matching.
-    
+    Generate a 'Love Plot' visualizing SMD before and after matching.
+
     Args:
         smd_data: Dictionary of SMD values.
-        threshold: Threshold line for acceptable balance (default 0.1).
-        
+        threshold: Balance threshold (default 0.1).
+
     Returns:
         Matplotlib Figure object.
     """
     fig, ax = plt.subplots(figsize=(10, 6))
-    
+
     variables = list(smd_data.keys())
-    values = list(smd_data.values())
-    
-    ax.scatter(values, range(len(variables)), label='Post-Match SMD', color='blue')
+    smd_values = [smd_data[v] for v in variables]
+
+    ax.scatter(smd_values, range(len(variables)), label='SMD', alpha=0.7)
     ax.axvline(x=threshold, color='red', linestyle='--', label=f'Threshold ({threshold})')
     ax.axvline(x=-threshold, color='red', linestyle='--')
-    
-    ax.set_xlabel('Standardized Mean Difference')
-    ax.set_ylabel('Covariate')
-    ax.set_title('Covariate Balance Plot (Love Plot)')
+    ax.axvline(x=0, color='black', linestyle='-')
+
     ax.set_yticks(range(len(variables)))
     ax.set_yticklabels(variables)
+    ax.set_xlabel('Standardized Mean Difference (SMD)')
+    ax.set_title('Covariate Balance Plot')
     ax.legend()
-    ax.grid(axis='x', linestyle=':', alpha=0.7)
-    
+    ax.grid(axis='x', alpha=0.3)
+
     return fig
 
-def run_placebo_test(df: pd.DataFrame, pre_treatment_col: str, treatment_col: str = 'treatment') -> Tuple[float, float, bool]:
-    """
-    Perform a placebo test to check for significant differences in pre-treatment outcomes
-    between matched treatment and control groups.
-    
-    This test verifies that the matching procedure has successfully balanced the groups
-    on pre-existing characteristics. A significant difference suggests residual confounding.
-    
-    Args:
-        df: DataFrame containing the matched sample with pre-treatment outcome and treatment indicator.
-        pre_treatment_col: Name of the column representing the pre-treatment outcome variable.
-        treatment_col: Name of the column representing the treatment indicator (default: 'treatment').
-        
-    Returns:
-        Tuple of (p_value, t_statistic, is_balanced).
-        is_balanced is True if p_value > 0.05 (no significant difference).
-        
-    Raises:
-        ValueError: If required columns are missing or data is insufficient.
-    """
-    if treatment_col not in df.columns:
-        raise ValueError(f"Column '{treatment_col}' not found in DataFrame.")
-    if pre_treatment_col not in df.columns:
-        raise ValueError(f"Column '{pre_treatment_col}' not found in DataFrame.")
-        
-    treatment_group = df[df[treatment_col] == 1][pre_treatment_col].dropna()
-    control_group = df[df[treatment_col] == 0][pre_treatment_col].dropna()
-    
-    if len(treatment_group) < 2 or len(control_group) < 2:
-        raise ValueError("Insufficient data points in one or both groups for statistical test.")
-    
-    # Perform independent samples t-test
-    # Using Welch's t-test (unequal variances) which is more robust
-    t_stat, p_val = sm.stats.ttest_ind(
-        treatment_group, 
-        control_group, 
-        equal_var=False
-    )
-    
-    # Determine balance status (p > 0.05 implies no significant difference -> balanced)
-    is_balanced = p_val > 0.05
-    
-    return float(p_val), float(t_stat), is_balanced
 
-def validate_placebo_results(p_value: float, alpha: float = 0.05) -> bool:
+def run_placebo_test(
+    df: pd.DataFrame,
+    outcome_col: str,
+    treatment_col: str = 'treatment',
+    alpha: float = 0.05
+) -> Dict[str, any]:
     """
-    Validate placebo test results against a significance level.
-    
-    Args:
-        p_value: The p-value from the placebo test.
-        alpha: Significance level (default 0.05).
-        
-    Returns:
-        True if the placebo test passes (no significant difference), False otherwise.
-    """
-    return p_value > alpha
+    Perform a placebo test on a pre-treatment outcome.
 
-def generate_placebo_report(df: pd.DataFrame, pre_treatment_col: str, 
-                            treatment_col: str = 'treatment') -> Dict:
-    """
-    Generate a comprehensive report for the placebo test.
-    
-    Args:
-        df: Matched DataFrame.
-        pre_treatment_col: Pre-treatment outcome column name.
-        treatment_col: Treatment indicator column name.
-        
-    Returns:
-        Dictionary containing test statistics and pass/fail status.
-    """
-    p_val, t_stat, is_balanced = run_placebo_test(df, pre_treatment_col, treatment_col)
-    
-    report = {
-        "pre_treatment_variable": pre_treatment_col,
-        "p_value": p_val,
-        "t_statistic": t_stat,
-        "alpha": 0.05,
-        "is_balanced": is_balanced,
-        "status": "PASS" if is_balanced else "FAIL",
-        "interpretation": (
-            "No significant difference found between groups. "
-            "Matching appears successful for this pre-treatment variable."
-            if is_balanced else
-            "Significant difference found. Residual confounding may exist. "
-            "Review matching procedure or covariates."
-        )
-    }
-    
-    return report
+    This tests whether the treatment and control groups differ significantly
+    on an outcome that should NOT be affected by the treatment (pre-treatment).
+    A significant result suggests violation of the parallel trends assumption.
 
-def check_placebo_significance(df: pd.DataFrame, pre_treatment_col: str, 
-                               treatment_col: str = 'treatment', 
-                               alpha: float = 0.05) -> bool:
-    """
-    Check if the placebo test indicates a significant difference (failure).
-    
     Args:
-        df: Matched DataFrame.
-        pre_treatment_col: Pre-treatment outcome column name.
-        treatment_col: Treatment indicator column name.
+        df: DataFrame with treatment, outcome, and covariates.
+        outcome_col: Name of the pre-treatment outcome column.
+        treatment_col: Name of the treatment column.
         alpha: Significance level.
-        
+
     Returns:
-        True if the test passes (no significant difference), False if it fails.
-        
-    Raises:
-        ValueError: If the test indicates significant imbalance.
+        Dictionary with test statistics, p-value, and significance flag.
     """
-    p_val, _, is_balanced = run_placebo_test(df, pre_treatment_col, treatment_col)
-    
-    if not is_balanced:
-        raise ValueError(
-            f"Placebo test failed (p={p_val:.4f} < {alpha}). "
-            f"Significant difference detected in pre-treatment outcome '{pre_treatment_col}'. "
-            "This indicates potential residual confounding. Causal estimation should be halted "
-            "or the matching procedure re-evaluated."
-        )
-    
+    if outcome_col not in df.columns:
+        raise ValueError(f"Outcome column '{outcome_col}' not found.")
+    if treatment_col not in df.columns:
+        raise ValueError(f"Treatment column '{treatment_col}' not found.")
+
+    treat_mask = df[treatment_col] == 1
+    ctrl_mask = df[treatment_col] == 0
+
+    y_t = df.loc[treat_mask, outcome_col]
+    y_c = df.loc[ctrl_mask, outcome_col]
+
+    if len(y_t) < 2 or len(y_c) < 2:
+        return {
+            'valid': False,
+            'error': 'Insufficient sample size for t-test',
+            'p_value': None,
+            'is_significant': None
+        }
+
+    # Perform Welch's t-test (unequal variances)
+    stat, p_value = sm.stats.ttest_ind(y_t, y_c, equal_var=False)
+
+    is_significant = p_value < alpha
+
+    return {
+        'valid': True,
+        'p_value': float(p_value),
+        'statistic': float(stat),
+        'is_significant': bool(is_significant),
+        'n_treatment': len(y_t),
+        'n_control': len(y_c)
+    }
+
+
+def validate_placebo_results(results: Dict[str, any]) -> bool:
+    """
+    Validate that placebo test results are well-formed.
+
+    Args:
+        results: Output from run_placebo_test.
+
+    Returns:
+        True if results are valid, False otherwise.
+    """
+    if not results.get('valid', False):
+        return False
+    if results.get('p_value') is None:
+        return False
     return True
 
-# Backward compatibility aliases if needed, though the task specifically asks for logic implementation
-# The existing stubs in the API surface were: calculate_smd, plot_balance
-# This task adds: run_placebo_test, generate_placebo_report, check_placebo_significance
 
-def iterative_matching_with_placebo(df: pd.DataFrame, pre_treatment_col: str, 
-                                    caliper: float = 0.05, max_attempts: int = 10) -> Dict:
+def generate_placebo_report(results: Dict[str, any], alpha: float = 0.05) -> str:
     """
-    Perform iterative matching with placebo validation.
-    
-    This function attempts to find a matching caliper that achieves both
-    covariate balance (SMD <= 0.1) and placebo test pass.
-    
+    Generate a human-readable report for the placebo test.
+
     Args:
-        df: Input DataFrame.
-        pre_treatment_col: Pre-treatment outcome for placebo test.
-        caliper: Initial caliper value.
-        max_attempts: Maximum number of matching attempts.
-        
+        results: Output from run_placebo_test.
+        alpha: Significance level used.
+
     Returns:
-        Dictionary with matching results and placebo status.
+        String report.
+    """
+    if not results.get('valid'):
+        return f"Placebo test failed to execute: {results.get('error', 'Unknown error')}"
+
+    p_val = results['p_value']
+    sig = results['is_significant']
+
+    status = "FAILED" if sig else "PASSED"
+    interpretation = (
+        "Significant difference detected in pre-treatment outcome. "
+        "Parallel trends assumption may be violated."
+    ) if sig else (
+        "No significant difference in pre-treatment outcome. "
+        "Parallel trends assumption holds."
+    )
+
+    return (
+        f"Placebo Test Report\n"
+        f"-------------------\n"
+        f"Status: {status}\n"
+        f"P-value: {p_val:.4f}\n"
+        f"Alpha: {alpha}\n"
+        f"Interpretation: {interpretation}\n"
+        f"N Treatment: {results.get('n_treatment')}\n"
+        f"N Control: {results.get('n_control')}"
+    )
+
+
+def check_placebo_significance(
+    df: pd.DataFrame,
+    outcome_col: str,
+    alpha: float = 0.05
+) -> bool:
+    """
+    Check if the placebo test is significant (i.e., fails the assumption).
+
+    Args:
+        df: Data.
+        outcome_col: Pre-treatment outcome.
+        alpha: Significance level.
+
+    Returns:
+        True if significant (FAIL), False if not significant (PASS).
+    """
+    results = run_placebo_test(df, outcome_col, alpha=alpha)
+    if not results.get('valid'):
+        raise ValueError("Placebo test could not be executed.")
+    return results['is_significant']
+
+
+def iterative_matching_with_placebo(
+    df: pd.DataFrame,
+    covariates: List[str],
+    outcome_col: str,
+    caliper_start: float = 0.2,
+    max_iter: int = 10,
+    alpha: float = 0.05
+) -> Tuple[pd.DataFrame, Dict[str, any]]:
+    """
+    Perform iterative matching and placebo testing until balance is achieved.
+
+    This function attempts to find a caliper that balances covariates AND
+    passes the placebo test.
+
+    Args:
+        df: Input data.
+        covariates: List of covariates for matching.
+        outcome_col: Pre-treatment outcome for placebo test.
+        caliper_start: Starting caliper width.
+        max_iter: Maximum iterations.
+        alpha: Significance level for placebo test.
+
+    Returns:
+        Tuple of (matched_data, report_dict)
     """
     from src.analysis.psm import iterative_matching
-    
-    attempt = 0
-    current_caliper = caliper
-    results = {
-        "success": False,
-        "matched_data": None,
-        "placebo_p_value": None,
-        "placebo_status": "PENDING",
-        "attempts": 0,
-        "final_caliper": current_caliper
-    }
-    
-    while attempt < max_attempts:
-        attempt += 1
-        results["attempts"] = attempt
-        
-        try:
-            # Run matching (assuming iterative_matching returns a dict with 'matched_data')
-            match_result = iterative_matching(df, caliper=current_caliper)
-            
-            if "matched_data" not in match_result:
-                raise ValueError("Matching function did not return 'matched_data'.")
-                
-            matched_df = match_result["matched_data"]
-            
-            # Run placebo test
-            try:
-                check_placebo_significance(matched_df, pre_treatment_col)
-                results["placebo_status"] = "PASS"
-                results["matched_data"] = matched_df
-                results["success"] = True
-                results["final_caliper"] = current_caliper
-                break
-            except ValueError as e:
-                # Placebo failed, try tighter caliper
-                results["placebo_status"] = "FAIL"
-                results["placebo_p_value"] = float(run_placebo_test(matched_df, pre_treatment_col)[0])
-                
-                # Reduce caliper for next attempt
-                current_caliper = max(0.01, current_caliper * 0.8)
-                warnings.warn(f"Placebo test failed (p={results['placebo_p_value']:.4f}). "
-                              f"Reducing caliper to {current_caliper:.4f} and retrying.")
-                
-        except Exception as e:
-            warnings.warn(f"Matching attempt {attempt} failed: {str(e)}")
-            current_caliper = max(0.01, current_caliper * 0.8)
-            continue
-            
-    if not results["success"]:
-        results["placebo_status"] = "FAILED_MAX_ATTEMPTS"
-        warnings.warn("Failed to achieve placebo balance after max attempts.")
-        
-    return results
 
-# Ensure the module exports the new functions explicitly
-__all__ = [
-    'calculate_smd',
-    'plot_balance',
-    'run_placebo_test',
-    'validate_placebo_results',
-    'generate_placebo_report',
-    'check_placebo_significance',
-    'iterative_matching_with_placebo'
-]
+    current_caliper = caliper_start
+    report = {
+        'iterations': 0,
+        'final_caliper': None,
+        'placebo_passed': False,
+        'smd_results': {}
+    }
+
+    for i in range(max_iter):
+        report['iterations'] = i + 1
+
+        # Run matching
+        matched = iterative_matching(df, covariates, caliper=current_caliper)
+
+        if matched is None or matched.empty:
+            logger.warning(f"Iteration {i+1}: No matches found with caliper {current_caliper}.")
+            current_caliper *= 0.9
+            continue
+
+        # Run placebo test
+        try:
+            sig = check_placebo_significance(matched, outcome_col, alpha=alpha)
+            if not sig:
+                # Passed!
+                report['placebo_passed'] = True
+                report['final_caliper'] = current_caliper
+                report['smd_results'] = calculate_smd(matched)
+                return matched, report
+            else:
+                logger.info(f"Iteration {i+1}: Placebo test failed (p < {alpha}). Reducing caliper.")
+                current_caliper *= 0.9
+        except ValueError as e:
+            logger.warning(f"Iteration {i+1}: Placebo test error: {e}. Adjusting caliper.")
+            current_caliper *= 0.9
+
+    report['placebo_passed'] = False
+    report['final_caliper'] = current_caliper
+    logger.error("Max iterations reached without passing placebo test.")
+    return matched, report

@@ -1,48 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the directories `code`, `tests`, `data`,
-    and `artifacts` exist under `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/`;
-    the claim is unsubstantiated. The required folder structure must be created and
-    verified.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides no visible evidence that the directories `data/raw`,
-    `data/processed`, and `data/split` actually exist in the repository; no file listings,
-    screenshots, or code creating them are present. Consequently the required data
-    subdirectories are missing.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the required subdirectories (`artifacts/models`,
-    `artifacts/reports`, `artifacts/figures`) actually exist or contain any files;
-    the claim is unsupported. The next implementer must create these directories (and
-    optionally add placeholder files) and provide a listing or screenshot confirming
-    their presence.
-T007:
-  c: false
-  h: ebc835b3b21c8d8f9b74d31656d377c5bb71d413c58c62cdc806dccaa7ff958a
-  r: "The `code/generate_synthetic.py` script is truncated and never writes the DataFrame\
-    \ to `data/raw/synthetic_baseline.csv` (the line ends with `outpu`). Consequently\
-    \ the required CSV file does not exist. The task\u2019s core requirement\u2014\
-    producing a deterministic synthetic dataset saved at the specified path with seed\u202F\
-    =\u202F42\u2014is not fulfilled."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.env` file, constants module, or any configuration artifact is present in
-    the provided evidence, and thus there is no evidence that `N_PERMUTATIONS=1000`
-    has been defined for statistical tests. The required environment configuration
-    file is missing.
-T012:
-  c: false
-  h: ff1c31391b865dcf5ba005e693b467f29f59669c2bb2508e9697a24473ebb815
-  r: "The required raw file `data/raw/synthetic_baseline.csv` is absent, and the expected\
-    \ output files `data/processed/validated.csv` and `artifacts/reports/validation_log.json`\
-    \ were not generated. Moreover, `code/ingest.py` is truncated and lacks a top\u2011\
-    level orchestration that loads the specified CSV and writes the required outputs.\
-    \ The task\u2019s core requirements are therefore unmet."
 T018:
   c: false
   h: 08f6a74cc1f11a108c890104b9fafa2fc0dfd57e9d7d9484dbf7caf0b8c0d5d1
@@ -50,3 +5,10 @@ T018:
     and checks for the temperature column, but the required output file `data/processed/engineered_features.csv`
     does not exist, so the primary artifact is missing. The pipeline must be run (or
     the file added) to produce the engineered features CSV.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or log file was provided showing that a fallback mechanism was\
+    \ added to detect a pure\u2011aluminum dataset (zero variance in composition),\
+    \ emit a warning, and skip the interaction\u2011feature\u2011importance step.\
+    \ The required artifact (implementation and verification) is missing."

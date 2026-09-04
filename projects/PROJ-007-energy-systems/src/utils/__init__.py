@@ -1,3 +1,3 @@
 """
-Utilities module for logging, seeding, and common helpers.
+Utilities module for logging, seeding, and helper functions.
 """

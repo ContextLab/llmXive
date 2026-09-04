@@ -1,4 +1,11 @@
 """
-Model execution and runner modules.
+Model execution and inference module.
+
+Contains the ModelRunner for executing LLMs on task instances.
 """
-from .runner import GenerationConfig, ModelRunner, main as runner_main
+from models.runner import ModelRunner, GenerationConfig
+
+__all__ = [
+    'ModelRunner',
+    'GenerationConfig'
+]

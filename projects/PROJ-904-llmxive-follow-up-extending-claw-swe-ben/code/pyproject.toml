@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-follow-up"
 version = "0.1.0"
-description = "Context Fidelity vs. Model Scaling Trade-offs Research Pipeline"
+description = "Context Fidelity vs. Model Scaling Trade-offs Research"
 requires-python = ">=3.11"
 dependencies = [
     "transformers",
@@ -14,56 +14,44 @@ dependencies = [
     "statsmodels",
     "networkx",
     "pytest",
-    "black",
+    "huggingface_hub",
     "ruff",
+    "black",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.ruff]
-line-length = 88
+# Same as .ruff.toml but kept here for tooling compatibility
+line-length = 100
 target-version = "py311"
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults
-]
-exclude = [
-    ".eggs",
+extend-exclude = [
     ".git",
     ".mypy_cache",
+    ".tox",
     ".venv",
     "build",
     "dist",
 ]
-
-[tool.ruff.isort]
-known-first-party = ["config", "data", "models", "experiments", "analysis", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

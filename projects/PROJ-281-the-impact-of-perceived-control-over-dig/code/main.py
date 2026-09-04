@@ -1,3 +1,15 @@
+"""
+Main pipeline orchestrator for the llmXive automated science pipeline.
+
+This module coordinates the execution of all stages:
+1. Data ingestion (T013)
+2. Preprocessing (T014a)
+3. Anxiety scoring (T015, T016)
+4. Proxy extraction (T021-T025)
+5. Merge and save (T032)
+6. Statistical analysis (T033, T034)
+7. Visualization (T035, T036)
+"""
 import argparse
 import logging
 import sys
@@ -5,162 +17,163 @@ from pathlib import Path
 
 from code.config import (
     CONFIG,
-    get_processed_path,
-    get_raw_path,
+    setup_logging
 )
 from code.services.data_ingestion import run_data_ingestion_pipeline
 from code.services.anxiety_scoring import run_full_scoring_pipeline
-from code.services.proxy_extractor import run_proxy_extraction_pipeline
-from code.services.coverage_validation import run_coverage_validation
+from code.services.proxy_extractor import run_full_proxy_pipeline
+from code.services.merge_and_save import run_merge_and_save_pipeline
 from code.analysis.statistical_test import run_statistical_analysis_pipeline
-from code.viz.save_visualization import main as save_viz_main
+from code.viz.plot_results import run_visualization_pipeline
+from code.viz.save_visualization import save_visualization
+from code.services.coverage_validation import run_coverage_validation
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)],
-)
 logger = logging.getLogger(__name__)
 
+
 def stage_01_data_ingestion():
-    """Download and validate the raw dataset."""
-    logger.info("Stage 01: Data Ingestion")
+    """Execute Stage 1: Data ingestion (T013)."""
+    logger.info("Starting Stage 1: Data Ingestion")
     run_data_ingestion_pipeline()
-    logger.info("Stage 01: Complete")
+    logger.info("Stage 1 completed successfully")
+
 
 def stage_02_preprocessing():
-    """Filter non-English/gibberish text."""
-    logger.info("Stage 02: Preprocessing")
-    # This logic is integrated into anxiety_scoring in current impl, 
-    # but kept as a stage for pipeline structure if separated later.
-    # Currently, T014a logic is inside anxiety_scoring pipeline.
-    logger.info("Stage 02: Complete (Integrated in Stage 03)")
+    """Execute Stage 2: Text preprocessing (T014a)."""
+    logger.info("Starting Stage 2: Text Preprocessing")
+    # Preprocessing is integrated into the anxiety scoring pipeline
+    # This stage is handled by run_full_scoring_pipeline
+    logger.info("Stage 2 completed (integrated with scoring)")
+
 
 def stage_03_anxiety_scoring():
-    """Compute anxiety scores and filter by confidence."""
-    logger.info("Stage 03: Anxiety Scoring")
+    """Execute Stage 3: Anxiety scoring (T015, T016, T017)."""
+    logger.info("Starting Stage 3: Anxiety Scoring")
     run_full_scoring_pipeline()
-    logger.info("Stage 03: Complete")
+    logger.info("Stage 3 completed successfully")
+
 
 def stage_04_proxy_extraction():
-    """Extract control proxies from metadata."""
-    logger.info("Stage 04: Proxy Extraction")
-    run_proxy_extraction_pipeline()
-    logger.info("Stage 04: Complete")
+    """Execute Stage 4: Proxy extraction (T021-T026)."""
+    logger.info("Starting Stage 4: Proxy Extraction")
+    run_full_proxy_pipeline()
+    logger.info("Stage 4 completed successfully")
+
 
 def stage_05_merge_and_validate():
-    """
-    Merge scoring results and proxy results on post_id.
-    Confirm data is pre-filtered (from T016) and save final dataset.
-    """
-    logger.info("Stage 05: Merge and Validate")
+    """Execute Stage 5: Merge and save (T032)."""
+    logger.info("Starting Stage 5: Merge and Save")
+    run_merge_and_save_pipeline()
     
-    scoring_path = get_processed_path("scoring_results.csv")
-    proxy_path = get_processed_path("proxy_results.csv")
-    output_path = get_processed_path("final_analysis.csv")
-
-    logger.info(f"Loading scoring results from {scoring_path}")
-    df_scores = pd.read_csv(scoring_path)
+    # Also run coverage validation (T018a)
+    logger.info("Running coverage validation")
+    run_coverage_validation()
     
-    logger.info(f"Loading proxy results from {proxy_path}")
-    df_proxies = pd.read_csv(proxy_path)
+    logger.info("Stage 5 completed successfully")
 
-    # Verify pre-filtering: Check for nulls in key columns if any logic missed
-    # T016 handles filtering, so we assume df_scores is clean, but we log counts.
-    logger.info(f"Scoring rows before merge: {len(df_scores)}")
-    logger.info(f"Proxy rows before merge: {len(df_proxies)}")
-
-    # Merge on post_id. 
-    # Note: scoring_results has 'text', 'anxiety_score', 'confidence_score'.
-    # proxy_results has 'post_id', 'user_id', 'control_proxy', 'timestamp_regularity'.
-    # We need to ensure 'post_id' exists in both.
-    
-    # Check if post_id exists in scoring results (it should from ingestion)
-    if 'post_id' not in df_scores.columns:
-        # Fallback: if the scoring pipeline didn't preserve post_id, we might need to handle it.
-        # Based on T017 spec: "columns: text, anxiety_score, confidence_score". 
-        # However, T013 downloads 'cardiffnlp/tweet_sentiment_extraction' which usually has 'tweet_id'.
-        # We assume the ingestion/scoring pipeline preserves 'post_id' or 'tweet_id' as 'post_id'.
-        # If not, this merge will fail, which is correct behavior for data integrity.
-        logger.error("post_id column missing in scoring_results.csv. Cannot merge.")
-        raise ValueError("Missing 'post_id' in scoring results.")
-
-    if 'post_id' not in df_proxies.columns:
-        logger.error("post_id column missing in proxy_results.csv. Cannot merge.")
-        raise ValueError("Missing 'post_id' in proxy results.")
-
-    df_merged = pd.merge(
-        df_scores, 
-        df_proxies, 
-        on='post_id', 
-        how='inner'
-    )
-
-    logger.info(f"Rows after merge: {len(df_merged)}")
-    
-    if len(df_merged) == 0:
-        logger.warning("Merge resulted in 0 rows. Check key alignment.")
-
-    # Save final dataset
-    df_merged.to_csv(output_path, index=False)
-    logger.info(f"Saved final merged dataset to {output_path}")
-    logger.info("Stage 05: Complete")
 
 def stage_06_statistical_analysis():
-    """Run statistical tests on merged data."""
-    logger.info("Stage 06: Statistical Analysis")
+    """Execute Stage 6: Statistical analysis (T033, T034)."""
+    logger.info("Starting Stage 6: Statistical Analysis")
     run_statistical_analysis_pipeline()
-    logger.info("Stage 06: Complete")
+    logger.info("Stage 6 completed successfully")
+
 
 def stage_07_visualization():
-    """Generate and save visualization."""
-    logger.info("Stage 07: Visualization")
-    save_viz_main()
-    logger.info("Stage 07: Complete")
+    """Execute Stage 7: Visualization (T035, T036)."""
+    logger.info("Starting Stage 7: Visualization")
+    run_visualization_pipeline()
+    save_visualization()
+    logger.info("Stage 7 completed successfully")
 
-def run_pipeline():
-    """Orchestrate the full pipeline."""
-    logger.info("Starting full pipeline...")
-    stage_01_data_ingestion()
-    stage_02_preprocessing()
-    stage_03_anxiety_scoring()
-    stage_04_proxy_extraction()
-    stage_05_merge_and_validate()
-    stage_06_statistical_analysis()
-    stage_07_visualization()
-    logger.info("Pipeline complete.")
+
+def run_pipeline(stages=None):
+    """
+    Run the full analysis pipeline.
+    
+    Args:
+        stages: List of stage numbers to run. If None, runs all stages.
+               Stages: 1=ingestion, 2=preprocessing, 3=scoring, 4=proxy,
+                      5=merge, 6=analysis, 7=visualization
+    """
+    if stages is None:
+        stages = [1, 2, 3, 4, 5, 6, 7]
+    
+    stage_functions = {
+        1: stage_01_data_ingestion,
+        2: stage_02_preprocessing,
+        3: stage_03_anxiety_scoring,
+        4: stage_04_proxy_extraction,
+        5: stage_05_merge_and_validate,
+        6: stage_06_statistical_analysis,
+        7: stage_07_visualization
+    }
+    
+    for stage_num in sorted(stages):
+        if stage_num not in stage_functions:
+            logger.warning(f"Unknown stage number: {stage_num}")
+            continue
+        
+        logger.info(f"{'='*60}")
+        logger.info(f"Running Stage {stage_num}")
+        logger.info(f"{'='*60}")
+        
+        try:
+            stage_functions[stage_num]()
+        except Exception as e:
+            logger.error(f"Stage {stage_num} failed: {e}")
+            raise
+    
+    logger.info(f"{'='*60}")
+    logger.info("Pipeline completed successfully!")
+    logger.info(f"{'='*60}")
+
 
 def main():
-    parser = argparse.ArgumentParser(description="llmXive Research Pipeline")
-    parser.add_argument(
-        "--stage",
-        type=str,
-        choices=[
-            "ingestion", "preprocessing", "scoring", "proxy", 
-            "merge", "analysis", "viz", "all"
-        ],
-        default="all",
-        help="Which stage to run"
+    """CLI entry point for the pipeline."""
+    parser = argparse.ArgumentParser(
+        description="Run the llmXive automated science pipeline for anxiety and control analysis."
     )
+    parser.add_argument(
+        "--stages",
+        type=str,
+        default=None,
+        help="Comma-separated list of stages to run (e.g., '1,3,5'). Runs all if not specified."
+    )
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        help="Enable verbose logging"
+    )
+    parser.add_argument(
+        "--log-file",
+        type=Path,
+        default=None,
+        help="Path to log file"
+    )
+    
     args = parser.parse_args()
+    
+    # Setup logging
+    if args.verbose:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    
+    setup_logging(level, args.log_file)
+    
+    # Parse stages
+    stages = None
+    if args.stages:
+        stages = [int(s.strip()) for s in args.stages.split(",")]
+    
+    try:
+        run_pipeline(stages)
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {e}")
+        sys.exit(1)
 
-    if args.stage == "ingestion":
-        stage_01_data_ingestion()
-    elif args.stage == "preprocessing":
-        stage_02_preprocessing()
-    elif args.stage == "scoring":
-        stage_03_anxiety_scoring()
-    elif args.stage == "proxy":
-        stage_04_proxy_extraction()
-    elif args.stage == "merge":
-        stage_05_merge_and_validate()
-    elif args.stage == "analysis":
-        stage_06_statistical_analysis()
-    elif args.stage == "viz":
-        stage_07_visualization()
-    elif args.stage == "all":
-        run_pipeline()
 
 if __name__ == "__main__":
     main()

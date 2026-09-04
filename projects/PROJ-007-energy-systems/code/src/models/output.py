@@ -1,11 +1,8 @@
 """
-Serialization module for AnalysisResult objects.
+Output serialization module for analysis results.
 
-Provides functionality to save causal analysis results (ATT, p-values, confidence
-intervals, methodology details, and sensitivity data) to JSON and Parquet formats.
-
-This module consumes the AnalysisResult Pydantic model defined in schemas.py
-and ensures type-safe, validated serialization.
+Provides functions to save and load AnalysisResult objects to/from JSON and Parquet formats.
+Ensures all metadata, statistical estimates, and sensitivity data are preserved.
 """
 import json
 import pandas as pd
@@ -14,187 +11,159 @@ from typing import Optional, Union, Dict, Any, List
 from datetime import datetime
 import pyarrow as pa
 import pyarrow.parquet as pq
+
 from src.models.schemas import AnalysisResult
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
+def _ensure_directory(filepath: Union[str, Path]) -> None:
+    """Ensure the directory for the given filepath exists."""
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def _serialize_analysis_result(result: AnalysisResult) -> Dict[str, Any]:
+    """
+    Convert an AnalysisResult object to a serializable dictionary.
+    
+    Handles nested objects like sensitivity data and converts types 
+    that JSON/Parquet don't natively support (e.g., numpy types, sets).
+    """
+    data = result.model_dump()
+    
+    # Ensure datetime is ISO string
+    if isinstance(data.get('timestamp'), datetime):
+        data['timestamp'] = data['timestamp'].isoformat()
+    
+    # Convert any nested numpy types in sensitivity data
+    if 'sensitivity_data' in data and data['sensitivity_data']:
+        serialized_sensitivity = []
+        for item in data['sensitivity_data']:
+            serializable_item = {}
+            for k, v in item.items():
+                if hasattr(v, 'item'):  # numpy scalar
+                    serializable_item[k] = v.item()
+                elif isinstance(v, (set, frozenset)):
+                    serializable_item[k] = list(v)
+                else:
+                    serializable_item[k] = v
+            serialized_sensitivity.append(serializable_item)
+        data['sensitivity_data'] = serialized_sensitivity
+
+    return data
+
+
 def save_analysis_result(
     result: AnalysisResult,
-    output_path: str,
+    filepath: Union[str, Path],
     format: str = "json"
 ) -> Path:
     """
-    Save an AnalysisResult object to disk in the specified format.
+    Save an AnalysisResult to disk in JSON or Parquet format.
     
     Args:
-        result: The validated AnalysisResult object containing ATT, p-value,
-                confidence intervals, methodology, and sensitivity data.
-        output_path: Path where the output file will be written.
-        format: Output format, either "json" or "parquet".
+        result: The AnalysisResult object to save.
+        filepath: Path to the output file.
+        format: Output format ('json' or 'parquet').
     
     Returns:
-        Path object pointing to the created file.
+        The absolute path to the saved file.
     
     Raises:
-        ValueError: If format is not "json" or "parquet".
-        FileNotFoundError: If the directory for output_path does not exist.
+        ValueError: If format is not 'json' or 'parquet'.
+        FileNotFoundError: If the parent directory does not exist and cannot be created.
+        TypeError: If the result contains non-serializable objects.
     """
-    output_path_obj = Path(output_path)
+    path = Path(filepath)
+    _ensure_directory(path)
     
-    # Ensure output directory exists
-    if not output_path_obj.parent.exists():
-        raise FileNotFoundError(
-            f"Output directory does not exist: {output_path_obj.parent}"
-        )
+    data = _serialize_analysis_result(result)
     
     if format.lower() == "json":
-        return _save_to_json(result, output_path_obj)
+        logger.info(f"Saving analysis result to JSON: {path}")
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, default=str)
     elif format.lower() == "parquet":
-        return _save_to_parquet(result, output_path_obj)
+        logger.info(f"Saving analysis result to Parquet: {path}")
+        # Flatten for Parquet: put scalar fields in one row, sensitivity in a nested structure or separate table
+        # For simplicity and compatibility, we store the main result as a single-row DataFrame
+        # and sensitivity data as a JSON string column or a separate file if needed.
+        # Here we choose to store sensitivity data as a JSON string in the Parquet table.
+        row_data = {}
+        for k, v in data.items():
+            if k == 'sensitivity_data' and isinstance(v, list):
+                row_data[k] = json.dumps(v)
+            else:
+                row_data[k] = v
+        
+        df = pd.DataFrame([row_data])
+        table = pa.Table.from_pandas(df)
+        pq.write_table(table, path)
     else:
-        raise ValueError(
-            f"Unsupported format: {format}. Must be 'json' or 'parquet'."
-        )
+        raise ValueError(f"Unsupported format: {format}. Use 'json' or 'parquet'.")
+    
+    logger.info(f"Successfully saved analysis result to {path}")
+    return path.resolve()
 
 
-def _save_to_json(result: AnalysisResult, output_path: Path) -> Path:
+def load_analysis_result(
+    filepath: Union[str, Path],
+    format: Optional[str] = None
+) -> AnalysisResult:
     """
-    Serialize AnalysisResult to JSON.
-    
-    Pydantic models have a built-in .model_dump() method that handles
-    nested structures and type serialization.
-    """
-    logger.info(f"Saving analysis result to JSON: {output_path}")
-    
-    # Convert to dictionary, handling datetime and nested structures
-    data = result.model_dump(mode="json")
-    
-    # Add metadata about the export
-    data["_exported_at"] = datetime.utcnow().isoformat()
-    data["_export_version"] = "1.0"
-    
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, default=str)
-    
-    logger.info(f"Successfully saved analysis result to {output_path}")
-    return output_path
-
-
-def _save_to_parquet(result: AnalysisResult, output_path: Path) -> Path:
-    """
-    Serialize AnalysisResult to Parquet.
-    
-    Parquet is better for large datasets and columnar analysis.
-    We flatten the nested structure into a single-row DataFrame.
-    """
-    logger.info(f"Saving analysis result to Parquet: {output_path}")
-    
-    # Flatten the result into a dictionary suitable for a single-row DataFrame
-    data = {
-        "att_estimate": [result.att_estimate],
-        "att_std_error": [result.att_std_error],
-        "p_value": [result.p_value],
-        "ci_lower": [result.confidence_interval[0]],
-        "ci_upper": [result.confidence_interval[1]],
-        "methodology": [result.methodology],
-        "balance_status": [result.balance_status],
-        "placebo_passed": [result.placebo_passed],
-        "n_treatment": [result.n_treatment],
-        "n_control": [result.n_control],
-        "caliper_used": [result.caliper_used],
-        "exported_at": [datetime.utcnow().isoformat()],
-        "export_version": ["1.0"]
-    }
-    
-    # Include sensitivity analysis as a JSON string in a single cell
-    if result.sensitivity_analysis:
-        data["sensitivity_analysis"] = [json.dumps(result.sensitivity_analysis)]
-    else:
-        data["sensitivity_analysis"] = [None]
-    
-    # Create DataFrame
-    df = pd.DataFrame(data)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write to Parquet
-    df.to_parquet(output_path, index=False, engine="pyarrow")
-    
-    logger.info(f"Successfully saved analysis result to {output_path}")
-    return output_path
-
-
-def load_analysis_result(input_path: str, format: str = "json") -> AnalysisResult:
-    """
-    Load an AnalysisResult object from disk.
+    Load an AnalysisResult from disk (JSON or Parquet).
     
     Args:
-        input_path: Path to the input file.
-        format: Input format, either "json" or "parquet".
+        filepath: Path to the input file.
+        format: Format of the file. If None, inferred from extension.
     
     Returns:
-        Validated AnalysisResult object.
+        The deserialized AnalysisResult object.
     
     Raises:
-        ValueError: If format is not supported or file is malformed.
-        FileNotFoundError: If the input file does not exist.
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the format is unsupported or cannot be inferred.
+        pydantic.ValidationError: If the loaded data does not match the AnalysisResult schema.
     """
-    input_path_obj = Path(input_path)
+    path = Path(filepath)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
     
-    if not input_path_obj.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+    if format is None:
+        suffix = path.suffix.lower()
+        if suffix == '.json':
+            format = 'json'
+        elif suffix in ['.parquet', '.pq']:
+            format = 'parquet'
+        else:
+            raise ValueError(f"Cannot infer format from extension '{suffix}'. Specify 'json' or 'parquet'.")
+    
+    logger.info(f"Loading analysis result from {path} (format: {format})")
     
     if format.lower() == "json":
-        return _load_from_json(input_path_obj)
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
     elif format.lower() == "parquet":
-        return _load_from_parquet(input_path_obj)
+        table = pq.read_table(path)
+        df = table.to_pandas()
+        # Convert sensitivity JSON string back to list if present
+        if 'sensitivity_data' in df.columns and df['sensitivity_data'].dtype == object:
+            # Assume first row (single row table)
+            raw_sens = df.iloc[0]['sensitivity_data']
+            if isinstance(raw_sens, str):
+                df.at[0, 'sensitivity_data'] = json.loads(raw_sens)
+        data = df.iloc[0].to_dict()
     else:
-        raise ValueError(
-            f"Unsupported format: {format}. Must be 'json' or 'parquet'."
-        )
-
-
-def _load_from_json(input_path: Path) -> AnalysisResult:
-    """Load and validate from JSON."""
-    with open(input_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+        raise ValueError(f"Unsupported format: {format}. Use 'json' or 'parquet'.")
     
-    # Remove metadata fields added during export
-    data.pop("_exported_at", None)
-    data.pop("_export_version", None)
+    # Reconstruct AnalysisResult
+    # Handle timestamp string back to datetime if needed by model
+    if 'timestamp' in data and isinstance(data['timestamp'], str):
+        try:
+            data['timestamp'] = datetime.fromisoformat(data['timestamp'])
+        except ValueError:
+            pass # Let pydantic handle validation error if format is wrong
     
     return AnalysisResult(**data)
-
-
-def _load_from_parquet(input_path: Path) -> AnalysisResult:
-    """Load and validate from Parquet."""
-    df = pd.read_parquet(input_path, engine="pyarrow")
-    
-    if df.empty:
-        raise ValueError(f"Parquet file is empty: {input_path}")
-    
-    # Extract first row
-    row = df.iloc[0]
-    
-    # Parse sensitivity analysis if present
-    sensitivity = None
-    if pd.notna(row.get("sensitivity_analysis")):
-        sensitivity = json.loads(row["sensitivity_analysis"])
-    
-    # Construct AnalysisResult
-    return AnalysisResult(
-        att_estimate=row["att_estimate"],
-        att_std_error=row["att_std_error"],
-        p_value=row["p_value"],
-        confidence_interval=(row["ci_lower"], row["ci_upper"]),
-        methodology=row["methodology"],
-        balance_status=row["balance_status"],
-        placebo_passed=row["placebo_passed"],
-        n_treatment=int(row["n_treatment"]),
-        n_control=int(row["n_control"]),
-        caliper_used=row["caliper_used"],
-        sensitivity_analysis=sensitivity
-    )

@@ -1,2 +1,2 @@
-# This directory stores raw downloaded datasets (e.g., social_media.csv).
-# Do not commit large binary files; add to .gitignore if necessary.
+# This directory stores raw, immutable datasets downloaded from external sources.
+# Do not modify files in this directory directly.

@@ -90,7 +90,7 @@
 - [ ] T016 [US1] Implement `run_baseline.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` to execute the filtered dataset with the 1B model and naive strategy. **Constraint**: Enforce -minute runtime budget per instance via `batch_executor.py`. Output `data/intermediate/baseline_run.jsonl` (US-1).
 - [ ] T016b [P] [US1] Implement `batch_executor.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` with logic to enforce: 1) A hard timeout per instance, and 2) A hard total wall-clock duration limit of ≤72 hours for the full experiment (FR-007).
 - [ ] T017 [US1] Implement `failure_classifier.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/` to detect "missing context" vs "reasoning error" via sandbox log parsing (FR-008).
-- [ ] T017b [US1] Apply `failure_classifier.py` to the baseline results (`data/intermediate/baseline_run.jsonl`) to annotate failure modes for US1 results.
+- [ ] T017b [US1] Apply `failure_classifier.py` to the baseline results (`data/intermediate/baseline_run.jsonl`) to annotate failure modes for US1 results. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,10 +115,10 @@
 
 - [X] T020 [P] [US2] Implement TF-IDF/BM25 relevance retrieval module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` using `scikit-learn` (FR-003).
 - [X] T021 [P] [US2] Implement diff-aware sliding window module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` using standard diff libraries (FR-003).
-- [ ] T022 [P] [US2] Implement rule-based semantic summarization module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` as defined in FR-003 (rule-based extraction of relevant code blocks/paragraphs).
+- [X] T022 [P] [US2] Implement rule-based semantic summarization module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` as defined in FR-003 (rule-based extraction of relevant code blocks/paragraphs).
 - [ ] T023 [US2] Implement `run_high_fidelity.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` to execute the 1B model against all three high-fidelity strategies. **Constraint**: Enforce 60-minute runtime budget per instance and use parallel batching. Output `data/intermediate/hf_run_1b.jsonl` (US-2).
 - [ ] T024 [US2] Implement fallback logic in `context_processors.py` to revert to naive truncation if a high-fidelity strategy returns zero snippets, logging the event to `data/audit_logs/fallbacks.jsonl` (Edge Case Handling).
-- [ ] T017c [US2] Apply `failure_classifier.py` to the high-fidelity results (`data/intermediate/hf_run_1b.jsonl`) to annotate failure modes for US2 results.
+- [ ] T017c [US2] Apply `failure_classifier.py` to the high-fidelity results (`data/intermediate/hf_run_1b.jsonl`) to annotate failure modes for US2 results. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,7 +132,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Write test scaffolding for GLM interaction effect calculation in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/unit/test_glm_analyzer.py`.
+- [X] T030 [P] [US3] Write test scaffolding for GLM interaction effect calculation in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/tests/unit/test_glm_analyzer.py`.
 
 ### Implementation for User Story 3
 

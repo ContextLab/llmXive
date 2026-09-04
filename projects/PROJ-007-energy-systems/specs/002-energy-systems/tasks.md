@@ -120,11 +120,11 @@
 
 ### Implementation for Scaling Analysis
 
-- [ ] T014 [P] Create `src/scaling/scaling.py` with function signatures `aggregate_tract(df: pd.DataFrame) -> pd.DataFrame` and `fit_scaling_law(df: pd.DataFrame) -> float`; implement stubs that raise `NotImplementedError`
-- [ ] T034 [P] Implement `src/scaling/scaling.py` to aggregate household data to census tract level (consuming final validated output of T016), calculating total energy consumption and population size
-- [ ] T035 [P] Implement power-law regression in `src/scaling/scaling.py` to estimate the scaling exponent (beta) for energy consumption vs. population (log-log regression)
-- [ ] T036 [P] Implement logic in `src/scaling/scaling.py` to compare the estimated beta against the universal sublinear scaling exponent observed in cities (Bettencourt et al.)
-- [ ] T037 [P] Generate a descriptive report in `src/scaling/scaling.py` that explicitly states the scaling law is for descriptive purposes only and does not support causal claims about energy inequity; strictly forbid any language framing scaling gaps as "inequity signals" or causal impacts
+- [X] T014 [P] Create `src/scaling/scaling.py` with function signatures `aggregate_tract(df: pd.DataFrame) -> pd.DataFrame` and `fit_scaling_law(df: pd.DataFrame) -> float`; implement stubs that raise `NotImplementedError`
+- [X] T034 [P] Implement `src/scaling/scaling.py` to aggregate household data to census tract level (consuming final validated output of T016), calculating total energy consumption and population size
+- [X] T035 [P] Implement power-law regression in `src/scaling/scaling.py` to estimate the scaling exponent (beta) for energy consumption vs. population (log-log regression)
+- [X] T036 [P] Implement logic in `src/scaling/scaling.py` to compare the estimated beta against the universal sublinear scaling exponent observed in cities (Bettencourt et al.)
+- [X] T037 [P] Generate a descriptive report in `src/scaling/scaling.py` that explicitly states the scaling law is for descriptive purposes only and does not support causal claims about energy inequity; strictly forbid any language framing scaling gaps as "inequity signals" or causal impacts
 - [ ] T051 [P] Implement report generator logic to enforce strict structural separation: create distinct functions for causal vs. descriptive sections; ensure scaling results are generated separately and excluded from the causal claims block in the final report
 - [ ] T038 [P] Create `tests/unit/test_scaling.py` to verify power-law regression logic and exponent calculation
 - [ ] T039 [P] Add a section to the final report (via `main.py` or a dedicated reporter) that presents the scaling law findings separately from the causal inference results, with clear disclaimers

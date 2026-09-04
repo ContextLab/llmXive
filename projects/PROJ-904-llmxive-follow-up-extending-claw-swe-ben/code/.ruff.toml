@@ -1,4 +1,26 @@
-# Ruff configuration file (explicit override for clarity)
-extend = "pyproject.toml"
-# Ensure we use the project root as the base for relative imports
-src = ["."]
+[lint]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # Pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "UP", # pyupgrade
+]
+ignore = [
+  "E501", # line too long (handled by black)
+  "B008", # do not perform function calls in argument defaults
+]
+
+[lint.isort]
+known-first-party = ["config", "data", "models", "experiments", "analysis"]
+force-single-line = false
+lines-between-types = 0
+
+[format]
+# Ruff format uses Black-compatible settings by default
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

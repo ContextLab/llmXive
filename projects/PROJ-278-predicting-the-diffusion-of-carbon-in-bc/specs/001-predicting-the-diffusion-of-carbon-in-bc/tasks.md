@@ -29,12 +29,12 @@
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `code/.ruff.toml` with `[lint]` rules for E, E7, E9, F, I, N, UP, W and `code/.black.toml` with `line-length = 88` and `target-version = py311`.
 - [X] T004a [P] [US1] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`: Specify fields `composition` (str), `structure` (str, const "BCC"), `log_D` (float), `atomic_radius_variance` (float), `VEC` (float), `electronegativity_spread` (float), `mixing_entropy` (float, derived per Plan Phase 1 Step 4: `mixing_entropy = -R * sum(xi * ln(xi))`), `inv_temperature` (float, derived per Plan Phase 1 Step 4: `inv_temperature = 1.0 / T`), `microstructure_controlled` (bool), and `single_crystal` (bool). Note: FR-002 mandates the core descriptors; `mixing_entropy` and `inv_temperature` are valid extensions per the plan's feature engineering step.
 - [X] T004b [P] [US1] Write `specs/001-predict-carbon-diffusion-bcc/contracts/dataset.schema.yaml`: Create the YAML file defined in T004a, including all provenance flags.
-- [X] T004c [P] [US1] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/split_config.schema.yaml` and **WRITE the file**: Specify fields `strategy` (str, enum ["80/20", "LOOCV"]), `n_samples` (int), and `warning_emitted` (bool). Create `specs/001-predict-carbon-diffusion-bcc/contracts/split_config.schema.yaml` with these definitions. **Note: This task must complete before T010 and T015 can validate their outputs.**
+- [ ] T004c [P] [US1] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/split_config.schema.yaml` and **WRITE the file**: Specify fields `strategy` (str, enum ["80/20", "LOOCV"]), `n_samples` (int), and `warning_emitted` (bool). Create `specs/001-predict-carbon-diffusion-bcc/contracts/split_config.schema.yaml` with these definitions. **Note: This task must complete before T010 and T015 can validate their outputs.**
 - [X] T005a [P] [US2] Define schema content for `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`: Specify keys for `model_results.json` (`best_model`, `baseline_model`, `r2`, `rmse`, `mae`, `p_value`), `feature_importance.json` (`ranked_features`, `top_two`), and `variance_partition.csv` (`adjusted_r2`, `microstructural_gap`, `residual_variance_label` constrained to enum ["noise, measurement error, and missing compositional descriptors"]).
 - [X] T005b [P] [US2] Write `specs/001-predict-carbon-diffusion-bcc/contracts/model_output.schema.yaml`: Create the YAML file defined in T005a.
 - [X] T006 [P] [US1] Implement `code/utils.py` helper functions for periodic table property retrieval (atomic radius, VEC, electronegativity) using `pymatgen` or `matminer`.
-- [X] T007 [P] [US1] Setup deterministic logging and error handling infrastructure: Create `code/logging_config.py` with log format `%(asctime)s - %(levelname)s - %(message)s` and implement custom exceptions `DataInsufficientError`, `PowerWarning`, `SHAPError` inheriting from `Exception`.
-- [X] T008 [P] [US1] Configure environment configuration management: Create `code/config.yaml` with keys `random_seed` (int), `data_path` (str), `output_path` (str) and implement a loader in `code/utils.py` to read these values.
+- [ ] T007 [P] [US1] Setup deterministic logging and error handling infrastructure: Create `code/logging_config.py` with log format `%(asctime)s - %(levelname)s - %(message)s` and implement custom exceptions `DataInsufficientError`, `PowerWarning`, `SHAPError` inheriting from `Exception`.
+- [ ] T008 [P] [US1] Configure environment configuration management: Create `code/config.yaml` with keys `random_seed` (int), `data_path` (str), `output_path` (str) and implement a loader in `code/utils.py` to read these values.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -46,9 +46,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. T004b/T004c/T005b (Schemas) MUST be completed before T010/T014. T004c, T012, and T014 are NOT parallel to their respective schema/implementation tasks.
 
-- [X] T009 [US1] Implement `code/01_download.py` to fetch the verified HuggingFace dataset URL `https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet`. **Explicitly validate the raw file contains these exact columns with expected types**: `structure` (str), `composition` (str, atomic fractions), `diffusion_coefficient` (float), `temperature` (float), `microstructure_controlled` (bool), `solute` (str). Generate SHA256 checksum and store in `data/raw/`. Raise `DataInsufficientError` if fetch fails, checksum mismatch, OR if required columns are missing.
+- [ ] T009 [US1] Implement `code/01_download.py` to fetch the verified HuggingFace dataset URL `https://huggingface.co/datasets/MeliDC/MeLiDC/resolve/main/data.parquet`. **Explicitly validate the raw file contains these exact columns with expected types**: `structure` (str), `composition` (str, atomic fractions), `diffusion_coefficient` (float), `temperature` (float), `microstructure_controlled` (bool), `solute` (str). Generate SHA256 checksum and store in `data/raw/`. Raise `DataInsufficientError` if fetch fails, checksum mismatch, OR if required columns are missing.
 - [X] T009b [US1] [P] Implement and invoke the **Reference-Validator** agent/script (per Constitution Principle II and Plan Phase 0) to verify the HuggingFace URL against the primary NIST/Materials Project source before T009 proceeds. **Execute**: `python code/00_reference_validator.py --url <URL> --source <SOURCE>`. Log verification results. If verification fails, raise `DataInsufficientError`.
-- [X] T010 [US1] [Depends on T004b, T004c] Implement `code/02_preprocess.py` to:
+- [ ] T010 [US1] [Depends on T004b, T004c] Implement `code/02_preprocess.py` to:
  - Filter for `structure == "BCC"` and `solute == "C"`
  - Enforce provenance check (exclude entries missing `microstructure_controlled`/`single_crystal` flags) and log excluded entries
  - Normalize atomic fractions to sum to 1.0
@@ -79,7 +79,7 @@
 ### Tests for User Story 2
 
 - [X] T014 [US2] [Depends on T005b] Implement `tests/test_contracts.py` function `test_model_output_schema_validation` using `jsonschema.validate(data, schema)` to ensure `model_results.json` matches the schema defined in T005b. **This test must be written BEFORE T015 (TDD driver)**. **Dependencies: None (TDD driver)**.
-- [X] T015 [US2] Implement `code/03_train.py` to:
+- [ ] T015 [US2] Implement `code/03_train.py` to:
  - Read `split_config.json` from T010 to determine split strategy (80/20 or LOOCV).
  - Split data: 80/20 if N >= 30, else LOOCV (emit `PowerWarning` if N < 30).
  - Train Random Forest, XGBoost, and Elastic Net with constrained grid search:
@@ -115,7 +115,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T019 [US3] Implement `code/04_evaluate.py` to:
+- [ ] T019 [US3] Implement `code/04_evaluate.py` to:
  - Load `best_model.pkl` (produced by T015) and `baseline_model.pkl` (produced by T015).
  - Compute SHAP values for the best model on the test set.
  - Rank descriptors by SHAP magnitude and identify top two.

@@ -1,3 +1,4 @@
 """
-PROJ-007-energy-systems: Automated science pipeline for energy inequity analysis.
+PROJ-007-energy-systems: Automated pipeline for analyzing energy inequity
+in low-income communities using causal inference and scaling laws.
 """

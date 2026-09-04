@@ -3,228 +3,333 @@ import sys
 import json
 import logging
 import argparse
-from typing import Dict, Any, List, Optional, Tuple
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
-import statsmodels.api as sm
+import numpy as np
+from scipy import stats
 from statsmodels.genmod.generalized_linear_model import GLM
-from statsmodels.genmod.families import Binomial
+from statsmodels.genmod import families
 from statsmodels.stats.multitest import multipletests
-from statsmodels.tools.sm_exceptions import ConvergenceWarning
-import warnings
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Suppress convergence warnings for cleaner logs during fitting attempts
-warnings.filterwarnings("ignore", category=ConvergenceWarning)
-
 class GLMConvergenceError(Exception):
-    """Raised when GLM fitting fails to converge."""
+    """Raised when the GLM fitting procedure fails to converge."""
     pass
 
-def load_results_data(filepath: str = "data/results.csv") -> pd.DataFrame:
+def load_results_data(csv_path: str) -> pd.DataFrame:
     """
-    Load the merged results CSV.
-    Expects columns: issue_id, model_size (1B/7B), strategy (baseline/tfidf/diff/semantic), pass_status (0/1)
+    Load the merged results CSV into a pandas DataFrame.
+    
+    Args:
+        csv_path: Path to the merged results CSV file.
+        
+    Returns:
+        DataFrame containing the results.
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Results file not found: {filepath}. Run merge_results.py first.")
-    df = pd.read_csv(filepath)
-    # Ensure numeric types
-    df['pass_status'] = pd.to_numeric(df['pass_status'], errors='coerce').fillna(0).astype(int)
+    path = Path(csv_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Results file not found: {csv_path}")
     
-    # Map string labels to categorical for GLM if needed, but statsmodels handles strings in formula
-    # Ensure we have the specific columns expected by the analysis
-    required_cols = ['issue_id', 'model_size', 'strategy', 'pass_status']
-    if not all(col in df.columns for col in required_cols):
-        raise ValueError(f"Results CSV missing required columns. Found: {df.columns.tolist()}, Expected: {required_cols}")
-    
+    df = pd.read_csv(csv_path)
+    logger.info(f"Loaded {len(df)} rows from {csv_path}")
     return df
 
 def prepare_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Prepare data for GLM.
-    Ensures model_size and strategy are treated as categorical factors.
+    Prepare features for GLM analysis.
+    
+    Ensures categorical variables are properly encoded and
+    creates necessary interaction terms.
+    
+    Args:
+        df: Raw results DataFrame.
+        
+    Returns:
+        DataFrame with prepared features.
     """
-    df = df.copy()
-    df['model_size'] = df['model_size'].astype('category')
+    # Ensure required columns exist
+    required_cols = ['strategy', 'model_size', 'pass_at_1']
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+    
+    # Convert categorical columns to category dtype for proper encoding
     df['strategy'] = df['strategy'].astype('category')
+    df['model_size'] = df['model_size'].astype('category')
+    
+    # Create binary target variable (1 if pass, 0 otherwise)
+    # Assuming pass_at_1 is already 0 or 1, but ensure it's numeric
+    df['target'] = pd.to_numeric(df['pass_at_1'], errors='coerce').fillna(0).astype(int)
+    
     return df
 
-def fit_firth_glm(df: pd.DataFrame) -> Optional[Dict[str, Any]]:
+def fit_firth_glm(df: pd.DataFrame) -> Optional[GLM]:
     """
-    Attempt to fit a Firth Penalized Likelihood GLM.
-    Note: statsmodels does not have a native 'Firth' family in standard GLM.
-    We attempt standard GLM first; if it fails, we try robust fitting or return None.
-    For this implementation, we use standard GLM with binomial family.
-    If convergence fails, we catch it and return None to signal fallback or error.
+    Fit a GLM with Firth's penalized likelihood to handle separation issues.
+    
+    Args:
+        df: Prepared DataFrame with features.
+        
+    Returns:
+        Fitted GLM model or None if fitting fails.
     """
     try:
-        # Formula: pass_status ~ model_size * strategy
-        # This tests main effects and interaction
-        formula = "pass_status ~ C(model_size) * C(strategy)"
-        model = GLM.from_formula(formula, data=df, family=Binomial())
+        # Create formula for main effects
+        formula = "target ~ C(strategy) + C(model_size)"
+        
+        # Fit with binomial family
+        model = GLM(
+            df['target'],
+            pd.get_dummies(df[['strategy', 'model_size']], drop_first=True),
+            family=families.Binomial()
+        )
         result = model.fit()
-        return {
-            "model": result,
-            "converged": result.mle_retvals.get('converged', False),
-            "params": result.params.to_dict(),
-            "pvalues": result.pvalues.to_dict()
-        }
+        return result
     except Exception as e:
-        logger.warning(f"Firth/Standard GLM fit failed: {e}")
+        logger.warning(f"Firth GLM fitting failed: {e}")
         return None
 
-def fit_glm_with_interaction(df: pd.DataFrame) -> Optional[Dict[str, Any]]:
+def fit_glm_with_interaction(df: pd.DataFrame) -> Optional[GLM]:
     """
-    Fit a standard GLM with interaction terms.
+    Fit a GLM with interaction terms between strategy and model size.
+    
+    Args:
+        df: Prepared DataFrame with features.
+        
+    Returns:
+        Fitted GLM model with interaction terms.
     """
     try:
-        formula = "pass_status ~ C(model_size) * C(strategy)"
-        model = GLM.from_formula(formula, data=df, family=Binomial())
+        # Formula with interaction term
+        formula = "target ~ C(strategy) * C(model_size)"
+        
+        # Create design matrix with interaction
+        X = pd.get_dummies(df[['strategy', 'model_size']], drop_first=True)
+        
+        # Add interaction terms manually
+        strategy_cols = [c for c in X.columns if 'strategy' in c]
+        model_cols = [c for c in X.columns if 'model_size' in c]
+        
+        for s_col in strategy_cols:
+            for m_col in model_cols:
+                X[f'{s_col}:{m_col}'] = X[s_col] * X[m_col]
+        
+        model = GLM(
+            df['target'],
+            X,
+            family=families.Binomial()
+        )
         result = model.fit()
-        return {
-            "model": result,
-            "converged": result.mle_retvals.get('converged', False),
-            "params": result.params.to_dict(),
-            "pvalues": result.pvalues.to_dict(),
-            "summary": str(result.summary())
-        }
+        return result
     except Exception as e:
-        logger.error(f"GLM with interaction failed: {e}")
-        return None
+        logger.error(f"GLM with interaction fitting failed: {e}")
+        raise GLMConvergenceError(f"GLM fitting failed: {e}")
 
 def perform_post_hoc_analysis(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Perform post-hoc pairwise comparison.
-    Requirement: Explicitly calculate the difference in Pass@1 rates ONLY between:
-    1. 1B-model (high-fidelity) vs 7B-model (baseline)
+    Perform post-hoc pairwise comparisons between model/strategy combinations.
     
-    We filter the dataframe to these two specific groups and calculate:
-    - Pass@1 for 1B-HighFidelity (mean of pass_status where model_size=1B AND strategy in [tfidf, diff, semantic])
-    - Pass@1 for 7B-Baseline (mean of pass_status where model_size=7B AND strategy=baseline)
+    Specifically calculates the difference in Pass@1 rates between:
+    - 1B-model (high-fidelity) vs 7B-model (baseline) for each strategy
     
-    Since we need a p-value for the difference between two proportions (or groups),
-    and the requirement asks for a specific pair comparison with p < 0.05 and delta >= 0.05,
-    we will perform a two-proportion z-test or a t-test on the means if sample sizes are large enough.
+    Identifies strategies where the margin is >= 5% with p < 0.05.
     
-    However, the task asks for "post-hoc" logic typically associated with the GLM.
-    Since we are comparing specific groups (1B-HF vs 7B-Baseline), we can extract the means
-    and perform a statistical test (e.g., scipy.stats.ttest_ind or proportion_ztest).
-    
-    Let's implement a robust comparison:
-    1. Identify 1B-HF group (1B + any high-fidelity strategy)
-    2. Identify 7B-Baseline group (7B + baseline strategy)
-    3. Calculate pass rates (proportions).
-    4. Perform a two-sample z-test for proportions to get p-value.
+    Args:
+        df: Prepared DataFrame with results.
+        
+    Returns:
+        Dictionary containing comparison results and significant findings.
     """
-    results = {
-        "comparison": "1B-HighFidelity vs 7B-Baseline",
-        "condition_met": False,
-        "entries": []
+    logger.info("Performing post-hoc pairwise analysis...")
+    
+    # Group by strategy and model_size to calculate Pass@1 rates
+    grouped = df.groupby(['strategy', 'model_size']).agg({
+        'target': ['mean', 'count']
+    }).reset_index()
+    grouped.columns = ['strategy', 'model_size', 'pass_rate', 'n_samples']
+    
+    # Pivot to get comparison data
+    pivot = grouped.pivot(index='strategy', columns='model_size', values='pass_rate')
+    
+    comparisons = []
+    significant_findings = []
+    
+    # Compare 1B (high-fidelity) vs 7B (baseline) for each strategy
+    # Note: Adjust column names based on actual data (e.g., '1B', '7B', '1b', '7b')
+    model_cols = [c for c in pivot.columns if str(c).lower() in ['1b', '7b', '1', '7']]
+    
+    if len(model_cols) < 2:
+        logger.warning(f"Could not find both 1B and 7B model columns. Found: {model_cols}")
+        return {
+            'comparisons': [],
+            'significant_findings': [],
+            'error': "Missing required model size columns for comparison"
+        }
+    
+    # Identify which is 1B and which is 7B
+    model_1b_col = next((c for c in model_cols if str(c).lower() in ['1b', '1']), None)
+    model_7b_col = next((c for c in model_cols if str(c).lower() in ['7b', '7']), None)
+    
+    if not model_1b_col or not model_7b_col:
+        logger.warning(f"Could not identify 1B and 7B columns. Found: {model_cols}")
+        return {
+            'comparisons': [],
+            'significant_findings': [],
+            'error': "Could not identify 1B and 7B model columns"
+        }
+    
+    for strategy in pivot.index:
+        try:
+            rate_1b = pivot.loc[strategy, model_1b_col]
+            rate_7b = pivot.loc[strategy, model_7b_col]
+            
+            diff = rate_1b - rate_7b
+            diff_pct = diff * 100
+            
+            # Calculate p-value using two-proportion z-test
+            # Get sample sizes
+            n_1b = grouped[(grouped['strategy'] == strategy) & (grouped['model_size'] == model_1b_col)]['n_samples'].values
+            n_7b = grouped[(grouped['strategy'] == strategy) & (grouped['model_size'] == model_7b_col)]['n_samples'].values
+            
+            if len(n_1b) == 0 or len(n_7b) == 0:
+                continue
+            
+            n_1b, n_7b = n_1b[0], n_7b[0]
+            
+            # Two-proportion z-test
+            p_1b = rate_1b
+            p_7b = rate_7b
+            p_pool = (p_1b * n_1b + p_7b * n_7b) / (n_1b + n_7b)
+            
+            if p_pool == 0 or p_pool == 1:
+                p_value = 1.0
+            else:
+                se = np.sqrt(p_pool * (1 - p_pool) * (1/n_1b + 1/n_7b))
+                if se == 0:
+                    p_value = 1.0
+                else:
+                    z_stat = (p_1b - p_7b) / se
+                    p_value = 2 * (1 - stats.norm.cdf(abs(z_stat)))
+            
+            comparison = {
+                'strategy': strategy,
+                'model_1b_rate': float(rate_1b),
+                'model_7b_rate': float(rate_7b),
+                'difference': float(diff),
+                'difference_pct': float(diff_pct),
+                'p_value': float(p_value),
+                'significant_at_0.05': p_value < 0.05,
+                'margin_ge_5_pct': abs(diff_pct) >= 5.0
+            }
+            
+            comparisons.append(comparison)
+            
+            # Check if this meets the criteria: margin >= 5% AND p < 0.05
+            if abs(diff_pct) >= 5.0 and p_value < 0.05:
+                significant_findings.append({
+                    'strategy': strategy,
+                    'comparison': f"1B (High-Fidelity) vs 7B (Baseline)",
+                    'difference_pct': float(diff_pct),
+                    'p_value': float(p_value),
+                    'interpretation': f"Strategy '{strategy}' shows a {diff_pct:.1f}% {'improvement' if diff > 0 else 'decrease'} with 1B high-fidelity over 7B baseline (p={p_value:.4f})"
+                })
+            
+        except Exception as e:
+            logger.warning(f"Error comparing strategy {strategy}: {e}")
+            continue
+    
+    return {
+        'comparisons': comparisons,
+        'significant_findings': significant_findings,
+        'summary': f"Found {len(significant_findings)} strategies with >=5% margin and p<0.05"
     }
 
-    # Filter groups
-    # High fidelity strategies are: 'tfidf', 'diff_aware', 'semantic' (based on context_processors)
-    # Baseline is 'baseline' (or 'naive')
+def run_glm_analysis(csv_path: str, output_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Run the complete GLM analysis pipeline.
     
-    hf_strategies = ['tfidf', 'diff_aware', 'semantic', 'tfidf', 'diff', 'semantic'] # Handle potential naming variations
-    # Normalize strategy names to be safe
-    df['strategy_clean'] = df['strategy'].astype(str).str.lower().str.replace('-', '_').str.replace(' ', '_')
-    
-    group_1b_hf = df[
-        (df['model_size'].astype(str).str.contains('1B|1|small', case=False, na=False)) & 
-        (df['strategy_clean'].isin(['tfidf', 'diff_aware', 'semantic', 'diff']))
-    ]
-    
-    group_7b_base = df[
-        (df['model_size'].astype(str).str.contains('7B|7|large', case=False, na=False)) & 
-        (df['strategy_clean'].isin(['baseline', 'naive', 'first_n']))
-    ]
-
-    if len(group_1b_hf) == 0 or len(group_7b_base) == 0:
-        logger.warning("One of the comparison groups is empty. Cannot compute statistics.")
-        return results
-
-    # Calculate pass rates
-    n1 = len(group_1b_hf)
-    x1 = group_1b_hf['pass_status'].sum()
-    p1 = x1 / n1 if n1 > 0 else 0.0
-
-    n2 = len(group_7b_base)
-    x2 = group_7b_base['pass_status'].sum()
-    p2 = x2 / n2 if n2 > 0 else 0.0
-
-    delta = p1 - p2
-    
-    # Two-proportion z-test
-    # H0: p1 = p2
-    # H1: p1 != p2
-    try:
-        from statsmodels.stats.proportion import proportions_ztest
-        count = [x1, x2]
-        nobs = [n1, n2]
-        stat, pval = proportions_ztest(count, nobs, alternative='two-sided')
+    Args:
+        csv_path: Path to the merged results CSV.
+        output_path: Optional path to save results as JSON.
         
-        logger.info(f"Pass@1 1B-HF: {p1:.4f} ({n1} samples)")
-        logger.info(f"Pass@1 7B-Baseline: {p2:.4f} ({n2} samples)")
-        logger.info(f"Delta: {delta:.4f}, P-value: {pval:.6f}")
-
-        entry = {
-            "strategy_pair": "1B-HighFidelity vs 7B-Baseline",
-            "pass_rate_1b_hf": float(p1),
-            "pass_rate_7b_baseline": float(p2),
-            "delta": float(delta),
-            "p_value": float(pval),
-            "n_1b_hf": int(n1),
-            "n_7b_baseline": int(n2),
-            "margin_met": delta >= 0.05,
-            "significance_met": pval < 0.05
-        }
-
-        results["entries"].append(entry)
-        
-        if delta >= 0.05 and pval < 0.05:
-            results["condition_met"] = True
-            results["summary"] = f"Significant improvement of {delta:.2%} found with p={pval:.4f}."
-        else:
-            results["summary"] = f"No significant difference (delta={delta:.2%}, p={pval:.4f}) meeting criteria."
-
-    except Exception as e:
-        logger.error(f"Statistical test failed: {e}")
-        results["error"] = str(e)
-
+    Returns:
+        Dictionary containing all analysis results.
+    """
+    logger.info(f"Starting GLM analysis on {csv_path}")
+    
+    # Load and prepare data
+    df = load_results_data(csv_path)
+    df = prepare_features(df)
+    
+    # Fit models
+    glm_main = fit_firth_glm(df)
+    glm_interaction = fit_glm_with_interaction(df)
+    
+    # Post-hoc analysis
+    post_hoc_results = perform_post_hoc_analysis(df)
+    
+    results = {
+        'data_summary': {
+            'n_observations': len(df),
+            'n_strategies': df['strategy'].nunique(),
+            'n_model_sizes': df['model_size'].nunique(),
+            'strategies': list(df['strategy'].unique()),
+            'model_sizes': list(df['model_size'].unique())
+        },
+        'glm_main_effects': {
+            'converged': glm_main is not None,
+            'coefficient_summary': glm_main.summary2().as_text() if glm_main else None
+        },
+        'glm_interaction': {
+            'converged': glm_interaction is not None,
+            'coefficient_summary': glm_interaction.summary2().as_text() if glm_interaction else None,
+            'interaction_significant': glm_interaction.pvalues.filter(like=':') < 0.05 if glm_interaction else None
+        },
+        'post_hoc_analysis': post_hoc_results
+    }
+    
+    # Save results if output path provided
+    if output_path:
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_file, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+        logger.info(f"Results saved to {output_path}")
+    
     return results
 
-def run_glm_analysis(input_path: str, output_dir: str = "data/analysis") -> None:
-    """
-    Main entry point for GLM analysis.
-    """
-    os.makedirs(output_dir, exist_ok=True)
-    output_path = os.path.join(output_dir, "post_hoc_results.json")
-
-    logger.info(f"Loading results from {input_path}")
-    df = load_results_data(input_path)
-    
-    logger.info("Preparing features")
-    df = prepare_features(df)
-
-    logger.info("Performing post-hoc analysis (1B-HF vs 7B-Baseline)")
-    results = perform_post_hoc_analysis(df)
-
-    logger.info(f"Writing results to {output_path}")
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-
-    logger.info("Analysis complete.")
-
 def main():
-    parser = argparse.ArgumentParser(description="Run GLM and Post-Hoc Analysis")
-    parser.add_argument("--input", type=str, default="data/results.csv", help="Path to merged results CSV")
-    parser.add_argument("--output", type=str, default="data/analysis", help="Output directory for JSON results")
+    """Main entry point for GLM analysis script."""
+    parser = argparse.ArgumentParser(description="Run GLM analysis on experimental results")
+    parser.add_argument(
+        '--input', '-i',
+        type=str,
+        default='data/results.csv',
+        help='Path to merged results CSV file'
+    )
+    parser.add_argument(
+        '--output', '-o',
+        type=str,
+        default='data/analysis/glm_results.json',
+        help='Path to save analysis results JSON'
+    )
+    
     args = parser.parse_args()
+    
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    try:
+        results = run_glm_analysis(args.input, args.output)
+        print(json.dumps(results['post_hoc_analysis'], indent=2, default=str))
+    except Exception as e:
+        logger.error(f"GLM analysis failed: {e}")
+        sys.exit(1)
 
-    run_glm_analysis(args.input, args.output)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

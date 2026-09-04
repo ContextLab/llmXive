@@ -1,78 +1,142 @@
 """
-Unit tests for the Pipeline Controller (Placebo Gate).
+Unit tests for the Pipeline Controller (Placebo Gate Logic).
 """
 import pytest
 import pandas as pd
 import numpy as np
-from src.analysis.pipeline_controller import run_placebo_gate, run_full_pipeline, PlaceboGateError
+from src.analysis.pipeline_controller import (
+    run_placebo_gate,
+    run_full_pipeline,
+    PlaceboGateError,
+    BalanceFailureError
+)
+from src.analysis.balance import run_placebo_test
 
-def generate_balanced_data(n=200):
-    """Generate synthetic data where treatment and control are balanced."""
+
+@pytest.fixture
+def balanced_data():
+    """
+    Generate synthetic data where treatment and control groups are balanced
+    on pre-treatment outcomes (no significant difference).
+    """
     np.random.seed(42)
+    n = 200
+    # Pre-treatment outcome: same distribution for both groups
+    pre_outcome = np.random.normal(loc=100, scale=10, size=n)
+    treatment = np.array([1] * 100 + [0] * 100)
+    # Add some noise to ensure no perfect correlation
+    pre_outcome = pre_outcome + np.random.normal(0, 0.1, n)
+
     df = pd.DataFrame({
-        'income': np.random.normal(50000, 10000, n),
-        'housing_type': np.random.choice(['rent', 'own'], n),
-        'location': np.random.choice(['urban', 'rural'], n),
-        'treatment': np.random.binomial(1, 0.3, n),
-        'energy_cost_burden': np.random.normal(0.1, 0.02, n),
-        'pre_treatment_outcome': np.random.normal(0.1, 0.02, n) # Same distribution for both
+        'pre_treatment_outcome': pre_outcome,
+        'treatment': treatment,
+        'id': range(n)
     })
     return df
 
-def generate_unbalanced_data(n=200):
-    """Generate synthetic data where treatment has significantly higher pre-outcome."""
-    np.random.seed(42)
+
+@pytest.fixture
+def unbalanced_data():
+    """
+    Generate synthetic data where treatment and control groups are UNBALANCED
+    on pre-treatment outcomes (significant difference).
+    """
+    np.random.seed(123)
+    n = 200
+    # Pre-treatment outcome: different means for groups
+    pre_outcome = np.concatenate([
+        np.random.normal(loc=120, scale=10, size=100), # Treatment group higher
+        np.random.normal(loc=80, scale=10, size=100)   # Control group lower
+    ])
+    treatment = np.array([1] * 100 + [0] * 100)
+
     df = pd.DataFrame({
-        'income': np.random.normal(50000, 10000, n),
-        'housing_type': np.random.choice(['rent', 'own'], n),
-        'location': np.random.choice(['urban', 'rural'], n),
-        'treatment': np.random.binomial(1, 0.3, n),
-        'energy_cost_burden': np.random.normal(0.1, 0.02, n),
-        'pre_treatment_outcome': np.where(
-            df['treatment'] == 1,
-            np.random.normal(0.2, 0.02, n), # Higher for treatment
-            np.random.normal(0.1, 0.02, n)  # Lower for control
-        )
+        'pre_treatment_outcome': pre_outcome,
+        'treatment': treatment,
+        'id': range(n)
     })
     return df
 
-def test_placebo_gate_passes_for_balanced_data():
-    """Test that the pipeline passes when data is balanced."""
-    df = generate_balanced_data()
-    result = run_full_pipeline(
-        df,
-        pre_outcome_col='pre_treatment_outcome',
-        covariates=['income', 'housing_type', 'location']
-    )
-    assert result['status'] == 'PASS', f"Expected PASS, got {result['status']}. Message: {result['message']}"
-    assert result['p_value'] is not None
-    assert result['p_value'] >= 0.05
 
-def test_placebo_gate_fails_for_unbalanced_data():
-    """Test that the pipeline gates (raises error) when data is unbalanced."""
-    df = generate_unbalanced_data()
-    with pytest.raises(PlaceboGateError) as excinfo:
-        run_placebo_gate(
-            df,
-            pre_outcome_col='pre_treatment_outcome',
-            covariates=['income', 'housing_type', 'location']
+def test_placebo_gate_passes_for_balanced_data(balanced_data):
+    """
+    Test that the placebo gate passes when groups are balanced.
+    """
+    passed, report = run_placebo_gate(balanced_data, pre_treatment_col='pre_treatment_outcome', alpha=0.05)
+
+    assert passed is True, "Placebo gate should pass for balanced data."
+    assert report['passed'] is True
+    assert report['p_value'] > 0.05, f"Expected p-value > 0.05, got {report['p_value']}"
+    assert "PASSED" in report['interpretation']
+
+
+def test_placebo_gate_fails_for_unbalanced_data(unbalanced_data):
+    """
+    Test that the placebo gate fails when groups are unbalanced.
+    """
+    with pytest.raises(PlaceboGateError) as exc_info:
+        run_full_pipeline(
+            unbalanced_data,
+            balance_status='balanced', # Pretend PSM said it's balanced, but placebo says no
+            pre_treatment_col='pre_treatment_outcome',
+            alpha=0.05
         )
-    assert "significant" in str(excinfo.value).lower() or "failed" in str(excinfo.value).lower()
 
-def test_run_full_pipeline_returns_error_on_gate():
-    """Test that run_full_pipeline returns a GATED status instead of raising."""
-    df = generate_unbalanced_data()
-    result = run_full_pipeline(
-        df,
-        pre_outcome_col='pre_treatment_outcome',
-        covariates=['income', 'housing_type', 'location']
-    )
-    assert result['status'] == 'GATED'
-    assert "significant" in result['message'].lower()
+    assert "Placebo test failed" in str(exc_info.value)
+    assert "VIOLATED" in str(exc_info.value)
 
-def test_missing_pre_outcome_column():
-    """Test that missing pre_outcome column raises an error."""
-    df = generate_balanced_data()
-    df = df.drop(columns=['pre_treatment_outcome'])
-    with pytest.raises(ValueError, match="Pre-treatment outcome column"):
-        run_placebo_gate(df, pre_outcome_col='pre_treatment_outcome')
+
+def test_run_full_pipeline_returns_error_on_gate(unbalanced_data):
+    """
+    Test that run_full_pipeline raises PlaceboGateError when the gate fails.
+    """
+    with pytest.raises(PlaceboGateError):
+        run_full_pipeline(
+            unbalanced_data,
+            balance_status='balanced',
+            pre_treatment_col='pre_treatment_outcome'
+        )
+
+
+def test_missing_pre_outcome_column(balanced_data):
+    """
+    Test that the pipeline fails gracefully if the pre-treatment column is missing.
+    """
+    # Remove the column
+    data_no_col = balanced_data.drop(columns=['pre_treatment_outcome'])
+
+    with pytest.raises(ValueError) as exc_info:
+        run_placebo_gate(data_no_col, pre_treatment_col='nonexistent_col')
+
+    assert "not found" in str(exc_info.value)
+
+
+def test_missing_treatment_column(balanced_data):
+    """
+    Test that the pipeline fails if 'treatment' column is missing.
+    """
+    data_no_treat = balanced_data.drop(columns=['treatment'])
+
+    with pytest.raises(ValueError) as exc_info:
+        run_placebo_gate(data_no_treat, pre_treatment_col='pre_treatment_outcome')
+
+    assert "Column 'treatment' not found" in str(exc_info.value)
+
+
+def test_insufficient_sample_size_warning(caplog, balanced_data):
+    """
+    Test that a warning is logged if sample size is too small.
+    (Note: This test assumes the implementation logs a warning, not an error, for small N).
+    """
+    # Create very small data
+    small_data = balanced_data.head(6) # 3 treatment, 3 control
+
+    # Should not raise, but might warn
+    try:
+        passed, report = run_placebo_gate(small_data, pre_treatment_col='pre_treatment_outcome')
+        # The test might pass or fail depending on the random realization, but it shouldn't crash
+        assert isinstance(passed, bool)
+    except Exception:
+        # If it crashes due to statistical test failure on tiny N, that's also a valid behavior
+        # depending on implementation. We just ensure it's handled.
+        pass

@@ -1,31 +1,39 @@
 """
-Script to create the required directory structure for the project.
-This ensures data/raw, data/processed, data/split, and artifact directories exist.
+Setup script to create required data subdirectories for the project.
+Creates: data/raw, data/processed, data/split
 """
 import os
 from pathlib import Path
 
 def main():
-    """Create the project directory structure."""
-    project_root = Path("projects/PROJ-240-predicting-the-impact-of-cold-work-on-re")
-    
-    # Create root directories
-    (project_root / "code").mkdir(parents=True, exist_ok=True)
-    (project_root / "tests").mkdir(parents=True, exist_ok=True)
-    (project_root / "data").mkdir(parents=True, exist_ok=True)
-    (project_root / "artifacts").mkdir(parents=True, exist_ok=True)
-    
-    # Create data subdirectories
-    (project_root / "data" / "raw").mkdir(parents=True, exist_ok=True)
-    (project_root / "data" / "processed").mkdir(parents=True, exist_ok=True)
-    (project_root / "data" / "split").mkdir(parents=True, exist_ok=True)
-    
-    # Create artifact subdirectories
-    (project_root / "artifacts" / "models").mkdir(parents=True, exist_ok=True)
-    (project_root / "artifacts" / "reports").mkdir(parents=True, exist_ok=True)
-    (project_root / "artifacts" / "figures").mkdir(parents=True, exist_ok=True)
-    
-    print("Directory structure created successfully.")
+    """Create the required data directory structure."""
+    # Define the base project root
+    # Assuming the script is run from the project root or the code directory
+    # We use the parent of this file's directory to find the project root
+    current_dir = Path(__file__).resolve().parent
+    project_root = current_dir.parent
+
+    data_root = project_root / "data"
+
+    # Define required subdirectories
+    required_dirs = [
+        data_root / "raw",
+        data_root / "processed",
+        data_root / "split"
+    ]
+
+    # Create directories if they don't exist
+    created_count = 0
+    for dir_path in required_dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {dir_path}")
+
+    print(f"Data directory setup complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())
