@@ -82,7 +82,9 @@ results/
 |-----------|------------|-------------------------------------|
 | Linear Mixed-Effects Model (LMM) | Required by FR-002 and Constitution Principle VII to control for field heterogeneity. | Simple linear regression would ignore clustering by `field` and `original_study_id`, violating statistical rigor. |
 | Residual Power Outcome | Required to avoid tautology (Power = f(d, N)). | Modeling raw Power while including d and N as covariates creates a mathematically unstable model. |
-| Permutation Test (10k) | Required by Constitution Principle VII to validate against model misspecification. | Parametric assumptions alone are insufficient for the "skeptical peer reviewer" scenario (US-2). |
+| Permutation Test (large-scale)
+
+The research question focuses on assessing the statistical significance of observed patterns through randomization. The method involves a permutation test with a large number of iterations to approximate the null distribution, ensuring robust p-value estimation without parametric assumptions. References: (DOI/arXiv/author-year). | Required by Constitution Principle VII to validate against model misspecification. | Parametric assumptions alone are insufficient for the "skeptical peer reviewer" scenario (US-2). |
 | Sensitivity Sweep | Required by FR-005 to address alpha-threshold dependency. | Single alpha test fails to satisfy SC-003 stability measurement. |
 | DerSimonian-Laird Aggregation | Required by FR-006 to combine field-specific slopes. | Simple averaging ignores heterogeneity between fields. |
 | Input Permutation (FR-007) | Required to validate that drift is not an artifact of input distribution changes. | Year permutation (FR-004) only tests year drift; input permutation tests the stability of the relationship between inputs and drift. |
