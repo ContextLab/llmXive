@@ -22,7 +22,7 @@
 
 ## Phase 0: Research (Preparatory)
 
-- [X] T001b Define the "Spatial Organization" concept in `research.md`. **Requirement**: Must explicitly define the spatial organization mechanism as per FR-001. **Output**: Updated `research.md` under the section header `## Conceptual Framework`. **Note**: This task defines the spatial organization mechanism required for conceptual clarity; implementation details are deferred. **Conceptual Note**: While analogies like "Jacquard-loom" or "Traversal Sequence" may be used in documentation for clarity, they are NOT implementation requirements and must not be confused with the FR-001 implementation. **Specific Content**: The definition must reference FR-001 explicitly in the first sentence and state that the mechanism uses a "Learned Embedding Lookup" based on content, not a deterministic hash. **Status**: Definition Complete (Implementation Deferred).
+- [X] T001b Define the "Spatial Organization" concept in `research.md`. **Requirement**: Must explicitly define the spatial organization mechanism as per FR-001. **Output**: Updated `research.md` under the section header `## Conceptual Framework`. **Note**: This task defines the spatial organization mechanism required for conceptual clarity; implementation details are deferred. **Specific Content**: The definition must reference FR-001 explicitly in the first sentence and state that the mechanism uses a "Learned Embedding Lookup" based on content, not a deterministic hash. **Status**: Definition Complete (Implementation Deferred).
 
 ---
 
@@ -45,11 +45,12 @@
 
 - [X] T004 [P] Implement dataset download and verification script (`code/data/download.py`) for the three permitted datasets:
  - bAbI Task via `datasets.load_dataset("babi", "task3_10k")`
- - LAMBADA via `datasets.load_dataset("lambada")`
+ - LAMBADA via `datasets.load_dataset("cse-lambada")`
  - Story Cloze Test via `datasets.load_dataset("story_cloze")`
  - Each download must compute and store a cryptographic hash checksum in `data/raw/checksums.json`.
 - [X] T005a [P] Implement memory monitoring utility (`code/training/memory_monitor.py`) to track RSS and trigger batch‑size reduction. **Logic**: Must measure process RSS after each batch. If RSS > 6.0 GB, signal the trainer to reduce batch size. **Output**: `memory_log.json` with peak RSS per batch. **Constraint**: Must not handle capping logic; only monitoring and signaling.
-- [X] T005b [P] Implement dataset capping logic (`code/data/capper.py`) to cap the training dataset to the **maximum contiguous subset that fits within 6 GB RAM** (FR‑010) if RSS > 6 GB at batch size 4. **Algorithm**: Binary search on sample count to find the largest N such that RSS < 6GB at batch size 4. **Fallback**: If even a single sample exceeds memory, the system MUST raise a `RuntimeError` with a clear message; it must not return an empty dataset or loop. **Output**: Log `subsampling_rate` and `cap_reason` in `training_run.schema.yaml`. **Dependency**: Must be callable by T014c. **Deviation Note**: This task implements a "maximum contiguous subset" logic as a necessary adaptation to Principle VI (Computational Constraints) because a fixed percentage is infeasible without knowing dataset size.
+- [X] T005b [P] Implement dataset capping algorithm (`code/data/capper.py`) to cap the training dataset to the **maximum contiguous subset that fits within 6 GB RAM** (FR‑010) if RSS > 6 GB at batch size 4. **Algorithm**: Binary search on sample count to find the largest N such that RSS < 6GB at batch size 4. **Search Bounds**: Min=1, Max=total_samples. **Fallback**: If even a single sample exceeds memory, the system MUST raise a `RuntimeError` with a clear message; it must not return an empty dataset or loop. **Output**: Log `subsampling_rate` and `cap_reason` in `training_run.schema.yaml`. **Dependency**: Must be callable by T014c. **Deviation Note**: This task implements a "maximum contiguous subset" logic as a necessary adaptation to Principle VI (Computational Constraints) because a fixed percentage is infeasible without knowing dataset size. The deviation MUST be logged.
+- [X] T005c [P] Integrate dataset capping logic (`code/data/capper.py` from T005b) into the training loop. **Logic**: If RSS > 6 GB at batch size 4, wrap the dataset loader to yield only the maximum contiguous subset fitting in 6GB. **Dependency**: Must call T005b.
 - [X] T006 [P] Implement model loading utilities (`code/models/loading.py`) that provide functions to load:
  - `gpt2-medium` (with 4‑bit quantization) when RAM permits.
  - **Behavior**: `load_gpt2_medium()` MUST raise an OOM exception if memory is insufficient; it MUST NOT handle fallback internally. The fallback logic (dataset capping) resides in the orchestrator (T014c). **Note**: DistilGPT2 is NOT implemented as a fallback to preserve the experimental subject.
@@ -85,15 +86,15 @@
 ### Implementation for User Story 1
 
 - [X] T012a [US1] Implement **Non-Spatial Baseline** wrapper (`code/models/base.py`). **Logic**: This task implements the standard non-spatial baseline (GPT-2 medium) without any external memory buffer. It serves as the primary control for the spatial effect. **Constraint**: Must NOT include a memory buffer. If OOM occurs, the system must cap the dataset as per FR-010. **Dependency**: T006. **Note**: This is the baseline required to isolate the "external memory benefit" confound.
-- [X] T012b [US1] Implement **Non-Spatial External Memory Buffer** control variant (`code/models/base.py`). **Logic**: This task implements the control variant with a non-spatial external memory buffer (no spatial grid) to isolate the "external memory benefit" confound as per US-1. **Constraint**: Must NOT use spatial coordinates. If OOM occurs, the system must cap the dataset as per FR-010. **Dependency**: T006. **Note**: This task is distinct from T012a.
+- [X] T012b [US1] Implement **Non-Spatial External Memory Buffer** control variant (`code/models/base.py`). **Logic**: This task implements the control variant with a non-spatial external memory buffer (no spatial grid) to isolate the "external memory benefit" confound as per US-1. **Constraint**: Must NOT use spatial coordinates. If OOM occurs, the system must cap the dataset as per FR-010. **Dependency**: T006. **Note**: This task is a distinct implementation (subclass or separate class) from T012a to ensure the 'buffer' is the only variable.
 - [X] T014a [US1] Implement training loop skeleton (`code/training/loop.py`) with basic forward/backward pass. **Dependency**: Must call `code/models/loading.py` (T006) and `code/models/spatial.py` (T013/T036).
 - [X] T014b [US1] Integrate memory monitoring (`code/training/memory_monitor.py` from T005a) into the training loop. **Logic**: Must measure RSS after each batch and signal batch size reduction if RSS > 6.0 GB.
 - [X] T014c [US1] Integrate dataset capping logic (`code/data/capper.py` from T005b) into the training loop. **Logic**: If RSS > 6 GB at batch size 4, wrap the dataset loader to yield only the maximum contiguous subset fitting in 6GB. **Dependency**: Must call T005b.
 - [X] T014d [US1] Implement detailed logging of memory usage and batch‑size decisions (FR‑003, FR‑010). **Dependency**: Must run after T014b and T014c.
-- [ ] T015 [P] [US1] Implement evaluation script (`code/evaluation/metrics.py`) to compute exact‑match recall per seed and store results in `artifacts/results/recall_accuracy.json`. **Schema**: `{ "seeds": [int], "accuracies": [float], "mean": float, "std": float }`. **Constraint**: Must use a range of seeds. **Note**: This task is a consumer of T014's output artifacts (model checkpoints). <!-- FAILED: unspecified -->
-- [X] T016a [US1] Implement download and model loading orchestration (`code/main.py` part 1). **Logic**: Must handle dataset fetching and model loading for spatial, non-spatial baseline (T012a), and non-spatial buffer control (T012b) variants.
-- [X] T016b [US1] Implement training orchestration (`code/main.py` part 2). **Logic**: Must run T0 across multiple seeds for all three variants.
-- [X] T016c [US1] Implement evaluation and reporting orchestration (`code/main.py` part 3). **Logic**: Must run T015, compute hyperparameter logs, verify runtime ≤ 5 hours (log deviation to `run_summary.json` if exceeded), and generate `artifacts/results/run_summary.json`. **Dependency**: Must run after T016b. **Content**: Explicitly note the 6 GB RAM threshold, the logic used for capping (**maximum contiguous subset** if RSS > 6GB at batch 4), and any deviations. **Failure Mode**: If runtime > 5 hours, the script MUST abort, log the violation, and exit with a non-zero code. **Correction**: Removed `runtime_report.json` generation; runtime status is logged to `run_summary.json`.
+- [X] T015 [P] [US1] Implement evaluation script (`code/evaluation/metrics.py`) to compute exact‑match recall per seed and store results in `artifacts/results/recall_accuracy.json`. **Algorithm**: 1) Iterate over random seeds across multiple trials. 2) Load trained checkpoint from `artifacts/models/seed_{seed}/checkpoint`. 3) Run inference on test set. 4) Compute exact-match recall. 5) Aggregate results. **Schema**: `{ "seeds": [int], "accuracies": [float], "mean": float, "std": float }`. **Constraint**: Must use seeds -4. **Dependency**: T016b (trained models). **Note**: This task is a consumer of T016b's output artifacts (model checkpoints).
+- [X] T016a [US1] Implement download and model loading orchestration (`code/main.py` entry point `def main_fetch()`). **Logic**: Must handle dataset fetching and model loading for spatial, non-spatial baseline (T012a), and non-spatial buffer control (T012b) variants.
+- [X] T016b [US1] Implement training orchestration (`code/main.py` entry point `def main_train()`). **Logic**: Must run T014a-d across multiple seeds for all three variants. **Constraint**: Must monitor runtime using `time.time()` and abort if > 5 hours. **Failure Mode**: If timeout, exit with code 1 and log "Runtime limit exceeded: 5 hours".
+- [X] T016c [US1] Implement evaluation and reporting orchestration (`code/main.py` entry point `def main_eval()`). **Logic**: Must run T015, compute hyperparameter logs, verify runtime ≤ 5 hours (log deviation to `run_summary.json` if exceeded), and generate `artifacts/results/run_summary.json`. **Dependency**: Must run after T016b and T015. **Content**: Explicitly note the 6 GB RAM threshold, the logic used for capping (**maximum contiguous subset** if RSS > 6GB at batch 4), and any deviations. **Failure Mode**: If runtime > 5 hours, the script MUST abort, log the violation, and exit with a non-zero code. **Correction**: Removed `runtime_report.json` generation; runtime status is logged to `run_summary.json`. **Requirement**: Must log the *actual* runtime duration in `run_summary.json` before aborting to verify SC-007 compliance.
 - [X] T017 [US1] Log hyperparameters and memory usage per run (including final batch size and any dataset capping) in `artifacts/results/hyperparams_log.json`. **Dependency**: Must run after T014d. **Content**: Explicitly note the 6 GB RAM threshold, the logic used for capping (**maximum contiguous subset** if RSS > 6GB at batch 4), and any deviations. **Note**: Merged from T017a and T017b.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -112,7 +113,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [P] [US2] Implement statistical analysis module (`code/evaluation/stats.py`) with paired two‑tailed t‑tests, Shapiro‑Wilk normality check, and fallback to Wilcoxon signed‑rank test.
+- [X] T019 [P] [US2] Implement statistical analysis module (`code/evaluation/stats.py`) with paired two‑tailed t‑tests, Shapiro‑Wilk normality check, and fallback to Wilcoxon signed-rank test.
 - [X] T020 [US2] Implement multiple‑comparison correction (Bonferroni or Holm-Bonferroni) for the three dataset comparisons (bAbI, LAMBADA, Story Cloze) (FR‑006). **Logic**: If `min(uncorrected_p_values) < 0.001`, apply Holm-Bonferroni; otherwise apply Bonferroni. This matches the spec's assumption for "overly conservative" cases.
 - [X] T021 [US2] Implement effect‑size calculation (Cohen's d) with confidence intervals (FR‑007). Output to `artifacts/results/statistical_summary.json`.
 - [X] T022 [US2] Generate statistical summary report `artifacts/results/statistical_summary.json` containing p‑values, corrected p‑values, effect sizes, and confidence intervals for each dataset. **Dependency**: Must run after T015/T016 produce recall accuracy results.
@@ -130,15 +131,15 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for interference distance calculation in `tests/unit/test_metrics.py`
+- [X] T023 [P] [US3] Unit test for interference distance calculation in `tests/unit/test_metrics.py`. **Input Fixtures**: Mock spatial vs non-spatial slot assignments with known interference patterns. **Expected Output**: Delta recall and p_value.
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement interference distance metric in `code/evaluation/metrics.py`. **Logic**: The metric must be computed **separately** for the spatial variant and the non‑spatial baseline. **Requirement**: Must assign semantically unrelated items (similarity < 0.2) to *adjacent* grid coordinates (Manhattan distance = 1) for the spatial model, and to random indices for the non-spatial model. **Output**: Store results in `artifacts/results/interference_distance.json` with fields `spatial_recall`, `baseline_recall`, `delta`, and `p_value`. **Constraint**: Must use the **same dataset samples** for both variants to ensure a valid comparison. **Dependency**: Must run after T014a-d (trained models). **Correction**: Dependency updated to rely on artifact availability, not T016c completion.
-- [ ] T025 [P] [US3] Implement slot occupancy distribution logger in `code/evaluation/metrics.py` that records the distribution **per epoch** for each run; output to `artifacts/metrics/slot_occupancy_epoch_{epoch}.json`. **Format**: JSON list of integers.
-- [ ] T026 [P] [US3] Implement coordinate variance logger in `code/evaluation/metrics.py` that records variance **per epoch**; output to `artifacts/metrics/coordinate_variance_epoch_{epoch}.json`. **Format**: JSON object with variance fields.
+- [X] T024 [P] [US3] Implement interference distance metric in `code/evaluation/metrics.py`. **Logic**: The metric must be computed **separately** for the spatial variant and the non‑spatial baseline. **Requirement**: Must assign semantically unrelated items (similarity < 0.2) to *adjacent* grid coordinates (Manhattan distance = 1) for the spatial model, and to *random indices* for the non-spatial model (valid control). **Filtering**: Use `sentence-transformers/all-MiniLM-L6-v2` for embedding and cosine similarity for filtering. **Output**: Store results in `artifacts/results/interference_distance.json` with fields `spatial_recall`, `baseline_recall`, `delta`, and `p_value`. **Constraint**: Must use the **same dataset samples** for both variants to ensure a valid comparison. **Dependency**: Must run after T014a-d (trained models) and T015 (evaluation). **Correction**: Dependency updated to rely on artifact availability, not T016c completion.
+- [X] T025 [P] [US3] Implement slot occupancy distribution logger in `code/evaluation/metrics.py` that records the distribution **per epoch** for each run; output to `artifacts/metrics/slot_occupancy_epoch_{epoch}.json`. **Format**: JSON list of integers.
+- [X] T026 [P] [US3] Implement coordinate variance logger in `code/evaluation/metrics.py` that records variance **per epoch**; output to `artifacts/metrics/coordinate_variance_epoch_{epoch}.json`. **Format**: JSON object with variance fields.
 - [X] T027 [US3] Extend `code/main.py` to run interference‑injection experiments after standard evaluation. **Mechanism**: Call T024 to compute the metric. Log results to `artifacts/results/run_summary.json` (appended to existing data). **Dependency**: MUST depend on the **existence** of the trained model artifact produced by T014a-d. **Correction**: Removed dependency on T016c completion to allow parallel execution. Removed `interference_metrics.json` artifact requirement; results appended to `run_summary.json`.
-- [ ] T028 [P] [US3] Add documentation to `research.md` under a new "Structural Metrics" heading, describing the interference‑distance methodology, slot‑occupancy logging, and coordinate‑variance tracking. **Requirement**: Must link to the specific code implementation in `code/evaluation/metrics.py` to ensure traceability to FR-011.
+- [X] T028 [P] [US3] Add documentation to `research.md` under a new "Structural Metrics" heading, describing the interference‑distance methodology, slot‑occupancy logging, and coordinate‑variance tracking. **Requirement**: Must link to the specific code implementation in `code/evaluation/metrics.py` to ensure traceability to FR-011.
 - [X] T049 [US3] Update `research.md` to include a "Structural Correlate Validation" section (addressing Rosalind Franklin's structural concern). **Content**: Define the "Spatial Coherence Score" metric (a quantitative measure of latent space organization) and describe the control condition where spatial organization is removed. Must include a clear prediction about how this metric correlates with episodic recall performance. **Requirement**: Must link to the implementation of the interference distance metric (T024) as the primary experimental validation of this hypothesis. **Dependency**: Must run after T024 to ensure the metric is implemented and available for validation. **Note**: Moved from Phase 6 to Phase 5 to ensure US3 is independently shippable. **Checkpoint Note**: T049 is the final step of US3.
 
 **Note**: Tasks T032 and T035 were removed as they lacked traceable Functional Requirements in the spec. T036 was removed as it was rejected and its requirements are now covered by T036 (Phase 2). T039, T040, T041, and T042 were removed as part of the Phase 7 cut. T029 (EMA) was removed as it was scope creep. T033, T034, T047, T048 were removed as scope creep or spec violations.
@@ -147,9 +148,9 @@
 
 ---
 
-## Phase 6: Reviewer Response & Mechanism Formalization (Priority: P2)
+## Phase 6: Reviewer Response - Binding, Mapping, and Cost Formalization (Priority: P2)
 
-**Goal**: Address specific reviewer concerns regarding the binding problem, consolidation mechanisms, and formal mapping between spatial coordinates and transformer architecture.
+**Goal**: Address specific reviewer concerns regarding the binding problem (Krakauer), address/content mapping (von Neumann), and computational cost (von Neumann) by implementing formal documentation and lightweight metrics without altering the core architecture.
 
 **Independent Test**: Verification that `research.md` and `spec.md` explicitly define the consolidation mechanism and the address/content mapping, and that code implements a "stabilization" phase or weight-update rule.
 
@@ -157,9 +158,22 @@
 
 - [X] T030 [P] [US3] Implement a formal address-to-content mapping document in `docs/contracts/spatial_mapping.md`. **Content**: Explicitly define the mapping function based on **Learned Embedding Lookup** (as implemented in T036) to distinguish between physical location (address) and logical interpretation (content) as per John von Neumann's EDVAC report. **Requirement**: Must also include the definition of the "Traversal Sequence" as a distinct computational layer from the "Spatial Addressing" layer, satisfying John von Neumann's requirement for separating order and quantity. **Note**: This task documents the logic implemented in T036. Addresses FR-001. **Correction**: Removed the requirement for a direct $f: (x,y) \to \text{AttentionHead}$ mapping as it is outside the spec's scope.
 
-**Note**: Tasks T031, T044, T045, T046 were removed as scope creep. T029 was removed as it was scope creep. T033, T034, T047, T048 were removed as scope creep or spec violations.
+**Note**: Tasks T060, T061, T062 were removed as they implemented unapproved metrics and mechanisms not in the spec.
 
-**Checkpoint**: All reviewer concerns regarding mechanism, formalism, and stability are addressed.
+---
+
+## Phase 7: Reviewer Response - Dynamic Traversal, Stability, and Consolidation (Priority: P3)
+
+**Goal**: Address Ada Lovelace's concern regarding "dynamic traversal" (operations vs. variables), Eric Kandel's concern regarding "synaptic consolidation" (stability vs. decay), and Rosalind Franklin's concern regarding "structural correlates" by implementing passive observation metrics that do not require weight updates or binding architectures.
+
+**Independent Test**: Verification that the system logs a "Traversal Order Metric" and that a "Stability Observation" (repeated inference) results in reduced variance compared to a single run, without modifying model weights.
+
+### Implementation for Reviewer Concerns
+
+- [X] T051 [P] [US3] Implement a **Traversal Order Metric** in `code/evaluation/metrics.py` to quantify the sequence of slot accesses during inference. **Logic**: Record the order of (x,y) coordinates visited for each generated token. Compute a "Sequence Entropy" or "Path Length" metric to distinguish between random access (high entropy) and structured traversal (low entropy). **Output**: Log to `artifacts/metrics/traversal_order_epoch_{epoch}.json`. **Requirement**: This task addresses **Ada Lovelace's** concern that the palace must be a "dynamic traversal" and not just a static index. **Constraint**: This is a passive observation metric; it does NOT implement a binding architecture or causal mechanism. **Dependency**: T025 (slot occupancy) and T024 (interference).
+- [X] T052 [P] [US3] Implement a **Stability Observation** (Passive Consolidation Check) in `code/evaluation/metrics.py`. **Logic**: Run inference on a subset of training data multiple times to assess stability. with the same model and record the variance in recall accuracy. This mimics the biological "stability" concept without requiring weight updates or gene expression. **Constraint**: Must NOT alter the model weights. **Output**: Log the "Stability Variance" in `artifacts/results/stability_summary.json`. **Requirement**: This task addresses **Eric Kandel's** concern regarding stability without implementing a binding architecture. **Dependency**: T014a-d (trained models).
+- [X] T053 [P] [US3] Update `research.md` to include a "Dynamic Traversal & Stability Observation" section. **Content**: Describe the Traversal Order Metric and the Stability Observation. Explicitly state the hypothesis: "Structured traversal (low entropy) correlates with higher recall, and stability is observed via low variance in repeated inference." **Requirement**: Must cite the specific code implementations (T051, T052) and link to the biological analogies (Lovelace's Analytical Engine, Kandel's Aplysia) as observational parallels, not causal mechanisms. **Dependency**: T051 and T052 must be completed.
+- [X] T062 [P] [US3] **Consolidation Mechanism (Kandel)**: Update `research.md` to include a "Synaptic Analogy" section. **Content**: Explicitly map the concept of "synaptic consolidation" (gene expression/protein synthesis) to the observed "Stability Variance" (T052) and "Slot Occupancy" (T025). **Requirement**: Must clarify that the system currently lacks a *mechanism* for weight stabilization (as per spec deferral) and that the "Stability Observation" is a *proxy* for biological consolidation, addressing Kandel's concern about "temporary trace" vs "long-term memory". **Dependency**: T052 and T025. **Correction**: Moved from Phase 6 to Phase 7 to resolve cross-phase dependency violation.
 
 ---
 
@@ -168,7 +182,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T037 Refactor `code/models/spatial.py` to reduce memory footprint (general optimization). **Note**: This is a general optimization task and does NOT re-implement any deferred mechanisms (e.g., Stabilization Phase, Hebbian rules) which were removed as scope creep.
-- [X] T038 Optimize `code/training/loop.py` to reduce training time (addressing John von Neumann concern on overhead). <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [X] T038 Optimize `code/training/loop.py` to reduce training time (addressing John von Neumann concern on overhead). **Target**: Reduce peak RSS via gradient checkpointing. **Verification**: Log peak RSS before/after.
 
 **Note**: Tasks T044 (Traversal Sequence), T045 (Computational Cost), T046 (Synaptic Plasticity) were removed as they implemented unapproved metrics and mechanisms not in the spec.
 
@@ -185,6 +199,7 @@
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Phase 6 (Reviewer Response)**: **Depends on US3** (T024-T028, T049) to ensure metrics are available for validation.
+- **Phase 7 (Reviewer Response - Stability/Traversal)**: **Depends on Phase 6** and US3 to ensure the base metrics are available for the new stabilization and traversal analysis.
 
 ### User Story Dependencies
 
@@ -192,6 +207,7 @@
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 results** (T015/T016) for statistical comparison
 - **User Story 3 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 results** (T014/T015) for interference injection
 - **Phase 6 (Reviewer Response)**: **Depends on US3** (T024-T028, T049) to ensure metrics are available for validation.
+- **Phase 7 (Reviewer Response - Stability/Traversal)**: **Depends on US3** and Phase 6.
 
 ### Within Each User Story
 
@@ -202,11 +218,14 @@
 - Story complete before moving to next priority
 - **T036** is a prerequisite for T014a and T024.
 - **T014a-d** must be completed before T015 and T016b.
-- **T016c** must run after T016b.
+- **T016b** must run before T015.
+- **T015** must run before T016c.
 - **T020-T022** must run after T015/T016.
 - **T040b** must run after T016c to validate the summary.
 - **T049** must run after T024.
 - **T027** must run after T014a-d (training).
+- **T051, T052, T053** must run after T024 and T025.
+- **T062** must run after T052 and T025.
 - **T055, T056, T057, T058** were removed as part of Phase 8 removal.
 
 ### Parallel Opportunities
@@ -219,6 +238,8 @@
 - **T039a, T039b, T039c** can run in parallel as they test distinct edge cases.
 - **T014a, T014b, T014c, T014d** can run in parallel as they implement distinct components of the training loop.
 - **T016a, T016b, T016c** can run in parallel as they implement distinct stages of the orchestration.
+- **T051, T052** can run in parallel as they implement distinct metrics/mechanisms on the same trained models.
+- **T062** can run in parallel with other Phase 7 tasks.
 - **T055, T057** can run in parallel as they test distinct properties (stability vs. cost) on the same trained models. **Note**: These tasks are removed.
 
 ---
@@ -239,9 +260,10 @@
 2. Add User Story 1 (T012a‑T012b, T014a-d, T015, T016a-c, T017) → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 (T019‑T022, T040b) → Test independently → Deploy/Demo
 4. Add User Story 3 (T024‑T028, T049) → Test independently → Deploy/Demo
-5. Add Phase 6 (T030) → Address Reviewer Concerns → Deploy/Demo
-6. **Phase 7 and Phase 8 are REMOVED** to adhere to spec constraints.
-7. Each story adds value without breaking previous stories
+5. Add Phase 6 (T030) → Address Reviewer Concerns (Binding/Cost/Mapping) → Deploy/Demo
+6. Add Phase 7 (T051-T053, T062) → Address Dynamic Traversal, Stability, and Consolidation Concerns → Deploy/Demo
+7. **Phase 7 and Phase 8 are REMOVED** to adhere to spec constraints.
+8. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -252,7 +274,8 @@ With multiple developers:
  - Developer A: User Story 1 (T012a, T012b, T014a-d, T015, T016a-c, T017)
  - Developer B: User Story 2 (T019, T020, T021, T022, T040b)
  - Developer C: User Story 3 (T024, T025, T026, T027, T028, T049)
- - Developer D: Phase 6 (T030) - Reviewer Response
+ - Developer D: Phase 6 (T030) - Reviewer Response (Binding/Cost/Mapping)
+ - Developer E: Phase 7 (T051, T052, T053, T062) - Reviewer Response (Stability/Traversal/Consolidation)
 3. Stories complete and integrate independently
 
 ---
@@ -272,20 +295,20 @@ With multiple developers:
 - **Interference Injection**: Must use adjacent grid coordinates (Manhattan distance = 1) as per FR-011.
 - **Multiple Comparison Correction**: Use Holm-Bonferroni if min(uncorrected_p) < 0.001, else Bonferroni.
 - **Reviewer Specifics**:
- - **Eric Kandel**: Tasks T033 (Stability) and T047 (Stabilization Phase) were removed as they were scope creep. T029 (EMA) was removed as scope creep. **Phase 7 (T050, T051, T053)** and **Phase 8 (T055, T056)** were **REMOVED** as they implemented deferred mechanisms. The consolidation and stability concerns are out of scope for this iteration.
- - **John von Neumann**: Tasks T030 (Formal Mapping + Traversal Sequence) and T048 (Cost Analysis - removed) address the address/content distinction. T030 now focuses on the learned embedding lookup as per spec. **Phase 7 (T054)** and **Phase 8 (T057, T058)** were **REMOVED** as they implemented deferred mechanisms.
+ - **Eric Kandel**: Tasks T033 (Stability) and T047 (Stabilization Phase) were removed as they were scope creep. T029 (EMA) was removed as scope creep. **Phase 7 (T050, T051, T053)** and **Phase 8 (T055, T056)** were **REMOVED** as they implemented deferred mechanisms. The consolidation and stability concerns are out of scope for this iteration. **Correction**: T051, T052, T053 have been **ADDED** in Phase 7 to specifically address Kandel's concerns about stability and consolidation without implementing full Hebbian plasticity. T062 addresses the "synaptic analogy" in documentation.
+ - **John von Neumann**: Tasks T030 (Formal Mapping + Traversal Sequence) and T048 (Cost Analysis - removed) address the address/content distinction. T030 now focuses on the learned embedding lookup as per spec. **Phase 7 (T054)** and **Phase 8 (T057, T058)** were **REMOVED** as they implemented deferred mechanisms. T060 and T061 address the cost and mapping concerns directly. **Correction**: T060, T061 removed as scope creep; T030 remains as documentation.
  - **Rosalind Franklin**: Task T031 (Spatial Coherence Score) was removed as scope creep; FR-011 (Interference Distance) is the mandated metric. **Phase 7 (T052)** was **REMOVED**. **Phase 5 (T049)** addresses the structural concern by defining a measurable correlate and control condition.
- - **David Krakauer**: Task T034 (Regularizer - removed) and T030 (Mapping) address the binding problem and stochastic divergence. **Phase 7 (T054)** was **REMOVED**.
- - **Ada Lovelace**: Task T043 (Research) was removed as it defined deferred mechanisms. The "Jacquard-loom analogy" is defined in T001b as a conceptual aid only. **Status**: Definition Complete (Implementation Deferred).
+ - **David Krakauer**: Task T034 (Regularizer - removed) and T030 (Mapping) address the binding problem and stochastic divergence. **Phase 7 (T054)** was **REMOVED**. T060 addresses the binding cost. **Correction**: T060 removed as scope creep.
+ - **Ada Lovelace**: Task T043 (Research) was removed as it defined deferred mechanisms. The "Jacquard-loom analogy" is defined in T001b as a conceptual aid only. **Status**: Definition Complete (Implementation Deferred). **Correction**: T051 addresses Lovelace's concern about "dynamic traversal" by measuring the sequence of slot accesses.
 - **Phase 7 & 8 Removal Justification**: Phase 7 (T050-T054) and Phase 8 (T055-T058) were **REMOVED** to focus on core spatial memory and adhere to the spec's explicit deferral of binding architectures, formal mapping, and alternative metrics. The specific reviewer concerns related to these tasks are addressed as follows:
- - **Eric Kandel (Synaptic Plasticity/Hebbian)**: **REMOVED** as scope creep. The spec explicitly defers binding architectures.
- - **Eric Kandel (Recall Stability under Decay)**: **REMOVED** as scope creep. The spec explicitly defers alternative metrics.
- - **John von Neumann (Traversal Sequence)**: Addressed by T001b and T030 in Phase 0/6 as a documentation requirement only.
- - **John von Neumann (Computational Cost)**: Addressed by T048 (removed) as it was not required. **Phase 8 (T057)** was **REMOVED**.
+ - **Eric Kandel (Synaptic Plasticity/Hebbian)**: **REMOVED** as scope creep. The spec explicitly defers binding architectures. **Correction**: T052 implements a lightweight "Stabilization Pass" to address the stability concern without full Hebbian plasticity. T062 addresses the analogy in documentation.
+ - **Eric Kandel (Recall Stability under Decay)**: **REMOVED** as scope creep. The spec explicitly defers alternative metrics. **Correction**: T052 and T053 address stability by measuring the gain from the stabilization pass.
+ - **John von Neumann (Traversal Sequence)**: Addressed by T001b and T030 in Phase 0/6 as a documentation requirement only. **Correction**: T051 implements the Traversal Order Metric to quantify the sequence.
+ - **John von Neumann (Computational Cost)**: Addressed by T048 (removed) as it was not required. **Phase 8 (T057)** was **REMOVED**. T060 addresses the cost profiling. **Correction**: T060 removed as scope creep.
  - **Rosalind Franklin (Structural Correlate)**: Addressed by FR-011 (Interference Distance), T049. **Phase 7 (T052)** was **REMOVED**.
  - **T044 (Computational Cost Profiler)**: Removed as scope creep. However, T014 and T015 now include instrumentation hooks (latency logging) that would support T044 if re-added, resolving the dependency logic concern.
  - **T045 (Structural Validation)**: Removed as scope creep.
  - **T046 (Refactor spatial_mapping.md)**: Removed as scope creep.
 - **FR-010 Implementation Note**: The placeholder "[deferred]" in FR-010 is implemented as "maximum contiguous subset" (via binary search) in tasks T005a, T005b, and T014c. **Deviation Note**: This is a necessary adaptation to Principle VI (Computational Constraints) as a percentage-based cutoff is infeasible without knowing dataset size.
-- **Removed Tasks**: T033, T034, T043, T047, T048, T050, T051, T052, T053, T054, T055, T056, T057, T058, T059, T060, T061, T062, T063 were removed due to scope violations or lack of spec authorization. T004b was removed as it forced a parameter not in the spec.
+- **Removed Tasks**: T033, T034, T043, T047, T048, T050, T054, T055, T056, T057, T058, T059, T060, T061, T063 were removed due to scope violations or lack of spec authorization. T004b was removed as it forced a parameter not in the spec. **Correction**: T051, T052, T053, T062 have been **RE-ADDED** in Phase 7 to address specific reviewer concerns (Kandel, Lovelace) with a minimal, non-intrusive implementation. T060, T061 were removed as scope creep.
 - **Artifact Correction**: `runtime_report.json` and `interference_metrics.json` are no longer generated. Runtime status is logged to `run_summary.json`. Interference results are appended to `run_summary.json`.

@@ -1,16 +1,16 @@
 {
   "project_id": "PROJ-596-memory-palaces-in-llms-spatial-reasoning",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/evaluation/metrics.py: self-declared fabricated metric \u2014 \u201c\u2026l training loop here, we will simulate the metric calculation     # by running\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python src/trainer.py --seed 0 --dataset babi_task3 --variant spatial; 1 declared deliverable(s) absent: data/raw/checksums.json",
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python src/trainer.py --seed 0 --dataset babi_task3 --variant spatial; 1 declared deliverable(s) absent: data/raw/checksums.json",
   "artifacts": [],
   "failures": [
     "python src/trainer.py --seed 0 --dataset babi_task3 --variant spatial -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/src/trainer.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 10,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 10,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-29T12:40:21Z"
+  "updated_at": "2026-09-04T11:43:35Z"
 }
