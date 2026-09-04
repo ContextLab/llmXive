@@ -1,0 +1,4 @@
+# This directory is intentionally kept empty in version control.
+# It serves as the storage location for downloaded datasets, processed matrices,
+# and analysis results generated during pipeline execution.
+# Files here are gitignored to prevent repository bloat.

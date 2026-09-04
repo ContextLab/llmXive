@@ -1,55 +1,86 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Analysis Results Schema
-description: Schema for the output of the statistical analysis (Spearman correlation + permutation test).
-type: array
-items:
-  type: object
-  properties:
-    metric_type:
-      type: string
-      enum:
-        - degree
-        - betweenness
-        - eigenvector
-      description: "The centrality metric being tested."
-    rho:
-      type: number
-      description: "Spearman correlation coefficient."
-    p_value_uncorrected:
-      type: number
-      minimum: 0
-      maximum: 1
-      description: "Raw p-value from Spearman test."
-    p_value_permutation:
-      type: number
-      minimum: 0
-      maximum: 1
-      description: "Permutation-corrected p-value (n=1000, subject-level)."
-    effect_size_ci:
-      type: array
-      items:
+description: Schema for validating statistical analysis results
+type: object
+required:
+  - rho
+  - p_value
+  - effect_size
+  - stability_index
+  - auc
+properties:
+  rho:
+    type: number
+    description: Spearman correlation coefficient
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    type: number
+    description: Uncorrected p-value from permutation test
+    minimum: 0.0
+    maximum: 1.0
+  p_value_corrected:
+    type: number
+    description: Multiple comparison corrected p-value (e.g., FDR)
+    minimum: 0.0
+    maximum: 1.0
+  effect_size:
+    type: number
+    description: Effect size metric (e.g., Cohen's d or r)
+  confidence_interval:
+    type: object
+    description: 95% confidence interval for rho
+    required:
+      - lower
+      - upper
+    properties:
+      lower:
         type: number
-      minItems: 2
-      maxItems: 2
-      description: "95% Confidence Interval (Fisher's z transformed)."
-    n_permutations:
-      type: integer
-      const: 1000
-      description: "Number of permutations performed."
-    threshold_density:
-      type: number
-      minimum: 0
-      maximum: 1
-      description: "Density threshold used for the structural graph."
-    stability_index:
-      type: number
-      description: "Standard deviation of rho across thresholds (sensitivity analysis)."
-  required:
-    - metric_type
-    - rho
-    - p_value_uncorrected
-    - p_value_permutation
-    - effect_size_ci
-    - n_permutations
-    - threshold_density
-    - stability_index
+      upper:
+        type: number
+  stability_index:
+    type: number
+    description: Standard deviation of rho values across threshold densities
+    minimum: 0.0
+  auc:
+    type: number
+    description: Area under the curve of rho vs density
+  collinearity:
+    type: object
+    description: Collinearity diagnostics (VIF values)
+    properties:
+      degree:
+        type: number
+      betweenness:
+        type: number
+      eigenvector:
+        type: number
+      high_collinearity:
+        type: boolean
+        description: True if any VIF > 5
+  null_distribution_warning:
+    type: string
+    description: Warning about coarse resolution of null distribution for small N
+  framing:
+    type: string
+    description: Text framing the results as preliminary and associational
+  metadata:
+    type: object
+    description: Additional metadata about the analysis
+    properties:
+      n_subjects:
+        type: integer
+        minimum: 1
+      threshold_range:
+        type: array
+        items:
+          type: number
+        description: Range of threshold densities used (e.g., [0.1, 0.5])
+      threshold_step:
+        type: number
+        description: Step size for threshold sweep
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of analysis completion
+additionalProperties: true

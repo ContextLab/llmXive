@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-**Description**: The researcher MUST be able to download a subset of **OpenNeuro ds000224** (HCP Young Adult subset, max 10 subjects), preprocess fMRI BOLD time series and diffusion MRI tractography, and generate a parcellated structural and functional connectivity matrix for each subject using the Schaefer 400 atlas.
+**Description**: The researcher MUST be able to download a subset of **OpenNeuro ds000224** (HCP Young Adult subset, max 10 subjects), preprocess fMRI BOLD time series and diffusion MRI tractography, and generate a parcellated structural and functional connectivity matrix for each subject using the Schaefer atlas.
 
 **Why this priority**: Without clean, matched structural and functional data matrices, no analysis can occur. This is the foundational data preparation step required for all subsequent statistical testing.
 
@@ -52,7 +52,7 @@
 ### Edge Cases
 
 - **What happens when** the OpenNeuro ds000224 download fails or a subject file is corrupted? The pipeline MUST skip the corrupted subject, log a warning, and proceed with the remaining valid subjects (minimum n=10 required to proceed). If fewer than 10 valid subjects are available, the pipeline MUST halt with a fatal error.
-- **What happens when** the runner storage fills up during the extraction of raw NIfTI files? The pipeline MUST detect disk usage approaching 12 GB (leaving 2 GB buffer), stop downloading new subjects, process the currently downloaded subjects, and if the total valid count is < 10, halt with a "Storage Limit Exceeded" error.
+- **What happens when** the runner storage fills up during the extraction of raw NIfTI files? The pipeline MUST detect disk usage approaching a high threshold (leaving a buffer)., stop downloading new subjects, process the currently downloaded subjects, and if the total valid count is < 10, halt with a "Storage Limit Exceeded" error.
 - **How does the system handle** a structural matrix where the number of nodes does not match the functional matrix (e.g., due to atlas mismatch)? The system MUST halt execution with a clear error message identifying the dimension mismatch before attempting any correlation.
 - **What happens when** the permutation test p-value is exactly 0 (all permutations yield a lower correlation)? The system MUST report p < 1/1000 (0.001) rather than 0 to avoid mathematical artifacts.
 

@@ -22,7 +22,7 @@ This project investigates the association between structural connectivity (dMRI-
 **Project Type**: Computational research pipeline / CLI.  
 **Performance Goals**: Full pipeline (10 subjects, pre-computed matrices) < 6 hours; Memory usage < 7 GB per step.  
 **Constraints**: No GPU; strict 14 GB disk limit; minimum 10 valid subjects required to proceed (unless storage limits force a halt); all random seeds pinned.  
-**Scale/Scope**: A cohort of subjects, 400 ROIs, 3 centrality metrics, 1000 subject-level permutations (or spatial null).
+**Scale/Scope**: A cohort of subjects, a set of ROIs, 3 centrality metrics, 1000 subject-level permutations (or spatial null).
 
 > **Dataset-variable fit**: The verified source (Parquet shard) lacks raw dMRI. The plan **excludes** the tractography step and relies entirely on pre-computed connectivity matrices if available in the source. If matrices are missing, the pipeline halts with "Data Gap".
 
@@ -136,7 +136,7 @@ To satisfy SC-001, the pipeline will:
 ## Statistical Power & Limitations
 
 - **Sample Size**: N=10 subjects.
-- **Power**: With N=10, the power to detect effects smaller than rho > 0.8 is negligible. The permutation test (shuffling a set of items) yields a discrete null distribution with only 10! possible permutations (sampled at 1000). The p-value resolution is coarse.
+- **Power**: With N=10, the power to detect effects smaller than rho > 0.8 is negligible. The permutation test (shuffling a set of items) yields a discrete null distribution with a factorial number of possible permutations (sampled at 1000). The p-value resolution is coarse.
 - **Framing**: Results will be explicitly framed as "preliminary and associational." A non-significant result is treated as a valid primary finding (Principle VII).
 - **Unit of Analysis**: The correlation is performed across **subjects** (N=10), not nodes (N=400). A set of nodes is aggregated per subject to create the input vectors for the correlation. This avoids the spatial autocorrelation violation.
 

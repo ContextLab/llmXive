@@ -1,33 +1,47 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Connectivity Matrix Schema
-description: Schema for Structural and Functional Connectivity Matrices (400x400).
+title: Connectivity Matrix Metadata Schema
+description: Schema for validating connectivity matrix metadata (structural and functional)
 type: object
+required:
+  - subject_id
+  - matrix_type
+  - dimensions
 properties:
-  matrix:
-    type: array
-    items:
-      type: array
-      items:
-        type: number
-    minItems: 400
-    maxItems: 400
-    description: "400x400 matrix of connectivity values. Structural: streamline count. Functional: Pearson correlation."
-  type:
+  subject_id:
     type: string
+    description: Unique identifier for the subject (e.g., 'sub-001')
+    pattern: "^sub-\\d{3}$"
+  matrix_type:
+    type: string
+    description: Type of connectivity matrix
     enum:
       - structural
       - functional
-    description: "Type of connectivity matrix."
+  dimensions:
+    type: object
+    description: Dimensions of the matrix
+    required:
+      - rows
+      - cols
+    properties:
+      rows:
+        type: integer
+        minimum: 1
+        description: Number of rows in the matrix
+      cols:
+        type: integer
+        minimum: 1
+        description: Number of columns in the matrix
+    additionalProperties: false
   atlas:
     type: string
-    const: "Schaefer400"
-    description: "Atlas used for parcellation."
-  threshold:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Density threshold used for structural matrix (if applicable)."
-required:
-  - matrix
-  - type
-  - atlas
+    description: Name of the brain atlas used (e.g., 'Schaefer400')
+    default: "Schaefer400"
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the matrix was generated/loaded
+  source:
+    type: string
+    description: Source of the data (e.g., 'OpenNeuro', 'Precomputed')
+additionalProperties: true
