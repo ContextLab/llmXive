@@ -49,7 +49,7 @@
 
 ## Phase 3: User Story 1 - Load molecular structures and compute graph-based descriptors (Priority: P1) 🎯 MVP
 
-**Goal**: Parse SMILES, compute standard topological descriptors, and implement quantum-inspired proxies as per reviewer feedback (using RDKit standard descriptors only).
+**Goal**: Parse SMILES, compute standard topological descriptors, implement quantum-inspired proxies, and address resonance-related structural features as per reviewer feedback.
 
 **Independent Test**: Can be fully tested by running the descriptor computation pipeline on a sample of SMILES strings and verifying that the output table contains all required descriptor columns with valid numeric values for each molecule.
 
@@ -71,6 +71,9 @@
 - [X] T017 [US1] Implement fallback logic for missing quantum descriptors in `code/descriptors.py`. If a quantum-derived descriptor (e.g., HOMO-LUMO gap) is missing from the dataset for a molecule, log a warning: "Quantum descriptor missing for {smiles}; falling back to topological proxy." Use the topological conjugation length as the proxy. If both quantum and topological proxies fail for a molecule, exclude the molecule from the output. (FR-014)
 - [X] T018 [US1] Implement error handling for invalid SMILES and missing conductivity in `code/data_loader.py`. If a SMILES string is invalid, log an error: "Invalid SMILES: {smiles}" and exclude the molecule. If the target variable (conductivity) is missing for a molecule, log a warning: "Missing conductivity for {smiles}" and exclude the molecule. (FR-012)
 - [ ] T019 [US1] Write descriptor computation results to `data/processed/descriptors.csv` with EXACT columns: [smiles, status, degree_mean, degree_std, degree_max, degree_min, path_length_mean, path_length_std, path_length_max, path_length_min, aromaticity_index, conjugation_length, ring_count]. **Logic**: Iterate through computed descriptors. If any row has NaN values in the required descriptor columns (degree, path, aromaticity, conjugation, ring), drop the row and log: "Dropped {count} rows due to NaN values in descriptors." (FR-001, FR-008)
+- [ ] T020 [US1] **Address Reviewer Feedback (linus-pauling-simulated)**: Implement **Bond Order and Length Annotation** in `code/descriptors.py`. Use `rdkit.Chem.GetBondOrder` and `rdkit.Chem.rdMolDescriptors.CalcCrippenDescriptors` (or similar) to estimate bond lengths (sp2 C-C ≈ 1.39Å, sp3 C-C ≈ 1.54Å) based on hybridization. Compute a new feature `weighted_path_length` that sums these estimated bond lengths along the longest conjugated path. (FR-001, FR-008, Reviewer Feedback)
+- [ ] T021 [US1] **Address Reviewer Feedback (linus-pauling-simulated)**: Implement **Electronegativity-Weighted Polarity Term** in `code/descriptors.py`. Use `rdkit.Chem.rdMolDescriptors.CalcNumHBA` and `rdkit.Chem.rdMolDescriptors.CalcNumHBD` or atomic properties to estimate electronegativity differences. Compute a term `electronegativity_polarity = sum(|EN_atom1 - EN_atom2| * bond_length)` for polar bonds in the conjugated system. (FR-001, FR-008, Reviewer Feedback)
+- [ ] T022 [US1] **Address Reviewer Feedback (linus-pauling-simulated)**: Implement **Hückel Resonance Energy Proxy** in `code/descriptors.py`. Use `rdkit.Chem.rdMolDescriptors.CalcNumAromaticRings` and the number of conjugated double bonds to estimate a Hückel-style resonance energy term (e.g., `resonance_proxy = num_aromatic_rings * 30 + num_conjugated_double_bonds * 10` in arbitrary units). Log a warning if this proxy is used instead of DFT. (FR-001, FR-008, Reviewer Feedback)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -226,11 +229,11 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
+- [Story] label maps task to traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Reviewer Feedback Addressed**: Tasks T014a, T014b, T015, T015c implement standard topological descriptors (Degree, Path, Aromaticity, Ring, Conjugation) required by FR-001/FR-008. T015c specifically addresses the need for conjugation length using valid RDKit APIs. T039 implements the iterative VIF filtering with reproducibility constraints. T040 and T043 now explicitly handle artifact saving, resolving the granularity issue previously identified in T044.
+- **Reviewer Feedback Addressed**: Tasks T014a, T014b, T015, T015c implement standard topological descriptors (Degree, Path, Aromaticity, Ring, Conjugation) required by FR-001/FR-008. T015c specifically addresses the need for conjugation length using valid RDKit APIs. T020, T021, T022 address the specific resonance-related structural features (Bond Order/Length, Electronegativity Polarity, Hückel Resonance Proxy) flagged by reviewer `linus-pauling-simulated` to improve predictive fidelity and theoretical validity. T039 implements the iterative VIF filtering with reproducibility constraints. T040 and T043 now explicitly handle artifact saving, resolving the granularity issue previously identified in T044.
 - **Target Variable Logic**: T026 implements the strict Spec requirement (Conductivity) with a conditional fallback (HOMO-LUMO) if Conductivity is missing, ensuring no silent relaxation of FR-003 while enabling the Plan's scope adjustment.
