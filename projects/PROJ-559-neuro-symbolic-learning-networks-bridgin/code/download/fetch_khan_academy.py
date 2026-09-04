@@ -62,8 +62,12 @@ def download_raw_csv(timeout: int = TIMEOUT_SECONDS) -> Optional[str]:
     logger.info(f"Starting download of dataset: {DATASET_ID}")
     logger.info(f"Timeout set to {timeout} seconds.")
 
-    from datasets import load_dataset
-    import pandas as pd
+    # Import inside function to ensure environment is ready
+    try:
+        from datasets import load_dataset
+        import pandas as pd
+    except ImportError as e:
+        raise ImportError(f"Required library not found. Please install dependencies: {e}")
 
     result = [None]
     error = [None]
@@ -71,7 +75,9 @@ def download_raw_csv(timeout: int = TIMEOUT_SECONDS) -> Optional[str]:
     def load_data():
         try:
             logger.info("Loading dataset from Hugging Face with streaming=True...")
-            # Use streaming=True to handle large datasets
+            # Use streaming=True to handle large datasets efficiently
+            # Note: Khan Academy dataset structure might vary; we attempt to load 'train' split
+            # If the dataset has a different structure, we adapt by iterating over the dataset
             ds = load_dataset(DATASET_ID, split="train", streaming=True, trust_remote_code=True)
             
             logger.info("Converting streaming dataset to CSV...")
@@ -80,12 +86,14 @@ def download_raw_csv(timeout: int = TIMEOUT_SECONDS) -> Optional[str]:
             count = 0
             
             for item in ds:
+                # Check timeout periodically during iteration
+                elapsed = time.time() - start_time
+                if elapsed > timeout:
+                    raise TimeoutError(f"Download exceeded {timeout} seconds.")
+                
                 rows.append(item)
                 count += 1
                 if count % batch_size == 0:
-                    elapsed = time.time() - start_time
-                    if elapsed > timeout:
-                        raise TimeoutError(f"Download exceeded {timeout} seconds.")
                     logger.info(f"Processed {count} rows...")
             
             df = pd.DataFrame(rows)

@@ -1,11 +1,33 @@
+T012:
+  c: false
+  h: 0980a0400b59a76f7bfaf9b61b802a671fadf60d3f07cf7af086dc5f35dacf86
+  r: "The repository contains the `fetch_assistments.py` script, but the required\
+    \ output file `data/raw/assistments.csv` (and its checksum file) are absent. Without\
+    \ these deliverables, the task\u2019s primary requirement is not satisfied."
 T012a:
   c: false
-  h: efdde7db1dba54dd058b20ead46177395916ac0af458855e405e3e1a895914ce
-  r: The script `code/download/validate_assistments_data.py` exists but is incomplete
-    (truncated) and relies on `contracts/problem.schema.yaml`, which is missing from
-    the repository, so it cannot actually validate the dataset or produce the required
-    error messages. The necessary schema file must be added and the script finished
-    for the task to be considered complete.
+  h: 690c79a7e49377d0c3e3e6ac6c0dec9386a07d4cad2f9193d324976cb7e8ee53
+  r: "The `validate_unified_schema.py` file is present but ends abruptly (truncated\
+    \ code) and lacks a complete implementation (e.g., main entry point, full row\
+    \ validation, exit handling). Moreover, the required data files `data/raw/unified_problems.csv`\
+    \ and `contracts/problem.schema.yaml` are missing, so the script cannot be executed\
+    \ to verify the schema as specified. The task\u2019s deliverable is therefore\
+    \ not satisfied."
+T012c:
+  c: false
+  h: aba2c8ee433db8256e542dc61427840b30ab2ca29342f501ce3c3e6eb554e1f4
+  r: "The required output file `data/raw/khan_academy.csv` (and its checksum) is missing,\
+    \ so the deliverable is not present. Additionally, the provided script is truncated\
+    \ and does not show the logic that exits with code\u202F1 and logs the exact required\
+    \ error message on timeout. The task therefore remains unfinished."
+T012e:
+  c: false
+  h: aaf787721d3cbf6e54dc0d1ae9ec73b85d7a823c36e040662d56b3255a0fb635
+  r: "The required source files `data/raw/assistments.csv` and `data/raw/khan_academy.csv`\
+    \ are absent, and the expected output `data/raw/unified_problems.csv` (with its\
+    \ checksum) was not generated. Additionally, the provided `unify_datasets.py`\
+    \ script is truncated and contains a syntax error (`return Fal`). The task\u2019\
+    s deliverables are therefore not satisfied."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

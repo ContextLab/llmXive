@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T012** — The repository contains the `fetch_assistments.py` script, but the required output file `data/raw/assistments.csv` (and its checksum file) are absent. Without these deliverables, the task’s primary requirement is not satisfied.
+- **T012c** — The required output file `data/raw/khan_academy.csv` (and its checksum) is missing, so the deliverable is not present. Additionally, the provided script is truncated and does not show the logic that exits with code 1 and logs the exact required error message on timeout. The task therefore remains unfinished.
+- **T012e** — The required source files `data/raw/assistments.csv` and `data/raw/khan_academy.csv` are absent, and the expected output `data/raw/unified_problems.csv` (with its checksum) was not generated. Additionally, the provided `unify_datasets.py` script is truncated and contains a syntax error (`return Fal`). The task’s deliverables are therefore not satisfied.
+- **T012a** — The `validate_unified_schema.py` file is present but ends abruptly (truncated code) and lacks a complete implementation (e.g., main entry point, full row validation, exit handling). Moreover, the required data files `data/raw/unified_problems.csv` and `contracts/problem.schema.yaml` are missing, so the script cannot be executed to verify the schema as specified. The task’s deliverable is therefore not satisfied.
