@@ -1,17 +1,13 @@
 """
-Imputation module for handling missing pore_volume values.
-
-Implements imputation of missing features (specifically pore_volume) using
-the mean of similar materials clustered by material_type or surface_area bin.
-Only features are imputed; targets are never imputed.
+Imputation module for handling missing pore volume data.
+Implements hierarchical imputation logic based on material type and surface area bins.
 """
-
 import os
 import sys
 import logging
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
 import pandas as pd
 import numpy as np
 
@@ -22,245 +18,198 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Ensure output directory exists
-OUTPUT_DIR = Path("data/validation")
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-IMPUTATION_LOG_PATH = OUTPUT_DIR / "imputation_log.json"
-
 def ensure_directories():
-    """Ensure all required directories exist."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    """Ensure required output directories exist."""
+    validation_dir = Path("data/validation")
+    validation_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directories exist: {validation_dir}")
 
-def impute_pore_volume(df: pd.DataFrame, impute_by: str = 'material_type') -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def impute_pore_volume(
+    df: pd.DataFrame,
+    surface_area_bin_col: str = 'surface_area_bin',
+    material_type_col: str = 'material_type',
+    target_col: str = 'pore_volume',
+    exclusion_log_path: Optional[Path] = None
+) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Impute missing pore_volume values using the mean of similar materials.
-    
+    Impute missing pore_volume values using a hierarchical strategy:
+    1. Group by (material_type, surface_area_bin) -> assign group mean.
+    2. If group is empty, assign material_type global mean.
+    3. If material_type is missing, assign global dataset mean.
+    4. If imputation fails (e.g., all NaN in group), exclude row and log.
+
     Args:
-        df: Input DataFrame with potential missing pore_volume values
-        impute_by: Clustering strategy - 'material_type' or 'surface_area_bin'
-    
+        df: Input DataFrame with potential missing values in target_col.
+        surface_area_bin_col: Column name for surface area bins.
+        material_type_col: Column name for material types.
+        target_col: Column name of the target to impute.
+        exclusion_log_path: Path to write exclusion logs. If None, uses default.
+
     Returns:
-        Tuple of (imputed DataFrame, imputation metadata)
+        Tuple of (imputed DataFrame, list of excluded row records).
+    """
+    if exclusion_log_path is None:
+        exclusion_log_path = Path("data/validation/exclusion_log.json")
     
-    Raises:
-        ValueError: If impute_by is not a valid option
-        RuntimeError: If imputation fails for all groups
+    ensure_directories()
+
+    # Work on a copy to avoid SettingWithCopyWarning
+    df_work = df.copy()
+    excluded_rows = []
+    
+    # Identify rows needing imputation
+    missing_mask = df_work[target_col].isna()
+    if not missing_mask.any():
+        logger.info("No missing values found in target column. No imputation needed.")
+        return df_work, excluded_rows
+
+    missing_indices = df_work[missing_mask].index.tolist()
+    logger.info(f"Found {len(missing_indices)} rows with missing {target_col}.")
+
+    # Pre-calculate global mean (excluding NaN)
+    global_mean = df_work[target_col].mean()
+    if pd.isna(global_mean):
+        logger.warning("Global mean is NaN. Cannot impute if all data is missing.")
+        # If global mean is NaN, we can't impute anything, so exclude all missing
+        for idx in missing_indices:
+            row_data = df_work.loc[idx].to_dict()
+            row_data['exclusion_reason'] = 'Global mean is NaN, cannot impute'
+            excluded_rows.append(row_data)
+        df_work.loc[missing_indices, target_col] = np.nan # Keep as NaN or drop later
+        return df_work, excluded_rows
+
+    # Pre-calculate material_type global means
+    # Group by material_type and calculate mean for target_col
+    material_means = df_work.groupby(material_type_col)[target_col].mean()
+    # Handle cases where material_type is NaN
+    material_means = material_means.dropna()
+
+    # Define binning logic if not already binned
+    # Assuming surface_area_bin_col is already a categorical or string bin representation
+    # If it's numeric, we might need to bin it, but task implies it's pre-binned or we bin here.
+    # Let's assume it's already binned or we treat unique values as bins.
+    
+    # We need to handle the grouping carefully.
+    # Strategy: Iterate through missing rows and find the best mean.
+    
+    rows_to_drop = []
+    
+    for idx in missing_indices:
+        row = df_work.loc[idx]
+        mat_type = row[material_type_col]
+        surf_bin = row[surface_area_bin_col]
+        
+        impute_value = None
+        reason = None
+        
+        # Level 1: Group mean (material_type, surface_area_bin)
+        # We filter the dataframe to the specific group
+        # Note: We must exclude the current row if it was in the group, but since it's NaN, it doesn't affect mean
+        group_mask = (
+            (df_work[material_type_col] == mat_type) & 
+            (df_work[surface_area_bin_col] == surf_bin)
+        )
+        group_data = df_work.loc[group_mask, target_col]
+        
+        # Check if group has any non-NaN values
+        if not group_data.isna().all():
+            group_mean = group_data.mean()
+            if not pd.isna(group_mean):
+                impute_value = group_mean
+                reason = f"Group mean (type={mat_type}, bin={surf_bin})"
+        
+        # Level 2: Material type global mean
+        if impute_value is None:
+            if pd.notna(mat_type) and mat_type in material_means.index:
+                mat_mean = material_means[mat_type]
+                if not pd.isna(mat_mean):
+                    impute_value = mat_mean
+                    reason = f"Material type global mean (type={mat_type})"
+        
+        # Level 3: Global dataset mean
+        if impute_value is None:
+            if not pd.isna(global_mean):
+                impute_value = global_mean
+                reason = "Global dataset mean"
+        
+        if impute_value is not None:
+            df_work.loc[idx, target_col] = impute_value
+            logger.debug(f"Imputed row {idx} with {reason}: {impute_value}")
+        else:
+            # Imputation failed
+            row_data = row.to_dict()
+            row_data['exclusion_reason'] = 'Imputation failed: No valid mean found in hierarchy'
+            excluded_rows.append(row_data)
+            rows_to_drop.append(idx)
+            logger.warning(f"Failed to impute row {idx}. Marked for exclusion.")
+
+    # Remove rows that failed imputation from the DataFrame
+    if rows_to_drop:
+        df_work = df_work.drop(index=rows_to_drop)
+        logger.info(f"Dropped {len(rows_to_drop)} rows due to imputation failure.")
+
+    # Log exclusions to file
+    if excluded_rows:
+        with open(exclusion_log_path, 'w') as f:
+            json.dump(excluded_rows, f, indent=2, default=str)
+        logger.info(f"Logged {len(excluded_rows)} excluded rows to {exclusion_log_path}")
+    
+    return df_work, excluded_rows
+
+def save_imputation_log(excluded_rows: List[Dict[str, Any]], log_path: Path):
+    """
+    Save the list of excluded rows to a JSON file.
     """
     ensure_directories()
-    
-    if impute_by not in ['material_type', 'surface_area_bin']:
-        raise ValueError(f"impute_by must be 'material_type' or 'surface_area_bin', got '{impute_by}'")
-    
-    if 'pore_volume' not in df.columns:
-        logger.warning("Column 'pore_volume' not found in DataFrame. No imputation performed.")
-        return df, {
-            'imputed': False,
-            'reason': 'pore_volume column not found',
-            'rows_imputed': 0,
-            'strategy': impute_by,
-            'group_stats': {}
-        }
-    
-    missing_mask = df['pore_volume'].isna()
-    missing_count = missing_mask.sum()
-    
-    if missing_count == 0:
-        logger.info("No missing pore_volume values found. No imputation needed.")
-        return df, {
-            'imputed': False,
-            'reason': 'no missing values',
-            'rows_imputed': 0,
-            'strategy': impute_by,
-            'group_stats': {}
-        }
-    
-    logger.info(f"Found {missing_count} missing pore_volume values. Starting imputation...")
-    
-    df_imputed = df.copy()
-    group_stats = {}
-    rows_imputed = 0
-    
-    if impute_by == 'material_type':
-        if 'material_type' not in df.columns:
-            logger.warning("Column 'material_type' not found. Falling back to global mean.")
-            # Fallback to global mean
-            global_mean = df['pore_volume'].mean()
-            if pd.isna(global_mean):
-                raise RuntimeError("Cannot compute global mean for pore_volume (all values missing).")
-            
-            df_imputed.loc[missing_mask, 'pore_volume'] = global_mean
-            rows_imputed = missing_count
-            group_stats['global_mean'] = float(global_mean)
-            logger.info(f"Imputed {rows_imputed} rows using global mean: {global_mean:.4f}")
-        else:
-            # Group by material_type and impute with group mean
-            for material_type, group in df.groupby('material_type'):
-                group_missing_mask = group['pore_volume'].isna()
-                if group_missing_mask.any():
-                    group_mean = group.loc[~group_missing_mask, 'pore_volume'].mean()
-                    if pd.isna(group_mean):
-                        logger.warning(f"No valid pore_volume values for material_type '{material_type}'. Skipping imputation for this group.")
-                        continue
-                    
-                    # Count how many we can impute in this group
-                    imputable_count = group_missing_mask.sum()
-                    df_imputed.loc[group.index[group_missing_mask], 'pore_volume'] = group_mean
-                    rows_imputed += imputable_count
-                    
-                    group_stats[material_type] = {
-                        'mean': float(group_mean),
-                        'imputed_count': int(imputable_count)
-                    }
-    
-    elif impute_by == 'surface_area_bin':
-        if 'surface_area' not in df.columns:
-            logger.warning("Column 'surface_area' not found. Cannot bin by surface_area.")
-            # Fallback to global mean
-            global_mean = df['pore_volume'].mean()
-            if pd.isna(global_mean):
-                raise RuntimeError("Cannot compute global mean for pore_volume (all values missing).")
-            
-            df_imputed.loc[missing_mask, 'pore_volume'] = global_mean
-            rows_imputed = missing_count
-            group_stats['global_mean'] = float(global_mean)
-            logger.info(f"Imputed {rows_imputed} rows using global mean: {global_mean:.4f}")
-        else:
-            # Create surface area bins (e.g., 10 bins)
-            df_temp = df.copy()
-            df_temp['surface_area_bin'] = pd.qcut(
-                df_temp['surface_area'].dropna(), 
-                q=10, 
-                duplicates='drop',
-                labels=False
-            )
-            
-            # Map bins back to original dataframe
-            df_imputed['surface_area_bin'] = df_temp['surface_area_bin']
-            
-            for bin_id in df_imputed['surface_area_bin'].unique():
-                if pd.isna(bin_id):
-                    continue
-                
-                bin_mask = df_imputed['surface_area_bin'] == bin_id
-                bin_missing_mask = df_imputed.loc[bin_mask, 'pore_volume'].isna()
-                
-                if bin_missing_mask.any():
-                    bin_mean = df_imputed.loc[bin_mask & ~bin_missing_mask, 'pore_volume'].mean()
-                    if pd.isna(bin_mean):
-                        logger.warning(f"No valid pore_volume values for surface_area_bin {bin_id}. Skipping.")
-                        continue
-                    
-                    imputable_count = bin_missing_mask.sum()
-                    df_imputed.loc[bin_mask & bin_missing_mask, 'pore_volume'] = bin_mean
-                    rows_imputed += imputable_count
-                    
-                    group_stats[f'bin_{bin_id}'] = {
-                        'mean': float(bin_mean),
-                        'imputed_count': int(imputable_count)
-                    }
-    
-    if rows_imputed == 0 and missing_count > 0:
-        raise RuntimeError(f"Failed to impute any of the {missing_count} missing pore_volume values.")
-    
-    imputation_result = {
-        'imputed': True,
-        'reason': 'missing values imputed',
-        'rows_imputed': int(rows_imputed),
-        'total_missing': int(missing_count),
-        'strategy': impute_by,
-        'group_stats': group_stats,
-        'timestamp': pd.Timestamp.now().isoformat()
-    }
-    
-    logger.info(f"Imputation complete: {rows_imputed}/{missing_count} rows imputed using strategy '{impute_by}'")
-    
-    return df_imputed, imputation_result
-
-def save_imputation_log(imputation_result: Dict[str, Any]):
-    """Save imputation log to JSON file."""
-    ensure_directories()
-    
-    # Load existing log if it exists
-    if IMPUTATION_LOG_PATH.exists():
-        try:
-            with open(IMPUTATION_LOG_PATH, 'r') as f:
-                existing_log = json.load(f)
-                if not isinstance(existing_log, list):
-                    existing_log = [existing_log]
-        except (json.JSONDecodeError, IOError):
-            existing_log = []
-    else:
-        existing_log = []
-    
-    existing_log.append(imputation_result)
-    
-    with open(IMPUTATION_LOG_PATH, 'w') as f:
-        json.dump(existing_log, f, indent=2, default=str)
-    
-    logger.info(f"Imputation log saved to {IMPUTATION_LOG_PATH}")
+    with open(log_path, 'w') as f:
+        json.dump(excluded_rows, f, indent=2, default=str)
+    logger.info(f"Saved imputation exclusion log to {log_path}")
 
 def main():
     """
-    Main entry point for imputation script.
-    
-    Reads the preprocessed dataset, performs imputation on missing pore_volume,
-    and saves the updated dataset along with the imputation log.
-    
-    Expected input: data/processed/preprocessed_data.csv (or similar)
-    Output: data/processed/imputed_data.csv and data/validation/imputation_log.json
+    Main entry point for testing imputation logic.
+    Loads data from data/raw/merged_dataset.parquet (if exists),
+    performs imputation, and saves results.
     """
-    # Try to find the input file
-    input_candidates = [
-        Path("data/processed/preprocessed_data.csv"),
-        Path("data/processed/processed_data.csv"),
-        Path("data/raw/merged_dataset.parquet"),
-        Path("data/raw/merged_dataset.csv")
-    ]
+    input_path = Path("data/raw/merged_dataset.parquet")
+    output_path = Path("data/processed/imputed_dataset.parquet")
     
-    input_file = None
-    for candidate in input_candidates:
-        if candidate.exists():
-            input_file = candidate
-            break
-    
-    if input_file is None:
-        # Create a minimal test case if no input exists (for development)
-        logger.warning("No input data file found. Creating test data for demonstration.")
-        test_data = pd.DataFrame({
-            'material_id': ['MOF-1', 'MOF-2', 'MOF-3', 'MOF-4', 'MOF-5'],
-            'material_type': ['MOF', 'MOF', 'COF', 'MOF', 'COF'],
-            'surface_area': [1000.0, 2000.0, 1500.0, np.nan, 1200.0],
-            'pore_volume': [0.5, np.nan, 0.8, 0.6, np.nan],
-            'langmuir_capacity': [10.0, 15.0, 12.0, 11.0, 13.0],
-            'henry_constant': [0.5, 0.6, 0.55, 0.52, 0.58]
-        })
-        df = test_data
-        output_file = Path("data/processed/imputed_data.csv")
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-    else:
-        logger.info(f"Loading data from {input_file}")
-        if input_file.suffix == '.parquet':
-            df = pd.read_parquet(input_file)
-        else:
-            df = pd.read_csv(input_file)
-        output_file = Path(str(input_file).replace('.csv', '_imputed.csv').replace('.parquet', '_imputed.parquet'))
-    
-    # Perform imputation
-    df_imputed, imputation_result = impute_pore_volume(df, impute_by='material_type')
-    
-    # Save imputation log
-    save_imputation_log(imputation_result)
-    
-    # Save imputed dataset
-    if output_file.suffix == '.parquet':
-        df_imputed.to_parquet(output_file, index=False)
-    else:
-        df_imputed.to_csv(output_file, index=False)
-    
-    logger.info(f"Imputed dataset saved to {output_file}")
-    
-    return df_imputed, imputation_result
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}. Cannot run imputation.")
+        # In a real pipeline, this might raise an error or fetch data
+        # For now, we just log and exit to avoid synthetic data generation
+        sys.exit(1)
+
+    try:
+        logger.info(f"Loading data from {input_path}...")
+        df = pd.read_parquet(input_path)
+        logger.info(f"Loaded {len(df)} rows.")
+
+        # Ensure columns exist
+        required_cols = ['pore_volume', 'material_type', 'surface_area_bin']
+        missing_cols = [c for c in required_cols if c not in df.columns]
+        if missing_cols:
+            logger.error(f"Missing required columns: {missing_cols}")
+            sys.exit(1)
+
+        # Perform imputation
+        imputed_df, excluded_rows = impute_pore_volume(df)
+        
+        logger.info(f"Imputation complete. Rows before: {len(df)}, Rows after: {len(imputed_df)}")
+        
+        # Save imputed dataset
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        imputed_df.to_parquet(output_path, index=False)
+        logger.info(f"Saved imputed dataset to {output_path}")
+
+        # Save exclusion log (already done inside impute_pore_volume, but ensuring path)
+        log_path = Path("data/validation/exclusion_log.json")
+        if excluded_rows:
+            save_imputation_log(excluded_rows, log_path)
+        
+    except Exception as e:
+        logger.error(f"Error during imputation: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

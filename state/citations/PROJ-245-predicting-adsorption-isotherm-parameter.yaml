@@ -122,26 +122,3 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1021/acs.jctc.6b01090
   verified_at: '2026-08-04T11:09:46.378075Z'
-- artifact_hash: bf8a505223cef9e940c85c4ec333e06757f185a275d0f110c13624e7e7a606d4
-  artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Multilabel Classification Models for the Prediction of Cross-Coupling
-    Reaction Conditions
-  kind: doi
-  value: 10.1021/acs.jcim.0c01234
-  verification_status: pending
-  verified_against_url: https://doi.org/10.1021/acs.jcim.0c01234
-  verified_at: '2026-09-03T12:56:24.938855Z'
-- artifact_hash: bf8a505223cef9e940c85c4ec333e06757f185a275d0f110c13624e7e7a606d4
-  artifact_path: projects/PROJ-245-predicting-adsorption-isotherm-parameter/specs/001-predicting-adsorption-isotherm-parameter/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Hydrodynamic coupling of monolayers with subphase
-  kind: doi
-  value: 10.1063/1.465781
-  verification_status: pending
-  verified_against_url: https://doi.org/10.1063/1.465781
-  verified_at: '2026-09-03T12:56:24.938855Z'

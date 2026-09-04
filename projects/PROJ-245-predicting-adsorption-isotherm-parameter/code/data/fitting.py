@@ -1,8 +1,8 @@
 """
-Parameter Fitting Module for Adsorption Isotherms.
+Isotherm Parameter Fitting Module.
 
-Implements non-linear least squares fitting for Langmuir and Henry isotherm models
-to extract parameters (capacity, affinity, constant) from raw P vs V data points.
+This module implements the fitting of Langmuir and Henry parameters
+from raw isotherm data points.
 """
 
 import os
@@ -15,372 +15,305 @@ from typing import Dict, Any, Optional, List, Tuple, Union
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
-from scipy.stats import linregress
+from scipy.special import expit
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/fitting.log')
-    ]
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_MAX_ITER = 1000
-DEFAULT_PCTOL = 1e-4
-DEFAULT_FITTING_TOLERANCE = 1e-8
+class FittingError(Exception):
+    """Custom exception for fitting failures."""
+    pass
 
-
-def langmuir_model(P: np.ndarray, q_max: float, b: float) -> np.ndarray:
+def langmuir_model(P: Union[float, np.ndarray], q_max: float, b: float) -> Union[float, np.ndarray]:
     """
-    Langmuir Isotherm Model: q = (q_max * b * P) / (1 + b * P)
+    Langmuir isotherm model: q = (q_max * b * P) / (1 + b * P)
 
     Args:
-        P: Pressure values (input).
-        q_max: Maximum adsorption capacity (parameter to fit).
-        b: Langmuir affinity constant (parameter to fit).
+        P: Pressure values (atm)
+        q_max: Maximum adsorption capacity (mmol/g)
+        b: Langmuir affinity constant (1/atm)
 
     Returns:
-        Predicted adsorption capacity q.
+        Predicted adsorption capacity q
     """
-    return (q_max * b * P) / (1.0 + b * P)
+    return (q_max * b * P) / (1 + b * P)
 
-
-def henry_model(P: np.ndarray, K: float) -> np.ndarray:
+def henry_model(P: Union[float, np.ndarray], k_H: float) -> Union[float, np.ndarray]:
     """
-    Henry's Law Model: q = K * P (Linear at low pressures)
+    Henry's law model: q = k_H * P
 
     Args:
-        P: Pressure values (input).
-        K: Henry's constant (parameter to fit).
+        P: Pressure values (atm)
+        k_H: Henry's law constant (mmol/g/atm)
 
     Returns:
-        Predicted adsorption capacity q.
+        Predicted adsorption capacity q
     """
-    return K * P
-
+    return k_H * P
 
 def fit_langmuir_parameters(
     P: np.ndarray,
-    V: np.ndarray,
-    p0: Optional[Tuple[float, float]] = None
+    q: np.ndarray,
+    initial_guess: Optional[Tuple[float, float]] = None
 ) -> Dict[str, float]:
     """
-    Fit Langmuir parameters (q_max, b) using non-linear least squares.
+    Fit Langmuir parameters to data using non-linear least squares.
 
     Args:
-        P: Array of pressure values.
-        V: Array of adsorbed volume/capacity values.
-        p0: Initial guess for (q_max, b). If None, estimated heuristically.
+        P: Pressure array
+        q: Adsorption capacity array
+        initial_guess: Optional (q_max, b) tuple
 
     Returns:
-        Dictionary with fitted 'langmuir_capacity' (q_max) and 'langmuir_affinity' (b).
+        Dictionary with fitted parameters: 'q_max', 'b', 'r_squared'
     """
-    if len(P) < 3 or len(V) < 3:
-        raise ValueError("Insufficient data points for Langmuir fitting (need >= 3).")
-
-    # Heuristic initial guess if not provided
-    if p0 is None:
-        # Estimate q_max as slightly above max observed V
-        q_max_guess = np.max(V) * 1.1
-        # Estimate b by linearizing near origin or using average slope
-        # q = q_max * b * P / (1 + b*P) -> at low P, q ~ q_max * b * P
-        # b ~ q / (q_max * P)
-        mask = P > 0
-        if np.any(mask):
-            b_guess = np.mean(V[mask] / (q_max_guess * P[mask]))
-            if b_guess <= 0:
-                b_guess = 1.0
-        else:
-            b_guess = 1.0
-        p0 = (q_max_guess, b_guess)
+    if initial_guess is None:
+        # Heuristic initial guesses
+        q_max_guess = np.max(q) * 1.2
+        b_guess = 1.0
+        initial_guess = (q_max_guess, b_guess)
 
     try:
-        # Bounds: q_max > 0, b > 0
         popt, pcov = curve_fit(
             langmuir_model,
             P,
-            V,
-            p0=p0,
+            q,
+            p0=initial_guess,
             bounds=(0, np.inf),
-            maxfev=DEFAULT_MAX_ITER,
-            ftol=DEFAULT_FITTING_TOLERANCE
+            maxfev=5000
         )
         q_max, b = popt
-        logger.debug(f"Langmuir fit successful: q_max={q_max:.4f}, b={b:.4f}")
-        return {
-            'langmuir_capacity': float(q_max),
-            'langmuir_affinity': float(b)
-        }
-    except RuntimeError as e:
-        logger.warning(f"Langmuir fitting failed (RuntimeError): {e}. Falling back to Henry.")
-        raise
 
+        # Calculate R-squared
+        q_pred = langmuir_model(P, q_max, b)
+        ss_res = np.sum((q - q_pred) ** 2)
+        ss_tot = np.sum((q - np.mean(q)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+
+        # Calculate standard errors
+        perr = np.sqrt(np.diag(pcov))
+
+        logger.info(f"Langmuir fit successful: q_max={q_max:.4f}, b={b:.4f}, R²={r_squared:.4f}")
+
+        return {
+            'q_max': float(q_max),
+            'b': float(b),
+            'r_squared': float(r_squared),
+            'q_max_std': float(perr[0]),
+            'b_std': float(perr[1])
+        }
+
+    except RuntimeError as e:
+        logger.warning(f"Langmuir fit failed: {e}")
+        raise FittingError(f"Langmuir fitting failed: {e}")
+    except Exception as e:
+        logger.warning(f"Unexpected error in Langmuir fit: {e}")
+        raise FittingError(f"Unexpected error in Langmuir fitting: {e}")
 
 def fit_henry_parameters(
     P: np.ndarray,
-    V: np.ndarray,
-    low_pressure_threshold: float = 0.1
+    q: np.ndarray
 ) -> Dict[str, float]:
     """
-    Fit Henry's constant K using linear regression on low-pressure data.
+    Fit Henry's law parameters to data using linear regression.
 
     Args:
-        P: Array of pressure values.
-        V: Array of adsorbed volume/capacity values.
-        low_pressure_threshold: Pressure threshold below which to fit (normalized or absolute).
+        P: Pressure array
+        q: Adsorption capacity array
 
     Returns:
-        Dictionary with fitted 'henry_constant' (K).
+        Dictionary with fitted parameters: 'k_H', 'r_squared'
     """
-    if len(P) < 2 or len(V) < 2:
-        raise ValueError("Insufficient data points for Henry fitting (need >= 2).")
+    # Linear fit: q = k_H * P (intercept forced to 0)
+    # Using numpy polyfit with degree 1, but we want intercept=0
+    # So we solve: min ||P * k_H - q||^2 => k_H = (P^T * q) / (P^T * P)
+    if np.all(P == 0):
+        raise FittingError("All pressure values are zero; cannot fit Henry's law.")
 
-    # Filter for low pressure region to ensure linearity assumption holds
-    # Assuming P is in bar or similar unit; if normalized, adjust logic.
-    # We use a simple heuristic: fit the first N% or points below a threshold.
-    # Here we fit the subset where P < 10% of max P to ensure linearity.
-    max_p = np.max(P)
-    if max_p == 0:
-        raise ValueError("Pressure values are all zero.")
+    k_H = np.dot(P, q) / np.dot(P, P)
 
-    threshold = max_p * 0.1
-    mask = P <= threshold
+    # Calculate R-squared
+    q_pred = k_H * P
+    ss_res = np.sum((q - q_pred) ** 2)
+    ss_tot = np.sum((q - np.mean(q)) ** 2)
+    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
 
-    if np.sum(mask) < 2:
-        # Fallback: use all points if not enough low-pressure points
-        mask = np.ones(len(P), dtype=bool)
-
-    P_sub = P[mask]
-    V_sub = V[mask]
-
-    slope, intercept, r_value, p_value, std_err = linregress(P_sub, V_sub)
-
-    if r_value ** 2 < 0.95:
-        logger.warning(f"Low R² ({r_value**2:.2f}) for Henry fit. Data may not be linear.")
+    logger.info(f"Henry fit successful: k_H={k_H:.4f}, R²={r_squared:.4f}")
 
     return {
-        'henry_constant': float(slope)
+        'k_H': float(k_H),
+        'r_squared': float(r_squared)
     }
-
 
 def fit_isotherm_parameters(
     P: np.ndarray,
-    V: np.ndarray,
-    model_type: str = 'auto'
-) -> Dict[str, float]:
+    q: np.ndarray,
+    fit_type: str = 'langmuir'
+) -> Dict[str, Any]:
     """
-    Fit isotherm parameters automatically or for a specific model.
+    Fit isotherm parameters based on specified model type.
 
     Args:
-        P: Pressure values.
-        V: Adsorbed volume/capacity values.
-        model_type: 'langmuir', 'henry', or 'auto'.
+        P: Pressure array
+        q: Adsorption capacity array
+        fit_type: 'langmuir' or 'henry'
 
     Returns:
-        Dictionary containing fitted parameters.
+        Dictionary with fitted parameters and metadata
     """
-    if model_type == 'langmuir':
-        return fit_langmuir_parameters(P, V)
-    elif model_type == 'henry':
-        return fit_henry_parameters(P, V)
-    elif model_type == 'auto':
-        # Try Langmuir first (more general for Type I), fallback to Henry
-        try:
-            return fit_langmuir_parameters(P, V)
-        except Exception:
-            logger.info("Langmuir fit failed, attempting Henry fit.")
-            return fit_henry_parameters(P, V)
-    else:
-        raise ValueError(f"Unknown model_type: {model_type}")
+    if len(P) != len(q):
+        raise FittingError("Pressure and capacity arrays must have the same length.")
+    if len(P) < 2:
+        raise FittingError("At least 2 data points required for fitting.")
+    if np.any(P < 0) or np.any(q < 0):
+        raise FittingError("Pressure and capacity values must be non-negative.")
 
+    if fit_type.lower() == 'langmuir':
+        params = fit_langmuir_parameters(P, q)
+        params['model_type'] = 'langmuir'
+    elif fit_type.lower() == 'henry':
+        params = fit_henry_parameters(P, q)
+        params['model_type'] = 'henry'
+    else:
+        raise FittingError(f"Unknown fit type: {fit_type}. Use 'langmuir' or 'henry'.")
+
+    return params
 
 def apply_fitting_to_dataset(
     df: pd.DataFrame,
-    pressure_col: str = 'pressure',
-    volume_col: str = 'adsorbed_amount',
-    isotherm_type_col: Optional[str] = 'isotherm_type',
-    target_type: str = 'Type I'
-) -> pd.DataFrame:
+    pressure_col: str = 'pressure_atm',
+    capacity_col: str = 'adsorption_mmol_g',
+    group_cols: List[str] = ['material_id', 'adsorbate'],
+    fit_type: str = 'langmuir',
+    min_points: int = 3
+) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Apply parameter fitting to a DataFrame containing raw isotherm points.
-
-    Expects the DataFrame to be grouped by a unique identifier (e.g., 'material_id', 'experiment_id')
-    such that each group represents a single isotherm curve (P vs V).
+    Apply isotherm fitting to each group in the dataset.
 
     Args:
-        df: Input DataFrame with raw isotherm points.
-        pressure_col: Name of the pressure column.
-        volume_col: Name of the volume/capacity column.
-        isotherm_type_col: Column indicating isotherm type (optional filter).
-        target_type: If isotherm_type_col exists, only fit rows matching this type.
+        df: DataFrame containing isotherm data
+        pressure_col: Column name for pressure
+        capacity_col: Column name for adsorption capacity
+        group_cols: Columns to group by for fitting
+        fit_type: Type of isotherm model to fit
+        min_points: Minimum number of points required for fitting
 
     Returns:
-        DataFrame with fitted parameters appended.
+        Tuple of (DataFrame with fitted parameters, list of fit logs)
     """
-    if df.empty:
-        logger.warning("Input DataFrame is empty. Returning empty result.")
-        return df
+    fit_logs = []
+    result_rows = []
 
-    # Identify grouping column
-    # We assume the data is grouped by a unique ID. If not present, we assume the whole DF is one curve
-    # or that the user has already grouped. Standard practice: group by 'material_id' or similar.
-    group_cols = []
-    for candidate in ['material_id', 'experiment_id', 'sample_id', 'adsorbent_id', 'adsorbate_id']:
-        if candidate in df.columns:
-            group_cols.append(candidate)
-            break
+    # Group by specified columns
+    grouped = df.groupby(group_cols)
 
-    if not group_cols:
-        # If no ID column, assume the whole dataframe is one dataset or raise error
-        logger.warning("No grouping column found. Attempting to fit the entire dataset as one curve.")
-        group_cols = [None] # Special handling below
+    for name, group in grouped:
+        try:
+            P = group[pressure_col].values
+            q = group[capacity_col].values
 
-    result_dfs = []
-    fit_log = []
-
-    if group_cols == [None]:
-        groups = [df]
-    else:
-        groups = df.groupby(group_cols)
-
-    for name, group in groups:
-        group_id = name if isinstance(name, tuple) else (name,)
-        group_id_str = "_".join(str(x) for x in group_id)
-
-        # Filter by isotherm type if column exists
-        if isotherm_type_col and isotherm_type_col in group.columns:
-            if target_type not in group[isotherm_type_col].values:
-                logger.debug(f"Skipping group {group_id_str}: not {target_type}.")
-                # Still need to keep the row but mark as no fit?
-                # For now, we just skip fitting but keep the row with NaNs
-                result_dfs.append(group.copy())
+            if len(P) < min_points:
+                log_entry = {
+                    'group': name,
+                    'status': 'skipped',
+                    'reason': f'Insufficient data points ({len(P)} < {min_points})'
+                }
+                fit_logs.append(log_entry)
                 continue
 
-        # Ensure we have pressure and volume
-        if pressure_col not in group.columns or volume_col not in group.columns:
-            logger.warning(f"Group {group_id_str} missing pressure or volume columns. Skipping fit.")
-            result_dfs.append(group.copy())
-            continue
+            params = fit_isotherm_parameters(P, q, fit_type)
 
-        P = group[pressure_col].values
-        V = group[volume_col].values
+            # Create result row
+            if isinstance(name, tuple):
+                row_data = dict(zip(group_cols, name))
+            else:
+                row_data = {group_cols[0]: name}
 
-        # Clean NaNs
-        valid_mask = ~(np.isnan(P) | np.isnan(V))
-        P_clean = P[valid_mask]
-        V_clean = V[valid_mask]
+            row_data.update(params)
+            row_data['n_points'] = len(P)
+            result_rows.append(row_data)
 
-        if len(P_clean) < 3:
-            logger.warning(f"Group {group_id_str} has insufficient valid points ({len(P_clean)}). Skipping fit.")
-            result_dfs.append(group.copy())
-            continue
+            log_entry = {
+                'group': name,
+                'status': 'success',
+                'params': params
+            }
+            fit_logs.append(log_entry)
 
-        try:
-            params = fit_isotherm_parameters(P_clean, V_clean, model_type='auto')
-            
-            # Create a row with the fitted parameters for this group
-            # We will merge this back later or assign directly if group is small
-            fit_record = {k: v for k, v in params.items()}
-            fit_record['_fit_status'] = 'success'
-            fit_log.append({'group_id': group_id_str, **fit_record})
-
-            # Assign to the group rows (broadcasting)
-            group_fit = group.copy()
-            for k, v in params.items():
-                group_fit[k] = v
-            result_dfs.append(group_fit)
-
+        except FittingError as e:
+            log_entry = {
+                'group': name,
+                'status': 'failed',
+                'reason': str(e)
+            }
+            fit_logs.append(log_entry)
+            logger.warning(f"Fitting failed for group {name}: {e}")
         except Exception as e:
-            logger.warning(f"Fit failed for group {group_id_str}: {e}. Marking as failed.")
-            group_fit = group.copy()
-            group_fit['langmuir_capacity'] = np.nan
-            group_fit['langmuir_affinity'] = np.nan
-            group_fit['henry_constant'] = np.nan
-            group_fit['_fit_status'] = 'failed'
-            fit_log.append({'group_id': group_id_str, '_fit_status': 'failed', 'error': str(e)})
-            result_dfs.append(group_fit)
+            log_entry = {
+                'group': name,
+                'status': 'error',
+                'reason': f"Unexpected error: {str(e)}"
+            }
+            fit_logs.append(log_entry)
+            logger.error(f"Unexpected error for group {name}: {e}")
 
-    if not result_dfs:
-        return pd.DataFrame()
-
-    final_df = pd.concat(result_dfs, ignore_index=True)
-    
-    # Log results
-    if fit_log:
-        import json
-        log_path = Path('data/validation/fitting_log.json')
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(log_path, 'w') as f:
-            json.dump(fit_log, f, indent=2)
-        logger.info(f"Fitting log written to {log_path}")
-
-    return final_df
-
+    result_df = pd.DataFrame(result_rows)
+    return result_df, fit_logs
 
 def main():
     """
-    Entry point for parameter fitting.
-    Expects a pre-processed or raw dataset in data/raw/ or data/processed/
-    and writes the result with fitted parameters to data/processed/fitted_isotherms.csv
+    Main function to demonstrate isotherm parameter fitting.
+    This function loads sample data, performs fitting, and saves results.
     """
-    input_path = Path('data/raw/merged_dataset.parquet')
-    if not input_path.exists():
-        # Fallback to CSV if parquet not found
-        input_path = Path('data/raw/merged_dataset.csv')
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}. Cannot proceed.")
-        sys.exit(1)
+    logger.info("Starting isotherm parameter fitting pipeline...")
 
-    logger.info(f"Loading data from {input_path}...")
-    if input_path.suffix == '.parquet':
-        df = pd.read_parquet(input_path)
-    else:
-        df = pd.read_csv(input_path)
+    # Ensure output directories exist
+    output_dir = Path("data/processed")
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
+    # Load preprocessed data if available
+    data_path = Path("data/processed/curated_dataset.csv")
+    if not data_path.exists():
+        logger.warning(f"Data file not found at {data_path}. Skipping fitting.")
+        logger.info("To run fitting, ensure data/processed/curated_dataset.csv exists.")
+        return
 
-    # Determine column names based on common standards or spec
-    # Spec mentions: P vs V points.
-    pressure_col = 'pressure'
-    volume_col = 'adsorbed_amount'
-    
-    # Check if columns exist, try alternatives
-    if pressure_col not in df.columns:
-        for alt in ['P', 'Pressure', 'pressure_bar']:
-            if alt in df.columns:
-                pressure_col = alt
-                break
-    
-    if volume_col not in df.columns:
-        for alt in ['V', 'Volume', 'adsorbed_volume', 'loading', 'capacity']:
-            if alt in df.columns:
-                volume_col = alt
-                break
+    df = pd.read_csv(data_path)
 
-    if pressure_col not in df.columns or volume_col not in df.columns:
-        logger.error(f"Could not identify pressure ({pressure_col}) or volume ({volume_col}) columns.")
-        sys.exit(1)
+    # Check for required columns
+    required_cols = ['pressure_atm', 'adsorption_mmol_g', 'material_id', 'adsorbate']
+    missing_cols = [col for col in required_cols if col not in df.columns]
 
-    logger.info(f"Fitting using columns: {pressure_col}, {volume_col}")
+    if missing_cols:
+        logger.error(f"Missing required columns: {missing_cols}")
+        return
 
-    fitted_df = apply_fitting_to_dataset(df, pressure_col=pressure_col, volume_col=volume_col)
+    logger.info(f"Loaded {len(df)} isotherm points from {data_path}")
 
-    output_path = Path('data/processed/fitted_isotherms.csv')
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fitted_df.to_csv(output_path, index=False)
-    logger.info(f"Fitted parameters written to {output_path}")
+    # Apply fitting
+    result_df, fit_logs = apply_fitting_to_dataset(
+        df,
+        pressure_col='pressure_atm',
+        capacity_col='adsorption_mmol_g',
+        group_cols=['material_id', 'adsorbate'],
+        fit_type='langmuir',
+        min_points=3
+    )
 
-    # Verify output
-    if 'langmuir_capacity' in fitted_df.columns:
-        success_count = fitted_df['langmuir_capacity'].notna().sum()
-        total_count = len(fitted_df)
-        logger.info(f"Fitting success rate: {success_count}/{total_count}")
+    # Save results
+    result_path = output_dir / "fitted_parameters.csv"
+    result_df.to_csv(result_path, index=False)
+    logger.info(f"Fitted parameters saved to {result_path}")
 
+    # Save fit logs
+    log_path = output_dir / "fitting_logs.json"
+    import json
+    with open(log_path, 'w') as f:
+        json.dump(fit_logs, f, indent=2)
+    logger.info(f"Fitting logs saved to {log_path}")
+
+    logger.info("Isotherm parameter fitting completed.")
 
 if __name__ == "__main__":
     main()

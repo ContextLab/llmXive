@@ -1,18 +1,33 @@
-T014d:
+T014h:
   c: false
-  h: 8f92367bb7d643996a2b8ff53afe3a31b9efcfa25a6da1f85af71c5eacc6d6dc
-  r: "The repository contains a `code/data/descriptors.py` file, but it only defines\
-    \ descriptor\u2011calculation utilities and shows no function that merges the\
-    \ logs from T014ba\u20111, T014bb\u20111, and T014bc\u20111 or writes a `missing_descriptors_report.json`.\
-    \ Moreover, the required `data/validation/missing_descriptors_report.json` file\
-    \ is absent. The task\u2019s core output is therefore missing."
-T015b:
+  h: a8ed1925184618a3d4397dfa93dd5f8335f28e8d230beb15f1637a1b176f2fb5
+  r: The provided `code/data/descriptors.py` does not contain a `cache_descriptors`
+    function (the excerpt shows other descriptor calculations but no caching logic),
+    and the required cache file `data/processed/descriptors_cache.parquet` is absent.
+    Both the function implementation and the output artifact are missing.
+T015a:
   c: false
-  h: fbd5a2298b517d044c15f26cb05ce6916774cfc79e6e3e4c79f5394e5998c1ab
-  r: The `code/data/imputation.py` script exists, but the required log file `data/validation/imputation_log.json`
-    is missing, indicating that the implementation does not fulfill the logging requirement.
-    The next implementer must ensure the script writes the imputation metadata to
-    the specified JSON log file.
+  h: d4abf1ade4233b03cefa5ade7bfd0c5f6022f0f9919d4443bcfc1fa34f3da7cf
+  r: The `filter_and_normalize` function in `code/data/preprocess.py` is truncated
+    and contains placeholder logic (e.g., `normalize_units` does nothing, logging
+    of excluded entries is incomplete, and the file ends abruptly). Moreover, the
+    required `data/validation/exclusion_log.json` does not exist. The implementation
+    does not fully perform the specified filtering, normalization, and logging steps.
+T016:
+  c: false
+  h: 9977c96c9e8b93cddfe5434babe6e26821ed931a0a2630bf24e1ba617b281340
+  r: "The provided `code/data/preprocess.py` does not contain a `detect_outliers`\
+    \ function (the visible portion shows only filtering/normalization utilities and\
+    \ is truncated before any outlier logic). Moreover, the required output file `data/validation/outliers_flagged.csv`\
+    \ is absent. Both the function implementation and the flagged\u2011outliers CSV\
+    \ are missing, so the task is not satisfied."
+T016#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation implementing outlier detection was\
+    \ provided; the response only repeats project specifications unrelated to the\
+    \ outlier\u2011detection task. Consequently, the required artifact (a functioning\
+    \ outlier\u2011detection component and its validation) is missing."
 T029:
   c: false
   h: 48c8b8e4fb8ee101011b1779c5cad1a3a2735261e85048ff31661bc1b3677b71
@@ -33,6 +48,12 @@ T037:
     was actually updated. Without concrete evidence of the required files and their
     content, we cannot confirm the documentation updates were performed. The implementer
     must provide the updated README.md and the relevant files in the docs/ directory.
+T039b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, scripts, or performance reports were supplied showing that the identified
+    bottlenecks from `bottleneck_report.json` were addressed using chunking, multiprocessing,
+    or caching. The required optimized artifacts are missing, so the task is not satisfied.
 T039c:
   c: false
   h: b78c9ce8fbedb4c1539f49852c4863b836ea5514b7335d2a13f1e1360f1867a9
@@ -58,24 +79,14 @@ T061:
     \ output `data/raw/merged_dataset.parquet` does not exist, so the script has not\
     \ successfully produced the merged dataset. The task\u2019s core deliverable is\
     \ therefore missing."
-T063:
-  c: false
-  h: 9447874432b7d2dda9b35ae85b17d281f8e4567b8ba17873b8980a0d959b5138
-  r: "The `code/analysis/cluster_permutation.py` file exists, but the required log\
-    \ file `data/validation/cluster_exclusion_log.json` is missing, and the visible\
-    \ code does not show the implementation that skips clusters of size\u202F<\u202F\
-    3 and writes to that JSON. The task\u2019s core requirement (logging excluded\
-    \ clusters) is therefore not satisfied."
 T065:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or log file was presented that shows the null model\
-    \ (T024) being trained using the exact same fold indices as the main models (from\
-    \ T022). Without such an artifact, we cannot confirm that the required reuse of\
-    \ fold indices was implemented. The implementer must provide the relevant implementation\
-    \ (e.g., a Python script or notebook) and evidence (e.g., printed fold indices\
-    \ or training logs) demonstrating the null model\u2019s training on the identical\
-    \ folds."
+  h: 47eb0071bb9a32bcb76fe0e27fa87919abc24ad5a9ee0482073925c0ea170b41
+  r: "The repository contains `code/models/null_model.py`, but the shown source is\
+    \ truncated (e.g., an unfinished `elif data_path.suffix ==` line) and does not\
+    \ demonstrate that it writes the required `data/results/null_model_fold_rmses.json`.\
+    \ Moreover, the expected results JSON file is absent from the project. The task\u2019\
+    s required output is therefore not present."
 T066:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
