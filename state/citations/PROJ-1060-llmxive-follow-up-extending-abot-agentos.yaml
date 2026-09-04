@@ -9,3 +9,27 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/alfworld/alfworld
   verified_at: '2026-09-04T09:28:58.286987Z'
+- artifact_hash: 1ed89dad8e8a333e591457f0cb28920598402e445a2708d157d1d9712218f569
+  artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/README_LINTING.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - psf/black: The uncompromising Python code formatter \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/psf/black
+  verification_status: pending
+  verified_against_url: https://github.com/psf/black
+  verified_at: '2026-09-04T20:37:08.860360Z'
+- artifact_hash: 1ed89dad8e8a333e591457f0cb28920598402e445a2708d157d1d9712218f569
+  artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/README_LINTING.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - astral-sh/ruff-pre-commit: A pre-commit hook for Ruff.\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/astral-sh/ruff-pre-commit
+  verification_status: pending
+  verified_against_url: https://github.com/astral-sh/ruff-pre-commit
+  verified_at: '2026-09-04T20:37:08.860360Z'

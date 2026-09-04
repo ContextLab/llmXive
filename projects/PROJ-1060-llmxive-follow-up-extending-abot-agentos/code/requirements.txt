@@ -1,0 +1,13 @@
+networkx==3.2.1
+pandas==2.1.4
+scikit-learn==1.3.2
+statsmodels==0.14.1
+datasets==2.16.1
+transformers==4.37.2
+pytest==7.4.3
+ruff==0.1.11
+black==23.12.1
+# tracemalloc is in stdlib
+
+# Note: If T002 was already done, this file might be managed there.
+# This is provided to ensure pytest is available if the environment is fresh.

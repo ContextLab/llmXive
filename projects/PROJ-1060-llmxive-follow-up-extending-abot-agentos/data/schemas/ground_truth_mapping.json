@@ -1,0 +1,190 @@
+{
+  "nodes": [
+    "countertop",
+    "sinkbasin",
+    "stoveburner",
+    "microwave",
+    "fridge",
+    "cabinet",
+    "drawer",
+    "table",
+    "sidetable",
+    "armchair",
+    "sofa",
+    "coffee_table",
+    "tvstand",
+    "bed",
+    "dresser",
+    "nightstand",
+    "toilet",
+    "bathtub",
+    "sink",
+    "dishwasher",
+    "trashcan",
+    "shelf",
+    "plant",
+    "lamp",
+    "window",
+    "door",
+    "floor",
+    "wall",
+    "ceiling",
+    "unknown_object"
+  ],
+  "edges": [
+    {
+      "source": "countertop",
+      "target": "sinkbasin",
+      "predicate": "contains"
+    },
+    {
+      "source": "countertop",
+      "target": "microwave",
+      "predicate": "contains"
+    },
+    {
+      "source": "countertop",
+      "target": "stoveburner",
+      "predicate": "contains"
+    },
+    {
+      "source": "cabinet",
+      "target": "countertop",
+      "predicate": "above"
+    },
+    {
+      "source": "drawer",
+      "target": "cabinet",
+      "predicate": "part_of"
+    },
+    {
+      "source": "table",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "chair",
+      "target": "table",
+      "predicate": "near"
+    },
+    {
+      "source": "bed",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "nightstand",
+      "target": "bed",
+      "predicate": "near"
+    },
+    {
+      "source": "lamp",
+      "target": "nightstand",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "fridge",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "toilet",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "bathtub",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "sink",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "dishwasher",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "trashcan",
+      "target": "floor",
+      "predicate": "near"
+    },
+    {
+      "source": "shelf",
+      "target": "wall",
+      "predicate": "attached_to"
+    },
+    {
+      "source": "plant",
+      "target": "table",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "lamp",
+      "target": "table",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "window",
+      "target": "wall",
+      "predicate": "in"
+    },
+    {
+      "source": "door",
+      "target": "wall",
+      "predicate": "in"
+    },
+    {
+      "source": "sofa",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "coffee_table",
+      "target": "sofa",
+      "predicate": "near"
+    },
+    {
+      "source": "tvstand",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "dresser",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "armchair",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "sidetable",
+      "target": "floor",
+      "predicate": "on_top_of"
+    },
+    {
+      "source": "unknown_object",
+      "target": "floor",
+      "predicate": "on_top_of"
+    }
+  ],
+  "predicates": [
+    "on_top_of",
+    "near",
+    "before",
+    "after",
+    "contains",
+    "above",
+    "below",
+    "left_of",
+    "right_of",
+    "part_of",
+    "attached_to",
+    "in"
+  ]
+}

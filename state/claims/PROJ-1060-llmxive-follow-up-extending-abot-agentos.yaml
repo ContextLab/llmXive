@@ -1,0 +1,148 @@
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: graph reconstruction error rate less than 1 percent against ground truth
+  claim_id: c_67d902f3
+  context: 'Independent Test: The system can be tested by running the construction
+    pipeline on a subset of task traces and verifying the output graph structure (nodes,
+    edges, predicates) against ground-truth annotations from ALFWorld via a manual
+    audit of a random sample of traces. Success is defined by a graph reconstruction
+    error rate < 1% against ground truth.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_reconstruction_error_rate_less_than_1_percent_against
+  kind: magnitude
+  raw_text: Success is defined by a graph reconstruction error rate < 1% against ground
+    truth.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T20:31:23Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: run all combinations of granularity coarse fine and expressiveness spatial
+    spatial plus temporal
+  claim_id: c_aaa02b7f
+  context: 'Implement and EXECUTE parametric sweeps in code/experiment_runner.py:
+    Run all combinations of granularity=["coarse", "fine"] and expressiveness=["spatial",
+    "spatial+temporal"]; aggregate results into data/results/sweep_metrics.csv to
+    measure impact (FR-008, FR-009).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_all_combinations_of_granularity_coarse_fine_and_expressi
+  kind: entity_fact
+  raw_text: Run all combinations of granularity=["coarse", "fine"] and expressiveness=["spatial",
+    "spatial+temporal"]
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T20:31:43Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: memory footprint of constructed graph less than or equal to 2 GB for
+    500 traces
+  claim_id: c_661568f9
+  context: "Add validation in code/graph_builder.py to ensure memory footprint of\
+    \ constructed graph \u2264 2 GB for 500 traces."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_footprint_of_constructed_graph_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "Add validation in code/graph_builder.py to ensure memory footprint of\
+    \ constructed graph \u2264 2 GB for 500 traces."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T20:32:04Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: latency guard decorator with limit of 100
+  claim_id: c_4d33e2b0
+  context: Implement code/latency_guard.py decorator @latency_guard(100) to measure
+    query latency; if limit exceeded, log violation to data/results/latency_violations.json
+    and continue (do NOT fail the run).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/latency_guard.py decorator @latency_guard(100) to measure
+    query latency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T20:32:33Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: system outputting correct statistical metrics p value t statistic and
+    McNemar statistic
+  claim_id: c_c59ebb54
+  context: 'Independent Test: The system can be tested by running the simulation on
+    a fixed subset of tasks, collecting the metrics, and generating a report that
+    compares the symbolic baseline against the neural baseline. Success is defined
+    by the system outputting the correct statistical metrics (p-value, t-statistic/McNemar
+    statistic) and error categorization.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_outputting_correct_statistical_metrics_p_value_t_stat
+  kind: entity_fact
+  raw_text: Success is defined by the system outputting the correct statistical metrics
+    (p-value, t-statistic/McNemar statistic) and error categorization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T20:33:12Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: compute p value and statistic from 2 by 2 contingency table
+  claim_id: c_7f3d0ae4
+  context: 'Implement code/metrics.py function run_mcnemar_test(success_symbolic:
+    list[bool], success_neural: list[bool]) -> (float, float) to compute p-value and
+    statistic from 2x2 contingency table.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/metrics.py function run_mcnemar_test(success_symbolic:
+    list[bool], success_neural: list[bool]) -> (float, float) to compute p-value and
+    statistic from 2x2 contingency table.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T20:33:15Z'
+- artifact_path: projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/specs/001-llmxive-follow-up-extending-abot-agentos/tasks.md
+  attempts: 1
+  canonical: evaluate if targets less than or equal to 5 percent and greater than
+    or equal to 80 percent are met
+  claim_id: c_2a25683c
+  context: "Generate final report in data/results/final_report.md (Markdown format)\
+    \ containing p-values, test statistics, error counts, and the calculated deltas\
+    \ (success rate difference, memory reduction), evaluating if targets (\u22645%,\
+    \ \u226580%) are met."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Evaluate_if_targets_less_than_or_equal_to_5_percent_and_grea
+  kind: magnitude
+  raw_text: "Generate final report in data/results/final_report.md (Markdown format)\
+    \ containing p-values, test statistics, error counts, and the calculated deltas\
+    \ (success rate difference, memory reduction), evaluating if targets (\u22645%,\
+    \ \u226580%) are met."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T20:33:21Z'

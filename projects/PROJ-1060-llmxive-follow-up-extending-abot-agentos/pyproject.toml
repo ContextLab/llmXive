@@ -1,0 +1,37 @@
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"
+
+[project]
+name = "llmxive-symbolic-memory"
+version = "0.1.0"
+description = "Symbolic Memory extension for ABot-AgentOS"
+requires-python = ">=3.10"
+dependencies = [
+    "networkx==3.2.1",
+    "pandas==2.1.4",
+    "scikit-learn==1.3.2",
+    "statsmodels==0.14.1",
+    "datasets==2.16.1",
+    "transformers==4.37.2",
+    "pytest==7.4.3",
+]

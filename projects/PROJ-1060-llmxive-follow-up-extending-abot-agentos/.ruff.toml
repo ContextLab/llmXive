@@ -1,0 +1,16 @@
+# Ruff configuration for llmXive project
+# Configured per T003
+
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "S", "B", "C4", "T20"]
+ignore = ["ANN101", "ANN204", "S101"] # Ignore missing self type, missing return type for methods, and assert statements in tests
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow asserts in tests
+"code/__init__.py" = ["F401"] # Allow unused imports in __init__.py
+
+[format]
+line-length = 88
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false

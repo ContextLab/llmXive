@@ -1,0 +1,33 @@
+T009b:
+  c: false
+  h: c751e86fb8e2a3fb68ca0c53311bb744c24140b2fa713476d087cbb9fdc9d4d3
+  r: "The provided `code/validator.py` is truncated (ends mid\u2011string at `\"edge_\"\
+    `) and contains no function that writes the computed error metrics to `data/results/reconstruction_error.json`.\
+    \ Moreover, the required `data/results/reconstruction_error.json` file is absent.\
+    \ Hence the task\u2019s required artifact and behavior are not fully delivered."
+T016:
+  c: false
+  h: f9645a5544834a1dbde98a6eda7c15e89e00df9e50234fbb9d3b32095bb5533f
+  r: "The repository lacks the required `data/results/sweep_metrics.csv` file, and\
+    \ the provided `code/experiment_runner.py` does not contain a complete implementation\
+    \ of the parametric sweep (the snippet is truncated, contains placeholder code,\
+    \ and no logic to iterate over all granularity/expressiveness combinations or\
+    \ to write the aggregated CSV). The task\u2019s core requirement is therefore\
+    \ unmet."
+T023:
+  c: false
+  h: 823f6129fb5dd66d29bb21e784ef13e6b607c7dedb0704e2f0ea532cdff028b1
+  r: The provided `code/latency_guard.py` is truncated and never invokes `_save_violations()`,
+    so violations are never written to `data/results/latency_violations.json`. Consequently
+    the required JSON log file is missing and the decorator does not fully meet the
+    specification. The implementation must be completed to actually persist violations
+    (e.g., call `_save_violations()` after appending) and ensure the JSON file is
+    created.
+T030b:
+  c: false
+  h: 8569f46b4a46a8999c95879c46551fb1b4c4e68cc0f3ba102a39817768a0b2e4
+  r: "The repository contains `code/error_analysis.py`, but the shown implementation\
+    \ stops at categorizing failures and does not include logic to compute `coverage_percentage`\
+    \ or write it to `data/results/error_coverage.json`. Moreover, the required JSON\
+    \ report file is absent. The task\u2019s core requirement\u2014calculating and\
+    \ persisting the coverage metric\u2014is not satisfied."

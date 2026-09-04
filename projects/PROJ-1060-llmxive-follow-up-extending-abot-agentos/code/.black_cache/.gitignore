@@ -1,0 +1,4 @@
+# This file is a placeholder to ensure the cache directory exists if needed,
+# though black usually creates it automatically.
+*
+!.gitignore
