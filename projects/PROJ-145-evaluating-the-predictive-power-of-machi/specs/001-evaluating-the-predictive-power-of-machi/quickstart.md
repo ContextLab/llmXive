@@ -1,72 +1,71 @@
 # Quickstart: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
 
 ## Prerequisites
-
-- Python 3.11+
-- Git
-- Access to a terminal with `pip`
+*   Python 3.11+
+*   `git`
+*   Access to Hugging Face (for dataset download, no token required for public datasets)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
+1.  **Clone and Setup**
     ```bash
+    git clone <repo-url>
+    cd projects/PROJ-145-evaluating-the-predictive-power-of-machi
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r requirements.txt
     ```
-3.  **Install dependencies**:
+
+2.  **Verify Dependencies**
+    Ensure `pymatgen`, `scikit-learn`, and `pandas` are installed:
     ```bash
-    pip install -r code/requirements.txt
+    python -c "import pymatgen; import sklearn; print('Dependencies OK')"
     ```
-    *Note: `requirements.txt` includes `pymatgen`, `scikit-learn`, `pandas`, `numpy`, `datasets`, and `pytest`.*
 
 ## Running the Pipeline
 
-The pipeline is executed via a series of scripts in the `code/` directory.
+The pipeline is executed via a single entry point script that orchestrates data ingestion, training, and evaluation.
 
-### Step 1: Data Ingestion
-Download and filter the HEA data.
 ```bash
-python code/data_ingestion.py
+python code/run_pipeline.py
 ```
-*Output*: `data/processed/heas_train.csv`, `data/processed/holdout_known.csv`
 
-### Step 2: Descriptor Calculation
-Calculate compositional descriptors for all datasets.
-```bash
-python code/descriptor_calc.py
-```
-*Output*: Updated CSVs with descriptor columns.
+### Step-by-Step Breakdown (Manual Execution)
 
-### Step 3: Model Training
-Train Random Forest and Gradient Boosting models with 5-fold CV.
-```bash
-python code/model_training.py
-```
-*Output*: `data/models/rf_model.pkl`, `data/models/gb_model.pkl`
+If you wish to run stages individually:
 
-### Step 4: Generate & Evaluate Novel Candidates
-Generate "True Novel" candidates and evaluate uncertainty.
-```bash
-python code/evaluation.py
-```
-*Output*: `data/processed/true_novel.csv`, `data/processed/metrics_summary.csv`
+1.  **Ingest Data** (FR-001, FR-002)
+    ```bash
+    python code/data_ingestion.py
+    # Outputs: data/processed/heas_train.csv, holdout_known.csv, true_novel.csv
+    ```
 
-### Step 5: Run Tests
-Verify the pipeline correctness.
-```bash
-pytest tests/
-```
+2.  **Feature Engineering** (FR-003)
+    ```bash
+    python code/feature_engineering.py
+    # Outputs: data/processed/heas_train_features.csv
+    ```
+
+3.  **Train Models** (FR-004)
+    ```bash
+    python code/model_training.py
+    # Outputs: models/rf_model.pkl, models/gb_model.pkl
+    ```
+
+4.  **Evaluate** (FR-005-FR-008)
+    ```bash
+    python code/evaluation.py
+    # Outputs: data/results/report.csv
+    ```
 
 ## Expected Outputs
-
-- **Interpolation Performance**: $R^2$ and MAE for the training set (5-fold CV).
-- **Extrapolation Performance**: $R^2$ and MAE for the "Hold-out Known" set.
-- **Uncertainty Metrics**: Variance and distance-from-hull for "True Novel" candidates.
-- **Final Report**: A summary of accuracy degradation and uncertainty correlation.
+*   `data/processed/heas_train.csv`: Filtered training data.
+*   `data/processed/holdout_known.csv`: Known compositions excluded from training.
+*   `data/processed/true_novel.csv`: Novel candidates.
+*   `data/processed/heas_train_features.csv`: Feature-engineered training data.
+*   `data/results/report.csv`: Final metrics and top novel candidates.
 
 ## Troubleshooting
-
-- **API Timeouts**: The `data_ingestion.py` script includes exponential backoff. If it fails after 3 retries, it logs a "partial failure" and continues.
-- **Numerical Errors**: If you see `divide by zero` errors, ensure the `utils.py` clamping logic is active (default threshold $1e-6$).
-- **Memory Issues**: The pipeline is designed for < 7 GB RAM. If you encounter OOM, reduce the `n_estimators` in `model_training.py` or sample a smaller subset of the data.
+*   **API Rate Limits**: The script implements exponential backoff. If it fails after 3 retries, it logs "partial failure" and continues.
+*   **Memory Errors**: If `pandas` crashes due to memory, enable `streaming=True` in `data_ingestion.py` (requires code modification).
+*   **Descriptor Errors**: If `pymatgen` fails to find an element, check the elemental list in `config.py`.

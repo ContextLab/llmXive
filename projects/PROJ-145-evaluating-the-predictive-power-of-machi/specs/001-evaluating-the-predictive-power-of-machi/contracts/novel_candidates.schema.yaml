@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Novel Candidate Schema"
+description: "Schema for the novel candidate dataset (true_novel.csv) with predictions"
+type: "object"
+properties:
+  composition_id:
+    type: "string"
+    description: "Unique hash of the composition string"
+  elements:
+    type: "string"
+    description: "Comma-separated list of elements"
+  predicted_energy:
+    type: "number"
+    description: "Model prediction of formation energy"
+  prediction_variance:
+    type: "number"
+    description: "Ensemble variance (uncertainty metric)"
+    minimum: 0
+  distance_from_hull:
+    type: "number"
+    description: "Distance from training convex hull"
+    minimum: 0
+  rank:
+    type: "integer"
+    description: "Rank by lowest uncertainty"
+required:
+  - composition_id
+  - elements
+  - predicted_energy
+  - prediction_variance
+  - distance_from_hull
+  - rank
+additionalProperties: false

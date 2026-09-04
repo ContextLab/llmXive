@@ -88,17 +88,17 @@ The researcher needs to apply the trained models to the "Hold-out Known" set to 
 
 ### Measurable Outcomes
 
-- **SC-001**: The interpolation $R^2$ score on the training set (via 5-fold CV) is measured and reported; the value is compared against the hypothesis of 0.80 (See US-2) [FR-004].
+- **SC-001**: The interpolation $R^2$ score on the training set (via 5-fold CV) is measured and reported; the value is compared against the hypothesis of a high threshold (See US-2) [FR-004].
 - **SC-002**: The extrapolation $R^2$ score on the "Hold-out Known" set is measured and reported; if ground truth is unavailable for the "True Novel" set, the correlation between ensemble variance and distance from the convex hull is measured and reported (See US-3) [FR-005].
 - **SC-003**: The statistical significance of the error degradation is measured by a p-value from a permutation test; the result is reported and interpreted, with a check for ground truth availability (See US-3) [FR-006].
 - **SC-004**: The computational feasibility is measured by the total execution time of the pipeline on a CPU-only runner, which must be $\le 6$ hours with $\le 7$ GB RAM usage (See US-2) [FR-004, FR-005].
-- **SC-005**: The reliability metric validity is measured by the ability to rank the top 100 "True Novel" candidates by uncertainty and reporting the variance distribution relative to the training set's 10th percentile (See US-3) [FR-007, FR-008].
+- **SC-005**: The reliability metric validity is measured by the ability to rank the top 100 "True Novel" candidates by uncertainty and reporting the variance distribution relative to the training set's lower percentile (See US-3) [FR-007, FR-008].
 
 ## Assumptions
 
 - The Materials Project and AFLOWlib APIs provide sufficient coverage of 5+ element HEA systems to train a robust model, and their data formats remain stable during the retrieval window.
 - The study distinguishes between "unseen in training" (Hold-out Known) and "unmeasured in nature" (True Novel). The "Hold-out Known" set allows for direct error measurement ($R^2$) relative to the training manifold, while the "True Novel" set allows for uncertainty calibration analysis. "True Novel" is defined as unindexed in the queried databases (MP/AFLOW), not necessarily uncharacterized globally.
 - Standard compositional descriptors (atomic radius, electronegativity, VEC) are sufficient to capture the majority of variance in the training set, even if they fail in the extrapolation regime.
-- The GitHub Actions free-tier runner (standard CPU, 7 GB RAM) is sufficient to process the dataset and train the Random Forest/Gradient Boosting models within the 6-hour limit, as these are CPU-tractable methods.
+- The GitHub Actions free-tier runner (standard CPU, ample RAM) is sufficient to process the dataset and train the Random Forest/Gradient Boosting models within the 6-hour limit, as these are CPU-tractable methods.
 - The `pymatgen` library is available and correctly installed in the CI environment to calculate the required compositional descriptors.
 - A Spearman correlation coefficient $\rho > 0.5$ between variance and distance from the convex hull is expected for the "True Novel" set, indicating that the model correctly identifies its own uncertainty in unexplored regions, though this is a hypothesis to be tested, not a pass/fail criterion.

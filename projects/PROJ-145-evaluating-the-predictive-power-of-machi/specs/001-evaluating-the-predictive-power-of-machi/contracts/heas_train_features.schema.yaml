@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Feature Engineered Schema"
+description: "Schema for the feature-engineered training dataset (heas_train_features.csv)"
+type: "object"
+properties:
+  composition_id:
+    type: "string"
+    description: "Unique hash of the composition string"
+  elements:
+    type: "string"
+    description: "Comma-separated list of elements"
+  mean_atomic_radius:
+    type: "number"
+    description: "Weighted mean of atomic radii"
+  var_atomic_radius:
+    type: "number"
+    description: "Weighted variance (clamped to 1e-6)"
+    minimum: 0.000001
+  mean_electronegativity:
+    type: "number"
+    description: "Weighted mean electronegativity"
+  var_electronegativity:
+    type: "number"
+    description: "Weighted variance (clamped to 1e-6)"
+    minimum: 0.000001
+  mean_VEC:
+    type: "number"
+    description: "Weighted mean Valence Electron Count"
+  var_VEC:
+    type: "number"
+    description: "Weighted variance (clamped to 1e-6)"
+    minimum: 0.000001
+  mean_melting_point:
+    type: "number"
+    description: "Weighted mean melting point (K)"
+  var_melting_point:
+    type: "number"
+    description: "Weighted variance (clamped to 1e-6)"
+    minimum: 0.000001
+  target_energy:
+    type: "number"
+    description: "Ground truth formation energy"
+required:
+  - composition_id
+  - elements
+  - mean_atomic_radius
+  - var_atomic_radius
+  - mean_electronegativity
+  - var_electronegativity
+  - mean_VEC
+  - var_VEC
+  - mean_melting_point
+  - var_melting_point
+  - target_energy
+additionalProperties: false

@@ -1,55 +1,35 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "HEA Training Set Schema"
-description: "Schema for the processed HEA training dataset containing compositional descriptors and thermodynamic targets."
+description: "Schema for the filtered HEA training dataset (heas_train.csv)"
 type: "object"
 properties:
   composition_id:
     type: "string"
-    description: "Unique hash of the composition string."
-  composition_str:
+    description: "Unique hash of the composition string"
+  elements:
     type: "string"
-    description: "Normalized composition string (e.g., 'FeCoNiCrMn')."
-  formation_energy_per_atom:
+    description: "Comma-separated list of elements"
+  n_elements:
+    type: "integer"
+    description: "Count of distinct elements (must be ≥ 5)"
+    minimum: 5
+  formation_energy:
     type: "number"
-    description: "Target variable: Formation energy per atom (eV/atom)."
+    description: "Formation energy per atom (eV/atom)"
   mixing_enthalpy:
     type: "number"
-    description: "Target variable: Mixing enthalpy (kJ/mol)."
-  atomic_radius_mean:
-    type: "number"
-    description: "Weighted mean atomic radius (pm)."
-  atomic_radius_var:
-    type: "number"
-    description: "Variance of atomic radius."
-  electronegativity_mean:
-    type: "number"
-    description: "Weighted mean electronegativity (Pauling)."
-  electronegativity_var:
-    type: "number"
-    description: "Variance of electronegativity."
-  vec_mean:
-    type: "number"
-    description: "Weighted mean Valence Electron Count."
-  vec_var:
-    type: "number"
-    description: "Variance of VEC."
-  melting_point_mean:
-    type: "number"
-    description: "Weighted mean melting point (K)."
-  melting_point_var:
-    type: "number"
-    description: "Variance of melting point."
+    description: "Mixing enthalpy (eV/atom)"
+  source:
+    type: "string"
+    description: "Source of the data"
+    enum:
+      - "aflow"
+      - "mp"
 required:
   - composition_id
-  - composition_str
-  - formation_energy_per_atom
+  - elements
+  - n_elements
+  - formation_energy
   - mixing_enthalpy
-  - atomic_radius_mean
-  - atomic_radius_var
-  - electronegativity_mean
-  - electronegativity_var
-  - vec_mean
-  - vec_var
-  - melting_point_mean
-  - melting_point_var
+  - source
 additionalProperties: false

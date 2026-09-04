@@ -16,7 +16,7 @@ properties:
     description: "P-value from the statistical test (e.g., permutation test, Spearman)."
   test_type:
     type: string
-    enum: ["permutation", "spearman", "cv", "none"]
+    enum: ["mann-whitney", "spearman", "cv", "none"]
     description: "Type of statistical test used."
   dataset:
     type: string
