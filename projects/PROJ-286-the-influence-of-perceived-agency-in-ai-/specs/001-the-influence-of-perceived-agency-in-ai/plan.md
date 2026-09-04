@@ -26,7 +26,7 @@ This project implements a computational psychology experiment to test whether in
 *Gates determined based on constitution file*
 
 1.  **Principle I (Reproducibility)**: **SATISFIED**. The plan mandates `random.seed` pinning in `code/` and deterministic data loading. The pipeline is designed to run end-to-end on a fresh runner.
-2.  **Principle II (Verified Accuracy)**: **SATISFIED**. The plan includes a specific step (Phase 0) to verify the Lee & See (2004) citation (DOI/Title) against the **Crossref API** before hardcoding survey items. The "hardcoded list" concern is addressed by moving the *verification* of the list into the pipeline setup, ensuring the code uses the *verified* items, not an unverified guess. The script outputs a `citation_log.json` with verified metadata.
+2.  **Principle II (Verified Accuracy)**: **SATISFIED**. The plan includes a specific step (Phase 0) to verify the Lee & See (Year) citation (DOI/Title) against the **Crossref API** before hardcoding survey items. The "hardcoded list" concern is addressed by moving the *verification* of the list into the pipeline setup, ensuring the code uses the *verified* items, not an unverified guess. The script outputs a `citation_log.json` with verified metadata.
 3.  **Principle III (Data Hygiene)**: **SATISFIED**. All raw data (simulated or real) will be checksummed before processing. Derivations will produce new files. PII will be excluded from the schema.
 4.  **Principle IV (Single Source of Truth)**: **SATISFIED**. Figures and statistics in the final report will be generated programmatically from the `data/` artifacts, not hand-typed.
 5.  **Principle V (Versioning Discipline)**: **SATISFIED**. The plan includes content hashing for all artifacts in `data/` and `code/`.
@@ -113,7 +113,7 @@ projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/
 2.  **Randomization**: Ensure participants are randomly assigned to conditions.
 3.  **Data Capture**: Record `Condition_ID`, `Adherence_Rate` (secondary behavioral metric, NOT a direct proxy for Trust), `Trust_Score` (derived mean of multiple items, **included in raw CSV for schema compliance**), `Attention_Score` (continuous scale, derived from 5 attention questions), Cognitive_Load_Score (continuous, Likert-type scale), and `Perceived_Agency_Score` (manipulation check).
     *   **Note**: `Adherence_Rate` is captured as a secondary outcome. It is **not** assumed to be a direct proxy for Trust without empirical validation.
-    *   **Attention Check**: The attention check consists of a series of **5 distinct questions**. `Attention_Score` is calculated as the percentage of correct answers (0, 20, 40, 60, 80, 100).
+    *   **Attention Check**: The attention check consists of a series of **5 distinct questions**. `Attention_Score` is calculated as the percentage of correct answers (, 20, 40, 60, 80, 100).
 4.  **Data Hygiene**: Write raw data to `data/raw/simulation_run_YYYYMMDD.csv` and generate a checksum.
 
 ### Phase 2: Statistical Analysis Pipeline

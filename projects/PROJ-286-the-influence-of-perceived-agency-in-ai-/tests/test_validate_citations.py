@@ -2,96 +2,136 @@ import pytest
 import json
 import tempfile
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 import sys
 import os
 
-# Add the project root to the path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code directory to path if needed, though imports should handle relative structure
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from code.research.validate_citations import (
-    tokenize, calculate_similarity, validate_citation, 
-    PRIMARY_SOURCE_TRUTH
+from research.validate_citations import (
+    tokenize,
+    calculate_similarity,
+    fetch_crossref_data,
+    validate_citation,
+    write_citation_log
 )
 
-def test_tokenize():
-    text = "Hello World"
-    tokens = tokenize(text)
-    assert "hello" in tokens
-    assert "world" in tokens
+class TestTokenize:
+    def test_tokenize_normal(self):
+        text = "Hello World"
+        result = tokenize(text)
+        assert result == ["hello", "world"]
 
-def test_calculate_similarity():
-    s1 = "The quick brown fox"
-    s2 = "The quick brown fox"
-    assert calculate_similarity(s1, s2) == 1.0
+    def test_tokenize_empty(self):
+        assert tokenize("") == []
+        assert tokenize(None) == []
 
-    s3 = "The quick brown fox"
-    s4 = "The slow brown dog"
-    sim = calculate_similarity(s3, s4)
-    assert 0.0 < sim < 1.0
+    def test_tokenize_special_chars(self):
+        text = "Hello, World!"
+        result = tokenize(text)
+        assert "hello" in result
+        assert "world" in result
 
-def test_validate_citation_structure():
-    # Test against Primary Source Truth
-    truth = PRIMARY_SOURCE_TRUTH["Lee & See (2004)"]
-    result = validate_citation(truth["title"], truth["doi"], "Lee & See (2004)")
-    assert result["status"] == "verified"
-    assert result["claimed_doi"] == truth["doi"]
+class TestCalculateSimilarity:
+    def test_identical(self):
+        assert calculate_similarity("test", "test") == 1.0
 
-def test_validate_citation_mismatch():
-    # Test with wrong DOI
-    result = validate_citation("Trust in Automation", "10.0000/fake", "Lee & See (2004)")
-    assert result["status"] == "failed"
-    assert "DOI mismatch" in result["message"]
+    def test_different(self):
+        score = calculate_similarity("test", "best")
+        assert score < 1.0
+        assert score > 0.0
 
-    # Test with wrong title
-    result = validate_citation("Wrong Title", "10.1207/s15327566ijhc1601_4", "Lee & See (2004)")
-    assert result["status"] == "failed"
-    assert "Title mismatch" in result["message"]
+    def test_empty(self):
+        assert calculate_similarity("", "") == 0.0
+        assert calculate_similarity("test", "") == 0.0
 
-def test_validate_citation_not_found():
-    result = validate_citation("Some Title", "10.0000/fake", "Unknown Author (2099)")
-    assert result["status"] == "failed"
-    assert "not found in Primary Source Truth" in result["message"]
+class TestFetchCrossrefData:
+    @patch('research.validate_citations.requests.get')
+    def test_success(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "status": "ok",
+            "message": {
+                "title": ["Trust in Automation"],
+                "author": [{"family": "Lee"}]
+            }
+        }
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
 
-def test_main_execution():
-    # Create temporary files for spec and plan
-    with tempfile.TemporaryDirectory() as tmpdir:
-        spec_path = Path(tmpdir) / "spec.md"
-        plan_path = Path(tmpdir) / "plan.md"
-        output_path = Path(tmpdir) / "validation_report.json"
+        data = fetch_crossref_data("10.1234/test")
+        assert data is not None
+        assert data["title"] == ["Trust in Automation"]
 
-        # Write valid content
-        spec_content = """
-        ## References
-        Lee & See (2004) "Trust in Automation: Designing for Appropriate Reliance" (DOI: 10.1207/s15327566ijhc1601_4)
-        """
-        plan_content = """
-        ## Plan
-        Langer (1975) "The Illusion of Control" (DOI: 10.1037/h0076860)
-        """
+    @patch('research.validate_citations.requests.get')
+    def test_failure_404(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = Exception("404")
+        mock_get.return_value = mock_response
 
-        spec_path.write_text(spec_content)
-        plan_path.write_text(plan_content)
+        data = fetch_crossref_data("10.1234/nonexistent")
+        assert data is None
 
-        # Run main
-        from code.research.validate_citations import main
-        import sys
+class TestValidateCitation:
+    def test_valid_citation(self):
+        citation = {
+            "author": "Lee & See",
+            "year": 2004,
+            "claimed_title": "Trust in Automation: Designing for Appropriate Reliance",
+            "doi": "10.1518/hfes.46.1.50_30392"
+        }
+        
+        # Mock the fetch function to return expected metadata
+        with patch('research.validate_citations.fetch_crossref_data') as mock_fetch:
+            mock_fetch.return_value = {
+                "title": ["Trust in Automation: Designing for Appropriate Reliance"],
+                "author": [{"family": "Lee"}, {"family": "See"}]
+            }
+            
+            result = validate_citation(citation)
+            assert result["status"] == "verified"
+            assert result["content_verified"] is True
+            assert result["overlap_score"] > 0.7
 
-        # Mock sys.argv
-        original_argv = sys.argv
-        sys.argv = [
-            "validate_citations.py",
-            "--spec", str(spec_path),
-            "--plan", str(plan_path),
-            "--output", str(output_path)
-        ]
+    def test_invalid_title(self):
+        citation = {
+            "author": "Lee & See",
+            "year": 2004,
+            "claimed_title": "Completely Wrong Title",
+            "doi": "10.1518/hfes.46.1.50_30392"
+        }
+        
+        with patch('research.validate_citations.fetch_crossref_data') as mock_fetch:
+            mock_fetch.return_value = {
+                "title": ["Trust in Automation: Designing for Appropriate Reliance"]
+            }
+            
+            result = validate_citation(citation)
+            assert result["status"] == "failed"
+            assert result["content_verified"] is False
 
-        try:
-            main()
-            # Check output
+    def test_missing_doi(self):
+        citation = {
+            "author": "Unknown",
+            "year": 2020,
+            "claimed_title": "Test",
+            "doi": None
+        }
+        
+        result = validate_citation(citation)
+        assert result["status"] == "failed"
+        assert "No DOI provided" in result["error"]
+
+class TestWriteCitationLog:
+    def test_write_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "report.json"
+            results = [{"status": "verified"}]
+            
+            write_citation_log(results, str(output_path))
+            
             assert output_path.exists()
-            with open(output_path) as f:
-                report = json.load(f)
-            assert report["status"] == "verified"
-            assert len(report["citations"]) == 2
-        finally:
-            sys.argv = original_argv
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+            assert data == results

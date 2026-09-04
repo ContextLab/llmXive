@@ -1,10 +1,10 @@
-T000b:
+T000:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact was provided that shows the Lee &\u202FSee (2004) scale items from\
-    \ `spec.md` being compared to the primary source; there is no validation report,\
-    \ table, or documented verification of the text content. The required evidence\
-    \ is missing."
+  r: "The claim provides only a feature specification and user stories unrelated to\
+    \ the Gate task; there is no code, script, or output that validates a citation\u2019\
+    s title and DOI against CrossRef. The required artifact (a CrossRef\u2011API validation\
+    \ implementation or its results) is missing."
 T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
