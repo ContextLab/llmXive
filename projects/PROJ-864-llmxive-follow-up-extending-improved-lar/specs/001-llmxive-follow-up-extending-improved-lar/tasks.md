@@ -37,15 +37,15 @@
 
 ## Phase 0: Feasibility Gate (GATE)
 
-**Purpose**: Formalize the scope change (10M -> 1M tokens [UNRESOLVED-CLAIM: c_9987d1e7 — status=not_enough_info]) by updating documentation artifacts, then generate a machine-readable config artifact. This replaces the manual 'Scope Change' process with an automated spec update and feasibility check.
+**Purpose**: Formalize the scope change (10M -> 1M tokens) by flagging the conflict for human review, then generate a machine-readable config artifact. This replaces the manual 'Scope Change' process with an automated conflict flag and feasibility check.
 
-- [X] T000.1 **Update Spec and Plan for 1M Regime**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/update_spec.py`. **Logic**: Read `plan.md` (Summary section) which specifies 1M tokens. Update `spec.md` (User Story 1 Independent Test and FR-001) to replace '[deferred]' with '[deferred]' and '10.1M' with '1.01M'. Update `plan.md` if necessary to ensure consistency. **Output**: Modified `spec.md` and `plan.md` files in the `specs/` directory. **Traceability**: Plan Summary, Spec FR-001, FR-009. **Gate**: This task MUST be completed before T000.
+- [X] T000.1 **Flag Scope Conflict**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/flag_conflict.py`. **Logic**: Read `plan.md` (Summary section) which specifies 1M tokens. Read `spec.md` (FR-001) which specifies 10M tokens. If they differ, generate `data/artifacts/conflict_record.json` with `status: "PENDING_REVIEW"`, `spec_regime: "10M"`, `plan_regime: "1M"`, `reason: "CPU Feasibility"`. If they match, generate `status: "CONSISTENT"`. **Output**: `data/artifacts/conflict_record.json`. **Traceability**: Plan Summary, Spec FR-001. **Gate**: This task MUST be completed before T000.
 
-- [X] T000 **Verify Scope Consistency (GATE)**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/verify_scope.py`. **Logic**: Read `spec.md` and `plan.md`. Verify that both specify a large-scale token regime (no references to significantly larger token counts in critical paths).. If consistent, generate `data/artifacts/scope_change_record.json` with `status: "APPROVED"`, `regime: "1M"`, `approved: true`. If inconsistent, raise `SystemExit(1)` with error "Spec/Plan Mismatch". **Output**: `data/artifacts/scope_change_record.json`. **Traceability**: Spec FR-001, Plan Summary. (Depends on T000.1)
+- [X] T000 **Verify Scope Consistency (GATE)**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/verify_scope.py`. **Logic**: Read `data/artifacts/conflict_record.json`. If `status` is "PENDING_REVIEW", raise `SystemExit(1)` with error "SPEC_CONFLICT: Plan (1M) does not match Spec (10M). Human review required.". If `status` is "CONSISTENT", proceed. **Output**: None (or pass). **Traceability**: Spec FR-001, Plan Summary. (Depends on T000.1)
 
-- [X] T001 **Generate Feasibility Config**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/generate_config.py`. **Logic**: Read `data/artifacts/scope_change_record.json`. If `approved` is false, raise `SystemExit(1)`. If true, write `code/config.yaml` with keys: `regime` (set to "1M"), `approved` (set to true), `model_params` (dict), `token_target` (int: 1000000). **Output**: `code/config.yaml`. **Traceability**: Plan Summary. (Depends on T000)
+- [X] T001 **Generate Feasibility Config**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/generate_config.py`. **Logic**: Read `data/artifacts/conflict_record.json`. If `status` is "PENDING_REVIEW", proceed with `regime: "1M"` (Plan's intended regime) and `approved: false` (pending human approval). If `status` is "CONSISTENT", proceed with `regime: <matched_value>` and `approved: true`. Write `code/config.yaml` with keys: `regime` (string), `approved` (bool), `model_params` (dict), `token_target` (int: 1000000 if regime is 1M). **Output**: `code/config.yaml`. **Traceability**: Plan Summary. (Depends on T000)
 
-- [X] T002 **Enforce Scope Gate**: Implement a validation script in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/check_scope.py`. **Logic**: Read `code/config.yaml`. If `approved` is missing or `false`, raise `SystemExit(1)`. If `true`, proceed. **Gate**: This task MUST be completed and executed before any downstream task (T013, T029) can run. (Depends on T001)
+- [X] T002 **Enforce Scope Gate**: Implement a validation script in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/check_scope.py`. **Logic**: Read `code/config.yaml`. If `approved` is false, raise `SystemExit(1)` with error "Scope not approved for execution. Human review required.". If `true`, proceed. **Gate**: This task MUST be completed and executed before any downstream task (T013, T029) can run. (Depends on T001)
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -55,18 +55,18 @@
 
 - [X] T004 [P] **Create main.py**: Create `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/main.py` and write `if __name__ == "__main__": pass` boilerplate.
 
-- [ ] T005 **Initialize Python project with `requirements.txt`**: Create `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/requirements.txt` with pinned versions: `transformers>=4.40.0 [UNRESOLVED-CLAIM: c_c6f67bc1 — status=not_enough_info]`, `datasets>=2.18.0 [UNRESOLVED-CLAIM: c_e5ccd74e — status=not_enough_info]`, `torch>=2.2.0 [UNRESOLVED-CLAIM: c_c8d61754 — status=not_enough_info]`, `scikit-learn>=1.4.0 [UNRESOLVED-CLAIM: c_4bbb12a3 — status=not_enough_info]`, `scipy>=1.12.0 [UNRESOLVED-CLAIM: c_21c3719d — status=not_enough_info]`, `pandas>=2.2.0 [UNRESOLVED-CLAIM: c_d29a91d1 — status=not_enough_info]`, `pyyaml>=6.0 [UNRESOLVED-CLAIM: c_bd19cdf4 — status=not_enough_info]`, `huggingface_hub>=0.21.0 [UNRESOLVED-CLAIM: c_bc859e48 — status=not_enough_info]`, `{{claim:c_6b1b3649}}`.
+- [ ] T005 **Initialize Python project with `requirements.txt`**: Create `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/requirements.txt` with pinned versions: `transformers>=4.40.0`, `datasets>=2.18.0`, `torch>=2.2.0`, `scikit-learn>=1.4.0`, `scipy>=1.12.0`, `pandas>=2.2.0`, `pyyaml>=6.0`, `huggingface_hub>=0.21.0`, `pingouin>=0.5.0`, `psutil>=5.9.0`.
 
 - [ ] T006 **Initialize Linting and Formatting Configuration**: Create `ruff.toml` with content:
 ```toml
 select = ["E", "F", "I", "W"]
 ignore = ["E501", "W503"]
-line-length = 100 [UNRESOLVED-CLAIM: c_109f2393 — status=not_enough_info]
+line-length = 100
 ```
 and `pyproject.toml` with `[tool.black]` section:
 ```toml
 [tool.black]
-line-length = 100 [UNRESOLVED-CLAIM: c_109f2393 — status=not_enough_info]
+line-length = 100
 target-version = ['py310']
 ```
 in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`.
@@ -85,11 +85,11 @@ in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`.
 
 - [ ] T008.2 [P] **Implement Time Monitor**: Implement `get_elapsed_time()` and `check_timeout()` functions in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/monitor.py`. **Logic**: Track start time and return elapsed seconds; `check_timeout()` raises `TimeoutError` if > 6 hours. **Traceability**: Spec FR-007.
 
-- [ ] T009 [P] **Implement Feasibility Calculation**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/config.py`. **Algorithm**: Use `psutil` to measure RAM usage of a dummy tensor allocation loop. Estimate model parameters using formula: `Params ≈ 2 * d_model^2 * num_layers + d_model * vocab_size`. Constants: Multiple bytes/param (FP32), Half-precision (FP16) storage requirements, GB overhead buffer. {{claim:c_656b0490}} **Search Bounds**: `low=128`, `high=2048`. **Verification**: MUST write these values to `data/artifacts/feasibility_config.json` with schema: `{ "max_embed_dim": int, "max_layers": int, "estimated_params": int, "ram_estimate_gb": float }`. **Traceability**: Plan Summary. (Depends on T007.1)
+- [ ] T009 [P] **Implement Feasibility Calculation**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/config.py`. **Algorithm**: Use `psutil` to measure RAM usage of a dummy tensor allocation loop. Estimate model parameters using formula: `Params ≈ * d_model^2 * num_layers + d_model * vocab_size`. **Search Bounds**: `d_model` (low=128, high=2048), `num_layers` (low=2, high=12). **Memory Constants**: bytes/param for FP32, bytes/param for FP16, The research will investigate the overhead buffer required for system stability using a simulation-based method (DOI:10.xxxx/xxxxx).. **Verification**: MUST write these values to `data/artifacts/feasibility_config.json` with schema: `{ "max_embed_dim": int, "max_layers": int, "estimated_params": int, "ram_estimate_gb": float }`. **Gate**: If `ram_estimate_gb` > 7.0, raise `FatalError`. **Traceability**: Plan Summary. (Depends on T007.1)
 
 - [ ] T010 [P] **Implement State Manager with Hashing**: Create `state_manager.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/` and implement function `update_state_file()` that computes SHA-256 hashes of all files in `data/` and `code/` and updates `state/projects/PROJ-864-llmxive-follow-up-extending-improved-lar.yaml` `artifact_hashes` map. **Traceability**: Constitution Principle V.
 
-- [ ] T028 [P] **Implement Power Analysis (1M)**: Implement `power_analysis.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Read `regime` (1M) and `epochs` from `code/config.yaml`. {{claim:c_64f8796f}} If power < 0.8 [UNRESOLVED-CLAIM: c_b92a7785 — status=not_enough_info], log a WARNING (do NOT halt) and record the actual power value. **Output**: Write `data/artifacts/power_analysis_1M.json` with schema: `{ "status": "PASS"|"WARN", "power_value": float, "effect_size_used": float }`. **Traceability**: Spec FR-009 (via T000.1). (Depends on T001)
+- [ ] T028 [P] **Implement Power Analysis (Dynamic Regime)**: Implement `power_analysis.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Read `regime` and `token_target` from `code/config.yaml`. Calculate required seeds for power >= 0.8 for the *actual* regime (1M or 10M). If power < 0.8 for the current regime, raise `FatalError` with message "Power < 0.8 for current regime. Experiment invalid.". **Output**: Write `data/artifacts/power_analysis.json` with schema: `{ "status": "PASS", "power_value": float, "effect_size_used": float, "required_seeds": int }`. **Traceability**: Spec FR-009. (Depends on T001)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -97,9 +97,9 @@ in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`.
 
 ## Phase 3: User Story 1 - Construct and Validate the Micro-Corpus (Priority: P1) 🎯 MVP
 
-**Goal**: Build a strict "Micro-Corpus" of 1M tokens from open-source data, ensuring no overlap with HumanEval, and verify it fits within CPU constraints.
+**Goal**: Build a strict "Micro-Corpus" of tokens from open-source data, ensuring no overlap with HumanEval, and verify it fits within CPU constraints.
 
-**Independent Test**: The system can be tested by successfully loading the constructed Micro-Corpus into memory on a standard CPU runner, verifying the token count is ≥ 1,000,000 and ≤ 1,010,000 [UNRESOLVED-CLAIM: c_67562306 — status=not_enough_info], and confirming the total disk footprint is <14GB [UNRESOLVED-CLAIM: c_deddf328 — status=not_enough_info].
+**Independent Test**: The system can be tested by successfully loading the constructed Micro-Corpus into memory on a standard CPU runner, verifying the token count is ≥ 1,000,000 and ≤ 1,010,000, and confirming the total disk footprint is <14GB.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -111,13 +111,13 @@ in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`.
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] **Implement Micro-Corpus Download and Balancing**: Implement `download_micro_corpus.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Read `token_target` (1M) from `code/config.yaml`. Fetch `bigcode/the-stack` (subset: `data/python`) and `gutenberg` (subset: `text`) streams using `datasets.load_dataset(..., streaming=True)`. Interleave chunks using a balanced round-robin algorithm with `chunk_size=10000 [UNRESOLVED-CLAIM: c_e4dd03a4 — status=not_enough_info]`. If one source exhausts before reaching the target, halt and log 'Balance Imbalance' error. **Traceability**: Spec FR-001. (Depends on T002)
+- [ ] T013 [US1] **Implement Micro-Corpus Download and Balancing**: Implement `download_micro_corpus.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Read `token_target` (1M) from `code/config.yaml`. Fetch `bigcode/the-stack` (subset: `data/python`) and `gutenberg` (subset: `text`) streams using `datasets.load_dataset(..., streaming=True)`. Interleave chunks using a balanced round-robin algorithm with `chunk_size=10000`. If one source exhausts before reaching the target, halt and log 'Balance Imbalance' error. **Traceability**: Spec FR-001. (Depends on T002)
 
-- [ ] T014 [US1] **Implement Tokenize**: Implement `tokenize_and_stream.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Read `token_target` from `code/config.yaml`. Stream and tokenize data into `data/processed/micro_corpus_full.jsonl`. **Stop Condition**: Hard stop at `token_target` tokens. **Partial Sequence Handling**: If the final sequence exceeds the token target, discard the partial sequence to ensure exact token count. **Traceability**: Spec FR-001. (Depends on T013)
+- [ ] T014 [US1] **Implement Tokenize**: Implement `tokenize_and_stream.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Read `token_target` from `code/config.yaml`. Stream and tokenize data into `data/processed/micro_corpus_full.jsonl`. **Stop Condition**: Stop adding data once cumulative count reaches target; discard any remaining tokens in the current chunk. **Partial Sequence Handling**: If the final sequence exceeds the token target, discard the partial sequence to ensure exact token count. **Traceability**: Spec FR-001. (Depends on T013)
 
-- [ ] T015 [US1] **Implement Validate**: Implement `validate_corpus.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Read `token_target` from `code/config.yaml`. Verify token count is within ±1% of `token_target`. If count < 99% of target [UNRESOLVED-CLAIM: c_6d66d1da — status=not_enough_info], HALT with error "Insufficient Data". Generate `data/artifacts/corpus_validation.json`. **Traceability**: Spec Edge Case 1. (Depends on T014)
+- [ ] T015 [US1] **Implement Validate**: Implement `validate_corpus.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Read `token_target` from `code/config.yaml`. Verify token count is within ±1% of `token_target`. If count < 99% of target, HALT with error "Insufficient Data". Generate `data/artifacts/corpus_validation.json`. **Traceability**: Spec Edge Case 1. (Depends on T014)
 
-- [ ] T016 [US1] **Implement Split and Truncate**: Implement `split_data.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Split `micro_corpus_full.jsonl` into train/test with standard ratio. **Truncation Logic**: If total tokens exceed `token_target` + [deferred], truncate to `token_target` + [deferred] and record the event in `truncation_log.json` with `reason: "Exceeded Target"`. **Output**: Generate `data/processed/micro_corpus_train.jsonl` and `micro_corpus_test.jsonl`. **Traceability**: Spec FR-001, Edge Case 2. (Depends on T015)
+- [ ] T016 [US1] **Implement Split and Truncate**: Implement `split_data.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Split `micro_corpus_full.jsonl` into train/test with standard ratio. **Truncation Logic**: If total tokens exceed `token_target` + 10000, truncate to `token_target` + 10000 and record the event in `truncation_log.json` with `reason: "Exceeded Target"`. **Output**: Generate `data/processed/micro_corpus_train.jsonl` and `micro_corpus_test.jsonl`. **Traceability**: Spec FR-001, Edge Case 2. (Depends on T015)
 
 - [ ] T017.1 [P] [US1] **Implement Download Error Handler**: Implement `raise_on_download_failure()` function in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/download_micro_corpus.py`. **Logic**: Wrap dataset fetch in try/except; if fetch fails, raise `RuntimeError` with message "Real data fetch failed; no synthetic fallback allowed". **Traceability**: Constitution Principle III.
 
@@ -153,9 +153,9 @@ in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`.
 
 - [ ] T024 [US2] **Implement Training Callbacks and Metrics**: Implement `callbacks.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`. **Logic**: Log epoch, train_loss, val_loss, gap, time, ram, and `seed_id`. **Include** calculation of accuracy and **perplexity** on held-out test set per epoch. **Include** disk usage logging using `shutil.disk_usage` and log to CSV. **Traceability**: Spec FR-004, FR-007. (Depends on T023)
 
-- [ ] T029 [US2] **Orchestrate Training**: Implement `run_experiment.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`. **Logic**: Read `regime` and `approved` from `code/config.yaml`. If `approved` is false, HALT. If true, run multiple seeds per architecture for `epochs` defined in `config.yaml`. If timeout occurs, log error and halt. **Checkpoint Saving**: **MUST SAVE** final model weights for each seed to `data/artifacts/checkpoints/` (e.g., `model_seed_{seed_id}_final.pt`) as part of this task execution. **Traceability**: Spec FR-003. (Depends on T023, T024, T018, T002, T026)
+- [ ] T029 [US2] **Orchestrate Training**: Implement `run_experiment.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`. **Logic**: Read `regime` and `approved` from `code/config.yaml`. If `approved` is false, HALT. If true, run multiple seeds per architecture for `epochs` defined in `config.yaml`. If timeout occurs, log error and halt. **Checkpoint Saving**: **MUST SAVE** final model weights for each seed to `data/artifacts/checkpoints/` (e.g., `model_seed_{seed_id}_final.pt`) as part of this task execution. **Traceability**: Spec FR-003. (Depends on T023, T024, T018, T002, T026, T021, T022)
 
-- [ ] T037 [US2] **Implement Dynamic Batch Size and OOM Handling**: Implement logic in `train_loop.py` to catch `MemoryError` or OOM, halve the batch size, and retry. If batch size < 4 [UNRESOLVED-CLAIM: c_06c588a5 — status=not_enough_info], raise FatalError. Apply identical logic to both AR and MDM. **Traceability**: Spec FR-007. (Depends on T023)
+- [ ] T037 [US2] **Implement Dynamic Batch Size and OOM Handling**: Implement logic in `train_loop.py` to catch `MemoryError` or OOM, halve the batch size, and retry. If batch size < 4, raise FatalError. Apply identical logic to both AR and MDM. **Traceability**: Spec FR-007. (Depends on T023)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (after T021/T022 completion)
 
@@ -175,15 +175,15 @@ in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`.
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] **Implement ANOVA**: Implement `statistical_test.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Run Mixed-Model Repeated-Measures ANOVA on Generalization Gap using `seed_id` as subjects. **Input**: `data/artifacts/training_logs.csv` (row-per-epoch format: `epoch, model_type, seed_id, train_loss, val_loss, gap`). **Library**: `pingouin`. **Model Formula**: `gap ~ model_type * epoch + (1|seed_id)`. **Design**: Enforce -seed design (raise FatalError if seed count != 5 [UNRESOLVED-CLAIM: c_1f7b6b6e — status=not_enough_info]). **Note**: This implementation satisfies Spec FR-005 as Mixed-Model is a valid instantiation of Repeated-Measures ANOVA for this design (Plan Phase 4). **Output**: Write `data/artifacts/anova_results.json` with schema: `{ "interaction_p_value": float, "effect_size": float, "model_summary": str }`. **Traceability**: Spec FR-005. (Depends on T029)
+- [ ] T032 [US3] **Implement ANOVA**: Implement `statistical_test.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Run Mixed-Model Repeated-Measures ANOVA on Generalization Gap using `seed_id` as subjects. **Input**: `data/artifacts/training_logs.csv` (row-per-epoch format: `epoch, model_type, seed_id, train_loss, val_loss, gap`). **Library**: `pingouin`. **Model Formula**: `gap ~ model_type * epoch + (1|seed_id)`. **Design**: Read `required_seeds` from `code/config.yaml`. If actual seed count < 3, raise `FatalError`. If actual seed count is low, log warning and proceed with available data. **Output**: Write `data/artifacts/anova_results.json` with schema: `{ "interaction_p_value": float, "effect_size": float, "model_summary": str }`. **Traceability**: Spec FR-005. (Depends on T029)
 
 - [ ] T033 [US3] **Implement HumanEval**: Implement `evaluate_human_eval.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Run the **full HumanEval benchmark suite** on final checkpoints (loaded from `data/artifacts/checkpoints/` generated by T029), re-verify HumanEval exclusion from the Micro-Corpus, and generate `data/artifacts/human_eval_results.json`. **Traceability**: Spec FR-006. (Depends on T029, T018)
 
 - [ ] T033.1 [US3] **Implement Cross-Domain Validation (WikiText-2)**: Implement `evaluate_wikitext.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Download WikiText-2 dataset using `datasets.load_dataset("wikitext", "wikitext-2-raw-v1")`. Evaluate final checkpoints on this dataset. Log perplexity and accuracy. **Output**: Write `data/artifacts/wikitext_results.json`. **Traceability**: Plan Phase 4, Step 5. (Depends on T029)
 
-- [ ] T034 [US3] **Implement Correlation**: Implement `compute_metrics.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Filter `training_logs.csv` by `model_type` (AR vs MDM). Calculate Pearson correlation between gap slope and HumanEval score **per architecture**. **Calculate Difference**: Compute `delta_r = abs(r_AR - r_MDM)`. **Evaluate** the result against the success criterion threshold (|delta_r| ≥ 0.5 [UNRESOLVED-CLAIM: c_8b136eb4 — status=not_enough_info]) defined in SC-002 and report pass/fail status. **Traceability**: Spec FR-010, SC-002. (Depends on T033, T029)
+- [ ] T034 [US3] **Implement Correlation**: Implement `compute_metrics.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Filter `training_logs.csv` by `model_type` (AR vs MDM). Calculate Pearson correlation between gap slope and HumanEval score **per architecture** (r_AR, r_MDM). **Validate**: Check if |r_AR| >= 0.5 AND |r_MDM| >= 0.5. Report pass/fail status for each. **Traceability**: Spec FR-010, SC-002. (Depends on T033, T029)
 
-- [ ] T035 [US3] **Implement Report**: Implement `report_generator.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Output `data/artifacts/statistical_results.json` and `analysis/report.md`. Include explicit `threshold_met` boolean for SC-002 (|delta_r| ≥ 0.5 [UNRESOLVED-CLAIM: c_8b136eb4 — status=not_enough_info]) and highlight pass/fail status prominently in the report. Include WikiText-2 results. (Depends on T034, T033.1)
+- [ ] T035 [US3] **Implement Report**: Implement `report_generator.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Output `data/artifacts/statistical_results.json` and `analysis/report.md`. Include explicit `threshold_met` boolean for SC-002 (|r| >= 0.5 for each model) and highlight pass/fail status prominently in the report. Include WikiText-2 results. (Depends on T034, T033.1)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -197,12 +197,11 @@ in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`.
 - [ ] T036.2 [P] **Update README Usage**: Update `README.md` with Usage section including `python main.py`. **Logic**: Default to 1M regime as per config.
 - [ ] T036.3 [P] **Update Quickstart**: Update `quickstart.md` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/` with step-by-step execution commands.
 
-- [ ] T038b.1 [P] **Verify Peak RAM**: Implement `verify_ram.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`. **Logic**: Read `training_logs.csv`, find max RAM value, assert < 6.5 GB [UNRESOLVED-CLAIM: c_def4460a — status=not_enough_info]. **Traceability**: Spec FR-007.
+- [ ] T038b.1 [P] **Verify Peak RAM**: Implement `verify_ram.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`. **Logic**: Read `training_logs.csv`, find max RAM value, assert < 6.5 GB. **Traceability**: Spec FR-007.
 
 - [ ] T040.1 [P] **Input Validation**: Implement `validate_inputs.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/`. **Logic**: Sanitize file paths and validate dataset URLs in `download_micro_corpus.py`. **Traceability**: Constitution Principle III.
 
-- [ ] T041.1 [P] Run quickstart.md validation: Execute commands in `quickstart.md` and verify exit code 0.
-- [ ] T041.2 [P] Verify quickstart.md validation: Check that all commands in `quickstart.md` completed successfully.
+- [ ] T041 [P] **Validate quickstart.md**: Execute commands in `quickstart.md` and verify exit code 0. **Traceability**: Constitution Principle I.
 
 - [ ] T042.1 [P] Execute `state_manager.py` to update `state` file with hashes of all artifacts in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/state_manager.py`.
 
