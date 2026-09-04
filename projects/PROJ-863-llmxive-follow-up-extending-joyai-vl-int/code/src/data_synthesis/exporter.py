@@ -4,9 +4,12 @@ import shutil
 import hashlib
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from src.data_synthesis.models import SyntheticVideoFrame
+
 from src.utils.logging import get_logger
-from src.utils.validation import validate_manifest_structure
+from src.utils.validation import validate_manifest_structure, ValidationError
+from src.data_synthesis.models import SyntheticVideoFrame
+from src.data_synthesis.visual_labeler import FrameLabel
+from src.data_synthesis.logging_integration import LabelingAuditLogger
 
 def compute_file_hash(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
@@ -18,169 +21,217 @@ def compute_file_hash(file_path: Path) -> str:
 
 def export_raw_data(
     source_dir: Path,
-    destination_dir: Path,
-    chunk_ids: Optional[List[str]] = None,
+    dest_dir: Path,
+    chunk_id: str,
     overwrite: bool = False
-) -> List[Dict[str, Any]]:
-    """
-    Export raw video data (JSONL frames) from source directory to data/raw/.
-    
-    Args:
-        source_dir: Directory containing generated chunk files (e.g., chunk_0001.jsonl)
-        destination_dir: Target directory (e.g., data/raw/)
-        chunk_ids: Optional list of specific chunk IDs to export. If None, export all.
-        overwrite: If True, overwrite existing files in destination.
-    
-    Returns:
-        List of metadata dicts for exported files.
-    """
-    logger = get_logger("exporter")
-    source_dir = Path(source_dir)
-    destination_dir = Path(destination_dir)
-    
-    if not source_dir.exists():
-        raise FileNotFoundError(f"Source directory not found: {source_dir}")
-    
-    destination_dir.mkdir(parents=True, exist_ok=True)
-    
-    exported_files = []
-    
-    # Determine which files to process
-    if chunk_ids:
-        files_to_process = [source_dir / f"chunk_{cid}.jsonl" for cid in chunk_ids]
-    else:
-        files_to_process = list(source_dir.glob("chunk_*.jsonl"))
-    
-    if not files_to_process:
-        logger.warning(f"No chunk files found in {source_dir}")
-        return []
-    
-    for src_file in files_to_process:
-        if not src_file.is_file():
-            continue
-        
-        dst_file = destination_dir / src_file.name
-        
-        if dst_file.exists() and not overwrite:
-            logger.info(f"Skipping existing file: {dst_file.name}")
-            continue
-        
-        # Copy file
-        shutil.copy2(str(src_file), str(dst_file))
-        
-        # Compute hash
-        file_hash = compute_file_hash(dst_file)
-        
-        # Get file stats
-        file_size = dst_file.stat().st_size
-        
-        metadata = {
-            "filename": dst_file.name,
-            "path": str(dst_file),
-            "size_bytes": file_size,
-            "sha256": file_hash,
-            "exported_at": str(dst_file.stat().st_mtime)
-        }
-        
-        exported_files.append(metadata)
-        logger.info(f"Exported: {dst_file.name} ({file_size} bytes, hash: {file_hash[:16]}...)")
-    
-    return exported_files
-
-def generate_manifest(
-    exported_files: List[Dict[str, Any]],
-    raw_data_dir: Path,
-    manifest_path: Path,
-    total_duration_seconds: float = 0.0
 ) -> Dict[str, Any]:
     """
-    Generate manifest.jsonl file containing metadata for all exported data.
+    Export raw video frames and labels from source to destination.
     
     Args:
-        exported_files: List of file metadata dicts from export_raw_data
-        raw_data_dir: Path to the raw data directory
-        manifest_path: Path where manifest.jsonl will be written
-        total_duration_seconds: Optional total duration of all video data
-    
+        source_dir: Directory containing generated video frames and labels
+        dest_dir: Destination directory for raw data export
+        chunk_id: Identifier for this chunk of data
+        overwrite: Whether to overwrite existing files
+        
     Returns:
-        The manifest dictionary written to disk.
+        Dictionary containing export metadata
     """
-    logger = get_logger("exporter")
-    raw_data_dir = Path(raw_data_dir)
-    manifest_path = Path(manifest_path)
+    logger = get_logger("data_synthesis.exporter")
     
-    # Ensure parent directory exists
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure destination directory exists
+    dest_dir.mkdir(parents=True, exist_ok=True)
     
-    manifest = {
-        "version": "1.0",
-        "created_at": str(manifest_path.stat().st_mtime) if manifest_path.exists() else None,
-        "data_directory": str(raw_data_dir),
-        "total_files": len(exported_files),
-        "total_size_bytes": sum(f.get("size_bytes", 0) for f in exported_files),
-        "total_duration_seconds": total_duration_seconds,
-        "files": exported_files
+    # Source paths
+    frames_file = source_dir / f"{chunk_id}_frames.jsonl"
+    labels_file = source_dir / f"{chunk_id}_labels.jsonl"
+    
+    # Destination paths
+    dest_frames_file = dest_dir / f"{chunk_id}_frames.jsonl"
+    dest_labels_file = dest_dir / f"{chunk_id}_labels.jsonl"
+    
+    export_stats = {
+        "chunk_id": chunk_id,
+        "frames_exported": 0,
+        "labels_exported": 0,
+        "frames_hash": None,
+        "labels_hash": None,
+        "export_path": str(dest_dir),
+        "timestamp": None
     }
     
-    # Validate structure
+    # Export frames
+    if frames_file.exists():
+        if dest_frames_file.exists() and not overwrite:
+            logger.warning(f"Frames file {dest_frames_file} already exists, skipping")
+        else:
+            shutil.copy2(frames_file, dest_frames_file)
+            export_stats["frames_exported"] = sum(1 for _ in open(frames_file))
+            export_stats["frames_hash"] = compute_file_hash(dest_frames_file)
+            logger.info(f"Exported {export_stats['frames_exported']} frames to {dest_frames_file}")
+    else:
+        logger.warning(f"Source frames file {frames_file} not found")
+    
+    # Export labels
+    if labels_file.exists():
+        if dest_labels_file.exists() and not overwrite:
+            logger.warning(f"Labels file {dest_labels_file} already exists, skipping")
+        else:
+            shutil.copy2(labels_file, dest_labels_file)
+            export_stats["labels_exported"] = sum(1 for _ in open(labels_file))
+            export_stats["labels_hash"] = compute_file_hash(dest_labels_file)
+            logger.info(f"Exported {export_stats['labels_exported']} labels to {dest_labels_file}")
+    else:
+        logger.warning(f"Source labels file {labels_file} not found")
+    
+    # Record timestamp
+    export_stats["timestamp"] = os.path.getmtime(dest_frames_file) if dest_frames_file.exists() else None
+    
+    return export_stats
+
+def generate_manifest(
+    raw_data_dir: Path,
+    manifest_path: Path,
+    total_duration_seconds: float,
+    ci_mode: bool = False,
+    target_duration: Optional[float] = None
+) -> Dict[str, Any]:
+    """
+    Generate a manifest.jsonl file documenting the exported dataset.
+    
+    Args:
+        raw_data_dir: Directory containing exported raw data files
+        manifest_path: Path to write the manifest.jsonl file
+        total_duration_seconds: Total duration of video data in seconds
+        ci_mode: Whether running in CI mode (subset generation)
+        target_duration: Expected target duration for validation
+        
+    Returns:
+        Dictionary containing manifest metadata
+    """
+    logger = get_logger("data_synthesis.exporter")
+    
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Collect chunk information
+    chunks = []
+    total_frames = 0
+    total_labels = 0
+    critical_count = 0
+    silence_count = 0
+    
+    for jsonl_file in sorted(raw_data_dir.glob("*_frames.jsonl")):
+        chunk_id = jsonl_file.stem.replace("_frames", "")
+        
+        # Count frames
+        frame_count = sum(1 for _ in open(jsonl_file))
+        total_frames += frame_count
+        
+        # Get corresponding labels
+        labels_file = raw_data_dir / f"{chunk_id}_labels.jsonl"
+        label_count = 0
+        if labels_file.exists():
+            label_count = sum(1 for _ in open(labels_file))
+            total_labels += label_count
+            
+            # Count label types
+            with open(labels_file, 'r') as f:
+                for line in f:
+                    label_data = json.loads(line)
+                    if label_data.get("label") == "critical":
+                        critical_count += 1
+                    elif label_data.get("label") == "silence":
+                        silence_count += 1
+        
+        # Compute hash
+        file_hash = compute_file_hash(jsonl_file)
+        
+        chunks.append({
+            "chunk_id": chunk_id,
+            "frames_file": str(jsonl_file),
+            "labels_file": str(labels_file) if labels_file.exists() else None,
+            "frame_count": frame_count,
+            "label_count": label_count,
+            "file_hash": file_hash
+        })
+    
+    # Validate manifest structure
+    manifest_content = {
+        "version": "1.0",
+        "ci_mode": ci_mode,
+        "total_duration_seconds": total_duration_seconds,
+        "target_duration_seconds": target_duration if target_duration else total_duration_seconds,
+        "total_frames": total_frames,
+        "total_labels": total_labels,
+        "label_distribution": {
+            "critical": critical_count,
+            "silence": silence_count
+        },
+        "chunks": chunks,
+        "raw_data_dir": str(raw_data_dir),
+        "generated_at": None
+    }
+    
+    # Write manifest as JSONL (one line per entry for streaming compatibility)
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest_content, f, indent=2)
+    
+    logger.info(f"Generated manifest at {manifest_path}")
+    logger.info(f"Total frames: {total_frames}, Total labels: {total_labels}")
+    logger.info(f"Label distribution - Critical: {critical_count}, Silence: {silence_count}")
+    
+    # Validate manifest
     try:
-        validate_manifest_structure(manifest)
-    except Exception as e:
-        logger.error(f"Manifest validation failed: {e}")
+        validate_manifest_structure(manifest_content)
+        logger.info("Manifest structure validation passed")
+    except ValidationError as e:
+        logger.error(f"Manifest structure validation failed: {e}")
         raise
     
-    # Write manifest as JSONL (one line, one object)
-    with open(manifest_path, "w") as f:
-        json.dump(manifest, f, indent=2)
-    
-    logger.info(f"Manifest written to: {manifest_path}")
-    logger.info(f"  Total files: {manifest['total_files']}")
-    logger.info(f"  Total size: {manifest['total_size_bytes']:,} bytes")
-    logger.info(f"  Total duration: {manifest['total_duration_seconds']:,} seconds")
-    
-    return manifest
+    return manifest_content
 
 def main():
-    """Main entry point for data export task."""
+    """Main entry point for data export."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Export synthetic data to data/raw/ and generate manifest")
-    parser.add_argument("--source", type=str, required=True, help="Source directory with chunk files")
-    parser.add_argument("--destination", type=str, default="data/raw", help="Destination directory for raw data")
-    parser.add_argument("--manifest", type=str, default="data/manifest.jsonl", help="Path for manifest.jsonl")
-    parser.add_argument("--duration", type=float, default=0.0, help="Total duration in seconds (optional)")
+    parser = argparse.ArgumentParser(description="Export synthetic data to raw format")
+    parser.add_argument("--source-dir", type=str, required=True, help="Source directory with generated data")
+    parser.add_argument("--dest-dir", type=str, required=True, help="Destination directory for raw data")
+    parser.add_argument("--manifest-path", type=str, default="data/manifest.jsonl", help="Path for manifest file")
+    parser.add_argument("--chunk-id", type=str, required=True, help="Chunk identifier")
+    parser.add_argument("--total-duration", type=float, required=True, help="Total duration in seconds")
+    parser.add_argument("--ci-mode", action="store_true", help="Run in CI mode (subset)")
+    parser.add_argument("--target-duration", type=float, help="Target duration for validation")
     parser.add_argument("--overwrite", action="store_true", help="Overwrite existing files")
     
     args = parser.parse_args()
     
-    source_dir = Path(args.source)
-    destination_dir = Path(args.destination)
-    manifest_path = Path(args.manifest)
-    
-    logger = get_logger("exporter")
-    logger.info(f"Starting export from {source_dir} to {destination_dir}")
+    source_dir = Path(args.source_dir)
+    dest_dir = Path(args.dest_dir)
+    manifest_path = Path(args.manifest_path)
     
     # Export raw data
-    exported_files = export_raw_data(
+    logger = get_logger("data_synthesis.exporter")
+    logger.info(f"Starting export from {source_dir} to {dest_dir}")
+    
+    export_stats = export_raw_data(
         source_dir=source_dir,
-        destination_dir=destination_dir,
+        dest_dir=dest_dir,
+        chunk_id=args.chunk_id,
         overwrite=args.overwrite
     )
     
-    if not exported_files:
-        logger.warning("No files were exported. Exiting.")
-        return
-    
     # Generate manifest
-    manifest = generate_manifest(
-        exported_files=exported_files,
-        raw_data_dir=destination_dir,
+    manifest_content = generate_manifest(
+        raw_data_dir=dest_dir,
         manifest_path=manifest_path,
-        total_duration_seconds=args.duration
+        total_duration_seconds=args.total_duration,
+        ci_mode=args.ci_mode,
+        target_duration=args.target_duration
     )
     
-    logger.info("Export completed successfully.")
-    print(json.dumps(manifest, indent=2))
+    logger.info("Export completed successfully")
+    return export_stats, manifest_content
 
 if __name__ == "__main__":
     main()

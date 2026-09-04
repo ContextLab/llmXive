@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SymbolicObservation"
+description: "Structured JSON observation derived from raw image frames using YOLO-tiny."
+type: "object"
+properties:
+  frame_id:
+    type: "integer"
+    description: "Unique identifier for the frame within the trajectory."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the frame capture."
+  detected_objects:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        class_label:
+          type: "string"
+          description: "Class name (e.g., 'red_block', 'blue_drawer')."
+        bounding_box_2d:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 4
+          maxItems: 4
+          description: "Format: [x_min, y_min, x_max, y_max]."
+        centroid:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
+          description: "Format: [center_x, center_y]."
+        color_histogram:
+          type: "array"
+          items:
+            type: "integer"
+          description: "Binned color histogram (e.g., 64 bins)."
+      required:
+        - "class_label"
+        - "bounding_box_2d"
+        - "centroid"
+        - "color_histogram"
+  scene_empty:
+    type: "boolean"
+    description: "True if no manipulable objects detected."
+  perception_latency_ms:
+    type: "number"
+    description: "Time taken to process this frame in milliseconds."
+  object_missing_if_visible:
+    type: "boolean"
+    description: "True if object is present in ground truth but missed by perception."
+required:
+  - "frame_id"
+  - "timestamp"
+  - "detected_objects"
+  - "scene_empty"
+  - "perception_latency_ms"
+  - "object_missing_if_visible"
+additionalProperties: false

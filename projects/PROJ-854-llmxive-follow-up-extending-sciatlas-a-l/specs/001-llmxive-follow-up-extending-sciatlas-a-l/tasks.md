@@ -23,7 +23,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan: Execute `mkdir -p src/{models,services,cli,lib} tests/{contract,integration,unit} data/{raw,processed} artifacts/{results,plots}` to create all required directories. <!-- FAILED: unspecified -->
-- [ ] T002 {{claim:c_d6eb7e14}} <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T002 {{claim:c_d6eb7e14}} <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with explicit sections `[tool.black]` (line_length=88, target_version=['py311']) and `[tool.ruff]` (select=['E402', 'F401', 'I001'], ignore=[]) defining specific rules.
 
 ---

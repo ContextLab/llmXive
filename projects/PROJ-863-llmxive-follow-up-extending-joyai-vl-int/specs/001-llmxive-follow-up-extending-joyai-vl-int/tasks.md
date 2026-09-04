@@ -89,7 +89,7 @@
 - [X] T014 [US1] Implement `src/data_synthesis/visual_labeler.py` using object detection (e.g., YOLO/COCO classes) to label "critical" vs "silence"
 - [X] T015 [US1] Implement logic to handle ambiguous events with deterministic rules (velocity thresholds) as per Edge Cases
 - [X] T016 [US1] Integrate `src/utils/logging.py` to record data sources and verify zero VLM API calls during labeling
-- [ ] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl`
+- [X] T017 [US1] Implement data export to `data/raw/` and `data/manifest.jsonl`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,16 +103,16 @@
 
 ### Tests for User Story 2 (Mandatory per Spec) ⚠️
 
-- [ ] T018 [P] [US2] Write contract test: Verify feature keys exclude final token logits in `tests/unit/test_feature_extractor.py`
-- [ ] T019 [P] [US2] Write integration test: Verify 1:1 temporal alignment between input frames and output features in `tests/integration/test_feature_pipeline.py`
-- [ ] T020 [P] [US2] Write test code: Verify graceful failure on dimension mismatch (Edge Case) in `tests/unit/test_feature_extractor.py`
+- [X] T018 [P] [US2] Write contract test: Verify feature keys exclude final token logits in `tests/unit/test_feature_extractor.py`
+- [X] T019 [P] [US2] Write integration test: Verify 1:1 temporal alignment between input frames and output features in `tests/integration/test_feature_pipeline.py`
+- [X] T020 [P] [US2] Write test code: Verify graceful failure on dimension mismatch (Edge Case) in `tests/unit/test_feature_extractor.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `src/feature_extraction/extractor.py` to load JoyAI-VL-Interaction (CPU mode) and extract hidden states/attention maps
-- [ ] T022 [US2] Integrate `src/feature_extraction/streaming.py` (from T008) to process video in fixed-size chunks (e.g., a predefined number of frames) ensuring RAM < 6GB
-- [ ] T023 [US2] Implement dimension validation against a hardcoded schema; **must raise a `ValueError` with a clear, formatted message containing "Expected: X, Actual: Y" if a mismatch occurs** (Edge Case)
-- [ ] T024 [US2] Implement logic to explicitly exclude final token logits and generated text from output vectors
+- [X] T021 [US2] Implement `src/feature_extraction/extractor.py` to load JoyAI-VL-Interaction (CPU mode) and extract hidden states/attention maps
+- [X] T022 [US2] Integrate `src/feature_extraction/streaming.py` (from T008) to process video in fixed-size chunks (e.g., a predefined number of frames) ensuring RAM < 6GB
+- [X] T023 [US2] Implement dimension validation against a hardcoded schema; **must raise a `ValueError` with a clear, formatted message containing "Expected: X, Actual: Y" if a mismatch occurs** (Edge Case)
+- [X] T024 [US2] Implement logic to explicitly exclude final token logits and generated text from output vectors
 - [ ] T025 [US2] Export extracted features to `data/features/*.jsonl` with temporal alignment metadata
 
 **Checkpoint**: Feature extraction ready for training phase

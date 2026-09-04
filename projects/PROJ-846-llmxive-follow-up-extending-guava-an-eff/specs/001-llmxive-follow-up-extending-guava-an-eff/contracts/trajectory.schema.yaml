@@ -1,0 +1,89 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trajectory"
+description: "A sequence of SymbolicObservation and Action pairs derived from Guava."
+type: "object"
+properties:
+  trajectory_id:
+    type: "string"
+    description: "Unique identifier for the trajectory."
+  source:
+    type: "string"
+    description: "Source dataset (e.g., 'guava_original')."
+  steps:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        observation:
+          $ref: "#/definitions/SymbolicObservation"
+        action:
+          type: "string"
+          description: "Action abstraction (e.g., 'GRAB_OBJECT')."
+        reward:
+          type: "number"
+          description: "Reward signal (if available)."
+      required:
+        - "observation"
+        - "action"
+  metadata:
+    type: "object"
+    properties:
+      duration_seconds:
+        type: "number"
+      total_steps:
+        type: "integer"
+required:
+  - "trajectory_id"
+  - "source"
+  - "steps"
+additionalProperties: false
+definitions:
+  SymbolicObservation:
+    type: "object"
+    properties:
+      frame_id:
+        type: "integer"
+      timestamp:
+        type: "string"
+        format: "date-time"
+      detected_objects:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            class_label:
+              type: "string"
+            bounding_box_2d:
+              type: "array"
+              items:
+                type: "number"
+              minItems: 4
+              maxItems: 4
+            centroid:
+              type: "array"
+              items:
+                type: "number"
+              minItems: 2
+              maxItems: 2
+            color_histogram:
+              type: "array"
+              items:
+                type: "integer"
+          required:
+            - "class_label"
+            - "bounding_box_2d"
+            - "centroid"
+            - "color_histogram"
+      scene_empty:
+        type: "boolean"
+      perception_latency_ms:
+        type: "number"
+      object_missing_if_visible:
+        type: "boolean"
+    required:
+      - "frame_id"
+      - "timestamp"
+      - "detected_objects"
+      - "scene_empty"
+      - "perception_latency_ms"
+      - "object_missing_if_visible"

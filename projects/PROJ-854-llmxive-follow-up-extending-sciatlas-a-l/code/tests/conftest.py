@@ -1,13 +1,3 @@
-"""
-Pytest configuration and shared fixtures for the llmXive Bridging Coefficient Analysis project.
-
-This module provides:
-- Global test environment setup (logging, random seeds)
-- Temporary directory fixtures for data and artifacts isolation
-- Mock data generators for unit/integration tests
-- Path configuration utilities
-"""
-
 import os
 import sys
 import tempfile
@@ -15,322 +5,202 @@ import shutil
 import random
 import logging
 import pytest
-from pathlib import Path
-from typing import Dict, Any, List, Optional
-
 import numpy as np
 import networkx as nx
 import pandas as pd
+from typing import List, Dict, Any, Generator
+from pathlib import Path
 
-# Ensure project root is in path for imports during tests
-PROJECT_ROOT = Path(__file__).parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Configure logging for tests
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
-# Import project modules for mock data generation
-try:
-    from src.models.node import Node
-    from src.models.graph_utils import louvain_cluster, calc_bridging
-except ImportError as e:
-    # If imports fail during conftest loading, provide minimal mocks
-    # This allows pytest to collect tests even if source modules are missing
-    Node = None
-    louvain_cluster = None
-    calc_bridging = None
+# Global seed for reproducibility
+TEST_SEED = 42
 
-# ============================================================================
-# Global Configuration
-# ============================================================================
-
-TEST_RANDOM_SEED = 42
-
-def _set_global_seeds(seed: int = TEST_RANDOM_SEED) -> None:
-    """Set random seeds for reproducibility across libraries."""
-    random.seed(seed)
-    np.random.seed(seed)
-    # Set torch seed if available (for embedding tests)
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
-
-# ============================================================================
-# Session-scoped fixtures
-# ============================================================================
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_test_environment():
-    """
-    Session-scoped fixture to configure global test environment.
-    
-    - Sets random seeds for reproducibility
-    - Configures logging level for tests
-    - Ensures clean state at session start
-    """
-    # Set global seeds
-    _set_global_seeds(TEST_RANDOM_SEED)
-    
-    # Configure logging for tests (suppress INFO/DEBUG noise)
-    logging.basicConfig(
-        level=logging.WARNING,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+def pytest_configure(config):
+    """Configure pytest with default settings."""
+    config.addinivalue_line(
+        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
     )
-    
-    # Silence specific noisy libraries
-    logging.getLogger('urllib3').setLevel(logging.ERROR)
-    logging.getLogger('datasets').setLevel(logging.ERROR)
-    logging.getLogger('transformers').setLevel(logging.ERROR)
-    
-    yield
-    
-    # Cleanup after session (if needed)
-    pass
+    config.addinivalue_line(
+        "markers", "integration: marks tests as integration tests"
+    )
+    config.addinivalue_line(
+        "markers", "unit: marks tests as unit tests"
+    )
 
-# ============================================================================
-# Temporary Directory Fixtures
-# ============================================================================
-
-@pytest.fixture
-def temp_data_dir(tmp_path: Path):
-    """
-    Creates a temporary directory for test data files.
+@pytest.fixture(autouse=True)
+def setup_test_environment():
+    """Set up test environment with fixed seeds and temporary directories."""
+    # Set random seeds for reproducibility
+    random.seed(TEST_SEED)
+    np.random.seed(TEST_SEED)
     
-    Yields a Path object pointing to a unique temporary directory.
-    The directory is automatically cleaned up after the test.
+    # Store original paths
+    original_cwd = os.getcwd()
     
-    Usage:
-        def test_something(temp_data_dir):
-            data_file = temp_data_dir / "test.csv"
-            data_file.write_text("col1,col2\n1,2")
-    """
-    data_dir = tmp_path / "data"
-    data_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Create subdirectories matching project structure
-    (data_dir / "raw").mkdir(exist_ok=True)
-    (data_dir / "processed").mkdir(exist_ok=True)
-    (data_dir / "logs").mkdir(exist_ok=True)
-    
-    yield data_dir
-
-@pytest.fixture
-def temp_artifacts_dir(tmp_path: Path):
-    """
-    Creates a temporary directory for test artifacts (results, plots).
-    
-    Yields a Path object pointing to a unique temporary directory.
-    Automatically cleaned up after the test.
-    """
-    artifacts_dir = tmp_path / "artifacts"
-    artifacts_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Create subdirectories
-    (artifacts_dir / "results").mkdir(exist_ok=True)
-    (artifacts_dir / "plots").mkdir(exist_ok=True)
-    
-    yield artifacts_dir
+    # Create temporary directory for test data
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        test_data_dir = Path(tmp_dir)
+        os.chdir(tmp_dir)
+        
+        # Set environment variables for test paths
+        os.environ['TEST_DATA_DIR'] = str(test_data_dir)
+        os.environ['DATA_DIR'] = str(test_data_dir / 'data')
+        os.environ['ARTIFACTS_DIR'] = str(test_data_dir / 'artifacts')
+        
+        # Create required directories
+        (test_data_dir / 'data' / 'raw').mkdir(parents=True, exist_ok=True)
+        (test_data_dir / 'data' / 'processed').mkdir(parents=True, exist_ok=True)
+        (test_data_dir / 'artifacts' / 'results').mkdir(parents=True, exist_ok=True)
+        (test_data_dir / 'artifacts' / 'plots').mkdir(parents=True, exist_ok=True)
+        (test_data_dir / 'data' / 'logs').mkdir(parents=True, exist_ok=True)
+        
+        try:
+            yield {
+                'temp_dir': Path(tmp_dir),
+                'data_dir': Path(os.environ['DATA_DIR']),
+                'artifacts_dir': Path(os.environ['ARTIFACTS_DIR'])
+            }
+        finally:
+            # Restore original directory
+            os.chdir(original_cwd)
+            # Clear environment variables
+            for key in ['TEST_DATA_DIR', 'DATA_DIR', 'ARTIFACTS_DIR']:
+                if key in os.environ:
+                    del os.environ[key]
 
 @pytest.fixture
-def temp_config_dir(tmp_path: Path):
-    """
-    Creates a temporary directory for test configuration files.
-    """
-    config_dir = tmp_path / "config"
-    config_dir.mkdir(parents=True, exist_ok=True)
-    yield config_dir
+def temp_data_dir(setup_test_environment) -> Path:
+    """Provide a temporary directory for data files."""
+    return setup_test_environment['data_dir']
 
-# ============================================================================
-# Sample Data Fixtures
-# ============================================================================
+@pytest.fixture
+def temp_artifacts_dir(setup_test_environment) -> Path:
+    """Provide a temporary directory for artifacts."""
+    return setup_test_environment['artifacts_dir']
+
+@pytest.fixture
+def temp_config_dir(setup_test_environment) -> Path:
+    """Provide a temporary directory for config files."""
+    config_dir = setup_test_environment['temp_dir'] / 'config'
+    config_dir.mkdir(exist_ok=True)
+    return config_dir
 
 @pytest.fixture
 def sample_graph() -> nx.Graph:
-    """
-    Creates a small, deterministic sample graph for testing.
-    
-    Graph structure:
-    - 6 nodes: A, B, C, D, E, F
-    - Two clusters: {A, B, C} and {D, E, F}
-    - One bridging edge: C-D
-    
-    Returns:
-        networkx.Graph: Sample graph with known topology
-    """
+    """Create a sample graph for testing."""
     G = nx.Graph()
+    # Add nodes with attributes
+    G.add_node(1, title="Node 1", citation_count=10, embedding_vector=np.array([0.1, 0.2]), 
+               primary_cluster=0, topic_cluster=0)
+    G.add_node(2, title="Node 2", citation_count=20, embedding_vector=np.array([0.2, 0.3]), 
+               primary_cluster=0, topic_cluster=1)
+    G.add_node(3, title="Node 3", citation_count=30, embedding_vector=np.array([0.3, 0.4]), 
+               primary_cluster=1, topic_cluster=0)
+    G.add_node(4, title="Node 4", citation_count=40, embedding_vector=np.array([0.4, 0.5]), 
+               primary_cluster=1, topic_cluster=1)
     
-    # Add nodes
-    nodes = ['A', 'B', 'C', 'D', 'E', 'F']
-    G.add_nodes_from(nodes)
-    
-    # Add edges within cluster 1
-    G.add_edges_from([
-        ('A', 'B'),
-        ('B', 'C'),
-        ('A', 'C')
-    ])
-    
-    # Add edges within cluster 2
-    G.add_edges_from([
-        ('D', 'E'),
-        ('E', 'F'),
-        ('D', 'F')
-    ])
-    
-    # Add bridging edge
-    G.add_edge('C', 'D')
+    # Add edges
+    G.add_edge(1, 2)
+    G.add_edge(2, 3)
+    G.add_edge(3, 4)
+    G.add_edge(1, 4)
     
     return G
 
 @pytest.fixture
-def sample_clusters() -> Dict[str, int]:
-    """
-    Returns a dictionary mapping node IDs to cluster assignments.
-    
-    Matches the structure of sample_graph:
-    - Cluster 0: A, B, C
-    - Cluster 1: D, E, F
-    
-    Returns:
-        Dict[str, int]: Node-to-cluster mapping
-    """
+def sample_clusters() -> Dict[int, int]:
+    """Create sample cluster assignments."""
     return {
-        'A': 0,
-        'B': 0,
-        'C': 0,
-        'D': 1,
-        'E': 1,
-        'F': 1
+        1: 0,
+        2: 0,
+        3: 1,
+        4: 1
     }
 
 @pytest.fixture
 def mock_node_data() -> List[Dict[str, Any]]:
-    """
-    Generates mock node data for testing ingestion and processing.
-    
-    Returns:
-        List[Dict]: List of node dictionaries with required fields
-    """
+    """Create mock node data for testing."""
     return [
         {
             'id': '1',
-            'title': 'Machine Learning Fundamentals',
-            'citation_count': 150,
-            'embedding_vector': np.random.rand(384).tolist(),
+            'title': 'Test Paper 1',
+            'citation_count': 100,
+            'embedding_vector': np.array([0.1, 0.2, 0.3]),
             'primary_cluster': 0,
-            'topic_cluster': 0,
-            'bridging_coefficient': 0.5
+            'topic_cluster': 0
         },
         {
             'id': '2',
-            'title': 'Deep Learning Applications',
+            'title': 'Test Paper 2',
             'citation_count': 200,
-            'embedding_vector': np.random.rand(384).tolist(),
+            'embedding_vector': np.array([0.2, 0.3, 0.4]),
             'primary_cluster': 0,
-            'topic_cluster': 1,
-            'bridging_coefficient': 0.0
+            'topic_cluster': 1
         },
         {
             'id': '3',
-            'title': 'Quantum Computing Basics',
-            'citation_count': 80,
-            'embedding_vector': np.random.rand(384).tolist(),
+            'title': 'Test Paper 3',
+            'citation_count': 150,
+            'embedding_vector': np.array([0.3, 0.4, 0.5]),
             'primary_cluster': 1,
-            'topic_cluster': 2,
-            'bridging_coefficient': 0.25
+            'topic_cluster': 0
         }
     ]
 
 @pytest.fixture
 def sample_dataframe(mock_node_data) -> pd.DataFrame:
-    """
-    Creates a pandas DataFrame from mock node data.
-    
-    Returns:
-        pd.DataFrame: DataFrame with node records
-    """
+    """Create a sample DataFrame from mock node data."""
     return pd.DataFrame(mock_node_data)
-
-# ============================================================================
-# Path Configuration
-# ============================================================================
-
-@pytest.fixture
-def configure_paths(temp_data_dir: Path, temp_artifacts_dir: Path):
-    """
-    Configures project paths for testing using temporary directories.
-    
-    This fixture:
-    - Updates environment variables for data/artifacts paths
-    - Returns a dictionary of configured paths
-    
-    Args:
-        temp_data_dir: Temporary data directory fixture
-        temp_artifacts_dir: Temporary artifacts directory fixture
-    
-    Returns:
-        Dict[str, Path]: Configuration paths
-    """
-    config = {
-        'data_dir': temp_data_dir,
-        'raw_dir': temp_data_dir / 'raw',
-        'processed_dir': temp_data_dir / 'processed',
-        'logs_dir': temp_data_dir / 'logs',
-        'artifacts_dir': temp_artifacts_dir,
-        'results_dir': temp_artifacts_dir / 'results',
-        'plots_dir': temp_artifacts_dir / 'plots',
-    }
-    
-    # Set environment variables for config.py to pick up
-    os.environ['TEST_DATA_DIR'] = str(temp_data_dir)
-    os.environ['TEST_ARTIFACTS_DIR'] = str(temp_artifacts_dir)
-    
-    yield config
-    
-    # Cleanup environment variables
-    os.environ.pop('TEST_DATA_DIR', None)
-    os.environ.pop('TEST_ARTIFACTS_DIR', None)
-
-# ============================================================================
-# Additional Utility Fixtures
-# ============================================================================
 
 @pytest.fixture
 def isolated_node_graph() -> nx.Graph:
-    """
-    Creates a graph with an isolated node (degree 0).
-    
-    Useful for testing edge cases in bridging coefficient calculation.
-    
-    Returns:
-        nx.Graph: Graph with one isolated node
-    """
+    """Create a graph with an isolated node for edge case testing."""
     G = nx.Graph()
-    G.add_nodes_from(['A', 'B', 'C', 'isolated'])
-    G.add_edges_from([('A', 'B'), ('B', 'C')])
+    G.add_node(1, title="Isolated Node", citation_count=0, 
+               embedding_vector=np.array([0.1]), primary_cluster=0, topic_cluster=0)
+    G.add_node(2, title="Connected Node", citation_count=10, 
+               embedding_vector=np.array([0.2]), primary_cluster=1, topic_cluster=1)
+    G.add_edge(2, 2)  # Self-loop only
     return G
 
 @pytest.fixture
 def single_node_cluster_graph() -> nx.Graph:
-    """
-    Creates a graph where one cluster has only a single node.
-    
-    Returns:
-        nx.Graph: Graph with a singleton cluster
-    """
+    """Create a graph where one cluster has only a single node."""
     G = nx.Graph()
-    G.add_nodes_from(['A', 'B', 'C', 'D'])
-    G.add_edges_from([('A', 'B'), ('B', 'C'), ('C', 'D')])
+    G.add_node(1, title="Node 1", citation_count=10, 
+               embedding_vector=np.array([0.1]), primary_cluster=0, topic_cluster=0)
+    G.add_node(2, title="Node 2", citation_count=20, 
+               embedding_vector=np.array([0.2]), primary_cluster=0, topic_cluster=0)
+    G.add_node(3, title="Node 3", citation_count=30, 
+               embedding_vector=np.array([0.3]), primary_cluster=1, topic_cluster=1)
+    G.add_edge(1, 2)
+    # Node 3 is in its own cluster with no edges to other clusters
     return G
 
 @pytest.fixture
 def complete_graph() -> nx.Graph:
-    """
-    Creates a complete graph (all nodes connected to all others).
+    """Create a complete graph for testing bridging coefficient of 0."""
+    G = nx.complete_graph(5)
+    for i in range(5):
+        G.nodes[i]['title'] = f"Node {i}"
+        G.nodes[i]['citation_count'] = i * 10
+        G.nodes[i]['embedding_vector'] = np.array([i * 0.1])
+        G.nodes[i]['primary_cluster'] = 0
+        G.nodes[i]['topic_cluster'] = 0
+    return G
+
+def configure_paths(base_dir: Path) -> None:
+    """Configure paths for the test environment."""
+    data_dir = base_dir / 'data'
+    artifacts_dir = base_dir / 'artifacts'
     
-    Returns:
-        nx.Graph: Complete graph with 5 nodes
-    """
-    return nx.complete_graph(5)
+    (data_dir / 'raw').mkdir(parents=True, exist_ok=True)
+    (data_dir / 'processed').mkdir(parents=True, exist_ok=True)
+    (artifacts_dir / 'results').mkdir(parents=True, exist_ok=True)
+    (artifacts_dir / 'plots').mkdir(parents=True, exist_ok=True)
+    (data_dir / 'logs').mkdir(parents=True, exist_ok=True)

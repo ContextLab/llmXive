@@ -1,11 +1,3 @@
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only a claim placeholder and no actual artifacts (no\
-    \ code, dataset, computed metrics, or analysis results). Required outputs such\
-    \ as a data ingestion pipeline, per\u2011node `bridging_coefficient` and `primary_cluster`\
-    \ values, citation counts, novelty scores, and the correlation/regression analysis\
-    \ are missing."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

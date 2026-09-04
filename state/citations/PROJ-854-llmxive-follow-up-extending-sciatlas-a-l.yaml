@@ -20,3 +20,27 @@
   verification_status: verified
   verified_against_url: https://api.openalex.org
   verified_at: '2026-07-12T20:51:54.847563Z'
+- artifact_hash: 7599bbd02c352a2148e01e65cc767150de59655b86cbb1d1434b60fce3a981f9
+  artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[1801.04624] Enhancing Stratified Graph Sampling Algorithms based
+    on Approximate Degree Distribution'
+  kind: url
+  value: https://arxiv.org/abs/1801.04624
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/1801.04624
+  verified_at: '2026-09-04T09:44:02.547162Z'
+- artifact_hash: 7599bbd02c352a2148e01e65cc767150de59655b86cbb1d1434b60fce3a981f9
+  artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2607.07974] A Multi-cluster Boundary Learning Method for Out-of-Scope
+    Intent Detection via MiniLM Embedding'
+  kind: url
+  value: https://arxiv.org/abs/2607.07974
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2607.07974
+  verified_at: '2026-09-04T09:44:02.547162Z'
