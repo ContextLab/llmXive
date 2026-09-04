@@ -1,16 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `data/`, `tests/`, `state/`)
-    is provided; the response contains only a feature specification and no actual
-    project structure artifacts.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `ruff.toml` entries) were provided, nor any evidence
-    that Ruff and Black have been set up and integrated into the project. The required
-    artifacts to demonstrate the configuration are missing.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,3 +26,45 @@ T016:
     \ with `depth=0`, nor evidence that `context_reduction_pct` is set to the string\
     \ `'[deferred]'` and `status` to `'edge_case'`. The required implementation and\
     \ its verification are missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation for a filter that detects and excludes\
+    \ \u201Cinvalid workflows\u201D is present; the claim cannot be verified against\
+    \ any artifact. The required implementation artifact is missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `state/projects/PROJ-866-...yaml` file containing checksums
+    for the workflows in `data/raw/` was provided; the response contains only the
+    task description and no actual artifact or its contents. The required registry
+    update is therefore not demonstrated.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.py` file or any code implementing batch execution across multiple compression
+    levels was provided; the only evidence is the feature specification text, which
+    does not demonstrate that the required logic exists or is functional. The implementer
+    must add the actual `main.py` implementation (or show the relevant code) that
+    runs a large number of workflows for various compression settings.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, logs, or documentation were provided showing that the system actually\
+    \ records a specific \u201Cpolicy\u2011violation\u201D entry when a truncation\
+    \ cuts off required nodes such as data\u2011sovereignty rules. The required artifact\
+    \ (implementation and/or example log output) is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or code were presented that create or store processed execution logs
+    in `data/processed/`, nor any evidence that those logs contain the required fields
+    (compression level, token count, violation flags). The artifact required by the
+    task is missing.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation showing that the system now handles a compression\
+    \ depth of\u202F0 without error is present; the only evidence is the task description,\
+    \ which does not include any implementation artifact. The required logic and its\
+    \ verification are missing."

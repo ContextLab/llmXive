@@ -1,14 +1,5 @@
+# Ignore ruff in these directories
 __pycache__
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-*/migrations/*
-*/static/CACHE/*
-*/node_modules/*
-.pytest_cache/
-.coverage
-htmlcov/
+.venv
+venv
+.git

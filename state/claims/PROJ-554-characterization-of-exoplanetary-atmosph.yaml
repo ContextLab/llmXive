@@ -138,3 +138,188 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-18T02:19:57Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: pipeline halts if sample size is outside the range of 30 to 45 unique
+    planets
+  claim_id: c_cf84a00c
+  context: 'Task T013b [US1] Validate: Implement validate_sample_size in code/download.py.
+    Logic: Read count from T013a. If count < 30 OR count > 45, HALT the pipeline...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If count < 30 OR count > 45, HALT the pipeline, log a CRITICAL ERROR,
+    and generate data/processed/sample_size_error.json with {count, error_message:
+    "Sample size out of valid range [30, 45]"}, setting validation_status: "failed".'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:38:44Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: verify 95% confidence interval width of water mixing ratio distribution
+    is less than or equal to 0.2 dex
+  claim_id: c_f0e34530
+  context: 'Task T026 [US3] Compute and report the CI width of the water mixing ratio
+    distribution as a measure of robustness per SC-003. Logic: Calculate the 95% CI
+    width... Explicitly verify if width <= 0.2 (dex).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_95%25_confidence_interval_width_of_water_mixing_ratio_d
+  kind: magnitude
+  raw_text: Calculate the 95% CI width of the water_mixing_ratio (log10 scale) using
+    the bootstrap results from T025c. Explicitly verify if width <= 0.2 (dex).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:39:38Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: post-hoc power analysis performed with effect size of 0.3
+  claim_id: c_4bc51a4b
+  context: "Task T031 [US3] Implement calculate_statistical_power in code/analysis.py\
+    \ using actual achieved sample size and variance to verify power \u2265 0.8 per\
+    \ SC-004. Logic: Perform formal post-hoc power analysis with effect_size = 0.3\
+    \ (|tau|)."
+  evidence:
+    asserted: '0.3'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: Perform formal post-hoc power analysis with effect_size = 0.3 (|tau|).
+  resolved_value: '6.3'
+  resolver: approximate
+  source_hash: 09d022249b27015a076a6ac4261ccde563e87f1ef2fd08781e482a2548eb0614
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T12:39:38Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: flag instruments with coefficient of variation for SNR greater than 20%
+  claim_id: c_8b3e0b08
+  context: 'Task T047 [US3] Review Response: Implement Calibration & Noise Stability
+    Analysis... Logic: Analyze the variance in the noise floor across the sample.
+    Compute the coefficient of variation (CV) for the SNR across all spectra. Flag
+    any instrument with high variance (>20%)...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_instruments_with_coefficient_of_variation_for_SNR_great
+  kind: magnitude
+  raw_text: Flag any instrument with high variance (>20%) as a potential confounding
+    factor.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:40:40Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: flag instrument or date combinations with residual variance greater than
+    twice the median
+  claim_id: c_e2b98cd5
+  context: 'Task T052 [US3] Review Response: Implement Noise Floor Stability & Calibration
+    Verification... Logic: Group by instrument and observation date... to detect temporal
+    drifts in detector stability. Flag any instrument/date combination with residual
+    variance > 2x the median.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_instrument_or_date_combinations_with_residual_variance
+  kind: magnitude
+  raw_text: Flag any instrument/date combination with residual variance > 2x the median.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:41:03Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: count detections greater than 3-sigma above the minimum detectable concentration
+  claim_id: c_61b2642e
+  context: 'Task T051 [US3] Review Response: Implement Detection Limit vs. Signal
+    Separation Analysis... Logic: Create a scatter plot and statistical table comparing
+    the retrieved water abundance (or upper limit) against the calculated MDC for
+    each planet. Explicitly count how many detections are >3-sigma above the MDC...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Count_detections_greater_than_3-sigma_above_the_minimum_dete
+  kind: magnitude
+  raw_text: Explicitly count how many detections are >3-sigma above the MDC and how
+    many are consistent with noise.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:41:33Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: flag signal as upper limit if it is less than 3-sigma above noise
+  claim_id: c_a84857cf
+  context: 'Task T019 [US2] Implement logic to detect low S/N spectra... Logic: Calculate
+    detection limit based on instrumental noise floor; if signal < 3-sigma above noise,
+    flag as upper limit...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_signal_as_upper_limit_if_it_is_less_than_3-sigma_above
+  kind: magnitude
+  raw_text: If signal < 3-sigma above noise, flag as upper limit and record the limit
+    value in mixing ratio units.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:42:27Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: switch to Ridge Regression fallback if Variance Inflation Factor exceeds
+    5
+  claim_id: c_a29571c7
+  context: 'Task T027 [US3] Implement Tobit regression model... Logic: Check VIF >
+    5. If VIF > 5, automatically switch to Ridge Regression Fallback using sklearn.linear_model.Ridge
+    on the subset of data where is_upper_limit == False.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check VIF > 5. If VIF > 5, automatically switch to Ridge Regression Fallback
+    using sklearn.linear_model.Ridge on the subset of data where is_upper_limit ==
+    False.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:42:27Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling performed with 1000 iterations
+  claim_id: c_e96c9573
+  context: 'Task T025c [US3] Implement a bootstrap resampling loop to estimate confidence
+    intervals. Deliverable: Write results to data/processed/bootstrap_ci.json containing
+    {iterations: 1000, ci_lower, ci_upper}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Write results to data/processed/bootstrap_ci.json containing {iterations:
+    1000, ci_lower, ci_upper}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:43:03Z'

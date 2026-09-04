@@ -1,9 +1,44 @@
-[lint]
-select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
-ignore = ["E501"]  # Line length handled by black
+[tool.ruff]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG", "SIM"]
+ignore = ["E501", "W505"]
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as Black.
+line-length = 88
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+target-version = "py310"
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]

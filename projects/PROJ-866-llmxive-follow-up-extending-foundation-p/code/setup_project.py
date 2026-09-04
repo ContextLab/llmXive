@@ -4,21 +4,25 @@ from pathlib import Path
 
 def create_structure():
     """
-    Creates the core project directory structure:
-    code/, data/, tests/, state/, contracts/
-    
-    Also creates subdirectories for data organization:
-    data/raw/, data/processed/, data/results/
+    Creates the core project directory structure as per the implementation plan.
+    Directories created:
+    - code/ (source code)
+    - data/raw/ (raw generated data)
+    - data/processed/ (processed execution logs)
+    - data/results/ (analysis results, regression data)
+    - tests/ (unit, integration, contract tests)
+    - state/ (project state registry)
+    - state/projects/ (project-specific state files)
     """
-    project_root = Path(__file__).resolve().parent.parent
+    root = Path.cwd()
     
-    # Define the directories to create
+    # Define the directory structure relative to the root
     directories = [
         "code",
-        "code/generators",
-        "code/engines",
-        "code/utils",
         "code/analysis",
+        "code/engines",
+        "code/generators",
+        "code/utils",
         "data",
         "data/raw",
         "data/processed",
@@ -29,32 +33,32 @@ def create_structure():
         "tests/contract",
         "state",
         "state/projects",
-        "contracts",
-        "figures"
     ]
     
-    created_count = 0
-    for dir_name in directories:
-        full_path = project_root / dir_name
+    created = []
+    for dir_path in directories:
+        full_path = root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
+            created.append(str(full_path))
         else:
-            print(f"Directory already exists: {full_path}")
+            # Ensure it is actually a directory if it exists
+            if not full_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
     
-    print(f"\nProject structure verification complete. {created_count} new directories created.")
-    return True
+    return created
 
 def main():
-    """Entry point for script execution."""
+    """Entry point for running the script directly."""
+    print("Creating project structure...")
     try:
-        create_structure()
-        print("Success: Project structure initialized.")
-        return 0
+        created_dirs = create_structure()
+        print(f"Successfully created {len(created_dirs)} directories:")
+        for d in created_dirs:
+            print(f"  - {d}")
     except Exception as e:
-        print(f"Error: Failed to create project structure: {e}", file=sys.stderr)
-        return 1
+        print(f"Error creating project structure: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

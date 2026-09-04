@@ -1,221 +1,281 @@
-"""
-Synthetic Workflow Generator for llmXive Project.
-
-Generates a collection of deterministic Directed Acyclic Graphs (DAGs)
-representing workflows with varying depths (1-20) and complexities (1-10).
-Implements FR-001: Deterministic seeding for reproducibility.
-
-Output:
-    Saves JSON files containing workflow definitions to data/raw/.
-    Each file contains metadata (depth, complexity, seed) and the graph structure.
-"""
 import json
 import os
 import random
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-
-# Ensure code directory is in path for imports if run as script
-_code_path = Path(__file__).resolve().parent.parent
-if str(_code_path) not in sys.path:
-    sys.path.insert(0, str(_code_path))
-
-from utils.token_counter import count_tokens
-
-# Constants
-MIN_DEPTH = 1
-MAX_DEPTH = 20
-MIN_COMPLEXITY = 1
-MAX_COMPLEXITY = 10
-WORKFLOWS_PER_DEPTH = 25
-OUTPUT_DIR = Path("data/raw")
+import uuid
+from datetime import datetime
 
 class SyntheticWorkflowGenerator:
     """
-    Generates synthetic DAG workflows with controlled depth and complexity.
-    Uses deterministic seeding to ensure reproducibility across runs.
+    Generates a collection of deterministic synthetic workflows (DAGs) with
+    varying depths (1-20) and complexities (1-10).
+    
+    Features:
+    - Deterministic seeding for reproducibility.
+    - Generates DAGs with uniform depth distribution.
+    - Records budget caps and metadata.
     """
 
-    def __init__(self, base_seed: int = 42):
+    def __init__(self, seed: int = 42):
         """
-        Initialize the generator with a base seed.
-
-        Args:
-            base_seed: The integer seed for the random number generator.
-        """
-        self.base_seed = base_seed
-        self.workflows: List[Dict[str, Any]] = []
-
-    def _generate_dag(self, depth: int, complexity: int, seed: int) -> Dict[str, Any]:
-        """
-        Generate a single DAG with the specified depth and complexity.
-
-        Args:
-            depth: The maximum path length in the DAG (number of layers).
-            complexity: The average number of edges per node (branching factor).
-            seed: The specific seed for this workflow instance.
-
-        Returns:
-            A dictionary representing the workflow graph and metadata.
-        """
-        rng = random.Random(seed)
-        nodes: List[Dict[str, Any]] = []
-        edges: List[Tuple[int, int]] = []
-
-        # Calculate node count based on depth and complexity
-        # Complexity roughly maps to branching factor, ensuring at least 1 edge per node where possible
-        # We ensure a linear backbone for the depth requirement, then add complexity edges
-        num_layers = depth
-        nodes_per_layer = max(1, int(complexity * 1.5)) # Ensure enough nodes to support branching
-
-        node_id_counter = 0
-        layer_nodes: List[List[int]] = []
-
-        # Create layers
-        for layer_idx in range(num_layers):
-            current_layer_nodes = []
-            for _ in range(nodes_per_layer):
-                nid = node_id_counter
-                node_id_counter += 1
-                # Assign a random "policy type" to simulate real workflow steps
-                policy_types = ["data_fetch", "transform", "validate", "aggregate", "report"]
-                policy_type = rng.choice(policy_types)
-                
-                nodes.append({
-                    "id": nid,
-                    "layer": layer_idx,
-                    "policy_type": policy_type,
-                    "token_cost": rng.randint(10, 500) # Simulated token cost per node
-                })
-                current_layer_nodes.append(nid)
-            layer_nodes.append(current_layer_nodes)
-
-        # Create edges to ensure connectivity and depth
-        # 1. Ensure a backbone path through the layers to guarantee depth
-        for layer_idx in range(num_layers - 1):
-            # Connect a random node in current layer to a random node in next layer
-            # To ensure full depth, we connect at least one path
-            src_node = layer_nodes[layer_idx][0]
-            dst_node = layer_nodes[layer_idx + 1][0]
-            edges.append((src_node, dst_node))
-
-        # 2. Add complexity edges
-        # Total potential edges between layers
-        total_potential_edges = 0
-        for layer_idx in range(num_layers - 1):
-            total_potential_edges += len(layer_nodes[layer_idx]) * len(layer_nodes[layer_idx + 1])
+        Initialize the generator with a random seed.
         
-        # Target edges based on complexity (scaled)
-        # Complexity 1 = minimal, Complexity 10 = dense
-        target_edges = int(total_potential_edges * (complexity / (MAX_COMPLEXITY * 2)))
-        
-        # Ensure we have at least the backbone edges
-        target_edges = max(target_edges, num_layers - 1)
+        Args:
+            seed (int): Random seed for reproducibility.
+        """
+        self.seed = seed
+        random.seed(seed)
+        self.workflow_counter = 0
 
-        added_edges = set()
-        while len(edges) < target_edges:
-            layer_idx = rng.randint(0, num_layers - 2)
-            src_node = rng.choice(layer_nodes[layer_idx])
-            dst_node = rng.choice(layer_nodes[layer_idx + 1])
+    def _generate_node(self, node_id: str, depth: int, max_depth: int) -> Dict[str, Any]:
+        """
+        Generate a single node for the workflow.
+        
+        Args:
+            node_id (str): Unique ID for the node.
+            depth (int): Topological depth of the node.
+            max_depth (int): Maximum depth of the workflow.
             
-            if (src_node, dst_node) not in added_edges:
-                edges.append((src_node, dst_node))
-                added_edges.add((src_node, dst_node))
-
-        # Calculate total token cost
-        total_tokens = sum(n["token_cost"] for n in nodes)
-        # Add a small buffer for graph overhead simulation
-        overhead = count_tokens(json.dumps({"nodes": nodes, "edges": edges}))
-        total_tokens += overhead
-
+        Returns:
+            Dict[str, Any]: Node dictionary.
+        """
+        # Determine node type based on depth
+        if depth == 0:
+            node_type = "start"
+        elif depth == max_depth:
+            node_type = "end"
+        else:
+            # Randomly choose between process and decision
+            node_type = random.choice(["process", "decision"])
+        
+        # Complexity: 1-10, slightly biased towards middle values
+        complexity = random.randint(1, 10)
+        
+        # Policy tags
+        policy_tags = []
+        if node_type in ["process", "decision"]:
+            possible_tags = ["data_sovereignty", "audit_required", "rate_limit", "retry_policy"]
+            num_tags = random.randint(0, 2)
+            policy_tags = random.sample(possible_tags, num_tags)
+        
+        # Data requirements
+        data_requirements = {
+            "sovereignty_level": random.choice(["public", "internal", "confidential", "restricted"]),
+            "retention_days": random.choice([30, 90, 180, 365, 730])
+        }
+        
         return {
-            "id": f"wf_{depth}_{complexity}_{seed}",
+            "node_id": node_id,
+            "node_type": node_type,
             "depth": depth,
             "complexity": complexity,
-            "seed": seed,
-            "node_count": len(nodes),
-            "edge_count": len(edges),
-            "total_token_cost": total_tokens,
-            "nodes": nodes,
-            "edges": edges
+            "policy_tags": policy_tags,
+            "data_requirements": data_requirements
         }
 
-    def generate_all(self) -> List[Dict[str, Any]]:
+    def _generate_edges(self, nodes: List[Dict[str, Any]], max_depth: int) -> List[Dict[str, Any]]:
         """
-        Generate the full set of workflows: depths 1-20, 25 instances each.
-        Uses deterministic seeding derived from the base seed.
-
-        Returns:
-            List of generated workflow dictionaries.
-        """
-        self.workflows = []
-        current_seed = self.base_seed
-
-        for depth in range(MIN_DEPTH, MAX_DEPTH + 1):
-            for i in range(WORKFLOWS_PER_DEPTH):
-                # Complexity varies 1-10, cycling or random per instance
-                # To ensure coverage, we distribute complexities evenly or randomly
-                # Let's vary complexity randomly for each instance to get a mix
-                complexity = random.Random(current_seed).randint(MIN_COMPLEXITY, MAX_COMPLEXITY)
-                
-                workflow = self._generate_dag(depth, complexity, current_seed)
-                self.workflows.append(workflow)
-                current_seed += 1
-
-        return self.workflows
-
-    def save_to_disk(self, output_path: Path) -> None:
-        """
-        Save the generated workflows to a JSON file.
-
+        Generate edges to form a valid DAG.
+        
         Args:
-            output_path: The path where the JSON file will be saved.
+            nodes (List[Dict[str, Any]]): List of generated nodes.
+            max_depth (int): Maximum depth of the workflow.
+            
+        Returns:
+            List[Dict[str, Any]]: List of edge dictionaries.
         """
-        if not output_path.exists():
-            output_path.mkdir(parents=True, exist_ok=True)
-
-        output_file = output_path / "synthetic_workflows.json"
+        edges = []
+        nodes_by_depth = {}
         
-        # Prepare data for saving
-        export_data = {
+        # Group nodes by depth
+        for node in nodes:
+            depth = node["depth"]
+            if depth not in nodes_by_depth:
+                nodes_by_depth[depth] = []
+            nodes_by_depth[depth].append(node["node_id"])
+        
+        # Generate edges: each node at depth d connects to 1-3 nodes at depth d+1
+        for depth in range(max_depth):
+            if depth not in nodes_by_depth or depth + 1 not in nodes_by_depth:
+                continue
+            
+            current_nodes = nodes_by_depth[depth]
+            next_nodes = nodes_by_depth[depth + 1]
+            
+            for src_id in current_nodes:
+                # Connect to 1-3 random nodes in the next depth
+                num_connections = min(random.randint(1, 3), len(next_nodes))
+                targets = random.sample(next_nodes, num_connections)
+                
+                for target_id in targets:
+                    edges.append({
+                        "source_node_id": src_id,
+                        "target_node_id": target_id,
+                        "weight": round(random.uniform(0.5, 2.0), 2)
+                    })
+        
+        return edges
+
+    def generate_workflow(self, target_depth: int) -> Dict[str, Any]:
+        """
+        Generate a single workflow with a specific target depth.
+        
+        Args:
+            target_depth (int): Target maximum depth for the workflow (1-20).
+            
+        Returns:
+            Dict[str, Any]: Complete workflow dictionary.
+        """
+        self.workflow_counter += 1
+        
+        # Generate nodes
+        nodes = []
+        nodes_per_depth = {}
+        
+        for depth in range(target_depth + 1):
+            # Number of nodes at this depth: 1-5, increasing towards middle
+            if depth == 0 or depth == target_depth:
+                num_nodes = 1
+            else:
+                # Bias towards more nodes in the middle depths
+                if depth < target_depth / 2:
+                    num_nodes = random.randint(1, 3)
+                else:
+                    num_nodes = random.randint(2, 5)
+            
+            nodes_per_depth[depth] = num_nodes
+            
+            for i in range(num_nodes):
+                node_id = f"node_{depth}_{i}"
+                node = self._generate_node(node_id, depth, target_depth)
+                nodes.append(node)
+        
+        # Generate edges
+        edges = self._generate_edges(nodes, target_depth)
+        
+        # Calculate metadata
+        total_nodes = len(nodes)
+        total_edges = len(edges)
+        complexity_score = sum(n["complexity"] for n in nodes) / total_nodes
+        budget_cap = round(total_nodes * complexity_score * 1.5, 2)
+        
+        workflow = {
+            "workflow_id": str(uuid.uuid4()),
+            "version": "1.0.0",
+            "created_at": datetime.utcnow().isoformat() + "Z",
+            "nodes": nodes,
+            "edges": edges,
             "metadata": {
-                "generator": "SyntheticWorkflowGenerator",
-                "base_seed": self.base_seed,
-                "total_workflows": len(self.workflows),
-                "depth_range": [MIN_DEPTH, MAX_DEPTH],
-                "complexity_range": [MIN_COMPLEXITY, MAX_COMPLEXITY],
-                "workflows_per_depth": WORKFLOWS_PER_DEPTH
-            },
-            "workflows": self.workflows
+                "total_nodes": total_nodes,
+                "total_edges": total_edges,
+                "max_depth": target_depth,
+                "complexity_score": round(complexity_score, 2),
+                "budget_cap": budget_cap,
+                "generator_seed": self.seed,
+                "is_valid": True  # All generated workflows are valid DAGs
+            }
         }
-
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(export_data, f, indent=2)
         
-        print(f"Successfully generated {len(self.workflows)} workflows to {output_file}")
+        return workflow
 
+    def generate_workflows(self, num_workflows: int = 500) -> List[Dict[str, Any]]:
+        """
+        Generate a collection of workflows with uniform depth distribution.
+        
+        Args:
+            num_workflows (int): Total number of workflows to generate.
+            
+        Returns:
+            List[Dict[str, Any]]: List of workflow dictionaries.
+        """
+        workflows = []
+        
+        # Ensure we generate at least 25 workflows per depth (1-20)
+        # If num_workflows < 500, adjust to ensure coverage
+        min_workflows_per_depth = 25
+        depths = list(range(1, 21))
+        
+        # Calculate how many workflows per depth
+        workflows_per_depth = max(min_workflows_per_depth, num_workflows // len(depths))
+        
+        for depth in depths:
+            for _ in range(workflows_per_depth):
+                workflow = self.generate_workflow(depth)
+                workflows.append(workflow)
+        
+        # If we need more workflows, add them randomly
+        while len(workflows) < num_workflows:
+            depth = random.choice(depths)
+            workflow = self.generate_workflow(depth)
+            workflows.append(workflow)
+        
+        return workflows[:num_workflows]
+
+    def save_workflows(self, workflows: List[Dict[str, Any]], output_dir: str) -> List[str]:
+        """
+        Save workflows to individual JSON files in the specified directory.
+        
+        Args:
+            workflows (List[Dict[str, Any]]): List of workflow dictionaries.
+            output_dir (str): Output directory path.
+            
+        Returns:
+            List[str]: List of paths to saved files.
+        """
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        saved_files = []
+        for workflow in workflows:
+            filename = f"{workflow['workflow_id']}.json"
+            filepath = output_path / filename
+            
+            with open(filepath, 'w') as f:
+                json.dump(workflow, f, indent=2)
+            
+            saved_files.append(str(filepath))
+        
+        return saved_files
 
 def main():
     """
-    Entry point for the synthetic workflow generation.
+    CLI entry point for generating synthetic workflows.
+    
+    Usage:
+        python -m generators.synthetic_workflow [--num N] [--output DIR] [--seed S]
     """
-    print("Starting Synthetic Workflow Generation...")
+    import argparse
     
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser(description="Generate synthetic workflows")
+    parser.add_argument("--num", type=int, default=500, help="Number of workflows to generate")
+    parser.add_argument("--output", type=str, default="data/raw", help="Output directory")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
     
-    # Initialize generator with a fixed seed for reproducibility
-    generator = SyntheticWorkflowGenerator(base_seed=42)
+    args = parser.parse_args()
     
-    # Generate workflows
-    workflows = generator.generate_all()
+    print(f"Generating {args.num} workflows with seed {args.seed}...")
     
-    # Save to disk
-    generator.save_to_disk(OUTPUT_DIR)
+    generator = SyntheticWorkflowGenerator(seed=args.seed)
+    workflows = generator.generate_workflows(num_workflows=args.num)
     
-    print("Generation complete.")
-
+    saved_files = generator.save_workflows(workflows, args.output)
+    
+    print(f"Generated {len(workflows)} workflows.")
+    print(f"Saved to {args.output}: {len(saved_files)} files.")
+    
+    # Print summary statistics
+    depths = [w["metadata"]["max_depth"] for w in workflows]
+    depth_counts = {}
+    for d in depths:
+        depth_counts[d] = depth_counts.get(d, 0) + 1
+    
+    print("Depth distribution:")
+    for d in sorted(depth_counts.keys()):
+        print(f"  Depth {d}: {depth_counts[d]} workflows")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

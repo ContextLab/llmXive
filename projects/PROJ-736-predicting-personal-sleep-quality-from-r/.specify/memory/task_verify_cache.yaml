@@ -1,11 +1,10 @@
 T005:
   c: false
-  h: 2af8cfa43c96137e8c0b4b9db89f69177338d43272eec4caa33316d33d3f9583
-  r: "The repository contains a partially\u2011implemented `code/data/download_hcp.py`,\
-    \ but the script does not actually download the minimally preprocessed CIFTI files,\
-    \ and the required output files (`data/raw/manifest.json` and `data/raw/behavioral/hcp1200_behavioral_data.csv`)\
-    \ are missing. Consequently the checksum verification and manifest recording steps\
-    \ are not fulfilled."
+  h: 0ae91988712d348daaf3c69ec4d6081bf4058ec8d31ea2a42cf5f5ccdf1ece76
+  r: "The required output files `data/raw/manifest.json` and `data/raw/behavioral/hcp1200_behavioral_data.csv`\
+    \ are absent, and the provided `download_hcp.py` script (truncated) does not show\
+    \ the implementation of CIFTI downloading, checksum verification, or manifest\
+    \ recording. The task\u2019s core deliverables are therefore not satisfied."
 T014:
   c: false
   h: 585cb580d6d67379b42d1918c17b16fdb165b98f15b6b6158a2fe93506f51dec
@@ -15,14 +14,6 @@ T014:
     \ Moreover, there is no evidence that `.npy` connectivity files are actually written\
     \ to `data/processed/`. The pipeline therefore does not fully satisfy the orchestration\
     \ and logging requirements."
-T020:
-  c: false
-  h: 3072fa7f2362bb8b26f35186e203d6e5687cedc17079fe3172378d3fd8627bcf
-  r: "The provided `code/modeling/train.py` is incomplete (truncated mid\u2011function\
-    \ and does not show a call to T020a or saving of a model). Moreover, the required\
-    \ output files `data/processed/predictions.npy` and `data/processed/model.pkl`\
-    \ are absent from the repository. The task\u2019s core deliverables are therefore\
-    \ missing."
 T022a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

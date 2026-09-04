@@ -1,8 +1,7 @@
-"""Power analysis for the 100-subject stratified subset.
+"""Power analysis for the sleep quality prediction study.
 
-Validates that a sample size of N=100 is sufficient to detect the expected
-effect size (R²=0.05) with alpha=0.05 and power > 0.8 using a theoretical
-F-test for linear regression.
+Performs a pilot power analysis to validate the 100-subject subset for
+the permutation test, using a theoretical F-test for linear regression.
 """
 from __future__ import annotations
 
@@ -13,11 +12,17 @@ from pathlib import Path
 from typing import Dict, Any
 
 import numpy as np
-from scipy import stats
+from scipy.stats import f
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import get_paths, get_hyperparameter
+# Import local config
+try:
+    from config import get_hyperparameter, get_paths
+except ImportError:
+    # Fallback for direct execution or different import context
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from config import get_hyperparameter, get_paths
+
 
 def calculate_power_f_test(
     n_samples: int,
@@ -30,11 +35,11 @@ def calculate_power_f_test(
     Args:
         n_samples: Number of observations (subjects).
         n_predictors: Number of predictors (features) in the model.
-        r_squared: Expected R-squared effect size.
-        alpha: Significance level (Type I error rate).
+        r_squared: Expected effect size (R-squared value).
+        alpha: Significance level (alpha).
 
     Returns:
-        Calculated statistical power (1 - beta).
+        Statistical power (probability of rejecting null when false).
     """
     # Degrees of freedom
     df1 = n_predictors  # Numerator df (model)
@@ -47,120 +52,162 @@ def calculate_power_f_test(
         )
 
     # Non-centrality parameter (lambda) for the F-distribution
-    # Formula: lambda = (R² / (1 - R²)) * (n - k - 1)
-    # where k is number of predictors
-    non_central_param = (r_squared / (1 - r_squared)) * df2
+    # lambda = (R^2 / (1 - R^2)) * n
+    if r_squared >= 1.0:
+        r_squared = 0.9999
+    if r_squared <= 0.0:
+        r_squared = 0.0001
+
+    non_central_param = (r_squared / (1 - r_squared)) * n_samples
 
     # Critical F value
-    f_crit = stats.f.ppf(1 - alpha, df1, df2)
+    f_crit = f.ppf(1 - alpha, df1, df2)
 
-    # Power is the probability that the F-statistic exceeds the critical value
-    # under the alternative hypothesis (non-central F distribution)
-    power = 1 - stats.ncf.cdf(f_crit, df1, df2, non_central_param)
+    # Power is the probability that the non-central F statistic exceeds the critical value
+    # We use the survival function (sf) of the non-central F distribution
+    # Note: scipy.stats.ncf.sf(x, dfn, dfd, nc)
+    # However, scipy.stats.ncf is not always available or stable in all environments.
+    # A robust approximation or using the cumulative distribution function (cdf) is preferred.
+    # Power = 1 - CDF(f_crit; df1, df2, ncp)
+    try:
+        from scipy.stats import ncf
+        power = 1.0 - ncf.cdf(f_crit, df1, df2, non_central_param)
+    except ImportError:
+        # Fallback: If ncf is missing, we cannot compute exact power without numpy/scipy extensions.
+        # In a strict environment, this should fail loudly rather than returning a dummy.
+        raise RuntimeError(
+            "scipy.stats.ncf is required for power analysis but is not available. "
+            "Please ensure scipy is installed with all optional dependencies."
+        )
 
-    return float(power)
+    return max(0.0, min(1.0, power))
 
-def run_power_analysis() -> Dict[str, Any]:
-    """Perform power analysis and return results dictionary.
+
+def run_power_analysis(
+    n_samples: int = 100,
+    n_predictors: int = 50,
+    expected_r_squared: float = 0.05,
+    alpha: float = 0.05,
+    power_threshold: float = 0.8
+) -> Dict[str, Any]:
+    """Run the power analysis calculation.
+
+    Args:
+        n_samples: Number of subjects in the subset.
+        n_predictors: Number of features (after dimensionality reduction).
+        expected_r_squared: Expected effect size.
+        alpha: Significance level.
+        power_threshold: Minimum required power.
 
     Returns:
-        Dictionary containing power analysis results and validation status.
+        Dictionary with analysis results.
     """
-    paths = get_paths()
-    results_dir = paths["results"]
-    os.makedirs(results_dir, exist_ok=True)
-
-    # Load configuration
-    expected_r2 = get_hyperparameter("EXPECTED_R2_EFFECT_SIZE")
-    alpha_level = get_hyperparameter("ALPHA_LEVEL")
-    power_threshold = get_hyperparameter("POWER_THRESHOLD")
-    subset_size = get_hyperparameter("PERMUTATION_SUBSET_SIZE")
-
-    # Estimate number of predictors (features)
-    # We use a conservative estimate based on the Schaefer atlas (400 regions -> ~80k edges)
-    # However, PCA will reduce this. We assume PCA retains enough to explain variance
-    # but we use a representative number for power calculation.
-    # For power analysis of the final model, we consider the effective degrees of freedom.
-    # A safe conservative estimate for a high-dimensional model after PCA is often
-    # much lower than the raw feature count. We'll use a placeholder that represents
-    # the effective model complexity after dimensionality reduction.
-    # Given the context of "100 subjects", we assume the model complexity (k)
-    # is significantly lower than n to avoid overfitting, but we need a value.
-    # Let's assume a moderate number of principal components, e.g., 20-30.
-    # We'll use 20 as a conservative estimate for the effective number of predictors.
-    n_predictors = 20
-
-    # Calculate power
-    power = calculate_power_f_test(
-        n_samples=subset_size,
-        n_predictors=n_predictors,
-        r_squared=expected_r2,
-        alpha=alpha_level
-    )
-
-    # Determine validation status
-    is_valid = power > power_threshold
-
-    results = {
-        "analysis_type": "power_analysis",
-        "parameters": {
-            "sample_size": subset_size,
+    try:
+        power = calculate_power_f_test(
+            n_samples=n_samples,
+            n_predictors=n_predictors,
+            r_squared=expected_r_squared,
+            alpha=alpha
+        )
+    except ValueError as e:
+        return {
+            "status": "failed",
+            "error": str(e),
+            "n_samples": n_samples,
             "n_predictors": n_predictors,
-            "expected_r_squared": expected_r2,
-            "alpha_level": alpha_level,
+            "expected_r_squared": expected_r_squared
+        }
+
+    is_valid = power >= power_threshold
+
+    return {
+        "status": "success" if is_valid else "insufficient_power",
+        "parameters": {
+            "n_samples": n_samples,
+            "n_predictors": n_predictors,
+            "expected_r_squared": expected_r_squared,
+            "alpha": alpha,
             "power_threshold": power_threshold
         },
         "results": {
-            "calculated_power": power,
+            "calculated_power": float(power),
             "is_valid": is_valid,
-            "meets_threshold": power > power_threshold
+            "meets_threshold": is_valid
         },
-        "validation": {
-            "status": "passed" if is_valid else "failed",
-            "message": (
-                f"Power analysis {'passed' if is_valid else 'failed'}. "
-                f"Calculated power: {power:.4f} (threshold: {power_threshold}). "
-                f"Effect size: R²={expected_r2}, N={subset_size}, k={n_predictors}."
-            )
-        }
+        "conclusion": (
+            f"Power analysis for N={n_samples} subjects: "
+            f"Calculated power is {power:.4f} (threshold: {power_threshold}). "
+            f"{'Valid' if is_valid else 'Invalid'} for the proposed study design."
+        )
     }
 
-    return results
 
 def save_power_analysis(results: Dict[str, Any], output_path: str) -> None:
-    """Save power analysis results to JSON file.
+    """Save power analysis results to a JSON file.
 
     Args:
         results: Dictionary containing analysis results.
-        output_path: Path to output JSON file.
+        output_path: Path to save the JSON file.
     """
-    with open(output_path, "w", encoding="utf-8") as f:
+    # Ensure directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
 
+
 def main() -> int:
-    """Main entry point for power analysis script.
+    """Main entry point for the power analysis script."""
+    # Get configuration
+    paths = get_paths()
+    results_dir = paths.get("results_dir", "data/results")
+    output_file = os.path.join(results_dir, "power_analysis.json")
 
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
+    # Load hyperparameters from config
     try:
-        print("Starting power analysis...")
-        results = run_power_analysis()
+        expected_r2 = get_hyperparameter("EXPECTED_R2_EFFECT_SIZE", 0.05)
+        alpha_level = get_hyperparameter("ALPHA_LEVEL", 0.05)
+        power_threshold = get_hyperparameter("POWER_THRESHOLD", 0.8)
+    except Exception:
+        # Fallback to defaults if config loading fails
+        expected_r2 = 0.05
+        alpha_level = 0.05
+        power_threshold = 0.8
 
-        paths = get_paths()
-        output_file = str(Path(paths["results"]) / "power_analysis.json")
+    # Define the subset size (from T021/T037a requirements)
+    n_samples = 100
 
-        save_power_analysis(results, output_file)
+    # Estimate n_predictors:
+    # In the actual pipeline, PCA reduces dimensions.
+    # We assume a conservative estimate based on typical fMRI connectivity
+    # (e.g., 200 regions -> ~20k edges -> PCA reduces to ~50-100 components).
+    # Using 50 as a conservative estimate for the effective degrees of freedom.
+    n_predictors = 50
 
-        print(f"Power analysis complete. Results saved to: {output_file}")
-        print(f"Status: {results['validation']['status']}")
-        print(f"Calculated Power: {results['results']['calculated_power']:.4f}")
+    print(f"Running Power Analysis:")
+    print(f"  N (Subjects): {n_samples}")
+    print(f"  Predictors (PCA components): {n_predictors}")
+    print(f"  Expected R²: {expected_r2}")
+    print(f"  Alpha: {alpha_level}")
+    print(f"  Power Threshold: {power_threshold}")
 
-        return 0
+    results = run_power_analysis(
+        n_samples=n_samples,
+        n_predictors=n_predictors,
+        expected_r_squared=expected_r2,
+        alpha=alpha_level,
+        power_threshold=power_threshold
+    )
 
-    except Exception as e:
-        print(f"Power analysis failed: {e}", file=sys.stderr)
-        return 1
+    print(f"\nResult: {results['conclusion']}")
+
+    save_power_analysis(results, output_file)
+    print(f"Saved results to: {output_file}")
+
+    return 0 if results.get("status") == "success" else 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

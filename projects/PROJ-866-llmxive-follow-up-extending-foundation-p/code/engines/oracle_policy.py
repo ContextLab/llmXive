@@ -4,123 +4,181 @@ from pathlib import Path
 
 class OraclePolicyEngine:
     """
-    Independent rule-based validator for workflow policies.
-    Defines ground-truth validity; separate from execution engines.
+    Independent rule-based validator (Oracle) for workflow execution.
+    
+    Defines ground-truth validity for each step in a workflow.
+    Separate from execution engines.
+    
+    Rules:
+    1. Data sovereignty: Confidential/Restricted data cannot be processed at public nodes.
+    2. Audit requirement: Nodes with 'audit_required' tag must have a valid audit trail.
+    3. Rate limiting: Process nodes exceeding rate limit thresholds are invalid.
+    4. Retry policy: Decision nodes must have valid retry paths.
     """
 
     def __init__(self):
-        # Define policy rules
-        self.policy_rules = {
-            'default': self._validate_default,
-            'data_sovereignty': self._validate_data_sovereignty,
-            'compliance': self._validate_compliance,
-            'security': self._validate_security
-        }
+        """Initialize the Oracle Policy Engine."""
+        self.violation_types = [
+            "data_sovereignty_violation",
+            "audit_missing",
+            "rate_limit_exceeded",
+            "invalid_retry_path"
+        ]
 
-    def validate_node(self, node: Dict[str, Any]) -> Dict[str, Any]:
+    def validate_node(self, node: Dict[str, Any], context: Dict[str, Any]) -> Tuple[bool, List[str]]:
         """
-        Validate a single node against its policy.
+        Validate a single node against the policy rules.
         
         Args:
-            node: Dictionary containing node definition
+            node (Dict[str, Any]): The node to validate.
+            context (Dict[str, Any]): Execution context (available data, audit trails, etc.).
             
         Returns:
-            Dictionary with 'valid' boolean and 'message' if invalid
+            Tuple[bool, List[str]]: (is_valid, list_of_violations)
         """
-        policy_type = node.get('policy', 'default')
-        validator = self.policy_rules.get(policy_type, self._validate_default)
-        
-        return validator(node)
-
-    def _validate_default(self, node: Dict[str, Any]) -> Dict[str, Any]:
-        """Default validation - always passes unless explicitly marked invalid."""
-        if node.get('invalid', False):
-            return {'valid': False, 'message': 'Node explicitly marked as invalid'}
-        return {'valid': True, 'message': None}
-
-    def _validate_data_sovereignty(self, node: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Validate data sovereignty policy.
-        Ensures data stays within allowed regions.
-        """
-        region = node.get('region', 'global')
-        allowed_regions = node.get('allowed_regions', ['global'])
-        
-        if region not in allowed_regions and 'global' not in allowed_regions:
-            return {
-                'valid': False, 
-                'message': f'Data sovereignty violation: region {region} not in allowed regions {allowed_regions}'
-            }
-        
-        return {'valid': True, 'message': None}
-
-    def _validate_compliance(self, node: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate compliance policy."""
-        compliance_level = node.get('compliance_level', 0)
-        required_level = node.get('required_compliance_level', 0)
-        
-        if compliance_level < required_level:
-            return {
-                'valid': False,
-                'message': f'Compliance violation: level {compliance_level} below required {required_level}'
-            }
-        
-        return {'valid': True, 'message': None}
-
-    def _validate_security(self, node: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate security policy."""
-        security_level = node.get('security_level', 0)
-        required_level = node.get('required_security_level', 0)
-        
-        if security_level < required_level:
-            return {
-                'valid': False,
-                'message': f'Security violation: level {security_level} below required {required_level}'
-            }
-        
-        return {'valid': True, 'message': None}
-
-    def validate_workflow(self, workflow: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Validate an entire workflow.
-        
-        Args:
-            workflow: Dictionary containing workflow definition
-            
-        Returns:
-            Dictionary with overall validity and list of violations
-        """
-        nodes = workflow.get('nodes', [])
         violations = []
+        node_type = node.get("node_type")
+        policy_tags = node.get("policy_tags", [])
+        data_req = node.get("data_requirements", {})
+        
+        # Rule 1: Data sovereignty
+        if node_type in ["process", "decision"]:
+            data_level = data_req.get("sovereignty_level", "public")
+            context_level = context.get("data_sovereignty_level", "public")
+            
+            sovereignty_map = {
+                "public": 0,
+                "internal": 1,
+                "confidential": 2,
+                "restricted": 3
+            }
+            
+            if sovereignty_map.get(data_level, 0) > sovereignty_map.get(context_level, 0):
+                violations.append("data_sovereignty_violation")
+        
+        # Rule 2: Audit requirement
+        if "audit_required" in policy_tags:
+            if not context.get("has_valid_audit_trail", False):
+                violations.append("audit_missing")
+        
+        # Rule 3: Rate limiting
+        if "rate_limit" in policy_tags:
+            if context.get("current_rate", 0) > context.get("max_rate", float("inf")):
+                violations.append("rate_limit_exceeded")
+        
+        # Rule 4: Retry policy
+        if "retry_policy" in policy_tags and node_type == "decision":
+            if not context.get("has_retry_path", False):
+                violations.append("invalid_retry_path")
+        
+        return len(violations) == 0, violations
+
+    def validate_workflow(self, workflow: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validate an entire workflow against the policy rules.
+        
+        Args:
+            workflow (Dict[str, Any]): The workflow to validate.
+            context (Dict[str, Any]): Execution context.
+            
+        Returns:
+            Dict[str, Any]: Validation result with per-node violations.
+        """
+        nodes = workflow.get("nodes", [])
+        results = {
+            "workflow_id": workflow.get("workflow_id"),
+            "is_valid": True,
+            "node_results": [],
+            "total_violations": 0
+        }
         
         for node in nodes:
-            result = self.validate_node(node)
-            if not result['valid']:
-                violations.append(result['message'])
+            is_valid, violations = self.validate_node(node, context)
+            
+            node_result = {
+                "node_id": node.get("node_id"),
+                "is_valid": is_valid,
+                "violations": violations
+            }
+            results["node_results"].append(node_result)
+            
+            if not is_valid:
+                results["is_valid"] = False
+                results["total_violations"] += len(violations)
         
-        return {
-            'valid': len(violations) == 0,
-            'violations': violations,
-            'message': '; '.join(violations) if violations else None
-        }
+        return results
+
+    def validate_edge(self, edge: Dict[str, Any], workflow: Dict[str, Any]) -> bool:
+        """
+        Validate a single edge in the workflow.
+        
+        Args:
+            edge (Dict[str, Any]): The edge to validate.
+            workflow (Dict[str, Any]): The parent workflow.
+            
+        Returns:
+            bool: True if edge is valid.
+        """
+        # Check if source and target nodes exist
+        source_id = edge.get("source_node_id")
+        target_id = edge.get("target_node_id")
+        
+        node_ids = {n["node_id"] for n in workflow.get("nodes", [])}
+        
+        if source_id not in node_ids or target_id not in node_ids:
+            return False
+        
+        # Check for cycles (simplified: just check depth ordering)
+        nodes_map = {n["node_id"]: n for n in workflow.get("nodes", [])}
+        source_depth = nodes_map.get(source_id, {}).get("depth", 0)
+        target_depth = nodes_map.get(target_id, {}).get("depth", 0)
+        
+        if source_depth >= target_depth:
+            return False  # Invalid edge (would create cycle or backward link)
+        
+        return True
 
 def main():
     """
-    Main entry point for testing the OraclePolicyEngine.
+    CLI entry point for testing the Oracle Policy Engine.
+    
+    Usage:
+        python -m engines.oracle_policy --workflow WORKFLOW_FILE --context CONTEXT_FILE
     """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Oracle Policy Engine")
+    parser.add_argument("--workflow", type=str, required=True, help="Workflow JSON file")
+    parser.add_argument("--context", type=str, default=None, help="Context JSON file (optional)")
+    
+    args = parser.parse_args()
+    
+    # Load workflow
+    with open(args.workflow, 'r') as f:
+        workflow = json.load(f)
+    
+    # Load or create context
+    if args.context and Path(args.context).exists():
+        with open(args.context, 'r') as f:
+            context = json.load(f)
+    else:
+        # Default context
+        context = {
+            "data_sovereignty_level": "internal",
+            "has_valid_audit_trail": True,
+            "current_rate": 100,
+            "max_rate": 1000,
+            "has_retry_path": True
+        }
+    
+    # Validate
     oracle = OraclePolicyEngine()
+    result = oracle.validate_workflow(workflow, context)
     
-    # Test various node types
-    test_nodes = [
-        {'id': 'node1', 'policy': 'default'},
-        {'id': 'node2', 'policy': 'data_sovereignty', 'region': 'eu', 'allowed_regions': ['eu', 'us']},
-        {'id': 'node3', 'policy': 'compliance', 'compliance_level': 3, 'required_compliance_level': 2},
-        {'id': 'node4', 'policy': 'security', 'security_level': 1, 'required_security_level': 2}
-    ]
+    print(json.dumps(result, indent=2))
     
-    for node in test_nodes:
-        result = oracle.validate_node(node)
-        print(f"Node {node['id']}: {result}")
+    return 0 if result["is_valid"] else 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

@@ -1,225 +1,266 @@
-"""
-Orchestrator for the llmXive Foundation Protocol pipeline.
-
-This script generates synthetic workflows using the SyntheticWorkflowGenerator,
-validates them with the OraclePolicyEngine, executes them with the FullContextEngine,
-and saves the raw workflow data to data/raw/.
-
-Usage:
-    python code/main.py --num-workflows 500 --output-dir data/raw/
-"""
-
 import argparse
 import json
 import os
 import sys
 import random
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Import from existing API surface
+from generators.synthetic_workflow import SyntheticWorkflowGenerator, main as gen_main
+from engines.oracle_policy import OraclePolicyEngine, main as oracle_main
+from engines.full_context import FullContextEngine, main as full_main
+from utils.state_manager import update_state_with_artifacts, compute_directory_hashes, load_state, save_state
 
-from generators.synthetic_workflow import SyntheticWorkflowGenerator
-from engines.oracle_policy import OraclePolicyEngine
-from engines.full_context import FullContextEngine
-
-
-def ensure_directories(output_dir: str) -> None:
-    """Ensure the output directory exists."""
-    path = Path(output_dir)
-    path.mkdir(parents=True, exist_ok=True)
-    
-    # Ensure subdirectories exist as per project structure
-    (path / "workflows").mkdir(exist_ok=True)
-    (path / "logs").mkdir(exist_ok=True)
-    
+def ensure_directories(base_path: Path) -> None:
+    """Ensure all required data directories exist."""
+    dirs = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+        base_path / "state" / "projects"
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
 def generate_workflows(
-    num_workflows: int,
-    output_dir: str,
-    seed: int = 42
-) -> List[str]:
+    base_path: Path,
+    count: int,
+    seed: int,
+    output_dir: Optional[Path] = None
+) -> List[Dict[str, Any]]:
     """
-    Generate synthetic workflows and save them to disk.
+    Generate synthetic workflows and save them to data/raw/.
     
     Args:
-        num_workflows: Number of workflows to generate
-        output_dir: Directory to save workflow files
-        seed: Random seed for reproducibility
+        base_path: Project root path
+        count: Number of workflows to generate
+        seed: Random seed for determinism
+        output_dir: Optional override for output directory
         
     Returns:
-        List of paths to generated workflow files
+        List of generated workflow metadata dicts
     """
-    ensure_directories(output_dir)
+    if output_dir is None:
+        output_dir = base_path / "data" / "raw"
+        
     generator = SyntheticWorkflowGenerator(seed=seed)
-    workflows_dir = Path(output_dir) / "workflows"
+    workflows = generator.generate_batch(count=count)
     
-    generated_files = []
-    
-    print(f"Generating {num_workflows} synthetic workflows...")
-    
-    for i in range(num_workflows):
-        workflow = generator.generate()
+    saved_files = []
+    for i, wf in enumerate(workflows):
         filename = f"workflow_{i:04d}.json"
-        filepath = workflows_dir / filename
-        
+        filepath = output_dir / filename
         with open(filepath, 'w') as f:
-            json.dump(workflow, f, indent=2)
+            json.dump(wf, f, indent=2)
+        saved_files.append({
+            "id": wf.get("id"),
+            "depth": wf.get("depth"),
+            "complexity": wf.get("complexity"),
+            "file": str(filepath.relative_to(base_path))
+        })
         
-        generated_files.append(str(filepath))
-        
-        if (i + 1) % 100 == 0:
-            print(f"  Generated {i + 1}/{num_workflows} workflows")
-    
-    print(f"Successfully generated {len(generated_files)} workflows.")
-    return generated_files
+    return saved_files
 
-
-def validate_with_oracle(workflow_paths: List[str], output_dir: str) -> None:
+def validate_with_oracle(
+    base_path: Path,
+    workflow_files: List[Path],
+    output_dir: Optional[Path] = None
+) -> List[Dict[str, Any]]:
     """
     Validate workflows using the Oracle Policy Engine.
     
     Args:
-        workflow_paths: List of paths to workflow files
-        output_dir: Directory to save validation logs
+        base_path: Project root path
+        workflow_files: List of workflow file paths to validate
+        output_dir: Optional override for output directory
+        
+    Returns:
+        List of validation results
     """
+    if output_dir is None:
+        output_dir = base_path / "data" / "raw" / "oracle_logs"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     oracle = OraclePolicyEngine()
-    logs_dir = Path(output_dir) / "logs"
+    results = []
     
-    print("Validating workflows with Oracle Policy Engine...")
-    
-    for i, path in enumerate(workflow_paths):
-        with open(path, 'r') as f:
+    for wf_file in workflow_files:
+        with open(wf_file, 'r') as f:
             workflow = json.load(f)
+            
+        validation = oracle.validate_workflow(workflow)
         
-        # Validate the workflow
-        is_valid, violations = oracle.validate(workflow)
-        
-        # Create a validation log
-        log_entry = {
-            "workflow_id": workflow.get("id", Path(path).stem),
-            "is_valid": is_valid,
-            "violations": violations,
-            "validation_count": len(violations)
-        }
-        
-        log_filename = f"validation_{Path(path).stem}.json"
-        log_path = logs_dir / log_filename
-        
+        log_filename = f"oracle_{wf_file.stem}.json"
+        log_path = output_dir / log_filename
         with open(log_path, 'w') as f:
-            json.dump(log_entry, f, indent=2)
+            json.dump(validation, f, indent=2)
+            
+        results.append({
+            "workflow_id": workflow.get("id"),
+            "is_valid": validation.get("is_valid"),
+            "violations": validation.get("violations", []),
+            "log_file": str(log_path.relative_to(base_path))
+        })
         
-        if (i + 1) % 100 == 0:
-            print(f"  Validated {i + 1}/{len(workflow_paths)} workflows")
-    
-    print(f"Validation complete. Logs saved to {logs_dir}")
+    return results
 
-
-def execute_full_context(workflow_paths: List[str], output_dir: str) -> None:
+def execute_full_context(
+    base_path: Path,
+    workflow_files: List[Path],
+    oracle_logs_dir: Path,
+    output_dir: Optional[Path] = None
+) -> List[Dict[str, Any]]:
     """
-    Execute workflows using the Full Context Engine.
+    Execute workflows with full context and record execution logs.
     
     Args:
-        workflow_paths: List of paths to workflow files
-        output_dir: Directory to save execution logs
+        base_path: Project root path
+        workflow_files: List of workflow file paths to execute
+        oracle_logs_dir: Directory containing oracle validation logs
+        output_dir: Optional override for output directory
+        
+    Returns:
+        List of execution log metadata
     """
+    if output_dir is None:
+        output_dir = base_path / "data" / "processed" / "full_context_logs"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     engine = FullContextEngine()
-    logs_dir = Path(output_dir) / "logs"
+    results = []
     
-    print("Executing workflows with Full Context Engine...")
-    
-    for i, path in enumerate(workflow_paths):
-        with open(path, 'r') as f:
+    for wf_file in workflow_files:
+        with open(wf_file, 'r') as f:
             workflow = json.load(f)
+            
+        # Load corresponding oracle log if exists
+        oracle_log_path = oracle_logs_dir / f"oracle_{wf_file.stem}.json"
+        oracle_log = None
+        if oracle_log_path.exists():
+            with open(oracle_log_path, 'r') as f:
+                oracle_log = json.load(f)
         
-        # Execute the workflow
-        result = engine.execute(workflow)
+        execution = engine.execute(workflow, oracle_log=oracle_log)
         
-        # Save execution log
-        log_filename = f"execution_{Path(path).stem}.json"
-        log_path = logs_dir / log_filename
-        
+        log_filename = f"exec_{wf_file.stem}.json"
+        log_path = output_dir / log_filename
         with open(log_path, 'w') as f:
-            json.dump(result, f, indent=2)
+            json.dump(execution, f, indent=2)
+            
+        results.append({
+            "workflow_id": workflow.get("id"),
+            "status": execution.get("status"),
+            "steps_executed": execution.get("steps_executed", 0),
+            "policy_violations": execution.get("policy_violations", []),
+            "log_file": str(log_path.relative_to(base_path))
+        })
         
-        if (i + 1) % 100 == 0:
-            print(f"  Executed {i + 1}/{len(workflow_paths)} workflows")
-    
-    print(f"Execution complete. Logs saved to {logs_dir}")
-
+    return results
 
 def main():
-    """Main entry point for the orchestrator."""
-    parser = argparse.ArgumentParser(
-        description="llmXive Foundation Protocol Orchestrator"
+    """Main orchestrator entry point."""
+    parser = argparse.ArgumentParser(description="llmXive Pipeline Orchestrator")
+    parser.add_argument(
+        "--action",
+        choices=["generate", "validate", "execute", "full"],
+        default="full",
+        help="Action to perform: generate workflows, validate with oracle, execute, or full pipeline"
     )
     parser.add_argument(
-        "--num-workflows",
+        "--count",
         type=int,
         default=100,
-        help="Number of synthetic workflows to generate (default: 100)"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/raw",
-        help="Output directory for generated data (default: data/raw)"
+        help="Number of workflows to generate (default: 100)"
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Random seed for reproducibility (default: 42)"
+        help="Random seed for deterministic generation (default: 42)"
     )
     parser.add_argument(
-        "--validate",
-        action="store_true",
-        help="Run Oracle validation on generated workflows"
-    )
-    parser.add_argument(
-        "--execute",
-        action="store_true",
-        help="Run Full Context execution on generated workflows"
+        "--base-path",
+        type=str,
+        default=".",
+        help="Project base path (default: current directory)"
     )
     
     args = parser.parse_args()
+    base_path = Path(args.base_path).resolve()
     
-    # Ensure output directory is absolute path
-    output_dir = str(Path(args.output_dir).resolve())
+    print(f"Starting llmXive orchestrator at {base_path}")
+    print(f"Action: {args.action}, Count: {args.count}, Seed: {args.seed}")
     
-    print("=" * 60)
-    print("llmXive Foundation Protocol Orchestrator")
-    print("=" * 60)
-    print(f"Output directory: {output_dir}")
-    print(f"Number of workflows: {args.num_workflows}")
-    print(f"Random seed: {args.seed}")
-    print(f"Validation: {'enabled' if args.validate else 'disabled'}")
-    print(f"Execution: {'enabled' if args.execute else 'disabled'}")
-    print("=" * 60)
+    ensure_directories(base_path)
     
-    # Step 1: Generate workflows
-    workflow_paths = generate_workflows(
-        num_workflows=args.num_workflows,
-        output_dir=output_dir,
-        seed=args.seed
-    )
+    workflow_files = []
+    if args.action in ["generate", "full"]:
+        print("Generating workflows...")
+        workflows = generate_workflows(base_path, args.count, args.seed)
+        workflow_files = [base_path / "data" / "raw" / f["file"] for f in workflows]
+        print(f"Generated {len(workflows)} workflows")
+        
+        # Save generation metadata
+        meta_path = base_path / "data" / "raw" / "generation_metadata.json"
+        with open(meta_path, 'w') as f:
+            json.dump({
+                "count": args.count,
+                "seed": args.seed,
+                "workflows": workflows
+            }, f, indent=2)
+        print(f"Saved generation metadata to {meta_path}")
     
-    # Step 2: Validate with Oracle (if requested)
-    if args.validate:
-        validate_with_oracle(workflow_paths, output_dir)
+    if args.action in ["validate", "full"]:
+        print("Validating with Oracle...")
+        if not workflow_files:
+            # If we didn't generate, try to find existing files
+            raw_dir = base_path / "data" / "raw"
+            workflow_files = list(raw_dir.glob("workflow_*.json"))
+            if not workflow_files:
+                print("No workflows found to validate. Run generation first.")
+                return
+        
+        oracle_results = validate_with_oracle(base_path, workflow_files)
+        print(f"Validated {len(oracle_results)} workflows")
+        
+        # Save validation summary
+        summary_path = base_path / "data" / "raw" / "oracle_summary.json"
+        with open(summary_path, 'w') as f:
+            json.dump(oracle_results, f, indent=2)
+        print(f"Saved oracle summary to {summary_path}")
     
-    # Step 3: Execute with Full Context (if requested)
-    if args.execute:
-        execute_full_context(workflow_paths, output_dir)
+    if args.action in ["execute", "full"]:
+        print("Executing with Full Context...")
+        raw_dir = base_path / "data" / "raw"
+        if not workflow_files:
+            workflow_files = list(raw_dir.glob("workflow_*.json"))
+        
+        oracle_logs_dir = base_path / "data" / "raw" / "oracle_logs"
+        if not oracle_logs_dir.exists():
+            print("Oracle logs not found. Run validation first.")
+            return
+            
+        exec_results = execute_full_context(base_path, workflow_files, oracle_logs_dir)
+        print(f"Executed {len(exec_results)} workflows")
+        
+        # Save execution summary
+        exec_summary_path = base_path / "data" / "processed" / "full_execution_summary.json"
+        with open(exec_summary_path, 'w') as f:
+            json.dump(exec_results, f, indent=2)
+        print(f"Saved execution summary to {exec_summary_path}")
     
-    print("=" * 60)
-    print("Orchestration complete!")
-    print(f"Workflows saved to: {output_dir}/workflows")
-    if args.validate or args.execute:
-        print(f"Logs saved to: {output_dir}/logs")
-    print("=" * 60)
+    # Update state registry with artifact hashes
+    print("Updating state registry...")
+    try:
+        state = load_state(base_path / "state" / "projects" / "PROJ-866-llmxive-follow-up-extending-foundation-p.yaml")
+        updated_state = update_state_with_artifacts(state, base_path)
+        save_state(updated_state, base_path / "state" / "projects" / "PROJ-866-llmxive-follow-up-extending-foundation-p.yaml")
+        print("State registry updated successfully")
+    except Exception as e:
+        print(f"Warning: Could not update state registry: {e}")
+    
+    print("Orchestrator complete.")
 
 if __name__ == "__main__":
     main()

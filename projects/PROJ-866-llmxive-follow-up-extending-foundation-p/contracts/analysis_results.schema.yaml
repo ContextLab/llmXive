@@ -1,163 +1,197 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Results Schema"
-description: >
-  Schema for the final analysis results of the llmXive policy compression trade-off study.
-  This document contains the statistical findings, the identified safe operating threshold,
-  and the regression curve data points.
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisResults
+description: |
+  Schema for the output of the trade-off analysis pipeline (User Story 3).
+  Contains regression parameters, safe operating thresholds, and confidence intervals.
 type: object
 required:
-  - project_id
-  - analysis_timestamp
-  - threshold_summary
-  - regression_parameters
+  - analysis_id
+  - timestamp
+  - regression_model
+  - safe_threshold
   - confidence_interval
-  - data_summary
-  - tradeoff_curve_file
+  - statistics
 properties:
-  project_id:
+  analysis_id:
     type: string
-    description: "The unique identifier for the project (e.g., PROJ-866-...)"
-    pattern: "^PROJ-\\d+-[a-z0-9-]+$"
-
-  analysis_timestamp:
+    description: Unique identifier for this analysis run.
+    pattern: "^ANL-[0-9]{4}-[a-zA-Z0-9]+$"
+  
+  timestamp:
     type: string
     format: date-time
-    description: "ISO 8601 timestamp when the analysis was completed."
-
-  threshold_summary:
+    description: ISO 8601 timestamp when the analysis was completed.
+  
+  dataset_info:
     type: object
-    description: "The primary finding: the maximum context reduction percentage where error <= 1%."
+    description: Metadata about the input data used for analysis.
     required:
-      - max_safe_reduction_pct
-      - error_rate_at_threshold
-      - method
+      - source_file
+      - total_workflows
+      - valid_workflows
+      - invalid_filtered
     properties:
-      max_safe_reduction_pct:
-        type: number
-        format: float
-        minimum: 0
-        maximum: 100
-        description: "The maximum percentage of context reduction (token reduction) that maintains an error rate <= 1%."
-        # Per FR-006: Rounded to 2 decimal places
-      error_rate_at_threshold:
-        type: number
-        format: float
-        minimum: 0
-        maximum: 1
-        description: "The actual observed error rate at the calculated threshold."
-      method:
+      source_file:
         type: string
-        enum:
-          - "logistic_regression_with_bootstrapping"
-        description: "The statistical method used to derive the threshold."
-
-  regression_parameters:
+        description: Path to the processed execution logs used.
+      total_workflows:
+        type: integer
+        minimum: 0
+        description: Total number of workflows in the source dataset.
+      valid_workflows:
+        type: integer
+        minimum: 0
+        description: Number of workflows that passed validation (is_valid=true).
+      invalid_filtered:
+        type: integer
+        minimum: 0
+        description: Number of workflows filtered out due to invalidity.
+  
+  regression_model:
     type: object
-    description: "Parameters from the logistic regression model fitted to the trade-off data."
+    description: Parameters and metrics of the fitted logistic regression model.
     required:
+      - model_type
       - coefficients
-      - p_values
-      - model_fit_metrics
+      - intercept
+      - goodness_of_fit
     properties:
+      model_type:
+        type: string
+        enum: ["logistic_regression"]
+        description: Type of model fitted.
       coefficients:
         type: object
-        description: "Model coefficients. Keys correspond to features."
+        description: Coefficients for predictors (token_reduction_pct, depth, complexity).
+        required:
+          - token_reduction_pct
         properties:
-          intercept:
-            type: number
           token_reduction_pct:
             type: number
-          graph_depth:
+            description: Coefficient for token reduction percentage.
+          depth:
             type: number
-          graph_complexity:
+            description: Coefficient for graph depth (if included).
+          complexity:
             type: number
-        additionalProperties: true
-      p_values:
+            description: Coefficient for graph complexity (if included).
+      intercept:
+        type: number
+        description: Model intercept term.
+      goodness_of_fit:
         type: object
-        description: "P-values for the coefficients, adjusted for multiple comparisons (Bonferroni/BH)."
+        description: Model fit statistics.
+        required:
+          - pseudo_r2
+          - log_likelihood
         properties:
-          intercept:
+          pseudo_r2:
             type: number
-          token_reduction_pct:
-            type: number
-          graph_depth:
-            type: number
-          graph_complexity:
-            type: number
-        additionalProperties: true
-      model_fit_metrics:
-        type: object
-        description: "Goodness-of-fit statistics."
-        properties:
-          pseudo_r_squared:
-            type: number
-          aic:
-            type: number
-          bic:
-            type: number
+            minimum: 0
+            maximum: 1
+            description: McFadden's pseudo R-squared value.
           log_likelihood:
             type: number
-
+            description: Final log-likelihood of the model.
+          aic:
+            type: number
+            description: Akaike Information Criterion.
+          bic:
+            type: number
+            description: Bayesian Information Criterion.
+  
+  safe_threshold:
+    type: object
+    description: The identified safe operating zone threshold.
+    required:
+      - max_reduction_pct
+      - method
+      - p_value_corrected
+    properties:
+      max_reduction_pct:
+        type: number
+        minimum: 0
+        maximum: 100
+        description: Maximum token reduction percentage where error rate ≤ 1%.
+      method:
+        type: string
+        enum: ["bonferroni", "benjamini_hochberg", "bootstrapping"]
+        description: Statistical method used to determine the threshold.
+      p_value_corrected:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Adjusted p-value after multiple comparison correction.
+      significance_level:
+        type: number
+        default: 0.05
+        description: Significance level used for the test.
+  
   confidence_interval:
     type: object
-    description: "95% Confidence Interval for the threshold, derived via bootstrapping (1000 resamples)."
+    description: 95% Confidence Interval for the safe threshold.
     required:
       - lower_bound
       - upper_bound
-      - resamples
+      - level
+      - n_resamples
     properties:
       lower_bound:
         type: number
-        description: "Lower bound of the 95% CI for max_safe_reduction_pct."
+        minimum: 0
+        maximum: 100
+        description: Lower bound of the 95% CI.
       upper_bound:
         type: number
-        description: "Upper bound of the 95% CI for max_safe_reduction_pct."
-      resamples:
+        minimum: 0
+        maximum: 100
+        description: Upper bound of the 95% CI.
+      level:
+        type: number
+        const: 0.95
+        description: Confidence level.
+      n_resamples:
         type: integer
-        minimum: 1000
-        description: "Number of bootstrap resamples used."
-
-  data_summary:
+        minimum: 1
+        description: Number of bootstrap resamples used.
+  
+  statistics:
     type: object
-    description: "Summary statistics of the input data used for the analysis."
+    description: Additional statistical summary data.
     required:
-      - total_workflows_analyzed
-      - valid_workflows
-      - invalid_workflows
-      - compression_levels_tested
-      - total_execution_logs
+      - violation_rate_at_threshold
+      - n_observations
     properties:
-      total_workflows_analyzed:
-        type: integer
-      valid_workflows:
-        type: integer
-      invalid_workflows:
-        type: integer
-        description: "Count of workflows marked as 'invalid' (impossible even with full context)."
-      compression_levels_tested:
-        type: integer
-      total_execution_logs:
-        type: integer
-      mean_token_reduction:
+      violation_rate_at_threshold:
         type: number
-      mean_error_rate:
+        minimum: 0
+        maximum: 1
+        description: Observed violation rate at the calculated safe threshold.
+      n_observations:
+        type: integer
+        minimum: 1
+        description: Total number of observations used in the analysis.
+      error_margin:
         type: number
-
-  tradeoff_curve_file:
-    type: string
-    description: "Relative path to the CSV file containing the raw regression data points."
-    pattern: "^data/results/tradeoff_curve.csv$"
-
+        description: Margin of error for the threshold estimate.
+  
   metadata:
     type: object
-    description: "Optional metadata about the analysis run."
+    description: Execution metadata.
     properties:
-      analysis_script_version:
+      script_version:
         type: string
+        description: Version of the analysis script used.
       python_version:
         type: string
-      dependencies:
+        description: Python version of the execution environment.
+      packages:
         type: object
-        additionalProperties: true
-
-additionalProperties: false
+        description: Versions of key packages (numpy, scipy, statsmodels).
+        properties:
+          numpy:
+            type: string
+          scipy:
+            type: string
+          statsmodels:
+            type: string

@@ -1,400 +1,439 @@
 """
-Task T027: Implement Tobit regression model with Ridge fallback.
+Tobit Regression Implementation with Ridge Fallback for Exoplanet Atmosphere Analysis.
 
-Logic:
-1. Load retrieval data from data/processed/retrieval_results.csv.
-2. Check for Multicollinearity (VIF > 5) among predictors (Temperature, Mass, Metallicity).
-3. If VIF > 5:
-   - Trigger Ridge Regression fallback on the uncensored subset (is_upper_limit == False).
-   - Log the fallback event.
-4. If VIF <= 5:
-   - Run Tobit Regression using lifelines on the full dataset (handling censored values).
-5. Save results to data/processed/regression_results.json.
-
-Dependencies:
-- lifelines (for Tobit/Censored regression)
-- statsmodels (for VIF calculation)
-- sklearn (for Ridge fallback)
-- pandas, numpy
+This module implements Tobit regression to model water abundance as a function of
+temperature, mass, and metallicity. It includes a Variance Inflation Factor (VIF)
+check to detect multicollinearity. If VIF > 5, it automatically falls back to
+Ridge Regression on the uncensored subset of data.
 """
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
+
 import pandas as pd
 import numpy as np
 
-# Conditional imports to handle environment availability
-try:
-    from statsmodels.stats.outliers_influence import variance_inflation_factor
-    HAS_VIF = True
-except ImportError:
-    HAS_VIF = False
-    logging.warning("statsmodels not installed; VIF check will be skipped (assuming no multicollinearity).")
-
-try:
-    from lifelines import TobitFitter
-    HAS_LIFELINES = True
-except ImportError:
-    HAS_LIFELINES = False
-    logging.error("lifelines not installed; cannot perform Tobit regression.")
-
-try:
-    from sklearn.linear_model import Ridge
-    from sklearn.preprocessing import StandardScaler
-    HAS_SKLEARN = True
-except ImportError:
-    HAS_SKLEARN = False
-    logging.error("scikit-learn not installed; cannot perform Ridge fallback.")
+from sklearn.linear_model import Ridge
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import statsmodels.api as sm
 
 from config import get_config
 from utils import setup_logging, PipelineError
 
 # Configure logging
-logger = setup_logging("analysis_tobit")
+logger = logging.getLogger(__name__)
 
-def load_retrieval_data(input_path: Optional[Path] = None) -> pd.DataFrame:
+def load_retrieval_data(input_path: str) -> pd.DataFrame:
     """
-    Load the retrieval results CSV.
-    Expects columns: planet_name, water_mixing_ratio, uncertainty, is_upper_limit, 
-    temperature, mass, metallicity (from joined metadata).
+    Load retrieval results from CSV.
+
+    Args:
+        input_path: Path to the retrieval results CSV file.
+
+    Returns:
+        DataFrame containing retrieval results.
     """
-    if input_path is None:
-        config = get_config()
-        input_path = Path(config["data_processed"]) / "retrieval_results.csv"
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}. "
-                                "Ensure T020 (retrieval) has been run successfully.")
-    
-    df = pd.read_csv(input_path)
-    
-    # Ensure numeric types
-    numeric_cols = ['water_mixing_ratio', 'temperature', 'mass', 'metallicity']
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-        else:
-            raise ValueError(f"Missing required column: {col}")
-    
-    # Ensure boolean type for is_upper_limit
-    if 'is_upper_limit' in df.columns:
-        df['is_upper_limit'] = df['is_upper_limit'].astype(bool)
-    else:
-        # Fallback if column missing (assume no censoring)
-        df['is_upper_limit'] = False
-        logger.warning("Column 'is_upper_limit' not found. Assuming all data is uncensored.")
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    df = pd.read_csv(path)
+
+    # Ensure required columns exist
+    required_cols = ['planet_name', 'water_mixing_ratio', 'uncertainty', 'is_upper_limit', 'min_detectable_concentration']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in retrieval data: {missing_cols}")
+
+    # Load metadata for predictors (temperature, mass, metallicity)
+    # Assuming metadata is in data/processed/metadata.csv based on T012
+    metadata_path = Path("data/processed/metadata.csv")
+    if not metadata_path.exists():
+        # Try to infer from input path if metadata is merged, otherwise error
+        # For now, assume it must exist as per pipeline flow
+        raise FileNotFoundError(f"Metadata file not found at {metadata_path}. Required for predictors.")
+
+    meta_df = pd.read_csv(metadata_path)
+    meta_required = ['planet_name', 'temperature', 'metallicity']
+    missing_meta = [col for col in meta_required if col not in meta_df.columns]
+    if missing_meta:
+        # Try to find mass column, sometimes named differently
+        if 'mass' not in meta_df.columns:
+            raise ValueError(f"Missing required columns in metadata: {missing_meta}")
+
+    # Merge data
+    df = df.merge(meta_df[['planet_name', 'temperature', 'metallicity']], on='planet_name', how='left')
+
+    # Filter out rows with missing predictors
+    df = df.dropna(subset=['temperature', 'metallicity', 'water_mixing_ratio', 'is_upper_limit'])
+
+    # If mass is missing, we might need to estimate or skip.
+    # The task specifies 'mass' as a predictor. If not in metadata, we cannot proceed with mass.
+    # Let's check if 'mass' exists. If not, we might need to use a placeholder or skip mass.
+    # However, the task explicitly says "temperature, mass, metallicity".
+    # If mass is missing in metadata, we should try to load it or fail.
+    # Let's assume for this implementation that if 'mass' is not in metadata, we skip it or fail.
+    # To be robust, we check again.
+    if 'mass' not in df.columns:
+        # Try to load mass from another source or fail.
+        # For now, we will raise an error if mass is missing, as it's a required predictor.
+        # In a real scenario, we might fetch it from an external API.
+        # Since T012 metadata might not have mass, we need to handle this.
+        # Let's assume the metadata.csv from T012 has 'mass' or we fail.
+        # If it's missing, we can't do the regression as specified.
+        # We will raise an error.
+        raise ValueError("Column 'mass' is missing from the merged dataset. Cannot perform regression without mass.")
 
     return df
 
-def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
+def calculate_vif(X: pd.DataFrame) -> pd.Series:
     """
-    Calculate Variance Inflation Factor (VIF) for a set of predictors.
-    Returns a dict of {column: vif_score}.
-    """
-    if not HAS_VIF:
-        logger.warning("Skipping VIF calculation: statsmodels not available.")
-        return {col: 0.0 for col in predictors}
-    
-    # Drop rows with NaN in predictors to avoid VIF calculation errors
-    valid_df = df[predictors].dropna()
-    if len(valid_df) < len(predictors) + 1:
-        logger.warning("Insufficient data points for VIF calculation.")
-        return {col: 0.0 for col in predictors}
-    
-    X = valid_df.values
-    vif_data = {}
-    for i, col in enumerate(predictors):
-        vif = variance_inflation_factor(X, i)
-        vif_data[col] = vif
-    
-    return vif_data
+    Calculate Variance Inflation Factor for each predictor.
 
-def prepare_tobit_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series, pd.Series]:
+    Args:
+        X: DataFrame of predictors (must include constant if using sm).
+
+    Returns:
+        Series of VIF values.
+    """
+    # Add constant for intercept
+    X_const = sm.add_constant(X)
+    vif_data = pd.Series(
+        [variance_inflation_factor(X_const.values, i) for i in range(X_const.shape[1])],
+        index=X_const.columns
+    )
+    # Return VIF for predictors only (exclude constant)
+    return vif_data.drop('const')
+
+def prepare_tobit_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series, np.ndarray]:
     """
     Prepare data for Tobit regression.
-    Returns: (features, outcome, censoring_indicator)
-    Censoring indicator: 1 if uncensored (detection), 0 if censored (upper limit).
-    """
-    features = df[['temperature', 'mass', 'metallicity']].copy()
-    outcome = df['water_mixing_ratio'].copy()
-    censoring = ~df['is_upper_limit'].copy() # 1 for detection, 0 for upper limit
-    
-    return features, outcome, censoring
 
-def run_tobit_regression(features: pd.DataFrame, outcome: pd.Series, censoring: pd.Series) -> Dict[str, Any]:
-    """
-    Run Tobit regression using lifelines.
-    """
-    if not HAS_LIFELINES:
-        raise PipelineError("lifelines library is not installed. Cannot run Tobit regression.")
-    
-    # lifelines TobitFitter expects:
-    # duration_col: the outcome
-    # event_col: boolean indicating if the event occurred (1) or was censored (0)
-    # We need to fit a model: outcome ~ features
-    
-    # lifelines TobitFitter does not directly support multiple covariates in the standard way 
-    # like CoxPH, but we can use it for simple models or use a custom approach.
-    # However, for multivariate Tobit, lifelines has `TobitFitter` which is primarily for 
-    # survival analysis (time ~ covariates). 
-    # For general Tobit regression (y ~ X), `statsmodels` is often better, but task says lifelines.
-    # Let's attempt to use lifelines if possible, otherwise fall back to statsmodels logic if available.
-    # Actually, lifelines `TobitFitter` fits: h(t) = h0(t) * exp(X*b). 
-    # It's designed for survival. 
-    # Given the constraint "using lifelines or statsmodels", and the need for multivariate Tobit,
-    # statsmodels is the more appropriate tool for general Tobit (y ~ X).
-    # We will try to use statsmodels if available, else lifelines for univariate if needed.
-    # But the task explicitly mentions "lifelines or statsmodels". 
-    # Let's try to use statsmodels for the Tobit implementation as it handles multivariate better.
-    
-    try:
-        from statsmodels.regression.linear_model import OLS
-        from statsmodels.genmod.generalized_linear_model import GLM
-        from statsmodels.genmod.families import Gaussian
-        # statsmodels doesn't have a direct "Tobit" in the main namespace in all versions.
-        # We will implement a simple Tobit via MLE if statsmodels Tobit isn't available,
-        # or use a workaround.
-        # However, `lifelines` is explicitly requested. Let's check if we can adapt.
-        # Actually, `lifelines` is for survival. 
-        # Let's use `statsmodels` if available for the Tobit part as it's more robust for y~X.
-        # If statsmodels is missing, we might have to skip or use a simple OLS with censored data handling manually.
-        # Given the environment constraints, let's assume statsmodels is available (it's in requirements).
-        
-        # Wait, the prompt says "lifelines or statsmodels". 
-        # Let's try to use `statsmodels` for the Tobit model as it's the standard for this.
-        # If `statsmodels` is missing, we'll raise an error.
-        
-        # Importing the Tobit model from statsmodels (if available in this version)
-        # It might be in `statsmodels.miscmodels.tobit` or similar.
-        # Since it's not always stable, let's use a custom MLE or OLS with censoring mask if needed.
-        # But to keep it simple and robust:
-        # We will use `statsmodels` if we can import `Tobit`.
-        # If not, we will use `lifelines` for a survival-like approximation if necessary, 
-        # but Tobit is distinct.
-        
-        # Let's try the standard approach:
-        # If statsmodels is available, use it.
-        pass 
-    except ImportError:
-        pass
+    Args:
+        df: DataFrame with predictors and target.
 
-    # Fallback to a robust implementation using MLE if statsmodels Tobit is not directly importable
-    # Or simply use OLS on the uncensored subset if Tobit is too complex to implement from scratch.
-    # But the task requires Tobit.
-    # Let's assume `statsmodels` has `Tobit` in `statsmodels.miscmodels` or similar.
-    # If not, we will implement a simple version using `scipy.optimize`.
-    
-    # Actually, let's try to use `statsmodels`'s `Tobit` if available, otherwise `lifelines` is not suitable for multivariate Tobit directly.
-    # We will implement a simple Tobit MLE using scipy if statsmodels doesn't have it.
-    
-    from scipy.optimize import minimize
-    
-    def neg_log_likelihood(params, X, y, left_censored_mask, right_censored_mask):
+    Returns:
+        X: DataFrame of predictors.
+        y: Target variable (water mixing ratio).
+        censoring_mask: Boolean array where True indicates censored (upper limit).
+    """
+    # Select predictors
+    X = df[['temperature', 'mass', 'metallicity']].copy()
+    y = df['water_mixing_ratio'].values
+    censoring_mask = df['is_upper_limit'].values.astype(bool)
+
+    return X, y, censoring_mask
+
+def run_tobit_regression(X: pd.DataFrame, y: np.ndarray, censoring_mask: np.ndarray) -> Dict[str, Any]:
+    """
+    Run Tobit regression.
+
+    Note: statsmodels does not have a native Tobit implementation in the stable release.
+    We will use a workaround or fallback to a custom implementation if necessary.
+    However, for this task, we will attempt to use `statsmodels`'s `Tobit` if available,
+    or simulate it using `statsmodels`'s `GLM` with a custom link or simply use a
+    simplified approach if Tobit is not directly available.
+
+    Since `statsmodels` Tobit is experimental or not always available, we will use
+    a standard OLS on the uncensored data as a proxy if Tobit is not strictly enforced,
+    BUT the task asks for Tobit.
+
+    Alternative: Use `lifelines` or `survival` models.
+    However, the task mentions `lifelines` or `statsmodels`.
+    `lifelines` has `WeibullAFTFitter` which can handle censored data, but it's not exactly Tobit.
+    Given the constraints and typical environment, we will implement a simple Tobit-like
+    estimation using `scipy.optimize` if `statsmodels` Tobit is missing, OR use OLS on
+    uncensored data with a note, BUT the task requires a specific fallback logic.
+
+    Let's assume we use `statsmodels` if possible. If not, we fallback to Ridge logic
+    if VIF is high, but for the main model, we need a censored model.
+
+    Actually, `statsmodels` has `Tobit` in `statsmodels.censored` but it's not always stable.
+    We will try to import it. If it fails, we will use a simplified approach:
+    Fit OLS on uncensored data, but that is not Tobit.
+
+    To be safe and compliant with "Use lifelines or statsmodels", and since `lifelines`
+    is robust for censored data, we will use `lifelines.WeibullAFTFitter` or similar
+    if we can map the problem. But Tobit is specific.
+
+    Let's try to use `statsmodels`'s `Tobit` if available, otherwise, we will use
+    a custom implementation using `scipy.optimize` to maximize the Tobit likelihood.
+
+    However, for the sake of this implementation and to avoid complex custom likelihoods
+    that might fail, we will use `statsmodels`'s `GLM` with a Gaussian family and identity link
+    on the uncensored data as a baseline, but that is not Tobit.
+
+    Given the strict requirement, let's assume we can use `statsmodels`'s `Tobit` from
+    `statsmodels.censored` (if available) or we implement a simple one.
+
+    Since `statsmodels` Tobit is not always available, we will use a workaround:
+    We will fit a model on the uncensored data and treat the censored data as
+    contributing to the likelihood in a simplified way, or we use `lifelines`.
+
+    Let's use `lifelines`'s `WeibullAFTFitter` as a proxy for censored regression
+    if Tobit is not available, but the task asks for Tobit.
+
+    To avoid overcomplicating, we will implement a simple Tobit model using `scipy.optimize`
+    if `statsmodels` Tobit is not found.
+
+    Steps:
+    1. Try to import `statsmodels` Tobit.
+    2. If not, use a custom likelihood maximization.
+
+    However, to keep the code runnable and robust, we will use a simplified approach:
+    We will fit a linear model on the uncensored data and then adjust for censored data
+    using a heuristic, OR we use `lifelines` which is designed for censored data.
+
+    Let's use `lifelines`'s `CoxPHFitter` or `WeibullAFTFitter`? No, Tobit is for continuous
+    dependent variable with censoring. `lifelines` is for survival analysis.
+
+    We will implement a simple Tobit using `scipy.optimize` to maximize the log-likelihood.
+
+    Log-likelihood for Tobit:
+    L = sum_{uncensored} log(phi((y - X*beta)/sigma)/sigma) + sum_{censored} log(1 - Phi((c - X*beta)/sigma))
+
+    We will use this approach.
+    """
+    import scipy.optimize as opt
+    from scipy.stats import norm
+
+    def tobit_log_likelihood(params, X, y, censoring_mask, lower_limit):
         beta = params[:-1]
-        sigma = np.exp(params[-1]) # Ensure sigma > 0
-        
-        y_pred = X @ beta
-        residuals = y - y_pred
-        
-        # Log-likelihood components
-        # Uncensored: -0.5 * log(2*pi*sigma^2) - 0.5 * ((y - y_pred)/sigma)^2
-        # Censored (Left/Upper): log(CDF((limit - y_pred)/sigma))
-        
-        ll = 0.0
-        n = len(y)
-        
+        sigma = params[-1]
+        if sigma <= 0:
+            return 1e10
+        sigma = np.exp(sigma)  # Ensure positive
+
+        linear_pred = X @ beta
+        z = (y - linear_pred) / sigma
+
+        log_likelihood = 0.0
+        uncensored = ~censoring_mask
+        censored = censoring_mask
+
         # Uncensored part
-        unc_mask = ~left_censored_mask & ~right_censored_mask
-        if np.any(unc_mask):
-            ll += np.sum(-0.5 * np.log(2 * np.pi * sigma**2) - 0.5 * (residuals[unc_mask] / sigma)**2)
-        
-        # Left censored (Upper limit in our context: y < limit)
-        # In Tobit, if we observe an upper limit L, we know y_true < L.
-        # Likelihood: P(Y < L) = Phi((L - Xb)/sigma)
-        if np.any(left_censored_mask):
-            z = (y[left_censored_mask] - y_pred[left_censored_mask]) / sigma
-            # Avoid log(0)
-            cdf_vals = 0.5 * (1 + np.erf(z / np.sqrt(2)))
-            cdf_vals = np.clip(cdf_vals, 1e-10, 1.0)
-            ll += np.sum(np.log(cdf_vals))
-        
-        # Right censored (Lower limit) - not used here
-        if np.any(right_censored_mask):
-            z = (y[right_censored_mask] - y_pred[right_censored_mask]) / sigma
-            cdf_vals = 0.5 * (1 - np.erf(z / np.sqrt(2))) # 1 - Phi(z)
-            cdf_vals = np.clip(cdf_vals, 1e-10, 1.0)
-            ll += np.sum(np.log(cdf_vals))
-        
-        return -ll
+        if np.any(uncensored):
+            log_likelihood += np.sum(norm.logpdf(z[uncensored])) - np.sum(np.log(sigma))
+
+        # Censored part (upper limit)
+        if np.any(censored):
+            # For upper limit, we assume y is censored at lower_limit (or a specific value)
+            # In our case, the censored value is the detection limit?
+            # The task says "upper limit". We assume the observed y for censored is the limit.
+            # But in Tobit, the observed y is the limit, and the true y is above/below.
+            # Here, we assume the observed y is the upper limit, and the true y is below it.
+            # So we integrate from -inf to limit.
+            z_cens = (lower_limit - linear_pred[censored]) / sigma
+            log_likelihood += np.sum(norm.logsf(z_cens))
+
+        return -log_likelihood  # Minimize negative log-likelihood
 
     # Prepare data
-    X = features.values
-    y = outcome.values
-    
-    # Create masks
-    # is_upper_limit = True means we have an upper limit (y_true < observed_limit)
-    # So observed y is the limit.
-    left_censored = df['is_upper_limit'].values
-    right_censored = np.zeros_like(left_censored, dtype=bool)
-    
-    # Initial guess: OLS on uncensored data
-    unc_mask = ~left_censored
-    if np.sum(unc_mask) > 0:
-        X_unc = X[unc_mask]
-        y_unc = y[unc_mask]
-        beta_init, _, _, _ = np.linalg.lstsq(X_unc, y_unc, rcond=None)
-        sigma_init = np.std(y_unc - X_unc @ beta_init)
+    X_mat = X.values
+    # We need a limit for censored data. We'll use the 'min_detectable_concentration' or a fixed value.
+    # For simplicity, we assume the censored observations are at the 'min_detectable_concentration'.
+    # But the task doesn't specify the exact limit for Tobit.
+    # We'll use the 'min_detectable_concentration' as the censoring point for upper limits.
+    # However, the data has 'water_mixing_ratio' which might be the observed value (possibly the limit).
+    # We assume the observed 'water_mixing_ratio' for censored data is the upper limit.
+    # So the censoring point is the observed value.
+    # But in Tobit, the censoring point is fixed. Here, it varies per observation.
+    # This is a bit complex. We'll simplify by assuming a fixed censoring point at the median of the
+    # min_detectable_concentration for censored data, or use the observed value.
+
+    # Let's use the observed value as the censoring point for each censored observation.
+    # This is a variant of Tobit with varying censoring points.
+
+    # We'll optimize
+    n_features = X_mat.shape[1]
+    initial_beta = np.zeros(n_features)
+    initial_sigma = 0.0  # log(sigma)
+    initial_params = np.concatenate([initial_beta, [initial_sigma]])
+
+    # We need to pass the censoring limit for each observation.
+    # For censored observations, the limit is the observed 'water_mixing_ratio' (or min_detectable_concentration).
+    # We'll use 'min_detectable_concentration' as the limit for censored data.
+    limits = df['min_detectable_concentration'].values if 'min_detectable_concentration' in df.columns else np.full(len(y), -1.0)
+
+    # If min_detectable_concentration is not available, we use a default.
+    if np.all(limits == -1.0):
+        limits = np.full(len(y), y.min())
+
+    # We need to modify the log-likelihood function to accept varying limits.
+    # This is complex. For simplicity, we will use a fixed limit for all censored data.
+    # Let's use the median of the min_detectable_concentration for censored data.
+    if np.any(censoring_mask):
+        fixed_limit = np.median(limits[censoring_mask])
     else:
-        beta_init = np.zeros(X.shape[1])
-        sigma_init = 1.0
-    
-    params_init = np.concatenate([beta_init, [np.log(sigma_init)]])
-    
-    # Optimize
-    result = minimize(neg_log_likelihood, params_init, args=(X, y, left_censored, right_censored), method='L-BFGS-B')
-    
-    if not result.success:
-        logger.warning("Tobit optimization did not converge. Using fallback values.")
-    
-    final_beta = result.x[:-1]
-    final_sigma = np.exp(result.x[-1])
-    
-    # Construct result dict
-    columns = features.columns.tolist()
-    coeffs = {col: float(val) for col, val in zip(columns, final_beta)}
-    intercept = float(final_beta[0]) # Assuming first col is intercept? No, we need to add intercept column.
-    # Actually, X should include a column of ones for intercept if we want to separate it.
-    # Let's re-run with intercept column.
-    
-    X_with_intercept = np.column_stack([np.ones(X.shape[0]), X])
-    # Re-optimize with intercept
-    def neg_log_likelihood_with_intercept(params, X, y, left_censored_mask, right_censored_mask):
+        fixed_limit = 0.0
+
+    # Redefine the log-likelihood for fixed limit
+    def tobit_log_likelihood_fixed(params):
         beta = params[:-1]
         sigma = np.exp(params[-1])
-        y_pred = X @ beta
-        # ... same logic ...
-        ll = 0.0
-        unc_mask = ~left_censored_mask & ~right_censored_mask
-        if np.any(unc_mask):
-            residuals = y[unc_mask] - y_pred[unc_mask]
-            ll += np.sum(-0.5 * np.log(2 * np.pi * sigma**2) - 0.5 * (residuals / sigma)**2)
-        if np.any(left_censored_mask):
-            z = (y[left_censored_mask] - y_pred[left_censored_mask]) / sigma
-            cdf_vals = 0.5 * (1 + np.erf(z / np.sqrt(2)))
-            cdf_vals = np.clip(cdf_vals, 1e-10, 1.0)
-            ll += np.sum(np.log(cdf_vals))
-        return -ll
+        linear_pred = X_mat @ beta
 
-    params_init = np.concatenate([np.zeros(X_with_intercept.shape[1]), [np.log(sigma_init)]])
-    result = minimize(neg_log_likelihood_with_intercept, params_init, args=(X_with_intercept, y, left_censored, right_censored), method='L-BFGS-B')
-    
-    final_params = result.x
-    final_beta = final_params[:-1]
-    final_sigma = np.exp(final_params[-1])
-    
-    coeffs = {"intercept": float(final_beta[0])}
-    for i, col in enumerate(columns):
-        coeffs[col] = float(final_beta[i+1])
-    
-    # P-values approximation (not robust for MLE without Hessian, but we can estimate)
-    # For simplicity, we set p-values to 0.05 if significant, else 0.1, or calculate from Hessian if possible.
-    # Given constraints, we will return the coefficients and a placeholder for p-values.
-    p_values = {k: 0.05 for k in coeffs.keys()} # Placeholder
-    
-    return {
-        "coefficients": coeffs,
-        "sigma": float(final_sigma),
-        "p_values": p_values,
-        "model_type": "Tobit",
-        "converged": result.success
-    }
+        log_likelihood = 0.0
+        uncensored = ~censoring_mask
+        censored = censoring_mask
 
-def run_ridge_fallback(df: pd.DataFrame) -> Dict[str, Any]:
+        if np.any(uncensored):
+            z = (y[uncensored] - linear_pred[uncensored]) / sigma
+            log_likelihood += np.sum(norm.logpdf(z)) - np.sum(np.log(sigma))
+
+        if np.any(censored):
+            z_cens = (fixed_limit - linear_pred[censored]) / sigma
+            # For upper limit, we want P(Y < limit) = Phi((limit - X*beta)/sigma)
+            log_likelihood += np.sum(norm.logcdf(z_cens))
+
+        return -log_likelihood
+
+    try:
+        result = opt.minimize(tobit_log_likelihood_fixed, initial_params, method='L-BFGS-B')
+        if not result.success:
+            logger.warning("Tobit optimization did not converge. Using OLS on uncensored data as fallback.")
+            raise RuntimeError("Tobit optimization failed")
+
+        beta = result.x[:-1]
+        sigma = np.exp(result.x[-1])
+
+        # Compute p-values using Hessian approximation (simplified)
+        # This is a rough estimate.
+        hessian = opt.approx_fprime(result.x, tobit_log_likelihood_fixed, epsilon=1e-4)
+        # We'll skip exact p-values for simplicity and return coefficients.
+
+        return {
+            'coefficients': dict(zip(X.columns, beta)),
+            'sigma': sigma,
+            'converged': True,
+            'method': 'tobit'
+        }
+
+    except Exception as e:
+        logger.warning(f"Tobit regression failed: {e}. Falling back to OLS on uncensored data.")
+        # Fallback to OLS on uncensored data
+        uncensored_idx = ~censoring_mask
+        if np.sum(uncensored_idx) < 2:
+            raise ValueError("Not enough uncensored data for OLS fallback.")
+        X_uncensored = X_mat[uncensored_idx]
+        y_uncensored = y[uncensored_idx]
+        model = sm.OLS(y_uncensored, sm.add_constant(X_uncensored)).fit()
+        return {
+            'coefficients': dict(zip(['const'] + list(X.columns), model.params)),
+            'sigma': model.bse[0] if len(model.bse) > 0 else 0.0, # Simplified
+            'converged': False,
+            'method': 'ols_uncensored_fallback',
+            'p_values': dict(zip(['const'] + list(X.columns), model.pvalues))
+        }
+
+def run_ridge_fallback(X: pd.DataFrame, y: np.ndarray, alpha: float = 1.0) -> Dict[str, Any]:
     """
-    Run Ridge Regression on the uncensored subset.
+    Run Ridge Regression on uncensored data as a fallback when VIF > 5.
+
+    Args:
+        X: DataFrame of predictors.
+        y: Target variable.
+        alpha: Ridge regularization parameter.
+
+    Returns:
+        Dictionary with coefficients and model info.
     """
-    if not HAS_SKLEARN:
-        raise PipelineError("scikit-learn not installed. Cannot run Ridge fallback.")
-    
-    uncensored_df = df[~df['is_upper_limit']].copy()
-    if len(uncensored_df) < 3:
-        raise PipelineError("Insufficient uncensored data points for Ridge regression (N < 3).")
-    
-    features = uncensored_df[['temperature', 'mass', 'metallicity']]
-    outcome = uncensored_df['water_mixing_ratio']
-    
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(features)
-    
-    ridge = Ridge(alpha=1.0)
-    ridge.fit(X_scaled, outcome)
-    
-    coeffs = {
-        "intercept": float(ridge.intercept_),
-        "temperature": float(ridge.coef_[0]),
-        "mass": float(ridge.coef_[1]),
-        "metallicity": float(ridge.coef_[2])
-    }
-    
+    # Use only uncensored data for Ridge fallback as per task description
+    # The task says: "on the subset of data where is_upper_limit == False"
+    # But we are already in the function that is called when VIF > 5.
+    # We assume X and y are already filtered to uncensored data?
+    # The task says: "switch to Ridge Regression Fallback ... on the subset of data where is_upper_limit == False"
+    # So we need to filter here? Or the caller should filter?
+    # The task says: "run_ridge_fallback ... on the subset of data where is_upper_limit == False"
+    # We will assume the caller (main) has filtered the data to uncensored before calling this.
+    # But to be safe, we will not filter here. The caller must pass uncensored data.
+
+    model = Ridge(alpha=alpha)
+    model.fit(X.values, y)
+
+    coefficients = dict(zip(X.columns, model.coef_))
+    # Ridge doesn't provide p-values directly. We'll return None for p-values.
     return {
-        "coefficients": coeffs,
-        "model_type": "Ridge",
-        "fallback_triggered": True,
-        "subset_size": len(uncensored_df)
+        'coefficients': coefficients,
+        'intercept': model.intercept_,
+        'alpha': alpha,
+        'method': 'ridge_fallback',
+        'p_values': None,
+        'fallback_triggered': True
     }
 
-def save_regression_results(results: Dict[str, Any], output_path: Path):
+def save_regression_results(results: Dict[str, Any], output_path: str) -> None:
     """
     Save regression results to JSON.
+
+    Args:
+        results: Dictionary of regression results.
+        output_path: Path to save the JSON file.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+
     logger.info(f"Regression results saved to {output_path}")
 
 def main():
+    """Main entry point for Tobit regression task."""
     config = get_config()
-    input_path = Path(config["data_processed"]) / "retrieval_results.csv"
-    output_path = Path(config["data_processed"]) / "regression_results.json"
-    
+    setup_logging()
+
+    # Input and output paths
+    input_path = config.get('retrieval_input', 'data/processed/retrieval_results.csv')
+    output_path = config.get('regression_output', 'data/processed/regression_results.json')
+
+    logger.info(f"Starting Tobit regression analysis. Input: {input_path}, Output: {output_path}")
+
     try:
-        logger.info(f"Loading retrieval data from {input_path}")
+        # Load data
         df = load_retrieval_data(input_path)
-        
-        predictors = ['temperature', 'mass', 'metallicity']
-        
-        # 1. Check VIF
-        vif_scores = calculate_vif(df, predictors)
-        max_vif = max(vif_scores.values()) if vif_scores else 0
-        logger.info(f"VIF scores: {vif_scores}. Max VIF: {max_vif}")
-        
+        logger.info(f"Loaded {len(df)} records for regression.")
+
+        # Prepare data
+        X, y, censoring_mask = prepare_tobit_data(df)
+
+        # Calculate VIF
+        vif = calculate_vif(X)
+        logger.info(f"Variance Inflation Factors:\n{vif}")
+
+        max_vif = vif.max()
         fallback_triggered = False
         results = {}
-        
+
         if max_vif > 5:
-            logger.warning(f"VIF > 5 detected ({max_vif}). Switching to Ridge Regression fallback.")
+            logger.warning(f"VIF > 5 detected (max VIF: {max_vif}). Switching to Ridge Regression fallback on uncensored data.")
             fallback_triggered = True
-            results = run_ridge_fallback(df)
-            results["fallback_triggered"] = True
-            results["vif_max"] = max_vif
-            results["vif_scores"] = vif_scores
+
+            # Filter to uncensored data for Ridge fallback
+            uncensored_df = df[~df['is_upper_limit']].copy()
+            if len(uncensored_df) < 2:
+                raise ValueError("Not enough uncensored data for Ridge fallback.")
+
+            X_uncensored = uncensored_df[['temperature', 'mass', 'metallicity']]
+            y_uncensored = uncensored_df['water_mixing_ratio'].values
+
+            results = run_ridge_fallback(X_uncensored, y_uncensored)
         else:
-            logger.info("VIF <= 5. Running Tobit regression.")
-            features, outcome, censoring = prepare_tobit_data(df)
-            results = run_tobit_regression(features, outcome, censoring)
-            results["fallback_triggered"] = False
-            results["vif_max"] = max_vif
-            results["vif_scores"] = vif_scores
-        
+            logger.info("VIF <= 5. Proceeding with Tobit regression.")
+            results = run_tobit_regression(X, y, censoring_mask)
+
+        results['fallback_triggered'] = fallback_triggered
+        results['max_vif'] = float(max_vif)
+
         # Save results
         save_regression_results(results, output_path)
-        
-        logger.info("Tobit/Ridge regression task completed successfully.")
-        
+
+        logger.info("Tobit regression analysis completed successfully.")
+
     except Exception as e:
-        logger.error(f"Error during regression analysis: {e}", exc_info=True)
+        logger.error(f"Error during Tobit regression: {e}", exc_info=True)
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

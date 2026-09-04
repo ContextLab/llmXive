@@ -1,16 +1,3 @@
-"""
-Aggregate Results Module (T030d)
-
-Aggregates all statistics from previous analysis steps into a single
-`data/processed/analysis_results.json` file.
-
-Imports from this module:
-  - load_json_file
-  - load_csv_file
-  - aggregate_analysis_results
-  - save_aggregated_results
-  - main
-"""
 import json
 import logging
 from pathlib import Path
@@ -18,191 +5,139 @@ from typing import Dict, Any, Optional
 import pandas as pd
 from config import get_config
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-def load_json_file(file_path: Path) -> Optional[Dict[str, Any]]:
-    """Load a JSON file and return its content as a dictionary."""
-    if not file_path.exists():
-        logger.warning(f"JSON file not found: {file_path}")
-        return None
+def load_json_file(file_path: Path) -> Dict[str, Any]:
+    """Load a JSON file and return its contents as a dictionary."""
     try:
         with open(file_path, 'r') as f:
             return json.load(f)
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        return {}
     except json.JSONDecodeError as e:
-        logger.error(f"Error decoding JSON in {file_path}: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Error loading JSON file {file_path}: {e}")
-        return None
+        logger.error(f"JSON decode error in {file_path}: {e}")
+        return {}
 
-def load_csv_file(file_path: Path) -> Optional[pd.DataFrame]:
+def load_csv_file(file_path: Path) -> pd.DataFrame:
     """Load a CSV file and return it as a DataFrame."""
-    if not file_path.exists():
-        logger.warning(f"CSV file not found: {file_path}")
-        return None
     try:
         return pd.read_csv(file_path)
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        return pd.DataFrame()
     except Exception as e:
-        logger.error(f"Error loading CSV file {file_path}: {e}")
-        return None
+        logger.error(f"Error reading CSV {file_path}: {e}")
+        return pd.DataFrame()
 
 def aggregate_analysis_results(
-    correlation_stats: Optional[Dict[str, Any]],
-    regression_stats: Optional[Dict[str, Any]],
-    mdc_stats: Optional[Dict[str, Any]],
-    bootstrap_ci: Optional[Dict[str, Any]],
-    robustness_report: Optional[Dict[str, Any]],
-    sample_size_report: Optional[Dict[str, Any]],
-    metadata_df: Optional[pd.DataFrame]
+    correlation_stats: Dict[str, Any],
+    regression_stats: Dict[str, Any],
+    mdc_stats: Dict[str, Any],
+    bootstrap_ci: Dict[str, Any],
+    robustness_report: Dict[str, Any],
+    power_analysis: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Aggregate all analysis statistics into a single dictionary.
+    Aggregate all statistics into a single analysis results dictionary.
     
-    Args:
-        correlation_stats: Result from T030a
-        regression_stats: Result from T030b
-        mdc_stats: Result from T030c
-        bootstrap_ci: Result from T025c
-        robustness_report: Result from T026
-        sample_size_report: Result from T013b
-        metadata_df: Metadata DataFrame from T012
-    
-    Returns:
-        Dictionary containing all aggregated results.
+    This function combines outputs from T030a, T030b, T030c, T025c, T026, and T031
+    into the final deliverable for T030d.
     """
     aggregated = {
-        "pipeline_version": "1.0.0",
-        "task_id": "T030d",
-        "description": "Aggregated analysis results for exoplanetary atmosphere characterization",
-        "summary": {},
-        "correlation": {},
-        "regression": {},
-        "mdc": {},
-        "bootstrap": {},
-        "robustness": {},
-        "sample_size": {},
-        "instrument_summary": {}
+        "summary": {
+            "total_planets": correlation_stats.get("total_planets", 0),
+            "censored_count": correlation_stats.get("censored_count", 0),
+            "uncensored_count": correlation_stats.get("uncensored_count", 0),
+        },
+        "correlation_analysis": {
+            "kendall_tau": correlation_stats.get("kendall_tau"),
+            "p_value": correlation_stats.get("p_value"),
+            "ci_width": correlation_stats.get("ci_width"),
+            "ci_lower": correlation_stats.get("ci_lower"),
+            "ci_upper": correlation_stats.get("ci_upper"),
+        },
+        "regression_analysis": {
+            "coefficients": regression_stats.get("coefficients", {}),
+            "p_values": regression_stats.get("p_values", {}),
+            "model_fit": regression_stats.get("model_fit", {}),
+            "fallback_triggered": regression_stats.get("fallback_triggered", False),
+            "fallback_reason": regression_stats.get("fallback_reason", None),
+        },
+        "mdc_analysis": {
+            "global_95th_percentile_mdc": mdc_stats.get("global_95th_percentile_mdc"),
+            "mean_mdc": mdc_stats.get("mean_mdc"),
+            "min_mdc": mdc_stats.get("min_mdc"),
+            "max_mdc": mdc_stats.get("max_mdc"),
+        },
+        "bootstrap_results": {
+            "iterations": bootstrap_ci.get("iterations", 0),
+            "ci_lower": bootstrap_ci.get("ci_lower"),
+            "ci_upper": bootstrap_ci.get("ci_upper"),
+        },
+        "robustness": {
+            "ci_width": robustness_report.get("ci_width"),
+            "threshold_met": robustness_report.get("threshold_met", False),
+            "threshold_value": 0.2,
+        },
+        "power_analysis": power_analysis if power_analysis else {
+            "power_estimate": None,
+            "power_sufficient": None,
+            "note": "Power analysis not yet performed (T031 pending)"
+        },
+        "metadata": {
+            "aggregation_timestamp": pd.Timestamp.now().isoformat(),
+            "source_files": {
+                "correlation_stats": "data/processed/correlation_stats.json",
+                "regression_stats": "data/processed/regression_stats.json",
+                "mdc_stats": "data/processed/mdc_stats.json",
+                "bootstrap_ci": "data/processed/bootstrap_ci.json",
+                "robustness_report": "results/robustness_report.json",
+            }
+        }
     }
-
-    # Correlation Statistics
-    if correlation_stats:
-        aggregated["correlation"] = correlation_stats
-        aggregated["summary"]["kendall_tau"] = correlation_stats.get("kendall_tau")
-        aggregated["summary"]["p_value"] = correlation_stats.get("p_value")
-
-    # Regression Statistics
-    if regression_stats:
-        aggregated["regression"] = regression_stats
-        # Extract key coefficients if available
-        if "coefficients" in regression_stats:
-            aggregated["summary"]["regression_coefficients"] = regression_stats["coefficients"]
-
-    # MDC Statistics
-    if mdc_stats:
-        aggregated["mdc"] = mdc_stats
-        aggregated["summary"]["global_mdc_95th"] = mdc_stats.get("global_95th_percentile_mdc")
-
-    # Bootstrap Confidence Intervals
-    if bootstrap_ci:
-        aggregated["bootstrap"] = bootstrap_ci
-        aggregated["summary"]["bootstrap_iterations"] = bootstrap_ci.get("iterations")
-        aggregated["summary"]["ci_lower"] = bootstrap_ci.get("ci_lower")
-        aggregated["summary"]["ci_upper"] = bootstrap_ci.get("ci_upper")
-
-    # Robustness Report
-    if robustness_report:
-        aggregated["robustness"] = robustness_report
-        aggregated["summary"]["ci_width_threshold_met"] = robustness_report.get("threshold_met")
-        aggregated["summary"]["ci_width"] = robustness_report.get("ci_width")
-
-    # Sample Size Report
-    if sample_size_report:
-        aggregated["sample_size"] = sample_size_report
-        aggregated["summary"]["sample_size"] = sample_size_report.get("count")
-        aggregated["summary"]["validation_status"] = sample_size_report.get("validation_status")
-
-    # Instrument Summary from Metadata
-    if metadata_df is not None and not metadata_df.empty:
-        if 'instrument' in metadata_df.columns:
-            instrument_counts = metadata_df['instrument'].value_counts().to_dict()
-            aggregated["instrument_summary"] = {
-                "instruments": instrument_counts,
-                "total_observations": len(metadata_df)
-            }
-        
-        # Calculate median resolution if available
-        if 'resolution' in metadata_df.columns:
-            median_res = metadata_df['resolution'].median()
-            min_res = metadata_df['resolution'].min()
-            max_res = metadata_df['resolution'].max()
-            aggregated["instrument_summary"]["resolution_stats"] = {
-                "median": median_res,
-                "min": min_res,
-                "max": max_res
-            }
-
     return aggregated
 
-def save_aggregated_results(aggregated: Dict[str, Any], output_path: Path) -> bool:
-    """
-    Save aggregated results to a JSON file.
-    
-    Args:
-        aggregated: The aggregated dictionary to save.
-        output_path: Path to the output JSON file.
-    
-    Returns:
-        True if successful, False otherwise.
-    """
-    try:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(aggregated, f, indent=2, default=str)
-        logger.info(f"Aggregated results saved to {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Error saving aggregated results to {output_path}: {e}")
-        return False
+def save_aggregated_results(data: Dict[str, Any], output_path: Path) -> None:
+    """Save the aggregated results to a JSON file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Aggregated results saved to {output_path}")
 
 def main():
-    """Main entry point for T030d."""
+    """
+    Main entry point for T030d: Aggregate all statistics into analysis_results.json.
+    
+    This script loads intermediate results from T030a, T030b, T030c, T025c, T026,
+    and optionally T031, then combines them into a single JSON file.
+    """
     config = get_config()
-    output_path = Path(config.get("data_processed_dir", "data/processed")) / "analysis_results.json"
+    output_path = Path("data/processed/analysis_results.json")
     
-    logger.info("Starting T030d: Aggregate all statistics into analysis_results.json")
+    # Load intermediate results
+    correlation_stats = load_json_file(Path("data/processed/correlation_stats.json"))
+    regression_stats = load_json_file(Path("data/processed/regression_stats.json"))
+    mdc_stats = load_json_file(Path("data/processed/mdc_stats.json"))
+    bootstrap_ci = load_json_file(Path("data/processed/bootstrap_ci.json"))
+    robustness_report = load_json_file(Path("results/robustness_report.json"))
+    power_analysis = load_json_file(Path("results/power_analysis.json"))
     
-    # Define paths to input files
-    correlation_stats_path = Path(config.get("data_processed_dir", "data/processed")) / "correlation_stats.json"
-    regression_stats_path = Path(config.get("data_processed_dir", "data/processed")) / "regression_stats.json"
-    mdc_stats_path = Path(config.get("data_processed_dir", "data/processed")) / "mdc_stats.json"
-    bootstrap_ci_path = Path(config.get("data_processed_dir", "data/processed")) / "bootstrap_ci.json"
-    robustness_report_path = Path(config.get("results_dir", "results")) / "robustness_report.json"
-    sample_size_report_path = Path(config.get("data_processed_dir", "data/processed")) / "sample_size_report.json"
-    metadata_path = Path(config.get("data_processed_dir", "data/processed")) / "metadata.csv"
+    # Check if critical files are missing
+    missing_files = []
+    if not correlation_stats:
+        missing_files.append("data/processed/correlation_stats.json")
+    if not regression_stats:
+        missing_files.append("data/processed/regression_stats.json")
+    if not mdc_stats:
+        missing_files.append("data/processed/mdc_stats.json")
+    if not bootstrap_ci:
+        missing_files.append("data/processed/bootstrap_ci.json")
     
-    # Load inputs
-    correlation_stats = load_json_file(correlation_stats_path)
-    regression_stats = load_json_file(regression_stats_path)
-    mdc_stats = load_json_file(mdc_stats_path)
-    bootstrap_ci = load_json_file(bootstrap_ci_path)
-    robustness_report = load_json_file(robustness_report_path)
-    sample_size_report = load_json_file(sample_size_report_path)
-    metadata_df = load_csv_file(metadata_path)
-    
-    # Check if any critical inputs are missing
-    missing = []
-    if not correlation_stats: missing.append("correlation_stats.json")
-    if not regression_stats: missing.append("regression_stats.json")
-    if not mdc_stats: missing.append("mdc_stats.json")
-    if not bootstrap_ci: missing.append("bootstrap_ci.json")
-    if not robustness_report: missing.append("robustness_report.json")
-    if not sample_size_report: missing.append("sample_size_report.json")
-    if metadata_df is None: missing.append("metadata.csv")
-    
-    if missing:
-        logger.error(f"Missing critical input files: {missing}")
-        # We proceed with what we have, but log the warning
+    if missing_files:
+        logger.warning(f"Missing intermediate result files: {missing_files}")
+        logger.warning("Proceeding with aggregation using available data. "
+                     "Missing files will result in null/empty values in the output.")
     
     # Aggregate
     aggregated = aggregate_analysis_results(
@@ -211,20 +146,17 @@ def main():
         mdc_stats=mdc_stats,
         bootstrap_ci=bootstrap_ci,
         robustness_report=robustness_report,
-        sample_size_report=sample_size_report,
-        metadata_df=metadata_df
+        power_analysis=power_analysis if power_analysis else None
     )
     
     # Save
-    success = save_aggregated_results(aggregated, output_path)
+    save_aggregated_results(aggregated, output_path)
     
-    if success:
-        logger.info("T030d completed successfully.")
-    else:
-        logger.error("T030d failed to save output.")
-    
-    return 0 if success else 1
+    logger.info("T030d completed: Analysis results aggregated successfully.")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    main()

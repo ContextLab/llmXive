@@ -1,9 +1,3 @@
-T013a:
-  c: false
-  h: 6962f62fadf70a8f64f6552623e49126ee4e43f86b4d4b893d9aab49795a7558
-  r: "The repository lacks a `count_unique_planets` implementation in `code/download.py`\
-    \ and the required output file `data/processed/count_report.json` does not exist.\
-    \ Consequently the task\u2019s deliverable is missing."
 T013b:
   c: false
   h: 2fdd30fb262117876083fa4d6d0957a6b6d9b76a93d745be98f42a41fcd27695
@@ -40,13 +34,6 @@ T030d:
   r: The required artifact `data/processed/analysis_results.json` does not exist in
     the repository, so no aggregated statistics have been provided. The implementer
     must create this JSON file containing the compiled analysis results.
-T031:
-  c: false
-  h: e148ac199de2ca6fb282f7f2a95cb635f195a68bc17eeea13903e406d37299f1
-  r: The repository lacks the required `results/power_analysis.json` and `results/quality_report.md`
-    files, and the shown portion of `code/analysis.py` does not contain an implementation
-    of `calculate_statistical_power`. Both the function and the deliverable output
-    files are missing, so the task is not fulfilled.
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

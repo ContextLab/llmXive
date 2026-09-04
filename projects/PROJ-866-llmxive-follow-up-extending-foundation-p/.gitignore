@@ -2,11 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
 .Python
-env/
-venv/
-.venv/
 build/
 develop-eggs/
 dist/
@@ -23,11 +19,11 @@ wheels/
 .installed.cfg
 *.egg
 
-# Linting and formatting
-.ruff_cache/
-__pycache__/
-*.py[cod]
-*$py.class
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
 
 # IDE
 .idea/
@@ -35,25 +31,11 @@ __pycache__/
 *.swp
 *.swo
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-*.cover
-.hypothesis/
-
-# Data
-data/raw/*
-data/processed/*
-data/results/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!data/results/.gitkeep
-
-# State
-state/*
-!state/.gitkeep
-
 # OS
 .DS_Store
 Thumbs.db
+
+# Linting and Formatting
+.ruff_cache/
+.black_cache/
+.mypy_cache/

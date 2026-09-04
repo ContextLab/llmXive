@@ -5,167 +5,182 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
+# Import Oracle engine for validation
 from engines.oracle_policy import OraclePolicyEngine
 
 class FullContextEngine:
     """
     Executes workflows with full policy graphs.
-    Invokes oracle_policy.py to validate each step and record 'policy-violation' flags.
+    Invokes oracle_policy.py to validate each step and record specific 'policy-violation' flags.
     """
 
     def __init__(self, oracle_engine: Optional[OraclePolicyEngine] = None):
         self.oracle_engine = oracle_engine or OraclePolicyEngine()
+        self.execution_logs: List[Dict[str, Any]] = []
+
+    def _is_edge_case(self, workflow: Dict[str, Any]) -> bool:
+        """
+        Detect edge cases: single-node graphs or depth=0.
+        """
+        nodes = workflow.get("nodes", [])
+        edges = workflow.get("edges", [])
+        
+        # Check for single node
+        if len(nodes) == 1:
+            return True
+        
+        # Check for depth 0 (no edges, or only self-loops which count as depth 0 in DAG context)
+        if len(edges) == 0:
+            return True
+        
+        # Calculate actual depth if possible
+        # For a DAG, depth is the longest path. If no edges, depth is 0.
+        # If only 1 node, depth is 0.
+        return False
 
     def execute(self, workflow: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute a single workflow with full context.
         
-        Args:
-            workflow: Dictionary containing workflow definition (nodes, edges, metadata)
-            
-        Returns:
-            Execution log dictionary
+        Returns an execution log containing:
+        - workflow_id
+        - status: 'success', 'failed', 'edge_case'
+        - context_reduction_pct: percentage reduction (or '[deferred]' for edge cases)
+        - policy_violations: list of violations
+        - steps: list of step logs
         """
-        workflow_id = workflow.get('id', 'unknown')
-        nodes = workflow.get('nodes', [])
-        edges = workflow.get('edges', [])
-        depth = workflow.get('depth', 0)
-        complexity = workflow.get('complexity', 0)
+        workflow_id = workflow.get("id", "unknown")
+        nodes = workflow.get("nodes", [])
+        edges = workflow.get("edges", [])
         
         # Check for edge cases first
-        is_edge_case = self._check_edge_cases(nodes, depth)
+        is_edge = self._is_edge_case(workflow)
         
-        # Check if workflow is logically valid (possible to execute)
-        is_valid = self._check_workflow_validity(nodes, edges)
-        
-        execution_log = {
-            'workflow_id': workflow_id,
-            'execution_status': 'edge_case' if is_edge_case else 'success',
-            'timestamp': None,  # Would be set by actual execution time
-            'is_valid': is_valid,
-            'context_reduction_pct': '[deferred]' if is_edge_case else '0.0',
-            'node_count': len(nodes),
-            'depth': depth,
-            'complexity': complexity,
-            'policy_violations': [],
-            'error_message': None,
-            'metadata': {}
-        }
-        
-        if not is_valid:
-            execution_log['execution_status'] = 'failed'
-            execution_log['error_message'] = 'Workflow is logically impossible to execute'
-            return execution_log
-        
-        if is_edge_case:
-            # For edge cases, we still mark them as valid if they are logically sound
-            # but set status to edge_case as per T016 requirements
-            return execution_log
-        
-        # Validate each step using Oracle
-        violations = self._validate_workflow_steps(workflow)
-        
-        if violations:
-            execution_log['execution_status'] = 'policy_violation'
-            execution_log['policy_violations'] = violations
-        else:
-            execution_log['execution_status'] = 'success'
-        
-        return execution_log
+        if is_edge:
+            # Handle edge case as per T016 requirements
+            log_entry = {
+                "workflow_id": workflow_id,
+                "status": "edge_case",
+                "context_reduction_pct": "[deferred]",
+                "policy_violations": [],
+                "steps": [],
+                "message": "Edge case detected: single-node graph or depth=0"
+            }
+            self.execution_logs.append(log_entry)
+            return log_entry
 
-    def _check_edge_cases(self, nodes: List[Dict], depth: int) -> bool:
-        """Check for single-node graphs or depth=0 edge cases."""
-        if depth == 0 or len(nodes) <= 1:
-            return True
-        return False
-
-    def _check_workflow_validity(self, nodes: List[Dict], edges: List[Dict]) -> bool:
-        """
-        Check if a workflow is logically possible to execute.
-        Returns False if:
-        - Circular dependencies exist
-        - Required nodes are missing
-        - Graph structure is invalid
-        """
-        if not nodes:
-            return False
-        
-        # Build adjacency list
-        adj = {node['id']: [] for node in nodes}
-        in_degree = {node['id']: 0 for node in nodes}
-        
-        for edge in edges:
-            src = edge['source']
-            dst = edge['target']
-            if src in adj and dst in adj:
-                adj[src].append(dst)
-                in_degree[dst] += 1
-        
-        # Check for cycles using topological sort
-        queue = [node_id for node_id, degree in in_degree.items() if degree == 0]
-        visited_count = 0
-        
-        while queue:
-            node = queue.pop(0)
-            visited_count += 1
-            for neighbor in adj[node]:
-                in_degree[neighbor] -= 1
-                if in_degree[neighbor] == 0:
-                    queue.append(neighbor)
-        
-        # If we didn't visit all nodes, there's a cycle
-        if visited_count != len(nodes):
-            return False
-        
-        return True
-
-    def _validate_workflow_steps(self, workflow: Dict[str, Any]) -> List[str]:
-        """
-        Validate each step in the workflow using the Oracle Policy Engine.
-        Returns a list of policy violation messages.
-        """
+        # Normal execution path
+        steps = []
         violations = []
-        nodes = workflow.get('nodes', [])
+        
+        # Simulate execution of each node in topological order (simplified)
+        # In a real implementation, we would compute topological sort
+        executed_nodes = set()
         
         for node in nodes:
-            node_id = node.get('id', 'unknown')
-            # Simulate oracle validation for each node
-            # In a real implementation, this would check specific policy rules
-            oracle_result = self.oracle_engine.validate_node(node)
+            node_id = node.get("id")
+            if node_id in executed_nodes:
+                continue
             
-            if not oracle_result.get('valid', True):
-                violation_msg = oracle_result.get('message', f'Policy violation at node {node_id}')
-                violations.append(violation_msg)
+            # Validate against Oracle
+            is_valid, violation_msg = self.oracle_engine.validate_node(node, workflow)
+            
+            step_log = {
+                "node_id": node_id,
+                "status": "executed" if is_valid else "blocked",
+                "details": node.get("details", {})
+            }
+            
+            if not is_valid:
+                violations.append({
+                    "node_id": node_id,
+                    "reason": violation_msg
+                })
+                step_log["status"] = "policy_violation"
+            
+            steps.append(step_log)
+            executed_nodes.add(node_id)
         
-        return violations
+        # Calculate context reduction (0% for full context)
+        context_reduction_pct = 0.0
+        
+        # Determine overall status
+        if violations:
+            status = "failed"
+        else:
+            status = "success"
+        
+        log_entry = {
+            "workflow_id": workflow_id,
+            "status": status,
+            "context_reduction_pct": context_reduction_pct,
+            "policy_violations": violations,
+            "steps": steps,
+            "message": "Full context execution completed"
+        }
+        
+        self.execution_logs.append(log_entry)
+        return log_entry
+
+    def execute_batch(self, workflows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Execute a batch of workflows.
+        """
+        results = []
+        for workflow in workflows:
+            result = self.execute(workflow)
+            results.append(result)
+        return results
+
+    def get_logs(self) -> List[Dict[str, Any]]:
+        """
+        Return all execution logs.
+        """
+        return self.execution_logs
+
+    def save_logs(self, output_path: str) -> None:
+        """
+        Save execution logs to a JSON file.
+        """
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(self.execution_logs, f, indent=2)
 
 def main():
     """
     Main entry point for testing the FullContextEngine.
     """
-    # Create a simple test workflow
-    test_workflow = {
-        'id': 'test_workflow_1',
-        'nodes': [
-            {'id': 'node1', 'type': 'start', 'policy': 'default'},
-            {'id': 'node2', 'type': 'process', 'policy': 'data_sovereignty'},
-            {'id': 'node3', 'type': 'end', 'policy': 'default'}
+    # Create sample workflow for testing edge cases
+    edge_case_workflow = {
+        "id": "edge-test-001",
+        "nodes": [{"id": "node1", "type": "compute", "policy": "allow"}],
+        "edges": []
+    }
+    
+    normal_workflow = {
+        "id": "normal-test-001",
+        "nodes": [
+            {"id": "node1", "type": "compute", "policy": "allow"},
+            {"id": "node2", "type": "compute", "policy": "allow"}
         ],
-        'edges': [
-            {'source': 'node1', 'target': 'node2'},
-            {'source': 'node2', 'target': 'node3'}
-        ],
-        'depth': 2,
-        'complexity': 3
+        "edges": [{"source": "node1", "target": "node2"}]
     }
     
     engine = FullContextEngine()
-    result = engine.execute(test_workflow)
     
-    print(json.dumps(result, indent=2))
+    print("Testing edge case (single node)...")
+    edge_log = engine.execute(edge_case_workflow)
+    print(f"Edge case result: {json.dumps(edge_log, indent=2)}")
+    
+    print("\nTesting normal workflow...")
+    normal_log = engine.execute(normal_workflow)
+    print(f"Normal result: {json.dumps(normal_log, indent=2)}")
+    
+    # Verify edge case handling
+    assert edge_log["status"] == "edge_case", f"Expected edge_case, got {edge_log['status']}"
+    assert edge_log["context_reduction_pct"] == "[deferred]", f"Expected '[deferred]', got {edge_log['context_reduction_pct']}"
+    
+    print("\nAll tests passed!")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

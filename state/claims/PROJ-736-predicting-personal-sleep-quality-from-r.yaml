@@ -965,3 +965,233 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T09:56:58Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: exclude subjects with framewise displacement greater than 0.3mm
+  claim_id: c_145a104c
+  context: T007b [P] [US1] Implement code/data/filter.py to identify subjects with
+    valid Sleep Scores and exclude those with >0.3mm framewise displacement (US1 Acceptance
+    2).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_framewise_displacement_greater_than_0.
+  kind: magnitude
+  raw_text: Implement code/data/filter.py to identify subjects with valid Sleep Scores
+    and exclude those with >0.3mm framewise displacement.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:45:48Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: permutation count set to 1000
+  claim_id: c_6df68d02
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters...
+    MUST: Define PERMUTATION_COUNT=1000...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define PERMUTATION_COUNT=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:47:03Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: permutation subset size set to 100
+  claim_id: c_23d283d7
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters...
+    MUST: Define... PERMUTATION_SUBSET_SIZE=100...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define PERMUTATION_SUBSET_SIZE=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:47:23Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: sensitivity timeout set to 3 hours
+  claim_id: c_5b94ec2f
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters...
+    MUST: Define... SENSITIVITY_TIMEOUT_HOURS=3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define SENSITIVITY_TIMEOUT_HOURS=3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:47:48Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: global timeout set to 5 hours
+  claim_id: c_3667c061
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters...
+    MUST: Define... GLOBAL_TIMEOUT_HOURS=5...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define GLOBAL_TIMEOUT_HOURS=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:48:12Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: expected R2 effect size set to 0.05
+  claim_id: c_bd6eb8e4
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters...
+    MUST: Define... EXPECTED_R2_EFFECT_SIZE=0.05...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define EXPECTED_R2_EFFECT_SIZE=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:49:16Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: power threshold set to 0.8
+  claim_id: c_7df7e711
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters...
+    MUST: Define... POWER_THRESHOLD=0.8...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define POWER_THRESHOLD=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:49:36Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: alpha level set to 0.05
+  claim_id: c_d6758791
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters...
+    MUST: Define... ALPHA_LEVEL=0.05.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Define ALPHA_LEVEL=0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T12:49:47Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: perform 1000 label permutations on subset of 100 subjects
+  claim_id: c_aca3b317
+  context: T022 [US2] Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on the stratified subset (N=100).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1,000 label permutations on the stratified subset (N=100).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:50:27Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: monitor RAM usage less than or equal to 6 GB
+  claim_id: c_4d00baa6
+  context: "T025 [US2] Implement code/modeling/evaluate.py to enforce CPU-only execution,\
+    \ monitor RAM usage (\u22646 GB) using psutil..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Monitor_RAM_usage_less_than_or_equal_to_6_GB
+  kind: magnitude
+  raw_text: Monitor RAM usage to ensure it is less than or equal to 6 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:50:55Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: abort if wall-clock time exceeds 5 hours
+  claim_id: c_6d9c3ecc
+  context: T025 [US2] ...and abort if wall-clock time exceeds 5 hours (defined in
+    config.py as GLOBAL_TIMEOUT_HOURS) using signal module (FR-009).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if wall-clock time exceeds 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:51:25Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: enforce cumulative 3-hour time budget for sensitivity analysis
+  claim_id: c_1a71821e
+  context: T024 [US2] ...Enforce a cumulative 3-hour time budget (defined in config.py
+    as SENSITIVITY_TIMEOUT_HOURS)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a cumulative 3-hour time budget for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:52:03Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: verify plot contains at least 50 edges
+  claim_id: c_debf095f
+  context: "T033 [US3] Verify plot file exists and contains \u226550 edges: Use Python's\
+    \ built-in xml.etree.ElementTree to parse SVG and count both <line> and <path>\
+    \ elements."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_plot_contains_at_least_50_edges
+  kind: magnitude
+  raw_text: "Verify plot file exists and contains \u226550 edges."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T12:52:29Z'

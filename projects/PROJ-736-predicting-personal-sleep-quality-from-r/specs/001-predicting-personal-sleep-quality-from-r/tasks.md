@@ -87,7 +87,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `code/main.py` orchestration to: (1) download raw data (T005), (2) filter subjects (T007b, T040), (3) preprocess time series (T006) with the filtered list, (4) compute connectivity vectors (T007), and (5) save `.npy` files to `data/processed/`. **MUST**: Include structured JSON logging (seeds, hyperparameters, data hashes) to `data/logs/pipeline_run.json` (FR-010, SC-006) using the utility from T003.
+- [ ] T014 [US1] Implement `code/main.py` orchestration to: (1) download raw data (T005), (2) filter subjects (T007b, T040), (3) preprocess time series (T006) with the filtered list, (4) compute connectivity vectors (T007), and (5) save `.npy` files to `data/processed/`. **MUST**: Include structured JSON logging (seeds, hyperparameters, data hashes) to `data/logs/pipeline_run.json` (FR-010, SC-006) using the utility from T003. <!-- FAILED: unspecified -->
 - [X] T016 [US1] Implement error handling to log excluded subjects and abort if success rate <80% (SC-001)
 - [X] T017 [P] [US1] Create unit tests for Fisher-z transformation and variance calculations in `tests/unit/test_feature_engineering.py`
 
@@ -109,7 +109,7 @@
 ### Implementation for User Story 2
 
 - [X] T020a [US2] Implement `code/modeling/pipeline_factory.py` to encapsulate the nested CV logic. **MUST**: (1) Accept an optional `data_subset` parameter, (2) **Implement a wrapper class/function that instantiates VarianceThreshold and PCA objects strictly inside the cross-validation training loop** (never outside) to prevent data leakage (Plan: Critical Methodological Correction). **Implementation Pattern**: The wrapper must wrap the `cross_val_predict` or manual loop, ensuring `fit` is called only on training folds. **Dependency**: T039 (Fit-Within-Loop validation).
-- [ ] T020 [US2] Implement `code/modeling/train.py` to **invoke T020a** on the full dataset, tune ElasticNetCV, and output `data/processed/predictions.npy` containing outer-fold predictions (shape: [n_subjects, 1]) for T023 (FR-004, FR-005). **MUST**: Explicitly call T020a and save the trained model object to `data/processed/model.pkl`.
+- [ ] T020 [US2] Implement `code/modeling/train.py` to **invoke T020a** on the full dataset, tune ElasticNetCV, and output `data/processed/predictions.npy` containing outer-fold predictions (shape: [n_subjects, 1]) for T023 (FR-004, FR-005). **MUST**: Explicitly call T020a and save the trained model object to `data/processed/model.pkl`. <!-- FAILED: unspecified -->
 - [X] T021 [P] [US2] Implement `code/modeling/select_subset.py` to select a stratified random subset of subjects from the valid list (based on Sleep Score distribution). **Output**: `data/processed/perm_subset_ids.txt`.
 - [ ] T037a [US2] **MOVED TO PHASE 4**: Perform a pilot power analysis to validate the 100-subject subset. **MUST**: Use expected effect size `R²=0.05`, alpha level `0.05`, and power threshold `>0.8` (defined in `config.py`) with a theoretical F-test for linear regression to confirm power > 0.8. **Output**: `data/results/power_analysis.json`. **Dependency**: T020a (logic structure).
 - [ ] T022a [US2] **NEW**: Update `spec.md` to amend FR-006. **MUST**: (1) Add a section explicitly stating that FR-006 is amended to run 1,000 permutations on a stratified subset of 100 subjects due to compute constraints, (2) Reference the validation from T037a, (3) Ensure the text matches the implementation plan. **Dependency**: T037a.

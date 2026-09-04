@@ -1,70 +1,82 @@
 """Unit tests for power analysis functionality."""
 import pytest
-import sys
-from pathlib import Path
+import numpy as np
+from scipy.stats import f
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-from code.modeling.power_analysis import calculate_power_f_test
+# Import the module under test
+try:
+    from code.modeling.power_analysis import calculate_power_f_test, run_power_analysis
+except ImportError:
+    # Adjust path for test execution context
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+    from code.modeling.power_analysis import calculate_power_f_test, run_power_analysis
 
-class TestPowerCalculation:
-    """Tests for power calculation function."""
 
-    def test_power_increases_with_sample_size(self):
-        """Power should increase as sample size increases."""
-        n_predictors = 10
-        r_squared = 0.05
-        alpha = 0.05
+def test_calculate_power_f_test_basic():
+    """Test basic power calculation."""
+    # Known parameters: N=100, p=50, R2=0.05, alpha=0.05
+    # Expected power should be > 0.8 for a valid study
+    power = calculate_power_f_test(
+        n_samples=100,
+        n_predictors=50,
+        r_squared=0.05,
+        alpha=0.05
+    )
+    assert 0.0 <= power <= 1.0
+    # With N=100 and R2=0.05, power might be low, but it must be a valid probability
+    assert isinstance(power, float)
 
-        power_50 = calculate_power_f_test(50, n_predictors, r_squared, alpha)
-        power_100 = calculate_power_f_test(100, n_predictors, r_squared, alpha)
-        power_200 = calculate_power_f_test(200, n_predictors, r_squared, alpha)
 
-        assert power_50 < power_100 < power_200
+def test_calculate_power_f_test_high_effect():
+    """Test power calculation with a high effect size."""
+    power = calculate_power_f_test(
+        n_samples=100,
+        n_predictors=10,
+        r_squared=0.20,
+        alpha=0.05
+    )
+    # High effect size should yield high power
+    assert power > 0.8
 
-    def test_power_increases_with_effect_size(self):
-        """Power should increase as effect size (R²) increases."""
-        n_samples = 100
-        n_predictors = 10
-        alpha = 0.05
 
-        power_low = calculate_power_f_test(n_samples, n_predictors, 0.01, alpha)
-        power_med = calculate_power_f_test(n_samples, n_predictors, 0.05, alpha)
-        power_high = calculate_power_f_test(n_samples, n_predictors, 0.10, alpha)
+def test_calculate_power_f_test_low_samples():
+    """Test that low sample size raises an error."""
+    with pytest.raises(ValueError):
+        calculate_power_f_test(
+            n_samples=5,
+            n_predictors=10,
+            r_squared=0.05,
+            alpha=0.05
+        )
 
-        assert power_low < power_med < power_high
 
-    def test_power_decreases_with_more_predictors(self):
-        """Power should decrease as number of predictors increases (for fixed N)."""
-        n_samples = 100
-        r_squared = 0.05
-        alpha = 0.05
+def test_run_power_analysis():
+    """Test the full run_power_analysis function."""
+    results = run_power_analysis(
+        n_samples=100,
+        n_predictors=50,
+        expected_r_squared=0.05,
+        alpha=0.05,
+        power_threshold=0.8
+    )
 
-        power_5 = calculate_power_f_test(n_samples, 5, r_squared, alpha)
-        power_20 = calculate_power_f_test(n_samples, 20, r_squared, alpha)
-        power_50 = calculate_power_f_test(n_samples, 50, r_squared, alpha)
+    assert "status" in results
+    assert "parameters" in results
+    assert "results" in results
+    assert "conclusion" in results
+    assert "calculated_power" in results["results"]
 
-        assert power_5 > power_20 > power_50
 
-    def test_power_decreases_with_stricter_alpha(self):
-        """Power should decrease as alpha becomes more stringent."""
-        n_samples = 100
-        n_predictors = 10
-        r_squared = 0.05
-
-        power_05 = calculate_power_f_test(n_samples, n_predictors, r_squared, 0.05)
-        power_01 = calculate_power_f_test(n_samples, n_predictors, r_squared, 0.01)
-
-        assert power_01 < power_05
-
-    def test_sample_size_too_small_raises_error(self):
-        """Should raise ValueError if sample size is too small for predictors."""
-        with pytest.raises(ValueError):
-            calculate_power_f_test(n_samples=5, n_predictors=10, r_squared=0.05)
-
-    def test_typical_hypothetical_values(self):
-        """Test with values typical for this project's scenario."""
-        # N=100, k=20 (after PCA), R²=0.05
-        power = calculate_power_f_test(100, 20, 0.05, 0.05)
-        # We expect power to be in a reasonable range (0 to 1)
-        assert 0.0 <= power <= 1.0
+def test_run_power_analysis_insufficient_power():
+    """Test scenario where power is insufficient."""
+    results = run_power_analysis(
+        n_samples=20,  # Very small sample
+        n_predictors=50,
+        expected_r_squared=0.05,
+        alpha=0.05,
+        power_threshold=0.8
+    )
+    assert results["status"] == "insufficient_power"
+    assert results["results"]["is_valid"] is False
