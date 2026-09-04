@@ -1,99 +1,102 @@
+"""
+Schema validation module for AM alloy datasets.
+Validates CSV files against a YAML schema definition.
+"""
 import os
 import sys
 import csv
 import yaml
 import logging
 import pandas as pd
-from typing import Dict, List, Any, Optional
+from pathlib import Path
 
-from config import get_contracts_dir, ensure_directories, get_logger
+from config import get_contracts_dir, ensure_directories
 
-def setup_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
-    """Setup a dedicated logger."""
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+def setup_logger():
+    logger = logging.getLogger("schema_validator")
+    logger.setLevel(logging.DEBUG)
     if not logger.handlers:
-        if log_file:
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(logging.INFO)
-            logger.addHandler(fh)
         ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
         logger.addHandler(ch)
     return logger
 
-def load_schema(schema_path: str) -> Dict[str, Any]:
-    """Load the YAML schema file."""
+def load_schema(schema_path: str = None) -> dict:
+    """Load the YAML schema definition."""
+    if schema_path is None:
+        schema_path = os.path.join(get_contracts_dir(), "dataset.schema.yaml")
+    
     if not os.path.exists(schema_path):
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_csv_schema(df: pd.DataFrame, schema: Dict[str, Any], logger: logging.Logger) -> bool:
-    """Validate DataFrame against the schema.
-    
-    Checks:
-    1. All required columns exist.
-    2. Columns defined as 'number' in the schema are numeric.
-    
-    Raises ValueError if validation fails.
+def validate_csv_schema(df: pd.DataFrame, schema: dict) -> bool:
     """
+    Validate a DataFrame against the schema.
+    Checks for required columns and numeric types.
+    """
+    required_cols = schema.get('required', [])
     properties = schema.get('properties', {})
-    required = schema.get('required', [])
     
     # Check required columns
-    missing_cols = [col for col in required if col not in df.columns]
+    missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        error_msg = f"Missing required columns: {missing_cols}"
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+        raise ValueError(f"Missing required columns: {missing_cols}")
     
-    # Check types for all defined properties
-    for col, spec in properties.items():
-        if col in df.columns:
-            if spec.get('type') == 'number':
-                if not pd.api.types.is_numeric_dtype(df[col]):
-                    logger.warning(f"Column '{col}' is not numeric. Attempting conversion.")
+    # Check types for numeric columns
+    for col_name, col_def in properties.items():
+        if col_name in df.columns:
+            if col_def.get('type') == 'number':
+                if not pd.api.types.is_numeric_dtype(df[col_name]):
+                    # Attempt to coerce
                     try:
-                        df[col] = pd.to_numeric(df[col], errors='raise')
-                    except (ValueError, TypeError) as e:
-                        error_msg = f"Column '{col}' cannot be converted to numeric: {e}"
-                        logger.error(error_msg)
-                        raise ValueError(error_msg)
+                        df[col_name] = pd.to_numeric(df[col_name], errors='raise')
+                    except (ValueError, TypeError):
+                        raise ValueError(f"Column '{col_name}' is not numeric and cannot be coerced.")
     
     return True
 
-def validate_and_report(csv_path: str, schema_path: str, log_path: Optional[str] = None) -> bool:
-    """Validate a CSV file against a schema and log results.
-    
-    Returns True if validation passes, False otherwise.
+def validate_and_report(csv_path: str, schema_path: str = None, logger: logging.Logger = None) -> bool:
     """
-    logger = setup_logger("schema_validator", log_path)
+    Main validation function.
+    Returns True if valid, raises ValueError otherwise.
+    """
+    if logger is None:
+        logger = setup_logger()
+    
+    logger.info(f"Validating CSV: {csv_path} against schema: {schema_path}")
     
     try:
         schema = load_schema(schema_path)
         df = pd.read_csv(csv_path)
-        validate_csv_schema(df, schema, logger)
-        logger.info("Schema validation successful.")
+        
+        validate_csv_schema(df, schema)
+        
+        logger.info("Validation successful.")
         return True
+        
     except Exception as e:
-        logger.error(f"Schema validation failed: {e}")
-        return False
+        logger.error(f"Validation failed: {str(e)}")
+        raise
 
 def main():
-    """Entry point for schema validation."""
     import argparse
     parser = argparse.ArgumentParser(description="Validate CSV against schema")
-    parser.add_argument("--csv", type=str, required=True, help="Path to CSV file")
+    parser.add_argument("--input", type=str, required=True, help="Path to CSV")
     parser.add_argument("--schema", type=str, default=None, help="Path to schema YAML")
-    parser.add_argument("--log", type=str, default=None, help="Path to log file")
     args = parser.parse_args()
-
-    if args.schema is None:
-        args.schema = os.path.join(get_contracts_dir(), 'dataset.schema.yaml')
-
-    success = validate_and_report(args.csv, args.schema, args.log)
-    sys.exit(0 if success else 1)
+    
+    logger = setup_logger()
+    try:
+        validate_and_report(args.input, args.schema, logger)
+        print("Validation Passed")
+    except Exception as e:
+        print(f"Validation Failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

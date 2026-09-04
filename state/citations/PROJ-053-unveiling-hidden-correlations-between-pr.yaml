@@ -31,43 +31,9 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/AdityaMayukhSom/datasets
   verified_at: '2026-07-14T00:30:32.253913Z'
-- artifact_hash: 6314fe83e8363d256d076966c9e534ad3a2ec2d46cb916d5e85de0ca0444e2b1
+- artifact_hash: 1d5f19195837dd129124c54fb4e2e31fd95f8ffe59763c20b5b1d4edf45dd58c
   artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Grain refinement of stainless steel in ultrasound-assisted additive
-    manufacturing
-  kind: doi
-  value: 10.1016/j.addma.2020.101632
-  verification_status: pending
-  verified_against_url: https://doi.org/10.1016/j.addma.2020.101632
-  verified_at: '2026-08-13T18:36:07.694901Z'
-- artifact_hash: c68d5eeb5ed2e67bd64ce1c3185515b025a720b7130d9df9e0647ee3d204006a
-  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.5281/zenodo.10000000
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10000000
-  verified_at: '2026-09-04T02:04:07.699370Z'
-- artifact_hash: c68d5eeb5ed2e67bd64ce1c3185515b025a720b7130d9df9e0647ee3d204006a
-  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1038/s41598-020-78940-1
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1038/s41598-020-78940-1
-  verified_at: '2026-09-04T02:04:07.699370Z'
-- artifact_hash: c68d5eeb5ed2e67bd64ce1c3185515b025a720b7130d9df9e0647ee3d204006a
-  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: Additive batch electrospinning patterning of tethered gelatin hydrogel
@@ -76,4 +42,16 @@
   value: 10.1016/j.addma.2020.101456
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.addma.2020.101456
-  verified_at: '2026-09-04T02:04:07.699370Z'
+  verified_at: '2026-09-04T13:32:37.249584Z'
+- artifact_hash: b95b46791db977dad3dfe543e053e7521d01268af4e4b08f2ff0e04299f9c62a
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Additive batch electrospinning patterning of tethered gelatin hydrogel
+    fibres with swelling-induced fibre curling
+  kind: doi
+  value: 10.1016/j.addma.2020.101456
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/j.addma.2020.101456
+  verified_at: '2026-09-04T13:47:27.504475Z'

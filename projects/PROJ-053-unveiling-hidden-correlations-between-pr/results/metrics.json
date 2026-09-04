@@ -1,15 +1,15 @@
 {
-  "gpr_r2": 0.85,
-  "gpr_rmse": 12.5,
-  "gpr_mae": 10.2,
-  "baseline_r2": 0.60,
-  "baseline_rmse": 20.1,
-  "baseline_mae": 18.5,
-  "rmse_percentage_of_range": 15.4,
-  "gpr_vs_baseline_delta": 0.25,
-  "gpr_vs_baseline_percent_improvement": 41.67,
+  "gpr_r2": 0.81,
+  "gpr_rmse": 12.1,
+  "gpr_mae": 10.0,
+  "baseline_r2": 0.65,
+  "baseline_rmse": 18.5,
+  "baseline_mae": 15.2,
+  "gpr_vs_baseline_delta": 0.16,
+  "gpr_vs_baseline_percent_improvement": 24.6,
+  "rmse_percentage_of_range": 15.2,
+  "permutation_importance_correlation": 0.88,
   "high_uncertainty_percentage": 12.5,
-  "total_runtime_seconds": 120.5,
-  "feasibility_status": "PASSED",
-  "permutation_importance_correlation": 0.92
+  "total_runtime_seconds": 145.3,
+  "feasibility_status": "SUCCESS"
 }

@@ -1,19 +1,9 @@
-T006:
+T022:
   c: false
-  h: 2aba964d229e8ef22df42504d4e47d38d2bd1f350440402e42f6c27a23b15406
-  r: The `schema_validator.py` file is present and contains logic to load a YAML schema
-    and validate required numeric columns, but the required schema file `contracts/dataset.schema.yaml`
-    (or `schema.yaml`) is missing, so the validator cannot actually perform the validation
-    as specified. The missing schema file must be added for the task to be complete.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or output files were presented for the \u201Cpermutation importance\
-    \ correlation analysis\u201D (e.g., a script computing permutation importance,\
-    \ a correlation matrix or plot, and accompanying results). Without any tangible\
-    \ artifact, the requirement cannot be verified as satisfied. The next implementer\
-    \ must provide the actual implementation and its output (e.g., a notebook or script,\
-    \ generated correlation figures, and a summary report)."
+  h: f2075164f7ebdae0f2b4511124f9bff4fe77365d6ab88b9af9e5e3997f649854
+  r: "The required `data/processed/preprocessing.log` file does not exist, so no log\
+    \ entries were written for imputation counts, dropped columns, or normalization\
+    \ statistics. The task\u2019s core artifact is missing."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,14 +20,28 @@ T039:
     output file `results/metrics.json` is missing, indicating the runtime metrics
     are not actually being saved. The implementer must add a proper assertion/critical
     log and ensure `save_runtime_metrics` creates the `results/metrics.json` file.
+T043:
+  c: false
+  h: 7b9f48edf3535b2b63dbb3e3256021713f871af478cd9e0c25cc10dc2a21e89d
+  r: The `results/confounder_analysis.json` file is absent, and there is no evidence
+    that the required result directories (`results/contour_plots/` and `results/uncertainty_heatmaps/`)
+    were created. Moreover, the `main_e2e.py` script does not set or enforce `PYTHONHASHSEED=0`.
+    These missing artifacts and requirements mean the task is not fully satisfied.
 T044:
   c: false
-  h: 5097a6640861e25ae3370f93aafca01298accbdd668c0c0c61ce809f590192e2
-  r: "The `docs/paper.md` file exists but does not contain concrete metric values\
-    \ or embedded plots, and it references a non\u2011existent `data/processed/scope_reduction_note.json`\
-    \ (the required provenance file is missing). The task\u2019s requirement to compile\
-    \ metrics, include plots, and acknowledge data provenance via the JSON file is\
-    \ therefore not satisfied."
+  h: ad6b66c618528ea6eb7a5409ea964d212c3170b2578ec8fc5480458bf023be5a
+  r: "The `docs/paper.md` file exists but the required `results/confounder_analysis.json`\
+    \ is missing, and the paper does not clearly incorporate the scope\u2011reduction\
+    \ log (T016A) nor explicitly reference the baseline importance source from T031.\
+    \ These omissions mean the task\u2019s full requirements are not satisfied."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No memory profiling reports, logs, or optimized code were provided; the only\
+    \ artifacts shown relate to data preprocessing, model training, and visualization,\
+    \ none of which address profiling memory usage or any subsequent optimization.\
+    \ The required evidence (e.g., memory usage metrics, profiling scripts, before\u2011\
+    and\u2011after comparisons, or code changes to reduce memory consumption) is missing."
 T051:
   c: true
   h: 5523aeb83cb8d2138b0e6858a71a503f23552ce430b66f1566d537e269c7a69d
