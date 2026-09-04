@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
+  "tasks": [
+    {
+      "task_key": "T001c",
+      "reject_count": 1,
+      "last_reason": "No evidence was presented showing that a `tests/` directory with `unit` and `integration` sub\u2011directories exists, nor any proof (e.g., command output, script, or test) that they are writable. The implementer must create the directories and provide verification that they are present and have write permissions.",
+      "first_seen": "2026-09-04T16:59:42.260454+00:00",
+      "last_seen": "2026-09-04T16:59:42.260454+00:00"
+    },
+    {
+      "task_key": "T008c",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required input file `data/processed/calibration_run.json` and the generated output `data/processed/calibrated_tdp.json`. The provided `generate_tdp_constant.py` is truncated and shows no code that writes the calibrated JSON to the expected path or overwrites `DEFAULT_TDP_WATTS` in `config.py`. The unit test only validates a temporary file and does not check the real output file or the config modification. These essential artifacts and behaviors are missing.",
+      "first_seen": "2026-09-04T16:59:52.609703+00:00",
+      "last_seen": "2026-09-04T16:59:52.609703+00:00"
+    }
+  ],
+  "updated_at": "2026-09-04T16:59:52.609703+00:00"
+}

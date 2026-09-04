@@ -1,59 +1,64 @@
 """
-Custom exception classes for the llmXive research pipeline.
+Custom exceptions for the llmXive research pipeline.
 
-These exceptions handle specific failure modes in the symbolic planning
-and verification pipeline, addressing robustness gaps identified in the
-research design.
+This module defines custom exception classes for handling specific
+failure modes in the symbolic and evolutionary search components.
 """
 
 class BaseResearchException(Exception):
-    """Base class for all custom research pipeline exceptions."""
-    
-    def __init__(self, message: str, details: dict = None):
+    """Base class for all research pipeline exceptions."""
+    def __init__(self, message: str, code: str = "UNKNOWN"):
         super().__init__(message)
         self.message = message
-        self.details = details or {}
+        self.code = code
 
 class PARSE_FAILURE(BaseResearchException):
-    """
-    Raised when the symbolic parser fails to convert puzzle constraints
-    into a formal language parseable by the planner.
-    
-    This addresses the robustness gap where input constraints may be
-    malformed or outside the supported grammar.
-    """
-    pass
+    """Raised when parsing of constraints or data fails."""
+    def __init__(self, message: str):
+        super().__init__(message, code="PARSE_FAILURE")
 
 class CONTRADICTION_DETECTED(BaseResearchException):
-    """
-    Raised when the symbolic planner detects logical contradictions
-    within the problem constraints or during sub-goal decomposition.
-    
-    This indicates that the current set of constraints is unsatisfiable,
-    requiring the evolutionary loop to exclude this candidate or backtrack.
-    """
-    pass
+    """Raised when a logical contradiction is detected in constraints."""
+    def __init__(self, message: str):
+        super().__init__(message, code="CONTRADICTION_DETECTED")
 
 class VERIFIER_ERROR(BaseResearchException):
+    """Raised when the deterministic verifier encounters an error."""
+    def __init__(self, message: str):
+        super().__init__(message, code="VERIFIER_ERROR")
+
+def raise_parse_failure(message: str):
     """
-    Raised when the deterministic verifier encounters an internal error
-    that prevents it from validating a solution path.
+    Helper function to raise a PARSE_FAILURE exception.
     
-    This is distinct from a solution being invalid; it indicates a
-    failure in the verification mechanism itself (e.g., timeout,
-    unsupported operation, or state corruption).
+    Args:
+        message: Description of the parsing failure.
+        
+    Raises:
+        PARSE_FAILURE: Always raised with the provided message.
     """
-    pass
+    raise PARSE_FAILURE(message)
 
-# Factory functions for consistent instantiation (optional but useful)
-def raise_parse_failure(message: str, details: dict = None) -> None:
-    """Helper to raise PARSE_FAILURE with standardized formatting."""
-    raise PARSE_FAILURE(message, details)
+def raise_contradiction(message: str):
+    """
+    Helper function to raise a CONTRADICTION_DETECTED exception.
+    
+    Args:
+        message: Description of the contradiction.
+        
+    Raises:
+        CONTRADICTION_DETECTED: Always raised with the provided message.
+    """
+    raise CONTRADICTION_DETECTED(message)
 
-def raise_contradiction(message: str, details: dict = None) -> None:
-    """Helper to raise CONTRADICTION_DETECTED with standardized formatting."""
-    raise CONTRADICTION_DETECTED(message, details)
-
-def raise_verifier_error(message: str, details: dict = None) -> None:
-    """Helper to raise VERIFIER_ERROR with standardized formatting."""
-    raise VERIFIER_ERROR(message, details)
+def raise_verifier_error(message: str):
+    """
+    Helper function to raise a VERIFIER_ERROR exception.
+    
+    Args:
+        message: Description of the verifier error.
+        
+    Raises:
+        VERIFIER_ERROR: Always raised with the provided message.
+    """
+    raise VERIFIER_ERROR(message)

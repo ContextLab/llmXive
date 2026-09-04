@@ -12,13 +12,20 @@ T000d:
     \ document defining the Statistical Plan, Data Entities, and the explicit `complexity_metric`\
     \ mapping for SC\u2011005 is missing. The implementer must supply a non\u2011\
     empty `data-model.md` that meets the specified constraints."
-T001c:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that a `tests/` directory with `unit` and\
-    \ `integration` sub\u2011directories exists, nor any proof (e.g., command output,\
-    \ script, or test) that they are writable. The implementer must create the directories\
-    \ and provide verification that they are present and have write permissions."
+  r: "No evidence of a `data/` directory, nor the required `data/raw` and `data/processed`\
+    \ sub\u2011directories, is provided, and there is no proof that they have been\
+    \ created or are writable. The implementer\u2019s claim lacks the actual filesystem\
+    \ artifacts needed to satisfy the task."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `code/` directory with the required subfolders (`dataset`,\
+    \ `symbolic`, `bes`, `analysis`, `utils`) is presented, nor any check that they\
+    \ are writable. The implementer\u2019s claim cannot be confirmed without these\
+    \ artifacts."
 T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,16 +48,12 @@ T003:
     so the requirement to configure flake8 and Black is not satisfied. The implementer
     must add the appropriate configuration files and ensure they are applied to the
     codebase.
-T008c:
+T004:
   c: false
-  h: 135a3c20f12e7b27cf224df4912f94636faf9770ec9c3b22f113eac41ada5098
-  r: "The `generate_tdp_constant.py` script is truncated (e.g., `calculate_error_margin_and_ci`\
-    \ ends with `return erro` and no `generate_calibrated_tdp` implementation or file\u2011\
-    writing logic is present). The required input file `data/processed/calibration_run.json`\
-    \ and the output `data/processed/calibrated_tdp.json` are absent. The unit test\
-    \ `test_tdp_constant_valid` does not verify that `data/processed/calibrated_tdp.json`\
-    \ exists; it only writes to a temporary file. The task\u2019s core requirements\
-    \ are therefore not satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `data/raw` and `data/processed` directories being created,
+    nor any code or logs that verify they exist and are writable, was provided. The
+    required artifact (the directory structure and its verification) is missing.
 T021:
   c: false
   h: af277c612ca9ea50ea74f887ded1ca1ead78999a8dcd3d2db29315b7ceba36e6

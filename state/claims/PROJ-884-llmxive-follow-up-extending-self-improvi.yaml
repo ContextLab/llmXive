@@ -2074,3 +2074,92 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T17:02:40Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: dependencies scikit-learn 1.3.2 numpy 1.26.0 transformers 4.35.0 datasets
+    2.14.0 pyyaml 6.0.1 pytest 7.4.0 optimum 1.13.0 to 1.16.0
+  claim_id: c_d2ca73f1
+  context: 'Phase 1: Setup - Task T002c specifies the exact version constraints for
+    the project''s Python dependencies.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Install dependencies in requirements.txt containing: scikit-learn==1.3.2,
+    numpy==1.26.0, transformers==4.35.0, datasets==2.14.0, pyyaml==6.0.1, pytest==7.4.0,
+    optimum[onnxruntime]>=1.13.0,<1.16.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T16:54:37Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: verifier returns validity and codes within 100ms
+  claim_id: c_defea454
+  context: Phase 3, User Story 1 - Task T012-impl defines the performance constraint
+    for the deterministic validation logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verifier_returns_validity_and_codes_within_100ms
+  kind: entity_fact
+  raw_text: The verifier must return boolean validity and specific constraint violation
+    codes within 100ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T16:54:59Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: two-proportion z-test alpha 0.05
+  claim_id: c_2fb8ae37
+  context: Phase 0, Research & Design - Task T000c-stats-def defines the statistical
+    framework parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use a two-proportion z-test with alpha=0.05 for statistical
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T16:55:24Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: complexity metric tuple constraint_count variable_domain_size
+  claim_id: c_9b6909f4
+  context: Phase 0, Research & Design - Task T000c-impl defines the structure of the
+    complexity metric.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Complexity_metric_tuple_constraint_count_variable_domain_siz
+  kind: entity_fact
+  raw_text: The complexity metric is defined as a tuple of constraint_count and variable_domain_size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T16:55:50Z'
+- artifact_path: projects/PROJ-884-llmxive-follow-up-extending-self-improvi/specs/001-llmxive-follow-up-extending-self-improvi/tasks.md
+  attempts: 1
+  canonical: dataset scaling N 10 to 500
+  claim_id: c_964ef1d0
+  context: Phase 0, Research & Design - Task T000c-impl specifies the range for the
+    scaling generation parameter N.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset scaling method uses N values ranging from 10 to 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T16:56:35Z'

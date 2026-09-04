@@ -1,77 +1,98 @@
 """
-Setup script to create and verify the data directory hierarchy.
-Creates data/raw and data/processed directories and verifies writability.
+Setup data directory structure for the llmXive project.
+
+Creates the required directory hierarchy:
+- data/raw: for immutable puzzles and raw datasets
+- data/processed: for logs, results, and intermediate artifacts
+
+Verifies that directories exist and are writable.
 """
 import os
 import sys
 import argparse
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
-def setup_data_directories(base_dir: Path) -> List[Path]:
+# Define the required directory structure relative to project root
+REQUIRED_DIRS = [
+    "data/raw",
+    "data/processed",
+]
+
+def setup_data_directories(base_path: Path) -> Tuple[bool, List[str]]:
     """
-    Create the required data directory hierarchy.
+    Create the required data directory structure and verify writability.
     
     Args:
-        base_dir: The root project directory.
+        base_path: The project root directory path.
         
     Returns:
-        List of created directory paths.
-        
-    Raises:
-        RuntimeError: If a directory cannot be created or is not writable.
+        A tuple of (success: bool, errors: List[str])
     """
-    data_dir = base_dir / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
+    errors = []
+    created_dirs = []
     
-    directories = [data_dir, raw_dir, processed_dir]
-    
-    for dir_path in directories:
-        if not dir_path.exists():
-            try:
-                dir_path.mkdir(parents=True, exist_ok=True)
-                print(f"Created directory: {dir_path}")
-            except OSError as e:
-                raise RuntimeError(f"Failed to create directory {dir_path}: {e}")
+    for dir_name in REQUIRED_DIRS:
+        full_path = base_path / dir_name
         
-        # Verify writability by attempting to create a temporary file
-        test_file = dir_path / ".write_test"
+        # Create directory if it doesn't exist
         try:
-            with open(test_file, 'w') as f:
-                f.write("test")
-            test_file.unlink()  # Remove the test file
-            print(f"Verified writability: {dir_path}")
-        except IOError as e:
-            raise RuntimeError(f"Directory {dir_path} is not writable: {e}")
+            if not full_path.exists():
+                full_path.mkdir(parents=True, exist_ok=True)
+                created_dirs.append(str(full_path))
+                print(f"Created directory: {full_path}")
+            else:
+                print(f"Directory already exists: {full_path}")
+        except OSError as e:
+            errors.append(f"Failed to create directory {full_path}: {e}")
+            continue
+        
+        # Verify writability
+        try:
+            # Try to create a temporary file to verify write permissions
+            test_file = full_path / ".write_test"
+            test_file.touch()
+            test_file.unlink()
+            print(f"Verified writability: {full_path}")
+        except (OSError, PermissionError) as e:
+            errors.append(f"Directory {full_path} exists but is not writable: {e}")
     
-    return directories
+    success = len(errors) == 0
+    return success, errors
 
 def main():
+    """Main entry point for the data directory setup script."""
     parser = argparse.ArgumentParser(
-        description="Setup data directory hierarchy for the project."
+        description="Setup data directory structure for llmXive project"
     )
     parser.add_argument(
-        "--base-dir",
-        type=str,
-        default=".",
-        help="Base project directory (default: current directory)"
+        "--base-path",
+        type=Path,
+        default=Path("."),
+        help="Project root directory (default: current directory)"
     )
     
     args = parser.parse_args()
-    base_path = Path(args.base_dir).resolve()
+    
+    # Ensure base path is absolute for consistent reporting
+    base_path = args.base_path.resolve()
     
     print(f"Setting up data directories in: {base_path}")
+    print("-" * 50)
     
-    try:
-        created_dirs = setup_data_directories(base_path)
-        print("\nData directory hierarchy setup successful:")
-        for d in created_dirs:
-            print(f"  - {d}")
-        return 0
-    except RuntimeError as e:
-        print(f"\nError: {e}", file=sys.stderr)
-        return 1
+    success, errors = setup_data_directories(base_path)
+    
+    print("-" * 50)
+    if success:
+        print("✓ Data directory setup completed successfully.")
+        print("  - data/raw: Ready for immutable puzzles")
+        print("  - data/processed: Ready for logs and results")
+        sys.exit(0)
+    else:
+        print("✗ Data directory setup failed with the following errors:")
+        for error in errors:
+            print(f"  - {error}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

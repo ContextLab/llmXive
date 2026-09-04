@@ -1,6 +1,12 @@
 """
-Script to set up the code directory hierarchy for the llmXive project.
-Creates the required subdirectories under code/ and verifies they are writable.
+Setup script to create the code directory hierarchy.
+This task (T001b) creates:
+code/dataset
+code/symbolic
+code/bes
+code/analysis
+code/utils
+And verifies they exist and are writable.
 """
 import os
 import sys
@@ -8,101 +14,92 @@ import argparse
 from pathlib import Path
 from typing import List
 
-# Define the required subdirectories for the code/ hierarchy
-REQUIRED_SUBDIRS = [
+# Define the subdirectories to create under 'code/'
+SUBDIRS = [
     "dataset",
     "symbolic",
     "bes",
     "analysis",
-    "utils"
+    "utils",
 ]
 
-def setup_code_directories(base_path: Path) -> List[Path]:
+def setup_code_directories(root_dir: Path) -> bool:
     """
-    Create the code/ directory hierarchy and verify writability.
-
+    Create the code directory hierarchy and verify writability.
+    
     Args:
-        base_path: The project root path where the 'code' directory will be created.
-
+        root_dir: The project root directory.
+        
     Returns:
-        List of created directory paths.
-
+        True if all directories were created and verified successfully.
+        
     Raises:
-        RuntimeError: If a directory cannot be created or is not writable.
+        RuntimeError: If any directory cannot be created or is not writable.
     """
-    code_dir = base_path / "code"
-    created_dirs = []
-
-    # Ensure the base 'code' directory exists
+    code_dir = root_dir / "code"
+    
+    # Ensure the root code directory exists
     if not code_dir.exists():
-        try:
-            code_dir.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {code_dir}")
-        except OSError as e:
-            raise RuntimeError(f"Failed to create base code directory {code_dir}: {e}")
-
-    # Verify the base code directory is writable
-    test_file = code_dir / ".write_test"
+        code_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Created root directory: {code_dir}")
+    
+    if not code_dir.is_dir():
+        raise RuntimeError(f"{code_dir} exists but is not a directory.")
+    
+    # Check writability of the root code directory
     try:
-        test_file.touch(exist_ok=True)
+        test_file = code_dir / ".write_test"
+        test_file.touch()
         test_file.unlink()
-    except OSError as e:
-        raise RuntimeError(f"Base code directory {code_dir} is not writable: {e}")
-
-    # Create and verify subdirectories
-    for subdir_name in REQUIRED_SUBDIRS:
+    except (OSError, PermissionError) as e:
+        raise RuntimeError(f"Root code directory {code_dir} is not writable: {e}")
+    
+    success = True
+    for subdir_name in SUBDIRS:
         subdir_path = code_dir / subdir_name
         
+        # Create the directory
         if not subdir_path.exists():
-            try:
-                subdir_path.mkdir(parents=True, exist_ok=True)
-                print(f"Created directory: {subdir_path}")
-            except OSError as e:
-                raise RuntimeError(f"Failed to create subdirectory {subdir_path}: {e}")
+            subdir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created subdirectory: {subdir_path}")
         
-        # Verify writability of the subdirectory
-        test_file = subdir_path / ".write_test"
+        if not subdir_path.is_dir():
+            print(f"ERROR: {subdir_path} exists but is not a directory.")
+            success = False
+            continue
+        
+        # Verify writability
         try:
-            test_file.touch(exist_ok=True)
+            test_file = subdir_path / ".write_test"
+            test_file.touch()
             test_file.unlink()
-            created_dirs.append(subdir_path)
-        except OSError as e:
-            raise RuntimeError(f"Subdirectory {subdir_path} is not writable: {e}")
-
-    print(f"\nSuccessfully created and verified {len(created_dirs)} subdirectories under {code_dir}")
-    return created_dirs
+            print(f"Verified writability: {subdir_path}")
+        except (OSError, PermissionError) as e:
+            print(f"ERROR: {subdir_path} is not writable: {e}")
+            success = False
+    
+    if success:
+        print("\n✓ All code directories created and verified writable.")
+    else:
+        print("\n✗ Some directories failed verification.")
+        
+    return success
 
 def main():
-    """Main entry point for the script."""
+    """Entry point for the setup script."""
     parser = argparse.ArgumentParser(
-        description="Set up the code directory hierarchy for the llmXive project."
+        description="Create and verify the code directory hierarchy."
     )
     parser.add_argument(
-        "--project-root",
+        "--root",
         type=Path,
-        default=Path("."),
-        help="Path to the project root directory (default: current directory)"
+        default=Path.cwd(),
+        help="Project root directory (default: current working directory)",
     )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose output"
-    )
-
     args = parser.parse_args()
-    project_root = args.project_root.resolve()
-
-    if args.verbose:
-        print(f"Project root: {project_root}")
-        print(f"Target code directory: {project_root / 'code'}")
-
-    try:
-        setup_code_directories(project_root)
-        print("\n✅ Directory hierarchy setup complete.")
-        return 0
-    except RuntimeError as e:
-        print(f"\n❌ Error during setup: {e}", file=sys.stderr)
-        return 1
+    
+    success = setup_code_directories(args.root)
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

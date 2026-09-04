@@ -1,23 +1,7 @@
-# llmXive Automated Science Pipeline - Dependencies
-# Generated for project: PROJ-884-llmxive-follow-up-extending-self-improvi
-# Task: T002c - Install dependencies for BES, dataset generation, and analysis
-
-# Core Data & ML Libraries
-numpy==1.24.0
-scikit-learn==1.3.0
-pyyaml==6.0.1
-
-# Hugging Face Ecosystem (Transformers & Datasets)
+scikit-learn==1.3.2
+numpy==1.26.0
 transformers==4.35.0
 datasets==2.14.0
-
-# Testing & Quality
+pyyaml==6.0.1
 pytest==7.4.0
-
-# Optimum for CPU-optimized ONNX Runtime inference (Explicitly excludes bitsandbytes)
-# Version constraint: >=1.13.0, <1.16.0
-# Extra: onnxruntime for CPU execution
 optimum[onnxruntime]>=1.13.0,<1.16.0
-
-# Additional utilities required by the execution stack (not in original list but necessary for imports in code/)
-psutil>=5.9.0

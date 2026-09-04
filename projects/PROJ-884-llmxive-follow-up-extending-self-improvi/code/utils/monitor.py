@@ -1,8 +1,9 @@
 """
-CPU utilization monitoring module for llmXive research pipeline.
+CPU Utilization Monitoring Module for llmXive.
 
-Implements real-time CPU monitoring using psutil to log cpu_percent
-for every execution step, synchronized with the logging frequency of T005a.
+This module provides functionality to monitor CPU utilization using psutil
+and log metrics at the same frequency as the base logging infrastructure (T005a).
+It integrates with the experiment logging system to record resource usage.
 """
 
 import os
@@ -13,236 +14,205 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 
+# Ensure the data directory exists
+DATA_PROCESSED_DIR = Path(os.environ.get("DATA_PROCESSED_DIR", "data/processed"))
+LOG_FILE_PATH = DATA_PROCESSED_DIR / "experiment.log"
+
+# Ensure the directory exists
+DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
 
 class CPUMonitor:
     """
-    Monitors CPU utilization during experiment execution.
-    
-    Logs cpu_percent at the same frequency as the base logging infrastructure (T005a).
-    Output is written to data/processed/experiment.log in JSON format.
+    Monitors CPU utilization for the current process and system-wide.
+    Records metrics to the experiment log file in JSON format.
     """
-    
-    def __init__(
-        self,
-        log_path: Optional[str] = None,
-        sample_interval: float = 0.1
-    ):
+
+    def __init__(self, log_path: Optional[Path] = None, interval: float = 1.0):
         """
         Initialize the CPU monitor.
-        
+
         Args:
-            log_path: Path to the log file. Defaults to data/processed/experiment.log
-            sample_interval: Interval in seconds between CPU samples.
+            log_path: Path to the log file. Defaults to data/processed/experiment.log.
+            interval: Time interval in seconds between measurements.
         """
-        if log_path is None:
-            log_path = "data/processed/experiment.log"
-        
-        self.log_path = Path(log_path)
-        self.sample_interval = sample_interval
-        self._process = psutil.Process(os.getpid())
-        self._last_sample_time: Optional[float] = None
-        self._cpu_percent_history: List[Dict[str, Any]] = []
-        
-        # Ensure log directory exists
-        self.log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Clear existing log file to start fresh
-        self.log_path.write_text("")
-    
-    def start(self) -> None:
-        """Start monitoring (initializes psutil process)."""
-        # psutil.Process() already initialized in __init__
-        # This method can be used for any additional start-up logic
-        pass
-    
-    def sample(self) -> Dict[str, Any]:
+        self.log_path = log_path or LOG_FILE_PATH
+        self.interval = interval
+        self.process = psutil.Process(os.getpid())
+        # Initialize the log file if it doesn't exist
+        if not self.log_path.exists():
+            with open(self.log_path, 'w') as f:
+                f.write('')  # Create empty file
+
+        # Ensure the process CPU times are initialized
+        self.process.cpu_percent()
+
+    def get_cpu_metrics(self) -> Dict[str, Any]:
         """
-        Take a single CPU utilization sample.
-        
+        Collect current CPU metrics.
+
         Returns:
-            Dictionary containing timestamp, cpu_percent, and process info.
+            Dictionary containing CPU metrics.
         """
-        timestamp = datetime.utcnow().isoformat()
-        cpu_percent = self._process.cpu_percent(interval=None)
-        
-        sample = {
-            "timestamp": timestamp,
-            "cpu_percent": cpu_percent,
-            "process_id": self._process.pid,
-            "process_name": self._process.name(),
-            "sample_interval": self.sample_interval
-        }
-        
-        self._cpu_percent_history.append(sample)
-        self._last_sample_time = time.time()
-        
-        return sample
-    
-    def log_sample(self, sample: Optional[Dict[str, Any]] = None) -> None:
-        """
-        Log a CPU sample to the experiment log file.
-        
-        Args:
-            sample: Pre-computed sample dictionary. If None, a new sample is taken.
-        """
-        if sample is None:
-            sample = self.sample()
-        
-        log_entry = {
-            "type": "cpu_monitor",
-            "data": sample
-        }
-        
-        # Append to log file as JSON Lines
-        with open(self.log_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(log_entry) + "\n")
-    
-    def log_step(self, step_name: str, extra_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """
-        Log CPU utilization for a specific execution step.
-        
-        This is the primary method for logging at the same frequency as T005a.
-        
-        Args:
-            step_name: Name of the execution step being monitored.
-            extra_data: Optional additional data to include in the log entry.
-        
-        Returns:
-            The logged sample dictionary.
-        """
-        sample = self.sample()
-        sample["step_name"] = step_name
-        
-        if extra_data:
-            sample.update(extra_data)
-        
-        log_entry = {
-            "type": "cpu_monitor_step",
-            "timestamp": datetime.utcnow().isoformat(),
-            "step_name": step_name,
-            "cpu_percent": sample["cpu_percent"],
-            "process_id": self._process.pid,
-            "extra_data": extra_data or {}
-        }
-        
-        # Append to log file
-        with open(self.log_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(log_entry) + "\n")
-        
-        return sample
-    
-    def get_average_cpu(self) -> float:
-        """
-        Calculate the average CPU utilization across all samples.
-        
-        Returns:
-            Average CPU percentage, or 0.0 if no samples exist.
-        """
-        if not self._cpu_percent_history:
-            return 0.0
-        
-        total = sum(s["cpu_percent"] for s in self._cpu_percent_history)
-        return total / len(self._cpu_percent_history)
-    
-    def get_max_cpu(self) -> float:
-        """
-        Get the maximum CPU utilization observed.
-        
-        Returns:
-            Maximum CPU percentage, or 0.0 if no samples exist.
-        """
-        if not self._cpu_percent_history:
-            return 0.0
-        
-        return max(s["cpu_percent"] for s in self._cpu_percent_history)
-    
-    def get_stats(self) -> Dict[str, Any]:
-        """
-        Get summary statistics for the monitoring session.
-        
-        Returns:
-            Dictionary with average, max, min, and sample count.
-        """
-        if not self._cpu_percent_history:
-            return {
-                "sample_count": 0,
-                "average_cpu": 0.0,
-                "max_cpu": 0.0,
-                "min_cpu": 0.0,
-                "total_duration_seconds": 0.0
+        # Get process-specific CPU percent (interval-based)
+        process_cpu = self.process.cpu_percent(interval=None)
+
+        # Get system-wide CPU percent
+        system_cpu = psutil.cpu_percent(interval=None)
+
+        # Get number of CPU cores
+        cpu_count = psutil.cpu_count()
+
+        # Get CPU frequency if available
+        cpu_freq = None
+        freq_info = psutil.cpu_freq()
+        if freq_info:
+            cpu_freq = {
+                "current": freq_info.current,
+                "min": freq_info.min,
+                "max": freq_info.max
             }
-        
-        values = [s["cpu_percent"] for s in self._cpu_percent_history]
+
+        # Get CPU times
+        cpu_times = self.process.cpu_times()
+
         return {
-            "sample_count": len(values),
-            "average_cpu": sum(values) / len(values),
-            "max_cpu": max(values),
-            "min_cpu": min(values),
-            "total_duration_seconds": time.time() - (self._last_sample_time or time.time())
+            "timestamp": datetime.utcnow().isoformat(),
+            "process_cpu_percent": process_cpu,
+            "system_cpu_percent": system_cpu,
+            "cpu_count": cpu_count,
+            "cpu_frequency": cpu_freq,
+            "user_time": cpu_times.user,
+            "system_time": cpu_times.system,
+            "pid": self.process.pid
         }
 
-# Convenience function for quick monitoring
-def monitor_cpu_for_step(step_name: str, log_path: str = "data/processed/experiment.log") -> Dict[str, Any]:
+    def log_step(self, step_id: str, extra_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Log CPU metrics for a specific execution step.
+
+        Args:
+            step_id: Identifier for the current execution step.
+            extra_data: Optional additional data to include in the log entry.
+
+        Returns:
+            The logged metrics dictionary.
+        """
+        metrics = self.get_cpu_metrics()
+        metrics["step_id"] = step_id
+
+        if extra_data:
+            metrics.update(extra_data)
+
+        # Append to log file as JSON lines
+        with open(self.log_path, 'a') as f:
+            f.write(json.dumps(metrics) + '\n')
+
+        return metrics
+
+    def start_monitoring(self, step_id: str, duration: float, sample_interval: Optional[float] = None) -> List[Dict[str, Any]]:
+        """
+        Start monitoring CPU for a specific duration.
+
+        Args:
+            step_id: Identifier for the execution step.
+            duration: Total duration to monitor in seconds.
+            sample_interval: Interval between samples. Defaults to self.interval.
+
+        Returns:
+            List of all collected metrics dictionaries.
+        """
+        if sample_interval is None:
+            sample_interval = self.interval
+
+        start_time = time.time()
+        end_time = start_time + duration
+        samples = []
+
+        # Initialize CPU percent calculation
+        self.process.cpu_percent()
+
+        while time.time() < end_time:
+            metrics = self.get_cpu_metrics()
+            metrics["step_id"] = step_id
+            metrics["elapsed_time"] = time.time() - start_time
+            samples.append(metrics)
+
+            # Write to log file
+            with open(self.log_path, 'a') as f:
+                f.write(json.dumps(metrics) + '\n')
+
+            time.sleep(sample_interval)
+
+        return samples
+
+
+def monitor_cpu_for_step(
+    step_id: str,
+    duration: Optional[float] = None,
+    interval: float = 1.0,
+    extra_data: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any] | List[Dict[str, Any]]:
     """
     Convenience function to monitor CPU for a single step.
-    
+
     Args:
-        step_name: Name of the step to monitor.
-        log_path: Path to the log file.
-    
+        step_id: Identifier for the execution step.
+        duration: If provided, monitor for this duration and return a list of samples.
+                 If None, take a single snapshot and return a dict.
+        interval: Sampling interval in seconds (used if duration is provided).
+        extra_data: Optional additional data to include in the log entry.
+
     Returns:
-        The logged sample dictionary.
+        Single metrics dict (if duration is None) or list of dicts (if duration is provided).
     """
-    monitor = CPUMonitor(log_path=log_path)
-    return monitor.log_step(step_name)
+    monitor = CPUMonitor(interval=interval)
+
+    if duration is not None:
+        return monitor.start_monitoring(step_id, duration, interval)
+    else:
+        return monitor.log_step(step_id, extra_data)
+
 
 def main():
     """
-    Command-line interface for testing CPU monitoring.
-    
-    Runs a simple loop to demonstrate CPU logging.
+    Main entry point for testing the CPU monitor.
+    Runs a simple workload and logs CPU metrics.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Test CPU monitoring")
-    parser.add_argument(
-        "--steps",
-        type=int,
-        default=5,
-        help="Number of steps to monitor"
+    import sys
+
+    print("Starting CPU Monitor Test...")
+
+    # Create a monitor instance
+    monitor = CPUMonitor()
+
+    # Log a single step
+    print("Logging single step...")
+    single_metrics = monitor.log_step("test_single_step", {"workload": "initialization"})
+    print(f"Single step metrics: {json.dumps(single_metrics, indent=2)}")
+
+    # Simulate a workload and monitor continuously
+    print("Starting continuous monitoring for 5 seconds...")
+    samples = monitor.start_monitoring(
+        "test_continuous_workload",
+        duration=5.0,
+        sample_interval=0.5
     )
-    parser.add_argument(
-        "--interval",
-        type=float,
-        default=0.5,
-        help="Interval between samples in seconds"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/processed/experiment.log",
-        help="Output log file path"
-    )
-    
-    args = parser.parse_args()
-    
-    monitor = CPUMonitor(log_path=args.output, sample_interval=args.interval)
-    
-    print(f"Starting CPU monitoring for {args.steps} steps...")
-    print(f"Log file: {args.output}")
-    
-    for i in range(args.steps):
-        step_name = f"test_step_{i}"
-        sample = monitor.log_step(step_name)
-        print(f"  {step_name}: {sample['cpu_percent']:.1f}%")
-        time.sleep(args.interval)
-    
-    stats = monitor.get_stats()
-    print(f"\nMonitoring complete.")
-    print(f"  Samples: {stats['sample_count']}")
-    print(f"  Average CPU: {stats['average_cpu']:.1f}%")
-    print(f"  Max CPU: {stats['max_cpu']:.1f}%")
-    print(f"  Min CPU: {stats['min_cpu']:.1f}%")
+
+    print(f"Collected {len(samples)} samples.")
+    print(f"Average system CPU: {sum(s['system_cpu_percent'] for s in samples) / len(samples):.2f}%")
+    print(f"Average process CPU: {sum(s['process_cpu_percent'] for s in samples) / len(samples):.2f}%")
+
+    # Verify log file was written
+    if monitor.log_path.exists():
+        log_size = monitor.log_path.stat().st_size
+        print(f"Log file written successfully: {monitor.log_path} ({log_size} bytes)")
+    else:
+        print("ERROR: Log file was not created!")
+        sys.exit(1)
+
+    print("CPU Monitor Test completed successfully.")
+
 
 if __name__ == "__main__":
     main()

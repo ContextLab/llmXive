@@ -1,8 +1,9 @@
 """
-Exclusion Logger for Symbolic Planner.
+Exclusion Logger for recording invalid puzzle instances.
 
-Writes exclusion events to `data/processed/exclusions.json`.
-Strictly adheres to the schema defined in `contracts/output.schema.yaml`.
+This module provides functionality to log exclusion events when puzzles
+fail to parse or contain contradictions, ensuring traceability and
+auditability of the data filtering process.
 """
 import json
 import os
@@ -11,171 +12,103 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from dataclasses import dataclass, asdict
 
-# Import custom exceptions from the project's exceptions module
-from code.exceptions import PARSE_FAILURE, CONTRADICTION_DETECTED, VERIFIER_ERROR
-
-
 @dataclass
 class ExclusionEvent:
-    """Represents an exclusion event from the symbolic planner."""
-    timestamp: str
-    event_type: str
+    """Represents a single exclusion event."""
+    puzzle_id: str
     reason: str
-    puzzle_id: Optional[str] = None
-    sub_goal: Optional[str] = None
-    details: Optional[Dict[str, Any]] = None
-
+    error_code: str
+    error_message: str
+    source_file: str
+    timestamp: str
+    metadata: Optional[Dict[str, Any]] = None
 
 class ExclusionLogger:
-    """Logger for exclusion events."""
+    """
+    Logger for recording puzzle exclusion events.
     
-    def __init__(self, output_path: Path):
-        self.output_path = output_path
+    This logger writes exclusion events to a JSON file, maintaining
+    a history of all filtered-out instances for audit purposes.
+    """
+
+    def __init__(self, output_path: Optional[Path] = None):
+        """
+        Initialize the exclusion logger.
+        
+        Args:
+            output_path: Path to the exclusion log file. Defaults to 'data/processed/exclusions.json'.
+        """
+        self.output_path = output_path or Path("data/processed/exclusions.json")
         self.events: List[ExclusionEvent] = []
         
-        # Ensure output directory exists
+        # Ensure the output directory exists
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    def log_exclusion(
-        self,
-        event_type: str,
-        reason: str,
-        puzzle_id: Optional[str] = None,
-        sub_goal: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None
-    ):
-        """Log an exclusion event."""
-        # Validate event_type against allowed values from schema
-        allowed_types = ["CONTRADICTION_DETECTED", "PARSE_FAILURE", "VERIFIER_ERROR"]
-        if event_type not in allowed_types:
-            raise ValueError(f"Invalid event_type: {event_type}. Must be one of {allowed_types}")
         
-        event = ExclusionEvent(
-            timestamp=datetime.now().isoformat(),
-            event_type=event_type,
-            reason=reason,
-            puzzle_id=puzzle_id,
-            sub_goal=sub_goal,
-            details=details
-        )
+        # Load existing events if the file exists
+        if self.output_path.exists():
+            try:
+                with open(self.output_path, 'r') as f:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        for item in data:
+                            self.events.append(ExclusionEvent(**item))
+            except (json.JSONDecodeError, TypeError):
+                self.events = []
+
+    def log_exclusion(self, event: ExclusionEvent):
+        """
+        Log a new exclusion event.
+        
+        Args:
+            event: The ExclusionEvent to log.
+        """
         self.events.append(event)
-    
-    def save(self):
-        """Save all exclusion events to JSON file."""
-        events_data = [asdict(event) for event in self.events]
-        
-        output_data = {
-            'exclusion_events': events_data,
-            'total_count': len(events_data),
-            'generated_at': datetime.now().isoformat(),
-            'schema_version': '1.0.0'
-        }
-        
-        with open(self.output_path, 'w', encoding='utf-8') as f:
-            json.dump(output_data, f, indent=2)
-    
-    def load(self) -> List[ExclusionEvent]:
-        """Load exclusion events from file if exists."""
-        if not self.output_path.exists():
-            return []
-        
-        with open(self.output_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        events_data = data.get('exclusion_events', [])
-        return [
-            ExclusionEvent(
-                timestamp=e['timestamp'],
-                event_type=e['event_type'],
-                reason=e['reason'],
-                puzzle_id=e.get('puzzle_id'),
-                sub_goal=e.get('sub_goal'),
-                details=e.get('details')
-            )
-            for e in events_data
-        ]
+        self._flush_to_disk()
 
-    def validate_against_schema(self, schema_path: Path) -> bool:
-        """
-        Validate the current events against the output schema.
-        This performs structural validation against the required fields 
-        defined in contracts/output.schema.yaml.
-        """
-        required_fields = ['timestamp', 'event_type', 'reason']
-        allowed_types = ["CONTRADICTION_DETECTED", "PARSE_FAILURE", "VERIFIER_ERROR"]
-        
-        for event in self.events:
-            event_dict = asdict(event)
-            # Check required fields
-            for field in required_fields:
-                if field not in event_dict or event_dict[field] is None:
-                    return False
-            # Check enum constraint
-            if event_dict['event_type'] not in allowed_types:
-                return False
-        return True
+    def _flush_to_disk(self):
+        """Write all events to the output file."""
+        with open(self.output_path, 'w') as f:
+            json.dump([asdict(e) for e in self.events], f, indent=2)
 
+    def get_events(self) -> List[ExclusionEvent]:
+        """Return all logged exclusion events."""
+        return self.events
+
+    def get_count(self) -> int:
+        """Return the number of logged exclusion events."""
+        return len(self.events)
+
+    def clear(self):
+        """Clear all logged events and reset the file."""
+        self.events = []
+        self._flush_to_disk()
 
 def main():
-    """Main function to demonstrate exclusion logger and write real output."""
-    # Setup paths relative to project root
-    # We assume this script is run from the project root or code/ directory
-    project_root = Path(__file__).resolve().parent.parent.parent
-    output_path = project_root / "data" / "processed" / "exclusions.json"
-    schema_path = project_root / "contracts" / "output.schema.yaml"
+    """Main entry point for testing the exclusion logger."""
+    import argparse
     
-    # Create logger
-    logger = ExclusionLogger(output_path)
+    parser = argparse.ArgumentParser(description="Test Exclusion Logger")
+    parser.add_argument("--output", type=str, default="data/processed/exclusions.json", help="Output path")
+    parser.add_argument("--test", action="store_true", help="Run a simple test")
     
-    # Log real exclusion events simulating planner behavior
-    # Event 1: Contradiction detected
-    logger.log_exclusion(
-        event_type="CONTRADICTION_DETECTED",
-        reason="Sub-goals are logically inconsistent: A and NOT A",
-        puzzle_id="puzzle_001",
-        sub_goal="Reach state S1 while avoiding S1",
-        details={"contradiction_type": "logical", "source": "backward_step"}
-    )
+    args = parser.parse_args()
     
-    # Event 2: Parse failure
-    logger.log_exclusion(
-        event_type="PARSE_FAILURE",
-        reason="Could not parse constraint syntax: unexpected token 'EOF'",
-        puzzle_id="puzzle_002",
-        details={"syntax_error": "Unexpected EOF", "line": 3, "column": 12}
-    )
-    
-    # Event 3: Verifier error
-    logger.log_exclusion(
-        event_type="VERIFIER_ERROR",
-        reason="Verifier timed out or crashed during validation",
-        puzzle_id="puzzle_003",
-        details={"error_code": "TIMEOUT", "duration_ms": 5000}
-    )
-    
-    # Validate against schema if available
-    if schema_path.exists():
-        is_valid = logger.validate_against_schema(schema_path)
-        if not is_valid:
-            raise RuntimeError("Exclusion events do not match the output schema.")
-    else:
-        # If schema is missing, we cannot validate, but we proceed
-        # The task constraint says "Must strictly adhere", so we assume
-        # the structure matches if we built it correctly.
-        pass
-    
-    # Save events to disk (REAL output)
-    logger.save()
-    
-    print(f"Exclusion events saved to {output_path}")
-    print(f"Total events logged: {len(logger.events)}")
-    
-    # Verify file was written
-    if output_path.exists():
-        print("Verification: Output file exists and is writable.")
-    else:
-        raise RuntimeError("Failed to write output file.")
-
+    if args.test:
+        logger = ExclusionLogger(output_path=Path(args.output))
+        
+        # Create a test event
+        event = ExclusionEvent(
+            puzzle_id="test_puzzle_001",
+            reason="PARSE_FAILURE",
+            error_code="PARSE_FAILURE",
+            error_message="Failed to parse constraint syntax",
+            source_file="test_data.json",
+            timestamp=datetime.now().isoformat()
+        )
+        
+        logger.log_exclusion(event)
+        print(f"Logged exclusion event. Total events: {logger.get_count()}")
+        print(f"Output written to: {args.output}")
 
 if __name__ == "__main__":
     main()
