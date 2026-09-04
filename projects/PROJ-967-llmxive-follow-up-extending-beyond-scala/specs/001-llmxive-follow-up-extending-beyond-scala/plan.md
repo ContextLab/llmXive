@@ -108,7 +108,7 @@ To ensure feasibility within 6 hours and ~7 GB RAM, and to address power analysi
 2.  **Feature Set Definition**:
     *   **Entanglement Features (5)**: Variance, Entropy, Skewness, Kurtosis, Difficulty Proxy.
     *   **Control Features (2)**: `student_score`, `teacher_mean` (to isolate entanglement from base magnitude).
-    *   **Total Predictors**: 7. The N >= 300 threshold for Random Forest accounts for these 7 features (approx. 43 samples per feature, a conservative rule of thumb for non-linear models).
+    *   **Total Predictors**: 7. The N >= 300 threshold for Random Forest accounts for these 7 features (a representative number of samples per feature, a conservative rule of thumb for non-linear models).
 
 3.  **Global Analysis**:
     *   Perform bootstrapping on the batch-level covariance matrix and dominant eigenvalue to test the global hypothesis.
