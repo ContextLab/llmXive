@@ -2,11 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
 
 # C extensions
 *.so
-*.pyd
 
 # Distribution / packaging
 .Python
@@ -23,16 +21,41 @@ sdist/
 var/
 wheels/
 *.egg-info/
-installed-files.txt
+.installed.cfg
 *.egg
 
-# Virtual Environments
-.venv/
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
-code/venv/
-code/.venv/
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
@@ -40,8 +63,6 @@ code/.venv/
 *.swp
 *.swo
 *~
-.project
-.pydevproject
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -57,44 +78,30 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Data artifacts (Large files, binary blobs)
-data/raw/**/*.tar.gz
-data/raw/**/*.zip
-data/raw/**/*.pdb
-data/raw/**/*.gz
-data/processed/*.pt
-data/processed/*.pkl
-data/processed/*.h5
-data/processed/*.hdf5
-data/results/*.json
-data/results/*.csv
-data/results/*.png
-data/results/*.pdf
-data/reference/*.json
-data/reference/*.csv
+# Data artifacts (Raw and Processed)
+data/raw/
+data/processed/
+data/results/
+data/reference/
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/results/.gitkeep
+!data/reference/.gitkeep
+
+# Model artifacts
+*.pt
+*.pth
+*.onnx
+data/processed/model_*.pt
 
 # Logs
 *.log
 logs/
 
-# OS generated files
+# OS files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
-.tox/
-
-# Secrets
-.env
-.secret*
-secrets/
-*.key
-*.pem
+# Temporary files
+tmp/
+temp/

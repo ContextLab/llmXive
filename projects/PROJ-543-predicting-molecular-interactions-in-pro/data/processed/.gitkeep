@@ -1,2 +1,3 @@
-# This directory holds processed graph data and model weights.
-# Large binary files (.pt, .pth, .csv) are ignored by .gitignore.
+# This file ensures the directory is tracked by git.
+# Do not commit actual data files here.
+.gitkeep

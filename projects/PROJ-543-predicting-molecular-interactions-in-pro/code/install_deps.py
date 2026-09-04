@@ -1,9 +1,3 @@
-"""
-Script to install project dependencies into the current virtual environment.
-This script reads requirements.txt and installs packages using pip.
-It ensures that critical packages like torch and torch-geometric are installed
-with correct CPU/GPU compatibility flags if needed.
-"""
 import subprocess
 import sys
 import os
@@ -11,52 +5,35 @@ from pathlib import Path
 
 def main():
     """
-    Installs all dependencies listed in code/requirements.txt.
-    Raises an exception if installation fails.
+    Install project dependencies from requirements.txt into the current virtual environment.
+    This script is designed to be run after the virtual environment is activated.
     """
-    project_root = Path(__file__).parent.parent
+    project_root = Path(__file__).resolve().parent.parent
     requirements_path = project_root / "code" / "requirements.txt"
 
     if not requirements_path.exists():
-        raise FileNotFoundError(f"requirements.txt not found at {requirements_path}")
+        print(f"Error: requirements.txt not found at {requirements_path}")
+        sys.exit(1)
 
     print(f"Installing dependencies from {requirements_path}...")
-
-    # Install packages
+    
     try:
-        # Use pip from the current sys.executable to ensure we install into the venv
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "-r", str(requirements_path), "--upgrade"],
-            stdout=sys.stdout,
-            stderr=sys.stderr
-        )
-        print("All dependencies installed successfully.")
+        # Install pip first to ensure it's up to date
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
+        
+        # Install requirements
+        subprocess.check_call([
+            sys.executable, "-m", "pip", "install", "-r", str(requirements_path)
+        ])
+        
+        print("Dependencies installed successfully.")
+        
     except subprocess.CalledProcessError as e:
-        print(f"Failed to install dependencies: {e}")
-        raise SystemExit(1)
-
-    # Verify critical imports
-    print("Verifying critical imports...")
-    critical_packages = [
-        "torch",
-        "torch_geometric",
-        "rdkit",
-        "datasets",
-        "sklearn",
-        "pandas",
-        "yaml",
-        "Bio"
-    ]
-
-    for pkg in critical_packages:
-        try:
-            __import__(pkg)
-            print(f"  [OK] {pkg}")
-        except ImportError as e:
-            print(f"  [FAIL] {pkg}: {e}")
-            raise SystemExit(1)
-
-    print("Dependency verification complete.")
+        print(f"Error installing dependencies: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error during installation: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

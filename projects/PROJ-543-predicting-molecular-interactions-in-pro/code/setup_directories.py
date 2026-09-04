@@ -3,69 +3,64 @@ import sys
 from pathlib import Path
 from utils.io import setup_logging, log_exception
 
+# Define the project root relative to the code directory
+# The task requires creating directories under projects/PROJ-543-...
+# We assume the script is run from the project root (where 'code' exists)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_NAME = "PROJ-543-predicting-molecular-interactions-in-pro"
+BASE_DIR = PROJECT_ROOT / "projects" / PROJECT_NAME
+
+# Required subdirectories as per task description
+REQUIRED_DIRS = [
+    "code",
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "tests",
+    "specs"
+]
+
+
 def create_directories():
     """
-    Create the required directory structure for the project:
-    data/raw/, data/processed/, data/results/, tests/, specs/
-    
-    Returns:
-        list: List of created directory paths as strings
+    Creates the project directory structure if it does not exist.
+    Returns a list of created paths.
     """
-    base_dir = Path(__file__).resolve().parent.parent
-    directories = [
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "tests",
-        "specs"
-    ]
-    
     created_paths = []
-    for dir_path in directories:
-        full_path = base_dir / dir_path
+    logger = logging.getLogger(__name__)
+
+    for dir_name in REQUIRED_DIRS:
+        target_path = BASE_DIR / dir_name
         try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_paths.append(str(full_path))
-            logging = setup_logging()
-            if logging:
-                logging.info(f"Created directory: {full_path}")
+            if not target_path.exists():
+                target_path.mkdir(parents=True, exist_ok=True)
+                created_paths.append(str(target_path))
+                logger.info(f"Created directory: {target_path}")
             else:
-                # Fallback if logging not fully initialized yet
-                print(f"Created directory: {full_path}")
+                logger.debug(f"Directory already exists: {target_path}")
         except OSError as e:
-            error_msg = f"Failed to create directory {full_path}: {e}"
-            log_exception(e)
-            print(error_msg, file=sys.stderr)
+            logger.error(f"Failed to create directory {target_path}: {e}")
             raise
-    
+
+    # Log summary
+    logger.info(f"Project structure initialized at: {BASE_DIR}")
+    logger.info(f"Total directories created/referenced: {len(created_paths)}")
     return created_paths
 
+
 def main():
-    """Main entry point for directory creation."""
+    """
+    Entry point for directory setup.
+    """
+    logger = setup_logging(__name__)
     try:
-        logging = setup_logging()
-        if logging:
-            logging.info("Starting directory creation task T009")
-        else:
-            print("Starting directory creation task T009")
-        
-        created = create_directories()
-        
-        if logging:
-            logging.info(f"Successfully created {len(created)} directories")
-        else:
-            print(f"Successfully created {len(created)} directories")
-        
-        for path in created:
-            if logging:
-                logging.info(f"  - {path}")
-            else:
-                print(f"  - {path}")
-                
+        paths = create_directories()
+        logger.info("Directory setup completed successfully.")
+        return 0
     except Exception as e:
-        log_exception(e)
-        print(f"Task T009 failed: {e}", file=sys.stderr)
-        sys.exit(1)
+        log_exception(logger, e)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

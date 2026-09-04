@@ -1,3 +1,31 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`projects/PROJ-543-predicting-molecular-interactions-in-pro/code/`,\
+    \ `.../data/raw/`, `.../data/processed/`, `.../data/results/`, `.../tests/`, `.../specs/`)\
+    \ was presented; the claim lacks any file\u2011system listing, screenshots, or\
+    \ command output confirming they were created. The implementer must provide concrete\
+    \ proof that the directory tree exists and is non\u2011empty."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Git repository being initialized nor a `.gitignore` file containing
+    Python/data artifact patterns is present. The required artifacts (the repo metadata
+    and the `.gitignore` contents) are missing, so the task is not satisfied.
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Python\u202F3.11 virtual environment (e.g., a `venv` directory,\
+    \ `pyvenv.cfg`, or activation scripts) was provided in the specified `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/`\
+    \ location. The implementer\u2019s claim lacks any tangible artifact confirming\
+    \ the environment was created."
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., requirements.txt, environment.yml, installation script, or
+    pip/conda freeze output) is provided to demonstrate that the listed packages have
+    been installed into a virtual environment. Without such evidence, we cannot verify
+    that the dependencies are actually present. The task therefore remains incomplete.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -11,12 +39,3 @@ T011:
   r: The required artifact `tests/integration/test_graph_memory.py` does not exist
     in the repository, so no integration test for graph construction memory footprint
     is present. The task is therefore not satisfied.
-T016:
-  c: false
-  h: f772faf376ee00bddd72846137e1e0e44cc4f3140886cb41e3ee8c3f7bc7838c
-  r: "The repository contains `code/data/ingest.py`, but the shown content only handles\
-    \ loading PDBbind entries and does not implement the required 3D sensitivity analysis\
-    \ (varying cutoffs, recomputing graphs, computing edge count and node feature\
-    \ variance, and writing `data/results/sensitivity_analysis.json`). Moreover, the\
-    \ expected output file `data/results/sensitivity_analysis.json` is absent. The\
-    \ task\u2019s deliverables are therefore not present."

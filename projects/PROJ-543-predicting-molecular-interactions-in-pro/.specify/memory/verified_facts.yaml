@@ -1,4 +1,4 @@
-'|alpha apply benjamini correction fdr hochberg':
+'|alpha benjamini correction fdr hochberg':
   quote: "are small and n\u2217 is relatively large. For example, when \u03B1 = 0.05,\
     \ \u03C00 = 0.2"
   source_id: '1906.01701'

@@ -1,168 +1,152 @@
-"""
-Setup script to initialize a Git repository and configure .gitignore.
-This script ensures the project version control is ready for collaboration.
-"""
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-def initialize_git_repo(root_dir: Path) -> bool:
-    """Initialize a git repository if one does not exist."""
-    git_dir = root_dir / ".git"
+def initialize_git_repo(project_root: Path) -> None:
+    """Initialize a git repository in the project root if not already initialized."""
+    git_dir = project_root / ".git"
     if git_dir.exists():
-        print(f"Git repository already exists at {root_dir}")
-        return True
+        print(f"Git repository already initialized at {project_root}")
+        return
 
     try:
-        subprocess.run(
-            ["git", "init"],
-            cwd=root_dir,
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        print(f"Initialized empty Git repository in {root_dir}/.git/")
-        return True
+        subprocess.run(["git", "init"], cwd=project_root, check=True)
+        print(f"Initialized git repository at {project_root}")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to initialize git repository: {e.stderr}", file=sys.stderr)
-        return False
+        raise RuntimeError(f"Failed to initialize git repository: {e}") from e
 
-def configure_git_ignore(root_dir: Path) -> bool:
-    """Ensure .gitignore exists with standard Python/Data patterns."""
-    gitignore_path = root_dir / ".gitignore"
+def configure_git_ignore(project_root: Path) -> None:
+    """Create a .gitignore file tailored for Python and data artifacts."""
+    gitignore_path = project_root / ".gitignore"
     
-    standard_patterns = [
-        "# Byte-compiled / optimized / DLL files",
-        "__pycache__/",
-        "*.py[cod]",
-        "*$py.class",
-        "*.so",
-        "",
-        "# C extensions",
-        "*.so",
-        "*.pyd",
-        "",
-        "# Distribution / packaging",
-        ".Python",
-        "build/",
-        "develop-eggs/",
-        "dist/",
-        "downloads/",
-        "eggs/",
-        ".eggs/",
-        "lib/",
-        "lib64/",
-        "parts/",
-        "sdist/",
-        "var/",
-        "wheels/",
-        "*.egg-info/",
-        "installed-files.txt",
-        "*.egg",
-        "",
-        "# Virtual Environments",
-        ".venv/",
-        "venv/",
-        "ENV/",
-        "env/",
-        "code/venv/",
-        "code/.venv/",
-        "",
-        "# IDE",
-        ".idea/",
-        ".vscode/",
-        "*.swp",
-        "*.swo",
-        "*~",
-        ".project",
-        ".pydevproject",
-        "",
-        "# Jupyter Notebook",
-        ".ipynb_checkpoints",
-        "",
-        "# pyenv",
-        ".python-version",
-        "",
-        "# mypy",
-        ".mypy_cache/",
-        ".dmypy.json",
-        "dmypy.json",
-        "",
-        "# Pyre type checker",
-        ".pyre/",
-        "",
-        "# Data artifacts (Large files, binary blobs)",
-        "data/raw/**/*.tar.gz",
-        "data/raw/**/*.zip",
-        "data/raw/**/*.pdb",
-        "data/raw/**/*.gz",
-        "data/processed/*.pt",
-        "data/processed/*.pkl",
-        "data/processed/*.h5",
-        "data/processed/*.hdf5",
-        "data/results/*.json",
-        "data/results/*.csv",
-        "data/results/*.png",
-        "data/results/*.pdf",
-        "data/reference/*.json",
-        "data/reference/*.csv",
-        "",
-        "# Logs",
-        "*.log",
-        "logs/",
-        "",
-        "# OS generated files",
-        ".DS_Store",
-        ".DS_Store?",
-        "._*",
-        ".Spotlight-V100",
-        ".Trashes",
-        "ehthumbs.db",
-        "Thumbs.db",
-        "",
-        "# Test coverage",
-        ".coverage",
-        "htmlcov/",
-        ".pytest_cache/",
-        ".tox/",
-        "",
-        "# Secrets",
-        ".env",
-        ".secret*",
-        "secrets/",
-        "*.key",
-        "*.pem",
-    ]
+    # Define the content for .gitignore
+    gitignore_content = """
+    # Byte-compiled / optimized / DLL files
+    __pycache__/
+    *.py[cod]
+    *$py.class
 
-    content = "\n".join(standard_patterns) + "\n"
+    # C extensions
+    *.so
 
-    if gitignore_path.exists():
-        print(f"Updating existing .gitignore at {gitignore_path}")
-        # Append missing patterns or overwrite if structure changed significantly
-        # For simplicity in this setup task, we overwrite to ensure correctness
-        with open(gitignore_path, "w") as f:
-            f.write(content)
-        print("Updated .gitignore")
-    else:
-        print(f"Creating .gitignore at {gitignore_path}")
-        with open(gitignore_path, "w") as f:
-            f.write(content)
-        print("Created .gitignore")
-    
-    return True
+    # Distribution / packaging
+    .Python
+    build/
+    develop-eggs/
+    dist/
+    downloads/
+    eggs/
+    .eggs/
+    lib/
+    lib64/
+    parts/
+    sdist/
+    var/
+    wheels/
+    *.egg-info/
+    installed-files.txt
+    *.egg
 
-def main():
-    root_dir = Path(__file__).resolve().parent.parent
-    print(f"Running Git setup for project at: {root_dir}")
+    # PyInstaller
+    *.manifest
+    *.spec
 
-    if not initialize_git_repo(root_dir):
-        sys.exit(1)
-    
-    if not configure_git_ignore(root_dir):
-        sys.exit(1)
+    # Installer logs
+    pip-log.txt
+    pip-delete-this-directory.txt
 
-    print("Git initialization and .gitignore configuration complete.")
+    # Unit test / coverage reports
+    htmlcov/
+    .coverage
+    .coverage.*
+    cover/
+    .hypothesis/
+
+    # Translations
+    *.mo
+    *.pot
+
+    # Jupyter Notebook
+    .ipynb_checkpoints
+
+    # pyenv
+    .python-version
+
+    # Environments
+    .env
+    .venv
+    env/
+    venv/
+    ENV/
+    env.bak/
+    venv.bak/
+
+    # IDEs
+    .idea/
+    .vscode/
+    *.swp
+    *.swo
+    *~
+
+    # OS files
+    .DS_Store
+    Thumbs.db
+
+    # Project specific: Data artifacts (raw, processed, results)
+    # We track code and configs, but not large data files
+    data/raw/
+    data/processed/
+    data/results/
+    data/reference/
+
+    # Model weights (large binary files)
+    data/processed/*.pt
+    data/processed/*.pth
+    data/processed/*.h5
+
+    # Logs
+    *.log
+    logs/
+
+    # Temporary files
+    tmp/
+    temp/
+    *.tmp
+
+    # Hugging Face cache
+    .cache/
+    hf_cache/
+
+    # Local config overrides
+    config.local.yaml
+    .env.local
+    """
+
+    try:
+        gitignore_path.write_text(gitignore_content.strip() + "\n")
+        print(f"Created .gitignore at {gitignore_path}")
+    except IOError as e:
+        raise RuntimeError(f"Failed to create .gitignore: {e}") from e
+
+def main() -> int:
+    """Main entry point for git setup."""
+    # Determine project root based on the task context
+    # The task is in PROJ-543, so we look for the project root relative to the script
+    script_dir = Path(__file__).parent.resolve()
+    # Assuming the script is in code/ and the project root is the parent of code/
+    project_root = script_dir.parent
+
+    print(f"Setting up git repository at: {project_root}")
+
+    try:
+        initialize_git_repo(project_root)
+        configure_git_ignore(project_root)
+        print("Git setup completed successfully.")
+        return 0
+    except RuntimeError as e:
+        print(f"Git setup failed: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

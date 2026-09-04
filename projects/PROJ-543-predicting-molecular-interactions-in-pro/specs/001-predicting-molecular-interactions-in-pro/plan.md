@@ -16,7 +16,7 @@ This project implements a Graph Neural Network (GNN) pipeline to predict protein
 **Target Platform**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM) with automatic offload to Kaggle GPU for training if CUDA is detected.
 **Project Type**: Scientific computing pipeline / CLI tool.
 **Performance Goals**: Inference < 5s per complex on CPU; Training < 4 hours; Memory < 7 GB.
-**Constraints**: No local GPU on CI; strict 4-hour runtime limit; data must be streamed or sampled to fit RAM.
+**Constraints**: No local GPU on CI; strict -hour runtime limit; data must be streamed or sampled to fit RAM.
 **Scale/Scope**: [deferred] complexes in PDBbind refined set; analysis focused on a high-resolution subset (<= 2.0 Å) to ensure steric fidelity.
 
 > **Note on Dataset Fit**: The spec requires explicit water-mediated interaction flags (FR-009). The verified PDBbind parquet source contains explicit water molecules in some entries. The pipeline will flag complexes where waters are within 3.5 Å of the ligand interface. If the specific "hydration state" variable is missing in the raw parquet, the heuristic based on distance will be applied as per the Assumptions section.
@@ -89,7 +89,7 @@ projects/PROJ-543-predicting-molecular-interactions-in-pro/
 |-----------|------------|-------------------------------------|
 | **Heterogeneous Graph Construction** | The spec requires explicit encoding of 3D steric constraints and non-covalent interactions which standard molecular graphs (bond-only) miss. | A standard bond-only graph would fail FR-001 and the reviewer's concern about steric constraints, leading to poor predictive power. |
 | **Permutation Test + FDR + T-Test** | FR-006, FR-008, and Constitution Principle VII require rigorous statistical validation of motifs to avoid false positives and ensure discrimination between affinity groups. | A simple t-test without FDR correction or permutation null distributions would inflate Type I errors, violating the statistical rigor requirement. |
-| **GPU Offload Strategy** | Training a 3-layer GNN on 10k+ graphs may exceed 4 hours on CPU. | Running on CPU only risks timeout. The plan uses a "CPU-first" approach but includes a `device="cuda"` fallback that triggers the Kaggle offload, ensuring the *real* computation runs without fabrication. |
+| **GPU Offload Strategy** | Training a multi-layer GNN on 10k+ graphs may exceed 4 hours on CPU. | Running on CPU only risks timeout. The plan uses a "CPU-first" approach but includes a `device="cuda"` fallback that triggers the Kaggle offload, ensuring the *real* computation runs without fabrication. |
 
 ## Task List
 
