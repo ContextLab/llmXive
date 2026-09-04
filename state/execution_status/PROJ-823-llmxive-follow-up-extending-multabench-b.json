@@ -1,19 +1,18 @@
 {
   "project_id": "PROJ-823-llmxive-follow-up-extending-multabench-b",
   "ok": false,
-  "reason": "4 command(s) failed: python code/pipelines/run_baseline.py --seed 42 --additional-seeds 123,456,789,101 --batch-size 8 (rc=1); python code/pipelines/run_conditioned.py --seed --epochs 15 (rc=1); python code/pipelines/run_analysis.py (rc=1); 7 declared deliverable(s) absent: data/artifacts/data_availability_gap_report.json; data/artifacts/data_integrity_report.json; data/artifacts/gpu_tuned_baselines.csv",
+  "reason": "3 command(s) failed: python code/pipelines/run_baseline.py --seed 42 --additional-seeds 123,456,789,101 --batch-size 8 (rc=1); python code/pipelines/run_conditioned.py --seed --epochs 15 (rc=1); python code/pipelines/run_analysis.py (rc=1); 7 declared deliverable(s) absent: data/artifacts/data_availability_gap_report.json; data/artifacts/data_integrity_report.json; data/artifacts/gpu_tuned_baselines.csv",
   "artifacts": [],
   "failures": [
-    "python code/pipelines/run_baseline.py --seed 42 --additional-seeds 123,456,789,101 --batch-size 8 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_baseline.py\", line 27, in <module>\n    from config import CONFIG, get_data_path, get_processed_path\nImportError: cannot import name 'CONFIG' from 'config' (/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/config.py)",
-    "python code/pipelines/run_conditioned.py --seed --epochs 15 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_conditioned.py\", line 8, in <module>\n    from models.trainer import create_trainer, Trainer\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/models/__init__.py\", line 12, in <module>\n    from models.projection import MLPProjection, AttentionProjection, create_projection_model\n  File \"/home/runner/work/llmXive/llmXi",
-    "python code/pipelines/run_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_analysis.py\", line 23, in <module>\n    from utils.logging import setup_logging, get_logger, log_info, log_error, log_critical\nImportError: cannot import name 'setup_logging' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/utils/logging.py)",
-    "python code/pipelines/update_state.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/update_state.py\", line 22, in <module>\n    from utils.logging import setup_logging, get_logger, log_info, log_error, log_debug\nImportError: cannot import name 'setup_logging' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/utils/logging.py)"
+    "python code/pipelines/run_baseline.py --seed 42 --additional-seeds 123,456,789,101 --batch-size 8 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_baseline.py\", line 29, in <module>\n    from utils.memory_monitor import MemoryMonitor, get_process_memory_mb\nImportError: cannot import name 'MemoryMonitor' from 'utils.memory_monitor' (/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/utils/memory_monitor.py)",
+    "python code/pipelines/run_conditioned.py --seed --epochs 15 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_conditioned.py\", line 8, in <module>\n    from models.trainer import create_trainer, Trainer\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/models/__init__.py\", line 12, in <module>\n    from models.projection import MLPProjection, AttentionProjection, GatedProjection, create_projection_model\n  File \"/home/runner/w",
+    "python code/pipelines/run_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_analysis.py\", line 151, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_analysis.py\", line 146, in main\n    success = run_pipeline(args)\n              ^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-823-llmxive-follow-up-extending-multabench-b/code/pipelines/run_analysis.p"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-31T07:36:52Z"
+  "updated_at": "2026-09-04T20:48:27Z"
 }

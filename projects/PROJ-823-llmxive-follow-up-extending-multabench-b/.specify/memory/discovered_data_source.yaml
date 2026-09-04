@@ -1,10 +1,13 @@
 status: none
-intent: MulTaBench official download from HuggingFace datasets python package dataset
+intent: download MulTaBench multimodal benchmark as python package dataset
 required_fields:
-- image_id
-- image_path_or_url
+- id
+- image_path
+- image_bytes
 - text
 - label
-cache_key: 4a54774566dd76ab6ac3e78dcea97c8bef6951b8d005352c1834fd198e15ac8c
-searched_at: '2026-08-31T07:37:47.097940+00:00'
+- split
+- dataset_name
+cache_key: aab8e6fc3afc40900eee7ac00d2f1961f4934d71f4ecc37c1ce13454dfddf6dc
+searched_at: '2026-09-04T20:49:41.909180+00:00'
 retry_count: 1

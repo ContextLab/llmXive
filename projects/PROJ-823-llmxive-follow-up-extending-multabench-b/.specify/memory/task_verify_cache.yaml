@@ -98,9 +98,3 @@ T045:
     \ was never generated. Moreover, the implementation in `verify_data_integrity.py`\
     \ adds an imputation step for zero\u2011variance features, which directly violates\
     \ the task\u2019s \u201Cdo NOT impute\u201D rule. The task therefore remains unfinished."
-T049:
-  c: false
-  h: 626a3721fe18ba8c50a8144a61551a4ae4bbe37c01e06740d946580ac398ba31
-  r: The required artifact `data/artifacts/final_validation_report.md` does not exist,
-    and there is no evidence that a `correlation_report_{run_id}.json` file is present;
-    thus the reviewer cannot verify that all FR requirements are met.
