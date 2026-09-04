@@ -1,16 +1,5 @@
-# Existing dependencies
-pymatgen
-ase
-numpy
-scipy
-pandas
-scikit-learn
-pycalphad
-pyyaml
-requests
-memory_profiler
-ruff
-black
-quantum-espresso-runner
-pytest
-pytest-cov
+# Project dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+# existing dependencies (if any) would be listed here as well

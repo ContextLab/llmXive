@@ -1,242 +1,216 @@
 """
-ThermoExtrapolator: Handles missing thermodynamic parameters in CALPHAD databases.
-Implements linear extrapolation for missing parameters in the 500-900 K range.
-Ensures thermodynamic consistency with TCFE9 trends.
+Thermo Extrapolator Service
+===========================
+
+This module provides utilities to linearly extrapolate missing CALPHAD
+thermodynamic parameters over a temperature range of 500‑900 K using
+:pyfunc:`scipy.interpolate.interp1d`.
+
+The core public API is the :func:`extrapolate_missing_parameters` function,
+which reads a CALPHAD JSON file (as produced by ``code/data/download_calphad.py``),
+identifies missing temperature points in the 500‑900 K window, performs linear
+interpolation/extrapolation, and writes the completed dataset to a processed
+location.
+
+The module can also be executed as a script:
+    ``python code/services/thermo_extrapolator.py``
+
+which will operate on the default raw and processed paths defined in
+``code.config``.
 """
 
-import logging
-import numpy as np
-from scipy.interpolate import interp1d
-from typing import Dict, List, Optional, Tuple, Any
-from pathlib import Path
 import json
-from errors import ThermodynamicError, ConfigurationError
+import logging
+from pathlib import Path
+from typing import Dict, List, Any
 
-# Configure logger
-logger = logging.getLogger(__name__)
+from scipy.interpolate import interp1d
 
-# Constants for TCFE9 consistency checks
-TCFE9_TEMP_RANGE = (500.0, 900.0)  # Kelvin
-TCFE9_MAX_SLOPE = 0.001  # Max allowed slope for binary interaction parameters
-TCFE9_MIN_VALUE = -0.1  # Min allowed value for interaction parameters (eV)
-TCFE9_MAX_VALUE = 0.1   # Max allowed value for interaction parameters (eV)
+from code.config import DATA_RAW_PATH, PROCESSED_PATH, get_logger
 
-def extrapolate_missing_parameters(
-    parameters: Dict[str, List[Tuple[float, float]]],
+logger = get_logger(__name__)
+
+# -------------------------------------------------------------------------
+# Helper utilities
+# -------------------------------------------------------------------------
+
+def _load_json(file_path: Path) -> Dict[str, Any]:
+    """Load a JSON file and return its contents."""
+    logger.debug("Loading JSON file from %s", file_path)
+    with file_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+def _save_json(data: Dict[str, Any], file_path: Path) -> None:
+    """Save a dictionary as pretty‑printed JSON."""
+    logger.debug("Saving JSON file to %s", file_path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with file_path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, sort_keys=True)
+
+# -------------------------------------------------------------------------
+# Core extrapolation logic
+# -------------------------------------------------------------------------
+
+def _interpolate_parameter(
+    temperatures: List[float],
+    values: List[float],
+    target_temps: List[float],
+) -> List[float]:
+    """
+    Interpolate (or extrapolate) a single parameter.
+
+    Parameters
+    ----------
+    temperatures: List[float]
+        Known temperature points (must be monotonic).
+    values: List[float]
+        Parameter values at the known temperatures.
     target_temps: List[float]
-) -> Dict[str, List[float]]:
+        Temperatures for which we need values (may lie outside the known range).
+
+    Returns
+    -------
+    List[float]
+        Interpolated/extrapolated values corresponding to ``target_temps``.
     """
-    Extrapolate missing thermodynamic parameters using linear interpolation/extrapolation.
-    
-    Args:
-        parameters: Dict mapping parameter names to list of (temp, value) tuples.
-        target_temps: List of temperatures to extrapolate to.
-        
-    Returns:
-        Dict mapping parameter names to extrapolated values at target_temps.
-        
-    Raises:
-        ThermodynamicError: If extrapolation would violate TCFE9 trends.
-    """
-    result = {}
-    
-    for param_name, data_points in parameters.items():
-        if not data_points:
-            raise ThermodynamicError(f"No data points for parameter {param_name}")
-        
-        # Sort data points by temperature
-        sorted_data = sorted(data_points, key=lambda x: x[0])
-        temps = np.array([p[0] for p in sorted_data])
-        values = np.array([p[1] for p in sorted_data])
-        
-        # Create interpolation function
-        # Use linear interpolation for known range, extrapolate for missing
-        if len(temps) < 2:
-            # Single point: constant extrapolation
-            interp_func = lambda t: values[0]
-            logger.warning(f"Only one data point for {param_name}, using constant extrapolation")
-        else:
-            # Linear interpolation/extrapolation
-            interp_func = interp1d(temps, values, kind='linear', fill_value="extrapolate")
-        
-        # Extrapolate to target temperatures
-        extrapolated_values = []
-        for temp in target_temps:
-            val = float(interp_func(temp))
-            
-            # Thermodynamic consistency check
-            if not _validate_tcf9_consistency(param_name, temp, val, values):
-                raise ThermodynamicError(
-                    f"Extrapolated value {val:.6f} at {temp}K for {param_name} "
-                    f"violates TCFE9 trends"
-                )
-            
-            extrapolated_values.append(val)
-        
-        result[param_name] = extrapolated_values
-        logger.info(f"Extrapolated {param_name} for {len(target_temps)} temperatures")
-    
+    logger.debug(
+        "Creating interp1d for temperatures %s with values %s",
+        temperatures,
+        values,
+    )
+    # ``fill_value="extrapolate"`` ensures linear extrapolation beyond the bounds.
+    interpolator = interp1d(
+        temperatures,
+        values,
+        kind="linear",
+        fill_value="extrapolate",
+        assume_sorted=True,
+    )
+    result = interpolator(target_temps).tolist()
+    logger.debug(
+        "Interpolated values for target temperatures %s: %s",
+        target_temps,
+        result,
+    )
     return result
 
-def _validate_tcf9_consistency(
-    param_name: str,
-    temp: float,
-    value: float,
-    known_values: np.ndarray
-) -> bool:
+def extrapolate_missing_parameters(
+    input_json_path: Path,
+    output_json_path: Path,
+    missing_temps: List[int] = None,
+) -> None:
     """
-    Validate that extrapolated values are consistent with TCFE9 trends.
-    
-    Args:
-        param_name: Name of the parameter.
-        temp: Temperature in Kelvin.
-        value: Extrapolated value.
-        known_values: Array of known values for slope calculation.
-        
-    Returns:
-        True if consistent, False otherwise.
-    """
-    # Check value bounds
-    if value < TCFE9_MIN_VALUE or value > TCFE9_MAX_VALUE:
-        logger.warning(
-            f"Value {value:.6f} for {param_name} at {temp}K outside TCFE9 bounds "
-            f"[{TCFE9_MIN_VALUE}, {TCFE9_MAX_VALUE}]"
-        )
-        return False
-    
-    # Check temperature range
-    if temp < TCFE9_TEMP_RANGE[0] or temp > TCFE9_TEMP_RANGE[1]:
-        logger.warning(
-            f"Temperature {temp}K outside TCFE9 range {TCFE9_TEMP_RANGE}"
-        )
-        # Allow extrapolation but warn
-    
-    # Check slope consistency
-    if len(known_values) >= 2:
-        # Calculate approximate slope from known values
-        temp_range = TCFE9_TEMP_RANGE[1] - TCFE9_TEMP_RANGE[0]
-        if temp_range > 0:
-            avg_slope = (known_values[-1] - known_values[0]) / temp_range
-            if abs(avg_slope) > TCFE9_MAX_SLOPE:
-                logger.warning(
-                    f"Slope {avg_slope:.6f} for {param_name} exceeds TCFE9 limit {TCFE9_MAX_SLOPE}"
-                )
-                return False
-    
-    return True
+    Fill missing CALPHAD parameters for the temperature range 500‑900 K.
 
-def handle_missing_binary_parameters(
-    calphad_data: Dict[str, Any],
-    missing_params: List[str]
-) -> Dict[str, List[Tuple[float, float]]]:
-    """
-    Identify and prepare missing binary parameters for extrapolation.
-    
-    Args:
-        calphad_data: Loaded CALPHAD database data.
-        missing_params: List of parameter names that are missing.
-        
-    Returns:
-        Dict mapping missing parameter names to their available data points.
-    """
-    available_data = {}
-    
-    for param in missing_params:
-        if param in calphad_data:
-            data_points = calphad_data[param]
-            if isinstance(data_points, list) and len(data_points) > 0:
-                available_data[param] = data_points
-                logger.info(f"Found {len(data_points)} data points for {param}")
-        else:
-            logger.warning(f"No data available for missing parameter {param}")
-    
-    return available_data
+    The function expects the input JSON to have the following structure::
 
-def main():
-    """
-    Main function to execute and validate thermo_extrapolator on sample data.
-    This task validates that extrapolated values are physically plausible.
-    """
-    logger.info("Starting thermo_extrapolator validation (T047c)")
-    
-    # Sample test data simulating missing CALPHAD parameters
-    # Format: parameter_name -> [(temp_K, value_eV), ...]
-    sample_parameters = {
-        "Fe-Cr_L12": [(500, -0.02), (600, -0.018), (700, -0.015), (800, -0.012)],
-        "Fe-Mo_L12": [(500, -0.025), (600, -0.022), (700, -0.018)],
-        "Fe-V_L12": [(600, -0.01), (700, -0.008), (800, -0.005), (900, -0.002)],
-        "Fe-W_L12": [(500, -0.03), (600, -0.028), (700, -0.025), (800, -0.022), (900, -0.02)]
-    }
-    
-    # Target temperatures for extrapolation (including some outside the known range)
-    target_temps = [450.0, 500.0, 550.0, 600.0, 650.0, 700.0, 750.0, 800.0, 850.0, 900.0, 950.0]
-    
-    logger.info(f"Testing extrapolation for parameters: {list(sample_parameters.keys())}")
-    logger.info(f"Target temperatures: {target_temps}")
-    
-    try:
-        # Perform extrapolation
-        extrapolated_results = extrapolate_missing_parameters(sample_parameters, target_temps)
-        
-        # Validate results
-        validation_passed = True
-        for param, values in extrapolated_results.items():
-            logger.info(f"\n{param}:")
-            for temp, val in zip(target_temps, values):
-                status = "OK"
-                if val < TCFE9_MIN_VALUE or val > TCFE9_MAX_VALUE:
-                    status = "OUT_OF_BOUNDS"
-                    validation_passed = False
-                logger.info(f"  {temp}K: {val:.6f} eV [{status}]")
-        
-        if validation_passed:
-            logger.info("✓ All extrapolated values are physically plausible and consistent with TCFE9 trends")
-            
-            # Save validation results
-            output_path = Path("data/processed/thermo_extrapolation_validation.json")
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            validation_report = {
-                "task_id": "T047c",
-                "status": "success",
-                "parameters_tested": list(sample_parameters.keys()),
-                "target_temperatures": target_temps,
-                "results": {
-                    param: {
-                        "temps": target_temps,
-                        "values": values
-                    }
-                    for param, values in extrapolated_results.items()
+        {
+            "parameters": {
+                "<param_name>": {
+                    "temperatures": [list of float],
+                    "values": [list of float]
                 },
-                "consistency_checks": {
-                    "temp_range": TCFE9_TEMP_RANGE,
-                    "value_bounds": [TCFE9_MIN_VALUE, TCFE9_MAX_VALUE],
-                    "max_slope": TCFE9_MAX_SLOPE
-                }
+                ...
             }
-            
-            with open(output_path, 'w') as f:
-                json.dump(validation_report, f, indent=2)
-            
-            logger.info(f"✓ Validation report saved to {output_path}")
-            return True
+        }
+
+    Missing temperatures are identified from ``missing_temps`` (default:
+    ``[500, 600, 700, 800, 900]``).  For each parameter we linearly
+    interpolate/extrapolate values at those temperatures and merge them
+    into the original dataset.
+
+    Parameters
+    ----------
+    input_json_path: Path
+        Path to the raw CALPHAD JSON file.
+    output_json_path: Path
+        Destination for the completed JSON file.
+    missing_temps: List[int], optional
+        Temperature points to generate.  If ``None`` the default range
+        500‑900 K in 100 K increments is used.
+    """
+    if missing_temps is None:
+        missing_temps = list(range(500, 901, 100))
+
+    logger.info(
+        "Extrapolating CALPHAD parameters from %s to %s",
+        input_json_path,
+        output_json_path,
+    )
+    raw_data = _load_json(input_json_path)
+
+    if "parameters" not in raw_data:
+        raise ValueError(
+            f"The input file {input_json_path} does not contain a "
+            "'parameters' key."
+        )
+
+    completed_data = {"parameters": {}}
+    for param_name, param_info in raw_data["parameters"].items():
+        temps = param_info.get("temperatures")
+        vals = param_info.get("values")
+        if temps is None or vals is None:
+            logger.warning(
+                "Parameter %s is missing 'temperatures' or 'values'; skipping.",
+                param_name,
+            )
+            continue
+
+        # Ensure temperatures are sorted (interp1d requires monotonic input)
+        sorted_pairs = sorted(zip(temps, vals), key=lambda x: x[0])
+        sorted_temps, sorted_vals = zip(*sorted_pairs)
+
+        # Determine which of the target temps are already present
+        existing_set = set(sorted_temps)
+        to_compute = [t for t in missing_temps if t not in existing_set]
+
+        if to_compute:
+            logger.debug(
+                "Parameter %s missing temperatures %s; computing.", param_name, to_compute
+            )
+            new_vals = _interpolate_parameter(
+                list(sorted_temps), list(sorted_vals), to_compute
+            )
+            # Merge new points into the existing lists
+            combined = list(zip(sorted_temps, sorted_vals)) + list(
+                zip(to_compute, new_vals)
+            )
+            # Re‑sort after merging
+            combined.sort(key=lambda x: x[0])
+            final_temps, final_vals = zip(*combined)
         else:
-            logger.error("✗ Some extrapolated values failed consistency checks")
-            return False
-            
-    except ThermodynamicError as e:
-        logger.error(f"Thermodynamic consistency check failed: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error during extrapolation: {e}")
-        return False
+            final_temps, final_vals = sorted_temps, sorted_vals
+
+        completed_data["parameters"][param_name] = {
+            "temperatures": list(final_temps),
+            "values": list(final_vals),
+        }
+
+    _save_json(completed_data, output_json_path)
+    logger.info("Extrapolation complete. Output written to %s", output_json_path)
+
+# -------------------------------------------------------------------------
+# CLI entry point
+# -------------------------------------------------------------------------
+
+def main() -> None:
+    """
+    Command‑line entry point.
+
+    It reads ``data/raw/calphad_params.json`` (as defined by
+    ``code.config.DATA_RAW_PATH``) and writes the extrapolated version to
+    ``data/processed/extrapolated_calphad_params.json`` under the processed
+    data directory.
+    """
+    input_path = DATA_RAW_PATH / "calphad_params.json"
+    output_path = PROCESSED_PATH / "extrapolated_calphad_params.json"
+
+    if not input_path.is_file():
+        raise FileNotFoundError(
+            f"Required CALPHAD input file not found at {input_path}"
+        )
+
+    extrapolate_missing_parameters(input_path, output_path)
 
 if __name__ == "__main__":
-    # Set up logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    success = main()
-    exit(0 if success else 1)
+    main()

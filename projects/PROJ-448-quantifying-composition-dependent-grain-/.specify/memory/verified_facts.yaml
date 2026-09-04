@@ -1,6 +1,5 @@
-'|100nm apt diameter needle preparation require shaped specimen':
-  quote: "sharpened in the shape of a needle with an end radius in the range of 50\u2013\
-    150nm. Conventional FIB"
-  source_id: '2002.00992'
-  url: https://arxiv.org/abs/2002.00992
-  value: "50\u2013150nm"
+'|cross fold plan use validation':
+  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+  source_id: '2604.10702'
+  url: https://arxiv.org/abs/2604.10702
+  value: '5'
