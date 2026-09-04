@@ -1,79 +1,51 @@
 # Experimental Validation Requirements
 
-This document outlines the mandatory experimental confirmations required to validate the machine learning predictions of the glass-forming region for multi-component alloys.
-
-While the computational pipeline computes descriptors (atomic size mismatch, mixing enthalpy, electronegativity variance) and predicts glass-forming ability (GFA) based on statistical correlations, these predictions remain associational. As noted in prior reviews (simulating Rosalind Franklin's perspective on structural determination vs. calculation), the distinction between amorphous and crystalline phases often depends on thermal history and cooling rates that cannot be inferred solely from static composition.
+This document outlines the mandatory experimental validation steps required to substantiate the machine learning predictions of the glass-forming region for multi-component alloys. While the computational model provides statistical correlations based on atomic size mismatch, mixing enthalpy, and electronegativity variance, these metrics are insufficient to confirm the formation of a glassy phase without direct structural evidence.
 
 ## 1. Primary Validation: X-Ray Diffraction (XRD)
 
-**Requirement**: Every sample predicted to be a "glass" (amorphous) by the model must be confirmed via X-ray diffraction.
+The definitive method for distinguishing between amorphous (glassy) and crystalline phases is X-ray Diffraction.
 
-- **Criterion**: The XRD pattern must show a broad "halo" without sharp Bragg peaks characteristic of crystalline phases.
-- **Minimum Sample Size**: A minimum of 10 experimentally confirmed glass samples is required to validate the model's positive predictive value.
-- **Reference**: Comparison against standard patterns for the constituent elements and known intermetallic compounds in the system.
-- **Traceability**: Each XRD dataset must be linked to the specific alloy composition ID used in the training/inference set.
+### 1.1 Required Data Points
+For every alloy composition predicted to be in the "glass-forming region" with high confidence, the following must be provided:
+- **XRD Pattern**: A full diffraction scan (2θ range typically 10°–90°) using Cu Kα radiation.
+- **Peak Analysis**:
+ - **Glassy Phase**: Confirmation of the absence of sharp Bragg peaks. The presence of broad, diffuse halos centered around typical metallic diffraction angles (e.g., ~40°–50° 2θ) is the signature of amorphous structure.
+ - **Crystalline Phase**: Identification of sharp, narrow peaks indicating long-range order.
+- **Crystallinity Fraction**: Quantification of the amorphous fraction (e.g., >95% amorphous) via Rietveld refinement or peak area integration.
+
+### 1.2 Rejection of Inferential Methods
+As noted in the review by rosalind-franklin-simulated, statistical correlation of thermodynamic descriptors does not equate to structural determination. Just as the distinction between DNA A and B forms relies on hydration levels observed in fibre patterns rather than calculation, the glass transition in alloys relies on thermal history and cooling rates that cannot be fully inferred from static atomic properties.
+- **No XRD = No Validation**: Predictions lacking XRD confirmation are classified as `experimental_validation_status: unknown` in the data contracts.
+- **No DSC-only Validation**: Differential Scanning Calorimetry (DSC) showing a glass transition temperature ($T_g$) is supportive but secondary. A material may exhibit a $T_g$ without being fully amorphous, or may crystallize during the DSC scan. XRD is the primary arbiter.
 
 ## 2. Thermal History and Cooling Rate Verification
 
-**Requirement**: The cooling rate used during sample fabrication must be documented and verified.
+The glass-forming ability (GFA) is intrinsically linked to the cooling rate ($R_c$) used during synthesis.
 
-- **Context**: The glass-forming region is intrinsically linked to the cooling rate ($dT/dt$). A composition that forms a glass at $10^6$ K/s may crystallize at $10^2$ K/s.
-- **Action**:
- - Record the specific cooling method (e.g., melt spinning, copper mold casting, splat quenching).
- - Estimate or measure the cooling rate for each sample.
- - Ensure the experimental cooling rate exceeds the critical cooling rate ($R_c$) predicted or observed for the system.
-- **Constraint**: Samples produced via slow cooling (e.g., furnace cooling) must be excluded from the "glass" validation set unless the model explicitly accounts for low cooling rates (which it currently does not).
+- **Minimum Cooling Rate**: The synthesis protocol must document the cooling rate (e.g., melt spinning at >10^5 K/s, copper mold casting, arc melting).
+- **Thermal Stability**: Measurement of the supercooled liquid region ($\Delta T_x = T_x - T_g$) via DSC to confirm thermal stability consistent with bulk metallic glasses (BMGs).
+- **Critical Diameter**: For bulk glass formers, the critical casting diameter ($D_{max}$) must be measured to verify the depth of the glass-forming region.
 
-## 3. Differential Scanning Calorimetry (DSC)
+## 3. Compositional Homogeneity
 
-**Requirement**: Thermal analysis to confirm the glass transition temperature ($T_g$) and crystallization temperature ($T_x$).
+- **EDS/WDS Mapping**: Energy-Dispersive X-ray Spectroscopy (EDS) or Wavelength-Dispersive X-ray Spectroscopy (WDS) mapping must confirm that the bulk composition matches the intended stoichiometry and that no phase segregation (e.g., dendritic crystalline phases) occurred during solidification.
 
-- **Criterion**: Observation of a distinct glass transition step followed by crystallization exotherms.
-- **Metric**: Calculation of the supercooled liquid region $\Delta T_x = T_x - T_g$. A robust glass former typically exhibits a significant $\Delta T_x$.
-- **Exclusion**: Samples showing only melting endotherms without a glass transition are classified as crystalline and must not be counted as false negatives if the model predicted "glass" (indicating a model failure to account for kinetics).
+## 4. Data Submission Format
 
-## 4. Microstructural Analysis (SEM/TEM)
+Experimental results must be submitted in the following format to be considered for model retraining:
+- `sample_id`: Unique identifier linking to the `data/derived/descriptor_vector.csv`.
+- `xrd_file`: Raw `.raw` or `.xy` file of the diffraction pattern.
+- `thermal_history`: JSON object containing cooling rate, annealing temperature, and quench medium.
+- `validation_status`: Enum (`confirmed_glass`, `confirmed_crystalline`, `mixed_phase`, `inconclusive`).
 
-**Requirement**: Scanning Electron Microscopy (SEM) or Transmission Electron Microscopy (TEM) for selected samples.
+## 5. Failure Mode Analysis
 
-- **Purpose**: To rule out nanocrystalline structures that may appear amorphous in XRD due to peak broadening.
-- **Criterion**: Homogeneous, featureless microstructure at the nanometer scale.
-- **Action**: Perform selected area electron diffraction (SAED) in TEM to confirm the absence of diffraction spots.
+If a sample predicted to be a glass is found to be crystalline via XRD:
+1. The sample must be re-analyzed for potential impurities or segregation.
+2. The discrepancy must be logged in `logs/model_accuracy_issue.log` with the `experimental_validation_status` flag set to `no`.
+3. The feature importance analysis (SHAP) must be reviewed to determine if the model over-relied on a specific descriptor (e.g., atomic size mismatch) that does not account for kinetic factors like nucleation barriers.
 
-## 5. Composition Verification
+## Conclusion
 
-**Requirement**: Confirm the actual bulk composition matches the nominal stoichiometry.
-
-- **Method**: Energy Dispersive X-ray Spectroscopy (EDS) or Inductively Coupled Plasma (ICP) analysis.
-- **Tolerance**: Deviation from nominal composition must be within 1-2 at.% to ensure the input features (atomic size mismatch, etc.) are accurate.
-
-## 6. Reproducibility Check
-
-**Requirement**: Independent fabrication of at least 3 samples per predicted "glass" composition.
-
-- **Purpose**: To ensure the glass formation is reproducible and not a result of a specific, non-repeatable processing anomaly.
-- **Success Criteria**: All 3 samples must exhibit amorphous characteristics via XRD.
-
-## 7. Negative Control Validation
-
-**Requirement**: Confirm that samples predicted as "crystalline" are indeed crystalline.
-
-- **Action**: Perform XRD on a subset of predicted crystalline samples.
-- **Success Criteria**: Sharp Bragg peaks consistent with equilibrium or metastable intermetallic phases.
-
-## Summary Checklist
-
-- [ ] XRD patterns collected for all predicted glass samples (broad halo confirmation).
-- [ ] Cooling rates documented and verified to be above critical $R_c$.
-- [ ] DSC traces showing $T_g$ and $T_x$ for glass candidates.
-- [ ] Bulk composition verified via EDS/ICP.
-- [ ] Microstructural analysis (SEM/TEM) performed on ambiguous cases.
-- [ ] Reproducibility confirmed for at least 3 samples per composition.
-- [ ] Negative controls (predicted crystalline) confirmed via XRD.
-- [ ] All data linked to specific sample IDs in the `data/derived/` directory.
-
-## References
-
-- Rosalind Franklin's work on DNA structural forms (A vs B) highlights the necessity of direct structural observation over calculation alone.
-- Inoue, A. (2000). Stabilization of metallic supercooled liquid and bulk amorphous alloys. *Acta Materialia*.
-- Johnson, W. L. (1999). Bulk glass-forming metallic alloys: Science and technology. *MRS Bulletin*.
+The ML model serves as a screening tool to prioritize compositions for experimental synthesis. However, the claim of "predicting the glass-forming region" is only valid when the predicted region is populated by samples with verified XRD patterns confirming the amorphous state. Without this experimental anchor, the model remains a correlational exercise rather than a predictive scientific tool.

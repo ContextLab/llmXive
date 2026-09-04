@@ -735,3 +735,39 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T12:22:55Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 0
+  canonical: Method for fine-tuning large language models with limited computational
+    resources
+  claim_id: c_1d0ff231
+  context: 'The research question is: Can large language models be effectively fine-tuned
+    for specialized tasks with limited computational resources? The method is: {{claim:c_7c3825c9}}
+    (2501.19389, https://arxiv.org/abs/2501.19389)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'The method is: {{claim:c_7c3825c9} (2501.19389, https://arxiv.org/abs/2501.19389)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T19:15:01Z'
+- artifact_path: projects/PROJ-544-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Hu et al. proposed LoRA for low-rank adaptation of large language models
+  claim_id: c_2da637fb
+  context: 'References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language
+    Models.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Hu et al. (2021) proposed LoRA: Low-Rank Adaptation of Large Language
+    Models.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:15:28Z'

@@ -10,3 +10,4 @@ sentence-transformers==2.2.2
 radon==6.0.1
 ruff==0.1.6
 black==23.12.1
+pre-commit==3.6.0

@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Dataset Metadata Schema"
+description: "Schema for validating dataset metadata and event labels"
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique subject identifier (e.g., sub-01)"
+  condition_label:
+    type: string
+    enum:
+      - "simple"
+      - "complex"
+    description: "Experimental condition type"
+  stimulus_type:
+    type: string
+    enum:
+      - "standard"
+      - "deviant"
+    description: "Stimulus classification"
+  is_valid:
+    type: boolean
+    description: "Flag indicating if the data passes quality control"
+  artifact_rejection_rate:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "Percentage of epochs rejected due to artifacts"
+required:
+  - subject_id
+  - condition_label
+  - stimulus_type
+  - is_valid
+additionalProperties: false

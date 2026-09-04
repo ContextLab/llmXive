@@ -1,19 +1,25 @@
+"""
+Test suite to verify the project directory structure exists.
+This ensures T001, T002, and T003 requirements are met.
+"""
 import os
 import pytest
 from pathlib import Path
 
-def test_t001_data_directories_exist():
-    """
-    Verification test for T001:
-    Ensure that 'data/' and 'data/defects4j/' directories exist.
-    """
-    root = Path(__file__).parent.parent
-    
-    data_dir = root / "data"
-    defects4j_dir = root / "data" / "defects4j"
+REQUIRED_DIRS = [
+    "data",
+    "data/defects4j",
+    "code",
+    "code/utils",
+    "code/models",
+    "explanations",
+    "state",
+    "tests",
+]
 
-    assert data_dir.exists(), f"Directory missing: {data_dir}"
-    assert data_dir.is_dir(), f"Path exists but is not a directory: {data_dir}"
-
-    assert defects4j_dir.exists(), f"Directory missing: {defects4j_dir}"
-    assert defects4j_dir.is_dir(), f"Path exists but is not a directory: {defects4j_dir}"
+@pytest.mark.parametrize("dir_path", REQUIRED_DIRS)
+def test_directory_exists(dir_path: str) -> None:
+    """Assert that a required directory exists."""
+    path = Path(dir_path)
+    assert path.exists(), f"Directory '{dir_path}' does not exist."
+    assert path.is_dir(), f"'{dir_path}' exists but is not a directory."

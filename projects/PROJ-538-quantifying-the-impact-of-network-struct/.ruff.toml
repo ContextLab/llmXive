@@ -1,23 +1,6 @@
-# Ruff configuration for PROJ-538
-# Enforces strict linting rules compatible with the scientific pipeline
+# Ruff configuration file
+# Extends pyproject.toml for IDE/editor specific overrides if needed
+extend = "pyproject.toml"
 
-target-version = "py311"
-line-length = 88
-
-[lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = [
-  "E501", # Line too long (handled by black)
-  "W191", # Indentation contains tabs (handled by black)
-]
-
-[lint.per-file-ignores]
-# Allow imports at the top of __init__.py for re-exports
-"code/__init__.py" = ["E402", "F401"]
-# Allow unused imports in tests (sometimes needed for fixtures)
-"tests/**.py" = ["F401"]
-
-[lint.isort]
-known-first-party = ["config", "ingest", "interfaces", "main", "metrics", "models", "stats", "synthetic", "utils", "viz"]
-force-sort-within-sections = true
+# Override specific settings for local development if necessary
+# Currently relies on pyproject.toml defaults

@@ -1,0 +1,18 @@
+# Development and Testing Dependencies
+# Base project dependencies
+-r requirements.txt
+
+# Testing Framework
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-xdist>=3.3.0  # For parallel test execution
+
+# Linting and Formatting (referenced in T003)
+ruff>=0.1.0
+black>=23.0.0
+mypy>=1.5.0
+
+# Additional type checking support
+types-setuptools
+types-requests
+types-PyYAML

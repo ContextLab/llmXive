@@ -637,3 +637,345 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T06:30:16Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Defects4J version 2.0 available at GitHub URL
+  claim_id: c_ce2f5fa2
+  context: Implement `code/01_download_data.py` to download Defects4J v2.0 from official
+    GitHub repo
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Download Defects4J v2.0 from official GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:01:53Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 model used for coherence
+  claim_id: c_6c43d952
+  context: Implement `code/07_compute_rationale_coherence.py` to compute internal
+    coherence... using `sentence-transformers/all-MiniLM-L6-v2`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sentence-transformers/all-MiniLM-L6-v2_model_used_for_cohere
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 for coherence computation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:02:22Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: CodeLlama-7B-Instruct model used for patch generation
+  claim_id: c_e7dcccff
+  context: Implement `code/02_generate_patches.py` to prompt CodeLlama-7B-Instruct
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeLlama-7B-Instruct_model_used_for_patch_generation
+  kind: entity_fact
+  raw_text: Use CodeLlama-7B-Instruct model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:02:52Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Transformers version 4.36.0
+  claim_id: c_917d3e3a
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (transformers==4.36.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Transformers library version 4.36.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:03:09Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Datasets version 2.16.0
+  claim_id: c_5225b41a
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (...datasets==2.16.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Datasets library version 2.16.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:03:31Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Captum version 0.7.0
+  claim_id: c_e9b19dad
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (...captum==0.7.0...)
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: functionalities in Captum v0.7 to easily apply ex-
+      source_id: '2312.05491'
+      url: https://arxiv.org/abs/2312.05491
+      value: '0.7'
+    filled: true
+  kind: numeric
+  raw_text: Captum library version 0.7.0
+  resolved_value: '0.7'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T19:03:50Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Scikit-learn version 1.4.0
+  claim_id: c_8276938a
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (...scikit-learn==1.4.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scikit-learn library version 1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:04:20Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Pytest version 7.4.0
+  claim_id: c_4077d6c7
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (...pytest==7.4.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pytest version 7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:04:38Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Pandas version 2.1.0
+  claim_id: c_698bafbc
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (...pandas==2.1.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pandas version 2.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:05:04Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: NumPy version 1.26.0
+  claim_id: c_b6f76312
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (...numpy==1.26.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NumPy version 1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:05:32Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Evaluate version 0.4.1
+  claim_id: c_2e700950
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (...evaluate==0.4.1...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Evaluate library version 0.4.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:06:06Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Sentence-transformers version 2.2.2
+  claim_id: c_3439901b
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (...sentence-transformers==2.2.2...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sentence-transformers library version 2.2.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:06:26Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Radon version 6.0.1
+  claim_id: c_ae32e3af
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (...radon==6.0.1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Radon library version 6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:06:47Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project
+  claim_id: c_fafc1ec4
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project initialization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:07:24Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: 6 comparisons for Bonferroni correction
+  claim_id: c_9c37c24c
+  context: "Implement paired t-tests comparing predictive power of the three techniques\
+    \ with Bonferroni correction (\u03B1_corrected = 0.05 / 6 = 0.0083 for 6 comparisons:\
+    \ 3 techniques \xD7 2 tests)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.3'
+      source_id: Multiple comparisons problem
+      url: https://en.wikipedia.org/wiki/Multiple_comparisons_problem
+      value: '0.3'
+    filled: true
+  kind: numeric
+  raw_text: 6 comparisons performed in Bonferroni correction
+  resolved_value: '0.3'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T19:07:32Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha 0.0083
+  claim_id: c_069111fc
+  context: "Implement paired t-tests comparing predictive power of the three techniques\
+    \ with Bonferroni correction (\u03B1_corrected = 0.05 / 6 = 0.0083 for 6 comparisons:\
+    \ 3 techniques \xD7 2 tests)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni-corrected alpha is 0.0083
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:07:50Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: 3 techniques compared
+  claim_id: c_b8bd249d
+  context: Implement paired t-tests comparing predictive power of the three techniques
+    with Bonferroni correction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 techniques compared in statistical analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:08:24Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: 2 tests per technique
+  claim_id: c_cd603b08
+  context: "Implement paired t-tests comparing predictive power of the three techniques\
+    \ with Bonferroni correction (\u03B1_corrected = 0.05 / 6 = 0.0083 for 6 comparisons:\
+    \ 3 techniques \xD7 2 tests)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2 tests performed per technique in statistical analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:08:48Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/spec.md
+  attempts: 1
+  canonical: Defects4J dataset contains approximately 835 bugs
+  claim_id: c_bb96a23e
+  context: 'Under Scenario Constraints (SC-001): Dataset Size, the system must handle
+    the full Defects4J dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must handle the full Defects4J dataset (approx. 835 bugs).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:09:36Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/spec.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 vectors are L2-normalized resulting in dot products
+    in [-1, 1]
+  claim_id: c_363645fd
+  context: 'Under Scenario Constraints (SC-007): Cosine Similarity Range, the text
+    states that for `all-MiniLM-L6-v2`, vectors are typically L2-normalized.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For `all-MiniLM-L6-v2`, vectors are typically L2-normalized, resulting
+    in dot products in [-1, 1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T19:09:58Z'

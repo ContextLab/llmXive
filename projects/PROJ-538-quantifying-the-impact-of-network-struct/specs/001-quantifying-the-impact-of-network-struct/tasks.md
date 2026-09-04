@@ -126,13 +126,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `CorrelationAnalyzer` class in `code/stats.py`
-- [ ] T028 [US3] Implement Pearson and Spearman correlation analysis in `code/stats.py` (FR-004)
-- [ ] T029 [US3] Implement Bonferroni correction for p-values in `code/stats.py` (FR-006)
-- [ ] T030 [US3] Implement Post-hoc Power Analysis in `code/stats.py`: Report minimum detectable effect size using `statsmodels.stats.power.FTestPower` for correlation tests; flag if N < 20 (FR-007)
-- [ ] T031 [US3] Implement Sensitivity Analysis in `code/stats.py`: Sweep significance thresholds (0.01, 0.05, 0.10), **verify and report rank-order stability** of correlation coefficients, calculate magnitude difference, and ensure no change > 0.1 (Enforces SC-004)
-- [ ] T032 [US3] Implement `VisualizationEngine` in `code/viz.py`
-- [ ] T033 [US3] Generate scatter plots with regression lines in `code/viz.py` (300 DPI) (FR-005)
+- [X] T027 [P] [US3] Implement `CorrelationAnalyzer` class in `code/stats.py`
+- [X] T028 [US3] Implement Pearson and Spearman correlation analysis in `code/stats.py` (FR-004)
+- [X] T029 [US3] Implement Bonferroni correction for p-values in `code/stats.py` (FR-006)
+- [X] T030 [US3] Implement Post-hoc Power Analysis in `code/stats.py`: Report minimum detectable effect size using `statsmodels.stats.power.FTestPower` for correlation tests; flag if N < 20 (FR-007)
+- [X] T031 [US3] Implement Sensitivity Analysis in `code/stats.py`: Sweep significance thresholds (0.01, 0.05, 0.10), **verify and report rank-order stability** of correlation coefficients, calculate magnitude difference, and ensure no change > 0.1 (Enforces SC-004)
+- [X] T032 [US3] Implement `VisualizationEngine` in `code/viz.py`
+- [X] T033 [US3] Generate scatter plots with regression lines in `code/viz.py` (300 DPI) (FR-005)
 - [ ] T034 [US3] Generate correlation heatmaps in `code/viz.py` (300 DPI) (FR-005)
 - [ ] T035.1 [US3] Handle edge case: N=1 (graceful exit with specific message)
 - [ ] T035.2 [US3] Handle edge case: Missing metadata (skip sample and log exclusion count)

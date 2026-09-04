@@ -146,7 +146,7 @@ References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T023 [US3] Contract test for SHAP output format in `tests/contract/test_shap_schema.py`.
-- [ ] T024 [US3] Unit test for reproducibility check (3 runs, same seed) in `tests/unit/test_reproducibility.py`.
+- [X] T024 [US3] Unit test for reproducibility check (3 runs, same seed) in `tests/unit/test_reproducibility.py`.
 
 ### Implementation for User Story 3
 
@@ -185,16 +185,16 @@ References: Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models
 - [ ] T034 Validate quickstart:
  - Run `scripts/run-ci.sh` end‑to‑end and ensure exit code 0.
  - Log result to `logs/quickstart_validation.log`.
-- [ ] T036a Draft `docs/experimental_validation_requirements.md` (see T032b) – content includes need for XRD‑confirmed glass samples.
-- [ ] T036b Draft `docs/causal_vs_associational_claims.md` explaining the correlational nature of the ML model and citing the rosalind‑franklin‑simulated review.
+- [X] T036a Draft `docs/experimental_validation_requirements.md` (see T032b) – content includes need for XRD‑confirmed glass samples.
+- [X] T036b Draft `docs/causal_vs_associational_claims.md` explaining the correlational nature of the ML model and citing the rosalind‑franklin‑simulated review.
 - [ ] T037 Add metadata field `experimental_validation_status` (enum: `yes`, `no`, `unknown`) to `contracts/descriptor_vector.schema.json` and ensure it is populated in `data/derived/descriptor_vector.csv`.
-- [ ] T038 Update `scripts/filter_labels.py` to set `experimental_validation_status` based on XRD flag; default to `unknown` when XRD data missing.
+- [X] T038 Update `scripts/filter_labels.py` to set `experimental_validation_status` based on XRD flag; default to `unknown` when XRD data missing.
 - [ ] T039 Update `contracts/model_performance_record.schema.json`:
  - Add `data_row_id` (string UUID) and `code_block_id` (string) fields.
  - Enforce that each performance record includes a `data_row_id` linking to exactly one row in the source data file **and** a `code_block_id` referencing the generating script block, thereby meeting **Constitution IV** traceability.
-- [ ] T040a Create `docs/causal_vs_associational_claims.md` with a cross‑reference table linking each figure in the manuscript to its `data_row_id`.
-- [ ] T040b Add the cross‑reference table to the manuscript (outside of code base – noted for authors).
-- [ ] T041 Implement `scripts/validate_xrd_availability.py`:
+- [X] T040a Create `docs/causal_vs_associational_claims.md` with a cross‑reference table linking each figure in the manuscript to its `data_row_id`. <!-- FAILED: unspecified -->
+- [ ] T040b Add the cross‑reference table to the manuscript (outside of code base – noted for authors). <!-- FAILED: unspecified -->
+- [ ] T041 Implement `scripts/validate_xrd_availability.py`: <!-- FAILED: unspecified -->
  - Queries source databases for XRD patterns.
  - Writes `data/derived/xrd_availability_report.json` with count, list of IDs, and flag `insufficient` if < 10 samples.
 - [ ] T042 Placeholder for future verified alloy dataset acquisition:

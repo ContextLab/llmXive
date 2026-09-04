@@ -1,0 +1,14 @@
+status: none
+intent: OpenNeuro ds000246 EEG dataset download MNE-Python python package dataset
+required_fields:
+- eeg_signal
+- channel_names
+- sampling_rate
+- event_markers
+- stimulus_onset_times
+- subject_id
+- montage
+- reference
+cache_key: 93dda8597585b12dcdfe1430b2f32fb846c9dde35fb0ce065ab268c5dfb8a491
+searched_at: '2026-09-04T18:39:32.769502+00:00'
+retry_count: 1

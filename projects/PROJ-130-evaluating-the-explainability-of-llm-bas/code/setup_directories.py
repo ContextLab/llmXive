@@ -2,36 +2,57 @@ import os
 import sys
 from pathlib import Path
 
-def ensure_directory(path_str: str) -> None:
+# Define the project root based on the script location
+# Assuming this script is run from the project root or code/ directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Directories to create for T003
+DIRECTORIES_TO_CREATE = [
+    "explanations",
+    "state",
+    "tests",
+    # Ensure subdirectories for tests are ready for contract/integration tests
+    "tests/contract",
+    "tests/integration",
+]
+
+def ensure_directory(dir_path: Path) -> bool:
     """
-    Create a directory and its parents if they do not exist.
-    Prints a confirmation message if the directory was created.
+    Creates a directory if it does not exist.
+    Returns True if the directory was created or already existed.
     """
-    path = Path(path_str)
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
+    try:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        return True
+    except PermissionError as e:
+        print(f"Permission denied creating {dir_path}: {e}", file=sys.stderr)
+        return False
+    except Exception as e:
+        print(f"Error creating {dir_path}: {e}", file=sys.stderr)
+        return False
+
+def main():
+    """
+    Main entry point to create required directories for T003.
+    """
+    print(f"Project Root: {PROJECT_ROOT}")
+    print("Creating directories for T003...")
+
+    success = True
+    for dir_name in DIRECTORIES_TO_CREATE:
+        full_path = PROJECT_ROOT / dir_name
+        if ensure_directory(full_path):
+            print(f"  [OK] Created/Verified: {full_path}")
+        else:
+            success = False
+            print(f"  [FAIL] Failed to create: {full_path}")
+
+    if success:
+        print("All directories created successfully.")
+        return 0
     else:
-        print(f"Directory already exists: {path}")
-
-def main() -> None:
-    """
-    Main entry point to create required project directories.
-    Specifically targets the directories required for T003:
-    explanations/, state/, and tests/.
-    """
-    # Define the directories to create based on T003 requirements
-    directories = [
-        "explanations",
-        "state",
-        "tests"
-    ]
-
-    # Ensure they are created relative to the project root
-    for dir_path in directories:
-        ensure_directory(dir_path)
-
-    print("Directory setup complete.")
+        print("Some directories failed to create.", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

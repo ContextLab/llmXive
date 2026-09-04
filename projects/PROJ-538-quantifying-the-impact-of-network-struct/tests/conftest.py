@@ -1,44 +1,48 @@
 """
-Pytest configuration and shared fixtures.
-Sets up paths to access code/ modules and configures logging for tests.
+Pytest configuration and shared fixtures for the project.
 """
+import pytest
 import sys
 import os
-import logging
-import pytest
 from pathlib import Path
 
-# Add project root to path to resolve imports like `from utils import ...`
-# assuming tests are run as `pytest` from the project root.
-PROJECT_ROOT = Path(__file__).parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Add the project root to the path to allow relative imports from code/
+# This assumes the tests are run from the project root: python -m pytest
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-# Configure logging to capture output during tests without cluttering
-@pytest.fixture(autouse=True)
-def setup_logging():
-    """Configure logging for test runs."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
+from code.config import Config, RunMode
+from code.utils import get_logger
+
+@pytest.fixture(scope="session")
+def test_config():
+    """
+    Provides a test-specific configuration object.
+    Uses synthetic mode by default to avoid external API dependencies in unit tests.
+    """
+    cfg = Config(
+        run_mode=RunMode.SYNTHETIC,
+        data_dir=project_root / "data",
+        output_dir=project_root / "data" / "processed",
+        figures_dir=project_root / "figures",
+        log_file=project_root / "data" / "audit_log_test.json",
+        min_completeness=0.50,  # Lower threshold for testing
+        seed=42
     )
+    return cfg
+
+@pytest.fixture
+def test_logger(test_config):
+    """
+    Provides a logger instance configured for testing.
+    """
+    return get_logger("test_runner", log_file=str(test_config.log_file))
+
+@pytest.fixture(autouse=True)
+def reset_state():
+    """
+    Optional fixture to reset any global state between tests if needed.
+    Currently a placeholder for future state management.
+    """
     yield
-    # Optional: cleanup handlers if needed
-
-@pytest.fixture
-def project_root():
-    """Return the project root path."""
-    return PROJECT_ROOT
-
-@pytest.fixture
-def data_dir(project_root):
-    """Return the data directory path."""
-    return project_root / "data"
-
-@pytest.fixture
-def code_dir(project_root):
-    """Return the code directory path."""
-    return project_root / "code"
+    pass

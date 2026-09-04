@@ -87,9 +87,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] Implement `code/01_download_data.py` to download Defects4J v2.0 from official GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip) [UNRESOLVED-CLAIM: c_2c52a1a5 — status=not_enough_info], verify SHA256 checksum against release page, and extract to `data/defects4j/` (FR-001, FR-012)
-- [ ] T020 [US1] Implement `code/02_generate_patches.py` to prompt CodeLlama-7B-Instruct (16-bit CPU precision, temperature=0.7, max_tokens=512) [UNRESOLVED-CLAIM: c_590cf7f8 — status=not_enough_info] using prompt template from `code/prompts/patch_gen.txt` and output diff format patches AND generate rationale text (FR-002, FR-011)
-- [ ] T021 [US1] Implement `code/03_execute_tests.py` to run Defects4J test suite with 60s timeout per bug [UNRESOLVED-CLAIM: c_4766e5d9 — status=not_enough_info] and record pass/fail/unsafe status (FR-003, FR-010)
+- [ ] T019 [US1] Implement `code/01_download_data.py` to download Defects4J v2.0 from official GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip), verify SHA256 checksum against release page, and extract to `data/defects4j/` (FR-001, FR-012)
+- [ ] T020 [US1] Implement `code/02_generate_patches.py` to prompt CodeLlama-7B-Instruct (16-bit CPU precision, temperature=0.7, max_tokens=512) using prompt template from `code/prompts/patch_gen.txt` and output diff format patches AND generate rationale text (FR-002, FR-011)
+- [ ] T021 [US1] Implement `code/03_execute_tests.py` to run Defects4J test suite with 60s timeout per bug and record pass/fail/unsafe status (FR-003, FR-010)
 - [ ] T022 [US1] Implement error handling for invalid patches, generation failures, and timeouts; log counts to `state/error_log.json`
 - [ ] T023 [US1] Create metadata recorder to save dataset checksums and model revision in `code/model_revision.txt` and `state/metadata.json`
 - [ ] T024 [US1] Implement `code/04_compute_complexity.py` to calculate bug complexity (LOC, cyclomatic) using `radon` library and store in `state/complexity_metrics.json` (Producer for T036, NOT T030)

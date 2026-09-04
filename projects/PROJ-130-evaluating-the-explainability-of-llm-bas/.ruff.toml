@@ -1,5 +1,25 @@
-# This file is a symlink target for ruff if the project uses a flat config,
-# but pyproject.toml is the primary source of truth for this project.
-# Keeping this file to satisfy explicit tool checks that look for .ruff.toml
-# or to allow overriding specific settings without editing pyproject.toml.
-extend = "pyproject.toml"
+# Ruff configuration for llmXive project
+line-length = 120
+target-version = "py311"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in dataclasses)
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["S101", "S105"]
+
+[lint.isort]
+known-first-party = ["models", "utils", "setup_directories"]

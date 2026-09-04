@@ -1,67 +1,67 @@
 import pytest
 import json
 import os
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from code.utils import log_audit_event, get_logger, AUDIT_LOG_PATH, DATA_DIR
 
-# We need to test the logger initialization and audit file writing
-# Since the logger is a singleton, we need to mock the config path to avoid polluting the real project data
-# during tests, or ensure we clean up. For this test, we will patch the config.
+@pytest.fixture
+def clean_audit_log():
+    """Ensure audit log is clean before and after test."""
+    if AUDIT_LOG_PATH.exists():
+        AUDIT_LOG_PATH.unlink()
+    yield
+    if AUDIT_LOG_PATH.exists():
+        AUDIT_LOG_PATH.unlink()
 
-def test_audit_log_creation():
-    """Test that the audit log file is created and entries are written correctly."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        mock_config = MagicMock()
-        mock_config.data_dir = tmpdir
-        
-        with patch("code.utils.config", mock_config):
-            # Force re-initialization by deleting the module cache if needed, 
-            # but simpler to just import fresh in a subprocess or rely on the lock logic.
-            # Here we assume the test runner handles module reloads or we test the handler logic directly.
-            
-            # Re-import to pick up the mocked config if possible, 
-            # but since utils is imported by main.py etc., we test the handler class directly.
-            from code.utils import _ensure_audit_handler
-            
-            # Clear the global handler to force recreation with new path
-            import code.utils
-            code.utils._audit_handler = None
-            
-            handler = _ensure_audit_handler()
-            
-            # Verify file exists
-            audit_path = Path(tmpdir) / "audit_log.json"
-            assert audit_path.exists()
-            
-            # Log a test message
-            record = handler.makeRecord(
-                name="test_logger",
-                level=20, # INFO
-                fn="test.py",
-                lno=1,
-                msg="Test audit message",
-                args=(),
-                exc_info=None
-            )
-            handler.emit(record)
-            
-            # Verify content
-            with open(audit_path, "r") as f:
-                lines = f.readlines()
-            
-            assert len(lines) == 1
-            entry = json.loads(lines[0])
-            
-            assert entry["message"] == "Test audit message"
-            assert entry["level"] == "INFO"
-            assert "timestamp" in entry
+def test_audit_log_creation(clean_audit_log):
+    """Test that log_audit_event creates the file and writes valid JSON."""
+    assert not AUDIT_LOG_PATH.exists()
 
-def test_logger_singleton():
-    """Test that get_logger returns the same instance."""
-    from code.utils import get_logger
+    details = {"test_key": "test_value", "count": 42}
+    log_audit_event("TEST_EVENT", details, "INFO")
+
+    assert AUDIT_LOG_PATH.exists()
+
+    with open(AUDIT_LOG_PATH, 'r', encoding='utf-8') as f:
+        content = f.read().strip()
+
+    assert content != ""
     
-    logger1 = get_logger("test_singleton")
-    logger2 = get_logger("test_singleton")
+    # Parse as JSON Lines
+    lines = content.splitlines()
+    assert len(lines) == 1
     
-    assert logger1 is logger2
+    entry = json.loads(lines[0])
+    assert entry["event_type"] == "TEST_EVENT"
+    assert entry["status"] == "INFO"
+    assert entry["details"]["test_key"] == "test_value"
+    assert "timestamp" in entry
+
+def test_audit_log_append(clean_audit_log):
+    """Test that multiple events are appended correctly."""
+    log_audit_event("EVENT_1", {"id": 1})
+    log_audit_event("EVENT_2", {"id": 2})
+
+    with open(AUDIT_LOG_PATH, 'r', encoding='utf-8') as f:
+        lines = f.read().strip().splitlines()
+
+    assert len(lines) == 2
+
+    entry1 = json.loads(lines[0])
+    entry2 = json.loads(lines[1])
+
+    assert entry1["event_type"] == "EVENT_1"
+    assert entry2["event_type"] == "EVENT_2"
+    assert entry1["details"]["id"] == 1
+    assert entry2["details"]["id"] == 2
+
+def test_logger_output(clean_audit_log, caplog):
+    """Test that the logger outputs to console."""
+    logger = get_logger("test_logger")
+    
+    # caplog captures the log output
+    with caplog.at_level("INFO"):
+        log_audit_event("CONSOLE_TEST", {"msg": "hello"})
+    
+    assert "CONSOLE_TEST" in caplog.text
+    assert "INFO" in caplog.text

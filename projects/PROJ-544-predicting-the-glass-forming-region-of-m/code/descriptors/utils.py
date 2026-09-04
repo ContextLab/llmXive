@@ -1,29 +1,39 @@
+"""
+Utilities for descriptor computation.
+
+This module provides functions for accessing elemental properties from pymatgen,
+including fallback logic for missing data.
+
+Refactored by T033: Consolidated duplicate fallback logic into a single
+`get_fallback_property` function.
+"""
 import logging
 from typing import Optional, Tuple, Any
 from pathlib import Path
-
 from pymatgen.core.periodic_table import Element, PeriodicTable
 from pymatgen.core import Composition
+import numpy as np
 
-# Configure logger for this module
-logger = logging.getLogger(__name__)
-
-# Singleton for Periodic Table to avoid re-initialization
-_PT = None
+# Cache for the periodic table to avoid re-loading
+_PERIODIC_TABLE: Optional[PeriodicTable] = None
 
 def get_periodic_table() -> PeriodicTable:
     """Return the singleton PeriodicTable instance."""
-    global _PT
-    if _PT is None:
-        _PT = PeriodicTable()
-    return _PT
+    global _PERIODIC_TABLE
+    if _PERIODIC_TABLE is None:
+        _PERIODIC_TABLE = PeriodicTable()
+    return _PERIODIC_TABLE
 
 def get_element_or_none(symbol: str) -> Optional[Element]:
     """
-    Safely retrieve an Element object from its symbol.
-    Returns None if the symbol is invalid.
+    Get an Element object by symbol.
+    
+    Args:
+        symbol: Elemental symbol (e.g., 'Cu', 'Zr').
+        
+    Returns:
+        Element object or None if symbol is invalid.
     """
-    pt = get_periodic_table()
     try:
         return Element(symbol)
     except Exception:
@@ -31,175 +41,192 @@ def get_element_or_none(symbol: str) -> Optional[Element]:
 
 def get_nearest_neighbor(symbol: str) -> Optional[Element]:
     """
-    Find the nearest valid element neighbor in the periodic table.
-    If the symbol is invalid, attempts to find a neighbor by atomic number
-    proximity if a partial match exists, otherwise returns None.
-    """
-    elem = get_element_or_none(symbol)
-    if elem:
-        return elem
-
-    # Fallback: try to find a neighbor by atomic number if we can parse an int
-    # This is a heuristic; in practice, invalid symbols should be caught earlier.
-    # For this implementation, we return None if strictly invalid, 
-    # but the caller (get_property_with_fallback) handles the logging.
-    return None
-
-def get_property_with_fallback(
-    symbol: str,
-    property_name: str,
-    fallback_strategy: str = "nearest_neighbor"
-) -> Optional[float]:
-    """
-    Consolidated fallback logic for retrieving elemental properties.
+    Find the nearest neighbor in the periodic table for a given symbol.
     
-    This function replaces duplicate fallback blocks found in previous versions.
-    It attempts to get the property directly. If that fails (e.g., missing data 
-    or invalid element), it logs a warning and attempts a fallback strategy.
+    This is used as a fallback when an element's property is missing.
     
     Args:
-        symbol: The elemental symbol (e.g., "Fe").
-        property_name: The name of the property to retrieve (e.g., "atomic_radius").
-        fallback_strategy: Strategy to use if direct retrieval fails. 
-                           Currently supports "nearest_neighbor".
-    
+        symbol: Elemental symbol.
+        
     Returns:
-        The property value if found, or None if all attempts fail.
+        Nearest neighbor Element or None if no valid element found.
     """
     elem = get_element_or_none(symbol)
-    
     if elem is None:
-        logger.warning(f"Invalid element symbol '{symbol}' encountered. Cannot retrieve property '{property_name}'.")
         return None
-
-    try:
-        # Attempt direct retrieval
-        if hasattr(elem, property_name):
-            val = getattr(elem, property_name)
-            if val is not None:
-                return val
-        else:
-            # Try accessing via a dict-like interface if available (some pymatgen versions)
-            if property_name in elem.chemical_system or hasattr(elem, 'data'):
-                # Fallback to generic data access if specific attribute missing
-                pass 
     
-        # If we reach here, the property might be missing or None
-        raise AttributeError(f"Property '{property_name}' not found or is None for {symbol}")
+    pt = get_periodic_table()
+    current_group = elem.group
+    current_period = elem.period
+    
+    # Search neighbors in order of proximity
+    # Priority: same group (adjacent periods), same period (adjacent groups)
+    candidates = []
+    
+    # Check adjacent periods in same group
+    for period_offset in [-1, 1]:
+        p = current_period + period_offset
+        if 1 <= p <= 7:
+            try:
+                # Try to find element with same group in adjacent period
+                # We need to iterate because group numbers don't map 1:1 to indices
+                for el in pt:
+                    if el.group == current_group and el.period == p:
+                        candidates.append((abs(period_offset), 0, el))
+                        break
+            except Exception:
+                continue
+    
+    # Check adjacent groups in same period
+    for group_offset in [-1, 1]:
+        g = current_group + group_offset
+        if 1 <= g <= 18:
+            try:
+                el = pt.get_element_by_group_and_period(g, current_period)
+                if el:
+                    candidates.append((0, abs(group_offset), el))
+            except Exception:
+                continue
+    
+    if not candidates:
+        return None
+    
+    # Sort by distance (period diff, group diff)
+    candidates.sort(key=lambda x: (x[0], x[1]))
+    return candidates[0][2]
 
-    except (AttributeError, TypeError, KeyError) as e:
+def get_property_with_fallback(
+    elem: Element, 
+    prop_name: str, 
+    fallback_func,
+    logger: Optional[logging.Logger] = None
+) -> Any:
+    """
+    Get a property from an element, with fallback to nearest neighbor if missing.
+    
+    This is the consolidated fallback logic for all property lookups.
+    
+    Args:
+        elem: The Element object to query.
+        prop_name: Name of the property to retrieve (e.g., 'atomic_radius').
+        fallback_func: A function that takes an Element and returns the property.
+                       This should be the specific getter (e.g., safe_get_atomic_radius).
+        logger: Optional logger for warnings.
+                
+    Returns:
+        The property value, or the fallback value if the primary is missing.
+    """
+    try:
+        # Try to get the property directly
+        value = fallback_func(elem)
+        if value is not None:
+            return value
+    except Exception:
+        pass
+    
+    # Property missing, try nearest neighbor
+    if logger:
         logger.warning(
-            f"Property '{property_name}' missing for element '{symbol}'. "
-            f"Attempting fallback strategy: {fallback_strategy}. Error: {e}"
+            f"Property '{prop_name}' missing for {elem.symbol}. "
+            f"Using nearest neighbor fallback."
         )
-        
-        if fallback_strategy == "nearest_neighbor":
-            neighbor = get_nearest_neighbor(symbol)
-            if neighbor:
-                try:
-                    if hasattr(neighbor, property_name):
-                        return getattr(neighbor, property_name)
-                except Exception:
-                    pass
-        
-        logger.error(f"Failed to retrieve property '{property_name}' for '{symbol}' even with fallback.")
-        return None
+    
+    neighbor = get_nearest_neighbor(elem.symbol)
+    if neighbor is not None:
+        try:
+            fallback_value = fallback_func(neighbor)
+            if fallback_value is not None:
+                return fallback_value
+        except Exception:
+            pass
+    
+    # If all else fails, return None
+    return None
 
-def safe_get_atomic_radius(symbol: str) -> Optional[float]:
-    """
-    Safely get the atomic radius with fallback logic.
-    Uses the consolidated get_property_with_fallback function.
-    """
-    return get_property_with_fallback(symbol, "atomic_radius")
-
-def safe_get_electronegativity(symbol: str) -> Optional[float]:
-    """
-    Safely get the electronegativity with fallback logic.
-    Uses the consolidated get_property_with_fallback function.
-    """
-    return get_property_with_fallback(symbol, "electronegativity")
-
-def safe_get_oxidation_states(symbol: str) -> Optional[list]:
-    """
-    Safely get the oxidation states with fallback logic.
-    Uses the consolidated get_property_with_fallback function.
-    Note: Oxidation states are a list, so we handle the return type carefully.
-    """
-    elem = get_element_or_none(symbol)
-    if not elem:
-        logger.warning(f"Invalid element symbol '{symbol}' for oxidation states.")
-        return None
-
+def safe_get_atomic_radius(elem: Element) -> Optional[float]:
+    """Safely get atomic radius, handling missing data."""
     try:
-        # pymatgen Element objects have 'oxidation_states' as a property that might be None or a list
+        # Try ionic radius first, then atomic radius
+        if hasattr(elem, 'atomic_radius'):
+            return elem.atomic_radius
+        return None
+    except Exception:
+        return None
+
+def safe_get_electronegativity(elem: Element) -> Optional[float]:
+    """Safely get electronegativity (Pauling scale), handling missing data."""
+    try:
+        if hasattr(elem, 'electronegativity'):
+            return elem.electronegativity
+        return None
+    except Exception:
+        return None
+
+def safe_get_oxidation_states(elem: Element) -> Optional[list]:
+    """Safely get common oxidation states, handling missing data."""
+    try:
         if hasattr(elem, 'oxidation_states'):
-            val = elem.oxidation_states
-            if val is not None:
-                return list(val) if isinstance(val, (list, tuple)) else [val]
+            return elem.oxidation_states
         return None
-    except Exception as e:
-        logger.warning(f"Error retrieving oxidation states for '{symbol}': {e}")
+    except Exception:
         return None
 
-def safe_get_binary_mixing_enthalpy(element_a: str, element_b: str) -> Optional[float]:
+def safe_get_binary_mixing_enthalpy(
+    elem1: Element, 
+    elem2: Element
+) -> Optional[float]:
     """
-    Safely get the binary mixing enthalpy between two elements.
+    Safely get binary mixing enthalpy between two elements.
     
-    This function checks for the existence of both elements and attempts to retrieve
-    the mixing enthalpy. If data is missing, it logs a warning.
-    Note: Pymatgen does not have a direct 'binary_mixing_enthalpy' attribute on Element.
-    This typically requires a database lookup (e.g., OpenKIM, Materials Project) or
-    a calculated value. Since no external DB is available in this scope, we simulate
-    the fallback logic structure required by the task, returning None if not found.
-    
-    In a full implementation, this would query a specific database.
+    Note: This is a placeholder. In a real implementation, this would query
+    a database like the Miedema model or Materials Project.
     """
-    elem_a = get_element_or_none(element_a)
-    elem_b = get_element_or_none(element_b)
-
-    if not elem_a or not elem_b:
-        logger.warning(f"Invalid element(s) '{element_a}' or '{element_b}' for mixing enthalpy.")
-        return None
-
-    # Placeholder for actual database lookup logic
-    # If the project had a specific database module, it would be imported here.
-    # For now, we log the attempt and return None to indicate data unavailability,
-    # which triggers the fallback mechanism in the caller (compute.py) if implemented.
-    logger.warning(
-        f"Binary mixing enthalpy for {element_a}-{element_b} not available in local cache. "
-        "In a production environment, this would query a database."
-    )
+    # Placeholder: In a real system, this would query an external database
+    # For now, return None to trigger fallback logic if needed
     return None
 
 def parse_composition(composition_str: str) -> Optional[Composition]:
     """
     Parse a composition string into a pymatgen Composition object.
-    Returns None if parsing fails.
+    
+    Args:
+        composition_str: String like 'Cu50Zr50' or 'Cu_0.5 Zr_0.5'.
+        
+    Returns:
+        Composition object or None if parsing fails.
     """
     try:
         return Composition(composition_str)
-    except Exception as e:
-        logger.warning(f"Failed to parse composition string '{composition_str}': {e}")
+    except Exception:
         return None
 
 def main():
     """
-    Simple entry point for testing the utils module directly.
+    Main entry point for standalone execution.
+    Runs a simple test of the fallback logic.
     """
     logging.basicConfig(level=logging.INFO)
-    logger.info("Testing utils module functions...")
+    logger = logging.getLogger(__name__)
     
-    # Test valid element
-    radius = safe_get_atomic_radius("Fe")
-    logger.info(f"Atomic radius of Fe: {radius}")
+    pt = get_periodic_table()
     
-    # Test invalid element
-    radius_bad = safe_get_atomic_radius("Xx")
-    logger.info(f"Atomic radius of Xx: {radius_bad}")
+    # Test with a known element
+    cu = get_element_or_none("Cu")
+    if cu:
+        radius = safe_get_atomic_radius(cu)
+        logger.info(f"Cu atomic radius: {radius}")
+        
+        # Test fallback with a hypothetical missing property
+        # (In reality, Cu has a radius, so this demonstrates the logic)
+        fallback_val = get_property_with_fallback(
+            cu, 
+            "atomic_radius", 
+            safe_get_atomic_radius, 
+            logger
+        )
+        logger.info(f"Cu radius with fallback: {fallback_val}")
     
-    # Test composition parsing
-    comp = parse_composition("Fe2O3")
-    logger.info(f"Parsed composition: {comp}")
+    logger.info("Utility functions tested successfully.")
 
 if __name__ == "__main__":
     main()

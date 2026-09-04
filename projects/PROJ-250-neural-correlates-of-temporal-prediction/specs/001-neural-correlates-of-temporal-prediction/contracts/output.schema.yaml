@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MMN Analysis Output Schema"
+description: "Schema for validating statistical results and metrics, including interaction effects, signal validity, topographic correlation, and practical significance."
+type: object
+properties:
+  metric_id:
+    type: string
+    description: "Unique identifier for the metric entry"
+  condition_label:
+    type: string
+    enum:
+      - "simple"
+      - "complex"
+    description: "Condition for which the metric was calculated"
+  electrode:
+    type: string
+    description: "Electrode channel name (e.g., Fz)"
+  amplitude_diff:
+    type: number
+    description: "Mean voltage difference (deviant - standard) in microvolts"
+  latency_diff:
+    type: number
+    description: "Peak latency difference in milliseconds"
+  window_start:
+    type: number
+    description: "Start of analysis window in milliseconds"
+  window_end:
+    type: number
+    description: "End of analysis window in milliseconds"
+  snr_ratio:
+    type: number
+    description: "Signal-to-Noise Ratio (|mean| / std_baseline)"
+  signal_validity:
+    type: boolean
+    description: "True if SNR >= 2.0 (signal is valid)"
+  t_statistic:
+    type: number
+    description: "T-statistic from interaction test (or paired t-test if only one condition)"
+  p_value:
+    type: number
+    description: "Raw p-value"
+  p_value_fdr:
+    type: number
+    description: "FDR-corrected p-value"
+  cohen_d:
+    type: number
+    description: "Effect size (Cohen's d)"
+  benchmark_reference:
+    type: string
+    description: "Source of the effect size benchmark (e.g., 'Näätänen et al., 2007')"
+  practical_significance:
+    type: boolean
+    description: "True if cohen_d >= 0.5 (or benchmark threshold)"
+  topographic_correlation:
+    type: ["number", "null"]
+    description: "Pearson r vs. canonical template (null if template missing)"
+  significant:
+    type: boolean
+    description: "True if p_value_fdr < 0.05"
+required:
+  - metric_id
+  - condition_label
+  - electrode
+  - amplitude_diff
+  - snr_ratio
+  - signal_validity
+  - p_value_fdr
+  - significant
+  - benchmark_reference
+  - practical_significance
+additionalProperties: false

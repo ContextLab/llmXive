@@ -1,13 +1,58 @@
-# PROJ-538: Quantifying the Impact of Network Structure on Heat Transport in Disordered Alloys
+# Quantifying the Impact of Network Structure on Heat Transport in Disordered Alloys
 
-## Project Overview
-This project investigates the relationship between atomic-scale network topology (defect graphs) and thermal conductivity in disordered alloys (Cu-Ni, Au-Ag).
+## Project Setup
 
-## Structure
-- `code/`: Python source modules (ingestion, metrics, stats, viz)
-- `data/`: Raw and processed data artifacts
-- `tests/`: Unit and integration tests
-- `specs/`: Design documents and user stories
+This project uses Python 3.11+ and relies on `ruff` for linting and `black` for formatting.
 
-## Execution
-Run the pipeline via `python -m code.main` after ensuring dependencies in `requirements.txt` are installed.
+### Dependencies
+
+Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+### Code Quality Tools
+
+#### Configuration
+
+- **Ruff**: Configured in `pyproject.toml` under `[tool.ruff]`.
+- **Black**: Configured in `pyproject.toml` under `[tool.black]`.
+- **Pytest**: Configured in `pyproject.toml` under `[tool.pytest.ini_options]`.
+
+#### Usage
+
+**Format Code:**
+```bash
+./scripts/format_code.sh fix
+```
+
+**Check Formatting & Linting:**
+```bash
+./scripts/format_code.sh check
+```
+
+**Run Linting Only:**
+```bash
+./scripts/lint_check.sh
+```
+
+**Run Tests:**
+```bash
+pytest
+```
+
+## Project Structure
+
+- `code/`: Source code
+- `tests/`: Test suite
+- `data/`: Data directory (ignored by linting)
+- `figures/`: Output figures (ignored by linting)
+- `scripts/`: Utility scripts for formatting and linting
+- `pyproject.toml`: Project configuration including tool settings
+
+## Development Guidelines
+
+1. All code must be formatted with `black` before committing.
+2. All code must pass `ruff` linting checks.
+3. Import sorting is enforced via `ruff` (isort rules).
+4. Tests must be run via `pytest` with coverage enabled.
