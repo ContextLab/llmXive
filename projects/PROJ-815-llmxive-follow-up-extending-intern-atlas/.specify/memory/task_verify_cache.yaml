@@ -1,10 +1,36 @@
-T008:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I looked for a `data-model.md` file under `specs/001-llmxive-follow-up-extending-intern-atlas/`
-    that defines the schemas for `MethodNode`, `RetractionLabel`, and `TopologicalFeatures`,
-    but no such file or its contents were provided. The required documentation is
-    missing, so the task is not satisfied.
+  r: No directory tree or file list was provided showing that the required `projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/`
+    hierarchy (with `code/`, `data/`, `tests/`, `paper/`, `state/` subfolders) actually
+    exists. The claim lacks concrete evidence of the created project structure.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output reports were supplied; the implementer did not\
+    \ provide the extraction script, generated CSV dataset, model\u2011training script,\
+    \ or evaluation results required by the user stories. Consequently the task\u2019\
+    s deliverables are missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    or `pyproject.toml` sections for Black) are present in the provided evidence,
+    so the requirement to configure ruff/flake8 and Black is not satisfied. The task
+    lacks the necessary artifacts.
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data-model.md` file containing a YAML block with the required
+    `MethodNode` fields (`paper_id`, `title`, `year`, `outgoing_edges`, `incoming_citations`)
+    was provided. The implementer must add the specified schema to the indicated path.
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No file or YAML block was presented; the required `data-model.md` entry defining
+    the `RetractionLabel` schema with the fields `paper_id`, `status`, `source`, and
+    `retraction_reason` is absent. The implementer must add the specified schema to
+    the indicated path.
 T013:
   c: false
   h: 967cc5796055e0dc1805859e15fcb24f44df845a25bfd2d53c469334ed436546

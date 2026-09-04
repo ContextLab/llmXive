@@ -1,0 +1,32 @@
+# Python 3.11 dependencies for llmXive follow-up: extending Intern-Atlas
+# Pinned versions to ensure reproducible environment
+
+# Core Data & Math
+pandas==2.2.2
+numpy==1.26.4
+
+# Machine Learning
+scikit-learn==1.5.0
+
+# Graph Analysis
+networkx==3.3
+
+# HTTP Requests
+requests==2.32.3
+
+# Configuration
+pyyaml==6.0.1
+
+# Visualization
+seaborn==0.13.2
+matplotlib==3.9.0
+
+# String Matching (Fuzzy)
+python-Levenshtein==0.25.1
+
+# Statistical Modeling
+statsmodels==0.14.2
+
+# Utilities
+python-dotenv==1.0.1
+networkx[default]

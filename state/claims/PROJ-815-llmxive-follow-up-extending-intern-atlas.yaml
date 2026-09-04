@@ -642,3 +642,323 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T07:12:14Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: filter nodes by year 2010-2018
+  claim_id: c_ad531251
+  context: 'Implement code/data/extract_intern_atlas.py: Load graph, filter nodes
+    by year (2010-2018), import and call abort_if_llm_inferred() from code/utils/graph_utils.py
+    to enforce human-annotated edge types'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline filters nodes by year (2010-2018).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T06:54:23Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: fuzzy match retraction databases with Levenshtein ratio >= 0.95
+  claim_id: c_1c4933ef
+  context: 'Implement code/data/merge_retractions.py: Map nodes to retraction databases
+    using exact DOI match first, then fuzzy match using python-Levenshtein.ratio (ratio
+    >= 0.95).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nodes are mapped to retraction databases using fuzzy match with python-Levenshtein.ratio
+    >= 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T06:54:54Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: 'label mapping: methodological error=1, irreproducibility=1, fraud=2,
+    other=0'
+  claim_id: c_d166e76c
+  context: 'Mapping Rules: ''methodological error'' -> 1, ''irreproducibility'' ->
+    1, ''fraud'' -> 2, ''other'' -> 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label mapping assigns 1 for methodological error and irreproducibility,
+    2 for fraud, and 0 for other.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T06:56:01Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: standard permutation test n=100 iterations on Binary Model
+  claim_id: c_8a51c136
+  context: 'Implement code/analysis/standard_permutation.py: Perform Standard Permutation
+    Test with exactly n=100 iterations (as per FR-007) on the Binary Model (T023b)
+    results by shuffling labels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The standard permutation test performs exactly n=100 iterations on the
+    Binary Model results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T06:56:40Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: stratified permutation test n=100 iterations on 3-class Model
+  claim_id: c_b30d4f4d
+  context: 'Implement code/analysis/stratified_permutation.py: Perform Stratified
+    Permutation Test with n=100 iterations on the 3-class Model (T024) results, controlling
+    for field_of_study and publication_venue.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified permutation test performs n=100 iterations on the 3-class
+    Model results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T06:57:13Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: threshold sweep set {0.3, 0.5, 0.7}
+  claim_id: c_25684977
+  context: Run threshold sweep over the specific set {0.3, 0.5, 0.7} (as per FR-008
+    and SC-002); calculate and report FPR/FNR for each
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep is run over the specific set {0.3, 0.5, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T06:57:50Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: flag instability if VIF > 5 or MI > 0.1
+  claim_id: c_7d3fbf99
+  context: calculate VIF and MI for predictors; flag instability if VIF > 5 or MI
+    > 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Instability is flagged if VIF > 5 or MI > 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T06:57:50Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: threshold sensitivity plot dpi=300
+  claim_id: c_bad929b7
+  context: Threshold sensitivity plot to data/processed/plots/threshold_sweep.png
+    (MUST explicitly label points {0.3, 0.5, 0.7} on x-axis, include legend for FPR/FNR
+    values from threshold_sweep_metrics.json, and use matplotlib.pyplot with dpi=300
+    resolution as per SC-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sensitivity plot uses matplotlib.pyplot with dpi=300 resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T06:58:27Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: filter nodes by year 2010-2018
+  claim_id: c_a3a5628c
+  context: 'Implement `code/data/extract_intern_atlas.py`: Load graph, filter nodes
+    by year (2010-2018), import and call `abort_if_llm_inferred()` from `code/utils/graph_utils.py`
+    to enforce human-annotated edge types'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline filters nodes by year 2010-2018.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T06:59:49Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: methodological error maps to label 1
+  claim_id: c_81abe128
+  context: 'Mapping Rules: ''methodological error'' -> 1, ''irreproducibility'' ->
+    1, ''fraud'' -> 2, ''other'' -> 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label mapping assigns label 1 for 'methodological error'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:00:35Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: irreproducibility maps to label 1
+  claim_id: c_326e8d5c
+  context: 'Mapping Rules: ''methodological error'' -> 1, ''irreproducibility'' ->
+    1, ''fraud'' -> 2, ''other'' -> 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label mapping assigns label 1 for 'irreproducibility'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:01:02Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: fraud maps to label 2
+  claim_id: c_2ed7c727
+  context: 'Mapping Rules: ''methodological error'' -> 1, ''irreproducibility'' ->
+    1, ''fraud'' -> 2, ''other'' -> 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label mapping assigns label 2 for 'fraud'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:01:39Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: other maps to label 0
+  claim_id: c_a0b77694
+  context: 'Mapping Rules: ''methodological error'' -> 1, ''irreproducibility'' ->
+    1, ''fraud'' -> 2, ''other'' -> 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The label mapping assigns label 0 for 'other'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:02:13Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: standard permutation test n=100 iterations
+  claim_id: c_d9f9614b
+  context: Perform Standard Permutation Test with exactly n=100 iterations (as per
+    FR-007) on the Binary Model (T023b) results by shuffling labels.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The standard permutation test uses exactly n=100 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:02:53Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: stratified permutation test n=100 iterations
+  claim_id: c_eb5ce6a5
+  context: Perform Stratified Permutation Test with n=100 iterations on the 3-class
+    Model (T024) results, controlling for field_of_study and publication_venue.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified permutation test uses n=100 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:03:37Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: threshold sweep set 0.3 0.5 0.7
+  claim_id: c_6b31b683
+  context: Run threshold sweep over the specific set {0.3, 0.5, 0.7} (as per FR-008
+    and SC-002); calculate and report FPR/FNR for each.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis runs a threshold sweep over the specific set
+    {0.3, 0.5, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:04:09Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: instability flagged if VIF > 5
+  claim_id: c_57e4f7d0
+  context: calculate VIF and MI for predictors; flag instability if VIF > 5 or MI
+    > 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Instability is flagged if VIF > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:04:09Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: instability flagged if MI > 0.1
+  claim_id: c_81732b1c
+  context: calculate VIF and MI for predictors; flag instability if VIF > 5 or MI
+    > 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Instability is flagged if MI > 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:04:10Z'
+- artifact_path: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/tasks.md
+  attempts: 1
+  canonical: threshold sensitivity plot dpi 300
+  claim_id: c_3289ac36
+  context: Threshold sensitivity plot to `data/processed/plots/threshold_sweep.png`
+    (MUST explicitly label points {0.3, 0.5, 0.7} on x-axis, include legend for FPR/FNR
+    values from `threshold_sweep_metrics.json`, and use `matplotlib.pyplot` with `dpi=300`
+    resolution as per SC-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sensitivity plot must use matplotlib.pyplot with dpi=300
+    resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T07:04:40Z'

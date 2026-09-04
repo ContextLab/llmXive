@@ -4,46 +4,57 @@ from pathlib import Path
 
 def main():
     """
-    Create the project directory structure for PROJ-815-llmxive-follow-up-extending-intern-atlas.
-    This script creates the required folders relative to the project root.
+    Creates the directory structure for project PROJ-815-llmxive-follow-up-extending-intern-atlas.
+    Ensures 'code/' and 'data/' are direct subdirectories of the project root, not nested.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    project_name = "PROJ-815-llmxive-follow-up-extending-intern-atlas"
-    project_path = project_root / "projects" / project_name
-
-    # Define the directory structure to create
-    # Based on task description: mkdir -p projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/{code/data,code/models,code/analysis,code/utils,data/raw,data/processed,tests/unit,tests/integration}
+    # Define the project root relative to the script location or current working directory
+    # The task specifies the root as: projects/PROJ-815-llmxive-follow-up-extending-intern-atlas
+    # We assume the script is run from the repository root or the project root context.
+    # To be safe, we construct the path relative to the current working directory.
+    
+    project_root = Path("projects/PROJ-815-llmxive-follow-up-extending-intern-atlas")
+    
+    # Define the required directories
+    # Note: The task requires 'code/' and 'data/' to be direct subdirectories of the project root.
+    # The brace expansion in the task description implies:
+    # code/data, code/utils, code/models, code/analysis
+    # data/raw, data/processed, data/cache
+    # tests/unit, tests/integration
+    # paper/results, state
+    
     directories = [
-        "code/data",
-        "code/models",
-        "code/analysis",
-        "code/utils",
-        "data/raw",
-        "data/processed",
-        "tests/unit",
-        "tests/integration",
+        project_root / "code" / "data",
+        project_root / "code" / "utils",
+        project_root / "code" / "models",
+        project_root / "code" / "analysis",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "cache",
+        project_root / "tests" / "unit",
+        project_root / "tests" / "integration",
+        project_root / "paper" / "results",
+        project_root / "state",
     ]
-
+    
     created_count = 0
     for dir_path in directories:
-        full_path = project_path / dir_path
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
-            print(f"Created directory: {full_path}")
-        except PermissionError:
-            print(f"Permission denied creating directory: {full_path}", file=sys.stderr)
-            return 1
-        except Exception as e:
-            print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
-            return 1
-
-    if created_count == len(directories):
-        print(f"Successfully created {created_count} directories under {project_path}")
-        return 0
-    else:
-        print(f"Completed with some errors. Created {created_count} out of {len(directories)} directories.", file=sys.stderr)
-        return 1
+        else:
+            print(f"Directory already exists: {dir_path}")
+    
+    # Verify the structure
+    print(f"\nProject structure created/verified at: {project_root.absolute()}")
+    print(f"Total directories processed: {len(directories)}")
+    print(f"New directories created: {created_count}")
+    
+    # List the top-level structure to confirm 'code' and 'data' are siblings
+    if project_root.exists():
+        print("\nTop-level contents:")
+        for item in sorted(project_root.iterdir()):
+            print(f"  {item.name}/")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
