@@ -1,0 +1,12 @@
+# Baseline LLM Dependencies
+# This file is strictly for executing T013 (Baseline LLM inference).
+# It is NOT used for the lightweight model tasks (T012a/b).
+#
+# Core heavy dependencies for running quantized LLMs (e.g., Qwen) on CPU.
+# These are excluded from the main requirements.txt to keep the lightweight
+# model environment minimal and fast.
+torch>=2.0.0
+transformers>=4.35.0
+accelerate>=0.24.0
+sentencepiece>=0.1.99
+protobuf>=3.20.0

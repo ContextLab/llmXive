@@ -1,7 +1,12 @@
-# Explicit ruff configuration file (fallback if pyproject.toml is not preferred)
-# This file mirrors the settings in pyproject.toml for clarity and IDE support.
+# This file is a legacy config file for ruff.
+# Modern configuration is handled in pyproject.toml under [tool.ruff].
+# This file is kept for backward compatibility if tools expect it.
+line-length = 88
+target-version = "py311"
 
-extend = "pyproject.toml"
-# If you prefer to keep all config in pyproject.toml, this file can be empty
-# or deleted. It is provided here to ensure the linter finds the config
-# regardless of how the tool is invoked.
+[lint]
+select = ["E4", "E7", "E9", "F", "I", "N", "UP"]
+ignore = []
+
+[lint.per-file-ignores]
+"**/*.py" = ["E501"]

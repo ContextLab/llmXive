@@ -102,5 +102,5 @@
 - The survival analysis assumptions (proportional hazards) will be met for the majority of comparisons; if not, a non-parametric fallback will be used.
 - The "cognitive horizon" threshold, if it exists, will fall within the tested range of 0 to 30+ stops; if no threshold is found, the result will be interpreted as "local statistics suffice for the tested range."
 - The original LLM baseline performance metrics are available or can be reliably reproduced from the TransitLM paper for comparison, but the baseline MUST be run empirically on the same stratified test set for the survival analysis.
-- The GitHub Actions free-tier runner provides consistent 2-core CPU performance and 7 GB RAM availability for the duration of the job.
+- The GitHub Actions free-tier runner provides consistent multi-core CPU performance and 7 GB RAM availability for the duration of the job.
 - The TransitLM ground truth is the authoritative source for route validity and local adjacency validation.

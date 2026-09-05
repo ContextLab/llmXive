@@ -474,3 +474,463 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T08:21:35Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: extract 50k routes sample if dataset exceeds 7GB RAM
+  claim_id: c_d6024d52
+  context: 'Implement data/download.py function sample_routes to handle datasets too
+    large for RAM. Logic: Use itertools.islice to extract a fixed-seed random sample
+    (e.g., first 50k routes) if the full dataset exceeds 7GB RAM, explicitly logging
+    the sample size and seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use itertools.islice to extract a fixed-seed random sample (e.g., first
+    50k routes) if the full dataset exceeds 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:38:37Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: 'stratify routes by length: short <15, medium 15-30, long >30'
+  claim_id: c_93ac2213
+  context: Implement data/preprocess.py function stratify_routes to stratify routes
+    into short (<15), medium (15-30), and long (>30) categories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratify routes into short (<15), medium (15-30), and long (>30) categories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:39:00Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: stratified categories balanced within 10% of mean
+  claim_id: c_ebfc845d
+  context: 'Verification: Assert row_count > 0 and categories are balanced (within
+    10% of the mean category count).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: categories are balanced (within 10% of the mean category count)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:39:00Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: graph edge overlap percentage >= 95%
+  claim_id: c_c6b11ffc
+  context: "Implement data/graph_utils.py function validate_graph to validate the\
+    \ graph from T007a against data/raw/transitlm_ground_truth.json for edge overlap\
+    \ percentage (defined as |A \u2229 B| / |A| where A is ground truth edges) \u2265\
+    95%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate the graph against data/raw/transitlm_ground_truth.json for edge\
+    \ overlap percentage (defined as |A \u2229 B| / |A| where A is ground truth edges)\
+    \ \u226595%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:39:00Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: compute path-level betweenness centrality with k=100
+  claim_id: c_5822f509
+  context: 'Algorithm: Use networkx.betweenness_centrality with k=100 (or similar)
+    for path-level estimation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use networkx.betweenness_centrality with k=100 for path-level estimation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:40:45Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: inflection point where validity drop >= 15% and corrected p-value < 0.05
+  claim_id: c_a9b24a39
+  context: "Identify the shortest route length L (inflection point) where the lightweight\
+    \ model's validity drops \u226515% (absolute drop) AND the corrected p-value <\
+    \ 0.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "identify the shortest route length L (inflection point) where the lightweight\
+    \ model's validity drops \u226515% (absolute drop) AND the corrected p-value <\
+    \ 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:40:45Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction to Chi-squared test p-values
+  claim_id: c_dc8334f6
+  context: Apply Bonferroni correction to the p-values of the Chi-squared test for
+    every L to control family-wise error rate during the scan
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_to_Chi-squared_test_p-values
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction to the p-values of the Chi-squared test for
+    every L
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:41:10Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: use scipy.stats.chi2_contingency for statistical function
+  claim_id: c_ca7c3818
+  context: 'Statistical Function: Use scipy.stats.chi2_contingency.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_scipy.stats.chi2_contingency_for_statistical_function
+  kind: entity_fact
+  raw_text: Use scipy.stats.chi2_contingency
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:41:32Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: perform log-rank test using lifelines.statistics.logrank_test
+  claim_id: c_9a731c09
+  context: Perform log-rank test using lifelines.statistics.logrank_test to compare
+    lightweight model and baseline curves.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_log-rank_test_using_lifelines.statistics.logrank_tes
+  kind: entity_fact
+  raw_text: Perform log-rank test using lifelines.statistics.logrank_test to compare
+    lightweight model and baseline curves
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:41:54Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: execute profiling script with taskset -c 0-1
+  claim_id: c_6fa1680f
+  context: 'Mechanism: The script MUST be executed via taskset -c 0-1 python analysis/profiling.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST be executed via taskset -c 0-1 python analysis/profiling.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:42:07Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: assert cpu count equals 2
+  claim_id: c_46327537
+  context: 'The code MUST include a runtime check: assert os.cpu_count() == 2 (or
+    equivalent logic to verify active cores) and raise RuntimeError(''CPU constraint
+    violation: expected 2 cores'') if the count differs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert os.cpu_count() == 2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:42:18Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: profiling batch size 100 routes
+  claim_id: c_9bf04afa
+  context: 'Tools: Use tracemalloc for memory and time.perf_counter for latency. Batch
+    Size: 100 routes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Batch Size: 100 routes'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:42:38Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: optimize retrieval latency to <= 60 seconds per batch
+  claim_id: c_96bcd1c0
+  context: "Profile and optimize the top-N neighbor retrieval in data/graph_utils.py\
+    \ to reduce latency to \u226460 seconds per batch."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "reduce latency to \u226460 seconds per batch"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:42:38Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to Chi-squared p-values for every route
+    length L
+  claim_id: c_40893ee8
+  context: 'Implement analysis/evaluation.py to: (1) Compute route validity for each
+    individual route length L (point-wise scan) by iterating L from 1 to max; (2)
+    Apply Bonferroni correction to the p-values of the Chi-squared test for every
+    L to control family-wise error rate during the scan'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_Chi-squared_p-values_for_ev
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction to the p-values of the Chi-squared test for
+    every L to control family-wise error rate during the scan
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:44:15Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Inflection point defined as shortest route length L where validity drop
+    is at least 15% and corrected p-value is less than 0.05
+  claim_id: c_7ad3ce8e
+  context: "Identify the shortest route length L (inflection point) where the lightweight\
+    \ model's validity drops \u226515% (absolute drop) AND the corrected p-value <\
+    \ 0.05; (4) Flag predictions as 'high risk' based on this inflection point"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inflection_point_defined_as_shortest_route_length_L_where_va
+  kind: magnitude
+  raw_text: "Identify the shortest route length L (inflection point) where the lightweight\
+    \ model's validity drops \u226515% (absolute drop) AND the corrected p-value <\
+    \ 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:45:00Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Statistical analysis uses scipy.stats.chi2_contingency
+  claim_id: c_ea2b633f
+  context: 'Statistical Function: Use scipy.stats.chi2_contingency. Deliverable: data/analysis/raw_inflection_data.json
+    containing corrected p-values per length, the exact inflection point L, and stratified
+    summaries.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_uses_scipy.stats.chi2_contingency
+  kind: entity_fact
+  raw_text: Use scipy.stats.chi2_contingency for statistical function
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:45:21Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Log-rank test performed using lifelines.statistics.logrank_test
+  claim_id: c_0cf4e774
+  context: 'Perform log-rank test using lifelines.statistics.logrank_test to compare
+    lightweight model and baseline curves. Input: Validity status per route from T017.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log-rank_test_performed_using_lifelines.statistics.logrank_t
+  kind: entity_fact
+  raw_text: Perform log-rank test using lifelines.statistics.logrank_test to compare
+    lightweight model and baseline curves
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:45:23Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Profiling simulates a 2-core CPU environment
+  claim_id: c_18e9f53f
+  context: 'Constraint: Simulated 2-core CPU. Mechanism: The script MUST be executed
+    via taskset -c 0-1 python analysis/profiling.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate a 2-core CPU environment for profiling
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:45:52Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Runtime check asserts os.cpu_count() equals 2
+  claim_id: c_71d1067f
+  context: 'The code MUST include a runtime check: assert os.cpu_count() == 2 (or
+    equivalent logic to verify active cores) and raise RuntimeError(''CPU constraint
+    violation: expected 2 cores'') if the count differs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert os.cpu_count() equals 2 during profiling execution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:46:05Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Profiling uses batch size of 100 routes
+  claim_id: c_1b51818a
+  context: 'Tools: Use tracemalloc for memory and time.perf_counter for latency. Batch
+    Size: 100 routes. Dependency: T012b.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Profile inference using a batch size of 100 routes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:46:36Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Graph validation requires edge overlap percentage of at least 95%
+  claim_id: c_c8f78b2f
+  context: "Implement data/graph_utils.py function validate_graph to validate the\
+    \ graph from T007a against data/raw/transitlm_ground_truth.json for edge overlap\
+    \ percentage (defined as |A \u2229 B| / |A| where A is ground truth edges) \u2265\
+    95%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_validation_requires_edge_overlap_percentage_of_at_leas
+  kind: magnitude
+  raw_text: Validate graph edge overlap percentage is at least 95%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:47:04Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Routes stratified into short (<15), medium (15-30), and long (>30) categories
+  claim_id: c_f29837d3
+  context: Implement data/preprocess.py function stratify_routes to stratify routes
+    into short (<15), medium (15-30), and long (>30) categories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratify routes into short (<15), medium (15-30), and long (>30) categories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:47:05Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Stratified categories must be balanced within 10% of mean count
+  claim_id: c_6d3fb09b
+  context: 'Verification: Assert row_count > 0 and categories are balanced (within
+    10% of the mean category count).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify categories are balanced within 10% of the mean category count
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:47:05Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Sample size of 50k routes extracted using fixed seed
+  claim_id: c_397e9c56
+  context: 'Logic: Use itertools.islice to extract a fixed-seed random sample (e.g.
+    first 50k routes) if the full dataset exceeds 7GB RAM, explicitly logging the
+    sample size and seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use itertools.islice to extract a fixed-seed random sample of first 50k
+    routes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:47:42Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Betweenness centrality calculated with k=100
+  claim_id: c_4e982630
+  context: 'Algorithm: Use networkx.betweenness_centrality with k=100 (or similar)
+    for path-level estimation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use networkx.betweenness_centrality with k=100 for path-level estimation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:47:42Z'
+- artifact_path: projects/PROJ-978-llmxive-follow-up-extending-transitlm-a/specs/001-llmxive-follow-up-extending-transitlm-a/tasks.md
+  attempts: 1
+  canonical: Tie-breaking selects neighbor with lowest station ID
+  claim_id: c_39761195
+  context: 'Tie-breaking: If multiple neighbors have the same frequency, select the
+    one with the lowest station ID.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tie-breaking_selects_neighbor_with_lowest_station_ID
+  kind: magnitude
+  raw_text: Select neighbor with lowest station ID for tie-breaking
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:48:10Z'
