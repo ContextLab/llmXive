@@ -4720,3 +4720,398 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T09:45:45Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/plan.md
+  attempts: 1
+  canonical: Genomic data sourced from NCBI BioProject PRJNA566029
+  claim_id: c_5175986a
+  context: The analysis leverages genomic data from public repositories (NCBI BioProject
+    PRJNA566029) and applies rigorous statistical methods to distinguish true associations
+    from false positives.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Genomic_data_sourced_from_NCBI_BioProject_PRJNA566029
+  kind: entity_fact
+  raw_text: The analysis leverages genomic data from public repositories (NCBI BioProject
+    PRJNA566029).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:38:39Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/plan.md
+  attempts: 1
+  canonical: Reference genome for Apis mellifera is HAv3.1
+  claim_id: c_2d604d3b
+  context: 'Data Sources section lists Reference Genome: Apis mellifera HAv3.1.'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Reference Genome: Apis mellifera HAv3.1.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T07:38:40Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/plan.md
+  attempts: 1
+  canonical: Honeybee genome size is approximately 236 Mb
+  claim_id: c_7a290ff1
+  context: 'Complexity Tracking section states Genome Size: ~236 Mb.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Genome Size: ~236 Mb.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:39:48Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/plan.md
+  attempts: 1
+  canonical: Approximately 1.5 million high-quality SNPs expected after quality control
+  claim_id: c_01a5a54b
+  context: 'Complexity Tracking section states Expected SNPs: ~1.5 million high-quality
+    variants after QC.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Expected SNPs: ~1.5 million high-quality variants after QC.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:40:46Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/plan.md
+  attempts: 1
+  canonical: Study sample size is approximately 200 to 300 honeybee colonies
+  claim_id: c_69d10c9a
+  context: 'Complexity Tracking section states Sample Size: ~200-300 colonies (Power
+    analysis required).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Size: ~200-300 colonies (Power analysis required).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:41:52Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: dataset size exceeds 14GB
+  claim_id: c_c302c813
+  context: 'Data Size Check: If the dataset exceeds 14GB (unexpected for ~A substantial
+    number of colonies), HALT with error ERR_DATA_SIZE_EXCEEDED and log the discrepancy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_exceeds_14GB
+  kind: entity_fact
+  raw_text: The dataset exceeds 14GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:43:32Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: halt if sample size less than 80
+  claim_id: c_47850ac5
+  context: HALT ONLY IF n < 80 with error code ERR_SAMPLE_SIZE_INSUFFICIENT.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_sample_size_less_than_80
+  kind: magnitude
+  raw_text: The system must halt if the sample size n is less than 80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:44:51Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: verify existence of power analysis report json
+  claim_id: c_6bd224f3
+  context: 'Verification: The script MUST verify the existence of data/processed/power_analysis_report.json
+    after writing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_existence_of_power_analysis_report_json
+  kind: entity_fact
+  raw_text: The pipeline must verify the existence of data/processed/power_analysis_report.json
+    after writing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:45:34Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: live bee population less than 10 percent of peak
+  claim_id: c_0d5922c4
+  context: Live bee population < 10% relative to peak season.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Live_bee_population_less_than_10_percent_of_peak
+  kind: magnitude
+  raw_text: The live bee population must be less than 10% relative to peak season
+    for CCD diagnosis validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:46:24Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: reference genome is amel_hav3.1
+  claim_id: c_1d81007d
+  context: Align reads to reference genome Amel_HAv3.1 using bwa mem.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Since 2018 a new version of the honey bee genome is available on NCBI
+        (Amel_HAv3.1, BioProject ID: PRJNA471592). This assembly contains full chromosome
+        length scaffolds, which means that the sequence data for each chromosome is
+        contiguous, and not split between multiple pieces called scaffolds. The existence
+        of a highly contiguous reference genome for a species enables more detailed
+        investigations of evolutionary processes that affect the genome as well as
+        more accurate estimations of for example differentiation between populations
+        and diversity within populations.'
+      source_id: Western honey bee
+      url: https://en.wikipedia.org/wiki/Western_honey_bee
+      value: Amel_HAv3.1
+    filled: true
+  kind: numeric
+  raw_text: The reference genome used is Amel_HAv3.1.
+  resolved_value: Amel_HAv3.1
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T07:46:47Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: filter snps qual greater than 30 and depth greater than 10
+  claim_id: c_8e80a931
+  context: "Filter to high-quality biallelic SNPs (QUAL > 30, depth \u2265 10) using\
+    \ bcftools."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_snps_qual_greater_than_30_and_depth_greater_than_10
+  kind: magnitude
+  raw_text: "High-quality biallelic SNPs are filtered using QUAL > 30 and depth \u2265\
+    \ 10."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:47:28Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: ld pruning with indep-pairwise 50 5 0.2
+  claim_id: c_fc26e33d
+  context: Perform LD pruning using PLINK --indep-pairwise 50 5 0.2 and output the
+    pruned bim file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LD pruning is performed using PLINK with parameters --indep-pairwise 50
+    5 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:48:01Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: halt if varroa data less than 80 percent
+  claim_id: c_316138cd
+  context: Calculate the percentage of samples with Varroa data. If < 80%, exit with
+    code ERR_VARROA_COVARIATE_MISSING and a clear error message.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_varroa_data_less_than_80_percent
+  kind: magnitude
+  raw_text: The system must exit with an error if less than 80% of samples have Varroa
+    data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:48:45Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: p-values formatted to 10 decimal places
+  claim_id: c_7cb663a2
+  context: MUST sort by p-value in ascending order before processing. P-values must
+    be formatted to 10 decimal places.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-values must be formatted to 10 decimal places before Benjamini-Hochberg
+    correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:49:15Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: significant flag based on q-value less than 0.05
+  claim_id: c_3a117df3
+  context: Ensure all SNPs from the raw file are present, with significant flag set
+    based on q-value < 0.05.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significant_flag_based_on_q-value_less_than_0.05
+  kind: magnitude
+  raw_text: The significant flag is set based on q-value < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:50:14Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: lasso uses 5-fold cross-validation
+  claim_id: c_3561d69a
+  context: Implement LASSO logistic regression with 5-fold cross-validation in code/04_ml_validation.py
+    and report out-of-sample AUC value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LASSO logistic regression uses 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:50:52Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: flag low predictive power if auc less than 0.75
+  claim_id: c_d734c263
+  context: Report AUC value. If AUC < 0.75, flag as low predictive power.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_low_predictive_power_if_auc_less_than_0.75
+  kind: magnitude
+  raw_text: The LASSO model flags low predictive power if AUC is less than 0.75.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:51:32Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: runtime less than 6 hours
+  claim_id: c_5f117f51
+  context: 'Verification: MUST verify runtime < 6h and RAM < 7GB; halt if limits exceeded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The pipeline runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:52:21Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: ram usage less than 7gb
+  claim_id: c_3798b3ae
+  context: 'Verification: MUST verify runtime < 6h and RAM < 7GB; halt if limits exceeded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ram_usage_less_than_7gb
+  kind: magnitude
+  raw_text: The pipeline RAM usage must be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:53:31Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: hugging face dataset is bee_genome_variants
+  claim_id: c_4e804703
+  context: fetch data from the verified Hugging Face dataset bee_genome_variants (derived
+    from NCBI BioProject PRJNA/566029) with associated metadata.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hugging_face_dataset_is_bee_genome_variants
+  kind: entity_fact
+  raw_text: The Hugging Face dataset used is named bee_genome_variants.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:54:36Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: ncbi bioproject id is prjna/566029
+  claim_id: c_930f1fc9
+  context: fetch data from the verified Hugging Face dataset bee_genome_variants (derived
+    from NCBI BioProject PRJNA/566029) with associated metadata.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The NCBI BioProject ID is PRJNA/566029.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:55:35Z'
+- artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/tasks.md
+  attempts: 1
+  canonical: insert size distribution normal mean 350 std 50
+  claim_id: c_6bf8a2e4
+  context: 'Command Example: dwgsim -e -l 150 -1 350 -2 50 -N 10 -s 42 data/interim/synthetic.vcf
+    data/interim/synthetic_R1.fq data/interim/synthetic_R2.fq. (Insert size distribution:
+    Normal(mean=350, std=50)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The insert size distribution for simulated FASTQ is Normal(mean=350, std=50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:56:13Z'

@@ -1,5 +1,11 @@
-'|collinearity flagged greater if than vif':
-  quote: arXiv:2306.06751v1 [stat.ME] 11 Jun 2023
-  source_id: '2306.06751'
-  url: https://arxiv.org/abs/2306.06751
-  value: '5'
+'|amel genome hav3 reference used':
+  quote: 'Since 2018 a new version of the honey bee genome is available on NCBI (Amel_HAv3.1,
+    BioProject ID: PRJNA471592). This assembly contains full chromosome length scaffolds,
+    which means that the sequence data for each chromosome is contiguous, and not
+    split between multiple pieces called scaffolds. The existence of a highly contiguous
+    reference genome for a species enables more detailed investigations of evolutionary
+    processes that affect the genome as well as more accurate estimations of for example
+    differentiation between populations and diversity within populations.'
+  source_id: Western honey bee
+  url: https://en.wikipedia.org/wiki/Western_honey_bee
+  value: Amel_HAv3.1

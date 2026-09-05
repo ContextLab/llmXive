@@ -19,3 +19,9 @@ T037:
   r: "The implementer provided no evidence that the quickstart.md validation was executed\u2014\
     no logs, output files, screenshots, or reproducibility reports are present. Consequently,\
     \ the required artifact confirming the validation run is missing."
+T082:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `plan.md` file or its contents were provided, so we cannot confirm that the\
+    \ \u201CCandidate-Gene Pre-filtering\u201D entry was removed from the \u201CComplexity\
+    \ Tracking\u201D table as required. The necessary artifact is missing."
