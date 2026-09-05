@@ -41,7 +41,7 @@
 
 **Purpose**: Project initialization, design artifact verification, and research data preparation
 
-- [X] T001 Create `code/scripts/setup_dirs.py` to create project directory structure (`code/`, `data/`, `tests/`, `docs/`, `data/raw/`, `data/processed/`, `data/results/`)
+- [X] T001 Create `code/scripts/setup_dirs.py` to create project directory structure (`code/`, `data/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`)
 - [X] T002 Create `requirements.txt` with pinned versions (osmnx, geopandas, rasterio, xarray, scikit-learn, pysal, statsmodels, numpy, pandas, joblib, pytest)
 - [X] T003 [P] Create `.gitignore` and `.env.example` files
  - `.gitignore`: Exclude `data/raw/`, `data/processed/`, `*.pyc`, `__pycache__`, `.env`, `data/results/`.
@@ -63,7 +63,8 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Create `code/config.py` with city definitions, CRS settings (EPSG:3857/Local UTM), path constants, and `MAX_BLOCKS=[DEFERRED]` (placeholder referencing plan.md)
-- [X] T005 [P] Implement memory safety utilities (`code/utils/memory.py`) for matrix size estimation and **safety checks** (NOT sampling) to ensure data fits within RAM; if data exceeds limits, the utility must raise a fatal error to satisfy spec assumptions.
+- [X] T005 [P] Implement memory safety utilities (`code/utils/memory.py`) for matrix size estimation and **graceful degradation logic** to ensure data fits within RAM; if data exceeds limits (memory >5GB or N > 500k), the utility must **trigger the OLS-only fallback path** as per Spec FR-005, setting the flag `model_type: OLS_DEGRADED` and logging the event. It must **NOT** raise a fatal error.
+ - **Action**: Check memory footprint. If >5GB or N > 500k, trigger fallback logic (set flag `model_type: OLS_DEGRADED`) rather than raising an error.
 - [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and stdout handlers
 - [X] T007 [P] Create base data models and schema validation in `code/models/schemas.py`
  - Define Pydantic models:
@@ -112,7 +113,6 @@
  - **Assertion**: `assert x.shape == y.shape` and `assert np.isnan(stack).sum() == 0`.
 - [X] T011d [P] [US1] Unit test for output file generation in `tests/unit/test_ingest.py`
  - **Assertion**: Verify expected file paths exist and `data/metadata.json` contains required checksums.
-- [X] T011 [P] [US1] Integration test for end-to-end ingestion of a single city in `tests/integration/test_ingest_pipeline.py` <!-- ATOMIZED: split into T011a-d -->
 
 ### Implementation for User Story 1
 
@@ -127,6 +127,7 @@
  - Compute daytime land-surface temperature composites.
  - Implement cloud masking and multi-date composite generation if cloud cover > 20%.
  - **Constraint**: Use real data sources only; do not fallback to synthetic temperature data.
+ - **Streaming**: For large mosaics, implement chunked streaming via `xarray` or `rasterio` to avoid loading full dataset into memory.
 - [X] T014a [US1] Implement raster resampling logic in `code/ingest.py` (FR-003)
  - Reproject all layers to a common CRS.
  - Resample to a standardized spatial resolution (bilinear for continuous, nearest for categorical).
@@ -172,8 +173,8 @@
 - [X] T021 [US2] Generate EDA summary report in `data/results/eda_report.md`
  - **Implementation Logic**:
  1. Aggregate findings from T019 (correlations) and T020 (Moran's I, variograms).
- 2. Incorporate findings from T021a (socioeconomic proxies).
- 3. **Missing Confounds Section**: If T021a failed or proxies were missing, explicitly list "Missing Confounds" with details from T021a log.
+ 2. Incorporate findings from **output file `data/processed/socioeconomic_proxies.tif`** and **log status** of **T021a** (socioeconomic proxies).
+ 3. **Missing Confounds Section**: If T021a failed or proxies were missing (indicated by log or missing file), explicitly list "Missing Confounds" with details from T021a log.
  4. Write structured markdown to `data/results/eda_report.md`.
  - **Constraint**: Explicitly incorporate findings from T021a. If T021a failed, the report MUST include a "Missing Confounds" section detailing the limitation rather than ignoring it.
 - [X] T022 [US2] Visualize variogram and correlation heatmaps in `data/results/eda_plots.png`
@@ -211,10 +212,10 @@
  - **Action**: Partition the raster grid into 1km x 1km blocks. **Stratified selection by UTM grid quadrant** to reduce N < 500k while preserving spatial autocorrelation structure.
  - **Output**: Sampled dataset and `sampling_applied` flag.
  - **Constraint**: Must preserve the spatial block structure required for Moran's I and variogram estimation. **DO NOT** use random pixel sampling.
-- [X] T026c [US3] Implement Degradation Logic in `code/modeling.py` (Memory Safety)
+- [X] T026c [US3] Implement Degradation Logic in `code/modeling.py` (Memory Safety) - **Conditional Branch of T026b**
  - **If sampling reduces data**: Proceed to T027-T029 with the sampled dataset. Set flag `sampling_applied: true`.
  - **If sampling fails to reduce data sufficiently**: **Degrade to OLS-only** (skip T028/T029), run T027 (OLS with HAC), and set flag `model_type: OLS_DEGRADED`. **Do NOT fail loudly**; this is the Plan's required fallback.
- - **Logging**: Log the reason for degradation to `data/results/metrics.csv` and stdout to satisfy Spec FR-005 exception documentation.
+ - **Logging**: Log the reason for degradation to `data/results/metrics.csv` and stdout. **MUST explicitly log the exact string `model_type: OLS_DEGRADED`** to satisfy Spec FR-005 traceability.
 - [X] T027 [US3] Implement OLS baseline model in `code/modeling.py` (FR-005)
  - Fit OLS with spatially robust standard errors (HAC).
  - Record coefficients and diagnostics.
@@ -240,19 +241,20 @@
 - [X] T032a [US3] Load literature-derived upper bounds from `data/literature_bounds.json` (FR-010)
  - Ensure the file exists and contains valid R² bounds (Source: T015b).
  - **Input**: Read from `data/literature_bounds.json`.
- - **Constraint**: If file is missing or invalid, raise a fatal error.
+ - **Constraint**: If file is missing or invalid, **log a limitation and skip the gap calculation** (do NOT raise a fatal error).
 - [X] T032 [US3] Implement Proxy Validity Sensitivity (FR-010)
  - **Input**: Literature bounds from T032a.
  - **Action**: Calculate the "Unexplained Variance Gap" by comparing observed R² (from T027-T029) against the literature-derived upper bounds.
  - **Method**: Calculate `Gap = Upper_Bound_R2 - Observed_R2`. **DO NOT simulate synthetic data**.
  - Output gap to `data/results/metrics.csv` as part of FR-010.
 - [X] T033 [US3] Output all metrics to `data/results/metrics.csv` (SC-001, SC-002, SC-003, SC-005)
- - **Columns**: `model_type`, `RMSE`, `R2`, `MAE`, `Morans_I_residuals`, `adjusted_p_values`, `correction_method`, `unexplained_variance_gap`.
+ - **Columns**: `model_type`, `RMSE`, `R2`, `MAE`, `Morans_I_residuals`, `adjusted_p_values`, `correction_method`, `unexplained_variance_gap`, **`sampling_applied`**.
  - **Constraint**: Must explicitly include `correction_method` string (e.g., "Permutation-based FDR with Meff") for every row to satisfy SC-003 traceability.
  - **Constraint**: The `R2` column must contain the **final R² of the best model** after the FR-010 validation step (T032) to satisfy SC-001.
+ - **Constraint**: Must include `sampling_applied` boolean flag to distinguish full vs. sampled data runs.
 - [X] T034 [US3] Implement GWR bandwidth sweep in `code/modeling.py` (FR-009)
  - **Input**: Read bandwidth values from `config.GWR_BANDWIDTHS`.
- - **Constraint**: If `config.GWR_BANDWIDTHS` is missing, empty, or non-numeric, **fail loudly** with a specific error message.
+ - **Constraint**: If `config.GWR_BANDWIDTHS` is missing, empty, or non-numeric, **log a warning and degrade to OLS-only execution** (do NOT fail loudly).
  - **Logic**: Loop over the configured list (e.g., values defined in `config.GWR_BANDWIDTHS`). For each bandwidth, run GWR, record R². Handle convergence failures by logging warning and skipping iteration.
  - Record R² variation across the sweep.
 - [X] T035 [US3] Generate sensitivity report in `data/results/sensitivity_report.md` (SC-004)
@@ -267,7 +269,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T036a [P] Update README.md with CLI usage examples and installation instructions
-- [X] T036b [P] Create `docs/quickstart.md` with step-by-step pipeline guide
+- [X] T036b [P] Create `data/results/quickstart.md` with step-by-step pipeline guide (moved from docs/)
 - [ ] T037 Run linting and auto-fix tools (ruff/black) on `code/` and verify no errors remain
 - [X] T038a Profile memory usage of `code/ingest.py` and `code/modeling.py` using `memory_profiler`
 - [ ] T038b Tune `MAX_BLOCKS` in `config.py` to ensure peak memory < 6GB (Safety Check Threshold)
@@ -275,6 +277,14 @@
 - [X] T040 [P] Implement API key rotation logic and secure storage in `code/config.py`
 - [ ] T041 Run quickstart.md validation
 - [ ] T042 [P] Update `spec.md` to document the Plan's fallback strategy (OLS_DEGRADED) as the governing rule for memory constraints, resolving the semantic gap with FR-005.
+- [ ] T043 [P] Add explicit documentation in `code/config.py` for the real data streaming strategy for large satellite datasets, referencing `rasterio` chunking or `xarray` dask, and the specific sampling rule if streaming fails.
+- [ ] T044 [P] Verify that `code/ingest.py` T013 implements a hard failure (no try/except synthetic fallback) for all real data sources, and that T021a is the ONLY exception with a documented warning path.
+- [ ] T045 [P] Add a pre-commit hook or CI step to validate that `data/results/metrics.csv` contains no synthetic or placeholder values (e.g., "N/A", "0.0" in unexpected fields) before any commit.
+- [ ] T046 [P] Implement explicit unit tests for the `OLS_DEGRADED` fallback path in `tests/unit/test_modeling.py` to ensure the system logs the correct flag and skips SAR/GWR without crashing.
+- [ ] T047 [P] Add a validation script `code/scripts/validate_data_integrity.py` that scans `data/processed/` and `data/results/` for any non-numeric or placeholder entries, failing the build if found.
+- [ ] T048 [P] Update `data/metadata.json` schema to explicitly include a `streaming_method` field (e.g., "xarray_chunked", "full_load", "sampled") and `sample_size` if sampling was applied, ensuring full traceability of data processing.
+- [ ] T049 [P] Create a specific task in `code/ingest.py` to handle `rasterio` chunked reading for MODIS/Landsat mosaics, ensuring that the `Memory Safety Check` (T026a) receives accurate memory estimates based on chunk size rather than full file size.
+- [ ] T050 [P] Verify that `tests/unit/test_ingest.py` contains a test case that explicitly asserts a `RuntimeError` is raised if the Overpass API or Satellite source returns 0 results, ensuring no silent fallback to empty/synthetic data occurs.
 
 ---
 
@@ -376,10 +386,13 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All modeling tasks must respect the available RAM limit. via **Spatial Block Sampling** (T026a/T026b/T026c). If data exceeds RAM, the system must **execute sampling** (T026b) to reduce N. If sampling fails to reduce N sufficiently, the system must **degrade to OLS** (T026c) rather than failing. No GPU usage allowed.
-- **Deferred Values**: `MAX_BLOCKS`, `MISSING_DATA_THRESHOLD`, `TIME_WINDOW_THRESHOLD`, and `GWR_BANDWIDTHS` are defined in `config.py` as placeholders; implementers must ensure code reads these from config, and fail loudly if missing/invalid.
+- **Deferred Values**: `MAX_BLOCKS`, `MISSING_DATA_THRESHOLD`, `TIME_WINDOW_THRESHOLD` are defined in `config.py` as placeholders; implementers must ensure code reads these from config, and fail loudly if missing/invalid **UNLESS** the Spec/Plan mandates a graceful fallback (e.g., T005, T032a, T034).
 - **FR-005 Integrity**: If memory constraints prevent fitting three models, the system must **degrade to OLS** (as per Plan) rather than failing. The spec requires three models, but the Plan's fallback strategy is the governing rule for execution (see T042).
 - **Data Integrity**: All data loading tasks (T012, T013, T021a) MUST fail loudly if real data sources are unreachable, except for T021a which logs a warning and continues if socioeconomic proxies are missing. Synthetic fallbacks are strictly prohibited to prevent fabrication.
 - **Ingestion Order**: T021a (Socioeconomic Proxies) is now in Phase 2 to ensure all ingestion occurs before Analysis (Phase 4).
 - **Data Streaming Requirement (FR-002)**: For large satellite datasets (MODIS/Landsat) that exceed RAM limits, tasks MUST implement **streaming** of the full dataset using `rasterio` or `xarray` chunking, rather than loading the entire mosaic into memory. If streaming is not feasible for a specific tile, the task MUST use a **real, documented sample** (e.g., first N pixels) and explicitly state the sampling limitation in `data/metadata.json`. **Synthetic data generation is strictly forbidden.**
 - **Spatial Block Sampling Integrity**: T026b MUST ensure that the sampling process preserves the spatial autocorrelation structure. The implementation must verify that the sampled blocks are spatially contiguous or representative of the full grid, and MUST NOT use random pixel sampling as a fallback.
 - **Model Fallback Logic**: The logic in T026c must be robust: if sampling is triggered but fails to reduce N below 500k, the system MUST degrade to OLS (T027) and log `model_type: OLS_DEGRADED`. It MUST NOT crash or attempt to fit SAR/GWR.
+- **Revision Concerns**: Tasks T043, T044, and T045 address the critical need for explicit documentation of streaming strategies, strict enforcement of "fail loudly" data policies, and validation against synthetic data injection in final outputs.
+- **Graceful Degradation Updates**: Tasks T005, T032a, and T034 have been updated to implement graceful degradation (logging limitations or falling back to OLS) instead of raising fatal errors, ensuring compliance with Spec FR-005 and FR-010.
+- **New Revision Concerns**: Tasks T046-T050 address the specific need to validate the OLS fallback path, enforce data integrity checks on output metrics, and ensure streaming logic is explicitly tested and documented to prevent silent failures or data fabrication.

@@ -1,0 +1,16 @@
+status: none
+intent: download OpenStreetMap vector data via Overpass API and Landsat 8 thermal
+  band 30m python package dataset
+required_fields:
+- osm_id
+- feature_class
+- geometry
+- building_height
+- road_type
+- vegetation_type
+- land_surface_temperature
+- temperature_timestamp
+- city_boundary
+cache_key: 8b0bd17e3c24ef822aeb5a1cb902e36acd8506164c9e07afdad4af752f1bf39d
+searched_at: '2026-09-05T02:32:47.945649+00:00'
+retry_count: 1

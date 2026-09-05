@@ -1,33 +1,11 @@
-- artifact_hash: 5e34b6e00e6505be61f7c9d46584714fea9963b29745c896594ed104acdb9e3d
-  artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/research.md
+- artifact_hash: 80f64fde5b22c7a6cd3ff0cce594f8a7b56746ac357e6fb86e50ea1bfc179837
+  artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Overpass API
+  fetched_title: null
   kind: url
-  value: https://overpass-api.de/
-  verification_status: verified
-  verified_against_url: https://overpass-api.de/
-  verified_at: '2026-07-04T12:54:40.005180Z'
-- artifact_hash: 5e34b6e00e6505be61f7c9d46584714fea9963b29745c896594ed104acdb9e3d
-  artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Registry of Open Data on AWS
-  kind: url
-  value: https://registry.opendata.aws/landsat-8/
-  verification_status: verified
-  verified_against_url: https://registry.opendata.aws/landsat-8/
-  verified_at: '2026-07-04T12:54:40.005180Z'
-- artifact_hash: 5e34b6e00e6505be61f7c9d46584714fea9963b29745c896594ed104acdb9e3d
-  artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: PySAL
-  kind: url
-  value: https://pysal.org/
-  verification_status: pending
-  verified_against_url: https://pysal.org/
-  verified_at: '2026-07-04T12:54:40.005180Z'
+  value: https://github.com/your-org/PROJ-125-statistical-analysis-of-openstreetmap-da.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-125-statistical-analysis-of-openstreetmap-da
+  verified_at: '2026-09-05T02:46:43.836408Z'

@@ -9,7 +9,7 @@ properties:
       - "OLS"
       - "GWR"
       - "SAR"
-    description: "Type of spatial model fitted."
+    description: "Type of spatial model fitted. If data is missing, the pipeline halts and no output is generated."
   city_id:
     type: "string"
     description: "City identifier."
