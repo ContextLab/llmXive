@@ -3515,3 +3515,199 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T08:04:48Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Fetch manifest from huggingface dataset agenticsts/trajectories
+  claim_id: c_4a7e49ff
+  context: 'T005c Fetch Checksum Manifest. Logic: Fetch manifest.json from https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
+    to data/raw/manifest.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_manifest_from_huggingface_dataset_agenticsts/trajector
+  kind: entity_fact
+  raw_text: Fetch manifest.json from https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:34:47Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Download AgenticSTS trajectories from huggingface
+  claim_id: c_5155c28c
+  context: 'T005b Ingest Real AgenticSTS Trajectories. Logic: Fetch the existing AgenticSTS
+    trajectories from the canonical source using huggingface-cli. Command: huggingface-cli
+    download agenticsts/trajectories --repo-type dataset --local-dir data/raw --filename
+    trajectories.jsonl.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_AgenticSTS_trajectories_from_huggingface
+  kind: entity_fact
+  raw_text: Download raw JSONL files to data/raw/ using huggingface-cli download agenticsts/trajectories
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:35:21Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Log warning if training set size is less than 300
+  claim_id: c_ade84121
+  context: 'T014a Sample Size Warning: If training set size n < 300, log a WARNING
+    to data/processed/edge_case_warnings.log stating ''Statistical power marginal
+    (n < 300)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_training_set_size_is_less_than_300
+  kind: magnitude
+  raw_text: Sample size warning is logged if training set size n < 300
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:36:26Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Log critical warning if utility_delta variance is less than 1e-6
+  claim_id: c_4f35aff2
+  context: 'T014a Homogeneity Check: After ablation (T008/T008c), if the variance
+    of utility_delta in the training set is zero or near-zero (< 1e-6), log a CRITICAL
+    warning.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_critical_warning_if_utility_delta_variance_is_less_than
+  kind: magnitude
+  raw_text: Homogeneity check triggers if variance of utility_delta is less than 1e-6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:36:57Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Require hold-out set size of at least 20
+  claim_id: c_ad17211d
+  context: 'T014a Hold-out Validation: Ensure len(validation_set) >= 20. If not, raise
+    ValueError.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_hold-out_set_size_of_at_least_20
+  kind: magnitude
+  raw_text: Hold-out validation requires validation set length >= 20
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:37:29Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Proxy validation fails if correlation is below 0.7
+  claim_id: c_fe8e25df
+  context: 'T014 Gate: If correlation < 0.7, set proxy_valid=false and log warning.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_validation_fails_if_correlation_is_below_0.7
+  kind: magnitude
+  raw_text: Proxy validation gate fails if Pearson correlation is less than 0.7
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:38:00Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Random baseline selects 2 layers
+  claim_id: c_499eb150
+  context: 'T020 Implement ''No-Store Random'' baseline execution. Logic: Select exactly
+    k=2 layers uniformly at random from the available set for every turn.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random baseline selects exactly k=2 layers
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:39:48Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Check token savings std dev is less than 10 percent of mean
+  claim_id: c_79b27a09
+  context: 'T023 Logic: If std_dev < 0.10 * mean_savings, passed=true.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_token_savings_std_dev_is_less_than_10_percent_of_mean
+  kind: magnitude
+  raw_text: Token consistency check requires standard deviation of savings to be less
+    than 10 percent of mean savings
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:40:21Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters alpha 0.05 and power 0.8
+  claim_id: c_9068b36b
+  context: T044 Perform power analysis with alpha=0.05, power=0.8, and expected effect
+    size=0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis uses alpha=0.05 and power=0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:40:52Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Expected effect size for power analysis is 0.2
+  claim_id: c_25d7eda9
+  context: T044 Perform power analysis with alpha=0.05, power=0.8, and expected effect
+    size=0.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Expected effect size for power analysis is 0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:41:27Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Flag divergence if greater than 10 percent
+  claim_id: c_8abf4ebf
+  context: 'T050 Divergence Check: Calculate divergence (percentage of trajectories
+    where final state hash differs). Flag if divergence > 10%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_divergence_if_greater_than_10_percent
+  kind: magnitude
+  raw_text: Divergence check flags if percentage of trajectories with differing final
+    state hash is greater than 10 percent
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T10:42:04Z'

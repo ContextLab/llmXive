@@ -48,3 +48,18 @@ T014a:
     \ log and config update) is not demonstrated. The missing files must be provided\
     \ and the script must generate the specified outputs for the task to be considered\
     \ complete."
+T055:
+  c: false
+  h: 00c0b44413860687f2a3c3da719c74f938f19d46ad3f1c036a638806b0df7b8b
+  r: "The required `data/processed/edge_case_warnings.log` file is missing, so the\
+    \ implementer could not review the actual warnings. Moreover, the provided `docs/edge_cases.md`\
+    \ only covers NaN entropy and small sample size; there is no evident section on\
+    \ the \u201Chomogeneity\u201D warning, which the task explicitly requires. Both\
+    \ artifacts need to be present and complete."
+T057c:
+  c: false
+  h: eabe3992d31b2d49d81e98efbb9a844358caaa80fb6fa820e2d8729711dae522
+  r: The required source data files `data/processed/agg_stats.json` and `data/processed/success_criteria_report.json`
+    are missing, and the final report `data/processed/statistical_analysis_report.md`
+    was not generated. Without these inputs the template cannot be populated, so the
+    task is not fulfilled.

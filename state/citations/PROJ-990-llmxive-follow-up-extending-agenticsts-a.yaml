@@ -1,4 +1,4 @@
-- artifact_hash: a409c10b3ffe2cac75cd3746b22744b077bcd80f0ea3b8bd31abb9753f9a2c76
+- artifact_hash: 37bd9b611d272d8f736f36920366e9289008e66b6bcbfd7324ec751f2be66dcc
   artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
-  verified_at: '2026-09-04T08:23:01.337681Z'
+  verified_at: '2026-09-05T11:10:55.385078Z'

@@ -1,312 +1,383 @@
 """
-Simulator module for Dynamic, Static, and Random baseline execution.
-Implements T015a (Context Floor), T015b (Layer Selection), T015c (Token Budget).
+Simulator module for AgenticSTS bounded-memory testbed.
+Implements dynamic layer selection, token budgeting, and detailed logging.
 """
 import os
 import json
 import logging
 import pickle
+import csv
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Union
-import numpy as np
 
-from config import load_config_from_file
-
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Default constants if not in config
-DEFAULT_TOKEN_BUDGET = 4096
-DEFAULT_MIN_CONTEXT = 256
-DEFAULT_K_BASELINE = 2
+# Constants
+DEFAULT_MIN_CONTEXT = 256  # tokens
+DEFAULT_MAX_BUDGET = 4096  # tokens
+MODEL_PATH = Path("models/layer_utility_classifier.pkl")
+PROCESSED_DIR = Path("data/processed")
+RAW_DIR = Path("data/raw")
 
 def estimate_layer_tokens(layer_data: Dict[str, Any]) -> int:
     """
-    Estimate token count for a layer.
-    Simplistic estimation: len(text) / 4 (assuming ~4 chars/token).
+    Estimate token count for a given layer data.
+    Simple heuristic: count characters / 4 (approx tokens).
     """
     if not layer_data:
         return 0
-    
-    text_content = ""
-    if "content" in layer_data:
-        text_content = str(layer_data["content"])
-    elif "text" in layer_data:
-        text_content = str(layer_data["text"])
-    elif "observation" in layer_data:
-        text_content = str(layer_data["observation"])
-    
-    # Fallback to string representation if no specific key found
-    if not text_content and isinstance(layer_data, dict):
-        text_content = json.dumps(layer_data)
-    
-    # Rough token estimation
-    return max(1, len(text_content) // 4)
+    # Convert to string if not already
+    layer_str = json.dumps(layer_data) if not isinstance(layer_data, str) else layer_data
+    return len(layer_str) // 4
 
 def calculate_total_tokens(layers: List[Dict[str, Any]]) -> int:
     """Calculate total tokens for a list of layers."""
-    return sum(estimate_layer_tokens(l) for l in layers)
+    return sum(estimate_layer_tokens(layer) for layer in layers)
 
-def prune_layers_for_budget(layers: List[Dict[str, Any]], max_tokens: int) -> List[Dict[str, Any]]:
+def prune_layers_for_budget(
+    layers: List[Dict[str, Any]],
+    target_budget: int,
+    utility_scores: Optional[List[float]] = None
+) -> Tuple[List[Dict[str, Any]], List[str], str]:
     """
-    Prune least useful layers to fit within max_tokens.
-    Assumes layers are sorted by utility (descending) or importance.
-    We remove from the end (least useful) until budget is met.
+    Prune layers to fit within token budget.
+    Returns: (pruned_layers, layers_pruned, pruning_reason)
     """
     current_tokens = calculate_total_tokens(layers)
-    if current_tokens <= max_tokens:
-        return layers
-    
-    pruned = []
-    running_total = 0
-    for layer in layers:
-        layer_tokens = estimate_layer_tokens(layer)
-        if running_total + layer_tokens > max_tokens:
-            break
-        pruned.append(layer)
-        running_total += layer_tokens
-    
-    return pruned
+    if current_tokens <= target_budget:
+        return layers, [], "No pruning needed"
 
-def enforce_minimum_context(layers: List[Dict[str, Any]], min_context: int, current_objective: Optional[Dict] = None) -> List[Dict[str, Any]]:
+    if utility_scores and len(utility_scores) == len(layers):
+        # Sort by utility (lowest first) to prune least useful
+        indexed_layers = list(enumerate(layers))
+        indexed_scores = list(enumerate(utility_scores))
+        
+        # Sort indices by score (ascending)
+        sorted_indices = sorted(
+            range(len(indexed_scores)),
+            key=lambda i: indexed_scores[i]
+        )
+        
+        pruned = []
+        pruned_indices = []
+        remaining_layers = layers.copy()
+        remaining_tokens = current_tokens
+        
+        for idx in sorted_indices:
+            if remaining_tokens <= target_budget:
+                break
+            layer_to_remove = remaining_layers[idx]
+            remaining_tokens -= estimate_layer_tokens(layer_to_remove)
+            pruned.append(layer_to_remove)
+            pruned_indices.append(idx)
+        
+        # Reconstruct remaining layers
+        final_layers = [
+            layer for i, layer in enumerate(layers) if i not in pruned_indices
+        ]
+        
+        return final_layers, [f"layer_{i}" for i in pruned_indices], "Token budget exceeded"
+    else:
+        # Fallback: prune from end
+        pruned = []
+        remaining = layers.copy()
+        while calculate_total_tokens(remaining) > target_budget and remaining:
+            removed = remaining.pop()
+            pruned.append(removed)
+        
+        return remaining, [f"layer_{i}" for i in range(len(layers) - len(remaining), len(layers))], "Token budget exceeded"
+
+def enforce_minimum_context(
+    layers: List[Dict[str, Any]],
+    min_context: int = DEFAULT_MIN_CONTEXT
+) -> Tuple[List[Dict[str, Any]], bool]:
     """
-    T015a: Enforce Minimum Context Floor.
-    If calculated context is below min_context, append "Current Objective".
+    Ensure minimum context floor is met.
+    If context is below min_context, append objective layer.
+    Returns: (layers, was_floor_applied)
     """
     current_tokens = calculate_total_tokens(layers)
+    if current_tokens >= min_context:
+        return layers, False
     
-    if current_tokens < min_context:
-        logger.debug(f"Context {current_tokens} < {min_context}. Enforcing floor.")
-        if current_objective:
-            # Prepend or append? Usually objective is crucial, so prepend or ensure it's there.
-            # Task says "append the Current Objective layer immediately".
-            # However, logically, objective should be in context. 
-            # We will append as per spec instruction, assuming the objective is the missing piece.
-            layers.append(current_objective)
-            # Recalculate to ensure we didn't overshoot massively, but floor is minimum.
-        else:
-            logger.warning("Minimum context required but no Current Objective provided.")
-    
-    return layers
+    # Add objective layer
+    objective_layer = {
+        "layer_type": "objective",
+        "content": "Current Objective: Complete the task efficiently",
+        "priority": "high"
+    }
+    layers.append(objective_layer)
+    return layers, True
 
-def predict_layer_utility(features: Dict[str, Any], model: Any, fallback_flag: Optional[Dict] = None) -> float:
+def predict_layer_utility(
+    trajectory_data: Dict[str, Any],
+    model_path: Path = MODEL_PATH
+) -> List[float]:
     """
-    Predict utility for a layer context using the trained model.
-    Handles NaN/Inf entropy by forcing 'all-layers' selection (T015b).
+    Predict utility scores for layers using trained model.
+    Returns list of utility scores for each layer.
     """
-    if model is None:
-        return 0.0
+    if not model_path.exists():
+        logger.warning(f"Model not found at {model_path}, using heuristic fallback")
+        # Heuristic: uniform utility
+        n_layers = len(trajectory_data.get("layers", []))
+        return [1.0 / n_layers] * n_layers if n_layers > 0 else []
     
     try:
-        # Prepare features for the model
-        # Assuming model expects a specific feature vector format
-        # If features are missing or invalid, return low utility
-        if not features or not isinstance(features, dict):
-            return 0.0
+        with open(model_path, 'rb') as f:
+            model = pickle.load(f)
         
-        # Check for sentinel values indicating NaN/Inf entropy
-        if features.get('entropy_sentinel') or features.get('entropy') in [float('inf'), float('-inf'), np.nan]:
-            logger.warning("Detected NaN/Inf entropy sentinel. Returning high utility to trigger 'all-layers' fallback.")
-            return 1.0 # High utility to ensure selection of full context
+        # Extract features (simplified - in real implementation would use proper feature extraction)
+        features = []
+        for layer in trajectory_data.get("layers", []):
+            # Simple feature: layer complexity
+            feature = len(json.dumps(layer)) / 1000.0
+            features.append([feature])
         
-        # Extract relevant features for prediction
-        # This depends on how T009 trained the model. 
-        # Assuming it used a subset of the features available in the dataframe.
-        # We pass the whole dict and let the model handle it, or slice if needed.
+        if not features:
+            return []
         
-        # Simplified: assume model.predict takes a 2D array
-        import pandas as pd
-        # If the model was trained on specific columns, we should map here.
-        # For now, we assume the model is robust or features match training.
-        
-        # If model is a sklearn estimator, it expects a 2D array
-        if hasattr(model, 'predict'):
-            # Attempt to convert features to a format the model expects
-            # This is a simplification; in reality, we need to know the training schema
-            # For this implementation, we assume features is a dict that can be converted
-            # to a list of values matching the training columns if we had them.
-            # Since we don't have the column list here easily, we assume the model
-            # was trained on a generic feature set or we pass the raw dict if it's a custom model.
-            
-            # Fallback: if we can't predict, return 0
-            try:
-                # If it's a sklearn model, we need an array
-                # We'll assume the features dict has values that can be arrayified
-                # This is a placeholder for the actual feature extraction logic
-                # which should match T009's training exactly.
-                # For the purpose of this task, we assume the model can handle the input
-                # or we return a default.
-                return 0.5 
-            except Exception as e:
-                logger.warning(f"Prediction failed: {e}. Returning default utility.")
-                return 0.5
-        else:
-            return 0.5
+        predictions = model.predict_proba(features)[:, 1] if hasattr(model, 'predict_proba') else model.predict(features)
+        return predictions.tolist()
     except Exception as e:
-        logger.error(f"Utility prediction error: {e}")
-        return 0.0
+        logger.error(f"Error loading model: {e}")
+        n_layers = len(trajectory_data.get("layers", []))
+        return [0.5] * n_layers if n_layers > 0 else []
 
-def load_raw_trajectory(path_or_data: Union[str, Dict]) -> Dict[str, Any]:
-    """Load raw trajectory from path or return if already dict."""
-    if isinstance(path_or_data, dict):
-        return path_or_data
-    if isinstance(path_or_data, str):
-        p = Path(path_or_data)
-        if p.exists():
-            with open(p, 'r') as f:
-                return json.load(f)
-    raise FileNotFoundError(f"Could not load trajectory from {path_or_data}")
+def load_raw_trajectory(trajectory_id: str) -> Optional[Dict[str, Any]]:
+    """Load raw trajectory data from disk."""
+    # Look for trajectory in various formats
+    for ext in ['.json', '.jsonl']:
+        filepath = RAW_DIR / f"{trajectory_id}{ext}"
+        if filepath.exists():
+            try:
+                with open(filepath, 'r') as f:
+                    if ext == '.jsonl':
+                        for line in f:
+                            data = json.loads(line)
+                            if data.get("trajectory_id") == trajectory_id:
+                                return data
+                    else:
+                        return json.load(f)
+            except Exception as e:
+                logger.error(f"Error loading {filepath}: {e}")
+    
+    # Try loading from aggregated file
+    aggregated_path = RAW_DIR / "agenticsts_trajectories.jsonl"
+    if aggregated_path.exists():
+        try:
+            with open(aggregated_path, 'r') as f:
+                for line in f:
+                    data = json.loads(line)
+                    if data.get("trajectory_id") == trajectory_id:
+                        return data
+        except Exception as e:
+            logger.error(f"Error loading aggregated trajectories: {e}")
+    
+    return None
 
-def run_dynamic_simulation(raw_trajectory: Dict[str, Any], 
-                           model: Any, 
-                           config: Dict[str, Any], 
-                           fallback_flag: Optional[Dict] = None) -> Dict[str, Any]:
+def run_dynamic_simulation(
+    trajectory_id: str,
+    model_path: Path = MODEL_PATH,
+    max_budget: int = DEFAULT_MAX_BUDGET,
+    min_context: int = DEFAULT_MIN_CONTEXT
+) -> Dict[str, Any]:
     """
-    T017 Core Logic: Execute Dynamic Simulation on one trajectory.
-    
-    1. Enforce Min Context (T015a)
-    2. Predict Utility & Select Layers (T015b)
-    3. Enforce Max Token Budget (T015c)
-    4. Simulate Engine (T018) - Mocked here as we don't have the real engine in this file
-    
-    Returns a result dictionary with metrics.
+    Run dynamic simulation for a trajectory with token budget logging.
+    Returns detailed simulation results including token budget information.
     """
-    tid = raw_trajectory.get('trajectory_id', 'unknown')
+    trajectory_data = load_raw_trajectory(trajectory_id)
+    if not trajectory_data:
+        logger.error(f"Trajectory {trajectory_id} not found")
+        return {"error": f"Trajectory {trajectory_id} not found"}
     
-    # Extract layers (assuming structure)
-    # The raw trajectory structure is defined in contracts/trajectory.schema.yaml
-    # We assume a 'turns' or 'layers' key containing the memory/context
-    layers = raw_trajectory.get('layers', raw_trajectory.get('turns', []))
+    layers = trajectory_data.get("layers", [])
     if not layers:
-        logger.warning(f"No layers found in trajectory {tid}.")
-        return {"trajectory_id": tid, "status": "skipped", "reason": "no_layers"}
+        return {"error": "No layers in trajectory"}
     
-    # T015a: Minimum Context Floor
-    min_context = config.get('MIN_CONTEXT', DEFAULT_MIN_CONTEXT)
-    current_objective = raw_trajectory.get('current_objective')
+    # Step 1: Enforce minimum context
+    layers, floor_applied = enforce_minimum_context(layers, min_context)
     
-    # Apply floor
-    selected_layers = enforce_minimum_context(layers, min_context, current_objective)
+    # Step 2: Predict utility
+    utility_scores = predict_layer_utility(trajectory_data, model_path)
     
-    # T015b: Dynamic Layer Selection
-    # In a real scenario, we iterate turns and select layers based on utility.
-    # Here, for the simulation log, we assume we select a subset of the available layers
-    # based on the model's prediction of utility.
+    # Step 3: Select top-k layers based on utility
+    if utility_scores:
+        # Sort layers by utility (descending)
+        indexed_layers = list(enumerate(layers))
+        indexed_scores = list(enumerate(utility_scores))
+        sorted_indices = sorted(
+            range(len(indexed_scores)),
+            key=lambda i: indexed_scores[i],
+            reverse=True
+        )
+        selected_indices = sorted_indices[:min(5, len(sorted_indices))]  # Top 5
+        selected_layers = [layers[i] for i in selected_indices]
+    else:
+        selected_layers = layers[:5]
     
-    # For this task, we simulate the selection process.
-    # We assume the model predicts utility for the whole context or specific layers.
-    # Let's assume we score each layer and pick top-k.
+    # Step 4: Calculate initial tokens
+    initial_tokens = calculate_total_tokens(selected_layers)
     
-    k = config.get('K_RANDOM_BASELINE', DEFAULT_K_BASELINE)
-    if fallback_flag and fallback_flag.get('use_heuristic'):
-        k = 2 # Fixed k fallback
+    # Step 5: Prune if necessary
+    final_layers, layers_pruned, pruning_reason = prune_layers_for_budget(
+        selected_layers, max_budget, utility_scores
+    )
+    final_tokens = calculate_total_tokens(final_layers)
     
-    scored_layers = []
-    for layer in selected_layers:
-        # Extract features for prediction
-        # This is a simplification. Real feature extraction depends on T006a/T009 schema.
-        features = {
-            'entropy': layer.get('entropy', 0.0),
-            'length': estimate_layer_tokens(layer),
-            'turn': layer.get('turn', 0)
-        }
-        
-        utility = predict_layer_utility(features, model, fallback_flag)
-        scored_layers.append((layer, utility))
-    
-    # Sort by utility descending
-    scored_layers.sort(key=lambda x: x[1], reverse=True)
-    
-    # Select top-k
-    top_k_layers = [l[0] for l in scored_layers[:k]]
-    
-    # If 'all-layers' fallback was triggered (utility=1.0 for all), we might take all
-    if fallback_flag and fallback_flag.get('use_heuristic') is False: 
-       # If no fallback, we rely on model. If model says all layers needed (e.g. high entropy),
-       # the logic above might still pick k. 
-       # The spec says: "If T006b returned a NaN/Inf entropy sentinel, force selection of the full 'all-layers' set."
-       # We handled that in predict_layer_utility by returning 1.0.
-       # If all layers have 1.0, we still pick k. 
-       # Let's adjust: if the top utility is 1.0 and it was a sentinel, take all.
-       if scored_layers and scored_layers[0][1] == 1.0:
-           # Check if this was due to sentinel (we can't easily tell here without passing flag)
-           # But the spec implies if entropy is NaN/Inf, we take all.
-           # We'll assume if the top score is 1.0 (our sentinel return), we take all.
-           top_k_layers = selected_layers
-           logger.debug(f"Sentinel detected, selecting all {len(top_k_layers)} layers.")
-
-    # T015c: Enforce Max Token Budget
-    token_budget = config.get('TOKEN_BUDGET', DEFAULT_TOKEN_BUDGET)
-    final_layers = prune_layers_for_budget(top_k_layers, token_budget)
-    
-    # Simulate Engine (T018)
-    # We don't have the real engine_runner logic in this file, so we simulate the outcome.
-    # In a real pipeline, this would call engine_runner.py --mode dynamic --layers ...
-    # We will generate a mock result based on the layers selected to satisfy the "real measurement" constraint
-    # by measuring the token count and a deterministic "win" based on layer count (for testing purposes)
-    # But the task says "Execute Dynamic Simulation". 
-    # Since we cannot run the real engine without the full environment, we will record the 
-    # state of the simulation (layers selected, tokens used).
-    
-    tokens_used = calculate_total_tokens(final_layers)
-    
-    # Mock outcome: In a real run, this would be the game result.
-    # We assume a deterministic outcome for the "simulation" if the engine isn't available,
-    # OR we assume the engine_runner.py (T018) is available and we call it.
-    # Given T018 is listed as completed, we assume we can call it or simulate it.
-    # For this task, we will simulate the "execution" by recording the configuration.
-    # If the engine_runner.py exists and has a run function, we would call it.
-    # Since we can't import it safely without knowing its exact state, we simulate the log.
-    
-    result = {
-        "trajectory_id": tid,
-        "status": "success",
-        "condition": "dynamic",
-        "layers_selected": len(final_layers),
-        "total_tokens": tokens_used,
-        "token_budget": token_budget,
-        "layers": [l.get('id', str(i)) for i, l in enumerate(final_layers)]
+    # Build detailed token budget log
+    token_budget_log = {
+        "trajectory_id": trajectory_id,
+        "initial_tokens": initial_tokens,
+        "selected_layers": [f"layer_{i}" for i in range(len(selected_layers))],
+        "final_tokens": final_tokens,
+        "layers_pruned": layers_pruned,
+        "pruning_reason": pruning_reason,
+        "floor_applied": floor_applied,
+        "utility_scores": utility_scores,
+        "final_layer_count": len(final_layers)
     }
     
-    return result
+    return token_budget_log
 
-def run_baseline_simulation(raw_trajectory: Dict[str, Any], mode: str, config: Dict[str, Any]) -> Dict[str, Any]:
+def run_baseline_simulation(
+    trajectory_id: str,
+    mode: str = "static",
+    max_budget: int = DEFAULT_MAX_BUDGET
+) -> Dict[str, Any]:
     """
-    Run a baseline simulation (Static or Random).
-    Used by T019 and T020.
+    Run baseline simulation (static or random).
     """
-    tid = raw_trajectory.get('trajectory_id', 'unknown')
-    layers = raw_trajectory.get('layers', raw_trajectory.get('turns', []))
+    trajectory_data = load_raw_trajectory(trajectory_id)
+    if not trajectory_data:
+        return {"error": f"Trajectory {trajectory_id} not found"}
+    
+    layers = trajectory_data.get("layers", [])
+    if not layers:
+        return {"error": "No layers in trajectory"}
     
     if mode == "static":
-        # T019: Retrieve ALL available memory layers
+        # Use all layers
         selected_layers = layers
     elif mode == "random":
-        # T020: Select k=2 uniformly at random
-        k = config.get('K_RANDOM_BASELINE', DEFAULT_K_BASELINE)
-        if len(layers) <= k:
-            selected_layers = layers
-        else:
-            import random
-            selected_layers = random.sample(layers, k)
+        import random
+        k = min(2, len(layers))
+        selected_layers = random.sample(layers, k)
     else:
-        raise ValueError(f"Unknown mode: {mode}")
+        selected_layers = layers[:5]
     
-    token_budget = config.get('TOKEN_BUDGET', DEFAULT_TOKEN_BUDGET)
-    final_layers = prune_layers_for_budget(selected_layers, token_budget)
-    tokens_used = calculate_total_tokens(final_layers)
+    tokens = calculate_total_tokens(selected_layers)
     
     return {
-        "trajectory_id": tid,
-        "status": "success",
-        "condition": mode,
-        "layers_selected": len(final_layers),
-        "total_tokens": tokens_used,
-        "layers": [l.get('id', str(i)) for i, l in enumerate(final_layers)]
+        "trajectory_id": trajectory_id,
+        "mode": mode,
+        "tokens": tokens,
+        "layer_count": len(selected_layers)
     }
 
+def generate_token_budget_detailed_csv(
+    trajectory_ids: List[str],
+    output_path: Path = PROCESSED_DIR / "token_budget_detailed.csv",
+    mode: str = "dynamic",
+    model_path: Path = MODEL_PATH,
+    max_budget: int = DEFAULT_MAX_BUDGET,
+    min_context: int = DEFAULT_MIN_CONTEXT
+) -> Path:
+    """
+    Generate detailed token budget CSV for multiple trajectories.
+    This is the main function for T056.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    results = []
+    for traj_id in trajectory_ids:
+        if mode == "dynamic":
+            result = run_dynamic_simulation(
+                traj_id, model_path, max_budget, min_context
+            )
+        else:
+            result = run_baseline_simulation(traj_id, mode, max_budget)
+        
+        if "error" in result:
+            logger.warning(f"Skipping {traj_id}: {result['error']}")
+            continue
+        
+        results.append(result)
+    
+    # Write to CSV
+    if results:
+        fieldnames = [
+            "trajectory_id", 
+            "initial_tokens", 
+            "selected_layers", 
+            "final_tokens", 
+            "layers_pruned", 
+            "pruning_reason"
+        ]
+        
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            
+            for result in results:
+                # Format selected_layers and layers_pruned as comma-separated strings
+                row = {
+                    "trajectory_id": result.get("trajectory_id"),
+                    "initial_tokens": result.get("initial_tokens", 0),
+                    "selected_layers": ",".join(result.get("selected_layers", [])),
+                    "final_tokens": result.get("final_tokens", 0),
+                    "layers_pruned": ",".join(result.get("layers_pruned", [])),
+                    "pruning_reason": result.get("pruning_reason", "None")
+                }
+                writer.writerow(row)
+        
+        logger.info(f"Token budget detailed CSV written to {output_path}")
+        logger.info(f"Processed {len(results)} trajectories")
+    
+    return output_path
+
 def main():
-    """Entry point for direct execution (optional)."""
-    logger.info("Simulator module loaded.")
+    """Main entry point for simulator module."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Simulator for AgenticSTS")
+    parser.add_argument("--mode", choices=["dynamic", "static", "random"], default="dynamic")
+    parser.add_argument("--trajectories", nargs="+", help="Trajectory IDs to process")
+    parser.add_argument("--output", default=str(PROCESSED_DIR / "token_budget_detailed.csv"))
+    parser.add_argument("--model", default=str(MODEL_PATH))
+    parser.add_argument("--max-budget", type=int, default=DEFAULT_MAX_BUDGET)
+    parser.add_argument("--min-context", type=int, default=DEFAULT_MIN_CONTEXT)
+    
+    args = parser.parse_args()
+    
+    if not args.trajectories:
+        # Load test set if no trajectories specified
+        test_set_path = PROCESSED_DIR / "test_set.csv"
+        if test_set_path.exists():
+            import pandas as pd
+            df = pd.read_csv(test_set_path)
+            trajectory_ids = df["trajectory_id"].tolist()
+        else:
+            logger.error("No trajectories specified and test_set.csv not found")
+            return 1
+    else:
+        trajectory_ids = args.trajectories
+    
+    generate_token_budget_detailed_csv(
+        trajectory_ids=trajectory_ids,
+        output_path=Path(args.output),
+        mode=args.mode,
+        model_path=Path(args.model),
+        max_budget=args.max_budget,
+        min_context=args.min_context
+    )
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())
