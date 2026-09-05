@@ -67,12 +67,12 @@
         "page": 54
       }
     ],
-    "audited_at": "2026-09-05T19:21:14.415114+00:00"
+    "audited_at": "2026-09-05T19:52:00.880787+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-749-playful-agentic-robot-learning",
-  "updated_at": "2026-09-05T19:21:14.415131+00:00"
+  "updated_at": "2026-09-05T19:52:00.880805+00:00"
 }
