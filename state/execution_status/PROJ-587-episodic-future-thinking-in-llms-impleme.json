@@ -13,11 +13,11 @@
     "python src/evaluation/accuracy.py --mixed-effects -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/evaluation/accuracy.py': [Errno 2] No such file or directory",
     "python src/evaluation/confidence.py --counterfactual -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/evaluation/confidence.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 5,
+  "fix_rounds": 6,
   "model_tier": 0,
-  "total_attempts": 5,
+  "total_attempts": 6,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-04T16:19:06Z"
+  "updated_at": "2026-09-05T03:42:58Z"
 }

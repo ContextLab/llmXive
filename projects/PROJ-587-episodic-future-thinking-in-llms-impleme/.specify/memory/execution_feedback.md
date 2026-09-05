@@ -1,18 +1,5 @@
 # Execution failures — fix these before the analysis can run
 
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python src/episodic_memory/store.py --build`
-- `python src/evaluation/accuracy.py --mixed-effects`
-- `python src/evaluation/confidence.py --counterfactual`
-- `python src/evaluation/sensitivity.py --thresholds 0.70 0.75 0.80`
-- `python src/planning/generator.py --mode baseline --tasks 50`
-- `python src/planning/generator.py --mode episodic --tasks 50`
-- `python src/utils/init_config.py`
-- `python src/utils/loaders.py --fetch`
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
 **Summary**: 8 run-book script(s) missing (plan/impl path mismatch): python src/utils/loaders.py --fetch; python src/utils/init_config.py; python src/episodic_memory/store.py --build
