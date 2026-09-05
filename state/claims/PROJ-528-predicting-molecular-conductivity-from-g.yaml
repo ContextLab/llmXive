@@ -74,3 +74,276 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T07:36:08Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'python requirements: rdkit, scikit-learn, pandas, numpy, matplotlib,
+    seaborn, pyyaml, pytest'
+  claim_id: c_96d62fcd
+  context: 'Initialize Python 3.x project by creating `requirements.txt` containing:
+    `rdkit`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`,
+    `pytest`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initialize Python 3.x project by creating `requirements.txt` containing:
+    `rdkit`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`,
+    `pytest`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:26:31Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: black line-length 88, ruff select EFW, ignore E501
+  claim_id: c_57ee8088
+  context: Configure linting and formatting tools by creating `pyproject.toml` with
+    `[tool.black]` (line-length=88, target-version=['py311']) and `[tool.ruff]` (select=['E',
+    'F', 'W'], ignore=['E501']) sections
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure linting and formatting tools by creating `pyproject.toml` with
+    `[tool.black]` (line-length=88, target-version=['py311']) and `[tool.ruff]` (select=['E',
+    'F', 'W'], ignore=['E501']) sections
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:26:57Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'config constants: DATA_PATH, SEED, OUTLIER_SIGMA, VIF_THRESHOLD, TARGET_VAR'
+  claim_id: c_03e343e7
+  context: 'Setup configuration module (`code/config.py`) defining constants: `DATA_PATH`,
+    `SEED`, `OUTLIER_SIGMA`, `VIF_THRESHOLD`, `TARGET_VAR` (default: ''conductivity'')'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Config_constants:_DATA_PATH,_SEED,_OUTLIER_SIGMA,_VIF_THRESH
+  kind: entity_fact
+  raw_text: 'Define constants: `DATA_PATH`, `SEED`, `OUTLIER_SIGMA`, `VIF_THRESHOLD`,
+    `TARGET_VAR`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:27:18Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: validate_smiles function
+  claim_id: c_0077fac3
+  context: Implement data validation utilities in `code/validators.py` with functions
+    `validate_smiles(smiles_str)` and `check_target_range(values, min_log_range=3.0`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_smiles_function
+  kind: entity_fact
+  raw_text: Validate smiles with function `validate_smiles(smiles_str)`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:27:38Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: check_target_range function with min_log_range 3.0
+  claim_id: c_d0197851
+  context: Implement data validation utilities in `code/validators.py` with functions
+    `validate_smiles(smiles_str)` and `check_target_range(values, min_log_range=3.0`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check target range with function `check_target_range(values, min_log_range=3.0`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:28:11Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: logging to logs/pipeline.log in JSON format
+  claim_id: c_83749ad0
+  context: Setup logging infrastructure in `code/logging_config.py` that configures
+    a rotating file handler to `logs/pipeline.log` with JSON formatting
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logging_to_logs/pipeline.log_in_JSON_format
+  kind: entity_fact
+  raw_text: Configure a rotating file handler to `logs/pipeline.log` with JSON formatting
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:28:26Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: Pydantic Molecule and Descriptor classes
+  claim_id: c_1e1fc154
+  context: 'Create `code/models.py` with Pydantic classes `Molecule` (fields: smiles,
+    descriptors, target) and `Descriptor` (fields: name, value)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pydantic_Molecule_and_Descriptor_classes
+  kind: entity_fact
+  raw_text: 'Define Pydantic classes `Molecule` (fields: smiles, descriptors, target)
+    and `Descriptor` (fields: name, value)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:29:06Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: MurckoScaffold for scaffold splitting
+  claim_id: c_58051078
+  context: Implement scaffold splitting utility in `code/scaffold_split.py` using
+    `rdkit.Chem.Scaffolds.MurckoScaffold` to ensure structural diversity and prevent
+    data leakage (FR-002)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MurckoScaffold_for_scaffold_splitting
+  kind: entity_fact
+  raw_text: Use `rdkit.Chem.Scaffolds.MurckoScaffold` to ensure structural diversity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:29:29Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'model_results_schema.yaml fields: r2, mae, cv_scores, sensitivity_data,
+    vif_scores, quantum_proxy_metadata'
+  claim_id: c_83815e62
+  context: 'Create `contracts/model_results_schema.yaml` defining fields: `r2`, `mae`,
+    `cv_scores`, `sensitivity_data`, `vif_scores`, `quantum_proxy_metadata`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_results_schema.yaml_fields:_r2,_mae,_cv_scores,_sensit
+  kind: entity_fact
+  raw_text: 'Define fields: `r2`, `mae`, `cv_scores`, `sensitivity_data`, `vif_scores`,
+    `quantum_proxy_metadata` in `contracts/model_results_schema.yaml`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:30:02Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: CalcNumAromaticRings
+  claim_id: c_c1284e26
+  context: Implement standard aromaticity and ring descriptors in `code/descriptors.py`
+    (FR-008). Use `rdkit.Chem.rdMolDescriptors.CalcNumAromaticRings` and `rdkit.Chem.rdMolDescriptors.CalcNumRings`
+    to compute 'aromaticity_index' and 'ring_count'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CalcNumAromaticRings
+  kind: entity_fact
+  raw_text: Use `rdkit.Chem.rdMolDescriptors.CalcNumAromaticRings`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:30:35Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: CalcNumRings
+  claim_id: c_e0a25c24
+  context: Implement standard aromaticity and ring descriptors in `code/descriptors.py`
+    (FR-008). Use `rdkit.Chem.rdMolDescriptors.CalcNumAromaticRings` and `rdkit.Chem.rdMolDescriptors.CalcNumRings`
+    to compute 'aromaticity_index' and 'ring_count'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CalcNumRings
+  kind: entity_fact
+  raw_text: Use `rdkit.Chem.rdMolDescriptors.CalcNumRings`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:30:56Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'RF hyperparameters: n_estimators=100, max_depth=None, random_state=SEED'
+  claim_id: c_8fc20a97
+  context: 'Train Random Forest and Gradient Boosting regressors on log-transformed
+    target in `code/model_training.py`. RF: `n_estimators=100`, `max_depth=None`,
+    `random_state=SEED`. GB: `n_estimators=100`, `learning_rate=0.1`, `random_state=SEED`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RF: `n_estimators=100`, `max_depth=None`, `random_state=SEED`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:31:15Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 'GB hyperparameters: n_estimators=100, learning_rate=0.1, random_state=SEED'
+  claim_id: c_c550945a
+  context: 'Train Random Forest and Gradient Boosting regressors on log-transformed
+    target in `code/model_training.py`. RF: `n_estimators=100`, `max_depth=None`,
+    `random_state=SEED`. GB: `n_estimators=100`, `learning_rate=0.1`, `random_state=SEED`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'GB: `n_estimators=100`, `learning_rate=0.1`, `random_state=SEED`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:31:41Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation
+  claim_id: c_389ee184
+  context: Implement 5-fold cross-validation and metric recording in `code/model_training.py`.
+    Use `cross_val_score` with `cv=5` and `scoring='r2'`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `cross_val_score` with `cv=5`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:31:58Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: permutation_importance with n_repeats=10
+  claim_id: c_5d65b1a0
+  context: Compute feature importance rankings (permutation or tree-based) on the
+    final VIF-filtered model in `code/analysis.py`. Use `sklearn.inspection.permutation_importance`
+    with `n_repeats=10` and `random_state=SEED`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `sklearn.inspection.permutation_importance` with `n_repeats=10`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T19:32:15Z'

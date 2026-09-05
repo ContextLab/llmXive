@@ -63,19 +63,26 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement `load_smiles(path: str) -> pd.DataFrame` in `code/data_loader.py` returning DataFrame with columns [smiles, valid, error_msg]
-- [X] T014a [US1] Implement Degree Distribution Descriptors in `code/descriptors.py` (FR-001). Compute scalar metrics for degree (mean, std, max, min) as distinct columns. **Output columns**: `degree_mean`, `degree_std`, `degree_max`, `degree_min`. **MUST return NaN for any molecule where degree calculation fails.**
-- [X] T014b [US1] Implement Path Length Descriptors in `code/descriptors.py` (FR-001). Compute multiple scalar metrics for path length (mean, std, max, min) as distinct columns. **Algorithm**: Use `rdkit.Chem.rdmolops.GetShortestPath` or `rdkit.Chem.rdmolops.GetDistanceMatrix` to compute average shortest path, diameter, etc. **Output columns**: `path_length_mean`, `path_length_std`, `path_length_max`, `path_length_min`. **MUST return NaN for any molecule where path calculation fails.**
-- [X] T015 [US1] Implement standard aromaticity and ring descriptors in `code/descriptors.py` (FR-008). Use `rdkit.Chem.rdMolDescriptors.CalcNumAromaticRings` and `rdkit.Chem.rdMolDescriptors.CalcNumRings` to compute 'aromaticity_index' and 'ring_count'. Do NOT implement custom HMO theory or resonance energy calculations. (FR-001, FR-008) **MUST return NaN if calculation fails.**
-- [X] T015c [US1] Implement **Longest Conjugated Path Length** in `code/descriptors.py` (FR-001). Compute the longest simple path in the subgraph induced by conjugated bonds (bonds with order > 1 or aromatic). **Algorithm**: Use `rdkit.Chem.GetSymmSSSR` to identify aromatic/conjugated bonds, construct a subgraph, and run a Depth-First Search (DFS) with a depth limit to approximate the longest simple path (heuristic for NP-hard problem). Output as `conjugation_length`. **MUST return NaN for any molecule where conjugated subgraph is empty or calculation fails.**
-- [X] T015d [US1] Implement **Aromaticity Indices** in `code/descriptors.py` (FR-008). Compute `huckel_aromaticity_count` (number of aromatic rings) and `clar_aromaticity_proxy` (number of disjoint aromatic sextets, approximated by counting maximum independent set of aromatic rings). **Output columns**: `huckel_aromaticity_count`, `clar_aromaticity_proxy`. (FR-001, FR-008) **MUST return NaN if calculation fails.**
-- [X] T015e [US1] Implement **Conjugation Metrics** in `code/descriptors.py` (FR-001). Compute `num_conjugated_bonds` (count of bonds with order > 1 or aromatic) and `conjugation_density` (ratio of conjugated bonds to total bonds). **Output columns**: `num_conjugated_bonds`, `conjugation_density`. (FR-001, FR-008) **MUST return NaN if calculation fails.**
+- [X] T013 [US1] Implement `load_smiles(path: str) -> pd.DataFrame` in `code/data_loader.py` returning DataFrame with columns [smiles, valid, error_msg]
+- [X] T014 [US1] Implement **Graph-Based Descriptor Computation** in `code/descriptors.py` (FR-001, FR-008). Compute the following descriptors for each valid molecule:
+  1. **Degree Distribution**: `degree_mean`, `degree_std`, `degree_max`, `degree_min`.
+  2. **Path Length**: `path_length_mean`, `path_length_std`, `path_length_max`, `path_length_min` (using `rdkit.Chem.rdmolops.GetDistanceMatrix`).
+  3. **Aromaticity & Rings**: `aromaticity_index`, `ring_count`, `huckel_aromaticity_count`, `clar_aromaticity_proxy`.
+  4. **Conjugation**: `conjugation_length` (longest simple path in conjugated subgraph via DFS), `num_conjugated_bonds`, `conjugation_density`.
+  5. **Reviewer Feedback Proxies**: `weighted_path_length`, `electronegativity_polarity`, `resonance_proxy`.
+  
+  **Logic**:
+  - Compute base descriptors first. If any base descriptor fails (NaN), mark molecule as invalid.
+  - If base descriptors are valid, compute reviewer feedback proxies.
+  - **Runtime Guard**: If total runtime for this function exceeds 5 hours (check `time.time()` vs start), log a warning and skip the calculation of the three reviewer feedback proxies (`weighted_path_length`, `electronegativity_polarity`, `resonance_proxy`), setting them to NaN. Do NOT skip base descriptors.
+  - **Quantum Fallback**: If a quantum-derived descriptor (e.g., HOMO-LUMO gap) is missing from the dataset for a molecule, log a warning: "Quantum descriptor missing for {smiles}; falling back to topological proxy." Use the topological conjugation length as the proxy. If both quantum and topological proxies fail for a molecule, exclude the molecule from the output. (FR-014)
+  - **Output**: Return a dictionary or DataFrame row with all these columns. **MUST return NaN for any calculation that fails.** (FR-001, FR-008)
+  - **Note**: This task is sequential within the pipeline to ensure all descriptors are aggregated before writing to the output file.
+  
 - [X] T017 [US1] Implement fallback logic for missing quantum descriptors in `code/descriptors.py`. If a quantum-derived descriptor (e.g., HOMO-LUMO gap) is missing from the dataset for a molecule, log a warning: "Quantum descriptor missing for {smiles}; falling back to topological proxy." Use the topological conjugation length as the proxy. If both quantum and topological proxies fail for a molecule, exclude the molecule from the output. (FR-014)
 - [X] T018 [US1] Implement error handling for invalid SMILES and missing conductivity in `code/data_loader.py`. If a SMILES string is invalid, log an error: "Invalid SMILES: {smiles}" and exclude the molecule. If the target variable (conductivity) is missing for a molecule, log a warning: "Missing conductivity for {smiles}" and exclude the molecule. (FR-012)
-- [X] T019 [US1] Write descriptor computation results to `data/processed/descriptors.csv` with EXACT columns: [smiles, status, degree_mean, degree_std, degree_max, degree_min, path_length_mean, path_length_std, path_length_max, path_length_min, aromaticity_index, huckel_aromaticity_count, clar_aromaticity_proxy, conjugation_length, num_conjugated_bonds, conjugation_density, ring_count]. **Logic**: Iterate through computed descriptors. If any row has NaN values in the required descriptor columns (degree, path, aromaticity, conjugation, ring), drop the row and log: "Dropped {count} rows due to NaN values in descriptors." (FR-001, FR-008)
-- [X] T020 [US1] **Address Reviewer Feedback (linus-pauling-simulated)**: Implement **Bond Order and Length Annotation** in `code/descriptors.py`. Use `rdkit.Chem.GetBondOrder` and `rdkit.Chem.rdMolDescriptors.CalcCrippenDescriptors` (or similar) to estimate bond lengths (sp C-C ≈ 1.39Å, sp C-C ≈ 1.54Å) based on hybridization. Compute a new feature `weighted_path_length` that sums these estimated bond lengths along the longest conjugated path. (FR-001, FR-008, Reviewer Feedback)
-- [X] T021 [US1] **Address Reviewer Feedback (linus-pauling-simulated)**: Implement **Electronegativity-Weighted Polarity Term** in `code/descriptors.py`. Use `rdkit.Chem.rdMolDescriptors.CalcNumHBA` and `rdkit.Chem.rdMolDescriptors.CalcNumHBD` or atomic properties to estimate electronegativity differences. Compute a term `electronegativity_polarity = sum(|EN_atom1 - EN_atom2| * bond_length)` for polar bonds in the conjugated system. (FR-001, FR-008, Reviewer Feedback)
-- [X] T022 [US1] **Address Reviewer Feedback (linus-pauling-simulated)**: Implement **Hückel Resonance Energy Proxy** in `code/descriptors.py`. Use `rdkit.Chem.rdMolDescriptors.CalcNumAromaticRings` and the number of conjugated double bonds to estimate a Hückel-style resonance energy term (e.g., `resonance_proxy = num_aromatic_rings * + num_conjugated_double_bonds *` in arbitrary units). Log a warning if this proxy is used instead of DFT. (FR-001, FR-008, Reviewer Feedback)
+- [X] T019 [US1] Write descriptor computation results to `data/processed/descriptors.csv` with EXACT columns: [smiles, status, degree_mean, degree_std, degree_max, degree_min, path_length_mean, path_length_std, path_length_max, path_length_min, aromaticity_index, huckel_aromaticity_count, clar_aromaticity_proxy, conjugation_length, num_conjugated_bonds, conjugation_density, ring_count, weighted_path_length, electronegativity_polarity, resonance_proxy]. **Logic**: Iterate through computed descriptors. If any row has NaN values in the required descriptor columns, drop the row and log: "Dropped {count} rows due to NaN values in descriptors." (FR-001, FR-008)
+  - **DEPENDS ON**: T014, T017, T018
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,14 +102,23 @@
 
 ### Implementation for User Story 2
 
-- [X] T026 [US2] Implement target variable validation in `code/data_loader.py`: Check for 'conductivity'. If present and log-range >= 3.0, proceed. If missing, check for 'HOMO_LUMO_gap'. If missing, **HALT** with `sys.exit(1)` and error message: "CRITICAL: No valid target variable found (Conductivity or HOMO-LUMO gap missing)." If HOMO_LUMO exists, **log a CRITICAL warning**: "Conductivity missing; using HOMO-LUMO gap fallback (Scope Change: Electronic Delocalization Potential)." **Update `data/processed/metadata.json`** to record the target variable change and set `scope_change: true`. (FR-003, Plan Scope Adjustment)
-- [X] T027 [US2] Implement scaffold-based train/test split (a majority/minority ratio) in `code/scaffold_split.py` AFTER T019 completes (FR-002)
-- [X] T028 [US2] Implement log-transformation of the selected target variable (conductivity or HOMO-LUMO) in `code/model_training.py`. Use natural logarithm (`np.log`) on the target column. Create a new column named `log_{target_var}` (e.g., `log_conductivity` or `log_HOMO_LUMO_gap`). (FR-003)
-- [X] T029 [US2] Train Random Forest and Gradient Boosting regressors on log-transformed target in `code/model_training.py`. RF: `n_estimators=100`, `max_depth=None`, `random_state=SEED`. GB: `n_estimators=100`, `learning_rate=0.1`, `random_state=SEED`. (FR-003)
-- [X] T030 [US2] Implement 5-fold cross-validation and metric recording in `code/model_training.py`. Use `cross_val_score` with `cv=5` and `scoring='r2'`. Record mean and std of R² scores. (FR-004)
+- [X] T026 [US2] Implement target variable validation in `code/data_loader.py`: Check for 'conductivity'. If present and log-range >= 3.0, proceed. If missing, check for 'HOMO_LUMO_gap'. If missing, **HALT** with `sys.exit(1)` and error message: "CRITICAL: No valid target variable found (Conductivity or HOMO-LUMO gap missing)." If HOMO_LUMO exists, **log a CRITICAL warning**: "Conductivity missing; using HOMO-LUMO gap fallback (Scope Change: Electronic Delocalization Potential)." **Update `data/processed/metadata.json`** with keys: `scope_change: true`, `target_variable_used: 'HOMO_LUMO_gap'`, `reason: 'Conductivity missing'`. Reframe the research question in all subsequent outputs to "Electronic Delocalization Potential". (FR-003, Plan Scope Adjustment, FR-011)
+  - **DEPENDS ON**: T019 (Data must be loaded and descriptors computed before target validation)
+  - **NOTE**: This task MUST run before T028 (log-transformation) and T029 (training) to determine the target column name.
+  
+- [X] T027 [US2] Implement scaffold-based train/test split (a majority/minority ratio) in `code/scaffold_split.py` AFTER T026 completes (FR-002)
+- [X] T028 [US2] Implement log-transformation of the selected target variable (conductivity or HOMO-LUMO) in `code/model_training.py`. Use natural logarithm (`np.log`) on the target column. Create a new column named `log_{target_var}`. (FR-003)
 - [X] T031 [US2] Implement threshold filter function and retrain logic for outlier sensitivity in `code/analysis.py`. Function signature: `def filter_outliers(df, target_col, sigma_threshold):`. Logic: Calculate z-scores for `target_col`. Filter rows where `abs(z_score) <= sigma_threshold`. Return filtered DataFrame. Ensure it reuses the exact split indices from T027 and seed from T004. (FR-007)
-- [X] T032 [US2] Implement sensitivity analysis loop calling T031 in `code/analysis.py`, sweeping thresholds {σ, multiples of σ}. **Logic**: For each threshold, record R². **Perform a Kruskal-Wallis test** on the R² scores across the 3 thresholds to determine if variance is significant. Save results to `data/processed/sensitivity_analysis.json` with keys: `thresholds`, `r2_scores`, `kruskal_statistic`, `p_value`, `range`, `population_variance`. (FR-007)
-- [X] T033 [US2] Save model results and sensitivity analysis data to `data/processed/model_results.json` with keys: {rf_r2, gb_r2, sensitivity_analysis: [{threshold, r2, variance_metric},...]}
+- [X] T029 [US2] Train Random Forest and Gradient Boosting regressors on log-transformed target in `code/model_training.py`. RF: `n_estimators=100`, `max_depth=None`, `random_state=SEED`. GB: `n_estimators=100`, `learning_rate=0.1`, `random_state=SEED`. **Note**: Initial training uses data filtered by T031 with default threshold (3.0σ). (FR-003)
+- [X] T030 [US2] Implement 5-fold cross-validation and metric recording in `code/model_training.py`. Use `cross_val_score` with `cv=5` and `scoring='r2'`. Record mean and std of R² scores. (FR-004)
+- [X] T032 [US2] Implement sensitivity analysis loop in `code/analysis.py`. **Logic**:
+  1. Define thresholds: `{2.5, 3.0, 3.5}`.
+  2. For each threshold, call T031 to filter data, then retrain models (using T029 logic) and record R².
+  3. Perform a **Kruskal-Wallis test** on the R² scores across the 3 thresholds.
+  4. Save results to `data/processed/sensitivity_analysis.json` with keys: `thresholds`, `r2_scores` (list of raw scores), `kruskal_statistic`, `p_value`, `range`, `population_variance`. (FR-007)
+  - **DEPENDS ON**: T029, T031
+- [X] T033 [US2] Save model results and sensitivity analysis data to `data/processed/model_results.json` with keys: `rf_r2`, `gb_r2`, `cv_scores`, `sensitivity_analysis: {thresholds, r2_scores, kruskal_statistic, p_value}`. (FR-003, FR-004, FR-007)
+  - **DEPENDS ON**: T032, T030
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,12 +140,25 @@
 
 - [X] T037 [US3] Implement VIF calculation function in `code/analysis.py`. Use `statsmodels.stats.outliers_influence.variance_inflation_factor`. Input: feature matrix (numpy array). Output: dictionary mapping feature names to VIF scores. **This function MUST be callable iteratively.** (FR-013)
 - [X] T038 [US3] Implement feature exclusion logic for features with VIF > 10 in `code/analysis.py`. If any feature has VIF > 10, mark it for exclusion. (FR-013)
-- [X] T039 [US3] Implement iterative retraining loop in `code/analysis.py`: WHILE any VIF > 10, exclude the feature with the HIGHEST VIF, **call T037 logic** to recalculate VIF on the reduced feature set, retrain the model using the EXACT split indices from T027 and random seed from T004 on the reduced feature set. **Record R² and MAE after each exclusion** in a list. **Guard Clause**: If the feature set becomes empty, log a critical error and halt the pipeline; do not proceed with an empty model. Repeat until all VIF ≤ 10. Save the final VIF scores, the list of excluded features, and the **iteration log (R², MAE per step)** to `data/processed/vif_analysis.json` and `data/processed/vif_iteration_log.json`. (FR-013)
-- [X] T040 [US3] Compute feature importance rankings (permutation or tree-based) on the final VIF-filtered model in `code/analysis.py`. Use `sklearn.inspection.permutation_importance` with `n_repeats=10` and `random_state=SEED`. **Save the ranked list to `data/processed/feature_importance.csv`**. Output format: a ranked list of (feature, importance_score). (FR-005)
+- [X] T039 [US3] Implement iterative VIF loop in `code/analysis.py`. **Prerequisites**: Must run on data filtered by T031 (outliers) and use split indices from T027.
+  1. WHILE any VIF > 10:
+     - Exclude the feature with the HIGHEST VIF.
+     - Recalculate VIF on the reduced feature set (T037).
+     - Retrain the model using the EXACT split indices and seed.
+     - Record `iteration`, `excluded_feature`, `vif_scores`, `r2`, `mae`.
+  2. Guard Clause: If feature set becomes empty, log critical error and halt.
+  3. Save `vif_iteration_log.json` (keys: `iterations: [{iteration, excluded_feature, vif_scores, r2, mae}]`).
+  4. **Re-evaluate final model** on the test set and update `model_results.json` (T033) with the final R²/MAE. (FR-013)
+  - **DEPENDS ON**: T031, T027, T029
+- [X] T040 [US3] Compute feature importance rankings on the final VIF-filtered model in `code/analysis.py`. Use `sklearn.inspection.permutation_importance` with `n_repeats=10` and `random_state=SEED`. **Save the ranked list to `data/processed/feature_importance.csv`**. Output format: a ranked list of (feature, importance_score). (FR-005)
+  - **DEPENDS ON**: T039
 - [X] T041 [US3] Calculate feature-conductivity (or target) correlations with p-values in `code/analysis.py`. Use `scipy.stats.pearsonr`. Output format: a dictionary mapping feature names to (correlation_coefficient, p_value). (FR-005)
 - [X] T042 [US3] Apply Benjamini-Hochberg FDR correction to p-values in `code/analysis.py`. Use `statsmodels.stats.multitest.multipletests` with method='fdr_bh'. Output format: a dictionary mapping feature names to adjusted p-values. (FR-006)
-- [X] T043 [US3] Generate scatter plots with regression lines and confidence intervals for top features in `code/plotting.py`, DEPENDENT ON T039, T040, T041, T042. Use `seaborn.regplot` with `ci=95`. **Save plots as PNG files to `data/processed/corr_plot_top5.png`**. (FR-005)
-- [X] T045 [US3] Generate final analysis summary with adjusted p-values and top features, saving to `data/processed/analysis_summary.json`. **Logic**: Select **top 5 features by permutation importance score (descending)**, with ties broken by alphabetical feature name. (FR-005)
+- [X] T045 [US3] Generate final analysis summary with adjusted p-values and top features, saving to `data/processed/analysis_summary.json`. **Logic**: Select **top features by permutation importance score (descending)**, with ties broken by alphabetical feature name. **Keys**: `top_5_features`, `adjusted_p_values`, `fdr_method`. (FR-005)
+  - **DEPENDS ON**: T040 (Feature importance ranking)
+  - **NOTE**: T045 is independent of T043 (Plotting) and can run in parallel.
+- [X] T043 [US3] Generate scatter plots with regression lines and confidence intervals for **top 5 features** (identified in T040) in `code/plotting.py`. Use `seaborn.regplot` with `ci=95`. **Save plots as PNG files to `data/processed/corr_plot_top5.png`**. (FR-005)
+  - **DEPENDS ON**: T040, T041, T042
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,7 +170,13 @@
 
 - [X] T046 [P] Documentation updates in `docs/` including reviewer feedback
 - [X] T047 Code cleanup and refactoring. Criteria: remove unused imports, fix linting errors (black, ruff), and ensure all functions have docstrings. (FR-010)
-- [X] T049 [P] Run full pipeline integration test on sample dataset (`data/raw/sample_smiles.csv`), verifying execution time < 6 hours on 2-core CPU. Log success/failure to `state/validation_log.json`. (FR-010)
+- [X] T049 [P] Run full pipeline integration test on sample dataset (`data/raw/sample_smiles.csv`), verifying execution time < 6 hours on 2-core CPU. Log success/failure to `state/validation_log.json`. **Logic**:
+  1. Record start time.
+  2. Execute the full pipeline from T013 to T045.
+  3. Record end time.
+  4. Calculate duration.
+  5. If duration > 6 hours, log failure and exit with error.
+  6. Log duration and pass/fail status to `state/validation_log.json`. (FR-010)
 - [X] T050 Verify all artifacts match `contracts/` schemas
 - [X] T051 Run quickstart.md validation by executing all commands in `docs/quickstart.md` and logging success/failure to `state/validation_log.json`
 
@@ -223,5 +258,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Reviewer Feedback Addressed**: Tasks T014a, T014b, T015, T015c, T015d, T015e implement standard topological descriptors (Degree, Path, Aromaticity, Ring, Conjugation) required by FR-001/FR-008. T015c specifically addresses the need for conjugation length using valid RDKit APIs and a DFS heuristic. T039 implements the iterative VIF filtering with reproducibility constraints and metric tracking. T040 and T043 now explicitly handle artifact saving, resolving the granularity issue previously identified in T044.
-- **Target Variable Logic**: T026 implements the strict Spec requirement (Conductivity) with a conditional fallback (HOMO-LUMO) if Conductivity is missing, ensuring no silent relaxation of FR-003 while enabling the Plan's scope adjustment.
+- **Reviewer Feedback Addressed**: Tasks T014 implements standard topological descriptors (Degree, Path, Aromaticity, Ring, Conjugation) required by FR-001/FR-008. T014 includes runtime guards for reviewer feedback proxies to ensure FR-010 is met. T032 implements the sensitivity analysis with Kruskal-Wallis test and raw R² recording, explicitly saving to `sensitivity_analysis.json`. T039 implements the iterative VIF filtering with reproducibility constraints, metric tracking, and explicit logging to `vif_iteration_log.json`. T040, T043, and T045 now explicitly handle artifact saving and feature selection logic.
+- **Target Variable Logic**: T026 implements the strict Spec requirement (Conductivity) with a conditional fallback (HOMO-LUMO) if Conductivity is missing, ensuring no silent relaxation of FR-003 while enabling the Plan's scope adjustment and reframing the research question.
+- **Ordering**: Phase 4 tasks are ordered to ensure T031 (filter) runs before T029 (training) for the initial model, and T032 (sensitivity) correctly re-uses T031. T039 (VIF) explicitly depends on T031 and T027.
+- **Task Dependencies Clarified**: 
+  - T019 (Write Results) now explicitly depends on T014 to ensure data consistency.
+  - T026 (Target Validation) explicitly depends on T019 to ensure data is loaded.
+  - T045 (Analysis Summary) is explicitly marked as independent of T043 (Plotting), allowing parallel execution.
+  - T043 (Plotting) dependencies corrected to remove T039 and T045, depending only on T040, T041, T042.

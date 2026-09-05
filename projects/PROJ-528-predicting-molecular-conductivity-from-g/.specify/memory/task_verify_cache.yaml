@@ -1,3 +1,9 @@
+T019:
+  c: false
+  h: 711ec551ce51b2a22c85a15737525e1606dffc7d5cfd89ace8e393c422cc333d
+  r: "The required output file `data/processed/descriptors.csv` does not exist, so\
+    \ no descriptor data with the specified columns was produced or verified. The\
+    \ task\u2019s core artifact is missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -86,8 +92,24 @@ T038:
     \ (VIF) >\u202F10. Consequently, the task\u2019s core deliverable is missing."
 T039:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output file implementing the described iterative\
-    \ VIF\u2011based feature exclusion and model retraining loop is present. The required\
-    \ artifacts (the loop logic, use of the exact split indices from T027, and the\
-    \ random seed from T004) are missing, so the task is not satisfied."
+  h: d8b6d24a173ce6c0a9fd97ba345439a1059a87ddef474dacce59647856e3a7ca
+  r: "The required output files `data/processed/vif_analysis.json` and `data/processed/vif_iteration_log.json`\
+    \ are absent, and the provided `code/analysis.py` excerpt ends before any iterative\
+    \ VIF\u2011retraining logic is shown. Without these artifacts, the task\u2019\
+    s specifications are not satisfied."
+T040:
+  c: false
+  h: d2ee87f2bf36f3bc2c44d31f1f8587b197228cd2c915c14068531af7d0763efa
+  r: "The required output file `data/processed/feature_importance.csv` does not exist,\
+    \ and the provided `code/analysis.py` snippet (truncated) shows no implementation\
+    \ that computes permutation importance and writes the ranked list to that path.\
+    \ The task\u2019s core artifact is missing."
+T043:
+  c: false
+  h: 0895768f77a9e292cac17873b2ac96eb738e234fa366293d164f9de0c44a90c0
+  r: "The repository contains a partially\u2011implemented `code/plotting.py`, but\
+    \ it does not include code that iterates over the top\u20115 features, creates\
+    \ the required seaborn regplots, and writes a PNG to `data/processed/corr_plot_top5.png`.\
+    \ Moreover, the expected output file `data/processed/corr_plot_top5.png` is absent.\
+    \ The task\u2019s core deliverable \u2013 the saved scatter\u2011plot image \u2013\
+    \ is missing."

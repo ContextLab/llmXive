@@ -1,232 +1,115 @@
 """
-save_analysis_outputs.py
-Implements T044: Save feature_importance.csv and corr_plot_top5.png.
-Also supports T045 (analysis_summary.json) generation if invoked.
+Save Analysis Outputs Module.
+
+Orchestrates the saving of all analysis outputs including summary and plots.
 """
 import os
+import sys
 import json
 import logging
 import argparse
-from typing import List, Tuple, Optional, Dict, Any
-
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy.stats import pearsonr
 
-# Import from existing project modules
-from code.config import SEED, DATA_PATH
-from code.logging_config import setup_logging
-from code.feature_importance import run_feature_importance_analysis
-from code.correlation_analysis import calculate_correlation_pvalues
 from code.analysis_summary import generate_analysis_summary
+from code.plot_top_features import generate_top_feature_plots, create_combined_plot
+from code.correlation_analysis import calculate_correlation_pvalues, save_correlation_results
 
-# Setup logging
-logger = setup_logging("save_analysis_outputs")
+logger = logging.getLogger(__name__)
 
 def ensure_output_dir(path: str) -> None:
-    """Ensure the directory for the given path exists."""
-    directory = os.path.dirname(path)
-    if directory and not os.path.exists(directory):
-        os.makedirs(directory)
-        logger.info(f"Created output directory: {directory}")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
 
-def load_processed_data(file_path: str) -> pd.DataFrame:
-    """Load the processed descriptors data."""
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Processed data file not found: {file_path}")
-    df = pd.read_csv(file_path)
-    logger.info(f"Loaded processed data with {len(df)} rows from {file_path}")
-    return df
+def load_feature_importance(path: str) -> pd.DataFrame:
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Feature importance file not found: {path}")
+    return pd.read_csv(path)
 
-def get_top_features(importance_results: pd.DataFrame, n: int = 5) -> List[str]:
-    """Extract the top N features by importance score."""
-    if importance_results.empty:
-        logger.warning("Feature importance DataFrame is empty.")
+def load_correlation_results(path: str) -> Dict[str, Dict[str, float]]:
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Correlation results file not found: {path}")
+    with open(path, 'r') as f:
+        return json.load(f)
+
+def get_top_features(importance_df: pd.DataFrame, n: int = 5) -> List[str]:
+    if importance_df.empty:
         return []
-    # Assuming the importance result has a column 'feature' and 'importance'
-    # Adjust column names if the source module uses different ones
-    sorted_df = importance_results.sort_values(by='importance', ascending=False)
+    sorted_df = importance_df.sort_values(
+        by=['importance_score', 'feature'],
+        ascending=[False, True]
+    )
     return sorted_df['feature'].head(n).tolist()
 
-def create_scatter_plot_with_regression(
-    df: pd.DataFrame,
-    feature: str,
-    target_col: str,
-    output_path: str,
-    title: str = None
-) -> None:
-    """
-    Create a scatter plot with regression line and 95% CI for a feature vs target.
-    Saves the plot to output_path.
-    """
-    if feature not in df.columns or target_col not in df.columns:
-        raise ValueError(f"Columns '{feature}' or '{target_col}' not found in DataFrame.")
-
-    plt.figure(figsize=(10, 6))
-    sns.regplot(
-        data=df,
-        x=feature,
-        y=target_col,
-        ci=95,
-        scatter_kws={'alpha': 0.6},
-        line_kws={'color': 'red'}
-    )
-    plt.title(title or f"{feature} vs {target_col}")
-    plt.xlabel(feature)
-    plt.ylabel(target_col)
-    plt.grid(True, linestyle='--', alpha=0.7)
-
-    ensure_output_dir(output_path)
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close()
-    logger.info(f"Saved plot to {output_path}")
-
 def generate_and_save_top5_plot(
-    df: pd.DataFrame,
-    importance_results: pd.DataFrame,
-    target_col: str,
-    output_dir: str,
-    combined_output_path: str
+    data_path: str,
+    importance_path: str,
+    correlations_path: str,
+    output_path: str,
+    target: str = "conductivity",
+    n_top: int = 5
 ) -> None:
     """
-    Generate individual plots for top 5 features and save a combined figure.
+    Generate and save the top 5 feature correlation plot.
     """
-    top_features = get_top_features(importance_results, n=5)
-    if not top_features:
-        logger.error("No top features found to plot.")
-        return
+    logger.info("Loading data for plotting...")
+    df = pd.read_csv(data_path)
+    importance_df = load_feature_importance(importance_path)
+    # correlation_results = load_correlation_results(correlations_path) # Not strictly needed for plot
 
-    fig, axes = plt.subplots(2, 3, figsize=(15, 10))
-    axes = axes.flatten()
+    top_features = get_top_features(importance_df, n_top)
+    logger.info(f"Top features for plot: {top_features}")
 
-    for i, feature in enumerate(top_features):
-        if i >= 6: break
-        ax = axes[i]
-        # Use seaborn regplot directly on the axis
-        sns.regplot(
-            data=df,
-            x=feature,
-            y=target_col,
-            ax=ax,
-            ci=95,
-            scatter_kws={'alpha': 0.6},
-            line_kws={'color': 'red'}
-        )
-        ax.set_title(f"{feature} vs {target_col}")
-        ax.set_xlabel(feature)
-        ax.set_ylabel(target_col)
-        ax.grid(True, linestyle='--', alpha=0.7)
-
-    # Hide unused subplot if any
-    for j in range(len(top_features), 6):
-        fig.delaxes(axes[j])
-
-    plt.suptitle("Top 5 Feature Correlations with Target", fontsize=16)
-    ensure_output_dir(combined_output_path)
-    plt.savefig(combined_output_path, dpi=300, bbox_inches='tight')
-    plt.close()
-    logger.info(f"Saved combined top 5 plot to {combined_output_path}")
+    # Create combined plot
+    from code.plot_top_features import create_combined_plot
+    create_combined_plot(df, top_features, target, output_path)
 
 def save_feature_importance_csv(
-    importance_results: pd.DataFrame,
+    importance_df: pd.DataFrame,
     output_path: str
 ) -> None:
-    """
-    Save the feature importance results to a CSV file.
-    """
-    if importance_results.empty:
-        logger.warning("Feature importance DataFrame is empty, saving empty file.")
     ensure_output_dir(output_path)
-    importance_results.to_csv(output_path, index=False)
+    importance_df.to_csv(output_path, index=False)
     logger.info(f"Saved feature importance to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Save analysis outputs (T044, T045)")
-    parser.add_argument("--data", type=str, required=True, help="Path to processed descriptors CSV")
-    parser.add_argument("--output-dir", type=str, default="data/processed", help="Output directory for artifacts")
-    parser.add_argument("--target", type=str, default="conductivity", help="Target variable column name")
+    """
+    Main entry point for saving analysis outputs.
+    """
+    parser = argparse.ArgumentParser(description="Save analysis outputs.")
+    parser.add_argument("--data", type=str, required=True, help="Path to processed data CSV.")
+    parser.add_argument("--importance", type=str, required=True, help="Path to feature importance CSV.")
+    parser.add_argument("--correlations", type=str, required=True, help="Path to correlation results JSON.")
+    parser.add_argument("--output-summary", type=str, required=True, help="Path to output summary JSON.")
+    parser.add_argument("--output-plot", type=str, required=True, help="Path to output plot PNG.")
+    parser.add_argument("--target", type=str, default="conductivity", help="Target variable name.")
+    parser.add_argument("--top-n", type=int, default=5, help="Number of top features.")
     args = parser.parse_args()
 
-    logger.info(f"Starting analysis output generation. Data: {args.data}, Target: {args.target}")
+    # Setup logging
+    from code.logging_config import setup_logging
+    setup_logging()
 
-    # 1. Load Data
-    try:
-        df = load_processed_data(args.data)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        return 1
+    # Generate Analysis Summary
+    logger.info("Generating analysis summary...")
+    generate_analysis_summary(
+        args.importance,
+        args.correlations,
+        args.output_summary,
+        args.top_n
+    )
 
-    # Determine actual target column name (might be log-transformed)
-    target_col = args.target
-    if f"log_{args.target}" in df.columns:
-        target_col = f"log_{args.target}"
-        logger.info(f"Using log-transformed target: {target_col}")
+    # Generate Top 5 Plot
+    logger.info("Generating top 5 plot...")
+    generate_and_save_top5_plot(
+        args.data,
+        args.importance,
+        args.correlations,
+        args.output_plot,
+        args.target,
+        args.top_n
+    )
 
-    # 2. Compute Feature Importance (T040 logic, re-using existing module)
-    # We need a model to compute permutation importance.
-    # Since T039 (iterative VIF) and T029 (training) should have run,
-    # we assume a model exists or we train a quick one for importance.
-    # To be safe and self-contained for this script, we will train a simple RF
-    # on the current data to get importance if not provided.
-    # However, the task implies we are saving results of the analysis pipeline.
-    # We will call the existing feature_importance module which likely handles model training.
-
-    # Prepare features
-    feature_cols = [c for c in df.columns if c not in ['smiles', 'status', target_col]]
-    if not feature_cols:
-        logger.error("No feature columns found.")
-        return 1
-
-    X = df[feature_cols]
-    y = df[target_col]
-
-    # Run feature importance analysis (re-uses existing logic from feature_importance.py)
-    # We pass the data directly to the function if possible, or re-implement the call.
-    # The existing module `run_feature_importance_analysis` likely expects a model or data.
-    # Let's assume it can take X and y. If the signature differs, we adapt.
-    # Based on the API surface, it's safer to call the main logic or a helper.
-    # Since we don't have the full source of feature_importance.py, we will implement
-    # the standard permutation importance logic here to ensure T044 works,
-    # or rely on the fact that the pipeline should have produced a model.
-    # Given the constraint "Extend, don't re-author", we try to use the module.
-    # If the module requires a trained model, we must train one.
-    
-    # Fallback: Train a quick model to get importance if the module doesn't do it internally
-    from sklearn.ensemble import RandomForestRegressor
-    from sklearn.inspection import permutation_importance
-    
-    model = RandomForestRegressor(n_estimators=100, random_state=SEED)
-    model.fit(X, y)
-    
-    result = permutation_importance(model, X, y, n_repeats=10, random_state=SEED)
-    
-    importance_df = pd.DataFrame({
-        'feature': feature_cols,
-        'importance': result.importances_mean
-    })
-    # Sort by importance
-    importance_df = importance_df.sort_values(by='importance', ascending=False)
-
-    # 3. Calculate Correlations (T041 logic)
-    # We need p-values for the top features.
-    # The existing module `calculate_correlation_pvalues` can be used.
-    # It likely takes df and target_col.
-    # If it returns a dict or DF, we use it.
-    # For T044, we specifically need the plot of top 5.
-    
-    # 4. Save Feature Importance CSV (T044 part 1)
-    importance_csv_path = os.path.join(args.output_dir, "feature_importance.csv")
-    save_feature_importance_csv(importance_df, importance_csv_path)
-
-    # 5. Generate and Save Top 5 Plot (T044 part 2)
-    # The task asks for `data/processed/corr_plot_top5.png`
-    plot_path = os.path.join(args.output_dir, "corr_plot_top5.png")
-    generate_and_save_top5_plot(df, importance_df, target_col, args.output_dir, plot_path)
-
-    logger.info("T044 artifacts generated successfully.")
-    return 0
+    logger.info("All outputs saved successfully.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

@@ -3,59 +3,60 @@
 This guide walks you through running the full pipeline to predict molecular conductivity from graph-based features.
 
 ## Prerequisites
-- Python 3.11 or higher
-- pip (Python package installer)
 
-## 1. Setup Environment
+- Python 3.9+
+- Install dependencies: `pip install -r requirements.txt`
+
+## 1. Prepare Data
+
+Ensure you have a raw SMILES file in `data/raw/smiles.csv` with a `smiles` column.
+If you don't have one, create a sample:
+
 ```bash
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+echo "smiles
+c1ccccc1
+C=CC=C
+CCCCCC" > data/raw/sample_smiles.csv
 ```
 
-## 2. Prepare Data
-The pipeline expects a CSV file containing SMILES strings and conductivity values (or HOMO-LUMO gap as a fallback).
-Place your data file in `data/raw/` (e.g., `data/raw/molecules.csv`).
+## 2. Run Descriptor Pipeline
 
-Ensure the CSV has columns: `smiles` and `conductivity` (or `HOMO_LUMO_gap`).
+Compute graph-based descriptors for the molecules.
 
-## 3. Run the Pipeline
-
-### Step 3.1: Compute Descriptors
-This step parses SMILES, validates structures, and computes graph-based and physics-informed descriptors (including resonance energy and bond polarity).
 ```bash
-python code/run_descriptor_pipeline.py --input data/raw/molecules.csv --output data/processed/descriptors.csv
+python code/run_descriptor_pipeline.py --input data/raw/sample_smiles.csv --output data/processed/descriptors.csv
 ```
-*Output*: `data/processed/descriptors.csv` containing computed features.
 
-### Step 3.2: Train Models
-This step splits data (scaffold split), trains Random Forest and Gradient Boosting models, and performs sensitivity analysis.
+## 3. Train Models
+
+Train Random Forest and Gradient Boosting models on the descriptors.
+
 ```bash
-python code/run_training.py --input data/processed/descriptors.csv
+python code/model_training.py --data data/processed/descriptors.csv --output data/processed/model_results.json
 ```
-*Output*: `data/processed/model_results.json` and `data/processed/sensitivity_analysis.json`.
 
-### Step 3.3: Feature Analysis
-This step calculates VIF, applies iterative retraining, and generates feature importance plots.
+## 4. Run Sensitivity Analysis
+
+Analyze model stability against outlier removal thresholds.
+
 ```bash
-python code/run_feature_analysis.py --input data/processed/descriptors.csv
+python code/analysis.py --data data/processed/descriptors.csv --output data/processed/sensitivity_analysis.json --thresholds 1.0 2.0 3.0
 ```
-*Output*: `data/processed/feature_importance.csv`, `data/processed/corr_plot_top5.png`, and `data/processed/analysis_summary.json`.
 
-## 4. Review Results
-- **Model Performance**: Check `data/processed/model_results.json` for R² and MAE scores.
-- **Feature Importance**: View `data/processed/feature_importance.csv` to see which descriptors (e.g., resonance_energy, bond_polarity) drive predictions.
-- **Visualizations**: Open `data/processed/corr_plot_top5.png` for scatter plots of top features.
+## 5. Generate Analysis Summary
 
-## 5. Validation
-To verify the pipeline against the reviewer's feedback on resonance:
-- Inspect the `resonance_energy` column in `data/processed/descriptors.csv`.
-- Check `docs/REVIEWER_FEEDBACK_RESOLUTION.md` for details on how resonance and bond length contraction were modeled.
+Generate feature importance and correlation plots.
 
-## Troubleshooting
-- **Invalid SMILES**: Ensure all SMILES strings in your input file are valid. The pipeline will log invalid entries.
-- **Missing Target**: If `conductivity` is missing, the pipeline will attempt to use `HOMO_LUMO_gap` (with a warning).
-- **VIF Issues**: If VIF > 10, the pipeline automatically iteratively removes high-VIF features. Check `data/processed/analysis_summary.json` for the final feature set.
+```bash
+python code/save_analysis_outputs.py --data data/processed/descriptors.csv --results data/processed/model_results.json --output data/processed/analysis_summary.json --plots data/processed/corr_plot_top5.png
+```
+
+## 6. Validate
+
+Check that all expected output files are generated:
+
+- `data/processed/descriptors.csv`
+- `data/processed/model_results.json`
+- `data/processed/sensitivity_analysis.json`
+- `data/processed/analysis_summary.json`
+- `data/processed/corr_plot_top5.png`

@@ -1,7 +1,6 @@
 """
-Analysis Summary Module (T045)
-Generates the final analysis summary with adjusted p-values and top features.
-Saves the result to data/processed/analysis_summary.json.
+Analysis Summary Module for US3
+Generates final analysis summary with adjusted p-values and top features.
 """
 import os
 import json
@@ -9,205 +8,103 @@ import logging
 import pandas as pd
 import numpy as np
 from typing import Dict, Any, List, Optional
-
-# Import from existing modules based on API surface
-from code.config import DATA_PATH, SEED, TARGET_VAR
+from code.config import SEED
 from code.logging_config import setup_logging
 
-# Ensure logging is configured
-logger = setup_logging()
+# Setup logging
+logger = setup_logging(__name__)
 
-def load_feature_importance(filepath: Optional[str] = None) -> pd.DataFrame:
-    """Load feature importance data from CSV."""
-    if filepath is None:
-        filepath = os.path.join(DATA_PATH, "processed", "feature_importance.csv")
-    
+def load_feature_importance(filepath: str = "data/processed/feature_importance.csv") -> pd.DataFrame:
+    """Load feature importance rankings."""
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Feature importance file not found: {filepath}")
-    
     df = pd.read_csv(filepath)
-    logger.info(f"Loaded feature importance from {filepath}, shape: {df.shape}")
     return df
 
-def load_correlation_results(filepath: Optional[str] = None) -> pd.DataFrame:
-    """Load correlation results (including adjusted p-values) from CSV/JSON."""
-    # Try CSV first, then JSON if needed
-    csv_path = os.path.join(DATA_PATH, "processed", "correlation_results.csv")
-    json_path = os.path.join(DATA_PATH, "processed", "correlation_results.json")
-    
-    if os.path.exists(csv_path):
-        df = pd.read_csv(csv_path)
-        logger.info(f"Loaded correlation results from {csv_path}")
-    elif os.path.exists(json_path):
-        with open(json_path, 'r') as f:
-            data = json.load(f)
-            df = pd.DataFrame(data)
-        logger.info(f"Loaded correlation results from {json_path}")
-    else:
-        # Fallback: try to load from analysis outputs if available
-        # This might happen if the file is named differently
-        raise FileNotFoundError("Correlation results file not found in expected locations.")
-    
-    return df
+def load_correlation_results(filepath: str = "data/processed/correlation_results.json") -> Dict[str, Any]:
+    """Load correlation results with p-values."""
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Correlation results file not found: {filepath}")
+    with open(filepath, 'r') as f:
+        return json.load(f)
 
-def get_top_features(feature_importance_df: pd.DataFrame, n: int = 10) -> List[Dict[str, Any]]:
-    """Get top N features by importance score."""
-    if 'importance' not in feature_importance_df.columns:
-        # Try to find the importance column (might be named differently)
-        importance_cols = [col for col in feature_importance_df.columns if 'importance' in col.lower()]
-        if importance_cols:
-            importance_col = importance_cols[0]
-        else:
-            raise ValueError("No importance column found in feature importance DataFrame")
-    else:
-        importance_col = 'importance'
-    
-    top_features = feature_importance_df.nlargest(n, importance_col)
-    result = []
-    for _, row in top_features.iterrows():
-        result.append({
-            'feature': row['feature'],
-            'importance': float(row[importance_col]),
-            'rank': len(result) + 1
-        })
-    return result
+def get_top_features(feature_importance_df: pd.DataFrame, top_n: int = 5) -> List[Dict[str, Any]]:
+    """
+    Select top N features by permutation importance score (descending).
+    Ties are broken by alphabetical feature name.
+    """
+    # Sort by importance (descending), then by feature name (ascending) for ties
+    sorted_df = feature_importance_df.sort_values(
+        by=['importance_score', 'feature'],
+        ascending=[False, True]
+    )
+    top_features = sorted_df.head(top_n).to_dict('records')
+    return top_features
 
-def summarize_feature_stats(correlation_df: pd.DataFrame) -> Dict[str, Any]:
-    """Summarize statistical properties of feature correlations."""
-    stats = {}
-    
-    # Look for correlation coefficient and p-value columns
-    corr_cols = [col for col in correlation_df.columns if 'correlation' in col.lower() or 'coeff' in col.lower()]
-    pval_cols = [col for col in correlation_df.columns if 'p_value' in col.lower() or 'pval' in col.lower() or 'p-value' in col.lower()]
-    
-    if not corr_cols or not pval_cols:
-        logger.warning("Could not find correlation or p-value columns in correlation results")
-        return stats
-    
-    corr_col = corr_cols[0]
-    pval_col = pval_cols[0]
-    
-    # Check for adjusted p-values
-    adj_pval_col = None
-    adj_pval_candidates = [col for col in correlation_df.columns if 'adj' in col.lower() and 'p' in col.lower()]
-    if adj_pval_candidates:
-        adj_pval_col = adj_pval_candidates[0]
-    
-    stats['total_features'] = len(correlation_df)
-    stats['mean_correlation'] = float(correlation_df[corr_col].mean())
-    stats['std_correlation'] = float(correlation_df[corr_col].std())
-    stats['min_correlation'] = float(correlation_df[corr_col].min())
-    stats['max_correlation'] = float(correlation_df[corr_col].max())
-    
-    if adj_pval_col:
-        significant_count = (correlation_df[adj_pval_col] < 0.05).sum()
-        stats['significant_features_at_0.05'] = int(significant_count)
-        stats['fdr_adjusted'] = True
-        stats['fdr_method'] = 'benjamini_hochberg'
-    else:
-        # Use raw p-values if adjusted not available
-        significant_count = (correlation_df[pval_col] < 0.05).sum()
-        stats['significant_features_at_0.05'] = int(significant_count)
-        stats['fdr_adjusted'] = False
-    
-    return stats
-
-def generate_analysis_summary(
-    feature_importance_df: pd.DataFrame,
-    correlation_df: pd.DataFrame,
-    top_n: int = 10
-) -> Dict[str, Any]:
-    """Generate the final analysis summary."""
-    summary = {
-        'metadata': {
-            'target_variable': TARGET_VAR,
-            'seed': SEED,
-            'generated_at': pd.Timestamp.now().isoformat(),
-            'analysis_version': '1.0.0'
-        },
-        'feature_statistics': summarize_feature_stats(correlation_df),
-        'top_features': get_top_features(feature_importance_df, n=top_n),
-        'correlation_summary': {
-            'total_correlations': len(correlation_df),
-            'features_with_positive_correlation': int((correlation_df['correlation_coefficient'] > 0).sum()),
-            'features_with_negative_correlation': int((correlation_df['correlation_coefficient'] < 0).sum()),
-            'features_with_significant_correlation': int((correlation_df['adj_p_value'] < 0.05).sum()) if 'adj_p_value' in correlation_df.columns else None
-        }
-    }
-    
-    # Add detailed top features with p-values
-    top_features_details = []
-    for feat in summary['top_features']:
+def summarize_feature_stats(correlation_results: Dict[str, Any], top_features: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Summarize statistics for top features including adjusted p-values."""
+    summary = []
+    for feat in top_features:
         feat_name = feat['feature']
-        feat_row = correlation_df[correlation_df['feature'] == feat_name]
-        if not feat_row.empty:
-            row = feat_row.iloc[0]
-            top_features_details.append({
-                'feature': feat_name,
-                'importance_rank': feat['rank'],
-                'importance_score': feat['importance'],
-                'correlation_coefficient': float(row['correlation_coefficient']),
-                'p_value': float(row['p_value']),
-                'adjusted_p_value': float(row['adj_p_value']) if 'adj_p_value' in row else float(row['p_value']),
-                'is_significant': bool(row['adj_p_value'] < 0.05) if 'adj_p_value' in row else bool(row['p_value'] < 0.05)
-            })
-    
-    summary['detailed_top_features'] = top_features_details
-    
+        corr_data = correlation_results.get(feat_name, {})
+        summary.append({
+            'feature': feat_name,
+            'importance_score': feat['importance_score'],
+            'correlation_coefficient': corr_data.get('correlation_coefficient'),
+            'raw_p_value': corr_data.get('raw_p_value'),
+            'adjusted_p_value': corr_data.get('adjusted_p_value')
+        })
     return summary
 
-def main(
-    feature_importance_path: Optional[str] = None,
-    correlation_path: Optional[str] = None,
-    output_path: Optional[str] = None,
-    top_n: int = 10
-):
-    """Main function to generate and save the analysis summary."""
-    # Set default paths if not provided
-    if output_path is None:
-        output_path = os.path.join(DATA_PATH, "processed", "analysis_summary.json")
+def generate_analysis_summary(top_features: List[Dict[str, Any]], summary_stats: List[Dict[str, Any]], output_path: str) -> None:
+    """Generate and save the final analysis summary JSON."""
+    summary_data = {
+        'top_features': top_features,
+        'feature_summary_stats': summary_stats,
+        'total_features_analyzed': len(summary_stats),
+        'selection_criteria': 'Top 5 by permutation importance (descending), ties broken alphabetically'
+    }
     
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    logger.info(f"Generating analysis summary, output will be saved to: {output_path}")
+    with open(output_path, 'w') as f:
+        json.dump(summary_data, f, indent=2)
+    
+    logger.info(f"Analysis summary saved to {output_path}")
+
+def main():
+    """Main entry point for generating analysis summary."""
+    logger.info("Starting analysis summary generation...")
     
     try:
-        # Load data
-        feature_importance_df = load_feature_importance(feature_importance_path)
-        correlation_df = load_correlation_results(correlation_path)
+        # Load feature importance
+        feature_importance_df = load_feature_importance()
+        logger.info(f"Loaded {len(feature_importance_df)} features from importance file")
         
-        # Generate summary
-        summary = generate_analysis_summary(feature_importance_df, correlation_df, top_n=top_n)
+        # Load correlation results
+        correlation_results = load_correlation_results()
+        logger.info(f"Loaded correlation results for {len(correlation_results)} features")
         
-        # Save to JSON
-        with open(output_path, 'w') as f:
-            json.dump(summary, f, indent=2, default=str)
+        # Get top 5 features
+        top_features = get_top_features(feature_importance_df, top_n=5)
+        logger.info(f"Selected top 5 features: {[f['feature'] for f in top_features]}")
         
-        logger.info(f"Analysis summary successfully saved to {output_path}")
-        logger.info(f"Summary contains {len(summary['top_features'])} top features")
-        logger.info(f"Summary contains {summary['feature_statistics']['total_features']} total feature correlations")
+        # Summarize stats
+        summary_stats = summarize_feature_stats(correlation_results, top_features)
         
-        return summary
+        # Generate and save summary
+        output_path = "data/processed/analysis_summary.json"
+        generate_analysis_summary(top_features, summary_stats, output_path)
         
+        logger.info("Analysis summary generation completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Missing required input file: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Failed to generate analysis summary: {str(e)}", exc_info=True)
+        logger.error(f"Error during analysis summary generation: {e}")
         raise
 
 if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate final analysis summary")
-    parser.add_argument("--feature-importance", type=str, default=None, help="Path to feature importance CSV")
-    parser.add_argument("--correlation", type=str, default=None, help="Path to correlation results")
-    parser.add_argument("--output", type=str, default=None, help="Path to output JSON file")
-    parser.add_argument("--top-n", type=int, default=10, help="Number of top features to include")
-    
-    args = parser.parse_args()
-    
-    main(
-        feature_importance_path=args.feature_importance,
-        correlation_path=args.correlation,
-        output_path=args.output,
-        top_n=args.top_n
-    )
+    main()
