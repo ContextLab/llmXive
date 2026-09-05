@@ -1,49 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "StabilityResult"
-description: "Schema for the result of a single OLS fit on a dataset subset. This is the Level 1 unit for HLM."
+description: "Schema for the aggregated stability results (SD of coefficients) per tier."
 type: "object"
 required:
-  - dataset_id
-  - tier_percentage
-  - iteration
-  - subset_size
-  - coefficients
-  - r_squared
-  - runtime_ms
+  - "dataset"
+  - "tier"
+  - "n_subsets"
+  - "coefficient_sd"
+  - "convergence_check"
 properties:
-  dataset_id:
+  dataset:
     type: "string"
-    description: "Unique identifier for the dataset."
-  tier_percentage:
+    description: "Dataset identifier."
+  tier:
     type: "integer"
-    enum:
-      - 10
-      - 25
-      - 50
-      - 75
-      - 90
-    description: "Sample size tier percentage."
-  iteration:
+    description: "Sample size tier percentage (10, 25, 50, 75, 90)."
+  n_subsets:
     type: "integer"
-    minimum: 0
-    maximum: 199
-    description: "Iteration index (0-199)."
-  subset_size:
-    type: "integer"
-    minimum: 1
-    description: "Number of rows in the subset."
-  coefficients:
+    description: "Number of subsets generated (must be sufficient to ensure statistical robustness)."
+  coefficient_sd:
     type: "object"
+    description: "Map of predictor names to their empirical standard deviation."
     additionalProperties:
       type: "number"
-    description: "Map of predictor names to coefficient values for this specific subset."
-  r_squared:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "R-squared value of the fit."
-  runtime_ms:
-    type: "integer"
-    minimum: 0
-    description: "Execution time in milliseconds."
+  convergence_check:
+    type: "object"
+    required:
+      - "se_of_sd"
+      - "ratio"
+      - "passed"
+    properties:
+      se_of_sd:
+        type: "number"
+        description: "Standard Error of the Standard Deviation."
+      ratio:
+        type: "number"
+        description: "Ratio of SE to SD (must be < 0.07)."
+      passed:
+        type: "boolean"
+        description: "True if ratio < 0.07."
 additionalProperties: false

@@ -2,67 +2,84 @@
 
 ## Prerequisites
 - Python 3.11+
-- `pip`
-- `git`
+- `pip` or `poetry`
+- Git
 
-## 1. Clone and Setup
-```bash
-git clone <repo-url>
-cd projects/PROJ-372-assessing-sensitivity-regression-coefficients
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-pre-commit install
-```
+## Installation
 
-## 2. Configuration
-Ensure `src/utils/config.py` contains:
-- `RANDOM_SEED`: 42 (or your chosen seed).
-- `TIERS`: [10, 25, 50, 75, 90].
-- `SUBSETS_PER_TIER`: 200.
-- `CONVERGENCE_THRESHOLD`: 0.05.
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd <project-dir>
+   ```
 
-## 3. Running the Pipeline
-Execute the full pipeline:
-```bash
-python src/cli.py run
-```
-This will:
-1.  Download datasets from verified URLs.
-2.  Profile them for OLS violations (including severity classification).
-3.  Generate subsets and fit OLS models.
-4.  **Verify convergence** (halt if SE > 5%).
-5.  Run the **Stratified Group Comparison**.
-6.  **Generate stability curves** (Coefficient SD vs. Subset Size) and save to `artifacts/figures/`.
-7.  Output artifacts to `artifacts/`.
+2. **Create and activate a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-## 4. Verifying Results
-Check the convergence log:
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Install pre-commit hooks**:
+   ```bash
+   pre-commit install
+   ```
+
+## Running the Pipeline
+
+The pipeline is executed via the CLI entry point. It automatically handles data ingestion, per-subset profiling, resampling, stratified analysis, and **generates stability curves**.
+
 ```bash
-cat artifacts/convergence/convergence.log
-```
-Inspect the stratified analysis results:
-```bash
-python -c "import json; print(json.dumps(json.load(open('artifacts/stratified_analysis/results.json')), indent=2))"
-```
-View stability curves (if generated):
-```bash
-ls artifacts/figures/
+# Run the full analysis
+python src/cli.py run --datasets california_housing,delaney,wine_quality --output artifacts/
 ```
 
-## 5. Testing
-Run unit and integration tests:
-```bash
-pytest tests/unit -v
-pytest tests/integration -v
-```
-Run contract tests (schema validation):
-```bash
-pytest tests/contract -v
-```
+**Arguments**:
+- `--datasets`: Comma-separated list of dataset keys (e.g., `california_housing`, `delaney`, `wine_quality`).
+- `--output`: Output directory for artifacts (default: `artifacts/`).
 
-## 6. Troubleshooting
-- **OOM Error**: If memory exceeds 7GB, the script will automatically switch to streaming mode or sample a smaller subset (logged in `convergence.log`).
-- **Missing Dataset**: If a verified URL is unreachable, the script skips that dataset and logs an error.
-- **Convergence Failure**: If SE of SD > 5%, the script **HALTS** and logs a critical error. Do not proceed until the threshold is met or the dataset is replaced.
-- **Stratified Analysis**: If no datasets fall into a severity group, that group will be skipped in the comparison.
+### Step-by-Step Breakdown
+
+1. **Ingestion & Per-Subset Profiling**:
+   - Downloads datasets from verified HuggingFace/UCI URLs.
+   - For each tier (low, medium, high), generates a representative set of subsets.
+   - For **each subset**, computes Condition Number, Breusch-Pagan, and Cook's Distance.
+   - Saves `artifacts/profiles/{dataset}_{tier}_{id}.json`.
+
+2. **Resampling & Stability**:
+   - Fits OLS models to each subset.
+   - Computes SD of coefficients across multiple subsets per tier.
+   - Checks convergence (SE of SD < 7%).
+   - **Excludes** tiers that fail convergence from the final analysis.
+   - Saves `artifacts/stability/coefficient_sd.json` and `artifacts/convergence.log`.
+
+3. **Stratified Analysis & Visualization**:
+   - Bins subsets by violation severity (Low/Med/High).
+   - Runs Kruskal-Wallis tests to compare stability across bins.
+   - **Generates stability curves** (Mean SD vs Severity Bin) and saves them as `artifacts/figures/stability_curves.csv` and `artifacts/figures/stability_curves.png`.
+   - Saves `artifacts/stratified_analysis/results.json`.
+
+## Verification
+
+1. **Check Convergence**:
+   ```bash
+   cat artifacts/convergence.log
+   ```
+   Ensure lines show `PASSED`. If `FAILED (Excluded)` appears, that tier was correctly excluded from the final analysis.
+
+2. **View Stratified Results**:
+   - Open `artifacts/stratified_analysis/results.json` to see binning statistics and test p-values.
+   - Or inspect `artifacts/figures/stability_curves.png` to visualize the relationship between violation severity and coefficient stability.
+
+3. **Validate Artifacts**:
+   ```bash
+   python -m pytest tests/
+   ```
+   This runs unit and integration tests to verify the pipeline logic and artifact structure.
+
+4. **Reproducibility Check**:
+   Re-run the command with the same arguments. The output files in `artifacts/` should have identical content hashes.

@@ -1,22 +1,33 @@
-- artifact_hash: cffb73bffa1197617bd028cee5d89176436db6fb86361472b3b0369f1c9091a6
+- artifact_hash: b47fb745ec6974a23340ae2de0d87854bd6ce1222b79d5539fce54479bca7979
   artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/UCI-Machine-Learning-Repository/Bike-Sharing-Dataset`
+  value: https://huggingface.co/datasets/huggingface-datasets/california_housing`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/UCI-Machine-Learning-Repository/Bike-Sharing-Dataset
-  verified_at: '2026-09-02T12:53:11.246480Z'
-- artifact_hash: cffb73bffa1197617bd028cee5d89176436db6fb86361472b3b0369f1c9091a6
+  verified_against_url: https://huggingface.co/datasets/huggingface-datasets/california_housing
+  verified_at: '2026-09-05T12:48:53.011030Z'
+- artifact_hash: b47fb745ec6974a23340ae2de0d87854bd6ce1222b79d5539fce54479bca7979
   artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/UCI-Machine-Learning-Repository/California-Housing`
+  value: https://huggingface.co/datasets/moleculenet/delaney`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/UCI-Machine-Learning-Repository/California-Housing
-  verified_at: '2026-09-02T12:53:11.246480Z'
+  verified_against_url: https://huggingface.co/datasets/moleculenet/delaney
+  verified_at: '2026-09-05T12:48:53.011030Z'
+- artifact_hash: b47fb745ec6974a23340ae2de0d87854bd6ce1222b79d5539fce54479bca7979
+  artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: winequality-red.csv
+  kind: url
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv
+  verified_at: '2026-09-05T12:48:53.011030Z'

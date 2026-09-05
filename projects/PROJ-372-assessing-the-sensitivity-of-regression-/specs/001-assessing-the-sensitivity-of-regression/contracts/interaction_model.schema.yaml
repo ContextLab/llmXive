@@ -1,52 +1,63 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "InteractionModel"
-description: "Schema for the meta-analysis regression results (Mixed-Effects)."
+description: "Schema for the meta-analysis regression results."
 type: "object"
 required:
-  - dataset_id
-  - model_type
-  - model_formula
-  - fixed_effects
-  - fixed_effects_p_values
-  - random_effects_variance
-  - r_squared_marginal
-  - r_squared_conditional
+  - "model_formula"
+  - "dataset"
+  - "predictor"
+  - "coefficients"
+  - "p_values"
 properties:
-  dataset_id:
-    type: "string"
-    description: "Unique identifier for the dataset."
-  model_type:
-    type: "string"
-    enum:
-      - "MixedEffects"
-    description: "Type of model used."
   model_formula:
     type: "string"
-    description: "String representation of the regression formula."
-  fixed_effects:
+    description: "R-style formula string used for the regression."
+  dataset:
+    type: "string"
+    description: "Dataset identifier."
+  predictor:
+    type: "string"
+    description: "Specific predictor variable being analyzed."
+  r_squared:
+    type: "number"
+    description: "R-squared value of the meta-regression."
+  coefficients:
     type: "object"
-    additionalProperties:
-      type: "number"
-    description: "Regression coefficients for the fixed effects."
-  fixed_effects_p_values:
+    description: "Regression coefficients."
+    properties:
+      intercept:
+        type: "number"
+      condition_number:
+        type: "number"
+      bp_p:
+        type: "number"
+      cooks_d:
+        type: "number"
+      interaction:
+        type: "number"
+    required:
+      - "intercept"
+      - "condition_number"
+      - "bp_p"
+      - "cooks_d"
+      - "interaction"
+  p_values:
     type: "object"
-    additionalProperties:
-      type: "number"
-      minimum: 0
-      maximum: 1
-    description: "P-values for each fixed effect coefficient."
-  random_effects_variance:
-    type: "number"
-    minimum: 0
-    description: "Variance of the random intercepts."
-  r_squared_marginal:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Marginal R-squared (fixed effects only)."
-  r_squared_conditional:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Conditional R-squared (fixed + random effects)."
-additionalProperties: false
+    description: "P-values for the regression coefficients."
+    properties:
+      condition_number:
+        type: "number"
+      bp_p:
+        type: "number"
+      cooks_d:
+        type: "number"
+      interaction:
+        type: "number"
+    required:
+      - "condition_number"
+      - "bp_p"
+      - "cooks_d"
+      - "interaction"
+  interpretation:
+    type: "string"
+    description: "Human-readable interpretation of the results (effect sizes, not significance)."

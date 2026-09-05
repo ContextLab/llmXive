@@ -1,69 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "DatasetProfile"
-description: "Schema for the OLS assumption violation profile of a dataset."
+description: "Schema for the OLS assumption violation profile of a dataset (aggregated from subsets)."
 type: "object"
 required:
-  - dataset_id
-  - source_url
-  - n_rows
-  - n_cols
-  - condition_number
-  - bp_statistic
-  - bp_p_value
-  - max_cooks_distance
-  - severity_heteroscedasticity
-  - severity_outliers
-  - severity_multicollinearity
+  - "dataset_name"
+  - "source_url"
+  - "n_rows"
+  - "n_cols"
+  - "timestamp"
 properties:
-  dataset_id:
+  dataset_name:
     type: "string"
-    description: "Unique identifier for the dataset."
+    description: "Identifier of the dataset."
   source_url:
     type: "string"
-    format: "uri"
     description: "Verified URL of the dataset source."
   n_rows:
     type: "integer"
-    minimum: 1
-    description: "Number of rows after cleaning."
+    description: "Number of rows in the full dataset."
   n_cols:
     type: "integer"
-    minimum: 1
-    description: "Number of numerical columns used."
-  condition_number:
-    type: "number"
-    description: "Condition Number of the design matrix."
-  bp_statistic:
-    type: "number"
-    description: "Breusch-Pagan test statistic."
-  bp_p_value:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Breusch-Pagan test p-value."
-  max_cooks_distance:
-    type: "number"
-    minimum: 0
-    description: "Maximum Cook's Distance in the dataset."
-  severity_heteroscedasticity:
+    description: "Number of columns in the full dataset."
+  timestamp:
     type: "string"
-    enum:
-      - "Low"
-      - "Medium"
-      - "High"
-    description: "Severity classification for heteroscedasticity."
-  severity_outliers:
-    type: "string"
-    enum:
-      - "Low"
-      - "Medium"
-      - "High"
-    description: "Severity classification for outliers."
-  severity_multicollinearity:
-    type: "string"
-    enum:
-      - "Low"
-      - "Medium"
-      - "High"
-    description: "Severity classification for multicollinearity."
+    format: "date-time"
+    description: "ISO 8601 timestamp of the profile generation."
 additionalProperties: false

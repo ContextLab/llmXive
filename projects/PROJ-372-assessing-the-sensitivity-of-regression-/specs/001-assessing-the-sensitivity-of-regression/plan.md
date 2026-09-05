@@ -1,28 +1,26 @@
 # Implementation Plan: Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection
 
-**Branch**: `PROJ-372-assessing-sensitivity-regression-coefficients` | **Date**: 2026-08-15 | **Spec**: [link]
-**Input**: Feature specification from `specs/PROJ-372-assessing-sensitivity-regression-coefficients/spec.md`
+**Branch**: `PROJ-372-assessing-the-sensitivity-of-regression-` | **Date**: 2026-08-15
+**Spec**: `specs/PROJ-372-assessing-the-sensitivity-of-regression-/spec.md`
+**Input**: Feature specification from `/specs/PROJ-372-assessing-the-sensitivity-of-regression-/spec.md`
 
 ## Summary
 
-This project investigates the stability of OLS regression coefficients by systematically varying dataset subset sizes and analyzing the impact of OLS assumption violations (heteroscedasticity, outliers, multicollinearity). The technical approach involves ingesting verified numerical datasets from HuggingFace/UCI, profiling them for assumption violations, generating random subsets across five specific sample size tiers (**10, 25, 50, 75, 90** percentages of full size), fitting OLS models to each subset, and performing a **Hierarchical Linear Model (HLM)** to quantify the relationship between violation severity, subset size, and coefficient stability.
+This project implements a statistical analysis pipeline to quantify how OLS regression coefficients fluctuate when fitted on random subsets of data. The system ingests **three** verified numerical datasets from HuggingFace/UCI: **California Housing**, **Delaney Solubility**, and **Wine Quality**. It profiles them for OLS assumption violations (heteroscedasticity, multicollinearity, outliers), generates 200 random subsets across **5 specific sample size tiers ([10, 25, 50, 75, 90] percent)**, fits OLS models to each, and computes the empirical standard deviation of coefficients.
 
-**Methodological Correction**: To address the "Dataset Identity" confound and the loss of within-tier variance, the analysis unit is shifted from aggregated "Tier-SD" values to **individual coefficient values** from each of the 1000 subsets (200 subsets $\times$ 5 tiers). The HLM treats "Dataset" as a Level 2 grouping factor. "Violation Severity" (computed on the full dataset) is a Level 2 predictor, while "Subset Size" is a Level 1 predictor. This allows the model to estimate how the *slope* of coefficient instability (change in coefficient value relative to subset size) varies by violation severity, without conflating dataset-specific noise with violation effects.
-
-The implementation strictly adheres to the "Real Data Only" and "CPU-only" constraints, utilizing streaming for large datasets and pinned random seeds for reproducibility.
+A **stratified stability analysis** (replacing the original meta-analysis regression) estimates the relationship between subset-level violation severity and coefficient stability. Instead of a regression on 3 datasets, we bin subsets by violation severity and compare stability across bins using non-parametric tests. This provides sufficient statistical power (N=200 subsets) to detect trends. The implementation is strictly CPU-first, runs on GitHub Actions free-tier, and uses real, open data only.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `pyyaml`, `datasets` (HuggingFace), `pre-commit`, `pytest`, `matplotlib`, `seaborn`, `linearmodels` (for HLM)  
-**Storage**: Local file system (`data/`, `artifacts/`) with JSON/Parquet artifacts; no external database.  
-**Testing**: `pytest` (unit, integration, contract)  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM)  
-**Project Type**: Computational Research / Data Analysis Pipeline  
-**Performance Goals**: Complete full pipeline (ingestion -> resampling -> HLM) within 6 hours on CPU; memory usage < 7GB via streaming; standard error of SD < 5% convergence check (for data quality, not model input).  
-**Constraints**: Real data only (no synthetic); CPU-only execution; streaming for datasets > 7GB; strict reproducibility (seeds pinned); no circular derivation of metrics.  
-**Scale/Scope**: Process multiple datasets (verified sources); Multiple subsets per dataset; 5 tiers; HLM analysis.  
-**Sample Size Tiers**: **10, 25, 50, 75, 90** (Percentages of full dataset size).
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `pyyaml`, `pytest`, `pre-commit`, `datasets` (HuggingFace), `matplotlib`, `scipy`  
+**Storage**: Local filesystem (`data/`, `artifacts/`) for raw and processed data; JSON artifacts for results; CSV/JSON for stability curves.  
+**Testing**: `pytest` (unit tests for ingestion, resampling, and analysis modules; integration tests for pipeline flow).  
+**Target Platform**: Linux (GitHub Actions runner: 2 CPU, ~7 GB RAM).  
+**Project Type**: Data analysis library / CLI tool.  
+**Performance Goals**: Complete full pipeline (ingestion -> 200 subsets x 5 tiers -> stratified analysis) within 6 hours on CPU.  
+**Constraints**: No synthetic data; streaming for datasets >7GB (though selected datasets are small); strict reproducibility via pinned seeds; convergence check gates tier inclusion.  
+**Scale/Scope**: 3 verified datasets; ~3000 model fits total (200 subsets * 5 tiers * 3 datasets); ~500MB max memory footprint.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -30,31 +28,25 @@ The implementation strictly adheres to the "Real Data Only" and "CPU-only" const
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Plan Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/` (global `numpy.random.seed`, `random.seed`). External datasets fetched via canonical HuggingFace/UCI URLs. `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` restricted to verified URLs provided in the prompt. `Reference-Validator` logic embedded in CI checks. |
-| **III. Data Hygiene** | **PASS** | Raw data stored in `data/raw` with checksums recorded in `state/...yaml`. Derived data (subsets, profiles) in `data/processed` or `artifacts/`. No in-place modification. PII scan via `pre-commit`. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats in report trace to `artifacts/` JSON/Parquet. No hand-typed numbers in `paper/`. |
-| **V. Versioning Discipline** | **PASS** | Artifacts carry content hashes. `state/...yaml` updated on artifact change. |
-| **VI. Empirical Validation** | **PASS** | Plan explicitly maps coefficient stability (individual $\beta$ values) to **Breusch-Pagan (heteroscedasticity)**, **Cook's Distance (outliers)**, and **Condition Number (collinearity)**. **Methodology**: HLM models $\beta_{j, s}$ as a function of Subset Size (Level 1) and Violation Severity (Level 2), resolving the confound by using within-dataset variance for subset size effects and between-dataset variance for violation effects. |
-| **VII. Non-Circular Derivation** | **PASS** | Stability metrics are derived from the HLM residuals or post-hoc aggregation of individual coefficients. Full-dataset violation metrics are calculated once on the full set; they are used as predictors, not as part of the outcome calculation. The HLM structure ensures the outcome (individual $\beta$) is independent of the predictor (full-dataset metric) except through the modeled relationship. |
+- **I. Reproducibility**: Plan mandates pinned random seeds in `src/utils/seed.py` and deterministic dataset fetching via `datasets.load_dataset`. `requirements.txt` pins all versions.
+- **II. Verified Accuracy**: Plan restricts dataset citations to the "Verified datasets" block in the spec. No external URLs will be invented.
+- **III. Data Hygiene**: Plan enforces `data/raw` checksums and immutable derivations in `data/processed`. PII scan gate included in CI.
+- **IV. Single Source of Truth**: All figures and stats in the final report will be generated from `artifacts/` JSON/CSV files, not hand-typed.
+- **V. Versioning**: Content hashes for `data/` and `code/` will be recorded in `state/`.
+- **VI. Empirical Validation**: The stratified analysis (US3) explicitly models coefficient stability as a function of **subset-level** Breusch-Pagan p-values, **Condition Numbers**, and **Cook's Distance**, satisfying the requirement to map instability to specific violations.
+- **VII. Non-Circular Derivation**: The plan explicitly calculates violation metrics **per subset**. The stability metric (SD) and the predictor metrics (CondNum, BP) are derived from the exact same subset data, ensuring independence from full-dataset properties and eliminating measurement error bias.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/PROJ-372-assessing-sensitivity-regression-coefficients/
+specs/PROJ-372-assessing-the-sensitivity-of-regression-/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (see Phase 1.1)
-│   ├── aggregated_stability.schema.yaml
-│   ├── dataset_profile.schema.yaml
-│   ├── group_stability_comparison.schema.yaml
-│   └── stability_result.schema.yaml
+├── contracts/           # Phase 1 output
 └── tasks.md             # Phase 2 output
 ```
 
@@ -65,101 +57,54 @@ src/
 ├── __init__.py
 ├── ingestion/
 │   ├── __init__.py
-│   ├── loader.py          # Handles HuggingFace/UCI loading + streaming
-│   └── profiler.py        # Computes Condition Number, BP, Cook's D + Severity Classification
+│   ├── loader.py          # HuggingFace/UCI download logic
+│   └── profiler.py        # BP test, Cook's Distance, Cond Num
 ├── resampling/
 │   ├── __init__.py
-│   ├── generator.py       # Generates Multiple subsets per tier
-│   └── stability.py       # Fits OLS to each subset, stores individual coefficients
+│   └── generator.py       # Subset generation per tier
 ├── analysis/
 │   ├── __init__.py
-│   ├── hlm_analysis.py    # Fits Hierarchical Linear Model (Level 1: Subset, Level 2: Dataset)
-│   └── viz.py             # Generates Stability Curves and HLM diagnostics
+│   ├── ols_fitter.py      # Model fitting per subset
+│   ├── stability.py       # SD calculation & convergence check
+│   └── stratified_analysis.py   # Binning and non-parametric tests
 ├── utils/
 │   ├── __init__.py
-│   ├── logging.py
-│   └── config.py          # Seed management, constants
+│   ├── seeds.py           # Seed management
+│   └── io.py              # JSON/Parquet I/O
 └── cli.py                 # Entry point
 
-data/
-├── raw/                   # Downloaded raw datasets (checksummed)
-└── processed/             # Cleaned/filtered datasets
-
-artifacts/
-├── profiles/              # DatasetProfile JSONs
-├── stability/             # stability_subset_*.json (individual coefficients per subset)
-├── hlm_results/           # HLM model output JSON
-├── convergence/           # convergence.log (T036, T050)
-├── figures/               # Stability curves (US3 deliverable)
-└── checkpoints/           # Intermediate state (if needed)
-
 tests/
+├── __init__.py
 ├── unit/
 │   ├── __init__.py
-│   └── test_profiler.py
-├── integration/
-│   ├── __init__.py
-│   └── test_pipeline.py
-└── contract/
-    └── test_schemas.py
+│   ├── test_loader.py
+│   └── test_stability.py
+└── integration/
+    ├── __init__.py
+    └── test_pipeline.py
+
+data/
+├── raw/
+├── processed/
+└── profiles/
+
+artifacts/
+├── profiles/
+├── stability/
+│   ├── subsets_*.json
+│   └── coefficient_sd.json
+├── stratified_analysis/
+├── figures/               # Stability curves (PNG/CSV)
+└── convergence.log
+
+pre-commit-config.yaml
+requirements.txt
 ```
 
-**Structure Decision**: Selected Option 1 (Single project) with modular `src/` packages (`ingestion`, `resampling`, `analysis`, `utils`). This aligns with the computational research nature, keeping logic encapsulated and testable without unnecessary web/mobile abstractions.
+**Structure Decision**: Single project structure selected (Option 1) as the scope is a focused statistical pipeline, not a web service or mobile app. Directories `src/ingestion`, `src/resampling`, `src/analysis`, and `src/utils` are explicitly defined to satisfy T001a-e. `tests/unit` and `tests/integration` are defined to satisfy T001e. `pre-commit-config.yaml` is included to satisfy T003c.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Streaming Architecture** | Datasets > 7GB must be processed without OOM. | Loading full dataset into memory fails on GitHub Actions due to constrained memory limits. |
-| **200 Subsets per Tier** | Required by spec to achieve convergence (SE < 5%) and provide sufficient Level 1 data points for HLM. | Fewer subsets (e.g., 50) would reduce the power of the HLM to detect the interaction effect. |
-| **Hierarchical Linear Model (HLM)** | Spec requires analyzing joint effects of violation severity and subset size. | Simple regression or stratified comparison creates confounding (Dataset Identity vs. Violation Severity) or loses within-tier variance. HLM is the only valid approach to model the interaction between Level 1 (Subset Size) and Level 2 (Violation Severity) predictors. |
-| **Convergence Enforcement** | Spec US2 requires verification of convergence. | Logging only is insufficient; a hard stop/flag is required to prevent proceeding with unstable results. |
-| **Individual Coefficient Storage** | Required for HLM input. | Aggregating to SD per tier loses the variance needed for the Level 1 analysis. |
-
-## Implementation Phases
-
-### Phase 0: Data Ingestion & Profiling (US1)
-- **0.1 Load**: Fetch datasets from verified URLs (UCI Bike Sharing, California Housing). Stream if >7GB.
-- **0.2 Profile**: Compute Condition Number, Breusch-Pagan, Cook's Distance.
-- **0.3 Classify**: **Explicitly assign severity levels (Low/Medium/High)** to each metric and write to `DatasetProfile` artifact. (US1 AC: "System classifies violation severity").
-- **0.4 Validate**: Ensure `DatasetProfile` JSON matches `contracts/dataset_profile.schema.yaml`.
-
-### Phase 1: Resampling & Stability Estimation (US2)
-- **1.1 Generate**: Create Multiple random subsets for each of the 5 tiers (10, 25, 50, 75, 90).
-- **1.2 Fit**: Fit OLS to each subset. Store **individual coefficients** for each predictor in `StabilityResult` JSONs (`artifacts/stability/stability_subset_*.json`).
-- **1.3 Verify Convergence (GATE)**:
-  - Calculate Empirical SD of coefficients across 200 subsets *per tier* (for data quality check).
-  - Calculate Standard Error of the SD ($SE_{SD}$).
-  - **Control Flow**: If $SE_{SD} \ge 0.05 \times SD$, **FLAG** the tier as "Convergence Failed" and **HALT** further analysis for this dataset. Write `convergence.log` (T036, T050).
-  - **Note**: This check ensures the *stability metric* is reliable, but the HLM uses the raw individual coefficients regardless of the SD value.
-- **1.4 Aggregate**: Generate `coefficient_sd.json` (T048) for descriptive reporting.
-
-### Phase 2: Hierarchical Linear Modeling & Visualization (US3)
-- **2.1 Prepare Data**: Combine individual `StabilityResult` rows (Level 1) with `DatasetProfile` (Level 2).
-- **2.2 Fit HLM**:
-  - **Model**: $\beta_{j, s} = \gamma_{00} + \gamma_{10}(\text{Size}_s) + \gamma_{01}(\text{Severity}_d) + \gamma_{11}(\text{Size}_s \times \text{Severity}_d) + u_{0d} + r_{js}$
-  - **Level 1 (Subset)**: `Subset_Size`, `Coefficient_Value` (outcome).
-  - **Level 2 (Dataset)**: `Violation_Severity`, `Condition_Number`.
-  - **Output**: `hlm_results.json` (T049).
-- **2.3 Visualize (US3 Deliverable)**: **Generate Stability Curves** (Predicted Coefficient Value vs. Subset Size) for different Severity groups based on HLM fixed effects. Save to `artifacts/figures/`.
-
-## Tasks (Consolidated)
-
-- [ ] **T001**: Create project directory structure (`src/`, `data/`, `artifacts/`, `tests/`) and all `__init__.py` files.
-- [ ] **T002**: Create `requirements.txt` and `pre-commit-config.yaml`.
-- [ ] **T003**: Implement `src/ingestion` (loader, profiler with severity classification).
-- [ ] **T004**: Implement `src/resampling` (generator, stability with individual coefficient storage).
-- [ ] **T005**: Implement `src/analysis` (hlm_analysis, viz for HLM curves).
-- [ ] **T006**: Implement `tests/` (unit, integration, contract).
-- [ ] **T007**: Run Pipeline (Ingest -> Profile -> Resample -> **Convergence Check** -> HLM -> **Generate Curves**).
-- [ ] **T008**: Validate Artifacts (Schemas, Convergence Log, HLM Results, Stability Curves).
-
-## Contract Definitions (Phase 1 Output)
-
-The following schema files are defined in `contracts/` and will be used for validation:
-1. `contracts/dataset_profile.schema.yaml`
-2. `contracts/stability_result.schema.yaml` (Updated to store individual coefficients)
-3. `contracts/aggregated_stability.schema.yaml`
-4. `contracts/group_stability_comparison.schema.yaml` (Renamed to `hlm_results.schema.yaml` conceptually, but kept for compatibility or updated)
-
-These contracts ensure data integrity across the pipeline.
+| N/A | No violations identified. The project scope fits within a single module structure. | N/A |
