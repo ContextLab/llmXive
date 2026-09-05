@@ -3,6 +3,9 @@ Download the verified 316L LPBF dataset from Zenodo.
 
 This script fetches the dataset, verifies the material type is 316L,
 saves it to data/raw/, computes its SHA-256 checksum, and updates state.yaml.
+
+ROBUSTNESS: Any failure in fetching the real dataset (network error, 404, timeout)
+immediately raises a RuntimeError. There are NO synthetic fallbacks.
 """
 import os
 import sys
@@ -30,10 +33,19 @@ def fetch_record_metadata():
     import urllib.request
     import json as json_module
 
+    logger = logging.getLogger(__name__)
+    
     try:
+        logger.info(f"Fetching metadata from {ZENODO_API_URL}")
         with urllib.request.urlopen(ZENODO_API_URL, timeout=30) as response:
+            if response.status != 200:
+                raise RuntimeError(f"Zenodo API returned status {response.status}")
             data = json_module.loads(response.read().decode('utf-8'))
             return data
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"Failed to fetch Zenodo metadata (HTTP {e.code}): {e.reason}")
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Failed to fetch Zenodo metadata (Network error): {e.reason}")
     except Exception as e:
         raise RuntimeError(f"Failed to fetch Zenodo metadata: {e}")
 
@@ -55,18 +67,29 @@ def verify_material_type(metadata):
     raise ValueError("Dataset does not appear to be for 316L stainless steel")
 
 def download_file(file_url, output_path):
-    """Download a file from the given URL."""
+    """Download a file from the given URL.
+    
+    Raises RuntimeError on any failure. No synthetic fallback.
+    """
     import urllib.request
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     
     try:
+        logger = logging.getLogger(__name__)
+        logger.info(f"Starting download from {file_url}")
+        
         with urllib.request.urlopen(file_url, timeout=120) as response:
+            if response.status != 200:
+                raise RuntimeError(f"Download failed with HTTP status {response.status}")
+            
             with open(output_path, 'wb') as f:
                 # Download in chunks to show progress
                 total_size = int(response.headers.get('content-length', 0))
                 downloaded = 0
                 chunk_size = 8192
+                
+                logger.info(f"Downloading file (size: {total_size} bytes)")
                 
                 while True:
                     chunk = response.read(chunk_size)
@@ -82,8 +105,23 @@ def download_file(file_url, output_path):
                 
                 print()  # New line after progress
                 
+        logger.info(f"Download complete. File size: {output_path.stat().st_size} bytes")
         return True
+        
+    except urllib.error.HTTPError as e:
+        # Clean up partial file if it exists
+        if output_path.exists():
+            output_path.unlink()
+        raise RuntimeError(f"Failed to download file (HTTP {e.code}): {e.reason}")
+    except urllib.error.URLError as e:
+        # Clean up partial file if it exists
+        if output_path.exists():
+            output_path.unlink()
+        raise RuntimeError(f"Failed to download file (Network error): {e.reason}")
     except Exception as e:
+        # Clean up partial file if it exists
+        if output_path.exists():
+            output_path.unlink()
         raise RuntimeError(f"Failed to download file: {e}")
 
 def main():

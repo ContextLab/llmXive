@@ -1,4 +1,4 @@
-# Implementation Plan: Predicting the Impact of Additive Manufacturing Parameters on the Porosity of 316L Stainless Steel
+# Implementation Plan: Predicting the Impact of Additive Manufacturing Parameters on the Porosity of L Stainless Steel
 
 **Branch**: `001-predicting-impact-of-additive-manufacturing-parameters-on-porosity` | **Date**: 2026-06-24 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-predicting-impact-of-additive-manufacturing-parameters-on-porosity/spec.md`

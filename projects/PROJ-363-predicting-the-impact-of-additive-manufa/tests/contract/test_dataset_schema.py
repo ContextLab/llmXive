@@ -1,6 +1,5 @@
 import pytest
 import pandas as pd
-import jsonschema
 import yaml
 from pathlib import Path
 import os
@@ -11,7 +10,7 @@ def schema():
     """Load the dataset schema from the contracts directory."""
     schema_path = Path("contracts/dataset.schema.yaml")
     if not schema_path.exists():
-        pytest.fail(f"Schema file not found at {schema_path}. Ensure T004 and T018 have completed successfully.")
+        pytest.fail(f"Schema file not found at {schema_path}. Ensure T004b has completed successfully.")
     with open(schema_path, "r") as f:
         return yaml.safe_load(f)
 
@@ -63,9 +62,11 @@ def test_value_ranges(schema, cleaned_data):
     """Validate that values fall within defined constraints."""
     constraints = schema.get("constraints", {}).get("value_ranges", {})
     
-    for col, (min_val, max_val) in constraints.items():
+    for col, bounds in constraints.items():
         if col in cleaned_data.columns:
             col_data = cleaned_data[col]
+            min_val = bounds.get("min")
+            max_val = bounds.get("max")
             
             if min_val is not None and (col_data < min_val).any():
                 pytest.fail(f"Column '{col}' has values below minimum {min_val}. Min found: {col_data.min()}")

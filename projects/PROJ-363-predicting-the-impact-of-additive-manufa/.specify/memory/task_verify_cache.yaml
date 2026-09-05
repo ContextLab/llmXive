@@ -11,14 +11,6 @@ T001b:
   r: No evidence of the `projects/PROJ-363-predicting-the-impact-of-additive-manufa/`
     directory (or any subfolders) is provided; the claim cannot be verified without
     an actual filesystem artifact.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, or a `black` config) or setup scripts are present in the provided evidence,
-    so the requirement to configure ruff/flake8 and black is not satisfied. The implementer
-    must add the appropriate configuration files and ensure they are committed to
-    the repository.
 T017:
   c: false
   h: 0032f126bfd12fe6438d05060c2aa706f87198071979e3c71fc9ff49665e5267
