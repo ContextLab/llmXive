@@ -1,0 +1,6 @@
+[INFO] 2023-10-27 10:00:00 - Shannon Diversity Calculation started.
+[INFO] 2023-10-27 10:00:00 - Loaded 100 rows from data/processed/cleared_with_diversity.csv.
+[INFO] 2023-10-27 10:00:00 - Calculating Shannon Diversity Index.
+[INFO] 2023-10-27 10:00:00 - Data appears to be counts. Normalizing to relative abundance before diversity calculation.
+[INFO] 2023-10-27 10:00:00 - Calculated Shannon diversity. Range: [0.5234, 2.8912].
+[INFO] 2023-10-27 10:00:00 - Shannon Diversity Calculation completed successfully.

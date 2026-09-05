@@ -1,12 +1,12 @@
 import os
 import logging
-from pathlib import Path
-from typing import Optional, Tuple
 import requests
 import pandas as pd
-import json
+from pathlib import Path
+from typing import Optional, Tuple
 
 from utils.logging_config import get_logger
+from utils.config import get_sra_accession, get_research_path
 
 logger = get_logger(__name__)
 
@@ -14,145 +14,218 @@ class DataUnavailableError(Exception):
     """Raised when real data cannot be fetched from the source."""
     pass
 
-def _get_download_url(accession: str, file_type: str) -> str:
+def fetch_otu_table(accession: str, output_path: Path) -> None:
     """
-    Constructs the URL for downloading pre-processed data.
-    In a real production environment, this would query a database or API
-    to find the exact URL for the pre-processed files associated with the accession.
-    For this implementation, we simulate a lookup or attempt a standard pattern.
+    Fetch pre-processed OTU table for the given SRP accession.
     
-    We assume the data is hosted on a public repository (e.g., Figshare/Zenodo) 
-    linked to the SRA study.
+    Strategy:
+    1. Check if a pre-processed CSV exists in a known GitHub mirror for this study
+       (common for SRA studies that publish analysis code).
+    2. If not, attempt to construct a standard SRA FTP path.
+    3. If that fails, raise DataUnavailableError.
+    
+    Note: Since SRA raw data is FASTQ, we rely on the study authors having
+    published a processed OTU table (CSV/BIOM) in their repository or as a
+    supplementary file. This function attempts to find that.
     """
-    # Simulating a lookup table for known studies with pre-processed data
-    # In reality, this would be dynamic or fetched from an API
-    known_studies = {
-        "SRP123456": {
-            "otu": "https://example-repo.org/data/SRP123456/otu_table.csv",
-            "serology": "https://example-repo.org/data/SRP123456/serology.csv"
-        },
-        # Add more known studies as needed
+    logger.info(f"Attempting to fetch OTU table for accession {accession}")
+    
+    # Strategy 1: Check common GitHub mirrors for processed data
+    # Many microbiome studies host processed tables in GitHub repos
+    github_patterns = [
+        f"https://raw.githubusercontent.com/{accession.lower()}/main/otutable.csv",
+        f"https://raw.githubusercontent.com/{accession.lower()}/master/otutable.csv",
+        f"https://raw.githubusercontent.com/microbiome/{accession.lower()}/main/otutable.csv",
+    ]
+    
+    for url in github_patterns:
+        try:
+            logger.debug(f"Trying GitHub URL: {url}")
+            response = requests.get(url, timeout=30)
+            if response.status_code == 200:
+                df = pd.read_csv(pd.io.common.BytesIO(response.content))
+                # Validate basic structure
+                if 'subject_id' in df.columns:
+                    df.to_csv(output_path, index=False)
+                    logger.info(f"Successfully fetched OTU table from {url}")
+                    return
+        except Exception as e:
+            logger.debug(f"Failed to fetch from {url}: {e}")
+            continue
+    
+    # Strategy 2: Try NCBI SRA FTP for processed files (rare, but possible)
+    # Standard SRA FTP structure usually contains raw data, but some studies
+    # include processed tables in supplementary directories
+    ftp_base = f"ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByStudy/sra/SRP/{accession}"
+    
+    # We can't easily parse FTP without FTP libraries, so we try a direct download
+    # of a likely file name if it exists
+    likely_files = [
+        f"{ftp_base}/processed_otu_table.csv",
+        f"{ftp_base}/otu_table.csv",
+        f"{ftp_base}/supplementary/otutable.csv",
+    ]
+    
+    for url in likely_files:
+        try:
+            logger.debug(f"Trying FTP URL: {url}")
+            response = requests.get(url, timeout=30)
+            if response.status_code == 200:
+                df = pd.read_csv(pd.io.common.BytesIO(response.content))
+                if 'subject_id' in df.columns:
+                    df.to_csv(output_path, index=False)
+                    logger.info(f"Successfully fetched OTU table from {url}")
+                    return
+        except Exception as e:
+            logger.debug(f"Failed to fetch from {url}: {e}")
+            continue
+    
+    # If we get here, no real data was found
+    raise DataUnavailableError(
+        f"Could not fetch pre-processed OTU table for accession {accession}. "
+        "No real data source found. Please verify the accession or check if "
+        "the study has published processed data elsewhere."
+    )
+
+def fetch_serology_metadata(accession: str, output_path: Path) -> None:
+    """
+    Fetch serology metadata (titers) for the given SRP accession.
+    
+    Similar strategy to fetch_otu_table: look for published CSV files
+    in GitHub repos or supplementary directories.
+    """
+    logger.info(f"Attempting to fetch serology metadata for accession {accession}")
+    
+    # Strategy 1: Check common GitHub mirrors
+    github_patterns = [
+        f"https://raw.githubusercontent.com/{accession.lower()}/main/serology.csv",
+        f"https://raw.githubusercontent.com/{accession.lower()}/master/serology.csv",
+        f"https://raw.githubusercontent.com/microbiome/{accession.lower()}/main/serology.csv",
+    ]
+    
+    for url in github_patterns:
+        try:
+            logger.debug(f"Trying GitHub URL: {url}")
+            response = requests.get(url, timeout=30)
+            if response.status_code == 200:
+                df = pd.read_csv(pd.io.common.BytesIO(response.content))
+                # Validate basic structure
+                if 'subject_id' in df.columns and ('titer_baseline' in df.columns or 'titer_pre' in df.columns):
+                    df.to_csv(output_path, index=False)
+                    logger.info(f"Successfully fetched serology metadata from {url}")
+                    return
+        except Exception as e:
+            logger.debug(f"Failed to fetch from {url}: {e}")
+            continue
+    
+    # Strategy 2: Try NCBI SRA FTP
+    ftp_base = f"ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByStudy/sra/SRP/{accession}"
+    
+    likely_files = [
+        f"{ftp_base}/serology.csv",
+        f"{ftp_base}/serology_metadata.csv",
+        f"{ftp_base}/supplementary/serology.csv",
+    ]
+    
+    for url in likely_files:
+        try:
+            logger.debug(f"Trying FTP URL: {url}")
+            response = requests.get(url, timeout=30)
+            if response.status_code == 200:
+                df = pd.read_csv(pd.io.common.BytesIO(response.content))
+                if 'subject_id' in df.columns:
+                    df.to_csv(output_path, index=False)
+                    logger.info(f"Successfully fetched serology metadata from {url}")
+                    return
+        except Exception as e:
+            logger.debug(f"Failed to fetch from {url}: {e}")
+            continue
+    
+    raise DataUnavailableError(
+        f"Could not fetch serology metadata for accession {accession}. "
+        "No real data source found."
+    )
+
+def write_sra_status(status: str, use_synthetic: bool, accession: Optional[str] = None) -> None:
+    """
+    Write the SRA status JSON file to data/research/sra_status.json
+    """
+    research_path = get_research_path()
+    research_path.mkdir(parents=True, exist_ok=True)
+    
+    status_file = research_path / "sra_status.json"
+    status_data = {
+        "status": status,
+        "use_synthetic": use_synthetic
     }
-    
-    if accession in known_studies:
-        if file_type == "otu":
-            return known_studies[accession]["otu"]
-        elif file_type == "serology":
-            return known_studies[accession]["serology"]
-    
-    # Fallback: Try to construct a generic URL if a pattern is known
-    # This is a placeholder for real logic
-    base_url = f"https://example-repo.org/studies/{accession}"
-    if file_type == "otu":
-        return f"{base_url}/otu_table.csv"
-    elif file_type == "serology":
-        return f"{base_url}/serology.csv"
+    if accession:
+        status_data["accession"] = accession
         
-    raise DataUnavailableError(f"No download URL found for accession {accession}")
-
-def fetch_otu_table(accession: str, output_path: str) -> None:
-    """
-    Fetches the pre-processed OTU table for a given accession.
+    with open(status_file, 'w') as f:
+        import json
+        json.dump(status_data, f, indent=2)
     
-    Args:
-        accession: The SRA accession ID (e.g., SRP123456).
-        output_path: Path where the CSV will be saved.
+    logger.info(f"Wrote SRA status to {status_file}: {status_data}")
+
+def fetch_strategy_a_data() -> Tuple[Path, Path]:
+    """
+    Main entry point for Strategy A: Fetch pre-processed OTU table and serology metadata.
+    
+    Returns:
+        Tuple of (otutable_path, serology_path)
         
     Raises:
-        DataUnavailableError: If the data cannot be fetched.
+        DataUnavailableError: If real data cannot be fetched
     """
-    try:
-        url = _get_download_url(accession, "otu")
-        logger.info(f"Downloading OTU table from {url}")
-        
-        response = requests.get(url, timeout=60)
-        response.raise_for_status()
-        
-        # Save content to file
-        with open(output_path, 'wb') as f:
-            f.write(response.content)
-        
-        # Validate basic structure
-        df = pd.read_csv(output_path)
-        if df.empty:
-            raise DataUnavailableError("OTU table is empty.")
-        if 'subject_id' not in df.columns:
-            # Try to infer or raise error if strict schema is required
-            logger.warning("OTU table does not contain 'subject_id' column. Checking for alternatives...")
-            # In a real scenario, we might try to map columns or fail
-            if 'SampleID' in df.columns:
-                df.rename(columns={'SampleID': 'subject_id'}, inplace=True)
-                df.to_csv(output_path, index=False)
-            else:
-                raise DataUnavailableError("OTU table missing 'subject_id' column.")
-                
-        logger.info(f"OTU table saved to {output_path} with {len(df)} rows.")
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download OTU table: {e}")
-        raise DataUnavailableError(f"Network error fetching OTU table: {e}")
-    except pd.errors.EmptyDataError:
-        raise DataUnavailableError("OTU table file is empty.")
-    except Exception as e:
-        logger.error(f"Error processing OTU table: {e}")
-        raise DataUnavailableError(f"Error processing OTU table: {e}")
-
-def fetch_serology_metadata(accession: str, output_path: str) -> None:
-    """
-    Fetches the serology metadata for a given accession.
+    accession = get_sra_accession()
+    if not accession:
+        raise DataUnavailableError("SRA_ACCESSION is not set in config. Cannot fetch data.")
     
-    Args:
-        accession: The SRA accession ID.
-        output_path: Path where the CSV will be saved.
-        
-    Raises:
-        DataUnavailableError: If the data cannot be fetched.
-    """
+    logger.info(f"Starting Strategy A fetch for accession: {accession}")
+    
+    raw_path = Path("data/raw")
+    raw_path.mkdir(parents=True, exist_ok=True)
+    
+    otu_path = raw_path / "otutable.csv"
+    serology_path = raw_path / "serology.csv"
+    
     try:
-        url = _get_download_url(accession, "serology")
-        logger.info(f"Downloading serology metadata from {url}")
+        fetch_otu_table(accession, otu_path)
+        fetch_serology_metadata(accession, serology_path)
         
-        response = requests.get(url, timeout=60)
-        response.raise_for_status()
+        write_sra_status("real_data_found", False, accession)
+        logger.info("Successfully fetched all real data for Strategy A")
         
-        # Save content to file
-        with open(output_path, 'wb') as f:
-            f.write(response.content)
+        return otu_path, serology_path
         
-        # Validate basic structure
-        df = pd.read_csv(output_path)
-        if df.empty:
-            raise DataUnavailableError("Serology metadata is empty.")
-        required_cols = ['subject_id', 'titer_baseline', 'titer_post']
-        missing_cols = [col for col in required_cols if col not in df.columns]
-        if missing_cols:
-            raise DataUnavailableError(f"Serology metadata missing columns: {missing_cols}")
-                
-        logger.info(f"Serology metadata saved to {output_path} with {len(df)} rows.")
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download serology metadata: {e}")
-        raise DataUnavailableError(f"Network error fetching serology metadata: {e}")
-    except pd.errors.EmptyDataError:
-        raise DataUnavailableError("Serology metadata file is empty.")
+    except DataUnavailableError as e:
+        logger.error(f"Real data fetch failed: {e}")
+        write_sra_status("fetch_failed", True, accession)
+        raise
     except Exception as e:
-        logger.error(f"Error processing serology metadata: {e}")
-        raise DataUnavailableError(f"Error processing serology metadata: {e}")
+        logger.error(f"Unexpected error during fetch: {e}")
+        write_sra_status("fetch_failed", True, accession)
+        raise DataUnavailableError(f"Failed to fetch data: {e}")
 
-def fetch_huggingface_data(dataset_id: str, split: str = "train") -> Tuple[pd.DataFrame, pd.DataFrame]:
+def main():
     """
-    Alternative fetch method using HuggingFace datasets if available.
-    This is a fallback if direct SRA links are not usable.
+    CLI entry point for Strategy A data fetch.
     """
+    logging.basicConfig(level=logging.INFO)
+    
     try:
-        from datasets import load_dataset
-        ds = load_dataset(dataset_id, split=split)
-        # Assuming specific column names in HF dataset
-        # Adjust based on actual dataset schema
-        otu_df = ds.to_pandas() # Simplified
-        # In reality, this would require specific mapping
-        return otu_df, pd.DataFrame() 
-    except ImportError:
-        raise DataUnavailableError("datasets library not installed for HF fetch.")
+        otu_path, serology_path = fetch_strategy_a_data()
+        print(f"OTU table saved to: {otu_path}")
+        print(f"Serology metadata saved to: {serology_path}")
+        return 0
+    except DataUnavailableError as e:
+        print(f"ERROR: {e}")
+        print("Real data not available. Pipeline will need to use synthetic data fallback.")
+        return 1
     except Exception as e:
-        raise DataUnavailableError(f"HF fetch failed: {e}")
+        print(f"CRITICAL ERROR: {e}")
+        return 1
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

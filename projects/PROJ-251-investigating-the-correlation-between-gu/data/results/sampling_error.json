@@ -1,0 +1,5 @@
+{
+  "error_type": "InsufficientSampleSize",
+  "count": 45,
+  "message": "Insufficient sample size (N < 50) in final dataset. Found 45."
+}

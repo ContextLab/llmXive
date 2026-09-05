@@ -1,21 +1,31 @@
-# Assumptions and Methodology Documentation
+# Data Processing Assumptions
 
-## Limit of Detection (LOD) Handling
+## Task T020a: CLR Transformation
 
-**Task**: T011d - Merge Microbiome and Serology
+### Pseudo-count Selection for Zero Handling
 
-### Choice Documented
-In accordance with the project specification's edge case requirements, we have chosen to **impute** missing or non-detectable titer values rather than exclude the subjects entirely.
+**Decision**: A pseudo-count of `1e-6` (0.000001) is used to replace zero values before applying the Centered Log-Ratio (CLR) transformation.
 
-### Rationale
-Antibody titers often report "ND" (Not Detected) or "0" when the concentration is below the assay's Limit of Detection. Excluding these subjects would lead to a significant loss of data, particularly in populations with low pre-vaccination immunity or weak post-vaccination responses. Imputation allows us to retain these subjects for analysis while acknowledging the uncertainty of the exact value.
+**Rationale**:
+- The CLR transformation requires taking the logarithm of abundances, which is undefined for zero values.
+- Adding a small pseudo-count allows the transformation to proceed without discarding valuable data points.
+- The value `1e-6` is sufficiently small to minimize distortion of the relative abundance structure while being large enough to avoid numerical instability in the log calculation.
+- This choice is consistent with common practices in microbiome data analysis (e.g., as implemented in the `scikit-bio` and `gneiss` packages).
 
-### Implementation Details
-- **Missing Value Indicators**: 'ND', '0', and explicit `NaN` values in `titer_baseline` and `titer_post` columns.
-- **Imputation Value**: The default Limit of Detection (LOD) is set to **10.0**. Values marked as missing are imputed as **0.5 * LOD = 5.0**.
-- **Configuration**: This behavior is controlled by `config.get_lod_handling_methods()` and `config.get_impute_lod()`. If `config.LOD_VALUE` is not explicitly set, the default of 10.0 is used.
-- **Fallback**: If the LOD is undefined in the configuration and values are missing, the row is excluded (though the default is applied first).
+**Configuration**:
+- The pseudo-count value is parameterized in `code/utils/config.py` via the `get_pseudocount()` function.
+- Default value: `1e-6`
+- This parameter can be adjusted if sensitivity analysis suggests a different value is more appropriate for the specific dataset.
 
-### Reference
-- Spec Edge Cases: "treat these as a specific value... with the choice documented".
-- Task T011d Logic: Impute as a fraction of the limit of detection.
+**Impact on Downstream Analysis**:
+- The CLR-transformed data will be used for correlation analysis (Task T032) and predictive modeling (Task T034d).
+- The choice of pseudo-count may influence the magnitude of the CLR values but should not substantially alter the ranking of taxa in correlation analysis.
+- Sensitivity analysis (Task T020b, if implemented) could explore the impact of different pseudo-count values on results.
+
+### Alternative Approaches Considered
+- **Zero Replacement via Bayesian Methods**: More complex methods exist (e.g., `cmultRepl` in `zCompositions` R package) but were deemed unnecessary given the small magnitude of zeros expected in relative abundance data after normalization.
+- **Exclusion of Zero-Heavy Taxa**: Removing taxa with many zeros could reduce dimensionality but might also discard biologically relevant signals. The current approach retains all taxa.
+
+**Reference**:
+- Gloor, G. B., et al. (2017). "Microbiome Datasets Are Compositional: And This Is Not Optional." Frontiers in Microbiology.
+- Quinn, T. P., et al. (2018). "A Field Guide to the Compositional Analysis of Microbiome Data." Frontiers in Microbiology.

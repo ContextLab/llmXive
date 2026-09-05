@@ -17,7 +17,7 @@ This project implements a statistical pipeline to investigate the association be
 **Primary Dependencies**: `pandas`, `scipy`, `scikit-learn`, `numpy`, `biom-format`, `requests`, `pyyaml`, `ruff`, `black`
 **Storage**: Local file system (`data/` for raw/processed artifacts, `code/` for scripts)
 **Testing**: `pytest` (unit tests for data validation, integration tests for pipeline stages)
-**Target Platform**: Linux (GitHub Actions free-tier runner: Minimal CPU resources, ~7 GB RAM)
+**Target Platform**: Linux (GitHub Actions free-tier runner: Minimal CPU resources, ~ GB RAM)
 **Project Type**: Data analysis pipeline / Research script
 **Performance Goals**: Complete pipeline execution within 2 hours; memory usage < 7 GB.
 **Constraints**: No local GPU; must handle compositional data bias; must enforce strict data ordering to prevent leakage.

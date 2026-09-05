@@ -1,18 +1,20 @@
-Lint Report - 039_run_linting.py
-Project Root: /workspace
-Target Directory: /workspace/code
-============================================================
+T039 Linting Report
+==================
+Timestamp: 0
+Code Directory: /project/code
 
---- Ruff Check (with fixes) ---
+Overall Status: SUCCESS
 Exit Code: 0
+
+--- Ruff Results ---
+Status: PASS
+Output:
 All checks passed!
 
---- Black Format ---
-Exit Code: 0
+--- Black Results ---
+Status: PASS
+Output:
 All done! ✨ 🍰 ✨
-18 files left unchanged.
+15 files left unchanged.
 
-============================================================
-SUMMARY
-Ruff Check Status: SUCCESS
-Black Format Status: SUCCESS
+T039 Completed Successfully.
