@@ -1,60 +1,60 @@
 """
-Test suite to verify that linting and formatting configurations are valid.
-This ensures ruff and black are correctly configured before running on code.
+Integration test to verify linting and formatting configurations are correct.
+This test ensures that `ruff check` and `black --check` pass without errors.
 """
 import subprocess
 import sys
+import os
+import tempfile
 from pathlib import Path
 
-import pytest
+def test_ruff_check_passes():
+    """Verify that ruff check passes on the codebase."""
+    # Run ruff check on the current directory
+    result = subprocess.run(
+        ["ruff", "check", "."],
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent
+    )
+    
+    # If ruff is not installed, skip (in CI it should be installed)
+    if result.returncode == 127:
+        print("Ruff not found, skipping test")
+        return
+    
+    # Assert no errors (returncode 0)
+    assert result.returncode == 0, f"Ruff check failed:\n{result.stdout}\n{result.stderr}"
 
+def test_black_check_passes():
+    """Verify that black --check passes on the codebase."""
+    # Run black check on the current directory
+    result = subprocess.run(
+        ["black", "--check", "."],
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent
+    )
+    
+    # If black is not installed, skip
+    if result.returncode == 127:
+        print("Black not found, skipping test")
+        return
+    
+    # Assert no formatting issues (returncode 0)
+    assert result.returncode == 0, f"Black check failed:\n{result.stdout}\n{result.stderr}"
 
-PROJECT_ROOT = Path(__file__).parent.parent
-RUFF_CONFIG = PROJECT_ROOT / "pyproject.toml"
-BLACK_CONFIG = PROJECT_ROOT / "pyproject.toml"
+def test_config_files_exist():
+    """Verify that required config files exist."""
+    base_dir = Path(__file__).parent.parent
+    assert (base_dir / "pyproject.toml").exists(), "pyproject.toml missing"
+    assert (base_dir / ".ruff.toml").exists(), ".ruff.toml missing"
+    
+    # Verify content contains expected sections
+    pyproject_content = (base_dir / "pyproject.toml").read_text()
+    assert "[tool.black]" in pyproject_content, "Missing [tool.black] section"
+    assert "[tool.ruff]" in pyproject_content, "Missing [tool.ruff] section"
 
-
-def test_ruff_check_syntax():
-    """Run ruff check on the project to ensure configuration is valid."""
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "--output-format=concise", "."],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        # We expect some errors in a new project, but the command must run without config errors.
-        # If the config is invalid, ruff exits with code 2.
-        assert result.returncode != 2, f"Ruff configuration error:\n{result.stderr}"
-    except subprocess.TimeoutExpired:
-        pytest.fail("Ruff check timed out")
-    except FileNotFoundError:
-        pytest.skip("Ruff not installed in environment")
-
-
-def test_black_check_format():
-    """Run black --check on the project to ensure configuration is valid."""
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "black", "--check", "--diff", "."],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        # Black returns 0 if all good, 1 if needs reformatting, 2 if config error.
-        # We only care that it doesn't crash due to config (code 2).
-        assert result.returncode != 2, f"Black configuration error:\n{result.stderr}"
-    except subprocess.TimeoutExpired:
-        pytest.fail("Black check timed out")
-    except FileNotFoundError:
-        pytest.skip("Black not installed in environment")
-
-
-def test_pyproject_toml_exists():
-    """Verify pyproject.toml exists in the project root."""
-    assert RUFF_CONFIG.exists(), "pyproject.toml not found"
-    content = RUFF_CONFIG.read_text()
-    assert "[tool.ruff]" in content, "Ruff configuration missing in pyproject.toml"
-    assert "[tool.black]" in content, "Black configuration missing in pyproject.toml"
+    ruff_content = (base_dir / ".ruff.toml").read_text()
+    assert "target-version" in ruff_content, "Missing target-version in .ruff.toml"
+    assert "line-length" in ruff_content, "Missing line-length in .ruff.toml"

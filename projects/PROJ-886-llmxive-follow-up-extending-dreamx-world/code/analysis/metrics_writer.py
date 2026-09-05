@@ -1,235 +1,165 @@
-"""
-Metrics Writer Module for DreamX-Lite Evaluation Pipeline.
-
-This module provides functionality to log evaluation results for trajectories
-into a structured CSV format, specifically designed to handle null values
-resulting from SfM failures as per Spec FR-004.
-
-The CSV schema includes columns for trajectory IDs, model type, convergence
-status, SfM failure reasons, and metric values (MAE position/rotation) which
-may be null.
-"""
-
 import csv
 import os
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
-
-# Ensure consistent imports with project structure
 from utils.config import ensure_directories
 
 logger = logging.getLogger(__name__)
 
-# Define the CSV schema as a constant to ensure consistency
-METRICS_CSV_COLUMNS = [
-    "trajectory_id",
-    "model_type",
-    "convergence",
-    "sfm_failure_reason",
-    "mae_position",
-    "mae_rotation",
-    "scale_drift",
-    "generation_time_sec",
-    "sfm_time_sec"
-]
+# Schema definition for metrics.csv
+# Columns: trajectory_id, model, mae_position, mae_rotation, convergence, sfm_failure_reason, scale_drift
+METRICS_SCHEMA = {
+    "trajectory_id": str,
+    "model": str,
+    "mae_position": float,  # null if SfM failed
+    "mae_rotation": float,  # null if SfM failed
+    "convergence": bool,
+    "sfm_failure_reason": str,
+    "scale_drift": float      # null if SfM failed
+}
+
+# Sentinel value documentation per Spec FR-004 reconciliation
+# Note: We use Python's None (serialized as empty string in CSV) to represent null/missing values.
+# This is the accepted convention for divergence to ensure statistical validity (Plan Phase 2).
+NULL_VALUE_SENTINEL = ""
 
 def write_metrics_csv(
-    results: List[Dict[str, Any]],
-    output_path: Union[str, Path],
-    append: bool = False
-) -> Path:
+    metrics: List[Dict[str, Any]],
+    output_path: str,
+    log_exception: bool = True
+) -> None:
     """
-    Write a list of trajectory evaluation results to a CSV file.
+    Write metrics to CSV file.
 
-    This function handles the specific requirement from T025 where failed
-    SfM trajectories must record MAE values as `null` (Python `None`)
-    rather than a sentinel value like -1.0.
+    Handles the reconciliation of Spec FR-004 'sentinel value' requirement
+    with Plan 'null' convention by:
+    1. Using empty string (None) for divergent/failed trajectories
+    2. Logging this exception to ensure traceability
+    3. Maintaining statistical validity by allowing proper filtering in downstream analysis
 
     Args:
-        results: List of dictionaries containing evaluation metrics.
-                Each dict must contain keys matching METRICS_CSV_COLUMNS.
-                'mae_position' and 'mae_rotation' can be None for failed trajectories.
-        output_path: Path to the output CSV file.
-        append: If True, appends to existing file; if False, overwrites.
-
-    Returns:
-        Path to the written file.
-
-    Raises:
-        ValueError: If results list is empty or keys are missing.
-        IOError: If file cannot be written.
+        metrics: List of metric dictionaries matching METRICS_SCHEMA
+        output_path: Path to output CSV file
+        log_exception: If True, log the reconciliation exception (default: True)
     """
-    if not results:
-        logger.warning("No results provided to write_metrics_csv. Creating empty file.")
-        output_path = Path(output_path)
-        ensure_directories([output_path])
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=METRICS_CSV_COLUMNS)
-            writer.writeheader()
-        return output_path
+    ensure_directories(output_path)
 
-    output_path = Path(output_path)
-    ensure_directories([output_path])
+    if log_exception:
+        logger.info(
+            "Reconciling Spec FR-004 'sentinel value' with Plan 'null' convention: "
+            "Using empty string (None) for divergent trajectories to ensure statistical validity."
+        )
 
-    # Validate that all required keys are present (allowing None for metrics)
-    required_keys = set(METRICS_CSV_COLUMNS)
-    for i, result in enumerate(results):
-        missing = required_keys - set(result.keys())
-        if missing:
-            raise ValueError(f"Result {i} missing keys: {missing}")
+    fieldnames = list(METRICS_SCHEMA.keys())
 
-    mode = 'a' if append else 'w'
-    write_header = not append or not output_path.exists()
+    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
 
-    try:
-        with open(output_path, mode, newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=METRICS_CSV_COLUMNS)
-            
-            if write_header:
-                writer.writeheader()
-                logger.info(f"Created metrics CSV header at {output_path}")
+        for row in metrics:
+            # Ensure null values are written as empty strings
+            sanitized_row = {}
+            for key, value in row.items():
+                if value is None:
+                    sanitized_row[key] = NULL_VALUE_SENTINEL
+                else:
+                    sanitized_row[key] = value
+            writer.writerow(sanitized_row)
 
-            # Convert None to empty string for CSV compatibility (CSV standard)
-            # Python's csv module writes 'None' as string if not handled, 
-            # but we want empty cells for nulls to match typical data analysis expectations
-            # or we can explicitly write empty strings.
-            # However, standard practice for "null" in CSV is often empty string or 'NULL'.
-            # The spec says "record null". In CSV, empty cell is the standard representation.
-            clean_results = []
-            for row in results:
-                clean_row = {}
-                for key in METRICS_CSV_COLUMNS:
-                    val = row[key]
-                    if val is None:
-                        clean_row[key] = ""
-                    else:
-                        clean_row[key] = val
-                clean_results.append(clean_row)
+    logger.info(f"Metrics written to {output_path} with {len(metrics)} rows")
 
-            writer.writerows(clean_results)
-            logger.info(f"Wrote {len(results)} trajectory results to {output_path}")
-
-    except Exception as e:
-        logger.error(f"Failed to write metrics CSV: {e}")
-        raise
-
-    return output_path
-
-def load_metrics_csv(input_path: Union[str, Path]) -> List[Dict[str, Any]]:
+def load_metrics_csv(input_path: str) -> List[Dict[str, Any]]:
     """
-    Load metrics from a CSV file generated by write_metrics_csv.
+    Load metrics from CSV file.
+
+    Converts empty strings back to None for proper statistical handling.
 
     Args:
-        input_path: Path to the input CSV file.
+        input_path: Path to input CSV file
 
     Returns:
-        List of dictionaries with metrics. None values are restored for empty cells.
+        List of metric dictionaries with None for null values
     """
-    input_path = Path(input_path)
-    if not input_path.exists():
-        logger.warning(f"Metrics file not found: {input_path}")
+    if not os.path.exists(input_path):
+        logger.error(f"Metrics file not found: {input_path}")
         return []
 
-    results = []
-    try:
-        with open(input_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # Convert empty strings back to None for null representation
-                clean_row = {}
-                for key, value in row.items():
-                    if value == "":
-                        clean_row[key] = None
-                    elif key in ["convergence"]:
-                        # Boolean conversion if stored as string
-                        clean_row[key] = value.lower() == "true"
-                    elif key in ["generation_time_sec", "sfm_time_sec", "scale_drift"]:
-                        # Numeric conversion
-                        try:
-                            clean_row[key] = float(value) if value else None
-                        except ValueError:
-                            clean_row[key] = None
+    metrics = []
+    with open(input_path, 'r', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            # Convert empty strings back to None
+            sanitized_row = {}
+            for key, value in row.items():
+                if value == NULL_VALUE_SENTINEL or value == '':
+                    sanitized_row[key] = None
+                elif key == 'convergence':
+                    sanitized_row[key] = value.lower() == 'true'
+                elif key in ['mae_position', 'mae_rotation', 'scale_drift']:
+                    if value is not None and value != '':
+                        sanitized_row[key] = float(value)
                     else:
-                        clean_row[key] = value
-                results.append(clean_row)
-        
-        logger.info(f"Loaded {len(results)} trajectories from {input_path}")
-    except Exception as e:
-        logger.error(f"Failed to load metrics CSV: {e}")
-        raise
+                        sanitized_row[key] = None
+                else:
+                    sanitized_row[key] = value
+            metrics.append(sanitized_row)
 
-    return results
+    logger.info(f"Loaded {len(metrics)} rows from {input_path}")
+    return metrics
 
 def main():
     """
-    Main entry point for testing the metrics writer.
-    Creates a sample metrics file with 50 trajectories (simulated for testing purposes).
-    In production, this would be called by the evaluation pipeline.
+    Main entry point for metrics writer.
+    Creates a sample metrics.csv with proper null handling for testing.
     """
-    import argparse
-    from datetime import datetime
-    import random
+    import sys
+    from pathlib import Path
 
-    parser = argparse.ArgumentParser(description="Generate sample metrics CSV for testing")
-    parser.add_argument("--output", type=str, default="data/derived/metrics.csv",
-                      help="Output path for the metrics CSV")
-    parser.add_argument("--count", type=int, default=50, help="Number of trajectories to generate")
-    parser.add_argument("--fail-rate", type=float, default=0.1, help="Rate of SfM failures (null metrics)")
-    args = parser.parse_args()
+    # Default output path
+    output_path = "data/derived/metrics.csv"
 
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    ensure_directories([output_path])
-
-    # Generate sample data simulating the output of run_evaluation_pipeline
-    results = []
-    failure_reasons = [
-        "insufficient features",
-        "camera calibration failed",
-        "sparse reconstruction failed",
-        "image matching timeout",
-        "out of memory"
+    # Sample data demonstrating null handling
+    sample_metrics = [
+        {
+            "trajectory_id": "traj_001",
+            "model": "dreamx_lite",
+            "mae_position": 0.123,
+            "mae_rotation": 0.045,
+            "convergence": True,
+            "sfm_failure_reason": "",
+            "scale_drift": 1.02
+        },
+        {
+            "trajectory_id": "traj_002",
+            "model": "dreamx_lite",
+            "mae_position": None,  # SfM failed
+            "mae_rotation": None,  # SfM failed
+            "convergence": False,
+            "sfm_failure_reason": "insufficient_features",
+            "scale_drift": None    # SfM failed
+        },
+        {
+            "trajectory_id": "traj_003",
+            "model": "dreamx_lite",
+            "mae_position": 0.089,
+            "mae_rotation": 0.032,
+            "convergence": True,
+            "sfm_failure_reason": "",
+            "scale_drift": 0.98
+        }
     ]
 
-    for i in range(args.count):
-        traj_id = f"traj_{i:04d}"
-        model_type = random.choice(["DreamX-Lite", "Baseline"])
-        
-        # Simulate SfM convergence with a failure rate
-        is_converged = random.random() > args.fail_rate
-        
-        if is_converged:
-            sfm_failure_reason = None
-            mae_position = round(random.uniform(0.01, 0.5), 4)
-            mae_rotation = round(random.uniform(0.001, 0.1), 4)
-            scale_drift = round(random.uniform(0.0001, 0.01), 6)
-        else:
-            sfm_failure_reason = random.choice(failure_reasons)
-            mae_position = None
-            mae_rotation = None
-            scale_drift = None
+    write_metrics_csv(sample_metrics, output_path, log_exception=True)
 
-        results.append({
-            "trajectory_id": traj_id,
-            "model_type": model_type,
-            "convergence": is_converged,
-            "sfm_failure_reason": sfm_failure_reason,
-            "mae_position": mae_position,
-            "mae_rotation": mae_rotation,
-            "scale_drift": scale_drift,
-            "generation_time_sec": round(random.uniform(10.0, 30.0), 2),
-            "sfm_time_sec": round(random.uniform(5.0, 20.0), 2)
-        })
+    # Verify by loading back
+    loaded = load_metrics_csv(output_path)
+    assert len(loaded) == 3
+    assert loaded[1]["mae_position"] is None
+    assert loaded[1]["convergence"] is False
+    assert loaded[1]["sfm_failure_reason"] == "insufficient_features"
 
-    # Write the results to CSV
-    write_metrics_csv(results, output_path)
-    print(f"Successfully wrote {len(results)} trajectories to {output_path}")
-    
-    # Verify the file was created
-    if output_path.exists():
-        print(f"File size: {output_path.stat().st_size} bytes")
-        print(f"Header: {METRICS_CSV_COLUMNS}")
+    print(f"Successfully wrote and verified metrics to {output_path}")
 
 if __name__ == "__main__":
     main()

@@ -1,19 +1,32 @@
-# Ruff configuration file (alternative to pyproject.toml)
-# This file is provided for environments that prefer separate config files.
-# It mirrors the settings in pyproject.toml.
-
-line-length = 88
-target-version = "py310"
+# Ruff configuration file (alias for pyproject.toml settings if needed, or standalone)
+# This file ensures ruff can be invoked with `ruff check .` explicitly.
+# It mirrors the settings in pyproject.toml for standalone CLI usage.
 
 [lint]
-select = ["E", "W", "F", "I", "C", "B"]
-ignore = ["E501", "B008", "C901"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
 
 [lint.per-file-ignores]
-"tests/*" = ["S101"]
+"__init__.py" = ["F401"]
 
 [format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = false

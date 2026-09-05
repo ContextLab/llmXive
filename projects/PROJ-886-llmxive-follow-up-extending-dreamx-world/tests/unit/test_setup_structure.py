@@ -1,32 +1,42 @@
-"""
-Unit tests for project structure initialization.
-Verifies that all required directories are created correctly.
-"""
 import os
-import pytest
-from pathlib import Path
 import shutil
 import tempfile
-
-# Import the setup function
+import unittest
+from pathlib import Path
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code/utils"))
-from setup_structure import PROJECT_ROOT, DIRECTORIES
 
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "projects/PROJ-886-llmxive-follow-up-extending-dreamx-world"))
 
-class TestProjectStructure:
-    """Tests for project structure creation."""
+from utils.setup_structure import main
 
-    def test_project_root_path(self):
-        """Verify the project root path is correctly defined."""
-        assert PROJECT_ROOT.name == "PROJ-886-llmxive-follow-up-extending-dreamx-world"
-        assert PROJECT_ROOT.parent.name == "projects"
-
-    def test_required_directories_exist(self):
-        """Verify all required directories are defined."""
-        expected_dirs = {
+class TestSetupStructure(unittest.TestCase):
+    def setUp(self):
+        # Create a temporary directory for testing
+        self.test_dir = tempfile.mkdtemp()
+        self.original_cwd = os.getcwd()
+        os.chdir(self.test_dir)
+        
+        # Create the project root directory structure
+        self.project_root = Path("projects/PROJ-886-llmxive-follow-up-extending-dreamx-world")
+        self.project_root.mkdir(parents=True, exist_ok=True)
+    
+    def tearDown(self):
+        # Restore original working directory and clean up
+        os.chdir(self.original_cwd)
+        if Path(self.test_dir).exists():
+            shutil.rmtree(self.test_dir)
+    
+    def test_directory_creation(self):
+        """Test that all 15 required directories are created."""
+        # Run the setup function
+        main()
+        
+        # Verify directories exist
+        required_dirs = [
             "data/raw",
             "data/derived",
+            "data/derived/videos",
             "code",
             "code/models",
             "code/pipeline",
@@ -34,53 +44,35 @@ class TestProjectStructure:
             "code/utils",
             "tests/unit",
             "tests/integration",
-        }
-        actual_dirs = set(DIRECTORIES)
-        assert expected_dirs == actual_dirs, f"Missing directories: {expected_dirs - actual_dirs}"
+            "logs",
+            "docs",
+            "config"
+        ]
+        
+        for dir_path in required_dirs:
+            full_path = self.project_root / dir_path
+            self.assertTrue(full_path.exists(), f"Directory {full_path} was not created")
+            self.assertTrue(full_path.is_dir(), f"{full_path} is not a directory")
+    
+    def test_nested_structure(self):
+        """Test that nested directories like data/derived/videos are created."""
+        main()
+        
+        nested_dirs = [
+            "data/raw",
+            "data/derived",
+            "data/derived/videos"
+        ]
+        
+        for dir_path in nested_dirs:
+            full_path = self.project_root / dir_path
+            self.assertTrue(full_path.exists(), f"Nested directory {full_path} was not created")
+    
+    def test_project_root_exists(self):
+        """Test that the main project root directory exists."""
+        main()
+        self.assertTrue(self.project_root.exists())
+        self.assertTrue(self.project_root.is_dir())
 
-    def test_directory_creation(self, tmp_path):
-        """Test that directories can be created in a temporary location."""
-        # Temporarily override PROJECT_ROOT for testing
-        original_root = PROJECT_ROOT
-        
-        # Create a temporary project root
-        test_root = tmp_path / "projects" / "PROJ-886-llmxive-follow-up-extending-dreamx-world"
-        
-        # Manually create directories using the same logic
-        for dir_path in DIRECTORIES:
-            full_path = test_root / dir_path
-            full_path.mkdir(parents=True, exist_ok=True)
-        
-        # Verify all directories exist
-        for dir_path in DIRECTORIES:
-            full_path = test_root / dir_path
-            assert full_path.exists(), f"Directory not created: {full_path}"
-            assert full_path.is_dir(), f"Not a directory: {full_path}"
-
-    def test_nested_structure_preservation(self, tmp_path):
-        """Test that nested directory structure is preserved."""
-        test_root = tmp_path / "projects" / "PROJ-886-llmxive-follow-up-extending-dreamx-world"
-        
-        # Create deep nested structure
-        deep_path = test_root / "code" / "models" / "submodule"
-        deep_path.mkdir(parents=True, exist_ok=True)
-        
-        assert deep_path.exists()
-        assert (test_root / "code").exists()
-        assert (test_root / "code" / "models").exists()
-
-    def test_idempotent_creation(self, tmp_path):
-        """Test that creating directories twice doesn't cause errors."""
-        test_root = tmp_path / "projects" / "PROJ-886-llmxive-follow-up-extending-dreamx-world"
-        
-        # Create first time
-        for dir_path in DIRECTORIES:
-            (test_root / dir_path).mkdir(parents=True, exist_ok=True)
-        
-        # Create second time (should not raise)
-        for dir_path in DIRECTORIES:
-            (test_root / dir_path).mkdir(parents=True, exist_ok=True)
-        
-        # Verify still exists
-        for dir_path in DIRECTORIES:
-            assert (test_root / dir_path).exists()
+if __name__ == "__main__":
+    unittest.main()

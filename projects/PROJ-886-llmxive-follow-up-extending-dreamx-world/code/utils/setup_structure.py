@@ -1,17 +1,34 @@
 import os
+import logging
 from pathlib import Path
 
 def main():
     """
-    Initialize the full nested directory tree for project PROJ-886.
-    Creates data/raw, data/derived, code subdirectories, and test directories.
+    Initialize the full nested directory tree for PROJ-886-llmxive-follow-up-extending-dreamx-world.
+    Creates the following directories relative to the project root:
+    - data/raw/
+    - data/derived/
+    - data/derived/videos/
+    - code/
+    - code/models/
+    - code/pipeline/
+    - code/analysis/
+    - code/utils/
+    - tests/unit/
+    - tests/integration/
+    - logs/
+    - docs/
+    - config/
     """
+    # Define the project root directory
+    # We assume the script is run from the project root or that the path is relative to it
     project_root = Path("projects/PROJ-886-llmxive-follow-up-extending-dreamx-world")
     
-    # Define the directory structure to create
+    # Define the list of directories to create
     directories = [
         "data/raw",
         "data/derived",
+        "data/derived/videos",
         "code",
         "code/models",
         "code/pipeline",
@@ -19,49 +36,30 @@ def main():
         "code/utils",
         "tests/unit",
         "tests/integration",
-        "specs"
+        "logs",
+        "docs",
+        "config"
     ]
-    
-    # Create directories
+
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+
+    # Create the project root directory if it doesn't exist
+    project_root.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured project root exists: {project_root}")
+
+    # Create each subdirectory
     for dir_path in directories:
         full_path = project_root / dir_path
         full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
-    
-    # Create __init__.py files to make directories Python packages
-    init_files = [
-        "code/__init__.py",
-        "code/models/__init__.py",
-        "code/pipeline/__init__.py",
-        "code/analysis/__init__.py",
-        "code/utils/__init__.py",
-        "tests/__init__.py",
-        "tests/unit/__init__.py",
-        "tests/integration/__init__.py"
-    ]
-    
-    for init_file in init_files:
-        full_path = project_root / init_file
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created empty __init__.py: {full_path}")
-        else:
-            print(f"__init__.py already exists: {full_path}")
-    
-    # Create .gitkeep files in data directories to ensure they are tracked
-    gitkeep_files = [
-        "data/raw/.gitkeep",
-        "data/derived/.gitkeep"
-    ]
-    
-    for gitkeep in gitkeep_files:
-        full_path = project_root / gitkeep
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created .gitkeep: {full_path}")
-    
-    print(f"\nProject structure initialized at: {project_root}")
-    return project_root
+        logger.info(f"Created directory: {full_path}")
+
+    logger.info("Project structure initialization complete.")
+    return 0
 
 if __name__ == "__main__":
     main()

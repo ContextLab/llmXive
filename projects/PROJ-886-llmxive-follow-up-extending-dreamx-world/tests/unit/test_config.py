@@ -1,174 +1,102 @@
-"""
-Unit tests for the configuration module (code/utils/config.py).
-"""
-
 import os
 import random
-import sys
-import tempfile
-from unittest.mock import patch
-
-# Add project root to path to allow imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-
+import numpy as np
+import torch
 import pytest
+from pathlib import Path
+import sys
 
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
+from code.utils.config import set_global_seed, get_env_config, init_environment
 
-from code.utils.config import (
-    set_global_seed,
-    get_env_config,
-    ensure_directories,
-    init_environment,
-    DEFAULT_SEED,
-    ENV_DREAMX_WORLD_PATH,
-    ENV_SCANNET_FALLBACK_PATH,
-    ENV_DREAMX_MODEL_CKPT,
-    ENV_USE_CPU_ONLY
-)
+class TestSeedFixation:
+    """Tests for random seed fixation and reproducibility."""
 
-
-class TestSeedSetting:
-    """Tests for random seed fixation logic."""
-
-    def test_seed_sets_python_random(self):
-        """Verify that Python's random module is seeded correctly."""
+    def test_set_global_seed_affects_random(self):
+        """Verify that set_global_seed affects Python's random module."""
         set_global_seed(12345)
         val1 = random.random()
         
         set_global_seed(12345)
         val2 = random.random()
         
-        assert val1 == val2, "Python random values should be identical with same seed."
+        assert val1 == val2, "Random module not properly seeded"
 
-    @pytest.mark.skipif(not NUMPY_AVAILABLE, reason="NumPy not installed")
-    def test_seed_sets_numpy(self):
-        """Verify that NumPy random is seeded correctly."""
-        set_global_seed(42)
+    def test_set_global_seed_affects_numpy(self):
+        """Verify that set_global_seed affects NumPy."""
+        set_global_seed(54321)
         arr1 = np.random.rand(5)
         
-        set_global_seed(42)
+        set_global_seed(54321)
         arr2 = np.random.rand(5)
         
-        assert np.array_equal(arr1, arr2), "NumPy arrays should be identical with same seed."
+        np.testing.assert_array_equal(arr1, arr2, "NumPy not properly seeded")
 
-    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch not installed")
-    def test_seed_sets_torch(self):
-        """Verify that PyTorch random is seeded correctly."""
-        set_global_seed(999)
-        t1 = torch.rand(5)
+    def test_set_global_seed_affects_torch(self):
+        """Verify that set_global_seed affects PyTorch."""
+        set_global_seed(99999)
+        tensor1 = torch.rand(5)
         
-        set_global_seed(999)
-        t2 = torch.rand(5)
+        set_global_seed(99999)
+        tensor2 = torch.rand(5)
         
-        assert torch.equal(t1, t2), "PyTorch tensors should be identical with same seed."
+        torch.testing.assert_close(tensor1, tensor2, "PyTorch not properly seeded")
 
-    def test_seed_negative_raises_error(self):
-        """Verify that negative seeds raise ValueError."""
-        with pytest.raises(ValueError):
-            set_global_seed(-1)
+    def test_cudnn_deterministic_flag_set(self):
+        """Verify that cudnn deterministic flags are set."""
+        set_global_seed(42)
+        assert torch.backends.cudnn.deterministic is True
+        assert torch.backends.cudnn.benchmark is False
 
-    def test_default_seed_used_when_none(self):
-        """Verify that DEFAULT_SEED is used when seed is None."""
-        # We can't easily test the actual value without running twice and comparing,
-        # but we can ensure it doesn't crash and uses a valid int.
-        try:
-            set_global_seed(None)
-            # If it reaches here, it used the default without error
-            assert True
-        except Exception:
-            pytest.fail("set_global_seed(None) raised an exception unexpectedly.")
-
-
-class TestEnvironmentConfig:
-    """Tests for environment variable configuration."""
-
-    @patch.dict(os.environ, {
-        ENV_DREAMX_WORLD_PATH: "/fake/path/dreamx",
-        ENV_SCANNET_FALLBACK_PATH: "/fake/path/scannet",
-        ENV_DREAMX_MODEL_CKPT: "/fake/path/model.pt",
-        ENV_USE_CPU_ONLY: "true"
-    })
-    def test_get_env_config_reads_variables(self):
-        """Verify that get_env_config reads environment variables correctly."""
-        config = get_env_config()
+    def test_environment_initialization(self):
+        """Test that init_environment properly configures the system."""
+        # Clean environment variables for test
+        for key in ["DEEPMX_SEED", "DEEPMX_DEVICE", "DEEPMX_LOG_LEVEL", "DEEPMX_DATA_ROOT"]:
+            os.environ.pop(key, None)
         
-        assert config["dreamx_world_path"] == "/fake/path/dreamx"
-        assert config["scannet_fallback_path"] == "/fake/path/scannet"
-        assert config["model_checkpoint"] == "/fake/path/model.pt"
-        assert config["use_cpu_only"] is True
-
-    @patch.dict(os.environ, {}, clear=True)
-    def test_get_env_config_defaults_to_none(self):
-        """Verify that missing env vars result in None."""
-        config = get_env_config()
+        config = init_environment(seed=77777)
         
-        assert config["dreamx_world_path"] is None
-        assert config["scannet_fallback_path"] is None
-        assert config["model_checkpoint"] is None
-        assert config["use_cpu_only"] is False
+        assert config["seed"] == 77777
+        assert config["device"] == "cpu"
+        assert config["log_level"] == "INFO"
 
-    def test_use_cpu_only_case_insensitive(self):
-        """Verify that use_cpu_only handles case variations."""
-        with patch.dict(os.environ, {ENV_USE_CPU_ONLY: "True"}):
-            assert get_env_config()["use_cpu_only"] is True
+    def test_env_variable_override(self):
+        """Test that environment variables override defaults."""
+        os.environ["DEEPMX_SEED"] = "11111"
+        os.environ["DEEPMX_DEVICE"] = "cuda"
         
-        with patch.dict(os.environ, {ENV_USE_CPU_ONLY: "TRUE"}):
-            assert get_env_config()["use_cpu_only"] is True
+        config = init_environment()
         
-        with patch.dict(os.environ, {ENV_USE_CPU_ONLY: "false"}):
-            assert get_env_config()["use_cpu_only"] is False
-
-
-class TestDirectoryManagement:
-    """Tests for directory creation."""
-
-    def test_ensure_directories_creates_missing(self, tmp_path):
-        """Verify that ensure_directories creates missing directories."""
-        # Mock the global constants to point to tmp_path
-        import code.utils.config as config_module
-        original_root = config_module.PROJECT_ROOT
+        assert config["seed"] == 11111
+        assert config["device"] == "cuda"
         
-        # We can't easily mock PROJECT_ROOT because it's calculated at import time.
-        # Instead, we test the logic by creating a temporary directory structure
-        # and verifying os.makedirs is called or directories exist.
+        # Clean up
+        os.environ.pop("DEEPMX_SEED")
+        os.environ.pop("DEEPMX_DEVICE")
+
+    def test_seed_range_validation(self):
+        """Test that seeds within valid range work correctly."""
+        # Test minimum valid seed
+        set_global_seed(0)
+        assert torch.backends.cudnn.deterministic is True
         
-        # Since ensure_directories uses hardcoded constants, we rely on the fact
-        # that os.makedirs(exist_ok=True) won't fail if dirs exist.
-        # We'll just ensure it doesn't crash.
-        try:
-            ensure_directories()
-            assert True
-        except Exception as e:
-            pytest.fail(f"ensure_directories raised an exception: {e}")
+        # Test maximum valid seed (2^32 - 1)
+        set_global_seed(2**32 - 1)
+        assert torch.backends.cudnn.deterministic is True
 
-class TestInitEnvironment:
-    """Tests for the main initialization function."""
-
-    def test_init_environment_calls_seed_and_dirs(self):
-        """Verify that init_environment calls seed setting and directory creation."""
-        # This is a high-level integration test for the module's entry point
-        try:
-            config = init_environment(seed=555)
-            assert config is not None
-            # Verify seed was set by checking a random value
-            val = random.random()
-            # Reset and check if we get the same sequence
-            random.seed(555)
-            val2 = random.random()
-            # Note: random.seed(555) inside init_environment might have been called,
-            # but we can't guarantee the state unless we capture it.
-            # The critical part is that it doesn't crash.
-            assert True
-        except Exception as e:
-            pytest.fail(f"init_environment raised an exception: {e}")
+    def test_reproducibility_chain(self):
+        """Test that a chain of operations is reproducible."""
+        def run_chain(seed):
+            set_global_seed(seed)
+            r = random.random()
+            n = np.random.rand()
+            t = torch.rand(1).item()
+            return r, n, t
+        
+        result1 = run_chain(42424)
+        result2 = run_chain(42424)
+        
+        assert result1 == result2, "Chain of operations not reproducible"

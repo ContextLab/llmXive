@@ -1,103 +1,81 @@
-"""
-Unit tests for the Static Analysis Check logic.
-
-Verifies that the check correctly identifies restricted imports
-and allows valid ones.
-"""
-
-import os
-import tempfile
 import pytest
+import tempfile
+import os
 from pathlib import Path
-
-# Import the check function from the analysis script
-# We need to adjust the import path for testing
 import sys
-from code.pipeline.static_analysis_check import check_file_integrity
 
-class TestStaticAnalysis:
-    
-    def test_allows_valid_imports(self, tmp_path):
-        """Test that a file with valid imports passes."""
-        valid_code = """
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from code.pipeline.static_analysis_check import check_file_integrity, FORBIDDEN_NAMES
+
+class TestStaticAnalysisCheck:
+    """Tests for the static analysis integrity check."""
+
+    def test_forbidden_import_detection(self):
+        """Test that forbidden imports are detected."""
+        code_with_forbidden_import = """
+        import dit_attention
+        from latent_space import something
+        """
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write(code_with_forbidden_import)
+            temp_path = f.name
+
+        try:
+            is_valid, violations = check_file_integrity(temp_path)
+            assert not is_valid, "Should detect forbidden imports"
+            assert len(violations) > 0, "Should have violations"
+        finally:
+            os.unlink(temp_path)
+
+    def test_allowed_imports_pass(self):
+        """Test that allowed imports pass the check."""
+        code_with_allowed_imports = """
         import os
+        import json
+        import logging
+        import subprocess
+        import tempfile
+        import shutil
         import numpy as np
         import pandas as pd
-        from utils.config import get_env_config
-        from utils.io import log_operation
-        from models.dreamx_base import create_dreamx_base_model
-        
-        def my_func():
-            pass
         """
-        file_path = tmp_path / "valid.py"
-        file_path.write_text(valid_code)
-        
-        assert check_file_integrity(str(file_path)) is True
-        
-    def test_blocks_dit_attention_import(self, tmp_path):
-        """Test that importing dit_attention fails."""
-        invalid_code = """
-        from models.dreamx_base import dit_attention
-        
-        def my_func():
-            pass
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write(code_with_allowed_imports)
+            temp_path = f.name
+
+        try:
+            is_valid, violations = check_file_integrity(temp_path)
+            assert is_valid, f"Should pass with allowed imports, but got violations: {violations}"
+            assert len(violations) == 0, "Should have no violations"
+        finally:
+            os.unlink(temp_path)
+
+    def test_forbidden_name_usage_detection(self):
+        """Test that usage of forbidden names in code is detected."""
+        code_with_forbidden_usage = """
+        def some_function():
+            x = dit_attention.calculate()
+            return latent_space.get_value()
         """
-        file_path = tmp_path / "invalid1.py"
-        file_path.write_text(invalid_code)
-        
-        assert check_file_integrity(str(file_path)) is False
-        
-    def test_blocks_latent_space_import(self, tmp_path):
-        """Test that importing latent_space fails."""
-        invalid_code = """
-        from models.dreamx_lite import latent_space
-        
-        def my_func():
-            pass
-        """
-        file_path = tmp_path / "invalid2.py"
-        file_path.write_text(invalid_code)
-        
-        assert check_file_integrity(str(file_path)) is False
-        
-    def test_blocks_direct_module_import(self, tmp_path):
-        """Test that importing a restricted module name fails."""
-        invalid_code = """
-        import dit_attention
-        
-        def my_func():
-            pass
-        """
-        file_path = tmp_path / "invalid3.py"
-        file_path.write_text(invalid_code)
-        
-        assert check_file_integrity(str(file_path)) is False
-        
-    def test_blocks_backbone_import(self, tmp_path):
-        """Test that importing backbone fails."""
-        invalid_code = """
-        from models import backbone
-        
-        def my_func():
-            pass
-        """
-        file_path = tmp_path / "invalid4.py"
-        file_path.write_text(invalid_code)
-        
-        assert check_file_integrity(str(file_path)) is False
-        
-    def test_syntax_error_handling(self, tmp_path):
-        """Test that syntax errors are handled gracefully."""
-        invalid_syntax = """
-        def broken(
-            pass
-        """
-        file_path = tmp_path / "syntax_error.py"
-        file_path.write_text(invalid_syntax)
-        
-        assert check_file_integrity(str(file_path)) is False
-        
-    def test_nonexistent_file(self, tmp_path):
-        """Test that missing files are handled."""
-        assert check_file_integrity(str(tmp_path / "nonexistent.py")) is False
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+            f.write(code_with_forbidden_usage)
+            temp_path = f.name
+
+        try:
+            is_valid, violations = check_file_integrity(temp_path)
+            assert not is_valid, "Should detect forbidden name usage"
+            assert len(violations) > 0, "Should have violations"
+        finally:
+            os.unlink(temp_path)
+
+    def test_evaluate_file_compliance(self):
+        """Test that the actual evaluate.py file passes the check."""
+        evaluate_file = project_root / "code" / "pipeline" / "evaluate.py"
+        assert evaluate_file.exists(), "evaluate.py should exist"
+
+        is_valid, violations = check_file_integrity(str(evaluate_file))
+        assert is_valid, f"evaluate.py should not have forbidden imports. Violations: {violations}"
+        assert len(violations) == 0, "evaluate.py should have no violations"

@@ -5,6 +5,19 @@ T021:
     \ claim lacks any tangible evidence of a rollout generation pipeline, generated\
     \ MP4s for baseline and DreamX\u2011Lite, or a JSON/CSV containing MAE values.\
     \ The required deliverables are missing, so the task is not satisfied."
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/data/derived/videos/`
+    directory (or any files within it) is provided; the implementer only supplied
+    a feature specification, not the actual filesystem artifact. The task remains
+    undone until the directory structure is created and visible.
+T027b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide an updated `metrics.csv` schema, nor any documentation\
+    \ or log entries indicating that `null` is the accepted sentinel value for divergence\
+    \ as required by FR\u2011004. No such artifacts appear in the evidence."
 T030:
   c: false
   h: aab5ca4a42103e53c93f31108d5c2b6cbd0ce71e329839be280fff23585a42fa

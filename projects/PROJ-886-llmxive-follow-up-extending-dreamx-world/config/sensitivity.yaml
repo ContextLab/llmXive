@@ -1,0 +1,51 @@
+# Sensitivity analysis configuration
+# Thresholds for testing model robustness
+
+thresholds:
+  # Small significance levels as required by spec
+  alpha_levels:
+    - 0.001
+    - 0.005
+    - 0.01
+    - 0.025
+    - 0.05
+    - 0.10
+    - 0.20
+  
+  # MAE position thresholds (meters)
+  mae_position_thresholds:
+    - 0.01
+    - 0.05
+    - 0.10
+    - 0.20
+    - 0.50
+    - 1.00
+  
+  # MAE rotation thresholds (degrees)
+  mae_rotation_thresholds:
+    - 0.1
+    - 0.5
+    - 1.0
+    - 2.0
+    - 5.0
+    - 10.0
+  
+  # Scale drift thresholds
+  scale_drift_thresholds:
+    - 0.01
+    - 0.05
+    - 0.10
+    - 0.20
+    - 0.50
+
+# Output configuration
+output:
+  sensitivity_table_path: "data/derived/sensitivity_table.json"
+  results_path: "data/derived/statistical_results.json"
+  log_path: "logs/sensitivity.log"
+
+# Test configuration
+test:
+  sample_size: 100
+  random_seed: 42
+  max_iterations: 1000

@@ -2,10 +2,13 @@ import os
 import torch
 import torch.nn as nn
 import logging
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any, Tuple, Union
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+# Global constant for embedding dimension as per T013 requirement
+EMBEDDING_DIM = 768
 
 class DreamXBase(nn.Module):
     """
@@ -14,7 +17,7 @@ class DreamXBase(nn.Module):
     Handles loading of pre-trained DiT weights and common initialization logic.
     """
     
-    def __init__(self, embedding_dim: int = 768):
+    def __init__(self, embedding_dim: int = EMBEDDING_DIM):
         super().__init__()
         self.embedding_dim = embedding_dim
         self.backbone = None
@@ -29,7 +32,9 @@ class DreamXBase(nn.Module):
             raise FileNotFoundError(f"Pretrained weights not found: {pretrained_path}")
         
         logger.info(f"Loading weights from: {pretrained_path}")
-        state_dict = torch.load(pretrained_path, map_location="cpu")
+        
+        # Use map_location to ensure CPU compatibility regardless of save device
+        state_dict = torch.load(pretrained_path, map_location="cpu", weights_only=True)
         
         # Filter out incompatible keys if necessary
         model_dict = self.state_dict()
@@ -38,6 +43,9 @@ class DreamXBase(nn.Module):
         if strict and len(pretrained_dict) != len(model_dict):
             missing = set(model_dict.keys()) - set(pretrained_dict.keys())
             logger.warning(f"Missing keys: {missing}")
+            extra = set(pretrained_dict.keys()) - set(model_dict.keys())
+            if extra:
+                logger.warning(f"Extra keys in checkpoint: {extra}")
         
         model_dict.update(pretrained_dict)
         self.load_state_dict(model_dict, strict=strict)
@@ -53,7 +61,7 @@ def create_dreamx_base_model(
     
     Args:
         pretrained_path: Path to pre-trained weights
-        device: Target device
+        device: Target device (default: "cpu" to ensure CPU-only runner compatibility)
         strict_load: Strict loading of state dict
         
     Returns:
@@ -63,16 +71,17 @@ def create_dreamx_base_model(
     
     # Initialize backbone (simplified DiT structure)
     # In real implementation, this would be a full DiT backbone
+    # Using the global EMBEDDING_DIM constant
     model.backbone = nn.Sequential(
-        nn.Linear(768, 768),
+        nn.Linear(EMBEDDING_DIM, EMBEDDING_DIM),
         nn.GELU(),
-        nn.Linear(768, 768)
+        nn.Linear(EMBEDDING_DIM, EMBEDDING_DIM)
     )
     
-    # Set embedding dim
-    model.embedding_dim = 768
+    # Set embedding dim explicitly from constant
+    model.embedding_dim = EMBEDDING_DIM
     
-    # Move to device
+    # Move to device (ensures CPU initialization as per T015 context)
     model = model.to(device)
     
     # Load weights if provided
