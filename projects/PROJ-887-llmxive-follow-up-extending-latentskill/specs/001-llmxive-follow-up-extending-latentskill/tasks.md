@@ -297,3 +297,13 @@ required: [task_id, strategy, success]
 - [ ] T081 [US3] **Run** `tests/integration/test_pipeline.py` to confirm the entire pipeline (ingestion -> retrieval -> evaluation -> stats) executes correctly on the CPU-only runner. (Depends on T078)
 - [ ] T082 [P] **Audit** `data/raw/` and `data/processed/` for any accidental synthetic data files or placeholders. Confirm all data originates from the verified sources in `data_sources.yaml`. (Depends on T078)
 - [ ] T083 [P] **Finalize** `README.md` with the actual results from the final run, including the `stats_report.json` summary and links to generated plots. (Depends on T080)
+
+---
+
+## Phase 14: Final Review & Handoff
+
+**Purpose**: Final quality assurance and preparation for human review.
+
+- [ ] T084 [P] **Review** the `specs/001-lattentskill-retrieval-geometry/spec.md` and `plan.md` one last time to ensure all assumptions and constraints are accurately reflected in the final report. (Depends on T080)
+- [ ] T085 [P] **Generate** a summary `reports/summary.md` that highlights the key findings, statistical significance, and any limitations or warnings encountered during the run. (Depends on T080)
+- [ ] T086 [P] **Archive** all artifacts and logs to a structured `archive/` directory for long-term storage and reproducibility. (Depends on T082)
