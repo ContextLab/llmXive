@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:34:52.688656Z'
-current_stage: tasked
+current_stage: in_progress
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-588-narrative-archaeology-reverse-engineerin
-last_run_id: 4ae0805c-06e1-4ea9-9268-be4f830393d8
+last_run_id: 9f9598e5-a2e8-457e-b9fe-242e3e45ef88
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin
 title: 'Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data'
-updated_at: '2026-09-04T03:10:25.615994Z'
+updated_at: '2026-09-05T06:17:45.561421Z'
