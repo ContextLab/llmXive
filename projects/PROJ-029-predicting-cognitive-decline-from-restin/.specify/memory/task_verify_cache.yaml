@@ -6,13 +6,6 @@ T017a:
     \ than a proper \u201Cno eligible subjects\u201D status with the specified exit\
     \ code. The script also appears truncated and does not demonstrably perform the\
     \ filtering, sample\u2011size limiting, and CSV generation mandated by the task."
-T017b:
-  c: false
-  h: c4506c16329f85ac4a36a31c8786070ab16fb4b2f1c15f63b3cf8ab1d4b6d6f0
-  r: The required `data/processed/excluded_subjects.log` file does not exist, so the
-    mandatory logging step is not fulfilled. Additionally, the provided `code/01_download_and_filter.py`
-    snippet is truncated and does not clearly show creation of that log file. The
-    task therefore remains incomplete.
 T018:
   c: false
   h: c8ede5b1f5df441aed56742fc2816aabc65d78e79a9da0dd77ef9fa5fe797e06

@@ -31,7 +31,7 @@ The researcher trains a Random Forest classifier to predict cognitive decline st
 **Independent Test**: The pipeline can be executed to output a model file and a performance report (JSON/CSV) containing the ROC-AUC and F1-score for the nested cross-validation, without running the permutation test.
 
 **Acceptance Scenarios**:
-1. **Given** the feature matrix and binary labels, **When** the Random Forest classifier is trained with nested cross-validation (5-fold outer, grid search inner), **Then** the system outputs a performance report containing ROC-AUC, accuracy, and F1-score for each fold and the mean.
+1. **Given** the feature matrix and binary labels, **When** the Random Forest classifier is trained with nested cross-validation (5-fold outer, grid search inner), **Then** the system outputs a performance report containing ROC-AUC, accuracy, and F-score for each fold and the mean.
 2. **Given** the trained model, **When** it is applied to the test fold, **Then** the predicted probabilities are generated for all subjects in that fold.
 3. **Given** the model architecture, **When** it is trained on the CPU-only runner, **Then** the training time for the nested CV completes within 30 minutes, ensuring the full 6-hour job limit is respected.
 
