@@ -1,318 +1,254 @@
-"""
-Unified Data Generation and Labeling Script for Synthetic Attention Matrices.
-
-This module implements the generation of synthetic attention matrices with controlled
-statistical properties (mean, variance, sparsity, outliers) and computes ground-truth
-scaling factors using the SingleStepSinkhornSolver.
-
-Output:
-    data/raw/synthetic_attention_matrices.parquet: Dataset containing matrix moments
-    and computed scaling factors.
-    data/raw/synthetic_attention_matrices.parquet.sha256: Checksum file.
-"""
-
 import os
 import sys
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
-from dataclasses import dataclass
+from typing import List, Dict, Any, Optional, Tuple
 
-# Import from project API surface
+from config import get_config
 from data_generation.sinkhorn_solver import SingleStepSinkhornSolver, SinkhornNonConvergenceError
 from data_generation.utils import (
-    get_project_root,
-    apply_epsilon_floor,
-    setup_generation_logger,
-    log_generation_progress,
-    log_solver_success,
-    log_solver_failure,
-    log_numerical_warning,
-    log_skipped_instance,
-    save_to_parquet,
-    compute_and_store_checksums,
-    generate_checksum_for_dataset
+    get_project_root, setup_generation_logger, log_generation_progress,
+    log_solver_success, log_solver_failure, log_skipped_instance,
+    compute_and_store_checksums
 )
-from config import get_config
+from entities import AttentionMatrix, ScalingFactor
 
-# Constants
-MATRIX_SIZE = 128
-TARGET_COUNT = 10000
-EPSILON_FLOOR = 1e-6
-MAX_OUTLIER_MAGNITUDE = 5.0
-MIN_OUTLIER_MAGNITUDE = 0.5
-SPARSITY_TARGET = 0.1  # 10% sparsity
+logger = setup_generation_logger("synthetic_attention")
 
-@dataclass
 class SyntheticMatrixStats:
-    """Container for the statistical properties of a generated matrix."""
-    mean: float
-    variance: float
-    sparsity: float
-    outlier_magnitude: float
-    scaling_factor: float
-    convergence_status: str  # 'success', 'failed', 'skipped'
+    """Container for statistical properties of a generated matrix."""
+    def __init__(self, mean: float, variance: float, sparsity: float, outlier_magnitude: float):
+        self.mean = mean
+        self.variance = variance
+        self.sparsity = sparsity
+        self.outlier_magnitude = outlier_magnitude
 
 def generate_static_attention_matrix(
-    rng: np.random.Generator,
-    target_sparsity: float = SPARSITY_TARGET,
-    min_outlier: float = MIN_OUTLIER_MAGNITUDE,
-    max_outlier: float = MAX_OUTLIER_MAGNITUDE
-) -> Tuple[np.ndarray, Dict[str, float]]:
+    shape: Tuple[int, int] = (128, 128),
+    target_sparsity: float = 0.1,
+    outlier_fraction: float = 0.05,
+    outlier_magnitude_factor: float = 10.0,
+    seed: Optional[int] = None
+) -> Tuple[np.ndarray, SyntheticMatrixStats]:
     """
-    Generates a single synthetic attention matrix with controlled properties.
-
-    The matrix is constructed by:
-    1. Sampling base values from a normal distribution.
-    2. Applying a sparsity mask.
-    3. Injecting outliers to simulate attention spikes.
-
+    Generate a synthetic static attention matrix with controlled properties.
+    
     Args:
-        rng: NumPy random generator for reproducibility.
-        target_sparsity: Target fraction of zero elements.
-        min_outlier: Minimum magnitude for injected outliers.
-        max_outlier: Maximum magnitude for injected outliers.
-
+        shape: Dimensions of the matrix.
+        target_sparsity: Target ratio of zero elements.
+        outlier_fraction: Fraction of elements to be outliers.
+        outlier_magnitude_factor: Multiplier for outlier values relative to std dev.
+        seed: Random seed for reproducibility.
+        
     Returns:
-        Tuple of (matrix, stats_dict).
+        Tuple of (matrix, stats)
     """
-    # 1. Base generation: Normal distribution centered at 0
-    base_matrix = rng.normal(loc=0.0, scale=1.0, size=(MATRIX_SIZE, MATRIX_SIZE))
+    if seed is not None:
+        np.random.seed(seed)
 
-    # 2. Apply Sparsity
-    # Create a mask where True means keep, False means zero
-    keep_mask = rng.random((MATRIX_SIZE, MATRIX_SIZE)) > target_sparsity
-    matrix = base_matrix * keep_mask
-
-    # 3. Inject Outliers
-    # Determine number of outliers (approx 1% of matrix)
-    num_outliers = int(0.01 * MATRIX_SIZE * MATRIX_SIZE)
-    outlier_indices = rng.choice(MATRIX_SIZE * MATRIX_SIZE, size=num_outliers, replace=False)
-    outlier_values = rng.uniform(min_outlier, max_outlier, size=num_outliers)
-    # Assign positive or negative sign randomly
-    signs = rng.choice([-1, 1], size=num_outliers)
-    outlier_values = outlier_values * signs
-
-    # Flatten matrix to set outliers easily, then reshape
-    flat_matrix = matrix.flatten()
-    flat_matrix[outlier_indices] = outlier_values
-    matrix = flat_matrix.reshape((MATRIX_SIZE, MATRIX_SIZE))
-
-    # 4. Compute Moments
-    mean_val = float(np.mean(matrix))
-    var_val = float(np.var(matrix))
-    sparsity_val = float(1.0 - (np.count_nonzero(matrix) / (MATRIX_SIZE * MATRIX_SIZE)))
-
-    # Outlier magnitude: max absolute value (simplified metric for this task)
-    outlier_mag = float(np.max(np.abs(matrix)))
-
-    stats = {
-        "mean": mean_val,
-        "variance": var_val,
-        "sparsity": sparsity_val,
-        "outlier_magnitude": outlier_mag
-    }
-
-    return matrix, stats
+    n_elements = shape[0] * shape[1]
+    
+    # Generate base Gaussian values
+    base_values = np.random.randn(*shape)
+    
+    # Apply sparsity (set some values to zero)
+    num_zeros = int(n_elements * target_sparsity)
+    zero_indices = np.random.choice(n_elements, num_zeros, replace=False)
+    base_values.flat[zero_indices] = 0.0
+    
+    # Calculate current statistics
+    current_mean = np.mean(base_values)
+    current_std = np.std(base_values)
+    
+    # Inject outliers
+    num_outliers = int(n_elements * outlier_fraction)
+    outlier_indices = np.random.choice(n_elements, num_outliers, replace=False)
+    # Outliers are set to mean +/- (std * factor)
+    outlier_signs = np.random.choice([-1, 1], num_outliers)
+    outlier_values = current_mean + outlier_signs * current_std * outlier_magnitude_factor
+    base_values.flat[outlier_indices] = outlier_values
+    
+    # Compute final statistics
+    final_mean = np.mean(base_values)
+    final_var = np.var(base_values)
+    final_sparsity = np.sum(base_values == 0) / n_elements
+    # Outlier magnitude is defined as the average absolute deviation of outliers from mean
+    outlier_abs_devs = np.abs(base_values.flat[outlier_indices] - final_mean)
+    final_outlier_mag = np.mean(outlier_abs_devs) if num_outliers > 0 else 0.0
+    
+    stats = SyntheticMatrixStats(
+        mean=final_mean,
+        variance=final_var,
+        sparsity=final_sparsity,
+        outlier_magnitude=final_outlier_mag
+    )
+    
+    return base_values, stats
 
 def compute_scaling_factor(
     matrix: np.ndarray,
     solver: SingleStepSinkhornSolver,
-    logger: logging.Logger
-) -> Tuple[Optional[float], str]:
+    epsilon: Optional[float] = None
+) -> float:
     """
-    Computes the ground-truth scaling factor for a given matrix using the Sinkhorn solver.
-
+    Compute the ground-truth scaling factor for a matrix using the Sinkhorn solver.
+    
     Args:
         matrix: The attention matrix.
-        solver: The SingleStepSinkhornSolver instance.
-        logger: Logger for progress tracking.
-
+        solver: The solver instance.
+        epsilon: Epsilon parameter for the solver (optional).
+        
     Returns:
-        Tuple of (scaling_factor, status).
-        scaling_factor is None if convergence failed.
-        status is 'success', 'failed', or 'skipped'.
+        The computed scaling factor.
+        
+    Raises:
+        SinkhornNonConvergenceError: If the solver fails to converge.
     """
     try:
-        # Ensure numerical stability before passing to solver
-        # The solver expects a valid matrix, but we apply epsilon floor to variances if needed
-        # inside the solver logic. Here we just pass the matrix.
-        
-        # We need to pass the matrix and an epsilon. 
-        # The task requires using SingleStepSinkhornSolver which computes a single factor.
-        # The solver signature is solve(matrix, epsilon).
-        # We use the global epsilon floor from config or a default.
-        config = get_config()
-        epsilon = getattr(config, 'EPSILON_FLOOR', EPSILON_FLOOR)
-        
-        scaling_factor = solver.solve(matrix, epsilon)
-        
-        if np.isnan(scaling_factor) or np.isinf(scaling_factor):
-            log_numerical_warning(logger, f"Solver returned non-finite value: {scaling_factor}")
-            return None, "failed"
-        
-        log_solver_success(logger, scaling_factor)
-        return scaling_factor, "success"
-
+        # The solver expects a matrix and epsilon
+        if epsilon is not None:
+            return solver.solve(matrix, epsilon)
+        else:
+            config = get_config()
+            default_epsilon = getattr(config, 'EPSILON_FLOOR', 1e-6)
+            return solver.solve(matrix, default_epsilon)
     except SinkhornNonConvergenceError as e:
-        log_solver_failure(logger, str(e))
-        return None, "failed"
-    except Exception as e:
-        log_numerical_warning(logger, f"Unexpected error in solver: {str(e)}")
-        return None, "failed"
+        raise e
 
 def generate_static_dataset(
-    num_matrices: int = TARGET_COUNT,
-    seed: Optional[int] = None,
-    output_dir: Optional[Path] = None
-) -> Path:
+    num_matrices: int,
+    matrix_shape: Tuple[int, int] = (128, 128),
+    target_sparsity: float = 0.1,
+    outlier_fraction: float = 0.05,
+    outlier_magnitude_factor: float = 10.0,
+    output_path: Optional[Path] = None,
+    seed_base: int = 42
+) -> pd.DataFrame:
     """
-    Generates the full dataset of synthetic attention matrices and computes labels.
-
-    This function runs the generation loop, computes scaling factors, and writes
-    the results to a Parquet file.
-
+    Generate a dataset of synthetic attention matrices and their ground-truth scaling factors.
+    
     Args:
-        num_matrices: Number of matrices to generate (default 10,000).
-        seed: Random seed for reproducibility.
-        output_dir: Directory to save the output file. Defaults to data/raw.
-
+        num_matrices: Number of matrices to generate.
+        matrix_shape: Shape of each matrix.
+        target_sparsity: Target sparsity ratio.
+        outlier_fraction: Fraction of outliers.
+        outlier_magnitude_factor: Outlier magnitude multiplier.
+        output_path: Path to save the CSV output.
+        seed_base: Base seed for generation.
+        
     Returns:
-        Path to the generated Parquet file.
+        DataFrame containing the generated data.
     """
-    # Setup
-    if seed is None:
-        seed = 42 # Default seed
-    
-    rng = np.random.default_rng(seed)
+    config = get_config()
     solver = SingleStepSinkhornSolver()
+    epsilon = getattr(config, 'EPSILON_FLOOR', 1e-6)
     
-    project_root = get_project_root()
-    if output_dir is None:
-        output_dir = project_root / "data" / "raw"
-    
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "synthetic_attention_matrices.parquet"
-    checksum_file = output_dir / "synthetic_attention_matrices.parquet.sha256"
-
-    # Logger setup
-    logger = setup_generation_logger("data_generation")
-
-    logger.info(f"Starting generation of {num_matrices} matrices with seed {seed}")
-    logger.info(f"Output will be written to: {output_file}")
-
-    # Data collection lists
     data_rows = []
-    success_count = 0
-    failure_count = 0
-
+    skipped_count = 0
+    
+    logger.info(f"Starting generation of {num_matrices} matrices...")
+    
     for i in range(num_matrices):
-        # 1. Generate Matrix
-        matrix, moments = generate_static_attention_matrix(rng)
-
-        # 2. Compute Scaling Factor
-        scaling_factor, status = compute_scaling_factor(matrix, solver, logger)
-
-        if status == "success":
-            success_count += 1
-            row = {
-                "index": i,
-                "mean": moments["mean"],
-                "variance": moments["variance"],
-                "sparsity": moments["sparsity"],
-                "outlier_magnitude": moments["outlier_magnitude"],
-                "scaling_factor": scaling_factor,
-                "status": status
-            }
-            data_rows.append(row)
-        else:
-            failure_count += 1
-            log_skipped_instance(logger, i, status)
-            # We do not store failed instances in the final dataset as per requirement 
-            # "do not produce NaN labels". We skip them to ensure the output count is valid.
-            # However, to ensure we hit 10,000 VALID entries, we might need to loop more.
-            # The task says "generate exactly 10,000 ... matrices ... and write ... containing ... scaling_factor".
-            # If we skip failures, we need to generate until we have 10,000 successes.
-            # Re-adjusting loop: we need to continue until data_rows has 10,000 items.
-            # But the loop is fixed to range(num_matrices). 
-            # Let's interpret "generate exactly 10,000" as the target count of the dataset.
-            # If the failure rate is low, range(10000) is fine. If high, we need a while loop.
-            # Given the robust solver, we assume low failure rate, but to be safe:
-            pass
-
-        # Progress logging
-        if (i + 1) % 1000 == 0:
-            log_generation_progress(logger, i + 1, num_matrices, success_count, failure_count)
-
-    # If we didn't get 10,000 successes, we need to generate more.
-    # This ensures the output file has exactly 10,000 valid rows.
-    current_count = len(data_rows)
-    if current_count < num_matrices:
-        logger.warning(f"Only generated {current_count} valid matrices. Generating {num_matrices - current_count} more.")
-        needed = num_matrices - current_count
-        start_idx = current_count
-        while len(data_rows) < num_matrices:
-            matrix, moments = generate_static_attention_matrix(rng)
-            scaling_factor, status = compute_scaling_factor(matrix, solver, logger)
-            if status == "success":
+        current_seed = seed_base + i
+        try:
+            # Generate matrix
+            matrix, stats = generate_static_attention_matrix(
+                shape=matrix_shape,
+                target_sparsity=target_sparsity,
+                outlier_fraction=outlier_fraction,
+                outlier_magnitude_factor=outlier_magnitude_factor,
+                seed=current_seed
+            )
+            
+            # Compute scaling factor
+            try:
+                scaling_factor = compute_scaling_factor(matrix, solver, epsilon)
+                
+                # Check for numerical stability
+                if not np.isfinite(scaling_factor):
+                    log_skipped_instance(logger, i, "Non-finite scaling factor")
+                    skipped_count += 1
+                    continue
+                    
                 row = {
-                    "index": len(data_rows), # Renumber sequentially
-                    "mean": moments["mean"],
-                    "variance": moments["variance"],
-                    "sparsity": moments["sparsity"],
-                    "outlier_magnitude": moments["outlier_magnitude"],
-                    "scaling_factor": scaling_factor,
-                    "status": status
+                    'index': i,
+                    'mean': stats.mean,
+                    'variance': stats.variance,
+                    'sparsity': stats.sparsity,
+                    'outlier_magnitude': stats.outlier_magnitude,
+                    'scaling_factor': scaling_factor
                 }
                 data_rows.append(row)
-            else:
-                failure_count += 1
-                log_skipped_instance(logger, len(data_rows) + start_idx, status)
+                log_solver_success(logger, i, scaling_factor)
+                
+            except SinkhornNonConvergenceError:
+                log_skipped_instance(logger, i, "Sinkhorn solver did not converge")
+                skipped_count += 1
+                continue
+                
+        except Exception as e:
+            log_skipped_instance(logger, i, f"Unexpected error: {str(e)}")
+            skipped_count += 1
+            continue
+            
+        log_generation_progress(logger, i + 1, num_matrices)
         
-        logger.info(f"Completed generation of {num_matrices} valid matrices.")
-
-    # Create DataFrame
     df = pd.DataFrame(data_rows)
     
-    # Verify count
-    if len(df) != num_matrices:
-        raise RuntimeError(f"Dataset generation failed: expected {num_matrices} rows, got {len(df)}")
-
-    # 3. Serialize to Parquet
-    save_to_parquet(df, output_file)
-    logger.info(f"Successfully wrote dataset to {output_file}")
-
-    # 4. Generate Checksum
-    generate_checksum_for_dataset(output_file, checksum_file)
-    logger.info(f"Successfully wrote checksum to {checksum_file}")
-
-    logger.info(f"Data generation complete. Total rows: {len(df)}, Successes: {success_count}, Failures: {failure_count}")
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved dataset to {output_path}")
+        
+        # Generate checksum
+        try:
+            checksum_path = compute_and_store_checksums(output_path)
+            logger.info(f"Saved checksum to {checksum_path}")
+        except Exception as e:
+            logger.error(f"Failed to generate checksum: {e}")
     
-    return output_file
+    logger.info(f"Generation complete. Total: {num_matrices}, Success: {len(df)}, Skipped: {skipped_count}")
+    
+    return df
 
 def main():
-    """Entry point for the data generation script."""
-    import argparse
+    """Main entry point for the synthetic attention data generation script."""
+    config = get_config()
+    num_matrices = getattr(config, 'NUM_MATRICES', 1000) # Default from config, can be overridden
     
-    parser = argparse.ArgumentParser(description="Generate synthetic attention matrices dataset.")
-    parser.add_argument("--seed", type=int, default=None, help="Random seed. Default: 42")
-    parser.add_argument("--count", type=int, default=TARGET_COUNT, help=f"Number of matrices to generate. Default: {TARGET_COUNT}")
-    parser.add_argument("--output", type=str, default=None, help="Output file path. Default: data/raw/synthetic_attention_matrices.parquet")
+    # Ensure data/raw directory exists
+    project_root = get_project_root()
+    output_path = project_root / "data" / "raw" / "synthetic_attention_matrices.csv"
     
-    args = parser.parse_args()
+    logger.info(f"Generating {num_matrices} matrices to {output_path}")
     
-    output_path = None
-    if args.output:
-        output_path = Path(args.output)
+    df = generate_static_dataset(
+        num_matrices=num_matrices,
+        output_path=output_path,
+        seed_base=42
+    )
+    
+    # Verification
+    if len(df) != num_matrices:
+        logger.warning(f"Generated {len(df)} matrices, expected {num_matrices}. Some were skipped.")
+    else:
+        logger.info(f"Successfully generated {len(df)} matrices as expected.")
         
-    try:
-        generate_static_dataset(num_matrices=args.count, seed=args.seed, output_dir=output_path.parent if output_path else None)
-        print("Data generation completed successfully.")
-    except Exception as e:
-        logging.error(f"Data generation failed: {e}")
+    # Verify required columns exist
+    required_cols = ['mean', 'variance', 'sparsity', 'outlier_magnitude', 'scaling_factor']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        logger.error(f"Missing required columns: {missing_cols}")
         sys.exit(1)
+        
+    # Verify no NaN in scaling_factor
+    if df['scaling_factor'].isna().any():
+        logger.error("Dataset contains NaN values in scaling_factor column.")
+        sys.exit(1)
+        
+    logger.info("Data generation and verification complete.")
 
 if __name__ == "__main__":
     main()

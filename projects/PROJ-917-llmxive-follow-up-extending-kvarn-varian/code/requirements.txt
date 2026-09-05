@@ -1,14 +1,9 @@
-# llmXive Project Dependencies
-# Pinned versions for reproducibility
-
-numpy>=1.24.0
-scipy>=1.10.0
-torch>=2.0.0
-scikit-learn>=1.2.0
-pandas>=2.0.0
-pyarrow>=12.0.0
-pytest>=7.3.0
-matplotlib>=3.7.0
-pyyaml>=6.0
-ruff>=0.1.0
-black>=23.0.0
+numpy
+scipy
+torch==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu
+scikit-learn
+pandas
+pyarrow
+pytest
+matplotlib
+pyyaml

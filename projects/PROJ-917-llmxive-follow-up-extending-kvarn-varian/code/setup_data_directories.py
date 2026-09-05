@@ -1,15 +1,7 @@
-"""
-Script to initialize the data directory structure for the llmXive project.
-
-Creates the following directories under the project root:
-- data/raw: For raw input datasets and generated synthetic data
-- data/processed: For cleaned and transformed data
-- data/results: For final simulation outputs and analysis results
-"""
 import os
 import sys
-import logging
 from pathlib import Path
+import logging
 
 # Configure logging
 logging.basicConfig(
@@ -20,98 +12,102 @@ logger = logging.getLogger(__name__)
 
 def get_project_root() -> Path:
     """
-    Determine the project root directory.
-    
-    Assumes the script is located at code/setup_data_directories.py
-    and the project root is the parent of the code directory.
-    
-    Returns:
-        Path: The absolute path to the project root.
+    Determines the project root directory.
+    Assumes the script is run from the project root or 'code/' subdirectory.
     """
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-    return project_root
+    current_path = Path.cwd()
+    # If running from code/, go up one level
+    if current_path.name == 'code':
+        return current_path.parent
+    # If running from root, check if 'data' exists here
+    if (current_path / 'data').exists():
+        return current_path
+    # Fallback: assume current is root if 'requirements.txt' exists
+    if (current_path / 'requirements.txt').exists():
+        return current_path
+    
+    # If none found, default to current directory
+    logger.warning("Could not determine project root via standard markers. Using cwd.")
+    return current_path
 
-def create_directories(project_root: Path) -> bool:
+def create_directories() -> bool:
     """
-    Create the required data directory structure.
+    Creates the data directory structure: data/raw, data/processed, data/results.
     
-    Args:
-        project_root (Path): The root directory of the project.
-        
     Returns:
         bool: True if all directories were created successfully, False otherwise.
     """
-    data_dir = project_root / "data"
-    directories = [
-        data_dir / "raw",
-        data_dir / "processed",
-        data_dir / "results"
-    ]
+    project_root = get_project_root()
+    data_root = project_root / 'data'
     
-    success = True
-    for directory in directories:
-        try:
-            directory.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {directory}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {directory}: {e}")
-            success = False
+    subdirectories = ['raw', 'processed', 'results']
+    created_paths = []
     
-    return success
-
-def verify_structure(project_root: Path) -> bool:
-    """
-    Verify that the required data directories exist.
-    
-    Args:
-        project_root (Path): The root directory of the project.
+    try:
+        # Ensure the root data directory exists
+        data_root.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured data root directory exists: {data_root}")
         
+        for subdir in subdirectories:
+            target_path = data_root / subdir
+            target_path.mkdir(parents=True, exist_ok=True)
+            created_paths.append(target_path)
+            logger.info(f"Created directory: {target_path}")
+        
+        return True
+    except PermissionError as e:
+        logger.error(f"Permission denied while creating directories: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error while creating directories: {e}")
+        return False
+
+def verify_structure() -> bool:
+    """
+    Verifies that the required data directory structure exists.
+    
     Returns:
         bool: True if all required directories exist, False otherwise.
     """
-    required_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "results"
-    ]
+    project_root = get_project_root()
+    data_root = project_root / 'data'
+    
+    required_subdirs = ['raw', 'processed', 'results']
+    
+    if not data_root.exists():
+        logger.error(f"Data root directory does not exist: {data_root}")
+        return False
     
     all_exist = True
-    for directory in required_dirs:
-        if not directory.is_dir():
-            logger.error(f"Missing directory: {directory}")
+    for subdir in required_subdirs:
+        target_path = data_root / subdir
+        if not target_path.is_dir():
+            logger.error(f"Required subdirectory missing: {target_path}")
             all_exist = False
         else:
-            logger.info(f"Verified directory exists: {directory}")
+            logger.debug(f"Verified directory: {target_path}")
     
     return all_exist
 
 def main():
     """
-    Main entry point for the data directory initialization script.
+    Main entry point for the script.
+    Creates directories and verifies the structure.
     """
-    logger.info("Starting data directory initialization...")
+    logger.info("Starting data directory setup...")
     
-    try:
-        project_root = get_project_root()
-        logger.info(f"Project root detected at: {project_root}")
-        
-        if create_directories(project_root):
-            logger.info("All directories created successfully.")
-            if verify_structure(project_root):
-                logger.info("Directory structure verification passed.")
-                return 0
-            else:
-                logger.error("Directory structure verification failed.")
-                return 1
-        else:
-            logger.error("Failed to create one or more directories.")
-            return 1
-            
-    except Exception as e:
-        logger.exception(f"An unexpected error occurred: {e}")
-        return 1
+    success = create_directories()
+    if not success:
+        logger.error("Failed to create data directories.")
+        sys.exit(1)
+    
+    if verify_structure():
+        logger.info("Data directory structure verified successfully.")
+        print("SUCCESS: Data directories created and verified.")
+        sys.exit(0)
+    else:
+        logger.error("Data directory structure verification failed.")
+        sys.exit(1)
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

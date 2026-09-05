@@ -1,45 +1,80 @@
 """
-Unit tests for baseline predictors in code/model_training/baselines.py.
+Tests for the closed-form baseline predictor (T024).
 """
+
 import pytest
 import numpy as np
 import sys
-from pathlib import Path
+import os
 
-# Add code directory to path if needed (though import paths are absolute in this project)
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Ensure the code directory is in the path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-# We will implement a simple mock here to verify the logic without importing a missing file
-# In a real scenario, we would import from code.model_training.baselines
-# Since T024 is not done yet, we test the expected logic directly.
+from model_training.baselines import (
+    predict_closed_form_variance,
+    evaluate_baseline_mse,
+    predict_batch_variance
+)
 
-def test_closed_form_logic():
-    """
-    Test the logic of the closed-form baseline predictor (s = 1/variance).
-    This verifies the mathematical expectation without requiring the full implementation file.
-    """
-    # Expected behavior: s = 1 / var
-    # Test case 1: Normal variance
-    variance = 0.5
-    expected_scaling = 1.0 / variance
-    assert np.isclose(expected_scaling, 2.0)
 
-    # Test case 2: High variance -> low scaling
-    variance = 2.0
-    expected_scaling = 1.0 / variance
-    assert np.isclose(expected_scaling, 0.5)
+class TestClosedFormLogic:
+    """Tests for the s = 1/variance logic."""
 
-    # Test case 3: Low variance -> high scaling
-    variance = 0.1
-    expected_scaling = 1.0 / variance
-    assert np.isclose(expected_scaling, 10.0)
+    def test_scalar_variance(self):
+        """Test prediction with a scalar variance input."""
+        variance = 0.04  # 1/0.04 = 25.0
+        result = predict_closed_form_variance(variance)
+        assert np.isclose(result, 25.0), f"Expected 25.0, got {result}"
 
-    # Test case 4: Handling near-zero variance (epsilon floor expected in real impl)
-    # The baseline logic should handle division by zero via epsilon floor in the actual implementation.
-    # Here we verify the math holds for non-zero inputs.
-    epsilon = 1e-6
-    variance = 1e-9
-    # With epsilon floor, effective variance would be epsilon
-    effective_var = max(variance, epsilon)
-    expected_scaling = 1.0 / effective_var
-    assert np.isclose(expected_scaling, 1.0 / epsilon)
+    def test_array_mean_variance(self):
+        """Test prediction with [mean, variance] input."""
+        # Input: [mean=0.5, variance=0.04] -> Expected: 25.0
+        moments = np.array([0.5, 0.04])
+        result = predict_closed_form_variance(moments)
+        assert np.isclose(result, 25.0), f"Expected 25.0, got {result}"
+
+    def test_batch_prediction(self):
+        """Test prediction with a batch of [mean, variance] rows."""
+        # Row 1: var=0.04 -> 25.0
+        # Row 2: var=0.01 -> 100.0
+        # Row 3: var=0.25 -> 4.0
+        moments = np.array([
+            [0.0, 0.04],
+            [0.1, 0.01],
+            [0.5, 0.25]
+        ])
+        result = predict_batch_variance(moments)
+
+        expected = np.array([25.0, 100.0, 4.0], dtype=np.float32)
+        assert result.shape == (3,), f"Expected shape (3,), got {result.shape}"
+        assert np.allclose(result, expected), f"Expected {expected}, got {result}"
+
+    def test_zero_variance_epsilon_floor(self):
+        """Test that zero variance is handled by epsilon floor."""
+        # Variance = 0 should result in 1 / 1e-6 = 1,000,000
+        result = predict_closed_form_variance(0.0)
+        expected = 1.0 / 1e-6
+        assert np.isclose(result, expected), f"Expected {expected}, got {result}"
+
+    def test_negative_variance_epsilon_floor(self):
+        """Test that negative variance is handled by epsilon floor."""
+        # Negative variance should be clamped to epsilon floor
+        result = predict_closed_form_variance(-0.5)
+        expected = 1.0 / 1e-6
+        assert np.isclose(result, expected), f"Expected {expected}, got {result}"
+
+    def test_mse_calculation(self):
+        """Test MSE evaluation function."""
+        predictions = np.array([10.0, 20.0, 30.0])
+        ground_truth = np.array([10.0, 25.0, 30.0])
+        # Errors: [0, -5, 0] -> Squared: [0, 25, 0] -> Mean: 25/3
+        expected_mse = 25.0 / 3.0
+        mse = evaluate_baseline_mse(predictions, ground_truth)
+        assert np.isclose(mse, expected_mse), f"Expected {expected_mse}, got {mse}"
+
+    def test_mse_shape_mismatch(self):
+        """Test that MSE raises error on shape mismatch."""
+        predictions = np.array([1.0, 2.0])
+        ground_truth = np.array([1.0, 2.0, 3.0])
+        with pytest.raises(ValueError):
+            evaluate_baseline_mse(predictions, ground_truth)

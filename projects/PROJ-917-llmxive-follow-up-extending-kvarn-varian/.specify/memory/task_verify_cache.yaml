@@ -1,9 +1,10 @@
-T001b:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `data/` directory with the required `raw`, `processed`, and\
-    \ `results` subfolders is provided; the artifact is missing, so the task\u2019\
-    s deliverable has not been demonstrated."
+  r: No evidence of a `code/` directory is presented; the artifact list is empty,
+    so we cannot confirm that the required directory was created. The implementer
+    must provide a visible `code/` folder (e.g., a directory listing or screenshot)
+    to satisfy the task.
 T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,18 +37,18 @@ T009:
     \ would include, for example, a config file (e.g., YAML/JSON), command\u2011line\
     \ flag handling, or documentation showing how to enable CPU\u2011only mode across\
     \ the project."
-T019b:
+T017c:
   c: false
-  h: 1e20f0ddbb756f46a0e1bff3e15b8038b4b0d53b101087e38413662d5b5fdf63
-  r: The `utils.py` file contains a truncated, unfinished `compute_checksum` implementation
-    (it ends with `sha256_ha` and lacks the logic to write the checksum file). Additionally,
-    the required checksum file `data/raw/synthetic_attention_matrices.parquet.sha256`
-    does not exist. Both the function and its output are missing, so the task is not
-    satisfied.
-T023:
+  h: d4c5480bc27eb36b07fa3e6fcc4f0c8f6e65088a960100d103e3245cae21d4ac
+  r: The provided `synthetic_attention.py` is truncated and contains a syntax error
+    (`else els`), so it cannot run the generation loop or compute scaling factors.
+    Moreover, the required output file `data/raw/synthetic_attention_matrices.csv`
+    is missing. Both the executable script and the generated dataset are absent, so
+    the task is not satisfied.
+T035c:
   c: false
-  h: 77e43fa130e385ff0da559f5e3b8a1bb06a2521852a4532ad7ac5f4a77df832d
-  r: "The repository contains a `train.py` file, but it is truncated before any training\
-    \ loop or MSE loss implementation, and the required output artifacts `data/models/mlp_weights.pt`\
-    \ and `data/metrics/training_log.csv` are absent from the filesystem. The task\u2019\
-    s deliverables are therefore not present."
+  h: 7dcb31d2da3a0fb41a0c8ee57b4e12b37aae6d44a2f65fec6bc55c9b9c208842
+  r: "The required output file `data/metrics/baseline_comparison.json` does not exist,\
+    \ and the `compare_mlp_vs_baseline` function in `code/analysis/stats.py` is truncated\
+    \ and incomplete (ends abruptly at `mlp_`). Consequently, the comparison logic\
+    \ and the required p\u2011value/ratio metric are not implemented."

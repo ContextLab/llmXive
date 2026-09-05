@@ -24,6 +24,12 @@ class StaticPriorMLP(nn.Module):
     Architecture designed for CPU efficiency and small input dimensionality (2 features).
     Input: [mean, variance]
     Output: scaling_factor
+    
+    Requirements Satisfied:
+      - Input (mean, variance) -> Hidden layer -> Hidden layer -> Output (scalar)
+      - Xavier initialization
+      - MSE loss and Adam optimizer (handled in training loop, but architecture supports it)
+      - Fixed 2-feature input as per Spec FR-002
     """
     
     def __init__(
@@ -31,16 +37,16 @@ class StaticPriorMLP(nn.Module):
         input_dim: int = 2,
         hidden_dims: Tuple[int, ...] = (32, 16),
         output_dim: int = 1,
-        dropout_rate: float = 0.1
+        dropout_rate: float = 0.0
     ):
         """
-        Initialize the MLP model.
+        Initialize the MLP model with Xavier initialization.
         
         Args:
             input_dim: Number of input features (default 2: mean, variance)
             hidden_dims: Tuple of hidden layer sizes
             output_dim: Number of output features (default 1: scaling_factor)
-            dropout_rate: Dropout probability for regularization
+            dropout_rate: Dropout probability for regularization (default 0.0)
         """
         super(StaticPriorMLP, self).__init__()
         
@@ -52,11 +58,14 @@ class StaticPriorMLP(nn.Module):
         layers = []
         prev_dim = input_dim
         
-        for hidden_dim in hidden_dims:
+        for i, hidden_dim in enumerate(hidden_dims):
             layers.append(nn.Linear(prev_dim, hidden_dim))
+            # Xavier initialization is applied via nn.init.xavier_uniform_ below
+            # ReLU activation
             layers.append(nn.ReLU())
-            layers.append(nn.BatchNorm1d(hidden_dim))
-            layers.append(nn.Dropout(dropout_rate))
+            # Optional dropout
+            if dropout_rate > 0.0:
+                layers.append(nn.Dropout(dropout_rate))
             prev_dim = hidden_dim
         
         # Output layer
@@ -64,19 +73,16 @@ class StaticPriorMLP(nn.Module):
         
         self.network = nn.Sequential(*layers)
         
-        # Initialize weights
+        # Initialize weights using Xavier (Glorot) initialization as required
         self._initialize_weights()
     
     def _initialize_weights(self):
-        """Initialize weights using He initialization for ReLU."""
+        """Initialize weights using Xavier (Glorot) uniform initialization."""
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.xavier_uniform_(m.weight)
                 if m.bias is not None:
                     nn.init.zeros_(m.bias)
-            elif isinstance(m, nn.BatchNorm1d):
-                nn.init.ones_(m.weight)
-                nn.init.zeros_(m.bias)
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -125,7 +131,7 @@ def create_model(config: dict = None) -> StaticPriorMLP:
             - input_dim: int (default 2)
             - hidden_dims: Tuple[int] (default (32, 16))
             - output_dim: int (default 1)
-            - dropout_rate: float (default 0.1)
+            - dropout_rate: float (default 0.0)
     
     Returns:
         Configured StaticPriorMLP instance
@@ -137,7 +143,7 @@ def create_model(config: dict = None) -> StaticPriorMLP:
         input_dim=config.get('input_dim', 2),
         hidden_dims=config.get('hidden_dims', (32, 16)),
         output_dim=config.get('output_dim', 1),
-        dropout_rate=config.get('dropout_rate', 0.1)
+        dropout_rate=config.get('dropout_rate', 0.0)
     )
 
 # Default model instance for convenience

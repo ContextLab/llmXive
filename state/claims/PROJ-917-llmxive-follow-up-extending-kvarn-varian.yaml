@@ -4941,3 +4941,398 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T04:49:23Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Simulation horizon defined by config.SIMULATION_STEPS
+  claim_id: c_e72c3096
+  context: 'Crucial: The simulation horizon is defined by config.SIMULATION_STEPS.
+    (see T027d, T028, T030b, T031).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_horizon_defined_by_config.SIMULATION_STEPS
+  kind: entity_fact
+  raw_text: The simulation horizon is defined by config.SIMULATION_STEPS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:35:15Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default NUM_MATRICES is 10000
+  claim_id: c_5e451d35
+  context: Setup environment configuration management in code/config.py with a Config
+    dataclass containing ... NUM_MATRICES (default 10000 but marked as 'to be determined
+    in research phase' per spec deferral) ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default NUM_MATRICES is 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:36:11Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default NUM_RUNS is 30
+  claim_id: c_dc4d3f6c
+  context: Setup environment configuration management in code/config.py with a Config
+    dataclass containing ... NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default NUM_RUNS is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:36:35Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default EPSILON_FLOOR is 1e-6
+  claim_id: c_57b6cda5
+  context: Setup environment configuration management in code/config.py with a Config
+    dataclass containing ... EPSILON_FLOOR=1e-6 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default EPSILON_FLOOR is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:37:14Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization step size Delta calculation formula
+  claim_id: c_b62708d2
+  context: 'Requirement: Must include the derivation of the noise model variance based
+    on a uniform distribution over the quantization step, where the step size is defined
+    as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN) / 255.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_step_size_Delta_calculation_formula
+  kind: entity_fact
+  raw_text: The quantization step size Delta is defined as (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:37:55Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: PyTorch version 2.1.0+cpu pinned
+  claim_id: c_1efc5cb4
+  context: 'Initialize Python 3.x project with pinned requirements.txt. Action: Create
+    requirements.txt with ... torch==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu
+    ...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: PyTorch version 2.1.0+cpu is pinned in requirements.txt.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T15:37:55Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP input features count 2
+  claim_id: c_e60640b0
+  context: 'Constraint: Must use a fixed 2-feature input (mean, variance) as per Spec
+    FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input to the MLP model consists of exactly 2 features (mean, variance).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:38:30Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: T-test performed on scalar accumulated KL-divergence
+  claim_id: c_326285ea
+  context: 'Requirement: Must explicitly state that the test is run on scalars, not
+    trajectories. Requirement: The scalar value used for the t-test MUST be the sum
+    of the per-step errors recorded in T028.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T-test_performed_on_scalar_accumulated_KL-divergence
+  kind: entity_fact
+  raw_text: The t-test is run on scalars (sum of per-step errors), not trajectories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:39:10Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 0
+  canonical: PyTorch version pinned to 2.1.0+cpu
+  claim_id: c_b2765cd8
+  context: Create requirements.txt with numpy, scipy, torch==2.1.0+cpu --index-url
+    https://download.pytorch.org/whl/cpu...
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The PyTorch version pinned in requirements.txt is 2.1.0+cpu.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T15:44:22Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: n=30 derived from statistical power analysis target power 0.8
+  claim_id: c_9bafdea8
+  context: 'Requirement: Source for n=30: Standard statistical power analysis for
+    paired t-tests (target power >= 0.8) and Spec FR-006.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n=30 is based on standard statistical power analysis for paired t-tests
+    with a target power >= 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:44:51Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: quantization step size formula Delta equals range over 255
+  claim_id: c_7ea031dd
+  context: 'Requirement: Must include the derivation of the noise model variance based
+    on a uniform distribution over the quantization step, where the step size is defined
+    as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN) / 255.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_step_size_formula_Delta_equals_range_over_255
+  kind: entity_fact
+  raw_text: The quantization step size is defined as Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:44:54Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP model input features are mean and variance
+  claim_id: c_478476b3
+  context: 'Requirement: Must use a fixed 2-feature input (mean, variance) as per
+    Spec FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MLP model architecture uses a fixed 2-feature input consisting of
+    mean and variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:45:22Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: NUM_MATRICES default value is 10000
+  claim_id: c_8147f738
+  context: NUM_MATRICES (default 10000 but marked as 'to be determined in research
+    phase' per spec deferral)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for NUM_MATRICES is 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:45:23Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: NUM_RUNS default value is 30
+  claim_id: c_67f7d98d
+  context: NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for NUM_RUNS is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:45:24Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: EPSILON_FLOOR default value is 1e-6
+  claim_id: c_a6708cec
+  context: Config dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6, RANDOM_SEED...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for EPSILON_FLOOR is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:45:24Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 0
+  canonical: pytorch version 2.1.0+cpu
+  claim_id: c_ef793c11
+  context: 'T001e [P] Initialize Python 3.x project with pinned requirements.txt.
+    Action: Create requirements.txt with torch==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu.'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pytorch version pinned in requirements.txt is 2.1.0+cpu.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T15:46:50Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: paired t-test sample size is 30
+  claim_id: c_a8b76de5
+  context: T031 [US3] [FR-006] Implement and run statistical significance test (paired
+    t-test, n=30 runs) on the final accumulated KL-divergence. The sample size 'n'
+    is exactly 30 (per FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size 'n' is exactly 30 for the paired t-test on final accumulated
+    KL-divergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:47:25Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: quantization step size formula Delta = (max - min) / 255
+  claim_id: c_46cf465f
+  context: T032_base [P] [US3] [FR-008] Implement Uniform INT8 Quantization Logic.
+    Must include the derivation of the noise model variance based on a uniform distribution
+    over the quantization step, where the step size is defined as Delta = (QUANTIZATION_MAX
+    - QUANTIZATION_MIN) / 255.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quantization_step_size_formula_Delta_%3D_(max_-_min)_/_255
+  kind: entity_fact
+  raw_text: The step size for Uniform INT8 Quantization is defined as Delta = (QUANTIZATION_MAX
+    - QUANTIZATION_MIN) / 255.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:47:47Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default NUM_MATRICES is 10000
+  claim_id: c_a9338881
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing NUM_MATRICES (default 10000 but marked as 'to
+    be determined in research phase' per spec deferral).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for NUM_MATRICES in the Config dataclass is 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:48:22Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default NUM_RUNS is 30
+  claim_id: c_b66bff87
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for NUM_RUNS in the Config dataclass is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:48:58Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default EPSILON_FLOOR is 1e-6
+  claim_id: c_8614d7dc
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing EPSILON_FLOOR=1e-6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for EPSILON_FLOOR in the Config dataclass is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:49:17Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP input features are mean and variance
+  claim_id: c_ca02a9a2
+  context: 'T022 [P] [US2] [FR-009] Define a multi-layer perceptron (MLP) model architecture
+    with statistical moment features (mean, variance). Constraint: Must use a fixed
+    2-feature input (mean, variance) as per Spec FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The input features for the MLP model architecture are a fixed 2-feature
+    input consisting of mean and variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T15:49:47Z'

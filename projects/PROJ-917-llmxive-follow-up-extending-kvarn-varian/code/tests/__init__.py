@@ -1,3 +1,1 @@
-"""
-Test suite for the llmXive project.
-"""
+"""Tests module for llmXive."""

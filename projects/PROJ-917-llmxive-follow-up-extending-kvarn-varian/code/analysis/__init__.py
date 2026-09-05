@@ -1,1 +1,1 @@
-# Analysis package
+"""Analysis module for llmXive."""

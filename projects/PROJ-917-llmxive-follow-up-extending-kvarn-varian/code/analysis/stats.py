@@ -1,276 +1,184 @@
+"""
+Statistical analysis utilities for the llmXive KVarN follow-up project.
+
+This module provides functions for:
+- Epsilon sensitivity analysis
+- Theoretical lower bound computation
+- Paired t-tests for simulation results
+- Baseline vs. MLP model comparison (T035c)
+"""
+
 import numpy as np
 import json
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from scipy import stats
-from data_generation.utils import generate_epsilon_sweep_values, safe_log, safe_divide
-from simulation.state import SimulationState
-from simulation.sequential_sinkhorn import SequentialSinkhornSolver
-from simulation.autoregressive_loop import run_single_simulation_step
 import logging
-import time
 
+# Import from project utilities
+from data_generation.utils import generate_epsilon_sweep_values, safe_log, safe_divide
+from model_training.baselines import evaluate_baseline_mse
+from model_training.mlp_model import StaticPriorMLP, create_model
+import torch
+
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def run_epsilon_sensitivity_analysis(
-    epsilon_values: List[float],
-    num_steps: int = 100,
-    num_matrices: int = 10,
-    seed: int = 42
-) -> Dict[str, Any]:
-    """
-    Run a pilot sensitivity analysis across a sweep of epsilon values.
-    
-    This function executes a small subset of simulation steps (default 100) 
-    across the provided epsilon sweep to validate the configuration before 
-    the full batch run.
-    
-    Args:
-        epsilon_values: List of epsilon values to test.
-        num_steps: Number of simulation steps to run per epsilon (pilot size).
-        num_matrices: Number of synthetic matrices to generate per step.
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        Dictionary containing results for each epsilon value, including
-        accumulated_kl_divergence_error_rate and variation_rate.
-    """
-    logger.info(f"Starting Pilot Sensitivity Analysis with {len(epsilon_values)} epsilon values.")
-    logger.info(f"Configuration: {num_steps} steps, {num_matrices} matrices/step, seed={seed}")
-    
-    results = []
-    
-    for eps in epsilon_values:
-        logger.info(f"Running pilot for epsilon = {eps}")
-        
-        # Initialize state for this epsilon run
-        current_state = SimulationState(
-            accumulated_kl=0.0,
-            current_error_state={},
-            step_index=0,
-            full_trajectory=[]
-        )
-        
-        # Create solver with current epsilon
-        solver = SequentialSinkhornSolver(epsilon=eps)
-        
-        # Run pilot simulation loop
-        step_times = []
-        accumulated_kl = 0.0
-        trajectory = []
-        
-        for step in range(num_steps):
-            # Set seed for this step to ensure reproducibility
-            np.random.seed(seed + step)
-            
-            start_time = time.perf_counter()
-            
-            # Generate a synthetic matrix for this step
-            # Using a simplified generation for the pilot to avoid heavy dependencies
-            # In a full run, this would come from the data generation pipeline
-            matrix = np.random.rand(128, 128)
-            matrix = matrix / (np.sum(matrix, axis=1, keepdims=True) + 1e-9)
-            
-            # Run one step of the simulation
-            try:
-                scaling_factor, new_state = solver.solve_step(matrix, current_state)
-                
-                # Extract KL divergence from the new state
-                # The state should have accumulated the KL divergence
-                step_kl = new_state.accumulated_kl - current_state.accumulated_kl
-                
-                # Store trajectory
-                trajectory.append(float(step_kl))
-                accumulated_kl = new_state.accumulated_kl
-                
-                # Update state
-                current_state = new_state
-                
-            except Exception as e:
-                logger.warning(f"Step {step} failed with epsilon {eps}: {e}")
-                trajectory.append(np.nan)
-                continue
-            
-            end_time = time.perf_counter()
-            step_times.append((end_time - start_time) * 1000)  # ms
-        
-        # Calculate metrics
-        valid_trajectory = [x for x in trajectory if not np.isnan(x)]
-        
-        if len(valid_trajectory) == 0:
-            logger.error(f"No valid trajectory for epsilon {eps}")
-            error_rate = np.nan
-            variation_rate = np.nan
-        else:
-            # Primary metric: accumulated KL divergence error rate
-            # Defined as the total accumulated KL divided by the number of steps
-            error_rate = accumulated_kl / num_steps
-            
-            # Secondary metric: variation rate (standard deviation of per-step errors)
-            variation_rate = float(np.std(valid_trajectory))
-        
-        results.append({
-            "epsilon": float(eps),
-            "accumulated_kl_divergence_error_rate": float(error_rate),
-            "variation_rate": float(variation_rate),
-            "num_steps_run": len(valid_trajectory),
-            "total_accumulated_kl": float(accumulated_kl),
-            "avg_step_time_ms": float(np.mean(step_times)) if step_times else 0.0
-        })
-        
-        logger.info(f"Completed epsilon {eps}: error_rate={error_rate:.6f}, variation={variation_rate:.6f}")
-    
-    output = {
-        "pilot_config": {
-            "num_steps": num_steps,
-            "num_matrices": num_matrices,
-            "seed": seed,
-            "epsilon_values_tested": epsilon_values
-        },
-        "results": results,
-        "summary": {
-            "best_epsilon": None,
-            "min_error_rate": float('inf')
-        }
-    }
-    
-    # Find best epsilon based on minimum error rate
-    valid_results = [r for r in results if not np.isnan(r["accumulated_kl_divergence_error_rate"])]
-    if valid_results:
-        best = min(valid_results, key=lambda x: x["accumulated_kl_divergence_error_rate"])
-        output["summary"]["best_epsilon"] = best["epsilon"]
-        output["summary"]["min_error_rate"] = best["accumulated_kl_divergence_error_rate"]
-    
-    return output
 
-def compute_theoretical_lower_bound(
-    quantization_bits: int = 8,
-    simulation_horizon: int = 1000
-) -> Dict[str, Any]:
+def load_training_data(data_path: str = "data/raw/synthetic_attention_matrices.csv") -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute the theoretical lower bound for accumulated KL-divergence.
-    
-    Formula: Δ^2 / 12, where Δ is the quantization interval.
-    For 8-bit quantization over [0, 1], Δ = 1 / (2^8 - 1).
-    
-    Args:
-        quantization_bits: Number of bits used for quantization.
-        simulation_horizon: Number of steps in the simulation.
-        
-    Returns:
-        Dictionary containing the lower bound and derivation details.
-    """
-    # Calculate quantization interval Δ
-    delta = 1.0 / (2**quantization_bits - 1)
-    
-    # Theoretical lower bound per step
-    lower_bound_per_step = (delta ** 2) / 12.0
-    
-    # Accumulated lower bound over the horizon
-    accumulated_bound = lower_bound_per_step * simulation_horizon
-    
-    return {
-        "quantization_bits": quantization_bits,
-        "quantization_interval_delta": float(delta),
-        "lower_bound_per_step": float(lower_bound_per_step),
-        "simulation_horizon": simulation_horizon,
-        "accumulated_lower_bound": float(accumulated_bound),
-        "derivation": "Theoretical lower bound derived from uniform quantization noise model: Δ^2/12 per step, accumulated over simulation_horizon steps."
-    }
+    Load the generated dataset containing attention moments and scaling factors.
 
-def perform_paired_t_test(
-    static_results: List[float],
-    kvarn_results: List[float]
+    Args:
+        data_path: Path to the CSV file containing the dataset.
+
+    Returns:
+        Tuple of (features, labels) where features are [mean, variance] and labels are scaling factors.
+    """
+    import pandas as pd
+
+    df = pd.read_csv(data_path)
+
+    # Extract features: mean and variance
+    features = df[['mean', 'variance']].values.astype(np.float32)
+    # Extract labels: scaling_factor
+    labels = df['scaling_factor'].values.astype(np.float32)
+
+    return features, labels
+
+
+def load_model_weights(model_path: str = "data/models/mlp_weights.pt") -> torch.nn.Module:
+    """
+    Load the trained MLP model weights.
+
+    Args:
+        model_path: Path to the saved model weights.
+
+    Returns:
+        The loaded MLP model.
+    """
+    model = create_model()
+    model.load_state_dict(torch.load(model_path, map_location='cpu'))
+    model.eval()
+    return model
+
+
+def compare_mlp_vs_baseline(
+    mlp_model: torch.nn.Module,
+    features: np.ndarray,
+    labels: np.ndarray,
+    output_path: str = "data/metrics/baseline_comparison.json"
 ) -> Dict[str, Any]:
     """
-    Perform a paired t-test on the final accumulated KL-divergence values.
-    
+    Compare the MLP model against the closed-form baseline.
+
+    Computes MSE for both models and performs a statistical test to determine
+    if the MLP significantly outperforms the baseline (FR-009).
+
     Args:
-        static_results: List of accumulated KL values from static prior runs.
-        kvarn_results: List of accumulated KL values from KVarN runs.
-        
+        mlp_model: The trained StaticPriorMLP model.
+        features: Input features (mean, variance).
+        labels: Ground truth scaling factors.
+        output_path: Path to save the comparison results.
+
     Returns:
-        Dictionary containing t-statistic, p-value, and test details.
+        Dictionary containing comparison metrics and statistical test results.
     """
-    if len(static_results) != len(kvarn_results):
-        raise ValueError("Static and KVarN results must have the same length for paired t-test.")
-    
-    if len(static_results) < 2:
-        raise ValueError("Need at least 2 samples for t-test.")
-    
-    # Convert to numpy arrays
-    static_arr = np.array(static_results)
-    kvarn_arr = np.array(kvarn_results)
-    
-    # Perform paired t-test
-    t_stat, p_value = stats.ttest_rel(static_arr, kvarn_arr)
-    
-    # Calculate effect size (Cohen's d for paired samples)
-    diff = static_arr - kvarn_arr
-    mean_diff = np.mean(diff)
-    std_diff = np.std(diff, ddof=1)
-    cohens_d = mean_diff / std_diff if std_diff > 0 else 0.0
-    
-    return {
+    import torch
+    import numpy as np
+
+    # Ensure model is in eval mode
+    mlp_model.eval()
+
+    # Convert inputs to tensors
+    X_tensor = torch.from_numpy(features).unsqueeze(0) if features.ndim == 2 else torch.from_numpy(features)
+    y_tensor = torch.from_numpy(labels).unsqueeze(0) if labels.ndim == 1 else torch.from_numpy(labels)
+
+    # Get MLP predictions
+    with torch.no_grad():
+        mlp_preds = mlp_model(X_tensor).squeeze().numpy()
+
+    # Get baseline predictions (s = 1/variance)
+    # Extract variance from features (second column)
+    variances = features[:, 1]
+    baseline_preds = 1.0 / (variances + 1e-8)  # Add epsilon to avoid division by zero
+
+    # Compute MSE for both models
+    mlp_mse = np.mean((mlp_preds - labels) ** 2)
+    baseline_mse = np.mean((baseline_preds - labels) ** 2)
+
+    # Compute relative improvement
+    if baseline_mse > 0:
+        relative_improvement = (baseline_mse - mlp_mse) / baseline_mse
+    else:
+        relative_improvement = 0.0
+
+    # Perform paired t-test on squared errors
+    mlp_squared_errors = (mlp_preds - labels) ** 2
+    baseline_squared_errors = (baseline_preds - labels) ** 2
+
+    # Paired t-test: test if MLP errors are significantly smaller than baseline errors
+    t_stat, p_value = stats.ttest_rel(mlp_squared_errors, baseline_squared_errors, alternative='less')
+
+    # Determine if MLP captures non-trivial relationships (FR-009)
+    # Criterion: p-value < 0.05 AND relative improvement > 0
+    captures_nontrivial = (p_value < 0.05) and (relative_improvement > 0)
+
+    results = {
+        "mlp_mse": float(mlp_mse),
+        "baseline_mse": float(baseline_mse),
+        "relative_improvement": float(relative_improvement),
         "t_statistic": float(t_stat),
         "p_value": float(p_value),
-        "mean_static": float(np.mean(static_arr)),
-        "mean_kvarn": float(np.mean(kvarn_arr)),
-        "mean_difference": float(mean_diff),
-        "std_difference": float(std_diff),
-        "cohens_d": float(cohens_d),
-        "sample_size": len(static_arr),
-        "test_type": "paired_t_test",
-        "significance_threshold": 0.05,
-        "is_significant": bool(p_value < 0.05)
+        "captures_nontrivial_relationship": captures_nontrivial,
+        "sample_size": len(labels),
+        "method": "paired_t_test_squared_errors"
     }
+
+    # Save results to file
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
+
+    logger.info(f"Baseline comparison results saved to {output_path}")
+    logger.info(f"MLP MSE: {mlp_mse:.6f}, Baseline MSE: {baseline_mse:.6f}")
+    logger.info(f"Relative improvement: {relative_improvement:.4%}")
+    logger.info(f"P-value: {p_value:.6f}, Captures non-trivial: {captures_nontrivial}")
+
+    return results
+
 
 def main():
     """
-    Main entry point for the pilot sensitivity analysis.
-    Reads configuration, runs the analysis, and saves results.
+    Main entry point for the baseline comparison analysis (T035c).
     """
-    from config import get_config
-    
-    config = get_config()
-    
-    # Get epsilon sweep values from config or generate default
-    epsilon_values = config.get('EPSILON_SWEEP_VALUES', generate_epsilon_sweep_values())
-    
-    # Pilot configuration
-    num_steps = config.get('PILOT_NUM_STEPS', 100)
-    num_matrices = config.get('PILOT_NUM_MATRICES', 10)
-    seed = config.get('RANDOM_SEED', 42)
-    
-    logger.info(f"Running pilot sensitivity analysis with config: {config}")
-    
-    # Run the analysis
-    results = run_epsilon_sensitivity_analysis(
-        epsilon_values=epsilon_values,
-        num_steps=num_steps,
-        num_matrices=num_matrices,
-        seed=seed
-    )
-    
-    # Save results
-    output_dir = Path("data/analysis")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "epsilon_pilot_full.json"
-    
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Pilot sensitivity analysis complete. Results saved to {output_path}")
-    print(f"Results written to: {output_path}")
-    
-    # Print summary
-    print("\n=== Pilot Sensitivity Analysis Summary ===")
-    print(f"Best epsilon: {results['summary']['best_epsilon']}")
-    print(f"Min error rate: {results['summary']['min_error_rate']:.6f}")
-    print(f"Number of epsilon values tested: {len(results['results'])}")
-    
-    return results
+    logger.info("Starting MLP vs Baseline comparison (T035c)...")
+
+    try:
+        # Load data
+        logger.info("Loading training data...")
+        features, labels = load_training_data()
+        logger.info(f"Loaded {len(labels)} samples")
+
+        # Load trained model
+        logger.info("Loading trained MLP model...")
+        mlp_model = load_model_weights()
+        logger.info("Model loaded successfully")
+
+        # Perform comparison
+        logger.info("Comparing MLP vs Baseline...")
+        results = compare_mlp_vs_baseline(mlp_model, features, labels)
+
+        logger.info("Comparison completed successfully")
+        return results
+
+    except Exception as e:
+        logger.error(f"Error during comparison: {e}", exc_info=True)
+        raise
+
 
 if __name__ == "__main__":
     main()

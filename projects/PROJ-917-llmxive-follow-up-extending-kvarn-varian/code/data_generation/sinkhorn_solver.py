@@ -75,7 +75,7 @@ class SingleStepSinkhornSolver:
         # Check for NaN or Inf after epsilon application
         if np.any(np.isnan(matrix)) or np.any(np.isinf(matrix)):
             logger.warning("Matrix contains NaN or Inf after epsilon application")
-            return np.nan
+            raise SinkhornNonConvergenceError("Matrix contains NaN or Inf after epsilon application")
         
         n = matrix.shape[0]
         
@@ -113,9 +113,10 @@ class SingleStepSinkhornSolver:
                 f"Sinkhorn did not converge after {self.max_iterations} iterations. "
                 f"Final u change: {u_change:.2e}, v change: {v_change:.2e}"
             )
-            # Return NaN to indicate non-convergence
-            # This will be handled by the caller (T017c)
-            return np.nan
+            raise SinkhornNonConvergenceError(
+                f"Sinkhorn did not converge after {self.max_iterations} iterations. "
+                f"Final u change: {u_change:.2e}, v change: {v_change:.2e}"
+            )
         
         # Compute the scaling factor
         # The scaling factor is derived from the product of the scaling vectors
@@ -132,7 +133,7 @@ class SingleStepSinkhornSolver:
         # Final check for validity
         if np.isnan(scaling_factor) or np.isinf(scaling_factor):
             logger.warning("Computed scaling factor is NaN or Inf")
-            return np.nan
+            raise SinkhornNonConvergenceError("Computed scaling factor is NaN or Inf")
         
         return float(scaling_factor)
     
@@ -146,6 +147,9 @@ class SingleStepSinkhornSolver:
         
         Returns:
             Array of scaling factors (batch_size,).
+        
+        Raises:
+            SinkhornNonConvergenceError: If any matrix in the batch fails to converge.
         """
         if matrices.ndim != 3:
             raise ValueError("Batch input must be 3-dimensional (batch_size, n, n)")
@@ -154,6 +158,10 @@ class SingleStepSinkhornSolver:
         results = np.empty(batch_size, dtype=np.float64)
         
         for i in range(batch_size):
-            results[i] = self.solve(matrices[i], epsilon)
+            try:
+                results[i] = self.solve(matrices[i], epsilon)
+            except SinkhornNonConvergenceError as e:
+                logger.error(f"Batch item {i} failed to converge: {e}")
+                raise  # Re-raise to fail loudly as per constraints
         
         return results
