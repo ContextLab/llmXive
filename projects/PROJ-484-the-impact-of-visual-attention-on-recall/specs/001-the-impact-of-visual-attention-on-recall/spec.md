@@ -85,7 +85,7 @@ The researcher MUST be able to generate marginal effect plots showing the slope 
 
 - **SC-001**: Data preprocessing success rate is measured against the total number of valid trials in the raw dataset; the system must retain ≥ 80% of trials after filtering for missing gaze data. (See US-1)
 - **SC-002**: Model convergence rate is measured against the total number of model fitting attempts; the system must achieve convergence for ≥ 95% of bootstrap samples or the full dataset without manual intervention. (See US-2)
-- **SC-003**: Statistical power is measured against the expected effect size (f2 ≥ 0.15) using a Monte Carlo simulation with alpha=0.05 and 1000 iterations; the system must report the achieved power to assess study sensitivity. (See US-2)
+- **SC-003**: Statistical power is measured against the expected effect size (f2 ≥ 0.15) using a Monte Carlo simulation with alpha=0.05 and A substantial number of iterations will be performed to ensure convergence.; the system must report the achieved power to assess study sensitivity. (See US-2)
 - **SC-004**: Computational feasibility is measured against the 4-hour runtime limit on GitHub Actions ubuntu-latest; the total pipeline (download, preprocess, model, plot) must complete within 4 hours. (See US-2)
 - **SC-005**: Visual output validity is measured against the presence of confidence intervals; the generated plot must include shaded confidence interval regions for both high and low anxiety groups. (See US-3)
 
