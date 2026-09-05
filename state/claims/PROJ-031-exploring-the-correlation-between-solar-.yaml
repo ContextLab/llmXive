@@ -4229,3 +4229,598 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T04:08:37Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: solar flare data covers 2010 to 2023
+  claim_id: c_05bc106c
+  context: "Implemented code/ingest.py to download GOES X-ray flare lists from ftp://ftp.swpc.noaa.gov/pub/lists/goes/xray/\
+    \ covering \u226510 years of historical data (2010-2023)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project covers \u226510 years of historical data from 2010-2023."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:36:06Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: download window 2010-01-01 to 2023-12-31
+  claim_id: c_92ca61b2
+  context: 'Constraint: Explicitly enforced a download window spanning 2010-01-01
+    to 2023-12-31. If the current date is after 2023, truncated the download at 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The download window was explicitly enforced from 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:36:45Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: solar events matched to storms within 3-day window
+  claim_id: c_f09cdf7d
+  context: "Implemented code/align.py to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Solar events are matched to geomagnetic storms within a \u22643-day window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:36:45Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: recurrent filter recovery rule 24 hours
+  claim_id: c_250de8ee
+  context: "Filtering Rule: Only include distinct minima separated by \u226524 hours\
+    \ of recovery, where 'recovery' is defined as Dst returning to > nT AND maintaining\
+    \ that level for \u226524 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recurrent storms are filtered using a recovery rule of Dst returning\
+    \ to > nT for \u226524 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:36:46Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: power limitation warning if sample size less than 30
+  claim_id: c_ac4a8911
+  context: 'Logic: If effective sample size (N) < 30, log a ''Power Limitation'' warning
+    and append a specific ''Power Limitation'' section to results/metrics.json'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_limitation_warning_if_sample_size_less_than_30
+  kind: magnitude
+  raw_text: A 'Power Limitation' warning is logged if the effective sample size is
+    less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:38:07Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: piecewise model triggered if R2 less than 0.1
+  claim_id: c_1b2ca9b0
+  context: "Trigger: ONLY if linear regression R\xB2 < 0.1. Output: Report the improvement\
+    \ in fit in results/metrics.json under the key piecewise_r2_improvement."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Piecewise linear model testing is triggered only if linear regression\
+    \ R\xB2 is less than 0.1."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T05:38:08Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep 1000 km/s step 100 km/s
+  claim_id: c_ec909a65
+  context: In code/analysis.py, ensure the sensitivity analysis sweeps CME speed cutoffs
+    specifically at values around 1000 km/s with a step size of 100 km/s.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps CME speed cutoffs at values around 1000
+    km/s with a step size of 100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:38:49Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity reports TPR for 900 1000 1100 km/s
+  claim_id: c_15e64d3c
+  context: Run tests/contract/test_thresholds.py to assert that results/metrics.json
+    contains the threshold_sensitivity key with entries specifically for 900, 1000,
+    and 1100 km/s with corresponding True Positive Rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis reports True Positive Rates for cutoffs at 900,
+    1000, and 1100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:39:15Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: project uses python 3.11
+  claim_id: c_4a136509
+  context: Initialized Python 3.11 project with requirements.txt (pandas, numpy, scipy,
+    statsmodels, requests, pyyaml, pytest)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project utilizes Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:39:58Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: target peak RAM below 7GB
+  claim_id: c_a39bb2c7
+  context: Configured config/profiler_config.yaml defining timing thresholds (6h)
+    and RAM thresholds (7GB) for validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_peak_RAM_below_7GB
+  kind: entity_fact
+  raw_text: The project targets a peak RAM usage below 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:40:37Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: target timing threshold 6 hours
+  claim_id: c_9105444d
+  context: Configured config/profiler_config.yaml defining timing thresholds (6h)
+    and RAM thresholds (7GB) for validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets a timing threshold of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:41:17Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity step size 100 km/s
+  claim_id: c_5be34447
+  context: In code/analysis.py, ensure the sensitivity analysis sweeps CME speed cutoffs
+    specifically at values around 1000 km/s with a step size of 100 km/s.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis step size for CME speed is 100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:42:06Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: training set past 10 years minus 2 years
+  claim_id: c_544d76d7
+  context: 'Train set: Events from current_year - 10 to current_year - 2. Test set:
+    Events from current_year - 2 to current_year.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training set for threshold identification covers the past 10 years
+    minus the last 2 years.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:42:35Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Project covers 10 years of historical data from 2010 to 2023
+  claim_id: c_72fed649
+  context: "Implemented code/ingest.py to download GOES X-ray flare lists from ftp://ftp.swpc.noaa.gov/pub/lists/goes/xray/\
+    \ covering \u226510 years of historical data (2010-2023)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project covers \u226510 years of historical data (2010-2023)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:43:45Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Download window enforced from 2010-01-01 to 2023-12-31
+  claim_id: c_e6ffce49
+  context: 'Constraint: Explicitly enforced a download window spanning 2010-01-01
+    to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The download window is explicitly enforced from 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:43:45Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Recurrent storms filtered with 24-hour recovery rule
+  claim_id: c_0091d27f
+  context: "Filtering Rule: Only include distinct minima separated by \u226524 hours\
+    \ of recovery, where 'recovery' is defined as Dst returning to > nT AND maintaining\
+    \ that level for \u226524 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recurrent storms are filtered using a rule requiring \u226524 hours of\
+    \ recovery."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:43:47Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5 triggers model switch
+  claim_id: c_1f837991
+  context: 'If VIF > 5: Compute separate univariate models OR Ridge regression.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Variance Inflation Factor (VIF) calculations trigger a model switch if
+    VIF > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:43:47Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Power limitation warning if sample size N < 30
+  claim_id: c_3ff0d63d
+  context: 'Logic: If effective sample size (N) < 30, log a ''Power Limitation'' warning
+    and append a specific ''Power Limitation'' section to results/metrics.json'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_limitation_warning_if_sample_size_N_%3C_30
+  kind: magnitude
+  raw_text: A power limitation warning is logged if the effective sample size (N)
+    is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:43:48Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Piecewise model triggered if R-squared < 0.1
+  claim_id: c_22f5609b
+  context: "Trigger: ONLY if linear regression R\xB2 < 0.1."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Non-linear (piecewise) model testing is triggered if linear regression\
+    \ R\xB2 < 0.1."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T05:43:49Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series test set covers 2 years
+  claim_id: c_7d70076f
+  context: 'Test set: Events from current_year - 2 to current_year.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time-series split uses a test set covering the 'past 2 years' relative
+    to the current date.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:44:27Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series train set covers 8 years within 10-year window
+  claim_id: c_00449c33
+  context: 'Train set: Events from current_year - 10 to current_year - 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training set for time-series split covers the 'past 10 years' minus
+    the last 2 years.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:45:07Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis step size 100 km/s
+  claim_id: c_2fe6d04f
+  context: In code/analysis.py, ensure the sensitivity analysis sweeps CME speed cutoffs
+    specifically at values around 1000 km/s with a step size of 100 km/s.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps CME speed cutoffs with a step size of 100
+    km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:45:53Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Threshold candidates at 900, 1000, 1100 km/s
+  claim_id: c_f91d9221
+  context: Run tests/contract/test_thresholds.py to assert that results/metrics.json
+    contains the threshold_sensitivity key with entries specifically for 900, 1000,
+    and 1100 km/s with corresponding True Positive Rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold candidates are reported for specific speeds of 900, 1000, and
+    1100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:46:27Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Historical solar flare and geomagnetic data covers 2010-2023 (10+ years)
+  claim_id: c_8462423b
+  context: "Implemented code/ingest.py to download GOES X-ray flare lists from ftp://ftp.swpc.noaa.gov/pub/lists/goes/xray/\
+    \ covering \u226510 years of historical data (2010-2023)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project covers \u226510 years of historical data from 2010 to 2023."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:47:38Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Data ingestion window enforced 2010-01-01 to 2023-12-31
+  claim_id: c_d55d4bb3
+  context: 'Constraint: Explicitly enforced a download window spanning 2010-01-01
+    to 2023-12-31. If the current date is after 2023, truncated the download at 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data ingestion window is explicitly enforced from 2010-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:48:14Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 2
+  canonical: Solar events matched to storms within 3-day window
+  claim_id: c_c93b5e64
+  context: "Implemented code/align.py to identify Dst minima (storms) independently,\
+    \ then match preceding solar events within \u22643-day window"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Solar events are matched to geomagnetic storms within a \u22643-day window."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:48:15Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Recurrent storm filter requires 24-hour recovery separation
+  claim_id: c_28483d6c
+  context: "Filtering Rule: Only include distinct minima separated by \u226524 hours\
+    \ of recovery, where recovery is defined as Dst returning to > nT AND maintaining\
+    \ that level for \u226524 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recurrent storm filtering requires distinct minima separated by \u2265\
+    24 hours of recovery."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:48:15Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Power limitation warning if sample size < 30
+  claim_id: c_0d7eab20
+  context: 'Logic: If effective sample size (N) < 30, log a Power Limitation warning
+    and append a specific Power Limitation section to results/metrics.json'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_limitation_warning_if_sample_size_%3C_30
+  kind: magnitude
+  raw_text: A power limitation warning is logged if the effective sample size is less
+    than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:48:16Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Piecewise model triggered if R-squared < 0.1
+  claim_id: c_413e3344
+  context: "Trigger: ONLY if linear regression R\xB2 < 0.1. Output: Report the improvement\
+    \ in fit in results/metrics.json under the key piecewise_r2_improvement."
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "Piecewise linear model testing is triggered if linear regression R\xB2\
+    \ is less than 0.1."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T05:48:17Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series test set spans 2 years
+  claim_id: c_8af24100
+  context: 'Train set: Events from current_year - 10 to current_year - 2. Test set:
+    Events from current_year - 2 to current_year.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Time-series_test_set_spans_2_years
+  kind: magnitude
+  raw_text: The time-series hold-out set for threshold validation spans the most recent
+    2 years of data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:49:24Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Time-series train set spans 8 years
+  claim_id: c_a35afb59
+  context: 'Train set: Events from current_year - 10 to current_year - 2. Test set:
+    Events from current_year - 2 to current_year.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training set for threshold validation spans the 8 years prior to the
+    test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:49:57Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis step size 100 km/s
+  claim_id: c_dc51c514
+  context: Ensure the sensitivity analysis sweeps CME speed cutoffs specifically at
+    values around 1000 km/s with a step size of 100 km/s.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps CME speed cutoffs with a step size of 100
+    km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:49:58Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis evaluates 900, 1000, 1100 km/s
+  claim_id: c_9822d04c
+  context: Run tests/contract/test_thresholds.py to assert that results/metrics.json
+    contains the threshold_sensitivity key with entries specifically for 900, 1000,
+    and 1100 km/s with corresponding True Positive Rates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis specifically evaluates cutoffs at 900, 1000, and
+    1100 km/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:50:31Z'
+- artifact_path: projects/PROJ-031-exploring-the-correlation-between-solar-/specs/001-exploring-the-correlation-between-solar/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_114a0fdd
+  context: Initialized Python 3.11 project with requirements.txt (pandas, numpy, scipy,
+    statsmodels, requests, pyyaml, pytest)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T05:50:51Z'

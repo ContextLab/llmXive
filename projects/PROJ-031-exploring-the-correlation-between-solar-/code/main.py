@@ -32,6 +32,8 @@ def verify_source_heartbeat():
     
     # Updated URLs to match the actual working endpoints for Dst and Kp
     # Using the specific product URLs that serve text data directly
+    # NOTE: NOAA SWPC product pages often return 404 for HEAD requests but 200 for GET with text/html or text/plain.
+    # We use the specific data file URLs which are more reliable for programmatic access.
     sources = {
         "NOAA_SWPC_DST": "https://services.swpc.noaa.gov/products/noaa-dst.txt",
         "NOAA_SWPC_KP": "https://services.swpc.noaa.gov/products/noaa-kp-index.txt",
@@ -45,6 +47,7 @@ def verify_source_heartbeat():
         try:
             # Try HEAD first, fallback to GET
             # Some endpoints (like products) might not support HEAD properly, so we handle 404/405 by trying GET
+            # Use a small timeout to avoid hanging
             head_resp = requests.head(url, timeout=10, allow_redirects=True)
             if head_resp.status_code == 200:
                 logger.info(f"Heartbeat OK for {name} (Status 200)")
@@ -103,8 +106,13 @@ def run_pipeline():
         if not filter_main():
             raise RuntimeError("Filtering step failed")
         
-        # Step 5: Analyze
-        logger.info("Step 5: Performing analysis...")
+        # Step 5: Validate
+        logger.info("Step 5: Validating outputs...")
+        if not validate_main():
+            raise RuntimeError("Validation step failed")
+
+        # Step 6: Analyze
+        logger.info("Step 6: Performing analysis...")
         if not analysis_main():
             raise RuntimeError("Analysis step failed")
         
