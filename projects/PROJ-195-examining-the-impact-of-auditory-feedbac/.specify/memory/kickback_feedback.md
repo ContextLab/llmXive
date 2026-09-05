@@ -4,8 +4,14 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T008` (rejected 1x): No Docker configuration file, script, or documentation for `fmriprep` memory and process limits is present in the provided evidence. The task required a concrete artifact (e.g., a Dockerfile, docker‑compose.yml, or command‑line options) that sets appropriate resource limits, but none was supplied.
-- `T016` (rejected 1x): The submission provides no code, configuration, or `preprocessing.log` file showing that logging of preprocessing deviations was added. Without any artifact demonstrating the new logging behavior, the task requirement is not satisfied. The implementer must add the logging implementation and supply the resulting log (or code changes) as evidence.
+- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: stats_config.yaml
+- `T005` (rejected 1x): No `roi_masks/auditory_cortex.nii.gz` file or script showing the use of `nilearn.datasets.fetch_atlas_harvard_oxford` to extract the Auditory Cortex label is present. The required ROI mask artifact is missing, so the task is not satisfied.
+- `T008` (rejected 1x): No script, Dockerfile, or configuration file was provided that pulls `nipreps/fmriprep` with a specific stable version tag. The required artifact is missing, so the task’s requirement is not satisfied.
+- `T009` (rejected 1x): No `spec.md` file or its contents were provided, so there is no evidence that the required text replacement (“ds000115” → “ds000246” in FR‑001, User Story 1, and Assumptions) was actually made. The implementer must supply the updated `spec.md` showing the changes.
+- `T010` (rejected 1x): No updated `spec.md` file is provided, and there is no evidence that the phrase “paired-sample t-test” was replaced with “one-sample t-test against zero” in FR‑004. The required artifact (the modified specification document) is missing.
+- `T011` (rejected 1x): No updated `spec.md` file is provided, so we cannot confirm that FR‑005’s wording was changed from “per condition” to “global (independent of condition)”. The required artifact (the modified specification document) is missing.
+- `T012` (rejected 1x): No updated `spec.md` file is provided, and there is no evidence that the text “p < 0.05” in SC‑002 was replaced with “p < 0.10”. The required artifact (the modified specification document) is missing.
+- `T019` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/preprocessing.log
 
 ## Required change
 

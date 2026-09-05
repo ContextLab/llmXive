@@ -1,15 +1,15 @@
 # Existing dependencies
-nilearn>=0.10.1
+nilearn>=0.10.0
 pandas>=2.0.0
 numpy>=1.24.0
-scipy>=1.10.0
+scipy>=1.11.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
 bids-validator>=1.12.0
-pytest>=7.3.0
-nibabel>=5.1.0
-pyyaml>=6.0
+pytest>=7.0.0
+nibabel>=5.0.0
+scikit-learn>=1.3.0
 
-# New dependencies for T009 (preprocessing)
-# fMRIPrep is run via Docker, so no pip package needed for the tool itself.
-# However, we ensure nilearn is up to date for any post-processing.
+# New dependencies for T028 (if not already covered)
+# nilearn and nibabel are sufficient for this task.
+# No new dependencies required.

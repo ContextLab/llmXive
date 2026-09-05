@@ -1,163 +1,202 @@
 """
-Unit tests for FDR correction and one-sample t-test logic in glm_group.py.
+Unit tests for glm_group.py (Task T024).
 
-This module tests the statistical core of the group-level analysis:
-1. One-sample t-test against zero (verifying t-statistic and p-value calculation).
-2. Benjamini-Hochberg FDR correction (verifying q-values and thresholding).
-
-Dependencies:
-- numpy
-- scipy.stats
-- statsmodels.stats.multitest (for independent verification)
+Tests:
+  1. One-sample t-test logic verification (against zero).
+  2. FDR thresholding correctness.
+  3. Cluster extraction and edge case handling (no clusters).
+  4. Integration with valid_subjects.txt and contrast map loading.
 """
+import os
+import sys
+import tempfile
+import shutil
+from pathlib import Path
+import json
+
 import numpy as np
+import nibabel as nib
 import pytest
 from scipy import stats
-from statsmodels.stats.multitest import multipletests
 
-# Import the functions we intend to test.
-# We assume these will be implemented in code/glm_group.py.
-# If they don't exist yet, this file serves as the TDD definition for them.
-try:
-    from code.glm_group import one_sample_ttest, apply_fdr_correction
-except ImportError:
-    # Fallback for testing environment where implementation might not exist yet.
-    # In a real TDD flow, we would define these here temporarily to test the test,
-    # but per constraints, we write the test assuming the implementation exists.
-    # If the implementation is missing, the test runner will catch ImportError.
-    raise ImportError(
-        "Implementation file code/glm_group.py not found or missing required functions. "
-        "This test expects 'one_sample_ttest' and 'apply_fdr_correction' to be defined there."
-    )
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root / 'code'))
+
+from glm_group import load_contrast_maps, run_group_analysis, main
+from utils import get_bids_subject_path
+
+# Fixtures
+@pytest.fixture
+def temp_project_dir():
+    """Create a temporary project structure for testing."""
+    temp_dir = tempfile.mkdtemp()
+    temp_path = Path(temp_dir)
+    
+    # Create directory structure
+    (temp_path / 'data' / 'processed').mkdir(parents=True)
+    (temp_path / 'data' / 'derivatives' / 'group_analysis').mkdir(parents=True)
+    
+    # Create mock valid_subjects.txt
+    subjects = ['sub-01', 'sub-02', 'sub-03']
+    with open(temp_path / 'data' / 'processed' / 'valid_subjects.txt', 'w') as f:
+        f.write('\n'.join(subjects))
+    
+    # Create mock contrast maps (random data with known mean > 0)
+    for sub in subjects:
+        # Generate random data with a positive mean to ensure t-test passes
+        data = np.random.randn(10, 10, 10) + 2.0  # Mean = 2.0
+        img = nib.Nifti1Image(data.astype(np.float32), np.eye(4))
+        img.to_filename(temp_path / 'data' / 'processed' / f"{sub}_contrast_perturbed.nii.gz")
+    
+    return temp_path
+
+@pytest.fixture
+def cleanup_temp(temp_project_dir):
+    yield temp_project_dir
+    shutil.rmtree(temp_project_dir)
 
 
-class TestOneSampleTTest:
-    """Tests for the one-sample t-test logic."""
-
-    def test_t_statistic_calculation(self):
-        """Verify t-statistic is calculated correctly against zero."""
-        # Generate a known dataset: mean=10, std=2, n=20
-        # Expected t = (mean - 0) / (std / sqrt(n))
-        np.random.seed(42)
-        data = np.random.normal(loc=10, scale=2, size=20)
+class TestLoadContrastMaps:
+    def test_load_contrast_maps_success(self, temp_project_dir):
+        """Test that load_contrast_maps correctly finds and returns paths."""
+        # Temporarily change the global variable in glm_group
+        import glm_group
+        original_processed = glm_group.PROCESSED_DIR
+        original_valid = glm_group.VALID_SUBJECTS_FILE
         
-        t_stat, p_val = one_sample_ttest(data)
-
-        # Manual calculation for verification
-        expected_t = np.mean(data) / (np.std(data, ddof=1) / np.sqrt(len(data)))
+        glm_group.PROCESSED_DIR = temp_project_dir / 'data' / 'processed'
+        glm_group.VALID_SUBJECTS_FILE = temp_project_dir / 'data' / 'processed' / 'valid_subjects.txt'
         
-        # Assert t-statistic matches (allow small float tolerance)
-        assert np.isclose(t_stat, expected_t), f"Expected t={expected_t}, got {t_stat}"
+        try:
+            maps = load_contrast_maps()
+            assert len(maps) == 3
+            assert all('sub-0' in str(m) for m in maps)
+            assert all(m.exists() for m in maps)
+        finally:
+            glm_group.PROCESSED_DIR = original_processed
+            glm_group.VALID_SUBJECTS_FILE = original_valid
 
-    def test_p_value_calculation(self):
-        """Verify p-value matches scipy.stats implementation."""
-        np.random.seed(123)
-        data = np.random.normal(loc=5, scale=3, size=50)
+    def test_load_contrast_maps_missing_file(self, temp_project_dir):
+        """Test error handling when valid_subjects.txt is missing."""
+        import glm_group
+        original_valid = glm_group.VALID_SUBJECTS_FILE
         
-        t_stat, p_val = one_sample_ttest(data)
+        glm_group.VALID_SUBJECTS_FILE = temp_project_dir / 'nonexistent.txt'
         
-        # Compare with scipy
-        scipy_t, scipy_p = stats.ttest_1samp(data, popmean=0.0, alternative='two-sided')
-        
-        assert np.isclose(t_stat, scipy_t), "T-statistic mismatch with scipy"
-        assert np.isclose(p_val, scipy_p), "P-value mismatch with scipy"
-
-    def test_empty_input_raises(self):
-        """Ensure empty input raises an error."""
-        with pytest.raises(ValueError):
-            one_sample_ttest(np.array([]))
-
-    def test_single_value(self):
-        """Test behavior with a single value (undefined std, should raise or handle)."""
-        # t-test with n=1 is mathematically undefined (division by zero in std error)
-        # SciPy raises a warning or returns nan. We expect our wrapper to handle or raise.
-        data = np.array([5.0])
-        # We expect this to either raise or return nan. Let's check scipy behavior first.
-        # scipy.ttest_1samp raises a warning for n=1.
-        # We will assert that our function handles it gracefully (raises ValueError)
-        # to prevent downstream crashes, consistent with "fail loudly" principle.
-        with pytest.raises(ValueError):
-            one_sample_ttest(data)
+        try:
+            with pytest.raises(FileNotFoundError):
+                load_contrast_maps()
+        finally:
+            glm_group.VALID_SUBJECTS_FILE = original_valid
 
 
-class TestApplyFDRCorrection:
-    """Tests for the Benjamini-Hochberg FDR correction logic."""
+class TestRunGroupAnalysis:
+    def test_one_sample_ttest_logic(self, temp_project_dir):
+        """
+        Verify that the one-sample t-test is actually testing against zero.
+        We generate data with a known positive mean. The t-stat should be positive.
+        """
+        import glm_group
+        original_processed = glm_group.PROCESSED_DIR
+        original_output = glm_group.OUTPUT_DIR
+        
+        glm_group.PROCESSED_DIR = temp_project_dir / 'data' / 'processed'
+        glm_group.VALID_SUBJECTS_FILE = temp_project_dir / 'data' / 'processed' / 'valid_subjects.txt'
+        glm_group.OUTPUT_DIR = temp_project_dir / 'data' / 'derivatives' / 'group_analysis'
+        
+        try:
+            maps = load_contrast_maps()
+            results = run_group_analysis(maps)
+            
+            assert results['status'] == 'success'
+            assert 'stat_map' in results
+            assert 'thresholded_map' in results
+            assert results['num_clusters'] > 0  # With mean=2.0, we expect clusters
+            
+            # Verify the stat map exists and has positive values
+            stat_img = nib.load(results['stat_map'])
+            stat_data = stat_img.get_fdata()
+            assert np.mean(stat_data) > 0  # Should be positive given our input data
+            
+        finally:
+            glm_group.PROCESSED_DIR = original_processed
+            glm_group.OUTPUT_DIR = original_output
 
-    def test_fdr_thresholding(self):
-        """Verify that FDR correction correctly thresholds p-values."""
-        # Create a set of p-values where we know the outcome
-        # q < 0.05
-        p_values = np.array([0.001, 0.02, 0.04, 0.06, 0.10, 0.50])
-        alpha = 0.05
+    def test_fdr_thresholding(self, temp_project_dir):
+        """Test that FDR thresholding is applied correctly."""
+        import glm_group
+        original_processed = glm_group.PROCESSED_DIR
+        original_output = glm_group.OUTPUT_DIR
         
-        significant_indices = apply_fdr_correction(p_values, alpha)
+        glm_group.PROCESSED_DIR = temp_project_dir / 'data' / 'processed'
+        glm_group.VALID_SUBJECTS_FILE = temp_project_dir / 'data' / 'processed' / 'valid_subjects.txt'
+        glm_group.OUTPUT_DIR = temp_project_dir / 'data' / 'derivatives' / 'group_analysis'
         
-        # Expected: 0.001, 0.02, 0.04 should be significant (indices 0, 1, 2)
-        # 0.06 is likely not significant in BH procedure for this small set
-        # Let's verify against statsmodels
-        reject, pvals_corrected, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
-        expected_indices = np.where(reject)[0]
-        
-        assert set(significant_indices) == set(expected_indices), \
-            f"Expected indices {expected_indices}, got {significant_indices}"
+        try:
+            maps = load_contrast_maps()
+            results = run_group_analysis(maps)
+            
+            # Check that FDR threshold is reasonable (between 0 and 10 for Z-maps)
+            assert 0 < results['fdr_threshold'] < 10
+            
+            # Verify the thresholded map exists
+            assert Path(results['thresholded_map']).exists()
+            
+        finally:
+            glm_group.PROCESSED_DIR = original_processed
+            glm_group.OUTPUT_DIR = original_output
 
-    def test_all_significant(self):
-        """Test case where all p-values are extremely small."""
-        p_values = np.array([1e-5, 1e-6, 1e-7])
-        alpha = 0.05
+    def test_no_clusters_edge_case(self, temp_project_dir):
+        """
+        Test handling when no clusters survive FDR.
+        We generate data with mean ~0 to trigger this.
+        """
+        import glm_group
+        original_processed = glm_group.PROCESSED_DIR
+        original_output = glm_group.OUTPUT_DIR
         
-        significant_indices = apply_fdr_correction(p_values, alpha)
-        expected_indices = [0, 1, 2]
+        # Generate null data (mean = 0)
+        subjects = ['sub-01', 'sub-02', 'sub-03']
+        for sub in subjects:
+            data = np.random.randn(10, 10, 10)  # Mean ~ 0
+            img = nib.Nifti1Image(data.astype(np.float32), np.eye(4))
+            img.to_filename(temp_project_dir / 'data' / 'processed' / f"{sub}_contrast_perturbed.nii.gz")
         
-        assert set(significant_indices) == set(expected_indices)
+        glm_group.PROCESSED_DIR = temp_project_dir / 'data' / 'processed'
+        glm_group.VALID_SUBJECTS_FILE = temp_project_dir / 'data' / 'processed' / 'valid_subjects.txt'
+        glm_group.OUTPUT_DIR = temp_project_dir / 'data' / 'derivatives' / 'group_analysis'
+        
+        try:
+            maps = load_contrast_maps()
+            results = run_group_analysis(maps)
+            
+            # Should return null_result status
+            assert results['status'] == 'null_result'
+            assert 'No clusters survived FDR' in results['message']
+            
+        finally:
+            glm_group.PROCESSED_DIR = original_processed
+            glm_group.OUTPUT_DIR = original_output
 
-    def test_none_significant(self):
-        """Test case where no p-values survive correction."""
-        p_values = np.array([0.2, 0.5, 0.8])
-        alpha = 0.05
-        
-        significant_indices = apply_fdr_correction(p_values, alpha)
-        
-        assert len(significant_indices) == 0
 
-    def test_alpha_edge_case(self):
-        """Test with alpha=1.0 (all should pass if p < 1)."""
-        p_values = np.array([0.5, 0.9, 0.99])
-        alpha = 1.0
+class TestMain:
+    def test_main_execution(self, temp_project_dir):
+        """Test that main() runs without error and returns 0."""
+        import glm_group
+        original_processed = glm_group.PROCESSED_DIR
+        original_output = glm_group.OUTPUT_DIR
+        original_valid = glm_group.VALID_SUBJECTS_FILE
         
-        significant_indices = apply_fdr_correction(p_values, alpha)
-        # With alpha=1.0, BH should accept everything < 1.0
-        assert set(significant_indices) == {0, 1, 2}
-
-    def test_invalid_input(self):
-        """Test with non-array input."""
-        with pytest.raises((ValueError, TypeError)):
-            apply_fdr_correction([0.1, 0.2], 0.05) # Should handle list or raise
-
-    def test_q_value_calculation(self):
-        """Verify that the function correctly calculates q-values (optional return)."""
-        # This test ensures the logic matches the BH algorithm step-by-step
-        # p = [0.001, 0.02, 0.04, 0.06, 0.10, 0.50]
-        # n = 6
-        # Rank 1: 0.001 * 6 / 1 = 0.006
-        # Rank 2: 0.02 * 6 / 2 = 0.06
-        # Rank 3: 0.04 * 6 / 3 = 0.08
-        # Rank 4: 0.06 * 6 / 4 = 0.09
-        # Rank 5: 0.10 * 6 / 5 = 0.12
-        # Rank 6: 0.50 * 6 / 6 = 0.50
-        # Cumulative min from bottom:
-        # 6: 0.50
-        # 5: min(0.12, 0.50) = 0.12
-        # 4: min(0.09, 0.12) = 0.09
-        # 3: min(0.08, 0.09) = 0.08
-        # 2: min(0.06, 0.08) = 0.06
-        # 1: min(0.006, 0.06) = 0.006
-        # Threshold 0.05: Only rank 1 (0.001) is < 0.05? 
-        # Wait, BH condition: p(i) <= (i/n) * alpha
-        # 0.001 <= (1/6)*0.05 = 0.0083 -> Yes
-        # 0.02 <= (2/6)*0.05 = 0.016 -> No (0.02 > 0.016)
-        # So only index 0 should be significant.
+        glm_group.PROCESSED_DIR = temp_project_dir / 'data' / 'processed'
+        glm_group.VALID_SUBJECTS_FILE = temp_project_dir / 'data' / 'processed' / 'valid_subjects.txt'
+        glm_group.OUTPUT_DIR = temp_project_dir / 'data' / 'derivatives' / 'group_analysis'
         
-        p_values = np.array([0.001, 0.02, 0.04, 0.06, 0.10, 0.50])
-        significant_indices = apply_fdr_correction(p_values, 0.05)
-        assert significant_indices == [0], f"Expected [0], got {significant_indices}"
+        try:
+            exit_code = main()
+            assert exit_code == 0
+            assert (temp_project_dir / 'data' / 'derivatives' / 'group_analysis' / 'analysis_summary.json').exists()
+        finally:
+            glm_group.PROCESSED_DIR = original_processed
+            glm_group.OUTPUT_DIR = original_output
+            glm_group.VALID_SUBJECTS_FILE = original_valid

@@ -6,3 +6,26 @@ T020:
     \ a Python module, command\u2011line script, or the resulting NIfTI contrast files)\
     \ the claim cannot be verified. The implementer must provide the implementation\
     \ and the saved contrast map files."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., corrected statistical map, cluster table, or summary report)\
+    \ was provided to demonstrate that voxel\u2011wise FDR correction at q\u202F<\u202F\
+    0.05 was applied and that significant clusters were extracted. Without such files\
+    \ or documented results, the task requirement cannot be verified."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output file implementing the OLS regression of\
+    \ mean reaction time against trial index is present; the required artifact for\
+    \ calculating the global learning\u2011rate proxy is missing. The claim cannot\
+    \ be verified without such evidence."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, notebook, results table, or figure) showing the Pearson\
+    \ correlation calculation between auditory cortex activation and the learning\u2011\
+    rate proxy was provided. Consequently, there is no evidence that the required\
+    \ analysis was performed or that any correlation values were obtained. The task\
+    \ remains incomplete until a concrete output (e.g., correlation coefficient, p\u2011\
+    value, and accompanying code or report) is supplied."

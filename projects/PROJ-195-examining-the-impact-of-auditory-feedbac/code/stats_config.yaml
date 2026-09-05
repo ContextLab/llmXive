@@ -1,108 +1,131 @@
-# Statistical Analysis Configuration for Auditory Feedback Motor Learning Study
-# Project: PROJ-195-examining-the-impact-of-auditory-feedback
-# Defines parameters for GLM, FDR correction, and ROI definitions
+# Statistical Analysis Configuration
+# Project: PROJ-195-examining-the-impact-of-auditory-feedback-motor-learning
+# Task: T004 - Define GLM parameters, FDR threshold, and ROI definitions
 
+# General Linear Model (GLM) Parameters
 glm:
-  # First-level GLM parameters
-  model_type: "fir"
-  fir_delays: [0, 1, 2, 3, 4, 5, 6, 7]
-  drift_model: "cosine"
-  high_pass_cutoff: 128.0  # seconds
-  smoothing_fwhm: 6.0  # mm
-  
-  # Contrast definitions
+  # First-level model specification
+  first_level:
+    # High-pass filter cutoff in seconds
+    high_pass_cutoff: 128.0
+    # Temporal derivative inclusion
+    add_temporal_derivatives: true
+    # Drift model: cosine basis functions
+    drift_model: "cosine"
+    # AR(1) noise model for temporal autocorrelation
+    noise_model: "ar1"
+    # Standardize regressors
+    standardize: false
+
+  # Contrast definitions for first-level analysis
   contrasts:
-    # Perturbed condition (union of delayed and pitch-shifted) vs normal
+    # Perturbed vs Normal: Union of delayed and pitch-shifted conditions
     perturbed_vs_normal:
       name: "Perturbed > Normal"
-      type: "t"
-      conditions:
-        - "delayed"
-        - "pitch-shifted"
-      reference: "normal"
-      
-    # Individual condition contrasts for exploratory analysis
+      contrast_vector: [0, 1, 1, -1]  # [intercept, delayed, pitch_shifted, normal]
+      description: "Combined auditory perturbation effect (delayed + pitch-shifted) vs normal feedback"
+
+    # Delayed vs Normal
     delayed_vs_normal:
       name: "Delayed > Normal"
-      type: "t"
-      conditions: ["delayed"]
-      reference: "normal"
-      
+      contrast_vector: [0, 1, 0, -1]
+      description: "Delayed auditory feedback effect vs normal feedback"
+
+    # Pitch-shifted vs Normal
     pitch_shifted_vs_normal:
-      name: "Pitch-Shifted > Normal"
-      type: "t"
-      conditions: ["pitch-shifted"]
-      reference: "normal"
+      name: "Pitch-shifted > Normal"
+      contrast_vector: [0, 0, 1, -1]
+      description: "Pitch-shifted auditory feedback effect vs normal feedback"
 
-group_analysis:
-  # Group-level analysis parameters
-  test_type: "one_sample_t_test"
-  null_hypothesis: 0.0  # Test against zero activation
-  
-  # Multiple comparison correction
-  correction_method: "fdr"
-  fdr_threshold: 0.05  # q < 0.05
-  cluster_forming_threshold: 0.001  # Uncorrected p-value for cluster formation
-  
+# Multiple Comparison Correction
+correction:
+  # False Discovery Rate (FDR) threshold
+  fdr:
+    enabled: true
+    q_threshold: 0.05
+    method: "fdr_bh"  # Benjamini-Hochberg procedure
+    description: "Voxel-wise FDR correction at q < 0.05"
+
+  # Cluster-forming threshold (uncorrected)
+  cluster_forming:
+    voxel_p_threshold: 0.001
+    description: "Initial voxel-wise threshold for cluster formation (uncorrected)"
+
   # Minimum cluster size (in voxels)
-  min_cluster_size: 10
+  min_cluster_size_voxels: 10
+  description: "Minimum cluster extent to be considered significant"
 
-roi_definitions:
-  # Region of Interest masks in MNI standard space
-  primary_rois:
-    auditory_cortex:
-      name: "Auditory Cortex"
-      source: "Harvard-Oxford Cortical Structural Atlas"
-      file: "roi_masks/auditory_cortex.nii.gz"
-      description: "Bilateral auditory cortex including Heschl's gyrus and planum temporale"
-      threshold: 25  # Probability threshold for atlas-based mask
-      
-    motor_cortex:
-      name: "Motor Cortex"
-      source: "Harvard-Oxford Cortical Structural Atlas"
-      file: "roi_masks/motor_cortex.nii.gz"
-      description: "Primary motor cortex (M1) and premotor areas"
-      threshold: 25
-      
-    supplementary_motor_area:
-      name: "Supplementary Motor Area"
-      source: "Harvard-Oxford Cortical Structural Atlas"
-      file: "roi_masks/sma.nii.gz"
-      description: "Supplementary motor area and pre-SMA"
-      threshold: 25
+# Group-level analysis parameters
+group_analysis:
+  # Statistical test type
+  test_type: "one_sample_t_test"
+  description: "One-sample t-test against zero for group-level inference"
+  null_hypothesis: 0.0
+  alternative: "two-sided"
 
-  # Behavioral correlation ROIs
-  correlation_rois:
-    auditory_motor_integration:
-      name: "Auditory-Motor Integration"
-      description: "Regions for correlating auditory activation with behavioral learning rates"
-      components: ["auditory_cortex", "motor_cortex"]
+  # Effect size calculation
+  effect_size:
+    calculate_cohens_d: true
+    calculate_confidence_interval: true
+    ci_level: 0.95
 
+# Region of Interest (ROI) Definitions
+rois:
+  # Primary ROI: Auditory Cortex
+  auditory_cortex:
+    name: "Auditory Cortex"
+    source: "Harvard-Oxford Cortical Structural Atlas"
+    mask_file: "roi_masks/auditory_cortex.nii.gz"
+    label_index: "Auditory"
+    description: "Mask extracted from Harvard-Oxford atlas for auditory cortex activation analysis"
+    coordinates:
+      # Approximate MNI coordinates for Heschl's gyrus (primary auditory cortex)
+      x: [-46, 46]
+      y: [-18, -18]
+      z: [8, 12]
+
+  # Secondary ROIs (for exploratory analysis)
+  motor_cortex:
+    name: "Motor Cortex"
+    source: "Harvard-Oxford Cortical Structural Atlas"
+    mask_file: "roi_masks/motor_cortex.nii.gz"
+    label_index: "Precentral Gyrus"
+    description: "Primary motor cortex for motor sequence learning activation"
+
+  cerebellum:
+    name: "Cerebellum"
+    source: "Automated Anatomical Labeling (AAL) Atlas"
+    mask_file: "roi_masks/cerebellum.nii.gz"
+    label_index: "Cerebellum"
+    description: "Cerebellar regions involved in motor timing and learning"
+
+# Output specifications
 output:
-  # Output file naming and locations
-  first_level_dir: "data/processed/first_level"
-  group_level_dir: "data/processed/group_level"
-  contrast_maps_dir: "data/processed/contrast_maps"
-  statistical_maps_dir: "data/processed/statistical_maps"
-  results_dir: "data/processed/results"
-  
-  # File naming conventions
-  contrast_map_pattern: "sub-{subject}_contrast-{contrast}.nii.gz"
-  group_stat_pattern: "group_{contrast}_stat-{stat_type}.nii.gz"
-  results_csv: "data/processed/correlation_results.csv"
-  report_summary: "docs/report_summary.csv"
+  # Directory for statistical maps
+  stat_maps_dir: "data/processed/stat_maps"
+  # Directory for cluster metadata
+  cluster_metadata_dir: "data/processed/clusters"
+  # Directory for ROI extraction results
+  roi_results_dir: "data/processed/roi_analysis"
+  # File format for statistical maps
+  output_format: "nifti"
+  # Compression level for NIfTI files (0-9)
+  nifti_compression: 4
 
+# Logging and reproducibility
 logging:
   level: "INFO"
-  file: "logs/statistical_analysis.log"
-  include_timestamps: true
-  log_clusters: true
-  log_effect_sizes: true
+  log_file: "data/processed/statistical_analysis.log"
+  # Include full command-line history for reproducibility
+  record_parameters: true
+  # Random seed for any stochastic operations
+  random_seed: 42
 
-quality_control:
-  # QC thresholds for statistical outputs
-  min_voxels_in_roi: 50
-  max_outlier_percent: 5.0
-  require_effect_size: true  # Require Cohen's d calculation
-  require_confidence_interval: true
-  ci_level: 0.95  # 95% confidence intervals
+# Quality control thresholds
+qc:
+  # Minimum number of subjects required for group analysis
+  min_subjects: 5
+  # Maximum proportion of missing data allowed per subject
+  max_missing_data_proportion: 0.1
+  # Flag subjects with extreme parameter estimates
+  extreme_value_threshold: 5.0  # Standard deviations from mean

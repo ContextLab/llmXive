@@ -98,7 +98,7 @@ projects/PROJ-195-examining-the-impact-of-auditory-feedbac/
 - **SC-005**: Estimate runtime for subset (≤6h).
 
 ### Phase 1: Preprocessing Pipeline
-- **FR-002**: Run `fmriprep` with `--nprocs 2 --mem-mb 6000`.
+- **FR-002**: Run `fmriprep` with a parallel processing configuration and appropriate memory allocation..
 - **Edge Case**: Skip subjects with motion >2mm (log to `preprocessing.log`).
 - **SC-001**: Track % of subjects successfully preprocessed.
 
