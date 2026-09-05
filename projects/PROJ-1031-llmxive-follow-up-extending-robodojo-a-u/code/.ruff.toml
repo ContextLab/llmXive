@@ -1,0 +1,26 @@
+# Ruff configuration for llmXive project
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[lint.isort]
+known-first-party = ["src", "tests", "scripts"]
+force-sort-within-sections = true
+
+[lint.per-file-ignores]
+"code/tests/*" = ["S101", "D100", "D101", "D102", "D103"]
+"code/scripts/*" = ["S101", "D100", "D101", "D102", "D103"]

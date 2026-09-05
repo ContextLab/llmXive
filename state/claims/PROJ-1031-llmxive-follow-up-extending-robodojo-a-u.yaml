@@ -1510,3 +1510,585 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T04:44:34Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Action sequence output within 60 seconds on 2-core CPU
+  claim_id: c_8fe0b386
+  context: 'Independent Test for User Story 1: CPU-Tractable Symbolic Planner Execution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system is tested by feeding a RoboDojo task specification into the
+    planner and verifying that a discrete action sequence is output within 60 seconds
+    on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:36:01Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Mapping logic filters out continuous physics variables
+  claim_id: c_425e3f70
+  context: 'Implementation details for T014: Implement state_mapper.py to map embeddings
+    to discrete SymbolicState predicates.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mapping_logic_filters_out_continuous_physics_variables
+  kind: entity_fact
+  raw_text: Ensure the mapping logic explicitly filters out continuous physics variables.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:36:49Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: RAM usage limit of 6 GB triggers ResourceLimitExceeded error
+  claim_id: c_3f1ed0d3
+  context: 'Implementation details for T022: Implement memory-efficient streaming
+    in metrics_logger.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If RAM approaches 6 GB, raise ResourceLimitExceeded error and abort.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:37:28Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: "Task completion defined as pose deviation \u2264 5cm and orientation\
+    \ \u2264 15\xB0"
+  claim_id: c_2dd656f7
+  context: 'Implementation details for T023: Implement logic in executor.py to detect
+    task completion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Detect task completion if pose deviation is \u2264 5cm and orientation\
+    \ is \u2264 15\xB0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:37:28Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Power Analysis report includes N=18
+  claim_id: c_a7afcd00
+  context: 'Implementation details for T033c: Generate power analysis report text.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly include the text Power Analysis: N=18 in the final report.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:38:28Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Symbolic plans executed against Oracle with results persisted to JSON
+  claim_id: c_92c824bc
+  context: 'Implementation details for T038: Execute ActionSequence against the Oracle.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Symbolic_plans_executed_against_Oracle_with_results_persiste
+  kind: entity_fact
+  raw_text: Run the full loop of symbolic plans against the Oracle and persist results
+    to JSON.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:39:10Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: RoboDojo dataset ID RoboDojo/RoboDojo-v1 commit v.1
+  claim_id: c_09ef7f66
+  context: Explicitly raise an error if the stream fails to open a verified real source;
+    do NOT fall back to synthetic data. Use dataset ID 'RoboDojo/RoboDojo-v1' and
+    commit 'v.1'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use dataset ID 'RoboDojo/RoboDojo-v1' and commit 'v.1'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:44:35Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Training split seed 42 for RoboDojo
+  claim_id: c_63ee4777
+  context: Split the tasks from 'RoboDojo/RoboDojo-v1' (split='train', seed=42) into
+    a training set and a hold-out validation set. ... Use a fixed seed 42 for the
+    split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed seed 42 for the split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:45:27Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Retrain adapter on 18 tasks
+  claim_id: c_d2a7c22a
+  context: Ensure the 'Retrain on ALL 18 tasks' step is mandatory and only executed
+    if validation passes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retrain on all 18 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:46:30Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Planner execution time 60 seconds on 2-core CPU
+  claim_id: c_ddb77a13
+  context: The system is tested by feeding a RoboDojo task specification into the
+    planner and verifying that a discrete action sequence is output within 60 seconds
+    on a 2-core CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify planning time \u2264 60s constraint per task on a 2-core CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:46:31Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Planning RAM usage limit 6 GB
+  claim_id: c_f9e0176c
+  context: "Implement memory-efficient streaming in 'code/src/metrics_logger.py' to\
+    \ ensure total RAM usage remains \u2264 6 GB during planning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure total RAM usage remains \u2264 6 GB during planning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:46:31Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Task completion pose deviation 5cm orientation 15 degrees
+  claim_id: c_6b405ca1
+  context: "Implement logic in 'code/src/executor.py' to detect task completion (pose\
+    \ deviation \u2264 5cm, orientation \u2264 15\xB0) and record 'ExecutionOutcome'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Detect task completion with pose deviation \u2264 5cm and orientation\
+    \ \u2264 15\xB0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:46:31Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Power analysis report N equals 18
+  claim_id: c_5d102526
+  context: 'Generate power analysis report text (including N=18 limitation) and write
+    it to ''data/final/statistical_report.txt''. Explicitly include the text ''Power
+    Analysis: N=18'' in the final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Include text ''Power Analysis: N=18'' in the final report.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:47:44Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Catastrophic failure rate threshold 5 percent
+  claim_id: c_164f8f82
+  context: "Compare the calculated rate against the explicit threshold of \u2264 5%\
+    \ defined in SC-005, and flag the result as Pass/Fail in the final report."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compare catastrophic failure rate against the explicit threshold of \u2264\
+    \ 5%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:47:45Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: RoboDojo dataset ID is RoboDojo/RoboDojo-v1 commit v.1
+  claim_id: c_7c708ed0
+  context: Use dataset ID 'RoboDojo/RoboDojo-v1' and commit 'v.1'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use dataset ID 'RoboDojo/RoboDojo-v1' and commit 'v.1'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:48:47Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Dataset split seed is 42
+  claim_id: c_2a1be97d
+  context: Use a fixed seed 42 for the split. Ensure the 'Retrain on ALL 18 tasks'
+    step is mandatory...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed seed 42 for the split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:48:47Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Adapter retraining uses all 18 tasks
+  claim_id: c_321503ba
+  context: Ensure the 'Retrain on ALL 18 tasks' step is mandatory and only executed
+    if validation passes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retrain on ALL 18 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:48:48Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Planning time constraint is 60 seconds per task
+  claim_id: c_16965edf
+  context: "Add logging in 'code/src/planner.py' to record planning time and verify\
+    \ \u2264 60s constraint per task"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u2264 60s constraint per task."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:48:48Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: RAM usage constraint is 6 GB during planning
+  claim_id: c_24c3b8b6
+  context: "Implement memory-efficient streaming in 'code/src/metrics_logger.py' to\
+    \ ensure total RAM usage remains \u2264 6 GB during planning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure total RAM usage remains \u2264 6 GB during planning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:48:48Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Task completion criteria are pose deviation 5cm and orientation 15 degrees
+  claim_id: c_607f543f
+  context: "Implement logic in 'code/src/executor.py' to detect task completion (pose\
+    \ deviation \u2264 5cm, orientation \u2264 15\xB0) and record 'ExecutionOutcome'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Detect task completion (pose deviation \u2264 5cm, orientation \u2264\
+    \ 15\xB0)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:48:48Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Power analysis report includes N=18
+  claim_id: c_151fdd87
+  context: Generate power analysis report text (including N=18 limitation) and write
+    it to 'data/final/statistical_report.txt'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly include the text ''Power Analysis: N=18'' in the final report.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:48:49Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Null hypothesis rejection threshold is alpha 0.05
+  claim_id: c_e97a7b7b
+  context: "Generate report in 'code/src/stats_analysis.py' explicitly stating whether\
+    \ the null hypothesis is rejected at \u03B1 = 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reject the null hypothesis at \u03B1 = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:49:41Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: RoboDojo baseline policy weights location on HuggingFace
+  claim_id: c_b678f0d8
+  context: Load the original RoboDojo Neural Policy weights from HuggingFace dataset
+    RoboDojo/RoboDojo-v1, commit v.1, file weights/baseline_policy.pt.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/RoboDojo_baseline_policy_weights_location_on_HuggingFace
+    source_value: https://en.wikipedia.org/wiki/RoboDojo_baseline_policy_weights_location_on_HuggingFace
+    subject: RoboDojo baseline policy weights location on HuggingFace
+  kind: relational
+  raw_text: The original RoboDojo Neural Policy weights are located in the HuggingFace
+    dataset RoboDojo/RoboDojo-v1, commit v.1, file weights/baseline_policy.pt.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:51:40Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: RoboDojo dataset ID
+  claim_id: c_8622727a
+  context: Use dataset ID RoboDojo/RoboDojo-v1 and commit v.1.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RoboDojo_dataset_ID
+  kind: entity_fact
+  raw_text: The RoboDojo dataset ID is RoboDojo/RoboDojo-v1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:52:20Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: RoboDojo training split seed
+  claim_id: c_b3f5f833
+  context: Use a fixed seed 42 for the split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training set split uses seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:53:06Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Adapter weights retraining on 18 tasks
+  claim_id: c_90e642c9
+  context: Ensure the 'Retrain on ALL 18 tasks' step is mandatory and only executed
+    if validation passes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final artifact adapter_weights.pt must be the result of retraining
+    on all 18 tasks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:53:33Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Planner execution time limit 60 seconds on 2-core CPU
+  claim_id: c_0bc65295
+  context: The system is tested by feeding a RoboDojo task specification into the
+    planner and verifying that a discrete action sequence is output within 60 seconds
+    on a 2-core CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must generate a discrete action sequence within 60 seconds
+    on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:54:43Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: RAM usage limit 6 GB during planning
+  claim_id: c_a1832fbc
+  context: "Implement memory-efficient streaming in code/src/metrics_logger.py to\
+    \ ensure total RAM usage remains \u2264 6 GB during planning."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_limit_6_GB_during_planning
+  kind: magnitude
+  raw_text: Total RAM usage must remain less than or equal to 6 GB during planning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:55:14Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Task completion detection thresholds pose 5cm orientation 15 degrees
+  claim_id: c_65fb7a04
+  context: "Implement logic in code/src/executor.py to detect task completion (pose\
+    \ deviation \u2264 5cm, orientation \u2264 15\xB0) and record ExecutionOutcome."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Task_completion_detection_thresholds_pose_5cm_orientation_15
+  kind: magnitude
+  raw_text: Task completion is detected if pose deviation is less than or equal to
+    5cm and orientation is less than or equal to 15 degrees.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:55:49Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Power analysis report N=18 text
+  claim_id: c_299e9a3f
+  context: 'Explicitly include the text ''Power Analysis: N=18'' in the final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The power analysis report must explicitly include the text ''Power Analysis:
+    N=18''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:57:01Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Catastrophic failure rate threshold 5 percent
+  claim_id: c_b57309f9
+  context: "Compare the calculated rate against the explicit threshold of \u2264 5%\
+    \ defined in SC-005."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Catastrophic_failure_rate_threshold_5_percent
+  kind: magnitude
+  raw_text: The catastrophic failure rate must be compared against an explicit threshold
+    of less than or equal to 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:57:58Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test null hypothesis median difference 0
+  claim_id: c_3fb3346e
+  context: 'Implement Wilcoxon signed-rank test in code/src/stats_analysis.py (null
+    hypothesis: median difference = 0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The null hypothesis for the Wilcoxon signed-rank test is that the median
+    difference is 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T07:58:45Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Null hypothesis rejection alpha 0.05
+  claim_id: c_25e30f53
+  context: "Generate report in code/src/stats_analysis.py explicitly stating whether\
+    \ the null hypothesis is rejected at \u03B1 = 0.05."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A hypothesis is generally considered supported when the results match
+        the predicted pattern and that pattern is found to be statistically significant.
+        Under null hypothesis assumption, results are deemed statistically significant
+        when their probability falls below a predetermined threshold (the significance
+        level). This generally answers the question of how unlikely such results would
+        be by chance alone if no true effect existed in the statistical population.
+        If the probability associated with the test statistic exceeds the chosen critical
+        value, the results are considered statistically significant. The p-value represents
+        the probability of obtaining results at least as extreme as observed, assuming
+        the null hypothesis is true. The standard threshold p < 0.05 means accepting
+        a 5% false positive rate. Some fields use smaller p-values, such as p < 0.01
+        (1% chance of a false positive) or p < 0.001 (0.1% chance of a false positive).
+        But a smaller chance of a false positive often requires greater sample sizes
+        or a greater chance of a false negative (a correct hypothesis being erroneously
+        found incorrect). Although p-value testing is the most commonly used method,
+        it is not the only one.
+      source_id: Replication crisis
+      url: https://en.wikipedia.org/wiki/Replication_crisis
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The null hypothesis is rejected at alpha equals 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T07:58:59Z'

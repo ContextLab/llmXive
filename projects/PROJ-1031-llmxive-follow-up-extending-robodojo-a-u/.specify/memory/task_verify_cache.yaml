@@ -1,0 +1,13 @@
+T001o:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/tests/` directory (or any files within it) is present in the provided
+    evidence; the implementer did not supply the required directory structure. The
+    task remains undone.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml`, or scripts invoking ruff/black) are present in the
+    `code/` directory, nor any documentation showing they have been set up. The claim
+    lacks any concrete artifact demonstrating that ruff and black are configured.

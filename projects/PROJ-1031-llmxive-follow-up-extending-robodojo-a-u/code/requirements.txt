@@ -1,13 +1,14 @@
-torch
-torchvision
+torch-cpu
 scikit-learn
 networkx
 pandas
 datasets
 opencv-python
 pyyaml
-pyarrow
 pytest
 black
 ruff
+jsonschema
+tracemalloc
 numpy
+torchvision

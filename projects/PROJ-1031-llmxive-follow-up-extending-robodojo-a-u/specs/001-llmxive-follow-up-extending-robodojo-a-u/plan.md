@@ -18,7 +18,7 @@ This project investigates whether high-fidelity continuous physics simulation is
 **Performance Goals**: Planner execution ≤ 60s per task; Total memory ≤ 6 GB; No GPU dependency for the symbolic layer.  
 **Constraints**: Must run entirely on CPU for the planning phase; Real-world execution data is the ground truth (no synthetic data generation for final metrics).  
 **Scale/Scope**: RoboDojo real-world tasks (subset of available video data).  
-**Dataset Version**: RoboDojo-Benchmark/RoboDojo (Commit: `v.1` - Verified for 18-task subset).
+**Dataset Version**: RoboDojo-Benchmark/RoboDojo (Commit: `v.` - Verified for 18-task subset).
 
 ## Constitution Check
 

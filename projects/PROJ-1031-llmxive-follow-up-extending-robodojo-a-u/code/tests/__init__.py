@@ -1,3 +1,3 @@
 """
-llmXive Symbolic Dojo Extension - Tests Package
+Test suite for llmXive RoboDojo Symbolic Abstractions.
 """

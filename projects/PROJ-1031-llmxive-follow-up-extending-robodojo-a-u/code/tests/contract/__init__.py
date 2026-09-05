@@ -1,3 +1,3 @@
 """
-Contract Tests Package
+Contract tests ensuring data structures match JSON schemas.
 """

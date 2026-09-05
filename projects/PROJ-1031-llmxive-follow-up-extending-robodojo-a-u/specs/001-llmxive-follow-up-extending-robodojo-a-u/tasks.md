@@ -43,18 +43,21 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create project directory structure in `code/` (src/, tests/, data/)
-- [X] T001b Initialize Python 3.11 virtual environment and create `code/requirements.txt` (torch-cpu, scikit-learn, networkx, pandas, datasets, opencv-python, pyyaml)
-- [ ] T001c Create `code/src/config.py` with paths, seeds, and RoboDojo dataset commit hash `v3.0.1`
-- [X] T001d Create `code/src/data_loader.py`
-- [X] T001e Create `code/src/vision_encoder.py`
-- [X] T001f Create `code/src/state_mapper.py`
-- [X] T001g Create `code/src/planner.py`
-- [X] T001h Create `code/src/controller_adapter.py`
-- [X] T001i Create `code/src/oracle_executor.py`
-- [ ] T001j Create `code/src/metrics_logger.py`
-- [ ] T001k Create `code/src/stats_analysis.py`
-- [ ] T001l Create `code/tests/` directory structure
+- [X] T001a Create `code/src/__init__.py`
+- [X] T001b Create `code/tests/__init__.py`
+- [ ] T001c Create `code/data/raw/`, `code/data/interim/`, `code/data/processed/`, `code/data/final/` directories
+- [X] T001d Initialize Python 3.11 virtual environment and create `code/requirements.txt` (torch-cpu, scikit-learn, networkx, pandas, datasets, opencv-python, pyyaml)
+- [ ] T001e Create `code/src/config.py` with paths, seeds, and RoboDojo dataset commit hash `v.1`
+- [X] T001f Create `code/src/data_loader.py`
+- [X] T001g Create `code/src/vision_encoder.py`
+- [X] T001h Create `code/src/state_mapper.py`
+- [X] T001i Create `code/src/planner.py`
+- [X] T001j Create `code/src/controller_adapter.py`
+- [X] T001k Create `code/src/oracle_executor.py`
+- [X] T001l Create `code/src/metrics_logger.py`
+- [X] T001m Create `code/src/stats_analysis.py`
+- [X] T001n Create `code/src/executor.py`
+- [ ] T001o Create `code/tests/` directory structure
 - [ ] T002 [P] Configure linting (ruff) and formatting (black) tools in `code/`
 
 ---
@@ -65,12 +68,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Implement `code/src/data_loader.py` to stream RoboDojo parquet files from HuggingFace without loading full dataset into RAM
- - **Implementation**: Use `datasets.load_dataset(..., streaming=True)` to iterate over the RoboDojo dataset shards. Do NOT load the full dataset into memory. Accumulate statistics online or process frame-by-frame. Explicitly raise an error if the stream fails to open a verified real source; do NOT fall back to synthetic data.
+- [X] T003 [P] Implement `code/src/data_loader.py` to stream RoboDojo parquet files from HuggingFace without loading full dataset into RAM
+ - **Implementation**: Use `datasets.load_dataset(..., streaming=True)` to iterate over the RoboDojo dataset shards. Do NOT load the full dataset into memory. Accumulate statistics online or process frame-by-frame. Explicitly raise an error if the stream fails to open a verified real source; do NOT fall back to synthetic data. Use dataset ID `RoboDojo/RoboDojo-v1` and commit `v.1`.
 - [ ] T004 [P] Implement `code/src/metrics_logger.py` to record CPU cycles, RAM usage, and wall-clock time for every task
 - [ ] T005 Create base entity schemas in `specs/001-symbolic-dojo-extend/contracts/` (SymbolicState, ExecutionOutcome, ComputeMetric)
 - [ ] T006 [P] Setup contract validation tests in `code/tests/contract/` using `pyyaml` and `jsonschema`
-- [ ] T046 [P] [Foundational] Define `replan_support` boolean flag in `SymbolicState` schema in `specs/001-symbolic-dojo-extend/contracts/symbolic_state.schema.yaml` to enable deterministic replanning logic in T028.
+- [ ] T046 [P] [Foundational] Define `replan_support` boolean flag in `SymbolicState` schema in `specs/001-symbolic-dojo-extend/contracts/symbolic_state.schema.yaml` to enable deterministic replanning logic in T025.
  - **Implementation**: Add `replan_support: boolean` field to the `SymbolicState` schema. Update `code/src/state_mapper.py` to populate this flag based on task metadata.
 - [ ] T007 Implement `code/src/main.py` orchestration script to chain data loading, planning, and logging
 
@@ -81,10 +84,11 @@
 ## Phase 2.5: Baseline Re-Execution (Priority: P0)
 
 **Goal**: Generate paired baseline data for statistical validity.
-**Dependencies**: Depends on Phase 2 (Foundational) completion.
+**Dependencies**: Depends on Phase 2 (Foundational) completion. Specifically depends on T003 for data access.
 
 - [ ] T000 [P] Execute the original GPU-based RoboDojo Neural Policy on a comprehensive suite of tasks in a high-fidelity simulated environment to generate `data/interim/baseline_results.parquet` labeled as 'Sim-Baseline'.
- - **Implementation**: Load the original RoboDojo Neural Policy weights from the RoboDojo v3.0.1 commit. Run the baseline model on each task in the high-fidelity simulated environment. **Run this task on a dedicated GPU instance (e.g., Kaggle GPU or separate CI job)** as the original policy is GPU-based. Record `ExecutionOutcome` (Success/Failure) for each task. **CRITICAL**: If the simulation environment fails to initialize or the model fails to load, the task MUST raise a `SimulationFailureError` and abort. Do NOT fallback to real-world execution or synthetic data. The 'Sim-Baseline' is the primary method for reproducibility (Plan.md Phase 0).
+ - **Implementation**: Load the original RoboDojo Neural Policy weights from HuggingFace dataset `RoboDojo/RoboDojo-v1`, commit `v.1`, file `weights/baseline_policy.pt`. Run the baseline model on each task in the high-fidelity simulated environment. **Run this task on a dedicated GPU instance (e.g., Kaggle GPU or separate CI job)** as the original policy is GPU-based. Record `ExecutionOutcome` (Success/Failure) for each task. **Contingency**: If the real-world robot is unavailable, log the result as 'Sim-Baseline' (this is a valid logged state, not synthetic data generation). **Do NOT fallback to synthetic data generation.** If the simulation environment fails to initialize (physics engine crash), the task MUST raise a `SimulationFailureError` and abort. **Dependencies**: This task depends on T003 for data ingestion infrastructure.
+ - **Dependencies**: Depends on T003.
 
 ---
 
@@ -93,12 +97,8 @@
 **Goal**: Train the low-level controller adapter without overfitting to the test set, then retrain on all data for final evaluation.
 **Dependencies**: This phase depends on Phase 2 (Foundational) completion.
 
-- [ ] T010 [P] Implement `code/src/controller_adapter.py` to define the "Linear Probe" architecture, then execute the following steps in order: 1. Split the tasks into a training set and a hold-out validation set using a fixed seed.. 2. Train the probe on the training tasks. 3. Save intermediate weights to `data/processed/adapter_weights_interim.pt`. 4. Validate on the hold-out tasks and record metrics.
- - **Implementation**: Use a set of real-world videos. Split 14/4 for validation of generalization. Train Linear Probe on frozen MobileViT features. **If validation metrics are below threshold, halt and report error; do not proceed to final retrain.**
-- [ ] T011 [P] Implement the logic in `code/src/controller_adapter.py` to validate the trained probe on the hold-out set and record metrics.
- - **Implementation**: Load `adapter_weights_interim.pt`. Run evaluation on Tasks 14-17. If validation fails, raise `ValidationFailedError`.
-- [ ] T012 [P] Implement the logic in `code/src/controller_adapter.py` to retrain the probe on ALL 18 tasks for the final evaluation if validation passed, and save the final weights to `data/processed/adapter_weights.pt`.
- - **Implementation**: Only proceed if T011 validation passed. Retrain on all 18 tasks. Save final weights.
+- [ ] T010 [P] Implement `code/src/controller_adapter.py` to define the "Linear Probe" architecture and execute the following atomic flow: 1. Split the tasks from `RoboDojo/RoboDojo-v1` (split="train", seed=42) into a training set and a hold-out validation set. 2. Train the probe on the training tasks. 3. Save intermediate weights to `data/processed/adapter_weights_interim.pt`. 4. Validate on the hold-out tasks. 5. **IF** validation metrics pass threshold, **THEN** retrain on all tasks and save final weights to `data/processed/adapter_weights.pt`. **IF** validation fails, raise `ValidationFailedError` and abort; do NOT produce final weights.
+ - **Implementation**: Use a fixed seed 42 for the split. Ensure the 'Retrain on ALL 18 tasks' step is mandatory and only executed if validation passes. The final artifact `adapter_weights.pt` must be the result of this retraining step. This task is atomic and sequential; [P] tag removed to reflect strict ordering.
 
 **Checkpoint**: Adapter ready for integration with US2
 
@@ -120,12 +120,13 @@
 ### Implementation for User Story 1
 
 - [ ] T013 [P] [US1] Implement `code/src/vision_encoder.py` using frozen MobileViT (CPU-only) to generate `SemanticEmbedding` from video frames
-- [ ] T014 [P] [US1] Implement `code/src/state_mapper.py` to map embeddings to discrete `SymbolicState` predicates (affordances, connectivity) excluding continuous physics
+- [ ] T014 [P] [US1] Implement `code/src/state_mapper.py` to map embeddings to discrete `SymbolicState` predicates (affordances, connectivity) explicitly excluding continuous physics dynamics (friction, mass).
+ - **Implementation**: Ensure the mapping logic explicitly filters out continuous physics variables. **Depends on T046**.
 - [ ] T015 [US1] Implement `code/src/planner.py` with A* algorithm to generate `ActionSequence` of sub-goals
 - [ ] T016 [US1] Add validation in `code/src/planner.py` to ensure generated sequences respect object affordances defined in the input graph
 - [ ] T017 [US1] Add logging in `code/src/planner.py` to record planning time and verify ≤ 60s constraint per task
-- [ ] T022 [US1] Implement memory-efficient streaming in `code/src/metrics_logger.py` to ensure total RAM usage remains ≤ 6 GB during planning. If RAM approaches 6 GB, **automatically reduce batch size to 1, downsample input frames, or skip non-critical logging**. Do NOT raise `ResourceLimitExceeded` or crash.
- - **Implementation**: Monitor RAM. If > 5.5 GB, trigger fallback (batch=1, downsample). If > 6 GB after fallback, log warning but continue (do not crash).
+- [ ] T022 [US1] Implement memory-efficient streaming in `code/src/metrics_logger.py` to ensure total RAM usage remains ≤ 6 GB during planning. If RAM approaches 6 GB, **raise `ResourceLimitExceeded` error and abort**. Do NOT downsample or skip logging.
+ - **Implementation**: Monitor RAM. If > 6 GB, raise `ResourceLimitExceeded`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -144,7 +145,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/src/executor.py` to run `ActionSequence` on the physical robot using the adapted controller (from T012).
+- [ ] T021 [US2] Implement `code/src/executor.py` to run `ActionSequence` on the physical robot using the adapted controller (from T010).
+ - **Implementation**: Use ROS topic `/robot/cmd_pose` and `rosbridge_library` for connection. If connection fails, raise `ConnectionError` and abort.
 - [ ] T023 [US2] Implement logic in `code/src/executor.py` to detect task completion (pose deviation ≤ 5cm, orientation ≤ 15°) and record `ExecutionOutcome`.
 - [ ] T024 [US2] Implement failure detection in `code/src/executor.py` to label failures as "Planner Infeasibility" or "Controller Execution Failure" and explicitly append this label and the outcome to `data/interim/execution_logs.parquet`.
  - **Implementation**: Ensure `failure_mode` column is written to the parquet file.
@@ -171,9 +173,12 @@
 
 - [ ] T032 [P] [US3] Implement `code/src/stats_analysis.py` to load baseline results from `data/interim/baseline_results.parquet` (from T000) and symbolic results from `data/interim/execution_logs.parquet`.
 - [ ] T033 [US3] Implement Wilcoxon signed-rank test in `code/src/stats_analysis.py` (null hypothesis: median difference = 0).
+- [ ] T033b [US3] Calculate rank-biserial correlation effect size in `code/src/stats_analysis.py`.
+- [ ] T033c [US3] Generate power analysis report text (including N=18 limitation) and write it to `data/final/statistical_report.txt`.
+ - **Implementation**: Explicitly include the text "Power Analysis: N=18" in the final report.
 - [ ] T034 [US3] Calculate percentage reduction in compute overhead (CPU cycles, memory) in `code/src/stats_analysis.py`. **Depends on T032 and T000 completion.**
 - [ ] T035 [US3] Generate report in `code/src/stats_analysis.py` explicitly stating whether the null hypothesis is rejected at α = 0.05.
-- [ ] T036 [US3] Implement calculation of catastrophic failure rate, compare the calculated rate against the explicit threshold of ≤ 5% defined in SC-005, and flag the result as Pass/Fail in the final report.
+- [ ] T036 [US3] Implement calculation of catastrophic failure rate (defined as "complete task abandonment due to unmodeled dynamics"), compare the calculated rate against the explicit threshold of ≤ 5% defined in SC-005, and flag the result as Pass/Fail in the final report. **Do NOT check for Hardware Error or Timeout.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -192,7 +197,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T037 [P] [US4] Implement `code/src/oracle_executor.py` as a simulated "Perfect Low-Level Executor" with ground-truth physics.
+- [ ] T037 [P] [US4] Implement `code/src/oracle_executor.py` as a simulated "Perfect Low-Level Executor" with ground-truth physics using MuJoCo physics engine, scene file `scene/robodojo_oracle.xml`, and ground-truth data source `ground_truth_poses.parquet`. **This is a diagnostic-only control experiment (Constitution Principle VI). It must not be used for primary metrics.**
 - [ ] T038 [US4] Execute `ActionSequence` (from T015) against the Oracle in `code/src/oracle_executor.py` and record success rate, generating `data/interim/oracle_results.json`.
  - **Implementation**: Run the full loop of symbolic plans against the Oracle and persist results to JSON.
 - [ ] T041 [US4] Calculate "Physics Fidelity Gap" (Oracle success rate - Real-World success rate) in `code/src/stats_analysis.py` using data from T038 and T026, and write the result to `data/interim/oracle_results.json` as a distinct diagnostic output.
@@ -212,8 +217,10 @@
 
 - [ ] T042 [P] [US3] Implement "Full Affordance Graph" mode in `code/src/state_mapper.py`
 - [ ] T043 [P] [US3] Implement "Simplified Connectivity Graph" mode in `code/src/state_mapper.py`
-- [ ] T044 [US3] Orchestrate the comparative execution of both graph modes (Full vs Simplified) using the pipeline from US1 and US2, and generate `data/interim/ablation_results.parquet`. **Depends on T042, T043, and US1/US2 completion.**
- - **Implementation**: Run US1 & US2 with Full Graph, then with Simplified Graph. Compare results and save to parquet. Requires US1 and US2 completion.
+- [ ] T044a [US3] Orchestrate the comparative execution of both graph modes (Full vs Simplified) using the pipeline from US1 and US2. **Depends on T042, T043, and US1/US2 completion.**
+ - **Implementation**: Run US1 & US2 with Full Graph, then with Simplified Graph.
+- [ ] T044b [US3] Perform statistical comparison of the results (success rates, compute overhead) between the two modes and **generate `data/interim/ablation_results.parquet`** with the comparative metrics as the primary deliverable.
+ - **Implementation**: Calculate and save comparative metrics to `ablation_results.parquet`.
 - [ ] T045 [US3] Generate final statistical report in `data/final/statistical_report.txt` including limitations (N=18).
 
 ---

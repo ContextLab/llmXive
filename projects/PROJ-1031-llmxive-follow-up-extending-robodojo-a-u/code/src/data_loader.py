@@ -43,12 +43,18 @@ def stream_robodojo_tasks(
     
     # Configure dataset loading with specific revision to ensure reproducibility
     # per spec requirement for commit hash v3.0.1 (mapped to DATASET_COMMIT_HASH in config)
-    ds = load_dataset(
-        DATASET_HF_ID,
-        split=split,
-        streaming=streaming,
-        revision=DATASET_COMMIT_HASH
-    )
+    try:
+        ds = load_dataset(
+            DATASET_HF_ID,
+            split=split,
+            streaming=streaming,
+            revision=DATASET_COMMIT_HASH
+        )
+    except Exception as e:
+        raise RuntimeError(
+            f"Failed to load RoboDojo dataset from real source ({DATASET_HF_ID} @ {DATASET_COMMIT_HASH}). "
+            f"Verify internet connection and dataset ID. Error: {e}"
+        ) from e
     
     logger.info("Dataset loaded successfully. Iterating...")
     
@@ -87,11 +93,17 @@ def get_dataset_info() -> Dict[str, Any]:
     """
     # Note: With streaming=True, len() is not available immediately without counting.
     # We load metadata without streaming to get feature info.
-    ds = load_dataset(
-        DATASET_HF_ID,
-        revision=DATASET_COMMIT_HASH,
-        streaming=False
-    )
+    try:
+        ds = load_dataset(
+            DATASET_HF_ID,
+            revision=DATASET_COMMIT_HASH,
+            streaming=False
+        )
+    except Exception as e:
+        raise RuntimeError(
+            f"Failed to fetch dataset info from real source ({DATASET_HF_ID} @ {DATASET_COMMIT_HASH}). "
+            f"Error: {e}"
+        ) from e
     
     # If the dataset has multiple splits, return info for the first one or a summary
     if hasattr(ds, 'keys'):

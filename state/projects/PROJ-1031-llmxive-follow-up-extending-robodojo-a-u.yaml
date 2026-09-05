@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-10T03:42:35.228521Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1031-llmxive-follow-up-extending-robodojo-a-u
-last_run_id: 5096ad9e-29d9-478a-ad8e-df3693edec2b
+last_run_id: 881d12f4-1802-40af-af6d-eaff1c9289a7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u
 title: 'llmXive follow-up: extending "RoboDojo: A Unified Sim-and-Real Benchmark for
   Comprehensive Evaluatio"'
-updated_at: '2026-09-04T04:53:45.522830Z'
+updated_at: '2026-09-05T07:59:00.121083Z'

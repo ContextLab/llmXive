@@ -1,3 +1,3 @@
 """
-Integration Tests Package
+Integration tests for end-to-end workflows.
 """
