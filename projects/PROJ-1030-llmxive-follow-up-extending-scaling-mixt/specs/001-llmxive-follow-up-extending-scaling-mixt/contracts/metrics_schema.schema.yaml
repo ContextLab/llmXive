@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Classifier Metrics Schema"
+description: "Schema for evaluation metrics output by train_classifier.py"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used (e.g., random_forest, mlp)"
+  f1_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "F1-score on the held-out test set"
+  precision:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Precision on the held-out test set"
+  recall:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Recall on the held-out test set"
+  accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy on the held-out test set"
+  feature_importance:
+    type: "array"
+    description: "List of feature importance scores (KernelSHAP or Permutation)"
+    items:
+      type: "number"
+  sample_size:
+    type: "integer"
+    description: "Number of samples in the test set"
+  achieved_power:
+    type: "number"
+    description: "Statistical power achieved for the given sample size (if < 0.8)"
+  min_detectable_effect:
+    type: "number"
+    description: "Minimum detectable effect size (Cohen's h) for the given sample size"
+required:
+  - model_type
+  - f1_score
+  - precision
+  - recall
+  - accuracy
+  - sample_size
+  - achieved_power
+  - min_detectable_effect
+additionalProperties: false

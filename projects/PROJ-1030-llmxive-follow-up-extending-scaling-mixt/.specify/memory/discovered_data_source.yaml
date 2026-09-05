@@ -1,0 +1,14 @@
+status: none
+intent: LingBot-Video model and video clip subset download from HuggingFace or GitHub
+  python package dataset
+required_fields:
+- clip_id
+- video_url
+- file_name
+- duration_seconds
+- frame_rate
+- resolution
+- subset_category
+cache_key: 78532e65bf56e54d28f5ae7f251a2f3c558b3d8b8c4ebdac719f9207e0454ce4
+searched_at: '2026-09-05T14:44:25.785989+00:00'
+retry_count: 1

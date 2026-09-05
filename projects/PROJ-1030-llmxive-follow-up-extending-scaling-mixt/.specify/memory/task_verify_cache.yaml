@@ -1,0 +1,52 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories (`code`, `code/utils`,
+    `data/raw`, `data/processed`, `tests/unit`, `tests/integration`, `docs/figures`,
+    `state`) were actually created; the response contains only the task description
+    and no filesystem artifacts. The implementer must supply proof (e.g., a directory
+    listing or screenshots) that the specified project structure exists.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains only a feature specification for video model\
+    \ extraction and labeling; there are no files such as a `pyproject.toml`, `ruff.toml`,\
+    \ `.pre-commit-config.yaml`, or any scripts showing that ruff and black have been\
+    \ configured or added as pre\u2011commit hooks. Consequently, the required linting/formatting\
+    \ setup is missing."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided material contains only the feature specification and user stories\
+    \ for data extraction and labeling; there are no code, configuration files, or\
+    \ documentation showing that error handling, logging infrastructure, or a \u201C\
+    FAIL LOUDLY\u201D mechanism for data fetching has been implemented. Consequently,\
+    \ the required artifact for task T008 is missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, code, or output files were provided that demonstrate a `torch.no_grad()`\
+    \ inference pipeline extracting latent vectors and binary expert masks from intermediate\
+    \ DiT layers, nor any saved NumPy arrays confirming the required data. The necessary\
+    \ artifact (the extraction script and its non\u2011empty results) is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the frame\u2011subsampling/temporal\u2011\
+    chunking strategy was provided, nor any logs or output showing that video clips\
+    \ are processed within a 7\u202FGB RAM limit. Without these artifacts, the requirement\
+    \ cannot be confirmed as met."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation was provided showing that download failures
+    are now wrapped with exponential backoff and that the process fails gracefully
+    without using a synthetic fallback. The required implementation artifact is missing,
+    so the task is not verified as completed.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were presented that implement logging of
+    extraction progress or memory usage. The evidence consists only of the task description
+    and project context, without any concrete artifact demonstrating the required
+    logging functionality.
