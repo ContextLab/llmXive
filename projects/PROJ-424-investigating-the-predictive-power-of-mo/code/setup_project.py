@@ -2,59 +2,77 @@ import os
 import sys
 from pathlib import Path
 
-def create_directory_structure():
+def create_directory_structure(base_dir: Path) -> None:
     """
-    Creates the required project directory structure for PROJ-424.
-    Directories created relative to the project root:
+    Creates the standard project directory structure for llmXive science pipeline.
+    
+    Directories created:
     - code/
     - data/raw/
     - data/processed/
     - data/interim/
     - tests/unit/
     - tests/integration/
-    """
-    # Determine the project root. 
-    # We assume the script is run from the project root or the code directory.
-    # To be safe, we resolve relative to the script's location if it's in 'code',
-    # otherwise relative to current working directory.
-    script_path = Path(__file__).resolve()
-    if script_path.name == 'setup_project.py':
-        # If run directly, assume current directory is project root
-        root = Path.cwd()
-    else:
-        # If imported, try to find root relative to 'code' folder
-        code_dir = script_path.parent
-        if code_dir.name == 'code':
-            root = code_dir.parent
-        else:
-            root = Path.cwd()
     
-    # Define relative paths
-    dirs = [
+    Args:
+        base_dir: The root directory where the structure will be created.
+    """
+    directories = [
         "code",
         "data/raw",
         "data/processed",
         "data/interim",
         "tests/unit",
-        "tests/integration"
+        "tests/integration",
     ]
     
-    created_count = 0
-    for d in dirs:
-        target = root / d
-        if not target.exists():
-            target.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {target}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {target}")
+    created = []
+    for dir_path in directories:
+        full_path = base_dir / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created.append(str(full_path))
+        print(f"Created directory: {full_path}")
     
-    return created_count
+    return created
 
-def main():
-    count = create_directory_structure()
-    print(f"Setup complete. {count} new directories created.")
-    return 0
+def main() -> None:
+    """Entry point for project structure initialization."""
+    # Determine the project root based on the task description
+    # The task specifies the project is at: projects/PROJ-424-investigating-the-predictive-power-of-mo/
+    # However, since we are running from within the project context, we assume the current 
+    # working directory or the parent of this script is the project root.
+    
+    # Strategy: Look for the project marker or use the script's parent directory
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent if script_path.name == "setup_project.py" else script_path.parent
+    
+    # If we are in code/setup_project.py, the project root is two levels up
+    if "code" in script_path.relative_to(project_root).parts:
+        project_root = script_path.parent.parent
+    
+    print(f"Initializing project structure at: {project_root}")
+    
+    try:
+        created_dirs = create_directory_structure(project_root)
+        print(f"Successfully created {len(created_dirs)} directories.")
+        
+        # Log success
+        from utils.logging import get_logger
+        logger = get_logger(__name__)
+        logger.info("Project structure initialized successfully", extra={
+            "event_type": "project_init",
+            "directories": created_dirs
+        })
+        
+    except Exception as e:
+        print(f"Error creating directory structure: {e}")
+        from utils.logging import get_logger
+        logger = get_logger(__name__)
+        logger.error("Failed to initialize project structure", extra={
+            "event_type": "project_init_failed",
+            "error": str(e)
+        })
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: bootstrap_stats.schema.yaml
+title: Bootstrap Statistics
+description: Schema for bootstrap resampling statistics on MAE distributions.
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: Identifier for the batch experiment.
+  iterations:
+    type: integer
+    minimum: 1
+    description: Number of bootstrap iterations performed.
+  mean_mae:
+    type: number
+    description: Mean Absolute Error across all bootstrap samples.
+  ci_lower_95:
+    type: number
+    description: Lower bound of the 95% confidence interval.
+  ci_upper_95:
+    type: number
+    description: Upper bound of the 95% confidence interval.
+  solvent_breakdown:
+    type: array
+    description: Detailed stats per solvent-timescale combination.
+    items:
+      type: object
+      properties:
+        solvent:
+          type: string
+        timescale_ns:
+          type: number
+        mean_mae:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+      required:
+      - solvent
+      - timescale_ns
+      - mean_mae
+      - ci_lower
+      - ci_upper
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of generation.
+required:
+- experiment_id
+- iterations
+- mean_mae
+- ci_lower_95
+- ci_upper_95
+- generated_at

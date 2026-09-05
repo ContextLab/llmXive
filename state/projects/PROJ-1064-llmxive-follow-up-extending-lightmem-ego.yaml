@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-15T03:58:25.821585Z'
-current_stage: validated
+current_stage: project_initialized
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-1064-llmxive-follow-up-extending-lightmem-ego
-last_run_id: 723b6194-47a8-42d5-859f-e6908abdc5de
+last_run_id: 73509000-be5d-433c-bd6c-f43a6538fb20
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "LightMem-Ego: Your AI Memory for Everyday Life"'
-updated_at: '2026-07-29T04:22:51.639776Z'
+updated_at: '2026-09-05T21:17:44.892562Z'

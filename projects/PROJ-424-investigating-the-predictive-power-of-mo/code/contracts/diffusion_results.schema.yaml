@@ -1,0 +1,59 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: diffusion_results.schema.yaml
+title: Diffusion Results
+description: Schema for diffusion coefficient calculation results from MD simulations.
+type: object
+properties:
+  run_id:
+    type: string
+    description: Unique identifier for the simulation run.
+  solvent:
+    type: string
+    enum:
+    - water
+    - ethanol
+    - acetone
+    description: The solvent type simulated.
+  timescale_ns:
+    type: number
+    description: Simulation duration in nanoseconds.
+  msd_r_squared:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: R-squared value of the linear regression on MSD.
+  diffusion_coefficient:
+    type: number
+    description: Calculated diffusion coefficient (e.g., in nm^2/ns).
+  scaled_diffusion_coefficient:
+    type: number
+    description: Diffusion coefficient after applying solvent-specific scaling factor.
+  nist_reference:
+    type: number
+    description: Experimental reference value from NIST.
+  absolute_error:
+    type: number
+    description: Absolute error between scaled coefficient and NIST reference.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the analysis.
+  status:
+    type: string
+    enum:
+    - success
+    - failed
+    - warning
+    description: Status of the analysis.
+  error_message:
+    type:
+    - string
+    - 'null'
+    description: Error message if status is failed or warning.
+required:
+- run_id
+- solvent
+- timescale_ns
+- diffusion_coefficient
+- timestamp
+- status

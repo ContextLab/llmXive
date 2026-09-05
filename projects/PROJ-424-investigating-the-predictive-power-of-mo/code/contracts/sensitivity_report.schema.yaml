@@ -1,0 +1,49 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: sensitivity_report.schema.yaml
+title: Sensitivity Report
+description: Schema for sensitivity analysis results regarding regression start times.
+type: object
+properties:
+  run_id:
+    type: string
+    description: Identifier for the run being analyzed.
+  total_trajectory_length_ns:
+    type: number
+    description: Total length of the trajectory in ns.
+  variance_threshold:
+    type: number
+    description: Maximum allowed variance percentage (e.g., 5.0).
+  is_stable:
+    type: boolean
+    description: True if variance in D values is below threshold.
+  sensitivity_points:
+    type: array
+    description: List of results for each sweep point.
+    items:
+      type: object
+      properties:
+        start_time_fraction:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Fraction of trajectory used as start time.
+        diffusion_coefficient:
+          type: number
+          description: Calculated D for this start time.
+        msd_r_squared:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+      required:
+      - start_time_fraction
+      - diffusion_coefficient
+      - msd_r_squared
+  generated_at:
+    type: string
+    format: date-time
+required:
+- run_id
+- total_trajectory_length_ns
+- is_stable
+- sensitivity_points
+- generated_at

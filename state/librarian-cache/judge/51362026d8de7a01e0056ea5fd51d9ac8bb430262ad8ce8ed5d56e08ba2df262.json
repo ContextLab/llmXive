@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2112.03763",
+  "judged_at": "2026-09-05T21:40:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mmskills: towards multimodal skills for general visual agents\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents foundational work on designing multimodal interactive agents using imitation and self-supervised learning, which directly addresses the core mechanism and domain of \"Multimodal Skills for General Visual Agents\" referenced in the user's question. It serves as a canonical prior work for the architectural and algorithmic techniques (e.g., hierarchical action selection, behavioral priors) that a literature review on extending MMSkills would ne",
+  "relevant": true
+}

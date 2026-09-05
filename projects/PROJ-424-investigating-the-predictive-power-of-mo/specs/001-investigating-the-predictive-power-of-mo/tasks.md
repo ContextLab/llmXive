@@ -89,13 +89,13 @@
 
 - [X] T014 [P] [US1] Implement `code/simulation/topology.py` to generate MARTINI topology files (.gro,.top) for water, ethanol, and acetone
 - [X] T015 [US1] Implement `code/simulation/runner.py` to execute GROMACS/LAMMPS simulations with timeout (h limit), density convergence check (±1% over 200ps), and non-equilibration flagging. **Must generate or load specific.gro,.top, and.mdp files** derived from T014 outputs with explicit NPT/production parameters. **Uses R² ≥ 0.95 threshold** (per Constitution, pending T008a).
-- [ ] T016 [US1] Implement `code/analysis/msd.py` to:
+- [X] T016 [US1] Implement `code/analysis/msd.py` to:
  - Extract MSD trajectory from simulation output
  - Perform linear regression (MSD vs. time)
  - Validate linearity (R² ≥ 0.95) citing **Constitution Principle VI** and **T008a** as the authority for this threshold
  - Calculate diffusion coefficient and apply solvent-specific scaling factors
 - [X] T017 [US1] Implement `code/reporting/plots.py` to generate timescale-accuracy curves (MAE vs. Duration) with uncertainty bands
-- [ ] T018 [US1] Implement `code/main.py` pipeline entry point to orchestrate: topology gen → simulation → MSD extraction → diffusion calc → MAE calculation → plotting
+- [X] T018 [US1] Implement `code/main.py` pipeline entry point to orchestrate: topology gen → simulation → MSD extraction → diffusion calc → MAE calculation → plotting
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,18 +109,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
+- [X] T019 [P] [US2] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
 - [X] T020 [P] [US2] Integration test for variance threshold check in `tests/integration/test_sensitivity.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/analysis/sensitivity.py` to:
+- [X] T021 [US2] Implement `code/analysis/sensitivity.py` to:
  - Sweep regression start times at **[deferred], [deferred], and [deferred]** (0.1, 0.2, 0.3) of total trajectory length as defined in Plan and US-2 (pending T008c).
  - Calculate diffusion coefficient for each start time
  - Compute variance and flag if > 5%
  - Output `sensitivity_report` schema
-- [ ] T022 [US2] Integrate sensitivity analysis into `code/main.py` (runs after primary analysis for each solvent-timescale)
-- [ ] T023 [US2] Add logging for sensitivity results in `code/utils/logging.py`
+- [X] T022 [US2] Integrate sensitivity analysis into `code/main.py` (runs after primary analysis for each solvent-timescale)
+- [X] T023 [US2] Add logging for sensitivity results in `code/utils/logging.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,12 +134,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_bootstrap.py`
-- [ ] T025 [P] [US3] Unit test for CI calculation and fallback logic in `tests/unit/test_bootstrap.py`
+- [X] T024 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_bootstrap.py`
+- [X] T025 [P] [US3] Unit test for CI calculation and fallback logic in `tests/unit/test_bootstrap.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/analysis/bootstrap.py` to:
+- [X] T026 [US3] Implement `code/analysis/bootstrap.py` to:
  - Perform bootstrap iterations on MAE distribution
  - Implement fallback to 100 iterations if wall-clock time > 5.5h
  - Calculate confidence intervals (percentile method)

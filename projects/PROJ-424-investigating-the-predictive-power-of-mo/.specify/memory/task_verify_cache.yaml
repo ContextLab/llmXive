@@ -1,17 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or file tree was provided showing the required `code/`,
-    `data/raw/`, `data/processed/`, `data/interim/`, `tests/unit/`, and `tests/integration/`
-    folders under `projects/PROJ-424-investigating-the-predictive-power-of-mo/`. Without
-    concrete evidence of these directories, the task requirement is not satisfied.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`,
-    `.ruff.toml`, `.pre-commit-config.yaml`) or related setup scripts are present
-    in `projects/PROJ-424-investigating-the-predictive-power-of-mo/`. Without such
-    artifacts, the claim of having configured the tools cannot be verified.
 T004:
   c: false
   h: b7b382d2dc039d2c19f86e77fcfa54066e69fc9773532278f99b9a7af01f7629
@@ -25,19 +11,6 @@ T006a:
     \ for `data/raw/nist_refs.json`, raises a `DataValidationError` with a clear message\
     \ directing the user to task\u202FT006b, and contains no network\u2011fetch logic.\
     \ This matches the task specification."
-T008a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file (or excerpt showing FR\u2011008 with the R\xB2 threshold\
-    \ changed to\u202F0.95) is provided. The claim lacks the required artifact demonstrating\
-    \ the specification change, so the task is not satisfied."
-T008b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `spec.md` file was provided; the claim that SC-005 was edited to\
-    \ replace \u201Cbootstrap difference-of-means test (p \u2264 0.05)\u201D with\
-    \ \u201Cdescriptive trend analysis\u201D cannot be verified. The required artifact\
-    \ (the modified spec document) is missing."
 T008c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

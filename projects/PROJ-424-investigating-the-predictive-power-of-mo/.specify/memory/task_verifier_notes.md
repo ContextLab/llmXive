@@ -10,7 +10,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T008c** — No updated `spec.md` file was provided; without the actual document we cannot verify that SC‑003 now defines the sensitivity sweep parameters as low, medium, and high percentages and that the `[deferred]` tag was removed. The required artifact is missing.
 - **T009** — No files or code snippets for `code/data_models/diffusion_results`, `bootstrap_stats`, or `sensitivity_report` schemas were presented. The required schema definitions are missing, so the task is not satisfied.
 - **T010** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T016** — declared artifact(s) missing/empty/invalid: code/analysis/msd.py
-- **T018** — declared artifact(s) missing/empty/invalid: code/main.py
-- **T019** — The required artifact `tests/unit/test_sensitivity.py` does not exist on disk, so no unit test for the sensitivity sweep logic is provided. The task remains undone until the file is created with appropriate test code.
-- **T021** — declared artifact(s) missing/empty/invalid: code/analysis/sensitivity.py

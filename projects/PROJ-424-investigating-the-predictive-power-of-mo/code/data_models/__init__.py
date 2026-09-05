@@ -1,19 +1,17 @@
 """
 Data models for the MD Diffusion Predictive Power project.
 
-This module contains Pydantic schemas for validating and serializing
-simulation results, statistical outputs, and analysis reports.
+This package contains Pydantic-style dataclasses for schema definition
+and validation of core artifacts: diffusion results, bootstrap statistics,
+and sensitivity reports.
 """
 
-from .diffusion_results import DiffusionResult, DiffusionResultsList
-from .bootstrap_stats import BootstrapStats, BootstrapStatsList
-from .sensitivity_report import SensitivityReport, SensitivityReportList
+from .diffusion_results import DiffusionResults
+from .bootstrap_stats import BootstrapStats
+from .sensitivity_report import SensitivityReport
 
 __all__ = [
-    "DiffusionResult",
-    "DiffusionResultsList",
+    "DiffusionResults",
     "BootstrapStats",
-    "BootstrapStatsList",
-    "SensitivityReport",
-    "SensitivityReportList",
+    "SensitivityReport"
 ]

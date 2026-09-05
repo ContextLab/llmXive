@@ -1,237 +1,221 @@
-"""
-Schema Generator for llmXive Research Pipeline.
-
-This module generates JSON Schema YAML files for data validation artifacts.
-It is the implementation artifact for Task T010.
-
-Usage:
-    python code/utils/schema_generator.py
-    
-This will generate:
-    - contracts/diffusion_results.schema.yaml
-    - contracts/bootstrap_stats.schema.yaml
-    - contracts/sensitivity_report.schema.yaml
-"""
 import os
 import yaml
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any
 
-# Ensure the contracts directory exists
-CONTRACTS_DIR = Path(__file__).parent.parent.parent / "contracts"
-CONTRACTS_DIR.mkdir(parents=True, exist_ok=True)
+# Import data models to access their structure/fields if needed, 
+# though we will define schemas explicitly to match JSON Schema draft 7/2020-12
+# The API surface shows these exist:
+# from data_models.diffusion_results import DiffusionResults
+# from data_models.bootstrap_stats import BootstrapStats
+# from data_models.sensitivity_report import SensitivityReport
 
 def generate_diffusion_results_schema() -> Dict[str, Any]:
+    """Generate JSON Schema for diffusion_results artifacts."""
     return {
         "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "diffusion_results.schema.yaml",
         "title": "Diffusion Results",
-        "description": "Schema for storing diffusion coefficient results extracted from MD simulations.",
+        "description": "Schema for diffusion coefficient calculation results from MD simulations.",
         "type": "object",
-        "required": [
-            "experiment_id", "solvent", "timescale_ns", "force_field",
-            "msd_r_squared", "diffusion_coefficient", "scaled_diffusion_coefficient",
-            "nist_reference", "mae", "timestamp"
-        ],
         "properties": {
-            "experiment_id": {
+            "run_id": {
                 "type": "string",
-                "description": "Unique identifier for the simulation run"
+                "description": "Unique identifier for the simulation run."
             },
             "solvent": {
                 "type": "string",
                 "enum": ["water", "ethanol", "acetone"],
-                "description": "Solvent type simulated"
+                "description": "The solvent type simulated."
             },
             "timescale_ns": {
                 "type": "number",
-                "minimum": 0,
-                "description": "Simulation duration in nanoseconds"
-            },
-            "force_field": {
-                "type": "string",
-                "description": "Force field used (e.g., MARTINI)"
+                "description": "Simulation duration in nanoseconds."
             },
             "msd_r_squared": {
                 "type": "number",
-                "minimum": 0,
-                "maximum": 1,
-                "description": "R-squared value from linear regression of MSD vs time"
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": "R-squared value of the linear regression on MSD."
             },
             "diffusion_coefficient": {
                 "type": "number",
-                "description": "Raw diffusion coefficient calculated from MSD slope (Å²/ns)"
+                "description": "Calculated diffusion coefficient (e.g., in nm^2/ns)."
             },
             "scaled_diffusion_coefficient": {
                 "type": "number",
-                "description": "Diffusion coefficient after applying solvent-specific scaling factor"
+                "description": "Diffusion coefficient after applying solvent-specific scaling factor."
             },
             "nist_reference": {
                 "type": "number",
-                "description": "Experimental diffusion coefficient from NIST (Å²/ns)"
+                "description": "Experimental reference value from NIST."
             },
-            "mae": {
+            "absolute_error": {
                 "type": "number",
-                "description": "Mean Absolute Error between scaled simulation and NIST reference"
+                "description": "Absolute error between scaled coefficient and NIST reference."
             },
             "timestamp": {
                 "type": "string",
                 "format": "date-time",
-                "description": "ISO 8601 timestamp of when the result was generated"
+                "description": "ISO 8601 timestamp of the analysis."
             },
-            "simulation_path": {
+            "status": {
                 "type": "string",
-                "description": "Relative path to the simulation output files"
+                "enum": ["success", "failed", "warning"],
+                "description": "Status of the analysis."
             },
-            "log_path": {
-                "type": "string",
-                "description": "Relative path to the simulation log file"
+            "error_message": {
+                "type": ["string", "null"],
+                "description": "Error message if status is failed or warning."
             }
         },
-        "additionalProperties": False
+        "required": ["run_id", "solvent", "timescale_ns", "diffusion_coefficient", "timestamp", "status"]
     }
 
 def generate_bootstrap_stats_schema() -> Dict[str, Any]:
+    """Generate JSON Schema for bootstrap_stats artifacts."""
     return {
         "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "bootstrap_stats.schema.yaml",
         "title": "Bootstrap Statistics",
-        "description": "Schema for bootstrap resampling statistics on Mean Absolute Error (MAE).",
+        "description": "Schema for bootstrap resampling statistics on MAE distributions.",
         "type": "object",
-        "required": [
-            "experiment_id", "solvent", "timescale_ns", "bootstrap_iterations",
-            "mae_mean", "mae_ci_lower", "mae_ci_upper", "ci_level", "timestamp"
-        ],
         "properties": {
             "experiment_id": {
                 "type": "string",
-                "description": "Unique identifier linking to the diffusion results"
+                "description": "Identifier for the batch experiment."
             },
-            "solvent": {
-                "type": "string",
-                "enum": ["water", "ethanol", "acetone"],
-                "description": "Solvent type"
-            },
-            "timescale_ns": {
-                "type": "number",
-                "minimum": 0,
-                "description": "Simulation duration in nanoseconds"
-            },
-            "bootstrap_iterations": {
+            "iterations": {
                 "type": "integer",
                 "minimum": 1,
-                "description": "Number of bootstrap iterations performed"
+                "description": "Number of bootstrap iterations performed."
             },
-            "mae_mean": {
+            "mean_mae": {
                 "type": "number",
-                "description": "Mean of the bootstrap MAE distribution"
+                "description": "Mean Absolute Error across all bootstrap samples."
             },
-            "mae_ci_lower": {
+            "ci_lower_95": {
                 "type": "number",
-                "description": "Lower bound of the confidence interval (percentile method)"
+                "description": "Lower bound of the 95% confidence interval."
             },
-            "mae_ci_upper": {
+            "ci_upper_95": {
                 "type": "number",
-                "description": "Upper bound of the confidence interval (percentile method)"
+                "description": "Upper bound of the 95% confidence interval."
             },
-            "ci_level": {
-                "type": "number",
-                "description": "Confidence level (e.g., 0.95 for 95% CI)"
+            "solvent_breakdown": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "solvent": {"type": "string"},
+                        "timescale_ns": {"type": "number"},
+                        "mean_mae": {"type": "number"},
+                        "ci_lower": {"type": "number"},
+                        "ci_upper": {"type": "number"}
+                    },
+                    "required": ["solvent", "timescale_ns", "mean_mae", "ci_lower", "ci_upper"]
+                },
+                "description": "Detailed stats per solvent-timescale combination."
             },
-            "timestamp": {
+            "generated_at": {
                 "type": "string",
                 "format": "date-time",
-                "description": "ISO 8601 timestamp of generation"
-            },
-            "fallback_triggered": {
-                "type": "boolean",
-                "description": "True if the iteration count was reduced due to wall-clock time limits"
+                "description": "ISO 8601 timestamp of generation."
             }
         },
-        "additionalProperties": False
+        "required": ["experiment_id", "iterations", "mean_mae", "ci_lower_95", "ci_upper_95", "generated_at"]
     }
 
 def generate_sensitivity_report_schema() -> Dict[str, Any]:
+    """Generate JSON Schema for sensitivity_report artifacts."""
     return {
         "$schema": "http://json-schema.org/draft-07/schema#",
+        "$id": "sensitivity_report.schema.yaml",
         "title": "Sensitivity Report",
-        "description": "Schema for sensitivity analysis results across regression start times.",
+        "description": "Schema for sensitivity analysis results regarding regression start times.",
         "type": "object",
-        "required": [
-            "experiment_id", "solvent", "timescale_ns", "start_time_percentages",
-            "diffusion_coefficients", "variance_percentage", "passes_threshold", "timestamp"
-        ],
         "properties": {
-            "experiment_id": {
+            "run_id": {
                 "type": "string",
-                "description": "Unique identifier linking to the diffusion results"
+                "description": "Identifier for the run being analyzed."
             },
-            "solvent": {
-                "type": "string",
-                "enum": ["water", "ethanol", "acetone"],
-                "description": "Solvent type"
-            },
-            "timescale_ns": {
+            "total_trajectory_length_ns": {
                 "type": "number",
-                "minimum": 0,
-                "description": "Simulation duration in nanoseconds"
+                "description": "Total length of the trajectory in ns."
             },
-            "start_time_percentages": {
-                "type": "array",
-                "items": {
-                    "type": "number",
-                    "minimum": 0,
-                    "maximum": 1
-                },
-                "description": "List of regression start time percentages (e.g., [0.1, 0.2, 0.3])"
-            },
-            "diffusion_coefficients": {
-                "type": "array",
-                "items": {
-                    "type": "number"
-                },
-                "description": "Calculated diffusion coefficients for each start time"
-            },
-            "variance_percentage": {
+            "variance_threshold": {
                 "type": "number",
-                "description": "Variance of diffusion coefficients expressed as a percentage of the mean"
+                "description": "Maximum allowed variance percentage (e.g., 5.0)."
             },
-            "passes_threshold": {
+            "is_stable": {
                 "type": "boolean",
-                "description": "True if variance_percentage < 5.0"
+                "description": "True if variance in D values is below threshold."
             },
-            "timestamp": {
+            "sensitivity_points": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "start_time_fraction": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0,
+                            "description": "Fraction of trajectory used as start time."
+                        },
+                        "diffusion_coefficient": {
+                            "type": "number",
+                            "description": "Calculated D for this start time."
+                        },
+                        "msd_r_squared": {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0
+                        }
+                    },
+                    "required": ["start_time_fraction", "diffusion_coefficient", "msd_r_squared"]
+                },
+                "description": "List of results for each sweep point."
+            },
+            "generated_at": {
                 "type": "string",
-                "format": "date-time",
-                "description": "ISO 8601 timestamp of generation"
-            },
-            "details": {
-                "type": "object",
-                "description": "Optional detailed breakdown per start time",
-                "additionalProperties": True
+                "format": "date-time"
             }
         },
-        "additionalProperties": False
+        "required": ["run_id", "total_trajectory_length_ns", "is_stable", "sensitivity_points", "generated_at"]
     }
 
-def write_schema(schema: Dict[str, Any], filename: str) -> None:
-    filepath = CONTRACTS_DIR / filename
-    with open(filepath, 'w', encoding='utf-8') as f:
+def write_schema(schema: Dict[str, Any], filename: str, output_dir: Path) -> None:
+    """Write a schema dictionary to a YAML file."""
+    output_path = output_dir / filename
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    print(f"Generated: {filepath}")
+    
+    print(f"Schema written to: {output_path}")
 
-def main():
-    print(f"Generating JSON Schema YAML files in {CONTRACTS_DIR}...")
+def main() -> None:
+    """Main entry point to generate all contract schemas."""
+    # Determine output directory based on project structure
+    # Assuming this script runs from the project root or code/ directory
+    current_dir = Path(__file__).parent
+    project_root = current_dir.parent.parent
+    contracts_dir = project_root / "contracts"
     
-    # Generate Diffusion Results Schema
-    write_schema(generate_diffusion_results_schema(), "diffusion_results.schema.yaml")
+    # Ensure contracts directory exists
+    contracts_dir.mkdir(parents=True, exist_ok=True)
     
-    # Generate Bootstrap Stats Schema
-    write_schema(generate_bootstrap_stats_schema(), "bootstrap_stats.schema.yaml")
+    schemas = [
+        (generate_diffusion_results_schema(), "diffusion_results.schema.yaml"),
+        (generate_bootstrap_stats_schema(), "bootstrap_stats.schema.yaml"),
+        (generate_sensitivity_report_schema(), "sensitivity_report.schema.yaml")
+    ]
     
-    # Generate Sensitivity Report Schema
-    write_schema(generate_sensitivity_report_schema(), "sensitivity_report.schema.yaml")
+    for schema, filename in schemas:
+        write_schema(schema, filename, contracts_dir)
     
-    print("Schema generation complete.")
+    print("All schemas generated successfully.")
 
 if __name__ == "__main__":
     main()

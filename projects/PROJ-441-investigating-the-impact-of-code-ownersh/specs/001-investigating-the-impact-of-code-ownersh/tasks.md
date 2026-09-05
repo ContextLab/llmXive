@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (mkdir -p code/{extractors,inference,analysis,utils}, data/{raw,processed,results}, tests)
-- [ ] T002 Initialize Python 3.11 project with pinned requirements.txt (gitpython, radon, scikit-learn, transformers, torch==2.3.0+cpu, pandas, scipy, pyyaml, statsmodels, bitsandbytes-cpu) ensuring CPU-only torch variant and bitsandbytes-cpu are explicitly specified for SC-004 compliance
+- [X] T002 Initialize Python 3.11 project with pinned requirements.txt (gitpython, radon, scikit-learn, transformers, torch==2.3.0+cpu, pandas, scipy, pyyaml, statsmodels, bitsandbytes-cpu) ensuring CPU-only torch variant and bitsandbytes-cpu are explicitly specified for SC-004 compliance
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in code/
 
 ---
@@ -56,9 +56,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `code/utils/config.py` with random seed pinning and environment variable loading
-- [ ] T005 [P] Implement `code/utils/logger.py` with structured logging and file rotation
-- [ ] T006 Create `code/__init__.py` and package init files for all sub-packages
-- [~] T007 Setup data directory structure and `.gitkeep` files for `data/raw`, `data/processed`, `data/results`
+- [X] T005 [P] Implement `code/utils/logger.py` with structured logging and file rotation
+- [X] T006 Create `code/__init__.py` and package init files for all sub-packages
+- [ ] T007 Setup data directory structure and `.gitkeep` files for `data/raw`, `data/processed`, `data/results`
 - [X] T008 Implement `code/main.py` entry point with argument parsing for pipeline stages
 - [X] T009 [P] [US3] Implement progressive sample reduction logic in `code/main.py` that dynamically reduces snippets per repo (5 -> 3 -> 2) if time/memory constraints are threatened, ensuring the Plan's fallback strategy is available before T041 triggers. This logic must be callable by T041.
 
@@ -82,9 +82,9 @@
 - [X] T012 [P] [US1] Implement `code/extractors/git_metrics.py` to calculate the **LOC-weighted Gini coefficient** of commit distribution (using `git blame` to attribute lines to authors) and unique developer count, strictly adhering to the Plan's Complexity Tracking decision (deviating from Spec FR-001's simpler commit-count proxy to ensure accuracy). This task produces the artifact required by T028.
 - [X] T013 [US1] Implement temporal alignment logic in `code/extractors/git_metrics.py` to explicitly **checkout the specific commit SHA before running git log/blame** to ensure metrics reflect the state at that point in time, as required by Plan Phase 1.
 - [X] T014 [US1] Implement edge case handling in `code/extractors/git_metrics.py` for missing history or non-Python/Java repos (set metrics to null, log warning)
-- [ ] T015 [US1] Create data loader in `code/extractors/__init__.py` to fetch repository URLs and CodeXGLUE sample metadata
+- [X] T015 [US1] Create data loader in `code/extractors/__init__.py` to fetch repository URLs and CodeXGLUE sample metadata
 - [ ] T016 [US1] Implement output serialization in `code/extractors/git_metrics.py` to save `OwnershipMetrics` JSON (containing `gini_coefficient` based on LOC-weighted distribution) to `data/processed/ownership_metrics.json`
-- [ ] T040 [US1] Create a `code/analysis/deviation_rationale.md` document explaining the Spec/Plan conflict resolution (why LOC-weighted Gini and LMM were chosen over Spec defaults) to ensure auditability
+- [X] T040 [US1] Create a `code/analysis/deviation_rationale.md` document explaining the Spec/Plan conflict resolution (why LOC-weighted Gini and LMM were chosen over Spec defaults) to ensure auditability
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,15 +98,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Contract test for code snippet metrics schema in `tests/contract/test_code_snippet_metrics.py`
+- [X] T017 [P] [US2] Contract test for code snippet metrics schema in `tests/contract/test_code_snippet_metrics.py`
 - [ ] T018 [P] [US2] Integration test for complexity calculation in `tests/integration/test_complexity_calc.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `code/extractors/complexity.py` to calculate Cyclomatic Complexity using `radon`
-- [ ] T020 [US2] Implement `code/extractors/complexity.py` to calculate Documentation Density (comment lines / total lines)
-- [ ] T021 [US2] Implement filtering logic in `code/extractors/complexity.py` to skip non-Python/Java files and log warnings
-- [ ] T022 [US2] Create `code/extractors/complexity.py` function to process snippets from `data/raw` and output `CodeSnippet` metrics to `data/processed/code_metrics.json`
+- [X] T019 [P] [US2] Implement `code/extractors/complexity.py` to calculate Cyclomatic Complexity using `radon`
+- [X] T020 [US2] Implement `code/extractors/complexity.py` to calculate Documentation Density (comment lines / total lines)
+- [X] T021 [US2] Implement filtering logic in `code/extractors/complexity.py` to skip non-Python/Java files and log warnings
+- [ ] T022 [US2] Create `code/extractors/complexity.py` function to process snippets from `data/raw` and output `CodeSnippet` metrics to `data/processed/code_metrics.json` <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -120,12 +120,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Contract test for regression output schema in `tests/contract/test_regression_output.py`
-- [ ] T024 [P] [US3] Integration test for full pipeline execution in `tests/integration/test_full_pipeline.py`
+- [X] T023 [P] [US3] Contract test for regression output schema in `tests/contract/test_regression_output.py`
+- [X] T024 [P] [US3] Integration test for full pipeline execution in `tests/integration/test_full_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Implement `code/inference/runner.py` to load a large language model in low-bit quantization on CPU with `device_map="cpu"`. This task MUST include **context truncation logic to limit input sequence length to a fixed maximum threshold** and reference the **progressive sample reduction logic from T009** for fallback if OOM occurs.
+- [X] T025 [P] [US3] Implement `code/inference/runner.py` to load a large language model in low-bit quantization on CPU with `device_map="cpu"`. This task MUST include **context truncation logic to limit input sequence length to a fixed maximum threshold** and reference the **progressive sample reduction logic from T009** for fallback if OOM occurs.
 - [ ] T026 [US3] Implement memory management in `code/inference/runner.py` to unload model and run `gc.collect()` after each snippet inference to prevent OOM
 - [ ] T027 [US3] Implement retry logic in `code/inference/runner.py` (with a configurable maximum number of retries) for timeout/failure cases as per FR-005
 - [ ] T028 [US3] Implement BLEU score calculation in `code/inference/runner.py` against CodeXGLUE ground truth

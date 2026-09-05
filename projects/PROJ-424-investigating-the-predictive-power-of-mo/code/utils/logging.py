@@ -47,7 +47,7 @@ def setup_logging(
         log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         log_file: Optional path to write logs to a file
         json_format: If True, use JSON formatting; otherwise use standard formatting
-        
+            
     Returns:
         Configured root logger instance
     """
@@ -79,7 +79,7 @@ def setup_logging(
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(JSONFormatter() if json_format else 
-                                  logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+                                logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
         logger.addHandler(file_handler)
     
     return logger
@@ -91,7 +91,7 @@ def get_logger(name: str) -> logging.Logger:
     
     Args:
         name: Logger name (typically __name__ or module path)
-        
+            
     Returns:
         Logger instance configured with project defaults
     """
@@ -126,3 +126,52 @@ def log_event(
     )
     log_record.extra_data = {"event_type": event_type, **extra_data}
     logger.handle(log_record)
+
+
+def log_sensitivity_results(
+    logger: logging.Logger,
+    solvent: str,
+    timescale: str,
+    start_times: list,
+    diffusion_coeffs: list,
+    variance: float,
+    variance_threshold: float = 0.05,
+    status: str = "PASS",
+) -> None:
+    """
+    Log structured results from a sensitivity analysis sweep.
+    
+    This function formats the sensitivity sweep results (start times, calculated
+    diffusion coefficients, and variance) into a structured log entry. It also
+    flags the result as PASS or FAIL based on the variance threshold.
+    
+    Args:
+        logger: Logger instance to use
+        solvent: Name of the solvent analyzed (e.g., 'water', 'ethanol')
+        timescale: Simulation duration (e.g., '1ns', '10ns')
+        start_times: List of regression start times used in the sweep
+        diffusion_coeffs: List of diffusion coefficients calculated for each start time
+        variance: Calculated variance of the diffusion coefficients
+        variance_threshold: Threshold for variance (default 5% or 0.05)
+        status: 'PASS' if variance <= threshold, 'FAIL' otherwise
+    """
+    log_level = "INFO" if status == "PASS" else "WARNING"
+    
+    extra_payload = {
+        "component": "sensitivity_analysis",
+        "solvent": solvent,
+        "timescale": timescale,
+        "start_times": start_times,
+        "diffusion_coeffs": diffusion_coeffs,
+        "variance": variance,
+        "variance_threshold": variance_threshold,
+        "status": status,
+    }
+    
+    log_event(
+        logger,
+        event_type="sensitivity_sweep_complete",
+        message=f"Sensitivity analysis for {solvent} at {timescale}: Variance={variance:.4f} ({status})",
+        level=log_level,
+        **extra_payload,
+    )

@@ -1,0 +1,41 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (code/extractors, code/inference,
+    code/analysis, code/utils, data/raw, data/processed, data/results, tests) is provided;
+    without a listing or proof that these folders exist, the task cannot be confirmed
+    as completed.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`,
+    or scripts invoking ruff/black) or any other evidence of linting/formatting setup
+    were provided. The required artifact demonstrating that ruff and black are configured
+    in the `code/` directory is missing.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw`, `data/processed`, and `data/results`
+    directories or accompanying `.gitkeep` placeholder files was provided; the implementer
+    did not supply any artifact confirming the directory structure was created.
+T016:
+  c: false
+  h: 8d36a7a0a7ba47d9a330dd9f129a2f5122544043fb8ce4fce9863faf13272b3c
+  r: The repository contains `code/extractors/git_metrics.py`, but the shown code
+    (and the rest of the file) does not include any logic that writes an `OwnershipMetrics`
+    instance to `data/processed/ownership_metrics.json`. Moreover, the expected output
+    file `data/processed/ownership_metrics.json` is absent from the project. Both
+    the serialization implementation and the resulting JSON artifact are missing.
+T018:
+  c: false
+  h: 54c332d1ec2c8bb4c785075d733da8a65ea006e62b94af17127af1730bdbab95
+  r: "The required file `tests/integration/test_complexity_calc.py` does not exist,\
+    \ so no integration test for complexity calculation is present. The task\u2019\
+    s artifact is missing, making the requirement unmet."
+T022:
+  c: false
+  h: 07a8915c530b87a0f4aaa3c526dd964671f7fad8c308061966e8d3c63f136e3a
+  r: The repository lacks the required `data/processed/code_metrics.json` file, so
+    the script never produced the expected output. Moreover, the provided `complexity.py`
+    is truncated and does not show a complete implementation that reads snippets from
+    `data/raw` and writes the metrics, indicating the core functionality is missing.

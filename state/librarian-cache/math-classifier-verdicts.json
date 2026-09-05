@@ -1919,6 +1919,10 @@
     "classified_at": "2026-07-05T00:57:27Z",
     "verdict": false
   },
+  "PROJ-977-llmxive-follow-up-extending-mmskills-tow::1.6.0": {
+    "classified_at": "2026-09-05T21:40:20Z",
+    "verdict": false
+  },
   "PROJ-978-llmxive-follow-up-extending-transitlm-a::1.6.0": {
     "classified_at": "2026-07-04T15:36:37Z",
     "verdict": false
