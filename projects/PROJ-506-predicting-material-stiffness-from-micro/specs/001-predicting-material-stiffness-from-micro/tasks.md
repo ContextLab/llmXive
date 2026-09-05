@@ -53,7 +53,7 @@ description: "Task list for feature implementation"
 
 - [ ] T002v [P] **READY**: **Verify Constitution Principle VI**: Manually inspect `constitution.md` Principle VI to confirm it explicitly permits FFT-based numerical homogenization and documents the validity range of analytical bounds. **Action**: If text exists, mark [X] and proceed to T002d. If missing, halt and report. **Note**: The text is already present; this is a confirmation step.
 - [ ] T004v [P] **READY**: **Verify Spec Resolution**: Manually inspect `spec.md` FR-001 and US-1 Acceptance Scenario 1 to confirm they explicitly state "128x128 pixels". **Action**: If text exists, mark [X] and proceed.
-- [ ] T005v [P] **READY**: **Verify Spec/Plan Alignment**: Manually inspect `spec.md` FR-007 and `plan.md` Methodology to confirm they explicitly state "One-way ANOVA and Tukey HSD". **Action**: If text exists, mark [X] and proceed.
+- [ ] T005v [P] **READY**: **Verify Spec/Plan Alignment**: Manually inspect `spec.md` FR-007 and `plan.md` Methodology to confirm they explicitly state "One-way ANOVA and Tukey HSD". **Action**: If text exists, proceed.
 - [X] T002d [P] **BLOCKED**: **Update State**: Update `state/projects/PROJ-506-predicting-material-stiffness-from-micro.yaml` `artifact_hashes` and `updated_at` to record the governance verification. **Dependency**: T002v, T004v, T005v. **Status**: BLOCKED until verification is complete.
 
 **Gate Status**: **BLOCKED**. Proceed to Phase 1 ONLY after T002v, T004v, T005v are marked [X].
@@ -227,7 +227,7 @@ description: "Task list for feature implementation"
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
