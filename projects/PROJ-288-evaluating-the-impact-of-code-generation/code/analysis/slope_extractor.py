@@ -1,108 +1,141 @@
-"""
-T027: Implement slope coefficient extraction for code size impact analysis.
-
-Reads the LMER results from data/analysis_results.json, extracts the fixed effect
-coefficient for 'code_size' (the slope), and appends it to the results under
-the key 'code_size_slopes'.
-
-Output: data/analysis_results.json updated with 'code_size_slopes'.
-"""
 import json
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
-
-# Import shared utilities from existing project files
 from analysis.simex_correction import load_analysis_results, save_analysis_results
 from data.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def extract_code_size_slope(results: Dict[str, Any]) -> Optional[float]:
+def extract_code_size_slope(results: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Extract the 'code_size' fixed effect coefficient from LMER results.
+    Extract the slope coefficient for 'code_lines_changed' from the LMER results.
+    
+    This implements SC-003: Extract the impact of code size on review time.
     
     Args:
-        results: The full analysis results dictionary loaded from JSON.
-    
+        results: The analysis results dictionary containing LMER output.
+                
     Returns:
-        The slope coefficient for 'code_size' if found, else None.
+        A dictionary containing the extracted slope coefficient and metadata.
     """
-    lmer_data = results.get("lmer", {})
+    code_size_slope = None
+    p_value = None
     
-    # The LMER output structure typically contains 'coefficients' which is a dict
-    # or list of dicts. We look for the row/entry where the predictor is 'code_size'.
-    coefficients = lmer_data.get("coefficients")
+    # Check if LMER results exist
+    if 'lmer' not in results:
+        logger.warning("No LMER results found in analysis_results.json")
+        return {
+            "code_size_slopes": None,
+            "note": "LMER analysis not performed or failed"
+        }
     
-    if not coefficients:
-        logger.warning("No 'coefficients' found in LMER results.")
-        return None
-
-    # Handle case where coefficients might be a list of dicts (common in statsmodels)
-    if isinstance(coefficients, list):
-        for row in coefficients:
-            if isinstance(row, dict):
-                # Check various possible keys for the predictor name
-                name = row.get("term") or row.get("variable") or row.get("param_name")
-                if name and "code_size" in str(name).lower():
-                    val = row.get("coef") or row.get("coefficient") or row.get("estimate")
-                    if val is not None:
-                        return float(val)
+    lmer_results = results['lmer']
     
-    # Handle case where coefficients is a dict mapping name -> value
-    elif isinstance(coefficients, dict):
-        # Direct lookup
-        if "code_size" in coefficients:
-            return float(coefficients["code_size"])
+    # Extract fixed effects coefficients
+    if 'coefficients' in lmer_results:
+        coefficients = lmer_results['coefficients']
         
-        # Case-insensitive search
-        for k, v in coefficients.items():
-            if "code_size" in str(k).lower():
-                return float(v)
-
-    logger.warning("Could not locate 'code_size' coefficient in LMER results.")
-    return None
-
-def run_slope_extraction() -> Dict[str, Any]:
-    """
-    Main logic to load results, extract slope, update dict, and save.
+        # Look for code_lines_changed in the coefficients
+        # The structure might be a dict or list depending on serialization
+        if isinstance(coefficients, dict):
+            if 'code_lines_changed' in coefficients:
+                code_size_slope = coefficients['code_lines_changed'].get('estimate')
+                p_value = coefficients['code_lines_changed'].get('p_value')
+            elif 'lines_changed' in coefficients:
+                code_size_slope = coefficients['lines_changed'].get('estimate')
+                p_value = coefficients['lines_changed'].get('p_value')
+        elif isinstance(coefficients, list):
+            for coeff in coefficients:
+                if coeff.get('term') in ['code_lines_changed', 'lines_changed']:
+                    code_size_slope = coeff.get('estimate')
+                    p_value = coeff.get('p_value')
+                    break
     
-    Returns:
-        The updated results dictionary.
-    """
-    logger.info("Starting slope coefficient extraction for code size impact.")
+    # If SIMEX was applied, try to get the corrected slope
+    if 'simex_corrected_coefficients' in results:
+        simex_results = results['simex_corrected_coefficients']
+        if isinstance(simex_results, dict) and 'code_lines_changed' in simex_results:
+            code_size_slope = simex_results['code_lines_changed'].get('estimate')
+            p_value = simex_results['code_lines_changed'].get('p_value')
     
-    # Load existing results
-    results = load_analysis_results()
+    slope_info = {
+        "code_size_slopes": {
+            "estimate": code_size_slope,
+            "p_value": p_value,
+            "interpretation": "Minutes of review time added per line of code changed"
+        }
+    }
     
-    if not results:
-        logger.error("No analysis results found to extract slopes from.")
-        return {}
-
-    slope = extract_code_size_slope(results)
-    
-    if slope is not None:
-        # Store in the specific key required by the task
-        results["code_size_slopes"] = slope
-        logger.info(f"Extracted code_size slope: {slope}")
+    if code_size_slope is None:
+        logger.warning("Could not extract code size slope from LMER results")
+        slope_info["note"] = "Code size slope not found in coefficients"
     else:
-        # If extraction fails, store None or a specific error flag
-        # but ensure the key exists to satisfy the "append" requirement
-        results["code_size_slopes"] = None
-        logger.warning("Failed to extract code_size slope; setting to None.")
+        logger.info(f"Extracted code size slope: {code_size_slope:.6f} (p={p_value})")
+        
+    return slope_info
 
-    # Save updated results
-    save_analysis_results(results)
+def run_slope_extraction(results_path: Path, output_path: Path) -> Dict[str, Any]:
+    """
+    Run the full slope extraction pipeline.
     
-    logger.info("Slope extraction complete. Results saved to data/analysis_results.json.")
+    Args:
+        results_path: Path to the analysis_results.json file.
+        output_path: Path where the updated results will be saved.
+        
+    Returns:
+        The updated analysis results dictionary.
+    """
+    logger.info(f"Loading analysis results from {results_path}")
+    results = load_analysis_results(results_path)
+    
+    logger.info("Extracting code size slope coefficients")
+    slope_info = extract_code_size_slope(results)
+    
+    # Append the slope information to the results
+    results['code_size_slopes'] = slope_info['code_size_slopes']
+    
+    logger.info(f"Saving updated results to {output_path}")
+    save_analysis_results(results, output_path)
+    
     return results
 
 def main():
-    """Entry point for the script."""
+    """Main entry point for the slope extraction script."""
+    logger.info("Starting code size slope extraction")
+    
+    # Define paths
+    project_root = Path(__file__).parent.parent.parent
+    results_path = project_root / "data" / "analysis_results.json"
+    output_path = project_root / "data" / "analysis_results.json"
+    
+    if not results_path.exists():
+        logger.error(f"Analysis results file not found: {results_path}")
+        logger.error("Please run the analysis pipeline (T021-T026) first.")
+        sys.exit(1)
+    
     try:
-        run_slope_extraction()
+        results = run_slope_extraction(results_path, output_path)
+        
+        # Print summary
+        if 'code_size_slopes' in results and results['code_size_slopes']:
+            slope = results['code_size_slopes'].get('estimate')
+            p_val = results['code_size_slopes'].get('p_value')
+            print(f"Code Size Impact Analysis:")
+            print(f"  Slope: {slope:.6f} minutes per line")
+            print(f"  P-value: {p_val}")
+            if slope and p_val:
+                if p_val < 0.05:
+                    print(f"  Result: Statistically significant impact")
+                else:
+                    print(f"  Result: No statistically significant impact")
+        else:
+            print("Could not extract code size slope.")
+            
+        logger.info("Slope extraction completed successfully")
+        
     except Exception as e:
-        logger.critical(f"Error during slope extraction: {e}", exc_info=True)
+        logger.error(f"Error during slope extraction: {str(e)}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,82 +1,139 @@
 import pytest
 import csv
 import os
-import tempfile
 from pathlib import Path
-from data.sensitivity_analysis import calculate_sensitivity_metrics, append_sensitivity_to_log
+from unittest.mock import patch, MagicMock
 
-def test_sensitivity_metrics_calculation():
-    """
-    Test that sensitivity metrics are calculated correctly.
-    We create a small synthetic dataset with known manual labels and heuristic scores.
-    """
-    # Mock data
-    data = [
-        {'pr_number': 1, 'heuristic_score': 0.9, 'origin_label': 'Disclosing'}, # Should be Disclosing
-        {'pr_number': 2, 'heuristic_score': 0.2, 'origin_label': 'Non-Disclosing'}, # Should be Non-Disclosing
-        {'pr_number': 3, 'heuristic_score': 0.8, 'origin_label': 'Disclosing'}, # Should be Disclosing
-        {'pr_number': 4, 'heuristic_score': 0.3, 'origin_label': 'Non-Disclosing'}, # Should be Non-Disclosing
-        {'pr_number': 5, 'heuristic_score': 0.5, 'origin_label': 'Non-Disclosing'}, # Should be Non-Disclosing
-    ]
-    
-    # Manual ground truth: 1, 3 are Disclosing; 2, 4, 5 are Non-Disclosing
-    manual_labels = {
-        1: 'Disclosing',
-        2: 'Non-Disclosing',
-        3: 'Disclosing',
-        4: 'Non-Disclosing',
-        5: 'Non-Disclosing'
+from code.data.sensitivity_analysis import (
+    calculate_sensitivity_metrics,
+    append_sensitivity_to_log,
+    load_heuristic_scores_from_file
+)
+
+# Test data fixtures
+SAMPLE_RECORDS = [
+    {
+        'pr_number': '101',
+        'origin_label': 'Disclosing',
+        'heuristic_score': 0.85,
+        'lines_changed': 150
+    },
+    {
+        'pr_number': '102',
+        'origin_label': 'Non-Disclosing',
+        'heuristic_score': 0.20,
+        'lines_changed': 50
+    },
+    {
+        'pr_number': '103',
+        'origin_label': 'Disclosing',
+        'heuristic_score': 0.45, # Borderline
+        'lines_changed': 200
+    },
+    {
+        'pr_number': '104',
+        'origin_label': 'Non-Disclosing',
+        'heuristic_score': 0.90, # False Positive candidate
+        'lines_changed': 30
     }
+]
+
+def test_calculate_sensitivity_metrics_threshold_0():
+    """At threshold 0.0, everything is predicted as positive."""
+    thresholds = [0.0]
+    metrics = calculate_sensitivity_metrics(SAMPLE_RECORDS, thresholds)
     
-    # Test with threshold 0.5
-    # Predictions:
-    # 1 (0.9 >= 0.5) -> Disclosing (TP)
-    # 2 (0.2 < 0.5) -> Non-Disclosing (TN)
-    # 3 (0.8 >= 0.5) -> Disclosing (TP)
-    # 4 (0.3 < 0.5) -> Non-Disclosing (TN)
-    # 5 (0.5 >= 0.5) -> Disclosing (FP) -> Error!
+    assert len(metrics) == 1
+    m = metrics[0]
+    
+    # Threshold 0.0 -> All predicted Disclosing (True)
+    # Actual: 2 Disclosing, 2 Non-Disclosing
+    # TP = 2, FP = 2, TN = 0, FN = 0
+    assert m['true_positives'] == 2
+    assert m['false_positives'] == 2
+    assert m['true_negatives'] == 0
+    assert m['false_negatives'] == 0
+    assert m['precision'] == 0.5
+    assert m['recall'] == 1.0
+    assert m['error_rate'] == 0.5
+
+def test_calculate_sensitivity_metrics_threshold_1():
+    """At threshold 1.0, nothing is predicted as positive (assuming scores < 1.0)."""
+    thresholds = [1.0]
+    metrics = calculate_sensitivity_metrics(SAMPLE_RECORDS, thresholds)
+    
+    assert len(metrics) == 1
+    m = metrics[0]
+    
+    # Threshold 1.0 -> All predicted Non-Disclosing (False)
+    # TP = 0, FP = 0, TN = 2, FN = 2
+    assert m['true_positives'] == 0
+    assert m['false_positives'] == 0
+    assert m['true_negatives'] == 2
+    assert m['false_negatives'] == 2
+    assert m['recall'] == 0.0
+    assert m['error_rate'] == 0.5
+
+def test_calculate_sensitivity_metrics_mid_threshold():
+    """Test threshold 0.5."""
+    # Scores: 0.85 (D), 0.20 (ND), 0.45 (D), 0.90 (ND)
+    # Threshold 0.5:
+    # 0.85 >= 0.5 -> Pred D (Actual D) -> TP
+    # 0.20 < 0.5  -> Pred ND (Actual ND) -> TN
+    # 0.45 < 0.5  -> Pred ND (Actual D) -> FN
+    # 0.90 >= 0.5 -> Pred D (Actual ND) -> FP
+    # TP=1, TN=1, FN=1, FP=1
     
     thresholds = [0.5]
-    results = calculate_sensitivity_metrics(data, thresholds, manual_labels)
+    metrics = calculate_sensitivity_metrics(SAMPLE_RECORDS, thresholds)
     
-    assert len(results) == 1
-    res = results[0]
-    
-    assert res['threshold'] == 0.5
-    assert res['tp'] == 2
-    assert res['tn'] == 2
-    assert res['fp'] == 1 # PR 5
-    assert res['fn'] == 0
-    
-    # Accuracy = (2+2)/5 = 0.8
-    assert abs(res['accuracy'] - 0.8) < 1e-6
-    
-    # FPR = FP / (FP + TN) = 1 / (1 + 2) = 1/3
-    assert abs(res['false_positive_rate'] - (1/3)) < 1e-6
-    
-    # FNR = FN / (FN + TP) = 0 / 2 = 0
-    assert res['false_negative_rate'] == 0.0
+    assert len(metrics) == 1
+    m = metrics[0]
+    assert m['true_positives'] == 1
+    assert m['false_positives'] == 1
+    assert m['true_negatives'] == 1
+    assert m['false_negatives'] == 1
+    assert m['precision'] == 0.5
+    assert m['recall'] == 0.5
+    assert m['f1_score'] == 0.5
+    assert m['error_rate'] == 0.5
 
-def test_append_sensitivity_to_log():
-    """Test that results are correctly appended to a CSV log file."""
-    results = [
-        {'threshold': 0.5, 'accuracy': 0.8, 'false_positive_rate': 0.33, 'false_negative_rate': 0.0, 'tp': 2, 'tn': 2, 'fp': 1, 'fn': 0}
-    ]
+def test_append_sensitivity_to_log_creates_file(tmp_path):
+    """Test that the function creates the log file if it doesn't exist."""
+    log_path = tmp_path / "validation_log.csv"
+    metrics = [{'threshold': 0.5, 'error_rate': 0.2}]
     
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as tmp:
-        tmp_path = tmp.name
+    append_sensitivity_to_log(metrics, str(log_path))
     
-    try:
-        append_sensitivity_to_log(results, tmp_path)
-        
-        with open(tmp_path, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
+    assert log_path.exists()
+    with open(log_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
         assert len(rows) == 1
         assert rows[0]['threshold'] == '0.5'
-        assert rows[0]['accuracy'] == '0.8'
-        assert rows[0]['analysis_type'] == 'sensitivity_sweep'
-    finally:
-        if os.path.exists(tmp_path):
-            os.remove(tmp_path)
+        assert rows[0]['error_rate'] == '0.2'
+
+def test_append_sensitivity_to_log_appends(tmp_path):
+    """Test that the function appends to existing file."""
+    log_path = tmp_path / "validation_log.csv"
+    
+    # Create initial file
+    with open(log_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['threshold', 'error_rate'])
+        writer.writeheader()
+        writer.writerow({'threshold': '0.1', 'error_rate': '0.3'})
+    
+    metrics = [{'threshold': 0.5, 'error_rate': 0.2}]
+    append_sensitivity_to_log(metrics, str(log_path))
+    
+    with open(log_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 2
+        assert rows[0]['threshold'] == '0.1'
+        assert rows[1]['threshold'] == '0.5'
+
+def test_load_heuristic_scores_from_file_missing():
+    """Test that FileNotFoundError is raised for missing file."""
+    with pytest.raises(FileNotFoundError):
+        load_heuristic_scores_from_file("non_existent_file.csv")

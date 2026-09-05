@@ -96,3 +96,270 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T22:34:10Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: verify Materials Project API URL accessibility and schema validity
+  claim_id: c_0bc1bb74
+  context: T060 [P] Implement `code/utils.py` function `verify_materials_project()`
+    to verify Materials Project API URL accessibility and schema validity; **return
+    status code (0=valid, 1=invalid) instead of raising error**.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_Materials_Project_API_URL_accessibility_and_schema_va
+  kind: entity_fact
+  raw_text: Implement `code/utils.py` function `verify_materials_project()` to verify
+    Materials Project API URL accessibility and schema validity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:04:04Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: verify NIST Surface Metrology Repository URL accessibility and schema
+    validity
+  claim_id: c_b9db45d1
+  context: T061 [P] Implement `code/utils.py` function `verify_nist()` to verify NIST
+    Surface Metrology Repository URL accessibility and schema validity; **return status
+    code (0=valid, 1=invalid) instead of raising error**.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_NIST_Surface_Metrology_Repository_URL_accessibility_a
+  kind: entity_fact
+  raw_text: Implement `code/utils.py` function `verify_nist()` to verify NIST Surface
+    Metrology Repository URL accessibility and schema validity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:04:14Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: add dependencies pandas scikit-learn shap requests numpy pyyaml pytest
+    to requirements.txt
+  claim_id: c_52ebb5a9
+  context: 'T003-DEPS [P] **Pin Dependencies**: Add dependencies to `requirements.txt`
+    (pandas, scikit-learn, shap, requests, numpy, pyyaml, pytest) with pinned versions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Add_dependencies_pandas_scikit-learn_shap_requests_numpy_pyy
+  kind: entity_fact
+  raw_text: Add dependencies to `requirements.txt` (pandas, scikit-learn, shap, requests,
+    numpy, pyyaml, pytest)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:04:30Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: create code/config.py with keys MP_API_KEY NIST_URL LIT_API_URL LIT_API_KEY
+    PROXY_R2_THRESHOLD MAX_ROWS 5000 RAM_LIMIT_GB 7 TIMEOUT_HOURS 4
+  claim_id: c_27de1793
+  context: 'T003-CONFIG [P] **Configuration Setup**: Create `code/config.py` with
+    keys: `MP_API_KEY`, `NIST_URL`, `LIT_API_URL`, `LIT_API_KEY`, `PROXY_R2_THRESHOLD`
+    (USER MUST SET THIS VALUE, NO DEFAULT), `MAX_ROWS` (5000), `RAM_LIMIT_GB` (7),
+    `TIMEOUT_HOURS` (4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create `code/config.py` with keys: `MP_API_KEY`, `NIST_URL`, `LIT_API_URL`,
+    `LIT_API_KEY`, `PROXY_R2_THRESHOLD` (USER MUST SET THIS VALUE, NO DEFAULT), `MAX_ROWS`
+    (5000), `RAM_LIMIT_GB` (7), `TIMEOUT_HOURS` (4)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:04:41Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: define base configuration constants MAX_ROWS 5000 RAM_LIMIT_GB 7 TIMEOUT_HOURS
+    4
+  claim_id: c_323d70f8
+  context: T006 [P] Create `code/__init__.py` and define base configuration constants
+    (MAX_ROWS=5000, RAM_LIMIT_GB=7, TIMEOUT_HOURS=4) (Plan Phase 1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define base configuration constants (MAX_ROWS=5000, RAM_LIMIT_GB=7, TIMEOUT_HOURS=4)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:04:46Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: check sample size N greater than or equal to 1000
+  claim_id: c_957bd974
+  context: "T010 [P] Implement `code/utils.py` power analysis function to check sample\
+    \ size N \u2265 1,000 (Plan Phase 1.6)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_sample_size_N_greater_than_or_equal_to_1000
+  kind: magnitude
+  raw_text: "Implement `code/utils.py` power analysis function to check sample size\
+    \ N \u2265 1,000"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:04:55Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: enforce exclusion ratio less than 10 percent
+  claim_id: c_4dac08ab
+  context: T011 [P] Implement `code/utils.py` function to calculate exclusion ratio
+    (missing targets / total valid) and enforce <10% threshold (Plan Phase 1.4, SC-005)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enforce_exclusion_ratio_less_than_10_percent
+  kind: magnitude
+  raw_text: Calculate exclusion ratio (missing targets / total valid) and enforce
+    <10% threshold
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:09:07Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: enforce processing success rate greater than or equal to 95 percent
+  claim_id: c_a4964728
+  context: "T012 [P] Implement `code/utils.py` function to calculate processing success\
+    \ rate and enforce \u226595% threshold (Plan Phase 1.5, SC-001)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enforce_processing_success_rate_greater_than_or_equal_to_95
+  kind: magnitude
+  raw_text: "Calculate processing success rate and enforce \u226595% threshold"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:09:21Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: read list of at least 3 ratio definitions from code/config.py
+  claim_id: c_935dd143
+  context: 'T041 [P] **Sensitivity Analysis**: Implement `code/modeling.py` sensitivity
+    analysis for ''crosslinker density'' proxy. **Definitions**: Read from `code/config.py`
+    (list of at least 3 ratio definitions).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Read_list_of_at_least_3_ratio_definitions_from_code/config.p
+  kind: magnitude
+  raw_text: Read from `code/config.py` (list of at least 3 ratio definitions)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:09:29Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: sample dataset to less than or equal to 5000 rows
+  claim_id: c_0e950046
+  context: "T026 [US1] Implement `code/ingestion.py` logic to sample dataset to \u2264\
+    \ 5,000 rows if raw volume exceeds memory (FR-006) (Plan Phase 1.1)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_dataset_to_less_than_or_equal_to_5000_rows
+  kind: magnitude
+  raw_text: "Sample dataset to \u2264 5,000 rows if raw volume exceeds memory"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:09:37Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: assert spearman correlation greater than or equal to 0.8
+  claim_id: c_cb92cf78
+  context: 'T057 [P] **Stability Verification**: Implement unit test in `tests/unit/test_modeling.py`
+    with `assert spearman_corr >= 0.8`. Update `.github/workflows/pipeline.yml` to
+    enforce this test as a required check.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_spearman_correlation_greater_than_or_equal_to_0.8
+  kind: magnitude
+  raw_text: Implement unit test in `tests/unit/test_modeling.py` with `assert spearman_corr
+    >= 0.8`
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:09:45Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: halt if runtime exceeds 4 hours
+  claim_id: c_84cb163c
+  context: 'T080 [P] **Runtime Safety Margin**: Implement `code/main.py` logic to
+    monitor total pipeline runtime. If runtime exceeds **4 hours** (SC-004), write
+    `state/HALT_SIGNAL.yaml` and exit with a message indicating the safety margin
+    was exceeded.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime exceeds 4 hours, write `state/HALT_SIGNAL.yaml` and exit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:09:47Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: update spec.md to clarify 4-hour success criterion
+  claim_id: c_4dfd9101
+  context: 'T096-AMEND-SC004 [P] **Spec Text Amendment (Manual)**: **Task to amend
+    spec.md**: Update `spec.md` to fix `SC-004` placeholder typo ''-hour'' to ''6-hour''
+    and clarify ''4-hour'' success criterion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Update `spec.md` to clarify '4-hour' success criterion
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:09:55Z'
+- artifact_path: projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/tasks.md
+  attempts: 1
+  canonical: replace text the -hour GitHub Actions free-tier limit with the 6-hour
+    GitHub Actions free-tier limit
+  claim_id: c_f5e9448d
+  context: 'T096-AMEND-SC004 [P] **Spec Text Amendment (Manual)**: **Edit the file
+    `projects/PROJ-419-predicting-coating-adhesion-strength-fro/specs/001-predicting-coating-adhesion-strength-fro/spec.md`
+    directly to replace the text ''the -hour GitHub Actions free-tier limit'' with
+    ''the 6-hour GitHub Actions free-tier limit'' and clarify the 4-hour success criterion.**'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Replace the text 'the -hour GitHub Actions free-tier limit' with 'the
+    6-hour GitHub Actions free-tier limit'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:10:02Z'

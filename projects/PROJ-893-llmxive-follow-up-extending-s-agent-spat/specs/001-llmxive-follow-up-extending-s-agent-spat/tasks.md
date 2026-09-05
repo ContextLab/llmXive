@@ -30,7 +30,7 @@
 
 **Purpose**: Core infrastructure, data hygiene, and validation gates. **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 [P] Implement `code/hygiene.py` to compute SHA-256 hashes for `data/raw/*` and `data/derived/*` (excluding results until Phase 6) and update `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
+- [X] T004 [P] Implement `code/hygiene.py` to compute SHA-256 hashes for `data/raw/*` and `data/derived/*` (excluding results until Phase 6) and update `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
 - [ ] T005 [P] Create schema contracts in `specs/001-symbolic-spatial-reasoning/contracts/` (`dataset.schema.yaml`, `solver_output.schema.yaml`, `benchmark_result.schema.yaml`, `latency_log.schema.yaml`)
 - [X] T006 [P] Implement `code/data/download.py` to fetch S-Agent-300K subset using `huggingface_hub` with **FAIL LOUD** logic (no synthetic fallbacks)
 - [X] T006a [P] Implement `code/data/verify_checksum.py` to verify the downloaded dataset's checksum against the `data/` manifest (Constitution Principle III) before extraction
@@ -54,7 +54,7 @@
 
 - [X] T010 [US1] Implement `code/data/extract_geometry.py` to parse S-Agent-300K, **detect malformed/missing data**, **exclude** invalid scenes from processing, and output `data/derived/constraints.jsonl` (FR-001, FR-007)
 - [X] T011 [US1] Implement `code/solver/csp_engine.py` using `python-constraint` or `ortools` to solve counting/positioning tasks (FR-002)
-- [ ] T012 [US1] Implement `code/solver/run_solver.py` to batch process n=1,000 scenes, **measure per-scene latency**, and output `data/derived/predictions.jsonl` AND `data/derived/latency_log.jsonl` (FR-002, FR-004)
+- [ ] T012 [US1] Implement `code/solver/run_solver.py` to batch process n=1,000 scenes, **measure per-scene latency**, and output `data/derived/predictions.jsonl` AND `data/derived/latency_log.jsonl` (FR-002, FR-004) <!-- FAILED: unspecified -->
 - [X] T013 [US1] Implement logging in `run_solver.py` to record excluded scenes (from T010) to `data/results/exclusion_log.json` with counts and IDs (FR-007)
 
 **Checkpoint**: Symbolic solver produces valid predictions and latency logs for n=1,000 scenes on CPU within 6 hours.
@@ -76,7 +76,7 @@
 
 - [X] T016 [P] [US2] Implement `code/benchmark/metrics.py` to calculate Exact Match, F1-score, and median latency from `latency_log.jsonl` (FR-003, FR-004)
 - [X] T017 [US2] Implement statistical significance test (McNemar's) in `code/benchmark/metrics.py` (FR-005)
-- [ ] T018 [US2] Implement `code/main.py` orchestrator to run the full pipeline: **download → verify_checksum → validate_distribution (HARD BLOCK) → extract → solve → benchmark** (FR-003)
+- [X] T018 [US2] Implement `code/main.py` orchestrator to run the full pipeline: **download → verify_checksum → validate_distribution (HARD BLOCK) → extract → solve → benchmark** (FR-003)
 - [ ] T019 [US2] Generate `data/results/benchmark_results.csv` linking scene IDs, predictions, ground truth, and metrics (SC-001, SC-002)
 
 **Checkpoint**: Benchmark report generated with accuracy and latency comparisons; statistical significance calculated.
@@ -91,13 +91,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T020 [P] [US3] Unit test for failure categorization logic in `tests/unit/test_failure_analysis.py`
+- [X] T020 [P] [US3] Unit test for failure categorization logic in `tests/unit/test_failure_analysis.py`
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Implement `code/benchmark/analyze_failures.py` to classify failures as "Geometric Ambiguity" or "Semantic Gap" and **calculate the proportion of failures attributable to semantic disambiguation** (FR-006, SC-004)
+- [X] T021 [US3] Implement `code/benchmark/analyze_failures.py` to classify failures as "Geometric Ambiguity" or "Semantic Gap" and **calculate the proportion of failures attributable to semantic disambiguation** (FR-006, SC-004)
 - [ ] T022 [US3] Generate `data/results/failure_analysis_report.md` with summary counts, **proportion statistic**, and representative example scene IDs (US-3, SC-004)
-- [ ] T023 [US3] Update `code/main.py` to include failure analysis as a final step in the pipeline
+- [X] T023 [US3] Update `code/main.py` to include failure analysis as a final step in the pipeline
 
 **Checkpoint**: Failure analysis report identifies root causes of symbolic solver underperformance and quantifies the semantic gap proportion.
 
@@ -107,8 +107,8 @@
 
 **Purpose**: Documentation, validation, and final checks.
 
-- [ ] T024 [P] [Polish] Update `docs/quickstart.md` with execution instructions for the full pipeline
-- [ ] T025 [Polish] Run `code/hygiene.py` to finalize artifact hashes (including `data/results/*`) and update state YAML
+- [X] T024 [P] [Polish] Update `docs/quickstart.md` with execution instructions for the full pipeline
+- [X] T025 [Polish] Run `code/hygiene.py` to finalize artifact hashes (including `data/results/*`) and update state YAML
 - [ ] T026 [Polish] Verify all acceptance scenarios in `spec.md` are met by running the full pipeline end-to-end
 - [ ] T027 [Polish] Validate that no VLM traces are present in solver input (FR-001, FR-002)
 

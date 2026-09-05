@@ -1,38 +1,19 @@
 """
-Project Setup Script for llmXive - Evaluating the Impact of Code Generation
-
-This script creates the necessary directory structure for the research project
-as defined in the implementation plan (FR-001, FR-002).
+Project initialization script.
+Creates the required directory structure for the llmXive automated science pipeline.
 """
 import os
 import sys
 from pathlib import Path
 
-
 def main():
-    """
-    Create the project directory structure.
+    """Create the project directory structure as defined in the implementation plan."""
+    # Define the base project root (assuming script is run from project root or code/)
+    # We use the parent of this script's directory to ensure we hit the project root
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
 
-    Creates the following directories relative to the project root:
-    - code/data
-    - code/analysis
-    - data/raw
-    - data/processed
-    - data/baseline_corpus
-    - tests/unit
-    - tests/integration
-    - docs/reports
-    """
-    # Define the base path (project root)
-    # We assume this script is run from the project root or code/ directory
-    # If run from code/, we need to go up one level
-    current_file = Path(__file__).resolve()
-    if current_file.parent.name == 'code':
-        project_root = current_file.parent.parent
-    else:
-        project_root = current_file.parent
-
-    # Define the directories to create
+    # Define the directories to create relative to project root
     directories = [
         "code/data",
         "code/analysis",
@@ -45,39 +26,35 @@ def main():
     ]
 
     created_count = 0
-    skipped_count = 0
-
-    print(f"Setting up project structure in: {project_root}")
+    existing_count = 0
 
     for dir_path in directories:
         full_path = project_root / dir_path
-        try:
-            # exist_ok=True ensures we don't error if the directory already exists
+        if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            if full_path.is_dir():
-                print(f"  ✓ Created/Verified: {dir_path}")
-                created_count += 1
-            else:
-                print(f"  ✗ Failed to create: {dir_path} (file exists with same name)")
-        except PermissionError:
-            print(f"  ✗ Permission denied: {dir_path}")
-        except Exception as e:
-            print(f"  ✗ Error creating {dir_path}: {e}")
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            existing_count += 1
+            # print(f"Directory already exists: {full_path}")
 
-    print(f"\nSetup complete: {created_count} directories ready, {skipped_count} skipped.")
+    print(f"Project structure initialization complete.")
+    print(f"  New directories created: {created_count}")
+    print(f"  Existing directories: {existing_count}")
 
-    # Verification: List the created structure
-    print("\nProject Structure Verification:")
+    # Verify structure
+    missing = []
     for dir_path in directories:
         full_path = project_root / dir_path
-        if full_path.exists():
-            print(f"  [OK] {dir_path}")
-        else:
-            print(f"  [MISSING] {dir_path}")
-            return 1
-
-    return 0
-
+        if not full_path.exists():
+            missing.append(dir_path)
+    
+    if missing:
+        print(f"ERROR: Failed to create the following directories: {missing}")
+        sys.exit(1)
+    else:
+        print("Verification: All required directories exist.")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

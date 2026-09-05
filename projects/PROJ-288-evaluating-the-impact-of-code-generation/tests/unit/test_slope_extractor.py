@@ -1,135 +1,161 @@
-"""
-Unit tests for T027: Slope coefficient extraction.
-"""
+import pytest
 import json
-import os
-import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import numpy as np
 
-import pytest
-
-# Import the functions to test
 from analysis.slope_extractor import extract_code_size_slope, run_slope_extraction
 
 class TestExtractCodeSizeSlope:
-    
-    def test_extract_from_list_of_dicts(self):
-        """Test extraction when coefficients are a list of dicts (statsmodels style)."""
-        results = {
-            "lmer": {
-                "coefficients": [
-                    {"term": "Intercept", "coef": 10.5},
-                    {"term": "code_size", "coef": 0.45},
-                    {"term": "reviewer_count", "coef": -2.1}
-                ]
-            }
-        }
-        slope = extract_code_case_slope(results)
-        assert slope == 0.45
+    """Unit tests for code size slope extraction."""
 
-    def test_extract_from_dict(self):
-        """Test extraction when coefficients are a flat dict."""
+    def test_extract_slope_from_dict_coefficients(self):
+        """Test extraction when coefficients are stored as a dictionary."""
         results = {
-            "lmer": {
-                "coefficients": {
-                    "Intercept": 10.5,
-                    "code_size": 0.88,
-                    "reviewer_count": -2.1
+            'lmer': {
+                'coefficients': {
+                    'code_lines_changed': {
+                        'estimate': 0.025,
+                        'p_value': 0.003
+                    },
+                    'origin_label': {
+                        'estimate': -1.5,
+                        'p_value': 0.04
+                    }
                 }
             }
         }
-        slope = extract_code_case_slope(results)
-        assert slope == 0.88
+        
+        slope_info = extract_code_size_slope(results)
+        
+        assert slope_info['code_size_slopes']['estimate'] == 0.025
+        assert slope_info['code_size_slopes']['p_value'] == 0.003
 
-    def test_extract_case_insensitive(self):
-        """Test that 'Code_Size' is matched correctly."""
+    def test_extract_slope_from_list_coefficients(self):
+        """Test extraction when coefficients are stored as a list."""
         results = {
-            "lmer": {
-                "coefficients": {
-                    "Code_Size": 0.12
-                }
-            }
-        }
-        slope = extract_code_case_slope(results)
-        assert slope == 0.12
-
-    def test_missing_coefficients(self):
-        """Test behavior when coefficients key is missing."""
-        results = {"lmer": {}}
-        slope = extract_code_case_slope(results)
-        assert slope is None
-
-    def test_missing_code_size(self):
-        """Test behavior when code_size is not in coefficients."""
-        results = {
-            "lmer": {
-                "coefficients": [
-                    {"term": "Intercept", "coef": 10.5}
+            'lmer': {
+                'coefficients': [
+                    {'term': 'code_lines_changed', 'estimate': 0.03, 'p_value': 0.001},
+                    {'term': 'reviewer_count', 'estimate': -0.5, 'p_value': 0.02}
                 ]
             }
         }
-        slope = extract_code_case_slope(results)
-        assert slope is None
+        
+        slope_info = extract_code_size_slope(results)
+        
+        assert slope_info['code_size_slopes']['estimate'] == 0.03
+        assert slope_info['code_size_slopes']['p_value'] == 0.001
 
-# Helper to expose the internal function if it were private, 
-# but here we assume it's public as per the module structure.
-# Note: The function name in the module is 'extract_code_size_slope', 
-# but the test method above used a typo 'extract_code_case_slope' in the call.
-# Correcting the calls below to match the actual implementation.
-
-@pytest.fixture
-def mock_results_file(tmp_path):
-    """Create a temporary analysis_results.json file."""
-    data = {
-        "mann_whitney": {"statistic": 100, "p_value": 0.05},
-        "lmer": {
-            "coefficients": [
-                {"term": "Intercept", "coef": 5.0},
-                {"term": "code_size", "coef": 0.75},
-                {"term": "origin_label", "coef": -1.2}
-            ],
-            "variance_components": {"repo": 0.5}
+    def test_extract_simex_corrected_slope(self):
+        """Test extraction of SIMEX corrected slope."""
+        results = {
+            'lmer': {
+                'coefficients': {
+                    'code_lines_changed': {
+                        'estimate': 0.025,
+                        'p_value': 0.003
+                    }
+                }
+            },
+            'simex_corrected_coefficients': {
+                'code_lines_changed': {
+                    'estimate': 0.028,
+                    'p_value': 0.002
+                }
+            }
         }
-    }
-    file_path = tmp_path / "analysis_results.json"
-    with open(file_path, "w") as f:
-        json.dump(data, f)
-    return file_path
+        
+        slope_info = extract_code_size_slope(results)
+        
+        # Should prefer SIMEX corrected value
+        assert slope_info['code_size_slopes']['estimate'] == 0.028
+        assert slope_info['code_size_slopes']['p_value'] == 0.002
 
-@patch("analysis.slope_extractor.load_analysis_results")
-@patch("analysis.slope_extractor.save_analysis_results")
-def test_run_slope_extraction_success(mock_save, mock_load, mock_results_file):
-    """Test the full run function with valid data."""
-    mock_load.return_value = {
-        "lmer": {
-            "coefficients": [
-                {"term": "Intercept", "coef": 5.0},
-                {"term": "code_size", "coef": 0.75}
-            ]
+    def test_no_lmer_results(self):
+        """Test behavior when LMER results are missing."""
+        results = {
+            'mann_whitney': {
+                'statistic': 1000.0,
+                'p_value': 0.05
+            }
         }
-    }
-    
-    result = run_slope_extraction()
-    
-    assert "code_size_slopes" in result
-    assert result["code_size_slopes"] == 0.75
-    mock_save.assert_called_once()
+        
+        slope_info = extract_code_size_slope(results)
+        
+        assert slope_info['code_size_slopes'] is None
+        assert 'note' in slope_info
 
-@patch("analysis.slope_extractor.load_analysis_results")
-@patch("analysis.slope_extractor.save_analysis_results")
-def test_run_slope_extraction_missing_data(mock_save, mock_load):
-    """Test the full run function when slope is missing."""
-    mock_load.return_value = {
-        "lmer": {
-            "coefficients": [
-                {"term": "Intercept", "coef": 5.0}
-            ]
+    def test_missing_code_size_coefficient(self):
+        """Test behavior when code size coefficient is missing."""
+        results = {
+            'lmer': {
+                'coefficients': {
+                    'origin_label': {
+                        'estimate': -1.5,
+                        'p_value': 0.04
+                    }
+                }
+            }
         }
-    }
-    
-    result = run_slope_extraction()
-    
-    assert "code_size_slopes" in result
-    assert result["code_size_slopes"] is None
-    mock_save.assert_called_once()
+        
+        slope_info = extract_code_size_slope(results)
+        
+        assert slope_info['code_size_slopes']['estimate'] is None
+        assert slope_info['code_size_slopes']['p_value'] is None
+
+class TestRunSlopeExtraction:
+    """Unit tests for the run_slope_extraction function."""
+
+    @patch('analysis.slope_extractor.load_analysis_results')
+    @patch('analysis.slope_extractor.save_analysis_results')
+    def test_run_extraction_success(self, mock_save, mock_load, tmp_path):
+        """Test successful extraction and saving."""
+        mock_results = {
+            'lmer': {
+                'coefficients': {
+                    'code_lines_changed': {
+                        'estimate': 0.025,
+                        'p_value': 0.003
+                    }
+                }
+            }
+        }
+        mock_load.return_value = mock_results
+        
+        input_path = tmp_path / "input.json"
+        output_path = tmp_path / "output.json"
+        
+        results = run_slope_extraction(input_path, output_path)
+        
+        mock_load.assert_called_once_with(input_path)
+        mock_save.assert_called_once()
+        assert 'code_size_slopes' in results
+        assert results['code_size_slopes']['estimate'] == 0.025
+
+    @patch('analysis.slope_extractor.load_analysis_results')
+    @patch('analysis.slope_extractor.save_analysis_results')
+    def test_run_extraction_preserves_existing_data(self, mock_save, mock_load, tmp_path):
+        """Test that extraction preserves other analysis results."""
+        mock_results = {
+            'mann_whitney': {'statistic': 1000.0, 'p_value': 0.05},
+            'lmer': {
+                'coefficients': {
+                    'code_lines_changed': {
+                        'estimate': 0.025,
+                        'p_value': 0.003
+                    }
+                }
+            }
+        }
+        mock_load.return_value = mock_results
+        
+        input_path = tmp_path / "input.json"
+        output_path = tmp_path / "output.json"
+        
+        results = run_slope_extraction(input_path, output_path)
+        
+        # Verify mann_whitney is still present
+        assert 'mann_whitney' in results
+        assert results['mann_whitney']['p_value'] == 0.05
+        assert 'code_size_slopes' in results

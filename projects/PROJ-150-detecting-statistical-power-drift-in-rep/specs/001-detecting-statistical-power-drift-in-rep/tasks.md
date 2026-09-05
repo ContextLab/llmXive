@@ -55,16 +55,16 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 [P] Create `code/__init__.py` and establish package structure
-- [ ] T006 Implement `code/download_data.py` with real data fetch logic (no synthetic fallbacks) using `huggingface_hub` to fetch the `osf/reproducibility_project` dataset, specifically the `data.csv` file. **Logic**:
+- [X] T006 Implement `code/download_data.py` with real data fetch logic (no synthetic fallbacks) using `huggingface_hub` to fetch the `osf/reproducibility_project` dataset, specifically the `data.csv` file. **Logic**:
  1. Attempt to fetch using `datasets.load_dataset("osf/reproducibility_project", split="train", streaming=True)` if file size > 100MB, else `read_csv`.
  2. **CRITICAL**: If the dataset fetch fails (network error, 404), raise `DataFetchError`. Do NOT fall back to synthetic data.
  3. **Verification**: Ensure the loader yields rows correctly and handles chunking if triggered. **Output**: A reusable data loader function in `code/download_data.py` and the file `data/raw/data.csv`. **Dependency**: T006 must complete before T007. (FR-010, Plan Compute Constraints, Constitution Principle II) **Schema Validation**: Confirm the downloaded file contains the required columns: `year`, `effect_size`, `sample_size`, `field`.
 - [ ] T007 Implement `code/validate_schema.py` for URL reachability and column presence validation. **Logic**: Verify that the downloaded file contains the required columns: `year`, `effect_size`, `sample_size`, `field`. **CRITICAL**: If any column is missing, raise a `SchemaValidationError` immediately. Do NOT proceed. **Output**: `data/derived/schema_validation.json` containing `{"status": "valid", "columns_found": [...]}`. **Dependency**: T007 must complete before T011a. (FR-008, Plan Data Preparation)
  - **Schema Definition**: The output JSON MUST contain the following keys:
-   - `status`: "valid" or "invalid"
-   - `columns_found`: list of strings
-   - `missing_columns`: list of strings (only if invalid)
-   - `valid_levels`: object (optional, populated by T011b if needed, but T007 ensures basic schema)
+ - `status`: "valid" or "invalid"
+ - `columns_found`: list of strings
+ - `missing_columns`: list of strings (only if invalid)
+ - `valid_levels`: object (optional, populated by T011b if needed, but T007 ensures basic schema)
  - **Code**:
  ```python
  import pandas as pd
@@ -189,7 +189,7 @@
  preprocess_data("data/raw/data.csv", "data/derived/cleaned_data.csv")
  ```
 
-- [ ] T011b [US1] Implement `code/preprocess.py` to validate grouping variables (`field`, `original_study_id`) for variance and cardinality. **Logic**:
+- [X] T011b [US1] Implement `code/preprocess.py` to validate grouping variables (`field`, `original_study_id`) for variance and cardinality. **Logic**:
  1. Check that each grouping factor has > 1 unique level. If a factor has only 1 level (single study), flag it as "single_level" for **exclusion from the dataset** in downstream modeling.
  2. **Zero Variance Check (FIXED)**: For each factor, iterate through unique levels. Calculate the variance of `power_estimate` for each specific level. If a specific level has zero variance (or NaN due to single item), mark **that specific level** as invalid. Do NOT flag the entire factor unless ALL levels are invalid.
  3. **Output**: Save `data/derived/grouping_validation.json` with status per factor and a list of valid levels.
@@ -379,7 +379,7 @@
  run_model_pipeline()
  ```
 
-- [ ] T013 [US1] Implement `code/visualize.py` to generate a scatter plot of **residual power vs. year**. **Definition**: Residuals are `model_residual` from `data/derived/residuals.csv` (produced by T011c). **Input**: `data/derived/residuals.csv`. **Output**: Save plot to `results/power_drift_scatter.png`. **Verification**: Ensure `results/power_drift_scatter.png` exists, has non-zero dimensions, and contains a regression line showing the drift trend **with % confidence intervals** (shaded region or error bars). (FR-009) **Depends on T011c**.
+- [ ] T013 [US1] Implement `code/visualize.py` to generate a scatter plot of **residual power vs. year**. **Definition**: Residuals are `model_residual` from `data/derived/residuals.csv` (produced by T011c). **Input**: `data/derived/residuals.csv`. **Output**: Save plot to `results/power_drift_scatter.png`. **Verification**: Ensure `results/power_drift_scatter.png` exists, has non-zero dimensions, and contains a regression line showing the drift trend **with % confidence intervals** (shaded region or error bars). (FR-009) **Depends on T011c**. <!-- FAILED: unspecified -->
  - **Code**:
  ```python
  import pandas as pd
@@ -439,7 +439,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/robustness.py` for **Year Permutation Test**. **Logic**:
+- [X] T020 [US2] Implement `code/robustness.py` for **Year Permutation Test**. **Logic**: <!-- FAILED: unspecified -->
  1. Load `results/lmm_final_summary.json` to get the observed `slope_year` and `p_value_lrt`.
  2. Load `data/derived/residuals.csv`.
  3. **Permutation Loop**: Shuffle the `year` column N times. **Default**: 10,000 permutations. **Fallback**: If timeout or memory error occurs, reduce to 1,000 permutations and log a warning.
@@ -538,7 +538,7 @@
  year_permutation_test("data/derived/residuals.csv", "results/lmm_final_summary.json", "results/permutation_pvalue.json")
  ```
 
-- [ ] T020b [US2] Implement **Input Permutation Test** within `code/robustness.py`. **Logic**:
+- [X] T020b [US2] Implement **Input Permutation Test** within `code/robustness.py`. **Logic**: <!-- FAILED: unspecified -->
  1. Load `data/derived/cleaned_data.csv` (to have original effect_size/sample_size).
  2. **Permutation Loop**: Shuffle entire study rows (preserving the joint distribution of `effect_size` and `sample_size`) N times (holding `year` **CONSTANT**). N = 10,000 (default), fallback to [deferred] if timeout/memory error.
  3. **Recalculate Power & Residuals**: For each shuffle, recalculate `power_estimate` and `power_residual` using the shuffled inputs.
@@ -652,7 +652,7 @@
  input_permutation_test("data/derived/cleaned_data.csv", "results/lmm_final_summary.json", "results/input_permutation.json")
  ```
 
-- [ ] T021b [US2] Implement **Sensitivity Analysis** within `code/robustness.py`. **Logic**:
+- [X] T021b [US2] Implement **Sensitivity Analysis** within `code/robustness.py`. **Logic**:
  1. Define a range of alpha thresholds: `{0.01, 0.05, 0.1}`.
  2. For each alpha, re-run the full LMM pipeline (or at least the LRT) on the original, unshuffled data.
  3. **Record Significance**: Note whether the `year` effect remains significant (p < alpha) for each threshold.
@@ -744,7 +744,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement `code/aggregate.py` for **Cross-Field Aggregation**. **Logic**:
+- [ ] T025 [US3] Implement `code/aggregate.py` for **Cross-Field Aggregation**. **Logic**: <!-- ATOMIZE: requested -->
  1. Load `data/derived/residuals.csv`.
  2. **Stratify**: Group data by `field`.
  3. **Per-Field Models**: For each field with sufficient data (>1 study), fit a separate LMM `power_residual ~ year + (1|original_study_id)` (or OLS if single study).
@@ -753,7 +753,7 @@
  6. **Weighted Average**: Compute the inverse-variance weighted mean of the slopes.
  7. **Output**: Save `results/aggregated_drift.json` with keys: `field_slopes`, `heterogeneity_q`, `tau_squared`, `aggregated_slope`, `aggregated_se`, `aggregated_p_value`. (FR-006) **Depends on T011c**.
 
-- [ ] T027 [US3] Implement **Input Permutation Validation**. **Logic**:
+- [ ] T027 [US3] Implement **Input Permutation Validation**. **Logic**: <!-- FAILED: unspecified -->
  1. **Trigger**: Check `results/input_permutation.json` (from T020b). If `iterations` < 10,000 (indicating a fallback was used), re-run the input permutation with a fixed count of [deferred] to ensure a robust null distribution.
  2. **Comparison**: Compare the aggregated slope (from T025) against the null distribution generated in T020b/T027. **CRITICAL**: Load the `null_distribution` list from `results/input_permutation.json`.
  3. **Output**: Update `results/input_permutation.json` to include the aggregated slope comparison. Specifically, add the key `aggregated_slope_p_value` which is the p-value of the aggregated slope against the null distribution. (FR-007, SC-005) **Depends on T025, T020b**.
@@ -792,7 +792,7 @@
  "results/input_permutation.json",
  max_iterations=10000,
  fallback_iterations=1000
- )
+)
  logger.info("Input permutation validation completed.")
  else:
  logger.info("Input permutation already ran with sufficient iterations. Skipping validation.")
@@ -835,7 +835,7 @@
 - [ ] T030 [P] Generate `results/final_report.md` summarizing all findings (LMM, Permutations, Sensitivity, Aggregation).
 - [ ] T031 [P] Run `pytest` to ensure all unit and integration tests pass.
 - [ ] T032 [P] Update `README.md` with execution instructions and expected outputs.
-- [ ] T033 [P] Verify all JSON artifacts against schemas in `contracts/`.
+- [~] T033 [P] Verify all JSON artifacts against schemas in `contracts/`.
 
 ---
 
@@ -846,8 +846,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -913,9 +913,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

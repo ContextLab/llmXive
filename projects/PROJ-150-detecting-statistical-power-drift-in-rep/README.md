@@ -1,159 +1,107 @@
 # Detecting Statistical Power Drift in Replicated Studies
 
-**Project ID**: PROJ-150-detecting-statistical-power-drift-in-rep
-
-## Overview
-
-This project implements an automated pipeline to detect and quantify statistical power drift over time in replicated studies. It analyzes the relationship between study year and post-hoc power estimates using Linear Mixed-Effects Models (LMM) and validates findings through robustness checks (permutation tests, sensitivity analysis) and cross-field aggregation.
-
-The pipeline is designed to run on CPU-only environments within a 6-hour window, handling large datasets via streaming where necessary.
-
-## Key Features
-
-- **Data Ingestion**: Downloads and validates the OSF Reproducibility Project dataset.
-- **Preprocessing**: Cleans data, handles missing values, and validates grouping variables.
-- **Power Estimation**: Calculates post-hoc power estimates based on effect sizes and sample sizes.
-- **Drift Analysis**: Fits a Linear Mixed-Effects Model (LMM) to test for temporal decline in power (`power_residual ~ year + (1|field) + (1|original_study_id)`).
-- **Robustness Checks**:
- - Non-parametric permutation tests (shuffling year labels).
- - Sensitivity analysis across alpha thresholds.
-- **Cross-Field Aggregation**: Combines drift estimates across fields using DerSimonian-Laird weighting.
-- **Visualization**: Generates scatter plots of residual power vs. year and null distribution comparisons.
-
-## Directory Structure
-
-```text
-PROJ-150-detecting-statistical-power-drift-in-rep/
-├── code/ # Python implementation modules
-│ ├── download.py # Data fetching and validation
-│ ├── preprocess.py # Data cleaning and validation
-│ ├── power_calc.py # Power calculation logic
-│ ├── models.py # LMM fitting and pilot OLS
-│ ├── robustness.py # Permutation tests and aggregation
-│ ├── visualize.py # Plot generation
-│ ├── main.py # Pipeline orchestrator
-│ └── timing.py # Execution time instrumentation
-├── data/
-│ ├── raw/ # Downloaded raw data (e.g., data.csv)
-│ └── derived/ # Cleaned data, residuals, intermediate models
-├── results/ # Final outputs (JSON summaries, plots)
-├── state/ # Project state tracking (SHA-256 hashes)
-├── tests/ # Unit and integration tests
-├── docs/ # Documentation (methodology, etc.)
-└── README.md # This file
-```
+This project implements an automated pipeline to detect temporal drift in statistical power across replicated scientific studies, using data from the OSF Reproducibility Project.
 
 ## Prerequisites
 
 - Python 3.8+
-- pip (package manager)
-- Access to the internet (for initial dataset download)
+- `pip` for dependency management
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory.
-2. Install dependencies:
-
+1. Clone the repository and navigate to the project directory:
  ```bash
+ cd projects/PROJ-150-detecting-statistical-power-drift-in-rep
+ ```
+
+2. Create a virtual environment and install dependencies:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
  pip install -r requirements.txt
  ```
 
-3. Ensure the `data/raw` directory is writable.
+## Execution Instructions
 
-## Usage
+The pipeline is executed sequentially via the following steps. Ensure all steps complete successfully before proceeding to the next.
 
-### Running the Full Pipeline
-
-Execute the main pipeline script to run the entire workflow from data download to final report generation:
-
+### Step 1: Data Download
+Fetches the raw dataset from the OSF repository via Hugging Face Datasets.
 ```bash
-python code/main.py
+python code/download_data.py
 ```
+**Output**: `data/raw/data.csv`
 
-This will:
-1. Download and validate the dataset.
-2. Preprocess data and calculate power estimates.
-3. Fit the LMM and extract drift metrics.
-4. Run robustness checks (permutation, sensitivity).
-5. Generate visualizations and final JSON reports.
-6. Update the project state file with artifact hashes.
-
-### Running with Timing Instrumentation
-
-To generate a timing report (`results/timing_report.json`) to verify the 6-hour execution limit:
-
+### Step 2: Schema Validation
+Validates the presence of required columns (`year`, `effect_size`, `sample_size`, `field`).
 ```bash
-python code/timing.py
+python code/validate_schema.py
 ```
+**Output**: `data/derived/schema_validation.json`
 
-### Running on a Subset (Testing/Debugging)
-
-For faster execution during development, run the pipeline on a static subset of the data:
-
+### Step 3: Preprocessing & Power Calculation
+Cleans data, handles missing values, and calculates statistical power estimates.
 ```bash
-python code/run_subset_pipeline.py
+python code/preprocess.py
 ```
+**Output**: `data/derived/cleaned_data.csv`, `data/derived/grouping_validation.json`
 
-### Individual Modules
-
-You can also run specific modules independently:
-
-- **Download & Validate**:
- ```bash
- python code/download.py
- ```
-- **Preprocess**:
- ```bash
- python code/preprocess.py
- ```
-- **Fit Models**:
- ```bash
- python code/models.py
- ```
-- **Robustness Checks**:
- ```bash
- python code/robustness.py
- ```
-- **Visualize**:
- ```bash
- python code/visualize.py
- ```
-
-## Output Artifacts
-
-Upon successful completion, the following artifacts will be generated:
-
-- `data/derived/cleaned_data.csv`: Filtered and validated dataset.
-- `data/derived/residuals.csv`: Residualized power estimates.
-- `results/lmm_final_summary.json`: Primary drift metrics (slope, SE, CI, LRT p-value).
-- `results/permutation_pvalue.json`: Empirical p-value from permutation test.
-- `results/sensitivity_report.json`: Drift significance across alpha thresholds.
-- `results/aggregated_drift.json`: Cross-field aggregated drift estimate.
-- `results/power_drift_scatter.png`: Visualization of drift trend.
-- `results/timing_report.json`: Execution duration and stage timings.
-
-## Methodology
-
-The core analysis uses a **Linear Mixed-Effects Model (LMM)** to test the hypothesis that statistical power drifts over time.
-
-1. **Power Calculation**: Post-hoc power is estimated using Cohen's d and sample sizes.
-2. **Residualization**: A pilot OLS model (`power_est ~ effect_size + sample_size`) is fitted to capture deterministic relationships. The residuals (`power_residual`) serve as the outcome variable to isolate temporal effects.
-3. **LMM Fitting**: The primary model is:
- `power_residual ~ year + (1|field) + (1|original_study_id)`
- - **Fixed Effect**: `year` (tests for drift).
- - **Random Effects**: `field` and `original_study_id` (accounts for hierarchical structure).
-4. **Robustness**:
- - **Permutation**: Shuffling `year` labels to generate a null distribution.
- - **Sensitivity**: Sweeping alpha thresholds to check result stability.
- - **Aggregation**: Combining field-specific slopes using inverse-variance weighting.
-
-## Testing
-
-Run the test suite to verify functionality:
-
+### Step 4: Model Fitting (LMM)
+Fits a Linear Mixed-Effects Model with crossed random effects to test for temporal drift.
 ```bash
-pytest tests/ -v
+python code/model_fit.py
 ```
+**Output**: `results/lmm_final_summary.json`, `data/derived/residuals.csv`
+
+### Step 5: Visualization
+Generates a scatter plot of residual power vs. year with confidence intervals.
+```bash
+python code/visualize.py
+```
+**Output**: `results/power_drift_scatter.png`
+
+### Step 6: Robustness Checks
+Performs permutation tests and sensitivity analysis.
+```bash
+python code/robustness.py
+```
+**Output**: `results/permutation_pvalue.json`, `results/input_permutation.json`, `results/sensitivity_report.json`
+
+### Step 7: Cross-Field Aggregation
+Aggregates drift statistics across fields using DerSimonian-Laird method.
+```bash
+python code/aggregate.py
+```
+**Output**: `results/aggregated_drift.json`
+
+### Step 8: Final Report
+Generates a comprehensive markdown report summarizing all findings.
+```bash
+python code/generate_final_report.py
+```
+**Output**: `results/final_report.md`
+
+## Expected Outputs
+
+Upon successful execution, the following artifacts will be generated:
+
+- **Raw Data**: `data/raw/data.csv`
+- **Derived Data**:
+ - `data/derived/cleaned_data.csv`
+ - `data/derived/residuals.csv`
+ - `data/derived/grouping_validation.json`
+- **Results**:
+ - `results/lmm_final_summary.json` (Model coefficients and LRT stats)
+ - `results/power_drift_scatter.png` (Visualization)
+ - `results/permutation_pvalue.json` (Permutation test results)
+ - `results/aggregated_drift.json` (Cross-field aggregation)
+ - `results/final_report.md` (Executive summary)
+
+## Troubleshooting
+
+- **Missing Data**: If `data/raw/data.csv` is missing, ensure `code/download_data.py` ran successfully and network access to Hugging Face is available.
+- **Schema Errors**: If `data/derived/cleaned_data.csv` is empty, check `data/derived/schema_validation.json` for missing columns.
+- **Model Convergence**: Warnings about convergence in `code/model_fit.py` logs are non-fatal but should be reviewed if results seem unstable.
 
 ## License
 

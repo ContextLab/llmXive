@@ -1,12 +1,11 @@
 T041:
   c: false
-  h: 17391e23eb429cd68e2f9b3cd080d067fe1d7af7448b338cad2312acf395be9a
-  r: "The required `data/processed/crosslinker_sensitivity_report.csv` does not exist,\
-    \ and the provided `code/modeling.py` excerpt shows only generic model training\
-    \ utilities with no implementation of a sensitivity\u2011analysis routine that\
-    \ reads the proxy definitions, normalizes atomic counts, computes R\xB2, RMSE\
-    \ and variance, and writes the specified CSV. The task\u2019s core output and\
-    \ functionality are therefore missing."
+  h: 3e364ac40cbb44b855e08a21caf2ff51edd676bf527ed44a1fa005db89a8867e
+  r: "The `code/modeling.py` file does not contain any implementation of a sensitivity\u2011\
+    analysis routine that iterates over the proxy definitions from `config.py`, fits\
+    \ models on atomic\u2011fraction inputs, and writes the required `crosslinker_sensitivity_report.csv`.\
+    \ Moreover, the expected CSV output file is absent from `data/processed/`. The\
+    \ task\u2019s core requirement is therefore not satisfied."
 T060:
   c: false
   h: c7b5d44fb4f0b9b82bb18ba1057e3b3c0b07361563ce6c4a7aa69a0e8fec8d4a
@@ -58,10 +57,10 @@ T084:
     \ and halt execution via `write_halt_signal`. The implementation fulfills the\
     \ task\u2019s specification."
 T093:
-  c: false
-  h: 70f6a2f8c202afcf2839b246a37f1686880a76bba9868a7deb820462a7c85b07
-  r: "The `code/main.py` script never reads or validates `data/processed/data_source_verification_report.json`,\
-    \ nor does it call any function to write `state/HALT_SIGNAL.yaml` based on that\
-    \ check. Moreover, the required `data/processed/data_source_verification_report.json`\
-    \ file is absent from the repository. The task\u2019s core requirement is therefore\
-    \ not satisfied."
+  c: true
+  h: eebf7cfb4fc897f5a5d98c578bde48a0e4e2b21f0319808ae61d4015a80de9b6
+  r: "The `code/main.py` file contains the `check_data_source_verification()` function\
+    \ that reads `data/processed/data_source_verification_report.json`, detects missing\
+    \ or non\u2011zero status entries, and calls `write_halt_signal` to create `state/HALT_SIGNAL.yaml`\
+    \ before exiting. The `state/HALT_SIGNAL.yaml` file is present, confirming the\
+    \ halt\u2011signal behavior works as intended."

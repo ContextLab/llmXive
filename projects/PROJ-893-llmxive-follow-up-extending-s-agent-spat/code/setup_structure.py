@@ -2,9 +2,10 @@ import os
 import sys
 from pathlib import Path
 
-def create_directories():
+def create_directories(base_path: Path) -> None:
     """
-    Creates the project directory structure as defined in plan.md.
+    Create the project directory structure as defined in plan.md.
+    
     Directories created:
     - code/
     - data/raw/
@@ -13,30 +14,27 @@ def create_directories():
     - specs/
     - tests/
     """
-    base_path = Path(__file__).resolve().parent.parent
-    
     directories = [
         "code",
         "data/raw",
         "data/derived",
         "data/results",
         "specs",
-        "tests"
+        "tests",
+        "state/projects"
     ]
     
-    created_count = 0
-    for dir_name in directories:
-        dir_path = base_path / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
-    
-    print(f"Project structure initialization complete. {created_count} new directories created.")
-    return True
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
+
+def main() -> None:
+    """Entry point for directory structure creation."""
+    base_path = Path.cwd()
+    print(f"Creating project structure in: {base_path}")
+    create_directories(base_path)
+    print("Project structure creation complete.")
 
 if __name__ == "__main__":
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    main()

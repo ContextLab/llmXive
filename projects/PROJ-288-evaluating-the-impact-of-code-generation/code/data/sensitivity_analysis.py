@@ -3,166 +3,219 @@ import csv
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
+
+# Import from existing API surface
 from data.classify import load_sampled_prs, calculate_heuristic_scores, check_disclosure_keywords
 from data.logging_config import get_logger
-from data.validate_labels import load_manual_labels, calculate_cohen_kappa
 
 logger = get_logger(__name__)
 
-def load_heuristic_scores_from_file(csv_path: str) -> List[Dict[str, Any]]:
+def load_heuristic_scores_from_file(file_path: str) -> List[Dict[str, Any]]:
     """
-    Load the sampled PRs which should already contain heuristic scores 
-    (calculated in T015) and manual labels (if available for validation).
-    Returns a list of dicts with keys: pr_number, heuristic_score, manual_label (optional).
+    Load heuristic scores from the processed CSV file.
+    Expects 'data/processed/sampled_prs.csv' which contains heuristic columns.
     """
-    data = []
-    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {file_path}")
+    
+    records = []
+    with open(path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            record = {
-                'pr_number': int(row['pr_number']),
-                'heuristic_score': float(row.get('heuristic_score', 0.0)),
-                'origin_label': row.get('origin_label', 'Non-Disclosing'),
-                'manual_label': None
-            }
-            # Try to extract manual label if present in the row or later joined
-            if 'manual_label' in row:
-                record['manual_label'] = row['manual_label']
-            data.append(record)
-    return data
+            # Convert numeric string fields to float
+            record = {}
+            for k, v in row.items():
+                try:
+                    # Try to convert to float if possible
+                    record[k] = float(v)
+                except (ValueError, TypeError):
+                    record[k] = v
+            records.append(record)
+    
+    logger.info(f"Loaded {len(records)} records from {file_path}")
+    return records
 
 def calculate_sensitivity_metrics(
-    data: List[Dict[str, Any]], 
-    thresholds: List[float],
-    manual_labels: Dict[int, str]
+    records: List[Dict[str, Any]], 
+    thresholds: List[float]
 ) -> List[Dict[str, Any]]:
     """
-    Sweep across thresholds to calculate error rates (FP, FN, Accuracy) 
-    against manual labels.
+    Calculate sensitivity metrics (error rates) for a range of thresholds.
     
-    Context: The primary label 'origin_label' is keyword-based.
-    This analysis tests the sensitivity of the *heuristic* scores 
-    (validation/covariate) against manual ground truth.
+    Context: The primary label is binary (Disclosing/Non-Disclosing) based on keywords.
+    This analysis sweeps thresholds on the *heuristic scores* (covariates) to see
+    how classification quality changes if we were to use heuristics as a proxy.
     
-    Returns a list of metrics dicts.
+    We compare the heuristic-based prediction (at threshold T) against the 
+    'manual_label' (ground truth) if available, or the keyword label if manual is missing.
+    
+    Returns a list of metrics dicts: {threshold, true_positives, false_positives, 
+    true_negatives, false_negatives, precision, recall, f1, error_rate}
     """
-    results = []
+    if not records:
+        logger.warning("No records provided for sensitivity analysis.")
+        return []
+
+    metrics_list = []
     
-    for thresh in thresholds:
-        tp, tn, fp, fn = 0, 0, 0, 0
+    # Identify ground truth column. Prefer 'manual_label' if it exists in data, 
+    # otherwise fallback to 'origin_label' (keyword-based).
+    # We assume 'manual_label' is 1 for Disclosing, 0 for Non-Disclosing.
+    # 'origin_label' is string 'Disclosing'/'Non-Disclosing'.
+    has_manual = 'manual_label' in records[0]
+    ground_truth_key = 'manual_label' if has_manual else 'origin_label'
+    
+    # Heuristic score key. Based on T015, this is likely 'heuristic_score' or similar.
+    # We look for the column that contains the continuous score.
+    heuristic_key = None
+    for key in records[0].keys():
+        if 'heuristic' in key.lower() and 'score' in key.lower():
+            heuristic_key = key
+            break
+    
+    if not heuristic_key:
+        # Fallback: try to find any float column that isn't an ID or count
+        for key in records[0].keys():
+            val = records[0][key]
+            if isinstance(val, float) and key.lower() not in ['pr_number', 'lines_changed', 'review_time']:
+                heuristic_key = key
+                break
+    
+    if not heuristic_key:
+        raise ValueError("Could not identify a heuristic score column in the dataset.")
+
+    logger.info(f"Using heuristic column: {heuristic_key}, Ground truth: {ground_truth_key}")
+
+    for threshold in thresholds:
+        tp, fp, tn, fn = 0, 0, 0, 0
         
-        for record in data:
-            pr_num = record['pr_number']
-            heuristic_score = record['heuristic_score']
+        for record in records:
+            score = float(record[heuristic_key])
             
-            # Predicted label based on heuristic threshold
-            predicted_label = 'Disclosing' if heuristic_score >= thresh else 'Non-Disclosing'
+            # Determine predicted label based on threshold
+            predicted_is_disclosing = score >= threshold
             
-            # Ground truth from manual labels
-            if pr_num not in manual_labels:
-                continue  # Skip if no manual label available for this PR
+            # Determine actual label
+            if has_manual:
+                actual_is_disclosing = int(record[ground_truth_key]) == 1
+            else:
+                actual_str = str(record[ground_truth_key])
+                actual_is_disclosing = (actual_str == 'Disclosing')
             
-            true_label = manual_labels[pr_num]
-            
-            if true_label == 'Disclosing':
-                if predicted_label == 'Disclosing':
-                    tp += 1
-                else:
-                    fn += 1
-            else: # true_label == 'Non-Disclosing'
-                if predicted_label == 'Non-Disclosing':
-                    tn += 1
-                else:
-                    fp += 1
+            if predicted_is_disclosing and actual_is_disclosing:
+                tp += 1
+            elif predicted_is_disclosing and not actual_is_disclosing:
+                fp += 1
+            elif not predicted_is_disclosing and actual_is_disclosing:
+                fn += 1
+            else:
+                tn += 1
         
-        total = tp + tn + fp + fn
-        if total == 0:
-            accuracy = 0.0
-            fpr = 0.0
-            fnr = 0.0
-        else:
-            accuracy = (tp + tn) / total
-            # False Positive Rate: FP / (FP + TN)
-            fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
-            # False Negative Rate: FN / (FN + TP)
-            fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
+        # Calculate metrics
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+        total = tp + fp + tn + fn
+        error_rate = (fp + fn) / total if total > 0 else 0.0
         
-        results.append({
-            'threshold': thresh,
-            'accuracy': accuracy,
-            'false_positive_rate': fpr,
-            'false_negative_rate': fnr,
-            'tp': tp,
-            'tn': tn,
-            'fp': fp,
-            'fn': fn
+        metrics_list.append({
+            'threshold': threshold,
+            'true_positives': tp,
+            'false_positives': fp,
+            'true_negatives': tn,
+            'false_negatives': fn,
+            'precision': precision,
+            'recall': recall,
+            'f1_score': f1,
+            'error_rate': error_rate
         })
         
-    return results
+        logger.debug(f"Threshold {threshold}: TP={tp}, FP={fp}, TN={tn}, FN={fn}, Error={error_rate:.4f}")
 
-def append_sensitivity_to_log(results: List[Dict[str, Any]], log_path: str):
+    return metrics_list
+
+def append_sensitivity_to_log(
+    metrics_list: List[Dict[str, Any]], 
+    log_path: str
+) -> None:
     """
-    Append the sensitivity analysis results to the existing validation_log.csv.
-    If the file doesn't exist or is empty, create it with headers.
+    Append sensitivity analysis results to the validation log CSV.
+    Creates the file if it doesn't exist, otherwise appends.
     """
-    file_exists = os.path.exists(log_path)
+    path = Path(log_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(log_path, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(
-            f, 
-            fieldnames=['threshold', 'accuracy', 'false_positive_rate', 'false_negative_rate', 'tp', 'tn', 'fp', 'fn', 'analysis_type']
-        )
+    fieldnames = [
+        'threshold', 'true_positives', 'false_positives', 'true_negatives', 
+        'false_negatives', 'precision', 'recall', 'f1_score', 'error_rate'
+    ]
+    
+    file_exists = path.exists() and path.stat().st_size > 0
+    
+    with open(path, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()
+            # Add a marker row to indicate this is sensitivity analysis
+            writer.writerow({'threshold': '---', 'error_rate': '---'}) 
+            writer.writerow({'threshold': 'Sensitivity Analysis Sweep', 'error_rate': '---'})
+            writer.writeheader() # Write header again after marker? No, standard CSV.
+            # Let's just write data. If file exists, we assume header is there.
+            # To be safe, we write header only if file is empty.
         
+        # Re-open to handle header logic cleanly if we want to be strictly CSV compliant
+        # But 'a' mode with DictWriter requires header check.
+        # Let's do a simpler append logic.
+        pass
+
+    # Rewrite for strict header handling
+    with open(path, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         if not file_exists:
             writer.writeheader()
         
-        for row in results:
-            row['analysis_type'] = 'sensitivity_sweep'
-            writer.writerow(row)
+        for m in metrics_list:
+            writer.writerow(m)
+    
+    logger.info(f"Sensitivity metrics appended to {log_path}")
 
 def main():
-    logger.info("Starting Sensitivity Analysis (T017)")
+    """
+    Main entry point for T017: Sensitivity Analysis Sweep.
     
-    # Paths
-    project_root = Path(__file__).resolve().parents[2]
-    sampled_csv_path = project_root / "data" / "processed" / "sampled_prs.csv"
-    manual_labels_path = project_root / "data" / "manual_labels.csv"
-    log_path = project_root / "data" / "validation_log.csv"
+    1. Load sampled PRs (which should have heuristic scores from T015).
+    2. Define a range of thresholds (e.g., 0.0 to 1.0 in steps of 0.1).
+    3. Calculate metrics for each threshold.
+    4. Append results to data/validation_log.csv.
+    """
+    logger.info("Starting Sensitivity Analysis (T017)...")
     
-    if not sampled_csv_path.exists():
-        logger.error(f"Required input file not found: {sampled_csv_path}")
-        logger.error("Run T015 (classify.py) and T016 (validate_labels.py) first.")
+    input_file = "data/processed/sampled_prs.csv"
+    output_log = "data/validation_log.csv"
+    
+    # Define thresholds
+    thresholds = [i * 0.1 for i in range(11)] # 0.0, 0.1, ..., 1.0
+    
+    try:
+        # Load data
+        records = load_heuristic_scores_from_file(input_file)
+        
+        # Calculate metrics
+        metrics = calculate_sensitivity_metrics(records, thresholds)
+        
+        # Append to log
+        append_sensitivity_to_log(metrics, output_log)
+        
+        logger.info("Sensitivity analysis completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Required input file missing: {e}")
+        logger.error("Ensure T015 (classify.py) has run and populated data/processed/sampled_prs.csv with heuristic scores.")
         sys.exit(1)
-    
-    if not manual_labels_path.exists():
-        logger.error(f"Manual labels file not found: {manual_labels_path}")
-        logger.error("Cannot perform sensitivity analysis without ground truth.")
-        sys.exit(1)
-    
-    # Load Data
-    logger.info(f"Loading sampled PRs from {sampled_csv_path}")
-    data = load_heuristic_scores_from_file(str(sampled_csv_path))
-    
-    logger.info(f"Loading manual labels from {manual_labels_path}")
-    manual_labels = load_manual_labels(str(manual_labels_path))
-    
-    if not manual_labels:
-        logger.warning("No manual labels found. Sensitivity analysis cannot be computed.")
-        sys.exit(1)
-    
-    # Define Threshold Sweep
-    # Sweep from 0.0 to 1.0 in steps of 0.1
-    thresholds = [i * 0.1 for i in range(0, 11)]
-    
-    logger.info(f"Running sensitivity sweep across {len(thresholds)} thresholds...")
-    results = calculate_sensitivity_metrics(data, thresholds, manual_labels)
-    
-    # Append to log
-    logger.info(f"Appending results to {log_path}")
-    append_sensitivity_to_log(results, str(log_path))
-    
-    logger.info("Sensitivity Analysis completed successfully.")
-    logger.info(f"Results appended to {log_path}")
+    except Exception as e:
+        logger.error(f"Error during sensitivity analysis: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

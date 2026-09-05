@@ -1,66 +1,57 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: Benchmark Result Schema
-description: Schema for the aggregated benchmark results comparing the symbolic solver against the VLM baseline.
+description: |
+  Schema for the final benchmark results comparing the symbolic solver
+  against the VLM baseline and ground truth.
 type: object
 required:
   - scene_id
   - ground_truth
   - solver_prediction
   - vlm_prediction
-  - metrics
+  - solver_correct
+  - vlm_correct
+  - exact_match
+  - f1_score
 properties:
   scene_id:
     type: string
+    description: The ID of the scene.
     pattern: "^scene_\\d+$"
   ground_truth:
-    type: object
-    description: The correct answer or configuration for the scene.
-    properties:
-      answer:
-        type: string
-        description: The expected answer string or structured data.
-      is_valid:
-        type: boolean
+    type: [string, integer, number, boolean, array]
+    description: The ground truth answer.
   solver_prediction:
-    type: object
-    properties:
-      answer:
-        type: string
-      status:
-        type: string
-        enum: ["solved", "no_solution", "error"]
+    type: [string, integer, number, boolean, array, null]
+    description: The prediction from the symbolic solver.
   vlm_prediction:
-    type: object
-    properties:
-      answer:
-        type: string
-      confidence:
-        type: number
-        minimum: 0
-        maximum: 1
-  metrics:
-    type: object
-    required:
-      - exact_match
-      - f1_score
-    properties:
-      exact_match:
-        type: boolean
-        description: Whether the solver prediction matches ground truth exactly.
-      f1_score:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: F1 score calculated for the prediction.
-      latency_diff_ms:
-        type: number
-        description: Difference in latency between solver and VLM (solver - vlm).
-      semantic_gap_indicator:
-        type: boolean
-        description: True if the failure is attributed to semantic ambiguity rather than geometric constraints.
-  analysis_tags:
-    type: array
-    items:
-      type: string
-      enum: ["geometric_ambiguity", "semantic_gap", "data_quality_issue", "solver_timeout"]
-    description: Tags classifying the nature of the result or failure.
+    type: [string, integer, number, boolean, array, null]
+    description: The prediction from the VLM baseline.
+  solver_correct:
+    type: boolean
+    description: Whether the solver prediction matches ground truth.
+  vlm_correct:
+    type: boolean
+    description: Whether the VLM prediction matches ground truth.
+  exact_match:
+    type: boolean
+    description: Exact match flag (solver vs ground truth).
+  f1_score:
+    type: number
+    format: float
+    minimum: 0.0
+    maximum: 1.0
+    description: F1 score for the solver prediction.
+  latency_ms:
+    type: number
+    format: float
+    minimum: 0
+    description: Latency of the solver for this scene.
+  failure_category:
+    type: [string, null]
+    description: Category of failure if applicable.
+    enum:
+      - geometric_ambiguity
+      - semantic_gap
+      - no_failure
+additionalProperties: false

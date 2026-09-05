@@ -59,23 +59,30 @@ T037e:
     \ so the task is not satisfied."
 T046:
   c: false
-  h: 2b7b536c1111c7dda5f3910618600598ff70f759c4ec884e10cf29631cb0427d
-  r: "The provided `code/utils/verify_run.py` is truncated and contains a clear bug\
-    \ (`return ta` instead of `return task_ids`). The rest of the required logic\u2014\
-    loading all `results/runs/run_*.json` files, counting runs per `task_id`, comparing\
-    \ against `n_runs` from config, writing the integrity report with the exact schema,\
-    \ and aborting further analysis on failure\u2014is not present in the visible\
-    \ code. Consequently the artifact does not demonstrably fulfill the task\u2019\
-    s requirements."
+  h: d4fba53f2f58b3c44551f58b6681ec636c0693d7d0b398200b96af177ca84bc1
+  r: The provided `verify_run.py` is truncated and we cannot see the logic that aggregates
+    the run files or writes the report in the required schema. Moreover, no `results/runs/run_*.json`
+    files or the dataset file (`data/raw/synthetic_spatialclaw_v1.json`) are present,
+    yet the generated `run_integrity_report.json` claims 50 total tasks while the
+    baseline file only contains 5 tasks, indicating the report is fabricated rather
+    than derived from real data. The task therefore lacks the necessary artifacts
+    and correct verification behavior.
+T050:
+  c: false
+  h: 89097bb73d03f2e1bf497b22a7e0d0308fb2b629d57e3683c210ffff3f18ab28
+  r: "The provided `kernel_audit.py` is truncated and does not contain a runnable\
+    \ script that writes `results/analysis/kernel_audit.txt` or exits with the required\
+    \ status code. Moreover, the required output file `results/analysis/kernel_audit.txt`\
+    \ is missing. The task\u2019s core output and exit\u2011code behavior are therefore\
+    \ not satisfied."
 T064:
   c: false
-  h: 440b40fd692ef0bf78bd90d42e13d6939cf7c3594455be3975cd1a27703b8339
-  r: "The `restricted_kernel.py` contains code that attempts to write a stack trace\
-    \ to `results/logs/blocked_operations.log`, but the log file does not exist on\
-    \ disk, so no evidence that the trace is actually being recorded. Additionally,\
-    \ the timestamp line uses a non\u2011existent `traceback.format_time` function,\
-    \ which would raise an error when executed. The implementer must ensure the log\
-    \ file is created and written to (and fix the timestamp code) to satisfy the task."
+  h: a369cf336bbe7a9a5213d5f09d038cfc487000e50a5907bbd2ec2e609afc1a34
+  r: "The `results/logs/blocked_operations.log` file is missing, and the provided\
+    \ `restricted_kernel.py` defines a logging helper but never invokes it when a\
+    \ `RestrictedActionError` is raised (the import hook raises the error directly).\
+    \ Consequently the required stack\u2011trace logging to the specified file is\
+    \ not implemented."
 T065:
   c: false
   h: ff42679860e65b98f722c28cf4194d23b853d34ba74f2392acf2eaeb064c1204

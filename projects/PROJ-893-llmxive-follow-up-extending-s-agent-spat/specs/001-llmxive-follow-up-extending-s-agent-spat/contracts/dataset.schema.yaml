@@ -1,142 +1,85 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: S-Agent-300K Dataset Schema
-description: Schema for the raw and extracted scene data from the S-Agent-300K dataset used in spatial reasoning tasks.
+description: |
+  Schema for the raw S-Agent-300K dataset entries.
+  Each entry represents a single 3D spatial reasoning scene.
 type: object
 required:
   - scene_id
+  - question
+  - ground_truth
+  - constraints
   - metadata
-  - geometry
 properties:
   scene_id:
     type: string
-    description: Unique identifier for the scene (e.g., "scene_00123").
+    description: Unique identifier for the scene (e.g., "scene_001234")
     pattern: "^scene_\\d+$"
+  question:
+    type: string
+    description: The natural language spatial reasoning question.
+    minLength: 1
+  ground_truth:
+    type: object
+    description: The correct answer to the question.
+    required:
+      - answer
+      - reasoning_type
+    properties:
+      answer:
+        type: [string, integer, number, boolean, array]
+        description: The expected answer value.
+      reasoning_type:
+        type: string
+        enum:
+          - counting
+          - positioning
+          - relative_direction
+          - occlusion
+          - spatial_relationship
+  constraints:
+    type: array
+    description: List of geometric constraints extracted from the scene description.
+    items:
+      type: object
+      required:
+        - constraint_type
+        - parameters
+      properties:
+        constraint_type:
+          type: string
+          enum:
+            - object_exists
+            - object_position
+            - relative_position
+            - distance
+            - occlusion
+            - orientation
+        parameters:
+          type: object
+          description: Type-specific parameters (e.g., object_id, coordinates, distance_value).
   metadata:
     type: object
-    required:
-      - source
-      - timestamp
-      - difficulty_level
+    description: Additional scene metadata.
     properties:
       source:
         type: string
-        enum: ["S-Agent-300K", "Generated-Subset"]
-      timestamp:
+        description: Origin of the scene (e.g., "synthetic", "real_world_scan").
+      difficulty:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of data creation or extraction.
-      difficulty_level:
-        type: string
-        enum: ["easy", "medium", "hard"]
-        description: Difficulty rating of the spatial reasoning task.
+        enum:
+          - easy
+          - medium
+          - hard
       object_count:
         type: integer
         minimum: 0
-        description: Number of objects in the scene.
-      grid_size:
-        type: object
-        required:
-          - x
-          - y
-          - z
-        properties:
-          x:
-            type: integer
-            minimum: 1
-          y:
-            type: integer
-            minimum: 1
-          z:
-            type: integer
-            minimum: 1
-        description: Dimensions of the 3D grid.
-  geometry:
-    type: array
-    description: List of objects in the scene with their spatial properties.
-    items:
-      type: object
-      required:
-        - object_id
-        - type
-        - position
-        - dimensions
-      properties:
-        object_id:
-          type: string
-          description: Unique identifier for the object within the scene.
-        type:
-          type: string
-          enum: ["box", "sphere", "cylinder", "wall", "floor", "ceiling"]
-          description: Type of the geometric object.
-        position:
-          type: object
-          required:
-            - x
-            - y
-            - z
-          properties:
-            x:
-              type: number
-              format: float
-            y:
-              type: number
-              format: float
-            z:
-              type: number
-              format: float
-          description: Center position (x, y, z) in grid coordinates.
-        dimensions:
-          type: object
-          required:
-            - width
-            - height
-            - depth
-          properties:
-            width:
-              type: number
-              format: float
-              minimum: 0
-            height:
-              type: number
-              format: float
-              minimum: 0
-            depth:
-              type: number
-              format: float
-              minimum: 0
-          description: Dimensions (width, height, depth) of the object.
-        rotation:
-          type: object
-          required:
-            - roll
-            - pitch
-            - yaw
-          properties:
-            roll:
-              type: number
-              format: float
-            pitch:
-              type: number
-              format: float
-            yaw:
-              type: number
-              format: float
-          description: Rotation angles in radians.
-  constraints:
-    type: array
-    description: Explicit spatial constraints defined for the scene (optional, may be empty).
-    items:
-      type: object
-      required:
-        - constraint_id
-        - type
-        - parameters
-      properties:
-        constraint_id:
-          type: string
-        type:
-          type: string
-          enum: ["adjacency", "containment", "alignment", "distance", "non_overlap"]
-        parameters:
-          type: object
-          description: Constraint-specific parameters (e.g., object IDs, distance thresholds).
+      spatial_variance:
+        type: number
+        format: float
+        description: Variance of object positions in the scene.
+      object_density:
+        type: number
+        format: float
+        description: Number of objects per unit volume.
+additionalProperties: false

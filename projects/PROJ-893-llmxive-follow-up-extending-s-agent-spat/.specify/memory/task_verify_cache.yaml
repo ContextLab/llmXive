@@ -1,9 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure (`code/`, `data/raw/`, `data/derived/`, `data/results/`,
-    `specs/`, `tests/`) is present in the provided artifacts; the claim lacks any
-    tangible evidence that the required folders were created.
 T004:
   c: false
   h: d141df1467d7417e045bf293ece2790bdd5adff15b4e68ec4b3ac0aa34c71a71
@@ -19,10 +13,19 @@ T010:
     logging, and writing to `data/derived/constraints.jsonl`. Moreover, the required
     output file `data/derived/constraints.jsonl` is absent. Both the artifact and
     its expected result are missing or incomplete.
-T012:
+T026:
   c: false
-  h: a827cff114f6cc6c5eb4f7c40a995d81c976a2a3803a6ac3120917d01a0075fc
-  r: "The `run_solver.py` script is incomplete (truncated) and never writes to the\
-    \ required `data/derived/predictions.jsonl` or `data/derived/latency_log.jsonl`\
-    \ files, which are absent from the repository. Consequently the task\u2019s output\
-    \ artifacts are missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, output JSON files, benchmark tables, or any other artifacts\
+    \ were provided to demonstrate that the full pipeline was run end\u2011to\u2011\
+    end and that all acceptance scenarios in `spec.md` were satisfied. The claim lacks\
+    \ concrete evidence such as solver run results, latency measurements, or statistical\
+    \ test outputs."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test results, or documentation were provided to demonstrate\
+    \ that the solver input has been checked and confirmed to contain no VLM traces,\
+    \ as required by FR\u2011001 and FR\u2011002. The implementer must supply a concrete\
+    \ validation artifact (e.g., a verification script and its output/report) showing\
+    \ that all input files are free of VLM trace data."

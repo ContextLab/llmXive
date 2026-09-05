@@ -1287,3 +1287,142 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T09:28:32Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
+  attempts: 1
+  canonical: 'default power config values: effect_size 0.5, power 0.8, max_runtime
+    6 hours, n_runs 5, alpha 0.05, flat_object_ratio 0.15, side_length_bounds 0.5
+    to 2.0'
+  claim_id: c_9a58ea5e
+  context: T035a Power Config Definition requires using concrete default numeric values
+    for the power analysis configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use concrete default numeric values: effect_size: 0.5, power: 0.8, max_runtime_hours:
+    6, n_runs: 5, alpha: 0.05, flat_object_ratio: 0.15, side_length_bounds: [0.5,
+    2.0]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:14:21Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
+  attempts: 1
+  canonical: 0.15 probability per task for generating flat objects with zero depth
+    variance
+  claim_id: c_e9bdf60d
+  context: T006a Pilot Generation and T006b Full Data Generation specify using a probabilistic
+    approach to seed flat objects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a probabilistic approach (0.15 chance per task) to seed tasks with
+    zero depth variance (flat objects)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:16:55Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
+  attempts: 1
+  canonical: 'depth-estimation threshold sweep values: 0.1, 0.5, 1.0, 2.0 meters'
+  claim_id: c_2919f384
+  context: T031 Sensitivity Analysis requires sweeping the depth-estimation threshold
+    over defined values in meters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Vary the tolerance for ''zero depth variance'' over defined values: [0.1,
+    0.5, 1.0, 2.0] (unit: meters)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:20:07Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
+  attempts: 1
+  canonical: pipeline designed for CPU-first execution
+  claim_id: c_3bb442ef
+  context: Notes section states the pipeline is designed for CPU-first execution with
+    GPU escape hatch only if baseline requires CUDA.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_designed_for_CPU-first_execution
+  kind: entity_fact
+  raw_text: The entire pipeline is designed for CPU-first execution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:22:02Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
+  attempts: 1
+  canonical: baseline model not expected to require CUDA
+  claim_id: c_bb70fbc4
+  context: Notes section mentions GPU escape hatch only if baseline requires CUDA,
+    noting it is not expected.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_not_expected_to_require_CUDA
+  kind: entity_fact
+  raw_text: The baseline model is not expected to require CUDA for this restricted
+    low-dimensional task
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:22:55Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
+  attempts: 1
+  canonical: minimum 5 runs executed per task instance
+  claim_id: c_860de4c8
+  context: T017c Validate Run Count requires verifying that at least 5 runs were executed
+    per task instance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that N>=5 runs were executed per task instance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:23:32Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
+  attempts: 1
+  canonical: full pipeline budget limit is 6 hours
+  claim_id: c_af7a98d0
+  context: T056 Budget Compliance Report measures runtime against the 6-hour limit
+    defined in the power config.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The budget limit for the full pipeline is 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:24:25Z'
+- artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/tasks.md
+  attempts: 1
+  canonical: default runs per task is 5
+  claim_id: c_8f98e878
+  context: T046 Execution Integrity Check verifies n_runs from config, default 5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of runs per task is 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:25:01Z'

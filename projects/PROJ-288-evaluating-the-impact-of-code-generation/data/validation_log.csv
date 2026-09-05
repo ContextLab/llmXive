@@ -1,1 +1,2 @@
-threshold,fpr,fnr,accuracy,total_samples
+kappa,threshold,sample_size,is_valid,status
+0.85,0.6,20,True,PASS

@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 import argparse
+import re
 from typing import List, Tuple, Set
 from pathlib import Path
 
@@ -30,23 +31,34 @@ def find_log_files(logs_dir: str = "results/logs") -> List[Path]:
     # Remove duplicates and return as list
     return list(set(log_files))
 
-def scan_file_for_blocked_ops(file_path: Path) -> List[str]:
-    """Scan a single file for blocked library imports or instantiations."""
+def scan_file_for_blocked_ops(file_path: Path) -> List[Tuple[str, str]]:
+    """Scan a single file for blocked library imports or instantiations.
+    
+    Returns a list of (library, line_content) tuples for any matches found.
+    """
     found_ops = []
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read().lower()
-            for lib in BLOCKED_LIBRARIES:
-                # Check for import statements or module usage
-                if lib in content:
-                    found_ops.append(lib)
+            lines = f.readlines()
+            for line_num, line in enumerate(lines, 1):
+                line_lower = line.lower()
+                for lib in BLOCKED_LIBRARIES:
+                    # Check for import statements or module usage
+                    # Patterns: "import trimesh", "from trimesh import", "import trimesh as", "trimesh."
+                    if re.search(rf'\b{re.escape(lib)}\b', line_lower):
+                        found_ops.append((lib, f"Line {line_num}: {line.strip()}"))
     except Exception as e:
         logging.error(f"Error scanning {file_path}: {e}")
     
     return found_ops
 
-def run_audit(logs_dir: str = "results/logs") -> Tuple[int, List[Tuple[Path, List[str]]]]:
-    """Run the full audit across all log files."""
+def run_audit(logs_dir: str = "results/logs") -> Tuple[int, List[Tuple[Path, List[Tuple[str, str]]]]]:
+    """Run the full audit across all log files.
+    
+    Returns:
+        Tuple of (total_blocked_count, findings) where findings is a list of
+        (file_path, [(lib, line_content), ...]) tuples.
+    """
     log_files = find_log_files(logs_dir)
     total_blocked_count = 0
     findings = []
@@ -60,11 +72,12 @@ def run_audit(logs_dir: str = "results/logs") -> Tuple[int, List[Tuple[Path, Lis
         if found:
             findings.append((log_file, found))
             total_blocked_count += len(found)
-            logging.warning(f"Found blocked ops in {log_file}: {found}")
+            for lib, line_content in found:
+                logging.warning(f"Found blocked op '{lib}' in {log_file}: {line_content}")
     
     return total_blocked_count, findings
 
-def write_audit_report(report_path: str, total_count: int, findings: List[Tuple[Path, List[str]]]) -> None:
+def write_audit_report(report_path: str, total_count: int, findings: List[Tuple[Path, List[Tuple[str, str]]]]) -> None:
     """Write the audit report to the specified file."""
     report_dir = os.path.dirname(report_path)
     if report_dir and not os.path.exists(report_dir):
@@ -79,7 +92,7 @@ def write_audit_report(report_path: str, total_count: int, findings: List[Tuple[
             f.write("The following log files were scanned:\n")
             scanned_files = find_log_files()
             if scanned_files:
-                for log_file in scanned_files:
+                for log_file in sorted(scanned_files):
                     f.write(f"  - {log_file}\n")
             else:
                 f.write("  (No log files found in the specified directory)\n")
@@ -88,7 +101,8 @@ def write_audit_report(report_path: str, total_count: int, findings: List[Tuple[
             f.write("Findings:\n")
             for file_path, ops in findings:
                 f.write(f"  File: {file_path}\n")
-                f.write(f"    Blocked libraries: {', '.join(ops)}\n")
+                for lib, line_content in ops:
+                    f.write(f"    [{lib}] {line_content}\n")
         
         f.write("\nAudit completed.\n")
     

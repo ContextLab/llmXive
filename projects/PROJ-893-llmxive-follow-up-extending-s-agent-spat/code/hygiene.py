@@ -1,8 +1,8 @@
 """
 Data Hygiene Module for llmXive Project.
 
-Computes SHA-256 hashes for all files in `data/raw/*` and `data/derived/*`
-(excluding `data/results/*` until Phase 6) and updates the project state
+Computes SHA-256 hashes for all files in `data/raw/*`, `data/derived/*`,
+and `data/results/*` (Phase 6 inclusion) and updates the project state
 YAML file with the computed checksums.
 
 This module ensures data integrity by verifying that artifacts have not
@@ -19,6 +19,7 @@ from datetime import datetime
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 DATA_DERIVED_DIR = PROJECT_ROOT / "data" / "derived"
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
 STATE_DIR = PROJECT_ROOT / "state" / "projects"
 STATE_FILE_NAME = "PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml"
 
@@ -96,7 +97,8 @@ def load_state_yaml(state_file: Path) -> dict:
             "last_updated": None,
             "data_hygiene": {
                 "raw": {},
-                "derived": {}
+                "derived": {},
+                "results": {}
             }
         }
 
@@ -116,7 +118,8 @@ def save_state_yaml(state_file: Path, state: dict) -> None:
 
 def main():
     """
-    Main execution function for data hygiene checks.
+    Main execution function for data hygiene checks (Phase 6).
+    Includes data/results in the scan.
     """
     print(f"Starting Data Hygiene Check for project: {PROJECT_ROOT}")
     
@@ -130,11 +133,13 @@ def main():
     # Update timestamp
     state["last_updated"] = datetime.now().isoformat()
 
+    # Initialize data_hygiene section if missing
+    if "data_hygiene" not in state:
+        state["data_hygiene"] = {"raw": {}, "derived": {}, "results": {}}
+
     # Scan data/raw
     print(f"Scanning {DATA_RAW_DIR}...")
     raw_hashes = scan_directory_for_hashes(DATA_RAW_DIR, DATA_RAW_DIR)
-    if "data_hygiene" not in state:
-        state["data_hygiene"] = {"raw": {}, "derived": {}}
     state["data_hygiene"]["raw"] = raw_hashes
     print(f"  Found {len(raw_hashes)} files in raw data.")
 
@@ -144,6 +149,12 @@ def main():
     state["data_hygiene"]["derived"] = derived_hashes
     print(f"  Found {len(derived_hashes)} files in derived data.")
 
+    # Scan data/results (Phase 6 addition)
+    print(f"Scanning {DATA_RESULTS_DIR}...")
+    results_hashes = scan_directory_for_hashes(DATA_RESULTS_DIR, DATA_RESULTS_DIR)
+    state["data_hygiene"]["results"] = results_hashes
+    print(f"  Found {len(results_hashes)} files in results data.")
+
     # Save updated state
     save_state_yaml(state_file, state)
     print(f"State updated successfully at {state_file}")
@@ -152,10 +163,12 @@ def main():
     print("\n--- Hygiene Summary ---")
     print(f"Raw files hashed: {len(raw_hashes)}")
     print(f"Derived files hashed: {len(derived_hashes)}")
-    print(f"Total files processed: {len(raw_hashes) + len(derived_hashes)}")
+    print(f"Results files hashed: {len(results_hashes)}")
+    total = len(raw_hashes) + len(derived_hashes) + len(results_hashes)
+    print(f"Total files processed: {total}")
     
-    if len(raw_hashes) == 0 and len(derived_hashes) == 0:
-        print("Warning: No data files found in 'data/raw' or 'data/derived'.")
+    if total == 0:
+        print("Warning: No data files found in 'data/raw', 'data/derived', or 'data/results'.")
         print("Ensure data has been downloaded or generated before running hygiene checks.")
 
 if __name__ == "__main__":
