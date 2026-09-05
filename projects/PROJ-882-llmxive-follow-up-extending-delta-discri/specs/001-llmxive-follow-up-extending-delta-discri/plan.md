@@ -17,7 +17,7 @@ This feature implements a rigorous statistical test to determine if the "DelTA C
 **Primary Dependencies**: `torch` (CPU-first, CUDA fallback), `transformers`, `datasets`, `scikit-learn`, `sentence-transformers`, `nltk`, `pandas`, `pyarrow`, `numpy`, `pytest`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`); Parquet for tabular data, JSON for coefficients, `.pt` for model weights.  
 **Testing**: `pytest` (unit tests for feature extraction logic, integration tests for pipeline end-to-end).  
-**Target Platform**: Linux (GitHub Actions Free Tier: Multiple vCPU, 7GB RAM) with **mandatory** offload to Kaggle GPU for the Oracle step.  
+**Target Platform**: Linux (GitHub Actions Free Tier: Multiple vCPU, GB RAM) with **mandatory** offload to Kaggle GPU for the Oracle step.  
 **Project Type**: Data Science / Research Pipeline  
 **Performance Goals**: End-to-end execution <= 4 hours (excluding Oracle GPU time) or <= 9 hours (Kaggle GPU); Memory <= 16GB.  
 **Constraints**: No external API keys; no access-gated datasets; strict separation of oracle (Llama-3-8B) and predictor (MLP) inputs.  
@@ -106,11 +106,11 @@ projects/PROJ-882-llmxive-follow-up-extending-delta-discri/
 - **CPU Path**:
     - **Feature Extraction**: Fast (NLP libraries).
     - **MLP Training**: Fast (small model, <10k tokens).
-    - **Oracle Step**: **Bottleneck**. Running Llama-8B for gradient backprop on 500 examples on CPU is infeasible (estimated days).
+    - **Oracle Step**: **Bottleneck**. Running LlamaB for gradient backprop on a substantial number of examples on CPU is infeasible (estimated days)..
 - **GPU Escape Hatch**:
     - **Trigger**: If the Oracle script detects `CUDA not available` OR `Runtime > 30 mins`, it exits with code `ERR_GPU_REQUIRED`.
     - **Offload**: The CI runner detects this exit code and re-runs the Oracle step on a Kaggle GPU.
-    - **Kaggle Strategy**: Use 8-bit quantization (`bitsandbytes`) if full precision exceeds 16GB VRAM. Limit to a manageable number of examples to fit within the available kernel execution time...
+    - **Kaggle Strategy**: Use low-bit quantization (`bitsandbytes`) if full precision exceeds 16GB VRAM. Limit to a manageable number of examples to fit within the available kernel execution time...
     - **No Fabrication**: We do not simulate the gradient step. We run the real step on the scaled-down dataset.
 
 ## Methodology & Rigor
@@ -149,8 +149,8 @@ projects/PROJ-882-llmxive-follow-up-extending-delta-discri/
 - Only one primary hypothesis test (Spearman correlation) is performed per run. No family-wise error correction is strictly required for a single metric, but the permutation test inherently controls for chance.
 
 ### Sample Size & Power
-- **Limitation**: With ~500 examples and token-level clustering, the effective sample size is lower. The example-level permutation test accounts for non-i.i.d. structure. Power is acknowledged as limited; a null result may be due to low power or true lack of signal.
-- **Justification**: 500 examples is a feasible subset for the compute budget (4h limit) while providing a reasonable distribution of problem types.
+- **Limitation**: With a moderate number of examples and token-level clustering, the effective sample size is lower. The example-level permutation test accounts for non-i.i.d. structure. Power is acknowledged as limited; a null result may be due to low power or true lack of signal.
+- **Justification**: A feasible subset of examples is selected for the compute budget (4h limit). while providing a reasonable distribution of problem types.
 
 ### Causal Inference
 - **Observational Design**: The study is observational. We correlate static input features with dynamic output coefficients. We **cannot** claim that static features *cause* the DelTA signal. Claims are framed as "associational" or "predictive".
