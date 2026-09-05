@@ -3,11 +3,21 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Environment variables
-.env
+# C extensions
+*.so
+
+# Distribution / packaging
+.eggs/
+*.egg-info/
+dist/
+build/
+bdist.*/
+
+# Virtual Environments
 .venv/
 venv/
 ENV/
+env/
 
 # IDEs
 .idea/
@@ -15,16 +25,29 @@ ENV/
 *.swp
 *.swo
 
+# Environment variables
+.env
+.env.local
+
+# Logs
+*.log
+results/*.log
+
+# Data (raw and processed) - usually ignored in git, tracked in DVC or similar
+data/raw/
+data/processed/
+state/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
 # OS generated files
 .DS_Store
 Thumbs.db
 
 # Project specific
-results/*.log
-results/*.csv
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-state/
-docs/build/
+results/benchmark_log.json
+results/statistical_summary.json
+results/validation_report.json
+results/resource_profile.json
+results/discarded_runs.csv

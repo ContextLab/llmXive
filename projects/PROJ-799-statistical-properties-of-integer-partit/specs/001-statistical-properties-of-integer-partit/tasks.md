@@ -35,7 +35,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 **Note**: Tasks T004 and T005 are independent and can run in parallel. T008 and T009 depend on T004 and must be executed sequentially after T004.
 
-- [ ] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes. Use a boolean array for memory optimization. The algorithm must mark composites iteratively starting from 2. **Output**: Save the list of primes to `code/utils/primes.npy` as a **1D `np.int32` array**. **Verification**: Ensure the file exists, dtype is `int32`, and shape matches the count of primes <= 50,000. **Data Hygiene**: Generate SHA-256 checksum of the output file and update `state/projects/PROJ-799.yaml` at key `artifact_hashes.primes_sieve` (format: hex string). Update `state/projects/PROJ-799.yaml` key `updated_at` with current ISO timestamp.
+- [ ] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes. [UNRESOLVED-CLAIM: c_e43dc5aa — status=not_enough_info] Use a boolean array for memory optimization. {{claim:c_24aecec7}} (OEIS A000959, https://oeis.org/A000959) **Output**: Save the list of primes to `code/utils/primes.npy` as a **1D `np.int32` array**. **Verification**: Ensure the file exists, dtype is `int32`, and shape matches the count of primes <= 50,000. **Data Hygiene**: Generate SHA-256 checksum of the output file and update `state/projects/PROJ-799.yaml` at key `artifact_hashes.primes_sieve` (format: hex string). Update `state/projects/PROJ-799.yaml` key `updated_at` with current ISO timestamp.
 - [X] T005 [P] Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem. The implementation must use the leading-order term derived from the generating function $\prod (1+q^p)$. Explicitly document the leading-order formula used in the code comments. **Note**: T005 is independent of T004 and can run in parallel.
 - [X] T006 [P] Create `data/schemas/partition_record.schema.yaml` and `data/schemas/regression_output.schema.yaml`.
 - [X] T007 [P] Setup `state/projects/PROJ-799.yaml` structure for checksums and versioning (keys: `artifact_hashes`, `updated_at`).
@@ -71,7 +71,7 @@
  - Handle edge cases ($n < 5$ where $p_{\mathcal{P}}(n)=0$) by setting count to 0.
  - Calculate $Q_{as}(n)$ using the distinct-partition variant of Meinardus' theorem as defined in the plan.
  - Clamp $Q_{as}(n)$ to a small positive lower bound to prevent log(0).
- - **Generate data for the full range of n values up to 50,000.**
+ - **Generate data for the full range of n values up to 50,000. [UNRESOLVED-CLAIM: c_70425371 — status=not_enough_info]**
  - **Include `--n-max` argument using `argparse` with a default set to 50000. Log the chosen `n_max` to stdout at runtime.**
  - **Load reference values from `tests/data/reference_values.csv` (produced by T008) for validation during execution, instead of hardcoding.**
  - **Include inline validation logic to exclude rows where `p_P(n) <= 0` or `Q_as(n) <= 0` before any log-residual calculation.**

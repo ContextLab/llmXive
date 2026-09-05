@@ -1,145 +1,189 @@
+"""
+main.py - Orchestration script for the gene essentiality prediction pipeline.
+
+Coordinates data loading, network analysis, and statistical testing.
+"""
+
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List
+
 from code.config import load_config, get_organisms, get_path, ensure_dirs
-from code.data_loader import load_local_network, load_local_essentiality, map_ids
-from code.network_analysis import process_organism_networks
-from code.statistics import calculate_spearman_correlation
+from code.data_loader import load_essentiality_for_all_organisms, fetch_string_network, map_ids
+from code.network_analysis import compute_all_centrality_metrics
+from code.statistics import (
+    calculate_spearman_correlation,
+    generate_null_distribution_permutation,
+    calculate_empirical_p_value,
+    run_label_permutation_analysis,
+    calculate_rewired_correlations,
+    validate_graph_rewiring_model
+)
+from code.utils import setup_logging, compute_sha256
 
-logger = logging.getLogger(__name__)
+# Setup logging
+logger = setup_logging(__name__)
 
-def run_pipeline_for_organism(organism_id: str, config: Dict[str, Any]) -> Dict[str, Any]:
+def run_pipeline_for_organism(
+    organism: str,
+    config: Dict[str, Any],
+    centrality_data: Dict[str, Dict[str, List[float]]],
+    essentiality_data: Dict[str, Dict[str, int]]
+) -> Dict[str, Any]:
     """
     Run the full analysis pipeline for a single organism.
-    
-    Steps:
-    1. Load Network (from local file or fetch)
-    2. Load Essentiality Labels
-    3. Map IDs (Handle missing overlaps)
-    4. Compute Centralities (Handle disconnected networks)
-    5. Calculate Correlations
-    6. Return results
+
+    Args:
+        organism: Organism identifier
+        config: Configuration dictionary
+        centrality_data: Pre-computed centrality data
+        essentiality_data: Pre-loaded essentiality data
+
+    Returns:
+        Dictionary containing analysis results
     """
-    logger.info(f"Starting pipeline for {organism_id}")
+    logger.info(f"Starting pipeline for {organism}")
     
-    data_dir = get_path(config, 'data_dir')
-    results_dir = get_path(config, 'results_dir')
-    confidence_threshold = config.get('confidence_threshold', 700)
-    
-    # 1. Load Network
-    network_file = Path(data_dir) / f"{organism_id}_network.json"
-    try:
-        adjacency_list = load_local_network(network_file)
-        logger.info(f"Loaded network for {organism_id} with {len(adjacency_list)} nodes.")
-    except Exception as e:
-        logger.error(f"Failed to load network for {organism_id}: {e}")
-        return {"organism": organism_id, "error": str(e), "status": "failed"}
-
-    # 2. Load Essentiality
-    essentiality_file = Path(data_dir) / f"{organism_id}_essentiality.json"
-    try:
-        essentiality_raw = load_local_essentiality(essentiality_file)
-        logger.info(f"Loaded essentiality for {organism_id} with {len(essentiality_raw)} genes.")
-    except Exception as e:
-        logger.error(f"Failed to load essentiality for {organism_id}: {e}")
-        return {"organism": organism_id, "error": str(e), "status": "failed"}
-
-    # 3. Map IDs
-    string_genes = set(adjacency_list.keys())
-    deg_genes = set(essentiality_raw.keys())
-    mapping, coverage = map_ids(string_genes, deg_genes)
-    
-    if not mapping:
-        logger.warning(f"No gene overlap found for {organism_id}. Skipping correlation calculation.")
-        return {
-            "organism": organism_id,
-            "status": "skipped",
-            "reason": "No gene overlap between network and essentiality data",
-            "mapping_coverage_percent": 0.0
-        }
-
-    # Filter data to mapped genes
-    mapped_essentiality = {g: essentiality_raw[g] for g in mapping.keys() if g in essentiality_raw}
-    filtered_adjacency = {}
-    for node, neighbors in adjacency_list.items():
-        if node in mapping:
-            # Only keep neighbors that are also in the mapping
-            filtered_neighbors = [n for n in neighbors if n in mapping]
-            filtered_adjacency[node] = filtered_neighbors
-
-    # 4. Compute Centralities
-    # Prepare data for process_organism_networks
-    organism_data = {
-        "organism_id": organism_id,
-        "adjacency_list": filtered_adjacency
-    }
-    
-    try:
-        centralities = process_organism_networks(organism_data)
-    except Exception as e:
-        logger.error(f"Centrality computation failed for {organism_id}: {e}")
-        return {"organism": organism_id, "error": str(e), "status": "failed"}
-
-    # 5. Calculate Correlations
-    # We need to align centralities and essentiality labels by gene ID
-    common_genes = set(centralities['degree'].keys()).intersection(mapped_essentiality.keys())
-    
-    if not common_genes:
-        logger.warning(f"No common genes after filtering for {organism_id}.")
-        return {
-            "organism": organism_id,
-            "status": "skipped",
-            "reason": "No common genes for correlation after filtering",
-            "mapping_coverage_percent": coverage
-        }
-
-    results = {}
-    for metric_name in ['degree', 'eigenvector', 'betweenness']:
-        centrality_values = [centralities[metric_name].get(g, 0.0) for g in common_genes]
-        essentiality_values = [mapped_essentiality.get(g, 0) for g in common_genes]
-        
-        rho, p_value = calculate_spearman_correlation(centrality_values, essentiality_values)
-        
-        results[metric_name] = {
-            "rho": float(rho),
-            "p_value": float(p_value),
-            "sample_size": len(common_genes)
-        }
-        logger.info(f"{organism_id} - {metric_name}: rho={rho:.4f}, p={p_value:.4f}")
-
-    return {
-        "organism": organism_id,
+    results = {
+        "organism": organism,
         "status": "success",
-        "mapping_coverage_percent": coverage,
-        "correlations": results,
-        "sample_size": len(common_genes)
+        "metrics": {}
     }
+
+    # Get centrality and essentiality for this organism
+    if organism not in centrality_data or organism not in essentiality_data:
+        logger.warning(f"No data available for {organism}; skipping")
+        results["status"] = "skipped"
+        return results
+
+    # Calculate correlations for each centrality metric
+    for metric_name, centrality_vals in centrality_data[organism].items():
+        essentiality_vals = essentiality_data[organism]
+        
+        # Filter to common genes
+        common_genes = set(centrality_vals.keys()) & set(essentiality_vals.keys())
+        
+        if len(common_genes) < 2:
+            logger.warning(f"Insufficient overlap for {organism}/{metric_name}; skipping")
+            continue
+
+        c_vals = [centrality_vals[g] for g in common_genes]
+        e_vals = [essentiality_vals[g] for g in common_genes]
+
+        corr, p_val = calculate_spearman_correlation(c_vals, e_vals)
+        
+        results["metrics"][metric_name] = {
+            "spearman_rho": corr,
+            "p_value": p_val,
+            "sample_size": len(common_genes),
+            "overlap_genes": list(common_genes)[:10]  # First 10 for reference
+        }
+
+        logger.info(f"{organism} - {metric_name}: rho={corr:.4f}, p={p_val:.4f}")
+
+    # Run label permutation null model (T018a)
+    n_permutations = config.get("null_model", {}).get("n_permutations", 1000)
+    
+    if organism in centrality_data and organism in essentiality_data:
+        # Use degree centrality for permutation test
+        if "degree_centrality" in centrality_data[organism]:
+            centrality_vals = centrality_data[organism]["degree_centrality"]
+            essentiality_vals = essentiality_data[organism]
+            
+            common_genes = set(centrality_vals.keys()) & set(essentiality_vals.keys())
+            c_vals = [centrality_vals[g] for g in common_genes]
+            e_vals = [essentiality_vals[g] for g in common_genes]
+
+            # Generate null distribution
+            null_dist = generate_null_distribution_permutation(
+                c_vals, e_vals, n_permutations, seed=42
+            )
+            
+            # Calculate empirical p-value for observed degree centrality
+            if "degree_centrality" in results["metrics"]:
+                observed_corr = results["metrics"]["degree_centrality"]["spearman_rho"]
+                empirical_p = calculate_empirical_p_value(observed_corr, null_dist)
+                
+                results["metrics"]["degree_centrality"]["empirical_p_value"] = empirical_p
+                results["metrics"]["degree_centrality"]["null_distribution_summary"] = {
+                    "mean": float(np.mean(null_dist)),
+                    "std": float(np.std(null_dist)),
+                    "min": float(np.min(null_dist)),
+                    "max": float(np.max(null_dist)),
+                    "n_permutations": len(null_dist)
+                }
+                
+                logger.info(f"{organism} - Degree centrality empirical p-value: {empirical_p:.4f}")
+
+    return results
 
 def main():
     """
-    Main orchestration loop.
-    Loads config, runs pipeline for each organism, saves results.
+    Main entry point: orchestrates the full pipeline.
     """
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger.info("Starting gene essentiality prediction pipeline")
     
+    # Load configuration
     config = load_config()
     organisms = get_organisms(config)
-    results_dir = get_path(config, 'results_dir')
+    results_dir = Path(get_path(config, "results"))
     ensure_dirs(results_dir)
-    
-    all_results = []
-    
-    for organism_id in organisms:
-        result = run_pipeline_for_organism(organism_id, config)
-        all_results.append(result)
-    
-    output_file = Path(results_dir) / "correlations.json"
+
+    # Initialize data storage
+    all_centrality_data = {}
+    all_essentiality_data = {}
+
+    # Load essentiality data for all organisms
+    logger.info("Loading essentiality data...")
+    essentiality_results = load_essentiality_for_all_organisms(organisms, config)
+    for org, data in essentiality_results.items():
+        all_essentiality_data[org] = data["labels"]
+
+    # Load PPI networks and compute centralities
+    logger.info("Loading networks and computing centralities...")
+    for organism in organisms:
+        logger.info(f"Processing {organism}...")
+        
+        # Fetch network
+        network = fetch_string_network(organism, config)
+        
+        if network is None:
+            logger.warning(f"Failed to load network for {organism}; skipping")
+            continue
+
+        # Map IDs
+        mapped_network = map_ids(network, organism, config)
+        
+        if mapped_network is None:
+            logger.warning(f"ID mapping failed for {organism}; skipping")
+            continue
+
+        # Compute centralities
+        centrality_results = compute_all_centrality_metrics(mapped_network)
+        all_centrality_data[organism] = centrality_results
+
+    # Run analysis pipeline for each organism
+    final_results = {}
+    for organism in organisms:
+        results = run_pipeline_for_organism(
+            organism, config, all_centrality_data, all_essentiality_data
+        )
+        final_results[organism] = results
+
+    # Save results to JSON
+    output_file = results_dir / "correlations.json"
     with open(output_file, 'w') as f:
-        json.dump(all_results, f, indent=2)
+        json.dump(final_results, f, indent=2)
+
+    logger.info(f"Results saved to {output_file}")
     
-    logger.info(f"Pipeline complete. Results saved to {output_file}")
+    # Update hash state
+    from code.hash_checker import update_hash_state
+    update_hash_state(config)
+
+    logger.info("Pipeline completed successfully")
 
 if __name__ == "__main__":
     main()

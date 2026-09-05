@@ -1,5 +1,5 @@
-+3 2|distinct partition prime require second:
-  quote: 4 5
-  source_id: A000041
-  url: https://oeis.org/A000041
-  value: '5'
+'|algorithm composite iteratively mark must starting':
+  quote: 2 3
+  source_id: A000959
+  url: https://oeis.org/A000959
+  value: '2'

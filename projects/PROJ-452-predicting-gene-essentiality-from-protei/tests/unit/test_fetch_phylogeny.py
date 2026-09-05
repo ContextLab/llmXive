@@ -1,89 +1,102 @@
-import os
+"""
+Unit tests for fetch_phylogeny module.
+
+Tests the tree fetching logic, ID mapping, and file saving capabilities.
+"""
+import pytest
 import logging
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 import tempfile
-import pytest
+import os
 
-# Import the module functions
-# We assume fetch_phylogeny is in the code directory, so we need to handle imports carefully
-# For testing, we will mock the config and requests
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
-
+# Import the module under test
 from fetch_phylogeny import (
-    get_taxonomic_ids_for_organisms, 
-    fetch_supertree, 
-    extract_newick, 
+    get_taxonomic_ids_for_organisms,
+    fetch_supertree,
     save_newick_tree,
     PhylogenyFetchError
 )
-from config import load_config
 
-logger = logging.getLogger(__name__)
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test outputs."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-class TestFetchPhylogeny:
-    @patch('fetch_phylogeny.requests.get')
-    def test_get_taxonomic_ids_for_organisms_success(self, mock_get):
-        """Test successful retrieval of taxonomic IDs."""
-        mock_response = MagicMock()
-        mock_response.json.return_value = {'ot:ott_id': 12345}
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
+def test_get_taxonomic_ids_for_organisms_known():
+    """Test ID lookup for known model organisms."""
+    organisms = ['saccharomyces_cerevisiae', 'homo_sapiens']
+    result = get_taxonomic_ids_for_organisms(organisms)
+    
+    assert result['saccharomyces_cerevisiae'] == '4932'
+    assert result['homo_sapiens'] == '9606'
 
-        config = {'taxonomic_mappings': {}} # Empty explicit map to force API call
-        organisms = ['Escherichia coli']
-        
-        result = get_taxonomic_ids_for_organisms(organisms, config)
-        
-        assert 'Escherichia coli' in result
-        assert result['Escherichia coli'] == 12345
-        mock_get.assert_called_once()
+def test_get_taxonomic_ids_for_organisms_unknown(caplog):
+    """Test behavior when organism ID is not found."""
+    organisms = ['unknown_organism_xyz']
+    
+    with caplog.at_level(logging.WARNING):
+        result = get_taxonomic_ids_for_organisms(organisms)
+    
+    assert result['unknown_organism_xyz'] is None
+    assert "No taxonomic ID found" in caplog.text
 
-    @patch('fetch_phylogeny.requests.post')
-    def test_fetch_supertree_success(self, mock_post):
-        """Test successful supertree fetch."""
-        mock_response = MagicMock()
-        mock_response.json.return_value = {'tree': '(A:1.0, B:2.0);'}
-        mock_response.raise_for_status = MagicMock()
-        mock_post.return_value = mock_response
+@patch('fetch_phylogeny.requests.post')
+def test_fetch_supertree_success(mock_post):
+    """Test successful tree fetch."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "tree": "(A:1.0, B:1.0);",
+        "ott_taxa": ["123", "456"]
+    }
+    mock_post.return_value = mock_response
+    
+    result = fetch_supertree(["123", "456"])
+    
+    assert result == "(A:1.0, B:1.0);"
+    mock_post.assert_called_once()
 
-        result = fetch_supertree([100, 200])
-        
-        assert result is not None
-        assert 'tree' in result
-        assert result['tree'] == '(A:1.0, B:2.0);'
+@patch('fetch_phylogeny.requests.post')
+def test_fetch_supertree_timeout(mock_post):
+    """Test handling of request timeout."""
+    import requests
+    mock_post.side_effect = requests.exceptions.Timeout()
+    
+    result = fetch_supertree(["123"])
+    
+    assert result is None
 
-    @patch('fetch_phylogeny.requests.post')
-    def test_fetch_supertree_failure(self, mock_post):
-        """Test failure in supertree fetch."""
-        mock_post.side_effect = Exception("Network Error")
+@patch('fetch_phylogeny.requests.post')
+def test_fetch_supertree_404(mock_post):
+    """Test handling of 404 response."""
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_response.text = "Not found"
+    mock_post.return_value = mock_response
+    
+    result = fetch_supertree(["123"])
+    
+    assert result is None
 
-        result = fetch_supertree([100])
-        
-        assert result is None
+def test_save_newick_tree(temp_dir):
+    """Test saving a tree to file."""
+    newick = "(A:1.0, B:1.0);"
+    output_path = temp_dir / "test_tree.newick"
+    
+    success = save_newick_tree(newick, output_path)
+    
+    assert success
+    assert output_path.exists()
+    assert output_path.read_text() == newick
 
-    def test_extract_newick_success(self):
-        """Test extraction of Newick string."""
-        data = {'tree': '(A:1.0, B:2.0);'}
-        result = extract_newick(data)
-        assert result == '(A:1.0, B:2.0);'
-
-    def test_extract_newick_missing_tree(self):
-        """Test extraction when tree key is missing."""
-        data = {'ott_ids': {}}
-        result = extract_newick(data)
-        assert result is None
-
-    def test_save_newick_tree(self):
-        """Test saving Newick string to file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_tree.newick"
-            newick_str = "(A:1.0, B:2.0);"
-            
-            save_newick_tree(newick_str, output_path)
-            
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                content = f.read()
-            assert content == newick_str
+def test_save_newick_tree_creates_dirs(temp_dir):
+    """Test that save creates parent directories."""
+    newick = "(A:1.0, B:1.0);"
+    output_path = temp_dir / "subdir" / "nested" / "tree.newick"
+    
+    success = save_newick_tree(newick, output_path)
+    
+    assert success
+    assert output_path.exists()

@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 4543afe87d2b3a1be544bfc93c92d99f405e0622c2c9717080b338f52632496b
+  artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://oeis.org/A000959
+  verification_status: pending
+  verified_against_url: https://oeis.org/A000959
+  verified_at: '2026-09-05T06:39:00.752077Z'

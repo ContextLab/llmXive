@@ -23,11 +23,11 @@ T013:
     \ The task\u2019s core deliverables are therefore missing."
 T014b:
   c: false
-  h: 54e05dfdabaa844a09d8099e0e291710ee1044362a67bf99f84a3ae257dfb62e
+  h: 90b67a4e2990743366653b194c42ef3b8a8e46c765ecb722649135c400b34ebe
   r: "The `data/processed/degraded_manifest.json` file is missing, and the provided\
-    \ `code/02_degradation_pipeline.py` is only partially shown (truncated) with no\
-    \ evidence that it actually writes the NNF\u2011varied scenes or generates the\
-    \ manifest. Consequently the required outputs are not present."
+    \ `code/02_degradation_pipeline.py` is truncated and shows no implementation for\
+    \ systematically varying NNF or writing the final dataset/manifest to the required\
+    \ locations. The task\u2019s core requirements are therefore not satisfied."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,9 +37,32 @@ T015:
     \ statistical test definition, the requirement is not satisfied."
 T016:
   c: false
-  h: fb78118b972ccc8342229fe53d9e22a83ddac2d6ea2b44264c6c6e6ea8ffacd3
-  r: "The provided `code/02b_validate_masks.py` is truncated (e.g., unfinished `sizes\
-    \ =` line) and lacks the KS\u2011test logic, result\u2011writing, and degradation\u2011\
-    parameter\u2011tuning steps required by the task. Moreover, the expected output\
-    \ file `data/results/mask_similarity_score.json` does not exist. The implementation\
-    \ must be completed and produce the JSON result."
+  h: fc071e2b20bf46d631585682c3f546764e1c7185e5751b3dbb0454d9516c791b
+  r: "The provided `code/02b_validate_masks.py` is truncated and ends abruptly without\
+    \ loading synthetic masks, performing the Kolmogorov\u2011Smirnov test, writing\
+    \ `data/results/mask_similarity_score.json`, or implementing any parameter\u2011\
+    tuning logic. Moreover, the expected output file is missing. The task therefore\
+    \ remains unfinished."
+T019:
+  c: false
+  h: 93c4c7510eac542b32753a069c55f19974ec1007c43d15b65d64fccb4ceb1f7d
+  r: "The required artifact `tests/integration/test_memory_limits.py` does not exist\
+    \ in the repository, so no integration test verifying peak RAM <\u202F6.5\u202F\
+    GB is present. The task\u2019s core deliverable is missing."
+T026:
+  c: false
+  h: 4d3ec680e36e2a644f79857b17b7acd1461f0295a92f7d54e2346a75ca98afb7
+  r: "The repository contains `code/03_performance_aggregator.py`, but the file is\
+    \ truncated and does not show logic that writes the required columns (`sample_id`,\
+    \ `peak_ram_mb`, `wall_clock_time`, `status`) or performs the total\u2011time\
+    \ verification. Moreover, the expected output file `data/results/performance_log.csv`\
+    \ is absent. Both the implementation and the required result artifact are missing."
+T030:
+  c: false
+  h: a51d983caee2b76a7c3f234931bfbba6c08e9691a1b2afbd92b03cbaa94b9a94
+  r: "The repository contains a `code/04_metrics_evaluation.py` file, but the shown\
+    \ content is truncated and does not demonstrate a complete implementation (e.g.,\
+    \ the `process_sample` function is cut off and no main execution logic is visible).\
+    \ Moreover, the required output file `data/results/metrics.csv` is absent. Both\
+    \ the script\u2019s full functionality and the generated results file are missing,\
+    \ so the task is not genuinely completed."

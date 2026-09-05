@@ -2771,3 +2771,295 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T20:47:22Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: generate 50000 primes using sieve of eratosthenes
+  claim_id: c_d5f1eca3
+  context: 'Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using
+    Sieve of Eratosthenes. Use a boolean array for memory optimization. The algorithm
+    must mark composites iteratively starting from 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate primes up to 50,000 using Sieve of Eratosthenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:28:46Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: primes saved as 1d np.int32 array
+  claim_id: c_0a9e0eaf
+  context: 'Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using
+    Sieve of Eratosthenes. Use a boolean array for memory optimization. The algorithm
+    must mark composites iteratively starting from 2. **Output**: Save the list of
+    primes to `code/utils/primes.npy` as a **1D `np.int32` array**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primes_saved_as_1d_np.int32_array
+  kind: entity_fact
+  raw_text: Save the list of primes to `code/utils/primes.npy` as a **1D `np.int32`
+    array**.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:29:16Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: verify primes file dtype and shape
+  claim_id: c_083d176b
+  context: 'Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using
+    Sieve of Eratosthenes. Use a boolean array for memory optimization. The algorithm
+    must mark composites iteratively starting from 2. **Output**: Save the list of
+    primes to `code/utils/primes.npy` as a **1D `np.int32` array**. **Verification**:
+    Ensure the file exists, dtype is `int32`, and shape matches the count of primes
+    <= 50,000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the file exists, dtype is `int32`, and shape matches the count
+    of primes <= 50,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:30:00Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: implement q_as(n) meinardus theorem
+  claim_id: c_15794395
+  context: 'Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based
+    on the distinct-partition variant of Meinardus'' theorem. The implementation must
+    use the leading-order term derived from the generating function $\prod (1+q^p$.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_q_as(n)_meinardus_theorem
+  kind: entity_fact
+  raw_text: 'Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$
+    based on the distinct-partition variant of Meinardus'' theorem.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:30:34Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: generate reference data for n in [1, 100]
+  claim_id: c_fea1d995
+  context: Implement `code/generate_reference.py` to compute exact $p_{\mathcal{P}}(n)$
+    for **all** $n$ in the range **n in [1, 100]** using the **exact same distinct-prime
+    DP algorithm** as T011, limited to this range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate reference data for all n in the range **n in [1, 100]**
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:31:25Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: calculate p_p(n) for n in [1, 100]
+  claim_id: c_1aad8694
+  context: Implement `code/generate_reference.py` to compute exact $p_{\mathcal{P}}(n)$
+    for **all** $n$ in the range **n in [1, 100]** using the **exact same distinct-prime
+    DP algorithm** as T011, limited to this range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate $p_{\mathcal{P}}(n)$ for **all** $n$ in the range **n in [1,
+    100]**
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:32:28Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: calculate p_p(n) for n in [1, 50000]
+  claim_id: c_e21da903
+  context: '- **Generate data for the full range of n values up to 50,000**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate $p_{\mathcal{P}}(n)$ for $n \in [1, 50000]$
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:33:42Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: calculate q_as(n) for n in [1, 50000]
+  claim_id: c_6aa0ef86
+  context: '- **Generate data for the full range of n values up to 50,000**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate $Q_{as}(n)$ for $n \in [1, 50000]$
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:35:23Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: memory usage < 6.5 gb
+  claim_id: c_4b780f01
+  context: '- **Generate data for the full range of n values up to 50,000**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage < 6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:35:23Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: mark composites iteratively from 2
+  claim_id: c_24aecec7
+  context: 'Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using
+    Sieve of Eratosthenes. Use a boolean array for memory optimization. The algorithm
+    must mark composites iteratively starting from 2.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 2 3
+      source_id: A000959
+      url: https://oeis.org/A000959
+      value: '2'
+    filled: true
+  kind: numeric
+  raw_text: The algorithm must mark composites iteratively starting from 2.
+  resolved_value: '2'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T06:35:37Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Generate primes up to 50000 using Sieve of Eratosthenes
+  claim_id: c_e43dc5aa
+  context: 'T004 [P] Implement code/utils/prime_sieve.py: Generate primes up to 50,000
+    using Sieve of Eratosthenes. Use a boolean array for memory optimization. {{claim:c_24aecec7}}
+    (OEIS A000959, https://oeis.org/A000959)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate primes up to 50,000 using Sieve of Eratosthenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:36:06Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Justify n_max=50000 as transition region for prime gap impact
+  claim_id: c_7ca0af28
+  context: 'T018 [P] [US2] Test: Verify Benjamini-Hochberg correction is applied correctly
+    and p-values are adjusted in tests/test_regression_model.py. ... Justify the n_max=50,000
+    limit as a transition region where prime gaps begin to significantly impact the
+    density of summands, distinguishing it from the unrestricted partition regime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Justify the n_max=50,000 limit as a transition region where prime gaps
+    begin to significantly impact the density of summands.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:36:45Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Generate data for n values up to 50000
+  claim_id: c_70425371
+  context: 'T011 [US1] Implement code/generate_partitions.py: ... Generate data for
+    the full range of n values up to 50,000. Include --n-max argument using argparse
+    with a default set to 50000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data for the full range of n values up to 50,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:37:53Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Pipeline completes within 2 hours with memory under 6.5 GB
+  claim_id: c_add5cbbd
+  context: 'T010a [P] [US1] Integration test: Verify generate_partitions.py completes
+    within 2 hours and memory < 6.5 GB in tests/test_pipeline.py.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Verify `generate_partitions.py` completes within 2 hours and memory <
+    6.5 GB.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T06:37:54Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: DP generation phase completes within 1.5 hours
+  claim_id: c_e5f53caa
+  context: 'T010b [P] [US1] Time-budget test: Verify that the DP generation phase
+    completes within 1.5 hours (derived from SC-004 total time budget of several hours
+    minus estimated time for US2 and US3 phases) in tests/test_pipeline.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the DP generation phase completes within 1.5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:38:23Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Entire pipeline completes within 6 hours
+  claim_id: c_0a03b774
+  context: 'Critical Constraint: The entire pipeline must complete within 6 hours
+    (SC-004). Monitor time budgets in T010b, T010c, T010d, and T039.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entire pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:39:00Z'

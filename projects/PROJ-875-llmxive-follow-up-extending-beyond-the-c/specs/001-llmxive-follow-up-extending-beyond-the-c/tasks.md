@@ -82,15 +82,15 @@
 
 ### Implementation for User Story 2 (Baseline Agent)
 
-- [ ] T039a [P] [US2] Implement `code/baseline_runner.py` to load a Vision-capable MLLM (e.g., `Qwen-VL-Chat-Int4`), process Visual inputs (raw frames), manage context, and output structured JSON mental maps. **Implements Plan Override of FR-008.** **Output Schema**: `{"action": "string", "mental_map": "string"}`. **Artifact**: `data/processed/baseline_seeds_*.json`. **Verification**: Confirm output is compared against the *same masked ground truth* as the Text Agent. **Depends on T015c (Visual Frames).**
+- [X] T039a [P] [US2] Implement `code/baseline_runner.py` to load a Vision-capable MLLM (e.g., `Qwen-VL-Chat-Int4`), process Visual inputs (raw frames), manage context, and output structured JSON mental maps. **Implements Plan Override of FR-008.** **Output Schema**: `{"action": "string", "mental_map": "string"}`. **Artifact**: `data/processed/baseline_seeds_*.json`. **Verification**: Confirm output is compared against the *same masked ground truth* as the Text Agent. **Depends on T015c (Visual Frames).**
  - [ ] **T039a-1**: Verify baseline model memory footprint <= 7GB RAM using `memory_profiler` before finalizing the runner. **Command**: `python -m memory_profiler code/baseline_runner.py --seed 1`. **Artifact**: `results/memory_profile_baseline.txt`. **Depends on T039a.**
  - [ ] **T039a-2**: Verify Baseline's output is compared against the *same masked ground truth* as the Text Agent (Plan Decision). **Verification**: Run a mock comparison with `tests/unit/test_hidden_masking.py` logic on baseline output. **Artifact**: `results/baseline_masking_verification.json`. **Depends on T039a.**
-- [ ] T039b [US2] Execute `code/baseline_runner.py` on seeds from `config/seeds.yaml` to generate baseline logs in `data/processed/`. **Command**: `python code/baseline_runner.py --seeds config/seeds.yaml --output data/processed/baseline_seeds_*.json`. **Depends on T039a AND T022 (Data Validation) AND T015c.** <!-- FAILED: unspecified -->
+- [X] T039b [US2] Execute `code/baseline_runner.py` on seeds from `config/seeds.yaml` to generate baseline logs in `data/processed/`. **Command**: `python code/baseline_runner.py --seeds config/seeds.yaml --output data/processed/baseline_seeds_*.json`. **Depends on T039a AND T022 (Data Validation) AND T015c.** <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Performance Verification (Blocking)
 
 - [X] T041a [US2] Implement `code/benchmark_runner.py` to orchestrate the execution of N=20 game instances for the Text Agent. **Artifact**: `code/benchmark_runner.py`. **Depends on T023-T028.**
-- [ ] T041 [US2] Execute `code/benchmark_runner.py` on seeds from `config/seeds.yaml` to generate `results/benchmark_log.json`. **Command**: `python code/benchmark_runner.py --seeds config/seeds.yaml --output results/benchmark_log.json`. **Verification**: `results/benchmark_log.json` must exist with `total_time_hours < 6.0` and `passed: true`. **Depends on T041a, T023-T028, T015b.**
+- [X] T041 [US2] Execute `code/benchmark_runner.py` on seeds from `config/seeds.yaml` to generate `results/benchmark_log.json`. **Command**: `python code/benchmark_runner.py --seeds config/seeds.yaml --output results/benchmark_log.json`. **Verification**: `results/benchmark_log.json` must exist with `total_time_hours < 6.0` and `passed: true`. **Depends on T041a, T023-T028, T015b.**
 
 **Checkpoint**: All data generation (US1, US2, Baseline) complete.
 
@@ -113,8 +113,8 @@
 - [X] T034 [US3] Implement `code/scorer.py` to calculate "Memory Gap" using Structured JSON comparison + Semantic Similarity (Plan Override of FR-006). **Library**: `sentence-transformers/all-MiniLM-L6-v2`. **Formula**: `score = (1 - semantic_similarity) + (penalty * missing_items)`. **Verification**: Include a step to confirm the new metric satisfies the *intent* of FR-006 (measuring state retention) and explicitly tags the deviation as 'Plan Override' in the code comments and logs. **Depends on T033, T007, T033c.**
  - [ ] **Verification**: Run `tests/unit/test_scorer.py` to validate the new metric.
 - [X] T035 [US3] Implement `code/scorer.py` logic to apply a penalty for missing critical items in hidden ground truth (FR-007). **Penalty**: 1.0 per critical item (key, door) missing from agent's mental map. **Logic**: Identify critical items in `masked_ground_truth` and compare with `agent_mental_map`. **Verify masking logic is applied to Baseline agent comparison.** (Depends on T007 contract). **Depends on T034.**
-- [ ] T037 [US3] Implement `code/stats.py` to perform one-tailed Mann-Whitney U test (FR-005).
-- [ ] T038 [US3] Implement `code/main.py` to orchestrate Text Agent and Baseline runs, aggregate results into `results/statistical_summary.json`, and trigger `utils/checksum.py` on `data/processed/`. **Aggregation**: Calculate mean, std, p-value. **Schema**: `{"text_mean": float, "baseline_mean": float, "p_value": float, "conclusion": "string"}`. **Command**: `python utils/checksum.py --input data/processed/ --output state/checksums.yaml`. **Depends on T034, T035, T037.**
+- [X] T037 [US3] Implement `code/stats.py` to perform one-tailed Mann-Whitney U test (FR-005).
+- [ ] T038 [US3] Implement `code/main.py` to orchestrate Text Agent and Baseline runs, aggregate results into `results/statistical_summary.json`, and trigger `utils/checksum.py` on `data/processed/`. **Aggregation**: Calculate mean, std, p-value. **Schema**: `{"text_mean": float, "baseline_mean": float, "p_value": float, "conclusion": "string"}`. **Command**: `python utils/checksum.py --input data/processed/ --output state/checksums.yaml`. **Depends on T034, T035, T037.** <!-- ATOMIZE: requested -->
 
 **Checkpoint**: Scoring and Statistics implementation complete.
 

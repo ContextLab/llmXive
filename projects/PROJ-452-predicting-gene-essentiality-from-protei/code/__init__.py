@@ -1,4 +1,3 @@
 """
-Code package for the Gene Essentiality Prediction Pipeline.
+Code package for gene essentiality prediction pipeline.
 """
-__version__ = "0.1.0"

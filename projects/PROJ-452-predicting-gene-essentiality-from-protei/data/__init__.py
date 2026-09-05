@@ -1,3 +1,3 @@
 """
-Data directory package.
+Data directory placeholder.
 """

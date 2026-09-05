@@ -1,42 +1,44 @@
 """
-Project Structure Initialization Script.
+Project Structure Setup Script.
 
-This script creates the complete directory structure for the PROJ-799 project,
-including all necessary subdirectories for code, data, tests, docs, and state.
+This script creates the complete directory structure required for the
+Statistical Properties of Integer Partitions project (PROJ-799).
 """
 import os
 import sys
 from pathlib import Path
 
-
 def main():
-    """Create the complete directory structure for the project."""
-    # Define the base project directory
-    project_root = Path("projects/PROJ-799-statistical-properties-of-integer-partit")
+    """Create the complete project directory hierarchy."""
+    # Base project directory
+    base_dir = Path("projects/PROJ-799-statistical-properties-of-integer-partit")
+
+    # Define all required subdirectories relative to the project root
+    # Note: The prompt specifies paths relative to project root, but since
+    # this script runs from the repo root, we construct paths relative to base_dir
     
-    # Define all required subdirectories
     directories = [
-        # Core directories
-        project_root / "code",
-        project_root / "code" / "utils",
+        # Code infrastructure
+        base_dir / "code",
+        base_dir / "code" / "utils",
         
-        # Data directories
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "schemas",
+        # Data storage
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "data" / "schemas",
         
-        # Test directories
-        project_root / "tests",
-        project_root / "tests" / "data",
+        # Testing infrastructure
+        base_dir / "tests",
+        base_dir / "tests" / "data",
         
         # Documentation
-        project_root / "docs",
+        base_dir / "docs",
         
-        # State tracking
-        project_root / "state" / "projects",
+        # State management
+        base_dir / "state",
+        base_dir / "state" / "projects",
     ]
-    
-    # Create all directories
+
     created_count = 0
     for directory in directories:
         if not directory.exists():
@@ -45,13 +47,10 @@ def main():
             created_count += 1
         else:
             print(f"Directory already exists: {directory}")
-    
-    print(f"\nProject structure initialization complete.")
-    print(f"Total directories created: {created_count}")
-    print(f"Base project directory: {project_root}")
-    
-    return 0
 
+    print(f"\nSetup complete. Created {created_count} new directories.")
+    print(f"Project root: {base_dir}")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

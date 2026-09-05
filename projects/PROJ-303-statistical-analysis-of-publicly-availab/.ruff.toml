@@ -1,2 +1,23 @@
-# Explicit ruff configuration file for IDE compatibility
+# Standalone Ruff configuration file for editor integration
+# Extends settings from pyproject.toml but allows IDEs to find config quickly
 extend = "pyproject.toml"
+
+[lint]
+# Enable specific rules if not covered in pyproject.toml
+select = ["ALL"]
+ignore = [
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D203", # 1 blank line required before class docstring (conflicts with D211)
+    "D213", # Multi-line docstring summary should start at the second line (conflicts with D212)
+    "ANN",  # flake8-annotations (type hints - optional for this project)
+    "S101", # Use of assert detected (common in tests)
+    "ARG",  # Unused function argument (common in interfaces/tests)
+    "PLR",  # Pylint refactor (style preferences)
+]
+
+[format]
+# Ensure format matches black
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

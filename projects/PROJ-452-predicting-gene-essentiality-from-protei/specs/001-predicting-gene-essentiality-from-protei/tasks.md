@@ -98,7 +98,7 @@
 
 - [X] T019a [US1] [P] Implement graph rewiring in `code/network_analysis.py` to generate a set of degree-preserving random graphs using the Maslov-Sneppen algorithm; save graphs to `results/null_distribution/rewired_graphs/`
 - [X] T019b [US1] [P] Implement centrality computation on rewired graphs in `code/network_analysis.py` to calculate degree centrality for each rewired graph
-- [ ] T019c [US1] [P] Implement correlation calculation on rewired graphs in `code/statistics.py` to compute Spearman correlation between rewired centrality and original essentiality labels; save results to `results/null_distribution/rewired_correlations.csv`; compare observed correlation against this null distribution to validate FR-010
+- [X] T019c [US1] [P] Implement correlation calculation on rewired graphs in `code/statistics.py` to compute Spearman correlation between rewired centrality and original essentiality labels; save results to `results/null_distribution/rewired_correlations.csv`; compare observed correlation against this null distribution to validate FR-010
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,7 +118,7 @@
 ### Implementation for User Story 2
 
 - [X] T023 [US2] Implement Fisher's z-transformation in `code/statistics.py` to normalize correlation coefficients for comparison
-- [ ] T024 [US2] Implement PGLS model in `code/statistics.py` using `statsmodels` and the loaded phylogenetic tree (from T009) to test for differences in correlation strength
+- [X] T024 [US2] Implement PGLS model in `code/statistics.py` using `statsmodels` and the loaded phylogenetic tree (from T009) to test for differences in correlation strength
 - [ ] T025 [P] [US2] Implement Benjamini-Hochberg correction in `code/statistics.py` for multiple-comparison adjustment of PGLS p-values (FR-008) and apply in output generation
 - [ ] T026 [US2] Add logic in `code/main.py` to skip PGLS if effective sample size n < 10 and log "Power insufficient" warning (FR-009)
 - [ ] T027 [US2] Save comparative statistics to `results/pgls_results.json` with metadata on organisms and tree used

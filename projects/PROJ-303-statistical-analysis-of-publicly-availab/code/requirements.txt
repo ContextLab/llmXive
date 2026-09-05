@@ -8,6 +8,4 @@ requests
 pyyaml
 geopandas
 pytest
-datasets
 pyarrow
-fsspec

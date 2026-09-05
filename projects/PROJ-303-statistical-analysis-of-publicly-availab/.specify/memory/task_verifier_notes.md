@@ -9,3 +9,7 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T008** — declared artifact(s) missing/empty/invalid: src/pipeline/logging_config.py
 - **T014b** — No code, script, or function implementing the required `ExtremeEvent` entity mapping logic was provided. The task demands a concrete implementation that takes raw NOAA GHCN‑Daily records and outputs records with fields (station_id, date, magnitude, threshold_value); such an artifact is absent, so the requirement is not satisfied.
 - **T015** — declared artifact(s) missing/empty/invalid: data/processed/extreme_events.parquet
+- **T016** — declared artifact(s) missing/empty/invalid: src/data/summary.py
+- **T021** — declared artifact(s) missing/empty/invalid: src/pipeline/run_analysis.py
+- **T020b** — declared artifact(s) missing/empty/invalid: src/pipeline/run_analysis.py
+- **T019** — declared artifact(s) missing/empty/invalid: src/models/gpd_baseline.py

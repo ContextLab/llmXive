@@ -1,83 +1,148 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "PGLS Result"
-description: "Schema for Phylogenetic Generalized Least Squares results comparing correlation coefficients across organisms."
+$schema: http://json-schema.org/draft-07/schema#
+title: PGLS Result Schema
+description: >
+  Schema for the output of the Phylogenetic Generalized Least Squares (PGLS) analysis
+  comparing correlation coefficients across organisms (User Story 2).
 type: object
 required:
-  - analysis_type
-  - method
-  - phylogenetic_tree_source
-  - organisms_compared
-  - statistic
-  - p_value
-  - adjusted_p_value
-  - effective_sample_size
-  - timestamp
+  - phylogenetic_tree
+  - organisms
+  - correlation_data
+  - pgls_results
+  - multiple_comparison_correction
+additionalProperties: false
 properties:
-  analysis_type:
-    type: string
-    const: "cross_species_correlation_comparison"
-  method:
-    type: string
-    description: "Statistical method used (e.g., 'Fisher_z_transform_PGLS')."
-  phylogenetic_tree_source:
-    type: string
-    description: "Source of the phylogenetic tree (e.g., 'OpenTree of Life', 'local_file')."
-  phylogenetic_tree_file:
-    type: string
-    description: "Path to the Newick tree file used."
-  organisms_compared:
+  phylogenetic_tree:
+    type: object
+    required:
+      - source
+      - newick_string_hash
+      - num_taxa
+    properties:
+      source:
+        type: string
+        description: Source of the tree (e.g., "OpenTree of Life")
+      newick_string_hash:
+        type: string
+        description: SHA256 hash of the Newick string for reproducibility
+      num_taxa:
+        type: integer
+        minimum: 2
+      tree_file_path:
+        type: string
+        description: Relative path to the Newick file used
+
+  organisms:
     type: array
-    items:
-      type: string
-    description: "List of organisms included in the comparison."
-  correlations:
-    type: array
-    description: "List of correlation objects for each organism used in the model."
     items:
       type: object
       required:
-        - organism
-        - taxonomic_id
-        - centrality_metric
-        - correlation_coefficient
+        - name
+        - tax_id
       properties:
-        organism:
+        name:
           type: string
-        taxonomic_id:
+        tax_id:
           type: integer
-        centrality_metric:
-          type: string
-        correlation_coefficient:
-          type: number
-  statistic:
-    type: number
-    description: "Test statistic from the PGLS model (e.g., t-value or F-value)."
-  p_value:
-    type: number
-    description: "Raw p-value from the PGLS test."
-  adjusted_p_value:
-    type: number
-    description: "Benjamini-Hochberg adjusted p-value for multiple comparisons."
-  effective_sample_size:
-    type: integer
-    description: "Number of organisms effectively used in the analysis (n)."
-  power_warning:
-    type: boolean
-    description: "True if n < 10 and power was deemed insufficient."
-  timestamp:
-    type: string
-    format: date-time
-    description: "ISO 8601 timestamp of when the analysis was completed."
-  model_details:
+
+  correlation_data:
     type: object
-    description: "Optional details about the fitted model."
+    required:
+      - degree
+    additionalProperties: false
     properties:
+      degree:
+        type: object
+        required:
+          - values
+          - sample_sizes
+        properties:
+          values:
+            type: array
+            items:
+              type: number
+            description: List of Spearman rho values for each organism
+          sample_sizes:
+            type: array
+            items:
+              type: integer
+            description: List of sample sizes (n) for each organism
+
+  pgls_results:
+    type: object
+    required:
+      - statistic
+      - p_value
+      - degrees_of_freedom
+      - model_summary
+    properties:
+      statistic:
+        type: number
+        description: PGLS test statistic (F or t depending on model)
+      p_value:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      degrees_of_freedom:
+        type: integer
       lambda:
         type: number
-        description: "Pagel's lambda parameter estimated by the model."
-      kappa:
-        type: number
-        description: "Pagel's kappa parameter estimated by the model."
-      delta:
-        type: number
-        description: "Pagel's delta parameter estimated by the model."
+        minimum: 0.0
+        maximum: 1.0
+        description: Pagel's lambda parameter estimate
+      model_summary:
+        type: string
+        description: Text summary of the model fit
+
+  multiple_comparison_correction:
+    type: object
+    required:
+      - method
+      - adjusted_p_values
+    properties:
+      method:
+        type: string
+        enum:
+          - benjamini_hochberg
+          - bonferroni
+          - none
+      adjusted_p_values:
+        type: array
+        items:
+          type: number
+        description: List of adjusted p-values corresponding to organisms
+
+  power_analysis:
+    type: object
+    properties:
+      effective_sample_size:
+        type: integer
+      power_sufficient:
+        type: boolean
+        description: True if n >= 10 (per FR-009)
+      warning_message:
+        type: string
+        description: Warning if power is insufficient
+
+  analysis_metadata:
+    type: object
+    required:
+      - timestamp
+      - software_versions
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      software_versions:
+        type: object
+        required:
+          - python
+          - statsmodels
+          - dendropy
+        properties:
+          python:
+            type: string
+          statsmodels:
+            type: string
+          dendropy:
+            type: string

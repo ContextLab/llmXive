@@ -1,3 +1,3 @@
 """
-Tests package for the Gene Essentiality Prediction Pipeline.
+Tests package for gene essentiality prediction pipeline.
 """

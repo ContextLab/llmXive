@@ -66,8 +66,8 @@
 - [ ] T014b [US1] Implement `ExtremeEvent` entity mapping logic: Create function to map raw data to the `ExtremeEvent` schema (station_id, date, magnitude, threshold_value) defined in spec.md (Depends on T014)
 - [ ] T015 [US1] Generate `data/processed/extreme_events.parquet` containing station_id, date, magnitude, threshold_value (Depends on T014b)
 - [ ] T016 [US1] Add summary statistics reporter in `src/data/summary.py` (exceedance count per station, average magnitude, sensitivity report) (Depends on T015)
-- [ ] T017 [US1] Unit test: Verify station exclusion logic for >30 day gaps in `tests/unit/test_ingestion.py`
-- [ ] T018 [US1] Unit test: Verify threshold calculation is isolated to training data in `tests/unit/test_preprocessing.py`
+- [X] T017 [US1] Unit test: Verify station exclusion logic for >30 day gaps in `tests/unit/test_ingestion.py`
+- [X] T018 [US1] Unit test: Verify threshold calculation is isolated to training data in `tests/unit/test_preprocessing.py`
 
 **Checkpoint**: User Story 1 (Data Layer) is fully functional and testable independently
 

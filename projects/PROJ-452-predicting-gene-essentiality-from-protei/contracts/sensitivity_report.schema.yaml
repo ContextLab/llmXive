@@ -1,88 +1,138 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Sensitivity Report"
-description: "Schema for the sensitivity analysis report on network confidence thresholds."
+$schema: http://json-schema.org/draft-07/schema#
+title: Sensitivity Report Schema
+description: >
+  Schema for the sensitivity analysis report (User Story 3) evaluating robustness
+  of correlation results across different STRING confidence thresholds.
 type: object
 required:
   - organism
-  - analysis_type
-  - thresholds_tested
-  - results
-  - stability_assessment
-  - timestamp
+  - thresholds_analyzed
+  - results_by_threshold
+  - stability_analysis
+  - sc_002_verdict
+additionalProperties: false
 properties:
   organism:
-    type: string
-    description: "Scientific name of the organism analyzed."
-  analysis_type:
-    type: string
-    const: "confidence_threshold_sensitivity"
-  thresholds_tested:
+    type: object
+    required:
+      - name
+      - tax_id
+    properties:
+      name:
+        type: string
+      tax_id:
+        type: integer
+
+  thresholds_analyzed:
     type: array
     items:
       type: integer
-    description: "List of STRING confidence thresholds tested (e.g., [500, 700, 900])."
-  centrality_metric:
-    type: string
-    description: "The centrality metric being evaluated for sensitivity."
-  results:
+    description: List of confidence thresholds tested (e.g., [500, 700, 900])
+    uniqueItems: true
+
+  results_by_threshold:
     type: object
-    description: "Results keyed by threshold value (as string)."
+    description: Keyed by threshold value (stringified)
     additionalProperties:
       type: object
       required:
-        - correlation_coefficient
-        - p_value
-        - sample_size
-        - network_edges
-        - network_nodes
+        - network_stats
+        - centrality_results
       properties:
-        correlation_coefficient:
-          type: number
-        p_value:
-          type: number
-        sample_size:
-          type: integer
-        network_edges:
-          type: integer
-        network_nodes:
-          type: integer
-        sparsity_warning:
-          type: boolean
-          description: "True if edges < 500."
-  stability_assessment:
+        network_stats:
+          type: object
+          required:
+            - nodes
+            - edges
+          properties:
+            nodes:
+              type: integer
+            edges:
+              type: integer
+            density:
+              type: number
+            sparsity_flag:
+              type: boolean
+              description: True if edges < 500 (per T031)
+
+        centrality_results:
+          type: object
+          required:
+            - degree
+          properties:
+            degree:
+              type: object
+              required:
+                - spearman_rho
+                - p_value
+                - sample_size
+              properties:
+                spearman_rho:
+                  type: number
+                p_value:
+                  type: number
+                sample_size:
+                  type: integer
+
+  stability_analysis:
     type: object
-    description: "Summary of stability across thresholds."
     required:
+      - threshold_pairs
       - max_delta_rho
-      - pass_sc_002
-      - delta_matrix
     properties:
-      max_delta_rho:
-        type: number
-        description: "Maximum absolute difference in correlation coefficients between any two thresholds."
-      pass_sc_002:
-        type: boolean
-        description: "True if max_delta_rho <= 0.1 (stability requirement)."
-      delta_matrix:
+      threshold_pairs:
         type: array
-        description: "Matrix of |Δρ| values between threshold pairs."
         items:
           type: object
           required:
-            - threshold_1
-            - threshold_2
+            - threshold_a
+            - threshold_b
             - delta_rho
           properties:
-            threshold_1:
+            threshold_a:
               type: integer
-            threshold_2:
+            threshold_b:
               type: integer
             delta_rho:
               type: number
-  timestamp:
-    type: string
-    format: date-time
-    description: "ISO 8601 timestamp of when the analysis was completed."
-  summary_markdown:
-    type: string
-    description: "Optional pre-formatted markdown summary string."
+              description: Absolute difference |ρ_a - ρ_b|
+
+      max_delta_rho:
+        type: number
+        description: Maximum absolute difference observed across all pairs
+
+  sc_002_verdict:
+    type: object
+    required:
+      - pass
+      - threshold
+      - reason
+    properties:
+      pass:
+        type: boolean
+        description: True if max |Δρ| ≤ 0.1 (per SC-002)
+      threshold:
+        type: number
+        description: The stability threshold (0.1)
+      reason:
+        type: string
+        description: Human-readable explanation of pass/fail
+
+  analysis_metadata:
+    type: object
+    required:
+      - timestamp
+      - software_versions
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      software_versions:
+        type: object
+        properties:
+          python:
+            type: string
+          networkx:
+            type: string
+          scipy:
+            type: string

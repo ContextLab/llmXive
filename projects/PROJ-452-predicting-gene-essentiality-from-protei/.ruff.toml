@@ -1,2 +1,25 @@
-# Standalone ruff config for IDE integration if pyproject.toml is not picked up
-extend = "pyproject.toml"
+# Ruff configuration file
+# This file is an alternative to the [tool.ruff] section in pyproject.toml
+# It is included for explicit tool invocation visibility.
+
+line-length = 88
+target-version = "py311"
+src = ["code", "tests"]
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests

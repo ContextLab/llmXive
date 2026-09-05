@@ -125,3 +125,188 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T02:03:07Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: load quantized text-only LLM with 3B parameters or fewer using CPU-optimized
+    engine
+  claim_id: c_ee62b8a4
+  context: Implementation for User Story 2 (Text Agent) - T023
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_quantized_text-only_LLM_with_3B_parameters_or_fewer_usi
+  kind: entity_fact
+  raw_text: "Implement code/agent_loop.py to load quantized text-only LLM (\u2264\
+    3B params) using CPU-optimized engine."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:46:59Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: hard step limit of 500 steps for agent inference cycle
+  claim_id: c_f601c6f1
+  context: Implementation for User Story 2 (Text Agent) - T024
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/agent_loop.py inference cycle with hard step limit (500
+    steps).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:47:37Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: context window truncation keeps last 50 events
+  claim_id: c_82b278bc
+  context: Implementation for User Story 2 (Text Agent) - T025
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify context window truncation logic in code/agent_loop.py (keep last
+    N=50 events).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:48:52Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: log peak RAM and CPU usage after every agent run
+  claim_id: c_e1301767
+  context: Implementation for User Story 2 (Text Agent) - T028
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_peak_RAM_and_CPU_usage_after_every_agent_run
+  kind: entity_fact
+  raw_text: Implement code/resource_monitor.py to log peak RAM and CPU usage after
+    every agent run.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:49:31Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: peak RAM must be less than or equal to 7168 MB and CPU percent less than
+    or equal to 200
+  claim_id: c_0760c4e0
+  context: Implementation for User Story 2 (Text Agent) - T028
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_must_be_less_than_or_equal_to_7168_MB_and_CPU_perce
+  kind: magnitude
+  raw_text: Verify resource usage asserts peak_ram_mb <= 7168 and cpu_percent <= 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:50:11Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: execute 20 game instances for the Text Agent
+  claim_id: c_1509d332
+  context: Performance Verification (Blocking) - T041a
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/benchmark_runner.py to orchestrate the execution of N=20
+    game instances for the Text Agent.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:50:48Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: total benchmark execution time is less than 6.0 hours
+  claim_id: c_dd142b10
+  context: Performance Verification (Blocking) - T041
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_benchmark_execution_time_is_less_than_6.0_hours
+  kind: magnitude
+  raw_text: Verify results/benchmark_log.json exists with total_time_hours < 6.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:51:36Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 for Memory Gap calculation
+  claim_id: c_1866ce06
+  context: Implementation for User Story 3 - T034
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_Memory_Gap_ca
+  kind: entity_fact
+  raw_text: Implement code/scorer.py to calculate Memory Gap using library sentence-transformers/all-MiniLM-L6-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:52:15Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: apply penalty of 1.0 per missing critical item
+  claim_id: c_08d7d69e
+  context: Implementation for User Story 3 - T035
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a penalty of 1.0 per critical item (key, door) missing from agent's
+    mental map.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:52:53Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: execute pilot experiment with 20 instances
+  claim_id: c_cf69234e
+  context: 'Phase 5: Execution, Finalization & Polish - T039c'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute full experiment batch for N=20 (Pilot) and generate results/statistical_summary.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:53:47Z'
+- artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  attempts: 1
+  canonical: execute full experiment with 64 instances if power is less than 0.8
+  claim_id: c_c9f5da6f
+  context: 'Phase 5: Execution, Finalization & Polish - T039d'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execute_full_experiment_with_64_instances_if_power_is_less_t
+  kind: magnitude
+  raw_text: Execute full experiment batch for N=64 if power analysis requires scaling.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T06:54:48Z'

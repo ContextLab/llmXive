@@ -1,28 +1,3 @@
-T002:
-  c: false
-  h: 51185ec71a32d982bb09956b5f37e54818123c1b9388b2b069a173f32789b836
-  r: "The required `projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/requirements.txt`\
-    \ file does not exist, so the pinned version list cannot be verified. The task\u2019\
-    s core artifact is missing."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/checksum.py` file or its contents were presented, and there is no\
-    \ evidence that a SHA\u2011256 checksum generator for the `data/processed/` directory\
-    \ was added. The required artifact is missing, so the task is not satisfied."
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/hasher.py` file or its contents were provided; therefore there is\
-    \ no evidence that a version\u2011hash generator was implemented. The required\
-    \ artifact is missing."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/renderer_validator.py` file or its contents were provided; without\
-    \ the actual implementation we cannot confirm that ASCII\u2011visual consistency\
-    \ verification has been added. The required artifact is missing, so the task is\
-    \ not satisfied."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -72,12 +47,12 @@ T028:
     data are missing.
 T033:
   c: false
-  h: 6081d9ffc2903a18033634a49f34def434762021a32afdd8d05a8e8ed2680197
-  r: "The provided `code/baseline_adapter.py` is truncated (ends abruptly at `if mental_map\
-    \ is N`) and does not contain the full parsing and validation logic, nor does\
-    \ it reference or validate against the required `state_snapshot.schema.yaml` (which\
-    \ is missing). Consequently the implementation does not fulfill the task\u2019\
-    s requirements."
+  h: 87ce757bb49d39cea228b5bbbcf712b21294e9dd8c6a371f944acf64e12a85bd
+  r: "The provided `baseline_adapter.py` contains parsing of `action` and `mental_map`\
+    \ but the implementation is cut off (the `validate_against_masked_ground_truth`\
+    \ function is incomplete) and there is no `state_snapshot.schema.yaml` file to\
+    \ verify that the output matches the required schema. The task\u2019s validation\
+    \ step and schema conformity are therefore not satisfied."
 T033b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -87,6 +62,14 @@ T033b:
     \ cannot confirm that the required ratification was performed. The implementer\
     \ must supply the revised `spec.md` (or a diff) that includes the new metric definition\
     \ and the updated functional requirements."
+T038:
+  c: false
+  h: 39d795bbaefda564de947a505a6fdf5b593b234de8d628c829d8190e037de9f4
+  r: "The provided `code/main.py` only sets up logging and contains placeholder comments;\
+    \ it never runs the Text Agent or Baseline, performs any aggregation, or invokes\
+    \ `utils/checksum.py`. Moreover, the required output files `results/statistical_summary.json`\
+    \ and `state/checksums.yaml` are absent. The task\u2019s core functionality and\
+    \ expected artifacts are therefore missing."
 T039b:
   c: false
   h: 02338ff36f290a3d078f94f4fcbebcb0d510283580d35eed883dda1144811d7c

@@ -1,46 +1,19 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `data/`, `results/`, `tests/`)
-    is provided; the implementer did not supply a directory listing or any files showing
-    that the project structure has been created.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided material contains only a feature specification and user stories;
-    there is no evidence of a Python 3.11 project being created (e.g., no `pyproject.toml`,
-    `requirements.txt`, `setup.cfg`, or similar file) and none of the listed dependencies
-    are declared or installed. Consequently, the task of initializing the project
-    with the required packages has not been demonstrated.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a feature specification for gene\u2011essentiality\
-    \ analysis and no linting/formatting configuration files, scripts, or documentation\
-    \ (e.g., `pyproject.toml`, `.ruff.toml`, Black config, or pre\u2011commit hooks).\
-    \ Consequently, the required artifacts for configuring ruff and black are missing."
-T017:
-  c: false
-  h: e696434fcfb0bae9b36a9ef30bc487c3fac25667551debce532b7ecd14f6f5c8
-  r: "The provided `code/main.py` is truncated and does not contain a complete orchestration\
-    \ loop (e.g., it ends mid\u2011statement, lacks the download step, and never writes\
-    \ results to `results/correlations.json`). Moreover, the required output file\
-    \ `results/correlations.json` is missing from the repository. The task\u2019s\
-    \ core requirement\u2014to run the full pipeline and save the correlation results\u2014\
-    is therefore not satisfied."
 T018a:
   c: false
-  h: af8c23a9c49841c58a1d18fbfdba991464992e5ec5342e6291e71d3c31bb666c
-  r: The provided `statistics.py` contains only basic correlation utilities and does
-    not include a loop that permutes essentiality labels, recomputes Spearman correlations,
-    and writes the results. Moreover, the required output file `results/null_distribution/label_permutation.csv`
-    is absent. Both the implementation and the expected artifact are missing.
+  h: bad21def1ed7eb39624216a48cde0d5157abbaf5f675b77a6fff03e6b4720b83
+  r: "The `statistics.py` file contains a `generate_null_distribution_permutation`\
+    \ function that performs label shuffling and computes Spearman correlations, but\
+    \ there is no code that writes these results to `results/null_distribution/label_permutation.csv`.\
+    \ Moreover, the CSV file itself is missing from the repository. The task\u2019\
+    s requirement to save the permutation results to that path is therefore unmet."
 T018b:
   c: false
-  h: 81d79dd3f4ff2989edab5bc5a759339ec7ac5276a90794acf6558dc2fca7b4e6
-  r: "The provided `code/statistics.py` does not contain any implementation for computing\
-    \ an empirical p\u2011value or for updating a results file, and the required `results/correlations.json`\
-    \ file is absent. Consequently, the task\u2019s deliverables are missing."
+  h: e5142284fc0f23a17610473c10ecbc7cd2437ff170c84c48515ef33fe9e9a5df
+  r: The repository lacks the required `results/correlations.json` file, and the provided
+    `code/statistics.py` is truncated before showing a complete implementation of
+    `calculate_empirical_p_value` and any code that writes `empirical_p_value` and
+    `null_distribution_summary` to the JSON. Both required artifacts are absent or
+    incomplete.
 T019c:
   c: false
   h: 7d980830059d4713249c68b9735a0fad6faba50938acddb4bbff823746126747
@@ -50,13 +23,6 @@ T019c:
     \ the observed correlation to this null distribution. Moreover, the required CSV\
     \ file is absent from the `results/null_distribution` directory. The task\u2019\
     s core requirements are therefore not met."
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were provided showing that the pipeline now\
-    \ assigns a centrality of\u202F0 for disconnected network components or that it\
-    \ logs a warning and skips organisms with no gene overlap. Without such artifacts,\
-    \ we cannot confirm the required error\u2011handling behavior was implemented."
 T022:
   c: false
   h: e5a919aa617190f01963910fb0a75b915d128cd0536081789b891396dc1a3de0
