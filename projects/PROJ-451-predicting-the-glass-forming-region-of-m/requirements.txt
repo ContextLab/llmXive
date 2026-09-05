@@ -1,11 +1,22 @@
-# Project dependencies
-scikit-learn
-xgboost
-pandas
-numpy
-shap
-scipy
-requests
-pytest
-ruff
-black
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+xgboost>=1.7.0
+
+# HTTP requests
+requests>=2.31.0
+
+# Data visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Explainability
+shap>=0.42.0
+scipy>=1.11.0
+
+# Testing
+pytest>=7.4.0
+
+# Environment management
+python-dotenv>=1.0.0

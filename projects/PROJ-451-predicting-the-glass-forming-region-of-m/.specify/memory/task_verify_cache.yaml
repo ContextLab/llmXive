@@ -1,24 +1,29 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `.ruff.toml` or `ruff.toml`, or corresponding entry\u2011point scripts)\
+    \ are present in the provided evidence, so the requirement to configure ruff and\
+    \ Black has not been satisfied. The implementer must add the appropriate configuration\
+    \ files and ensure they are non\u2011empty and correctly set up."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env.example` file or `utils/config.py` module was presented in the evidence,
+    and thus there is no proof that the required placeholders and validation logic
+    exist. The implementer must supply these two files with the specified contents.
+T010c:
+  c: false
+  h: b6ac17158d9553471f9b96c50b99a620b0d0bf1b093bcbdd10b282e3dcaa0529
+  r: "The repository lacks the required `scripts/ingest.py` file (the core merge/validation\
+    \ logic) and does not contain a `provenance.json` with per\u2011record source\
+    \ metadata. Without these artifacts the task\u2019s specifications are not met."
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `utils/synthetic.py` file or any code for a synthetic data generator is present
     in the provided evidence, so the required artifact does not exist and the task
     is not satisfied.
-T013:
-  c: false
-  h: b914bf1c760e906078dcc11d5b48bfe83b41e6360f363b86e90b52f75cd34175
-  r: "The provided `code/main.py` is present, but the visible portion only shows Zenodo\
-    \ fetching; there is no evidence of Materials Project API retrieval, merging of\
-    \ the two sources, or the required fallback to the synthetic generator when Zenodo\
-    \ is unavailable. Additionally, the script\u2019s handling of the API key, required\
-    \ fields, and final merged output are not demonstrated. The missing implementation\
-    \ details must be added to satisfy the task."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code changes or file contents for `utils/io.py` were provided, so there is
-    no evidence that label filtering was implemented to exclude compositions without
-    definitive phase labels. The required artifact is missing.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,14 +31,19 @@ T015:
     \ logic was provided; the claim lacks any code, diff, or description showing stratified\
     \ random sampling by alloy system to enforce the \u226410,000 composition limit.\
     \ The necessary artifact is missing."
-T017:
+T017a:
+  c: false
+  h: 8b65a93040f557fc16c36c0b3d444bdbdf68e47635351a2b5241aef862655b1f
+  r: "The required `scripts/ingest.py` file does not exist, and the expected output\
+    \ `data/processed/filtered_properties.csv` is also missing, so the property\u2011\
+    filtering step has not been implemented nor any results produced."
+T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, test results, or data files were provided that demonstrate\
-    \ validation checks enforcing \u226595\u202F% descriptor completeness or dropping\
-    \ compositions with missing elemental properties. The claim lacks any concrete\
-    \ artifact (e.g., a script, function, unit test, or log output) showing the required\
-    \ validation logic, so the requirement is not satisfied."
+  r: "No `features/alloy_system_mapper.py` file or its contents are provided, so we\
+    \ cannot confirm that a non\u2011empty implementation exists, that it follows\
+    \ the specified mapping logic, or that it adds an `alloy_system` column to the\
+    \ dataset. The required artifact is missing."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

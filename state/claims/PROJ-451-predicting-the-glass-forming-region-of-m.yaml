@@ -1080,3 +1080,267 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T13:49:55Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: primary data source Zenodo DOI 10.1126/sciadv.aaq1566
+  claim_id: c_66528c4a
+  context: 'Implement data ingestion script scripts/ingest_zenodo.py to fetch from
+    Zenodo DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: 'The primary data source is Zenodo DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:14:19Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset contains at least 1000 alloy compositions
+  claim_id: c_4f338376
+  context: "Independent Test: verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_1000_alloy_compositions
+  kind: magnitude
+  raw_text: The dataset must contain at least 1000 alloy compositions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:14:43Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset contains at least 10 computed descriptors
+  claim_id: c_c8c437c2
+  context: "Independent Test: verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_10_computed_descriptors
+  kind: magnitude
+  raw_text: The dataset must contain at least 10 computed descriptors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:15:42Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset capped at 10000 compositions
+  claim_id: c_65bc5592
+  context: "Implement dataset capping logic in scripts/ingest.py to enforce \u2264\
+    10,000 compositions limit per FR-007."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset must be capped at a limit of 10,000 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:18:33Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 95% of compositions have all required properties
+  claim_id: c_7e46a1b2
+  context: "Validate completeness: Ensure \u226595% of compositions have all required\
+    \ properties."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/95%25_of_compositions_have_all_required_properties
+  kind: magnitude
+  raw_text: At least 95% of compositions must have all required properties.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:19:14Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 95% descriptor completeness required
+  claim_id: c_d119f8d0
+  context: "Validate completeness and drop final missing rows: Ensure \u226595% descriptor\
+    \ completeness and drop compositions with missing elemental properties."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/95%25_descriptor_completeness_required
+  kind: magnitude
+  raw_text: At least 95% descriptor completeness is required before dropping final
+    missing rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:20:00Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: simple split used if less than 50 samples per alloy system
+  claim_id: c_cbdd44dd
+  context: 'Stratification Logic: Use ''alloy_system'' column... Fallback: If <50
+    samples per system, use simple split.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simple_split_used_if_less_than_50_samples_per_alloy_system
+  kind: magnitude
+  raw_text: If fewer than 50 samples exist per alloy system, a simple split is used
+    instead of stratification.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:21:07Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: default train/test split ratio 80/20
+  claim_id: c_cc103760
+  context: Add logic to apply stratified train/test split in models/train.py... Default
+    split ratio 80/20 if not configured.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default train/test split ratio is 80/20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:21:42Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: default stability threshold 0.05 for balanced accuracy std dev
+  claim_id: c_08e0150a
+  context: Calculate cross-validation standard deviation of balanced accuracy, compare
+    against a predefined threshold (defined in utils/config.py, default 0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default stability threshold for cross-validation standard deviation
+    of balanced accuracy is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:22:10Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: '5 mandatory descriptors: Atomic Radius, Electronegativity, Valence Electron
+    Concentration, Atomic Size Mismatch, Mixing Enthalpy'
+  claim_id: c_57256a07
+  context: "MANDATORY: Atomic Radius, Electronegativity, Valence Electron Concentration,\
+    \ Atomic Size Mismatch (\u03B4), Mixing Enthalpy (\u0394Hmix)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The dataset must contain 5 mandatory descriptors: Atomic Radius, Electronegativity,
+    Valence Electron Concentration, Atomic Size Mismatch, and Mixing Enthalpy.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:22:30Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Test tasks included in examples
+  claim_id: c_aa1836d8
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_tasks_included_in_examples
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:28:03Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Tasks grouped by user story for independent implementation
+  claim_id: c_c6628f3b
+  context: 'Organization: Tasks are grouped by user story to enable independent implementation
+    and testing of each story.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_grouped_by_user_story_for_independent_implementation
+  kind: entity_fact
+  raw_text: Tasks are grouped by user story to enable independent implementation and
+    testing of each story.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:28:53Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Primary DOI source 10.1126/sciadv.aaq1566
+  claim_id: c_048e77d7
+  context: 'Implement data ingestion script scripts/ingest_zenodo.py to fetch from
+    Zenodo DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The primary DOI source is 10.1126/sciadv.aaq1566.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:28:54Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Materials Project API version v3
+  claim_id: c_d8cae225
+  context: 'Implement data ingestion script scripts/ingest_mp.py to fetch from Materials
+    Project API (v3, API Key via env, fields: composition, phase, elemental properties).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_version_v3
+  kind: entity_fact
+  raw_text: The Materials Project API version used is v3.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:29:22Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Default train/test split ratio 80/20
+  claim_id: c_890b9c16
+  context: 'Add logic to apply stratified train/test split in models/train.py (stratify
+    by alloy system) to satisfy FR-003. Logic: Default split ratio 80/20 if not configured.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default split ratio for train/test is 80/20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:29:22Z'

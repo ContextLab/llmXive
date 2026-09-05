@@ -1,140 +1,134 @@
-"""
-Environment configuration management for the Glass Forming Region Prediction project.
-
-This module handles loading, validating, and providing access to environment variables
-defined in .env or the system environment.
-"""
 import os
 import logging
 from pathlib import Path
 from typing import Optional
 
-# Configure logging
+# Configure logging for the module
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Project root is assumed to be the parent of the 'code' directory
-# However, for flexibility, we allow DATA_PATH to override relative behavior
-_project_root: Optional[Path] = None
+# If running from 'code/', root is parent; if running from root, this logic adapts
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-def _get_project_root() -> Path:
-    """Determine the project root directory."""
-    global _project_root
-    if _project_root is None:
-        # Assume code/ is in the root, or code/utils/config.py is deep inside
-        current_file = Path(__file__).resolve()
-        # Standard layout: code/utils/config.py -> project root is parent of 'code'
-        _project_root = current_file.parent.parent
-    return _project_root
+def get_env_path() -> Path:
+    """Return the path to the .env file."""
+    return _PROJECT_ROOT / ".env"
 
-def _load_dotenv() -> None:
+def load_env_vars() -> None:
     """
-    Load .env file if it exists.
-    Note: We use standard os.getenv logic but check for a .env file manually
-    to avoid requiring 'python-dotenv' if not strictly needed, 
-    though typically it is installed.
+    Load environment variables from .env file if it exists.
+    This is a simple manual loader to avoid adding 'python-dotenv' as a dependency
+    unless strictly necessary, but robust enough for this task.
     """
-    env_path = _get_project_root() / ".env"
-    if env_path.exists():
-        logger.info(f"Loading environment from {env_path}")
-        try:
-            # Attempt to import dotenv if available for robust parsing
-            from dotenv import load_dotenv
-            load_dotenv(dotenv_path=env_path)
-        except ImportError:
-            # Fallback: simple parsing if dotenv is not installed
-            logger.warning("python-dotenv not installed. Parsing .env manually.")
-            with open(env_path, 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith('#') and '=' in line:
-                        key, value = line.split('=', 1)
-                        os.environ[key.strip()] = value.strip().strip('"').strip("'")
-    else:
-        logger.warning(f".env file not found at {env_path}. Using system environment variables.")
+    env_path = get_env_path()
+    if not env_path.exists():
+        logger.warning(f".env file not found at {env_path}. Environment variables may not be set.")
+        return
 
-def init_environment() -> None:
-    """Initialize the environment by loading .env if present."""
-    _load_dotenv()
+    with open(env_path, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" in line:
+                key, value = line.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key and key not in os.environ:
+                    os.environ[key] = value
 
-def validate_environment() -> bool:
+# Load environment variables on module import
+load_env_vars()
+
+def get_materials_project_api_key() -> str:
     """
-    Validate that required environment variables are set.
-    
-    Returns:
-        bool: True if validation passes, False otherwise.
-        
+    Retrieve the Materials Project API key from the environment.
     Raises:
-        ValueError: If critical variables are missing.
+        ValueError: If the key is missing or empty.
     """
-    init_environment()
-    
-    # Check for Materials Project API Key
-    api_key = os.getenv("MATERIALS_PROJECT_API_KEY")
-    if not api_key or api_key == "your_api_key_here":
-        # It's optional for some scripts (e.g., Zenodo only), but required for MP
-        # We log a warning but don't fail hard here, as T010 might handle MP optional logic
-        logger.warning("MATERIALS_PROJECT_API_KEY is not set or is a placeholder. "
-                     "Materials Project data fetching will fail if attempted.")
-    
-    # Check for DATA_PATH
-    data_path = os.getenv("DATA_PATH")
-    if not data_path:
-        logger.warning("DATA_PATH is not set. Defaulting to 'data' relative to project root.")
-    
-    return True
-
-def get_materials_project_api_key() -> Optional[str]:
-    """Retrieve the Materials Project API key."""
-    init_environment()
-    key = os.getenv("MATERIALS_PROJECT_API_KEY")
-    if key and key != "your_api_key_here":
-        return key
-    return None
+    key = os.getenv("MATERIALS_PROJECT_API_KEY", "").strip()
+    if not key:
+        raise ValueError(
+            "MATERIALS_PROJECT_API_KEY is not set in the environment or .env file. "
+            "Please add it to code/.env.example (copy to .env) or set it directly."
+        )
+    return key
 
 def get_materials_project_base_url() -> str:
-    """Retrieve the Materials Project API base URL."""
-    init_environment()
-    return os.getenv("MATERIALS_PROJECT_BASE_URL", "https://api.materialsproject.org")
+    """
+    Retrieve the Materials Project API base URL.
+    Defaults to the standard v3 API URL if not set.
+    """
+    return os.getenv("MATERIALS_PROJECT_BASE_URL", "https://next-gen.materialsproject.org/api")
+
+def get_zenodo_doi() -> str:
+    """
+    Retrieve the Zenodo DOI for the primary dataset.
+    Raises:
+        ValueError: If the DOI is missing or empty.
+    """
+    doi = os.getenv("ZENO_DO_ID", "").strip()
+    if not doi:
+        raise ValueError(
+            "ZENO_DO_ID is not set in the environment or .env file. "
+            "Please add it to code/.env.example (copy to .env) or set it directly."
+        )
+    return doi
 
 def get_data_path() -> Path:
-    """Retrieve the root data directory path."""
-    init_environment()
-    data_path_str = os.getenv("DATA_PATH", "data")
-    # If it's an absolute path, use it; otherwise, resolve relative to project root
-    if Path(data_path_str).is_absolute():
-        return Path(data_path_str)
-    return _get_project_root() / data_path_str
+    """Return the path to the data directory."""
+    return _PROJECT_ROOT / "data"
 
 def get_raw_data_path() -> Path:
-    """Retrieve the path to the raw data directory."""
+    """Return the path to the raw data directory."""
     return get_data_path() / "raw"
 
 def get_processed_data_path() -> Path:
-    """Retrieve the path to the processed data directory."""
+    """Return the path to the processed data directory."""
     return get_data_path() / "processed"
 
 def get_results_path() -> Path:
-    """Retrieve the path to the results directory."""
+    """Return the path to the results directory."""
     return get_data_path() / "results"
 
-def get_custom_dataset_path() -> Optional[Path]:
-    """Retrieve the path to a custom dataset if specified."""
-    init_environment()
-    custom_path = os.getenv("CUSTOM_DATASET_PATH")
-    if custom_path:
-        if Path(custom_path).is_absolute():
-            return Path(custom_path)
-        return _get_project_root() / custom_path
-    return None
+def get_custom_dataset_path() -> Path:
+    """Return the path for custom datasets if needed."""
+    return get_data_path() / "custom"
 
 def ensure_data_directories() -> None:
-    """Create data directories if they do not exist."""
-    init_environment()
+    """Ensure all required data directories exist."""
     dirs = [
+        get_data_path(),
         get_raw_data_path(),
         get_processed_data_path(),
-        get_results_path()
+        get_results_path(),
+        get_custom_dataset_path(),
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory exists: {d}")
+    logger.info(f"Ensured data directories exist at {_PROJECT_ROOT}/data")
+
+def validate_environment() -> bool:
+    """
+    Validate that all critical environment variables are set and non-empty.
+    Returns:
+        True if validation passes.
+    Raises:
+        ValueError: If any critical variable is missing or empty.
+    """
+    try:
+        get_materials_project_api_key()
+        get_zenodo_doi()
+        logger.info("Environment validation successful.")
+        return True
+    except ValueError as e:
+        logger.error(f"Environment validation failed: {e}")
+        raise
+
+def init_environment() -> None:
+    """
+    Initialize the environment by ensuring directories exist and validating config.
+    """
+    ensure_data_directories()
+    validate_environment()
