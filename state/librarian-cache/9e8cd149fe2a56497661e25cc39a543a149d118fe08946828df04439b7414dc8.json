@@ -1,0 +1,449 @@
+{
+  "fetched_at": "2026-09-05T12:24:44Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Interactions in Polymer Blends Using Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 62.865,
+    "ended_at": "2026-09-05T12:24:44Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning prediction of polymer miscibility"
+        ],
+        [
+          2,
+          "computational prediction of intermolecular forces in polymer blends"
+        ],
+        [
+          3,
+          "deep learning models for polymer blend thermodynamics"
+        ],
+        [
+          4,
+          "Flory-Huggins interaction parameter prediction using neural networks"
+        ],
+        [
+          5,
+          "molecular dynamics simulations of polymer blends enhanced by machine learning"
+        ],
+        [
+          6,
+          "predicting phase separation in polymer systems with AI"
+        ],
+        [
+          7,
+          "graph neural networks for polymer property prediction"
+        ],
+        [
+          8,
+          "machine learning approaches to polymer compatibility"
+        ],
+        [
+          9,
+          "data-driven modeling of polymer-polymer interactions"
+        ],
+        [
+          10,
+          "quantum chemical calculations of polymer blend interactions"
+        ],
+        [
+          11,
+          "predicting solubility parameters in polymer blends via ML"
+        ],
+        [
+          12,
+          "machine learning for high-throughput screening of polymer blends"
+        ],
+        [
+          13,
+          "coarse-grained molecular dynamics with machine learning potentials for polymers"
+        ],
+        [
+          14,
+          "structure-property relationships in polymer blends using data science"
+        ],
+        [
+          15,
+          "predicting glass transition temperature of polymer blends with machine learning"
+        ],
+        [
+          16,
+          "active learning for polymer blend design"
+        ],
+        [
+          17,
+          "transfer learning in polymer chemistry for interaction prediction"
+        ],
+        [
+          18,
+          "generative models for novel polymer blend formulations"
+        ],
+        [
+          19,
+          "interpretable machine learning for polymer interaction analysis"
+        ],
+        [
+          20,
+          "computational polymer science: machine learning for blend behavior"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemistry": 0,
+        "machine learning prediction of polymer miscibility": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "polymer compatibility thermodynamics machine learning",
+      "Hansen solubility parameter neural network polymer blend",
+      "Flory-Huggins interaction parameter ML prediction",
+      "polymer blend miscibility phase diagram deep learning",
+      "molecular dynamics simulation polymer interfacial tension ML"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.26100"
+      ]
+    },
+    "per_query_hit_count": {
+      "Flory-Huggins interaction parameter ML prediction": 3,
+      "Hansen solubility parameter neural network polymer blend": 3,
+      "Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemistry": 3,
+      "molecular dynamics simulation polymer interfacial tension ML": 3,
+      "polymer blend miscibility phase diagram deep learning": 3,
+      "polymer compatibility thermodynamics machine learning": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on learning curves for algorithm selection and resource management in machine learning, lacking any connection to the specific domain of polymer blends, molecular interactions, or chemistry. It fails to satisfy any inclusion criteria (a-f) as it does not measure the relevant biological/physical mechanisms, variables, or populations, nor does it provide a foundational method specific to molecular property prediction.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "1508.05820",
+          "rationale": "The paper focuses on deriving and validating a specific quantum dynamics simulation method (TRPMD) for computing spectra, which does not address the user's question about using machine learning to predict molecular interactions in polymer blends. It fails to meet any inclusion criteria as it lacks the machine learning component, does not study the specific domain of polymer blend interactions, and is not a foundational reference for the ML methodology requested.",
+          "title": "How to obtain thermostatted ring polymer molecular dynamics from exact quantum dynamics and when to use it"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on \"official statistics\" and general data source reliability in policy-making, which is an entirely different domain from the user's question about predicting molecular interactions in polymer blends using machine learning in chemistry. It fails to address the specific mechanism, variables, or empirical population required, falling under the \"Off-domain entirely\" rejection rule.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper provides general methodological recommendations for validating machine learning in biology but does not measure molecular interactions, polymer blends, or specific chemical mechanisms, nor does it establish an empirical baseline for the user's specific domain. It fails to satisfy any inclusion criteria (a-f) as it is a meta-methodology paper rather than a study of the specific physical or chemical phenomena requested.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of molecular interactions, polymer blends, or chemistry, failing to meet the criteria for same-mechanism evidence, domain-specific variables, or foundational methodology for this specific application. It falls under the rejection rule for being \"off-domain entirely\" as it lacks any measurable connection to the user's specific scientific mechanism or empirical setting.",
+          "title": "Active learning for data streams: a survey"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-05T12:23:41Z",
+    "term_input": {
+      "normalized": "predicting molecular interactions in polymer blends using machine learning chemistry",
+      "raw": "Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Animating a newly designed character using motion capture (mocap) data is a long standing problem in computer animation. A key consideration is the skeletal structure that should correspond to the available mocap data, and the shape deformation in the joint regions, which often requires a tailored, pose-specific refinement. In this work, we develop a neural technique for articulating 3D characters using enveloping with a pre-defined skeletal structure which produces high quality pose dependent deformations. Our framework learns to rig and skin characters with the same articulation structure (e.g., bipeds or quadrupeds), and builds the desired skeleton hierarchy into the network architecture. Furthermore, we propose neural blend shapes--a set of corrective pose-dependent shapes which improve the deformation quality in the joint regions in order to address the notorious artifacts resulting from standard rigging and skinning. Our system estimates neural blend shapes for input meshes with arbitrary connectivity, as well as weighting coefficients which are conditioned on the input joint rotations. Unlike recent deep learning techniques which supervise the network with ground-truth rigging and skinning parameters, our approach does not assume that the training data has a specific underlying deformation model. Instead, during training, the network observes deformed shapes and learns to infer the corresponding rig, skin and blend shapes using indirect supervision. During inference, we demonstrate that our network generalizes to unseen characters with arbitrary mesh connectivity, including unrigged characters built by 3D artists. Conforming to standard skeletal animation models enables direct plug-and-play in standard animation software, as well as game engines.",
+          "claimed_authors": [
+            "Peizhuo Li",
+            "Kfir Aberman",
+            "Rana Hanocka",
+            "Libin Liu",
+            "Olga Sorkine-Hornung",
+            "Baoquan Chen"
+          ],
+          "claimed_title": "Learning Skeletal Articulations with Neural Blend Shapes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.02451"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='Learning Skeletal Articulations with Neural Blend Shapes')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Flory-Huggins theory is a well-established lattice model that is commonly used to study the mixing of distinct chemical species. It can successfully predict phase separation phenomena in blends of incompatible materials. However, it is limited to amorphous mixtures, excluding systems where the phase segregation is shaped by the concurrent crystallization of one or several blend components. A generalization of the Flory-Huggins formalism is thus necessary to capture the coupling and the interplay of crystallization with amorphous demixing mechanisms, such as spinodal decomposition. This work therefore revolves around the derivation of a free energy model for multicomponent mixtures that encompasses the physics of both processes. It is detailed which concepts from the original Flory-Huggins theory are required to apprehend the presented developments and how the current framework is built upon them. Furthermore, additional discussion points address chemical potential calculations and selected examples of binary and ternary phase diagrams, thereby highlighting the variety of blend behaviors that can be represented.",
+          "claimed_authors": [
+            "Maxime Siber",
+            "Olivier J. J. Ronsin",
+            "Jens Harting"
+          ],
+          "claimed_title": "Extending the Flory-Huggins Theory for Crystalline Multicomponent Mixtures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16370"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='Extending the Flory-Huggins Theory for Crystalline Multicomponent Mixtures')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A perturbation theory modification of the Flory-Huggins polymer solution theory is presented. The proposed perturbation equation utilizes the results by Tukur et al [J. Chem. Phys. 110 (7), 3463, 1999] for hard-sphere binary mixture at infinite size ratio. The resulting perturbation theory equations are used to predict properties of three different polymers with different molecular weights in different solvents. Comparison of the proposed perturbation calculations with those of the Flory-Huggins theory and the experimental data indicate that the proposed perturbation method appreciably improves prediction of polymer solution properties especially at large polymer / solvent size ratios.",
+          "claimed_authors": [
+            "G. A. Mansoori"
+          ],
+          "claimed_title": "A Perturbation Theory Modification of the Flory-Huggins Polymer Solution Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.04414"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='A Perturbation Theory Modification of the Flory-Huggins Polymer Solution Theory')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The dependence on volume fraction $\\varphi$ of the Flory-Huggins $χ_{\\mathrm{wp}}\\left(\\varphi\\right)$ describing the free energy of mixing of polymers in water is obtained by exploiting the connection of $χ_{\\mathrm{wp}}\\left(\\varphi\\right)$ to the chemical potential of the water, for which quasi-chemical theory is satisfactory. We test this theoretical approach with simulation data for aqueous solutions of capped PEO oligomers. For CH$_3$(CH$_2$-O-CH$_2$)$_m$CH$_3$ ($m$=11), $χ_{\\mathrm{wp}}\\left(\\varphi\\right)$ depends strongly on $\\varphi$, consistent with experiment. These results identify coexisting water-rich and water-poor solutions at $T$ = 300K and $p$ = 1atm. Direct observation of the coexistence of these two solutions on simulation time scales supports that prediction for the system studied. This approach directly provides the osmotic pressures. The osmotic second virial coefficient for these chains is positive, reflecting repulsive interactions between the chains in the water, a good solvent for these chains.",
+          "claimed_authors": [
+            "M. I. Chaudhari",
+            "L. R. Pratt",
+            "M. E. Paulaitis"
+          ],
+          "claimed_title": "Concentration dependence of the Flory-Huggins interaction parameter in aqueous solutions of capped PEO chains",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.1191"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='Concentration dependence of the Flory-Huggins interaction parameter in aqueous solutions of capped PEO chains')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The miscibility of polymer blends, a classical problem in polymer science, may be altered, if one or both of the component do not have chain ends. Based on the idea of {\\it topological volume}, we propose a mean-field theory to clarify how the topological constraints in ring polymers affect the phase behavior of the blends. While the large enhancement of the miscibility is expected for ring-linear polymer blends, the opposite trend toward demixing, albeit comparatively weak, is predicted for ring-ring polymer blends. Scaling formulas for the shift of critical point for both cases are derived. We discuss the valid range of the present theory, and the crossover to the linear polymer blends behaviors, which is expected for short chains. These analysis put forward a view that the topological constraints could be represented as an effective excluded-volume effects, in which the topological length plays a role of the screening factor.",
+          "claimed_authors": [
+            "Takahiro Sakaue",
+            "Chihiro H. Nakajima"
+          ],
+          "claimed_title": "Miscibility Phase Diagram of Ring Polymer Blends: A Topological Effect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.01849"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='Miscibility Phase Diagram of Ring Polymer Blends: A Topological Effect')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mixtures of ideal polymers with hard spheres whose diameters are smaller than the radius of gyration of the polymer, exhibit extensive immiscibility. The interfacial tension between demixed phases of these mixtures is estimated, as is the barrier to nucleation. The barrier is found to scale linearly with the radius of the polymer, causing it to become large for large polymers. Thus for large polymers nucleation is suppressed and phase separation proceeds via spinodal decomposition, as it does in polymer blends.",
+          "claimed_authors": [
+            "Richard P. Sear"
+          ],
+          "claimed_title": "Interfacial tension and nucleation in mixtures of colloids and long ideal polymer coils",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2002,
+          "primary_pointer": "cond-mat/0202440"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='Interfacial tension and nucleation in mixtures of colloids and long ideal polymer coils')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Carbon nanotube (CNT) have been known to increase the heat transfer at the solid-liquid interfaces, but have a limitation due to the interfacial thermal resistance. Vibrational mismatch at the interface leads to this interfacial thermal resistance, which plays an important role in energy transfer at the boundary. Negligible work has been reported on the influence of CNT diameter on the resistance through the vibrational mismatch study. Molecular dynamics simulations have been performed to investigate the effect of CNT diameter on interfacial resistance between carbon nanotube (CNT) and water molecules. This work is an effort to understand the heat transfer phenomenon at the interface by quantifying the vibrational mismatch. Analysis of the vibrational spectra of CNT and water molecules is done to study the effect of CNT diameter on interfacial resistance. Starting with the initial configuration, and equilibrating the system of CNT and water molecules at 300 K and 1 atm, the CNT temperature is raised to 700 K by velocity rescaling. This system is now allowed to relax as a micro-canonical ensemble. Based on the lumped capacitance analysis, the time constant of the CNT temperature response is determined, which is then used to compute the interfacial thermal resistance. The interfacial thermal resistance is observed to be relatively higher for the larger diameter nanotube. This is attributed to the higher vibrational mismatch existing for larger diameter CNT as a result of low overlapping region between vibrational density states of CNT and water molecules. For smaller diameter CNT, the interfacial thermal resistance is low which results in the efficient heat transfer at the interface thus, emphasizing the indispensable role of larger diameter CNTs in the cooling applications.",
+          "claimed_authors": [
+            "Ajinkya Sarode",
+            "Zeeshan Ahmed",
+            "Pratik Basarkar",
+            "Atul Bhargav",
+            "Debjyoti Banerjee"
+          ],
+          "claimed_title": "Role of carbon nanotube diameter on thermal interfacial resistance through the analysis of vibrational mismatch: A Molecular Dynamics approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.03379"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Interactions in Polymer Blends Using Machine Learning chemi', candidate_title='Role of carbon nanotube diameter on thermal interfacial resistance through the analysis of vibrational mismatch: A Molecular Dynamics approach')",
+        "failed_at": "2026-09-05T12:24:24Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hongtao Guo Shuai Li Shu Li"
+          ],
+          "title": "Applications of Machine Learning in Polymer Materials: Property Prediction, Material Design, and Systematic Processes",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.26100",
+        "summary": "This paper systematically reviews the research progress and application prospects of machine learning technologies in the field of polymer materials. Currently, machine learning methods are developing rapidly in polymer material research; although they have significantly accelerated material prediction and design, their complexity has also caused difficulties in understanding and application for researchers in traditional fields. In response to the above issues, this paper first analyzes the inherent challenges in the research and development of polymer materials, including structural complexity and the limitations of traditional trial-and-error methods. To address these problems, it focuses on introducing key basic technologies such as molecular descriptors and feature representation, data standardization and cleaning, and records a number of high-quality polymer databases. Subsequently, it elaborates on the key role of machine learning in polymer property prediction and material design, covering the specific applications of algorithms such as traditional machine learning, deep learning, and transfer learning; further, it deeply expounds on data-driven design strategies, such as reverse design, high-throughput virtual screening, and multi-objective optimization. The paper also systematically introduces the complete process of constructing high-reliability machine learning models and summarizes effective experimental verification, model evaluation, and optimization methods. Finally, it summarizes the current technical challenges in research, such as data quality and model generalization ability, and looks forward to future development trends including multi-scale modeling, physics-informed machine learning, standardized data sharing, and interpretable machine learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.26100",
+          "http_status": 200,
+          "pdf_sample_score": 0.2895,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-05T12:24:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular interactions in polymer blends using machine learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

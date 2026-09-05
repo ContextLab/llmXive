@@ -1,37 +1,57 @@
 """
-setup_directories.py
+Directory Setup Module for PROJ-214-decoding-emotional-valence-from-facial-e.
 
-Creates the required directory structure for the project.
-This script ensures that data/raw, data/processed, data/models, and data/logs
-exist at the repository root. It is idempotent (safe to run multiple times).
+This script creates the required project directory structure:
+- code/
+- tests/
+- data/raw
+- data/processed
+- data/models
+- data/logs
+
+It ensures that the project adheres to the path conventions defined in the
+research plan and tasks.md.
 """
 
 import os
 from pathlib import Path
 
 
-def main():
-    """Create the standard project directory structure."""
-    # Determine the project root (parent of the 'code' directory)
-    # Assuming this script is located in code/, we go up one level.
+def main() -> None:
+    """Create all required project directories."""
+    # Define the project root (assumed to be the directory containing this script's parent)
+    # However, per instructions, paths are relative to the project root.
+    # We assume this script is run from the project root or we resolve relative to __file__.
     project_root = Path(__file__).resolve().parent.parent
 
-    # Define the directories to create
-    directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "models",
-        project_root / "data" / "logs",
+    # Define required directories relative to project root
+    required_dirs = [
+        "code",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "data/models",
+        "data/logs",
+        # Ensure subdirectories for tests exist if not already created by other tasks
+        "tests/unit",
+        "tests/integration",
     ]
 
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
+    created_count = 0
+    skipped_count = 0
 
-    print("Directory structure setup complete.")
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            # Only log if it's not just a parent directory check (i.e., if it's a leaf we care about)
+            # For this task, we just ensure they exist.
+            skipped_count += 1
+
+    print(f"Directory setup complete. Created: {created_count}, Already exists: {skipped_count}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.26100",
+  "judged_at": "2026-09-05T12:24:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in polymer blends using machine learning chemistry",
+  "rationale": "This paper satisfies criteria (b) and (d) as it is a foundational review covering the application of machine learning for property prediction in polymer materials, which directly encompasses the domain and variables (polymers, ML, property prediction) of the user's question, even if it does not exclusively focus on \"interactions in blends.\"",
+  "relevant": true
+}

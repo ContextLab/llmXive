@@ -44,9 +44,9 @@
 **Purpose**: Explicitly document deviations from the Spec to satisfy scientific validity and plan constraints.
 
 1. **FR-005 Cross-Validation**: Spec requires "nested 5-fold cross-validation". Plan implements **Nested Leave-One-Subject-Out (LOSO)**.
- * *Justification*: N=32 subjects yields insufficient test subjects (~6) in 5-fold CV for robust generalization error estimation. [UNRESOLVED-CLAIM: c_1c65190e — status=not_enough_info] LOSO is the standard for N=32 to maximize test set representation.
+ * *Justification*: N=32 subjects yields insufficient test subjects (~6) in 5-fold CV for robust generalization error estimation. [UNRESOLVED-CLAIM: c_f2d09458 — status=not_enough_info] LOSO is the standard for N=32 to maximize test set representation.
 2. **FR-005/FR-007 Model Strategy**: Spec mandates Random Forest for all variance analysis. Plan implements **Dual Model Strategy (Random Forest + Logistic Regression)**.
- * *Justification*: Nagelkerke's R² is mathematically undefined for Random Forests. [UNRESOLVED-CLAIM: c_8f307296 — status=not_enough_info] Logistic Regression is required to calculate this metric scientifically.
+ * *Justification*: Nagelkerke's R² is mathematically undefined for Random Forests. [UNRESOLVED-CLAIM: c_6f3e8340 — status=not_enough_info] Logistic Regression is required to calculate this metric scientifically.
 3. **FR-001 Dataset URL**: Spec URL contained SSL error artifacts. Plan uses verified HuggingFace source (`emre-ozgür/DEAP-EMG`).
 4. **FR-005 SVM Requirement**: Spec mandates SVM. Plan implements SVM, RF, and LogReg.
  * *Justification*: Plan retains SVM as per spec but adds RF for importance and LogReg for R² to satisfy all requirements simultaneously.

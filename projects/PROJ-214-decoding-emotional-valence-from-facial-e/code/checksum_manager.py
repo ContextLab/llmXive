@@ -1,9 +1,3 @@
-"""
-Checksum Manager Module for DEAP Dataset Integrity Validation.
-
-This module implements FR-001 Part 2: Generating checksums for downloaded
-dataset files and recording them in the project state file.
-"""
 import hashlib
 import logging
 from pathlib import Path
@@ -12,196 +6,172 @@ from typing import Dict, Optional
 from config import ensure_directories
 from state_manager import load_state, save_state
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 
 def calculate_sha256(file_path: Path) -> str:
     """
-    Calculate SHA-256 checksum for a file.
+    Calculate the SHA-256 checksum of a file.
 
     Args:
-        file_path: Path to the file to hash
+        file_path: Path to the file to hash.
 
     Returns:
-        Hexadecimal string of the SHA-256 hash
+        Hexadecimal string of the SHA-256 hash.
     """
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
+            # Read in chunks to handle large files without memory issues
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
     except FileNotFoundError:
-        logger.error(f"File not found: {file_path}")
-        raise
+        raise FileNotFoundError(f"Cannot calculate checksum: file not found at {file_path}")
     except Exception as e:
-        logger.error(f"Error calculating checksum for {file_path}: {e}")
-        raise
+        raise RuntimeError(f"Error calculating checksum for {file_path}: {e}")
 
 
-def generate_dataset_checksums(raw_data_dir: Path) -> Dict[str, str]:
+def generate_dataset_checksums(data_dir: Path) -> Dict[str, str]:
     """
-    Generate checksums for all files in the raw dataset directory.
+    Generate checksums for all files in the raw data directory.
 
     Args:
-        raw_data_dir: Path to the data/raw directory containing dataset files
+        data_dir: Path to the directory containing dataset files.
 
     Returns:
-        Dictionary mapping relative file paths to their SHA-256 checksums
+        Dictionary mapping relative file paths to their SHA-256 checksums.
     """
     checksums = {}
-    
-    if not raw_data_dir.exists():
-        raise FileNotFoundError(f"Raw data directory does not exist: {raw_data_dir}")
+    data_dir = Path(data_dir)
 
-    # Recursively find all files
-    for file_path in raw_data_dir.rglob("*"):
+    if not data_dir.exists():
+        raise FileNotFoundError(f"Data directory does not exist: {data_dir}")
+
+    # Walk through all files in the directory
+    for file_path in data_dir.rglob("*"):
         if file_path.is_file():
-            # Use relative path for consistency
-            relative_path = file_path.relative_to(raw_data_dir.parent)
-            logger.info(f"Calculating checksum for: {relative_path}")
-            checksums[str(relative_path)] = calculate_sha256(file_path)
+            rel_path = file_path.relative_to(data_dir)
+            try:
+                checksum = calculate_sha256(file_path)
+                checksums[str(rel_path)] = checksum
+                logger.info(f"Checksum generated for {rel_path}: {checksum}")
+            except Exception as e:
+                logger.error(f"Failed to generate checksum for {rel_path}: {e}")
 
     return checksums
 
 
-def update_state_with_checksums(state_file_path: Path, checksums: Dict[str, str]) -> None:
+def update_state_with_checksums(checksums: Dict[str, str]) -> bool:
     """
     Update the project state file with dataset checksums.
 
     Args:
-        state_file_path: Path to the YAML state file
-        checksums: Dictionary of file paths to checksums
-    """
-    state = load_state(state_file_path)
-    
-    # Initialize artifact_hashes if not present
-    if 'artifact_hashes' not in state:
-        state['artifact_hashes'] = {}
-    
-    # Update with new checksums
-    state['artifact_hashes'].update(checksums)
-    
-    # Add metadata
-    state['artifact_hashes']['_metadata'] = {
-        'algorithm': 'SHA-256',
-        'updated_at': state.get('last_updated', 'unknown')
-    }
-    
-    save_state(state_file_path, state)
-    logger.info(f"Updated state file with {len(checksums)} checksums")
-
-
-def validate_existing_checksums(state_file_path: Path, raw_data_dir: Path) -> bool:
-    """
-    Validate existing checksums in state file against current files.
-
-    Args:
-        state_file_path: Path to the YAML state file
-        raw_data_dir: Path to the data/raw directory
+        checksums: Dictionary of file paths to checksums.
 
     Returns:
-        True if all checksums match, False otherwise
+        True if successful, False otherwise.
     """
-    state = load_state(state_file_path)
-    
-    if 'artifact_hashes' not in state:
-        logger.warning("No artifact_hashes found in state file")
+    try:
+        state = load_state()
+        
+        # Ensure the artifact_hashes key exists
+        if "artifact_hashes" not in state:
+            state["artifact_hashes"] = {}
+        
+        # Update with new checksums
+        state["artifact_hashes"]["dataset_files"] = checksums
+        
+        # Add metadata about when this was generated
+        from datetime import datetime
+        state["artifact_hashes"]["last_updated"] = datetime.now().isoformat()
+        
+        save_state(state)
+        logger.info("State file updated with dataset checksums successfully.")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to update state with checksums: {e}")
         return False
 
-    stored_checksums = {k: v for k, v in state['artifact_hashes'].items() 
-                      if not k.startswith('_')}
-    
-    if not stored_checksums:
-        logger.warning("No stored checksums to validate")
-        return False
 
-    all_valid = True
-    for relative_path, expected_hash in stored_checksums.items():
-        file_path = raw_data_dir.parent / relative_path
-        
-        if not file_path.exists():
-            logger.error(f"Missing file during validation: {file_path}")
-            all_valid = False
-            continue
-        
-        actual_hash = calculate_sha256(file_path)
-        
-        if actual_hash != expected_hash:
-            logger.error(f"Checksum mismatch for {relative_path}")
-            logger.error(f"  Expected: {expected_hash}")
-            logger.error(f"  Actual:   {actual_hash}")
-            all_valid = False
+def validate_existing_checksums() -> Dict[str, bool]:
+    """
+    Validate existing checksums in the state file against current files.
+
+    Returns:
+        Dictionary mapping file paths to validation status (True if valid).
+    """
+    state = load_state()
+    
+    if "artifact_hashes" not in state or "dataset_files" not in state["artifact_hashes"]:
+        logger.warning("No existing checksums found in state file.")
+        return {}
+    
+    stored_checksums = state["artifact_hashes"]["dataset_files"]
+    validation_results = {}
+    data_dir = Path("data/raw")
+    
+    for rel_path, stored_hash in stored_checksums.items():
+        file_path = data_dir / rel_path
+        if file_path.exists():
+            try:
+                current_hash = calculate_sha256(file_path)
+                is_valid = current_hash == stored_hash
+                validation_results[rel_path] = is_valid
+                status = "VALID" if is_valid else "INVALID"
+                logger.info(f"Validation for {rel_path}: {status}")
+            except Exception as e:
+                logger.error(f"Error validating {rel_path}: {e}")
+                validation_results[rel_path] = False
         else:
-            logger.info(f"Checksum valid: {relative_path}")
+            logger.warning(f"File not found during validation: {rel_path}")
+            validation_results[rel_path] = False
+    
+    return validation_results
 
-    return all_valid
 
-
-def main() -> None:
+def main():
     """
     Main entry point for checksum generation and validation.
-    
-    This function:
-    1. Ensures required directories exist
-    2. Generates checksums for all files in data/raw
-    3. Updates the project state file with the checksums
-    4. Validates the checksums immediately after generation
     """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
     # Ensure directories exist
     ensure_directories()
     
-    # Load configuration
-    from config import get_config_summary
-    config = get_config_summary()
+    data_dir = Path("data/raw")
     
-    # Paths
-    raw_data_dir = Path(config['paths']['raw_data'])
-    state_file_path = Path(config['paths']['state_file'])
+    if not data_dir.exists() or not any(data_dir.iterdir()):
+        logger.warning(f"Data directory is empty or does not exist: {data_dir}")
+        logger.info("Please run download.py first to fetch the dataset.")
+        return
     
-    logger.info("Starting checksum generation for DEAP dataset")
-    logger.info(f"Raw data directory: {raw_data_dir}")
-    logger.info(f"State file: {state_file_path}")
+    logger.info("Generating checksums for dataset files...")
+    checksums = generate_dataset_checksums(data_dir)
     
-    if not raw_data_dir.exists():
-        logger.error(f"Raw data directory does not exist: {raw_data_dir}")
-        logger.error("Please run download.py first to download the dataset")
-        raise FileNotFoundError(f"Raw data directory not found: {raw_data_dir}")
+    if not checksums:
+        logger.warning("No checksums generated. Check if files exist in data/raw.")
+        return
     
-    # Check if there are any files to hash
-    files = list(raw_data_dir.rglob("*"))
-    files = [f for f in files if f.is_file()]
+    logger.info(f"Generated {len(checksums)} checksums.")
     
-    if not files:
-        logger.warning(f"No files found in {raw_data_dir}")
-        logger.warning("Please run download.py first to download the dataset")
-        raise FileNotFoundError(f"No files found in raw data directory: {raw_data_dir}")
+    logger.info("Updating state file...")
+    success = update_state_with_checksums(checksums)
     
-    logger.info(f"Found {len(files)} files to hash")
-    
-    # Generate checksums
-    checksums = generate_dataset_checksums(raw_data_dir)
-    
-    # Update state file
-    update_state_with_checksums(state_file_path, checksums)
-    
-    # Validate immediately
-    logger.info("Validating generated checksums...")
-    is_valid = validate_existing_checksums(state_file_path, raw_data_dir)
-    
-    if is_valid:
-        logger.info("✓ All checksums validated successfully")
+    if success:
+        logger.info("Checksum generation and state update completed successfully.")
+        
+        # Optionally validate existing checksums
+        logger.info("Validating existing checksums...")
+        validation_results = validate_existing_checksums()
+        if validation_results:
+            valid_count = sum(validation_results.values())
+            logger.info(f"Validation complete: {valid_count}/{len(validation_results)} files valid.")
     else:
-        logger.error("✗ Checksum validation failed")
-        raise RuntimeError("Checksum validation failed")
-    
-    logger.info("Checksum generation and validation completed successfully")
+        logger.error("Failed to update state file with checksums.")
 
 
 if __name__ == "__main__":

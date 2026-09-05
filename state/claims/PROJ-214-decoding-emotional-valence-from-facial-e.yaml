@@ -1394,3 +1394,453 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T12:12:31Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 0
+  canonical: Signal filtering uses 50/60 Hz notch filter
+  claim_id: c_ca27c20f
+  context: 'Phase 3: User Story 1. Task T015: Implement signal filtering with 50/60
+    Hz notch filter.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: notch filter specifically designed to attenuate 40 Hz power-line
+      source_id: '2504.02847'
+      url: https://arxiv.org/abs/2504.02847
+      value: 40 Hz
+    filled: true
+  kind: numeric
+  raw_text: Signal filtering applies a 50/60 Hz notch filter.
+  resolved_value: 40 Hz
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T12:39:33Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Plan uses Nested Leave-One-Subject-Out cross-validation for N=32 subjects
+  claim_id: c_ecd86b54
+  context: 'Plan Deviation Log: FR-005 Cross-Validation. Justification: N=32 subjects
+    yields insufficient test subjects (~6) in 5-fold CV for robust generalization
+    error estimation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plan implements Nested Leave-One-Subject-Out (LOSO) cross-validation
+    instead of the nested 5-fold cross-validation required by the specification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:40:04Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Plan uses Dual Model Strategy with Random Forest and Logistic Regression
+  claim_id: c_46caacbb
+  context: "Plan Deviation Log: FR-005/FR-007 Model Strategy. Justification: Nagelkerke's\
+    \ R\xB2 is mathematically undefined for Random Forests."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_uses_Dual_Model_Strategy_with_Random_Forest_and_Logisti
+  kind: entity_fact
+  raw_text: The Plan uses a Dual Model Strategy implementing both Random Forest and
+    Logistic Regression, whereas the specification mandated Random Forest for all
+    variance analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:40:43Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: "Plan uses HuggingFace source emre-ozg\xFCr/DEAP-EMG for DEAP dataset"
+  claim_id: c_73781397
+  context: 'Plan Deviation Log: FR-001 Dataset URL. Spec URL contained SSL error artifacts.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_uses_HuggingFace_source_emre-ozg%C3%BCr/DEAP-EMG_for_DEAP_da
+  kind: entity_fact
+  raw_text: "The Plan uses the HuggingFace source 'emre-ozg\xFCr/DEAP-EMG' for the\
+    \ dataset, replacing the spec URL which contained SSL error artifacts."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:41:01Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Plan implements SVM, Random Forest, and Logistic Regression models
+  claim_id: c_faa840a0
+  context: "Plan Deviation Log: FR-005 SVM Requirement. Plan retains SVM as per spec\
+    \ but adds RF for importance and LogReg for R\xB2."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_implements_SVM,_Random_Forest,_and_Logistic_Regression
+  kind: entity_fact
+  raw_text: The Plan retains SVM and adds Random Forest and Logistic Regression, deviating
+    from the specification which mandated SVM only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:41:25Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Project requires Python version 3.11
+  claim_id: c_49745331
+  context: 'Phase 1: Setup. Task T002: Initialize Python 3.11 project with requirements.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:41:43Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: DEAP dataset contains EMG channels for corrugator, zygomaticus, and orbicularis
+    muscles
+  claim_id: c_ea9f5efa
+  context: 'Phase 2: Foundational. Task T005a: Fetch DEAP dataset and extract specific
+    EMG channels (corrugator, zygomaticus, orbicularis).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEAP_dataset_contains_EMG_channels_for_corrugator,_zygomatic
+  kind: entity_fact
+  raw_text: The DEAP dataset contains EMG channels for the corrugator, zygomaticus,
+    and orbicularis muscles.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:42:14Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Signal filtering uses 10-500 Hz band-pass Butterworth filter
+  claim_id: c_12150113
+  context: "Phase 3: User Story 1. Task T015: Implement signal filtering with 10\u2013\
+    500 Hz band-pass Butterworth filter."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Signal filtering applies a 10\u2013500 Hz band-pass Butterworth filter."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:42:33Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Cross-validation loop uses 4 parallel jobs
+  claim_id: c_996d99cd
+  context: 'Phase 3: User Story 1. Task T019: Implement and execute Nested LOSO with
+    Parallelize outer LOSO folds (n_jobs=4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The cross-validation loop uses 4 parallel jobs (n_jobs=4).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:42:50Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Pipeline peak RAM usage target is below 7 GB
+  claim_id: c_f2ec103c
+  context: 'Phase 3: User Story 1. Task T019: Immediate memory flushing to ensure
+    peak RAM < 7 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to ensure peak RAM usage remains below 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:43:25Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Random Forest model uses 100 estimators
+  claim_id: c_57f3c088
+  context: 'Phase 3: User Story 1. Task T019: Train Random Forest (n_estimators=100).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest model uses 100 estimators.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:43:46Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Validation includes permutation test with 1000 shuffles
+  claim_id: c_2eabb207
+  context: 'Phase 3: User Story 1. Task T023: Perform a permutation test (1000 shuffles)
+    against the label-shuffled baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation includes a permutation test with 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:44:04Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: "Nagelkerke R\xB2 confidence intervals calculated via 1000 bootstrap\
+    \ iterations"
+  claim_id: c_7f60e1de
+  context: "Phase 4: User Story 2. Task T029: Calculate confidence intervals via bootstrap\
+    \ (1000 iterations) for each R\xB2 change."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Nagelkerke's R\xB2 change confidence intervals are calculated via bootstrap\
+    \ with 1000 iterations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:45:26Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps valence threshold over 4.9, 5.0, and 5.1
+  claim_id: c_39d57f75
+  context: 'Phase 5: User Story 3. Task T037: Implement sensitivity analysis sweeping
+    the valence binarization threshold over the specific values {4.9, 5.0, 5.1}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the valence binarization threshold over
+    the specific values 4.9, 5.0, and 5.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:45:44Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Project execution target is 6 hours on CPU-only GitHub Actions
+  claim_id: c_bcaaecfc
+  context: 'Notes: Critical Constraint. All tasks must run on CPU-only GitHub Actions
+    (limited CPU resources, 7GB RAM, 6h limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project execution target is to run on CPU-only GitHub Actions with
+    a 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:46:07Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: 32 subjects yield 6 test subjects in 5-fold cross-validation
+  claim_id: c_f2d09458
+  context: Justification for using Nested Leave-One-Subject-Out (LOSO) instead of
+    nested 5-fold cross-validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=32 subjects yields insufficient test subjects (~6) in 5-fold CV for
+    robust generalization error estimation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:48:00Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Nagelkerke R-squared undefined for Random Forests
+  claim_id: c_6f3e8340
+  context: Justification for implementing a Dual Model Strategy including Logistic
+    Regression.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Nagelkerke_R-squared_undefined_for_Random_Forests
+  kind: entity_fact
+  raw_text: "Nagelkerke's R\xB2 is mathematically undefined for Random Forests."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:48:39Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: "DEAP dataset sourced from emre-ozg\xFCr/DEAP-EMG on HuggingFace"
+  claim_id: c_a3a80af6
+  context: Deviation log entry regarding the dataset URL used to satisfy FR-001.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DEAP_dataset_sourced_from_emre-ozg%C3%BCr/DEAP-EMG_on_HuggingFace
+  kind: entity_fact
+  raw_text: "The plan uses the verified HuggingFace source (emre-ozg\xFCr/DEAP-EMG)\
+    \ for the DEAP dataset."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:48:57Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Nested Leave-One-Subject-Out cross-validation implemented
+  claim_id: c_f86bfaf6
+  context: Deviation from the spec's requirement for nested 5-fold cross-validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Nested_Leave-One-Subject-Out_cross-validation_implemented
+  kind: entity_fact
+  raw_text: The plan implements a nested Leave-One-Subject-Out (LOSO) cross-validation
+    loop.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:49:40Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Pipeline trains SVM linear, Random Forest 100 estimators, and Logistic
+    Regression
+  claim_id: c_9575f484
+  context: Implementation details for the Nested LOSO cross-validation loop.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline trains Support Vector Machine (linear kernel), Random Forest
+    (n_estimators=100), and Logistic Regression.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:50:06Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: LOSO folds parallelized with 4 jobs
+  claim_id: c_4de924fc
+  context: Compute optimization strategy to match the 6-hour runtime compliance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The outer LOSO folds are parallelized with n_jobs=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:50:33Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Peak RAM less than 7 GB
+  claim_id: c_8f485382
+  context: Memory management strategy for subject-level isolation and sequential processing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_less_than_7_GB
+  kind: magnitude
+  raw_text: Peak RAM is constrained to less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:50:59Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Permutation test with 1000 shuffles
+  claim_id: c_f8f5fcac
+  context: Statistical validation comparing observed accuracy against label-shuffled
+    baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation includes a permutation test with 1000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:50:59Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Bootstrap confidence intervals with 1000 iterations for R-squared changes
+  claim_id: c_bf21faa4
+  context: Deliverable for the hierarchical model fitting sequence in User Story 2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confidence intervals for R\xB2 changes are calculated via bootstrap with\
+    \ 1000 iterations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:52:18Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 4.9, 5.0, and 5.1
+  claim_id: c_e25bcfd3
+  context: Implementation of sensitivity analysis required by FR-009 and SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the valence binarization threshold over
+    the values {4.9, 5.0, 5.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:52:35Z'
+- artifact_path: projects/PROJ-214-decoding-emotional-valence-from-facial-e/specs/001-decoding-emotional-valence-from-facial-e/tasks.md
+  attempts: 1
+  canonical: Features extracted from corrugator, zygomaticus, and orbicularis muscles
+  claim_id: c_bbc6eed0
+  context: Description of EMG channels extracted from the dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Features_extracted_from_corrugator,_zygomaticus,_and_orbicul
+  kind: entity_fact
+  raw_text: 'The pipeline extracts features from three muscles: corrugator, zygomaticus,
+    and orbicularis.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:53:32Z'

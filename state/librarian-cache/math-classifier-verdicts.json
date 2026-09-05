@@ -467,6 +467,10 @@
     "classified_at": "2026-07-20T10:14:44Z",
     "verdict": false
   },
+  "PROJ-237-predicting-molecular-interactions-in-pol::1.6.0": {
+    "classified_at": "2026-09-05T12:24:24Z",
+    "verdict": false
+  },
   "PROJ-240-predicting-the-impact-of-cold-work-on-re::1.6.0": {
     "classified_at": "2026-07-13T19:38:54Z",
     "verdict": false

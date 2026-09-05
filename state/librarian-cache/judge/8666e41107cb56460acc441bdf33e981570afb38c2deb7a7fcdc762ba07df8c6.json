@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.12150",
+  "judged_at": "2026-09-05T12:24:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in polymer blends using machine learning chemistry",
+  "rationale": "The paper is a general survey on learning curves for algorithm selection and resource management in machine learning, lacking any connection to the specific domain of polymer blends, molecular interactions, or chemistry. It fails to satisfy any inclusion criteria (a-f) as it does not measure the relevant biological/physical mechanisms, variables, or populations, nor does it provide a foundational method specific to molecular property prediction.",
+  "relevant": false
+}

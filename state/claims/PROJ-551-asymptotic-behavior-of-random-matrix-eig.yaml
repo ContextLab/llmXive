@@ -671,3 +671,154 @@
   source_type: external
   status: verified
   updated_at: '2026-08-25T09:28:55Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: mean critical threshold is 2.012263
+  claim_id: c_e1ce9c92
+  context: Key Findings section listing statistical metrics of the sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mean Critical Threshold ($\bar{\theta_c}$): 2.012263"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:31:19Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: range of critical threshold is 2.008765 to 2.015678
+  claim_id: c_40d4874b
+  context: Key Findings section listing the observed range of the critical threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Range of $\theta_c$: [2.008765, 2.015678]"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:31:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: span of critical threshold range is 0.006913
+  claim_id: c_e0cf2647
+  context: Key Findings section noting the span of the observed range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Span: 0.006913'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:32:58Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: average standard deviation is 0.005263
+  claim_id: c_a98523d2
+  context: Key Findings section listing the average standard deviation of the threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Average Standard Deviation: 0.005263'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:33:16Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: relative shift of critical threshold is 0.34 percent
+  claim_id: c_0279a80e
+  context: Key Findings section stating the relative shift is below the 5% stability
+    threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The relative shift is 0.34%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:33:16Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: total data points analyzed is 9
+  claim_id: c_dd50aea2
+  context: Raw Sweep Data Summary section stating the total count of data points.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total data points analyzed: 9'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:35:01Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: p value shift is 0.823456
+  claim_id: c_840b9b2f
+  context: Statistical Validation section listing computed metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'p_value_shift: 0.823456'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:36:01Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: 95 percent confidence interval is 1.98 to 2.04
+  claim_id: c_992c2780
+  context: Statistical Validation section listing the 95% confidence interval.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'confidence_interval_95: [1.98, 2.04]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:36:18Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: coefficient of variation is 0.0025
+  claim_id: c_a985907e
+  context: Statistical Validation section listing the coefficient of variation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'coefficient_of_variation: 0.0025'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:36:45Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: test statistic is 0.123456
+  claim_id: c_5bbcf114
+  context: Statistical Validation section listing the test statistic value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'test_statistic: 0.123456'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:37:13Z'

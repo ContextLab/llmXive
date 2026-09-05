@@ -61,6 +61,14 @@ T036:
   r: "No `state/sweep_timing.log` file or any other evidence of the parameter sweep\
     \ execution time is present; thus the required artifact is missing and the claim\
     \ that the sweep completes within 6\u202Fhours cannot be verified."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim references new unit test files in `tests/unit/`, but no such files\
+    \ or code snippets are provided in the evidence. Without the actual test files\
+    \ (or their contents) we cannot verify that edge\u2011case tests for N=100,\u202F\
+    \u03B8=1.0,\u202Frank=0 exist or are correctly implemented. The required artifact\
+    \ is missing."
 T040a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

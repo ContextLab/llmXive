@@ -1,2 +1,4 @@
-# This directory exists to satisfy T001a.
-# Actual code files (download.py, preprocessing.py, etc.) are placed here.
+# This directory is part of the llmXive automated science pipeline.
+# It serves as the root for all Python implementation modules.
+# Directory creation is tracked via this placeholder file to ensure
+# version control systems (which ignore empty directories) recognize it.
