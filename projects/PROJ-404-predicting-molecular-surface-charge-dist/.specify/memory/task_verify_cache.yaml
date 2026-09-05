@@ -1,0 +1,20 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file listings were provided, so we cannot verify that the
+    `projects/PROJ-404-predicting-molecular-surface-charge-dist/` hierarchy was created
+    nor that `__init__.py` files exist in each `code/` subdirectory. The required
+    artifacts are missing from the evidence.
+T056a:
+  c: false
+  h: a73cfa4e1466da22042fceec42d411bc92175da89af27cc23780ae239e5c6d7d
+  r: "The loader contains a SHA\u2011256 helper but the `update_state_checksum` function\
+    \ is only a placeholder and never writes to a YAML file, and the required `state/projects/PROJ-404-predicting-molecular-surface-charge-dist.yaml`\
+    \ does not exist at all. Consequently the checksum is never recorded as required."
+T058:
+  c: false
+  h: 8870b931fb1bb919bce454faebabfd3926436001a29d3280b385927ce300967a
+  r: "The provided `code/train.py` contains placeholder loss computation and does\
+    \ not compute or log any gradient L2 norms after `loss.backward()`. Moreover,\
+    \ the required output file `artifacts/reports/gradient_norms.log` is missing entirely.\
+    \ Hence the task\u2019s specification is not satisfied."

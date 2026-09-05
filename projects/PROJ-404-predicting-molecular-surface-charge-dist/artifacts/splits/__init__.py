@@ -1,0 +1,1 @@
+# Splits artifact initialization

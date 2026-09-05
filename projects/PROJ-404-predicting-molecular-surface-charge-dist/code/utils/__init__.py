@@ -1,1 +1,6 @@
-# Utility functions for seeding, logging, and shared helpers
+"""
+Utils package.
+"""
+from .utils import set_seed, get_logger
+
+__all__ = ['set_seed', 'get_logger']

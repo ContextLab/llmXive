@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a Geometric Graph Neural Network (GNN) to predict atomic partial charges (Merz-Kollman) from molecular 3D geometry, using the QM9 dataset. The system addresses the research question: "Can 3D structural descriptors learn the structure-to-charge mapping better than 2D connectivity alone?" The implementation is constrained to a CPU-only GitHub Actions runner (limited RAM, 6h limit) and must validate generalization to unseen molecular scaffolds.
+This project implements a Geometric Graph Neural Network (GNN) to predict atomic partial charges (Merz-Kollman) from molecular 3D geometry, using the QM9 dataset. The system addresses the research question: "Can 3D structural descriptors learn the structure-to-charge mapping better than 2D connectivity alone?" The implementation is constrained to a CPU-only GitHub Actions runner with limited RAM and a time limit. and must validate generalization to unseen molecular scaffolds.
 
 **Methodological Note**: The baseline comparison involves two components:
 1.  **Statistical Baseline**: Atom-Type Average (represents the limit of 2D connectivity without geometric context).

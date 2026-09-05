@@ -1,1 +1,1 @@
-# Test suite for PROJ-404
+# Tests module initialization

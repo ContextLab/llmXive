@@ -1,2 +1,3 @@
-# PROJ-404: Predicting Molecular Surface Charge Distribution
-# Root package for code artifacts
+"""
+PROJ-404: Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations.
+"""

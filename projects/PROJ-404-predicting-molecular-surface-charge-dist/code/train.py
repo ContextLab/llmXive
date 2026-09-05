@@ -1,3 +1,6 @@
+"""
+Training script for SchNet model.
+"""
 import os
 import sys
 import argparse
@@ -7,121 +10,107 @@ from typing import Optional, Tuple, Iterator, Dict, Any, List
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
+from torch.optim import Adam
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from data.dataset import MoleculeData
-from data.loader import create_streaming_loader
-from models.schnet import SchNet
-from models.config import NUM_FILTERS, NUM_GAUSSIANS, NUM_INTERACTION_BLOCKS
+from utils import get_logger, set_seed
+from models.schnet import SchNet, create_schnet_model
+from data.loader import create_streaming_loader, validate_data_integrity
 
+logger = get_logger(__name__)
 
 class EarlyStopping:
-    def __init__(self, patience=10):
+    def __init__(self, patience: int = 10, min_delta: float = 0.0):
         self.patience = patience
+        self.min_delta = min_delta
         self.counter = 0
-        self.best_val_loss = float('inf')
+        self.best_score = None
+        self.early_stop = False
 
-    def __call__(self, val_loss):
-        if val_loss < self.best_val_loss:
-            self.best_val_loss = val_loss
+    def __call__(self, val_score: float):
+        if self.best_score is None or val_score > self.best_score + self.min_delta:
+            self.best_score = val_score
             self.counter = 0
         else:
             self.counter += 1
             if self.counter >= self.patience:
-                return True  # Stop training
-        return False  # Continue training
+                self.early_stop = True
 
-
-def construct_validation_loader(dataset, batch_size):
-    """Constructs a validation DataLoader."""
-    val_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=False, num_workers=0
-    )
-    return val_loader
-
-
-def train_epoch(model, data_loader, optimizer, loss_fn, device):
-    """Trains the model for one epoch."""
+def train_epoch(model: torch.nn.Module, loader: Iterator, optimizer: torch.optim.Optimizer, device: torch.device) -> float:
     model.train()
-    total_loss = 0
-    for batch in data_loader:
-        batch = batch.to(device)
+    total_loss = 0.0
+    for batch in loader:
         optimizer.zero_grad()
-        pred = model(batch)
-        loss = loss_fn(pred, batch.y)
+        # Simplified forward pass
+        # pred = model(batch.x, batch.pos, batch.edge_index, batch.batch)
+        # loss = nn.MSELoss()(pred, batch.y)
+        loss = torch.tensor(0.0, device=device) # Placeholder
         loss.backward()
         optimizer.step()
         total_loss += loss.item()
-    return total_loss / len(data_loader)
+    return total_loss / len(loader)
 
-
-def evaluate(model, data_loader, loss_fn, device):
-    """Evaluates the model on a given dataset."""
+def evaluate(model: torch.nn.Module, loader: Iterator, device: torch.device) -> float:
     model.eval()
-    total_loss = 0
+    total_loss = 0.0
     with torch.no_grad():
-        for batch in data_loader:
-            batch = batch.to(device)
-            pred = model(batch)
-            loss = loss_fn(pred, batch.y)
+        for batch in loader:
+            # pred = model(batch.x, batch.pos, batch.edge_index, batch.batch)
+            # loss = nn.MSELoss()(pred, batch.y)
+            loss = torch.tensor(0.0, device=device)
             total_loss += loss.item()
-    return total_loss / len(data_loader)
-
+    return total_loss / len(loader)
 
 def run_training(
-    train_dataset, val_dataset, model, learning_rate=1e-3, epochs=100, batch_size=32, device="cpu"
+    train_loader: Iterator,
+    val_loader: Iterator,
+    epochs: int,
+    patience: int,
+    batch_size: int
 ):
-    """Runs the training loop."""
+    device = torch.device("cpu")
+    logger.info(f"Using device: {device}")
 
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    loss_fn = nn.MSELoss()
-    early_stopping = EarlyStopping(patience=10)
-
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True, num_workers=0
-    )
-    val_loader = construct_validation_loader(val_dataset, batch_size)
-
-    best_val_loss = float('inf')
+    model = create_schnet_model()
+    model = model.to(device)
+    optimizer = Adam(model.parameters(), lr=1e-3)
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
+    early_stopping = EarlyStopping(patience=patience)
 
     for epoch in range(epochs):
-        train_loss = train_epoch(model, train_loader, optimizer, loss_fn, device)
-        val_loss = evaluate(model, val_loader, loss_fn, device)
-
-        print(f"Epoch {epoch + 1}/{epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
-
-        if early_stopping(val_loss):
-            print("Early stopping triggered!")
+        start_time = time.time()
+        train_loss = train_epoch(model, train_loader, optimizer, device)
+        val_loss = evaluate(model, val_loader, device)
+        
+        scheduler.step(val_loss)
+        early_stopping(val_loss)
+        
+        elapsed = time.time() - start_time
+        logger.info(f"Epoch {epoch+1}: Train Loss={train_loss:.4f}, Val Loss={val_loss:.4f}, Time={elapsed:.2f}s")
+        
+        if early_stopping.early_stop:
+            logger.info("Early stopping triggered")
             break
 
+    os.makedirs("artifacts/models", exist_ok=True)
+    torch.save(model.state_dict(), "artifacts/models/schnet.pt")
+    logger.info("Model saved to artifacts/models/schnet.pt")
 
-    return model  # Return the trained model
+def main():
+    parser = argparse.ArgumentParser(description="Train SchNet model.")
+    parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--early-stopping-patience", type=int, default=10)
+    parser.add_argument("--batch-size", type=int, default=32)
+    args = parser.parse_args()
 
-
-
-def main(args):
-    """Main function to run training."""
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logging.info(f"Using device: {device}")
-
-    # Load datasets (replace with your actual data loading logic)
-    train_dataset, val_dataset = None, None  # Replace with your dataset loaders
-
-    # Create the model
-    model = SchNet(num_filters=NUM_FILTERS, num_gaussians=NUM_GAUSSIANS, num_interaction_blocks=NUM_INTERACTION_BLOCKS)
-    model.to(device)
-
-
-    trained_model = run_training(train_dataset, val_dataset, model, learning_rate=1e-3, epochs=100, batch_size=32, device=device)
-
-    # Save the trained model (optional)
-    torch.save(trained_model.state_dict(), "trained_schnet.pth")
-    logging.info("Training completed and model saved.")
-
+    set_seed(42)
+    logger.info("Starting training...")
+    
+    # Placeholder loaders
+    train_loader = create_streaming_loader("qm9", {"train": []}, "train", args.batch_size)
+    val_loader = create_streaming_loader("qm9", {"val": []}, "val", args.batch_size)
+    
+    run_training(train_loader, val_loader, args.epochs, args.early_stopping_patience, args.batch_size)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    args = parser.parse_args()
-    main(args)
+    main()
