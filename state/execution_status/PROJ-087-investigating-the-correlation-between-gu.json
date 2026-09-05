@@ -1,20 +1,16 @@
 {
   "project_id": "PROJ-087-investigating-the-correlation-between-gu",
   "ok": false,
-  "reason": "5 run-book script(s) missing (plan/impl path mismatch): python code/src/main.py --step check_data; python code/src/main.py --step ingest; python code/src/main.py --step analyze; 3 declared deliverable(s) absent: data/processed/cleaned_microbiome_sleep.csv; data/processed/correlation_results.csv; data/processed/ingestion_report.json",
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python src/feasibility.py",
   "artifacts": [],
   "failures": [
-    "python code/src/main.py --step check_data -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/src/main.py': [Errno 2] No such file or directory",
-    "python code/src/main.py --step ingest -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/src/main.py': [Errno 2] No such file or directory",
-    "python code/src/main.py --step analyze -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/src/main.py': [Errno 2] No such file or directory",
-    "python code/src/main.py --step viz -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/src/main.py': [Errno 2] No such file or directory",
-    "python code/src/main.py --step all -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/src/main.py': [Errno 2] No such file or directory"
+    "python src/feasibility.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-087-investigating-the-correlation-between-gu/src/feasibility.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 8,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 8,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-09T17:20:41Z"
+  "updated_at": "2026-09-05T03:48:58Z"
 }
