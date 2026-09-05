@@ -3,81 +3,42 @@ import sys
 from pathlib import Path
 import logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-def ensure_directory(path: Path) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        path: The path to ensure exists
-        
-    Returns:
-        True if the directory exists (or was created successfully), False otherwise
-    """
-    try:
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {path}")
-        elif not path.is_dir():
-            logger.error(f"Path exists but is not a directory: {path}")
-            return False
-        return True
-    except PermissionError:
-        logger.error(f"Permission denied creating directory: {path}")
-        return False
-    except OSError as e:
-        logger.error(f"OS error creating directory {path}: {e}")
-        return False
-
-def main():
-    """
-    Main function to create the project directory structure for PROJ-967.
-    Creates the following directories relative to the repository root:
-    - data/raw
-    - data/processed
-    - code
-    - tests
-    - results
-    """
-    # Determine the base path (repository root)
-    # We assume the script is run from the repository root or the project root
-    # The task specifies paths relative to repository root: 
-    # projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/...
-    
-    # Let's define the project root relative to the script location or CWD
-    # Assuming the script is in code/ and we need to go up one level to repo root
-    # But the task says "relative to repository root", so we construct the full path
-    
-    project_root = Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala")
-    
-    # Define the directories to create
-    directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "code",
-        project_root / "tests",
-        project_root / "results"
-    ]
-    
-    logger.info(f"Creating project structure under: {project_root}")
-    
-    success = True
-    for directory in directories:
-        if not ensure_directory(directory):
-            success = False
-    
-    if success:
-        logger.info("Project directory structure created successfully.")
-        return 0
+def ensure_directory(dir_path: str) -> None:
+    """Ensure a directory exists, creating it if necessary."""
+    path = Path(dir_path)
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+        logging.info(f"Created directory: {path}")
     else:
-        logger.error("Failed to create some directories.")
-        return 1
+        logging.info(f"Directory already exists: {path}")
+
+def main() -> None:
+    """Create the project directory structure for PROJ-967."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+
+    # Define the base project root relative to repository root
+    # Assuming this script runs from the repository root or code/ directory
+    # We use relative paths as specified in the task description
+    base_path = Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala")
+
+    # Define required directories
+    directories = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "results",
+        base_path / "code",
+        base_path / "tests",
+    ]
+
+    logging.info(f"Creating project structure at: {base_path}")
+
+    for directory in directories:
+        ensure_directory(str(directory))
+
+    logging.info("Project directory structure creation complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

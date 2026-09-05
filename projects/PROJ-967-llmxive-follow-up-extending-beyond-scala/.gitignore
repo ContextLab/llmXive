@@ -24,26 +24,27 @@ wheels/
 venv/
 ENV/
 env/
-.venv/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Project specific
+# Data
 data/raw/*.parquet
 data/raw/*.zip
 data/processed/*.parquet
+data/processed/*.csv
 data/processed/*.json
 results/*.json
 results/*.pkl
 results/*.png
-results/*.csv
+results/*.prof
+
+# Logs
 *.log
+
+# OS
+.DS_Store
+Thumbs.db

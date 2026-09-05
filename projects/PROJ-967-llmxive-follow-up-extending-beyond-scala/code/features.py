@@ -1,6 +1,9 @@
 """
-Feature engineering module for llmXive pipeline.
-Implements statistical helper functions for teacher score entanglement analysis.
+Feature Engineering Module for llmXive Follow-up Project.
+
+This module provides statistical helper functions for calculating
+entanglement features (variance, entropy, skewness, kurtosis)
+and global covariance metrics from teacher score distributions.
 """
 
 import argparse
@@ -10,23 +13,29 @@ import math
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Any, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 
-# ============================================================================
-# Logging Setup
-# ============================================================================
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_DIR = PROJECT_ROOT / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala"
+
+# Constants
+TEACHER_SCORE_COLS = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+DEFAULT_INPUT_PATH = PROJECT_DIR / "data" / "raw" / "z_reward.parquet"
+DEFAULT_OUTPUT_PATH = PROJECT_DIR / "data" / "processed" / "features.json"
+DEFAULT_GLOBAL_STATS_PATH = PROJECT_DIR / "results" / "covariance_matrix.json"
+
 
 def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
     """Configure and return the project logger."""
-    logger = logging.getLogger("llmXive.features")
+    logger = logging.getLogger("llmxive_features")
     logger.setLevel(log_level)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(log_level)
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
@@ -34,322 +43,357 @@ def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
         logger.addHandler(handler)
     return logger
 
-# ============================================================================
-# Directory Setup
-# ============================================================================
 
-def setup_directories(base_path: Path) -> Tuple[Path, Path, Path]:
-    """
-    Ensure required directories exist.
-    Returns: (raw_dir, processed_dir, results_dir)
-    """
-    raw_dir = base_path / "data" / "raw"
-    processed_dir = base_path / "data" / "processed"
-    results_dir = base_path / "results"
-
-    for d in [raw_dir, processed_dir, results_dir]:
+def setup_directories() -> None:
+    """Ensure all necessary output directories exist."""
+    dirs = [
+        PROJECT_DIR / "data" / "raw",
+        PROJECT_DIR / "data" / "processed",
+        PROJECT_DIR / "results",
+    ]
+    for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
-    return raw_dir, processed_dir, results_dir
 
-# ============================================================================
-# Data Loading
-# ============================================================================
-
-def load_raw_dataset(raw_dir: Path, filename: str = "z_reward.parquet") -> pd.DataFrame:
+def load_raw_dataset(
+    path: Optional[Path] = None, logger: Optional[logging.Logger] = None
+) -> pd.DataFrame:
     """
-    Load the raw dataset from disk.
-    Raises FileNotFoundError if the file does not exist.
+    Load the raw dataset from a Parquet file.
+
+    Args:
+        path: Path to the parquet file. Defaults to DEFAULT_INPUT_PATH.
+        logger: Optional logger instance.
+
+    Returns:
+        Loaded pandas DataFrame.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If required columns are missing.
     """
-    file_path = raw_dir / filename
-    if not file_path.exists():
-        raise FileNotFoundError(f"Raw dataset not found at {file_path}")
+    if logger is None:
+        logger = setup_logging()
 
-    logger = logging.getLogger("llmXive.features")
-    logger.info(f"Loading raw dataset from {file_path}")
+    if path is None:
+        path = DEFAULT_INPUT_PATH
 
-    try:
-        df = pd.read_parquet(file_path)
-        logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load parquet file: {e}")
-        raise
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {path}")
 
-# ============================================================================
-# Data Extraction
-# ============================================================================
+    logger.info(f"Loading dataset from {path}")
+    df = pd.read_parquet(path)
 
-def extract_teacher_scores_matrix(df: pd.DataFrame) -> np.ndarray:
+    # Validate presence of teacher score columns
+    missing_cols = [c for c in TEACHER_SCORE_COLS if c not in df.columns]
+    if missing_cols:
+        raise ValueError(
+            f"Missing required teacher score columns: {missing_cols}. "
+            f"Found columns: {list(df.columns)}"
+        )
+
+    logger.info(f"Loaded {len(df)} samples with columns: {list(df.columns)}")
+    return df
+
+
+def extract_teacher_scores_matrix(
+    df: pd.DataFrame,
+    logger: Optional[logging.Logger] = None,
+) -> np.ndarray:
     """
-    Extract the 4-dimensional teacher score vector for each sample.
-    Expected columns inside 'teacher_scores' object: Alignment, Realism, Aesthetics, Plausibility.
-    Returns: N x 4 numpy array.
+    Extract the N x 4 matrix of teacher scores.
+
+    Args:
+        df: Input DataFrame.
+        logger: Optional logger instance.
+
+    Returns:
+        Numpy array of shape (N, 4).
     """
-    logger = logging.getLogger("llmXive.features")
+    if logger is None:
+        logger = setup_logging()
 
-    if "teacher_scores" not in df.columns:
-        raise ValueError("Column 'teacher_scores' not found in dataset.")
-
-    # Normalize: ensure 'teacher_scores' is a list of dicts or a Series of dicts
-    # If it's a Series of dicts, we expand it.
-    if isinstance(df["teacher_scores"].iloc[0], dict):
-        scores_df = pd.DataFrame(df["teacher_scores"].tolist(), index=df.index)
-    else:
-        # Attempt to parse JSON strings if stored as such
-        try:
-            scores_df = pd.DataFrame(
-                df["teacher_scores"].apply(lambda x: json.loads(x) if isinstance(x, str) else x).tolist(),
-                index=df.index
-            )
-        except Exception as e:
-            logger.error(f"Failed to parse teacher_scores column: {e}")
-            raise
-
-    required_dims = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-    missing = [d for d in required_dims if d not in scores_df.columns]
-    if missing:
-        raise ValueError(f"Missing required teacher score dimensions: {missing}")
-
-    matrix = scores_df[required_dims].to_numpy(dtype=float)
-
-    # Handle NaN/Inf
-    if np.any(~np.isfinite(matrix)):
-        logger.warning("Non-finite values found in teacher scores. Replacing with 0.0.")
-        matrix = np.nan_to_num(matrix, nan=0.0, posinf=0.0, neginf=0.0)
-
+    matrix = df[TEACHER_SCORE_COLS].to_numpy(dtype=float)
+    logger.debug(f"Extracted teacher scores matrix shape: {matrix.shape}")
     return matrix
 
-# ============================================================================
-# Statistical Helper Functions
-# ============================================================================
 
-def calculate_variance_and_range(values: np.ndarray) -> Tuple[float, float]:
+def calculate_variance_and_range(
+    scores: np.ndarray,
+) -> Tuple[float, float]:
     """
-    Calculate variance and range for a 1D array of values.
-    Handles zero-variance cases gracefully.
+    Calculate variance and range for a 1D array of scores.
+
+    Args:
+        scores: 1D numpy array of scores.
+
+    Returns:
+        Tuple of (variance, range).
     """
-    if values.size == 0:
+    if len(scores) == 0:
         return 0.0, 0.0
 
-    var_val = np.var(values)
-    range_val = np.ptp(values)  # peak-to-peak (max - min)
+    variance = float(np.var(scores, ddof=0))
+    range_val = float(np.max(scores) - np.min(scores))
+    return variance, range_val
 
-    return float(var_val), float(range_val)
 
-def calculate_entropy(values: np.ndarray) -> float:
+def calculate_entropy(
+    scores: np.ndarray,
+    epsilon: float = 1e-10,
+) -> float:
     """
-    Calculate Shannon entropy for a distribution.
-    Normalizes values to sum to 1.0 before calculation.
-    Handles zero-variance or zero-sum cases.
+    Calculate Shannon entropy for a 1D array of scores.
+
+    Normalizes scores to a probability distribution before calculating entropy.
+    Handles zero-variance cases by returning 0.
+
+    Args:
+        scores: 1D numpy array of scores.
+        epsilon: Small constant to avoid log(0).
+
+    Returns:
+        Entropy value.
     """
-    if values.size == 0:
+    if len(scores) == 0:
         return 0.0
 
     # Normalize to probability distribution
-    p = values.astype(float)
-    p_sum = np.sum(p)
-    if p_sum == 0:
+    min_val = np.min(scores)
+    max_val = np.max(scores)
+    range_val = max_val - min_val
+
+    if range_val < epsilon:
+        # Zero variance case
         return 0.0
 
-    p = p / p_sum
+    # Shift and scale to [0, 1] then normalize to sum to 1
+    # We treat the values themselves as a distribution proxy
+    # A common approach for continuous values is to bin or use the values directly
+    # Here we normalize the vector to sum to 1 to treat as probabilities
+    normalized = scores - min_val
+    total = np.sum(normalized)
 
-    # Filter out zeros to avoid log(0)
-    p_nonzero = p[p > 0]
-
-    if len(p_nonzero) == 0:
+    if total < epsilon:
         return 0.0
 
-    entropy_val = -np.sum(p_nonzero * np.log(p_nonzero))
-    return float(entropy_val)
+    probs = normalized / total
+    probs = np.clip(probs, epsilon, 1.0)
+    entropy = -np.sum(probs * np.log(probs))
+    return float(entropy)
 
-def calculate_skewness_and_kurtosis(values: np.ndarray) -> Tuple[float, float]:
+
+def calculate_skewness_and_kurtosis(
+    scores: np.ndarray,
+) -> Tuple[float, float]:
     """
-    Calculate skewness and kurtosis for a 1D array.
-    Uses scipy.stats for robust calculation.
-    """
-    if values.size < 2:
-        return 0.0, 0.0
+    Calculate skewness and kurtosis for a 1D array of scores.
 
-    try:
-        skew_val = stats.skew(values, nan_policy='omit')
-        kurt_val = stats.kurtosis(values, nan_policy='omit')
-    except Exception:
-        return 0.0, 0.0
-
-    # Handle NaN results (e.g., constant array)
-    if not np.isfinite(skew_val):
-        skew_val = 0.0
-    if not np.isfinite(kurt_val):
-        kurt_val = 0.0
-
-    return float(skew_val), float(kurt_val)
-
-def compute_per_sample_stats(matrix: np.ndarray) -> Dict[str, np.ndarray]:
-    """
-    Compute per-sample statistics across the 4 dimensions.
     Args:
-        matrix: N x 4 numpy array of teacher scores.
+        scores: 1D numpy array of scores.
+
     Returns:
-        Dict with keys: 'variance', 'entropy', 'skewness', 'kurtosis'.
-        Values are N-length arrays.
+        Tuple of (skewness, kurtosis).
     """
-    n_samples = matrix.shape[0]
-    logger = logging.getLogger("llmXive.features")
-    logger.info(f"Computing per-sample stats for {n_samples} samples.")
+    if len(scores) < 3:
+        return 0.0, 0.0
 
-    variances = np.zeros(n_samples)
-    entropies = np.zeros(n_samples)
-    skewnesses = np.zeros(n_samples)
-    kurtoses = np.zeros(n_samples)
+    skew = float(stats.skew(scores, bias=False))
+    kurt = float(stats.kurtosis(scores, bias=False))
+    return skew, kurt
 
-    for i in range(n_samples):
-        row = matrix[i]
-        variances[i], _ = calculate_variance_and_range(row)
-        entropies[i] = calculate_entropy(row)
-        skewnesses[i], kurtoses[i] = calculate_skewness_and_kurtosis(row)
 
-    return {
-        "variance": variances,
-        "entropy": entropies,
-        "skewness": skewnesses,
-        "kurtosis": kurtoses
-    }
-
-def calculate_global_covariance_and_eigenvalue(matrix: np.ndarray) -> Tuple[np.ndarray, float]:
+def compute_per_sample_stats(
+    df: pd.DataFrame,
+    logger: Optional[logging.Logger] = None,
+) -> pd.DataFrame:
     """
-    Calculate the global covariance matrix and its dominant eigenvalue.
+    Compute per-sample statistical descriptors (variance, entropy, skewness, kurtosis).
+
     Args:
-        matrix: N x 4 numpy array.
+        df: Input DataFrame.
+        logger: Optional logger instance.
+
+    Returns:
+        DataFrame with added statistical columns.
+    """
+    if logger is None:
+        logger = setup_logging()
+
+    logger.info("Computing per-sample statistics...")
+    df = df.copy()
+
+    # Initialize columns
+    df["variance"] = 0.0
+    df["entropy"] = 0.0
+    df["skewness"] = 0.0
+    df["kurtosis"] = 0.0
+
+    for idx, row in df.iterrows():
+        scores = row[TEACHER_SCORE_COLS].values.astype(float)
+        var, rng = calculate_variance_and_range(scores)
+        ent = calculate_entropy(scores)
+        skew, kurt = calculate_skewness_and_kurtosis(scores)
+
+        df.at[idx, "variance"] = var
+        df.at[idx, "entropy"] = ent
+        df.at[idx, "skewness"] = skew
+        df.at[idx, "kurtosis"] = kurt
+
+    logger.info(f"Computed stats for {len(df)} samples.")
+    return df
+
+
+def calculate_global_covariance_and_eigenvalue(
+    matrix: np.ndarray,
+    logger: Optional[logging.Logger] = None,
+) -> Tuple[np.ndarray, float]:
+    """
+    Calculate the global covariance matrix and dominant eigenvalue.
+
+    Args:
+        matrix: N x 4 matrix of teacher scores.
+        logger: Optional logger instance.
+
     Returns:
         Tuple of (covariance_matrix, dominant_eigenvalue).
     """
-    logger = logging.getLogger("llmXive.features")
-    logger.info("Calculating global covariance matrix.")
+    if logger is None:
+        logger = setup_logging()
 
-    if matrix.shape[0] < 2:
-        logger.warning("Insufficient samples for covariance calculation. Returning identity.")
-        cov_matrix = np.eye(4)
-        return cov_matrix, 1.0
-
-    # rowvar=False means columns are variables (dimensions), rows are observations (samples)
+    logger.info("Calculating global covariance matrix...")
+    # Compute covariance matrix (rowvar=False implies columns are variables)
     cov_matrix = np.cov(matrix, rowvar=False)
 
-    # Ensure symmetric
-    cov_matrix = (cov_matrix + cov_matrix.T) / 2
-
-    # Calculate eigenvalues
-    try:
-        eigenvalues, _ = np.linalg.eigh(cov_matrix)
-    except np.linalg.LinAlgError:
-        logger.error("Failed to compute eigenvalues. Using pseudo-inverse approach.")
-        # Fallback: use pinv to get eigenvalues? No, eigh is standard.
-        # If it fails, return zero matrix
-        eigenvalues = np.zeros(4)
-
+    # Compute eigenvalues
+    eigenvalues, _ = np.linalg.eigh(cov_matrix)
     dominant_eigenvalue = float(np.max(eigenvalues))
-    logger.info(f"Dominant eigenvalue: {dominant_eigenvalue}")
 
+    logger.info(f"Dominant eigenvalue: {dominant_eigenvalue}")
     return cov_matrix, dominant_eigenvalue
 
-# ============================================================================
-# Integration & Output
-# ============================================================================
 
 def save_global_stats(
-    processed_dir: Path,
     cov_matrix: np.ndarray,
-    dominant_eigenvalue: float
+    dominant_eigenvalue: float,
+    output_path: Optional[Path] = None,
+    logger: Optional[logging.Logger] = None,
 ) -> None:
-    """Save global covariance matrix and dominant eigenvalue to JSON."""
-    cov_path = processed_dir / "global_covariance_matrix.json"
-    eigen_path = processed_dir / "dominant_eigenvalue.json"
+    """
+    Save global covariance matrix and eigenvalue to JSON.
 
-    # Save covariance matrix
-    with open(cov_path, "w") as f:
-        json.dump(cov_matrix.tolist(), f, indent=2)
-    logging.getLogger("llmXive.features").info(f"Saved covariance matrix to {cov_path}")
+    Args:
+        cov_matrix: Covariance matrix.
+        dominant_eigenvalue: Dominant eigenvalue.
+        output_path: Output path. Defaults to DEFAULT_GLOBAL_STATS_PATH.
+        logger: Optional logger instance.
+    """
+    if logger is None:
+        logger = setup_logging()
 
-    # Save dominant eigenvalue
-    with open(eigen_path, "w") as f:
-        json.dump({"dominant_eigenvalue": dominant_eigenvalue}, f, indent=2)
-    logging.getLogger("llmXive.features").info(f"Saved dominant eigenvalue to {eigen_path}")
+    if output_path is None:
+        output_path = PROJECT_DIR / "results" / "covariance_matrix.json"
 
-# ============================================================================
-# Argument Parsing & Main Entry
-# ============================================================================
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    data = {
+        "covariance_matrix": cov_matrix.tolist(),
+        "dominant_eigenvalue": dominant_eigenvalue,
+    }
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    logger.info(f"Saved global stats to {output_path}")
+
 
 def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Compute statistical features for teacher score entanglement analysis."
+        description="Compute feature engineering statistics for llmXive."
     )
     parser.add_argument(
-        "--base-path",
+        "--input",
         type=str,
-        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala",
-        help="Base path of the project."
+        default=str(DEFAULT_INPUT_PATH),
+        help="Path to input parquet file.",
     )
     parser.add_argument(
-        "--input-file",
+        "--output",
         type=str,
-        default="z_reward.parquet",
-        help="Name of the raw dataset file in data/raw/."
+        default=str(DEFAULT_OUTPUT_PATH),
+        help="Path to output features JSON.",
+    )
+    parser.add_argument(
+        "--global-stats-output",
+        type=str,
+        default=str(PROJECT_DIR / "results" / "covariance_matrix.json"),
+        help="Path to output global stats JSON.",
     )
     parser.add_argument(
         "--log-level",
         type=str,
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Logging level."
+        help="Logging level.",
     )
     return parser.parse_args()
+
 
 def main() -> None:
     """Main entry point for feature engineering."""
     args = parse_args()
     logger = setup_logging(getattr(logging, args.log_level))
-    base_path = Path(args.base_path)
-
-    # Setup directories
-    raw_dir, processed_dir, _ = setup_directories(base_path)
 
     try:
-        # Load data
-        df = load_raw_dataset(raw_dir, args.input_file)
+        setup_directories()
 
-        # Extract teacher scores
-        teacher_matrix = extract_teacher_scores_matrix(df)
+        # Load data
+        df = load_raw_dataset(Path(args.input), logger)
 
         # Compute per-sample stats
-        per_sample_stats = compute_per_sample_stats(teacher_matrix)
+        df_features = compute_per_sample_stats(df, logger)
 
-        # Compute global stats
-        cov_matrix, dominant_eig = calculate_global_covariance_and_eigenvalue(teacher_matrix)
+        # Extract matrix for global stats
+        matrix = extract_teacher_scores_matrix(df, logger)
+        cov_matrix, dominant_eigenvalue = calculate_global_covariance_and_eigenvalue(
+            matrix, logger
+        )
 
         # Save global stats
-        save_global_stats(processed_dir, cov_matrix, dominant_eig)
+        save_global_stats(
+            cov_matrix,
+            dominant_eigenvalue,
+            Path(args.global_stats_output),
+            logger,
+        )
 
-        # Integrate per-sample stats into dataframe
-        for key, values in per_sample_stats.items():
-            df[key] = values
+        # Prepare output features (convert to serializable format)
+        features_list = df_features[
+            ["variance", "entropy", "skewness", "kurtosis"]
+        ].to_dict(orient="records")
 
-        # Output features to JSON (for downstream tasks)
-        features_path = processed_dir / "features_base.json"
-        features_list = df.to_dict(orient="records")
-        with open(features_path, "w") as f:
-            json.dump(features_list, f, indent=2)
+        output_data = {
+            "sample_count": len(features_list),
+            "features": features_list,
+        }
 
-        logger.info(f"Successfully processed {len(df)} samples. Features saved to {features_path}")
+        # Save features
+        with open(args.output, "w", encoding="utf-8") as f:
+            json.dump(output_data, f, indent=2)
+
+        logger.info(f"Successfully wrote features to {args.output}")
 
     except FileNotFoundError as e:
-        logger.error(f"Data loading error: {e}")
+        logger.error(f"File not found: {e}")
         sys.exit(1)
     except ValueError as e:
-        logger.error(f"Data processing error: {e}")
+        logger.error(f"Validation error: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Unexpected error: {e}", exc_info=True)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

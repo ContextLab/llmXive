@@ -35,7 +35,7 @@ def load_and_align_data(
     Load the raw dataset, align teacher/student outputs with human annotations,
     and write the aligned data to the processed directory.
 
-    This is a skeleton implementation for T005. It parses arguments, sets up logging,
+    This is the skeleton implementation for T005. It parses arguments, sets up logging,
     and defines the structure for data loading and alignment. Actual data loading
     logic (T012, T037) and alignment logic (T013) will be implemented in subsequent tasks.
     """

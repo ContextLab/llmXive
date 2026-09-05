@@ -1,40 +1,43 @@
 schema_version: "1.0"
 description: "Schema for the processed features output file (data/processed/features.json)"
-type: object
-required:
-  - sample_id
-  - variance
-  - entropy
-  - skewness
-  - kurtosis
-  - fidelity_loss
-properties:
-  sample_id:
-    type: string
-    description: "Unique identifier for the sample"
-  variance:
-    type: number
-    description: "Variance of the 4-dimensional teacher score vector"
-  entropy:
-    type: number
-    description: "Shannon entropy of the normalized teacher score distribution"
-  skewness:
-    type: number
-    description: "Skewness of the teacher score distribution"
-  kurtosis:
-    type: number
-    description: "Kurtosis of the teacher score distribution"
-  mahalanobis_distance:
-    type: number
-    nullable: true
-    description: "Mahalanobis distance from the global mean (only present if model_type == 'rf')"
-  fidelity_loss:
-    type: number
-    description: "MAE between student_scalar and human_annotation for the primary_dimension"
-  primary_dimension:
-    type: string
-    description: "The primary quality dimension derived for this sample"
-  dimension_source:
-    type: string
-    description: "Source of the primary_dimension derivation (e.g., 'metadata', 'column', 'fallback')"
-additionalProperties: false
+type: array
+items:
+  type: object
+  required:
+    - sample_id
+    - variance
+    - entropy
+    - skewness
+    - kurtosis
+    - mahalanobis_distance
+    - fidelity_loss
+  properties:
+    sample_id:
+      type: string
+      description: "Unique identifier for the sample"
+    variance:
+      type: number
+      description: "Variance of the 4-dimensional teacher score vector"
+    entropy:
+      type: number
+      description: "Shannon entropy of the normalized teacher score distribution"
+    skewness:
+      type: number
+      description: "Skewness of the teacher score distribution"
+    kurtosis:
+      type: number
+      description: "Kurtosis of the teacher score distribution"
+    mahalanobis_distance:
+      type: number
+      nullable: true
+      description: "Mahalanobis distance from the global mean (computed using global covariance)"
+    fidelity_loss:
+      type: number
+      description: "MAE between student_scalar and human_annotation for the primary_dimension"
+    primary_dimension:
+      type: string
+      description: "The primary quality dimension derived for this sample"
+    dimension_source:
+      type: string
+      description: "Source of the primary_dimension derivation (e.g., 'metadata', 'column', 'fallback')"
+  additionalProperties: false

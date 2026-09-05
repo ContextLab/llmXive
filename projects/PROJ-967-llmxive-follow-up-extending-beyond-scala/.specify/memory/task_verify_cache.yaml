@@ -1,34 +1,9 @@
-T001a:
+T000a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or other evidence were provided showing that the required\
-    \ folders (`projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw`,\
-    \ `data/processed`, `results`, `code`, `tests`) actually exist; without such proof\
-    \ the claim cannot be confirmed. The implementer must supply a file\u2011system\
-    \ snapshot, `tree` output, or similar verification that the directories were created\
-    \ and are non\u2011empty."
-T001b:
-  c: false
-  h: eaa2df1301640f8725f2865f6ab812d70e941e78acb20c0682b1107b15da2acc
-  r: "The required files under `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/`\
-    \ (`code/requirements.txt`, `.gitignore`, and `pytest.ini`) are not present; only\
-    \ a unrelated `code/requirements.txt` exists elsewhere. The task\u2019s requirement\
-    \ to create those empty project files is therefore not satisfied."
-T001c:
-  c: false
-  h: 1cdbe523061b69e2cd6af104d79d151e768d8203e9c73c14891a0e42490ca107
-  r: "The required file `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt`\
-    \ does not exist, so the task of writing a pinned\u2011version requirements file\
-    \ at the specified location is not fulfilled. The existing `code/requirements.txt`\
-    \ is irrelevant to the required path."
-T003:
-  c: false
-  h: b87340e9fd7d998d8a1e0172f75d8a20fad02c59d057bf85d5d16e5873dc054a
-  r: The `pyproject.toml` is present and correctly pins `ruff==0.9.0` and `black==24.8.0`,
-    and a `code/requirements.lock.txt` with exact versions exists. However, the required
-    `.ruff.toml` file is missing, violating the critical requirement that the file
-    must exist. The next implementer must add a `.ruff.toml` with the appropriate
-    configuration.
+  r: "No `research.md` file was presented, nor any evidence that it was created or\
+    \ contains the required `verified_datasets` YAML section. The implementer\u2019\
+    s claim lacks the actual artifact, so the task is not satisfied."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -59,14 +34,6 @@ T022c:
     \ were provided. The required implementations for loading the Z\u2011Reward dataset,\
     \ computing per\u2011sample entanglement metrics, and producing the conditional\
     \ Mahalanobis distance outputs are missing."
-T025a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, data files, or output artifacts (e.g., dataset ingestion script,\
-    \ per\u2011sample statistics JSON, covariance matrix/eigenvalue results) were\
-    \ supplied. Without these concrete artifacts, the required per\u2011sample stats\
-    \ computation and batch\u2011level analysis cannot be verified. The implementer\
-    \ must provide the actual implementation and its generated outputs."
 T027a:
   c: false
   h: 899f3e299173b4e9e0d01d34e3bd8c7976cedaefd39e9cd81ec7f6b2e23c1488

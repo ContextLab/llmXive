@@ -1,8 +1,8 @@
 [project]
-name = "llmxive-follow-up-extending-beyond-scala"
+name = "llmxive-follow-up"
 version = "0.1.0"
-description = "Teacher Entanglement vs. Scalar Distillation Loss Analysis"
-requires-python = ">=3.9"
+description = "llmXive Follow-up: Teacher Entanglement vs. Scalar Distillation Loss"
+requires-python = ">=3.10"
 dependencies = [
     "pandas==2.0.3",
     "numpy==1.24.3",
@@ -18,7 +18,7 @@ dependencies = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "D"]
@@ -29,5 +29,6 @@ convention = "google"
 
 [tool.black]
 line-length = 100
-target-version = ["py39"]
-skip-string-normalization = false
+target-version = ["py310"]
+quote-style = "double"
+indent-style = "space"
