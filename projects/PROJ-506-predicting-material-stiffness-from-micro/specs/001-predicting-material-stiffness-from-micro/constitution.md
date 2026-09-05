@@ -1,13 +1,12 @@
-# Constitution: Predicting Material Stiffness from Microstructure
+# Constitution: Automated Science Pipeline
 
-## Principle VI: Numerical Homogenization and Analytical Bounds
+## Principle VI: Numerical Homogenization
+The system shall use **FFT-based numerical homogenization** to compute effective material properties from microstructure images.
 
-This project permits the use of **FFT-based numerical homogenization** to compute effective elastic stiffness tensors for synthetic microstructures. This method is validated for periodic microstructures and is the primary ground-truth generator for the dataset.
+**Validity Range:** The validity range of the analytical bounds (Voigt-Reuss-Hill) used for verification is documented for the specific microstructure topology in the data generation logs. The FFT solver is valid for linear elastic, isotropic constituent phases with known stiffness tensors.
 
-**Validity of Analytical Bounds**:
-Analytical bounds (Voigt-Reuss-Hill) are documented and used strictly for:
-1. Validating the physical plausibility of FFT-computed results.
-2. Filtering invalid microstructure generations (e.g., non-convergent solvers).
-3. Providing a baseline for error analysis.
+## Principle III: Data Hygiene
+All generated data must be validated against physical bounds and schema definitions before being used for training.
 
-The validity range for these bounds is defined for linear elastic, isotropic matrix phases with embedded inclusions. Deviations outside this range (e.g., plastic deformation, anisotropic matrix) are explicitly excluded from the current scope.
+## Principle VII: Generalization Boundary
+The system must explicitly disclose the boundaries of its generalization capabilities, particularly regarding out-of-distribution density ranges.

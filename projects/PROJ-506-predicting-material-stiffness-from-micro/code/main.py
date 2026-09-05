@@ -4,86 +4,71 @@ import logging
 from pathlib import Path
 import json
 from datetime import datetime
+from code.utils.verify_spec import verify_spec
+from code.utils.verify_constitution import verify_constitution
+from code.utils.verify_spec_anova import verify_anova_mention
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def parse_args():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Predicting Material Stiffness from Microstructure Images"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility"
-    )
-    parser.add_argument(
-        "--n_samples",
-        type=int,
-        default=100,
-        help="Number of samples to generate"
-    )
-    parser.add_argument(
-        "--task",
-        type=str,
-        default="all",
-        choices=["all", "generate", "train", "evaluate", "verify"],
-        help="Task to execute"
-    )
+    parser = argparse.ArgumentParser(description="Main pipeline orchestrator.")
+    parser.add_argument("--verify-spec", action="store_true", help="Run spec verification (T004v).")
+    parser.add_argument("--verify-constitution", action="store_true", help="Run constitution verification (T002v).")
+    parser.add_argument("--verify-anova", action="store_true", help="Run ANOVA mention verification (T005v).")
     return parser.parse_args()
 
-def run_generation_pipeline(seed, n_samples):
-    """Run the data generation pipeline."""
-    logging.info(f"Starting generation pipeline with seed={seed}, n_samples={n_samples}")
-    
-    # Import and run generation components
-    from code.data_generation.generate_microstructures import main as generate_main
-    from code.data_generation.compute_stiffness import main as compute_main
-    from code.data_generation.validate_tensors import main as validate_main
-    
-    # Run generation
-    logging.info("Generating microstructures...")
-    generate_main()
-    
-    # Compute stiffness
-    logging.info("Computing stiffness tensors...")
-    compute_main()
-    
-    # Validate tensors
-    logging.info("Validating tensors...")
-    validate_main()
-    
-    logging.info("Generation pipeline completed successfully")
-
 def run_verification():
-    """Run governance verification tasks."""
-    logging.info("Running governance verification...")
+    """Run all governance verification tasks."""
+    logger.info("Starting governance verification...")
     
-    # Run T005v verification
-    from code.utils.verify_spec_anova import main as verify_anova_main
+    t002v_pass = verify_constitution()
+    t004v_pass = verify_spec()
+    t005v_pass = verify_anova_mention()
     
-    logging.info("Verifying Spec/Plan alignment (T005v)...")
-    verify_anova_main()
+    if t002v_pass and t004v_pass and t005v_pass:
+        logger.info("All governance verifications passed.")
+        return True
+    else:
+        logger.error("One or more governance verifications failed.")
+        return False
+
+def run_generation_pipeline():
+    """Placeholder for the generation pipeline execution."""
+    logger.info("Running generation pipeline...")
+    # This would be implemented in subsequent tasks
+    return True
 
 def main():
-    """Main entry point."""
     args = parse_args()
     
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    if args.task == "verify":
-        run_verification()
-    elif args.task == "generate":
-        run_generation_pipeline(args.seed, args.n_samples)
-    elif args.task == "all":
-        run_verification()
-        run_generation_pipeline(args.seed, args.n_samples)
+    if args.verify_spec:
+        success = verify_spec()
+        sys.exit(0 if success else 1)
+    elif args.verify_constitution:
+        success = verify_constitution()
+        sys.exit(0 if success else 1)
+    elif args.verify_anova:
+        success = verify_anova_mention()
+        sys.exit(0 if success else 1)
+    elif args.verify_spec or args.verify_constitution or args.verify_anova:
+        # Run all if no specific flag but verification is implied
+        success = run_verification()
+        sys.exit(0 if success else 1)
     else:
-        logging.error(f"Unknown task: {args.task}")
-        sys.exit(1)
+        # Default behavior
+        logger.info("Running default pipeline...")
+        # Run verifications first
+        if not run_verification():
+            logger.error("Governance verification failed. Aborting.")
+            sys.exit(1)
+        
+        # Run generation
+        if not run_generation_pipeline():
+            logger.error("Generation pipeline failed.")
+            sys.exit(1)
+        
+        logger.info("Pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

@@ -1,68 +1,21 @@
-%YAML 1.2
----
-# Model Output Schema Contract for PROJ-506
-# Defines the structure of predictions and metadata produced by the CNN training pipeline.
-# Used for validation in T024 (Contract Test) and data serialization.
-
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Material Stiffness Prediction Output"
-description: |
-  Schema for the output of the StiffnessPredictorCNN model.
-  Contains the model version, predicted stiffness tensor, error metrics, 
-  and the density bin classification of the input microstructure.
-
 type: object
 required:
   - model_version
   - prediction
   - error
   - density_bin
-
 properties:
   model_version:
     type: string
-    description: |
-      Semantic version string of the trained model (e.g., "v1.0.0").
-      Matches the filename or metadata tag of the saved model artifact.
-    pattern: "^v\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$"
-    example: "v1.0.0"
-
+    description: "Version string of the trained model"
   prediction:
     type: array
-    description: |
-      Predicted effective stiffness tensor components (Voigt notation).
-      Expected length is 6 for 2D plane strain/stress (C11, C12, C22, C44, C16, C26)
-      or 21 for full 3D anisotropic. The project assumes 2D microstructures,
-      so length 6 is the standard expectation.
     items:
       type: number
-      format: float
-    minItems: 6
-    maxItems: 6
-    description: "Predicted stiffness values in GPa."
-    example: [120.5, 45.2, 120.5, 35.0, 0.0, 0.0]
-
+    description: "Predicted stiffness tensor"
   error:
     type: number
-    format: float
-    description: |
-      Absolute error (MAE) or Mean Squared Error (MSE) for this specific prediction
-      compared to the ground truth FFT homogenization result.
-      Calculated as |prediction - ground_truth| for scalar error metrics.
-    minimum: 0.0
-    example: 2.34
-
+    description: "Absolute error of the prediction"
   density_bin:
     type: string
-    description: |
-      Classification of the input microstructure's inclusion density.
-      Used for stratified analysis and OOD detection (T036).
-      Bins are defined during the data generation phase (T017).
-    enum:
-      - "low"
-      - "medium"
-      - "high"
-      - "ood"
-    example: "medium"
-
-additionalProperties: false
+    description: "Density bin label (e.g., 'low', 'medium', 'high')"

@@ -1,12 +1,3 @@
-# Dataset Schema Contract for Microstructure Stiffness Prediction
-# This file defines the required fields and types for the generated dataset.
-# It is used by code/data_generation/validate_tensors.py to ensure data integrity.
-#
-# Referenced by: T012, T017, T018, T019
-#
-schema_version: "1.0.0"
-description: "Schema for microstructure dataset entries used in CNN training"
-
 type: object
 required:
   - image_path
@@ -16,57 +7,28 @@ required:
   - shape_factor
   - connectivity
   - seed
-
 properties:
   image_path:
     type: string
-    description: "Relative path to the PNG image file (e.g., data/raw/micro_12345.png)"
-    pattern: "^data/raw/micro_\\d+\\.png$"
-    
+    description: "Path to the 128x128 PNG image"
   stiffness_tensor:
     type: array
-    description: "Effective elastic stiffness tensor (Voigt notation: C11, C12, C13, C22, C23, C33, C44, C55, C66)"
     items:
       type: number
-      format: double
-    minItems: 9
-    maxItems: 9
-    description_detail: "Values must be within Voigt-Reuss-Hill bounds"
-    
+    description: "Effective elastic stiffness tensor components"
   inclusion_density:
     type: number
-    format: float
-    description: "Volume fraction of inclusions (0.0 to 1.0)"
-    minimum: 0.0
-    maximum: 1.0
-    
+    description: "Volume fraction of inclusions"
   topology_type:
     type: string
-    description: "Classification of the microstructure topology"
-    enum:
-      - "random_dispersed"
-      - "clustered"
-      - "aligned"
-      - "layered"
-      
+    enum: ["random", "aligned", "percolating"]
+    description: "Topological classification"
   shape_factor:
     type: number
-    format: float
-    description: "Dimensionless metric describing the geometric complexity of inclusions (e.g., 4*pi*Area/Perimeter^2)"
-    minimum: 0.0
-    maximum: 1.0
-    
+    description: "Calculated using scikit-image morphology (perimeter^2 / (4 * pi * area))"
   connectivity:
     type: number
-    format: float
-    description: "Metric describing the percolation or connectivity of the inclusion phase"
-    minimum: 0.0
-    maximum: 1.0
-    
+    description: "Calculated using scikit-image morphology (Euler number or component count)"
   seed:
     type: integer
-    description: "Random seed used for deterministic generation of this microstructure"
-    minimum: 0
-    
-additionalProperties: false
-strict_validation: true
+    description: "Random seed used for generation"

@@ -1,35 +1,37 @@
-"""
-Verification script for T002v: Verify Constitution Principle VI.
-"""
 import sys
-import re
 from pathlib import Path
 
 def verify_constitution() -> bool:
     """
-    Inspect constitution.md for Principle VI regarding FFT-based homogenization.
+    Verify that constitution.md Principle VI explicitly states:
+    "The system shall use FFT-based numerical homogenization."
+    and mentions validity range of analytical bounds.
+    
+    Returns True if conditions are met, False otherwise.
     """
-    const_path = Path("specs/001-predict-stiffness-cnn/constitution.md")
-
-    if not const_path.exists():
-        print(f"ERROR: {const_path} does not exist.")
+    constitution_path = Path("specs/001-predict-stiffness-cnn/constitution.md")
+    
+    if not constitution_path.exists():
+        print(f"ERROR: {constitution_path} does not exist.")
         return False
-
-    content = const_path.read_text()
-
-    # Check for Principle VI
-    principle_vi_pattern = r"Principle VI.*FFT.*homogenization|FFT.*homogenization.*Principle VI"
-    if not re.search(principle_vi_pattern, content, re.IGNORECASE | re.DOTALL):
-        print("FAILURE: Principle VI not found or does not mention FFT-based homogenization.")
+    
+    try:
+        content = constitution_path.read_text(encoding='utf-8')
+    except Exception as e:
+        print(f"ERROR: Could not read {constitution_path}: {e}")
         return False
-
-    # Check for validity range of analytical bounds
-    bounds_pattern = r"Validity.*Bounds|Voigt.*Reuss.*Hill"
-    if not re.search(bounds_pattern, content, re.IGNORECASE | re.DOTALL):
-        print("FAILURE: Validity range of analytical bounds not documented.")
+    
+    # Check for FFT-based numerical homogenization
+    if "FFT-based numerical homogenization" not in content:
+        print("ERROR: Constitution does not contain 'FFT-based numerical homogenization'.")
         return False
-
-    print("SUCCESS: Constitution Principle VI is verified.")
+    
+    # Check for validity range mention
+    if "validity range" not in content.lower():
+        print("ERROR: Constitution does not mention 'validity range' of analytical bounds.")
+        return False
+    
+    print("VERIFIED: Constitution Principle VI contains required text.")
     return True
 
 def main():

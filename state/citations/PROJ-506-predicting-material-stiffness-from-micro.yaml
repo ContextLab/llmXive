@@ -9,14 +9,25 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-09-02T12:54:14.308073Z'
-- artifact_hash: ea0d5ab170e19eda86e6faf74612e50c0332253fe8548fa312f385f0a3751eed
+- artifact_hash: 80b1df1a093082709a604becf444cd3c0eaa6bcc779794d4f834fc6f99de70a4
   artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: cpu
+  fetched_title: Pi - Wikipedia
   kind: url
-  value: https://download.pytorch.org/whl/cpu`
+  value: https://en.wikipedia.org/wiki/Pi
   verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-09-02T13:02:39.076532Z'
+  verified_against_url: https://en.wikipedia.org/wiki/Pi
+  verified_at: '2026-09-05T14:53:49.362491Z'
+- artifact_hash: 80b1df1a093082709a604becf444cd3c0eaa6bcc779794d4f834fc6f99de70a4
+  artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: p-value - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/P-value
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-09-05T14:53:49.362491Z'

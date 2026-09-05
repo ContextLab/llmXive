@@ -4,7 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T006a` (rejected 1x): No directory tree or command output was provided to confirm that the required folders (`code/{data_generation,training,evaluation,utils}`, `data/{raw,processed}`, `tests/{unit,contract,integration}`, `specs/001-predict-stiffness-cnn/contracts`) actually exist, nor is there any evidence that `tree` was run and returned exit code 0. The implementer must supply the filesystem listing or command result showing the created structure.
+- `T002v` (rejected 1x): No actual `constitution.md` file or its Principle VI text was provided, so we cannot confirm that it explicitly permits FFT‑based numerical homogenization nor that it documents the validity range of analytical bounds, nor see the required “[X]” mark. The required artifact is missing.
+- `T004v` (rejected 1x): No actual `spec.md` file or excerpt showing the required “128x128 pixels” text was provided, nor any evidence (e.g., a marked checklist or screenshot) that the implementer inspected the document and marked it as completed. The claim lacks the required artifact.
+- `T005v` (rejected 1x): No evidence was provided that `spec.md` (FR‑007) and `plan.md` (Methodology) were inspected or that they contain the explicit phrase “One-way ANOVA and Tukey HSD”, nor is there any marked [X] indicating completion. The required artifacts and verification are missing.
+- `T012` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
 
 ## Required change
 

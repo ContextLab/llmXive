@@ -1,30 +1,47 @@
-T002v:
+T006a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No actual `constitution.md` file or its Principle\u202FVI text was provided,\
-    \ so we cannot confirm that it explicitly permits FFT\u2011based numerical homogenization\
-    \ nor that it documents the validity range of analytical bounds, nor see the required\
-    \ \u201C[X]\u201D mark. The required artifact is missing."
-T004v:
+  r: No evidence of the required directory structure (`code/{data_generation,training,evaluation,utils}`,
+    `data/{raw,processed}`, `tests/{unit,contract,integration}`, `specs/001-predict-stiffness-cnn/contracts`)
+    or a `tree` command output is provided, so we cannot confirm the directories were
+    created as specified. The implementer must supply the actual directory listing
+    or command output showing the tree and a successful exit code.
+T007s:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No actual `spec.md` file or excerpt showing the required \u201C128x128 pixels\u201D\
-    \ text was provided, nor any evidence (e.g., a marked checklist or screenshot)\
-    \ that the implementer inspected the document and marked it as completed. The\
-    \ claim lacks the required artifact."
-T005v:
+  r: No logs, command output, or any other artifact showing that `libfftw3-dev` was
+    installed or that `fftw3-config --version` was run successfully are present. Without
+    such evidence the requirement to install and verify the system dependency cannot
+    be confirmed.
+T017:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that `spec.md` (FR\u2011007) and `plan.md` (Methodology)\
-    \ were inspected or that they contain the explicit phrase \u201COne-way ANOVA\
-    \ and Tukey HSD\u201D, nor is there any marked [X] indicating completion. The\
-    \ required artifacts and verification are missing."
+  h: b0767252d71cc42dc44d66eee00b8f39589764a18e37b7f8b4141b23a5b57f56
+  r: The `generate_microstructures.py` file is present but its code is truncated (e.g.,
+    `radius_y = np.random.randin` is incomplete) and it never writes PNG files to
+    `data/raw/` nor validates against a schema. Moreover, the required `dataset.schema.yaml`
+    file is missing. Consequently the required output and validation steps are not
+    provided.
 T017b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No code, script, or data files were presented that compute `shape_factor` and
     `connectivity` for each microstructure or that add these values to the metadata.
     The required artifact is missing, so the task is not satisfied.
+T017c:
+  c: false
+  h: 42d7b0aaed60d53d5565f5d9957acfd798f7006efa99b4c8ce75c5bb95f120c2
+  r: The `generate_microstructures.py` file is truncated and contains a syntax error
+    (`np.random.randin`), never writes metadata to `data/raw/metadata.json`, and the
+    required `metadata.json` file does not exist. Consequently the topology_type label
+    is not recorded as required.
+T018:
+  c: false
+  h: eb47157ecefb7a6e57c2592afbd1f8b32d0bbbbc2e6bd171532f93e30cc0bdca
+  r: "The `compute_stiffness.py` file exists but its `main` function is truncated\
+    \ (no code that writes the computed tensors to `data/raw/`), and there is no logic\
+    \ that validates the output against a `dataset.schema.yaml` \u2013 the schema\
+    \ file is missing entirely. Consequently the required output generation and schema\
+    \ validation are not fulfilled."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

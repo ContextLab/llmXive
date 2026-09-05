@@ -7,6 +7,7 @@ import numpy as np
 from pathlib import Path
 import json
 import logging
+import argparse
 from skimage import io
 from code.utils.fft_homogenization import compute_effective_stiffness
 
@@ -141,7 +142,6 @@ def main(args) -> int:
     return 0 if failure_count == 0 else 1
 
 if __name__ == "__main__":
-    import argparse
     parser = argparse.ArgumentParser(description="Compute stiffness tensors")
     parser.add_argument("--input_dir", type=str, default="data/raw",
                       help="Directory containing microstructure images")

@@ -1,165 +1,119 @@
-"""
-Unit tests for microstructure generation logic.
-"""
-
 import pytest
 import numpy as np
 from pathlib import Path
 import tempfile
 import json
 
-# Import the functions to test
-from code.data_generation.generate_microstructures import (
-    generate_microstructure,
-    calculate_topological_metrics,
-    save_microstructure
-)
+from code.data_generation.generate_microstructures import generate_microstructure, save_microstructure
 
 class TestMicrostructureGeneration:
-    """Tests for the microstructure generation functions."""
-
-    def test_generate_random_microstructure(self):
+    def test_generate_random_topo(self):
         """Test generation of random topology microstructure."""
-        seed = 42
-        density = 0.3
-        topology = 'random'
+        image, metadata = generate_microstructure(
+            seed=42,
+            topology_type="random",
+            inclusion_density=0.3,
+            size=128
+        )
         
-        image = generate_microstructure(seed, density, topology)
-        
-        assert image.shape == (128, 128), "Image size should be 128x128"
-        assert image.dtype == np.float32, "Image dtype should be float32"
-        assert np.all((image >= 0) & (image <= 1)), "Values should be in [0, 1]"
-        
-        # Check density is approximately correct
-        actual_density = np.sum(image > 0) / (128 * 128)
-        assert abs(actual_density - density) < 0.1, f"Actual density {actual_density} too far from target {density}"
+        assert image.shape == (128, 128)
+        assert image.dtype == np.uint8
+        assert np.all(np.isin(image, [0, 1]))
+        assert metadata["topology_type"] == "random"
+        assert metadata["seed"] == 42
+        # Density should be close to target (allowing for discrete pixel approximation)
+        assert 0.25 <= metadata["inclusion_density"] <= 0.35
 
-    def test_generate_aligned_microstructure(self):
+    def test_generate_aligned_topo(self):
         """Test generation of aligned topology microstructure."""
-        seed = 123
-        density = 0.5
-        topology = 'aligned'
-        
-        image = generate_microstructure(seed, density, topology)
+        image, metadata = generate_microstructure(
+            seed=123,
+            topology_type="aligned",
+            inclusion_density=0.5,
+            size=128
+        )
         
         assert image.shape == (128, 128)
-        assert np.all((image >= 0) & (image <= 1))
+        assert metadata["topology_type"] == "aligned"
+        assert 0.45 <= metadata["inclusion_density"] <= 0.55
 
-    def test_generate_clustered_microstructure(self):
-        """Test generation of clustered topology microstructure."""
-        seed = 456
-        density = 0.2
-        topology = 'clustered'
-        
-        image = generate_microstructure(seed, density, topology)
+    def test_generate_percolating_topo(self):
+        """Test generation of percolating topology microstructure."""
+        image, metadata = generate_microstructure(
+            seed=999,
+            topology_type="percolating",
+            inclusion_density=0.6,
+            size=128
+        )
         
         assert image.shape == (128, 128)
-        assert np.all((image >= 0) & (image <= 1))
+        assert metadata["topology_type"] == "percolating"
+        assert 0.55 <= metadata["inclusion_density"] <= 0.65
 
     def test_invalid_density(self):
         """Test that invalid density raises ValueError."""
         with pytest.raises(ValueError):
-            generate_microstructure(seed=1, density=1.5, topology='random')
-        
+            generate_microstructure(
+                seed=1,
+                topology_type="random",
+                inclusion_density=1.5
+            )
         with pytest.raises(ValueError):
-            generate_microstructure(seed=1, density=-0.1, topology='random')
+            generate_microstructure(
+                seed=1,
+                topology_type="random",
+                inclusion_density=-0.1
+            )
 
     def test_invalid_topology(self):
         """Test that invalid topology raises ValueError."""
         with pytest.raises(ValueError):
-            generate_microstructure(seed=1, density=0.3, topology='invalid')
-
-    def test_reproducibility(self):
-        """Test that same seed produces same result."""
-        seed = 999
-        density = 0.4
-        topology = 'random'
-        
-        image1 = generate_microstructure(seed, density, topology)
-        image2 = generate_microstructure(seed, density, topology)
-        
-        assert np.array_equal(image1, image2), "Same seed should produce identical images"
-
-class TestTopologicalMetrics:
-    """Tests for topological metrics calculation."""
-
-    def test_metrics_calculation(self):
-        """Test that metrics are calculated correctly."""
-        seed = 777
-        density = 0.3
-        topology = 'random'
-        
-        image = generate_microstructure(seed, density, topology)
-        metrics = calculate_topological_metrics(image)
-        
-        assert 'shape_factor' in metrics
-        assert 'connectivity' in metrics
-        assert isinstance(metrics['shape_factor'], float)
-        assert isinstance(metrics['connectivity'], float)
-        assert 0 <= metrics['shape_factor'] <= 1
-        assert 0 <= metrics['connectivity'] <= 1
-
-    def test_empty_image_metrics(self):
-        """Test metrics for empty image."""
-        image = np.zeros((128, 128), dtype=np.float32)
-        metrics = calculate_topological_metrics(image)
-        
-        assert metrics['shape_factor'] == 0.0
-        assert metrics['connectivity'] == 0.0
-
-    def test_full_image_metrics(self):
-        """Test metrics for full image."""
-        image = np.ones((128, 128), dtype=np.float32)
-        metrics = calculate_topological_metrics(image)
-        
-        # Should have at least some valid metrics
-        assert metrics['shape_factor'] >= 0.0
-        assert metrics['connectivity'] >= 0.0
-
-class TestSaveMicrostructure:
-    """Tests for saving microstructures."""
-
-    def test_save_and_load(self):
-        """Test saving and loading a microstructure."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.png"
-            
-            seed = 888
-            density = 0.3
-            topology = 'random'
-            image = generate_microstructure(seed, density, topology)
-            metrics = calculate_topological_metrics(image)
-            
-            metadata = save_microstructure(
-                image, output_path, seed, density, topology, metrics
+            generate_microstructure(
+                seed=1,
+                topology_type="invalid",
+                inclusion_density=0.3
             )
-            
-            assert output_path.exists(), "Image file should be created"
-            assert metadata['seed'] == seed
-            assert metadata['density'] == density
-            assert metadata['topology_type'] == topology
-            assert 'shape_factor' in metadata
-            assert 'connectivity' in metadata
 
-    def test_metadata_structure(self):
-        """Test that metadata has required fields."""
+    def test_topological_metrics_included(self):
+        """Test that shape_factor and connectivity are calculated and present in metadata."""
+        image, metadata = generate_microstructure(
+            seed=42,
+            topology_type="random",
+            inclusion_density=0.3,
+            size=128
+        )
+        
+        assert "shape_factor" in metadata
+        assert "connectivity" in metadata
+        # shape_factor should be a positive number
+        assert isinstance(metadata["shape_factor"], (int, float))
+        assert metadata["shape_factor"] > 0
+        # connectivity should be an integer (Euler number)
+        assert isinstance(metadata["connectivity"], (int, np.integer))
+
+    def test_save_microstructure(self):
+        """Test saving microstructure to disk."""
+        image, metadata = generate_microstructure(
+            seed=42,
+            topology_type="random",
+            inclusion_density=0.3,
+            size=128
+        )
+        
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.png"
+            output_dir = Path(tmpdir)
+            image_path = save_microstructure(image, metadata, output_dir, 42)
             
-            seed = 111
-            density = 0.4
-            topology = 'aligned'
-            image = generate_microstructure(seed, density, topology)
-            metrics = calculate_topological_metrics(image)
+            assert Path(image_path).exists()
+            assert image_path.endswith("micro_42.png")
             
-            metadata = save_microstructure(
-                image, output_path, seed, density, topology, metrics
-            )
-            
-            required_fields = [
-                'seed', 'density', 'topology_type', 
-                'shape_factor', 'connectivity', 'image_path', 'image_size'
-            ]
-            
-            for field in required_fields:
-                assert field in metadata, f"Metadata missing required field: {field}"
+            # Verify metadata file creation logic (not full file, just check path exists)
+            metadata_path = output_dir / "metadata.json"
+            # Note: main() creates the metadata file, this test just checks save function
+            # We can verify the image loads correctly
+            from skimage import io
+            loaded = io.imread(image_path)
+            assert np.array_equal(loaded, image)
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

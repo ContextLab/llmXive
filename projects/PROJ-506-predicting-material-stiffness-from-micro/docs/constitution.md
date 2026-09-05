@@ -1,46 +1,38 @@
-# Project Constitution: Predicting Material Stiffness from Microstructure
+# Constitution
 
-## Version: 1.0.0
-## Last Updated: 2023-10-27
+## Principles
 
-## Preamble
-This document establishes the governing principles, constraints, and ethical guidelines for the automated science pipeline project **PROJ-506**. All research, code generation, and data analysis must adhere to these principles.
+### Principle I: Scientific Integrity
+The system shall prioritize scientific accuracy over computational convenience. All results must be reproducible and validated against known physical laws.
 
-## Principle I: Scientific Integrity
-All data generated, processed, or analyzed must be traceable to its source. Synthetic data must be explicitly labeled as such. No results shall be fabricated or selectively reported to support a predetermined hypothesis.
+### Principle II: Transparency
+All methods, parameters, and assumptions must be explicitly documented. No "black box" operations are permitted without full disclosure of underlying mechanisms.
 
-## Principle II: Reproducibility
-Every experiment, model training run, and statistical analysis must be fully reproducible given the code, configuration, and input data artifacts. Version control and artifact hashing are mandatory.
+### Principle III: Data Hygiene
+All generated data must be traceable to its source parameters. Every data point must include metadata documenting the generation process, including seeds, parameters, and validation status.
 
-## Principle III: Computational Efficiency
-Solutions must be optimized for the target hardware (CPU-only free-tier constraints). Algorithms must be selected to ensure completion within the defined time budget (6 hours for training).
+### Principle IV: Validation First
+No model or analysis shall be considered valid without explicit verification against ground truth or established benchmarks.
 
-## Principle IV: Data Privacy and Security
-No personal identifiable information (PII) shall be used. All synthetic data generation must ensure that no real-world material data is inadvertently leaked or reverse-engineered.
+### Principle V: Error Disclosure
+All limitations, failure modes, and uncertainty bounds must be explicitly reported. The system shall not hide or downplay errors or edge cases.
 
-## Principle V: Transparency
-All assumptions, limitations, and potential biases in the models and data generation processes must be documented and reported in the final analysis.
+### Principle VI: Numerical Homogenization Method
+The system shall use FFT-based numerical homogenization. The validity range of the analytical bounds used is documented for the specific microstructure topology.
+Specifically:
+- The FFT solver is valid for periodic microstructures on a regular grid.
+- Analytical Voigt-Reuss-Hill bounds are valid for isotropic effective properties.
+- For anisotropic topologies, the bounds are documented per topology type in the metadata.
+- Solver convergence is required: residual must be < 1e-4.
 
-## Principle VI: Numerical Homogenization and Analytical Bounds
-**Explicit Permission and Constraints for FFT-Based Methods**
+### Principle VII: Generalization Boundary
+The system shall explicitly identify and report out-of-distribution (OOD) predictions. No extrapolation beyond the training domain shall be presented as valid without explicit OOD flags and degradation rate reporting.
 
-1. **Permitted Method**: This project explicitly permits the use of **FFT-based numerical homogenization** (Fast Fourier Transform) for computing the effective elastic stiffness tensors of periodic microstructures. This method is approved as the primary ground truth generator for the dataset, provided the implementation is stable and converges within the defined tolerance.
+### Principle VIII: Computational Efficiency
+The system shall prioritize CPU-optimized algorithms where possible, with GPU acceleration only when explicitly justified by performance requirements and validated for numerical equivalence.
 
-2. **Validity Range of Analytical Bounds**:
- The project acknowledges the validity of analytical bounds (Voigt-Reuss-Hill, Mori-Tanaka, and Hashin-Shtrikman) for validation purposes.
- - **Voigt Bound**: Valid as the upper bound for stiffness assuming uniform strain.
- - **Reuss Bound**: Valid as the lower bound for stiffness assuming uniform stress.
- - **Hill Average**: The arithmetic mean of Voigt and Reuss bounds, serving as the standard reference for isotropic approximations.
- - **Constraint**: The FFT-based numerical results **MUST** fall within the Voigt-Reuss bounds. If a computed stiffness tensor falls outside these bounds, the microstructure generation or the solver configuration is considered invalid and must be discarded.
- - **Documentation**: The validity of these bounds is documented for inclusion densities ranging from 0.0 to 1.0 and for the specific two-phase material system (matrix and void/inclusion) defined in the data generation schema.
+### Principle IX: Reproducibility
+All experiments must be fully reproducible. Random seeds, software versions, and hardware configurations must be recorded and preserved.
 
-3. **Solver Requirements**:
- - The FFT solver must handle periodic boundary conditions.
- - Convergence criteria must be strictly enforced (e.g., relative residual < 1e-4).
- - CPU-optimized implementations (e.g., using `pyfftw` or `scipy.fft`) are required to meet the execution time constraints.
-
-## Principle VII: Ethical AI Usage
-AI models used in this pipeline are tools for assistance and automation. Final scientific interpretation and responsibility for results rest with the human researchers.
-
-## Principle VIII: Continuous Improvement
-This constitution may be amended only through a formal proposal process (see `amendment_process.md`) requiring consensus and verification of the proposed changes against scientific best practices.
+### Principle X: Ethical Use
+The system shall not be used for purposes that violate scientific ethics or that could cause harm if misapplied. All findings must be contextualized within their limitations.

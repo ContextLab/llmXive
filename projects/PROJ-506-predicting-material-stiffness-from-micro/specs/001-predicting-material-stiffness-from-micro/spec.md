@@ -1,50 +1,49 @@
 # Specification: Predicting Material Stiffness from Microstructure Images
 
-## Overview
-This specification defines the requirements for a system that predicts material stiffness
-from microstructure images using convolutional neural networks.
+## 1. Introduction
+This project aims to develop a Convolutional Neural Network (CNN) to predict the effective elastic stiffness of composite materials based on their 2D microstructure images.
 
-## Functional Requirements
+## 2. Functional Requirements
 
-### FR-001
-The system shall generate synthetic microstructure images of 128x128 pixels with varying
-inclusion densities and topology types.
+### FR-001: Image Resolution
+The system shall generate and process microstructure images with a resolution of **128x128 pixels**. This resolution is chosen to balance computational efficiency with sufficient detail for feature extraction.
+**Acceptance Criteria:** All generated images in `data/raw/` must be 128x128 pixels.
+**Reference:** US-1 Acceptance Scenario 1.
 
-### FR-002
-The system shall compute effective elastic stiffness tensors using FFT-based numerical
-homogenization.
+### FR-002: Ground Truth Calculation
+The system shall compute the effective elastic stiffness tensor using FFT-based numerical homogenization as the ground truth for training.
 
-### FR-003
-The system shall implement a shallow CNN architecture suitable for CPU-only training.
+### FR-003: Model Architecture
+The system shall implement a shallow CNN architecture suitable for CPU-based training.
 
-### FR-004
-The system shall train the model with early stopping based on validation loss plateau.
+### FR-004: Training Convergence
+The training process shall converge when validation loss plateaus or a maximum number of epochs is reached.
 
-### FR-005
-The system shall implement k-fold cross-validation stratified by inclusion density and
-topology type.
+### FR-005: Stratified Cross-Validation
+The training process shall use k-fold cross-validation stratified by inclusion density and topology type.
 
-### FR-006
-The system shall evaluate model performance using MAE, MSE, and R2 metrics.
+### FR-006: Evaluation Metrics
+The system shall report MAE, MSE, and R2 scores on a held-out test set.
 
-### FR-007
-The system shall perform **One-way ANOVA and Tukey HSD** for statistical analysis of
-prediction errors across different density groups.
+### FR-007: Statistical Analysis
+The system shall perform statistical analysis using **One-way ANOVA and Tukey HSD** to evaluate prediction errors across different density groups.
 
-### FR-008
-The system shall detect and flag out-of-distribution density predictions.
+### FR-008: OOD Detection
+The system shall flag predictions for out-of-distribution density ranges.
 
-## Non-Functional Requirements
+## 3. User Stories
 
-### NFR-001
-The system shall complete training within 6 hours on a 2-core CPU.
+### US-1: Synthetic Data Generation
+As a researcher, I want to generate synthetic microstructure images with known ground truth stiffness so that I can train a supervised model.
+**Acceptance Scenario 1:** The system generates 128x128 pixel images and computes stiffness tensors that satisfy Voigt-Reuss-Hill bounds.
 
-### NFR-002
-The system shall use no more than 7GB RAM and 14GB disk space.
+### US-2: Model Training
+As a researcher, I want to train a CNN on CPU to predict stiffness so that I can evaluate the model's performance.
 
-## Acceptance Criteria
+### US-3: Generalization Analysis
+As a researcher, I want to analyze model generalization and statistical significance so that I can understand the model's limitations.
 
-1. Generated dataset contains at least 2,000 samples with valid stiffness tensors.
-2. Model achieves MAE below the specified threshold on held-out test data.
-3. Statistical analysis confirms significant differences in prediction errors across density groups.
-4. Out-of-distribution detection correctly flags samples outside the training density range.
+## 4. Constraints
+- Training must complete within 6 hours on a 2-core CPU.
+- Memory usage must not exceed 7GB RAM.
+- All data generation must be reproducible via random seeds.

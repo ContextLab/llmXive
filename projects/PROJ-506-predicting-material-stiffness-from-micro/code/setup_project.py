@@ -3,17 +3,9 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
-def create_directories(base_path: Path) -> List[Path]:
-    """
-    Create the required project directory structure.
-    
-    Args:
-        base_path: The root directory of the project.
-        
-    Returns:
-        List of created directory paths.
-    """
-    dirs_to_create = [
+def create_directories() -> List[Path]:
+    """Create the required project directory structure."""
+    base_dirs = [
         "code/data_generation",
         "code/training",
         "code/evaluation",
@@ -23,29 +15,21 @@ def create_directories(base_path: Path) -> List[Path]:
         "tests/unit",
         "tests/contract",
         "tests/integration",
-        "specs/001-predict-stiffness-cnn/contracts"
+        "specs/001-predict-stiffness-cnn/contracts",
     ]
     
-    created_dirs = []
-    for dir_path in dirs_to_create:
-        full_path = base_path / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(full_path)
-        print(f"Created directory: {full_path}")
-        
-    return created_dirs
-
-def create_init_files(base_path: Path) -> List[Path]:
-    """
-    Create __init__.py files for all Python packages.
+    created_paths = []
+    for dir_path in base_dirs:
+        path = Path(dir_path)
+        path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(path)
+        print(f"Created directory: {path}")
     
-    Args:
-        base_path: The root directory of the project.
-        
-    Returns:
-        List of created __init__.py file paths.
-    """
-    init_files = [
+    return created_paths
+
+def create_init_files() -> List[Path]:
+    """Create __init__.py files for all Python packages."""
+    init_paths = [
         "code/__init__.py",
         "code/data_generation/__init__.py",
         "code/training/__init__.py",
@@ -54,29 +38,21 @@ def create_init_files(base_path: Path) -> List[Path]:
         "tests/__init__.py",
         "tests/unit/__init__.py",
         "tests/contract/__init__.py",
-        "tests/integration/__init__.py"
+        "tests/integration/__init__.py",
     ]
     
     created_files = []
-    for file_path in init_files:
-        full_path = base_path / file_path
-        full_path.touch()
-        created_files.append(full_path)
-        print(f"Created file: {full_path}")
-        
+    for file_path in init_paths:
+        path = Path(file_path)
+        path.touch()
+        created_files.append(path)
+        print(f"Created file: {path}")
+    
     return created_files
 
-def create_placeholder_files(base_path: Path) -> List[Path]:
-    """
-    Create placeholder Python files for the project structure.
-    
-    Args:
-        base_path: The root directory of the project.
-        
-    Returns:
-        List of created placeholder file paths.
-    """
-    placeholder_files = [
+def create_placeholder_files() -> List[Path]:
+    """Create placeholder Python files as specified in the task."""
+    placeholder_paths = [
         "code/main.py",
         "code/data_generation/generate_microstructures.py",
         "code/data_generation/compute_stiffness.py",
@@ -84,62 +60,49 @@ def create_placeholder_files(base_path: Path) -> List[Path]:
         "code/training/train.py",
         "code/evaluation/stats_utils.py",
         "code/evaluation/evaluate.py",
-        "docs/constitution_amendment_proposal.md"
+        "docs/constitution_amendment_proposal.md",
     ]
     
     created_files = []
-    for file_path in placeholder_files:
-        full_path = base_path / file_path
+    for file_path in placeholder_paths:
+        path = Path(file_path)
         # Ensure parent directory exists
-        full_path.parent.mkdir(parents=True, exist_ok=True)
-        full_path.touch()
-        created_files.append(full_path)
-        print(f"Created placeholder file: {full_path}")
-        
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
+        created_files.append(path)
+        print(f"Created file: {path}")
+    
     return created_files
 
-def print_tree_structure(base_path: Path) -> str:
+def print_tree_structure(root_paths: List[str]) -> bool:
     """
-    Generate a tree-like string representation of the directory structure.
-    
-    Args:
-        base_path: The root directory of the project.
-        
-    Returns:
-        String representation of the directory tree.
+    Print the directory tree structure for verification.
+    Returns True if successful, False otherwise.
     """
-    tree_output = []
-    tree_output.append(f"Project structure at: {base_path}")
-    tree_output.append("-" * 50)
-    
-    # Walk through the directory structure
-    for root, dirs, files in os.walk(base_path):
-        # Calculate relative path from base
-        rel_root = Path(root).relative_to(base_path)
-        if str(rel_root) == '.':
-            level = 0
-        else:
-            level = str(rel_root).count(os.sep)
+    print("\n--- Project Directory Structure ---")
+    for root_path in root_paths:
+        root = Path(root_path)
+        if not root.exists():
+            print(f"Path does not exist: {root}")
+            continue
         
-        # Indent based on level
-        indent = "    " * level
-        tree_output.append(f"{indent}{Path(root).name}/")
-        
-        sub_indent = "    " * (level + 1)
-        for file in files:
-            tree_output.append(f"{sub_indent}{file}")
+        print(f"\n{root}/")
+        for item in sorted(root.rglob("*")):
+            rel_path = item.relative_to(root)
+            depth = len(rel_path.parts) - 1
+            indent = "  " * depth
+            if item.is_dir():
+                print(f"{indent}├── {item.name}/")
+            else:
+                print(f"{indent}├── {item.name}")
     
-    return "\n".join(tree_output)
+    print("\n--- End of Structure ---")
+    return True
 
-def check_structure(base_path: Path) -> Tuple[bool, List[str]]:
+def check_structure() -> Tuple[bool, List[str]]:
     """
-    Verify that the required directory structure exists.
-    
-    Args:
-        base_path: The root directory of the project.
-        
-    Returns:
-        Tuple of (success, list of missing paths)
+    Verify that all required directories and files exist.
+    Returns (success, list_of_missing_paths).
     """
     required_dirs = [
         "code/data_generation",
@@ -151,58 +114,66 @@ def check_structure(base_path: Path) -> Tuple[bool, List[str]]:
         "tests/unit",
         "tests/contract",
         "tests/integration",
-        "specs/001-predict-stiffness-cnn/contracts"
+        "specs/001-predict-stiffness-cnn/contracts",
+    ]
+    
+    required_files = [
+        "code/__init__.py",
+        "code/data_generation/__init__.py",
+        "code/training/__init__.py",
+        "code/evaluation/__init__.py",
+        "code/utils/__init__.py",
+        "tests/__init__.py",
+        "tests/unit/__init__.py",
+        "tests/contract/__init__.py",
+        "tests/integration/__init__.py",
+        "code/main.py",
+        "code/data_generation/generate_microstructures.py",
+        "code/data_generation/compute_stiffness.py",
+        "code/training/model.py",
+        "code/training/train.py",
+        "code/evaluation/stats_utils.py",
+        "code/evaluation/evaluate.py",
     ]
     
     missing = []
-    for dir_path in required_dirs:
-        full_path = base_path / dir_path
-        if not full_path.exists() or not full_path.is_dir():
-            missing.append(dir_path)
     
-    return (len(missing) == 0, missing)
+    for d in required_dirs:
+        if not Path(d).is_dir():
+            missing.append(f"Directory missing: {d}")
+    
+    for f in required_files:
+        if not Path(f).is_file():
+            missing.append(f"File missing: {f}")
+    
+    return len(missing) == 0, missing
 
-def main():
-    """
-    Main function to set up the project structure.
-    """
-    # Determine project root (assuming script is in code/ or code/setup_project.py)
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-    
-    print(f"Setting up project structure at: {project_root}")
+def main() -> int:
+    """Main entry point for project setup."""
+    print("Starting project directory setup...")
     
     # Create directories
-    print("\n--- Creating Directories ---")
-    create_directories(project_root)
+    create_directories()
     
     # Create __init__.py files
-    print("\n--- Creating __init__.py Files ---")
-    create_init_files(project_root)
+    create_init_files()
     
     # Create placeholder files
-    print("\n--- Creating Placeholder Files ---")
-    create_placeholder_files(project_root)
+    create_placeholder_files()
+    
+    # Print tree structure for verification
+    print_tree_structure(["code", "data", "tests", "specs"])
     
     # Verify structure
-    print("\n--- Verifying Structure ---")
-    success, missing = check_structure(project_root)
+    success, missing = check_structure()
     
     if success:
-        print("✓ All required directories exist.")
-        
-        # Print tree structure
-        print("\n--- Project Directory Tree ---")
-        tree_str = print_tree_structure(project_root)
-        print(tree_str)
-        
-        # Simulate tree command exit code 0
-        print("\n✓ Directory tree verification successful (exit code 0)")
+        print("\n✓ All required directories and files created successfully.")
         return 0
     else:
-        print("✗ Missing directories:")
-        for m in missing:
-            print(f"  - {m}")
+        print("\n✗ Verification failed. Missing items:")
+        for item in missing:
+            print(f"  - {item}")
         return 1
 
 if __name__ == "__main__":

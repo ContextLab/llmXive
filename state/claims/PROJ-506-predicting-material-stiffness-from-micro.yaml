@@ -1288,26 +1288,6 @@
   updated_at: '2026-07-13T21:56:40Z'
 - artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   attempts: 1
-  canonical: Full pipeline runtime is less than or equal to 6 hours on simulated free-tier
-    constraints
-  claim_id: c_d507813a
-  context: "T046 Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
-    \ constraints."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_less_than_or_equal_to_6_hours_on_si
-  kind: magnitude
-  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
-    \ constraints."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T21:57:02Z'
-- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
-  attempts: 1
   canonical: shallow CNN trained on generated dataset using PyTorch CPU-only mode
     completes within 6 hours
   claim_id: c_65972679
@@ -1809,46 +1789,6 @@
   status: not_enough_info
   updated_at: '2026-09-02T12:58:37Z'
 - artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
-  attempts: 1
-  canonical: Tests are optional and only included if explicitly requested in the feature
-    specification
-  claim_id: c_ce5105d8
-  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
-    include them if explicitly requested in the feature specification.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_only_included_if_explicitly_requested
-  kind: entity_fact
-  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
-    them if explicitly requested in the feature specification.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-02T12:59:39Z'
-- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
-  attempts: 9
-  canonical: Output directory contains at least 2000 image files with stiffness tensors
-    within Voigt-Reuss-Hill bounds
-  claim_id: c_072625a0
-  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
-    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Output_directory_contains_at_least_2000_image_files_with_sti
-  kind: magnitude
-  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
-    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-02T12:59:40Z'
-- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   attempts: 2
   canonical: Full pipeline runtime is less than or equal to 6 hours on simulated free-tier
     constraints
@@ -1919,3 +1859,719 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T13:01:50Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: System uses FFT-based numerical homogenization
+  claim_id: c_d6e3d27f
+  context: 'Verify Constitution Principle VI: Manually inspect constitution.md Principle
+    VI to confirm it explicitly states: ''The system shall use FFT-based numerical
+    homogenization.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_uses_FFT-based_numerical_homogenization
+  kind: entity_fact
+  raw_text: The system shall use FFT-based numerical homogenization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:33:04Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Validity range of analytical bounds documented for specific microstructure
+    topology
+  claim_id: c_5502f6ee
+  context: 'Verify Constitution Principle VI: ... ''The validity range of the analytical
+    bounds used is documented for the specific microstructure topology.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validity_range_of_analytical_bounds_documented_for_specific
+  kind: entity_fact
+  raw_text: The validity range of the analytical bounds used is documented for the
+    specific microstructure topology.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:33:08Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Statistical analysis uses One-way ANOVA and Tukey HSD
+  claim_id: c_447b721d
+  context: 'Verify Spec/Plan Alignment: Manually inspect spec.md FR-007 and plan.md
+    Methodology to confirm they explicitly state ''One-way ANOVA and Tukey HSD''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_uses_One-way_ANOVA_and_Tukey_HSD
+  kind: entity_fact
+  raw_text: The statistical analysis method is One-way ANOVA and Tukey HSD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:33:18Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Stiffness tensors within Voigt-Reuss-Hill bounds
+  claim_id: c_6ca1545e
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stiffness_tensors_within_Voigt-Reuss-Hill_bounds
+  kind: entity_fact
+  raw_text: Stiffness tensors are within Voigt-Reuss-Hill bounds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:33:34Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Significance threshold alpha is 0.05
+  claim_id: c_ead4a6f8
+  context: 'Configuration: Define significance threshold alpha = 0.05 and Null Hypothesis
+    H0: mean error is equal across all density groups.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance threshold alpha is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T14:33:50Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Degradation rate unit is MAE per % density
+  claim_id: c_03026993
+  context: 'Formula: slope of (MAE vs. density) for densities > max_training_density
+    (from T036). Unit: MAE per % density.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Degradation_rate_unit_is_MAE_per_%25_density
+  kind: entity_fact
+  raw_text: The unit for degradation rate is MAE per % density.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:35:20Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Residual threshold for Solver Convergence Failure is 1e-4
+  claim_id: c_efdfd139
+  context: 'Trigger Conditions: Log ''Solver Convergence Failure'' if residual > 1e-4
+    in FFT solver...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The residual threshold for Solver Convergence Failure is 1e-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:35:27Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Batch size fits within 7GB RAM
+  claim_id: c_b38ab709
+  context: 'Memory Safety: Implement streaming/chunked processing (batch size calculated
+    to fit within 7GB RAM) and use append-mode CSV writing...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_size_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The batch size is calculated to fit within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:35:35Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 10
+  canonical: Output directory contains at least 2000 image files with stiffness tensors
+    within Voigt-Reuss-Hill bounds
+  claim_id: c_072625a0
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_directory_contains_at_least_2000_image_files_with_sti
+  kind: magnitude
+  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
+    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:41:51Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 0
+  canonical: Statistical significance threshold is 0.05
+  claim_id: c_5b4a4cb7
+  context: 'Configuration: Define significance threshold `alpha = 0.05 (Wikipedia:
+    P-value, https://en.wikipedia.org/wiki/P-value)` and Null Hypothesis `H0: mean
+    error is equal across all density groups`.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Significance threshold `alpha = 0.05`
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T14:44:10Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: System uses FFT-based numerical homogenization
+  claim_id: c_aa2ef393
+  context: 'Verify Constitution Principle VI: Manually inspect `constitution.md` Principle
+    VI to confirm it explicitly states: ''The system shall use FFT-based numerical
+    homogenization. The validity range of the analytical bounds used is documented
+    for the specific microstructure topology.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_uses_FFT-based_numerical_homogenization
+  kind: entity_fact
+  raw_text: The system shall use FFT-based numerical homogenization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:44:12Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Methodology uses One-way ANOVA and Tukey HSD
+  claim_id: c_1ba03e74
+  context: 'Verify Spec/Plan Alignment: Manually inspect `spec.md` FR-007 and `plan.md`
+    Methodology to confirm they explicitly state ''One-way ANOVA and Tukey HSD''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Methodology_uses_One-way_ANOVA_and_Tukey_HSD
+  kind: entity_fact
+  raw_text: One-way ANOVA and Tukey HSD
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:47:53Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: scikit-image version 0.21.0 required
+  claim_id: c_71840fd9
+  context: Initialize Python + project. Create `requirements.txt` with the following
+    exact content... scikit-image==0.21.0
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: scikit-image==0.21.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T14:48:00Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.0 required
+  claim_id: c_d70b6b46
+  context: Initialize Python + project. Create `requirements.txt` with the following
+    exact content... scipy==1.11.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:48:18Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.0 required
+  claim_id: c_bd11cb89
+  context: Initialize Python + project. Create `requirements.txt` with the following
+    exact content... numpy==1.24.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:48:47Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.0 required
+  claim_id: c_ccab0a50
+  context: Initialize Python + project. Create `requirements.txt` with the following
+    exact content... pandas==2.0.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:49:08Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: pytest version 7.3.0 required
+  claim_id: c_4aed7695
+  context: Initialize Python + project. Create `requirements.txt` with the following
+    exact content... pytest==7.3.0
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: pytest==7.3.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T14:49:11Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.2.0 required
+  claim_id: c_e4365957
+  context: Initialize Python + project. Create `requirements.txt` with the following
+    exact content... scikit-learn==1.2.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:49:27Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: pyfftw version 0.13.1 required
+  claim_id: c_75b89839
+  context: Initialize Python + project. Create `requirements.txt` with the following
+    exact content... pyfftw==0.13.1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyfftw==0.13.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:49:39Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation produces at least 2000 images
+  claim_id: c_cfae47a2
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_generation_produces_at_least_2000_images
+  kind: magnitude
+  raw_text: "Output directory contains \u2265 2,000 image files"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:50:08Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: FFT solver convergence failure threshold is 1e-4
+  claim_id: c_8f7da017
+  context: 'Trigger Conditions: Log ''Solver Convergence Failure'' if `residual >
+    1e-4` in FFT solver; Log ''Unphysical Microstructure'' if `stiffness < 0` or `shape_factor`
+    is NaN.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log 'Solver Convergence Failure' if `residual > 1e-4` in FFT solver
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:50:08Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Memory safety limit is 7GB RAM
+  claim_id: c_29f46e89
+  context: 'Memory Safety: Implement streaming/chunked processing (batch size calculated
+    to fit within 7GB RAM) and use append-mode CSV writing to avoid loading the entire
+    dataset or log into memory.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_safety_limit_is_7GB_RAM
+  kind: entity_fact
+  raw_text: Batch size calculated to fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:50:10Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Training time limit is 6 hours on 2-core CPU
+  claim_id: c_65187719
+  context: 'Independent Test: Training completes within 6 hours on 2-core CPU, saves
+    model artifact, and reports MSE/R2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training completes within 6 hours on 2-core CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:50:10Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Physical density upper bound is 0.9
+  claim_id: c_6e2bbe4c
+  context: 'Define Physical Density Bounds: Create `code/utils/constants.py` and define
+    `PHYSICAL_DENSITY_RANGE = (, 0.9)` as the prior physical boundary.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PHYSICAL_DENSITY_RANGE = (, 0.9)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:50:26Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime limit is 6 hours
+  claim_id: c_e734768b
+  context: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Full pipeline runtime is \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:50:26Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 0
+  canonical: Significance threshold alpha is 0.05
+  claim_id: c_f3997407
+  context: 'Configuration: Define significance threshold alpha = 0.05 (Wikipedia:
+    P-value, https://en.wikipedia.org/wiki/P-value) and Null Hypothesis H0: mean error
+    is equal across all density groups.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: 'Significance threshold alpha = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)'
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T14:52:29Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Output directory contains at least 2000 image files and a metadata file
+    with stiffness tensors within Voigt-Reuss-Hill bounds
+  claim_id: c_dad0d29e
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_directory_contains_at_least_2000_image_files_and_a_me
+  kind: magnitude
+  raw_text: "Output directory contains \u2265 2,000 image files and a metadata file\
+    \ with stiffness tensors within Voigt-Reuss-Hill bounds."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:52:57Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 0
+  canonical: Significance threshold alpha is 0.05
+  claim_id: c_9a2e9a18
+  context: 'Configuration: Define significance threshold alpha = 0.05 (Wikipedia:
+    P-value, https://en.wikipedia.org/wiki/P-value)'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Significance threshold alpha = 0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T14:53:41Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 3
+  canonical: Tests are optional and only included if explicitly requested in the feature
+    specification
+  claim_id: c_ce5105d8
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_only_included_if_explicitly_requested
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:43Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.0
+  claim_id: c_fa1ed4d7
+  context: requirements.txt with the following exact content. ... scipy==1.11.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:43Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: numpy version 1.24.0
+  claim_id: c_9148a7dd
+  context: requirements.txt with the following exact content. ... numpy==1.24.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.24.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:43Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: pandas version 2.0.0
+  claim_id: c_0fed2f18
+  context: requirements.txt with the following exact content. ... pandas==2.0.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:44Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.2.0
+  claim_id: c_83d46969
+  context: requirements.txt with the following exact content. ... scikit-learn==1.2.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:44Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: pyfftw version 0.13.1
+  claim_id: c_18a1fbb7
+  context: requirements.txt with the following exact content. ... pyfftw==0.13.1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyfftw==0.13.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:44Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 2
+  canonical: Output directory contains at least 2000 image files
+  claim_id: c_f0dce53d
+  context: "Independent Test: Output directory contains \u2265 2,000 image files and\
+    \ a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_directory_contains_at_least_2000_image_files
+  kind: magnitude
+  raw_text: The output directory contains at least 2,000 image files.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:46Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 2
+  canonical: Training completes within 6 hours on 2-core CPU
+  claim_id: c_161c7322
+  context: 'Independent Test: Training completes within 6 hours on 2-core CPU, saves
+    model artifact, and reports MSE/R2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training completes within 6 hours on 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:46Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 2
+  canonical: Physical density range upper bound is 0.9
+  claim_id: c_acbe38d4
+  context: Create code/utils/constants.py and define PHYSICAL_DENSITY_RANGE = (, 0.9)
+    as the prior physical boundary.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The physical density range upper bound is 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:47Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 3
+  canonical: Full pipeline runtime is less than or equal to 6 hours on simulated free-tier
+    constraints
+  claim_id: c_d507813a
+  context: "T046 Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_less_than_or_equal_to_6_hours_on_si
+  kind: magnitude
+  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T14:53:48Z'
