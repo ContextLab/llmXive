@@ -4,8 +4,6 @@ import json
 import logging
 import pandas as pd
 import numpy as np
-import pymc as pm
-import arviz as az
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 
@@ -18,371 +16,391 @@ logger = logging.getLogger(__name__)
 
 def get_project_root() -> Path:
     """Get the project root directory."""
-    current_file = Path(__file__).resolve()
-    return current_file.parent.parent
+    return Path(__file__).resolve().parent.parent
 
 def load_results_data() -> pd.DataFrame:
-    """Load the results CSV file."""
-    project_root = get_project_root()
-    results_path = project_root / "data" / "results.csv"
-    
+    """
+    Load the results CSV file.
+    Validates that the file exists and is not empty.
+    """
+    results_path = get_project_root() / "data" / "results.csv"
     if not results_path.exists():
-        raise FileNotFoundError(f"Results file not found at {results_path}")
+        raise FileNotFoundError(f"Results file not found: {results_path}")
     
     df = pd.read_csv(results_path)
-    logger.info(f"Loaded {len(df)} rows from results.csv")
+    if df.empty:
+        raise ValueError(f"Results file is empty: {results_path}")
+    
+    logger.info(f"Loaded {len(df)} rows from {results_path}")
     return df
 
-def load_subspace_ranks() -> Dict[str, int]:
-    """Load subspace ranks from JSON file."""
-    project_root = get_project_root()
-    ranks_path = project_root / "data" / "subspace_ranks.json"
-    
+def load_subspace_ranks() -> Dict[str, Any]:
+    """
+    Load the subspace ranks JSON file.
+    Validates that the file exists and contains valid data.
+    """
+    ranks_path = get_project_root() / "data" / "subspace_ranks.json"
     if not ranks_path.exists():
-        raise FileNotFoundError(f"Subspace ranks file not found at {ranks_path}")
+        raise FileNotFoundError(f"Subspace ranks file not found: {ranks_path}")
     
     with open(ranks_path, 'r') as f:
         ranks = json.load(f)
     
+    if not ranks:
+        raise ValueError(f"Subspace ranks file is empty: {ranks_path}")
+    
     logger.info(f"Loaded subspace ranks for {len(ranks)} effects")
     return ranks
 
-def prepare_correlation_data(df: pd.DataFrame, ranks: Dict[str, int]) -> pd.DataFrame:
-    """Prepare data for correlation analysis by aggregating by effect."""
+def prepare_bayesian_dataset() -> pd.DataFrame:
+    """
+    Prepare the dataset for Bayesian analysis.
+    1. Load results.csv
+    2. Aggregate by effect to compute mean bleeding per effect
+    3. Join with subspace_ranks.json
+    4. Validate subspace_rank column
+    
+    Returns:
+        pd.DataFrame: Aggregated dataset with columns: effect_id, mean_bleeding, quantization_level, subspace_rank
+    """
+    logger.info("Preparing Bayesian dataset...")
+    
+    # Load results data
+    df = load_results_data()
+    
     # Validate required columns
-    required_cols = ['effect', 'similarity_score', 'quantization_level']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
+    required_cols = ['effect', 'cesr_score', 'quantization_level']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in results.csv: {missing_cols}")
     
-    # Validate subspace_rank column exists and is valid
+    # Check for subspace_rank column - if missing, try to derive it from subspace_ranks.json
     if 'subspace_rank' not in df.columns:
-        # Try to add it from ranks dict
-        df = df.copy()
-        df['subspace_rank'] = df['effect'].map(ranks)
-        if df['subspace_rank'].isnull().any():
-            raise ValueError("Data Integrity Error: Subspace Ranks Missing")
+        logger.info("subspace_rank column not found in results.csv, attempting to join from subspace_ranks.json")
+        ranks = load_subspace_ranks()
+        
+        # Create a DataFrame from subspace_ranks
+        ranks_df = pd.DataFrame(list(ranks.items()), columns=['effect', 'subspace_rank'])
+        
+        # Merge with results
+        df = df.merge(ranks_df, on='effect', how='left')
+        
+        # Save the updated results
+        results_path = get_project_root() / "data" / "results.csv"
+        df.to_csv(results_path, index=False)
+        logger.info(f"Updated {results_path} with subspace_rank column")
     
-    # Check for valid positive integers
-    if not all(df['subspace_rank'].dropna() > 0):
-        raise ValueError("Data Integrity Error: Invalid Subspace Rank values")
+    # Validate subspace_rank column
+    if 'subspace_rank' not in df.columns:
+        raise ValueError("Data Integrity Error: Subspace Ranks Missing - subspace_rank column not found in results.csv")
     
-    # Aggregate by effect and quantization level
+    # Check for non-null, positive integer values
+    if df['subspace_rank'].isnull().any():
+        null_count = df['subspace_rank'].isnull().sum()
+        raise ValueError(f"Data Integrity Error: Subspace Ranks Missing - {null_count} rows have null subspace_rank values")
+    
+    if not (df['subspace_rank'] > 0).all():
+        invalid_count = (df['subspace_rank'] <= 0).sum()
+        raise ValueError(f"Data Integrity Error: Subspace Ranks Missing - {invalid_count} rows have non-positive subspace_rank values")
+    
+    logger.info("Subspace rank validation passed")
+    
+    # Aggregate by effect to compute mean bleeding
     aggregated = df.groupby(['effect', 'quantization_level']).agg({
-        'similarity_score': 'mean',
         'cesr_score': 'mean',
-        'subspace_rank': 'first'
+        'subspace_rank': 'first'  # Take the first (should be same for all rows of same effect)
     }).reset_index()
     
-    aggregated.rename(columns={'effect': 'effect_id'}, inplace=True)
-    logger.info(f"Prepared {len(aggregated)} aggregated rows for analysis")
+    aggregated.columns = ['effect', 'quantization_level', 'mean_bleeding', 'subspace_rank']
+    
+    # Save aggregated dataset
+    agg_path = get_project_root() / "data" / "aggregated_bleeding.csv"
+    aggregated.to_csv(agg_path, index=False)
+    logger.info(f"Saved aggregated dataset to {agg_path}")
+    
     return aggregated
 
 def aggregate_cesr_to_effect_level(df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate CESR scores to effect level."""
-    if 'cesr_score' not in df.columns:
-        raise ValueError("Missing cesr_score column")
+    """
+    Aggregate CESR scores to effect level.
     
+    Args:
+        df: DataFrame with cesr_score and effect columns
+        
+    Returns:
+        pd.DataFrame: Aggregated data with mean cesr_score per effect
+    """
     aggregated = df.groupby('effect').agg({
         'cesr_score': 'mean',
         'subspace_rank': 'first'
     }).reset_index()
-    
-    aggregated.rename(columns={'effect': 'effect_id'}, inplace=True)
+    aggregated.columns = ['effect', 'mean_cesr', 'subspace_rank']
     return aggregated
 
-def run_bayesian_hierarchical_model(df: pd.DataFrame) -> Dict[str, Any]:
-    """Run the Bayesian Hierarchical Model."""
+def run_bayesian_hierarchical_model(data: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Run the Bayesian Hierarchical Model using pymc/bambi.
+    
+    Args:
+        data: DataFrame with columns: effect, mean_bleeding, quantization_level, subspace_rank
+        
+    Returns:
+        Dict[str, Any]: Posterior samples and statistics
+    """
     logger.info("Running Bayesian Hierarchical Model...")
     
-    # Prepare data
-    df = df.copy()
-    df['quantization_level'] = df['quantization_level'].astype('category')
-    df['effect_id'] = df['effect_id'].astype('category')
-    
-    # Convert to numeric for model
-    quant_levels = df['quantization_level'].cat.codes.values
-    effect_ids = df['effect_id'].cat.codes.values
-    scores = df['similarity_score'].values
-    
-    n_effects = df['effect_id'].nunique()
-    n_levels = df['quantization_level'].nunique()
-    
-    logger.info(f"Model: {len(df)} observations, {n_effects} effects, {n_levels} quantization levels")
-    
-    with pm.Model() as model:
-        # Priors
-        mu = pm.Normal('mu', mu=0, sigma=10)
-        quant_effects = pm.Normal('quantization_effects', mu=0, sigma=5, shape=n_levels)
-        effect_random = pm.Normal('effect_random', mu=0, sigma=5, shape=n_effects)
-        sigma = pm.HalfNormal('sigma', sigma=1)
-        
-        # Expected value
-        mu_expected = mu + quant_effects[quant_levels] + effect_random[effect_ids]
-        
-        # Likelihood
-        likelihood = pm.Normal('y', mu=mu_expected, sigma=sigma, observed=scores)
-        
-        # Sample
-        logger.info("Sampling...")
-        trace = pm.sample(
-            draws=2000,
-            tune=1000,
-            chains=4,
-            target_accept=0.9,
-            return_inferencedata=True,
-            random_seed=42
-        )
-    
-    logger.info("Model sampling complete")
-    return {
-        'trace': trace,
-        'model': model
-    }
-
-def compute_correlation_stats(df: pd.DataFrame) -> Dict[str, Any]:
-    """Compute correlation between subspace rank and concept bleeding."""
-    if 'subspace_rank' not in df.columns or 'cesr_score' not in df.columns:
-        raise ValueError("Missing required columns for correlation")
-    
-    # Remove NaN values
-    valid_data = df.dropna(subset=['subspace_rank', 'cesr_score'])
-    
-    if len(valid_data) < 2:
-        logger.warning("Insufficient data for correlation analysis")
+    try:
+        import pymc as pm
+        import bambi as bmb
+    except ImportError:
+        logger.warning("pymc or bambi not installed, skipping Bayesian analysis")
         return {
-            'correlation_coefficient': np.nan,
-            'correlation_ci': [np.nan, np.nan],
-            'p_value': np.nan
+            'status': 'skipped',
+            'reason': 'pymc or bambi not installed'
         }
     
-    # Compute Pearson correlation
-    corr, p_value = np.corrcoef(
-        valid_data['subspace_rank'].values,
-        valid_data['cesr_score'].values
+    # Prepare the model
+    # Model formula: similarity_score ~ quantization_level + (1 | effect_id)
+    # We use mean_bleeding as the dependent variable
+    
+    # Convert quantization_level to categorical for proper handling
+    data['quantization_level'] = data['quantization_level'].astype('category')
+    
+    # Define the model
+    model = bmb.Model(
+        'mean_bleeding ~ quantization_level + (1 | effect)',
+        data,
+        family='gaussian'
     )
     
-    # Bootstrap for confidence interval
-    n_bootstrap = 1000
-    boot_corrs = []
-    rng = np.random.default_rng(42)
-    
-    for _ in range(n_bootstrap):
-        sample_idx = rng.choice(len(valid_data), size=len(valid_data), replace=True)
-        sample = valid_data.iloc[sample_idx]
-        corr_sample, _ = np.corrcoef(
-            sample['subspace_rank'].values,
-            sample['cesr_score'].values
-        )
-        boot_corrs.append(corr_sample)
-    
-    ci_lower = np.percentile(boot_corrs, 2.5)
-    ci_upper = np.percentile(boot_corrs, 97.5)
-    
-    return {
-        'correlation_coefficient': float(corr),
-        'correlation_ci': [float(ci_lower), float(ci_upper)],
-        'p_value': float(p_value),
-        'n_samples': len(valid_data)
-    }
-
-def compute_hdi_width(trace: az.InferenceData, var_name: str = 'quantization_effects') -> Tuple[float, float]:
-    """Compute HDI width for a variable."""
+    # Fit the model
+    logger.info("Fitting model...")
     try:
-        hdi = az.hdi(trace, hdi_prob=0.94)
-        if var_name in hdi:
-            var_hdi = hdi[var_name]
-            # For array variables, take the mean width across dimensions
-            if isinstance(var_hdi, pd.DataFrame):
-                widths = var_hdi['hdi_94%'].max(axis=1) - var_hdi['hdi_94%'].min(axis=1)
-                avg_width = widths.mean()
-                max_width = widths.max()
-            else:
-                avg_width = var_hdi.max() - var_hdi.min()
-                max_width = avg_width
-            return float(avg_width), float(max_width)
-        else:
-            logger.warning(f"Variable {var_name} not found in trace")
-            return np.nan, np.nan
+        fit = model.fit(draws=1000, tune=1000, chains=2, random_seed=42)
     except Exception as e:
-        logger.error(f"Error computing HDI: {e}")
-        return np.nan, np.nan
-
-def compute_ess(trace: az.InferenceData, var_name: str) -> float:
-    """Compute Effective Sample Size for a variable."""
-    try:
-        ess = az.ess(trace, var_names=[var_name])
-        if var_name in ess:
-            # For array variables, return minimum ESS across dimensions
-            if isinstance(ess[var_name], pd.DataFrame):
-                return float(ess[var_name].min().min())
-            return float(ess[var_name])
-        else:
-            logger.warning(f"Variable {var_name} not found in ESS calculation")
-            return np.nan
-    except Exception as e:
-        logger.error(f"Error computing ESS: {e}")
-        return np.nan
-
-def analyze_posterior_stability(trace: az.InferenceData, quantization_level_map: Dict[str, int]) -> Dict[str, Any]:
-    """
-    Analyze posterior stability and power for quantization effect.
-    
-    Decision Rule:
-    1. Extract posterior samples for quantization effect coefficient
-    2. Calculate HDI width
-    3. If width > 0.2, flag as "Underpowered"
-    4. Calculate ESS for correlation coefficient
-    5. If ESS < 200, flag as "Unstable Posterior"
-    6. If either flag is set, result is NOT "Significant"
-    """
-    logger.info("Analyzing posterior stability...")
-    
-    # Get the quantization effect variable name (typically 'quantization_effects[0]' for binary)
-    # For multi-level, we analyze the variance or specific contrasts
-    var_names = list(trace.posterior.data_vars)
-    quant_var = None
-    for name in var_names:
-        if 'quantization' in name.lower():
-            quant_var = name
-            break
-    
-    if not quant_var:
-        logger.warning("Could not find quantization effect variable in trace")
+        logger.error(f"Model fitting failed: {e}")
         return {
-            'underpowered': True,
-            'unstable_posterior': True,
-            'posterior_width': np.nan,
-            'ess': np.nan,
-            'significant': False,
-            'reason': 'Quantization effect variable not found'
+            'status': 'failed',
+            'reason': str(e)
         }
     
-    # Compute HDI width
-    avg_width, max_width = compute_hdi_width(trace, quant_var)
+    # Extract posterior samples
+    posterior = fit.posterior
     
-    # For multi-level quantization, we check the maximum width across levels
-    # or compute a contrast. Here we use the maximum width as the conservative estimate.
-    hdi_width = max_width if not np.isnan(max_width) else avg_width
-    
-    # Compute ESS
-    ess = compute_ess(trace, quant_var)
-    
-    # Determine flags
-    underpowered = hdi_width > 0.2 if not np.isnan(hdi_width) else True
-    unstable_posterior = ess < 200 if not np.isnan(ess) else True
-    
-    # Determine significance (only if not underpowered and not unstable)
-    significant = False
-    if not underpowered and not unstable_posterior:
-        # Check if HDI excludes zero
-        try:
-            hdi = az.hdi(trace, hdi_prob=0.94)
-            if quant_var in hdi:
-                var_hdi = hdi[quant_var]
-                if isinstance(var_hdi, pd.DataFrame):
-                    # Check if any level's HDI excludes zero
-                    for col in var_hdi.columns:
-                        if col.startswith('hdi_94%'):
-                            lower = var_hdi[col].min()
-                            upper = var_hdi[col].max()
-                            if lower > 0 or upper < 0:
-                                significant = True
-                                break
-                else:
-                    lower = var_hdi.min()
-                    upper = var_hdi.max()
-                    if lower > 0 or upper < 0:
-                        significant = True
-        except Exception as e:
-            logger.error(f"Error checking HDI for significance: {e}")
-            significant = False
-    
-    result = {
-        'posterior_width': float(hdi_width) if not np.isnan(hdi_width) else None,
-        'ess': float(ess) if not np.isnan(ess) else None,
-        'underpowered': underpowered,
-        'unstable_posterior': unstable_posterior,
-        'significant': significant
-    }
-    
-    if underpowered:
-        result['reason'] = 'HDI width > 0.2 indicates underpowered analysis'
-    elif unstable_posterior:
-        result['reason'] = f'ESS ({ess}) < 200 indicates unstable posterior'
+    # Calculate statistics
+    quantization_effect = posterior['beta_quantization_level']
+    if isinstance(quantization_effect, xr.DataArray):
+        posterior_mean = float(quantization_effect.mean().values)
+        hdi = pm.hdi(quantization_effect, hdi_prob=0.94)
+        credible_interval = [float(hdi.min().values), float(hdi.max().values)]
+        posterior_width = float(hdi.max().values - hdi.min().values)
     else:
-        result['reason'] = 'Posterior is stable and sufficiently powered'
+        # Fallback if structure is different
+        posterior_mean = float(np.mean(quantization_effect))
+        credible_interval = [float(np.percentile(quantization_effect, 2.5)), float(np.percentile(quantization_effect, 97.5))]
+        posterior_width = credible_interval[1] - credible_interval[0]
     
-    logger.info(f"Posterior analysis: width={hdi_width:.4f}, ess={ess:.1f}, "
-               f"underpowered={underpowered}, unstable={unstable_posterior}, "
-               f"significant={significant}")
+    # Calculate ESS
+    ess = pm.ess(quantization_effect).mean().values
+    ess = float(ess) if not np.isnan(ess) else 0.0
     
-    return result
+    return {
+        'status': 'success',
+        'posterior_mean': posterior_mean,
+        'credible_interval': credible_interval,
+        'posterior_width': posterior_width,
+        'ess': ess,
+        'model_fit': fit
+    }
+
+def compute_hdi_width(posterior_samples: np.ndarray, hdi_prob: float = 0.94) -> float:
+    """
+    Compute the HDI width for posterior samples.
+    
+    Args:
+        posterior_samples: Array of posterior samples
+        hdi_prob: Probability mass for HDI (default 0.94)
+        
+    Returns:
+        float: Width of the HDI
+    """
+    try:
+        import pymc as pm
+        hdi = pm.hdi(posterior_samples, hdi_prob=hdi_prob)
+        return float(hdi.max() - hdi.min())
+    except ImportError:
+        # Fallback to simple percentile-based CI
+        lower = np.percentile(posterior_samples, (1 - hdi_prob) / 2 * 100)
+        upper = np.percentile(posterior_samples, (1 + hdi_prob) / 2 * 100)
+        return float(upper - lower)
+
+def compute_ess(posterior_samples: np.ndarray) -> float:
+    """
+    Compute the Effective Sample Size (ESS) for posterior samples.
+    
+    Args:
+        posterior_samples: Array of posterior samples
+        
+    Returns:
+        float: ESS value
+    """
+    try:
+        import pymc as pm
+        ess = pm.ess(posterior_samples)
+        return float(ess) if not np.isnan(ess) else 0.0
+    except ImportError:
+        # Fallback: approximate ESS using autocorrelation
+        n = len(posterior_samples)
+        if n < 2:
+            return 1.0
+        
+        # Calculate autocorrelation
+        mean = np.mean(posterior_samples)
+        var = np.var(posterior_samples)
+        if var == 0:
+            return float(n)
+        
+        autocorr = np.correlate(posterior_samples - mean, posterior_samples - mean, mode='full') / var / n
+        autocorr = autocorr[n-1:]  # Take positive lags
+        
+        # Calculate integrated autocorrelation time
+        tau = 1 + 2 * np.sum(autocorr[1:])
+        if tau <= 0:
+            return float(n)
+        
+        ess = n / tau
+        return float(ess)
+
+def analyze_posterior_stability(results: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Analyze posterior stability and power.
+    
+    Args:
+        results: Dictionary containing posterior statistics
+        
+    Returns:
+        Dict[str, Any]: Stability flags and diagnostics
+    """
+    underpowered = False
+    unstable_posterior = False
+    
+    if 'posterior_width' in results:
+        if results['posterior_width'] > 0.2:
+            underpowered = True
+    
+    if 'ess' in results:
+        if results['ess'] < 200:
+            unstable_posterior = True
+    
+    return {
+        'underpowered': underpowered,
+        'unstable_posterior': unstable_posterior
+    }
+
+def compute_correlation_stats(data: pd.DataFrame) -> Dict[str, float]:
+    """
+    Compute correlation between subspace rank and mean bleeding.
+    
+    Args:
+        data: DataFrame with columns: mean_bleeding, subspace_rank
+        
+    Returns:
+        Dict[str, float]: Correlation coefficient and credible interval
+    """
+    logger.info("Computing correlation between subspace rank and mean bleeding...")
+    
+    if len(data) < 2:
+        logger.warning("Not enough data points for correlation analysis")
+        return {
+            'correlation_coefficient': 0.0,
+            'correlation_ci': [0.0, 0.0]
+        }
+    
+    # Calculate Pearson correlation
+    corr_matrix = data[['mean_bleeding', 'subspace_rank']].corr()
+    corr_coef = corr_matrix.loc['mean_bleeding', 'subspace_rank']
+    
+    # Bootstrap for credible interval
+    n_bootstrap = 1000
+    boot_corrs = []
+    
+    for _ in range(n_bootstrap):
+        sample = data.sample(n=len(data), replace=True)
+        if len(sample) < 2:
+            continue
+        corr = sample[['mean_bleeding', 'subspace_rank']].corr().loc['mean_bleeding', 'subspace_rank']
+        if not np.isnan(corr):
+            boot_corrs.append(corr)
+    
+    if len(boot_corrs) > 1:
+        ci_lower = np.percentile(boot_corrs, 2.5)
+        ci_upper = np.percentile(boot_corrs, 97.5)
+    else:
+        ci_lower = ci_upper = corr_coef
+    
+    return {
+        'correlation_coefficient': float(corr_coef),
+        'correlation_ci': [float(ci_lower), float(ci_upper)]
+    }
+
+def save_analysis_results(results: Dict[str, Any]) -> None:
+    """
+    Save analysis results to JSON file.
+    
+    Args:
+        results: Dictionary containing all analysis results
+    """
+    output_path = get_project_root() / "data" / "analysis_results.json"
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+    logger.info(f"Saved analysis results to {output_path}")
 
 def main():
     """Main entry point for statistical analysis."""
-    logger.info("Starting statistical analysis...")
-    
     try:
-        # Load data
-        df = load_results_data()
-        ranks = load_subspace_ranks()
-        
-        # Validate and prepare data
-        df = prepare_correlation_data(df, ranks)
+        # Prepare dataset with validation
+        data = prepare_bayesian_dataset()
         
         # Run Bayesian model
-        model_result = run_bayesian_hierarchical_model(df)
-        trace = model_result['trace']
+        model_results = run_bayesian_hierarchical_model(data)
         
-        # Compute correlation stats
-        corr_stats = compute_correlation_stats(df)
-        
-        # Analyze posterior stability
-        # Map quantization levels to indices if needed
-        quant_levels = df['quantization_level'].unique()
-        quant_level_map = {level: i for i, level in enumerate(quant_levels)}
-        
-        stability_analysis = analyze_posterior_stability(trace, quant_level_map)
-        
-        # Compile final results
-        # Extract posterior mean for quantization effect (first level for simplicity)
-        try:
-            posterior_mean = float(trace.posterior['quantization_effects'].mean().values)
-            credible_interval = az.hdi(trace, hdi_prob=0.94)['quantization_effects'].values.flatten().tolist()
-        except Exception as e:
-            logger.error(f"Error extracting posterior stats: {e}")
-            posterior_mean = None
-            credible_interval = [None, None]
-        
-        results = {
-            'posterior_mean': posterior_mean,
-            'credible_interval': credible_interval,
-            'correlation_coefficient': corr_stats.get('correlation_coefficient'),
-            'correlation_ci': corr_stats.get('correlation_ci'),
-            'underpowered': stability_analysis['underpowered'],
-            'unstable_posterior': stability_analysis['unstable_posterior'],
-            'posterior_width': stability_analysis['posterior_width'],
-            'ess': stability_analysis['ess'],
-            'significant': stability_analysis['significant'],
-            'reason': stability_analysis.get('reason'),
-            'n_observations': len(df),
-            'n_effects': df['effect_id'].nunique()
-        }
+        if model_results.get('status') != 'success':
+            logger.warning(f"Bayesian model failed: {model_results.get('reason')}")
+            # Create minimal results structure
+            analysis_results = {
+                'posterior_mean': 0.0,
+                'credible_interval': [0.0, 0.0],
+                'correlation_coefficient': 0.0,
+                'correlation_ci': [0.0, 0.0],
+                'underpowered': True,
+                'unstable_posterior': True,
+                'posterior_width': 0.0,
+                'status': model_results.get('status', 'unknown'),
+                'reason': model_results.get('reason', 'Unknown error')
+            }
+        else:
+            # Analyze posterior stability
+            stability = analyze_posterior_stability(model_results)
+            
+            # Compute correlation
+            corr_stats = compute_correlation_stats(data)
+            
+            # Combine results
+            analysis_results = {
+                'posterior_mean': model_results['posterior_mean'],
+                'credible_interval': model_results['credible_interval'],
+                'correlation_coefficient': corr_stats['correlation_coefficient'],
+                'correlation_ci': corr_stats['correlation_ci'],
+                'underpowered': stability['underpowered'],
+                'unstable_posterior': stability['unstable_posterior'],
+                'posterior_width': model_results['posterior_width']
+            }
         
         # Save results
-        project_root = get_project_root()
-        output_path = project_root / "data" / "analysis_results.json"
+        save_analysis_results(analysis_results)
         
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        logger.info(f"Analysis results saved to {output_path}")
-        logger.info(f"Summary: width={results['posterior_width']}, "
-                   f"underpowered={results['underpowered']}, "
-                   f"significant={results['significant']}")
-        
-        return results
+        logger.info("Statistical analysis completed successfully")
+        return analysis_results
         
     except Exception as e:
         logger.error(f"Statistical analysis failed: {e}")

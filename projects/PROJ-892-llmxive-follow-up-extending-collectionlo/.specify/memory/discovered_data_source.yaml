@@ -1,15 +1,10 @@
 status: none
-intent: stable diffusion 1.5 checkpoint collectionlora adapter clip viT-b/32 embeddings
-  python package dataset
+intent: download MS COCO Captions and LAION-5B image-text datasets python package
+  dataset
 required_fields:
-- prompt_text
-- generated_image_path
-- clip_image_embedding
-- clip_text_embedding
-- cosine_similarity
-- lpips_distance
-- model_name
-- adapter_name
-cache_key: 48255b48523822f80e0747028a477a6b917b7eccb3bab69f6d3f430416200bec
-searched_at: '2026-09-01T02:39:56.148768+00:00'
+- image_id
+- image_url
+- caption
+cache_key: 197173f76154b7a6bbb03d241d94d2ebfc2d8af350f1cc6b274ebe27117bea56
+searched_at: '2026-09-05T10:32:13.929028+00:00'
 retry_count: 1

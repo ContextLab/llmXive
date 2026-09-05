@@ -24,12 +24,13 @@ T011e:
     \ and writes them to that JSON file. The implementation is therefore missing."
 T014a:
   c: false
-  h: b781ace81decd7f25f6f0987a757883609cfd945fc40e38424cb286e47a7b1e7
+  h: 991d14c22a04fdeda38127a4aa66b4a81c360c5d82699e63638b24f2de2e70d3
   r: "The repository lacks the required `data/results.csv` file, and the provided\
-    \ `code/main.py` is truncated before the core generation and metric\u2011saving\
-    \ logic is shown, with no evidence that it creates the CSV with the specified\
-    \ schema or writes images to `data/generated/`. Consequently the task\u2019s essential\
-    \ outputs are missing."
+    \ excerpt of `code/main.py` does not show an implementation of `run_baseline_generation_loop`\
+    \ (the file is truncated before any such function). Consequently the CSV generation,\
+    \ image saving, metric computation, and subspace\u2011rank joining required by\
+    \ the task are not demonstrated. The missing artifacts must be added and the function\
+    \ fully implemented to meet the specification."
 T016a:
   c: false
   h: aee601d0b5240054be2adcc2fc77ca092fd6ce03be20553df96a962e5dc35966
@@ -39,52 +40,36 @@ T016a:
     \ the expected input file `data/models/collection_lora.safetensors` and the output\
     \ files `data/quantized/adapter_int8.safetensors` and `adapter_int4.safetensors`\
     \ are absent. The task\u2019s core functionality and artifacts are therefore missing."
-T016b:
-  c: false
-  h: e18eceea1252e06261593255edc5f1ad90342ce8b73c8434ac2110af67026522
-  r: "The `data/quantized/adapter_int8.safetensors` and `adapter_int4.safetensors`\
-    \ files are absent, and the provided `code/data_loader.py` does not contain any\
-    \ implementation that serializes quantized state dicts or preserves scale/zero\u2011\
-    point parameters. The required artifact and functionality are therefore missing."
 T020a:
   c: false
-  h: b781ace81decd7f25f6f0987a757883609cfd945fc40e38424cb286e47a7b1e7
-  r: "The provided `code/main.py` is incomplete (truncated after \u201Cre\u201D) and\
-    \ does not contain the full quantized\u2011generation loop, delta calculations,\
-    \ or the DataFrame join with `subspace_ranks.json`. Moreover, the required output\
-    \ file `data/results.csv` is absent. Consequently the task\u2019s requirements\
-    \ are not satisfied."
-T023:
+  h: 991d14c22a04fdeda38127a4aa66b4a81c360c5d82699e63638b24f2de2e70d3
+  r: The repository lacks a `data/results.csv` file, so the function cannot append
+    results as required, and the provided `code/main.py` excerpt does not contain
+    (or show) a `run_quantized_generation_loop` implementation that runs quantized
+    generations, handles MemoryError per level, computes deltas, and joins subspace
+    ranks. Both the essential output file and the core function are missing.
+T024:
   c: false
-  h: b2cb8ea65337802506cd2c807eaf91c01976e91b0792393cc0893ea7f4b0ec29
-  r: "The repository lacks the required `data/results.csv` file, so the script cannot\
-    \ load real data. Moreover, `code/statistical_analysis.py` aggregates `similarity_score`\
-    \ and `cesr_score` instead of a \u201Cmean_bleeding\u201D column, does not produce\
-    \ the exact output schema (`effect_id, mean_bleeding, quantization_level, subspace_rank`),\
-    \ and joins subspace ranks before aggregation rather than after. It also raises\
-    \ a FileNotFoundError instead of aborting gracefully with a \u201CNot Testable\u201D\
-    \ status. These issues mean the task\u2019s specifications are not met."
-T025a:
-  c: false
-  h: 0702b45a4a2e378041b40b220b62e705e088045a5fe062f74d66e1c0d0986b09
-  r: The `code/statistical_analysis.py` file is incomplete (the `aggregate_cesr_to_effect_level`
-    function is truncated and does not clearly compute a mean of a `CESR_normalized`
-    column), and the required `data/results.csv` file is missing, so the script cannot
-    perform the requested aggregation.
+  h: cd18ad8e0ee73bc026c70fb9b6e2e36c866aaf349633c181618e693363b2e861
+  r: "The provided `code/statistical_analysis.py` stops after data preparation and\
+    \ never defines or runs a Bayesian hierarchical model with pymc/bambi, nor does\
+    \ it save posterior samples. Moreover, the required output files `data/analysis_results.json`\
+    \ (or `data/posterior_samples.nc`) are absent. The task\u2019s core requirements\
+    \ are therefore unmet."
 T027a:
   c: false
-  h: c841741852ca60010d7c3510ce21924c9fa3cde63aa86f52701afbe28786f559
-  r: "The repository lacks the required `data/analysis_results.json` file, and the\
-    \ provided `code/main.py` (truncated) contains generation\u2011related code but\
-    \ does not implement the analysis script execution or produce a JSON matching\
-    \ the specified schema. Consequently the task\u2019s core requirement is not satisfied."
+  h: eb9694eb2ce44c181bf56593d7957067edf9d770992ab89e1a41474d9c18bb93
+  r: The provided `code/main.py` excerpt never shows a `save_analysis_results` function,
+    and the required output file `data/analysis_results.json` does not exist. Both
+    the implementation and the expected JSON artifact are missing, so the task is
+    not satisfied.
 T031b:
   c: false
-  h: 1ffd870706960d624f4126c9ab90ac93da9c69e1b84c777f21a40eb18549bb24
-  r: The provided `code/main.py` is truncated and contains no implementation that
-    records start/end timestamps or writes a `data/ci_report.json` file. Moreover,
-    the required `data/ci_report.json` file is absent from the repository. Both the
-    timing logic and the output artifact are missing, so the task is not satisfied.
+  h: 3e0700272eaf5ad9a60a482c2f9471201e415fb665912861d53fa53adff69b2a
+  r: The provided `code/main.py` snippet does not contain a `record_ci_timing` function
+    (the file is truncated before any such definition) and the required output file
+    `data/ci_report.json` is missing. Consequently the task of recording CI start/end
+    timestamps and writing the JSON report has not been fulfilled.
 T034a:
   c: true
   h: c3be1272d452d3996291a631b353d7ef1fb1d8c07f640ae0acbb55490c1bbe60
