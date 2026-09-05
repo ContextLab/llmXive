@@ -12,19 +12,6 @@ T006:
     \ Moreover, the required `data/processed/test.csv` and `state/artifact_hashes.yaml`\
     \ files are absent, so the verification command cannot succeed. The task\u2019\
     s deliverables are therefore not satisfied."
-T013:
-  c: false
-  h: 9d15254773f0eb0cc408ae6ec77d13a97c6d18aeded5aca2f1556f1d39a5c358
-  r: "The repository contains `code/data/simulation_mfq.py` which loads the MDES report\
-    \ and validates the ground\u2011truth effect, but the required output file `data/processed/synthetic_mfq.csv`\
-    \ is absent. Consequently the deliverable (a non\u2011empty CSV with the specified\
-    \ columns) has not been produced, so the task is not satisfied."
-T014:
-  c: false
-  h: a2342216c7b2fb87e4318fc1eb9ccccd960c0e918f3065e770bc562cfadace0d
-  r: The repository contains `code/data/simulation_stories.py`, but the required output
-    file `data/processed/synthetic_logs.csv` does not exist, so the deliverable cannot
-    be verified for the required columns. The task therefore remains unfinished.
 T015:
   c: false
   h: 961e0f689872327f01a13473b7c8f9765aba0d95a8ee1e23fddab132bcd3224b
@@ -34,14 +21,43 @@ T015:
     \ missing). The exclusion log file `data/logs/exclusion.log` does not exist, and\
     \ there is no hard assertion that `DATA_MODE` is defined. Consequently, the implementation\
     \ does not meet the task\u2019s specifications."
-T018:
+T017:
   c: false
-  h: 4f0cf2cba49c97ae7b18a1ebdbe8850cede0bcd1707cc00c55393eb9121e7f5c
-  r: "The repository contains a partially shown `code/utils/hashing.py`, but the file\
-    \ is truncated and does not demonstrate any logic that scans simulation\u2011\
-    derived CSVs or writes their checksums to `state/artifact_hashes.yaml`. Moreover,\
-    \ the required `state/artifact_hashes.yaml` file is absent. Both the integration\
-    \ and the state update are therefore missing."
+  h: a2ba8c176f29ba28e0d498cd1a37ed1937901aa9de5c0d6252f58c60a50fc93c
+  r: The provided `code/utils/norms.py` does not contain a `validate_mfq_distribution()`
+    function (the shown code ends with `get_correlation_matrix` and no validation
+    logic). Additionally, the required output file `data/logs/norm_validation.log`
+    is absent. Both the function and the log file are missing, so the task is not
+    fulfilled.
+T027c:
+  c: false
+  h: dcc43575b672cc4ab9e1235ea8bea82de9ce7990c1149c2f467c1647aa28e4f1
+  r: "The `parameter_recovery.py` script is truncated and contains syntax errors (e.g.,\
+    \ unfinished line `coverage_95ci = covered / n_samples if n_samp`). It never writes\
+    \ the required `data/results/parameter_recovery.json`, and that JSON file is absent\
+    \ from the repository. The task\u2019s deliverable is therefore not fulfilled."
+T032:
+  c: false
+  h: 20289c6dc2e521952af44a099e8e34c39b96ccde9568c4a1506f73fac12162d0
+  r: "The provided `validation.py` contains only partial functionality (e.g., sample\u2011\
+    size validation) and shows no code that sweeps the thresholds\u202F2,\u202F10,\u202F\
+    20 or writes a JSON with stability metrics. Moreover, the required `data/results/sensitivity_analysis.json`\
+    \ file does not exist. Both the core analysis and its expected output are missing."
+T033:
+  c: false
+  h: 52aa67131e9254e7e40002949e578d81d84caff485b00d86f2345b92f135a45c
+  r: "The repository contains `code/reports/generate_report.py`, but the generated\
+    \ `reports/final_report.md` file is missing, and the visible portion of the script\
+    \ is truncated before it can be verified that it creates the required sections\
+    \ (Executive Summary, Model Comparison, Parameter Recovery, Sensitivity Analysis,\
+    \ Conclusion). The task\u2019s deliverable (a script that produces a correctly\
+    \ structured report) is therefore not demonstrably fulfilled."
+T038:
+  c: false
+  h: 03990d019d0e4d05312136feafdd4307474edad1b6afac454b982c4763dcaf95
+  r: "The required `code/unity_verification.py` file is missing, so no verification\
+    \ logic or output JSON (`state/unity_fidelity.json`) was produced. The task\u2019\
+    s deliverable is therefore not satisfied."
 T040:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -49,6 +65,14 @@ T040:
     is no evidence of running a `quickstart.md` validation, nor any checksum files
     or logs confirming that all artifacts have been checksummed. The required validation
     and checksum verification artifacts are missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, notebooks, or data files were provided that demonstrate an\
+    \ end\u2011to\u2011end pipeline fetching real MFQ/VR logs, validating them with\
+    \ Pydantic models, running a PyMC5 Bayesian model, and performing the required\
+    \ statistical checks. The claim cannot be verified because the required artifacts\
+    \ are missing."
 T043:
   c: false
   h: 77684035ae9bf4eeb52e7bb2efbad3c5109449e3487682a14b31bbce69160ec6

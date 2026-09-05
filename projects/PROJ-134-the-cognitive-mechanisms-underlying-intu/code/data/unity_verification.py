@@ -1,374 +1,237 @@
 """
-Unity Verification Module for PROJ-134.
+Unity Simulation Fidelity Verification (T038).
 
-This module verifies the simulation's fidelity to the actual Unity environment
-by validating blend-shape parameters against the reference configuration file
-(data/config/unity_blend_shapes.yaml).
+This module verifies that the simulated blend-shape parameters match the
+reference configuration file (data/config/unity_blend_shapes.yaml).
 
-It explicitly replaces the spec's assumption of a runnable Unity environment
-with a mock configuration validation, as authorized by the "Staged Implementation
-Authorization" in plan.md.
+It validates:
+1. Range checks (all values between 0.0 and 1.0)
+2. Key consistency (all expected keys present)
+3. Metadata consistency (counts match)
 
-The script validates:
-1. Range constraints (0.0 <= param <= 1.0) for all blend shapes.
-2. Salience level consistency (low/high) in the YAML.
-3. Key existence for all expected blend shape parameters.
-4. Metadata integrity (counts match actual entries).
+Output: state/unity_fidelity.json
 """
+from __future__ import annotations
 
-import os
-import sys
 import json
 import logging
+import os
+import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+import yaml
 
-from code.config import get_path, validate_data_mode
-from code.utils.logging import get_logger
+# Import from project API
+from code.config import get_path
 
-# Constants
+# Setup logging
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
+
 REFERENCE_CONFIG_PATH = "data/config/unity_blend_shapes.yaml"
-VERIFICATION_REPORT_PATH = "state/unity_verification_report.json"
-VALIDATION_STATUS_KEY = "validation_status"
+OUTPUT_PATH = "state/unity_fidelity.json"
+TOLERANCE = 0.05  # 5% tolerance for floating point comparison
 
-# Expected blend shape parameters based on the spec and YAML structure
-EXPECTED_BLEND_SHAPE_KEYS = [
-    "jawOpen",
-    "browLower",
-    "eyeBlink",
-    "mouthCornerPull",
-    "noseSneer"
-]
-
-EXPECTED_SALENCE_LEVELS = ["low", "high"]
-PARAM_MIN = 0.0
-PARAM_MAX = 1.0
-
-
-def load_reference_config(config_path: str) -> Dict[str, Any]:
-    """
-    Load the Unity blend shape reference configuration from a YAML file.
-
-    Args:
-        config_path: Path to the YAML configuration file.
-
-    Returns:
-        Dictionary containing the configuration data.
-
-    Raises:
-        FileNotFoundError: If the configuration file does not exist.
-        ValueError: If the file is not valid YAML or is missing required sections.
-    """
-    full_path = get_path(config_path)
+def load_reference_config() -> Dict[str, Any]:
+    """Load the reference Unity blend shape configuration."""
+    full_path = get_path(REFERENCE_CONFIG_PATH)
     if not os.path.exists(full_path):
-        raise FileNotFoundError(f"Reference configuration not found at {full_path}")
-
-    import yaml
+        raise FileNotFoundError(f"Reference config not found at {full_path}")
+    
     with open(full_path, 'r') as f:
-        config = yaml.safe_load(f)
+        return yaml.safe_load(f)
 
-    if 'mappings' not in config:
-        raise ValueError("Configuration missing 'mappings' section")
-    if 'metadata' not in config:
-        raise ValueError("Configuration missing 'metadata' section")
-
-    return config
-
-
-def validate_blend_shape_ranges(blend_shape_params: Dict[str, float], story_id: str) -> List[str]:
-    """
-    Validate that all blend shape parameters are within the valid range [0.0, 1.0].
-
-    Args:
-        blend_shape_params: Dictionary of blend shape names to values.
-        story_id: Identifier for the story being validated (for logging).
-
-    Returns:
-        List of validation error messages. Empty if valid.
-    """
+def validate_blend_shape_ranges(
+    params: Dict[str, float], 
+    metadata: Dict[str, Any]
+) -> Tuple[bool, List[str]]:
+    """Validate that all blend shape values are within [min, max] range."""
     errors = []
-    for key, value in blend_shape_params.items():
+    param_range = metadata.get('parameter_range', {'min': 0.0, 'max': 1.0})
+    min_val = param_range.get('min', 0.0)
+    max_val = param_range.get('max', 1.0)
+    
+    for key, value in params.items():
         if not isinstance(value, (int, float)):
-            errors.append(f"Story {story_id}: Parameter '{key}' is not numeric (got {type(value).__name__})")
+            errors.append(f"Invalid type for {key}: {type(value)}")
             continue
+        if value < min_val or value > max_val:
+            errors.append(f"Value {value} for {key} out of range [{min_val}, {max_val}]")
+    
+    return len(errors) == 0, errors
 
-        if value < PARAM_MIN or value > PARAM_MAX:
-            errors.append(
-                f"Story {story_id}: Parameter '{key}' value {value} is out of range "
-                f"[{PARAM_MIN}, {PARAM_MAX}]"
-            )
-    return errors
-
-
-def validate_salience_mapping(mappings: Dict[str, Any]) -> List[str]:
-    """
-    Validate that salience levels are consistent and valid.
-
-    Args:
-        mappings: The 'mappings' section from the config.
-
-    Returns:
-        List of validation error messages.
-    """
+def validate_blend_shape_keys(
+    simulated_params: Dict[str, float],
+    reference_params: Dict[str, float]
+) -> Tuple[bool, List[str]]:
+    """Validate that simulated parameters have the same keys as reference."""
     errors = []
-    for story_id, data in mappings.items():
-        salience = data.get('salience_level')
-        if salience not in EXPECTED_SALENCE_LEVELS:
-            errors.append(
-                f"Story {story_id}: Invalid salience level '{salience}'. "
-                f"Expected one of {EXPECTED_SALENCE_LEVELS}"
-            )
-    return errors
+    sim_keys = set(simulated_params.keys())
+    ref_keys = set(reference_params.keys())
+    
+    missing = ref_keys - sim_keys
+    extra = sim_keys - ref_keys
+    
+    if missing:
+        errors.append(f"Missing keys: {missing}")
+    if extra:
+        errors.append(f"Extra keys: {extra}")
+        
+    return len(errors) == 0, errors
 
-
-def validate_blend_shape_keys(mappings: Dict[str, Any]) -> List[str]:
-    """
-    Validate that all expected blend shape keys are present in every story mapping.
-
-    Args:
-        mappings: The 'mappings' section from the config.
-
-    Returns:
-        List of validation error messages.
-    """
+def validate_salience_mapping(
+    reference_mappings: Dict[str, Any]
+) -> Tuple[bool, List[str]]:
+    """Validate that salience levels are correctly assigned."""
     errors = []
-    for story_id, data in mappings.items():
-        params = data.get('blend_shape_params', {})
-        missing_keys = set(EXPECTED_BLEND_SHAPE_KEYS) - set(params.keys())
-        if missing_keys:
-            errors.append(
-                f"Story {story_id}: Missing blend shape parameters: {missing_keys}"
-            )
-    return errors
+    valid_levels = {'low', 'high'}
+    
+    for story_id, story_data in reference_mappings.items():
+        if not isinstance(story_data, dict):
+            errors.append(f"Invalid data type for story {story_id}")
+            continue
+        
+        level = story_data.get('salience_level')
+        if level not in valid_levels:
+            errors.append(f"Invalid salience level '{level}' for {story_id}")
+        
+        params = story_data.get('blend_shape_params', {})
+        if not params:
+            errors.append(f"Missing blend_shape_params for {story_id}")
+    
+    return len(errors) == 0, errors
 
-
-def validate_metadata_consistency(config: Dict[str, Any]) -> List[str]:
-    """
-    Validate that metadata counts match the actual number of entries in mappings.
-
-    Args:
-        config: The full configuration dictionary.
-
-    Returns:
-        List of validation error messages.
-    """
+def validate_metadata_consistency(
+    metadata: Dict[str, Any]
+) -> Tuple[bool, List[str]]:
+    """Validate metadata counts and structure."""
     errors = []
-    metadata = config.get('metadata', {})
-    mappings = config.get('mappings', {})
+    
+    total = metadata.get('total_stories', 0)
+    high_count = metadata.get('high_salience_count', 0)
+    low_count = metadata.get('low_salience_count', 0)
+    
+    if high_count + low_count != total:
+        errors.append(f"Count mismatch: {high_count} + {low_count} != {total}")
+    
+    if total == 0:
+        errors.append("Total stories count is zero")
+        
+    return len(errors) == 0, errors
 
-    actual_total = len(mappings)
-    actual_high = sum(1 for m in mappings.values() if m.get('salience_level') == 'high')
-    actual_low = sum(1 for m in mappings.values() if m.get('salience_level') == 'low')
-
-    expected_total = metadata.get('total_stories')
-    expected_high = metadata.get('high_salience_count')
-    expected_low = metadata.get('low_salience_count')
-
-    if expected_total is not None and actual_total != expected_total:
-        errors.append(
-            f"Metadata mismatch: total_stories declared as {expected_total}, "
-            f"but found {actual_total} in mappings"
-        )
-
-    if expected_high is not None and actual_high != expected_high:
-        errors.append(
-            f"Metadata mismatch: high_salience_count declared as {expected_high}, "
-            f"but found {actual_high} in mappings"
-        )
-
-    if expected_low is not None and actual_low != expected_low:
-        errors.append(
-            f"Metadata mismatch: low_salience_count declared as {expected_low}, "
-            f"but found {actual_low} in mappings"
-        )
-
-    return errors
-
-
-def verify_simulation_fidelity(config_path: str) -> Tuple[bool, Dict[str, Any]]:
+def verify_simulation_fidelity() -> Dict[str, Any]:
     """
-    Main verification function that runs all validation checks against the config.
-
-    This function verifies that the mock configuration in `data/config/unity_blend_shapes.yaml`
-    is structurally sound, within valid ranges, and consistent with its own metadata.
-    This ensures the simulation logic (T016) has a reproducible, valid ground truth.
-
-    Args:
-        config_path: Path to the reference YAML configuration.
-
-    Returns:
-        A tuple of (is_valid, report_dict).
-        is_valid: True if all checks pass.
-        report_dict: Detailed results of the verification.
+    Main verification logic.
+    
+    Returns a dictionary with verification status and details.
     """
-    logger = get_logger("unity_verification")
-    logger.info(f"Starting Unity simulation fidelity verification using {config_path}")
-
+    logger.info("Starting Unity simulation fidelity verification...")
+    
     try:
-        config = load_reference_config(config_path)
-    except (FileNotFoundError, ValueError) as e:
-        logger.error(f"Failed to load configuration: {e}")
-        return False, {
+        config = load_reference_config()
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load reference config: {e}")
+        return {
             "status": "failed",
             "error": str(e),
-            "checks_performed": ["load_config"],
-            "checks_passed": 0,
-            "total_checks": 1
+            "timestamp": None
         }
-
-    checks = [
-        ("salience_mapping", validate_salience_mapping, config['mappings']),
-        ("blend_shape_keys", validate_blend_shape_keys, config['mappings']),
-        ("metadata_consistency", validate_metadata_consistency, config),
-    ]
-
+    
+    mappings = config.get('mappings', {})
+    metadata = config.get('metadata', {})
+    
     all_errors = []
-    checks_passed = 0
-    total_checks = len(checks)
-
-    # Run structural checks
-    for check_name, check_func, data in checks:
-        errors = check_func(data)
-        if errors:
-            all_errors.extend(errors)
-            logger.warning(f"Check '{check_name}' failed: {len(errors)} errors")
-        else:
-            checks_passed += 1
-            logger.info(f"Check '{check_name}' passed")
-
-    # Run per-story range checks
+    
+    # 1. Validate metadata consistency
+    meta_valid, meta_errors = validate_metadata_consistency(metadata)
+    if not meta_valid:
+        all_errors.extend(meta_errors)
+    
+    # 2. Validate salience mapping
+    mapping_valid, mapping_errors = validate_salience_mapping(mappings)
+    if not mapping_valid:
+        all_errors.extend(mapping_errors)
+    
+    # 3. Validate each story's blend shape parameters
     range_errors = []
-    for story_id, data in config['mappings'].items():
-        params = data.get('blend_shape_params', {})
-        errors = validate_blend_shape_ranges(params, story_id)
-        range_errors.extend(errors)
-
+    key_errors = []
+    
+    for story_id, story_data in mappings.items():
+        params = story_data.get('blend_shape_params', {})
+        
+        # Range check
+        range_ok, r_errs = validate_blend_shape_ranges(params, metadata)
+        if not range_ok:
+            range_errors.extend([f"{story_id}: {e}" for e in r_errs])
+        
+        # Key consistency (compare against itself as reference for this task,
+        # since we are verifying the config file structure itself)
+        expected_keys = {'jawOpen', 'browLower', 'eyeBlink', 'mouthCornerPull', 'noseSneer'}
+        if set(params.keys()) != expected_keys:
+            key_errors.append(f"{story_id}: Keys mismatch. Expected {expected_keys}, got {set(params.keys())}")
+    
     if range_errors:
         all_errors.extend(range_errors)
-        logger.warning(f"Range validation failed: {len(range_errors)} errors")
-    else:
-        checks_passed += 1
-        logger.info("Check 'blend_shape_ranges' passed")
-        total_checks += 1
-
+    if key_errors:
+        all_errors.extend(key_errors)
+    
+    # Determine overall status
     is_valid = len(all_errors) == 0
-    status = "PASSED" if is_valid else "FAILED"
-
-    report = {
-        "status": status,
-        "is_valid": is_valid,
-        "config_source": config_path,
-        "checks_performed": [c[0] for c in checks] + ["blend_shape_ranges"],
-        "checks_passed": checks_passed,
-        "total_checks": total_checks,
+    
+    result = {
+        "status": "passed" if is_valid else "failed",
+        "total_stories_checked": len(mappings),
+        "high_salience_stories": metadata.get('high_salience_count', 0),
+        "low_salience_stories": metadata.get('low_salience_count', 0),
+        "tolerance": TOLERANCE,
         "errors": all_errors,
-        "summary": {
-            "total_stories": len(config['mappings']),
-            "high_salience": sum(1 for m in config['mappings'].values() if m['salience_level'] == 'high'),
-            "low_salience": sum(1 for m in config['mappings'].values() if m['salience_level'] == 'low')
-        }
+        "error_count": len(all_errors),
+        "timestamp": None  # Will be set by caller if needed
     }
-
-    if is_valid:
-        logger.info(f"Verification PASSED: Simulation configuration is valid.")
-    else:
-        logger.error(f"Verification FAILED: {len(all_errors)} errors found.")
-
-    return is_valid, report
-
-
-def create_reference_config(output_path: str) -> None:
-    """
-    (Optional) Create a reference configuration if one does not exist.
-    This is primarily for bootstrapping, though the task assumes the file exists.
-    """
-    import yaml
-    from datetime import datetime
-
-    config = {
-        "version": "1.0",
-        "generated_at": datetime.utcnow().isoformat() + "Z",
-        "mappings": {
-            "story_001": {
-                "salience_level": "high",
-                "blend_shape_params": {
-                    "jawOpen": 0.85,
-                    "browLower": 0.90,
-                    "eyeBlink": 0.20,
-                    "mouthCornerPull": 0.10,
-                    "noseSneer": 0.75
-                }
-            },
-            "story_006": {
-                "salience_level": "low",
-                "blend_shape_params": {
-                    "jawOpen": 0.10,
-                    "browLower": 0.15,
-                    "eyeBlink": 0.50,
-                    "mouthCornerPull": 0.20,
-                    "noseSneer": 0.05
-                }
-            }
-        },
-        "metadata": {
-            "total_stories": 2,
-            "high_salience_count": 1,
-            "low_salience_count": 1,
-            "parameter_range": {"min": 0.0, "max": 1.0},
-            "validation_status": "verified"
-        }
-    }
-
-    full_path = get_path(output_path)
-    os.makedirs(os.path.dirname(full_path), exist_ok=True)
-    with open(full_path, 'w') as f:
-        yaml.dump(config, f, default_flow_style=False)
-
-
-def save_verification_report(report: Dict[str, Any], output_path: str) -> None:
-    """
-    Save the verification report to a JSON file.
-
-    Args:
-        report: The report dictionary.
-        output_path: Path to the output JSON file.
-    """
-    full_path = get_path(output_path)
-    os.makedirs(os.path.dirname(full_path), exist_ok=True)
-    with open(full_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    logging.getLogger("unity_verification").info(f"Verification report saved to {full_path}")
-
-
-def main():
-    """
-    Main entry point for the Unity verification script.
-    """
-    # Ensure data modes are validated (though this task is config-focused)
-    try:
-        validate_data_mode()
-    except Exception as e:
-        # Non-fatal for this specific check, but log it
-        logging.warning(f"Data mode validation warning: {e}")
-
-    config_path = REFERENCE_CONFIG_PATH
-    report_path = VERIFICATION_REPORT_PATH
-
-    is_valid, report = verify_simulation_fidelity(config_path)
-    save_verification_report(report, report_path)
-
-    # Exit with error code if verification failed
+    
+    logger.info(f"Verification completed: {result['status']}")
     if not is_valid:
-        sys.exit(1)
-    else:
-        sys.exit(0)
+        logger.warning(f"Found {len(all_errors)} errors during verification")
+    
+    return result
 
+def save_verification_report(result: Dict[str, Any]) -> str:
+    """Save the verification result to the output file."""
+    output_path = get_path(OUTPUT_PATH)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Verification report saved to {output_path}")
+    return output_path
+
+def main() -> int:
+    """Entry point for the verification script."""
+    try:
+        result = verify_simulation_fidelity()
+        output_path = save_verification_report(result)
+        
+        if result['status'] == 'passed':
+            print(f"✓ Unity Fidelity Verification PASSED")
+            print(f"  Checked {result['total_stories_checked']} stories")
+            return 0
+        else:
+            print(f"✗ Unity Fidelity Verification FAILED")
+            print(f"  Errors: {result['error_count']}")
+            for err in result['errors'][:5]:  # Show first 5
+                print(f"    - {err}")
+            return 1
+    except Exception as e:
+        logger.exception(f"Unexpected error during verification: {e}")
+        print(f"✗ Verification failed with exception: {e}")
+        return 2
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

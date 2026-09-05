@@ -9895,3 +9895,333 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T06:52:00Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 0
+  canonical: HF_DATASET_ID moral-stories-v1
+  claim_id: c_7fa2da64
+  context: 'Deliverable: A module defining explicit constants and schemas: OSF_API_URL
+    (base URL: ""), HF_DATASET_ID ("moral-stories-v1"), and VR_LOG_SCHEMA_COLUMNS...'
+  evidence:
+    entailment_evidence: HuggingFace dataset ID is moral-stories-v1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_ID_is_moral-stories-v1
+  kind: entity_fact
+  raw_text: The HF_DATASET_ID is 'moral-stories-v1'.
+  resolved_value: HuggingFace dataset ID is moral-stories-v1
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T11:35:01Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: System defaults to simulation data mode
+  claim_id: c_b3672d19
+  context: 'Default Execution Mode: simulation. The system defaults to using simulation
+    data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_defaults_to_simulation_data_mode
+  kind: entity_fact
+  raw_text: The system defaults to using simulation data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:35:38Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Response time distribution LogNormal(3.5, 0.5)
+  claim_id: c_98a9b281
+  context: 'Distribution: response_time ~ LogNormal(3.5, 0.5), gaze_metrics ~ Normal(0.5,
+    0.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The response_time distribution is modeled as LogNormal(3.5, 0.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:36:12Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Gaze metrics distribution Normal(0.5, 0.1)
+  claim_id: c_04478dad
+  context: 'Distribution: response_time ~ LogNormal(3.5, 0.5), gaze_metrics ~ Normal(0.5,
+    0.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gaze_metrics distribution is modeled as Normal(0.5, 0.1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:36:34Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Bayesian convergence check R-hat less than 1.05
+  claim_id: c_997d7fa4
+  context: 'Deliverable: A script that verifies R-hat < 1.05 and effective sample
+    size > 200 for all parameters.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_convergence_check_R-hat_less_than_1.05
+  kind: magnitude
+  raw_text: The Bayesian model convergence check requires R-hat < 1.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:37:09Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Bayesian convergence check effective sample size greater than 200
+  claim_id: c_73dda41c
+  context: 'Deliverable: A script that verifies R-hat < 1.05 and effective sample
+    size > 200 for all parameters.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayesian_convergence_check_effective_sample_size_greater_tha
+  kind: magnitude
+  raw_text: The Bayesian model convergence check requires effective sample size >
+    200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:37:37Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Posterior Predictive Checks generate 1000 samples
+  claim_id: c_7b5a3b39
+  context: 'Deliverable: A function run_ppc(model) that generates 1000 posterior predictive
+    samples using pm.sample_posterior_predictive...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Posterior Predictive Checks generate 1000 posterior predictive samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:38:09Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: LMM baseline formula judgment_rating salience_level random intercept
+    participant_id
+  claim_id: c_651d398b
+  context: 'Deliverable: A function fit_baseline(data) using statsmodels.MixedLM with
+    formula judgment_rating ~ salience_level + (1|participant_id).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AIC/WAIC comparison against the Frequentist Linear Mixed Model baseline
+    uses the formula judgment_rating ~ salience_level + (1|participant_id).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:38:36Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Synthetic data run success criterion delta AIC greater than 10
+  claim_id: c_b0e3d420
+  context: "Deliverable: A script that calculates \u0394AIC on synthetic data and\
+    \ asserts \u0394AIC > 10 as the primary success criterion."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_run_success_criterion_delta_AIC_greater_than
+  kind: magnitude
+  raw_text: "The primary success criterion for the synthetic data run is a \u0394\
+    AIC > 10."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:39:11Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 2 10 and 20
+  claim_id: c_9a0404b9
+  context: 'Deliverable: A script that sweeps thresholds including low values and
+    reports stability. Verification: Verify that the output JSON contains three distinct
+    entries for thresholds 2, 10, and 20 with stability metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps thresholds including 2, 10, and 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:39:35Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PyMC5 GPU configuration target_accept 0.9
+  claim_id: c_37b12115
+  context: If has_gpu is True, configure PyMC5 sampler with target_accept=0.9 and
+    nuts_sampler="numpyro"...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PyMC5 implementation uses target_accept=0.9 if GPU is available.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:39:50Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PyMC5 GPU configuration chains 4 cores 4
+  claim_id: c_f3d6a30e
+  context: '...or standard pm.sample with chains=4, cores=4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PyMC5 GPU configuration uses chains=4 and cores=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:40:16Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Simulation task requires mdes_value in MDES report
+  claim_id: c_01753652
+  context: 'Pre-requisite Check: MUST verify state/mdes_report.yaml exists and contains
+    key mdes_value before execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_task_requires_mdes_value_in_MDES_report
+  kind: entity_fact
+  raw_text: The simulation task requires verifying that the MDES report contains the
+    key mdes_value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:40:54Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MDES validation test mean difference less than 0.05
+  claim_id: c_c8738b5d
+  context: 'Deliverable: Function test_mfq_distribution_matches_norms that asserts
+    assert abs(mean - expected_mean) < 0.05 using values explicitly loaded from data/config/gervais_norms.yaml.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MDES_validation_test_mean_difference_less_than_0.05
+  kind: magnitude
+  raw_text: The MDES validation test asserts that the absolute difference between
+    the mean and expected mean is less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:41:31Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Posterior predictive check fails if p-value less than 0.05
+  claim_id: c_b74b78e9
+  context: 'Constraint: Must fail if p-value < 0.05 (indicates poor fit).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Posterior_predictive_check_fails_if_p-value_less_than_0.05
+  kind: magnitude
+  raw_text: The posterior predictive check fails if the p-value is less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:42:08Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: VR_LOG_SCHEMA_COLUMNS list response_time gaze_metrics judgment_rating
+  claim_id: c_e2042025
+  context: 'Deliverable: A module defining explicit constants and schemas: ... and
+    VR_LOG_SCHEMA_COLUMNS (list: ["response_time", "gaze_metrics", "judgment_rating"]).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VR_LOG_SCHEMA_COLUMNS_list_response_time_gaze_metrics_judgme
+  kind: entity_fact
+  raw_text: The VR_LOG_SCHEMA_COLUMNS list includes 'response_time', 'gaze_metrics',
+    and 'judgment_rating'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:42:18Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PyMC version 5.0.0 or higher
+  claim_id: c_c96c5ea6
+  context: Initialize Python 3.11 project with requirements.txt (pymc>=5.0.0, pandas,
+    numpy, scikit-learn, pyyaml, requests, seaborn, statsmodels).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PyMC version used is 5.0.0 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:42:41Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_873cf5a0
+  context: Initialize Python 3.11 project with requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Python version used is 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:42:59Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis reports three distinct entries
+  claim_id: c_27d0ec4a
+  context: 'Verification: Verify that the output JSON contains three distinct entries
+    for thresholds 2, 10, and 20 with stability metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_reports_three_distinct_entries
+  kind: entity_fact
+  raw_text: The sensitivity analysis reports stability metrics for three distinct
+    entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:43:23Z'
