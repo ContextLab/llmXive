@@ -1,0 +1,23 @@
+{
+  "project_id": "PROJ-1060-llmxive-follow-up-extending-abot-agentos",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/mock_baseline.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026a fallback mechanism to generate deterministic synthetic task traces and success\u2026\u201d; 2 run-book script(s) missing (plan/impl path mismatch): python code/main.py --config config/default.yaml; python code/main.py --granularity fine --predicates spatial+temporal; 3 command(s) failed: python code/data_loader.py --download --dataset alfworld/alfworld (rc=1); python code/data_loader.py --verify (rc=1); python code/experiment_runner.py --mode baseline-only (rc=1); 3 declared deliverable(s) absent: data/results/error_coverage.json; data/results/latency_violations.json; data/results/sweep_metrics.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/data_loader.py --download --dataset alfworld/alfworld -> rc=1\n    Starting ALFWorld data stream (Split: train, Max: 500)...\nWARNING: Remote dataset fetch failed: Dataset 'alfworld/alfworld' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.\nFATAL ERROR: Remote download failed AND local fallback artifact not found at 'data/raw/alfworld_traces_train.jsonl'. Please ensure the dataset is downloaded manually or network connectivity is restored.",
+    "python code/data_loader.py --verify -> rc=1\n    Starting ALFWorld data stream (Split: train, Max: 500)...\nWARNING: Remote dataset fetch failed: Dataset 'alfworld/alfworld' doesn't exist on the Hub. If the repo is private or gated, make sure to log in with `huggingface-cli login`.\nFATAL ERROR: Remote download failed AND local fallback artifact not found at 'data/raw/alfworld_traces_train.jsonl'. Please ensure the dataset is downloaded manually or network connectivity is restored.",
+    "python code/main.py --config config/default.yaml -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --granularity fine --predicates spatial+temporal -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/main.py': [Errno 2] No such file or directory",
+    "python code/experiment_runner.py --mode baseline-only -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/experiment_runner.py\", line 20, in <module>\n    from graph_builder import SymbolicGraphBuilder, save_graph\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/graph_builder.py\", line 16, in <module>\n    from tokenizer import SymbolicTokenizer, discretize_trace\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/data_loader.py --download --dataset alfworld/alfworld",
+    "python code/data_loader.py --verify"
+  ],
+  "updated_at": "2026-09-05T16:26:34Z"
+}

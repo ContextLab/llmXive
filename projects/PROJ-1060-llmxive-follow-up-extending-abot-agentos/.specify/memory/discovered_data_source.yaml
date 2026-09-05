@@ -1,14 +1,14 @@
 status: none
-intent: EmbodiedWorldBench task trace dataset with dialogue spatial coordinates temporal
-  sequences python package dataset
+intent: EmbodiedWorldBench task traces dataset with dialogue spatial coordinates temporal
+  sequence python package
 required_fields:
-- trace_id
-- dialogue_text
+- task_id
+- dialogue
 - spatial_coordinates
-- temporal_timestamps
-- object_annotations
-- environment_context
-- task_label
-cache_key: a611cf16ab181ca9f540d2ed20bab4f88e216dbb3fab1e07352186ab81223feb
-searched_at: '2026-09-04T09:20:10.105815+00:00'
+- temporal_sequence
+- outcome
+- timestamp
+- object_labels
+cache_key: b10d7a59edcbabd9aae0a14c900661434406aeb84f8b097627802cc2b1f76627
+searched_at: '2026-09-05T16:27:17.119595+00:00'
 retry_count: 1

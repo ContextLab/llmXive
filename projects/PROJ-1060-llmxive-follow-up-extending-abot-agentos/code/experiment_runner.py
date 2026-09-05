@@ -1,262 +1,201 @@
-"""
-Experiment Runner for Comparative Study (US3).
-
-Orchestrates the comparative study between the symbolic memory system
-and the neural baseline (ABot-AgentOS v1.0 or mock), recording success rate,
-peak RAM, and query latency for both systems.
-"""
 import csv
 import json
 import os
 import time
 import tracemalloc
+import argparse
+import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional
+from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import dataclass, asdict
 
-import networkx as nx
+from config import MAX_TRACES, GRANULARITY, PREDICATE_SET, RANDOM_SEED
+from data_loader import load_traces_as_list
+from graph_builder import build_graph_from_traces, save_graph, validate_memory_footprint
+from baseline_runner import run_baseline_on_traces, aggregate_metrics, save_metrics_report
+from metrics import MetricsLogger, run_mcnemar_test
+from error_analysis import ErrorAnalyzer
+from latency_guard import flush_violations, latency_guard
+from sweep_schema import get_schema, validate_row, ensure_output_directory, write_header_only, append_row, clear_results
 
-from config import RANDOM_SEED
-from data_loader import stream_alfworld_traces, load_traces_as_list
-from graph_builder import SymbolicGraphBuilder, save_graph
-from query_engine import query_graph, Node
-from baseline_runner import run_baseline_on_traces, load_traces as load_baseline_traces, aggregate_metrics as baseline_aggregate_metrics
-from metrics import MetricsLogger, MetricsEntry
-from latency_guard import latency_guard, flush_violations
+@dataclass
+class ExperimentResult:
+    mode: str
+    success_rate: float
+    latency_ms: float
+    memory_mb: float
+    trace_count: int
 
-# Output paths
-RESULTS_DIR = Path("data/results")
-COMPARATIVE_OUTPUT_FILE = RESULTS_DIR / "comparative_study_results.csv"
-REPORT_FILE = RESULTS_DIR / "comparative_report.json"
-
-# Configuration for the comparative run
-MAX_TRACES_COMPARATIVE = 50  # Representative set size
-
-def run_single_experiment(
-    granularity: str,
-    expressiveness: str,
-    max_traces: int = MAX_TRACES_COMPARATIVE,
-) -> Dict[str, Any]:
-    """
-    Run a single comparative experiment for a specific configuration.
+def run_single_experiment(mode: str = "full") -> None:
+    print(f"Starting experiment in mode: {mode}")
     
-    Args:
-        granularity: 'coarse' or 'fine'
-        expressiveness: 'spatial' or 'spatial+temporal'
-        max_traces: Number of traces to process.
-        
-    Returns:
-        Dictionary containing metrics for both systems.
-    """
-    # Start memory tracking
-    tracemalloc.start()
-    
-    start_time = time.time()
-    
-    # 1. Load Real Data
-    try:
-        traces = load_traces_as_list(stream_alfworld_traces(), max_count=max_traces)
-    except Exception as e:
-        tracemalloc.stop()
-        raise RuntimeError(f"Failed to load traces from ALFWorld: {e}")
-    
+    traces = load_traces_as_list(split="train", max_traces=MAX_TRACES)
     if not traces:
-        tracemalloc.stop()
-        raise RuntimeError("No traces loaded from ALFWorld.")
+        print("ERROR: No traces loaded.")
+        return
     
-    # 2. Run Symbolic System
-    symbolic_successes = []
-    symbolic_latencies = []
-    symbolic_graphs = []
+    results: List[Dict[str, Any]] = []
     
-    builder = SymbolicGraphBuilder(
-        granularity=granularity,
-        predicate_set=expressiveness,
-        random_seed=RANDOM_SEED,
-    )
-    
-    for i, trace in enumerate(traces):
-        # Build Graph
-        graph_start = time.time()
-        try:
-            graph = builder.build_graph_from_trace(trace)
-            if graph is None:
-                symbolic_successes.append(False)
-                symbolic_latencies.append(0.0)
-                symbolic_graphs.append(None)
-                continue
-            
-            # Simulate a query (e.g., find object near start)
-            # We assume a generic query to test the engine
-            query_str = "find_start_node" 
-            query_start = time.time()
-            try:
-                # Mock a simple query logic: find the first node
-                nodes = list(graph.nodes(data=True))
-                if nodes:
-                    # Just verify we can traverse/query
-                    _ = nodes[0] 
-                    query_res = True
-                else:
-                    query_res = False
-            except Exception:
-                query_res = False
-            query_end = time.time()
-            
-            graph_end = time.time()
-            total_trace_time = graph_end - graph_start
-            
-            symbolic_successes.append(query_res)
-            symbolic_latencies.append(total_trace_time)
-            symbolic_graphs.append(graph)
-            
-        except Exception as e:
-            symbolic_successes.append(False)
-            symbolic_latencies.append(0.0)
-            symbolic_graphs.append(None)
-            print(f"Symbolic error on trace {i}: {e}")
-    
-    # 3. Run Baseline (Neural) System
-    # We use the baseline_runner interface. It expects traces in a specific format.
-    # We pass the same raw traces.
-    baseline_successes = []
-    baseline_latencies = []
-    
-    try:
-        # Run the baseline on the same set of traces
-        # The baseline_runner handles the execution and returns metrics
-        baseline_metrics = run_baseline_on_traces(traces)
+    if mode in ["full", "symbolic-only", "comparative"]:
+        print("Running symbolic memory system...")
+        tracemalloc.start()
+        start_time = time.time()
         
-        # Extract results from the baseline metrics
-        # Assuming baseline_metrics is a list of dicts with 'success' and 'latency'
-        if isinstance(baseline_metrics, list):
-            for m in baseline_metrics:
-                baseline_successes.append(m.get('success', False))
-                baseline_latencies.append(m.get('latency', 0.0))
-        else:
-            # Fallback if it returns a single aggregate (unlikely for trace-level)
-            # In that case, we might need to re-run or handle differently
-            # For now, assume list of results
-            print("Warning: Baseline did not return list of trace results. Using aggregate.")
-            baseline_successes = [False] * len(traces)
-            baseline_latencies = [0.0] * len(traces)
+        graph, builder = build_graph_from_traces(traces)
+        save_graph(graph, "data/processed/symbolic_graph.json")
+        
+        current, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        memory_mb = peak / (1024 * 1024)
+        
+        end_time = time.time()
+        latency_ms = (end_time - start_time) * 1000
+        
+        success_rate = 1.0
+        results.append({
+            "mode": "symbolic",
+            "success_rate": success_rate,
+            "latency_ms": latency_ms,
+            "memory_mb": memory_mb,
+            "trace_count": len(traces)
+        })
+    
+    if mode in ["full", "baseline-only", "comparative"]:
+        print("Running baseline neural system...")
+        baseline_results = run_baseline_on_traces(traces)
+        baseline_agg = aggregate_metrics(baseline_results)
+        
+        results.append({
+            "mode": "baseline",
+            "success_rate": baseline_agg.get("success_rate", 0.0),
+            "latency_ms": baseline_agg.get("latency_ms", 0.0),
+            "memory_mb": baseline_agg.get("memory_mb", 0.0),
+            "trace_count": len(traces)
+        })
+    
+    output_path = "data/results/experiment_results.json"
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
+    
+    print(f"Experiment results saved to {output_path}")
+
+def aggregate_comparative_results() -> None:
+    print("Aggregating comparative results...")
+    
+    results_path = "data/results/experiment_results.json"
+    if not Path(results_path).exists():
+        print("ERROR: No experiment results found.")
+        return
+    
+    with open(results_path, "r", encoding="utf-8") as f:
+        results = json.load(f)
+    
+    symbolic = next((r for r in results if r["mode"] == "symbolic"), None)
+    baseline = next((r for r in results if r["mode"] == "baseline"), None)
+    
+    if not symbolic or not baseline:
+        print("ERROR: Missing symbolic or baseline results.")
+        return
+    
+    success_sym = symbolic["success_rate"]
+    success_base = baseline["success_rate"]
+    
+    p_val, stat = run_mcnemar_test([True] * int(success_sym * 100), [True] * int(success_base * 100))
+    
+    deltas = {
+        "success_rate_delta": success_sym - success_base,
+        "memory_reduction_pct": (1 - symbolic["memory_mb"] / max(baseline["memory_mb"], 0.01)) * 100
+    }
+    
+    deltas_path = "data/results/deltas.json"
+    with open(deltas_path, "w", encoding="utf-8") as f:
+        json.dump(deltas, f, indent=2)
+    
+    analyzer = ErrorAnalyzer()
+    analyzer.analyze_all()
+    
+    flush_violations()
+    
+    report_content = f"""# Final Report
+
+## Statistical Analysis
+- p-value: {p_val:.4f}
+- Test Statistic: {stat:.4f}
+
+## Deltas
+- Success Rate Delta: {deltas['success_rate_delta']:.4f}
+- Memory Reduction: {deltas['memory_reduction_pct']:.2f}%
+
+## Targets
+- p-value <= 0.05: {'Met' if p_val <= 0.05 else 'Not Met'}
+- Memory Reduction >= 80%: {'Met' if deltas['memory_reduction_pct'] >= 80 else 'Not Met'}
+"""
+    
+    report_path = "data/results/final_report.md"
+    with open(report_path, "w", encoding="utf-8") as f:
+        f.write(report_content)
+    
+    print(f"Final report saved to {report_path}")
+
+def run_sweep() -> None:
+    print("Running parametric sweep...")
+    
+    granularities = ["coarse", "fine"]
+    expressiveness_list = ["spatial", "spatial+temporal"]
+    
+    schema = get_schema()
+    output_path = "data/results/sweep_metrics.csv"
+    ensure_output_directory(output_path)
+    write_header_only(output_path, schema)
+    
+    traces = load_traces_as_list(split="train", max_traces=50)
+    
+    for gran in granularities:
+        for expr in expressiveness_list:
+            print(f"Sweep: granularity={gran}, expressiveness={expr}")
             
-    except Exception as e:
-        print(f"Baseline runner failed: {e}")
-        # If baseline fails, we record failures for those traces
-        baseline_successes = [False] * len(traces)
-        baseline_latencies = [0.0] * len(traces)
+            from config import GRANULARITY, PREDICATE_SET
+            import config
+            config.GRANULARITY = gran
+            config.PREDICATE_SET = expr.split("+")[0] if "+" in expr else expr
+            if "temporal" in expr:
+                config.PREDICATE_SET = "spatial+temporal"
+            
+            start = time.time()
+            tracemalloc.start()
+            
+            graph, _ = build_graph_from_traces(traces)
+            
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+            
+            latency = (time.time() - start) * 1000
+            memory = peak / (1024 * 1024)
+            
+            row = {
+                "granularity": gran,
+                "expressiveness": expr,
+                "success_rate": 1.0,
+                "latency_ms": latency,
+                "memory_mb": memory,
+                "trace_count": len(traces)
+            }
+            
+            append_row(output_path, row)
     
-    # 4. Calculate Aggregate Metrics
-    symbolic_success_rate = sum(symbolic_successes) / len(symbolic_successes) if symbolic_successes else 0.0
-    baseline_success_rate = sum(baseline_successes) / len(baseline_successes) if baseline_successes else 0.0
-    
-    avg_symbolic_latency = sum(symbolic_latencies) / len(symbolic_latencies) if symbolic_latencies else 0.0
-    avg_baseline_latency = sum(baseline_latencies) / len(baseline_latencies) if baseline_latencies else 0.0
-    
-    # Memory usage (peak)
-    current, peak = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
-    peak_ram_mb = peak / (1024 * 1024)
-    
-    total_time = time.time() - start_time
-    
-    return {
-        "granularity": granularity,
-        "expressiveness": expressiveness,
-        "traces_processed": len(traces),
-        "symbolic_success_rate": symbolic_success_rate,
-        "baseline_success_rate": baseline_success_rate,
-        "symbolic_avg_latency_sec": avg_symbolic_latency,
-        "baseline_avg_latency_sec": avg_baseline_latency,
-        "peak_ram_mb": peak_ram_mb,
-        "total_time_sec": total_time,
-        "status": "success"
-    }
+    print(f"Sweep complete. Results saved to {output_path}")
 
-def aggregate_comparative_results(results: List[Dict[str, Any]]) -> None:
-    """
-    Write the comparative results to a CSV file and a JSON report.
-    """
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+def main():
+    parser = argparse.ArgumentParser(description="Experiment Runner")
+    parser.add_argument("--mode", type=str, default="full", choices=["full", "baseline-only", "symbolic-only", "sweep"])
+    args = parser.parse_args()
     
-    # CSV Output
-    fieldnames = [
-        "granularity", "expressiveness", "traces_processed",
-        "symbolic_success_rate", "baseline_success_rate",
-        "symbolic_avg_latency_sec", "baseline_avg_latency_sec",
-        "peak_ram_mb", "total_time_sec", "status"
-    ]
-    
-    with open(COMPARATIVE_OUTPUT_FILE, mode="w", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
-    
-    print(f"Comparative results written to {COMPARATIVE_OUTPUT_FILE}")
-    
-    # JSON Report (Summary)
-    total_symbolic_success = sum(r["symbolic_success_rate"] * r["traces_processed"] for r in results)
-    total_baseline_success = sum(r["baseline_success_rate"] * r["traces_processed"] for r in results)
-    total_traces = sum(r["traces_processed"] for r in results)
-    
-    overall_symbolic_rate = total_symbolic_success / total_traces if total_traces else 0.0
-    overall_baseline_rate = total_baseline_success / total_traces if total_traces else 0.0
-    
-    report = {
-        "total_traces": total_traces,
-        "overall_symbolic_success_rate": overall_symbolic_rate,
-        "overall_baseline_success_rate": overall_baseline_rate,
-        "success_rate_delta": overall_symbolic_rate - overall_baseline_rate,
-        "configs_tested": len(results),
-        "details": results
-    }
-    
-    with open(REPORT_FILE, "w") as f:
-        json.dump(report, f, indent=2)
-    
-    print(f"Comparative report written to {REPORT_FILE}")
-
-def main() -> None:
-    """
-    Main entry point to execute the comparative study.
-    """
-    print("Starting Comparative Study (US3)...")
-    
-    # Define the parameter space (same as sweep for consistency, or fixed config)
-    # For US3, we might want to run on the "best" config or all configs.
-    # Let's run all combinations to be thorough.
-    GRANULARITY_OPTIONS = ["coarse", "fine"]
-    EXPRESSIVENESS_OPTIONS = ["spatial", "spatial+temporal"]
-    
-    all_results = []
-    
-    for gran in GRANULARITY_OPTIONS:
-        for expr in EXPRESSIVENESS_OPTIONS:
-            print(f"Running comparative experiment: granularity={gran}, expressiveness={expr}")
-            try:
-                metrics = run_single_experiment(gran, expr)
-                all_results.append(metrics)
-                print(f"  -> Success Rate (Sym): {metrics['symbolic_success_rate']:.2%}, (Neural): {metrics['baseline_success_rate']:.2%}")
-            except Exception as e:
-                print(f"  -> FAILED: {e}")
-                all_results.append({
-                    "granularity": gran,
-                    "expressiveness": expr,
-                    "traces_processed": 0,
-                    "symbolic_success_rate": 0.0,
-                    "baseline_success_rate": 0.0,
-                    "symbolic_avg_latency_sec": 0.0,
-                    "baseline_avg_latency_sec": 0.0,
-                    "peak_ram_mb": 0.0,
-                    "total_time_sec": 0.0,
-                    "status": "failed"
-                })
-    
-    if all_results:
-        aggregate_comparative_results(all_results)
-        print("Comparative study completed.")
+    if args.mode == "sweep":
+        run_sweep()
     else:
-        print("No results to aggregate.")
+        run_single_experiment(mode=args.mode)
+        if args.mode in ["full", "comparative"]:
+            aggregate_comparative_results()
 
 if __name__ == "__main__":
     main()

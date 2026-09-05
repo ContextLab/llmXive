@@ -5,24 +5,30 @@ T009b:
     `) and contains no function that writes the computed error metrics to `data/results/reconstruction_error.json`.\
     \ Moreover, the required `data/results/reconstruction_error.json` file is absent.\
     \ Hence the task\u2019s required artifact and behavior are not fully delivered."
-T016:
-  c: false
-  h: f9645a5544834a1dbde98a6eda7c15e89e00df9e50234fbb9d3b32095bb5533f
-  r: "The repository lacks the required `data/results/sweep_metrics.csv` file, and\
-    \ the provided `code/experiment_runner.py` does not contain a complete implementation\
-    \ of the parametric sweep (the snippet is truncated, contains placeholder code,\
-    \ and no logic to iterate over all granularity/expressiveness combinations or\
-    \ to write the aggregated CSV). The task\u2019s core requirement is therefore\
-    \ unmet."
 T023:
+  c: true
+  h: e998cf441f6a8f1cbe40690063a2694c2694e4362452f30504746db03da1af82
+  r: "The repository contains a non\u2011empty `code/latency_guard.py` that defines\
+    \ the `@latency_guard` decorator, measures execution time, and appends violations\
+    \ to `data/results/latency_violations.json` using the required schema while allowing\
+    \ the wrapped function to continue. The missing JSON file is expected to be created\
+    \ at runtime, not as a static artifact."
+T023b:
   c: false
-  h: 823f6129fb5dd66d29bb21e784ef13e6b607c7dedb0704e2f0ea532cdff028b1
-  r: The provided `code/latency_guard.py` is truncated and never invokes `_save_violations()`,
-    so violations are never written to `data/results/latency_violations.json`. Consequently
-    the required JSON log file is missing and the decorator does not fully meet the
-    specification. The implementation must be completed to actually persist violations
-    (e.g., call `_save_violations()` after appending) and ensure the JSON file is
-    created.
+  h: b0142699dd71386b9b4b1ee522b4b8aaae8f2c7526a60dadea196ceeeea9fc4f
+  r: "The provided `experiment_runner.py` does not contain any code that reads `latency_violations.json`,\
+    \ checks the >10% >100\u202Fms condition, adjusts parameters, or writes an abort\
+    \ entry to `data/results/sweep_abort_log.json`. Moreover, the required `sweep_abort_log.json`\
+    \ file is absent. The task\u2019s mitigation logic and abort\u2011log artifact\
+    \ are therefore missing."
+T026:
+  c: false
+  h: e9fd845f66cd4ca9db34628ea287e6a8042735c59fd6e959a01588f3dd6ff039
+  r: 'The required `data/results/final_report.md` file does not exist, and the existing
+    `deltas.json` contains only placeholder zero values (e.g., `total_traces: 0`).
+    Moreover, the test shown runs `experiment_runner.py` rather than `main.py --compare`,
+    so the asserted behavior is not demonstrated. The integration test therefore does
+    not verify the production of the required output artifacts.'
 T030b:
   c: false
   h: 8569f46b4a46a8999c95879c46551fb1b4c4e68cc0f3ba102a39817768a0b2e4

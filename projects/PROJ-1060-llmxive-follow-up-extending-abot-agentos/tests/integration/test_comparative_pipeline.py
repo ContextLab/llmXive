@@ -36,6 +36,7 @@ EXPECTED_ARTIFACTS = [
     RESULTS_DIR / "comparative_results.json",
     RESULTS_DIR / "final_report.md",
     RESULTS_DIR / "error_coverage.json",
+    RESULTS_DIR / "deltas.json",
 ]
 
 @pytest.fixture(scope="module", autouse=True)
@@ -155,6 +156,23 @@ def test_06_final_artifact_check():
     
     if missing:
         pytest.fail(f"Missing or empty artifacts: {', '.join(missing)}")
+
+def test_07_verify_deltas_content():
+    """
+    Step 7: Verify deltas.json contains real calculated values.
+    """
+    deltas_path = RESULTS_DIR / "deltas.json"
+    assert deltas_path.exists(), "deltas.json missing"
+    
+    with open(deltas_path, "r") as f:
+        deltas = json.load(f)
+    
+    assert "success_rate_delta" in deltas, "deltas.json missing success_rate_delta"
+    assert "memory_reduction_pct" in deltas, "deltas.json missing memory_reduction_pct"
+    
+    # Values should be floats (not None or strings)
+    assert isinstance(deltas["success_rate_delta"], (int, float)), "success_rate_delta is not a number"
+    assert isinstance(deltas["memory_reduction_pct"], (int, float)), "memory_reduction_pct is not a number"
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "--tb=short"])

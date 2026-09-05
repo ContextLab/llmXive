@@ -1,3 +1,6 @@
+"""
+Metrics collection, aggregation, and statistical analysis.
+"""
 import csv
 import json
 import os
@@ -5,244 +8,272 @@ import time
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import statistics
+import math
+
+# Add code directory to path
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
 
 @dataclass
 class MetricsEntry:
-    """Represents a single metrics entry for logging."""
-    timestamp: float
-    experiment_id: str
-    granularity: str
-    expressiveness: str
-    success: bool
-    latency_ms: float
-    memory_mb: float
-    error_category: Optional[str] = None
+    """Single metric entry for logging."""
+    timestamp: str
+    metric_name: str
+    value: float
+    tags: Dict[str, str] = field(default_factory=dict)
 
 class MetricsLogger:
-    """Logs metrics to JSON and CSV formats, and supports aggregation."""
-
-    def __init__(self, output_dir: str = "data/results"):
-        self.output_dir = Path(output_dir)
+    """Logger for success, latency, and memory metrics."""
+    
+    def __init__(self, output_dir: Path):
+        self.output_dir = output_dir
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.entries: List[MetricsEntry] = []
-
-    def log_success(self, success: bool):
-        """Log success status (contextualized by current run state)."""
-        # This is a simplified helper; actual logging usually happens via add_entry
-        pass
-
-    def log_latency(self, latency_ms: float):
-        """Log latency (contextualized by current run state)."""
-        pass
-
-    def log_memory(self, memory_mb: float):
-        """Log memory usage (contextualized by current run state)."""
-        pass
-
-    def add_entry(self, entry: MetricsEntry):
-        """Add a full metrics entry to the in-memory buffer."""
+    
+    def log_success(self, success: bool, tags: Dict[str, str] = None):
+        """Log a success/failure event."""
+        entry = MetricsEntry(
+            timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
+            metric_name="success",
+            value=1.0 if success else 0.0,
+            tags=tags or {}
+        )
         self.entries.append(entry)
-
+    
+    def log_latency(self, latency_ms: float, tags: Dict[str, str] = None):
+        """Log latency in milliseconds."""
+        entry = MetricsEntry(
+            timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
+            metric_name="latency_ms",
+            value=latency_ms,
+            tags=tags or {}
+        )
+        self.entries.append(entry)
+    
+    def log_memory(self, memory_mb: float, tags: Dict[str, str] = None):
+        """Log memory usage in MB."""
+        entry = MetricsEntry(
+            timestamp=time.strftime("%Y-%m-%d %H:%M:%S"),
+            metric_name="memory_mb",
+            value=memory_mb,
+            tags=tags or {}
+        )
+        self.entries.append(entry)
+    
     def save_report(self, filename: str):
-        """Save all collected entries to a CSV file."""
-        filepath = self.output_dir / filename
-        if not self.entries:
-            # Write empty file with headers if no data
-            with open(filepath, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=asdict(self.entries[0]).keys() if self.entries else [])
-                writer.writeheader()
-            return
-
-        with open(filepath, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=asdict(self.entries[0]).keys())
-            writer.writeheader()
-            for entry in self.entries:
-                writer.writerow(asdict(entry))
+        """Save all entries to a JSON report."""
+        report_path = self.output_dir / filename
+        with open(report_path, "w") as f:
+            json.dump([asdict(e) for e in self.entries], f, indent=2)
 
 def run_mcnemar_test(success_symbolic: List[bool], success_neural: List[bool]) -> Tuple[float, float]:
     """
-    Compute McNemar's test statistic and p-value for paired nominal data.
-    Returns (statistic, p_value).
+    Compute McNemar's test statistic and p-value for paired binary data.
+    
+    Args:
+        success_symbolic: List of booleans for symbolic system success
+        success_neural: List of booleans for neural baseline success
+    
+    Returns:
+        (p_value, statistic) tuple
     """
     if len(success_symbolic) != len(success_neural):
-        raise ValueError("Lists must be of equal length")
-
+        raise ValueError("Input lists must have the same length")
+    
     n = len(success_symbolic)
-    # Contingency table counts
-    # a: Both Success
-    # b: Symbolic Success, Neural Fail
-    # c: Symbolic Fail, Neural Success
-    # d: Both Fail
-    b = 0
-    c = 0
+    if n == 0:
+        return 1.0, 0.0
+    
+    # Build contingency table
+    # a: both succeed
+    # b: symbolic succeeds, neural fails
+    # c: symbolic fails, neural succeeds
+    # d: both fail
+    a = b = c = d = 0
+    
     for s, ne in zip(success_symbolic, success_neural):
-        if s and not ne:
+        if s and ne:
+            a += 1
+        elif s and not ne:
             b += 1
         elif not s and ne:
             c += 1
-
+        else:
+            d += 1
+    
+    # McNemar's statistic (with continuity correction)
+    # chi2 = (|b - c| - 1)^2 / (b + c)
     if b + c == 0:
-        return 0.0, 1.0
-
-    # McNemar statistic: (|b - c| - 1)^2 / (b + c) with continuity correction
-    # Or standard: (b - c)^2 / (b + c)
-    # Using continuity correction for small samples usually preferred
-    stat = (abs(b - c) - 1) ** 2 / (b + c)
+        return 1.0, 0.0
     
-    # Approximate p-value using Chi-squared distribution with 1 df
-    # Since we can't import scipy.stats easily without adding deps, 
-    # we use a simple approximation or return the statistic.
-    # However, statsmodels is in requirements. Let's assume we can use it if available,
-    # but to keep it pure stdlib/dataclass based as per current imports, 
-    # we will implement a basic Chi2 survival function approximation or rely on statsmodels if imported.
-    # Given requirements.txt has statsmodels, let's try to import it.
-    try:
-        from scipy.stats import chi2
-        p_value = chi2.sf(stat, 1)
-    except ImportError:
-        # Fallback simple approximation if scipy not available (unlikely given reqs)
-        # For stat > 3.841, p < 0.05
-        p_value = 1.0 if stat < 3.841 else 0.04 if stat < 5.0 else 0.01
-
-    return float(stat), float(p_value)
-
-def aggregate_sweep_results(sweep_data_path: str, output_path: str) -> Dict[str, Any]:
-    """
-    Aggregate results from the parametric sweep (T016).
-    Reads data/results/sweep_metrics.csv (or specified path),
-    groups by granularity and expressiveness, and calculates
-    average success rate, average latency, and average memory usage.
+    statistic = ((abs(b - c) - 1) ** 2) / (b + c)
     
-    Writes a summary report to the specified output_path.
+    # Calculate p-value using chi-square distribution with 1 degree of freedom
+    # Approximation: p = 1 - CDF(chi2)
+    # Using standard approximation for chi-square CDF
+    p_value = 1.0 - chi2_cdf(statistic, 1)
+    
+    return max(0.0, min(1.0, p_value)), statistic
+
+def chi2_cdf(x, df):
     """
-    input_file = Path(sweep_data_path)
-    if not input_file.exists():
-        raise FileNotFoundError(f"Sweep results file not found: {sweep_data_path}")
+    Approximate chi-square cumulative distribution function.
+    Uses the regularized incomplete gamma function approximation.
+    """
+    if x <= 0:
+        return 0.0
+    if df <= 0:
+        return 0.0
+    
+    # For df=1, chi2_cdf(x) = erf(sqrt(x/2))
+    if df == 1:
+        return math.erf(math.sqrt(x / 2))
+    
+    # General approximation using series expansion
+    k = df / 2.0
+    x_half = x / 2.0
+    
+    # Regularized incomplete gamma function P(k, x)
+    # Using series expansion for small x
+    if x_half < k + 1:
+        sum_val = 1.0 / k
+        term = 1.0 / k
+        for n in range(1, 200):
+            term *= x_half / (k + n)
+            sum_val += term
+            if abs(term) < 1e-10:
+                break
+        return sum_val * math.exp(-x_half + k * math.log(x_half) - math.lgamma(k))
+    else:
+        # Use continued fraction for large x
+        return 1.0 - continued_fraction_gamma(k, x_half)
 
-    results: Dict[str, List[Dict[str, Any]]] = {}
+def continued_fraction_gamma(a, x):
+    """Continued fraction approximation for Q(a, x) = 1 - P(a, x)."""
+    if x <= 0:
+        return 1.0
+    
+    # Lentz's algorithm for continued fraction
+    f = 1.0 + (1.0 - a) / x
+    c = f
+    d = 0.0
+    for i in range(1, 200):
+        m = (i + 1) / 2
+        if i % 2 == 1:
+            a_i = -m * (m + a - 1) / (2 * m + 1)
+        else:
+            a_i = m / (2 * m + 1)
+        
+        d = 1.0 + a_i * d
+        if abs(d) < 1e-30:
+            d = 1e-30
+        c = 1.0 + a_i / c
+        if abs(c) < 1e-30:
+            c = 1e-30
+        d = 1.0 / d
+        delta = c * d
+        f *= delta
+        if abs(delta - 1.0) < 1e-10:
+            break
+    
+    return f * math.exp(-x + a * math.log(x) - math.lgamma(a))
 
-    with open(input_file, 'r', newline='') as f:
+def aggregate_sweep_results(sweep_file: Path) -> Dict[str, Any]:
+    """Aggregate results from sweep_metrics.csv."""
+    if not sweep_file.exists():
+        return {}
+    
+    results = []
+    with open(sweep_file, "r") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Parse row data
-            granularity = row.get('granularity', 'unknown')
-            expressiveness = row.get('expressiveness', 'unknown')
-            success = row.get('success', 'False').lower() == 'true'
-            latency = float(row.get('latency_ms', 0))
-            memory = float(row.get('memory_mb', 0))
-
-            key = (granularity, expressiveness)
-            if key not in results:
-                results[key] = []
-            
-            results[key].append({
-                'success': success,
-                'latency_ms': latency,
-                'memory_mb': memory
+            results.append({
+                "granularity": row["granularity"],
+                "expressiveness": row["expressiveness"],
+                "success_rate": float(row["success_rate"]),
+                "latency_ms": float(row["latency_ms"]),
+                "memory_mb": float(row["memory_mb"]),
+                "trace_count": int(row["trace_count"])
             })
-
-    summary = {
-        'aggregated_metrics': [],
-        'impact_analysis': {
-            'granularity_impact': {},
-            'expressiveness_impact': {}
-        }
+    
+    return {
+        "total_runs": len(results),
+        "results": results
     }
 
-    # Calculate aggregates
-    for (gran, expr), data_list in results.items():
-        total_runs = len(data_list)
-        success_count = sum(1 for d in data_list if d['success'])
-        success_rate = success_count / total_runs if total_runs > 0 else 0.0
-        
-        avg_latency = statistics.mean([d['latency_ms'] for d in data_list]) if data_list else 0.0
-        avg_memory = statistics.mean([d['memory_mb'] for d in data_list]) if data_list else 0.0
-
-        summary['aggregated_metrics'].append({
-            'granularity': gran,
-            'expressiveness': expr,
-            'total_runs': total_runs,
-            'success_rate': success_rate,
-            'avg_latency_ms': avg_latency,
-            'avg_memory_mb': avg_memory
-        })
-
-    # Analyze impact of granularity (holding expressiveness constant or averaging)
-    # Simple approach: Compare coarse vs fine across all expressiveness
-    gran_success_rates = {}
-    gran_latencies = {}
-    gran_memories = {}
+def calculate_deltas(comparative_results: List[Dict[str, Any]]) -> Dict[str, float]:
+    """
+    Calculate performance deltas between symbolic and neural systems.
     
-    for metric in summary['aggregated_metrics']:
-        g = metric['granularity']
-        if g not in gran_success_rates:
-            gran_success_rates[g] = []
-            gran_latencies[g] = []
-            gran_memories[g] = []
-        gran_success_rates[g].append(metric['success_rate'])
-        gran_latencies[g].append(metric['avg_latency_ms'])
-        gran_memories[g].append(metric['avg_memory_mb'])
-
-    for g, rates in gran_success_rates.items():
-        summary['impact_analysis']['granularity_impact'][g] = {
-            'avg_success_rate': statistics.mean(rates),
-            'avg_latency_ms': statistics.mean(gran_latencies[g]),
-            'avg_memory_mb': statistics.mean(gran_memories[g])
+    Args:
+        comparative_results: List of experiment results with symbolic/neural metrics
+    
+    Returns:
+        Dictionary with success_rate_delta and memory_reduction_pct
+    """
+    if not comparative_results:
+        return {
+            "success_rate_delta": 0.0,
+            "memory_reduction_pct": 0.0
         }
+    
+    symbolic_successes = [r["symbolic_success"] for r in comparative_results]
+    neural_successes = [r["neural_success"] for r in comparative_results]
+    symbolic_memory = [r["symbolic_memory_mb"] for r in comparative_results]
+    neural_memory = [r["neural_memory_mb"] for r in comparative_results]
+    
+    # Calculate success rates
+    symbolic_rate = sum(symbolic_successes) / len(symbolic_successes)
+    neural_rate = sum(neural_successes) / len(neural_successes)
+    
+    # Calculate memory averages
+    symbolic_mem_avg = sum(symbolic_memory) / len(symbolic_memory)
+    neural_mem_avg = sum(neural_memory) / len(neural_memory)
+    
+    # Calculate deltas
+    success_rate_delta = symbolic_rate - neural_rate
+    
+    if neural_mem_avg > 0:
+        memory_reduction_pct = (1 - symbolic_mem_avg / neural_mem_avg) * 100
+    else:
+        memory_reduction_pct = 0.0
+    
+    return {
+        "success_rate_delta": success_rate_delta,
+        "memory_reduction_pct": memory_reduction_pct
+    }
 
-    # Analyze impact of expressiveness
-    expr_success_rates = {}
-    expr_latencies = {}
-    expr_memories = {}
-
-    for metric in summary['aggregated_metrics']:
-        e = metric['expressiveness']
-        if e not in expr_success_rates:
-            expr_success_rates[e] = []
-            expr_latencies[e] = []
-            expr_memories[e] = []
-        expr_success_rates[e].append(metric['success_rate'])
-        expr_latencies[e].append(metric['avg_latency_ms'])
-        expr_memories[e].append(metric['avg_memory_mb'])
-
-    for e, rates in expr_success_rates.items():
-        summary['impact_analysis']['expressiveness_impact'][e] = {
-            'avg_success_rate': statistics.mean(rates),
-            'avg_latency_ms': statistics.mean(expr_latencies[e]),
-            'avg_memory_mb': statistics.mean(expr_memories[e])
-        }
-
-    # Write output
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w') as f:
-        json.dump(summary, f, indent=2)
-
-    return summary
+def save_metrics_report(report_data: Dict[str, Any], output_path: Path):
+    """Save metrics report to JSON file."""
+    with open(output_path, "w") as f:
+        json.dump(report_data, f, indent=2)
 
 def main():
-    """
-    Entry point for T031: Aggregating sweep results.
-    Expects sweep data at data/results/sweep_metrics.csv
-    Outputs to data/results/sweep_aggregation.json
-    """
-    sweep_path = "data/results/sweep_metrics.csv"
-    output_path = "data/results/sweep_aggregation.json"
+    """Main entry point for metrics module."""
+    import argparse
     
-    if not Path(sweep_path).exists():
-        print(f"Error: Sweep data file {sweep_path} not found. Run T016 first.")
-        return 1
-
-    try:
-        summary = aggregate_sweep_results(sweep_path, output_path)
-        print(f"Sweep aggregation complete. Report saved to {output_path}")
-        print(f"Granularity Impact: {summary['impact_analysis']['granularity_impact']}")
-        print(f"Expressiveness Impact: {summary['impact_analysis']['expressiveness_impact']}")
-        return 0
-    except Exception as e:
-        print(f"Error aggregating sweep results: {e}")
-        return 1
+    parser = argparse.ArgumentParser(description="Metrics Analysis Tool")
+    parser.add_argument("--mode", type=str, default="calculate_deltas",
+                        choices=["calculate_deltas", "aggregate_sweep"])
+    parser.add_argument("--input", type=str, help="Input file path")
+    parser.add_argument("--output", type=str, help="Output file path")
+    
+    args = parser.parse_args()
+    
+    if args.mode == "calculate_deltas":
+        # This would require comparative results input
+        print("Use experiment_runner.py for comparative analysis")
+    elif args.mode == "aggregate_sweep":
+        if not args.input:
+            print("Error: --input required for aggregate_sweep mode")
+            return 1
+        
+        results = aggregate_sweep_results(Path(args.input))
+        print(json.dumps(results, indent=2))
+    
+    return 0
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())
