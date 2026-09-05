@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.03700",
+  "judged_at": "2026-09-05T09:19:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memgui-agent: an end-to-end long-horizon mobile gui agent with proacti\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (e) as it presents a foundational mobile GUI agent framework with a scalable data pipeline and reinforcement fine-tuning, which constitutes the canonical prior work and empirical baseline for extending or comparing against the \"MemGUI-Agent\" system in the domain of long-horizon mobile GUI agents.",
+  "relevant": true
+}

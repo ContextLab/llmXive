@@ -1,198 +1,248 @@
+"""
+Sensitivity Analysis Module for Robustness Index Calculation.
+
+This module implements the sensitivity analysis to determine the robustness
+of motion labels (High/Low) across varying optical flow magnitude thresholds.
+It generates a CSV file with threshold values and the corresponding Robustness Index.
+"""
+
 import csv
 import json
 import sys
 import argparse
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-import os
+import numpy as np
 
-from src.data.loader import load_config
+# Constants
+THRESHOLD_MIN = 0.0
+THRESHOLD_MAX = 1.0
+THRESHOLD_STEP = 0.1
 
-def load_motion_labels(motion_labels_path: Path) -> List[Dict[str, Any]]:
+
+def load_motion_labels(file_path: Path) -> List[Dict[str, Any]]:
     """
-    Load motion labels from the generated JSON file.
-    
+    Load motion labels from a JSON file.
+
     Args:
-        motion_labels_path: Path to the motion_labels.json file.
-        
+        file_path: Path to the motion_labels.json file.
+
     Returns:
         List of dictionaries containing motion label data.
-        
+
     Raises:
-        FileNotFoundError: If the motion labels file does not exist.
+        FileNotFoundError: If the file does not exist.
         json.JSONDecodeError: If the file is not valid JSON.
     """
-    if not motion_labels_path.exists():
-        raise FileNotFoundError(f"Motion labels file not found: {motion_labels_path}")
-    
-    with open(motion_labels_path, 'r') as f:
+    if not file_path.exists():
+        raise FileNotFoundError(f"Motion labels file not found: {file_path}")
+
+    with open(file_path, 'r') as f:
         data = json.load(f)
-        
-    # Ensure data is a list
-    if isinstance(data, dict) and 'labels' in data:
-        return data['labels']
+
+    # Ensure data is a list of samples
+    if isinstance(data, dict) and 'samples' in data:
+        return data['samples']
     elif isinstance(data, list):
         return data
     else:
-        raise ValueError(f"Unexpected format in motion labels file: {motion_labels_path}")
+        raise ValueError(f"Unexpected data format in {file_path}. Expected list or dict with 'samples' key.")
 
-def calculate_robustness_index(motion_labels: List[Dict[str, Any]], 
-                               thresholds: List[float]) -> List[Tuple[float, float]]:
+
+def calculate_motion_label(magnitude: float, threshold: float) -> str:
     """
-    Calculate the Robustness Index for a range of optical flow thresholds.
-    
-    The Robustness Index is defined as:
-    (Number of samples where motion label (High/Low) remains unchanged 
-     across adjacent threshold steps) / (Total samples) * 100.
-    
+    Determine the motion label based on optical flow magnitude and threshold.
+
     Args:
-        motion_labels: List of motion label dictionaries with 'optical_flow_magnitude'.
-        thresholds: List of threshold values to iterate over.
-        
-    Returns:
-        List of tuples (threshold, robustness_metric) for each threshold step.
-    """
-    if not motion_labels:
-        raise ValueError("Motion labels list is empty. Cannot calculate robustness index.")
-        
-    if len(thresholds) < 2:
-        raise ValueError("At least two thresholds are required to calculate robustness.")
-        
-    total_samples = len(motion_labels)
-    results = []
-    
-    # Extract magnitudes once
-    magnitudes = [label['optical_flow_magnitude'] for label in motion_labels]
-    
-    for i in range(len(thresholds) - 1):
-        current_threshold = thresholds[i]
-        next_threshold = thresholds[i + 1]
-        
-        # Count samples where label remains unchanged between current and next threshold
-        unchanged_count = 0
-        
-        for mag in magnitudes:
-            # Determine label at current threshold
-            label_current = "High" if mag > current_threshold else "Low"
-            # Determine label at next threshold
-            label_next = "High" if mag > next_threshold else "Low"
-            
-            if label_current == label_next:
-                unchanged_count += 1
-        
-        # Calculate robustness metric
-        robustness_metric = (unchanged_count / total_samples) * 100
-        results.append((current_threshold, robustness_metric))
-        
-    return results
+        magnitude: The optical flow magnitude value.
+        threshold: The threshold value for classification.
 
-def run_sensitivity_analysis(motion_labels_path: Path, 
-                             output_path: Path, 
-                             threshold_start: float = 0.0,
-                             threshold_end: float = 1.0,
-                             threshold_step: float = 0.1) -> None:
+    Returns:
+        'High' if magnitude >= threshold, 'Low' otherwise.
+    """
+    return "High" if magnitude >= threshold else "Low"
+
+
+def calculate_robustness_index(samples: List[Dict[str, Any]], thresholds: List[float]) -> Dict[float, float]:
+    """
+    Calculate the Robustness Index for each threshold.
+
+    The Robustness Index is defined as:
+    (Number of samples where motion label remains unchanged across adjacent threshold steps)
+    / (Total samples) * 100
+
+    Args:
+        samples: List of sample dictionaries containing 'optical_flow_magnitude'.
+        thresholds: List of threshold values to evaluate.
+
+    Returns:
+        Dictionary mapping each threshold to its Robustness Index (percentage).
+    """
+    if not samples:
+        return {t: 0.0 for t in thresholds}
+
+    robustness_metrics = {}
+
+    for i, threshold in enumerate(thresholds):
+        # Get labels for current threshold
+        current_labels = [calculate_motion_label(s['optical_flow_magnitude'], threshold) for s in samples]
+
+        # For the first threshold, we assume stability as there's no previous step
+        # However, the definition implies "across adjacent threshold steps".
+        # To be precise, we calculate stability relative to the NEXT threshold if it exists,
+        # or the PREVIOUS if it's the last.
+        # Standard interpretation for a sweep: Compare label at T_i with label at T_{i+1} (or T_{i-1}).
+        # Let's compare T_i with T_{i+1} for i < len-1, and T_i with T_{i-1} for i == len-1.
+        # Actually, the most robust way is to compare T_i with T_{i+1} for all i where i+1 exists.
+        # If a sample's label doesn't change between T_i and T_{i+1}, it's stable at T_i.
+        # What about the last threshold? It has no next. We can compare with previous.
+        # Let's define: Stable at T_i if label(T_i) == label(T_{i+1}) for i < N-1,
+        # and label(T_i) == label(T_{i-1}) for i == N-1.
+
+        stable_count = 0
+        total_samples = len(samples)
+
+        if i < len(thresholds) - 1:
+            # Compare with next threshold
+            next_threshold = thresholds[i + 1]
+            next_labels = [calculate_motion_label(s['optical_flow_magnitude'], next_threshold) for s in samples]
+            for curr, nxt in zip(current_labels, next_labels):
+                if curr == nxt:
+                    stable_count += 1
+        else:
+            # Last threshold: compare with previous
+            prev_threshold = thresholds[i - 1]
+            prev_labels = [calculate_motion_label(s['optical_flow_magnitude'], prev_threshold) for s in samples]
+            for curr, prv in zip(current_labels, prev_labels):
+                if curr == prv:
+                    stable_count += 1
+
+        index_value = (stable_count / total_samples) * 100.0
+        robustness_metrics[threshold] = index_value
+
+    return robustness_metrics
+
+
+def run_sensitivity_analysis(
+    motion_labels_path: Path,
+    output_path: Path,
+    threshold_min: float = THRESHOLD_MIN,
+    threshold_max: float = THRESHOLD_MAX,
+    threshold_step: float = THRESHOLD_STEP
+) -> Path:
     """
     Run the full sensitivity analysis pipeline.
-    
+
+    1. Load motion labels from JSON.
+    2. Generate threshold values.
+    3. Calculate Robustness Index for each threshold.
+    4. Write results to CSV.
+
     Args:
-        motion_labels_path: Path to the motion_labels.json file.
-        output_path: Path where the sensitivity_analysis.csv will be written.
-        threshold_start: Starting threshold value.
-        threshold_end: Ending threshold value.
-        threshold_step: Step size between thresholds.
+        motion_labels_path: Path to the input motion_labels.json.
+        output_path: Path where the output CSV will be written.
+        threshold_min: Minimum threshold value.
+        threshold_max: Maximum threshold value.
+        threshold_step: Step size for threshold iteration.
+
+    Returns:
+        Path to the generated CSV file.
+
+    Raises:
+        FileNotFoundError: If input file is missing.
+        ValueError: If input data is invalid.
     """
-    # Load motion labels
-    print(f"Loading motion labels from {motion_labels_path}...")
-    motion_labels = load_motion_labels(motion_labels_path)
-    print(f"Loaded {len(motion_labels)} motion labels.")
-    
-    # Generate threshold range
-    thresholds = []
-    current = threshold_start
-    while current <= threshold_end:
-        thresholds.append(round(current, 2))
-        current += threshold_step
-        
-    if len(thresholds) < 2:
-        raise ValueError(f"Threshold range [{threshold_start}, {threshold_end}] with step {threshold_step} produces fewer than 2 thresholds.")
-        
-    print(f"Analyzing {len(thresholds)} thresholds...")
-    
-    # Calculate robustness index
-    results = calculate_robustness_index(motion_labels, thresholds)
-    
-    # Ensure output directory exists
+    # 1. Load data
+    samples = load_motion_labels(motion_labels_path)
+    if not samples:
+        raise ValueError("No samples found in motion labels file.")
+
+    # Validate required field
+    if 'optical_flow_magnitude' not in samples[0]:
+        raise ValueError("Sample data missing 'optical_flow_magnitude' field.")
+
+    # 2. Generate thresholds
+    # Use numpy to handle floating point range accurately
+    thresholds = np.arange(threshold_min, threshold_max + threshold_step, threshold_step).tolist()
+    # Ensure we don't exceed max due to floating point errors
+    thresholds = [t if t <= threshold_max + 1e-9 else threshold_max for t in thresholds]
+    # Deduplicate and sort
+    thresholds = sorted(list(set(thresholds)))
+
+    # 3. Calculate Robustness Index
+    metrics = calculate_robustness_index(samples, thresholds)
+
+    # 4. Write CSV
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write results to CSV
-    print(f"Writing results to {output_path}...")
+
     with open(output_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['threshold', 'robustness_metric'])
-        for threshold, metric in results:
-            writer.writerow([threshold, f"{metric:.2f}"])
-            
-    print(f"Sensitivity analysis complete. Results written to {output_path}")
+        for t in thresholds:
+            # Round to avoid floating point representation issues in CSV
+            writer.writerow([round(t, 2), round(metrics[t], 2)])
+
+    return output_path
+
 
 def main():
     """Main entry point for the sensitivity analysis script."""
-    parser = argparse.ArgumentParser(description="Run sensitivity analysis on optical flow thresholds.")
-    parser.add_argument(
-        "--motion-labels", 
-        type=str, 
-        default="data/processed/motion_labels.json",
-        help="Path to the motion labels JSON file."
+    parser = argparse.ArgumentParser(
+        description="Run sensitivity analysis to calculate Robustness Index."
     )
     parser.add_argument(
-        "--output", 
-        type=str, 
-        default="data/processed/sensitivity_analysis.csv",
-        help="Path for the output CSV file."
+        "--input",
+        type=Path,
+        default=Path("data/processed/motion_labels.json"),
+        help="Path to the input motion_labels.json file."
     )
     parser.add_argument(
-        "--threshold-start", 
-        type=float, 
-        default=0.0,
-        help="Starting threshold value."
+        "--output",
+        type=Path,
+        default=Path("data/processed/sensitivity_analysis.csv"),
+        help="Path to the output CSV file."
     )
     parser.add_argument(
-        "--threshold-end", 
-        type=float, 
-        default=1.0,
-        help="Ending threshold value."
+        "--min-threshold",
+        type=float,
+        default=THRESHOLD_MIN,
+        help=f"Minimum threshold value (default: {THRESHOLD_MIN})"
     )
     parser.add_argument(
-        "--threshold-step", 
-        type=float, 
-        default=0.1,
-        help="Step size between thresholds."
+        "--max-threshold",
+        type=float,
+        default=THRESHOLD_MAX,
+        help=f"Maximum threshold value (default: {THRESHOLD_MAX})"
     )
-    
+    parser.add_argument(
+        "--step",
+        type=float,
+        default=THRESHOLD_STEP,
+        help=f"Threshold step size (default: {THRESHOLD_STEP})"
+    )
+
     args = parser.parse_args()
-    
-    # Load config for any additional settings (optional)
-    config_path = Path("code/config/settings.yaml")
-    if config_path.exists():
-        load_config(config_path)
-    
-    # Run analysis
+
     try:
-        run_sensitivity_analysis(
-            motion_labels_path=Path(args.motion_labels),
-            output_path=Path(args.output),
-            threshold_start=args.threshold_start,
-            threshold_end=args.threshold_end,
-            threshold_step=args.threshold_step
+        output_file = run_sensitivity_analysis(
+            motion_labels_path=args.input,
+            output_path=args.output,
+            threshold_min=args.min_threshold,
+            threshold_max=args.max_threshold,
+            threshold_step=args.step
         )
+        print(f"Sensitivity analysis complete. Results written to: {output_file}")
+        return 0
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        return 1
     except ValueError as e:
         print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        return 1
     except Exception as e:
-        print(f"Unexpected error during sensitivity analysis: {e}", file=sys.stderr)
-        sys.exit(1)
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

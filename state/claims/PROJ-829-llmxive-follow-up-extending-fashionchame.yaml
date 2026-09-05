@@ -2640,3 +2640,227 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T06:01:40Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: spec.md authorized 5:1 frame downsampling ratio
+  claim_id: c_1c73e0af
+  context: T042a-034... Generate a patch to explicitly authorize the 5:1 frame downsampling
+    ratio in spec.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T042a-034 authorize the 5:1 frame downsampling ratio in spec.md.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:24:16Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: DeepFashion2 dataset used instead of Human3.6M
+  claim_id: c_4f7b438d
+  context: Tasks T042a-002-identify and T042a-002-apply involve replacing 'Human3.6M'
+    with 'DeepFashion2' in spec and plan documents.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DeepFashion2_dataset_used_instead_of_Human3.6M
+  kind: entity_fact
+  raw_text: The system uses the DeepFashion2 dataset instead of Human3.6M.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:26:10Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: 5:1 frame downsampling ratio authorized
+  claim_id: c_2ecbbbfb
+  context: Task T042a-034 explicitly authorizes the 5:1 frame downsampling ratio in
+    the spec.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A 5:1 frame downsampling ratio is authorized for the motion analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:26:51Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: VLM confidence threshold default is 0.95
+  claim_id: c_68cf0e94
+  context: Task T015 specifies applying a configurable confidence threshold with a
+    default of 0.95 from settings.yaml.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VLM confidence threshold default is 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:27:22Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: BLIP model ID is Salesforce/blip-large
+  claim_id: c_5fc7a5bd
+  context: Task T015 specifies using model ID 'Salesforce/blip-large' for VLM verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BLIP_model_ID_is_Salesforce/blip-large
+  kind: entity_fact
+  raw_text: The BLIP model ID used is 'Salesforce/blip-large'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:27:58Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: default latency threshold is 50.0 ms
+  claim_id: c_a693e25c
+  context: Task T006 sets latency_threshold_ms to 50.0 as a default placeholder.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default latency threshold is initialized to 50.0 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:28:16Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: minimum 30 samples per class for statistical analysis power
+  claim_id: c_d3d01ae0
+  context: Task T031 states that if any class has less than 30 samples, a power_warning
+    flag is set.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: asymptotes at around n=30 per subgroup (Dalmaijer et al., 2020, 2022).
+        Other recommendations
+      source_id: '2309.00866'
+      url: https://arxiv.org/abs/2309.00866
+      value: '30'
+    filled: true
+  kind: numeric
+  raw_text: Statistical analysis requires a minimum of 30 samples per class to avoid
+    power warnings.
+  resolved_value: '30'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T09:29:03Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: minimum 10 samples per class to avoid error in statistical analysis
+  claim_id: c_eaf11b01
+  context: Task T031 states that if any class has less than 10 samples, a ValueError
+    is raised.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical analysis requires a minimum of 10 samples per class to avoid
+    raising an error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:29:47Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: power analysis targets power 0.8 and effect size 0.5
+  claim_id: c_d1a88429
+  context: Task T036 specifies performing Power Analysis with effect_size=0.5 and
+    power=0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis targets a power of 0.8 with an effect size of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:30:29Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps threshold 0.0 to 1.0 in 0.1 increments
+  claim_id: c_02a1b282
+  context: Task T035 describes iterating the threshold across the range 0.0 to 1.0
+    in fixed increments of 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the threshold from 0.0 to 1.0 in increments
+    of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:31:01Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: latency threshold calculated as mean plus 2 times standard deviation
+  claim_id: c_ad3b4678
+  context: 'Task T028-config sets the latency_threshold_ms using the formula: mean
+    + 2 * standard_deviation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The latency threshold for the final benchmark is calculated as mean +
+    2 * standard_deviation from the pilot.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:31:36Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: benchmark run must complete within 6 hours on CPU free-tier
+  claim_id: c_1d9889be
+  context: Task T041 verifies that runner.py completes within 6 hours on CPU free-tier.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark run is required to complete within 6 hours on a CPU free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:32:22Z'
+- artifact_path: projects/PROJ-829-llmxive-follow-up-extending-fashionchame/specs/001-llmxive-follow-up-extending-fashionchame/tasks.md
+  attempts: 1
+  canonical: robustness metric is percentage of unchanged motion labels across adjacent
+    thresholds
+  claim_id: c_2444e78b
+  context: Task T035 defines the Robustness Index calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_metric_is_percentage_of_unchanged_motion_labels_a
+  kind: entity_fact
+  raw_text: The robustness metric is calculated as the percentage of samples where
+    motion labels remain unchanged across adjacent threshold steps.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T09:33:26Z'

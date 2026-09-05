@@ -1,11 +1,11 @@
 T016b:
   c: false
-  h: bbdd0af5991ed51b1adb49beb9ec056c2642da847199496f53c697c2a35b8fcb
-  r: "The repository contains `code/src/data/stratified_subset.py` with the required\
-    \ logic, but the required output file `data/processed/stratified_subset_manifest.json`\
-    \ is absent. Without this manifest, the task\u2019s core deliverable is not present.\
-    \ The next implementer must run the script (or ensure it writes to the correct\
-    \ location) to produce the stratified subset manifest."
+  h: 62412baaefcd3bd93faee6f0be6e72227c931d7522a73e22c46f1bd045c0b842
+  r: "The `stratified_subset.py` file is only partially shown and does not contain\
+    \ a complete implementation that writes the required `data/processed/stratified_subset_manifest.json`.\
+    \ Moreover, the manifest file itself is missing from the repository. The task\u2019\
+    s core output\u2014a manifest listing samples grouped by `GarmentFeatureClass`\u2014\
+    has not been produced."
 T021:
   c: false
   h: 4db3a34dcb876f7b20327408949893091115417fe7dd40b940911d4ad5f64a54
@@ -25,12 +25,11 @@ T025:
     \ deliverable is therefore not present."
 T035:
   c: false
-  h: 79f7c4c57934089ac56d74900d97eebba1439ad8e210bdf172e48d1b932caf62
-  r: "The repository contains a partially\u2011implemented `code/src/stats/sensitivity.py`,\
-    \ but the file is truncated and does not include logic to write the required CSV.\
-    \ Moreover, the expected output file `data/processed/sensitivity_analysis.csv`\
-    \ is absent. The task\u2019s core deliverable \u2013 a CSV with `threshold` and\
-    \ `robustness_metric` columns \u2013 is therefore not present."
+  h: 63ae74481fa490dbc8c0d90bf5b8dd4b28d23743196520c54890bbeff34dc765
+  r: "The required output file `data/processed/sensitivity_analysis.csv` does not\
+    \ exist, and the provided `sensitivity.py` is truncated with no visible code that\
+    \ writes the CSV. Consequently the task\u2019s core deliverable (the CSV with\
+    \ the robustness metric) is missing."
 T038:
   c: false
   h: 5d9f22aed62735c2323f3a92539ca155072787978a36a99799472efcfeb9cdab

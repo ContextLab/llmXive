@@ -199,6 +199,10 @@
     "classified_at": "2026-07-11T16:10:39Z",
     "verdict": false
   },
+  "PROJ-1029-llmxive-follow-up-extending-accurate-int::1.6.0": {
+    "classified_at": "2026-09-05T09:34:05Z",
+    "verdict": false
+  },
   "PROJ-1030-llmxive-follow-up-extending-scaling-mixt::1.6.0": {
     "classified_at": "2026-07-31T13:15:38Z",
     "verdict": false
@@ -1873,6 +1877,10 @@
   },
   "PROJ-967-llmxive-follow-up-extending-beyond-scala::1.6.0": {
     "classified_at": "2026-07-05T04:34:01Z",
+    "verdict": false
+  },
+  "PROJ-968-llmxive-follow-up-extending-memgui-agent::1.6.0": {
+    "classified_at": "2026-09-05T09:19:06Z",
     "verdict": false
   },
   "PROJ-969-llmxive-follow-up-extending-perception-o::1.6.0": {

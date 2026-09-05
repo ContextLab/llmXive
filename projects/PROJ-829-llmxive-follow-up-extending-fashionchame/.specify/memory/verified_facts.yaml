@@ -1,10 +1,6 @@
-'|alpha anova test use':
-  quote: "The critical value is the number that the test statistic must exceed to\
-    \ reject the test.  In this case, Fcrit(2,15) = 3.68 at \u03B1 = 0.05.  Since\
-    \ F=9.3 > 3.68, the results are significant at the 5% significance level. One\
-    \ would not accept the null hypothesis, concluding that there is strong evidence\
-    \ that the expected values in the three groups differ.  The p-value for this test\
-    \ is 0.002."
-  source_id: One-way analysis of variance
-  url: https://en.wikipedia.org/wiki/One-way_analysis_of_variance
-  value: '0.05'
+'|analysi avoid class minimum power require sample statistical warning':
+  quote: asymptotes at around n=30 per subgroup (Dalmaijer et al., 2020, 2022). Other
+    recommendations
+  source_id: '2309.00866'
+  url: https://arxiv.org/abs/2309.00866
+  value: '30'

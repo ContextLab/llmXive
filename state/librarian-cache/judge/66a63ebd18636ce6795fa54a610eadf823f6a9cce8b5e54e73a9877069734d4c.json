@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.19586",
+  "judged_at": "2026-09-05T09:34:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"accurate, interdisciplinary and transparent structure-property underst\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (e) by providing empirical evidence on the specific mechanism of \"social-linguistic processing\" and \"structure-property understanding\" (specifically how speaker context and social/biological knowledge violations are processed) in LLMs compared to humans. It directly addresses the user's focus on extending interdisciplinary structure-property understanding in linguistics by measuring the alignment between model surprisal metrics and human neural responses to ",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.00502",
+  "judged_at": "2026-09-05T09:19:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"memgui-agent: an end-to-end long-horizon mobile gui agent with proacti\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the core mechanism of \"long-horizon mobile GUI agents\" and the specific challenge of managing \"task state\" versus \"screen observations,\" which is the central problem the user's follow-up research on \"MemGUI-Agent\" aims to extend. It provides the canonical empirical baseline and methodological framework for the exact domain and variable (long-horizon performance in mobile GUIs) the user is investigating.",
+  "relevant": true
+}

@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-02T21:27:33Z",
+  "fetched_at": "2026-09-05T09:19:36Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proacti\"",
       "target_n": 5
     },
-    "duration_seconds": 64.89,
-    "ended_at": "2026-08-02T21:27:33Z",
+    "duration_seconds": 74.673,
+    "ended_at": "2026-09-05T09:19:36Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Long-horizon mobile GUI agents with proactive behavior"
+          "mobile GUI agents for long-horizon tasks"
         ],
         [
           2,
-          "End-to-end mobile agent frameworks for GUI navigation"
+          "proactive mobile automation agents"
         ],
         [
           3,
-          "Proactive mobile automation using large language models"
+          "long-horizon mobile task planning"
         ],
         [
           4,
-          "Long-term memory in mobile GUI agents"
+          "end-to-end mobile GUI interaction agents"
         ],
         [
           5,
-          "Autonomous mobile application interaction with LLMs"
+          "autonomous mobile UI navigation systems"
         ],
         [
           6,
-          "Sequential decision making in mobile user interfaces"
+          "mobile agent memory and reasoning"
         ],
         [
           7,
-          "Mobile GUI understanding and planning with transformers"
+          "GUI-based mobile task automation"
         ],
         [
           8,
-          "Proactive task execution in mobile environments"
+          "proactive mobile assistant architectures"
         ],
         [
           9,
-          "LLM-based mobile agents with persistent memory"
+          "long-context mobile agent planning"
         ],
         [
           10,
-          "End-to-end mobile automation for complex workflows"
+          "mobile UI understanding with LLMs"
         ],
         [
           11,
-          "Multi-step mobile GUI reasoning with language models"
+          "embodied agents for mobile interfaces"
         ],
         [
           12,
-          "Context-aware mobile agents with long-term memory"
+          "mobile screen interpretation and action"
         ],
         [
           13,
-          "Mobile UI navigation via large language model planning"
+          "sequential mobile task execution agents"
         ],
         [
           14,
-          "Proactive mobile assistant agents for long-horizon tasks"
+          "mobile GUI state tracking for agents"
         ],
         [
           15,
-          "Memory-augmented mobile GUI interaction systems"
+          "multimodal mobile agent systems"
         ],
         [
           16,
-          "Autonomous mobile app control using generative AI"
+          "mobile device automation with large language models"
         ],
         [
           17,
-          "Long-horizon planning for mobile user interface agents"
+          "proactive decision-making in mobile GUIs"
         ],
         [
           18,
-          "Mobile GUI agent architectures with proactive capabilities"
+          "hierarchical planning for mobile agents"
         ],
         [
           19,
-          "End-to-end mobile task automation with memory modules"
+          "mobile interface interaction learning"
         ],
         [
           20,
-          "Large language models for proactive mobile device control"
+          "agent-based mobile operating system control"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Long-horizon mobile GUI agents with proactive behavior": 4,
-        "llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proacti\" computer science": 0
+        "llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proacti\" computer science": 0,
+        "mobile GUI agents for long-horizon tasks": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "GUI automation screen navigation mobile interface",
-      "Android UI interaction task planning mobile device",
-      "visual language model GUI understanding action space",
-      "long-horizon task success rate mobile automation benchmark",
-      "reactive planning agent environment grounding multimodal perception"
+      "GUI automation agent proactive mobile",
+      "Android screen interaction long-horizon task",
+      "visual grounding UI element navigation",
+      "mobile GUI agent benchmark evaluation",
+      "autonomous agent planning reinforcement learning"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2606.19926"
+        "2607.00502"
       ]
     },
     "per_query_hit_count": {
-      "Android UI interaction task planning mobile device": 3,
-      "GUI automation screen navigation mobile interface": 3,
+      "Android screen interaction long-horizon task": 3,
+      "GUI automation agent proactive mobile": 3,
+      "autonomous agent planning reinforcement learning": 3,
       "llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proacti\" computer science": 3,
-      "long-horizon task success rate mobile automation benchmark": 3,
-      "reactive planning agent environment grounding multimodal perception": 3,
-      "visual language model GUI understanding action space": 3
+      "mobile GUI agent benchmark evaluation": 0,
+      "visual grounding UI element navigation": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -138,7 +138,7 @@
       "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-02T21:26:28Z",
+    "started_at": "2026-09-05T09:18:21Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"memgui-agent: an end-to-end long-horizon mobile gui agent with proacti\" computer science",
       "raw": "llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proacti\" computer science"
@@ -157,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-02T21:27:05Z",
+        "failed_at": "2026-09-05T09:19:06Z",
         "reason": "query_irrelevant"
       },
       {
@@ -176,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-02T21:27:05Z",
+        "failed_at": "2026-09-05T09:19:06Z",
         "reason": "query_irrelevant"
       },
       {
@@ -194,24 +194,30 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-02T21:27:05Z",
+        "failed_at": "2026-09-05T09:19:06Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Context. Multiple automated techniques have been proposed and developed for mobile application GUI testing aiming to improve effectiveness, efficiency, and practicality. The effectiveness, efficiency, and practicality are 3 fundamental characteristics which testing techniques are built upon, and need to be continuously improved to deliver useful solutions for researchers and practitioners, and community as a whole.\n  Objective. In this systematic review, we attempt to provide a broad picture of existing mobile testing tools by collating and analysing their conceptual, and also performance characteristics including an estimation of effectiveness, efficiency, and practicality. Method. To achieve our objective, we specify 3 primary, and 14 secondary review questions, and conducted an analysis of 25 primary studies. We first individually analyse each primary study, and next analyse the primary studies as a whole. We developed a review protocol which defines all the details of our systematic review.\n  Results. From effectiveness, we conclude that testing techniques which implement model-checking, symbolic execution, constraint solving, and search-based test generation approach tend to be more effective than those implementing random test generation. From efficiency, we conclude that testing techniques which implement code search-based testing approaches tend to be more efficient than those implementing GUI model-based. From practicality, we conclude that the more effective a testing technique is, the less efficient it will be.\n  Conclusion. For effectiveness, we observe that the existing automated testing techniques are not effective enough, and currently they achieve nearly half of the desired level of effectiveness. For efficiency, we observe that current automated testing techniques are not efficient enough.",
+          "claimed_abstract": "We propose V-Droid, a mobile GUI task automation agent. Unlike previous mobile agents that utilize Large Language Models (LLMs) as generators to directly generate actions at each step, V-Droid employs LLMs as verifiers to evaluate candidate actions before making final decisions. To realize this novel paradigm, we introduce a comprehensive framework for constructing verifier-driven mobile agents: the discretized action space construction coupled with the prefilling-only workflow to accelerate the verification process, the pair-wise progress preference training to significantly enhance the verifier's decision-making capabilities, and the scalable human-agent joint annotation scheme to efficiently collect the necessary data at scale. V-Droid obtains a substantial task success rate across several public mobile task automation benchmarks: 59.5% on AndroidWorld, 38.3% on AndroidLab, and 49% on MobileAgentBench, surpassing existing agents by 5.2%, 2.1%, and 9%, respectively. Furthermore, V-Droid achieves a remarkably low latency of 4.3s per step, which is 6.1x faster compared with existing mobile agents. The source code is available at https://github.com/V-Droid-Agent/V-Droid.",
           "claimed_authors": [
-            "Yauhen Leanidavich Arnatovich",
-            "Lipo Wang"
+            "Gaole Dai",
+            "Shiqi Jiang",
+            "Ting Cao",
+            "Yuanchun Li",
+            "Yuqing Yang",
+            "Rui Tan",
+            "Mo Li",
+            "Lili Qiu"
           ],
-          "claimed_title": "A Systematic Literature Review of Automated Techniques for Functional GUI Testing of Mobile Applications",
+          "claimed_title": "Advancing Mobile GUI Agents: A Verifier-Driven Approach to Practical Deployment",
           "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1812.11470"
+          "claimed_year": 2025,
+          "primary_pointer": "2503.15937"
         },
-        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='A Systematic Literature Review of Automated Techniques for Functional GUI Testing of Mobile Applications')",
-        "failed_at": "2026-08-02T21:27:06Z",
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Advancing Mobile GUI Agents: A Verifier-Driven Approach to Practical Deployment')",
+        "failed_at": "2026-09-05T09:19:06Z",
         "reason": "query_irrelevant"
       },
       {
@@ -250,86 +256,7 @@
           "primary_pointer": "2508.03700"
         },
         "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='MagicGUI: A Foundational Mobile GUI Agent with Scalable Data Pipeline and Reinforcement Fine-tuning')",
-        "failed_at": "2026-08-02T21:27:06Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Mobile task automation is an emerging field that leverages AI to streamline and optimize the execution of routine tasks on mobile devices, thereby enhancing efficiency and productivity. Traditional methods, such as Programming By Demonstration (PBD), are limited due to their dependence on predefined tasks and susceptibility to app updates. Recent advancements have utilized the view hierarchy to collect UI information and employed Large Language Models (LLM) to enhance task automation. However, view hierarchies have accessibility issues and face potential problems like missing object descriptions or misaligned structures. This paper introduces VisionTasker, a two-stage framework combining vision-based UI understanding and LLM task planning, for mobile task automation in a step-by-step manner. VisionTasker firstly converts a UI screenshot into natural language interpretations using a vision-based UI understanding approach, eliminating the need for view hierarchies. Secondly, it adopts a step-by-step task planning method, presenting one interface at a time to the LLM. The LLM then identifies relevant elements within the interface and determines the next action, enhancing accuracy and practicality. Extensive experiments show that VisionTasker outperforms previous methods, providing effective UI representations across four datasets. Additionally, in automating 147 real-world tasks on an Android smartphone, VisionTasker demonstrates advantages over humans in tasks where humans show unfamiliarity and shows significant improvements when integrated with the PBD mechanism. VisionTasker is open-source and available at https://github.com/AkimotoAyako/VisionTasker.",
-          "claimed_authors": [
-            "Yunpeng Song",
-            "Yiheng Bian",
-            "Yongtao Tang",
-            "Guiyu Ma",
-            "Zhongmin Cai"
-          ],
-          "claimed_title": "VisionTasker: Mobile Task Automation Using Vision Based UI Understanding and LLM Task Planning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.11190"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='VisionTasker: Mobile Task Automation Using Vision Based UI Understanding and LLM Task Planning')",
-        "failed_at": "2026-08-02T21:27:06Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Agents centered around Large Language Models (LLMs) are now capable of automating mobile device operations for users. After fine-tuning to learn a user's mobile operations, these agents can adhere to high-level user instructions online. They execute tasks such as goal decomposition, sequencing of sub-goals, and interactive environmental exploration, until the final objective is achieved. However, privacy concerns related to personalized user data arise during mobile operations, requiring user confirmation. Moreover, users' real-world operations are exploratory, with action data being complex and redundant, posing challenges for agent learning. To address these issues, in our practical application, we have designed interactive tasks between agents and humans to identify sensitive information and align with personalized user needs. Additionally, we integrated Standard Operating Procedure (SOP) information within the model's in-context learning to enhance the agent's comprehension of complex task execution. Our approach is evaluated on the new device control benchmark AitW, which encompasses 30K unique instructions across multi-step tasks, including application operation, web searching, and web shopping. Experimental results show that the SOP-based agent achieves state-of-the-art performance in LLMs without incurring additional inference costs, boasting an overall action success rate of 66.92\\%. The code and data examples are available at https://github.com/alipay/mobile-agent.",
-          "claimed_authors": [
-            "Tinghe Ding"
-          ],
-          "claimed_title": "MobileAgent: enhancing mobile control via human-machine interaction and SOP integration",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2401.04124"
-        },
-        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='MobileAgent: enhancing mobile control via human-machine interaction and SOP integration')",
-        "failed_at": "2026-08-02T21:27:06Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The emergent large language/multimodal models facilitate the evolution of mobile agents, especially in mobile UI task automation. However, existing evaluation approaches, which rely on human validation or established datasets to compare agent-predicted actions with predefined action sequences, are unscalable and unfaithful. To overcome these limitations, this paper presents LlamaTouch, a testbed for on-device mobile UI task execution and faithful, scalable task evaluation. By observing that the task execution process only transfers UI states, LlamaTouch employs a novel evaluation approach that only assesses whether an agent traverses all manually annotated, essential application/system states. LlamaTouch comprises three key techniques: (1) On-device task execution that enables mobile agents to interact with realistic mobile environments for task execution. (2) Fine-grained UI component annotation that merges pixel-level screenshots and textual screen hierarchies to explicitly identify and precisely annotate essential UI components with a rich set of designed annotation primitives. (3) A multi-level application state matching algorithm that utilizes exact and fuzzy matching to accurately detect critical information in each screen, even with unpredictable UI layout/content dynamics. LlamaTouch currently incorporates four mobile agents and 496 tasks, encompassing both tasks in the widely-used datasets and our self-constructed ones to cover more diverse mobile applications. Evaluation results demonstrate LlamaTouch's high faithfulness of evaluation in real-world mobile environments and its better scalability than human validation. LlamaTouch also enables easy task annotation and integration of new mobile agents. Code and dataset are publicly available at https://github.com/LlamaTouch/LlamaTouch.",
-          "claimed_authors": [
-            "Li Zhang",
-            "Shihe Wang",
-            "Xianqing Jia",
-            "Zhihan Zheng",
-            "Yunhe Yan",
-            "Longxi Gao",
-            "Yuanchun Li",
-            "Mengwei Xu"
-          ],
-          "claimed_title": "LlamaTouch: A Faithful and Scalable Testbed for Mobile UI Task Automation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2404.16054"
-        },
-        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='LlamaTouch: A Faithful and Scalable Testbed for Mobile UI Task Automation')",
-        "failed_at": "2026-08-02T21:27:06Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Assembly action understanding is a key enabler for effective human-robot collaborative assembly, yet it remains challenging due to subtle motions and fine-grained hand-object interactions. We adapt vision-language models (VLMs) to this challenging domain with Compositional Context Fine-Tuning (CCFT), a method that decomposes assembly actions into semantic elements (Verb, Object, Tool) and fine-tunes VLMs to recognize each action element using templated question-answering pairs. This approach ensures near-deterministic outputs. To enable efficient and effective multi-task learning under limited data, a Layer-Partitioned Alternating Training (LP-AT) method is presented, which assigns distinct model layers to recognize specific action elements through element-specific low-rank adapters. LP-AT alternates weight updates across element-specific adapters, reducing cross-task interference while enabling per-adapter hyperparameter optimization. Furthermore, we create HA-ViD-VQA and IKEA-ASM-VQA datasets from existing assembly video datasets. Extensive experiments on these datasets demonstrate that our method consistently outperforms strong action recognition baselines while providing interpretable element-level predictions that can support diverse downstream applications.",
-          "claimed_authors": [
-            "Hao Zheng",
-            "Jinyi Huang",
-            "Tiantian Zheng",
-            "Xun Xu",
-            "Tuka Alhanai"
-          ],
-          "claimed_title": "Compositional Context Fine-Tuning Vision-Language Model for Complex Assembly Action Understanding from Videos",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2607.10797"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Compositional Context Fine-Tuning Vision-Language Model for Complex Assembly Action Understanding from Videos')",
-        "failed_at": "2026-08-02T21:27:07Z",
+        "failed_at": "2026-09-05T09:19:06Z",
         "reason": "query_irrelevant"
       },
       {
@@ -350,93 +277,138 @@
           "primary_pointer": "2412.09082"
         },
         "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Towards Long-Horizon Vision-Language Navigation: Platform, Benchmark and Method')",
-        "failed_at": "2026-08-02T21:27:07Z",
+        "failed_at": "2026-09-05T09:19:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Mobile task automation is an attractive technique that aims to enable voice-based hands-free user interaction with smartphones. However, existing approaches suffer from poor scalability due to the limited language understanding ability and the non-trivial manual efforts required from developers or end-users. The recent advance of large language models (LLMs) in language understanding and reasoning inspires us to rethink the problem from a model-centric perspective, where task preparation, comprehension, and execution are handled by a unified language model. In this work, we introduce AutoDroid, a mobile task automation system capable of handling arbitrary tasks on any Android application without manual efforts. The key insight is to combine the commonsense knowledge of LLMs and domain-specific knowledge of apps through automated dynamic analysis. The main components include a functionality-aware UI representation method that bridges the UI with the LLM, exploration-based memory injection techniques that augment the app-specific domain knowledge of LLM, and a multi-granularity query optimization module that reduces the cost of model inference. We integrate AutoDroid with off-the-shelf LLMs including online GPT-4/GPT-3.5 and on-device Vicuna, and evaluate its performance on a new benchmark for memory-augmented Android task automation with 158 common tasks. The results demonstrated that AutoDroid is able to precisely generate actions with an accuracy of 90.9%, and complete tasks with a success rate of 71.3%, outperforming the GPT-4-powered baselines by 36.4% and 39.7%. The demo, benchmark suites, and source code of AutoDroid will be released at url{https://autodroid-sys.github.io/}.",
+          "claimed_abstract": "Large language models (LLMs) demonstrate remarkable reasoning capabilities, yet their performance often deteriorates sharply in long-horizon tasks, exhibiting systematic breakdown beyond certain scales. Conventional explanations primarily attribute this phenomenon to task complexity, such as combinatorial search explosion or long-term credit assignment challenges. In this work, we argue that these explanations are incomplete: even in linear, unbranched tasks without semantic ambiguity, autoregressive execution is subject to an intrinsic stability limit.\n  We propose that the fundamental constraint on long-horizon reasoning arises from process-level instability in autoregressive generation rather than solely from search or task complexity, reframing long-horizon reasoning as a problem of structural governance. We derive Theorem~A, showing that decision advantage in single-path autoregressive reasoning decays exponentially with execution length, imposing a fundamental bound on maintainable reasoning chains. This result implies a structural consequence: stable long-horizon reasoning requires discrete segmentation, naturally inducing graph-like execution structures such as directed acyclic graphs (DAGs).\n  Empirical studies in both synthetic environments and real TextWorld tasks reveal observable performance cliffs consistent with theoretical predictions. Our findings provide a dynamical perspective on long-horizon reasoning failure and suggest new limitations on maintaining long-term coherence under purely autoregressive architectures. Furthermore, we highlight that short-horizon evaluation protocols may obscure structural instability, indicating a potential shift from scaling toward structured governance in future reasoning systems.",
           "claimed_authors": [
-            "Hao Wen",
-            "Yuanchun Li",
-            "Guohong Liu",
-            "Shanhui Zhao",
-            "Tao Yu",
-            "Toby Jia-Jun Li",
-            "Shiqi Jiang",
-            "Yunhao Liu",
-            "Yaqin Zhang",
-            "Yunxin Liu"
+            "Hsien-Jyh Liao"
           ],
-          "claimed_title": "AutoDroid: LLM-powered Task Automation in Android",
+          "claimed_title": "Intrinsic Stability Limits of Autoregressive Reasoning: Structural Consequences for Long-Horizon Execution",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2308.15272"
+          "claimed_year": 2026,
+          "primary_pointer": "2602.06413"
         },
-        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='AutoDroid: LLM-powered Task Automation in Android')",
-        "failed_at": "2026-08-02T21:27:07Z",
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Intrinsic Stability Limits of Autoregressive Reasoning: Structural Consequences for Long-Horizon Execution')",
+        "failed_at": "2026-09-05T09:19:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We describe a task and motion planning architecture for highly dynamic systems that combines a domain-independent sampling-based deliberative planning algorithm with a global reactive planner. We leverage the recent development of a reactive, vector field planner that provides guarantees of reachability to large regions of the environment even in the face of unknown or unforeseen obstacles. The reachability guarantees can be formalized using contracts that allow a deliberative planner to reason purely in terms of those contracts and synthesize a plan by choosing a sequence of reactive behaviors and their target configurations, without evaluating specific motion plans between targets. This reduces both the search depth at which plans will be found, and the number of samples required to ensure a plan exists, while crucially preserving correctness guarantees. The result is reduced computational cost of synthesizing plans, and increased robustness of generated plans to actuator noise, model misspecification, or unknown obstacles. Simulation studies show that our hierarchical planning and execution architecture can solve complex navigation and rearrangement tasks, even when faced with narrow passageways or incomplete world information.",
+          "claimed_abstract": "The use of visual information for the navigation of unmanned ground vehicles in a cross-country environment recently received great attention. However, until now, the use of textural information has been somewhat less effective than color or laser range information. This manuscript reviews the recent achievements in cross-country scene segmentation and addresses their shortcomings. It then describes a problem related to classification of high dimensional texture features. Finally, it compares three machine learning algorithms aimed at resolving this problem. The experimental results for each machine learning algorithm with the discussion of comparisons are given at the end of the manuscript.",
           "claimed_authors": [
-            "Vasileios Vasilopoulos",
-            "Sebastian Castro",
-            "William Vega-Brown",
-            "Daniel E. Koditschek",
-            "Nicholas Roy"
+            "Artem A. Lenskiy",
+            "Jong-Soo Lee"
           ],
-          "claimed_title": "Technical Report: A Hierarchical Deliberative-Reactive System Architecture for Task and Motion Planning in Partially Known Environments",
+          "claimed_title": "Machine Learning for Visual Navigation of Unmanned Ground Vehicles",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2202.01385"
+          "claimed_year": 2016,
+          "primary_pointer": "1604.02485"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Technical Report: A Hierarchical Deliberative-Reactive System Architecture for Task and Motion Planning in Partially Known Environments')",
-        "failed_at": "2026-08-02T21:27:07Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Machine Learning for Visual Navigation of Unmanned Ground Vehicles')",
+        "failed_at": "2026-09-05T09:19:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This paper presents a reactive planning system that enriches the topological representation of an environment with a tightly integrated semantic representation, achieved by incorporating and exploiting advances in deep perceptual learning and probabilistic semantic reasoning. Our architecture combines object detection with semantic SLAM, affording robust, reactive logical as well as geometric planning in unexplored environments. Moreover, by incorporating a human mesh estimation algorithm, our system is capable of reacting and responding in real time to semantically labeled human motions and gestures. New formal results allow tracking of suitably non-adversarial moving targets, while maintaining the same collision avoidance guarantees. We suggest the empirical utility of the proposed control architecture with a numerical study including comparisons with a state-of-the-art dynamic replanning algorithm, and physical implementation on both a wheeled and legged platform in different settings with both geometric and semantic goals.",
+          "claimed_abstract": "Recent work on audio-visual navigation assumes a constantly-sounding target and restricts the role of audio to signaling the target's position. We introduce semantic audio-visual navigation, where objects in the environment make sounds consistent with their semantic meaning (e.g., toilet flushing, door creaking) and acoustic events are sporadic or short in duration. We propose a transformer-based model to tackle this new semantic AudioGoal task, incorporating an inferred goal descriptor that captures both spatial and semantic properties of the target. Our model's persistent multimodal memory enables it to reach the goal even long after the acoustic event stops. In support of the new task, we also expand the SoundSpaces audio simulations to provide semantically grounded sounds for an array of objects in Matterport3D. Our method strongly outperforms existing audio-visual navigation methods by learning to associate semantic, acoustic, and visual cues.",
           "claimed_authors": [
-            "Vasileios Vasilopoulos",
-            "Georgios Pavlakos",
-            "Sean L. Bowman",
-            "J. Diego Caporale",
-            "Kostas Daniilidis",
-            "George J. Pappas",
-            "Daniel E. Koditschek"
+            "Changan Chen",
+            "Ziad Al-Halah",
+            "Kristen Grauman"
           ],
-          "claimed_title": "Technical Report: Reactive Semantic Planning in Unexplored Semantic Environments Using Deep Perceptual Feedback",
+          "claimed_title": "Semantic Audio-Visual Navigation",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2002.12349"
+          "primary_pointer": "2012.11583"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Technical Report: Reactive Semantic Planning in Unexplored Semantic Environments Using Deep Perceptual Feedback')",
-        "failed_at": "2026-08-02T21:27:07Z",
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Semantic Audio-Visual Navigation')",
+        "failed_at": "2026-09-05T09:19:07Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Complex manipulation tasks, such as rearrangement planning of numerous objects, are combinatorially hard problems. Existing algorithms either do not scale well or assume a great deal of prior knowledge about the environment, and few offer any rigorous guarantees. In this paper, we propose a novel hybrid control architecture for achieving such tasks with mobile manipulators. On the discrete side, we enrich a temporal logic specification with mobile manipulation primitives such as moving to a point, and grasping or moving an object. Such specifications are translated to an automaton representation, which orchestrates the physical grounding of the task to mobility or manipulation controllers. The grounding from the discrete to the continuous reactive controller is online and can respond to the discovery of unknown obstacles or decide to push out of the way movable objects that prohibit task accomplishment. Despite the problem complexity, we prove that, under specific conditions, our architecture enjoys provable completeness on the discrete side, provable termination on the continuous side, and avoids all obstacles in the environment. Simulations illustrate the efficiency of our architecture that can handle tasks of increased complexity while also responding to unknown obstacles or unanticipated adverse configurations.",
+          "claimed_abstract": "A core task in embodied intelligence is ego-centric 3D visual grounding. Existing methods typically adopt two-stage, heterogeneous pipelines that pair a detector with a separate grounding model. Incompatible decoders and box heads hinder the transfer of object-level priors, and the split training causes redundant re-optimization. To overcome these limitations, we present DEGround, a straight, elegant, and effective framework that centers on object-level sharing over detection and grounding. It employs a set of queries that serves as the common object representation for both detection and grounding, which is decoded by a shared transformer and bounding box head. Building on this homogeneous framework, we further introduce two task-specific plug-in modules to enhance fine-grained instruction grounding. The Regional Activation Grounding module improves spatial-textual alignment by highlighting instruction-relevant regions, while the Query-wise Modulation module applies sentence-conditioned affine modulation to generate instruction-aware queries at initialization. Extensive experiments demonstrate that DEGround achieves the best performance on multiple benchmarks. Remarkably, it significantly outperforms previous methods by 7.52% at overall precision on the EmbodiedScan dataset.",
           "claimed_authors": [
-            "Vasileios Vasilopoulos",
-            "Yiannis Kantaros",
-            "George J. Pappas",
-            "Daniel E. Koditschek"
+            "Yani Zhang",
+            "Dongming Wu",
+            "Hao Shi",
+            "Yingfei Liu",
+            "Tiancai Wang",
+            "Xingping Dong"
           ],
-          "claimed_title": "Technical Report: Reactive Planning for Mobile Manipulation Tasks in Unexplored Semantic Environments",
+          "claimed_title": "DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2011.00642"
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05199"
         },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Technical Report: Reactive Planning for Mobile Manipulation Tasks in Unexplored Semantic Environments')",
-        "failed_at": "2026-08-02T21:27:07Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework')",
+        "failed_at": "2026-09-05T09:19:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agreement Technologies refer to open computer systems in which autonomous software agents interact with one another, typically on behalf of humans, in order to come to mutually acceptable agreements. With the advance of AI systems in recent years, it has become apparent that such agreements, in order to be acceptable to the involved parties, must remain aligned with ethical principles and moral values. However, this is notoriously difficult to ensure, especially as different human users (and their software agents) may hold different value systems, i.e. they may differently weigh the importance of individual moral values. Furthermore, it is often hard to specify the precise meaning of a value in a particular context in a computational manner. Methods to estimate value systems based on human-engineered specifications, e.g. based on value surveys, are limited in scale due to the need for intense human moderation. In this article, we propose a novel method to automatically \\emph{learn} value systems from observations and human demonstrations. In particular, we propose a formal model of the \\emph{value system learning} problem, its instantiation to sequential decision-making domains based on multi-objective Markov decision processes, as well as tailored preference-based and inverse reinforcement learning algorithms to infer value grounding functions and value systems. The approach is illustrated and evaluated by two simulated use cases.",
+          "claimed_authors": [
+            "Andrés Holgado-Sánchez",
+            "Holger Billhardt",
+            "Alberto Fernández",
+            "Sascha Ossowski"
+          ],
+          "claimed_title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.04518"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning')",
+        "failed_at": "2026-09-05T09:19:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-09-05T09:19:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning (RL) research has demonstrated success in both physical and simulated domains; however, the predominant methodology remains rooted in simulations. The predominance of simulations makes translating research to physical reality uncertain for both algorithms and researchers. We propose a physical platform that is designed to simplify the transition. In this paper, we present the Open Ant: a physical variant of the commonly used Gymnasium Ant environment, along with a simulation. We demonstrate that competent walking policies can be learned from scratch in approximately one hour directly from the physical robot's experience for two substantially different RL algorithms: SARSA($λ$) and Soft Actor-Critic (SAC). Separately, we show policies that were learned in simulation transfer to reality. We also examine how well the platform supports a nimble experimental ecosystem. Specifically, we observe the speed with which new users from diverse backgrounds achieve their first success with the platform, and how easily the platform can be repaired and updated when hardware issues arise. Both the hardware design and software are available as open-source on GitHub for ease of customization. In summary, we advocate for the use of the Open Ant for RL researchers who frequently use simulated environments, so they can more easily include robot experiments in their evaluations.",
+          "claimed_authors": [
+            "Elena Sorina Lupu",
+            "Patrick Spieler",
+            "Khurram Javed",
+            "Kris De Asis",
+            "John D. Martin",
+            "Martha Steenstrup",
+            "Joseph Modayil"
+          ],
+          "claimed_title": "The Open Ant: A Robot Platform for Reinforcement Learning Research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.18488"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MemGUI-Agent: An End-to-End Long-Horizon Mobile GU', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
+        "failed_at": "2026-09-05T09:19:07Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -444,116 +416,35 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Quanfeng Lu",
-            "Wenqi Shao",
-            "Zitao Liu",
-            "Lingxiao Du",
-            "Fanqing Meng",
-            "Boxuan Li",
-            "Botong Chen",
-            "Siyuan Huang",
-            "Kaipeng Zhang",
-            "Ping Luo"
+            "Ning Li",
+            "Xiangmou Qu",
+            "Jiamu Zhou",
+            "Jun Wang",
+            "Muning Wen",
+            "Kounianhua Du",
+            "Xingyu Lou",
+            "Qiuying Peng",
+            "Jun Wang",
+            "Weinan Zhang"
           ],
-          "title": "GUIOdyssey: A Comprehensive Dataset for Cross-App GUI Navigation on Mobile Devices",
+          "title": "MobileUse: A GUI Agent with Hierarchical Reflection for Autonomous Mobile Operation",
           "venue": "arXiv",
-          "year": 2024
+          "year": 2025
         },
-        "primary_pointer": "2406.08451",
-        "summary": "Autonomous Graphical User Interface (GUI) navigation agents can enhance user experience in communication, entertainment, and productivity by streamlining workflows and reducing manual intervention. However, prior GUI agents often trained with datasets comprising tasks that can be completed within a single app, leading to poor performance in cross-app navigation. To address this problem, we present GUIOdyssey, a comprehensive dataset for cross-app mobile GUI navigation. GUIOdyssey comprises 8,334 episodes with an average of 15.3 steps per episode, covering 6 mobile devices, 212 distinct apps, and 1,357 app combinations. Each step is enriched with detailed semantic reasoning annotations, which aid the model in building cognitive processes and enhancing its reasoning abilities for complex cross-app tasks. Building on GUIOdyssey, we develop OdysseyAgent, an exploratory multimodal agent for long-step cross-app navigation equipped with a history resampler module that efficiently attends to historical screenshot tokens, balancing performance and inference speed. Extensive experiments conducted in both in-domain and out-of-domain scenarios validate the effectiveness of our approach. Moreover, we demonstrate that historial information involving actions, screenshots and context in our dataset can significantly enhances OdysseyAgent's performance on complex cross-app tasks.",
+        "primary_pointer": "2507.16853",
+        "summary": "Recent advances in Multimodal Large Language Models (MLLMs) have enabled the development of mobile agents that can understand visual inputs and follow user instructions, unlocking new possibilities for automating complex tasks on mobile devices. However, applying these models to real-world mobile scenarios remains a significant challenge due to the long-horizon task execution, difficulty in error recovery, and the cold-start problem in unfamiliar environments. To address these challenges, we propose MobileUse, a GUI agent designed for robust and adaptive mobile task execution. To improve resilience in long-horizon tasks and dynamic environments, we introduce a hierarchical reflection architecture that enables the agent to self-monitor, detect, and recover from errors across multiple temporal scales-ranging from individual actions to overall task completion-while maintaining efficiency through a reflection-on-demand strategy. To tackle cold-start issues, we further introduce a proactive exploration module, which enriches the agent's understanding of the environment through self-planned exploration. Evaluations on AndroidWorld and AndroidLab benchmarks demonstrate that MobileUse establishes new state-of-the-art performance, achieving success rates of 62.9% and 44.2%, respectively. To facilitate real-world applications, we release an out-of-the-box toolkit for automated task execution on physical mobile devices, which is available at https://github.com/MadeAgents/mobile-use.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2406.08451",
+          "final_url": "https://arxiv.org/abs/2507.16853",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.3077,
+          "query_relevance_score": 0.4615,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T21:27:05Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Dongping Chen",
-            "Yue Huang",
-            "Siyuan Wu",
-            "Jingyu Tang",
-            "Liuyi Chen",
-            "Yilin Bai",
-            "Zhigang He",
-            "Chenlong Wang",
-            "Huichi Zhou",
-            "Yiqiang Li",
-            "Tianshuo Zhou",
-            "Yue Yu",
-            "Chujie Gao",
-            "Qihui Zhang",
-            "Yi Gui",
-            "Zhen Li",
-            "Yao Wan",
-            "Pan Zhou",
-            "Jianfeng Gao",
-            "Lichao Sun"
-          ],
-          "title": "GUI-World: A Video Benchmark and Dataset for Multimodal GUI-oriented Understanding",
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2406.10819",
-        "summary": "Recently, Multimodal Large Language Models (MLLMs) have been used as agents to control keyboard and mouse inputs by directly perceiving the Graphical User Interface (GUI) and generating corresponding commands. However, current agents primarily demonstrate strong understanding capabilities in static environments and are mainly applied to relatively simple domains, such as Web or mobile interfaces. We argue that a robust GUI agent should be capable of perceiving temporal information on the GUI, including dynamic Web content and multi-step tasks. Additionally, it should possess a comprehensive understanding of various GUI scenarios, including desktop software and multi-window interactions. To this end, this paper introduces a new dataset, termed GUI-World, which features meticulously crafted Human-MLLM annotations, extensively covering six GUI scenarios and eight types of GUI-oriented questions in three formats. We evaluate the capabilities of current state-of-the-art MLLMs, including Image LLMs and Video LLMs, in understanding various types of GUI content, especially dynamic and sequential content. Our findings reveal that current models struggle with dynamic GUI content without manually annotated keyframes or operation history. On the other hand, Video LLMs fall short in all GUI-oriented tasks given the sparse GUI video dataset. Therefore, we take the initial step of leveraging a fine-tuned Video LLM, GUI-Vid, as a GUI-oriented assistant, demonstrating an improved understanding of various GUI tasks. However, due to the limitations in the performance of base LLMs, we conclude that using video LLMs as GUI agents remains a significant challenge. We believe our work provides valuable insights for future research in dynamic GUI content understanding. All the dataset and code are publicly available at: https://gui-world.github.io.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2406.10819",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3077,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-02T21:27:06Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Chaoyun Zhang",
-            "Shilin He",
-            "Jiaxu Qian",
-            "Bowen Li",
-            "Liqun Li",
-            "Si Qin",
-            "Yu Kang",
-            "Minghua Ma",
-            "Guyue Liu",
-            "Qingwei Lin",
-            "Saravan Rajmohan",
-            "Dongmei Zhang",
-            "Qi Zhang"
-          ],
-          "title": "Large Language Model-Brained GUI Agents: A Survey",
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2411.18279",
-        "summary": "GUIs have long been central to human-computer interaction, providing an intuitive and visually-driven way to access and interact with digital systems. The advent of LLMs, particularly multimodal models, has ushered in a new era of GUI automation. They have demonstrated exceptional capabilities in natural language understanding, code generation, and visual processing. This has paved the way for a new generation of LLM-brained GUI agents capable of interpreting complex GUI elements and autonomously executing actions based on natural language instructions. These agents represent a paradigm shift, enabling users to perform intricate, multi-step tasks through simple conversational commands. Their applications span across web navigation, mobile app interactions, and desktop automation, offering a transformative user experience that revolutionizes how individuals interact with software. This emerging field is rapidly advancing, with significant progress in both research and industry.\n  To provide a structured understanding of this trend, this paper presents a comprehensive survey of LLM-brained GUI agents, exploring their historical evolution, core components, and advanced techniques. We address research questions such as existing GUI agent frameworks, the collection and utilization of data for training specialized GUI agents, the development of large action models tailored for GUI tasks, and the evaluation metrics and benchmarks necessary to assess their effectiveness. Additionally, we examine emerging applications powered by these agents. Through a detailed analysis, this survey identifies key research gaps and outlines a roadmap for future advancements in the field. By consolidating foundational knowledge and state-of-the-art developments, this work aims to guide both researchers and practitioners in overcoming challenges and unlocking the full potential of LLM-brained GUI agents.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2411.18279",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3846,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-02T21:27:06Z"
+          "verified_at": "2026-09-05T09:19:06Z"
         }
       },
       {
@@ -597,41 +488,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T21:27:07Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Guangyi Liu",
-            "Gao Wu",
-            "Congxiao Liu",
-            "Pengxiang Zhao",
-            "Liang Liu",
-            "Mading Li",
-            "Qi Zhang",
-            "Mengyan Wang",
-            "Liang Guo",
-            "Yong Liu"
-          ],
-          "title": "MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proactive Context Management",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2606.19926",
-        "summary": "MLLM-based mobile GUI agents have made substantial progress on short-horizon tasks, yet remain unreliable on long-horizon tasks that require retaining intermediate facts across many steps and app transitions. We attribute this limitation to ReAct-style prompting, which passively accumulates per-step records, leading to prompt explosion and dilution of critical cross-app facts. To address this, we introduce MemGUI-Agent, an end-to-end long-horizon mobile GUI agent with proactive context management. MemGUI-Agent is built on Context-as-Action (ConAct), which casts context management as first-class actions emitted by the same policy that selects UI actions. Instead of passively appending history, ConAct maintains three structured context fields: folded action history, folded UI state, and recent step record, preserving critical UI facts while keeping context compact. To make proactive context management learnable across model scales, we construct MemGUI-3K, a 2,956-trajectory dataset with full ConAct annotations for supervised training and offline analysis. Training an 8B model on MemGUI-3K produces MemGUI-8B-SFT, an 8B MemGUI-Agent that achieves the best open-data 8B performance on MemGUI-Bench and generalizes to the out-of-distribution MobileWorld benchmark. Code, data, and trained models will be released at https://memgui-agent.github.io/.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.19926",
-          "http_status": 200,
-          "pdf_sample_score": 0.2772,
-          "query_relevance_score": 0.8571,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-02T21:27:12Z"
+          "verified_at": "2026-09-05T09:19:06Z"
         }
       },
       {
@@ -658,12 +515,60 @@
           "final_url": "https://arxiv.org/abs/2503.15937",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.4286,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T21:27:13Z"
+          "verified_at": "2026-09-05T09:19:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Liujian Tang",
+            "Shaokang Dong",
+            "Yijia Huang",
+            "Minqi Xiang",
+            "Hongtao Ruan",
+            "Bin Wang",
+            "Shuo Li",
+            "Zhiheng Xi",
+            "Zhihui Cao",
+            "Hailiang Pang",
+            "Heng Kong",
+            "He Yang",
+            "Mingxu Chai",
+            "Zhilin Gao",
+            "Xingyu Liu",
+            "Yingnan Fu",
+            "Jiaming Liu",
+            "Xuanjing Huang",
+            "Yu-Gang Jiang",
+            "Tao Gui",
+            "Qi Zhang",
+            "Kang Wang",
+            "Yunke Zhang",
+            "Yuran Wang"
+          ],
+          "title": "MagicGUI: A Foundational Mobile GUI Agent with Scalable Data Pipeline and Reinforcement Fine-tuning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.03700",
+        "summary": "This paper presents MagicGUI, a foundational mobile GUI agent designed to address critical challenges in perception, grounding, and reasoning within real-world mobile GUI environments. The framework is underpinned by following six key components: (1) a comprehensive and accurate dataset, constructed via the scalable GUI Data Pipeline, which aggregates the largest and most diverse GUI-centric multimodal data to date from open-source repositories, automated crawling, and targeted manual annotation; (2) enhanced perception and grounding capabilities, facilitating fine-grained multimodal alignment for UI element referencing, grounding, and screen comprehension; (3) a comprehensive and unified action space, encompassing both fundamental UI operations and complex interactive intents to support human-agent interactions; (4) planning-oriented reasoning mechanisms that enable the model to decompose complex user instructions into sequential actions with explicit intermediate meta-paln reasoning; (5) an iterative two-stage training procedure, combining large-scale continue pre-training on 7.8M samples with reinforcement fine-tuning utilizing a spatially enhanced composite reward and dual filtering strategy; and (6) competitive performance on both the proprietary Magic-RICH benchmark and over a dozen public benchmarks, achieving superior performance across GUI perception and agent tasks, while demonstrating robust generalization and real-world deployment potential in practical mobile GUI scenarios, as detailed in Figure 1.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.03700",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-05T09:19:28Z"
         }
       },
       {
@@ -691,46 +596,77 @@
           "final_url": "https://arxiv.org/abs/2604.27955",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.5714,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T21:27:13Z"
+          "verified_at": "2026-09-05T09:19:28Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Ning Li",
-            "Xiangmou Qu",
-            "Jiamu Zhou",
-            "Jun Wang",
-            "Muning Wen",
-            "Kounianhua Du",
-            "Xingyu Lou",
-            "Qiuying Peng",
-            "Jun Wang",
-            "Weinan Zhang"
+            "Yujie Zheng",
+            "Zikang Liu",
+            "Xin Zhao",
+            "Ji-Rong Wen"
           ],
-          "title": "MobileUse: A GUI Agent with Hierarchical Reflection for Autonomous Mobile Operation",
+          "title": "A Task-State Representation for Long-Horizon Mobile GUI Agents",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2026
         },
-        "primary_pointer": "2507.16853",
-        "summary": "Recent advances in Multimodal Large Language Models (MLLMs) have enabled the development of mobile agents that can understand visual inputs and follow user instructions, unlocking new possibilities for automating complex tasks on mobile devices. However, applying these models to real-world mobile scenarios remains a significant challenge due to the long-horizon task execution, difficulty in error recovery, and the cold-start problem in unfamiliar environments. To address these challenges, we propose MobileUse, a GUI agent designed for robust and adaptive mobile task execution. To improve resilience in long-horizon tasks and dynamic environments, we introduce a hierarchical reflection architecture that enables the agent to self-monitor, detect, and recover from errors across multiple temporal scales-ranging from individual actions to overall task completion-while maintaining efficiency through a reflection-on-demand strategy. To tackle cold-start issues, we further introduce a proactive exploration module, which enriches the agent's understanding of the environment through self-planned exploration. Evaluations on AndroidWorld and AndroidLab benchmarks demonstrate that MobileUse establishes new state-of-the-art performance, achieving success rates of 62.9% and 44.2%, respectively. To facilitate real-world applications, we release an out-of-the-box toolkit for automated task execution on physical mobile devices, which is available at https://github.com/MadeAgents/mobile-use.",
+        "primary_pointer": "2607.00502",
+        "summary": "While long-horizon mobile GUI agents typically rely on thought-action-observation loops, they struggle to separate persistent task states from transient screen observations. As execution histories grow, this entanglement imposes a severe context burden, causing agents to forget initial requirements, hallucinate progress, or repeatedly interact with stale interfaces. To address this, we introduce Task-State Representation (TSR), a training-free framework that explicitly decouples task state from sensory input. Acting as a lightweight external wrapper, TSR maintains three structured components: a global instruction summary, a dynamic progress tracker for subgoals, and a transition-aware action verifier. By continuously updating through pre- and post-action visual comparisons, TSR effectively guides the agent's reasoning without requiring architectural modifications. Experiments across four mobile GUI benchmarks validate TSR's effectiveness, yielding up to a 12 absolute point increase in success rate on complex cross-application and memory-intensive tasks.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2507.16853",
+          "final_url": "https://arxiv.org/abs/2607.00502",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.8571,
+          "pdf_sample_score": 0.2146,
+          "query_relevance_score": 1.0,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T21:27:13Z"
+          "verified_at": "2026-09-05T09:19:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chaoyun Zhang",
+            "Shilin He",
+            "Jiaxu Qian",
+            "Bowen Li",
+            "Liqun Li",
+            "Si Qin",
+            "Yu Kang",
+            "Minghua Ma",
+            "Guyue Liu",
+            "Qingwei Lin",
+            "Saravan Rajmohan",
+            "Dongmei Zhang",
+            "Qi Zhang"
+          ],
+          "title": "Large Language Model-Brained GUI Agents: A Survey",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2411.18279",
+        "summary": "GUIs have long been central to human-computer interaction, providing an intuitive and visually-driven way to access and interact with digital systems. The advent of LLMs, particularly multimodal models, has ushered in a new era of GUI automation. They have demonstrated exceptional capabilities in natural language understanding, code generation, and visual processing. This has paved the way for a new generation of LLM-brained GUI agents capable of interpreting complex GUI elements and autonomously executing actions based on natural language instructions. These agents represent a paradigm shift, enabling users to perform intricate, multi-step tasks through simple conversational commands. Their applications span across web navigation, mobile app interactions, and desktop automation, offering a transformative user experience that revolutionizes how individuals interact with software. This emerging field is rapidly advancing, with significant progress in both research and industry.\n  To provide a structured understanding of this trend, this paper presents a comprehensive survey of LLM-brained GUI agents, exploring their historical evolution, core components, and advanced techniques. We address research questions such as existing GUI agent frameworks, the collection and utilization of data for training specialized GUI agents, the development of large action models tailored for GUI tasks, and the evaluation metrics and benchmarks necessary to assess their effectiveness. Additionally, we examine emerging applications powered by these agents. Through a detailed analysis, this survey identifies key research gaps and outlines a roadmap for future advancements in the field. By consolidating foundational knowledge and state-of-the-art developments, this work aims to guide both researchers and practitioners in overcoming challenges and unlocking the full potential of LLM-brained GUI agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2411.18279",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-05T09:19:29Z"
         }
       }
     ]
