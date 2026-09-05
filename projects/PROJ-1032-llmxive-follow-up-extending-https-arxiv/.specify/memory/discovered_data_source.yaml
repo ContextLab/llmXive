@@ -1,0 +1,29 @@
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets
+
+
+  data = datasets.load_dataset(''openai/gsm8k'', ''main'')
+
+  total_records = sum(len(split) for split in data.values())
+
+  first_split = next(iter(data.values()))
+
+  fields = '',''.join(first_split.column_names)
+
+
+  print(f''RECORDS={total_records}'')
+
+  print(f''FIELDS={fields}'')'
+record_count: 8792
+sample_fields:
+- question
+- answer
+field_coverage: 0.667
+required_fields:
+- question
+- answer
+- id
+intent: downloadable GSM8K dataset HuggingFace python package dataset library
+cache_key: f443a359bed60f5c829bf31f262d46390abe5ef9ccf298e15e574ecf9686d718

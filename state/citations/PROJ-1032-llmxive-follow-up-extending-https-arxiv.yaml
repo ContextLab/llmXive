@@ -1,4 +1,4 @@
-- artifact_hash: f211a94a301d17d23a27fc2ae83a7806c5c3168296de7b4221bdb1880a839580
+- artifact_hash: 5137c6480dc6e8f87c1ce57f11b3f7f1aef2d64d21b918aa6bcfe67e1a2128fa
   artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/spec.md
   cite_id: c-001
   cited_authors: []
@@ -9,4 +9,48 @@
   value: https://arxiv.org/abs/2607.07508
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2607.07508
-  verified_at: '2026-08-23T15:36:07.992208Z'
+  verified_at: '2026-09-05T09:40:06.894890Z'
+- artifact_hash: 3d393229bf7cbb0515ba79e2dacd25d56ea76c205838489c8c385c39f64283f0
+  artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2607.07508'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-09-05T09:58:36.615195Z'
+- artifact_hash: 277ffef02a3c1521cf66a4e85dc7156cc891956bde4cb36ec05d7a07f3b8dd56
+  artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1788605925&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODg2MDU5MjV9fX1dfQ__&Signature=MEYCIQD0UC10PIHkCMbwAb7v47s35CzC504i2UjNLJWuH8vkzwIhAIeNWoPb2M646Jtbvt1RRO4Rhgsop0LmrK7kUZRsgoR6&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-09-05T09:58:45.680545Z'
+- artifact_hash: 277ffef02a3c1521cf66a4e85dc7156cc891956bde4cb36ec05d7a07f3b8dd56
+  artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2607.07508'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-09-05T09:58:45.680545Z'
+- artifact_hash: 2901d414d864fabaa5bc49e3d351cc839de28bf03660be4e5c5545726b9a1026
+  artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmxive-staleness-scaling.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive-staleness-scaling
+  verified_at: '2026-09-05T09:58:54.709526Z'

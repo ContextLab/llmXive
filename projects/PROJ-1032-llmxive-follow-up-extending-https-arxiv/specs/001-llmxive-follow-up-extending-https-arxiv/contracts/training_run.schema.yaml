@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingRun"
+description: "Schema for a single asynchronous RL training run log."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the run (UUID)."
+  model_id:
+    type: string
+    description: "HuggingFace model identifier (e.g., 'microsoft/phi-2')."
+  staleness_level:
+    type: integer
+    description: "Configured staleness delay (0 for synchronous)."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  convergence_status:
+    type: string
+    enum:
+      - "STABLE"
+      - "DIVERGED"
+      - "INCOMPLETE"
+    description: "Final status of the training run."
+  divergence_point:
+    type: ["integer", "null"]
+    description: "Step number where divergence was detected, or null if stable."
+  final_reward:
+    type: number
+    description: "Reward value at the final step."
+  final_gradient_norm:
+    type: number
+    description: "Gradient norm at the final step."
+  start_time:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of run start."
+  end_time:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of run end."
+  memory_peak_mb:
+    type: integer
+    description: "Peak memory usage in megabytes."
+required:
+  - run_id
+  - model_id
+  - staleness_level
+  - seed
+  - convergence_status
+  - final_reward
+  - final_gradient_norm
+  - start_time
+  - end_time
+additionalProperties: false

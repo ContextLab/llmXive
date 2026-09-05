@@ -1,0 +1,94 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatisticalResult
+description: Schema for the output of the statistical analysis.
+type: object
+required:
+  - result_id
+  - regime_low
+  - regime_high
+  - survival_analysis
+  - levene_statistic
+  - levene_p_value
+  - t_test_p_value
+  - is_significant
+  - effect_size
+  - effect_size_ci_low
+  - effect_size_ci_high
+  - variance_ratio
+  - critical_staleness_threshold
+  - conclusion
+properties:
+  result_id:
+    type: string
+    description: "Unique identifier for the result"
+  regime_low:
+    type: array
+    description: "Final reward variances for the low-staleness regime (0, 5)"
+    items:
+      type: number
+      minimum: 0
+  regime_high:
+    type: array
+    description: "Final reward variances for the high-staleness regime (15, 20)"
+    items:
+      type: number
+      minimum: 0
+  survival_analysis:
+    type: object
+    description: "Results of the Kaplan-Meier survival analysis and Log-Rank test"
+    properties:
+      log_rank_statistic:
+        type: number
+        description: "Log-Rank test statistic"
+      log_rank_p_value:
+        type: number
+        description: "Log-Rank test p-value"
+        minimum: 0
+        maximum: 1
+      median_survival_time_low:
+        type: ["number", "null"]
+        description: "Median time-to-divergence for low staleness (or null if not reached)"
+      median_survival_time_high:
+        type: ["number", "null"]
+        description: "Median time-to-divergence for high staleness (or null if not reached)"
+    required:
+      - log_rank_statistic
+      - log_rank_p_value
+  levene_statistic:
+    type: number
+    description: "Levene's test statistic for equality of variance"
+    minimum: 0
+  levene_p_value:
+    type: number
+    description: "Levene's test p-value"
+    minimum: 0
+    maximum: 1
+  t_test_p_value:
+    type: number
+    description: "Two-sample t-test p-value for final reward (surviving runs only)"
+    minimum: 0
+    maximum: 1
+  is_significant:
+    type: boolean
+    description: "Whether the difference in survival or variance is significant (p < 0.05)"
+  effect_size:
+    type: number
+    description: "Cohen's d or similar effect size metric"
+  effect_size_ci_low:
+    type: number
+    description: "Lower bound of effect size confidence interval"
+  effect_size_ci_high:
+    type: number
+    description: "Upper bound of effect size confidence interval"
+  variance_ratio:
+    type: number
+    description: "Ratio of final reward variance between low-staleness and high-staleness regimes"
+    minimum: 0
+  critical_staleness_threshold:
+    type: integer
+    description: "Maximum staleness integer where >= 80% of runs are stable"
+    minimum: 0
+  conclusion:
+    type: string
+    description: "Human-readable conclusion"
+additionalProperties: false
