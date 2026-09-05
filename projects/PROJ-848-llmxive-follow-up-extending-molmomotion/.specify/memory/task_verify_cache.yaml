@@ -1,0 +1,43 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the required directory tree `projects/PROJ-848-llmxive-follow-up-extending-molmomotion/{code,data,specs,state}`\
+    \ actually exists (or contains any files). The implementer\u2019s claim is unsubstantiated,\
+    \ so the task is not verified as completed."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the three `__init__.py` files in `code/src/`, `code/tests/`,\
+    \ or `code/tests/integration/` is provided; without the actual files (or their\
+    \ contents) we cannot confirm they exist or are non\u2011empty. The required artifacts\
+    \ are missing."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the three required `.gitkeep` files in `data/raw/`, `data/processed/`,\
+    \ or `data/results/` was provided; without these artifacts the task is not satisfied.\
+    \ The implementer must add a non\u2011empty `.gitkeep` file to each of the three\
+    \ directories."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No data subsampling script, instruction synthesis module, inference pipeline,\
+    \ or metric analysis code/output was supplied; the claim lacks any tangible artifacts\
+    \ to verify that the dataset was subsampled, instructions generated, predictions\
+    \ run on CPU, or ATE/t\u2011test results produced. The required files and results\
+    \ are missing."
+T011:
+  c: false
+  h: 2415140295e6e41b4050f0cd38de131ff56ef49b3df0ac72fb745e6e7b0dd64d
+  r: The `subsample_instances` function is only partially implemented (truncated code,
+    does not read `random_seed`/`target_memory_gb` from `config.py`, and never writes
+    a Parquet file). Moreover, the required output file `data/processed/subsampled_instances.parquet`
+    is missing.
+T011b:
+  c: false
+  h: 2415140295e6e41b4050f0cd38de131ff56ef49b3df0ac72fb745e6e7b0dd64d
+  r: "The repository lacks a `validate_sample_size` function in `code/src/data_loader.py`\
+    \ (the file ends mid\u2011implementation of `subsample_instances` and never defines\
+    \ the required validation routine). Additionally, the required data file `data/processed/subsampled_instances.parquet`\
+    \ is missing, so the function could not be exercised even if it existed. Both\
+    \ the code artifact and the dataset artifact needed to satisfy T011b are absent."

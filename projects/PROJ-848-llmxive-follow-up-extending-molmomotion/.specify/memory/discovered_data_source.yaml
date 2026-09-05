@@ -1,0 +1,13 @@
+status: none
+intent: MolmoMotion-1M dataset official download huggingface python package dataset
+required_fields:
+- trajectory_id
+- timestamps
+- joint_positions
+- joint_velocities
+- duration
+- kinematic_parameters
+- action_label
+cache_key: 814297227ec248b970ed3244f7468290f058e7f0c5594a5a13d9661b2ffb38c7
+searched_at: '2026-09-05T23:17:14.689493+00:00'
+retry_count: 1

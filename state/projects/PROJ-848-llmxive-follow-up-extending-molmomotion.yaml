@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T05:14:54.849875Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-848-llmxive-follow-up-extending-molmomotion
-last_run_id: 34fe9857-e23a-4641-90ae-7c1816bc6a42
+last_run_id: 1408c989-da8f-45e4-8a2e-59175f3617d4
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-848-llmxive-follow-up-extending-molmomotion/specs/001-llmxive-follow-up-extending-molmomotion
 title: 'llmXive follow-up: extending "MolmoMotion: Forecasting Point Trajectories
   in 3D with Language Instru"'
-updated_at: '2026-07-31T14:56:44.085549Z'
+updated_at: '2026-09-05T23:44:38.567370Z'

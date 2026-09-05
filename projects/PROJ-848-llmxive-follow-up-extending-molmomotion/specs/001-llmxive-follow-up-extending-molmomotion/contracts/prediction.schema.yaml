@@ -1,0 +1,81 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Prediction Output Schema
+description: >
+  Schema for model prediction outputs generated during the inference pipeline.
+  Contains predicted trajectories, evaluation metrics, instruction metadata, and execution status.
+type: object
+required:
+  - instance_id
+  - predicted_points
+  - ate
+  - adherence_score
+  - instruction_type
+  - status
+properties:
+  instance_id:
+    type: string
+    description: Unique identifier for the trajectory instance, matching the source dataset.
+    pattern: "^[a-zA-Z0-9_-]+$"
+  
+  predicted_points:
+    type: array
+    description: >
+      Sequence of predicted 3D points representing the trajectory.
+      Each point is a list of three floats [x, y, z] in meters.
+    items:
+      type: array
+      minItems: 3
+      maxItems: 3
+      items:
+        type: number
+        description: Coordinate value (x, y, or z).
+  
+  ate:
+    type: number
+    description: >
+      Average Trajectory Error (ATE) in meters.
+      Calculated as the mean Euclidean distance between predicted points and ground truth points.
+      Lower values indicate better performance.
+    minimum: 0
+  
+  adherence_score:
+    type: number
+    description: >
+      Score quantifying how well the prediction adheres to the provided instruction.
+      Used for trade-off analysis but NOT for the primary pass/fail verdict.
+    minimum: 0
+    maximum: 1
+  
+  instruction_type:
+    type: string
+    description: The modality of instruction used to generate this prediction.
+    enum:
+      - natural_language
+      - structured_kinematic
+  
+  status:
+    type: string
+    description: Execution status of the inference for this instance.
+    enum:
+      - success
+      - failed
+    default: success
+  
+  inference_latency_ms:
+    type: number
+    description: Time taken to generate the prediction in milliseconds.
+    minimum: 0
+    required: false
+  
+  peak_memory_mb:
+    type: number
+    description: Peak memory usage during inference in megabytes.
+    minimum: 0
+    required: false
+  
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the prediction was generated.
+    required: false
+additionalProperties: false

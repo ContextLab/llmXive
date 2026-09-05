@@ -1,0 +1,184 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MolmoMotion Dataset Instance Schema
+description: |
+  Schema definition for a single instance in the MolmoMotion dataset.
+  This schema supports the subsampling and instruction synthesis pipeline (US1).
+  It defines the structure for raw trajectory data, kinematic metadata, and the
+  generated instruction pairs (natural language and structured).
+type: object
+required:
+  - instance_id
+  - ground_truth_points
+  - kinematic_metadata
+  - instruction_nl
+  - instruction_struct
+properties:
+  instance_id:
+    type: string
+    description: |
+      Unique identifier for the trajectory instance.
+      Format: "molmo-motion-{dataset_split}-{unique_hash}"
+      Example: "molmo-motion-train-a1b2c3d4"
+    pattern: "^molmo-motion-[a-z]+-[a-zA-Z0-9]+$"
+
+  ground_truth_points:
+    type: array
+    description: |
+      Sequence of 3D points representing the ground truth trajectory.
+      Each point is a list of three floats [x, y, z] in meters.
+      The sequence length corresponds to the duration of the motion.
+    items:
+      type: array
+      description: A single 3D point coordinate [x, y, z]
+      items:
+        type: number
+        format: float
+        description: Coordinate value in meters
+      minItems: 3
+      maxItems: 3
+    minItems: 1
+    metadata:
+      unit: meters
+      coordinate_system: "Right-handed Cartesian (X: Right, Y: Up, Z: Forward)"
+
+  kinematic_metadata:
+    type: object
+    description: |
+      Calculated kinematic properties derived from the ground truth trajectory.
+      Used for generating structured instructions and for analysis.
+    required:
+      - total_duration_seconds
+      - start_position
+      - end_position
+      - total_displacement_meters
+      - average_velocity_mps
+      - max_velocity_mps
+      - velocity_vector
+    properties:
+      total_duration_seconds:
+        type: number
+        format: float
+        minimum: 0
+        description: Total time elapsed for the trajectory in seconds.
+
+      start_position:
+        type: array
+        description: The [x, y, z] coordinate of the first point.
+        items:
+          type: number
+          format: float
+        minItems: 3
+        maxItems: 3
+
+      end_position:
+        type: array
+        description: The [x, y, z] coordinate of the last point.
+        items:
+          type: number
+          format: float
+        minItems: 3
+        maxItems: 3
+
+      total_displacement_meters:
+        type: number
+        format: float
+        minimum: 0
+        description: Euclidean distance between start and end positions.
+
+      average_velocity_mps:
+        type: number
+        format: float
+        minimum: 0
+        description: Magnitude of the average velocity vector (displacement / time).
+
+      max_velocity_mps:
+        type: number
+        format: float
+        minimum: 0
+        description: Maximum instantaneous speed observed in the trajectory.
+
+      velocity_vector:
+        type: array
+        description: |
+          The average velocity vector [vx, vy, vz] in m/s.
+          Used for structured instruction generation (direction and magnitude).
+        items:
+          type: number
+          format: float
+        minItems: 3
+        maxItems: 3
+
+  instruction_nl:
+    type: object
+    description: |
+      Natural language description of the motion.
+      Generated from kinematic metadata using a template or LLM.
+    required:
+      - text
+      - complexity_level
+    properties:
+      text:
+        type: string
+        description: |
+          The generated natural language instruction string.
+          Example: "Move the object left and slightly forward."
+        minLength: 1
+
+      complexity_level:
+        type: string
+        description: |
+          Classification of the instruction complexity based on metadata.
+          Enum: ["simple", "moderate", "complex"]
+        enum:
+          - simple
+          - moderate
+          - complex
+        metadata:
+          derivation: "Based on number of direction changes and velocity variance"
+
+  instruction_struct:
+    type: object
+    description: |
+      Structured kinematic instruction vector representation.
+      This is a machine-readable format of the motion intent.
+    required:
+      - direction_vector
+      - magnitude_mps
+      - duration_seconds
+      - motion_type
+    properties:
+      direction_vector:
+        type: array
+        description: |
+          Normalized unit vector [dx, dy, dz] indicating primary direction of motion.
+          Calculated from the velocity vector.
+        items:
+          type: number
+          format: float
+        minItems: 3
+        maxItems: 3
+
+      magnitude_mps:
+        type: number
+        format: float
+        minimum: 0
+        description: Speed magnitude in meters per second.
+
+      duration_seconds:
+        type: number
+        format: float
+        minimum: 0
+        description: Duration of the motion in seconds.
+
+      motion_type:
+        type: string
+        description: |
+          Classification of the motion type based on trajectory shape.
+          Enum: ["linear", "curvilinear", "oscillatory", "stationary"]
+        enum:
+          - linear
+          - curvilinear
+          - oscillatory
+          - stationary
+        metadata:
+          derivation: "Based on variance of velocity vector and displacement ratio"

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.00086",
+  "judged_at": "2026-09-05T23:09:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"molmomotion: forecasting point trajectories in 3d with language instru\" computer science",
+  "rationale": "The paper focuses on hierarchical pre-training and feature fusion for general vision-language tasks (e.g., image classification, VQA), which does not address the specific mechanism of \"forecasting point trajectories in 3D\" or the \"MolmoMotion\" architecture mentioned in the user's query. While both involve LLMs and vision, the candidate paper lacks the specific domain (3D motion forecasting) and the core task (trajectory prediction) required to be considered relevant prior work for this specific ",
+  "relevant": false
+}
