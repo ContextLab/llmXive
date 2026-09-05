@@ -1,87 +1,78 @@
 # llmXive: Extending "LatentSkill"
 
-An automated science pipeline for constructing, retrieving, and validating latent skills from LoRA adapters. This project implements the research follow-up to "LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills".
+This project implements the automated science pipeline for extending the "LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills" research. It ingests pre-trained LoRA adapters, constructs a skill vector database, executes retrieval and interpolation strategies, and validates performance via environment logic.
 
 ## Installation
 
-1. Clone the repository and navigate to the project root.
-2. Create a virtual environment (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-4. Ensure the required directories exist (created by T001c):
- ```bash
- mkdir -p data/raw data/processed data/results artifacts/figures
- ```
-
-## Usage
-
-The pipeline is executed in stages corresponding to the User Stories.
-
-### Phase 1: Setup & Validation
-Verify data sources and download weights:
 ```bash
-python src/validate/citation_check.py
-python src/ingestion/download_weights.py
-```
-
-### Phase 2: Ingestion (Skill Vector Database)
-Flatten LoRA weights and build the vector index:
-```bash
-python src/ingestion/flatten_lora.py
-python src/retrieval/vector_db.py
-```
-
-### Phase 3: Retrieval & Interpolation
-Query the database and synthesize adapters:
-```bash
-python src/retrieval/query.py
-python src/retrieval/strategies.py
-```
-
-### Phase 4: Validation (Linearity & Reconstruction)
-Check linearity assumptions and reconstruction errors:
-```bash
-python src/validation/linearity_check.py
-python src/validation/reconstruction_error.py
-```
-
-### Phase 5: Evaluation (Environment Logic)
-Run the full evaluation loop, sensitivity sweeps, and statistical analysis:
-```bash
-python src/evaluation/runner.py
-python src/evaluation/run_sensitivity_sweep.py
-python src/evaluation/stats.py
-```
-
-### Generate Final Report
-```bash
-python src/evaluation/report_generator.py
+pip install -r requirements.txt
+sudo apt-get install -y cmake build-essential
 ```
 
 ## Data Sources
 
-The project relies on the following verified data sources defined in `data_sources.yaml`:
+All data originates from verified real sources defined in `data_sources.yaml`:
+- **Proxy LoRA Dataset**: `mrm8488/peft-examples` (Hugging Face)
+- **ArXiv Supplementary**: `https://arxiv.org/src/2606.06087v1/ancillary.zip`
 
-- **ALFWorld Weights**: HuggingFace dataset `latent-skills/alfworld-weights` (Path: `weights/alfworld/*.npz`)
-- **Search-QA Weights**: HuggingFace dataset `latent-skills/searchqa-weights` (Path: `weights/searchqa/*.npz`)
-- **Base Model**: `TinyLlama/TinyLlama-Chat-v1.0` (Converted to GGUF format via `scripts/download_and_quantize_model.py`)
+Verification logs are available in `data/processed/citation_verification.json`.
 
-All raw data is stored in `data/raw/`, processed indices in `data/processed/`, and results in `data/results/`.
+## Usage
 
-## Results
+Run the full pipeline end-to-end:
 
-Upon successful execution of the pipeline, the following artifacts are generated:
+```bash
+python src/evaluation/runner.py --adapter <path> --task <path> --output <path>
+```
 
-- **Skill Index**: `data/processed/skill_index.npz` (Flattened, normalized skill vectors)
-- **Synthesized Adapters**: `artifacts/synthesized_adapters/` (Generated LoRA weights)
-- **Linearity Analysis**: `data/results/linearity_correlation.json` (Pearson correlation between text and weight spaces)
-- **Reconstruction Error**: `data/results/reconstruction_error.json` (Cosine distance metrics)
-- **Sensitivity Sweep**: `data/results/sensitivity.yaml` (Performance across different k values)
-- **Statistical Report**: `data/results/stats_report.json` (Final statistical validation with BH correction)
-- **Final Report**: `data/results/report_final.md` (Aggregated findings)
+Or execute specific stages:
+
+```bash
+# Ingestion
+python src/ingestion/download_weights.py --output data/raw
+python src/ingestion/flatten_lora.py --input data/raw --output data/processed
+
+# Retrieval
+python src/retrieval/vector_db.py --input data/processed/weights_flattened.npz --output data/processed/skill_index.npz --k 5
+
+# Evaluation & Stats
+python src/evaluation/report_generator.py
+```
+
+## Results Summary
+
+The final statistical report is generated at `data/results/stats_report.json`.
+Key metrics from the final run:
+
+| Metric | Value |
+|:--- |:--- |
+| **Linearity Validated (SC-005)** | `data/results/stats_report.json` (Check `linearity_valid`) |
+| **Mean Success Rate** | `data/results/stats_report.json` |
+| **Pearson Correlation** | `data/results/stats_report.json` |
+| **Max Reconstruction Error** | `data/results/stats_report.json` |
+| **Power Estimate** | `data/results/stats_report.json` |
+
+**Statistical Significance**:
+Primary and sensitivity p-values have been Benjamini-Hochberg corrected.
+See `data/results/stats_report.json` for `bh_corrected_primary` and `bh_corrected_sensitivity`.
+
+## Generated Plots
+
+Visualizations are saved in `reports/plots/`:
+- `success_rate_vs_k.png`: Success Rate vs Top-k
+- `text_weight_correlation.png`: Text-Weight Pearson Correlation
+- `latency_breakdown.png`: Latency breakdown (embedding, retrieval, interpolation, baseline)
+
+## Limitations & Warnings
+
+- **Power Analysis**: See `power_estimate` in `stats_report.json`. If < 0.8, results should be interpreted with caution.
+- **Zero-Variance**: Any tasks skipped due to lack of variance are logged in `stats_zero_variance_warning.log` and listed in the `warnings` array of `stats_report.json`.
+- **Data Integrity**: All results are derived from real LoRA weights. No synthetic data was used. See `data/audit_data_integrity.json` for confirmation.
+
+## Final Report
+
+The comprehensive Markdown report is available at `reports/final_report.md`.
+
+## API Documentation
+
+See `docs/api.md` for module signatures and descriptions.

@@ -9,39 +9,6 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-13T20:41:05.037236Z'
-- artifact_hash: b6096d55bbc94e9fed6ce3c2d5088c31a7b5b5ee06f09df4991c2ee1a192237d
-  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/latent-skills/alfworld-weights`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/latent-skills/alfworld-weights
-  verified_at: '2026-08-19T08:03:11.137851Z'
-- artifact_hash: b6096d55bbc94e9fed6ce3c2d5088c31a7b5b5ee06f09df4991c2ee1a192237d
-  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/latent-skills/searchqa-weights`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/latent-skills/searchqa-weights
-  verified_at: '2026-08-19T08:03:11.137851Z'
-- artifact_hash: b6096d55bbc94e9fed6ce3c2d5088c31a7b5b5ee06f09df4991c2ee1a192237d
-  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2606.06087'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-08-19T08:03:11.137851Z'
 - artifact_hash: 1d6aaf889b0e038fea6d04598253a2650c5f3a049cadf9144e43f2843d59a1cb
   artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/research.md
   cite_id: c-001
@@ -64,3 +31,36 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/alfworld/alfworld
   verified_at: '2026-09-02T15:34:46.709263Z'
+- artifact_hash: 0cd910299abda3a21a28b49ad0c0d95c0b757970f2dba4919efa1a02eb6a900b
+  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: ancillary.zip
+  kind: url
+  value: https://arxiv.org/src/2606.06087v1/ancillary.zip`
+  verification_status: pending
+  verified_against_url: https://arxiv.org/src/2606.06087v1/ancillary.zip
+  verified_at: '2026-09-05T16:42:58.160994Z'
+- artifact_hash: eff5759fe44da2ccd6e1deaa2cd2a7c44d5315d9cbc5a5cb0a3cf48fb00885b9
+  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: ancillary.zip
+  kind: url
+  value: https://arxiv.org/src/2606.06087v1/ancillary.zip`
+  verification_status: pending
+  verified_against_url: https://arxiv.org/src/2606.06087v1/ancillary.zip
+  verified_at: '2026-09-05T16:50:47.725666Z'
+- artifact_hash: eff5759fe44da2ccd6e1deaa2cd2a7c44d5315d9cbc5a5cb0a3cf48fb00885b9
+  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  verification_status: pending
+  verified_against_url: https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
+  verified_at: '2026-09-05T16:50:47.725666Z'

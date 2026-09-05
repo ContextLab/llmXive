@@ -15,9 +15,9 @@ This feature implements a CPU-first retrieval and interpolation system for LoRA 
 **Primary Dependencies**: `torch` (CPU build), `transformers`, `sentence-transformers`, `scikit-learn`, `numpy`, `bitsandbytes` (for 4-bit quantization), `datasets` (Hugging Face), `pytest`.  
 **Storage**: Local file system (`data/raw/`, `data/processed/`, `data/results/`) with `.npz` and `.json` artifacts.  
 **Testing**: `pytest` (unit tests for vector math, integration tests for evaluation pipeline).  
-**Target Platform**: GitHub Actions free-tier runner (Multiple CPU cores, 7GB RAM, 14GB disk) with a defined GPU escape hatch (Kaggle) for any CUDA-dependent steps.  
+**Target Platform**: GitHub Actions free-tier runner (Multiple CPU cores, Sufficient RAM, Adequate disk storage) with a defined GPU escape hatch (Kaggle) for any CUDA-dependent steps.  
 **Project Type**: Research pipeline / CLI tool.  
-**Performance Goals**: Skill selection latency < 500ms on CPU; full evaluation suite < 6 hours (reduced scale: a subset of tasks, 3 runs).  
+**Performance Goals**: Skill selection latency < 500ms on CPU; full evaluation suite < 6 hours (reduced scale: a subset of tasks, multiple runs).  
 **Constraints**: No external GPU for training; strict memory limit (~GB) requiring streaming or chunked processing for large models; strict prohibition of synthetic data for results (FR-008).  
 **Scale/Scope**: A set of LoRA adapters (proxy dataset); ~ composite test tasks; Multiple runs per task for statistical feasibility.
 
@@ -166,7 +166,7 @@ The previous iteration was rejected for **FABRICATED-RESULT** signals and missin
 ### Phase 2: Evaluation & Statistical Testing (FR-004, FR-005, FR-006, FR-008)
 *   **Goal**: Generate real performance metrics and `stats_report.json`.
 *   **Steps**:
-    1.  Load base model (quantized CPU, reduced scale: a small set of tasks, 3 runs).
+    1.  Load base model (quantized CPU, reduced scale: a small set of tasks, multiple runs).
     2.  For each composite task:
         *   Generate synthesized adapter (Retrieval, Mean, Weighted).
         *   Run $N=3$ independent simulations (FR-008).
@@ -187,4 +187,4 @@ The previous iteration was rejected for **FABRICATED-RESULT** signals and missin
 *   **Environment Logic**: The environment logic is the independent ground truth; the success rate is the dependent variable.
 *   **Proxy Dataset**: The study uses a verified proxy dataset of LoRA adapters (e.g., `peft/examples`) due to the unavailability of ALFWorld/Search-QA specific weights.
 *   **Linearity Proxy**: The "ground truth" for composite tasks is the arithmetic mean of component weights (geometric proxy), and functional validation is against Zero-Shot.
-*   **Compute**: The reduced scale (5 tasks, 3 runs) is sufficient to demonstrate the feasibility of the method within the 6-hour window.
+*   **Compute**: The reduced scale (a small set of tasks, 3 runs) is sufficient to demonstrate the feasibility of the method within the 6-hour window.

@@ -56,3 +56,43 @@ T059a:
     \ implements hardware verification, returning a dict with the key\u202F`runner_core_count`\
     \ and writing it (along with `is_standard_2_core`) to `data/results/latency_metrics.json`\
     \ via the configured results path. The required functionality is present."
+T078:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, result files, or any other artifacts showing that `cli.py`\
+    \ was run end\u2011to\u2011end with\u202FN=5 runs per task are present, nor any\
+    \ evidence that tasks T001\u2011T077 have been verified as passing. The implementer\
+    \ provided only a feature specification excerpt, which does not satisfy the required\
+    \ deliverable."
+T079:
+  c: false
+  h: 70224a0c8f0ad2f10c845b98366757f4d7b22a01076a2ab1f72ca5b77cecf581
+  r: The required artifact `data/results/stats_report.json` does not exist, so it
+    cannot be checked for the required fields. The task cannot be considered completed
+    until the file is present and contains the specified keys.
+T080:
+  c: false
+  h: 5cf993f5401b10c5d22f985501f7344d1ca3b8aac06d345c02814e6db96b8f5b
+  r: The required artifact `reports/final_report.md` does not exist, so the report
+    cannot be validated for the presence of the mandated sections. The implementer
+    must create the file and ensure it contains the "Statistical Power", "Zero-Variance
+    Incidents", and "Data Integrity" sections.
+T083:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides no README.md file, no `stats_report.json` summary, and
+    no links to generated plots; thus the required artifacts are missing and the task
+    is not satisfied.
+T084:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a reviewed `spec.md` or `plan.md` was provided, nor any final
+    report showing that assumptions and constraints were verified. The required artifacts
+    are missing, so the task is not satisfied.
+T086:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `archive/` directory or any listed files/logs were provided as evidence, so
+    the required artifacts for archiving are missing. The implementer must create
+    a structured `archive/` folder containing all relevant artifacts and logs from
+    the project.
