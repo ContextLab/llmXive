@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Acquisition and Dual-Pipeline Preprocessing (Priority: P1)
 
-**User Journey**: As a neuroscientist, I want to automatically download 3-5 specific resting-state EEG datasets from OpenNeuro (e.g., ds003865, ds003392, ds003775) and apply TWO distinct standardized preprocessing pipelines to all data so that I can compare the consistency of the Alpha Peak Frequency (APF) biomarker across different methodological choices.
+**User Journey**: As a neuroscientist, I want to automatically download Several specific resting-state EEG datasets from OpenNeuro (e.g., ds003865, ds003392, ds003775) and apply TWO distinct standardized preprocessing pipelines to all data so that I can compare the consistency of the Alpha Peak Frequency (APF) biomarker across different methodological choices.
 
 **Pipeline A (Standard)**: Bandpass filtering, notch filtering at the mains frequency., common average reference, ICA-based ocular artifact rejection.
 **Pipeline B (Alternative)**: Bandpass with a low-frequency cutoff, notch at power-line frequency, mastoid reference, NO ICA (raw data retained).

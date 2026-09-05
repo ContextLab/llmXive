@@ -1,3 +1,10 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code`, `tests`, `data/raw`, `data/derivatives`,
+    `data/processed`, `state`) being created is provided; the implementer only restated
+    the command without showing that it was executed or that the filesystem hierarchy
+    exists. The task therefore remains unverified.
 T008:
   c: false
   h: c0098863a59208c9ff53e4cb2a2a47ed72c5ad84f72b659c02f123104798b06d

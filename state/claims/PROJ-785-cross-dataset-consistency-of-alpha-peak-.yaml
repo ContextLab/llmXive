@@ -490,3 +490,390 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T09:47:08Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Simulated dataset with Dataset variance 0.40 and Residual variance 0.50
+  claim_id: c_bba81f72
+  context: Integration test for Mixed-Effects model recovery on simulated data in
+    tests/integration/test_model_recovery.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate a dataset with known variance components (Dataset=0.40, Residual=0.50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:41:25Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Simulated dataset with Dataset variance 0.40 and Residual variance 0.50
+  claim_id: c_6c634559
+  context: Implementation of simulation-based power analysis in code/analysis.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate a dataset with known variance components (Dataset=0.40, Residual=0.50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:41:25Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Model recovery accuracy within 0.05 of true variance components
+  claim_id: c_04d9bd4d
+  context: Integration test for Mixed-Effects model recovery on simulated data
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the recovered components are within \xB10.05 of the true\
+    \ values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:42:06Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Bootstrapping confidence interval test with input N=50
+  claim_id: c_cb15db05
+  context: Unit test for Bootstrapping confidence interval calculation in tests/unit/test_analysis.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test with input N=50, assert CI width and coverage probability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:42:55Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: 'Power analysis inputs: effect size 0.15 and alpha 0.05'
+  claim_id: c_d335993b
+  context: Implementation of simulation-based power analysis in code/analysis.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Input Parameters: effect_size=0.15 (small effect for Dataset/Method),
+    alpha=0.05.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:45:21Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: 'Power analysis inputs: effect size 0.15 and alpha 0.05'
+  claim_id: c_620b60b6
+  context: Calculate achieved power for real dataset in code/analysis.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Input Parameters: effect_size=0.15, alpha=0.05.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:45:21Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Indeterminate flag triggered by power less than 1e-6 across 8-13 Hz
+  claim_id: c_87d1f8a2
+  context: Unit test for 'Indeterminate' flag in tests/unit/test_apf_estimator.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Indeterminate_flag_triggered_by_power_less_than_1e-6_across
+  kind: magnitude
+  raw_text: Test that a flat spectrum (power < 1e-6 across 8-13 Hz) triggers the 'Indeterminate'
+    flag.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:46:38Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Out-of-Band flag triggered by peak outside 8-13 Hz
+  claim_id: c_851393f4
+  context: Unit test for 'Out-of-Band' flag in tests/unit/test_apf_estimator.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test that a peak at a specific frequency triggers the 'Out-of-Band' flag
+    with expected string value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:46:38Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: 'Alpha band sensitivity sweep bounds: 7.5-12.5, 8.0-13.0, 8.5-13.5 Hz'
+  claim_id: c_4db18730
+  context: Implement sensitivity analysis loop in code/apf_estimator.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep alpha band bounds by \xB10.5 Hz (specifically: [7.5-12.5, 8.0-13.0,\
+    \ 8.5-13.5])"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:47:11Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Out-of-Band flag triggered by peak at 7.5 Hz
+  claim_id: c_53022ed4
+  context: 'Unit test for ''Out-of-Band'' peak edge case in tests/unit/test_edge_cases.py:
+    Test 7.5 Hz peak with expected flag string.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test that a peak at a specific frequency triggers the 'Out-of-Band' flag
+    with expected string value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:47:11Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Bandpass filter parameters set to 1-45 Hz
+  claim_id: c_a1b2af57
+  context: Unit test for Pipeline Bandpass filtering and ICA rejection in tests/unit/test_preprocessing.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test `apply_bandpass` and `reject_ica_components` functions with synthetic
+    data using Constitution-mandated parameters (1-45Hz).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:47:47Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Bandpass filter parameters set to 1.0-45.0 Hz
+  claim_id: c_37008958
+  context: Implement Bandpass Filter in code/preprocessing.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define `apply_bandpass(signal, low=1.0, high=45.0)` function.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:48:07Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: 'ICA rejection thresholds: correlation 0.8, variance 0.15'
+  claim_id: c_e8828c19
+  context: Implement ICA Artifact Rejection in code/preprocessing.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define `reject_ica_components(data, correlation_threshold=0.8, variance_threshold=0.15)`
+    function.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:48:28Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Out-of-Band flag triggered by peak outside 8-13 Hz
+  claim_id: c_f63ed179
+  context: Implement logic to flag results as 'Indeterminate' if peak detection fails
+    or 'Out-of-Band' if peak is outside 8-13 Hz.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test that a peak at a specific frequency triggers the 'Out-of-Band' flag
+    with expected string value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:48:28Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Simulated dataset with Dataset variance 0.40 and Residual variance 0.50
+  claim_id: c_aee8efec
+  context: Independent Test for User Story 3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate a dataset with known variance components (Dataset=0.40, Residual=0.50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:48:28Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Indeterminate flag triggered by power less than 1e-6 across 8-13 Hz
+  claim_id: c_bf41e202
+  context: Independent Test for User Story 2
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Indeterminate_flag_triggered_by_power_less_than_1e-6_across
+  kind: magnitude
+  raw_text: Test that a flat spectrum (power < 1e-6 across 8-13 Hz) triggers the 'Indeterminate'
+    flag.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:48:31Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Out-of-Band flag triggered by peak outside 8-13 Hz
+  claim_id: c_d0410d88
+  context: Independent Test for User Story 2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test that a peak at a specific frequency triggers the 'Out-of-Band' flag
+    with expected string value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:48:31Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Bootstrapping confidence interval test with input N=50
+  claim_id: c_e66d1e62
+  context: Independent Test for User Story 3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test with input N=50, assert CI width and coverage probability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:48:31Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: APF estimation accuracy within 0.5 Hz of ground truth
+  claim_id: c_0bd40e05
+  context: Independent Test for User Story 2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that both methods return a value within \xB10.5 Hz of the ground\
+    \ truth."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:49:07Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Synthetic ground truth calibration error within 0.5 Hz
+  claim_id: c_ed0b5fc2
+  context: Integration test for synthetic ground truth calibration
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify the error is within \xB10.5 Hz."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:49:24Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Out-of-Band flag triggered by peak at 7.5 Hz
+  claim_id: c_bdf0cc6d
+  context: Unit test for 'Out-of-Band' peak edge case in tests/unit/test_edge_cases.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test that a peak at a specific frequency triggers the 'Out-of-Band' flag
+    with expected string value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:49:24Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Dataset ID list must contain at least 3 IDs
+  claim_id: c_f270543f
+  context: Define the list of dataset IDs in code/config.py
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P31: Q101352'
+      source_id: Q1828075
+      url: https://www.wikidata.org/wiki/Q1828075
+      value: '3'
+    filled: true
+  kind: magnitude
+  raw_text: List must contain at least 3 IDs.
+  resolved_value: '3'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T08:49:49Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Subject count validation threshold is 20
+  claim_id: c_2019e32b
+  context: Implement subject count validation logic in code/validators.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforces >= 20 threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:50:18Z'
+- artifact_path: projects/PROJ-785-cross-dataset-consistency-of-alpha-peak-/specs/001-cross-dataset-consistency-of-alpha-peak/tasks.md
+  attempts: 1
+  canonical: Simulated dataset with Dataset variance 0.40 and Residual variance 0.50
+  claim_id: c_145ddac4
+  context: Integration test for Mixed-Effects model recovery on simulated data
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulate a dataset with known variance components (Dataset=0.40, Residual=0.50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T08:50:18Z'

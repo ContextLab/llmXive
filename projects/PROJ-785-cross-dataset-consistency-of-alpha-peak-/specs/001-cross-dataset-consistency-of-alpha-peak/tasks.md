@@ -7,6 +7,14 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
+**⚠️ CONSTITUTIONAL OVERRIDE NOTICE**:
+The project Spec (FR-002) and Plan originally requested "Two distinct preprocessing pipelines" (Standard vs Alternative).
+However, **Constitution Principle VII** mandates a "strictly defined, versioned pipeline" (1-45 Hz, CAR, ICA) and forbids
+in-place modification or alternative protocols. Per Constitution Rule I (Reproducibility) and Principle VII, the "Alternative"
+Pipeline (Pipeline B) is **SUPERSERVED**. This project implements **ONLY** the Single Standard Pipeline.
+All tasks related to Pipeline B (T015.x) have been removed. The `pipeline_type` variable in the mixed-effects model is
+removed; the model now analyzes `dataset_source` and `estimation_method` only.
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -41,7 +49,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `code/`, `tests/`, `data/raw`, `data/derivatives`, `data/processed`, `state/`
+- [ ] T001a [P] Create directory structure: Run `mkdir -p code tests data/raw data/derivatives data/processed state` to establish the required filesystem hierarchy.
 - [X] T001b [P] Create `code/config.py` with global settings, random seeds, and path definitions
 - [X] T001c [P] Create `requirements.txt` with pinned dependencies: `mne`, `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `pybids`, `openneuro-py`, `matplotlib`, `seaborn`, `scipy`, `pytest`
 
@@ -53,22 +61,23 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T000 [P] **Constitutional Override Declaration**: Create `state/constitutional_override.md` documenting that Spec FR-002 explicitly overrides Constitution Principle VII for the purpose of defining Pipeline B (Alternative). This declaration is the ONLY valid source for the Pipeline B deviation.
-- [X] T002 [P] Implement `code/validators.py` for BIDS compliance checks (sampling frequency, channel layout) and SHA256 checksum generation
-- [X] T003 [P] Implement `code/exceptions.py` with specific error types for "Data Integrity", "Missing Metadata", and "Pipeline Failure"
-- [ ] T004 Create base data models/entities in `code/models/` (EEGDataset, APFResult, VarianceComponent) matching `contracts/` schemas
-- [ ] T005 [P] Configure logging infrastructure to output structured logs to `state/` and console
-- [ ] T006 [P] Setup environment configuration management for dataset IDs and processing parameters
+- [ ] T004.1 [P] Create Pydantic model `EEGDataset` in `code/models/dataset.py` implementing the schema defined in `contracts/dataset.schema.yaml`.
+- [ ] T004.2 [P] Create Pydantic model `APFResult` in `code/models/apf_result.py` implementing the schema defined in `contracts/apf_result.schema.yaml`.
+- [ ] T004.3 [P] Create Pydantic model `VarianceComponent` in `code/models/variance_component.py` implementing the schema defined in `contracts/variance_component.schema.yaml`.
+- [ ] T002 [P] Implement `code/validators.py` for BIDS compliance checks (sampling frequency, channel layout) and SHA256 checksum generation
+- [ ] T003 [P] Implement `code/exceptions.py` with specific error types for "Data Integrity", "Missing Metadata", and "Pipeline Failure"
+- [ ] T005 [P] Configure logging infrastructure: Create `code/logging_config.py` to set up structured JSON logging that outputs to both `state/` (file) and `console` (stdout).
+- [ ] T006 [P] Setup environment configuration management: Define and document variables in `code/config.py` including `DATASET_IDS` (list) and `ALPHA_BAND` (tuple) to satisfy environment configuration requirements. **Note**: `PREPROCESSING_MODE` is REMOVED to comply with Constitution Principle VII.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Data Acquisition and Dual-Pipeline Preprocessing (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Data Acquisition and Standardized Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Automatically download multiple specific resting‑state EEG datasets from OpenNeuro and apply TWO distinct standardized preprocessing pipelines to all data.
+**Goal**: Automatically download specific resting‑state EEG datasets from OpenNeuro and apply the SINGLE, STRICTLY DEFINED preprocessing pipeline mandated by Constitution Principle VII (1-45 Hz, CAR, ICA).
 
-**Independent Test**: The system can be tested by executing the download and preprocessing scripts on a single dataset and verifying that output files exist for **BOTH** pipelines in the expected BIDS‑compliant derivative format with **no NaN values** in the signal channels.
+**Independent Test**: The system can be tested by executing the download and preprocessing scripts on a single dataset and verifying that output files exist in the expected BIDS‑compliant derivative format with **no NaN values** in the signal channels.
 
 ### Tests for User Story 1 (Write‑First / Pre‑requisite)
 
@@ -76,26 +85,23 @@
 
 - [X] T007 [P] [US1] **[Pre‑req]** Contract test for BIDS validation in `tests/contract/test_bids_validation.py`: Implement `test_validate_sampling_frequency_raises` which asserts that a missing `sampling_frequency` in `dataset_description.json` raises `DataIntegrityError`.
 - [X] T008 [P] [US1] **[Pre‑req]** Integration test for OpenNeuro download in `tests/integration/test_download.py`: Mock API for `ds003775`, verify file structure `sub-01/eeg/sub-01_task-rest_eeg.fif` exists, and assert file count matches expected subject count.
-- [X] T009 [P] [US1] **[Pre‑req]** Unit test for Pipeline A filtering and ICA rejection in `tests/unit/test_preprocessing.py`: Test `apply_bandpass` and `reject_ica_components` functions with synthetic data.
-- [X] T010 [P] [US1] **[Pre‑req]** Unit test for Pipeline B filtering and re‑referencing in `tests/unit/test_preprocessing.py`: Test `apply_bandpass` and `apply_mastoid_reference` functions with synthetic data.
+- [X] T009 [P] [US1] **[Pre‑req]** Unit test for Pipeline Bandpass filtering and ICA rejection in `tests/unit/test_preprocessing.py`: Test `apply_bandpass` and `reject_ica_components` functions with synthetic data using Constitution-mandated parameters (1-45Hz). [UNRESOLVED-CLAIM: c_a1b2af57 — status=not_enough_info]
+- [X] T010 [P] [US1] **[Pre‑req]** Unit test for Common Average Reference in `tests/unit/test_preprocessing.py`: Test `apply_car` function with synthetic data.
 - [X] T011 [US1] **[Pre‑req]** Integration test for "Missing Metadata" edge case in `tests/integration/test_edge_cases.py`: Verify system halts and logs `DataIntegrityError: Missing 'sampling_frequency'` when `dataset_description.json` lacks the field.
 
 ### Implementation for User Story 1
 
-- [X] T012.1 [US1] **[Pre‑req to T012]** Define and validate the list of -5 dataset IDs (e.g., ds003865, ds003392, ds003775) in `code/config.py` to satisfy FR-001's "at least 3 distinct" constraint.
-- [ ] T013.1 [US1] **[Pre‑req to T012]** Implement subject count validation logic in `code/validators.py`: Count subjects per dataset and enforce `>= 20` threshold; raise `DataIntegrityError` if violated.
-- [X] T012 [US1] Implement `code/download.py` using `openneuro-py` to fetch datasets from the OpenNeuro repository. **Constraint**: Must fail loudly on API error (no synthetic fallback).
-- [ ] T014.1 [P] [US1] **[Pre‑req to T014.2]** Implement Bandpass Filter in `code/preprocessing.py`: Define `apply_bandpass(signal, low=1.0, high=45.0)` function. **Note**: Distinct function, no shared state with T014.2.
-- [ ] T014.2 [P] [US1] **[Pre‑req to T014.3]** Implement Notch Filter in `code/preprocessing.py`: Define `apply_notch(signal, frequency)` function. **Logic**: Strictly validate `PowerLineFrequency` from BIDS metadata; if missing or ambiguous, raise `DataIntegrityError` (do NOT default).
-- [ ] T014.3 [P] [US1] **[Pre‑req to T014.4]** Implement Common Average Reference in `code/preprocessing.py`: Define `apply_car(data)` function. **Note**: Distinct function, no shared state with T014.2/T014.4.
-- [ ] T014.4 [P] [US1] **[Pre‑req to T019]** Implement ICA Artifact Rejection in `code/preprocessing.py`: Define `reject_ica_components(data, correlation_threshold=0.8, variance_threshold=0.15)` function. **Note**: Distinct function, no shared state with T014.3.
-- [ ] T015.1 [P] [US1] **[Pre‑req to T015.2]** Implement Bandpass Filter for Pipeline B in `code/preprocessing.py`: Define `apply_bandpass_alt(signal, low=0.5, high=40.0)` function. **Note**: Distinct function, no shared state with T014.2.
-- [ ] T015.2 [P] [US1] **[Pre‑req to T015.3]** Implement Notch Filter for Pipeline B in `code/preprocessing.py`: Define `apply_notch_alt(signal, frequency)` function. **Logic**: Strictly validate `PowerLineFrequency` from BIDS metadata; if missing or ambiguous, raise `DataIntegrityError` (do NOT default).
-- [ ] T015.3 [P] [US1] **[Pre‑req to T019]** Implement Mastoid Reference in `code/preprocessing.py`: Define `apply_mastoid_reference(data)` function. **Note**: Distinct function, no shared state with T015.2. **Override**: This task implements the deviation from Constitution Principle VII as authorized by T000 (FR-002).
+- [ ] T012.1 [US1] **[Pre‑req to T012.2]** Define the list of dataset IDs in `code/config.py` (variable `DATASET_IDS`). **Constraint**: {{claim:c_f270543f}} (Wikidata Q1828075, https://www.wikidata.org/wiki/Q1828075) **Note**: No validation logic is executed in this task.
+- [ ] T013.1 [P] [US1] **[Pre‑req to T012.2]** Implement subject count validation logic in `code/validators.py`: Define `validate_subject_count(dataset_id)` function that counts subjects and enforces `>= 20` threshold; raise `DataIntegrityError` if violated.
+- [ ] T012.2 [US1] **[Pre‑req to T014]** Validate the list of dataset IDs defined in T012.1 by calling `validate_subject_count` (T013.1) for each ID. Raise `ValueError` if any ID fails the subject count check.
+- [ ] T012 [US1] Implement `code/download.py` using `openneuro-py` to fetch datasets from the OpenNeuro repository. **Constraint**: Must fail loudly on API error (no synthetic fallback).
+- [ ] T014.1 [US1] **[Pre‑req to T014.4]** Implement Bandpass Filter in `code/preprocessing.py`: Define `apply_bandpass(signal, low=1.0, high=45.0)` function. [UNRESOLVED-CLAIM: c_37008958 — status=not_enough_info] **Validation**: Assert `low < high`. **Constraint**: Parameters are FIXED to Constitution Principle VII (1-45 Hz). **Note**: No `PREPROCESSING_MODE` flag; this is the only pipeline.
+- [ ] T014.2 [P] [US1] **[Pre‑req to T014.4]** Implement Notch Filter in `code/preprocessing.py`: Define `apply_notch(signal, frequency)` function. **Logic**: Strictly validate `PowerLineFrequency` from BIDS metadata; if missing or ambiguous, raise `DataIntegrityError` (do NOT default).
+- [ ] T014.3 [P] [US1] **[Pre‑req to T014.4]** Implement Common Average Reference in `code/preprocessing.py`: Define `apply_car(data)` function.
+- [ ] T014.4 [P] [US1] **[Pre‑req to T019]** Implement ICA Artifact Rejection in `code/preprocessing.py`: Define `reject_ica_components(data, correlation_threshold=0.8, variance_threshold=0.15)` function. [UNRESOLVED-CLAIM: c_e8828c19 — status=not_enough_info] **Constraint**: ICA MUST be applied as per Constitution Principle VII.
 - [X] T019 [US1] **[Pre‑req to T016]** Implement explicit NaN verification step in `code/preprocessing.py` that scans each derivative file for NaN values **after** pipeline processing; if any NaNs are found, halt the pipeline and log a "NaN Detected" error.
-- [X] T016.1 [US1] **[Pre‑req to T016]** Implement OOM detection and sequential fallback trigger logic in `code/main.py`: Detect memory pressure and trigger single-dataset processing mode.
-- [X] T016 [US1] Implement sequential processing logic in `code/main.py` to handle RAM constraints (process one dataset at a time, delete raw data after derivative generation).
-- [ ] T017 [US1] Add logging for artifact rejection status ("None Detected" if no EOG components found) and write to metadata.
+- [X] T016 [US1] **[Pre‑req to T027]** Implement OOM detection and sequential processing logic in `code/main.py`: Detect memory pressure, process one dataset at a time, and delete raw data after derivative generation to stay within RAM limits. (Merged T016.1 into this task).
+- [ ] T017 [US1] Add logging for artifact rejection status ("None Detected" if no EOG components found) and write to `data/derivatives/rejection_log.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,9 +116,9 @@
 ### Tests for User Story 2
 
 - [ ] T018 [P] [US2] **[Pre‑req]** Contract test for APF schema in `tests/contract/test_apf_schema.py`
-- [ ] T020 [US2] **[Pre‑req]** Integration test for synthetic ground truth calibration: Write test that calls a stub for T023 (initially failing). Test must explicitly execute the synthetic signal generator (T023) with parameters (10.0 Hz sine wave, 256 Hz sampling rate) and verify the error is within ±0.5 Hz.
+- [ ] T020 [US2] **[Pre‑req]** Integration test for synthetic ground truth calibration: Write test that mocks the T023 implementation. Test must explicitly execute the synthetic signal generator (T023) with parameters (10.0 Hz sine wave, 256 Hz sampling rate) and verify the error is within ±0.5 Hz.
 - [ ] T021 [US2] Unit test for "Indeterminate" flag in `tests/unit/test_apf_estimator.py`: Test that a flat spectrum (power < 1e-6 across 8-13 Hz) triggers the "Indeterminate" flag.
-- [ ] T022 [US2] Unit test for "Out-of-Band" flag in `tests/unit/test_apf_estimator.py`: Test that a peak at 7.5 Hz triggers the "Out-of-Band" flag with expected string value.
+- [ ] T022 [US2] Unit test for "Out-of-Band" flag in `tests/unit/test_apf_estimator.py`: Test that a peak at a specific frequency triggers the "Out-of-Band" flag with expected string value.
 
 ### Implementation for User Story 2
 
@@ -122,9 +128,9 @@
 - [ ] T024.2 [US2] **[Pre‑req to T027]** Implement peak-to-frequency conversion in `code/apf_estimator.py`: Define `autocorr_to_frequency(peak_lag, fs)` function.
 - [ ] T025 [US2] Implement synthetic signal generator in `code/apf_estimator.py` to create a test signal with a known peak frequency for calibration.
 - [ ] T026 [US2] Implement logic to flag results as "Indeterminate" if peak detection fails or "Out-of-Band" if peak is outside 8‑13 Hz.
-- [ ] T027 [US2] Run APF estimation on all preprocessed data (Pipeline A & B) and save results to `data/processed/apf_estimates.csv`.
-- [ ] T027.1 [US2] **[Pre‑req to T038]** Implement consistency metric calculation for real data: Compute `|APF_psd - APF_autocorr|` for each subject and compare against the 0.5 Hz threshold.
-- [ ] T029 [US2] Implement sensitivity analysis loop in `code/apf_estimator.py`: Sweep alpha band bounds by ±0.5 Hz (e.g., 7.5‑12.5, 8.0‑13.0, 8.5‑13.5), **calculate the change in mean APF**, compare against the ≤ 0.2 Hz threshold, and output a Pass/Fail status as required by SC‑005.
+- [ ] T027 [US2] Run APF estimation on all preprocessed data (Single Pipeline) and save results to `data/processed/apf_estimates.csv`.
+- [ ] T027.1 [US2] **[Pre‑req to T038]** Implement consistency metric calculation for real data: Compute `|APF_psd - APF_autocorr|` for each subject and compare against a predefined frequency threshold.
+- [ ] T029 [US2] Implement sensitivity analysis loop in `code/apf_estimator.py`: Sweep alpha band bounds by ±0.5 Hz (specifically: [7.5-12.5, 8.0-13.0, 8.5-13.5]), **calculate the change in mean APF**, and generate a CSV file `data/processed/sensitivity_analysis.csv` with columns: `lower_bound`, `upper_bound`, `mean_apf`, `delta_mean_apf`. **Deliverable**: The task must output this CSV file with numeric delta values.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,31 +138,30 @@
 
 ## Phase 5: User Story 3 - Variance Decomposition and Reporting (Priority: P3)
 
-**Goal**: Fit a mixed‑effects model to decompose variance in APF estimates into components attributable to "Dataset Source", "Preprocessing Pipeline", and "Estimation Method".
+**Goal**: Fit a mixed‑effects model to decompose variance in APF estimates into components attributable to "Dataset Source" and "Estimation Method". (Note: Pipeline variable removed per Constitution).
 
 **Independent Test**: The system can be tested by running the analysis on a simulated dataset where variance components are known, verifying the model recovers them within a reasonable margin of error.
 
 ### Tests for User Story 3
 
 - [ ] T030 [P] [US3] **[Pre‑req]** Contract test for Variance Component schema in `tests/contract/test_variance_schema.py`
-- [ ] T031 [P] [US3] **[Pre‑req]** Integration test for Mixed‑Effects model recovery on simulated data in `tests/integration/test_model_recovery.py`: {{claim:c_27bceddf}}
-- [ ] T032 [US3] Unit test for Bootstrapping confidence interval calculation in `tests/unit/test_analysis.py`: Test with input N=50, assert CI width and coverage probability.
+- [ ] T031 [P] [US3] **[Pre‑req]** Integration test for Mixed‑Effects model recovery on simulated data in `tests/integration/test_model_recovery.py`: Simulate a dataset with known variance components (Dataset=0.40, Residual=0.50). [UNRESOLVED-CLAIM: c_bba81f72 — status=not_enough_info] Fit the model and assert that the recovered components are within ±0.05 of the true values.
+- [ ] T032 [US3] Unit test for Bootstrapping confidence interval calculation in `tests/unit/test_analysis.py`: Test with input N=50, assert CI width and coverage probability. [UNRESOLVED-CLAIM: c_cb15db05 — status=not_enough_info]
 
 ### Implementation for User Story 3
 
-- [ ] T033.1 [US3] **[Pre‑req to T033.2]** Define model formula in `code/analysis.py`: `APF ~ dataset_source + pipeline_type + estimation_method + (1|subject_id) + (1|subject_id:pipeline) + (estimation_method|subject_id)`.
+- [ ] T033.1 [US3] **[Pre‑req to T033.2]** Define model formula in `code/analysis.py`: `APF ~ dataset_source + estimation_method + (1|subject)`. **Constraint**: Formula matches Spec FR-004 (modified for single pipeline) and Constitution Principle VI. **Note**: Removed `pipeline_type` and complex random slopes to prevent singularity.
 - [ ] T033.2 [US3] **[Pre‑req to T033.3]** Fit model in `code/analysis.py`: Implement `fit_mixed_effects_model(data, formula)`.
 - [ ] T033.3 [US3] **[Pre‑req to T034]** Extract variance components in `code/analysis.py`: Implement `extract_variance_components(model)`.
 - [ ] T034.1 [US3] **[Pre‑req to T034.2]** Implement resampling logic in `code/analysis.py`: Define `bootstrap_resample(data, n_samples)`.
 - [ ] T034.2 [US3] **[Pre‑req to T035]** Implement CI calculation in `code/analysis.py`: Define `calculate_confidence_intervals(resampled_stats, confidence=0.95)`.
-- [ ] T035 [US3] **[Pre‑req to T035.1, T036]** Implement simulation‑based power analysis in `code/analysis.py`: {{claim:c_76086fc0}}
-- [ ] T035.1 [US3] **[Pre‑req to T038]** Calculate achieved power for real dataset in `code/analysis.py`: Compute power based on observed variance components and sample size of the real data.
-- [ ] T035.2 [US3] **[Pre‑req to T038]** **CRITICAL**: Implement "Achieved Power" reporting in `code/analysis.py`: Calculate the statistical power for the *actual* collected dataset sample size using the observed variance components and effect sizes, and explicitly write this value to `data/processed/power_analysis_results.json` to satisfy SC-003 and FR-006.
-- [ ] T036 [US3] **[Pre‑req to T038]** Implement minimum sample size estimation in `code/analysis.py`: Iteratively vary N from a small initial value to a large upper bound in steps of 5, compute power for each N, stop when power ≥ 0.80, and report the minimum N required.
+- [ ] T035 [US3] **[Pre‑req to T035.2]** Implement simulation‑based power analysis in `code/analysis.py`: Simulate multiple datasets with known variance components (Dataset=0.40, Residual=0.50) and varying sample sizes. **Input Parameters**: `effect_size=0.15` (small effect for Dataset/Method), `alpha=0.05`. Fit the model and calculate the percentage of simulations where the dataset effect is significant (p < 0.05). **Output**: Generate `data/processed/minimum_sample_size_estimation.csv` identifying the minimum N required to achieve [deferred] power.
+- [ ] T035.2 [US3] **[Pre‑req to T036.1]** **[Pre‑req to T038]** Calculate achieved power for real dataset in `code/analysis.py`: Compute power based on observed variance components and sample size of the real data. **Input Parameters**: `effect_size=0.15`, `alpha=0.05`. Write the calculated power value to `data/processed/power_analysis_results.json`.
 - [ ] T036.1 [US3] **[Pre‑req to T038]** **CRITICAL**: Implement "Achieved Power" validation in `code/analysis.py`: Verify that the calculated achieved power (from T035.2) meets the SC-003 threshold (≥ 0.80) and generate a binary Pass/Fail flag for the current study's validity.
+- [ ] T036 [US3] **[Pre‑req to T038]** Implement minimum sample size estimation in `code/analysis.py`: Iteratively vary N from a small initial value to a large upper bound in consistent steps., compute power for each N, stop when power ≥ 0.80, and report the minimum N required. **Note**: This task now estimates sample size for 'Dataset Source' and 'Estimation Method' variance only (Pipeline removed).
 - [ ] T037.1 [US3] **[Pre‑req to T038]** Implement Forest Plot generation in `code/reporting.py`: Plot APF by dataset.
-- [ ] T037.2 [US3] **[Pre‑req to T038]** Implement Variance Bar Chart generation in `code/reporting.py`: Plot percentage of total variance by factor.
-- [ ] T038 [US3] Generate final report in `data/processed/final_report.md` including sensitivity table. **Logic**: Explicitly evaluate **R² ≥ 0.30** for dataset source (SC‑001), **|APF_psd − APF_autocorr| ≤ 0.5 Hz** (SC‑002), **achieved power ≥ 0.80** (SC‑003, using T035.2 and T036.1), and **Δmean APF ≤ 0.2 Hz** from the sensitivity sweep (SC‑005); output a **binary Pass/Fail status** for each criterion.
+- [ ] T037.2 [US3] **[Pre‑req to T038]** Implement Variance Bar Chart generation in `code/reporting.py`: Plot percentage of total variance by factor (Dataset, Method, Subject).
+- [ ] T038 [US3] Generate final report in `data/processed/final_report.md` including sensitivity table. **Logic**: Explicitly evaluate **R² ≥ 0.30** for dataset source (SC‑001), **|APF_psd − APF_autocorr| ≤ 0.5 Hz** (SC‑002), **achieved power ≥ 0.80** (SC‑003, using T035.2 and T036.1), and **Δmean APF ≤ 0.2 Hz** from the sensitivity sweep (SC‑005); **Output**: A binary Pass/Fail status for each criterion AND the **numeric delta mean APF values** from `sensitivity_analysis.csv` displayed in the report text to allow independent verification.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -190,8 +195,8 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Starts after Foundational. No dependencies on other stories.
-- **User Story 2 (P2)**: **Depends on US1** – requires pre‑processed data from both pipelines.
-- **User Story 3 (P3)**: **Depends on US2** – requires APF estimates from both pipelines and both methods.
+- **User Story 2 (P2)**: **Depends on US1** – requires pre‑processed data from the standard pipeline.
+- **User Story 3 (P3)**: **Depends on US2** – requires APF estimates from the standard pipeline.
 
 ### Within Each User Story
 
@@ -217,12 +222,12 @@ Task: "Implement ICA" # T014.4
 
 ## Implementation Strategy
 
-### MVP First (User Story 1 Only)
+### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL – blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (Download + Preprocess + NaN check)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently (Download + Preprocess + NaN check)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -257,6 +262,7 @@ With multiple developers:
 - **Data Integrity**: System MUST fail loudly if real data fetch fails; never use synthetic fallbacks.
 - **Memory Management**: Use sequential processing for datasets to stay within available RAM limits.
 - **Reproducibility**: All random seeds must be pinned in `code/config.py`.
-- **Constitutional Override**: Pipeline B (0.5‑40 Hz, No ICA) is a sanctioned deviation from Constitution Principle VII, explicitly authorized by Spec FR‑002 and documented in T000.
-- **Success Criteria**: All success criteria (SC‑001, SC‑002, SC‑003, SC‑005) are evaluated with binary Pass/Fail logic in the final report (T038).
+- **Constitution Compliance**: The project implements a **SINGLE** pipeline (1-45Hz, CAR, ICA) as mandated by Constitution Principle VII. The "Alternative" pipeline (Pipeline B) is **REMOVED** to ensure compliance.
+- **Success Criteria**: All success criteria (SC‑001, SC‑002, SC‑003, SC‑005) are evaluated with binary Pass/Fail logic in the final report (T038), **PLUS** the required numeric reporting of delta mean APF values for SC‑005 verification.
 - **Achieved Power**: T035.2 and T036.1 are mandatory for SC-003 compliance, ensuring the *actual* dataset's statistical power is calculated and reported, not just theoretical simulations.
+- **Power Analysis Inputs**: All power analysis tasks (T035, T035.2, T036) use `effect_size=0.15` (small effect for Dataset/Method) and `alpha=0.05` as fixed parameters. **Note**: Pipeline effect is no longer simulated.
