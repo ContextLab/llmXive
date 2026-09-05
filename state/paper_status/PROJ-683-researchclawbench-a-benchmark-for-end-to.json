@@ -60,12 +60,12 @@
         "page": 70
       }
     ],
-    "audited_at": "2026-09-05T12:54:12.521974+00:00"
+    "audited_at": "2026-09-05T13:19:42.270328+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-683-researchclawbench-a-benchmark-for-end-to",
-  "updated_at": "2026-09-05T12:54:12.521988+00:00"
+  "updated_at": "2026-09-05T13:19:42.270345+00:00"
 }
