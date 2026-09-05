@@ -1,17 +1,14 @@
-"""
-Setup script to create the required project directory structure.
-This script creates: code/, data/raw/, data/processed/, data/results/, tests/
-"""
 import os
 from pathlib import Path
 
 def main():
-    """Create all required project directories."""
-    # Define the base project root (current working directory or specified path)
-    # Assuming the script is run from the project root
-    base_path = Path(".")
-
-    # Define the directories to create relative to the project root
+    """
+    Create the required project directory structure.
+    Implements T001a: Create code/, data/raw/, data/processed/, data/results/, tests/ directories.
+    """
+    base_path = Path.cwd()
+    
+    # Define directories relative to project root
     directories = [
         "code",
         "data/raw",
@@ -19,7 +16,7 @@ def main():
         "data/results",
         "tests"
     ]
-
+    
     created_count = 0
     for dir_name in directories:
         dir_path = base_path / dir_name
@@ -29,9 +26,19 @@ def main():
             created_count += 1
         else:
             print(f"Directory already exists: {dir_path}")
-
-    print(f"Setup complete. {created_count} new directories created.")
-    return 0
+    
+    if created_count > 0:
+        print(f"Successfully created {created_count} new directories.")
+    else:
+        print("All directories already existed.")
+    
+    # Verify creation
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        if not dir_path.is_dir():
+            raise RuntimeError(f"Failed to create directory: {dir_path}")
+    
+    print("Directory structure verification complete.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

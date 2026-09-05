@@ -79,3 +79,510 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T23:03:17Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP fingerprint length is 2048 bits
+  claim_id: c_52588b2a
+  context: 'Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
+    defining fields: smiles (string, non-null), yield (float, 0.0-100.0), reaction_class
+    (string), fingerprint_ecfp (list of int, length 2048), fingerprint_maccs (list
+    of int, length 167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fingerprint_ecfp (list of int, length 2048)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:38:27Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint length is 167 bits
+  claim_id: c_387ebc96
+  context: 'Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
+    defining fields: smiles (string, non-null), yield (float, 0.0-100.0), reaction_class
+    (string), fingerprint_ecfp (list of int, length 2048), fingerprint_maccs (list
+    of int, length 167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fingerprint_maccs (list of int, length 167)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:38:45Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Yield values are floats between 0.0 and 100.0
+  claim_id: c_782de3c0
+  context: 'Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
+    defining fields: smiles (string, non-null), yield (float, 0.0-100.0), reaction_class
+    (string), fingerprint_ecfp (list of int, length 2048), fingerprint_maccs (list
+    of int, length 167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: yield (float, 0.0-100.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:39:12Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: USPTO yield dataset is available at Hugging Face chembl/USPTO_yield
+  claim_id: c_49ada56b
+  context: 'Implement code/preprocessing/download.py: Download USPTO dataset. Primary
+    Source: wget on verified public DOI URL (https://huggingface.co/datasets/chembl/USPTO_yield/resolve/main/uspto_yield.parquet)
+    to data/raw/uspto_raw.parquet.'
+  evidence:
+    entailment_evidence: USPTO yield dataset is available at Hugging Face chembl/USPT
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/USPTO_yield_dataset_is_available_at_Hugging_Face_chembl/USPT
+  kind: entity_fact
+  raw_text: Download USPTO dataset from https://huggingface.co/datasets/chembl/USPTO_yield/resolve/main/uspto_yield.parquet
+  resolved_value: USPTO yield dataset is available at Hugging Face chembl/USPTO_yield
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T11:39:14Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP fingerprint length is 2048 bits
+  claim_id: c_f506dba6
+  context: 'specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml defining
+    fields: smiles (string, non-null), yield (float, 0.0-100.0), reaction_class (string),
+    fingerprint_ecfp (list of int, length 2048), fingerprint_maccs (list of int, length
+    167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fingerprint_ecfp (list of int, length 2048)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:40:31Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint length is 167 bits
+  claim_id: c_29f7262c
+  context: 'specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml defining
+    fields: smiles (string, non-null), yield (float, 0.0-100.0), reaction_class (string),
+    fingerprint_ecfp (list of int, length 2048), fingerprint_maccs (list of int, length
+    167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fingerprint_maccs (list of int, length 167)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:40:31Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Yield values range from 0.0 to 100.0
+  claim_id: c_5310427e
+  context: 'specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml defining
+    fields: smiles (string, non-null), yield (float, 0.0-100.0), reaction_class (string),
+    fingerprint_ecfp (list of int, length 2048), fingerprint_maccs (list of int, length
+    167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: yield (float, 0.0-100.0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:40:31Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: USPTO dataset source URL is on Hugging Face
+  claim_id: c_f75a4e29
+  context: 'Primary Source: wget on verified public DOI URL (https://huggingface.co/datasets/chembl/USPTO_yield/resolve/main/uspto_yield.parquet)
+    to data/raw/uspto_raw.parquet.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/USPTO_dataset_source_URL_is_on_Hugging_Face
+  kind: entity_fact
+  raw_text: https://huggingface.co/datasets/chembl/USPTO_yield/resolve/main/uspto_yield.parquet
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:40:57Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Yield range 50-60% is parsed as midpoint 55.0
+  claim_id: c_ef7b6929
+  context: Handle yield parsing (ranges vs. single values). Parse '50-60%' as midpoint
+    55.0; exclude unparseable entries with logging.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parse '50-60%' as midpoint 55.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:41:37Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP and MACCS bit lengths are 2048 and 167 respectively
+  claim_id: c_b9ed8f78
+  context: 'Action: Log the actual bit lengths generated (ECFP=2048, MACCS=167) to
+    data/results/fingerprint_dimensions.log and include in the data quality report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log the actual bit lengths generated (ECFP=2048, MACCS=167)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:41:51Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Data loading batch size is 5000 rows
+  claim_id: c_83e0a9f2
+  context: 'Action: Implement batched/chunked training to ensure RAM < 7GB by loading
+    data in fixed-size batches (e.g., 5000 rows) and using a generator-based approach.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load data in fixed-size batches (e.g., 5000 rows)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:42:28Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Permutation importance uses 10 repeats and random seed 42
+  claim_id: c_1317d03b
+  context: 'Compute permutation importance for Random RF. Parameters: n_repeats=10,
+    random_seed=42. Output data/results/permutation_importance.json with keys feature_index,
+    importance_score (float).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute permutation importance for Random RF. Parameters: n_repeats=10,
+    random_seed=42'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:45:17Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Pass/fail threshold for frequency is 0.80
+  claim_id: c_9bc0770a
+  context: 'Action: Calculate pass/fail status (frequency > 0.80) and record pass/fail
+    status in data/results/final_report.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate pass/fail status (frequency > 0.80)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:45:18Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime constraint is 6 hours on 2 CPUs
+  claim_id: c_dd811ab8
+  context: 'Performance optimization: Ensure full pipeline runs within 6 hours on
+    2-CPU runner'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full pipeline runs within 6 hours on 2-CPU runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:45:54Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP fingerprint length is 2048 bits
+  claim_id: c_11eff4f7
+  context: 'specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml defining
+    fields: smiles (string, non-null), yield (float, 0.0-100.0), reaction_class (string),
+    fingerprint_ecfp (list of int, length 2048)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fingerprint_ecfp (list of int, length 2048)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:48:39Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint length is 167 bits
+  claim_id: c_101e6624
+  context: '...fingerprint_maccs (list of int, length 167).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fingerprint_maccs (list of int, length 167)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:48:39Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Yield range 50-60% is parsed as midpoint 55.0
+  claim_id: c_829f365d
+  context: 'Implement code/preprocessing/sanitize.py: Handle yield parsing (ranges
+    vs. single values). Parse ''50-60%'' as midpoint 55.0; exclude unparseable entries
+    with logging.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parse '50-60%' as midpoint 55.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:48:39Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Log ECFP bit length 2048 and MACCS bit length 167
+  claim_id: c_7498991d
+  context: 'Action: Log the actual bit lengths generated (ECFP=2048, MACCS=167) to
+    data/results/fingerprint_dimensions.log...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ECFP=2048, MACCS=167
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:48:54Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Memory usage constrained to less than 7GB
+  claim_id: c_5baf39d2
+  context: Implement code/utils/io.py for robust Parquet/CSV loading, checksumming,
+    and batch processing to manage memory < 7GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constrained_to_less_than_7GB
+  kind: magnitude
+  raw_text: ensure memory < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:49:29Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Batch training with 5000 rows per batch to ensure RAM under 7GB
+  claim_id: c_9bf6c06a
+  context: 'Action: Implement batched/chunked training to ensure RAM < 7GB by loading
+    data in fixed-size batches (e.g., 5000 rows) and using a generator-based approach.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM < 7GB by loading data in fixed-size batches (e.g., 5000 rows)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:49:29Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Peak RAM asserted to be less than 7GB
+  claim_id: c_3a5d6e5c
+  context: 'Validation: Assert peak RAM < 7GB. (SC-004, FR-009, FR-010).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_asserted_to_be_less_than_7GB
+  kind: magnitude
+  raw_text: Assert peak RAM < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:50:00Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Permutation importance uses 10 repeats and random seed 42
+  claim_id: c_3a138736
+  context: 'Compute permutation importance for Random RF. Parameters: n_repeats=10,
+    random_seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Parameters: n_repeats=10, random_seed=42'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:51:39Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time under 6 hours on 2-CPU runner
+  claim_id: c_e695b463
+  context: 'Performance optimization: Ensure full pipeline runs within 6 hours on
+    2-CPU runner'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full pipeline runs within 6 hours on 2-CPU runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:51:39Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Pass/fail status calculated if frequency exceeds 0.80
+  claim_id: c_2795a078
+  context: Calculate pass/fail status (frequency > 0.80) and record pass/fail status
+    in data/results/final_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate pass/fail status (frequency > 0.80)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:51:39Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: USPTO yield dataset location on Hugging Face
+  claim_id: c_64b90a18
+  context: Task T019 specifies downloading the USPTO dataset from a verified public
+    DOI URL to data/raw/uspto_raw.parquet.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/USPTO_yield_dataset_location_on_Hugging_Face
+  kind: entity_fact
+  raw_text: The USPTO dataset is available at the verified public DOI URL 'https://huggingface.co/datasets/chembl/USPTO_yield/resolve/main/uspto_yield.parquet'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:54:44Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP fingerprint dimension is 2048 bits
+  claim_id: c_4e898bca
+  context: Task T007a defines the schema with fingerprint_ecfp as a list of int with
+    length 2048, and T016 logs the actual bit lengths generated as ECFP=2048.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ECFP fingerprint vectors are generated with a bit length of 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:54:59Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint dimension is 167 bits
+  claim_id: c_74cf9851
+  context: Task T007a defines the schema with fingerprint_maccs as a list of int with
+    length 167, and T016 logs the actual bit lengths generated as MACCS=167.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MACCS fingerprint vectors are generated with a bit length of 167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:55:12Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Yield values range from 0.0 to 100.0
+  claim_id: c_ef98d0b1
+  context: Task T007a defines the 'yield' field in the dataset schema as a float with
+    a range of 0.0-100.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Yield values in the dataset range from 0.0 to 100.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:55:37Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Project RAM constraint is 7GB
+  claim_id: c_c274d4d8
+  context: Task T005 specifies managing memory under 7GB, and Task T027b validates
+    peak RAM usage is less than 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_RAM_constraint_is_7GB
+  kind: entity_fact
+  raw_text: The project requires a maximum of 7GB of RAM to operate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:56:24Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit is 6 hours on 2 CPUs
+  claim_id: c_831057ca
+  context: Task T038 specifies performance optimization to ensure the full pipeline
+    runs within 6 hours on a 2-CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline is designed to run within 6 hours on a 2-CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T11:57:17Z'

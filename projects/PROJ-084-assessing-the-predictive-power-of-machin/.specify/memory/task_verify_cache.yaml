@@ -1,3 +1,27 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories (`code/`, `data/raw/`,
+    `data/processed/`, `data/results/`, `tests/`) actually exist on disk; the artifact
+    list is empty, so the task is not satisfied. The implementer must create those
+    directories (e.g., via `mkdir -p`) and show their presence.
+T007b:
+  c: false
+  h: e7077ba157ab91693f033c438b3de2d62428dfdfac73d7a6c2e5f64ad0ddccfe
+  r: "The `validators.py` file defines Pydantic models but does not actually load\
+    \ a `dataset.schema.yaml` (the required schema file is missing) nor demonstrate\
+    \ validation of a sample row against that external schema. Consequently the core\
+    \ requirement\u2014to load and enforce `dataset.schema.yaml`\u2014is not satisfied.\
+    \ The missing `dataset.schema.yaml` (and incomplete `load_schema` implementation)\
+    \ must be provided and integrated."
+T008b:
+  c: false
+  h: e7077ba157ab91693f033c438b3de2d62428dfdfac73d7a6c2e5f64ad0ddccfe
+  r: The repository lacks the required `output.schema.yaml` file, so the validator
+    cannot load the intended schema. Moreover, the provided `validators.py` is truncated
+    and does not contain a concrete function that loads `output.schema.yaml` and validates
+    a sample output object against it, nor does it demonstrate raising errors on mismatches.
+    Both the schema file and the full validation implementation are missing.
 T010:
   c: false
   h: c89a4fbc5e950779256dd9479265be93c29648b94004401cbdea67b141097a79
@@ -6,21 +30,24 @@ T010:
     create a `scaffold_id` column, or write `data/processed/scaffold_groups.parquet`.
     Moreover, the required input parquet file and the expected output parquet file
     are absent. The task therefore remains unfinished.
-T019:
+T014:
   c: false
-  h: cdb44b51144b73eff6c0e7c0d689e17b94b5e027f1c8539918bda81aa1b8dd21
-  r: "The provided `download.py` is truncated and does not contain the full implementation\
-    \ (e.g., the dataset loading line is incomplete, no code to convert to Parquet,\
-    \ no fallback wget logic, and no checksum writing after a successful download).\
-    \ Additionally, the expected output files `data/raw/uspto_raw.parquet` and `data/results/download_checksum.txt`\
-    \ are missing. The task\u2019s requirements are therefore not satisfied."
-T022:
+  h: 1a1b0ae58c4483ef28166cacea2f45ebec8f60f29e538b1fe0027092628f82ce
+  r: The repository lacks the required input files (`data/raw/uspto_raw.parquet` and
+    `data/results/download_checksum.txt`), so the script cannot perform the checksum
+    verification or load the data. Moreover, the provided `sanitize.py` is truncated
+    and does not contain code that reads the parquet, applies the sanitization to
+    each entry, and writes the sanitized SMILES to an output file. Both the necessary
+    artifacts and the full implementation are missing.
+T016:
   c: false
-  h: 24bc76b999036cbea8dac9ea6c65c8b4ecc74bbb72392dbe01335432ce4dc2b0
-  r: The repository contains `code/modeling/split.py`, but the required output artifacts
-    (`data/processed/stratified_groups.csv`, `data/results/split_log.json`, `data/processed/validation_set_indices.csv`)
-    are absent, so the split functionality cannot be verified as producing the specified
-    files. The task is therefore not fully satisfied.
+  h: 6908ec985ff867d4f3341305241b90dcc1c3b34ab76a5a3b6125244ee5a5241f
+  r: "The `fingerprints.py` file is present but the shown code is truncated (e.g.,\
+    \ `generate_fingerprints_batch` ends abruptly) and does not contain the logic\
+    \ to log the actual bit lengths to `data/results/fingerprint_dimensions.log`.\
+    \ Moreover, the required log file `data/results/fingerprint_dimensions.log` is\
+    \ missing. The chunked/streamed processing is only partially evident and the dimension\u2011\
+    logging requirement is not satisfied."
 T026a:
   c: false
   h: a21420f24c00d36c61ed87b0d4598a32d87b260f62441d54cae0dc6775854802
@@ -36,6 +63,13 @@ T027b:
     \ any assertion of peak RAM\u202F<\u202F7\u202FGB or saving of those logs. Thus\
     \ the implementation does not demonstrably satisfy the task\u2019s output and\
     \ validation requirements."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/results/best_models/` directory or any saved model files/hyperparameter
+    JSONs is present in the provided artifacts. The implementer did not include code
+    or output demonstrating that the best model artifacts are actually written to
+    the required path, so the task requirement is not satisfied.
 T030:
   c: false
   h: ab39ea1f432ee4ca454e13511e907ff980817575b515b77a35d4e27d9bd2625b
@@ -43,6 +77,21 @@ T030:
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ The implementer must add a non\u2011empty test file that exercises the generalization\
     \ analysis as specified."
+T031a:
+  c: false
+  h: e5f5832bba568f7244f0664124bd094790b448b56d8326458b7a11e21e512617
+  r: "The repository contains `code/modeling/evaluate.py`, but the file is truncated\
+    \ and does not show the logic that writes `data/results/per_class_metrics.json`.\
+    \ Moreover, the required output file `data/results/per_class_metrics.json` is\
+    \ absent from the project. The missing JSON file (and likely incomplete implementation)\
+    \ means the task\u2019s requirement is not satisfied."
+T032a:
+  c: false
+  h: 1b275a77c9eba13cad98ac2e4ce0965d70f7a0d7081a86f9a4020eb6e1f7bd9f
+  r: "The provided `code/modeling/evaluate.py` does not contain any implementation\
+    \ of permutation importance (no use of `sklearn.inspection.permutation_importance`\
+    \ or the required parameters), and the expected output file `data/results/permutation_importance.json`\
+    \ is absent. Consequently the task\u2019s core requirement is not satisfied."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

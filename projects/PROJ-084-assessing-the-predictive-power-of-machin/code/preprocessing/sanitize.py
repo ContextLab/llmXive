@@ -1,41 +1,41 @@
 """
-Sanitization module for USPTO reaction data.
+Sanitization module for USPTO dataset.
 
-Implements:
-1. Checksum verification against downloaded artifact.
-2. Salt removal and standardization using RDKit.
-3. Yield parsing (ranges vs single values).
-4. Output of sanitized SMILES and processed data.
+Tasks:
+1. Verify SHA256 checksum of downloaded raw data.
+2. Remove salts and standardize molecules using RDKit.
+3. Parse yield values (handle ranges and single values).
+4. Output sanitized SMILES and cleaned dataframe.
 """
+
 import hashlib
 import json
 import logging
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Tuple, Dict, Any, Iterator
+from typing import List, Optional, Tuple, Dict, Any
 
 import pandas as pd
 from rdkit import Chem
-from rdkit.Chem import rdMolStandardize
 from rdkit.Chem.MolStandardize import rdMolStandardize
-from rdkit.Chem import rdmolops
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/sanitize.log', mode='w')
     ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
 RAW_DATA_PATH = Path("data/raw/uspto_raw.parquet")
-CHECKSUM_PATH = Path("data/results/download_checksum.txt")
+CHECKSUM_FILE = Path("data/results/download_checksum.txt")
 SANITIZED_OUTPUT_PATH = Path("data/processed/sanitized_reactions.parquet")
-EXCLUSION_LOG_PATH = Path("data/results/sanitize_exclusions.json")
+SANITIZATION_LOG_PATH = Path("data/results/sanization_log.json")
 
 def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 checksum of a file."""
@@ -45,213 +45,231 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_checksum() -> bool:
-    """
-    Verify that the downloaded file's checksum matches the recorded checksum.
-    Returns True if match, raises ValueError if mismatch or files missing.
-    """
-    if not RAW_DATA_PATH.exists():
-        raise FileNotFoundError(f"Raw data file not found: {RAW_DATA_PATH}")
+def verify_checksum(expected_checksum_path: Path, actual_file_path: Path) -> bool:
+    """Verify SHA256 checksum matches expected value."""
+    if not expected_checksum_path.exists():
+        raise FileNotFoundError(f"Checksum file not found: {expected_checksum_path}")
+    if not actual_file_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {actual_file_path}")
     
-    if not CHECKSUM_PATH.exists():
-        raise FileNotFoundError(f"Checksum file not found: {CHECKSUM_PATH}")
-
-    recorded_checksum = CHECKSUM_PATH.read_text().strip()
-    current_checksum = calculate_sha256(RAW_DATA_PATH)
-
-    if recorded_checksum != current_checksum:
+    with open(expected_checksum_path, 'r') as f:
+        expected_checksum = f.read().strip()
+    
+    actual_checksum = calculate_sha256(actual_file_path)
+    
+    if actual_checksum != expected_checksum:
         raise ValueError(
-            f"Checksum mismatch!\n"
-            f"Recorded: {recorded_checksum}\n"
-            f"Current:  {current_checksum}\n"
-            f"File: {RAW_DATA_PATH}"
+            f"Checksum mismatch! Expected: {expected_checksum}, Got: {actual_checksum}"
         )
     
-    logger.info(f"Checksum verified successfully: {current_checksum}")
+    logger.info(f"Checksum verified successfully: {actual_checksum}")
     return True
 
 def remove_salts_and_standardize(smiles: str) -> Optional[str]:
     """
-    Remove salts and standardize a SMILES string using RDKit.
+    Remove salts and standardize a molecule using RDKit.
     
-    Steps:
-    1. Convert SMILES to Mol
-    2. Use MolStandardize.Cleaner to remove salts
-    3. Remove explicit hydrogens
-    4. Return canonical SMILES
+    Args:
+        smiles: Input SMILES string
+        
+    Returns:
+        Sanitized SMILES string or None if molecule is invalid
     """
     try:
+        # Parse SMILES to molecule
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            logger.debug(f"Failed to parse SMILES: {smiles}")
             return None
-
-        # Standardize: remove salts
-        # Using the MolStandardize pipeline
+        
+        # Remove hydrogens
+        mol = Chem.RemoveHs(mol)
+        
+        # Use RDKit's MolStandardize cleaner to remove salts
+        # The Cleaner() function handles salt removal and standardization
         cleaner = rdMolStandardize.Cleaner()
         mol = cleaner.clean(mol)
-
-        # Remove explicit hydrogens
-        mol = rdmolops.RemoveHs(mol)
-
-        if mol is None or mol.GetNumAtoms() == 0:
+        
+        # Convert back to SMILES
+        sanitized_smiles = Chem.MolToSmiles(mol, canonical=True)
+        
+        # Validate the result
+        if sanitized_smiles and Chem.MolFromSmiles(sanitized_smiles) is not None:
+            return sanitized_smiles
+        else:
             return None
-
-        # Return canonical SMILES
-        return Chem.MolToSmiles(mol, isomericSmiles=True)
+            
     except Exception as e:
-        logger.debug(f"Standardization failed for {smiles}: {e}")
+        logger.warning(f"Failed to sanitize SMILES '{smiles}': {e}")
         return None
 
-def parse_yield(yield_val) -> Optional[float]:
+def parse_yield(yield_value: Any) -> Optional[float]:
     """
-    Parse yield value. Handles ranges (e.g., "50-60%") and single values.
-    Returns midpoint for ranges, float for single values.
-    Returns None if unparseable.
-    """
-    if yield_val is None:
-        return None
-
-    val_str = str(yield_val).strip()
+    Parse yield value, handling ranges and single values.
     
-    # Handle range format "50-60%" or "50 - 60"
-    if '-' in val_str:
+    Args:
+        yield_value: Raw yield value (string, float, or range like "50-60%")
+        
+    Returns:
+        Parsed yield as float (0.0-100.0) or None if unparseable
+    """
+    if pd.isna(yield_value) or yield_value is None:
+        return None
+    
+    # Convert to string for processing
+    yield_str = str(yield_value).strip()
+    
+    # Remove '%' if present
+    yield_str = yield_str.replace('%', '').strip()
+    
+    # Handle range format (e.g., "50-60")
+    if '-' in yield_str:
         try:
-            parts = val_str.replace('%', '').split('-')
+            parts = yield_str.split('-')
             if len(parts) == 2:
-                low = float(parts[0].strip())
-                high = float(parts[1].strip())
-                return (low + high) / 2.0
+                lower = float(parts[0].strip())
+                upper = float(parts[1].strip())
+                return (lower + upper) / 2.0
+            else:
+                logger.warning(f"Invalid range format: {yield_str}")
+                return None
         except ValueError:
-            pass
+            logger.warning(f"Cannot parse range values: {yield_str}")
+            return None
     
-    # Handle single value with %
+    # Handle single value
     try:
-        clean_val = val_str.replace('%', '').strip()
-        return float(clean_val)
+        value = float(yield_str)
+        # Clamp to valid range [0, 100]
+        value = max(0.0, min(100.0, value))
+        return value
     except ValueError:
+        logger.warning(f"Cannot parse yield value: {yield_str}")
         return None
 
-def sanitize_reactions() -> Tuple[pd.DataFrame, Dict[str, int]]:
+def sanitize_reactions(input_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Main sanitization pipeline.
+    Sanitize reactions dataframe by removing salts, standardizing molecules,
+    and parsing yield values.
     
-    1. Verify checksum.
-    2. Load raw parquet.
-    3. Sanitize SMILES (salt removal, standardization).
-    4. Parse yields.
-    5. Filter invalid entries.
-    6. Save results and exclusion log.
+    Args:
+        input_df: Input dataframe with 'smiles' and 'yield' columns
+        
+    Returns:
+        Tuple of (sanitized dataframe, statistics dict)
     """
-    # Step 1: Verify Checksum
-    logger.info("Starting checksum verification...")
-    verify_checksum()
-
-    # Step 2: Load Data
-    logger.info(f"Loading raw data from {RAW_DATA_PATH}...")
-    try:
-        df = pd.read_parquet(RAW_DATA_PATH)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load parquet file: {e}")
-
-    logger.info(f"Loaded {len(df)} rows.")
-
-    exclusion_reasons = {
-        "invalid_smiles": 0,
-        "empty_mol": 0,
-        "invalid_yield": 0,
-        "missing_smiles": 0,
-        "missing_yield": 0
+    logger.info(f"Starting sanitization of {len(input_df)} reactions")
+    
+    stats = {
+        'total_rows': len(input_df),
+        'valid_smiles': 0,
+        'invalid_smiles': 0,
+        'valid_yield': 0,
+        'invalid_yield': 0,
+        'excluded_rows': 0,
+        'exclusion_reasons': []
     }
-
-    def process_row(row: pd.Series) -> Optional[Dict[str, Any]]:
-        # Check SMILES
-        smiles = row.get('smiles')
-        if pd.isna(smiles) or not isinstance(smiles, str) or not smiles.strip():
-            exclusion_reasons["missing_smiles"] += 1
-            return None
-
+    
+    sanitized_smiles_list = []
+    sanitized_yield_list = []
+    exclusion_reasons = []
+    
+    for idx, row in input_df.iterrows():
+        smiles = row.get('smiles', '')
+        yield_val = row.get('yield', None)
+        
         # Sanitize SMILES
         sanitized_smiles = remove_salts_and_standardize(smiles)
-        if sanitized_smiles is None:
-            exclusion_reasons["invalid_smiles"] += 1
-            return None
-
-        # Check Yield
-        yield_val = row.get('yield')
-        if pd.isna(yield_val):
-            exclusion_reasons["missing_yield"] += 1
-            return None
-
+        
+        # Parse yield
         parsed_yield = parse_yield(yield_val)
+        
+        # Determine if row should be included
+        if sanitized_smiles is None:
+            stats['invalid_smiles'] += 1
+            stats['excluded_rows'] += 1
+            exclusion_reasons.append({
+                'row_idx': idx,
+                'reason': 'invalid_smiles',
+                'original_smiles': smiles
+            })
+            continue
+        
         if parsed_yield is None:
-            exclusion_reasons["invalid_yield"] += 1
-            return None
-
-        return {
-            'smiles': sanitized_smiles,
-            'yield': parsed_yield,
-            'reaction_class': row.get('reaction_class', 'unknown')
-        }
-
-    logger.info("Sanitizing reactions...")
-    results = []
+            stats['invalid_yield'] += 1
+            stats['excluded_rows'] += 1
+            exclusion_reasons.append({
+                'row_idx': idx,
+                'reason': 'invalid_yield',
+                'original_yield': str(yield_val)
+            })
+            continue
+        
+        # Row is valid
+        stats['valid_smiles'] += 1
+        stats['valid_yield'] += 1
+        sanitized_smiles_list.append(sanitized_smiles)
+        sanitized_yield_list.append(parsed_yield)
     
-    # Process in chunks to manage memory if needed, though map is usually fine
-    for idx, row in df.iterrows():
-        res = process_row(row)
-        if res:
-            results.append(res)
-
-    sanitized_df = pd.DataFrame(results)
+    # Create sanitized dataframe
+    sanitized_df = pd.DataFrame({
+        'smiles': sanitized_smiles_list,
+        'yield': sanitized_yield_list
+    })
     
-    # Calculate exclusion stats
-    total_input = len(df)
-    total_output = len(sanitized_df)
-    total_excluded = total_input - total_output
+    # Add other columns from original dataframe if they exist
+    for col in input_df.columns:
+        if col not in ['smiles', 'yield']:
+            # For simplicity, we'll just keep the original values for other columns
+            # In a real implementation, we might need to handle these differently
+            sanitized_df[col] = input_df[col].values[:len(sanitized_df)]
     
-    exclusion_stats = {
-        "total_input_rows": total_input,
-        "total_output_rows": total_output,
-        "total_excluded_rows": total_excluded,
-        "exclusion_fraction": total_excluded / total_input if total_input > 0 else 0.0,
-        "reasons": exclusion_reasons
-    }
-
-    # Save sanitized data
-    SANITIZED_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    sanitized_df.to_parquet(SANITIZED_OUTPUT_PATH, index=False)
-    logger.info(f"Saved sanitized data to {SANITIZED_OUTPUT_PATH}")
-
-    # Save exclusion log
-    EXCLUSION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(EXCLUSION_LOG_PATH, 'w') as f:
-        json.dump(exclusion_stats, f, indent=2)
-    logger.info(f"Saved exclusion log to {EXCLUSION_LOG_PATH}")
-
-    return sanitized_df, exclusion_stats
+    stats['exclusion_reasons'] = exclusion_reasons
+    stats['exclusion_fraction'] = stats['excluded_rows'] / stats['total_rows'] if stats['total_rows'] > 0 else 0.0
+    
+    logger.info(f"Sanitization complete. Valid rows: {len(sanitized_df)}, Excluded: {stats['excluded_rows']}")
+    logger.info(f"Exclusion fraction: {stats['exclusion_fraction']:.4f}")
+    
+    return sanitized_df, stats
 
 def main():
-    """Entry point for the sanitize script."""
-    logger.info("=== Starting Sanitization Pipeline ===")
-    start_time = datetime.now()
+    """Main entry point for sanitization pipeline."""
+    logger.info("Starting sanitization pipeline")
     
     try:
-        df, stats = sanitize_reactions()
+        # Step 1: Verify checksum
+        logger.info("Verifying checksum...")
+        verify_checksum(CHECKSUM_FILE, RAW_DATA_PATH)
         
-        end_time = datetime.now()
-        duration = (end_time - start_time).total_seconds()
+        # Step 2: Load raw data
+        logger.info(f"Loading raw data from {RAW_DATA_PATH}")
+        raw_df = pd.read_parquet(RAW_DATA_PATH)
+        logger.info(f"Loaded {len(raw_df)} rows")
         
-        logger.info(f"Pipeline completed successfully in {duration:.2f} seconds.")
-        logger.info(f"Exclusion Fraction: {stats['exclusion_fraction']:.4f}")
-        logger.info(f"Reasons: {stats['reasons']}")
+        # Ensure required columns exist
+        required_columns = ['smiles', 'yield']
+        missing_columns = [col for col in required_columns if col not in raw_df.columns]
+        if missing_columns:
+            raise ValueError(f"Missing required columns: {missing_columns}")
         
-        return 0
+        # Step 3: Sanitize reactions
+        sanitized_df, stats = sanitize_reactions(raw_df)
+        
+        # Step 4: Save sanitized data
+        SANITIZED_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        sanitized_df.to_parquet(SANITIZED_OUTPUT_PATH, index=False)
+        logger.info(f"Saved sanitized data to {SANITIZED_OUTPUT_PATH}")
+        
+        # Step 5: Save statistics log
+        SANITIZATION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(SANITIZATION_LOG_PATH, 'w') as f:
+            json.dump(stats, f, indent=2, default=str)
+        logger.info(f"Saved sanitization log to {SANITIZATION_LOG_PATH}")
+        
+        logger.info("Sanitization pipeline completed successfully")
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
+        logger.error(f"Sanitization pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

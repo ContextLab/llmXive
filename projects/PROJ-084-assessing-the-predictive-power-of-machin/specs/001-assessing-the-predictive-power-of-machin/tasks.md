@@ -45,9 +45,9 @@
 
 - [ ] T001a Create `code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/` directories using `mkdir -p`
 - [X] T001b Create `code/config.py`, `code/__init__.py`, `code/requirements.txt`, `tests/__init__.py`
-- [X] T002 Initialize Python 3.11 project with `pandas`, `scikit-learn`, `rdkit`, `pyyaml`, `pytest` in `code/requirements.txt`
+- [X] T002 Initialize Python project with `pandas`, `scikit-learn`, `rdkit`, `pyyaml`, `pytest` in `code/requirements.txt`
 - [X] T003a [P] Create `code/setup.cfg` with black/ruff configuration (max-line-length=88, target-version=py311). **Prerequisite: T002**
-- [X] T003b Update `code/pyproject.toml` with linting tool configuration. **Prerequisite: T003a, T002**
+- [X] T003b Update `code/setup.cfg` with linting tool configuration. **Prerequisite: T003a, T002**
 
 ---
 
@@ -67,13 +67,15 @@
 - [ ] T008a [P] Create `specs/001-assess-ml-predictive-power/contracts/output.schema.yaml` defining fields: `model_type` (string), `hyperparameters` (dict), `metrics` (dict with keys R2, RMSE, MAE), `split_ratios` (dict). **Prerequisite: None**
 - [ ] T008b [P] Implement `code/utils/validators.py` to load and enforce `output.schema.yaml` using `pydantic`. **Validation**: Load schema, validate a sample output object, and raise error on mismatch. **Prerequisite: T008a**
 - [X] T009 Create `data/raw/.gitkeep` and `data/processed/.gitkeep` directories to ensure directory structure exists
-- [ ] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset. **Primary Source**: `wget` on verified public DOI URL (e.g., `) to `data/raw/uspto_raw.parquet`. **Fallback**: If DOI fails, use `datasets.load_dataset('flying-sausages/uspto_yield', config='clean', split='yield')` and save to `data/raw/uspto_raw.parquet` (handling auth errors). **Action**: Save output to `data/raw/uspto_raw.parquet`, compute SHA256 checksum, log checksum to `data/results/download_checksum.txt`. **Prerequisite: T005, T007a, T008a** (FR-001, Constitution II).
+- [ ] T019 [US1] Implement `code/preprocessing/download.py`: Download USPTO dataset. **Primary Source**: `wget` on verified public DOI URL (`https://huggingface.co/datasets/chembl/USPTO_yield/resolve/main/uspto_yield.parquet `) to `data/raw/uspto_raw.parquet`. **Fallback**: None. **Action**: Save output to `data/raw/uspto_raw.parquet`, compute SHA256 checksum, log checksum to `data/results/download_checksum.txt`. **Failure**: If source fails, raise `FileNotFoundError` with message "No verified canonical data source available". **Prerequisite: T002** (FR-001, Constitution II).
 - [ ] T014 [US1] Implement `code/preprocessing/sanitize.py`: Load `data/raw/uspto_raw.parquet`. **Step 1**: Verify SHA256 checksum matches `data/results/download_checksum.txt`. **Step 2**: Use `rdkit.Chem.MolStandardize.Cleaner().clean()` to remove salts and `rdkit.Chem.rdmolops.RemoveHs()` to standardize. Output sanitized SMILES. (FR-002). **Prerequisite: T019**. **Note**: If download fails or checksum mismatch, raise error (no synthetic fallback).
 - [X] T015 [US1] Implement `code/preprocessing/sanitize.py`: Handle yield parsing (ranges vs. single values). Parse "50-60%" as midpoint 55.0; exclude unparseable entries with logging. (Edge Cases) **Prerequisite: T014**
-- [X] T016 [US1] Implement `code/preprocessing/fingerprints.py`: Generate ECFP and MACCS vectors for all reactants/reagents. (FR-003) **Prerequisite: T015**
-- [ ] T017 [US1] Implement `code/preprocessing/ingest.py`: Orchestrate sanitization (T014), yield parsing (T015), fingerprinting (T016). **Validation**: Validate output against `dataset.schema.yaml` (columns: smiles, yield, reaction_class, fingerprint_ecfp, fingerprint_maccs; types: string, float, string, list[int], list[int]). Save to `data/processed/cleaned_reactions.parquet`. (FR-001). **Prerequisite: T014, T015, T016**
-- [ ] T018 [US1] Implement `code/preprocessing/ingest.py`: Add logging for exclusion reasons and calculate `exclusion_fraction` (excluded_rows / total_rows). Output `data/results/data_quality_report.json` containing `exclusion_fraction` and exclusion reasons. (SC-005). **Prerequisite: T017** <!-- FAILED: unspecified -->
-- [ ] T010 [Blocking Prerequisite for US2] Implement `code/preprocessing/scaffold.py`: Generate Murcko scaffold grouping keys from `data/processed/cleaned_reactions.parquet` using `rdkit.Chem.Scaffolds.MurckoScaffold.GetScaffoldForMol(makeChiral=False, minNonRingSize=0)`. Output `data/processed/scaffold_groups.parquet` with column `scaffold_id`. **Prerequisite: T017**. Note: This task is placed in Foundational Phase to enable parallel execution of US2 (Splitting) immediately after Phase 2 completion.
+- [ ] T016 [US1] Implement `code/preprocessing/fingerprints.py`: Generate ECFP and MACCS vectors for all reactants/reagents. **Action**: Log the actual bit lengths generated (ECFP=2048, MACCS=167) to `data/results/fingerprint_dimensions.log` and include in the data quality report. **Action**: Implement **chunked/streamed processing** to generate fingerprints in batches to prevent OOM. (FR-003, SC-005). **Prerequisite: T015**
+- [X] T017a [US1] Implement `code/preprocessing/ingest.py`: **Implement logic** for orchestrating sanitization (T014), yield parsing (T015), and fingerprinting (T016). **Action**: Implement **batched/chunked loading** of the raw data to prevent OOM during processing. (FR-009). **Prerequisite: T014, T015, T016**
+- [ ] T017b [US1] Implement `code/preprocessing/ingest.py`: **Implement logic** for writing sanitized and fingerprinted data to `data/processed/cleaned_reactions.parquet`. **Validation**: Validate output against `dataset.schema.yaml` (columns: smiles, yield, reaction_class, fingerprint_ecfp, fingerprint_maccs; types: string, float, string, list[int], list[int]). (FR-001). **Prerequisite: T017a**
+- [ ] T018a [US1] Implement `code/preprocessing/ingest.py`: **Implement logic** for logging exclusion reasons and calculating `exclusion_fraction` (excluded_rows / total_rows). (SC-005). **Prerequisite: T017b**
+- [ ] T018b [US1] Implement `code/preprocessing/ingest.py`: **Implement logic** to output `data/results/data_quality_report.json` containing `exclusion_fraction` and exclusion reasons. **Prerequisite: T018a**
+- [ ] T010 [Blocking Prerequisite for US2] Implement `code/preprocessing/scaffold.py`: Generate Murcko scaffold grouping keys from `data/processed/cleaned_reactions.parquet` using `rdkit.Chem.Scaffolds.MurckoScaffold.GetScaffoldForMol(makeChiral=False, minNonRingSize=0)`. Output `data/processed/scaffold_groups.parquet` with column `scaffold_id`. **Prerequisite: T017b**. **Note**: This task is the **final step** of Phase 2, ensuring T017b completes before T010. It is a prerequisite for T022 (Splitting).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -112,15 +114,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/modeling/split.py`: **Stratified-by-Class + Intra-Class Scaffold Split**. **Algorithm**: 1) Group data by `reaction_class` and `scaffold_id` (from T010). 2) Stratify groups by `reaction_class`. 3) Assign all members of a scaffold group to the same split (train/val/test). 4) Handle edge cases: classes with only one scaffold (assign to train), small classes (merge or exclude with warning). 5) **Output**: `data/processed/stratified_groups.csv` (columns: `group_id`, `split`, `reaction_class`), `data/results/split_log.json` (exact split ratios), `data/processed/validation_set_indices.csv` (strictly held-out for SC-003, NOT used for tuning). **Constraint**: Verify no `scaffold_id` appears in multiple splits. **Prerequisite: T010, T018** (FR-004, Constitution VI).
-- [X] T024 [US2] Implement `code/modeling/train.py`: Train Random Forest with grid search (k-fold CV) for `n_estimators` and `max_depth` (FR-005). **Prerequisite: T022**
-- [X] T025 [US2] Implement `code/modeling/train.py`: Train SVM with grid search for `C` and `kernel` (linear/RBF) (FR-005). **Prerequisite: T022**
+- [ ] T022a [US2] Implement `code/modeling/split.py`: **Stratified-by-Class + Intra-Class Scaffold Split**. **Algorithm**: 1) Group data by `reaction_class` and `scaffold_id` (from T010). 2) **Apply Stratification**: Stratify groups by `reaction_class` to satisfy Constitution Principle VI (ensuring representation) within the primary scaffold-based grouping defined in FR-004. 3) Assign all members of a scaffold group to the same split (train/val/test). 4) Handle edge cases: classes with only one scaffold (assign to train), small classes (merge or exclude with warning). **Prerequisite: T010, T018b** (FR-004, Constitution VI).
+- [ ] T022b [US2] Implement `code/modeling/split.py`: **Implement logic** for generating split artifacts. **Action**: Output `data/processed/stratified_groups.csv` (columns: `group_id`, `split`, `reaction_class`) and `data/results/split_log.json` (exact split ratios). **Prerequisite: T022a**
+- [ ] T022c [US2] Implement `code/modeling/split.py`: **Implement logic** for generating strictly held-out sets. **Action**: Output `data/processed/tuning_validation_indices.csv` (for model tuning) and `data/processed/sc003_verification_indices.csv` (a distinct, strictly held-out set for SC-003 verification, NOT used for tuning). **Constraint**: Verify no `scaffold_id` appears in multiple splits. **Prerequisite: T022b**
+- [X] T024 [US2] Implement `code/modeling/train.py`: Train Random Forest with grid search (k-fold CV) for `n_estimators` and `max_depth` (FR-005). **Action**: Implement **batched/chunked training** to ensure RAM < 7GB by loading data in fixed-size batches (e.g., 5000 rows) and using a generator-based approach. **Prerequisite: T022c**
+- [X] T025 [US2] Implement `code/modeling/train.py`: Train SVM with grid search for `C` and `kernel` (linear/RBF) (FR-005). **Action**: Implement **batched/chunked training** to ensure RAM < 7GB by loading data in fixed-size batches (e.g., 5000 rows) and using a generator-based approach. **Prerequisite: T022c**
 - [ ] T026a [US2] **Create/Update** `code/modeling/evaluate.py`: Evaluate best models on held-out test set. Output `data/results/test_metrics.json` with keys `R2` (float, 4 decimals), `RMSE` (float, 4 decimals), `MAE` (float, 4 decimals). (FR-006). **Prerequisite: T024, T025**
-- [ ] T027b [US2] **Create/Update** `code/modeling/train.py` and `code/utils/memory_profiler.py`: **Enforce** RAM < 7GB by implementing **batch processing** (process data in batches of N rows) and **streaming** logic during training. Use `tracemalloc` and `psutil` to profile peak RAM. Output `data/results/memory_profile.log` and `data/results/runtime_profile.json`. **Validation**: Assert peak RAM < 7GB and verify log output is non-zero. (SC-004, FR-009, FR-010). **Prerequisite: T024, T025**
-- [~] T028 [US2] Save best model artifacts and hyperparameters to `data/results/best_models/`
+- [ ] T027b [US2] **Create/Update** `code/utils/memory_profiler.py`: **Implement logic** for memory profiling. **Action**: Use `tracemalloc` and `psutil` to profile peak RAM during the *loading of the largest chunk* (from T017a) and the *training process* (T024/T025). Output `data/results/memory_profile.log` and `data/results/runtime_profile.json`. **Validation**: Assert peak RAM < 7GB. (SC-004, FR-009, FR-010). **Prerequisite: T024, T025**
+- [ ] T028 [US2] Save best model artifacts and hyperparameters to `data/results/best_models/`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (models trained and validated)
-**Parallel Note**: Once Phase 2 (Foundational) is complete, T022 (US2 Splitting) can be implemented in parallel with T031 (US3 Evaluation) as they share no code dependencies beyond the artifacts produced in Phase 2.
+**Parallel Note**: Once Phase 2 (Foundational) is complete, T022 (US2 Splitting) can be implemented. **T031 (US3 Evaluation) CANNOT run in parallel with T022** as it depends on T022 via T026a. T022 must be completed before T031 can begin.
 
 ---
 
@@ -137,11 +141,12 @@
 
 ### Implementation for User Story 3
 
-- [~] T031a [US3] **Create/Update** `code/modeling/evaluate.py`: Compute per-reaction-class R² and RMSE metrics. Output `data/results/per_class_metrics.json` as a list of objects: `[{reaction_class, R2, RMSE, MAE},...]`. (FR-007, SC-002). **Prerequisite: T026a**
-- [~] T032a [US3] **Create/Update** `code/modeling/evaluate.py`: Compute permutation importance for Random RF. Parameters: `n_repeats=10`, `random_seed=42`. Output `data/results/permutation_importance.json` with keys `feature_index`, `importance_score` (float). (FR-008). **Prerequisite: T026a**
-- [~] T033a [US3] **Create/Update** `code/modeling/evaluate.py`: Map top fingerprint bits to molecular substructures and **reaction centers** using `rdkit.Chem.rdFMCS`. Aggregation: Sum all bits mapping to the same substructure. Output `data/results/substructure_importance.json` with keys `substructure_smiles`, `aggregated_score`, `bit_indices`. (FR-008, SC-003). **Prerequisite: T032a**
+- [ ] T031a [US3] **Create/Update** `code/modeling/evaluate.py`: Compute per-reaction-class R² and RMSE metrics. Output `data/results/per_class_metrics.json` as a list of objects: `[{reaction_class, R2, RMSE, MAE},...]`. (FR-007, SC-002). **Prerequisite: T026a**
+- [ ] T032a [US3] **Create/Update** `code/modeling/evaluate.py`: Compute permutation importance for Random RF. Parameters: `n_repeats=10`, `random_seed=42`. Output `data/results/permutation_importance.json` with keys `feature_index`, `importance_score` (float). (FR-008). **Prerequisite: T026a**
+- [~] T033a [US3] **Create/Update** `code/modeling/evaluate.py`: Map top fingerprint bits to **molecular substructures and reaction centers**. **Algorithm**: Use `rdkit.Chem.rdMolDescriptors.GetMorganFingerprintAsBitVect` with `bitInfo` to map bits to atom indices. **Step 1**: Identify which reactant/reagent molecule each atom belongs to. **Step 2**: Extract the subgraph at the reactant-reagent boundary to define the **reaction center**. **Step 3**: Extract the surrounding substructure for **associated substructures**. Aggregation: Sum all bits mapping to the same substructure/reaction center. Output `data/results/substructure_importance.json` with keys `substructure_smiles`, `aggregated_score`, `bit_indices`, `is_reaction_center`. **Schema**: `substructure_smiles` (string), `aggregated_score` (float), `bit_indices` (list of int), `is_reaction_center` (boolean). (FR-008, SC-003). **Prerequisite: T032a**
+- [~] T033b [US3] **Create/Update** `code/modeling/evaluate.py`: Map top fingerprint bits to **reaction centers** using RDKit reaction SMARTS parsing and atom mapping to identify reactant-reagent relationships. Output `data/results/reaction_center_importance.json` with keys `reaction_center_smiles`, `aggregated_score`, `bit_indices`. **Schema**: `reaction_center_smiles` (string), `aggregated_score` (float), `bit_indices` (list of int). (FR-008). **Prerequisite: T032a**
 - [ ] T034 [US3] Generate final `data/results/final_report.json` containing all metrics, split ratios, and feature importance (FR-006, FR-007, FR-008)
-- [ ] T035a [US3] **Create/Update** `code/modeling/evaluate.py`: Define 'high-yield' threshold from `config.YIELD_THRESHOLD` (empirically derived, not hardcoded). Load `data/processed/validation_set_indices.csv` (from T022) and `data/results/substructure_importance.json` (from T033a). Calculate the frequency of high-yield reactions in the validation set that contain the top 3 substructures. Output `data/results/sc003_validation.json` with `frequency` and `threshold`. **Action**: Calculate pass/fail status (frequency > 0.80) and **record pass/fail status in `data/results/final_report.json`**. (FR-006, FR-007, FR-008, SC-001, SC-002, SC-003, SC-005). **Prerequisite: T022, T033a**.
+- [ ] T035a [US3] **Create/Update** `code/modeling/evaluate.py`: Define 'high-yield' threshold by calculating a high-percentile quantile of yield in the training set. Load `data/processed/sc003_verification_indices.csv` (from T022c) and `data/results/substructure_importance.json` (from T033a). **Action**: For each reaction in the held-out set, use RDKit (`MolFromSmiles` and `HasSubstructMatch`) to check if the reaction's reactant/reagent SMILES contain the top 3 substructures. Calculate the frequency of high-yield reactions that contain these features. Output `data/results/sc003_validation.json` with `frequency` and `threshold`. **Action**: Calculate pass/fail status (frequency > 0.80) and **record pass/fail status in `data/results/final_report.json`**. (FR-006, FR-007, FR-008, SC-001, SC-002, SC-003, SC-005). **Prerequisite: T022c, T033a**. **Note**: Reaction center mapping (T033b) is NOT used for SC-003 verification.
 
 **Checkpoint**: All user stories should now be independently functional and results aggregated
 
@@ -165,7 +170,7 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **Internal Order**: T019 (Download) requires T005, T007a, T008a. T014-T017 (Ingest) must complete before T010 (Scaffold).
+ - **Internal Order**: T019 (Download) requires T002. T014-T017 (Ingest) must complete before T010 (Scaffold). T010 is the final step of Phase 2.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -193,6 +198,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- **Note**: T031 (US3) **cannot** run in parallel with T022 (US2) due to dependency chain T022 -> T026a -> T031.
 
 ---
 

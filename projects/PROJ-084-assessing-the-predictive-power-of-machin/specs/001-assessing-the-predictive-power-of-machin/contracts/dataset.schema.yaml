@@ -1,25 +1,32 @@
 fields:
-  - name: smiles
+  smiles:
     type: string
+    required: true
+    description: SMILES string of the reaction
     constraints:
       non_null: true
-      min_length: 1
-  - name: yield
+  yield_pct:
     type: float
+    required: true
+    description: Yield percentage
     constraints:
       min: 0.0
       max: 100.0
-  - name: reaction_class
+  reaction_class:
     type: string
-    constraints:
-      non_null: true
-  - name: fingerprint_ecfp
+    required: true
+    description: Reaction class label
+  fingerprint_ecfp:
     type: list
-    item_type: int
+    required: true
+    description: ECFP fingerprint bits
     constraints:
+      item_type: int
       length: 2048
-  - name: fingerprint_maccs
+  fingerprint_maccs:
     type: list
-    item_type: int
+    required: true
+    description: MACCS fingerprint bits
     constraints:
+      item_type: int
       length: 167
