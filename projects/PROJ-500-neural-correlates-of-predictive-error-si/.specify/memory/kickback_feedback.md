@@ -4,11 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T005c` (rejected 1x): No repository directory, `.git` folder, or `.gitignore` file is present in the provided evidence; thus the required artifact for initializing a Git repository and configuring its ignore rules is missing.
-- `T006` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml`, or a pre‑commit hook invoking ruff/black) are present in the provided artifact list, so the requirement to configure ruff and black is not satisfied. The implementer must add the appropriate configuration files and ensure they are non‑empty.
-- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
-- `T010` (rejected 1x): No artifact (e.g., configuration files, validation scripts, or documentation) was provided that defines environment variable validation or error‑handling infrastructure. Consequently the requirement to set up such infrastructure is not demonstrated.
-- `T016` (rejected 1x): The repository lacks the required output files (`data/excluded_subjects.csv` and `data/validation_report.json`). Moreover, `src/data/preprocess.py` is truncated (the `write_excluded_subjects_csv` function is incomplete and no code updates the JSON report), so the artifact‑rejection and underpowered‑subject flagging logic is not fully implemented.
+- `T024` (rejected 1x): The required output file `data/interim_lagged_mmns.csv` does not exist, and the provided `src/data/align.py` snippet shows only placeholder comments about MMN windows without any implementation of the lagged‑alignment calculation or CSV writing. The task’s deliverable is therefore not satisfied.
+- `T025` (rejected 1x): No code, script, or data artifact was provided that shows exclusion of blocks with fewer than 10 valid trials or NaN handling for excessive artifact rejection, nor is there an `aligned_data.csv` output demonstrating the lagged alignment with underpowered subjects excluded. The required implementation and resulting files are missing.
+- `T026` (rejected 1x): declared artifact(s) missing/empty/invalid: data/interim_lagged_mmns.csv, data/accuracy_blocks.csv, data/aligned_data.csv
 
 ## Required change
 

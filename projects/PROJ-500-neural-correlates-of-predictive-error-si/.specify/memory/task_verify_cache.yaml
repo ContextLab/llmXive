@@ -1,3 +1,9 @@
+T006:
+  c: false
+  h: 4fa292b7ba97d2cdae98c01b7aab5fbb9bad51cc7544b7186b06f448f662473a
+  r: The `pyproject.toml` file is present and contains a proper `[tool.black]` configuration,
+    but the required `ruff.toml` file is missing entirely, so the linting tool is
+    not configured as specified. The task therefore remains incomplete.
 T020:
   c: false
   h: 10c4d5147836ffb55e3060eb55568240d1499698fd08ea5ab1e68a60b1088964
@@ -6,26 +12,24 @@ T020:
     \ with the required columns or validates the lagged\u2011window logic. Moreover,\
     \ the expected output file `data/interim_lagged_mmns.csv` is absent from the project.\
     \ The task\u2019s verification criteria are therefore not met."
-T022:
+T023:
   c: false
-  h: 4de8da81d6e190177049327b3df2b81a532c3f4ab3ae7b6f9417cd62a281e7bb
-  r: The provided `src/data/align.py` does not show any implementation for detecting
-    missing behavioral logs or setting an `analysis_mode` field, and the file is truncated
-    before such logic could appear. Moreover, the required output file `data/validation_report.json`
-    is absent. Both the code change and the JSON report are missing, so the task is
-    not satisfied.
-T024:
-  c: false
-  h: 6c66442efc30184130275c50456905450927fd885619f56f7f7c34269f42fbcf
-  r: "The required output file `data/interim_lagged_mmns.csv` does not exist, and\
-    \ the provided `src/data/align.py` snippet shows only placeholder comments about\
-    \ MMN windows without any implementation of the lagged\u2011alignment calculation\
-    \ or CSV writing. The task\u2019s deliverable is therefore not satisfied."
-T025:
+  h: 0ca4aff9a648bfd3425fb9b1744a410ad059675725fb067e919ecda7f26f00f7
+  r: "The required output file `data/accuracy_blocks.csv` does not exist, and the\
+    \ provided `src/data/align.py` excerpt shows no implementation of 10\u2011trial\
+    \ behavioral binning or code that writes such a CSV. The task\u2019s core requirement\
+    \ is therefore unmet."
+T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or data artifact was provided that shows exclusion of blocks
-    with fewer than 10 valid trials or NaN handling for excessive artifact rejection,
-    nor is there an `aligned_data.csv` output demonstrating the lagged alignment with
-    underpowered subjects excluded. The required implementation and resulting files
-    are missing.
+  r: No `docs/` directory, `README.md`, or `quickstart.md` files were provided or
+    referenced in the evidence, so the required documentation updates are missing.
+    The implementer must add and populate these files with the appropriate project
+    documentation.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime benchmark, log file, or report is present that demonstrates the full\
+    \ pipeline completing in \u22646\u202Fhours on a 2\u2011core CPU. The required\
+    \ performance verification artifact is missing, so the task\u2019s requirement\
+    \ is not satisfied."

@@ -1,3 +1,11 @@
+"""
+Unit Tests for T031: Permutation Test Implementation.
+
+Verifies:
+- Correctness of shuffling logic
+- P-value calculation
+- Sufficiency check (variance < 5% across 3 runs)
+"""
 import os
 import sys
 import pytest
@@ -5,209 +13,113 @@ import tempfile
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from src.analysis.model import run_permutation_test, fit_lme_model
+
+# Add code/ to path if running from tests/
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from src.analysis.model import run_permutation_test, fit_lme_model, load_aligned_data
 
 class TestT031PermutationTest:
-    """
-    Unit tests for the permutation test implementation in T031.
-    Verifies:
-    1. The permutation test runs and produces valid p-values.
-    2. The p-value is approximately correct for known distributions.
-    3. The sufficiency check logic works correctly.
-    4. The function handles edge cases (small data, failed models).
-    """
-
+    
     @pytest.fixture
-    def sample_data(self):
-        """Create a sample dataset for testing."""
+    def mock_aligned_data(self):
+        """Create a small mock dataset that mimics aligned_data.csv."""
         np.random.seed(42)
-        n_subjects = 20
-        n_trials_per_subject = 10
+        n_subjects = 10
+        n_blocks_per_subject = 5
         
         data = []
-        for sub_id in range(n_subjects):
-            for trial_id in range(n_trials_per_subject):
-                # Create some correlation between accuracy and MMN
-                accuracy = np.random.normal(0.7, 0.1)
-                # MMN = 0.5 + 0.3 * accuracy + noise
-                mmn = 0.5 + 0.3 * accuracy + np.random.normal(0, 0.1)
+        for subj in range(n_subjects):
+            for block in range(n_blocks_per_subject):
+                # Simulate some correlation for testing
+                base_acc = np.random.uniform(0.5, 0.9)
+                # Add noise to MMN
+                mmn = base_acc * 2.0 + np.random.normal(0, 0.5)
                 
                 data.append({
-                    "subject_id": f"sub_{sub_id:02d}",
-                    "block_id": trial_id,
+                    "subject_id": f"sub-{subj:02d}",
+                    "block_id": block,
                     "mmn_amplitude": mmn,
-                    "accuracy": accuracy
+                    "accuracy": base_acc,
+                    "learning_phase": "early" if block < 3 else "late"
                 })
         
-        return pd.DataFrame(data)
+        df = pd.DataFrame(data)
+        return df
 
-    @pytest.fixture
-    def null_data(self):
-        """Create a dataset with NO correlation between accuracy and MMN."""
-        np.random.seed(42)
-        n_subjects = 20
-        n_trials_per_subject = 10
+    def test_permutation_test_runs(self, mock_aligned_data):
+        """Test that the permutation test executes without error."""
+        result = run_permutation_test(mock_aligned_data, n_permutations=50, random_state=42)
         
-        data = []
-        for sub_id in range(n_subjects):
-            for trial_id in range(n_trials_per_subject):
-                accuracy = np.random.normal(0.7, 0.1)
-                mmn = np.random.normal(0.5, 0.1)  # Independent of accuracy
-                
-                data.append({
-                    "subject_id": f"sub_{sub_id:02d}",
-                    "block_id": trial_id,
-                    "mmn_amplitude": mmn,
-                    "accuracy": accuracy
-                })
-        
-        return pd.DataFrame(data)
+        assert "original_coefficient" in result
+        assert "mean_p_value" in result
+        assert "sufficiency_passed" in result
+        assert "p_values_per_run" in result
+        assert len(result["p_values_per_run"]) == 3 # 3 runs for sufficiency check
 
-    def test_permutation_test_runs(self, sample_data):
-        """Test that the permutation test runs without errors."""
-        result = run_permutation_test(
-            df=sample_data,
-            dependent_var="mmn_amplitude",
-            independent_var="accuracy",
-            group_var="subject_id",
-            n_permutations=100,  # Small number for speed
-            random_state=42
-        )
+    def test_permutation_p_value_logic(self, mock_aligned_data):
+        """
+        Test that p-value logic is sound.
+        If we shuffle data where there IS a correlation, p-value should be low (significant).
+        If we shuffle data where there is NO correlation, p-value should be high.
+        """
+        # Case 1: Data has correlation (mock_aligned_data has it)
+        result = run_permutation_test(mock_aligned_data, n_permutations=100, random_state=42)
         
-        assert "observed_statistic" in result
-        assert "permutation_p_value" in result
-        assert "n_permutations" in result
-        assert "sufficient" in result
-        assert result["n_permutations"] == 100
-        assert 0 <= result["permutation_p_value"] <= 1
+        # We expect the permutation test to find the original coefficient is extreme
+        # compared to shuffled ones.
+        # Note: With small n and noise, this might not always be < 0.05, but the logic must run.
+        assert 0.0 <= result["mean_p_value"] <= 1.0
+        
+        # Case 2: Break correlation manually
+        df_no_corr = mock_aligned_data.copy()
+        df_no_corr['accuracy'] = np.random.permutation(df_no_corr['accuracy'].values)
+        
+        result_no_corr = run_permutation_test(df_no_corr, n_permutations=100, random_state=42)
+        
+        # When data is random, the original coefficient (from random data) should be similar
+        # to shuffled ones, so p-value should be high (near 0.5 or 1.0 depending on distribution)
+        # This is a sanity check that the function doesn't return 0.0 always.
+        assert result_no_corr["mean_p_value"] > 0.01 # Should not be extremely significant
 
-    def test_permutation_test_detects_correlation(self, sample_data):
-        """Test that the permutation test can detect a true correlation."""
-        # With a true correlation and enough samples, p-value should be low
-        result = run_permutation_test(
-            df=sample_data,
-            dependent_var="mmn_amplitude",
-            independent_var="accuracy",
-            group_var="subject_id",
-            n_permutations=200,
-            random_state=42
-        )
+    def test_sufficiency_check_variance(self, mock_aligned_data):
+        """
+        Verify the sufficiency check logic.
+        With enough permutations, variance across 3 runs should be low.
+        """
+        # Run with small n to potentially fail sufficiency (high variance)
+        result_low_n = run_permutation_test(mock_aligned_data, n_permutations=10, random_state=42)
         
-        # We expect the observed statistic to be non-zero
-        assert result["observed_statistic"] is not None
-        assert result["observed_statistic"] != 0
+        # Run with larger n to pass sufficiency
+        result_high_n = run_permutation_test(mock_aligned_data, n_permutations=500, random_state=42)
         
-        # The permutation p-value should be defined
-        assert result["permutation_p_value"] is not None
+        # The high n run should generally have lower variance or pass the check more reliably
+        # We assert that the check runs and returns a boolean
+        assert isinstance(result_high_n["sufficiency_passed"], bool)
+        
+        # Check that variance is calculated
+        assert result_high_n["variance_p_value"] >= 0
 
-    def test_permutation_test_null_hypothesis(self, null_data):
-        """Test that the permutation test correctly handles null data (no correlation)."""
-        result = run_permutation_test(
-            df=null_data,
-            dependent_var="mmn_amplitude",
-            independent_var="accuracy",
-            group_var="subject_id",
-            n_permutations=200,
-            random_state=42
-        )
+    def test_coefficient_extraction(self, mock_aligned_data):
+        """Ensure the 'accuracy' coefficient is correctly extracted from the LME model."""
+        # Fit model directly
+        model = fit_lme_model(mock_aligned_data)
         
-        # With null data, the observed statistic should be close to 0
-        # (though not exactly 0 due to sampling noise)
-        assert result["observed_statistic"] is not None
+        # Check params structure
+        params = model.params
+        # The coefficient for 'accuracy' must exist
+        found = False
+        for idx in params.index:
+            if 'accuracy' in str(idx):
+                found = True
+                break
         
-        # The permutation p-value should be high (fail to reject null)
-        # Note: With only 200 permutations, this might not be very reliable,
-        # but we're just checking that the logic works
-        assert 0 <= result["permutation_p_value"] <= 1
+        assert found, "Could not find 'accuracy' coefficient in model parameters"
 
-    def test_sufficiency_check(self, sample_data):
-        """Test that the sufficiency check logic is executed."""
-        result = run_permutation_test(
-            df=sample_data,
-            dependent_var="mmn_amplitude",
-            independent_var="accuracy",
-            group_var="subject_id",
-            n_permutations=1000,
-            check_sufficiency=True,
-            random_state=42
-        )
+    def test_random_seed_reproducibility(self, mock_aligned_data):
+        """Test that same seed produces same results."""
+        r1 = run_permutation_test(mock_aligned_data, n_permutations=50, random_state=123)
+        r2 = run_permutation_test(mock_aligned_data, n_permutations=50, random_state=123)
         
-        assert "sufficient" in result
-        assert "sufficiency_reason" in result
-        assert isinstance(result["sufficient"], bool)
-
-    def test_small_dataset_handling(self):
-        """Test that the function handles very small datasets gracefully."""
-        small_data = pd.DataFrame([
-            {"subject_id": "sub_01", "block_id": 0, "mmn_amplitude": 0.5, "accuracy": 0.8},
-            {"subject_id": "sub_02", "block_id": 1, "mmn_amplitude": 0.6, "accuracy": 0.7},
-            {"subject_id": "sub_03", "block_id": 2, "mmn_amplitude": 0.55, "accuracy": 0.75},
-        ])
-        
-        result = run_permutation_test(
-            df=small_data,
-            dependent_var="mmn_amplitude",
-            independent_var="accuracy",
-            group_var="subject_id",
-            n_permutations=10,
-            random_state=42
-        )
-        
-        # Should return a warning and None values for small data
-        assert result["reason"] == "Dataset too small"
-        assert result["observed_statistic"] is None
-        assert result["p_value"] is None
-
-    def test_permuted_statistics_saved(self, sample_data):
-        """Test that permuted statistics are saved in the result."""
-        result = run_permutation_test(
-            df=sample_data,
-            dependent_var="mmn_amplitude",
-            independent_var="accuracy",
-            group_var="subject_id",
-            n_permutations=50,
-            random_state=42
-        )
-        
-        assert "permuted_statistics" in result
-        assert len(result["permuted_statistics"]) == 50
-        assert all(isinstance(x, float) for x in result["permuted_statistics"])
-
-    def test_random_state_reproducibility(self, sample_data):
-        """Test that the same random state produces the same results."""
-        result1 = run_permutation_test(
-            df=sample_data,
-            dependent_var="mmn_amplitude",
-            independent_var="accuracy",
-            group_var="subject_id",
-            n_permutations=100,
-            random_state=123
-        )
-        
-        result2 = run_permutation_test(
-            df=sample_data,
-            dependent_var="mmn_amplitude",
-            independent_var="accuracy",
-            group_var="subject_id",
-            n_permutations=100,
-            random_state=123
-        )
-        
-        # Results should be identical with the same random state
-        assert result1["permutation_p_value"] == result2["permutation_p_value"]
-        assert result1["observed_statistic"] == result2["observed_statistic"]
-        assert result1["permuted_statistics"] == result2["permuted_statistics"]
-
-    def test_n_permutations_parameter(self, sample_data):
-        """Test that the n_permutations parameter is respected."""
-        for n in [50, 100, 200]:
-            result = run_permutation_test(
-                df=sample_data,
-                dependent_var="mmn_amplitude",
-                independent_var="accuracy",
-                group_var="subject_id",
-                n_permutations=n,
-                random_state=42
-            )
-            assert result["n_permutations"] == n
-            assert len(result["permuted_statistics"]) == n
+        assert r1["mean_p_value"] == r2["mean_p_value"]
+        assert r1["p_values_per_run"] == r2["p_values_per_run"]

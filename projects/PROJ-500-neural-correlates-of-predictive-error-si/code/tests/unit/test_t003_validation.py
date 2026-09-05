@@ -1,119 +1,168 @@
+"""
+Unit tests for T003: Validation Report Generation.
+
+Tests the logic for determining analysis_mode based on variable availability.
+"""
 import json
 import os
 import sys
 import pytest
 from pathlib import Path
+import tempfile
+import shutil
+
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
+
 from src.data.ingest import (
-    generate_validation_report, 
-    run_variable_check_for_task,
+    generate_validation_report,
+    check_and_report_variables,
     validate_metadata_variables
 )
 
 @pytest.fixture
-def temp_data_dir(tmp_path):
-    # Setup a temporary directory for data
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    return data_dir
+def temp_data_dir():
+    """Create a temporary directory for test outputs."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    shutil.rmtree(temp_dir)
 
-def test_analysis_mode_error_signal(tmp_path):
-    """Test that analysis_mode is 'error_signal' when both variables are present."""
-    # Mock metadata with both variables
-    mock_metadata = {
-        "stimulus_type": "present",
-        "response_correctness": "present"
-    }
-    # Save mock metadata
-    meta_path = tmp_path / "data" / "metadata.json"
-    meta_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(meta_path, 'w') as f:
-        json.dump(mock_metadata, f)
-    
-    # Run generation
-    output_path = str(tmp_path / "data" / "validation_report.json")
-    # We need to patch the function to use our temp path or pass it
-    # Since the function uses a default, we'll test the logic directly
-    
-    # Re-implement logic for test
-    check_results = {
-        "stimulus_type": True,
-        "response_correctness": True
+def test_analysis_mode_error_signal(temp_data_dir):
+    """Test that analysis_mode is 'error_signal' when response_correctness exists."""
+    metadata = {
+        'features': [
+            {'name': 'subject_id'},
+            {'name': 'stimulus_type'},
+            {'name': 'response_correctness'}
+        ]
     }
     
-    if check_results.get("stimulus_type") and check_results.get("response_correctness"):
-        mode = "error_signal"
-    else:
-        mode = "stimulus_driven"
+    output_path = os.path.join(temp_data_dir, 'validation_report_error_signal.json')
     
-    assert mode == "error_signal"
+    report = generate_validation_report(metadata, output_path, dataset_id="test-ds-1")
+    
+    assert report['analysis_mode'] == 'error_signal'
+    assert report['status'] == 'success'
+    assert report['response_correctness_exists'] is True
+    
+    # Verify file was written
+    assert os.path.exists(output_path)
+    with open(output_path, 'r') as f:
+        saved_report = json.load(f)
+    assert saved_report['analysis_mode'] == 'error_signal'
 
-def test_analysis_mode_stimulus_driven_missing_response(tmp_path):
-    """Test that analysis_mode is 'stimulus_driven' when response_correctness is missing."""
-    check_results = {
-        "stimulus_type": True,
-        "response_correctness": False
+def test_analysis_mode_stimulus_driven_missing_response(temp_data_dir):
+    """Test that analysis_mode is 'stimulus_driven' when only stimulus_type exists."""
+    metadata = {
+        'features': [
+            {'name': 'subject_id'},
+            {'name': 'stimulus_type'}
+        ]
     }
     
-    if check_results.get("stimulus_type") and check_results.get("response_correctness"):
-        mode = "error_signal"
-    else:
-        mode = "stimulus_driven"
+    output_path = os.path.join(temp_data_dir, 'validation_report_stimulus.json')
     
-    assert mode == "stimulus_driven"
+    # This should not raise an error, just log a warning
+    report = generate_validation_report(metadata, output_path, dataset_id="test-ds-2")
+    
+    assert report['analysis_mode'] == 'stimulus_driven'
+    assert report['status'] == 'success'
+    assert report['response_correctness_exists'] is False
+    assert report['stimulus_type_exists'] is True
 
-def test_analysis_mode_stimulus_driven_missing_stimulus(tmp_path):
-    """Test that analysis_mode is 'stimulus_driven' when stimulus_type is missing."""
-    check_results = {
-        "stimulus_type": False,
-        "response_correctness": True
+def test_analysis_mode_stimulus_driven_missing_stimulus(temp_data_dir):
+    """Test that analysis_mode is 'stimulus_driven' when only response_correctness exists (should be error_signal actually)."""
+    # Correction: If response_correctness exists, it should be error_signal regardless of stimulus_type
+    metadata = {
+        'features': [
+            {'name': 'subject_id'},
+            {'name': 'response_correctness'}
+        ]
     }
     
-    if check_results.get("stimulus_type") and check_results.get("response_correctness"):
-        mode = "error_signal"
-    else:
-        mode = "stimulus_driven"
+    output_path = os.path.join(temp_data_dir, 'validation_report_correctness_only.json')
     
-    assert mode == "stimulus_driven"
+    report = generate_validation_report(metadata, output_path, dataset_id="test-ds-3")
+    
+    assert report['analysis_mode'] == 'error_signal'
+    assert report['status'] == 'success'
 
-def test_analysis_mode_stimulus_driven_missing_both(tmp_path):
-    """Test that analysis_mode is 'stimulus_driven' when both are missing."""
-    check_results = {
-        "stimulus_type": False,
-        "response_correctness": False
+def test_analysis_mode_stimulus_driven_missing_both(temp_data_dir):
+    """Test that an error is raised when neither variable exists."""
+    metadata = {
+        'features': [
+            {'name': 'subject_id'},
+            {'name': 'trial_number'}
+        ]
     }
     
-    if check_results.get("stimulus_type") and check_results.get("response_correctness"):
-        mode = "error_signal"
-    else:
-        mode = "stimulus_driven"
+    output_path = os.path.join(temp_data_dir, 'validation_report_fail.json')
     
-    assert mode == "stimulus_driven"
+    with pytest.raises(ValueError, match="Critical variables missing"):
+        generate_validation_report(metadata, output_path, dataset_id="test-ds-4")
 
-def test_generate_validation_report_creates_file(tmp_path):
-    """Test that the report file is created."""
-    # Create a mock metadata file
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    meta_file = data_dir / "metadata.json"
-    with open(meta_file, 'w') as f:
-        json.dump({"stimulus_type": True, "response_correctness": True}, f)
-    
-    # Temporarily change working directory or patch path
-    # For simplicity, we test the logic directly as the file I/O is standard
-    output_file = data_dir / "validation_report.json"
-    
-    # Simulate the logic
-    report = {
-        "status": "success",
-        "analysis_mode": "error_signal",
-        "variables_found": {"stimulus_type": True, "response_correctness": True},
-        "generated_by": "T003"
+def test_generate_validation_report_creates_file(temp_data_dir):
+    """Test that the validation report file is actually created on disk."""
+    metadata = {
+        'features': [
+            {'name': 'subject_id'},
+            {'name': 'stimulus_type'},
+            {'name': 'response_correctness'}
+        ]
     }
     
-    with open(output_file, 'w') as f:
-        json.dump(report, f)
+    output_path = os.path.join(temp_data_dir, 'validation_report_file_check.json')
     
-    assert output_file.exists()
-    with open(output_file, 'r') as f:
-        data = json.load(f)
-    assert data["analysis_mode"] == "error_signal"
+    generate_validation_report(metadata, output_path, dataset_id="test-ds-5")
+    
+    assert os.path.exists(output_path)
+    assert os.path.isfile(output_path)
+    
+    with open(output_path, 'r') as f:
+        content = json.load(f)
+        
+    assert 'analysis_mode' in content
+    assert content['analysis_mode'] in ['error_signal', 'stimulus_driven']
+
+def test_check_and_report_variables():
+    """Test the variable checking helper function."""
+    # Case 1: Both exist
+    metadata_both = {
+        'features': [
+            {'name': 'stimulus_type'},
+            {'name': 'response_correctness'}
+        ]
+    }
+    status = check_and_report_variables(metadata_both)
+    assert status['stimulus_type_exists'] is True
+    assert status['response_correctness_exists'] is True
+    
+    # Case 2: Only stimulus
+    metadata_stim = {
+        'features': [{'name': 'stimulus_type'}]
+    }
+    status = check_and_report_variables(metadata_stim)
+    assert status['stimulus_type_exists'] is True
+    assert status['response_correctness_exists'] is False
+    
+    # Case 3: Only correctness
+    metadata_corr = {
+        'features': [{'name': 'response_correctness'}]
+    }
+    status = check_and_report_variables(metadata_corr)
+    assert status['stimulus_type_exists'] is False
+    assert status['response_correctness_exists'] is True
+    
+    # Case 4: None
+    metadata_none = {
+        'features': [{'name': 'other_var'}]
+    }
+    status = check_and_report_variables(metadata_none)
+    assert status['stimulus_type_exists'] is False
+    assert status['response_correctness_exists'] is False
+    
+    # Case 5: Empty metadata
+    status = check_and_report_variables({})
+    assert status['stimulus_type_exists'] is False
+    assert status['response_correctness_exists'] is False

@@ -3,75 +3,98 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "neural-correlates-tactile-learning"
+name = "neural-correlates-of-predictive-error-si"
 version = "0.1.0"
-description = "Neural Correlates of Predictive Error Signals During Tactile Discrimination Learning"
+description = "Automated science pipeline for neural correlates of predictive error signals during tactile discrimination learning"
+readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Research Team", email = "research@llmxive.example.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
 dependencies = [
-    "mne",
-    "pandas",
-    "numpy",
-    "statsmodels",
-    "scikit-learn",
-    "pyyaml",
-    "requests",
-    "datasets",
-    "joblib",
+    "mne>=1.6.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "statsmodels>=0.14.0",
+    "scikit-learn>=1.3.0",
+    "pyyaml>=6.0",
+    "requests>=2.31.0",
+    "datasets>=2.14.0",
+    "joblib>=1.3.0",
+    "ruff>=0.1.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.1.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
     "black>=23.0.0",
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
 ]
 
-[tool.ruff]
-line-length = 88
-target-version = "py311"
+[project.scripts]
+setup-project = "code.setup_project:main"
 
-[tool.ruff.lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-]
-ignore = [
-    "E501",
-    "B008",
-]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
+[tool.setuptools]
+packages = ["src", "src.analysis", "src.data", "src.utils", "tests", "tests.contract", "tests.integration", "tests.unit"]
+package-dir = {"" = "code"}
 
 [tool.black]
+# Black formatting configuration
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    \.git
+  | \.tox
+  | __pycache__
+  | build
+  | dist
+  | \.eggs
+  | \.egg-info
+  | \.mypy_cache
+  | \.pytest_cache
+  | venv
+  | \.venv
 )/
 '''
+# Preview mode for some unstable rules (optional)
+# preview = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+# Pytest configuration
+testpaths = ["code/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --strict-markers"
+addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "contract: marks tests as contract tests",
+]
+
+[tool.coverage.run]
+source = ["code/src"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]

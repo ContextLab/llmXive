@@ -1,67 +1,42 @@
-"""
-Project setup script for initializing directory structure and configuration.
-
-This script creates the necessary directory structure for the project
-and initializes the configuration file.
-"""
-
 import os
 from pathlib import Path
 
-
 def main():
-    """Initialize project directory structure."""
-    # Define directories to create
+    """Initialize project directory structure and configuration files."""
+    project_root = Path(__file__).parent
+
+    # Define directories
     directories = [
-        "src",
-        "src/data",
-        "src/utils",
-        "src/analysis",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        "data/raw",
-        "data/interim",
-        "data/processed",
-        "logs",
-        "analysis/results",
-        "figures",
-        "cache",
-        "docs",
-        "contracts",
+        "code/src/analysis",
+        "code/src/data",
+        "code/src/utils",
+        "code/tests/unit",
+        "code/tests/integration",
+        "code/tests/contract",
+        "code/data",
+        "code/analysis/results",
+        "code/docs",
+        "code/contracts",
     ]
 
     # Create directories
     for dir_path in directories:
-        path = Path(dir_path)
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        # Create __init__.py for Python packages
+        if "src" in dir_path or "tests" in dir_path:
+            init_file = full_path / "__init__.py"
+            if not init_file.exists():
+                init_file.write_text("")
 
-    # Create __init__.py files for Python packages
-    init_files = [
-        "src/__init__.py",
-        "src/data/__init__.py",
-        "src/utils/__init__.py",
-        "src/analysis/__init__.py",
-        "tests/__init__.py",
-        "tests/unit/__init__.py",
-        "tests/integration/__init__.py",
-        "tests/contract/__init__.py",
-    ]
+    # Create .gitkeep files for data directories
+    data_dirs = ["code/data", "code/analysis/results"]
+    for dir_path in data_dirs:
+        gitkeep = project_root / dir_path / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.write_text("")
 
-    for init_file in init_files:
-        path = Path(init_file)
-        if not path.exists():
-            path.touch()
-            print(f"Created: {init_file}")
-
-    print("\nProject structure initialized successfully!")
-    print("Next steps:")
-    print("  1. Install dependencies: pip install -r requirements.txt")
-    print("  2. Initialize git: git init")
-    print("  3. Run tests: pytest")
-
+    print("Project structure initialized successfully.")
 
 if __name__ == "__main__":
     main()

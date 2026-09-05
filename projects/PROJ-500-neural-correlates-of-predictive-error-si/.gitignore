@@ -1,102 +1,68 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
+
+# Distribution / packaging
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
+MANIFEST
 
-# Virtual Environments
-venv/
-ENV/
-env/
-.venv/
+# PyInstaller
+*.manifest
+*.spec
 
-# IDEs and Editors
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Environment variables
+.env
+.env.local
+
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-.project
-.pydevproject
-.settings/
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-.tox/
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.mypy_cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-ipynb_checkpoints/
-
-# Data and Logs (Generated Artifacts)
-data/raw/
-data/processed/
-data/interim/
-data/*.csv
-data/*.json
-data/*.parquet
-data/*.fif
-data/*.ds
-logs/
-logs/*.log
-logs/*.json
-
-# Analysis Outputs
-analysis/results/
-analysis/figures/
-analysis/*.png
-analysis/*.pdf
-analysis/*.html
-
-# OS Generated Files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-$RECYCLE.BIN/
+Thumbs.db
 
-# Sensitive Information
-.env
-.env.local
-*.key
-*.pem
-secrets/
-
-# Temporary Files
-*.tmp
-*.temp
-cache/
-
-# Git
-.git/
-.gitignore
-
-# Project Specific
-src/__pycache__/
-tests/__pycache__/
-code/__pycache__/
+# Project specific
+data/raw/
+data/interim/
+data/processed/
+analysis/results/
+logs/
+state/
+*.log

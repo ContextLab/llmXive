@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Aligned Data Schema
+description: Schema for the final aligned dataset containing MMN amplitudes and behavioral accuracy
+type: object
+required:
+  - subject_id
+  - block_id
+  - mmn_amplitude
+  - source_window_start_trial
+  - analysis_mode
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject
+  block_id:
+    type: integer
+    description: Block number within the subject
+  mmn_amplitude:
+    type: number
+    description: Mean MMN amplitude in the early-mid latency window
+  source_window_start_trial:
+    type: integer
+    description: Starting trial index of the 50-trial source window
+  analysis_mode:
+    type: string
+    enum:
+      - error_signal
+      - stimulus_driven
+    description: Analysis mode determined from metadata validation
+additionalProperties: false

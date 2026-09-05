@@ -3,125 +3,148 @@ import sys
 import pytest
 import pandas as pd
 from pathlib import Path
+import tempfile
+import shutil
 
-# Add code root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.data.align import (
+from src.data.finalize import (
     load_interim_lagged_mmns,
-    load_behavioral_blocks,
+    load_accuracy_blocks,
     load_excluded_subjects,
-    load_validation_report,
-    finalize_aligned_dataset,
-    run_alignment_pipeline,
-    OUTPUT_FINAL_PATH
+    filter_by_excluded_subjects,
+    validate_aligned_data,
+    run_finalization_pipeline
 )
 
 @pytest.fixture
 def temp_data_setup(tmp_path):
-    """Setup temporary data files for testing."""
-    # Create directories
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    
-    # Create interim MMN
+    """
+    Create temporary data files required for T026 testing.
+    """
+    # Create interim_lagged_mmns.csv
     mmn_data = {
-        'subject_id': ['sub-001', 'sub-001', 'sub-002', 'sub-002'],
-        'block_id': ['1', '2', '1', '2'],
-        'mmn_amplitude': [-2.34, -2.56, -2.12, -2.25],
-        'source_window_start_trial': [1, 51, 1, 51]
+        'subject_id': ['S01', 'S01', 'S02', 'S02', 'S03', 'S03'],
+        'block_id': [1, 2, 1, 2, 1, 2],
+        'mmn_amplitude': [1.5, 1.6, 2.1, 2.2, 1.8, 1.9],
+        'source_window_start_trial': [0, 50, 0, 50, 0, 50]
     }
-    pd.DataFrame(mmn_data).to_csv(data_dir / "interim_lagged_mmns.csv", index=False)
-    
-    # Create behavioral blocks
-    behav_data = {
-        'subject_id': ['sub-001', 'sub-001', 'sub-002', 'sub-002'],
-        'block_id': ['1', '2', '1', '2'],
-        'accuracy': [0.85, 0.88, 0.82, 0.84]
-    }
-    pd.DataFrame(behav_data).to_csv(data_dir / "behavioral_blocks.csv", index=False)
-    
-    # Create excluded subjects
-    exc_data = {'subject_id': ['sub-003']}
-    pd.DataFrame(exc_data).to_csv(data_dir / "excluded_subjects.csv", index=False)
-    
-    # Create validation report
-    import json
-    report = {
-        "analysis_mode": "error_signal",
-        "variables_present": {"stimulus_type": True, "response_correctness": True}
-    }
-    with open(data_dir / "validation_report.json", 'w') as f:
-        json.dump(report, f)
-        
-    return data_dir
+    mmn_df = pd.DataFrame(mmn_data)
+    mmn_path = tmp_path / "interim_lagged_mmns.csv"
+    mmn_df.to_csv(mmn_path, index=False)
 
-def test_t026_merge_logic(temp_data_setup, tmp_path):
-    """Test that T026 correctly merges and filters data."""
-    # Change to temp directory to simulate running in project root
-    original_cwd = os.getcwd()
-    os.chdir(tmp_path)
-    
-    try:
-        # Mock the paths in the module to use temp paths
-        # Since the functions use hardcoded strings like "data/...", 
-        # we rely on the fixture creating files in the current working directory
-        # The fixture created files in tmp_path/data, but the code looks for "data/..."
-        # We need to move files or adjust. 
-        # Let's assume the test runner sets up the environment or we move files.
-        # Actually, the fixture creates in tmp_path/data. The code expects data/... relative to CWD.
-        # So we set CWD to tmp_path.
-        
-        # Run the logic
-        mmn_df = load_interim_lagged_mmns()
-        behav_df = load_behavioral_blocks()
-        exc_subs = load_excluded_subjects()
-        report = load_validation_report()
-        
-        assert len(mmn_df) == 4
-        assert len(behav_df) == 4
-        assert len(exc_subs) == 1
-        assert report['analysis_mode'] == 'error_signal'
-        
-        final_df = finalize_aligned_dataset(mmn_df, behav_df, exc_subs, report['analysis_mode'])
-        
-        # Check columns
-        assert 'mmn_amplitude' in final_df.columns
-        assert 'accuracy' in final_df.columns
-        assert 'analysis_mode' in final_df.columns
-        
-        # Check filtering (sub-003 not in data, so no change in count for sub-001/002)
-        # If sub-003 was in the input data, it should be gone.
-        assert 'sub-003' not in final_df['subject_id'].values
-        
-        # Check merge
-        assert len(final_df) == 4
-        
-    finally:
-        os.chdir(original_cwd)
+    # Create accuracy_blocks.csv
+    acc_data = {
+        'subject_id': ['S01', 'S01', 'S02', 'S02', 'S03', 'S03'],
+        'block_id': [1, 2, 1, 2, 1, 2],
+        'accuracy': [0.85, 0.88, 0.90, 0.92, 0.80, 0.82],
+        'trial_start': [10, 60, 10, 60, 10, 60],
+        'trial_end': [20, 70, 20, 70, 20, 70]
+    }
+    acc_df = pd.DataFrame(acc_data)
+    acc_path = tmp_path / "accuracy_blocks.csv"
+    acc_df.to_csv(acc_path, index=False)
 
-def test_t026_full_pipeline_execution(temp_data_setup, tmp_path):
-    """Test that the full pipeline script runs and creates the output file."""
-    original_cwd = os.getcwd()
-    os.chdir(tmp_path)
+    # Create excluded_subjects.csv (S03 should be excluded)
+    exc_data = {
+        'subject_id': ['S03'],
+        'reason': ['underpowered']
+    }
+    exc_df = pd.DataFrame(exc_data)
+    exc_path = tmp_path / "excluded_subjects.csv"
+    exc_df.to_csv(exc_path, index=False)
+
+    return {
+        'mmn_path': mmn_path,
+        'acc_path': acc_path,
+        'exc_path': exc_path,
+        'data_dir': tmp_path
+    }
+
+def test_t026_merge_logic(temp_data_setup):
+    """
+    Test that T026 correctly merges MMN and Accuracy data.
+    """
+    mmn_df = load_interim_lagged_mmns(temp_data_setup['mmn_path'])
+    acc_df = load_accuracy_blocks(temp_data_setup['acc_path'])
     
-    try:
-        # Ensure files are in the right place relative to CWD
-        # The fixture created them in tmp_path/data, which is correct if CWD is tmp_path
-        
-        # Run the pipeline
-        run_alignment_pipeline()
-        
-        # Check output exists
-        output_file = Path("data/aligned_data.csv")
-        assert output_file.exists(), "aligned_data.csv was not created"
-        
-        # Check content
-        df = pd.read_csv(output_file)
-        assert not df.empty
-        assert 'accuracy' in df.columns
-        assert 'mmn_amplitude' in df.columns
-        assert 'analysis_mode' in df.columns
-        
-    finally:
-        os.chdir(original_cwd)
+    # Manual merge check
+    merged = pd.merge(mmn_df, acc_df, on=['subject_id', 'block_id'], how='inner')
+    
+    assert len(merged) == 6
+    assert 'accuracy' in merged.columns
+    assert 'mmn_amplitude' in merged.columns
+    assert 'subject_id' in merged.columns
+
+def test_t026_full_pipeline_execution(temp_data_setup):
+    """
+    Test the full T026 pipeline execution with real file paths.
+    Verifies:
+    1. Output file is created
+    2. Excluded subjects are removed
+    3. No NaN values in critical columns
+    4. Schema matches requirements
+    """
+    output_path = run_finalization_pipeline(temp_data_setup['data_dir'])
+    
+    # Check file exists
+    assert output_path.exists(), "aligned_data.csv was not created"
+    
+    # Load and validate
+    result_df = pd.read_csv(output_path)
+    
+    # Check excluded subjects (S03 should be gone)
+    assert 'S03' not in result_df['subject_id'].values, "Excluded subject S03 found in output"
+    
+    # Check expected subjects remain
+    assert 'S01' in result_df['subject_id'].values
+    assert 'S02' in result_df['subject_id'].values
+    
+    # Check row count (should be 4 rows: S01x2, S02x2)
+    assert len(result_df) == 4, f"Expected 4 rows, got {len(result_df)}"
+    
+    # Check schema
+    required_cols = ['subject_id', 'block_id', 'mmn_amplitude', 'source_window_start_trial', 'accuracy']
+    for col in required_cols:
+        assert col in result_df.columns, f"Missing column: {col}"
+    
+    # Check for NaN in critical columns
+    assert result_df['mmn_amplitude'].isna().sum() == 0
+    assert result_df['accuracy'].isna().sum() == 0
+
+def test_t026_validation_logic(temp_data_setup):
+    """
+    Test the validation function specifically.
+    """
+    # Create a valid dataframe
+    valid_df = pd.DataFrame({
+        'subject_id': ['S01'],
+        'block_id': [1],
+        'mmn_amplitude': [1.5],
+        'source_window_start_trial': [0],
+        'accuracy': [0.85]
+    })
+    assert validate_aligned_data(valid_df) is True
+
+    # Create an invalid dataframe (missing column)
+    invalid_df = pd.DataFrame({
+        'subject_id': ['S01'],
+        'block_id': [1],
+        'mmn_amplitude': [1.5],
+        'accuracy': [0.85]
+        # Missing source_window_start_trial
+    })
+    assert validate_aligned_data(invalid_df) is False
+
+    # Create an invalid dataframe (NaN in critical column)
+    nan_df = pd.DataFrame({
+        'subject_id': ['S01'],
+        'block_id': [1],
+        'mmn_amplitude': [1.5],
+        'source_window_start_trial': [0],
+        'accuracy': [np.nan]
+    })
+    assert validate_aligned_data(nan_df) is False

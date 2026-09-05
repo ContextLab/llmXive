@@ -2,16 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T005c** — No repository directory, `.git` folder, or `.gitignore` file is present in the provided evidence; thus the required artifact for initializing a Git repository and configuring its ignore rules is missing.
-- **T006** — No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml`, or a pre‑commit hook invoking ruff/black) are present in the provided artifact list, so the requirement to configure ruff and black is not satisfied. The implementer must add the appropriate configuration files and ensure they are non‑empty.
-- **T009** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T010** — No artifact (e.g., configuration files, validation scripts, or documentation) was provided that defines environment variable validation or error‑handling infrastructure. Consequently the requirement to set up such infrastructure is not demonstrated.
-- **T016** — The repository lacks the required output files (`data/excluded_subjects.csv` and `data/validation_report.json`). Moreover, `src/data/preprocess.py` is truncated (the `write_excluded_subjects_csv` function is incomplete and no code updates the JSON report), so the artifact‑rejection and underpowered‑subject flagging logic is not fully implemented.
-- **T020** — The repository contains a partially shown `tests/integration/test_alignment.py`, but the test does not demonstrate that it checks for the creation of `data/interim_lagged_mmns.csv` with the required columns or validates the lagged‑window logic. Moreover, the expected output file `data/interim_lagged_mmns.csv` is absent from the project. The task’s verification criteria are therefore not met.
-- **T022** — The provided `src/data/align.py` does not show any implementation for detecting missing behavioral logs or setting an `analysis_mode` field, and the file is truncated before such logic could appear. Moreover, the required output file `data/validation_report.json` is absent. Both the code change and the JSON report are missing, so the task is not satisfied.
-- **T024** — The required output file `data/interim_lagged_mmns.csv` does not exist, and the provided `src/data/align.py` snippet shows only placeholder comments about MMN windows without any implementation of the lagged‑alignment calculation or CSV writing. The task’s deliverable is therefore not satisfied.
-- **T025** — No code, script, or data artifact was provided that shows exclusion of blocks with fewer than 10 valid trials or NaN handling for excessive artifact rejection, nor is there an `aligned_data.csv` output demonstrating the lagged alignment with underpowered subjects excluded. The required implementation and resulting files are missing.
-- **T026** — declared artifact(s) missing/empty/invalid: data/interim_lagged_mmns.csv, data/aligned_data.csv
-- **T029** — declared artifact(s) missing/empty/invalid: src/analysis/model.py, data/aligned_data.csv
-- **T030** — declared artifact(s) missing/empty/invalid: src/analysis/model.py
-- **T031** — declared artifact(s) missing/empty/invalid: src/analysis/model.py
+- **T009a** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T009b** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T023** — The required output file `data/accuracy_blocks.csv` does not exist, and the provided `src/data/align.py` excerpt shows no implementation of 10‑trial behavioral binning or code that writes such a CSV. The task’s core requirement is therefore unmet.
+- **T035** — No `docs/` directory, `README.md`, or `quickstart.md` files were provided or referenced in the evidence, so the required documentation updates are missing. The implementer must add and populate these files with the appropriate project documentation.
+- **T037** — No runtime benchmark, log file, or report is present that demonstrates the full pipeline completing in ≤6 hours on a 2‑core CPU. The required performance verification artifact is missing, so the task’s requirement is not satisfied.

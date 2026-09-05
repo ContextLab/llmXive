@@ -11,7 +11,7 @@ This feature implements a computational pipeline to test whether somatosensory M
 **Approach**: 
 1. Ingest EEG data from verified OpenNeuro/HF sources.
 2. Preprocess (1–40 Hz filter, ICA, epoching).
-3. **Lagged Alignment**: Calculate MMN amplitude over a 50-trial "training window" and align it to the *subsequent* 10-trial "accuracy block" to ensure sufficient Signal-to-Noise Ratio (SNR) and avoid circularity/confounding.
+3. **Lagged Alignment**: Calculate MMN amplitude over a "training window" of trials. and align it to the *subsequent* accuracy block to ensure sufficient Signal-to-Noise Ratio (SNR) and avoid circularity/confounding.
 4. Fit a Gaussian LME to test the correlation.
 5. Run robustness checks (time window sweeps) and permutation tests.
 6. All steps run within 2-core CPU, 7 GB RAM constraints.

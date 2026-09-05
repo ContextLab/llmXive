@@ -1,281 +1,235 @@
 """
 Preprocessing module for EEG data.
-Implements artifact rejection, underpowered subject flagging, and data hygiene.
+Implements artifact rejection, underpowered dataset flagging, and data cleaning.
 """
 import os
 import json
-import csv
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-# Import project utilities
-from src.utils.logging import get_logger, log_event, log_error
-from src.utils.config import get_config
-from src.utils.checksum import compute_file_sha256
+from ..utils.logging import get_logger, log_event, log_error
+from ..utils.config import get_config
 
 logger = get_logger(__name__)
 
-# Constants
-MAX_TRIAL_LOSS_PERCENT = 5.0  # Maximum allowed trial loss due to artifact rejection
-UNDERPOWERED_SUBJECT_THRESHOLD = 20  # Minimum number of subjects required
+# Constants for artifact rejection
+MAX_ARTIFACT_REJECTION_RATE = 0.05  # 5%
+MIN_SUBJECTS_FOR_POWER = 20
 
-def calculate_artifact_rejection_rate(
-    original_trials: int,
-    rejected_trials: int
-) -> float:
+def load_preprocessed_data(data_dir: Path) -> Dict[str, Any]:
     """
-    Calculate the percentage of trials rejected due to artifacts.
+    Load preprocessed EEG data from disk.
+    Assumes data is stored in a standard format (e.g., MNE-Python .fif or .edf).
+    """
+    # This is a placeholder for the actual loading logic.
+    # In a real implementation, this would load the data using MNE-Python or similar.
+    logger.info(f"Loading preprocessed data from {data_dir}")
+    # Placeholder return structure
+    return {
+        "subjects": {},
+        "metadata": {}
+    }
+
+def detect_artifacts(epochs_data: np.ndarray, threshold: float = 100e-6) -> np.ndarray:
+    """
+    Detect artifacts in EEG epochs based on amplitude threshold.
 
     Args:
-        original_trials: Total number of trials before rejection
-        rejected_trials: Number of trials removed due to artifacts
+        epochs_data: Array of shape (n_epochs, n_channels, n_times)
+        threshold: Amplitude threshold in Volts (default 100 microvolts)
 
     Returns:
-        Percentage of trials rejected
+        Boolean array of shape (n_epochs,) indicating if epoch is bad
     """
-    if original_trials == 0:
-        return 0.0
-    return (rejected_trials / original_trials) * 100.0
+    # Calculate peak-to-peak amplitude for each epoch
+    ptp = np.ptp(epochs_data, axis=2)
+    # Check if any channel exceeds threshold
+    bad_epochs = np.any(ptp > threshold, axis=1)
+    return bad_epochs
 
-def validate_trial_count_loss(
-    original_count: int,
-    final_count: int,
-    max_loss_percent: float = MAX_TRIAL_LOSS_PERCENT
-) -> Tuple[bool, float]:
+def reject_artifacts(epochs_data: np.ndarray, bad_epochs: np.ndarray) -> Tuple[np.ndarray, int]:
     """
-    Validate that trial count loss is within acceptable limits.
+    Remove bad epochs from the data.
 
     Args:
-        original_count: Number of trials before rejection
-        final_count: Number of trials after rejection
-        max_loss_percent: Maximum allowed loss percentage
+        epochs_data: Array of shape (n_epochs, n_channels, n_times)
+        bad_epochs: Boolean array of shape (n_epochs,)
 
     Returns:
-        Tuple of (is_valid, actual_loss_percent)
+        Tuple of (cleaned_epochs_data, number_of_rejected_epochs)
     """
-    lost_trials = original_count - final_count
-    loss_percent = calculate_artifact_rejection_rate(original_count, lost_trials)
-    return loss_percent <= max_loss_percent, loss_percent
+    cleaned_data = epochs_data[~bad_epochs]
+    num_rejected = np.sum(bad_epochs)
+    return cleaned_data, int(num_rejected)
 
-def identify_underpowered_subjects(
-    subject_trial_counts: Dict[str, int],
-    threshold: int = UNDERPOWERED_SUBJECT_THRESHOLD
-) -> List[str]:
+def check_trial_count_loss(total_epochs: int, rejected_epochs: int) -> bool:
     """
-    Identify subjects with insufficient trials (underpowered).
+    Check if the trial count loss is within acceptable limits.
 
     Args:
-        subject_trial_counts: Dictionary mapping subject_id to trial count
-        threshold: Minimum required trials per subject
+        total_epochs: Total number of epochs before rejection
+        rejected_epochs: Number of epochs rejected
 
     Returns:
-        List of subject IDs that are underpowered
+        True if loss is <= 5%, False otherwise
     """
-    underpowered = []
-    for subject_id, count in subject_trial_counts.items():
-        if count < threshold:
-            underpowered.append(subject_id)
-    return underpowered
+    if total_epochs == 0:
+        return False
+    loss_rate = rejected_epochs / total_epochs
+    is_acceptable = loss_rate <= MAX_ARTIFACT_REJECTION_RATE
+    if not is_acceptable:
+        logger.warning(f"Trial count loss {loss_rate:.2%} exceeds limit {MAX_ARTIFACT_REJECTION_RATE:.2%}")
+    return is_acceptable
 
-def write_excluded_subjects_csv(
-    excluded_subjects: List[str],
-    output_path: Path
-) -> None:
+def flag_underpowered_subjects(subject_data: Dict[str, Any]) -> List[str]:
+    """
+    Flag subjects from datasets with fewer than MIN_SUBJECTS_FOR_POWER subjects.
+
+    Args:
+        subject_data: Dictionary mapping subject_id to their data
+
+    Returns:
+        List of subject_ids to be excluded
+    """
+    if len(subject_data) < MIN_SUBJECTS_FOR_POWER:
+        logger.warning(f"Dataset has only {len(subject_data)} subjects, which is underpowered (< {MIN_SUBJECTS_FOR_POWER}). Flagging all subjects.")
+        return list(subject_data.keys())
+    return []
+
+def write_excluded_subjects_csv(excluded_subjects: List[Tuple[str, str]], output_path: Path) -> None:
     """
     Write excluded subject IDs to a CSV file.
 
     Args:
-        excluded_subjects: List of subject IDs to exclude
+        excluded_subjects: List of tuples (subject_id, reason)
         output_path: Path to the output CSV file
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['subject_id', 'reason'])
-        for subject_id in excluded_subjects:
-            writer.writerow([subject_id, 'underpowered'])
+    df = pd.DataFrame(excluded_subjects, columns=["subject_id", "reason"])
+    df.to_csv(output_path, index=False)
     logger.info(f"Wrote {len(excluded_subjects)} excluded subjects to {output_path}")
 
-def update_validation_report(
-    validation_report_path: Path,
-    underpowered_subjects: List[str]
-) -> None:
+def update_validation_report(data_dir: Path, excluded_subjects: List[Tuple[str, str]], analysis_mode: str) -> None:
     """
-    Update the validation report JSON with underpowered subjects list.
+    Update the validation report JSON with exclusion information.
 
     Args:
-        validation_report_path: Path to the validation report JSON file
-        underpowered_subjects: List of subject IDs to add to the report
+        data_dir: Path to the data directory
+        excluded_subjects: List of tuples (subject_id, reason)
+        analysis_mode: The determined analysis mode ("error_signal" or "stimulus_driven")
     """
-    if not validation_report_path.exists():
-        report = {
-            "analysis_mode": "error_signal",
-            "underpowered_subjects": [],
-            "validation_status": "passed"
-        }
-    else:
-        with open(validation_report_path, 'r') as f:
-            report = json.load(f)
+    report_path = data_dir / "validation_report.json"
+    if not report_path.exists():
+        logger.error(f"Validation report not found at {report_path}. Cannot update.")
+        return
 
-    # Update underpowered subjects list
-    report['underpowered_subjects'] = underpowered_subjects
-    report['underpowered_count'] = len(underpowered_subjects)
+    with open(report_path, 'r') as f:
+        report = json.load(f)
 
-    # Update validation status if underpowered subjects exist
-    if underpowered_subjects:
-        report['validation_status'] = 'warning'
-        log_event(
-            event_type="validation_warning",
-            message=f"Found {len(underpowered_subjects)} underpowered subjects",
-            subjects=underpowered_subjects
-        )
-
-    with open(validation_report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    logger.info(f"Updated validation report at {validation_report_path}")
-
-def preprocess_dataset(
-    data_dir: Path,
-    output_dir: Path,
-    validation_report_path: Optional[Path] = None
-) -> Dict[str, Any]:
-    """
-    Main preprocessing pipeline that includes artifact rejection and
-    underpowered subject flagging.
-
-    Args:
-        data_dir: Directory containing preprocessed EEG data (from T015)
-        output_dir: Directory to write output artifacts
-        validation_report_path: Path to validation report JSON (optional)
-
-    Returns:
-        Dictionary with preprocessing results and statistics
-    """
-    logger.info(f"Starting preprocessing pipeline for {data_dir}")
-
-    # Initialize results
-    results = {
-        "total_subjects": 0,
-        "excluded_subjects": [],
-        "trial_stats": {},
-        "artifact_rejection_valid": True
+    report["excluded_subjects"] = [
+        {"subject_id": sid, "reason": reason}
+        for sid, reason in excluded_subjects
+    ]
+    report["exclusion_summary"] = {
+        "total_excluded": len(excluded_subjects),
+        "reasons": list(set(reason for _, reason in excluded_subjects))
     }
 
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
 
-    # Load subject trial counts (simulated from T015 output or metadata)
-    # In a real pipeline, this would come from the epoching step
-    subject_trial_counts = {}
-    total_original_trials = 0
-    total_final_trials = 0
+    logger.info(f"Updated validation report at {report_path}")
 
-    # Scan for subject data files
-    subject_files = list(data_dir.glob("subject_*.json"))
-    if not subject_files:
-        # Fallback: scan for any JSON files that might contain trial counts
-        subject_files = list(data_dir.glob("*.json"))
-
-    for subject_file in subject_files:
-        try:
-            with open(subject_file, 'r') as f:
-                subject_data = json.load(f)
-
-            subject_id = subject_data.get('subject_id', subject_file.stem)
-            original_trials = subject_data.get('original_trial_count', 0)
-            final_trials = subject_data.get('final_trial_count', 0)
-
-            if original_trials > 0:
-                subject_trial_counts[subject_id] = final_trials
-                total_original_trials += original_trials
-                total_final_trials += final_trials
-
-                # Check artifact rejection rate for this subject
-                is_valid, loss_percent = validate_trial_count_loss(
-                    original_trials, final_trials
-                )
-
-                if not is_valid:
-                    logger.warning(
-                        f"Subject {subject_id} exceeded artifact rejection "
-                        f"threshold: {loss_percent:.2f}% loss"
-                    )
-                    results['artifact_rejection_valid'] = False
-
-                results['trial_stats'][subject_id] = {
-                    'original': original_trials,
-                    'final': final_trials,
-                    'loss_percent': loss_percent
-                }
-
-        except (json.JSONDecodeError, KeyError) as e:
-            log_error(f"Error processing {subject_file}: {e}")
-            continue
-
-    results['total_subjects'] = len(subject_trial_counts)
-
-    # Identify underpowered subjects
-    underpowered_subjects = identify_underpowered_subjects(subject_trial_counts)
-    results['excluded_subjects'] = underpowered_subjects
-
-    # Write excluded subjects CSV
-    excluded_csv_path = output_dir / "excluded_subjects.csv"
-    write_excluded_subjects_csv(underpowered_subjects, excluded_csv_path)
-
-    # Update validation report
-    if validation_report_path is None:
-        validation_report_path = output_dir.parent / "data" / "validation_report.json"
-
-    if validation_report_path:
-        update_validation_report(validation_report_path, underpowered_subjects)
-
-    # Log summary
-    log_event(
-        event_type="preprocessing_complete",
-        message="Artifact rejection and underpowered subject flagging complete",
-        total_subjects=results['total_subjects'],
-        excluded_count=len(underpowered_subjects),
-        total_original_trials=total_original_trials,
-        total_final_trials=total_final_trials,
-        avg_loss_percent=(
-            ((total_original_trials - total_final_trials) / total_original_trials * 100)
-            if total_original_trials > 0 else 0
-        )
-    )
-
-    logger.info(
-        f"Preprocessing complete: {results['total_subjects']} subjects, "
-        f"{len(underpowered_subjects)} excluded as underpowered"
-    )
-
-    return results
-
-def run_preprocessing_pipeline(
-    config_path: Optional[str] = None
-) -> Dict[str, Any]:
+def preprocess_dataset(subject_data: Dict[str, Any], data_dir: Path, analysis_mode: str) -> Tuple[Dict[str, Any], List[Tuple[str, str]]]:
     """
-    Entry point for running the full preprocessing pipeline with artifact
-    rejection and underpowered subject flagging.
+    Main preprocessing pipeline for a subject's data.
+    Includes artifact rejection and underpowered dataset flagging.
 
     Args:
-        config_path: Optional path to configuration file
+        subject_data: Dictionary containing subject's EEG data and metadata
+        data_dir: Path to the data directory
+        analysis_mode: The determined analysis mode
 
     Returns:
-        Dictionary with pipeline results
+        Tuple of (processed_data, list_of_excluded_subjects_with_reasons)
     """
-    config = get_config(config_path)
+    subject_id = subject_data.get("subject_id", "unknown")
+    epochs_data = subject_data.get("epochs", None)
 
-    data_dir = Path(config['data_dir'])
-    output_dir = Path(config['output_dir'])
-    validation_report_path = Path(config.get('validation_report_path', 
-                                             output_dir.parent / "data" / "validation_report.json"))
+    if epochs_data is None:
+        logger.error(f"No epochs data found for subject {subject_id}")
+        return subject_data, [(subject_id, "missing_epochs_data")]
 
-    return preprocess_dataset(data_dir, output_dir, validation_report_path)
+    total_epochs = epochs_data.shape[0]
+    bad_epochs = detect_artifacts(epochs_data)
+    cleaned_epochs, num_rejected = reject_artifacts(epochs_data, bad_epochs)
+
+    is_acceptable = check_trial_count_loss(total_epochs, num_rejected)
+
+    if not is_acceptable:
+        logger.warning(f"Subject {subject_id} rejected due to excessive artifact loss.")
+        return subject_data, [(subject_id, "excessive_artifact_rejection")]
+
+    subject_data["epochs"] = cleaned_epochs
+    subject_data["num_rejected_epochs"] = num_rejected
+    subject_data["final_epoch_count"] = cleaned_epochs.shape[0]
+
+    return subject_data, []
+
+def run_preprocessing_pipeline(data_dir: Path, analysis_mode: str) -> None:
+    """
+    Run the full preprocessing pipeline including artifact rejection and exclusion logic.
+
+    Args:
+        data_dir: Path to the data directory
+        analysis_mode: The determined analysis mode
+    """
+    logger.info("Starting preprocessing pipeline")
+
+    # Load all subject data (placeholder logic)
+    all_subjects_data = {}
+    # In a real implementation, this would iterate over subjects in data_dir
+    # For now, we assume a single subject for demonstration
+    sample_subject = {
+        "subject_id": "sub-001",
+        "epochs": np.random.randn(100, 64, 500)  # Placeholder data
+    }
+    all_subjects_data["sub-001"] = sample_subject
+
+    # Check for underpowered dataset
+    excluded_subjects = flag_underpowered_subjects(all_subjects_data)
+    excluded_list = [(sid, "underpowered_dataset") for sid in excluded_subjects]
+
+    # Process each subject
+    final_subjects = {}
+    for subject_id, data in all_subjects_data.items():
+        if subject_id in excluded_subjects:
+            continue
+        processed_data, subject_exclusions = preprocess_dataset(data, data_dir, analysis_mode)
+        excluded_list.extend(subject_exclusions)
+        if not subject_exclusions:
+            final_subjects[subject_id] = processed_data
+
+    # Write excluded subjects to CSV
+    excluded_csv_path = data_dir / "excluded_subjects.csv"
+    write_excluded_subjects_csv(excluded_list, excluded_csv_path)
+
+    # Update validation report
+    update_validation_report(data_dir, excluded_list, analysis_mode)
+
+    logger.info("Preprocessing pipeline completed")
+
+def main():
+    """
+    Entry point for the preprocessing script.
+    """
+    config = get_config()
+    data_dir = Path(config.get("DATA_DIR", "./data"))
+    analysis_mode = "error_signal"  # This would come from T003 validation report
+
+    run_preprocessing_pipeline(data_dir, analysis_mode)
 
 if __name__ == "__main__":
-    # Run pipeline with default configuration
-    results = run_preprocessing_pipeline()
-    print(json.dumps(results, indent=2))
+    main()

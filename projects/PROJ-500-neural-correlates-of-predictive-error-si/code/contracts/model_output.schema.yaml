@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Model Output Schema
+description: Schema for statistical model outputs including coefficients and p-values
+type: object
+required:
+  - coefficients
+  - p_values
+  - fdr_p_values
+  - permutation_p_value
+properties:
+  coefficients:
+    type: object
+    description: Model coefficients for each predictor
+    additionalProperties:
+      type: number
+  p_values:
+    type: object
+    description: Raw p-values for each predictor
+    additionalProperties:
+      type: number
+  fdr_p_values:
+    type: object
+    description: FDR-corrected p-values for each predictor
+    additionalProperties:
+      type: number
+  permutation_p_value:
+    type: number
+    description: P-value from permutation test
+  model_info:
+    type: object
+    description: Additional model metadata
+    properties:
+      formula:
+        type: string
+      n_observations:
+        type: integer
+      n_subjects:
+        type: integer
+additionalProperties: true
