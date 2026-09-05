@@ -8,6 +8,7 @@ data/raw/dr25_raw.csv.
 import os
 import sys
 import logging
+import shutil
 from pathlib import Path
 
 # Add project root to path for imports if running as script
@@ -42,18 +43,19 @@ def fetch_dr25_planet_table():
     """
     logger.info(f"Attempting to fetch Kepler DR25 Planet Table (ID: {MAST_PRODUCT_ID})")
     
+    # Ensure directories exist
+    initialize_directories()
+    
     # Define the specific query logic to be wrapped by retry
     def do_query():
         # Query the MAST archive for the specific product
-        # Observations.download_table is a helper that can fetch specific product data
-        # However, astroquery.mast usually works by searching for products then downloading
-        # The most robust way for a specific curated table like DR25 Planet Table:
+        # The Kepler DR25 planet table is a curated product
         
-        # 1. Search for the product
+        # 1. Search for the product using the product URI
         product_uri = f"mast:Kepler/product/{MAST_PRODUCT_ID}"
         
-        # Search for the product URI
-        query_str = f"product_uri:{product_uri}"
+        # Use query_criteria to find the product
+        # We search by product_uri to be precise
         results = Observations.query_criteria(product_uri=product_uri)
         
         if results is None or len(results) == 0:
@@ -66,10 +68,12 @@ def fetch_dr25_planet_table():
         
         # Download the data
         # download_table returns a path to the downloaded file
-        # We need to handle the case where it might download a zip or a single file
+        # We specify the download directory explicitly
+        download_dir = Path(DATA_RAW_DIR).resolve()
+        
         product_path = Observations.download_table(
             data_product=results.iloc[0],
-            download_dir=str(Path(DATA_RAW_DIR).resolve())
+            download_dir=str(download_dir)
         )
         
         return product_path
@@ -82,11 +86,7 @@ def fetch_dr25_planet_table():
     if not result_path:
         raise RuntimeError("Download returned no path.")
     
-    # Handle potential zip files if the download returned a zip
-    # astroquery.download_table usually returns the path to the file directly if it's a single file
-    # or a list of paths if multiple.
-    
-    # If it's a list, take the first one (should be the main table)
+    # Handle potential list of paths if multiple files were downloaded
     if isinstance(result_path, list):
         if len(result_path) == 0:
             raise RuntimeError("Download returned empty list.")
@@ -104,27 +104,28 @@ def fetch_dr25_planet_table():
     # The Kepler DR25 planet table is typically a CSV
     df = pd.read_csv(file_path)
     
-    # Clean up the temporary download file if it was created in a temp dir
-    # But since we specified download_dir, it's in data/raw. 
-    # We might want to rename it to the standard name if it has a weird name.
+    # Determine target path
     target_path = Path(DATA_RAW_DIR) / OUTPUT_FILENAME
     
-    if file_path != target_path:
-        # Move/Rename
-        import shutil
-        shutil.move(file_path, target_path)
-        logger.info(f"Renamed downloaded file to {OUTPUT_FILENAME}")
+    # If the downloaded file has a different name, move/rename it
+    if file_path != str(target_path):
+        # If file is in a temp location or has a different name, move it
+        if os.path.dirname(file_path) != str(Path(DATA_RAW_DIR).resolve()):
+            shutil.move(file_path, target_path)
+            logger.info(f"Moved downloaded file to {OUTPUT_FILENAME}")
+        else:
+            # Same directory, just rename if needed
+            if os.path.basename(file_path) != OUTPUT_FILENAME:
+                shutil.move(file_path, target_path)
+                logger.info(f"Renamed downloaded file to {OUTPUT_FILENAME}")
     else:
-        logger.info(f"Downloaded file is already named {OUTPUT_FILENAME}")
+        logger.info(f"Downloaded file is already at {OUTPUT_FILENAME}")
     
     return df
 
 def main():
     """Main entry point for the download script."""
     logger.info("Starting Kepler DR25 Planet Table download.")
-    
-    # Ensure directories exist
-    initialize_directories()
     
     try:
         df = fetch_dr25_planet_table()

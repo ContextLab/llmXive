@@ -1,25 +1,27 @@
-# PROJ-116: Predicting Material Stability using Machine Learning and DFT Calculations
+# Predicting Material Stability using Machine Learning and DFT Calculations
 
-## Overview
-This project implements a machine learning pipeline to predict the stability of materials, specifically focusing on Li-rich rock-salt structures, using compositional descriptors and local coordination features derived from the Open Quantum Materials Database (OQMD).
+## Project Overview
+This project implements a pipeline to predict material stability using machine learning models trained on DFT-calculated formation energies. It utilizes bulk compositional descriptors (Magpie features) and local coordination environment features (Voronoi statistics) to train Gradient Boosting Regressors.
 
-## Project Structure
-- `code/`: Source code for data loading, feature engineering, model training, and evaluation.
-- `data/`: Storage for raw downloaded data and processed feature sets.
-- `outputs/`: Generated logs, metrics, figures, and reports.
-- `tests/`: Unit and integration tests for pipeline components.
-- `specs/`: Feature specifications and design documents.
+## Structure
+- `code/`: Python source code, utilities, and scripts
+- `data/`: Raw and processed datasets, trained models
+- `outputs/`: Logs, evaluation metrics, figures, and reports
+- `specs/`: Feature specifications and design documents
+- `tests/`: Unit and integration tests
 
 ## Prerequisites
 - Python 3.11+
-- pip
-
-## Installation
-1. Navigate to the `code` directory.
-2. Install dependencies: `pip install -r requirements.txt`
+- Dependencies listed in `code/requirements.txt`
 
 ## Usage
-See individual scripts in `code/` for specific usage instructions (e.g., `download_data.py`, `train_baseline.py`).
+1. Install dependencies: `pip install -r code/requirements.txt`
+2. Configure environment: Set `DATA_PATH` and `SEED` in `code/config.py` or environment variables.
+3. Run the pipeline:
+ - Download data: `python code/download_data.py`
+ - Feature engineering: `python code/feature_engineering.py`
+ - Train baseline: `python code/train_baseline.py`
+ - Evaluate: `python code/evaluate.py`
 
 ## License
-Proprietary / Research Use Only
+MIT

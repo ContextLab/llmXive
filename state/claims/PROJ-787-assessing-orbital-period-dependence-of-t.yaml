@@ -636,3 +636,42 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T06:42:32Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied for two hypothesis tests results in alpha
+    threshold of 0.025
+  claim_id: c_65f8af0f
+  context: "T034 [US3] Implement code/theory/theory_comparison.py to perform a Monte\
+    \ Carlo simulation sampling from the measured slope distribution and the theoretical\
+    \ distributions (from T033) to calculate the overlap area and p-value. Apply Bonferroni\
+    \ correction (\u03B1 = 0.025) for two tests."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_for_two_hypothesis_tests_resul
+  kind: causal
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.025) for two tests."
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T18:21:48Z'
+- artifact_path: projects/PROJ-787-assessing-orbital-period-dependence-of-t/specs/001-assessing-orbital-period-dependence-of-t/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha 0.025 for two tests
+  claim_id: c_e5b842f5
+  context: "Implement `code/theory/theory_comparison.py` to perform a Monte Carlo\
+    \ simulation sampling from the measured slope distribution and the theoretical\
+    \ distributions (from T033) to calculate the overlap area and p-value. Apply Bonferroni\
+    \ correction (\u03B1 = 0.025) for two tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Bonferroni correction (\u03B1 = 0.025) for two tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T18:24:36Z'

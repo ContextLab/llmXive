@@ -6,21 +6,18 @@ T006:
     infrastructure was implemented. The task remains undone.
 T012a:
   c: false
-  h: ef8195f8ae5e55b67381f67c6bee1b9b617723396664948f3f71c26be5551f99
-  r: "The `download_dr25.py` script is present, but the required output file `data/raw/dr25_raw.csv`\
-    \ does not exist, indicating the script has not been successfully executed (or\
-    \ failed to produce the expected CSV). Without the CSV, the task\u2019s core requirement\u2014\
-    fetching and saving the DR25 Planet Table\u2014is unmet. The next implementer\
-    \ must run the script (ensuring the retry logic works) and verify that `dr25_raw.csv`\
-    \ is created in the specified location."
+  h: 36cd8893aee655688a89af78938de67c9f29779b1fea5c057c510ee5313f00bf
+  r: "The provided `download_dr25.py` script is incomplete (truncated) and does not\
+    \ show logic that writes the fetched data to `data/raw/dr25_raw.csv`. Moreover,\
+    \ the required output file `data/raw/dr25_raw.csv` is missing from the repository.\
+    \ The task\u2019s core requirement\u2014downloading the DR25 table and saving\
+    \ it to the specified CSV\u2014has not been fulfilled."
 T012c:
   c: false
-  h: eeda97f733738fab0229d47f11a8fc419b0ef04e8dcf8c1110238924a95ed3bd
-  r: The required output file `data/raw/kic_raw.csv` is missing, and the provided
-    `download_kic.py` script does not show any use of the imported `retry_with_backoff`
-    (retry logic) nor a call that actually writes the downloaded data to the specified
-    CSV path. Both the retry behavior and the saved CSV artifact are absent, so the
-    task is not fully satisfied.
+  h: 88e2ac5fea1ed3c855f4ac02cbb33f6b66ce3a5d8241d2fe9eec9e65e0b6675c
+  r: The `download_kic.py` script exists but the required output file `data/raw/kic_raw.csv`
+    is missing, and the shown code does not demonstrate the retry logic being applied
+    to the download operation. The task is therefore not fully satisfied.
 T014:
   c: false
   h: 6dde2a958d069f8be916902497cfa8be8ec645fdd8dd6d4026cfa316dcb3b138
@@ -45,3 +42,34 @@ T016:
     \ logic, but the required data file `data/processed/deduped_planets.csv` is missing,\
     \ so the loader cannot actually load the dataset as the task demands. The missing\
     \ CSV (and its checksum file) must be provided for the task to be complete."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided that demonstrate logging has
+    been added to the ingestion pipeline, nor any evidence (e.g., sample log output)
+    showing counts of excluded planets and the reasons for exclusion. The required
+    artifact is missing.
+T021:
+  c: false
+  h: a60f60ab57dc4339f0ca3616fde6995c3564fb6ea48b29008f3125ab74841b1c
+  r: "The repository contains `code/analysis/binning.py`, but the file is truncated\
+    \ in the provided view and we cannot confirm it implements the required merging\
+    \ logic or writes the results to `data/processed/binned_planets.csv`. Moreover,\
+    \ the expected output CSV file is missing from the `data/processed` directory.\
+    \ The task\u2019s core deliverable \u2013 a saved CSV with merged bin definitions\
+    \ and statistics \u2013 is not present."
+T025:
+  c: false
+  h: c48c96fe52a9d064d9585f8a93bf9fd89f78b3f2ac501e0ffd2b35c1fde92f47
+  r: "The provided `gmm_fitter.py` does not contain any logic that checks the BIC\
+    \ difference, flags unimodal bins as \u201Cunresolved\u201D, or writes/updates\
+    \ `data/processed/gap_locations.csv` with a `status` column. Moreover, the required\
+    \ `gap_locations.csv` file is absent from the repository."
+T029:
+  c: false
+  h: a0ff671e7f5ef03623b85d36dad0e41810d1fb59c01492c5bf298d7afe0c1e44
+  r: The repository contains `code/analysis/kde_validator.py`, but the file is truncated
+    and does not show the logic that writes `data/processed/kde_validation.json`.
+    Moreover, the required output file `data/processed/kde_validation.json` is absent
+    from the project. Without the JSON output (including the `validation_passed` flag),
+    the task is not fully satisfied.

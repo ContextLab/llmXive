@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "material-stability-pipeline"
 version = "0.1.0"
-description = "Predicting Material Stability using Machine Learning and DFT Calculations"
+description = "Predicting Material Stability using Machine Learning and DFT"
 requires-python = ">=3.11"
 dependencies = [
     "pymatgen",
@@ -17,44 +17,38 @@ dependencies = [
     "requests",
     "datasets",
     "shap",
-    "flake8",
-    "black",
-    "isort",
-    "pytest",
-    "pytest-cov",
+    "matminer",
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 88
-known_first_party = ["utils", "data_models"]
-skip = [".git", "__pycache__", "build", "dist", ".eggs", "*.egg-info"]
+line_length = 100
+known_first_party = ["utils", "data_models", "config", "download_data", "feature_engineering"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --cov=code --cov-report=term-missing --cov-report=html"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning"
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
 ]

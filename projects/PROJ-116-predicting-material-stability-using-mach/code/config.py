@@ -6,45 +6,36 @@ import logging
 
 # Project Root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+DATA_DIR = PROJECT_ROOT / "data"
+OUTPUTS_DIR = PROJECT_ROOT / "outputs"
+SPECS_DIR = PROJECT_ROOT / "specs"
+TESTS_DIR = PROJECT_ROOT / "tests"
 
 # Data Paths
-DATA_DIR = PROJECT_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
-MODEL_DIR = DATA_DIR / "models"
+MODELS_DIR = DATA_DIR / "models"
 
 # Output Paths
-OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 OUTPUTS_LOGS_DIR = OUTPUTS_DIR / "logs"
-FIGURES_DIR = OUTPUTS_DIR / "figures"
-METRICS_DIR = OUTPUTS_DIR / "metrics"
+OUTPUTS_METRICS_DIR = OUTPUTS_DIR / "metrics"
+OUTPUTS_FIGURES_DIR = OUTPUTS_DIR / "figures"
 
-# Logging Configuration
+# Configuration
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-LOG_FILE = "pipeline.log"
-
-# Random Seed
-SEED = 42
+LOG_FILE = os.getenv("LOG_FILE", "pipeline.log")
+RANDOM_SEED = int(os.getenv("RANDOM_SEED", "42"))
 
 def set_seed(seed: Optional[int] = None) -> None:
     """Set random seeds for reproducibility."""
     if seed is None:
-        seed = SEED
+        seed = RANDOM_SEED
     random.seed(seed)
+    np.random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
+    logging.info(f"Random seed set to {seed}")
 
 def get_seed() -> int:
-    """Return the current random seed."""
-    return SEED
+    """Get the current random seed."""
+    return RANDOM_SEED

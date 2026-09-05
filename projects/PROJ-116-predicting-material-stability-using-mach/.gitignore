@@ -14,16 +14,22 @@ lib/
 lib64/
 parts/
 sdist/
-var/
-wheels/
+venv/
 *.egg-info/
 .installed.cfg
 *.egg
 
-# Virtual Environments
-venv/
-ENV/
-env/
+# Data
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/models/*
+!data/models/.gitkeep
+
+# Outputs
+outputs/*
+!outputs/.gitkeep
 
 # IDE
 .idea/
@@ -31,19 +37,11 @@ env/
 *.swp
 *.swo
 
-# Data & Outputs (Generated)
-data/raw/*.csv
-data/raw/*.json
-data/processed/*.parquet
-data/models/*.pkl
-outputs/
-logs/
-
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+outputs/logs/*
+!outputs/logs/.gitkeep

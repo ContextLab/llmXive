@@ -42,3 +42,10 @@ T020:
     \ matrix or files showing Voronoi coordination numbers, face areas, solid angles,\
     \ or bond\u2011length histograms computed with pymatgen. The required artifact\
     \ (the extended module and its output) is missing."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, log file, or test output was provided that shows the implementation
+    of the required logic (skipping entries with degenerate Voronoi cells or missing
+    bond lengths and logging the count). The artifact needed to verify the feature
+    is missing.

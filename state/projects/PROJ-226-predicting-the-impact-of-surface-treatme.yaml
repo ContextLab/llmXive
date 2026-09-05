@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T22:20:51.511179Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-226-predicting-the-impact-of-surface-treatme
-last_run_id: 9e59fc1c-859d-4fce-bfaa-908db7a75d4f
+last_run_id: 2a281c41-10fa-4000-ac77-7db31d1f2bd8
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-226-predicting-the-impact-of-surface-treatme/specs/001-predicting-the-impact-of-surface-treatme
 title: Predicting the Impact of Surface Treatments on the Adhesion Strength of Polymers
-updated_at: '2026-09-05T03:23:03.858769Z'
+updated_at: '2026-09-05T18:20:45.664001Z'

@@ -3,38 +3,39 @@ import os
 from pathlib import Path
 from config import OUTPUTS_LOGS_DIR, LOG_LEVEL, LOG_FILE
 
-def setup_logger(name: str, log_file: Optional[str] = None, level: Optional[str] = None) -> logging.Logger:
+def setup_logger(name: str, level: int = LOG_LEVEL) -> logging.Logger:
     """
-    Set up a logger with file and console handlers.
+    Setup a logger with file and console handlers.
+    
+    Args:
+        name: Name of the logger.
+        level: Logging level.
+    
+    Returns:
+        Configured logger instance.
     """
     logger = logging.getLogger(name)
-    logger.setLevel(getattr(logging, level or LOG_LEVEL))
+    logger.setLevel(level)
 
-    # Avoid adding handlers multiple times
+    # Avoid adding handlers multiple times if called repeatedly
     if logger.handlers:
         return logger
 
-    # Create output directory if it doesn't exist
-    OUTPUTS_LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-    # File handler
-    file_handler = logging.FileHandler(
-        os.path.join(OUTPUTS_LOGS_DIR, log_file or LOG_FILE)
-    )
-    file_handler.setLevel(logging.DEBUG)
-
-    # Console handler
+    # Create console handler
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(level)
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
 
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
+    # Create file handler
+    log_file = LOG_FILE
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(level)
+    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_formatter)
 
-    logger.addHandler(file_handler)
     logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
 
     return logger

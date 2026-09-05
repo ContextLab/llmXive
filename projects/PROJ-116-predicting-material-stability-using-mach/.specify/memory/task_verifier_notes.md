@@ -10,5 +10,9 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T015** — declared artifact(s) missing/empty/invalid: outputs/baseline_results.csv
 - **T016** — No code, test, or updated `baseline_results.csv` was provided to demonstrate that validation now forces inclusion of predictions and metrics even when the error exceeds 0.1 eV/atom. The required artifact (e.g., a script or pipeline change with accompanying output file) is missing, so the task is not satisfied.
 - **T017** — No log files or any evidence of logging dataset size, feature count, or training metrics were presented for the path `projects/PROJ-116-predicting-material-stability-using-mach/outputs/logs/`. The required artifacts are missing, so the task is not satisfied.
-- **T019** — declared artifact(s) missing/empty/invalid: tests/integration/test_augmented.py
 - **T020** — No code changes to `feature_engineering.py` are present, nor any generated feature matrix or files showing Voronoi coordination numbers, face areas, solid angles, or bond‑length histograms computed with pymatgen. The required artifact (the extended module and its output) is missing.
+- **T021** — No code, script, log file, or test output was provided that shows the implementation of the required logic (skipping entries with degenerate Voronoi cells or missing bond lengths and logging the count). The artifact needed to verify the feature is missing.
+- **T022** — declared artifact(s) missing/empty/invalid: data/processed/augmented_features.parquet
+- **T023** — declared artifact(s) missing/empty/invalid: data/models/augmented_model.pkl, outputs/augmented_tuning_results.json
+- **T024** — declared artifact(s) missing/empty/invalid: outputs/comparison_metrics.json
+- **T025** — declared artifact(s) missing/empty/invalid: outputs/figures/feature_importance.png

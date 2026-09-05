@@ -1,0 +1,11 @@
+- artifact_hash: d3893e85d5d60fb8a933ee2244952c8e9dd666e68e390d0904015aba5c76289d
+  artifact_path: projects/PROJ-226-predicting-the-impact-of-surface-treatme/specs/001-predicting-the-impact-of-surface-treatme/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1234567
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
+  verified_at: '2026-09-05T18:20:44.561135Z'

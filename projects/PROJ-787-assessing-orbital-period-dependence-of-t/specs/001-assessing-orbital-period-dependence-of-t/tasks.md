@@ -89,9 +89,9 @@
 - [X] T012d [P] [US1] Wire `code/utils/retry.py` into `code/ingest/download_kic.py` to ensure exponential backoff is applied for the KIC download (Edge Case: API Unavailability)
 - [X] T013 [P] [US1] Implement `code/ingest/merge_catalogs.py` to merge Kepler DR25 (from T012a) and KIC (from T012c) on KIC ID to produce a unified DataFrame containing stellar parameters (FR-001, Ordering: Catalog Merge)
 - [ ] T014 [US1] Implement `code/ingest/preprocess.py` to parse merged catalogs, filter for radius uncertainty <20% and period uncertainty <1% (FR-002), and exclude entries with missing stellar effective temperature. **Output**: Save filtered DataFrame to `data/processed/filtered_planets.csv` (FR-002, Ordering: Filter)
-- [ ] T015 [US1] Implement duplicate resolution logic in `code/ingest/preprocess.py` to keep the entry with the lowest radius uncertainty and log removed duplicates. **Input**: `data/processed/filtered_planets.csv`. **Output**: Save deduplicated DataFrame to `data/processed/deduped_planets.csv` (Edge Case: duplicates).
-- [ ] T016 [US1] Create `code/ingest/loaders.py` to load the deduplicated dataset into a unified DataFrame for downstream analysis, explicitly verifying the checksum of `data/processed/deduped_planets.csv` before loading to ensure data integrity (FR-001, Constitution Principle III). **Note**: This task loads the file output from T015.
-- [~] T018 [US1] Add logging for ingestion steps, including counts of excluded planets and reasons
+- [ ] T015 [US1] Implement duplicate resolution logic in `code/ingest/preprocess.py` to keep the entry with the lowest radius uncertainty and log removed duplicates. **Input**: `data/processed/filtered_planets.csv`. **Output**: Save deduplicated DataFrame to `data/processed/deduped_planets.csv` (Edge Case: duplicates). <!-- FAILED: unspecified -->
+- [ ] T016 [US1] Create `code/ingest/loaders.py` to load the deduplicated dataset into a unified DataFrame for downstream analysis, explicitly verifying the checksum of `data/processed/deduped_planets.csv` before loading to ensure data integrity (FR-001, Constitution Principle III). **Note**: This task loads the file output from T015. <!-- FAILED: unspecified -->
+- [ ] T018 [US1] Add logging for ingestion steps, including counts of excluded planets and reasons
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,14 +110,14 @@
 
 ### Implementation for User Story 2
 
-- [~] T021 [US2] Implement `code/analysis/binning.py` to bin filtered planets by orbital period using log-spaced bins spanning an early temporal range up to 100 days. **CRITICAL**: Per spec FR-003, if a bin contains <30 planets, it MUST be merged with the adjacent bin with the closest period. **Output**: Save final merged bin definitions and statistics to `data/processed/binned_planets.csv`. (FR-003, US-2, Ordering: Binning)
+- [ ] T021 [US2] Implement `code/analysis/binning.py` to bin filtered planets by orbital period using log-spaced bins spanning an early temporal range up to 100 days. **CRITICAL**: Per spec FR-003, if a bin contains <30 planets, it MUST be merged with the adjacent bin with the closest period. **Output**: Save final merged bin definitions and statistics to `data/processed/binned_planets.csv`. (FR-003, US-2, Ordering: Binning)
 - [X] T022 [US2] Implement `code/analysis/gmm_fitter.py` to fit a two-component Gaussian Mixture Model using K-Means++ initialization with multiple random seeds, selecting the model with the lowest BIC (FR-004). **Note**: This task must operate on the merged bins produced by T021.
 - [X] T023 [US2] Implement outlier handling in `code/analysis/gmm_fitter.py` to flag/exclude points >3 standard deviations from the bin's radius distribution before fitting (Edge Case: outliers)
 - [X] T024 [US2] Implement bootstrap resampling (multiple iterations) in `code/analysis/gmm_fitter.py` to estimate the confidence interval for the gap location (FR-005)
-- [~] T025 [US2] Implement graceful failure handling in `code/analysis/gmm_fitter.py` for unimodal distributions (BIC diff < 10), flagging bins as "unresolved" rather than forcing a fit. **Output**: Update `data/processed/gap_locations.csv` with a `status` column set to "unresolved" for these bins (Edge Case: unimodal, Spec US-2 Edge Cases).
+- [ ] T025 [US2] Implement graceful failure handling in `code/analysis/gmm_fitter.py` for unimodal distributions (BIC diff < 10), flagging bins as "unresolved" rather than forcing a fit. **Output**: Update `data/processed/gap_locations.csv` with a `status` column set to "unresolved" for these bins (Edge Case: unimodal, Spec US-2 Edge Cases).
 - [ ] T027 [US2] Implement calculation of 'weighted mean period' using inverse variance of the gap location estimate (from T024) for each bin, outputting to `data/processed/binned_stats.csv` (FR-003, Ordering: Gap Variance Flow)
 - [ ] T028 [US2] Integrate binning and GMM logic to produce `data/processed/gap_locations.csv` containing bin centers, weighted mean periods, gap locations, and uncertainties
-- [~] T029 [US2] Implement KDE validation in `code/analysis/kde_validator.py` to identify the gap location without parametric assumptions, verify it falls within the GMM confidence interval, and output `data/processed/kde_validation.json` with a boolean `validation_passed` flag (FR-008, SC-003, Ordering: Results Aggregation). **Note**: Depends on T028 output.
+- [ ] T029 [US2] Implement KDE validation in `code/analysis/kde_validator.py` to identify the gap location without parametric assumptions, verify it falls within the GMM confidence interval, and output `data/processed/kde_validation.json` with a boolean `validation_passed` flag (FR-008, SC-003, Ordering: Results Aggregation). **Note**: Depends on T028 output.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -157,7 +157,7 @@
 - [~] T040 Code cleanup and refactoring for readability
 - [~] T041 Performance optimization (vectorization) across all analysis scripts to meet CPU constraints
 - [~] T042 [P] Additional unit tests for edge cases in `tests/unit/`
-- [ ] T043 Run `quickstart.md` validation to ensure reproducibility
+- [~] T043 Run `quickstart.md` validation to ensure reproducibility
 
 ---
 
