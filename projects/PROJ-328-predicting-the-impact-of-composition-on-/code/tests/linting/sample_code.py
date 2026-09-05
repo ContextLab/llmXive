@@ -1,12 +1,20 @@
-"""Sample code file for linting verification."""
-def sample_function(x, y):
-    """A simple function to test linting."""
-    result = x + y
+"""
+Sample Python file for linting verification.
+This file contains intentional style issues to test flake8 configuration.
+"""
+import os
+import sys
+
+# Intentional: long line that should trigger E501 if max-line-length is 88
+very_long_variable_name_that_exceeds_eighty_eight_characters = "This is a very long string value that exceeds the standard line length limit"
+
+def sample_function( x,y ):
+    """Sample function with bad spacing."""
+    result=x+y  # Intentional: missing spaces around operator
     return result
 
-# This line is intentionally long to test max-line-length if set to <100
-# This is a comment that is deliberately made very long to exceed typical line length limits if the configuration is set to 88 or 100 characters.
-long_variable_name_that_is_still_reasonable = "This is a test string"
+# Intentional: unused import
+from collections import defaultdict
 
 if __name__ == "__main__":
     print(sample_function(1, 2))

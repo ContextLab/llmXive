@@ -1,6 +1,6 @@
 """
-Collinearity analysis utilities for feature engineering.
-Calculates Variance Inflation Factor (VIF) to detect multicollinearity.
+Collinearity Analysis Module.
+Provides Variance Inflation Factor (VIF) calculations and feature selection logic.
 """
 import numpy as np
 import pandas as pd
@@ -9,143 +9,134 @@ from typing import Dict, List, Tuple, Optional
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from utils.logging_config import get_logger
+from pathlib import Path
+import yaml
 
 logger = get_logger(__name__)
 
-def calculate_vif(df: pd.DataFrame, features: Optional[List[str]] = None) -> pd.DataFrame:
+def calculate_vif(df: pd.DataFrame, exclude_cols: Optional[List[str]] = None) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factor (VIF) for features in a dataframe.
+    Calculate Variance Inflation Factor for each numeric column in a DataFrame.
 
     Args:
-        df: DataFrame containing the features.
-        features: List of column names to calculate VIF for. If None, uses all numeric columns.
+        df: DataFrame containing numeric features.
+        exclude_cols: List of column names to exclude from VIF calculation.
 
     Returns:
-        DataFrame with feature names and their VIF values.
+        Dictionary mapping column names to their VIF scores.
     """
-    if features is None:
-        features = df.select_dtypes(include=[np.number]).columns.tolist()
+    if df.empty:
+        raise ValueError("Input DataFrame is empty")
 
-    if len(features) == 0:
-        logger.warning("No numeric features found for VIF calculation")
-        return pd.DataFrame(columns=['feature', 'vif'])
+    cols = df.columns.tolist()
+    if exclude_cols:
+        cols = [c for c in cols if c not in exclude_cols]
 
-    X = df[features].values
+    X = df[cols].dropna()
+    if X.empty:
+        logger.warning("No valid data after dropping NaNs for VIF calculation")
+        return {c: np.inf for c in cols}
 
     # Add constant for intercept
     X_with_const = sm.add_constant(X)
-
-    vif_data = []
-    for i, feature in enumerate(features):
+    
+    vif_data = {}
+    for col in cols:
         try:
-            vif = variance_inflation_factor(X_with_const, i + 1)  # +1 because of constant
-            vif_data.append({'feature': feature, 'vif': vif})
+            vif = variance_inflation_factor(X_with_const.values, X_with_const.columns.get_loc(col))
+            vif_data[col] = vif
         except Exception as e:
-            logger.error(f"Error calculating VIF for {feature}: {e}")
-            vif_data.append({'feature': feature, 'vif': np.nan})
+            logger.error(f"Error calculating VIF for {col}: {e}")
+            vif_data[col] = np.inf
 
-    return pd.DataFrame(vif_data)
+    return vif_data
 
-def get_collinear_features(vif_df: pd.DataFrame, threshold: float = 5.0) -> List[str]:
+def get_collinear_features(vif_scores: Dict[str, float], threshold: float = 5.0) -> List[str]:
     """
     Identify features with VIF above a threshold.
 
     Args:
-        vif_df: DataFrame from calculate_vif with 'feature' and 'vif' columns.
-        threshold: VIF threshold above which features are considered collinear.
+        vif_scores: Dictionary of VIF scores from calculate_vif.
+        threshold: VIF threshold for flagging collinearity (default 5.0).
 
     Returns:
-        List of feature names with VIF >= threshold.
+        List of feature names flagged as collinear.
     """
-    if vif_df.empty:
-        return []
+    return [col for col, vif in vif_scores.items() if vif >= threshold]
 
-    collinear = vif_df[vif_df['vif'] >= threshold]['feature'].tolist()
-    logger.info(f"Found {len(collinear)} collinear features (VIF >= {threshold}): {collinear}")
-    return collinear
-
-def remove_collinear_features(df: pd.DataFrame, vif_df: pd.DataFrame, threshold: float = 5.0) -> Tuple[pd.DataFrame, List[str]]:
+def remove_collinear_features(df: pd.DataFrame, vif_scores: Dict[str, float], threshold: float = 5.0) -> pd.DataFrame:
     """
-    Remove collinear features from a dataframe based on VIF analysis.
+    Remove features flagged as collinear from a DataFrame.
 
     Args:
         df: Original DataFrame.
-        vif_df: VIF analysis results.
+        vif_scores: Dictionary of VIF scores.
         threshold: VIF threshold.
 
     Returns:
-        Tuple of (cleaned DataFrame, list of removed feature names).
+        DataFrame with collinear features removed.
     """
-    collinear = get_collinear_features(vif_df, threshold)
-    removed_features = []
+    collinear = get_collinear_features(vif_scores, threshold)
+    cols_to_keep = [c for c in df.columns if c not in collinear]
+    logger.info(f"Removing collinear features: {collinear}. Keeping: {cols_to_keep}")
+    return df[cols_to_keep]
 
-    if collinear:
-        # Remove collinear features
-        cleaned_df = df.drop(columns=collinear, errors='ignore')
-        removed_features = collinear
-        logger.info(f"Removed {len(removed_features)} collinear features: {removed_features}")
-    else:
-        cleaned_df = df.copy()
-
-    return cleaned_df, removed_features
-
-def save_vif_report(vif_df: pd.DataFrame, output_path: str):
+def save_vif_report(vif_scores: Dict[str, float], output_path: str, threshold: float = 5.0) -> None:
     """
-    Save VIF analysis results to a file.
+    Save VIF analysis results to a YAML report.
 
     Args:
-        vif_df: VIF analysis DataFrame.
-        output_path: Path to save the report (CSV or JSON).
+        vif_scores: Dictionary of VIF scores.
+        output_path: Path to save the YAML report.
+        threshold: Threshold used for collinearity flagging.
     """
-    if vif_df.empty:
-        logger.warning("Empty VIF dataframe, skipping save")
-        return
+    report = {
+        "threshold": threshold,
+        "features": []
+    }
+    
+    sorted_vif = sorted(vif_scores.items(), key=lambda x: x[1], reverse=True)
+    
+    for feat, vif in sorted_vif:
+        report["features"].append({
+            "feature_name": feat,
+            "vif_score": float(vif) if not np.isinf(vif) else "inf",
+            "is_collinear": vif >= threshold
+        })
 
-    try:
-        vif_df.to_csv(output_path, index=False)
-        logger.info(f"VIF report saved to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to save VIF report: {e}")
-        raise
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        yaml.dump(report, f, default_flow_style=False, sort_keys=False)
+    
+    logger.info(f"VIF report saved to {output_path}")
 
 def main():
     """
     Main entry point for testing collinearity analysis.
     """
-    logger.info("Starting collinearity analysis test")
-
-    # Create sample data with some collinearity
-    np.random.seed(42)
-    n_samples = 100
-
-    # Create features with known relationships
+    logger.info("Starting Collinearity Analysis test")
+    
+    # Create dummy data
     data = {
-        'feature_a': np.random.randn(n_samples),
-        'feature_b': np.random.randn(n_samples),
-        'feature_c': np.random.randn(n_samples),
-        'feature_d': np.random.randn(n_samples)
+        'feature_a': [1.0, 2.0, 3.0, 4.0, 5.0],
+        'feature_b': [2.0, 4.0, 6.0, 8.0, 10.0],  # Perfectly correlated with A
+        'feature_c': [1.0, 0.5, 0.2, 0.1, 0.05],
+        'clr_sn': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'clr_ag': [0.05, 0.1, 0.15, 0.2, 0.25]
     }
-
-    # Add strong collinearity between feature_a and feature_b
-    data['feature_b'] = data['feature_a'] * 2 + np.random.randn(n_samples) * 0.1
-
     df = pd.DataFrame(data)
 
-    # Calculate VIF
-    vif_df = calculate_vif(df)
-    logger.info("VIF Analysis Results:")
-    logger.info(vif_df.to_string())
+    vif_scores = calculate_vif(df)
+    logger.info(f"VIF Scores: {vif_scores}")
 
-    # Identify collinear features
-    collinear = get_collinear_features(vif_df, threshold=5.0)
-    logger.info(f"Collinear features (VIF >= 5.0): {collinear}")
+    collinear = get_collinear_features(vif_scores, threshold=5.0)
+    logger.info(f"Collinear features: {collinear}")
 
-    # Remove collinear features
-    cleaned_df, removed = remove_collinear_features(df, vif_df, threshold=5.0)
-    logger.info(f"Removed features: {removed}")
-    logger.info(f"Remaining features: {list(cleaned_df.columns)}")
-
-    logger.info("Collinearity analysis test completed successfully")
+    save_vif_report(vif_scores, 'data/processed/vif_report.yaml', threshold=5.0)
+    
+    logger.info("Collinearity Analysis test completed successfully")
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,3 @@
 """
-Contract tests for API and data schema validation.
+Contract tests package.
 """

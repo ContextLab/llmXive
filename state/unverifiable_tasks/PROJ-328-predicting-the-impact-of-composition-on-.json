@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-328-predicting-the-impact-of-composition-on-",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory tree or `ls -R` output is provided, so the required `data/`, `code/`, and `tests/` subdirectories (with their specified subfolders) cannot be confirmed to exist. The implementer must supply the actual filesystem layout or command output showing the created directories.",
+      "first_seen": "2026-09-05T09:52:37.472719+00:00",
+      "last_seen": "2026-09-05T09:52:37.472719+00:00"
+    },
+    {
+      "task_key": "T003b",
+      "reject_count": 1,
+      "last_reason": "No artifact showing a `flake8` run on a sample file is present; there is no output, log, or report confirming that the linting configuration was verified, nor any sample file referenced. The required evidence to prove the task is therefore missing.",
+      "first_seen": "2026-09-05T09:52:39.646033+00:00",
+      "last_seen": "2026-09-05T09:52:39.646033+00:00"
+    }
+  ],
+  "updated_at": "2026-09-05T09:52:39.646033+00:00"
+}

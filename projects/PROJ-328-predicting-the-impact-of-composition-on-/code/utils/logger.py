@@ -1,6 +1,6 @@
 """
-Legacy/Compatibility logger module.
-Provides simple initialization functions that delegate to logging_config.
+JSON Logger Module for Solder Hardness Pipeline.
+Provides a `get_logger()` function that writes to `logs/pipeline.log` in JSON format.
 """
 import logging
 import sys
@@ -8,7 +8,7 @@ import os
 import json
 from pathlib import Path
 from typing import Optional, Dict, Any
-from .logging_config import setup_logging, get_logger
+from .logging_config import setup_logging, get_logger as get_configured_logger
 from .error_handlers import ConfigurationError
 
 # Ensure logs directory exists
@@ -23,6 +23,7 @@ def _ensure_logs_dir() -> None:
 class JSONFormatter(logging.Formatter):
     """
     Custom formatter that outputs log records as JSON lines.
+    Ensures the output is valid JSON for easy parsing by log aggregators.
     """
     def format(self, record: logging.LogRecord) -> str:
         log_data: Dict[str, Any] = {
@@ -140,9 +141,14 @@ def log(message: str, level: str = "info", extra: Optional[Dict[str, Any]] = Non
         logger.log(log_level, message)
 
 if __name__ == "__main__":
-    # Simple test to verify JSON logging works
+    # Simple test to verify JSON logging works and creates the file
     test_logger = get_logger("test_logger")
     test_logger.info("Logger initialized successfully.")
     test_logger.warning("This is a test warning.", extra={"test_key": "test_value"})
     test_logger.error("This is a test error.")
     print(f"Logs written to {LOG_FILE}")
+    # Verify file exists
+    if LOG_FILE.exists():
+        print(f"Verification: {LOG_FILE} exists and contains JSON logs.")
+    else:
+        raise RuntimeError(f"Failed to create log file at {LOG_FILE}")

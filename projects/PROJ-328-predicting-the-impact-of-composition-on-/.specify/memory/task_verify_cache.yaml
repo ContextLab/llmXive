@@ -1,16 +1,10 @@
-T001:
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or `ls -R` output is provided, so the required `data/`, `code/`,
-    and `tests/` subdirectories (with their specified subfolders) cannot be confirmed
-    to exist. The implementer must supply the actual filesystem layout or command
-    output showing the created directories.
-T003b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing a `flake8` run on a sample file is present; there is no output,
-    log, or report confirming that the linting configuration was verified, nor any
-    sample file referenced. The required evidence to prove the task is therefore missing.
+  h: a0fb782e2d26820e8bf175aac7178990f59566e397be776ccde8a4f8890515de
+  r: "The required `projects/PROJ-328-predicting-the-impact-of-composition-on-/requirements.txt`\
+    \ file does not exist, and the only `requirements.txt` present is at a different\
+    \ location. Without the correctly placed file, the task\u2019s requirement is\
+    \ not satisfied."
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,21 +12,45 @@ T008a:
     and for any listed URLs or citations to Materials Project, NIST, OpenAlloy, and
     the literature PDFs. No such markdown file or source listings were provided, so
     the critical prerequisite for data ingestion is missing.
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `specs/001-predict-solder-hardness/research_verified.md` file was provided,\
+    \ and there is no evidence that the Reference-Validator Agent was run on T008a\u2019\
+    s draft or that verified citations/URLs were extracted. The required artifact\
+    \ is missing, so the task is not satisfied."
+T009a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I could not locate any evidence of a `code/utils/` directory or an `__init__.py`
+    file within it; no artifact listing or file content was provided. Without confirming
+    the presence of the required scaffolding file, the task remains unfulfilled.
 T009c:
   c: false
-  h: 6a2922d41fe084a93e61d8ca912a3371568066ce3ce8583746ea94f2fc4f54b7
-  r: "The provided `data/config/sources.yaml` contains placeholder URLs and entries\
-    \ marked \u201Cpending\u201D rather than the specific, verified URLs/API endpoints\
-    \ required, and a note even claims the file is missing. Consequently the task\u2019\
-    s requirement to populate the file with verified sources is not satisfied."
+  h: eb107492d8a59190b750e5bc7c51dd15778ebd23fa6178caf0cd7e5585b95bbe
+  r: "The `data/config/sources.yaml` file exists but contains placeholder URLs with\
+    \ a comment that they will be replaced after verification, so the verified URLs\
+    \ from `research_verified.md` have not actually been populated. This does not\
+    \ meet the task\u2019s requirement to populate the file with the specific, verified\
+    \ URLs and API endpoints."
 T012a:
   c: false
-  h: 57300a9b9c8bb1e78fc77a7a1534acfe69d58e39d88c20ed740c8d5c813429df
-  r: "The `aggregator.py` only contains a stub for the Materials Project fetch and\
-    \ lacks any logic for NIST/UCI repositories or for downloading the direct URLs\
-    \ listed in `data/config/sources.yaml`. It also never checks for the existence\
-    \ of `research_verified.md` as required. Consequently the module does not fulfill\
-    \ the task\u2019s specifications."
+  h: b6a362b0e7f50e62c6f8fa806c34f413dab9ccd619f18ba15a8229c8a9136b22
+  r: "The repository lacks a `research_verified.md` file, so the required pre\u2011\
+    check cannot be performed, and the provided `aggregator.py` does not contain any\
+    \ logic that verifies this file or raises `ConfigError` when it is absent. Moreover,\
+    \ `data/config/sources.yaml` only contains placeholder URLs and a comment that\
+    \ they will be populated later, meaning the sources are not yet verified as the\
+    \ task demands. Consequently the implementation does not meet the critical pre\u2011\
+    check or the \u201Cverified sources\u201D requirement."
+T012c:
+  c: false
+  h: 23226dcdee3e1351e03fcba50f2cab9cea3ebbbecfc11d407821d38cd3107543
+  r: The repository lacks the required `sources.yaml` file, so the aggregator cannot
+    obtain the verified OpenAlloy URL. Moreover, the provided `aggregator.py` (truncated)
+    shows no concrete implementation for fetching OpenAlloy data; it only defines
+    configuration loading and scaffolding. Both the essential configuration and the
+    specific OpenAlloy fetch logic are missing.
 T014:
   c: false
   h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a

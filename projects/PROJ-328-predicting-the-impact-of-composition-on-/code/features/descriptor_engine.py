@@ -1,6 +1,11 @@
 """
-DescriptorEngine: Computes physical and chemical descriptors for solder alloys.
-Uses raw elemental percentages as weights for weighted means of physical properties.
+DescriptorEngine: Computes physical and chemical descriptors from elemental compositions.
+
+Calculates weighted mean atomic mass, electronegativity variance, atomic radius variance,
+weighted average melting point, and valence electron concentration using the mendeleev library.
+
+IMPORTANT: Physical descriptors are computed using RAW elemental percentages (normalized to sum to 1).
+CLR-transformed values are NOT used as weights for physical descriptors, as they can be negative.
 """
 import numpy as np
 import pandas as pd
@@ -8,178 +13,198 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 from features.transformer import CLRTransformer
-from mendeleev import element
 from utils.logging_config import get_logger
 from seed import set_seed
+from mendeleev import element
+from utils.error_handlers import ConfigurationError
 
 logger = get_logger(__name__)
 
 class DescriptorEngine:
     """
-    Engine for computing compositional descriptors from solder alloy data.
+    Engine for computing compositional descriptors and CLR features.
     """
 
-    # Standard elemental properties available via mendeleev
-    # We cache these to avoid repeated lookups
-    _ELEMENT_PROPERTIES = {
-        'atomic_mass': 'atomic_mass',
-        'electronegativity': 'en',
-        'atomic_radius': 'covalent_radius',
-        'melting_point': 'melting_point',
-        'valence_electrons': 'valence_electrons'
-    }
-
-    def __init__(self):
+    def __init__(self, element_properties: Optional[List[str]] = None):
         """
         Initialize the Descriptor Engine.
+
+        Args:
+            element_properties: List of property names to fetch from mendeleev.
+                               Defaults to standard set if None.
         """
+        self.element_properties = element_properties or [
+            'atomic_mass', 'electronegativity', 'atomic_radius', 
+            'melting_point', 'valence'
+        ]
         logger.info("DescriptorEngine initialized")
-        self._property_cache: Dict[str, Dict[str, float]] = {}
-        self._load_element_properties()
 
-    def _load_element_properties(self):
+    def _get_element_property(self, symbol: str, prop: str) -> float:
         """
-        Pre-load elemental properties for known elements to speed up computation.
-        """
-        # Common solder elements
-        common_elements = ['Sn', 'Pb', 'Ag', 'Cu', 'Bi', 'Sb', 'In', 'Zn', 'Ni', 'Au']
-        
-        for symbol in common_elements:
-            try:
-                el = element(symbol)
-                self._property_cache[symbol] = {
-                    'atomic_mass': el.atomic_mass,
-                    'electronegativity': el.en,
-                    'atomic_radius': el.covalent_radius,
-                    'melting_point': el.melting_point,
-                    'valence_electrons': el.valence_electrons
-                }
-            except Exception as e:
-                logger.warning(f"Could not load properties for element {symbol}: {e}")
+        Safely fetch a property for an element symbol.
 
-    def _get_element_property(self, symbol: str, property_name: str) -> Optional[float]:
+        Args:
+            symbol: Element symbol (e.g., 'Sn', 'Ag').
+            prop: Property name.
+
+        Returns:
+            Property value or np.nan if not found.
         """
-        Get a specific property for an element, with fallback to mendeleev.
-        """
-        # Check cache first
-        if symbol in self._property_cache:
-            if property_name in self._property_cache[symbol]:
-                return self._property_cache[symbol][property_name]
-        
-        # Fallback to direct lookup
         try:
             el = element(symbol)
-            if property_name == 'atomic_mass':
-                return el.atomic_mass
-            elif property_name == 'electronegativity':
-                return el.en
-            elif property_name == 'atomic_radius':
-                return el.covalent_radius
-            elif property_name == 'melting_point':
-                return el.melting_point
-            elif property_name == 'valence_electrons':
-                return el.valence_electrons
+            val = getattr(el, prop, None)
+            if val is None:
+                logger.warning(f"Property '{prop}' not found for element '{symbol}'")
+                return np.nan
+            return float(val)
         except Exception as e:
-            logger.warning(f"Could not retrieve {property_name} for {symbol}: {e}")
+            logger.error(f"Failed to fetch {prop} for {symbol}: {e}")
+            return np.nan
+
+    def compute_physical_descriptors(self, composition: Dict[str, float]) -> Dict[str, float]:
+        """
+        Compute physical descriptors from a raw composition dictionary.
         
-        return None
-
-    def compute_weighted_mean(self, composition: Dict[str, float], property_name: str) -> float:
-        """
-        Compute weighted mean of a property using raw elemental percentages.
+        CRITICAL: Uses raw percentages (normalized to sum to 1) as weights.
+        Does NOT use CLR-transformed values.
 
         Args:
-            composition: Dict mapping element symbols to their percentage (0-100 or 0-1).
-            property_name: Name of the property to compute.
+            composition: Dict mapping element symbol to percentage (e.g., {'Sn': 60.0, 'Ag': 40.0}).
 
         Returns:
-            Weighted mean value.
+            Dictionary of computed physical descriptors.
         """
-        total_weight = 0.0
-        weighted_sum = 0.0
+        if not composition:
+            raise ValueError("Composition cannot be empty")
 
-        for symbol, weight in composition.items():
-            prop_value = self._get_element_property(symbol, property_name)
-            if prop_value is not None:
-                weighted_sum += weight * prop_value
-                total_weight += weight
+        # Normalize to sum to 1.0
+        total = sum(composition.values())
+        if total == 0:
+            raise ValueError("Total composition sum is zero")
+        
+        weights = {k: v / total for k, v in composition.items()}
+
+        descriptors = {}
+        
+        # 1. Weighted Mean Atomic Mass
+        atomic_masses = {sym: self._get_element_property(sym, 'atomic_mass') for sym in composition}
+        descriptors['weighted_mean_atomic_mass'] = sum(
+            weights[sym] * (mass if not np.isnan(mass) else 0) 
+            for sym, mass in atomic_masses.items()
+        )
+
+        # 2. Electronegativity Variance
+        electronegativities = {sym: self._get_element_property(sym, 'electronegativity') for sym in composition}
+        valid_en = [(w, en) for w, en in zip(weights.values(), electronegativities.values()) if not np.isnan(en)]
+        if valid_en:
+            w_en_vals, w_weights = zip(*valid_en)
+            w_mean_en = sum(w * v for w, v in zip(w_weights, w_en_vals))
+            descriptors['electronegativity_variance'] = sum(
+                w * (v - w_mean_en)**2 for w, v in zip(w_weights, w_en_vals)
+            )
+        else:
+            descriptors['electronegativity_variance'] = np.nan
+
+        # 3. Atomic Radius Variance
+        atomic_radii = {sym: self._get_element_property(sym, 'atomic_radius') for sym in composition}
+        valid_ar = [(w, ar) for w, ar in zip(weights.values(), atomic_radii.values()) if not np.isnan(ar)]
+        if valid_ar:
+            w_ar_vals, w_weights = zip(*valid_ar)
+            w_mean_ar = sum(w * v for w, v in zip(w_weights, w_ar_vals))
+            descriptors['atomic_radius_variance'] = sum(
+                w * (v - w_mean_ar)**2 for w, v in zip(w_weights, w_ar_vals)
+            )
+        else:
+            descriptors['atomic_radius_variance'] = np.nan
+
+        # 4. Weighted Average Melting Point
+        melting_points = {sym: self._get_element_property(sym, 'melting_point') for sym in composition}
+        descriptors['weighted_avg_melting_point'] = sum(
+            weights[sym] * (mp if not np.isnan(mp) else 0) 
+            for sym, mp in melting_points.items()
+        )
+
+        # 5. Valence Electron Concentration (VEC)
+        # Simplified: weighted average of valence electrons
+        valences = {sym: self._get_element_property(sym, 'valence') for sym in composition}
+        valid_v = [(w, v) for w, v in zip(weights.values(), valences.values()) if not np.isnan(v)]
+        if valid_v:
+            w_v_vals, w_weights = zip(*valid_v)
+            descriptors['valence_electron_concentration'] = sum(
+                w * v for w, v in zip(w_weights, w_v_vals)
+            )
+        else:
+            descriptors['valence_electron_concentration'] = np.nan
+
+        return descriptors
+
+    def compute_clr_features(self, composition: Dict[str, float], element_order: List[str]) -> np.ndarray:
+        """
+        Compute CLR-transformed feature vector for a composition.
+
+        Args:
+            composition: Dict mapping element symbol to percentage.
+            element_order: Ordered list of all possible elements to ensure consistent vector length.
+
+        Returns:
+            CLR-transformed numpy array of shape (n_elements,).
+        """
+        # Create vector in consistent order
+        vector = np.array([composition.get(el, 0.0) for el in element_order], dtype=float)
+        
+        if vector.sum() == 0:
+            raise ValueError("Composition vector is all zeros")
+
+        # Apply CLR transform
+        transformer = CLRTransformer()
+        return transformer.transform(vector.reshape(1, -1))[0]
+
+    def process_dataframe(self, df: pd.DataFrame, composition_col: str = 'elemental_breakdown') -> pd.DataFrame:
+        """
+        Process a dataframe of solder compositions, adding physical descriptors and CLR features.
+
+        Args:
+            df: DataFrame with a column containing composition dictionaries.
+            composition_col: Name of the column containing composition dicts.
+
+        Returns:
+            DataFrame with added descriptor columns and CLR feature columns.
+        """
+        logger.info(f"Processing {len(df)} rows for descriptor engineering")
+        
+        # Determine all unique elements to define vector order
+        all_elements = set()
+        for comp in df[composition_col]:
+            if isinstance(comp, dict):
+                all_elements.update(comp.keys())
+        
+        element_order = sorted(list(all_elements))
+        logger.info(f"Detected {len(element_order)} unique elements: {element_order}")
+
+        # Compute physical descriptors
+        descriptors_list = []
+        for comp in df[composition_col]:
+            if isinstance(comp, dict):
+                descriptors_list.append(self.compute_physical_descriptors(comp))
             else:
-                logger.warning(f"Missing property {property_name} for element {symbol}")
+                descriptors_list.append({})
+        
+        desc_df = pd.DataFrame(descriptors_list)
+        
+        # Compute CLR features
+        clr_features = []
+        for comp in df[composition_col]:
+            if isinstance(comp, dict):
+                clr_vec = self.compute_clr_features(comp, element_order)
+                clr_features.append(clr_vec)
+            else:
+                clr_features.append(np.zeros(len(element_order)))
+        
+        clr_df = pd.DataFrame(clr_features, columns=[f'clr_{el}' for el in element_order])
 
-        if total_weight == 0:
-            return 0.0
-
-        return weighted_sum / total_weight
-
-    def compute_variance(self, composition: Dict[str, float], property_name: str) -> float:
-        """
-        Compute weighted variance of a property.
-
-        Args:
-            composition: Dict mapping element symbols to their percentage.
-            property_name: Name of the property.
-
-        Returns:
-            Weighted variance.
-        """
-        mean_val = self.compute_weighted_mean(composition, property_name)
-        total_weight = 0.0
-        weighted_sq_diff_sum = 0.0
-
-        for symbol, weight in composition.items():
-            prop_value = self._get_element_property(symbol, property_name)
-            if prop_value is not None:
-                diff = prop_value - mean_val
-                weighted_sq_diff_sum += weight * (diff ** 2)
-                total_weight += weight
-
-        if total_weight == 0:
-            return 0.0
-
-        return weighted_sq_diff_sum / total_weight
-
-    def transform(self, df: pd.DataFrame, composition_cols: List[str]) -> pd.DataFrame:
-        """
-        Transform a dataframe by adding computed descriptors.
-
-        Args:
-            df: Input dataframe with composition columns.
-            composition_cols: List of column names representing elemental percentages.
-
-        Returns:
-            DataFrame with added descriptor columns.
-        """
-        result = df.copy()
-        descriptors = []
-
-        logger.info(f"Computing descriptors for {len(df)} samples")
-
-        for idx, row in df.iterrows():
-            # Extract composition as dict
-            composition = {col: row[col] for col in composition_cols if col in row.index and pd.notna(row[col])}
-            
-            if not composition:
-                logger.warning(f"Row {idx} has no valid composition data")
-                continue
-
-            # Compute physical descriptors
-            desc = {
-                'weighted_mean_atomic_mass': self.compute_weighted_mean(composition, 'atomic_mass'),
-                'electronegativity_variance': self.compute_variance(composition, 'electronegativity'),
-                'atomic_radius_variance': self.compute_variance(composition, 'atomic_radius'),
-                'weighted_mean_melting_point': self.compute_weighted_mean(composition, 'melting_point'),
-                'weighted_mean_valence_electrons': self.compute_weighted_mean(composition, 'valence_electrons')
-            }
-
-            descriptors.append(desc)
-
-        if descriptors:
-          desc_df = pd.DataFrame(descriptors)
-          # Ensure index alignment
-          desc_df.index = df.index[:len(desc_df)]
-          result = pd.concat([result, desc_df], axis=1)
-
-        logger.info(f"Descriptor computation complete. Added {len(descriptors)} rows of descriptors.")
+        # Combine
+        result = pd.concat([df, desc_df, clr_df], axis=1)
+        logger.info(f"Descriptor engineering complete. Shape: {result.shape}")
         return result
 
 def main():
@@ -189,24 +214,23 @@ def main():
     logger.info("Starting DescriptorEngine test")
     set_seed(42)
 
-    # Create sample data
-    data = {
-        'Sn': [63.0, 95.0, 50.0],
-        'Ag': [2.5, 0.0, 10.0],
-        'Cu': [0.5, 0.0, 5.0],
-        'Pb': [34.0, 5.0, 35.0]
-    }
-    df = pd.DataFrame(data)
+    # Example usage
+    test_compositions = [
+        {'Sn': 60.0, 'Pb': 40.0},
+        {'Sn': 99.0, 'Ag': 1.0},
+        {'Sn': 96.5, 'Ag': 3.0, 'Cu': 0.5}
+    ]
 
     engine = DescriptorEngine()
-    composition_cols = ['Sn', 'Ag', 'Cu', 'Pb']
-    result = engine.transform(df, composition_cols)
-
-    logger.info("Original data:")
-    logger.info(result[composition_cols].head())
-    logger.info("Computed descriptors:")
-    desc_cols = [c for c in result.columns if c not in composition_cols]
-    logger.info(result[desc_cols].head())
+    
+    for i, comp in enumerate(test_compositions):
+        logger.info(f"\n--- Processing Composition {i+1}: {comp} ---")
+        phys_desc = engine.compute_physical_descriptors(comp)
+        logger.info(f"Physical Descriptors: {phys_desc}")
+        
+        element_order = sorted(list(comp.keys()))
+        clr_vec = engine.compute_clr_features(comp, element_order)
+        logger.info(f"CLR Vector: {clr_vec}")
 
     logger.info("DescriptorEngine test completed successfully")
 

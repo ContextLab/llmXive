@@ -1,17 +1,24 @@
-pandas
-scikit-learn
-xgboost
-shap
-numpy
-matplotlib
-pyyaml
-requests
-compositional==0.2.0
-pdfplumber
-pytest
-flake8
-black
-mendeleev
-statsmodels
-tomli
-configparser
+# Core dependencies
+pandas>=1.5.0
+scikit-learn>=1.2.0
+xgboost>=1.7.0
+shap>=0.41.0
+numpy>=1.23.0
+matplotlib>=3.6.0
+pyyaml>=6.0
+requests>=2.28.0
+
+# Specialized libraries
+compositional>=0.2.0
+pdfplumber>=0.7.0
+mendeleev>=0.15.0
+statsmodels>=0.13.0
+
+# Testing and linting
+pytest>=7.2.0
+flake8>=6.0.0
+black>=23.0.0
+tomli>=2.0.0
+
+# Reproducibility
+random-state>=1.0.0

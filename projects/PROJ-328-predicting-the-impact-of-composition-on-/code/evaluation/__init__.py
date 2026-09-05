@@ -1,3 +1,3 @@
 """
-Model evaluation, validation, and analysis modules.
+Evaluation and metrics module.
 """

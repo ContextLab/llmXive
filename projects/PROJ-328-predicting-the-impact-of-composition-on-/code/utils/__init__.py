@@ -1,14 +1,13 @@
 """
-Utility modules for the Solder Hardness Prediction Pipeline.
+Utilities module for the Solder Hardness Prediction Pipeline.
 
-This package contains helper functions, error handlers, logging configurations,
-and other shared utilities used across the ingestion, feature engineering,
-modeling, and evaluation stages.
+This module provides shared utilities including logging, error handling,
+reference validation, and compositional data warnings.
 """
 
-# Import common utilities for convenience
-from .logging_config import setup_logging, get_logger, init_project_logger
-from .error_handlers import (
+from utils.logger import JSONFormatter, get_logger, init_project_logger, create_module_logger, log
+from utils.logging_config import setup_logging, get_logger as get_logger_config
+from utils.error_handlers import (
     SolderPipelineError,
     ConfigurationError,
     DataValidationError,
@@ -16,32 +15,33 @@ from .error_handlers import (
     ModelTrainingError,
     DataInsufficientError,
     CompositionSumError,
-    log_error
+    log_error,
 )
-from .fr007_warnings import (
+from utils.fr007_warnings import (
     get_warning_header,
     inject_warning_into_json_output,
     inject_warning_into_yaml_output,
-    add_warning_to_text_file
+    add_warning_to_text_file,
 )
 
 __all__ = [
-    # Logging
-    'setup_logging',
-    'get_logger',
-    'init_project_logger',
-    # Error Handlers
-    'SolderPipelineError',
-    'ConfigurationError',
-    'DataValidationError',
-    'IngestionError',
-    'ModelTrainingError',
-    'DataInsufficientError',
-    'CompositionSumError',
-    'log_error',
-    # FR-007 Warnings
-    'get_warning_header',
-    'inject_warning_into_json_output',
-    'inject_warning_into_yaml_output',
-    'add_warning_to_text_file'
+    "JSONFormatter",
+    "get_logger",
+    "init_project_logger",
+    "create_module_logger",
+    "log",
+    "setup_logging",
+    "get_logger_config",
+    "SolderPipelineError",
+    "ConfigurationError",
+    "DataValidationError",
+    "IngestionError",
+    "ModelTrainingError",
+    "DataInsufficientError",
+    "CompositionSumError",
+    "log_error",
+    "get_warning_header",
+    "inject_warning_into_json_output",
+    "inject_warning_into_yaml_output",
+    "add_warning_to_text_file",
 ]

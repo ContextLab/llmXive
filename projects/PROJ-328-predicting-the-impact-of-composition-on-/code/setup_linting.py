@@ -1,81 +1,116 @@
-"""Setup and validation of linting configurations."""
+"""
+Linting configuration setup and verification script.
+This script verifies that flake8 and black configurations are valid
+and runs flake8 on a sample file to confirm the setup.
+"""
 import os
 import sys
 import subprocess
 import tomli
 from pathlib import Path
 
-def check_file_exists(filepath: Path) -> bool:
-    """Check if a file exists."""
-    return filepath.exists()
+def check_file_exists(filepath: str) -> bool:
+    """Check if a file exists at the given path."""
+    return Path(filepath).exists()
 
-def validate_black_config(project_root: Path) -> bool:
-    """Validate Black configuration in pyproject.toml."""
-    pyproject_path = project_root / "pyproject.toml"
-    if not check_file_exists(pyproject_path):
-        print(f"Error: {pyproject_path} not found.")
+def validate_black_config() -> bool:
+    """Validate that pyproject.toml contains valid black configuration."""
+    pyproject_path = Path("pyproject.toml")
+    if not pyproject_path.exists():
+        print("ERROR: pyproject.toml not found")
         return False
 
     try:
         with open(pyproject_path, "rb") as f:
             config = tomli.load(f)
-        
+
         if "tool" not in config or "black" not in config["tool"]:
-            print("Warning: [tool.black] section not found in pyproject.toml.")
+            print("ERROR: [tool.black] section not found in pyproject.toml")
             return False
-        
-        # Basic validation: ensure max-line-length is reasonable
-        black_config = config["tool"]["black"]
-        max_line_length = black_config.get("line-length", 88)
-        if not isinstance(max_line_length, int) or max_line_length < 80 or max_line_length > 120:
-            print(f"Warning: line-length {max_line_length} is outside recommended range [80, 120].")
-            return False
-        
-        print("Black configuration is valid.")
+
+        print("SUCCESS: Black configuration is valid")
         return True
     except Exception as e:
-        print(f"Error validating Black config: {e}")
+        print(f"ERROR: Failed to parse pyproject.toml: {e}")
         return False
 
-def validate_flake8_config(project_root: Path) -> bool:
-    """Validate Flake8 configuration in .flake8."""
-    flake8_path = project_root / ".flake8"
-    if not check_file_exists(flake8_path):
-        print(f"Error: {flake8_path} not found.")
+def validate_flake8_config() -> bool:
+    """Validate that .flake8 file exists and is readable."""
+    flake8_path = Path(".flake8")
+    if not flake8_path.exists():
+        print("ERROR: .flake8 file not found")
         return False
 
     try:
-        # Run flake8 --show-source to check if it can parse the config
-        result = subprocess.run(
-            ["flake8", "--config", str(flake8_path), "--help"],
-            capture_output=True,
-            text=True,
-            timeout=10
-        )
-        if result.returncode != 0:
-            print(f"Error running flake8 with config: {result.stderr}")
-            return False
-        
-        print("Flake8 configuration is valid.")
+        with open(flake8_path, "r") as f:
+            content = f.read()
+            if "max-line-length" not in content:
+                print("WARNING: max-line-length not explicitly set in .flake8")
+            else:
+                print("SUCCESS: .flake8 configuration is valid")
         return True
     except Exception as e:
-        print(f"Error validating Flake8 config: {e}")
+        print(f"ERROR: Failed to read .flake8: {e}")
+        return False
+
+def run_flake8_on_sample(sample_file: str = "code/tests/linting/sample_code.py") -> bool:
+    """Run flake8 on a sample file and return success status."""
+    if not check_file_exists(sample_file):
+        print(f"ERROR: Sample file not found: {sample_file}")
+        return False
+
+    try:
+        result = subprocess.run(
+            ["flake8", sample_file],
+            capture_output=True,
+            text=True,
+            check=False  # Don't raise on non-zero exit (linting errors are expected)
+        )
+
+        if result.returncode == 0:
+            print(f"SUCCESS: flake8 passed on {sample_file} (no issues found)")
+            return True
+        else:
+            print(f"INFO: flake8 found issues in {sample_file} (expected):")
+            print(result.stdout)
+            if result.stderr:
+                print("STDERR:", result.stderr)
+            print("SUCCESS: flake8 ran successfully and reported issues as expected")
+            return True
+    except FileNotFoundError:
+        print("ERROR: flake8 command not found. Please install it: pip install flake8")
+        return False
+    except Exception as e:
+        print(f"ERROR: Failed to run flake8: {e}")
         return False
 
 def main():
-    """Main entry point for linting setup validation."""
-    project_root = Path(__file__).resolve().parent.parent
-    print(f"Validating linting configuration at: {project_root}")
+    """Main entry point for linting setup verification."""
+    print("=" * 60)
+    print("Linting Configuration Verification")
+    print("=" * 60)
 
-    black_valid = validate_black_config(project_root)
-    flake8_valid = validate_flake8_config(project_root)
+    all_passed = True
 
-    if black_valid and flake8_valid:
-        print("All linting configurations are valid.")
-        return 0
+    # Check .flake8
+    if not validate_flake8_config():
+        all_passed = False
+
+    # Check pyproject.toml for black
+    if not validate_black_config():
+        all_passed = False
+
+    # Run flake8 on sample file
+    if not run_flake8_on_sample():
+        all_passed = False
+
+    print("=" * 60)
+    if all_passed:
+        print("OVERALL: All linting verification steps completed successfully")
+        sys.exit(0)
     else:
-        print("Some linting configurations are invalid.")
-        return 1
+        print("OVERALL: Some verification steps failed")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

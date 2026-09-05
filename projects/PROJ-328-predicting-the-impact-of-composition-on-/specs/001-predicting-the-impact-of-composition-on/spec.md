@@ -24,7 +24,7 @@ A materials scientist can aggregate published Vickers hardness measurements and 
 
 ### User Story 2 - Train and compare composition-to-hardness regression models (Priority: P2)
 
-A materials scientist can train gradient boosting (XGBoost) and linear regression models on the aggregated dataset using 5-fold cross-validation, with performance comparison via paired t-test on cross-validation folds and feature importance analysis via SHAP values. The system MUST also diagnose predictor collinearity using Variance Inflation Factor (VIF) scores.
+A materials scientist can train gradient boosting (XGBoost) and linear regression models on the aggregated dataset using k-fold cross-validation, with performance comparison via paired t-test on cross-validation folds and feature importance analysis via SHAP values. The system MUST also diagnose predictor collinearity using Variance Inflation Factor (VIF) scores.
 
 **Why this priority**: This delivers the core predictive capability and identifies dominant compositional drivers, representing the primary research contribution.
 
@@ -32,7 +32,7 @@ A materials scientist can train gradient boosting (XGBoost) and linear regressio
 
 **Acceptance Scenarios**:
 
-1. **Given** the validated dataset from US-001, **When** model training completes, **Then** both XGBoost and linear regression models produce cross-validated R² scores with confidence intervals via 1000 bootstrap resamples on the held-out test set
+1. **Given** the validated dataset from US-001, **When** model training completes, **Then** both XGBoost and linear regression models produce cross-validated R² scores with confidence intervals via extensive bootstrap resampling on the held-out test set
 2. **Given** trained models, **When** feature importance analysis runs, **Then** SHAP values identify the top compositional features (e.g., electronegativity variance, atomic radius variance, weighted mean atomic mass) with ranked contribution scores
 3. **Given** the compositional descriptors, **When** collinearity diagnostics run, **Then** VIF scores are reported for all predictors, flagging any with VIF ≥ 5
 
@@ -48,7 +48,7 @@ A materials scientist can generate a scatter plot of predicted vs. measured hard
 
 **Acceptance Scenarios**:
 
-1. **Given** trained model predictions on the test set, **When** the visualization pipeline runs, **Then** a scatter plot is generated with predicted vs. measured hardness, including 95% confidence interval error bars
+1. **Given** trained model predictions on the test set, **When** the visualization pipeline runs, **Then** A scatter plot is generated with predicted vs. measured hardness, including confidence interval error bars.
 2. **Given** SHAP feature importance rankings, **When** partial dependence analysis runs, **Then** Partial dependence plots are generated showing the relationship between each top feature and predicted hardness.
 
 ---
