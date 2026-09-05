@@ -1,3 +1,1 @@
-"""
-Unit and integration tests for the research pipeline.
-"""
+"""Test suite for the news volume anxiety study."""

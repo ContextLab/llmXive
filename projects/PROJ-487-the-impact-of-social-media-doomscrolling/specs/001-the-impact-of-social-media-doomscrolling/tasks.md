@@ -20,11 +20,18 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase 0: Meta-Tasks
+## Phase 0: Meta-Tasks & Governance
 
-**Purpose**: Administrative and governance tasks that are not part of the code TDD cycle
+**Purpose**: Administrative and governance tasks that are not part of the code TDD cycle. **CRITICAL**: These must complete before Phase 1 to resolve spec/plan conflicts.
 
-- [ ] T000 **Bootstrap Research Document**: Create `research.md` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/`. **Content**: Initialize with the Summary and Technical Context sections from `plan.md` as a placeholder. **Note**: This task creates the required artifact listed in the Plan.md structure, resolving the circular dependency where the Plan expects the file to exist. **Depends on**: None.
+- [ ] T000a [P] **Fix Spec Typo**: Update `spec.md` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/`. **Action**: Locate FR-005 text "sweeping the lag window ∈ {, 2, 3, 7, 14}". Replace with "sweeping the lag window ∈ {1, 2, 3, 7, 14}". **Verification**: Confirm the file contains the corrected set {1, 2, 3, 7, 14}. **Depends on**: None.
+
+- [ ] T036 [P] **Update Plan for Kickback**: Update `plan.md` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/`. **Action**: Append the following text block to the *end* of the `Technical Context` section: "**Governance Note**: Per Spec FR-005 and SC-002, the methodology requires fixed-sweep lags including short-term intervals and Bonferroni-corrected alpha. The Plan's previous mention of AIC/BIC and 'no Bonferroni' is overridden by this Spec requirement." **Depends on**: T000a (Spec must be fixed first).
+
+- [ ] T000 **Bootstrap Research Document**: Create `research.md` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/`. **Content**:
+ 1. **Summary**: Copy the exact text from `spec.md` Summary section.
+ 2. **Technical Context**: Copy the exact text from `plan.md` Technical Context section (which now includes the Governance Note from T036).
+ **Note**: This task reads from the *corrected* artifacts; it does not perform filtering. **Depends on**: T036.
 
 ---
 
@@ -32,14 +39,14 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project marker: Create `.project_init.json` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` with content: `{"project_id": "PROJ-487", "branch": "001-news-volume-anxiety", "created": "2026-06-27"}`.
-- [ ] T002 Create data directories: Create `data/raw/`, `data/processed/`, `data/reports/` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` and create a `.gitkeep` file in each to ensure version control tracking.
-- [ ] T003 Create code directories: Create `code/data/`, `code/tests/`, `code/utils/` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` and create an `__init__.py` file in each to ensure Python package recognition.
-- [ ] T004a [P] **Create Virtual Environment**: Initialize `venv` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` by running `python -m venv venv`. **Note**: This task is a hard prerequisite for all subsequent setup and implementation tasks. **Depends on**: T003.
-- [ ] T004b [P] **Verify Virtual Environment**: Verify `venv/bin/activate` exists and is executable. **Depends on**: T004a.
-- [ ] T005a [P] Create requirements file: Create `code/requirements.txt` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` with `pandas`, `numpy`, `statsmodels`, `requests`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `pytrends`, `reportlab`, `pytest`, `responses`.
-- [ ] T005b Install dependencies: Run `pip install -r code/requirements.txt` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`. **Depends on**: T005a.
-- [ ] T006 Configure linting: Create `pyproject.toml` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` with the following exact content:
+- [ ] T001 **Create project marker**: Create `.project_init.json` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` with content: `{"project_id": "PROJ-487", "branch": "001-news-volume-anxiety", "created": "2026-06-27"}`.
+- [ ] T002 **Create data directories**: Create `data/raw/`, `data/processed/`, `data/reports/` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` and create a `.gitkeep` file in each to ensure version control tracking.
+- [ ] T003 **Create code directories**: Create `code/data/`, `code/tests/`, `code/utils/` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` and create an `__init__.py` file in each to ensure Python package recognition.
+- [ ] T004a **Create Virtual Environment**: Initialize `venv` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` by running `python -m venv venv`. **Note**: This task is a hard prerequisite for all subsequent setup and implementation tasks. **Depends on**: T003.
+- [ ] T004b **Verify Virtual Environment**: Verify `venv/bin/activate` exists and is executable. **Depends on**: T004a.
+- [X] T005a [P] **Create requirements file**: Create `code/requirements.txt` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` with `pandas`, `numpy`, `statsmodels`, `requests`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `pytrends`, `reportlab`, `pytest`, `responses`.
+- [X] T005b **Install dependencies**: Run `pip install -r code/requirements.txt` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`. **Depends on**: T005a.
+- [X] T006 **Configure linting**: Create `pyproject.toml` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` with the following exact content:
  ```toml
  [tool.black]
  line-length = 88
@@ -49,9 +56,8 @@
  max-line-length = 88
  ignore = ["E203", "W503"]
  ```
- **Note**: This task depends on T004a; if the virtual environment is not created, this task cannot proceed. **Depends on**: T004b.
-- [ ] T031 [P] **Verify CPU Feasibility**: Create and run a Python script `code/utils/verify_cpu_env.py` that imports `statsmodels` and `pandas`, attempts to run a trivial statistical operation (e.g., Pearson correlation on random data), and asserts that no CUDA warnings or GPU imports occur. **Verification**: The script must exit with code 0 only if no GPU libraries are imported and `statsmodels` runs without CUDA errors. **Note**: This replaces the fragile `nvidia-smi` check. **Depends on**: T005b.
-- [ ] T036 [P] **Update Plan for Kickback**: Update `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/plan.md` to explicitly acknowledge the Spec's mandatory Bonferroni requirement and fixed-sweep lags, overriding the Plan's previous "AIC/BIC" constraint. **Action**: Add a "Plan Kickback" section in `plan.md` stating: "Plan updated to comply with Spec FR-005/SC-002: Bonferroni correction and fixed-sweep lags {1, 2, 3, 7, 14} are mandatory." **Depends on**: T005b.
+ **Note**: This task depends on T004b; if the virtual environment is not created, this task cannot proceed. **Depends on**: T004b.
+- [X] T031 [P] **Verify CPU Feasibility**: Create and run a Python script `code/utils/verify_cpu_env.py` that imports `statsmodels` and `pandas`, attempts to run a trivial statistical operation (e.g., Pearson correlation on random data), and asserts that no CUDA warnings or GPU imports occur. **Verification**: The script must exit with code 0 only if no GPU libraries are imported and `statsmodels` runs without CUDA errors. **Note**: This replaces the fragile `nvidia-smi` check. **Depends on**: T005b.
 
 ---
 
@@ -61,10 +67,58 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007a [P] Create dataset schema file: Generate `contracts/dataset.schema.yaml` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/contracts/`. **Exact Schema**: JSON Schema (serialized as YAML) with `type: object`, `properties`: `date` (string, format: date-time, regex `^\\d{4}-\\d{2}-\\d{2}$`), `value` (number), `source` (string). `required`: `["date", "value", "source"]`. Use JSON Schema format compatible with `jsonschema`.
-- [ ] T007b [P] Create output schema file: Generate `contracts/output.schema.yaml` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/contracts/`. **Exact Schema**: JSON Schema (serialized as YAML) with `type: object`, `properties`: `metric` (string), `coefficient` (number), `p_value` (number), `lag` (integer), `significance_flag` (boolean), `stationarity_status` (string). `required`: `["metric", "coefficient", "p_value", "lag", "significance_flag", "stationarity_status"]`. Use JSON Schema format compatible with `jsonschema`.
-- [ ] T008 Create schema validation utilities: Create `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/utils/validation.py` to load and validate data against `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` using `jsonschema`. **Pre-check**: The script must first verify that both schema files exist; if missing, exit with a clear error message indicating T007a/b are incomplete. **Depends on**: Completion of both T007a AND T007b.
-- [ ] T009 [P] Setup logging infrastructure: Create `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/utils/logging.py` with a standard logger configuration (file + console output, JSON format).
+- [ ] T007a [P] **Create dataset schema file**: Generate `contracts/dataset.schema.yaml` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/contracts/`. **Exact Content**:
+ ```yaml
+ $schema: http://json-schema.org/draft-07/schema#
+ $id: dataset-schema
+ type: object
+ properties:
+ date:
+ type: string
+ format: date-time
+ pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+ value:
+ type: number
+ source:
+ type: string
+ required:
+ - date
+ - value
+ - source
+ ```
+ **Depends on**: T003.
+
+- [ ] T007b [P] **Create output schema file**: Generate `contracts/output.schema.yaml` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/contracts/`. **Exact Content**:
+ ```yaml
+ $schema: http://json-schema.org/draft-07/schema#
+ $id: output-schema
+ type: object
+ properties:
+ metric:
+ type: string
+ coefficient:
+ type: number
+ p_value:
+ type: number
+ lag:
+ type: integer
+ significance_flag:
+ type: boolean
+ stationarity_status:
+ type: string
+ required:
+ - metric
+ - coefficient
+ - p_value
+ - lag
+ - significance_flag
+ - stationarity_status
+ ```
+ **Depends on**: T003.
+
+- [ ] T008 **Create schema validation utilities**: Create `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/utils/validation.py` to load and validate data against `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` using `jsonschema`. **Pre-check**: The script must first verify that both schema files exist; if missing, exit with a clear error message indicating T007a/b are incomplete. **Depends on**: Completion of both T007a AND T007b.
+
+- [X] T009 [P] **Setup logging infrastructure**: Create `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/utils/logging.py` with a standard logger configuration (file + console output, JSON format).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,14 +132,43 @@
 
 ### Implementation for User Story 1 (TDD Cycle: Write Test -> Implement)
 
-- [ ] T010 [US1] **Write Test**: Create `test_fetch_gdelt.py` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`. **Implementation**: Use `responses` to simulate 2 failed requests (500 errors) followed by a success. Implement `test_retry_logic_on_failure` asserting the function retries exactly 3 times (`mock.call_count == 3`) and returns the success response. **Note**: This is a unit test using mocks; T015 will verify real data. **Depends on**: T004b, T005b.
-- [ ] T011 [US1] **Write Test**: Create `test_fetch_google_trends.py` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`. **Implementation**: Mock logic to pass a list containing one invalid keyword (e.g., `"!!!!!"`) and expect a `ValueError`. Implement `test_invalid_keyword_validation` asserting the function raises a `ValueError` with a message listing the invalid keyword. **Note**: This is a unit test using mocks; T015 will verify real data. **Depends on**: T004b, T005b.
-- [ ] T014 [US1] **Write Error Test**: Create `test_fetch_error_handling.py` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`. **Implementation**: Mock 500 errors via `responses` for both `fetch_gdelt.py` and `fetch_google_trends.py`. Implement `test_500_exit_code` asserting the script logs the error and exits with a non-zero code. **Run Test (Expect Fail)**. **Depends on**: T004b, T005b.
-- [ ] T012 [US1] **Implement GDELT Fetch**: Implement GDELT fetch logic in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_gdelt.py`. Use `EventCount` metric for negative sentiment events. **Include retry logic**: A limited number of attempts with exponential backoff. **Save output to `data/raw/gdelt_events.csv`**. **Note**: Do NOT generate checksums here; raw data is incomplete. **Depends on**: T004b, T005b.
-- [ ] T013 [US1] **Implement Google Trends Fetch**: Implement Google Trends fetch logic in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_google_trends.py` for keywords "anticipatory anxiety", "worry about future". **Target Date Range**: 2020-01-01 to 2023-12-31. **Include retry logic**: A limited number of attempts. **Save output to `data/raw/google_trends.csv`**. **Note**: Do NOT generate checksums here; raw data is incomplete. **Depends on**: T004b, T005b.
+- [ ] T010 [US1] **Write Test**: Create `test_fetch_gdelt.py` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`. **Implementation**: Use `responses` to simulate 2 failed requests (500 errors) followed by a success. Implement `test_retry_logic_on_failure` asserting the function retries exactly 3 times (`mock.call_count == 3`) and returns the success response. **Note**: This is a unit test using mocks. **CRITICAL**: This task must be accompanied by T015d (Real-Call Verification) to satisfy the 'no synthetic data' constraint for error paths. **Depends on**: T004b, T005b.
+
+- [ ] T011 [US1] **Write Test**: Create `test_fetch_google_trends.py` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`. **Implementation**: Mock logic to pass a list containing one invalid keyword (e.g., `"!!!!!"`) and expect a `ValueError`. Implement `test_invalid_keyword_validation` asserting the function raises a `ValueError` with a message listing the invalid keyword. **Note**: This is a unit test using mocks. **CRITICAL**: This task must be accompanied by T015d (Real-Call Verification) to satisfy the 'no synthetic data' constraint for error paths. **Depends on**: T004b, T005b.
+
+- [ ] T014 [US1] **Write Error Test**: Create `test_fetch_error_handling.py` in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`. **Implementation**: Mock 500 errors via `responses` for both `fetch_gdelt.py` and `fetch_google_trends.py`. Implement `test_500_exit_code` asserting the script logs the error and exits with a non-zero code. **Run Test (Expect Fail)**. **CRITICAL**: This task must be accompanied by T015d (Real-Call Verification) to satisfy the 'no synthetic data' constraint for error paths. **Depends on**: T004b, T005b.
+
+- [ ] T012 [US1] **Implement GDELT Fetch**: Implement GDELT fetch logic in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_gdelt.py`.
+ **API Details**: Use GDELT 2.0 Event Database API.
+ **Endpoint**: ` (or equivalent API endpoint).
+ **Parameters**: `Action=Count`, `EventCode` (negative sentiment codes), `StartDate`, `EndDate`.
+ **Auth**: Use API Key via `GDELT_API_KEY` environment variable.
+ **Include retry logic**: A limited number of attempts with exponential backoff.
+ **Save output to `data/raw/gdelt_events.csv`**.
+ **Note**: Do NOT generate checksums here; raw data is incomplete. **Depends on**: T004b, T005b.
+
+- [ ] T013 [US1] **Implement Google Trends Fetch**: Implement Google Trends fetch logic in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_google_trends.py` for keywords "anticipatory anxiety", "worry about future".
+ **Library**: `pytrends`.
+ **Function**: `build_payload(kw_list=[...], timeframe='2020-01-01 2023-12-31')`.
+ **Method**: `get_interest_over_time()`.
+ **Target Date Range**: 2020-01-01 to 2023-12-31.
+ **Include retry logic**: A limited number of attempts.
+ **Save output to `data/raw/google_trends.csv`**.
+ **Note**: Do NOT generate checksums here; raw data is incomplete. **Depends on**: T004b, T005b.
+
 - [ ] T015a [US1] **Data Integrity**: Verify `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv` have non-empty rows for target date range; verify MD5 checksums match recorded values (if generated later) or validate against schema using `utils/validation.py`. **Output**: Print validation status or exit non-zero on failure. **Depends on**: T012, T013, T008.
+
 - [ ] T015b [US1] **Target Date Range Validation**: Verify `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv` explicitly cover the target date range (2020-01-01 to 2023-12-31). **Output**: Print validation status or exit non-zero if coverage is incomplete. **Depends on**: T015a.
-- [ ] T037 [US1] **Update State File**: Invoke the `Advancement-Evaluator Agent` to update `state/projects/PROJ-487-the-impact-of-social-media-doomscrolling.yaml` `artifact_hashes` map with the checksums for `gdelt_events.csv` and `google_trends.csv`. **Note**: If T012/T013 failed to produce files, skip this step and log a "State Update Failed" error. **Depends on**: T012, T013.
+
+- [ ] T015c [US1] **Verify Data Completeness**: Calculate the percentage of days with valid values (non-null) in the target date range. **Requirement**: Must be >= 95%. **Output**: Print the calculated percentage and exit non-zero if < 95%. **Depends on**: T015b.
+
+- [ ] T015d [US1] **Run Integration Test**: Create and run `code/tests/test_fetch_integration.py`. **Action**:
+ 1. Attempt a real fetch with a forced timeout to verify retry logic (real-call).
+ 2. Attempt a real fetch with an invalid keyword to verify error handling (real-call).
+ 3. Verify exit codes and log messages match expected behavior.
+ **Note**: This satisfies the 'no synthetic data' constraint for error paths. **Depends on**: T012, T013.
+
+- [ ] T037 [US1] **Update State File**: Create a Python script `code/utils/update_state.py` that calculates MD5 checksums for `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv` and updates `state/projects/PROJ-487-the-impact-of-social-media-doomscrolling.yaml` `artifact_hashes` map. **Note**: This is a manual script execution, not an external agent call. **Depends on**: T012, T013.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,11 +182,13 @@
 
 ### Implementation for User Story 2 (TDD Cycle: Write Test -> Implement)
 
-- [ ] T016 [P] [US2] **Write Test**: Unit test for timestamp alignment (intersection logic) in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/test_preprocess.py`. **Function Name**: `test_timestamp_alignment_intersection`. **Mock**: Two DataFrames with different date ranges (e.g., 2020-01 to 2020-06 vs 2020-03 to 2020-09). **Assertion**: Verify the output DataFrame contains only dates present in both (2020-03 to 2020-06) and preserves zero values. **Run Test (Expect Fail)**.
+- [ ] T016 [P] [US2] **Write Test**: Unit test for timestamp alignment (intersection logic) in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/test_preprocess.py`. **Function Name**: `test_timestamp_alignment_intersection`. **Mock**: Two DataFrames with different date ranges (e.g., 2020-01 to 2020-06 vs 2020-03 to 2020-09). **Assertion**: Verify the output DataFrame contains only dates present in both the specified overlapping temporal range and preserves zero values. **Run Test (Expect Fail)**.
+
 - [ ] T017 [P] [US2] **Write Test**: Unit test for ADF test and differencing logic in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/test_preprocess.py`. **Function Name**: `test_adf_differencing`. **Mock**: A non-stationary series (e.g., random walk). **Assertion**: Verify the function detects non-stationarity (p >= 0.05) and returns the differenced series which passes ADF. **Run Test (Expect Fail)**.
-- [ ] T018 [US2] **Implement Alignment**: Implement timestamp alignment in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/preprocess.py`: align to daily intervals (intersection), **interpolate ONLY null/missing values (NaN) using linear interpolation (`method='linear'`, `limit_direction='both'`); DO NOT interpolate zero-event counts (treat 0 as a valid data point and skip during interpolation)**. Read from `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`. **Plan Kickback Note**: This task overrides the Plan.md's mention of "forward fill" with "linear interpolation" to satisfy Spec FR-002. **Blocker Note**: This task depends on T008; if T007a/b (schemas) are missing, T008 will fail, and this task cannot proceed. **Depends on**: T015a, T015b.
-- [ ] T019 [US2] **Implement Preprocessing Logic**: Implement ADF test, differencing loop, and z-score normalization in `preprocess.py`. **Logic**: 1. Run ADF. If p >= 0.05, difference until stationary (limited iterations). 2. Apply z-score normalization. 3. Save to `data/processed/aligned_timeseries.csv` and `data/processed/stationarity_check.csv`. **Include**: Data completeness check (>= 95%) and length check (>= 20 rows). Exit with code 1 if checks fail. **Robustness Note**: If the series remains non-stationary after 2 differences, raise an error instead of looping indefinitely. **Depends on**: T018.
-- [ ] T021 [US2] **Save Aligned Data & Check Completeness**: (Merged into T019). **Depends on**: T018.
+
+- [ ] T018 [US2] **Implement Alignment**: Implement timestamp alignment in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/preprocess.py`: align to daily intervals (intersection), **interpolate ONLY null/missing values (NaN) using linear interpolation (`method='linear'`, `limit_direction='both'`); DO NOT interpolate zero-event counts (treat 0 as a valid data point and skip during interpolation)**. Read from `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`. **Directive**: This task follows Spec FR-002 strictly (linear interpolation, preserve zeros). **Blocker Note**: This task depends on T008; if T007a/b (schemas) are missing, T008 will fail, and this task cannot proceed. **Depends on**: T015a, T015b, T015c.
+
+- [ ] T019 [US2] **Implement Preprocessing Logic**: Implement ADF test, differencing loop, and z-score normalization in `preprocess.py`. **Logic**: 1. Run ADF. If p >= 0.05, difference until stationary (limited iterations). 2. Apply z-score normalization. 3. Save to `data/processed/aligned_timeseries.csv` and `data/processed/stationarity_check.csv`. **Include**: Data completeness check (>= 95%) and length check (>= 20 rows). Exit with a non-zero status code if checks fail. **Robustness Note**: If the series remains non-stationary after a sufficient number of differences, raise an error instead of looping indefinitely. **Depends on**: T018.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -117,13 +202,23 @@
 
 ### Implementation for User Story 3 (TDD Cycle: Write Test -> Implement)
 
-- [ ] T024 [P] [US3] **Write Test**: Unit test for correlation calculation in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/test_analyze.py`. **Function Name**: `test_correlation_calculation`. **Mock**: Two perfectly correlated series (y=x) and two uncorrelated series (y=random). **Assertion**: Verify Pearson coefficient is ~1.0 for the first and ~0.0 for the second. **Run Test (Expect Fail)**.
+- [ ] T024 [P] [US3] **Write Test**: Unit test for correlation calculation in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/test_analyze.py`. **Function Name**: `test_correlation_calculation`. **Mock**: Two perfectly correlated series (y=x) and two uncorrelated series (y=random). **Assertion**: Verify Pearson coefficient is approximately maximal for the first and approximately null for the second. **Run Test (Expect Fail)**.
+
 - [ ] T025 [P] [US3] **Write Test**: Unit test for Granger causality fixed-sweep (lags {1, 2, 3, 7, 14}) in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/test_analyze.py`. **Function Name**: `test_granger_fixed_sweep`. **Mock**: A dataset where lag 1 is significant (p=0.001) and lag 14 is not (p=0.5). **Assertion**: Verify the function returns a list of results with correct p-values for each lag. **Run Test (Expect Fail)**.
+
 - [ ] T026 [US3] **Implement Correlation**: Implement correlation analysis in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/analyze.py`: compute Pearson and Spearman coefficients with p-values. Read from `data/processed/aligned_timeseries.csv`. **Depends on**: T019.
-- [ ] T027 [US3] **Implement Granger Causality Analysis**: Implement Granger causality tests in `analyze.py`. **Logic**: 1. Sweep lags {2, 3, 7, 14}. 2. Save results to `data/processed/granger_results.csv`. 3. Calculate sensitivity (significance rate). **Depends on**: T019.
+
+- [ ] T027 [US3] **Implement Granger Causality Analysis**: Implement Granger causality tests in `analyze.py`. **Logic**: 1. **Sweep lags {1, 2, 3, 7, 14}**. 2. **Apply Bonferroni-corrected threshold (p < 0.01)** to determine significance for each lag. 3. Save results to `data/processed/granger_results.csv`. 4. Calculate sensitivity (significance rate) based on the Bonferroni threshold. **Depends on**: T019.
+
 - [ ] T028 [US3] **Implement Sensitivity Analysis and Reporting**: Implement sensitivity analysis in `analyze.py`: Calculate the significance rate (count of lags in {1, 2, 3, 7, 14} where p < 0.01) and store the full table of results (lag, p_value, significance) for the report. Read from `data/processed/granger_results.csv`. **Depends on**: T027.
-- [ ] T029 [US3] **Implement Bonferroni Validation and Reporting**: Implement Bonferroni check in `analyze.py`. **Logic**: Verify at least one lag in {1, 2, 3, 7, 14} has p < 0.01 (Bonferroni-corrected alpha). **Action**: If check fails, write a 'CRITICAL_FAILURE' flag to the report JSON and exit with code 1. **Depends on**: T027.
-- [ ] T030 [US3] **Generate Final Analysis Report**: Generate `data/reports/analysis_report.pdf` using `reportlab`. **Logic**: 1. Create plots (lag plots, heatmaps). 2. Insert "Proxy Acknowledgment" text into the **first paragraph of the Introduction section**. 3. Insert "Causality Disclaimer" text into the **Conclusions section, immediately following the results summary**. 4. Assemble PDF. **Depends on**: T026, T028, T029.
+
+- [ ] T029a [US3] **Generate Statistical Validity Report**: Create `data/reports/statistical_validity_report.json`. **Content**: Explicitly document the Bonferroni calculation (0.05/5=0.01), list the p-values for each lag, and state the pass/fail status against SC-002 (p < 0.01 for at least one lag). **Depends on**: T027.
+
+- [ ] T029b [US3] **Implement Bonferroni Validation**: Implement Bonferroni check in `analyze.py`. **Logic**: Verify at least one lag in {1, 2, 3, 7, 14} has p < 0.01. **Action**: If check fails, write a 'CRITICAL_FAILURE' flag to the report JSON (in T029a) and the final PDF report. **Do NOT exit with code 1**; the pipeline must continue to generate the full report for negative findings. **Depends on**: T027.
+
+- [ ] T030a [US3] **Generate Final Analysis Report**: Generate `data/reports/analysis_report.pdf` using `reportlab`. **Logic**: 1. Create plots (lag plots, heatmaps). 2. Insert "Proxy Acknowledgment" text into the **first paragraph of the Introduction section**. 3. Insert "Causality Disclaimer" text into the **Conclusions section, immediately following the results summary**. 4. Assemble PDF. **Depends on**: T026, T028, T029a.
+
+- [ ] T030b [US3] **Verify Proxy Acknowledgment**: Create `code/tests/test_report_content.py`. **Implementation**: Parse `data/reports/analysis_report.pdf` (or extract text) and verify the "Proxy Acknowledgment" text matches the exact framing required by FR-001 (distinguishing 'news volume impact' from 'social media consumption' and noting 'social media amplification' as a confounder). **Depends on**: T030a.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,7 +250,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T015a, T015b)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T015a, T015b, T015c)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 processed data (T019)
 
 ### Within Each User Story
@@ -168,6 +263,7 @@
 
 - All Setup tasks marked [P] can run in parallel (except T005 which depends on T004b)
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- **Note**: T008 cannot start until T007a AND T007b complete.
 - Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members (with data dependencies respected)
@@ -192,11 +288,12 @@ Task: "Implement Google Trends fetch logic in code/data/fetch_google_trends.py"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (data fetch & completeness)
-5. Deploy/demo if ready
+1. Complete Phase 0 (Governance)
+2. Complete Phase 1: Setup
+3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+4. Complete Phase 3: User Story 1
+5. **STOP and VALIDATE**: Test User Story 1 independently (data fetch & completeness)
+6. Deploy/demo if ready
 
 ### Incremental Delivery
 
@@ -231,5 +328,7 @@ With multiple developers:
 - **CPU Feasibility**: All tasks MUST run on 2-core CPU, ≤7GB RAM, ≤6h runtime. No GPU/CUDA.
 - **Data Integrity**: All data must be from real sources (GDELT, Google Trends). No synthetic data.
 - **Statistical Rigor**: Use fixed-sweep lags {1, 2, 3, 7, 14} and Bonferroni correction (α=0.05/5=0.01) as mandated by Spec FR-005 and SC-002.
-- **Spec vs Plan Note**: This task list strictly follows Spec FR-005/SC-002 (Bonferroni, fixed-sweep), overriding conflicting instructions in plan.md. The Plan.md is updated via T036 in Phase 1 to reflect this governance action.
-- **Plan Kickback**: Flagged for plan kickback due to conflict between Plan.md (AIC/BIC) and Spec.md (Fixed Sweep/Bonferroni). Governance action is executed in Phase 1 (T036).
+- **Spec vs Plan Note**: This task list strictly follows Spec FR-005/SC-002 (Bonferroni, fixed-sweep), overriding conflicting instructions in plan.md. The Plan.md is updated via T036 in Phase 0 to reflect this governance action.
+- **Spec Typo Fixed**: T000a corrects the typo in Spec FR-005 from "{, 2, 3, 7, 14}" to "{1, 2, 3, 7, 14}".
+- **Real-Call Verification**: T010, T011, T014 are unit tests; T015d provides the required real-call verification for error paths to satisfy 'no synthetic data' constraints.
+- **Negative Findings**: T029b ensures the pipeline continues to generate reports even if the hypothesis is not supported (no exit code 1 on failure).

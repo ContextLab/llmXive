@@ -4,224 +4,228 @@ import time
 import logging
 import hashlib
 import json
-from datetime import datetime, timedelta
+import csv
+from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-# Add parent directory to path for imports if running as script
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Ensure project root is in path for imports if run as script
+_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 from utils.logging import get_logger
+
+# Import pytrends inside a try-except to handle missing dependency gracefully
+# but fail loudly if the logic requires it and it's missing.
+try:
+    from pytrends.request import TrendReq
+except ImportError:
+    raise ImportError(
+        "pytrends is required for this task. "
+        "Please install it via: pip install pytrends"
+    )
 
 logger = get_logger(__name__)
 
 # Configuration
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+}
 MAX_RETRIES = 3
-BACKOFF_FACTOR = 2
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "..", "data", "raw")
-OUTPUT_FILE = os.path.join(DATA_DIR, "google_trends.csv")
-CHECKSUM_FILE = os.path.join(DATA_DIR, ".checksums.json")
+RETRY_DELAY = 5  # seconds
 
-# Keywords to fetch (as per T013a)
-KEYWORDS = ["anticipatory anxiety", "worry about future"]
-
-def fetch_with_retry(fetch_func, max_retries: int = MAX_RETRIES, backoff_factor: float = BACKOFF_FACTOR) -> Any:
+def fetch_with_retry(func, *args, **kwargs) -> Any:
     """
-    Retry logic for fetch operations with exponential backoff.
+    Executes a fetch function with exponential backoff retry logic.
     """
+    attempt = 0
     last_exception = None
-    for attempt in range(1, max_retries + 1):
+    
+    while attempt < MAX_RETRIES:
         try:
-            logger.info(f"Attempt {attempt}/{max_retries} for fetch operation")
-            result = fetch_func()
-            logger.info("Fetch successful")
+            logger.info(f"Attempt {attempt + 1}/{MAX_RETRIES} for {func.__name__}")
+            result = func(*args, **kwargs)
             return result
         except Exception as e:
             last_exception = e
-            logger.warning(f"Attempt {attempt} failed: {e}")
-            if attempt < max_retries:
-                wait_time = backoff_factor ** attempt
-                logger.info(f"Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
+            attempt += 1
+            if attempt < MAX_RETRIES:
+                delay = RETRY_DELAY * (2 ** (attempt - 1))
+                logger.warning(f"Attempt {attempt} failed: {str(e)}. Retrying in {delay}s...")
+                time.sleep(delay)
             else:
-                logger.error(f"All {max_retries} attempts failed. Last error: {e}")
-                raise
+                logger.error(f"All {MAX_RETRIES} attempts failed for {func.__name__}")
+    
+    raise last_exception
 
-def fetch_google_trends() -> List[Dict[str, Any]]:
+def fetch_google_trends(keywords: List[str], start_date: str, end_date: str) -> List[Dict[str, Any]]:
     """
-    Fetches Google Trends data for the specified keywords.
-    Uses pytrends to interact with Google Trends API.
-    Returns a list of dictionaries with date and value.
+    Fetches Google Trends interest over time data for specified keywords.
+    
+    Args:
+        keywords: List of keywords to search (e.g., ["anticipatory anxiety", "worry about future"])
+        start_date: Start date in YYYY-MM-DD format
+        end_date: End date in YYYY-MM-DD format
+        
+    Returns:
+        List of dictionaries containing date, keyword, and value.
+        
+    Raises:
+        ValueError: If keyword validation fails or no data is returned.
+        Exception: If API calls fail after retries.
     """
-    try:
-        from pytrends.request import TrendReq
-    except ImportError:
-        logger.error("pytrends is not installed. Please install it via requirements.txt.")
-        raise
+    # Validate keywords
+    valid_pattern = r'^[a-zA-Z0-9\s\-]+$'
+    import re
+    invalid_keywords = [kw for kw in keywords if not re.match(valid_pattern, kw)]
+    if invalid_keywords:
+        raise ValueError(f"Invalid characters in keywords: {invalid_keywords}")
 
-    # Initialize pytrends
+    logger.info(f"Initializing TrendReq with headers...")
+    # Initialize TrendReq
+    # Note: pytrends uses a default timeout, we rely on the retry logic for network issues
     pytrends = TrendReq(hl='en-US', tz=360)
 
-    # Define date range (last 5 years as a reasonable default for historical analysis)
-    # Using a fixed range to ensure reproducibility
-    end_date = datetime.now()
-    start_date = end_date - timedelta(days=5 * 365)
-    date_range_str = f"{start_date.strftime('%Y-%m-%d')} {end_date.strftime('%Y-%m-%d')}"
-
-    data_rows = []
-
-    for keyword in KEYWORDS:
-        logger.info(f"Fetching data for keyword: {keyword}")
+    def _do_query():
+        # Build the query
+        # pytrends builds interest over time
         try:
-            # Build payload
-            pytrends.build_payload(kw_list=[keyword], timeframe=date_range_str)
-
+            pytrends.build_payload(
+                kw_list=keywords,
+                cat=0,
+                timeframe=f'{start_date} {end_date}',
+                geo='',
+                gprop=''
+            )
             # Get interest over time
-            # related_queries might return empty, so we handle that
-            data = pytrends.interest_over_time()
-
-            if data is not None and not data.empty:
-                # Reset index to make 'date' a column
-                data_reset = data.reset_index()
-                # The column name for date is usually 'date'
-                date_col = 'date'
-                value_col = keyword
-
-                # Ensure the date column is string (ISO format) and value is float
-                # Handle the 'isPartial' column if present (drop it)
-                cols_to_keep = [date_col, value_col]
-                if 'isPartial' in data_reset.columns:
-                    data_reset = data_reset.drop(columns=['isPartial'])
-
-                # Iterate and collect
-                for _, row in data_reset.iterrows():
-                    # Convert date to ISO string if it's a datetime object
-                    date_val = row[date_col]
-                    if hasattr(date_val, 'strftime'):
-                        date_str = date_val.strftime('%Y-%m-%d')
-                    else:
-                        date_str = str(date_val)
-
-                    val = row[value_col]
-                    # Handle NaN or non-numeric values
-                    if pd.isna(val) or not isinstance(val, (int, float)):
-                        val = 0.0
-                    else:
-                        val = float(val)
-
-                    data_rows.append({
-                        "date": date_str,
-                        "value": val,
-                        "source": keyword
-                    })
+            # returns a DataFrame: columns are keywords, index is date
+            data_df = pytrends.interest_over_time()
+            
+            if data_df.empty:
+                raise ValueError("No data returned from Google Trends API.")
+            
+            # The 'isPartial' column exists in some versions, drop if present
+            if 'isPartial' in data_df.columns:
+                data_df = data_df.drop(columns=['isPartial'])
+                
+            # Reset index to make date a column
+            data_df = data_df.reset_index()
+            data_df.columns = [c.lower() for c in data_df.columns]
+            
+            # Ensure date column is string YYYY-MM-DD
+            if 'date' in data_df.columns:
+                # Handle potential datetime objects or strings
+                if isinstance(data_df['date'].iloc[0], datetime):
+                    data_df['date'] = data_df['date'].dt.strftime('%Y-%m-%d')
+                else:
+                    # Ensure format is correct
+                    data_df['date'] = pd.to_datetime(data_df['date']).dt.strftime('%Y-%m-%d')
             else:
-                logger.warning(f"No data returned for keyword: {keyword}")
+                raise ValueError("Date column not found in response.")
+
+            # Convert to list of dicts
+            records = []
+            for _, row in data_df.iterrows():
+                for keyword in keywords:
+                    # Normalize keyword column name (pytrends might lowercase or change spaces)
+                    # The column name usually matches the keyword exactly in the DataFrame
+                    # but we need to handle the specific column name generated
+                    col_name = keyword.lower().replace(' ', '_') # pytrends sometimes modifies headers? 
+                    # Actually, pytrends keeps original keyword as column name.
+                    # Let's use the exact keyword from the list to find the column
+                    col_name = keyword
+                    
+                    value = row.get(col_name)
+                    if value is not None:
+                        records.append({
+                            "date": row['date'],
+                            "keyword": keyword,
+                            "value": int(value) if value is not None else None
+                        })
+            return records
 
         except Exception as e:
-            logger.error(f"Error fetching data for keyword '{keyword}': {e}")
-            # Continue with other keywords instead of failing completely
-            continue
+            logger.error(f"Error during pytrends query: {str(e)}")
+            raise
 
-    return data_rows
+    import pandas as pd
+    return fetch_with_retry(_do_query)
 
-def save_to_csv(data: List[Dict[str, Any]], filepath: str) -> None:
+def save_to_csv(data: List[Dict[str, Any]], output_path: str) -> None:
     """
     Saves the fetched data to a CSV file.
     """
     if not data:
-        logger.warning("No data to save.")
-        # Create an empty file with headers to satisfy existence checks if needed,
-        # though task implies non-empty rows.
-        with open(filepath, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["date", "value", "source"])
-            writer.writeheader()
-        return
+        raise ValueError("No data to save.")
 
-    with open(filepath, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["date", "value", "source"])
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    fieldnames = ['date', 'keyword', 'value']
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
+    
+    logger.info(f"Data saved to {output_path}")
 
-    logger.info(f"Data saved to {filepath}")
-
-def calculate_md5(filepath: str) -> str:
+def calculate_md5(file_path: str) -> str:
     """
     Calculates the MD5 checksum of a file.
     """
     hash_md5 = hashlib.md5()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-def save_checksum(filepath: str, checksum: str, checksum_file: str) -> None:
+def save_checksum(file_path: str, checksum_path: str) -> None:
     """
-    Saves the checksum to a JSON file.
-    Updates existing checksums if the file exists.
+    Saves the MD5 checksum to a separate file.
     """
-    checksums = {}
-    if os.path.exists(checksum_file):
-        try:
-            with open(checksum_file, 'r') as f:
-                checksums = json.load(f)
-        except json.JSONDecodeError:
-            logger.warning("Checksum file is corrupted. Overwriting.")
-            checksums = {}
-
-    # Extract just the filename for the key
-    filename = os.path.basename(filepath)
-    checksums[filename] = {
-        "hash": checksum,
-        "timestamp": datetime.now().isoformat()
-    }
-
-    with open(checksum_file, 'w') as f:
-        json.dump(checksums, f, indent=2)
-
-    logger.info(f"Checksum saved for {filename} to {checksum_file}")
+    checksum = calculate_md5(file_path)
+    with open(checksum_path, 'w') as f:
+        f.write(checksum)
+    logger.info(f"Checksum saved to {checksum_path}: {checksum}")
 
 def main():
     """
-    Main entry point for the Google Trends fetcher.
+    Main entry point for fetching Google Trends data.
     """
-    # Ensure output directory exists
-    os.makedirs(DATA_DIR, exist_ok=True)
+    # Configuration
+    KEYWORDS = ["anticipatory anxiety", "worry about future"]
+    START_DATE = "2020-01-01"
+    END_DATE = "2023-12-31"
+    OUTPUT_DIR = "data/raw"
+    OUTPUT_FILE = "google_trends.csv"
+    CHECKSUM_FILE = "google_trends.csv.md5"
 
-    logger.info("Starting Google Trends fetch process...")
+    output_path = os.path.join(OUTPUT_DIR, OUTPUT_FILE)
+    checksum_path = os.path.join(OUTPUT_DIR, CHECKSUM_FILE)
+
+    logger.info(f"Starting Google Trends fetch for {KEYWORDS} from {START_DATE} to {END_DATE}")
 
     try:
-        # Fetch data with retry logic
-        # We wrap the fetch_google_trends call to handle the retry logic
-        # Note: fetch_google_trends itself handles internal retries if needed,
-        # but we wrap it here to ensure the whole process follows the pattern.
-        # Since fetch_google_trends doesn't raise on partial failure (logs and continues),
-        # we call it directly. If it raises an import error or network error, it will bubble up.
-        data = fetch_google_trends()
-
+        # Fetch data
+        data = fetch_google_trends(KEYWORDS, START_DATE, END_DATE)
+        
         if not data:
-            logger.error("No data was fetched. Exiting.")
+            logger.error("Fetched data is empty. Aborting.")
             sys.exit(1)
 
-        # Save to CSV
-        save_to_csv(data, OUTPUT_FILE)
-
-        # Calculate checksum
-        checksum = calculate_md5(OUTPUT_FILE)
+        # Save data
+        save_to_csv(data, output_path)
 
         # Save checksum
-        save_checksum(OUTPUT_FILE, checksum, CHECKSUM_FILE)
+        save_checksum(output_path, checksum_path)
 
-        logger.info("Google Trends fetch process completed successfully.")
-
+        logger.info("Google Trends fetch completed successfully.")
+        
     except Exception as e:
-        logger.error(f"Process failed: {e}")
+        logger.critical(f"Failed to fetch Google Trends data: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    # Import pandas here to avoid dependency issues if not installed,
-    # but it is in requirements.txt.
-    try:
-        import pandas as pd
-    except ImportError:
-        logger.error("pandas is not installed.")
-        sys.exit(1)
-
+    # Setup logging
+    from utils.logging import setup_logging
+    setup_logging()
     main()

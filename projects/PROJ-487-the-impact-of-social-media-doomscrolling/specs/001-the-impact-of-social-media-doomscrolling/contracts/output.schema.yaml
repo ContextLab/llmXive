@@ -1,26 +1,24 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AnalysisResult"
-description: "Schema for the output of the statistical analysis pipeline, representing a single metric result."
 type: "object"
 properties:
   metric:
     type: "string"
-    description: "Name of the metric being reported (e.g., 'pearson_correlation', 'granger_causality')."
+    description: "The name of the statistical metric (e.g., 'Pearson Correlation', 'Granger Causality')."
   coefficient:
     type: "number"
-    description: "The calculated coefficient value (e.g., r, F-statistic converted, or standardized coefficient)."
+    description: "The calculated coefficient value (e.g., correlation coefficient, F-statistic)."
   p_value:
     type: "number"
     description: "The p-value associated with the test statistic."
   lag:
     type: "integer"
-    description: "The time lag used for the analysis (e.g., 1, 2, 7, 14 days). For non-lagged metrics, this may be 0."
+    description: "The time lag used for the analysis (e.g., 1, 2, 3, 7, 14 days)."
   significance_flag:
     type: "boolean"
-    description: "True if the result is statistically significant (e.g., p_value < threshold after correction), False otherwise."
+    description: "True if the result is statistically significant after Bonferroni correction (p < 0.01), False otherwise."
   stationarity_status:
     type: "string"
-    description: "Status of the stationarity check for the data used in this analysis. Allowed values: 'stationary', 'non-stationary', 'unknown'."
+    description: "The stationarity status of the time series used in this calculation (e.g., 'stationary', 'non-stationary')."
 required:
   - "metric"
   - "coefficient"
@@ -28,3 +26,4 @@ required:
   - "lag"
   - "significance_flag"
   - "stationarity_status"
+additionalProperties: false

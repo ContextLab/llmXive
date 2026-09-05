@@ -1,44 +1,25 @@
-T001:
+T000:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `.project_init.json` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
-    was provided, nor any content showing the required JSON payload. The implementer
-    must create the file with the exact specified fields and values.
-T002:
+  r: "No `research.md` file (or its contents) was provided in the evidence, so we\
+    \ cannot confirm that the required document exists, is non\u2011empty, or contains\
+    \ the filtered Technical Context and correct Summary as specified. The implementer\
+    \ must supply the actual `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/research.md`\
+    \ file with the appropriate content."
+T004a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings, .gitkeep files, or any other filesystem evidence were
-    provided; therefore we cannot confirm that `data/raw/`, `data/processed/`, and
-    `data/reports/` were created under `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`.
-    The required artifacts are missing.
-T003:
+  r: No evidence of a `venv` directory or any activation scripts/files was provided
+    in the artifacts; the implementer did not supply proof that `python -m venv venv`
+    was executed in the specified project path. The required virtual environment is
+    missing.
+T004b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/data/`, `code/tests/`, `code/utils/`)
-    or the `__init__.py` files within them is provided; without visible artifacts
-    we cannot confirm they were created. The implementer must supply a directory listing
-    or the actual files to verify the task is completed.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing a `venv` directory under `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`\
-    \ or the presence of `venv/bin/activate` was provided; therefore the task\u2019\
-    s creation and verification steps are not demonstrated."
-T008:
-  c: false
-  h: 8beb967a3b6560c963320780dd8710ddd92f67bbcb63626c12b7e4ab2eec0c7b
-  r: "The repository contains a `validation.py` file, but it does not show concrete\
-    \ functions that load and validate the specific `contracts/dataset.schema.yaml`\
-    \ and `contracts/output.schema.yaml` files, and the required schema files are\
-    \ missing entirely (`schema.yaml` is absent, and no `contracts/dataset.schema.yaml`\
-    \ or `contracts/output.schema.yaml` are present). Without those schema files and\
-    \ explicit validation calls, the task\u2019s requirement is not satisfied."
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `test_fetch_gdelt.py` file was presented in the indicated directory, and no
-    test code using `responses` to mock two 500 errors followed by a successful response
-    was shown. The required unit test artifact is missing, so the task is not satisfied.
+  r: "No evidence was provided showing a `venv` directory with a `bin/activate` script,\
+    \ nor any check that the file is executable. The required artifact (the virtual\
+    \ environment activation script) is missing, so the task\u2019s requirement is\
+    \ not satisfied."
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,11 +37,15 @@ T012:
     \ not exist. The task\u2019s core deliverables are therefore missing."
 T013:
   c: false
-  h: 92029609d943bb06fc4e0b34b9bcd44e3e828102d1c82856573c049a526fe1cf
-  r: "The `fetch_google_trends.py` script is present and includes retry logic, but\
-    \ the provided code (and the repository) never creates or writes to `data/raw/google_trends.csv`\
-    \ \u2013 the file is missing entirely. Without the CSV output, the core requirement\
-    \ of saving the fetched data is not satisfied."
+  h: 8d0f38d3d1c16dfb8be77bc61c70b669fe9918d3c0a7c2d8f3d3bf39667b3b25
+  r: "The repository contains a `fetch_google_trends.py` script with retry logic,\
+    \ but the required output file `data/raw/google_trends.csv` is missing, and the\
+    \ provided code snippet does not show any logic that writes the fetched data to\
+    \ that CSV path. Without the CSV file (or code that creates it), the task\u2019\
+    s core requirement\u2014saving the Google Trends data to `data/raw/google_trends.csv`\u2014\
+    is not fulfilled. The implementer must add the CSV\u2011writing step (or run the\
+    \ script to generate the file) and ensure the file exists and contains the expected\
+    \ data for the specified keywords and date range."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -90,3 +75,10 @@ T031:
     for the `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` directory,
     so we cannot verify that CLI usage and environment setup steps were added as required.
     The necessary documentation artifacts are missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `plan.md` file (or its contents) was provided, and there is no evidence that
+    the required Governance Note was inserted into the Technical Context section of
+    the specified path. The implementer must supply the updated `plan.md` showing
+    the exact text block in the correct location.

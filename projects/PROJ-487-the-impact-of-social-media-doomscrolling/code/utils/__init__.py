@@ -1,3 +1,1 @@
-"""
-Utility modules for logging, validation, and environment verification.
-"""
+"""Utility modules for the news volume anxiety study."""

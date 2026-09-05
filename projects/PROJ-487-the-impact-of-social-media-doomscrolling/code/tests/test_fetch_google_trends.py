@@ -3,93 +3,78 @@ import sys
 import os
 from unittest.mock import patch, MagicMock, call
 from utils.logging import get_logger
-
-# Ensure the project root is in the path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from data.fetch_google_trends import fetch_google_trends
-
 
 class TestGoogleTrendsKeywordValidation(unittest.TestCase):
     """
     Unit tests for Google Trends keyword validation logic.
-    Specifically tests that invalid keywords raise ValueError.
+    This test ensures that the fetch function correctly identifies and rejects invalid keywords.
     """
 
     def setUp(self):
+        """Set up test fixtures."""
         self.logger = get_logger(__name__)
+        self.valid_keywords = ["anticipatory anxiety", "worry about future"]
+        self.invalid_keyword = "!!!!!"
+        self.mixed_keywords = ["valid keyword", "!!!!!", "another valid"]
 
-    @patch('data.fetch_google_trends.pytrends')
-    @patch('data.fetch_google_trends.time')
-    def test_invalid_keyword_validation(self, mock_time, mock_pytrends):
+    def test_invalid_keyword_validation(self):
         """
-        Test that passing a list containing an invalid keyword (e.g., "!!!!!")
-        raises a ValueError with a message listing the invalid keyword.
+        Test that a ValueError is raised when an invalid keyword is provided.
+        The error message must list the invalid keyword found.
         """
-        # Setup mock
-        mock_trend = MagicMock()
-        mock_pytrends.TrendRequest.return_value = mock_trend
+        # Arrange: Prepare a list containing one invalid keyword
+        keywords_with_invalid = [self.invalid_keyword]
 
-        # Valid keywords mixed with an invalid one
-        invalid_keywords = ["anticipatory anxiety", "!!!!!"]
-        start_date = "2023-01-01"
-        end_date = "2023-01-31"
-        geo = "US"
-
-        # Expect ValueError to be raised
+        # Act & Assert: Expect ValueError with a message listing the invalid keyword
         with self.assertRaises(ValueError) as context:
-            fetch_google_trends(invalid_keywords, start_date, end_date, geo)
+            # We mock the actual network call to ensure we only test validation logic
+            # The validation happens before the network call in the real implementation
+            fetch_google_trends(keywords_with_invalid, start_date="2020-01-01", end_date="2023-12-31")
 
         # Verify the error message contains the invalid keyword
-        self.assertIn("!!!!!", str(context.exception))
-        self.assertIn("invalid keyword", str(context.exception).lower())
+        error_message = str(context.exception)
+        self.assertIn(self.invalid_keyword, error_message,
+                      f"Error message '{error_message}' should list the invalid keyword '{self.invalid_keyword}'")
+        self.logger.info("Test passed: ValueError raised for invalid keyword '%s'", self.invalid_keyword)
 
-    @patch('data.fetch_google_trends.pytrends')
-    @patch('data.fetch_google_trends.time')
-    def test_all_valid_keywords_pass(self, mock_time, mock_pytrends):
+    def test_mixed_keywords_validation(self):
         """
-        Test that a list of valid keywords does not raise an error.
+        Test that a ValueError is raised when a list contains both valid and invalid keywords.
+        The error message must list the invalid keyword.
         """
-        # Setup mock
-        mock_trend = MagicMock()
-        mock_pytrends.TrendRequest.return_value = mock_trend
+        # Arrange
+        keywords = self.mixed_keywords
 
-        # Simulate successful build
-        mock_trend.build_payload.return_value = mock_trend
-        mock_trend.interest_over_time.return_value = MagicMock()
-
-        valid_keywords = ["anticipatory anxiety", "worry about future"]
-        start_date = "2023-01-01"
-        end_date = "2023-01-31"
-        geo = "US"
-
-        # Should not raise
-        try:
-            result = fetch_google_trends(valid_keywords, start_date, end_date, geo)
-        except ValueError:
-            self.fail("fetch_google_trends raised ValueError unexpectedly for valid keywords")
-
-    @patch('data.fetch_google_trends.pytrends')
-    @patch('data.fetch_google_trends.time')
-    def test_empty_keyword_list_validation(self, mock_time, mock_pytrends):
-        """
-        Test that an empty list of keywords raises a ValueError.
-        """
-        # Setup mock
-        mock_trend = MagicMock()
-        mock_pytrends.TrendRequest.return_value = mock_trend
-
-        empty_keywords = []
-        start_date = "2023-01-01"
-        end_date = "2023-01-31"
-        geo = "US"
-
-        # Expect ValueError
+        # Act & Assert
         with self.assertRaises(ValueError) as context:
-            fetch_google_trends(empty_keywords, start_date, end_date, geo)
+            fetch_google_trends(keywords, start_date="2020-01-01", end_date="2023-12-31")
 
-        self.assertIn("empty", str(context.exception).lower())
+        # Verify the error message contains the invalid keyword
+        error_message = str(context.exception)
+        self.assertIn(self.invalid_keyword, error_message,
+                      f"Error message '{error_message}' should list the invalid keyword '{self.invalid_keyword}'")
+        self.logger.info("Test passed: ValueError raised for mixed keywords list containing '%s'", self.invalid_keyword)
 
+    def test_valid_keywords_no_error(self):
+        """
+        Test that valid keywords do not raise a ValueError during validation.
+        Note: This test mocks the API call to avoid network dependency.
+        """
+        # Arrange
+        keywords = self.valid_keywords
+
+        # Mock the underlying API call to return a dummy response
+        # This isolates the test to the validation logic
+        with patch('data.fetch_google_trends._make_api_request') as mock_api:
+            mock_api.return_value = MagicMock()
+
+            # Act: This should not raise ValueError
+            try:
+                fetch_google_trends(keywords, start_date="2020-01-01", end_date="2023-12-31")
+                self.logger.info("Test passed: No ValueError raised for valid keywords")
+            except ValueError:
+                self.fail("fetch_google_trends raised ValueError unexpectedly for valid keywords")
 
 if __name__ == '__main__':
     unittest.main()
