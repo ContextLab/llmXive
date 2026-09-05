@@ -1,1 +1,1 @@
-# tests.contract package
+"""Contract test package."""

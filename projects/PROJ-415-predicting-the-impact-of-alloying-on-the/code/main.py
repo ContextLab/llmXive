@@ -1,124 +1,131 @@
-"""
-Main orchestration script for the alloy diffusion prediction pipeline.
-Executes the full workflow: Ingestion -> Features -> Training -> Validation -> Reporting.
-"""
 import os
 import sys
 import logging
+import time
 from pathlib import Path
+import json
 
-# Add project root to path to ensure imports work regardless of execution context
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-from config import ensure_directories, DATA_DIR, MODELS_DIR, REPORTS_DIR, ERRORS_DIR, LOG_DIR
+from config import ensure_directories, set_global_seed, DATA_DIR, MODELS_DIR, REPORTS_DIR, ERRORS_DIR, LOG_DIR
 from utils.logging import get_logger, log_info, log_error_traceback
 from data.acquisition import acquire_and_save_diffusion_data
-from data.ingestion import load_and_filter, load_multiple_files, split_data_stratified
+from data.ingestion import load_and_filter, split_data_stratified
 from data.curation import run_curation
 from data.descriptors import compute_descriptors_dataframe
 from models.training import prepare_features_target, train_random_forest, train_gradient_boosting, train_linear_regression, save_model_and_metrics
-from models.save_artifacts import save_model_to_pickle, save_linear_coefficients
-from models.inference import load_model, prepare_test_data, evaluate_model, run_inference
+from models.inference import run_inference
+from models.save_artifacts import save_linear_coefficients, aggregate_metrics
 from validation.stats import run_validation_stats, save_validation_results
-from validation.sensitivity import run_sensitivity_sweep
+from validation.sensitivity import run_sensitivity_sweep, calculate_stability_metric, save_sensitivity_sweep_csv
 from validation.report_generator import generate_validation_report, save_report
 
+logger = get_logger(__name__)
+
 def main():
-    logger = get_logger(__name__)
-    log_info(logger, "Starting Pipeline: Predicting Impact of Alloying on Diffusion Activation Energy")
+    """
+    Orchestrate the full pipeline: Ingestion -> Features -> Training -> Validation
+    """
+    start_time = time.time()
+    set_global_seed()
+    ensure_directories()
+    
+    log_info("Starting full pipeline execution...")
 
     try:
-        # 1. Setup Directories
-        log_info(logger, "Ensuring directory structure...")
-        ensure_directories()
+        # Phase 2/3: Data Acquisition and Ingestion
+        log_info("Step 1: Acquiring real diffusion data...")
+        acquire_and_save_diffusion_data()
+        
+        log_info("Step 2: Ingesting and filtering data...")
+        df_raw = load_and_filter()
+        if df_raw is None or df_raw.empty:
+            raise ValueError("Ingestion produced no data.")
+        
+        log_info("Step 3: Curing data (handling missing values)...")
+        df_curated = run_curation(df_raw)
+        if df_curated is None or df_curated.empty:
+            raise ValueError("Curation produced no data.")
 
-        # 2. Data Acquisition (Check if raw data exists, fetch if not)
-        raw_data_path = DATA_DIR / "raw" / "fetched_diffusion.csv"
-        if not raw_data_path.exists():
-            log_info(logger, "Raw data not found. Fetching from source...")
-            acquire_and_save_diffusion_data()
-        else:
-            log_info(logger, f"Raw data found at {raw_data_path}. Skipping fetch.")
-
-        # 3. Ingestion: Load and Filter
-        log_info(logger, "Running Ingestion (Filtering for FCC Self-Diffusion)...")
-        # load_and_filter expects to find the raw file or accepts a path
-        # Based on task T013, it filters and saves to data/curated/filtered.csv eventually or intermediate
-        # We assume load_and_filter handles the initial filter and returns a DF or saves it.
-        # For orchestration, we call it to ensure the filtering happens.
-        df_ingested = load_and_filter(raw_data_path)
-        log_info(logger, f"Ingestion complete. Rows after filtering: {len(df_ingested)}")
-
-        # 4. Curation: Handle missing values and log exclusions
-        log_info(logger, "Running Curation (Handling missing values)...")
-        df_curated, exclusions_log = run_curation(df_ingested)
-        log_info(logger, f"Curation complete. Rows after curation: {len(df_curated)}")
-
-        # 5. Feature Engineering: Compute Descriptors
-        log_info(logger, "Computing Atomic Descriptors...")
+        # Phase 4: Feature Engineering
+        log_info("Step 4: Computing descriptors...")
         df_features = compute_descriptors_dataframe(df_curated)
-        log_info(logger, f"Descriptors computed. Shape: {df_features.shape}")
-
-        # 6. Model Training
-        log_info(logger, "Starting Model Training (RF, GB, Linear)...")
         
-        # Prepare X, y
+        # Split data
         X, y = prepare_features_target(df_features)
-        
-        # Train Models
-        rf_model, rf_metrics = train_random_forest(X, y)
-        gb_model, gb_metrics = train_gradient_boosting(X, y)
-        lr_model, lr_results = train_linear_regression(X, y)
-        
-        log_info(logger, "Model training complete.")
+        X_train, X_test, y_train, y_test = split_data_stratified(X, y)
 
-        # 7. Save Models and Metrics
-        log_info(logger, "Saving models and artifacts...")
+        # Phase 4: Model Training
+        log_info("Step 5: Training Random Forest...")
+        rf_model, rf_metrics = train_random_forest(X_train, y_train)
+        save_model_and_metrics(rf_model, "final_rf.pkl", rf_metrics)
         
-        # Save Pickles
-        save_model_to_pickle(rf_model, "final_rf.pkl")
-        save_model_to_pickle(gb_model, "final_gb.pkl")
+        log_info("Step 6: Training Gradient Boosting...")
+        gb_model, gb_metrics = train_gradient_boosting(X_train, y_train)
+        save_model_and_metrics(gb_model, "final_gb.pkl", gb_metrics)
         
-        # Save Linear Coeffs
-        save_linear_coefficients(lr_results)
+        log_info("Step 7: Training Linear Regression...")
+        lr_model, lr_metrics, lr_coef, lr_intercept, lr_p_value = train_linear_regression(X_train, y_train)
+        save_model_and_metrics(lr_model, "linear_model.pkl", lr_metrics)
         
-        # 8. Inference & Evaluation (Compute final metrics on test set)
-        log_info(logger, "Running Inference and Evaluation...")
-        # Re-load test data logic or use the split from training if stored
-        # The training module usually handles the split internally or returns it.
-        # We assume run_inference or evaluate_model handles the final metrics calculation.
-        # Based on T025, we need to save models/metrics.json
-        # We will call the inference runner which aggregates RF and GB metrics.
-        final_metrics = run_inference(rf_model, gb_model, X, y)
-        
-        log_info(logger, f"Final Metrics: {final_metrics}")
+        # Save Linear Regression coefficients specifically for T024
+        save_linear_coefficients(lr_coef, lr_intercept, lr_p_value)
 
-        # 9. Validation: Statistical Significance
-        log_info(logger, "Running Statistical Validation...")
-        stats_results = run_validation_stats(lr_results, X, y)
-        save_validation_results(stats_results)
+        # Phase 4: Inference and Metrics Aggregation
+        log_info("Step 8: Evaluating models on test set...")
+        rf_test_metrics = run_inference(rf_model, X_test, y_test, "rf")
+        gb_test_metrics = run_inference(gb_model, X_test, y_test, "gb")
+        
+        # Calculate Mean Predictor R2
+        mean_pred = y_train.mean()
+        mean_r2 = 1 - (np.sum((y_test - mean_pred) ** 2) / np.sum((y_test - y_test.mean()) ** 2))
+        
+        # Aggregate all metrics (T024 requirement)
+        aggregate_metrics(
+            rf_metrics=rf_test_metrics,
+            gb_metrics=gb_test_metrics,
+            mean_r2=mean_r2,
+            linear_metrics=lr_metrics
+        )
 
-        # 10. Validation: Sensitivity Analysis
-        log_info(logger, "Running Sensitivity Analysis...")
-        sensitivity_results = run_sensitivity_sweep(df_features, rf_model, gb_model)
+        # Phase 5: Statistical Validation
+        log_info("Step 9: Running statistical validation...")
+        validation_results = run_validation_stats(lr_coef, lr_p_value, X_train, y_train)
+        save_validation_results(validation_results)
 
-        # 11. Generate Final Report
-        log_info(logger, "Generating Validation Report...")
+        # Phase 5: Sensitivity Analysis
+        log_info("Step 10: Running sensitivity analysis...")
+        # Note: T031 is assumed to have run or is integrated here if not a separate task execution
+        # Assuming baseline_shifts.csv exists from T031 logic or is generated here for flow
+        # For this orchestration, we assume the data is ready or generated in the flow if T031 is skipped
+        # In a strict sequential run, T031 would run before T032.
+        
+        # Run sweep (T032)
+        run_sensitivity_sweep()
+        
+        # Calculate stability (T033)
+        stability = calculate_stability_metric()
+        
+        # Generate final report (T034)
         report_data = generate_validation_report(
-            metrics=final_metrics,
-            stats=stats_results,
-            sensitivity=sensitivity_results
+            rf_metrics=rf_test_metrics,
+            gb_metrics=gb_test_metrics,
+            mean_r2=mean_r2,
+            validation_results=validation_results,
+            stability_metrics=stability
         )
         save_report(report_data)
 
-        log_info(logger, "Pipeline execution completed successfully.")
-        return 0
+        end_time = time.time()
+        runtime = end_time - start_time
+        log_info(f"Pipeline completed successfully in {runtime:.2f} seconds.")
+        
+        # Log runtime for performance check (T038)
+        perf_log = {"total_runtime_seconds": runtime}
+        with open(Path(REPORTS_DIR) / "performance_log.json", 'w') as f:
+            json.dump(perf_log, f, indent=4)
 
     except Exception as e:
-        log_error_traceback(logger, e)
-        return 1
+        log_error_traceback(e)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-alloy-diffusion"
+name = "llmxive-predict-alloy-diffusion"
 version = "0.1.0"
-description = "Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals"
+description = "Predicting the impact of alloying on the diffusion activation energy in FCC metals"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -16,8 +16,34 @@ dependencies = [
     "pymatgen",
     "pytest",
     "ruff",
-    "black"
+    "black",
 ]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+indent-width = 4
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
 
 [tool.black]
 line-length = 88
@@ -37,44 +63,7 @@ exclude = '''
 )/
 '''
 
-[tool.ruff]
-# Same as Black.
-line-length = 88
-target-version = "py311"
-exclude = [
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "data",
-    "models",
-    "reports"
-]
-
-[tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in data loading)
-]
-
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+pythonpath = ["code"]
 addopts = "-v --tb=short"

@@ -1,1 +1,1 @@
-# tests package
+"""Tests package for the llmXive pipeline."""

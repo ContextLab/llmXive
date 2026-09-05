@@ -1,82 +1,134 @@
-import pytest
+"""
+Unit tests for data acquisition module.
+
+These tests verify the acquisition logic using mocked HTTP responses
+to ensure error handling paths are covered without requiring network access.
+"""
 import os
 import sys
 import json
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock
+import pytest
 
-# Add parent directory to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from code.data.acquisition import fetch_real_diffusion_data_from_nist, acquire_and_save_diffusion_data
+from code.data.acquisition import (
+    fetch_real_diffusion_data_from_nist,
+    fetch_fcc_diffusion_data,
+    acquire_and_save_diffusion_data,
+    MIN_VALID_ENTRIES,
+    MAX_DATA_SIZE_BYTES
+)
 from config import DATA_DIR
 
+
 class TestAcquisition:
-    @patch('code.data.acquisition.requests.get')
-    def test_fetch_real_data_success(self, mock_get):
-        """Test successful fetch of real data."""
-        # Generate 60 rows of mock data
-        rows = ["solute,host,activation_energy,temperature_range"]
-        for i in range(60):
-            rows.append(f"Solute{i},Host{str(i%10)},0.5,300-500")
-        mock_response = MagicMock()
-        mock_response.text = "\n".join(rows)
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
+    """Test cases for data acquisition functions."""
 
-        data = fetch_real_diffusion_data_from_nist()
-        assert len(data) == 60
-        assert 'solute' in data[0]
-
-    @patch('code.data.acquisition.requests.get')
-    def test_fetch_real_data_insufficient(self, mock_get):
-        """Test that insufficient data raises SystemExit."""
-        # Generate only 10 rows of mock data
-        rows = ["solute,host,activation_energy,temperature_range"]
-        for i in range(10):
-            rows.append(f"Solute{i},Host{str(i%10)},0.5,300-500")
+    def test_fetch_data_insufficiency(self):
+        """Test that SystemExit is raised when data < 50 entries."""
+        # Create mock CSV with only 10 rows
+        mock_csv = "col1,col2,col3\n" + "\n".join([f"a{i},b{i},c{i}" for i in range(10)])
         
-        mock_response = MagicMock()
-        mock_response.text = "\n".join(rows)
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
-
-        # We test acquire_and_save_diffusion_data which calls fetch and checks count
-        with pytest.raises(SystemExit, match="Data Insufficiency: N < 50"):
-            # Mock the file writing to avoid actual disk writes in test
-            with patch('code.data.acquisition.open', mock_open()):
-                acquire_and_save_diffusion_data()
-
-    @patch('code.data.acquisition.requests.get')
-    def test_fetch_real_data_network_error(self, mock_get):
-        """Test that network error raises SystemExit."""
-        from requests.exceptions import RequestException
-        mock_get.side_effect = RequestException("Network error")
-
-        with pytest.raises(SystemExit, match="Data Fetch Failed"):
-            acquire_and_save_diffusion_data()
-
-    def test_output_file_created(self):
-        """Test that the output file is created with sufficient data."""
-        # Mock a large dataset
-        rows = ["solute,host,activation_energy,temperature_range"]
-        for i in range(100):
-            rows.append(f"Solute{i},Host{str(i%10)},0.5,300-500")
-        mock_data = "\n".join(rows)
-        
-        with patch('code.data.acquisition.requests.get') as mock_get:
+        with patch('urllib.request.urlopen') as mock_urlopen:
             mock_response = MagicMock()
-            mock_response.text = mock_data
-            mock_response.raise_for_status = MagicMock()
-            mock_get.return_value = mock_response
+            mock_response.headers.get.return_value = None
+            mock_response.read.return_value = mock_csv.encode('utf-8')
+            mock_response.__enter__.return_value = mock_response
+            mock_urlopen.return_value = mock_response
+            
+            with pytest.raises(SystemExit) as exc_info:
+                fetch_real_diffusion_data_from_nist("http://test.com/data.csv")
+            
+            assert "Data Insufficiency: N < 50" in str(exc_info.value)
 
-            output_path = str(DATA_DIR / "raw" / "test_fetched_diffusion.csv")
-            try:
-                acquire_and_save_diffusion_data(output_path)
-                assert Path(output_path).exists()
-                assert Path(output_path).stat().st_size > 0
-            finally:
-                if Path(output_path).exists():
-                    os.remove(output_path)
+    def test_fetch_data_size_exceeded(self):
+        """Test that SystemExit is raised when data > 10MB."""
+        # Create a mock response that claims to be > 10MB
+        with patch('urllib.request.urlopen') as mock_urlopen:
+            mock_response = MagicMock()
+            mock_response.headers.get.return_value = str(MAX_DATA_SIZE_BYTES + 1)
+            mock_response.__enter__.return_value = mock_response
+            mock_urlopen.return_value = mock_response
+            
+            with pytest.raises(SystemExit) as exc_info:
+                fetch_real_diffusion_data_from_nist("http://test.com/data.csv")
+            
+            assert "Data Size Exceeded: >10MB constraint violated" in str(exc_info.value)
+
+    def test_fetch_success(self):
+        """Test successful fetch of valid data."""
+        # Create mock CSV with 100 rows
+        mock_csv = "col1,col2,col3\n" + "\n".join([f"a{i},b{i},c{i}" for i in range(100)])
+        
+        with patch('urllib.request.urlopen') as mock_urlopen:
+            mock_response = MagicMock()
+            mock_response.headers.get.return_value = None
+            mock_response.read.return_value = mock_csv.encode('utf-8')
+            mock_response.__enter__.return_value = mock_response
+            mock_urlopen.return_value = mock_response
+            
+            records = fetch_real_diffusion_data_from_nist("http://test.com/data.csv")
+            
+            assert len(records) == 100
+            assert all(isinstance(r, dict) for r in records)
+
+    def test_fetch_fallback_url(self):
+        """Test that fallback URL is attempted on failure."""
+        # First call fails, second succeeds
+        mock_csv = "col1,col2,col3\n" + "\n".join([f"a{i},b{i},c{i}" for i in range(100)])
+        
+        with patch('urllib.request.urlopen') as mock_urlopen:
+            mock_response = MagicMock()
+            mock_response.headers.get.return_value = None
+            mock_response.read.return_value = mock_csv.encode('utf-8')
+            mock_response.__enter__.return_value = mock_response
+            
+            # First call raises error, second succeeds
+            mock_urlopen.side_effect = [
+                Exception("First URL failed"),
+                mock_response
+            ]
+            
+            # Should succeed with fallback
+            records = fetch_fcc_diffusion_data()
+            
+            assert len(records) == 100
+            assert mock_urlopen.call_count == 2
+
+    def test_acquire_and_save_creates_files(self):
+        """Test that acquisition creates expected output files."""
+        # Create mock CSV with 100 rows
+        mock_csv = "col1,col2,col3\n" + "\n".join([f"a{i},b{i},c{i}" for i in range(100)])
+        
+        with patch('urllib.request.urlopen') as mock_urlopen:
+            mock_response = MagicMock()
+            mock_response.headers.get.return_value = None
+            mock_response.read.return_value = mock_csv.encode('utf-8')
+            mock_response.__enter__.return_value = mock_response
+            mock_urlopen.return_value = mock_response
+            
+            # Create a temporary directory for testing
+            with tempfile.TemporaryDirectory() as tmpdir:
+                # Patch the paths
+                with patch('code.data.acquisition.DATA_DIR', Path(tmpdir)):
+                    with patch('code.data.acquisition.METADATA_PATH', Path(tmpdir) / "raw" / "source_metadata.json"):
+                        with patch('code.data.acquisition.OUTPUT_CSV_PATH', Path(tmpdir) / "raw" / "fetched_diffusion.csv"):
+                            acquire_and_save_diffusion_data()
+                            
+                            # Verify files exist
+                            csv_path = Path(tmpdir) / "raw" / "fetched_diffusion.csv"
+                            meta_path = Path(tmpdir) / "raw" / "source_metadata.json"
+                            
+                            assert csv_path.exists()
+                            assert meta_path.exists()
+                            
+                            # Verify metadata content
+                            with open(meta_path) as f:
+                                metadata = json.load(f)
+                                assert "source_url" in metadata
+                                assert "fetch_timestamp" in metadata

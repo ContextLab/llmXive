@@ -1,9 +1,3 @@
-T009:
-  c: true
-  h: eb071374a275ac1fee9f5c44e758ab276c45680ffff83a6bb69c5d941e36ec09
-  r: "The `tests/contract/test_schema.py` file exists, is non\u2011empty, and contains\
-    \ concrete logic to load the YAML schema, read the CSV data, and validate each\
-    \ row\u2019s fields and types against the schema as required."
 T014:
   c: false
   h: e2cd8467b59b20b640f9f9f0d950999fad442a549e3219b357ed5fc70224dbf4

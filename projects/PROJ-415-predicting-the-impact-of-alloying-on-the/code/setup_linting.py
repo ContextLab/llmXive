@@ -1,106 +1,110 @@
 """
-Setup script to verify and initialize linting and formatting tools.
-This script checks for the presence of ruff and black, installs them if missing,
-and validates the configuration.
+Setup script for linting (ruff) and formatting (black) tools.
+This script verifies installation and runs basic validation checks.
 """
 import os
 import sys
 import subprocess
 from pathlib import Path
+from typing import Tuple, Optional
 
-def run_command(cmd: list[str]) -> tuple[int, str, str]:
-    """Run a shell command and return (returncode, stdout, stderr)."""
+# Ensure code directory is in path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
+
+def run_command(command: list[str], description: str) -> Tuple[bool, str]:
+    """Run a shell command and return success status and output."""
+    logger.info(f"Running: {description}")
     try:
         result = subprocess.run(
-            cmd,
-            check=False,
+            command,
             capture_output=True,
             text=True,
-            shell=False
+            check=True,
+            cwd=project_root
         )
-        return result.returncode, result.stdout, result.stderr
-    except FileNotFoundError:
-        return 1, "", f"Command not found: {cmd[0]}"
+        logger.info(f"Success: {description}")
+        return True, result.stdout
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed: {description}\nError: {e.stderr}")
+        return False, str(e)
 
 def ensure_tool_installed(tool_name: str) -> bool:
-    """Ensure a tool is installed via pip."""
-    print(f"Checking for {tool_name}...")
-    rc, stdout, stderr = run_command([sys.executable, "-m", "pip", "show", tool_name])
-    if rc == 0:
-        print(f"  {tool_name} is already installed.")
+    """Check if a tool is installed and accessible."""
+    try:
+        subprocess.run(
+            [tool_name, "--version"],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        logger.info(f"Tool '{tool_name}' is installed.")
         return True
-
-    print(f"  Installing {tool_name}...")
-    rc, stdout, stderr = run_command([sys.executable, "-m", "pip", "install", tool_name])
-    if rc == 0:
-        print(f"  Successfully installed {tool_name}.")
-        return True
-    else:
-        print(f"  Failed to install {tool_name}: {stderr}")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logger.error(f"Tool '{tool_name}' is not installed or not in PATH.")
+        logger.info(f"Please install it via: pip install {tool_name}")
         return False
 
 def validate_config() -> bool:
-    """Validate the project's linting configuration."""
-    print("Validating configuration files...")
-    
-    # Check pyproject.toml existence
-    if not Path("pyproject.toml").exists():
-        print("  ERROR: pyproject.toml not found in project root.")
+    """Validate that configuration files exist and are readable."""
+    pyproject_path = project_root / "pyproject.toml"
+    if not pyproject_path.exists():
+        logger.error("pyproject.toml not found. Please ensure configuration exists.")
         return False
-    
-    # Run ruff check (dry run)
-    print("  Running ruff check...")
-    rc, stdout, stderr = run_command([sys.executable, "-m", "ruff", "check", "."])
-    if rc == 0:
-        print("    Ruff check passed (no errors found).")
-    else:
-        # It's okay if there are linting errors in existing code, 
-        # as long as the tool runs. We just want to ensure it's configured.
-        if "No errors found" in stdout or "Found" in stdout:
-            print(f"    Ruff check completed. Output: {stdout[:200]}")
-        else:
-            print(f"    Ruff check output: {stdout[:200]}")
 
-    # Run black check (dry run)
-    print("  Running black check...")
-    rc, stdout, stderr = run_command([sys.executable, "-m", "black", "--check", "."])
-    if rc == 0:
-        print("    Black check passed (all files formatted).")
-    else:
-        # Again, formatting errors in existing code are expected if not formatted yet.
-        if "would reformat" in stdout:
-            print("    Black check: Some files need reformatting (expected in new projects).")
-        else:
-            print(f"    Black check output: {stdout[:200]}")
-
+    logger.info("Configuration file 'pyproject.toml' found and readable.")
     return True
 
-def main():
-    """Main entry point for setup."""
-    print("=== Linting and Formatting Setup ===")
-    
-    # Ensure tools are available
+def main() -> int:
+    """Main entry point for linting setup."""
+    logger.info("Starting linting and formatting configuration validation...")
+
+    # Check configurations
+    if not validate_config():
+        return 1
+
+    # Check tools
     tools = ["ruff", "black"]
-    success = True
+    all_installed = True
     for tool in tools:
         if not ensure_tool_installed(tool):
-            success = False
-    
-    if not success:
-        print("Failed to install required tools.")
-        sys.exit(1)
+            all_installed = False
 
-    # Validate configuration
-    if not validate_config():
-        print("Configuration validation failed.")
-        sys.exit(1)
+    if not all_installed:
+        logger.warning("Some tools are missing. Run 'pip install ruff black' to fix.")
+        return 1
 
-    print("=== Setup Complete ===")
-    print("You can now run:")
-    print("  - Ruff: python -m ruff check .")
-    print("  - Ruff Fix: python -m ruff check . --fix")
-    print("  - Black: python -m black .")
-    print("  - Black Check: python -m black --check .")
+    # Run basic validation: check that ruff can parse the code directory
+    logger.info("Running 'ruff check code/' to verify configuration...")
+    success, output = run_command(
+        ["ruff", "check", "code/"],
+        "Ruff lint check on code directory"
+    )
+    # Ruff returns 0 if clean, 1 if issues found. We treat issues as warnings for setup,
+    # but we want to ensure the command runs successfully.
+    if success or "Found" in output: # Ruff often exits 1 if issues found, which is okay for setup
+         logger.info("Ruff check executed successfully.")
+    else:
+         logger.error("Ruff check failed to execute.")
+         return 1
+
+    logger.info("Running 'black --check code/' to verify formatting configuration...")
+    success, output = run_command(
+        ["black", "--check", "code/"],
+        "Black format check on code directory"
+    )
+    if success or "would reformat" in output:
+        logger.info("Black check executed successfully.")
+    else:
+        logger.error("Black check failed to execute.")
+        return 1
+
+    logger.info("Linting and formatting configuration validated successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
