@@ -1,5 +1,13 @@
-'|flag if':
-  quote: 'P508: 15226'
-  source_id: Q14660
-  url: https://www.wikidata.org/wiki/Q14660
-  value: '15226'
+'|alpha cronbach reliability threshold':
+  quote: Measurement Model assessment involves several steps that includes the assessment
+    of quality criteria that includes the evaluation of factor loadings, construct
+    reliability, construct validity. The criteria for factor loadings is 0.70, any
+    items with loadings less than 0.70 may be considered for removal, if removing
+    the items can improve the reliability and validity over the required threshold.
+    Further Construct reliability is assessed using Cronbach Alpha and Composite Reliability,
+    the required value for both is 0.70.  Further, construct validity is assessed
+    using convergent validity (AVE > 0.50) and Discriminant validity (Fornell & Larcker
+    Criterion and Heterotrait-Monotrait Ratio).
+  source_id: SmartPLS
+  url: https://en.wikipedia.org/wiki/SmartPLS
+  value: '0.70'

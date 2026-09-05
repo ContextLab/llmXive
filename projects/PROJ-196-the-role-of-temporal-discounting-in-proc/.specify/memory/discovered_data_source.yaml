@@ -1,15 +1,11 @@
 status: none
-intent: download delay discounting procrastination scale n-back task dataset python
-  package dataset
+intent: OpenNeuro delay discounting procrastination scale n-back python package dataset
 required_fields:
 - participant_id
 - discount_rate_k
 - procrastination_score
-- n_back_accuracy
-- n_back_hits
-- n_back_false_alarms
-- raw_indifference_points
-- assessment_date
-cache_key: 95a9003785e030390d0f219a1a64ad23a208840329b7683c1801a35d03fba92d
-searched_at: '2026-09-02T17:45:07.189007+00:00'
+- nback_accuracy
+- nback_reaction_time
+cache_key: c67532d2a73003e359f42774487f6eebc57ff74ba8f3d3fe46c19d22e964cd20
+searched_at: '2026-09-05T20:34:52.804721+00:00'
 retry_count: 1

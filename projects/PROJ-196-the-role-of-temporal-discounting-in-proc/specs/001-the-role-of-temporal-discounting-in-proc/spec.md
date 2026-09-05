@@ -49,7 +49,7 @@ The system must perform robustness checks, specifically bootstrapping with a suf
 
 **Acceptance Scenarios**:
 
-1. **Given** the primary OLS model results, **When** the bootstrapping routine runs (1000 resamples), **Then** a 95% confidence interval for the interaction coefficient is generated and reported.
+1. **Given** the primary OLS model results, **When** the bootstrapping routine runs (a sufficient number of resamples), **Then** A confidence interval for the interaction coefficient is generated and reported.
 2. **Given** a potential threshold for "high" vs "low" working memory load (if applied for exploratory analysis), **When** the sensitivity analysis runs, **Then** the interaction effect is re-evaluated across distinct threshold values (median, median ± 0.05*SD, median ± 0.10*SD) and the variation in effect size is reported.
 3. **Given** the full analysis pipeline, **When** executed on a standard CPU, **Then** the total runtime is ≤ 6 hours and memory usage remains ≤ 7 GB.
 

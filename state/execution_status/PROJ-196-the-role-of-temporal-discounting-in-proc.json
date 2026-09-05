@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-196-the-role-of-temporal-discounting-in-proc",
   "ok": false,
-  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ndom_state):     \"\"\"     Generate synthetic delay discounting data.\u2026\u201d; code/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ndom_state):     \"\"\"     Generate synthetic procrastination scale da\u2026\u201d; code/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ndom_state):     \"\"\"     Generate synthetic n-back working memory ta\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 1 command(s) failed: python code/ingestion.py --mode generate --n [N] --seed 42, where N represents a sufficiently large sample size to ensure statistical power for the study. (rc=1); 4 declared deliverable(s) absent: data/processed/final_analysis_report.json; data/processed/harmonized_dataset.parquet; data/processed/model_config.json",
+  "reason": "6 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generates synthetic delay discounting data b\u2026\u201d; code/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generates synthetic procrastination scale da\u2026\u201d; code/ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026d.DataFrame:     \"\"\"     Generates synthetic n-back working memory ta\u2026\u201d; 2 command(s) failed: python code/ingestion.py --mode generate --n [N] --seed 42, where N represents a sufficiently large sample size to ensure statistical power for the study. (rc=2); python code/main.py (rc=1)",
   "artifacts": [],
   "failures": [
-    "python code/ingestion.py --mode generate --n [N] --seed 42, where N represents a sufficiently large sample size to ensure statistical power for the study. -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/ingestion.py\", line 444, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/ingestion.py\", line 380, in main\n    config = get_config()\n             ^^^^^^^^^^\nNameError: name 'get_config' is not defined",
-    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/main.py': [Errno 2] No such file or directory"
+    "python code/ingestion.py --mode generate --n [N] --seed 42, where N represents a sufficiently large sample size to ensure statistical power for the study. -> rc=2\n    usage: ingestion.py [-h] [--mode {generate,validate}] [--n N] [--seed SEED]\ningestion.py: error: argument --n: invalid int value: '[N]'",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/main.py\", line 19, in <module>\n    from modeling import run_full_analysis\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-196-the-role-of-temporal-discounting-in-proc/code/modeling.py\", line 41, in <module>\n    def load_and_prepare_data() -> Tuple[pd.DataFrame, bool]:\n                                   ^^^^^\nNameError: name 'Tuple' is not defined. Did you mean: 'tuple'?"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-02T17:44:07Z"
+  "updated_at": "2026-09-05T20:34:11Z"
 }
