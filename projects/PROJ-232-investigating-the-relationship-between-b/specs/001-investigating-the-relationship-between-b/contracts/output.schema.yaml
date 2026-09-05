@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the network metric (e.g., 'global_efficiency', 'dmn_efficiency')"
+  correlation_r:
+    type: "number"
+    description: "Pearson correlation coefficient between the metric and BMRQ"
+    minimum: -1
+    maximum: 1
+  p_value:
+    type: "number"
+    description: "Raw p-value from the correlation test"
+    minimum: 0
+    maximum: 1
+  p_value_fdr:
+    type: "number"
+    description: "FDR-corrected p-value"
+    minimum: 0
+    maximum: 1
+  significant:
+    type: "boolean"
+    description: "True if p_value_fdr < 0.05"
+  sample_size:
+    type: "integer"
+    description: "Number of subjects used in this specific test"
+  power_achieved:
+    type: "number"
+    description: "Achieved power for effect size r=0.20 at alpha=0.05"
+    minimum: 0
+    maximum: 1
+required:
+  - metric_name
+  - correlation_r
+  - p_value
+  - p_value_fdr
+  - significant
+  - sample_size
+  - power_achieved
+additionalProperties: false

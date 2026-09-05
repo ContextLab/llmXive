@@ -1,0 +1,16 @@
+status: none
+intent: Human Connectome Project 1200 music task BMRQ Schaefer 200 atlas python package
+  dataset
+required_fields:
+- subject_id
+- rs_fmri_nifti_path
+- bmrq_total_score
+- bmrq_subscale_scores
+- age
+- sex
+- framewise_displacement
+- schaefer200_atlas_labels
+- functional_connectivity_matrix
+cache_key: 31db95457cf914c14b7296d6cce0808e24eff3a71a5274670a726b770188c436
+searched_at: '2026-09-05T18:19:48.399082+00:00'
+retry_count: 1

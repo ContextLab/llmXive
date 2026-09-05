@@ -1,0 +1,71 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema for Brain-Music Emotion Study
+description: |
+  Schema defining the structure of the raw and preprocessed dataset
+  expected from OpenNeuro ds000233 (HCP/OpenNeuro rs-fMRI + BMRQ).
+type: object
+required:
+  - subject_id
+  - raw_fMRI_nifti_path
+  - behavioral_csv_path
+  - bmrq_scores
+  - demographics
+  - preprocessing_status
+properties:
+  subject_id:
+    type: string
+    description: Unique subject identifier (e.g., "sub-001")
+    pattern: "^sub-\\d{3}$"
+  raw_fMRI_nifti_path:
+    type: string
+    description: Relative path to the raw rs-fMRI NIfTI file
+    pattern: "^data/raw/.+\\.nii(\\.gz)?$"
+  behavioral_csv_path:
+    type: string
+    description: Relative path to the behavioral CSV file containing BMRQ scores
+    pattern: "^data/raw/.+\\.csv$"
+  bmrq_scores:
+    type: object
+    description: |
+      Dictionary of BMRQ subscale scores extracted from the behavioral CSV.
+      Keys must match the column names in the source CSV.
+    required:
+      - Musical Emotion Perception
+    additionalProperties:
+      type: number
+  demographics:
+    type: object
+    description: Subject demographic information
+    required:
+      - age
+      - sex
+    properties:
+      age:
+        type: integer
+        minimum: 0
+      sex:
+        type: string
+        enum: ["M", "F"]
+  preprocessing_status:
+    type: string
+    description: Status of preprocessing for this subject
+    enum:
+      - pending
+      - processing
+      - completed
+      - failed
+      - excluded_motion
+  fd_mean:
+    type: number
+    description: Mean Framewise Displacement (calculated during preprocessing)
+    minimum: 0
+    nullable: true
+  excluded:
+    type: boolean
+    description: Whether the subject was excluded due to motion (FD > 0.5)
+    default: false
+  exclusion_reason:
+    type: string
+    description: Reason for exclusion if applicable
+    nullable: true
+additionalProperties: false

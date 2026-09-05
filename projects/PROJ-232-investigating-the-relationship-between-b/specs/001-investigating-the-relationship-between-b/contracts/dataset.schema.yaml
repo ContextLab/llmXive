@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OpenNeuro ds000233 Dataset Schema"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject (e.g., OpenNeuro ID)"
+  age:
+    type: "integer"
+    minimum: 0
+    maximum: 120
+    description: "Age of the subject in years"
+  sex:
+    type: "string"
+    enum: ["M", "F"]
+    description: "Biological sex of the subject"
+  bmrq_total:
+    type: "number"
+    description: "Total score on the Budapest Music Reward Questionnaire (BMRQ)"
+  fd_mean:
+    type: "number"
+    minimum: 0
+    description: "Mean Framewise Displacement (motion metric)"
+  motion_excluded:
+    type: "boolean"
+    description: "Flag indicating if subject was excluded due to high motion (FD > 0.5)"
+required:
+  - subject_id
+  - age
+  - sex
+  - bmrq_total
+  - fd_mean
+  - motion_excluded
+additionalProperties: false

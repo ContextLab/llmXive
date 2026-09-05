@@ -1,0 +1,116 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Output Schema for Brain-Connectivity Analysis
+description: |
+  Schema defining the structure of analysis outputs including
+  connectivity matrices, graph metrics, and merged datasets.
+definitions:
+  connectivity_matrix:
+    type: object
+    description: Symmetric correlation matrix
+    required:
+      - matrix
+      - atlas
+      - shape
+    properties:
+      matrix:
+        type: array
+        description: 2D array of correlation values
+        items:
+          type: array
+          items:
+            type: number
+            minimum: -1
+            maximum: 1
+      atlas:
+        type: string
+        description: Name of the atlas used (e.g., "Schaefer200")
+      shape:
+        type: integer
+        description: Dimension of the matrix (e.g., 200)
+        minimum: 1
+      diagonal:
+        type: array
+        description: Diagonal values (should be 1.0)
+        items:
+          type: number
+          enum: [1.0]
+      symmetry_check:
+        type: boolean
+        description: Whether the matrix passed symmetry validation
+  network_metrics:
+    type: object
+    description: Graph theoretical metrics for a subject
+    required:
+      - global_efficiency
+      - modularity
+      - participation_coefficient
+    properties:
+      global_efficiency:
+        type: number
+        minimum: 0
+      modularity:
+        type: number
+      participation_coefficient:
+        type: number
+      network_efficiency:
+        type: object
+        description: Efficiency per network (DMN, Salience, Visual, etc.)
+        additionalProperties:
+          type: number
+      edge_strengths:
+        type: array
+        description: List of edge-level connectivity strengths
+        items:
+          type: number
+  behavioral_score:
+    type: object
+    description: Merged behavioral and demographic data
+    required:
+      - subject_id
+      - bmrq_scores
+      - demographics
+    properties:
+      subject_id:
+        type: string
+      bmrq_scores:
+        type: object
+        additionalProperties:
+          type: number
+      demographics:
+        type: object
+        properties:
+          age:
+            type: integer
+          sex:
+            type: string
+type: object
+required:
+  - subject_id
+  - connectivity
+  - network_metrics
+  - behavioral
+properties:
+  subject_id:
+    type: string
+    description: Unique subject identifier
+  connectivity:
+    $ref: "#/definitions/connectivity_matrix"
+  network_metrics:
+    $ref: "#/definitions/network_metrics"
+  behavioral:
+    $ref: "#/definitions/behavioral_score"
+  analysis_metadata:
+    type: object
+    description: Metadata about the analysis run
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      software_versions:
+        type: object
+        additionalProperties:
+          type: string
+      parameters:
+        type: object
+        description: Analysis parameters used
+additionalProperties: false

@@ -1,0 +1,21 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required project directories (`src/`, `tests/`, `specs/`)
+    is provided; the implementer did not supply any file listings or screenshots showing
+    that these folders exist and contain appropriate placeholder files. The task remains
+    undone.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.flake8` or `.ruff.toml` files, or a setup script) are present in the
+    provided evidence, so the task of configuring ruff/flake8 and Black has not been
+    demonstrated. The required artifacts are missing.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env` file, loading script, or documentation of environment variable handling
+    was provided; the implementer gave no code or file evidence that configuration
+    management for API keys and data paths has been set up. The required artifact
+    is missing.

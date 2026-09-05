@@ -1,0 +1,16 @@
+nibabel
+nilearn
+networkx
+bctpy
+scikit-learn
+pandas
+numpy
+matplotlib
+seaborn
+datasets
+openneuro-py
+pydantic
+pytest
+requests
+ruff
+black

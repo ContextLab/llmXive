@@ -1,1 +1,11 @@
-[]
+- artifact_hash: a251badb4c2a58c26cbd3aa7fbefaadbc6eb704d87cedbd27991a86cdab92869
+  artifact_path: projects/PROJ-232-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000233`
+  verification_status: pending
+  verified_against_url: https://openneuro.org/datasets/ds000233
+  verified_at: '2026-09-05T18:29:36.003675Z'
