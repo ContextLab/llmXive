@@ -2,53 +2,24 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: Feasibility Report Schema
 type: object
 required:
-  - runtime_seconds
+  - total_runtime_seconds
   - peak_memory_gb
-  - cpu_usage_percent
-  - gpu_used
-  - abort_warnings
-  - dataset_verifications
+  - cpu_cores_used
+  - abort_warning
+  - generated_at
 properties:
-  runtime_seconds:
+  total_runtime_seconds:
     type: number
-    description: "Total wall‑clock time of the pipeline (seconds)."
+    description: "Wall‑clock time of the full pipeline (seconds)."
   peak_memory_gb:
     type: number
     description: "Maximum RAM usage observed (GiB)."
-  cpu_usage_percent:
-    type: number
-    description: "Average CPU utilization percentage."
-  gpu_used:
-    type: boolean
-    description: "True if any step required CUDA (should be false for this plan)."
-  abort_warnings:
-    type: array
-    description: "List of any abort warnings emitted (e.g., permutation test time limit)."
-    items:
-      type: string
-  dataset_verifications:
-    type: array
-    description: "Verification records for each external dataset."
-    items:
-      type: object
-      required:
-        - name
-        - url
-        - sha256
-        - retrieved_at
-      properties:
-        name:
-          type: string
-        url:
-          type: string
-        sha256:
-          type: string
-        retrieved_at:
-          type: string
-          format: date-time
-  checksum:
+  cpu_cores_used:
+    type: integer
+    description: "Number of CPU cores utilized."
+  abort_warning:
     type: string
+    description: "Empty if no abort; otherwise contains the warning message (e.g., 'Permutation phase exceeded the intended time limit.')."
   generated_at:
     type: string
-    format: date-time
-additionalProperties: false
+    format: date-time -->

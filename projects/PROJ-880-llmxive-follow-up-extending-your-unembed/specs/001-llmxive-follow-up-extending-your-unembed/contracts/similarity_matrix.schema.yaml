@@ -3,45 +3,31 @@ title: Similarity Matrix Schema
 type: object
 required:
   - model_pairs
-  - similarity_matrix
-  - ci_lower
-  - ci_upper
+  - similarity_scores
+  - bootstrap_ci
+  - generated_at
 properties:
   model_pairs:
     type: array
-    description: "List of model‑pair identifiers (e.g., ['llama3‑mistral'])."
+    description: "List of model pair identifiers, e.g., ['llama3‑en vs bloom‑fr']."
     items:
       type: string
-  similarity_matrix:
+  similarity_scores:
     type: array
-    description: "2‑D array of cosine similarity scores (row = model pair, column = language pair)."
+    description: "Cosine similarity values for each pair (range ‑1 to 1)."
+    items:
+      type: number
+      minimum: -1
+      maximum: 1
+  bootstrap_ci:
+    type: array
+    description: "Confidence intervals for each similarity score; each item is [lower, upper]."
     items:
       type: array
+      minItems: 2
+      maxItems: 2
       items:
         type: number
-        minimum: -1
-        maximum: 1
-  ci_lower:
-    type: array
-    description: "Lower bound of the bootstrap confidence interval (CI) for each entry."
-    items:
-      type: array
-      items:
-        type: number
-        minimum: -1
-        maximum: 1
-  ci_upper:
-    type: array
-    description: "Upper bound of the bootstrap confidence interval at a conventional confidence level for each entry."
-    items:
-      type: array
-      items:
-        type: number
-        minimum: -1
-        maximum: 1
-  checksum:
-    type: string
   generated_at:
     type: string
     format: date-time
-additionalProperties: false

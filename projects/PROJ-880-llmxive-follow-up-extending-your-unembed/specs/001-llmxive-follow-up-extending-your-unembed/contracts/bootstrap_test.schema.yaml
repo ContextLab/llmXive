@@ -1,42 +1,26 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Bootstrap Test Report"
-description: "Schema for the statistical significance test results (p-value, null distribution)."
+title: Bootstrap Test Schema
 type: object
 required:
-  - observed_similarity
-  - null_mean
-  - null_std
-  - p_value
-  - iterations
-  - significant
+  - metric_name
+  - replicate_count
+  - ci_lower
+  - ci_upper
+  - generated_at
 properties:
-  observed_similarity:
-    type: number
-    description: "The observed cosine similarity between the real model subspaces."
-    minimum: -1.0
-    maximum: 1.0
-  null_mean:
-    type: number
-    description: "The mean of the null distribution (random orthogonal bases)."
-  null_std:
-    type: number
-    description: "Standard deviation of the null distribution."
-  p_value:
-    type: number
-    description: "The calculated p-value from the bootstrap test."
-    minimum: 0.0
-    maximum: 1.0
-  iterations:
+  metric_name:
+    type: string
+    description: "Name of the metric bootstrapped (e.g., 'cosine_similarity')."
+  replicate_count:
     type: integer
-    description: "Number of bootstrap iterations performed."
     minimum: 1
-  significant:
-    type: boolean
-    description: "True if p_value < 0.05 (or adjusted threshold)."
-  threshold:
+    description: "Number of bootstrap replicates performed."
+  ci_lower:
     type: number
-    description: "The significance threshold used (e.g., 0.05)."
-  seed:
-    type: integer
-    description: "Random seed used for reproducibility."
-additionalProperties: false
+    description: "Lower bound of a confidence interval at a conventional high confidence level."
+  ci_upper:
+    type: number
+    description: "Upper bound of a high‑confidence interval."
+  generated_at:
+    type: string
+    format: date-time

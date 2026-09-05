@@ -1,33 +1,37 @@
-# Data Model: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
+# Data Model: llmXive follow‑up
 
-All pipeline artifacts are stored under `data/derived/` and conform to the JSON‑Schema contracts in `specs/001-llmxive-crosslingual/contracts/`.
+## Overview
+All pipeline outputs are JSON documents adhering to explicit JSON‑Schema contracts stored in `contracts/`. The schemas enforce field types, required keys, and basic value constraints (e.g., `top_k` ≥ 1, `similarity` ∈ [‑1, 1]).
 
-## Artifact Overview
-| Artifact | Description | Schema |
-|----------|-------------|--------|
-| `edge_spectrum.json` | Edge‑spectrum bases for each model (top leading singular vectors) **and** model‑pair similarity matrix (see FR‑014). | `contracts/edge_spectrum.schema.yaml` |
-| `frequency_list_{lang}.json` | Normalized token frequency distribution for language `{lang}` (size = shared vocabulary of several thousand tokens). | `contracts/frequency_list.schema.yaml` |
-| `token_attribution_{model}.json` | Ranked list of token IDs with highest logit weights in the edge spectrum for `{model}`. | `contracts/token_attribution.schema.yaml` |
-| `language_projection_{model}_{lang}.json` | Language‑specific projection coordinates of mean embedding onto the model’s edge spectrum. | `contracts/language_projection.schema.yaml` |
-| `similarity_metric.json` | Cosine similarity scores between model‑pair edge spectra with confidence intervals (model‑pair view). | `contracts/similarity_metric.schema.yaml` |
-| `bootstrap_test.json` | Parametric bootstrap test results for edge‑spectrum similarity (see `bootstrap_test.schema.yaml`). | `contracts/bootstrap_test.schema.yaml` |
-| `similarity_matrix.json` | Cosine similarity matrix (model‑pair × language‑pair) for language‑projection vectors with bootstrap CIs. | `contracts/similarity_matrix.schema.yaml` |
-| `validation.json` | Correlation results between projection residuals and (a) WALS typological feature differences, (b) SentEval STS drops. Includes Pearson $r$, two‑tailed $p$, and 95 % CI. | `contracts/validation.schema.yaml` |
-| `permutation_test.json` | Permutation test output: p‑value, significance flag, null‑distribution summary statistics. | `contracts/permutation_test.schema.yaml` |
-| `similarity_report.json` | Consolidated report combining similarity metrics, adjusted metrics, and narrative findings. | `contracts/similarity_report.schema.yaml` |
-| `feasibility_report.json` | Runtime, CPU usage, RAM peak, any abort warnings, and verification timestamps for all external URLs. | `contracts/feasibility_report.schema.yaml` |
-| `token_count_guard.json` | Guard file produced by the data‑loader confirming that each language’s token count ≥ 1 M and recording SHA‑256 checksums. | *No separate schema* (simple JSON with counts and checksums). |
-| `reproducibility_audit.json` | Records random seeds, checksum logs, and any deviations from the deterministic pipeline (supports Constitution Principle I). | *No separate schema* (internal audit). |
-| `state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml` | Project state file updated with artifact hashes and timestamps (supports Principle V). | *No separate schema* (managed by the workflow). |
+## Core Schemas & Artifact Mapping
 
-## Relationships
-- `edge_spectrum.json` → feeds into `similarity_metric.json` and `token_attribution_{model}.json`.  
-- `frequency_list_{lang}.json` + `edge_spectrum.json` → feed `language_projection_{model}_{lang}.json`.  
-- `language_projection_{model}_{lang}.json` → feeds `similarity_matrix.json` and `validation.json`.  
-- `edge_spectrum.json` + control analyses (paired‑architecture) → produce `similarity_report.json`.  
-- All artifacts are version‑hashed; the hash is recorded in `feasibility_report.json` for Principle V compliance.
+| Schema | File | Purpose | Produced Artifact(s) |
+|--------|------|---------|----------------------|
+| **Edge Spectrum** | `contracts/edge_spectrum.schema.yaml` | Stores model name, language, top‑k singular vectors, checksum, generation timestamp. | `edge_spectrum_<model>_<lang>_<hash>.json` |
+| **Frequency List** | `contracts/frequency_list.schema.yaml` | Token‑frequency vector for a given language (probability distribution). | `frequency_list_<lang>_<hash>.json` |
+| **Mapped Vocabulary** | `contracts/mapped_vocab.schema.yaml` | Mapping from each model’s token IDs to the shared large subword vocabulary (Q136293754). | `mapped_vocab_<model>_<hash>.json` |
+| **Token Attribution** | `contracts/token_attribution.schema.yaml` | List of top‑tokens with highest logit weights in the edge spectrum (also stores optional vocab mapping). | `token_attribution_<model>_<hash>.json` |
+| **Mean Embedding / Baseline Shift** | `contracts/token_shift.schema.yaml` | Records mean‑embedding norm, shift vector, and baseline comparison. | `mean_embedding_<lang>_<hash>.json`, `baseline_shift_<lang>_<hash>.json` |
+| **Anisotropy Bias** | `contracts/bootstrap_test.schema.yaml` | Bootstrap confidence interval for anisotropy bias of the edge spectrum. | `anisotropy_bias_<lang>_<hash>.json` |
+| **Similarity Matrix** | `contracts/similarity_matrix.schema.yaml` | Pairwise cosine similarity scores (with bootstrap CI) for all model‑language pairs. | `similarity_matrix_<hash>.json` |
+| **Similarity Metric** | `contracts/similarity_metric.schema.yaml` | Δ‑similarity values after architecture control adjustment. | `similarity_metric_<hash>.json` |
+| **Bootstrap Test (Similarity)** | `contracts/bootstrap_test.schema.yaml` | Details of bootstrap resampling for similarity scores (replicate count, CI). | `bootstrap_test_<hash>.json` |
+| **Permutation Test** | `contracts/permutation_test.schema.yaml` | Null distribution components, raw p‑values, Bonferroni‑adjusted combined p‑value. | `permutation_test_<hash>.json` |
+| **Validation** | `contracts/validation.schema.yaml` | Pearson correlation results with WALS and SentEval (r, p, CI). | `validation_<hash>.json` |
+| **Ablation Report** | `contracts/validation.schema.yaml` | Same schema as validation; used for the randomized‑frequency ablation. | `ablation_report_<hash>.json` |
+| **Feasibility Report** | `contracts/feasibility_report.schema.yaml` | Runtime, peak memory, CPU usage, abort warnings. | `dataset_verification.json` (re‑used for reporting verification) |
+
+## Data Lineage
+1. **Raw data** (`data/raw/`) – downloaded from verified URLs, checksummed.  
+2. **Derived artifacts** (`data/derived/`) – each step reads from previous artifacts, writes a new file whose name encodes the operation **and** includes a 10‑character SHA‑256 content‑hash suffix (e.g., `edge_spectrum_llama3_en_abcdef1234.json`).  
+3. **Provenance metadata** – every JSON includes `generated_at` (ISO‑8601 UTC) and `source_checksum` fields linking back to the raw input(s).  
+
+## Naming Conventions
+- Files use snake_case, include model, language, and operation identifiers **plus** a 10‑character hash suffix.  
+- Example: `edge_spectrum_llama3_en_abcdef1234.json`, `frequency_list_fr_1234abcd56.json`.  
+
+All paths start with `data/derived/` to satisfy **FR‑018** and the version‑discipline principle.
 
 ---
-
 
 

@@ -3,29 +3,24 @@ title: Frequency List Schema
 type: object
 required:
   - language
-  - vocab_size
-  - frequencies
+  - token_counts
+  - total_tokens
+  - generated_at
 properties:
   language:
     type: string
-    description: "ISO 639‑1 language code (e.g., 'en', 'fr')."
-  vocab_size:
-    type: integer
-    description: "Size of the shared subword vocabulary."
-    minimum: 1
-  frequencies:
-    type: array
-    description: "Normalized token frequency vector (length = vocab_size). Sum is approximately at the expected magnitude."
-    items:
-      type: number
+    description: "ISO‑639‑1 language code."
+  token_counts:
+    type: object
+    description: "Mapping from token ID (as string) to integer count."
+    additionalProperties:
+      type: integer
       minimum: 0
-  token_count:
+  total_tokens:
     type: integer
-    description: "Total number of tokens counted (must be ≥ 1 000 000)."
-    minimum: 1000000
-  checksum:
-    type: string
+    minimum: 0
+    description: "Sum of all token counts (should be ≥ 1,000,000)."
   generated_at:
     type: string
     format: date-time
-additionalProperties: false
+    description: "UTC timestamp of generation."

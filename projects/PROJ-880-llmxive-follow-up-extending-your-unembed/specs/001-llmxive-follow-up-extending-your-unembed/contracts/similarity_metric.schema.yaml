@@ -3,38 +3,25 @@ title: Similarity Metric Schema
 type: object
 required:
   - model_pair
-  - similarity
-  - ci_95
+  - delta_similarity
+  - ci
+  - generated_at
 properties:
   model_pair:
     type: string
-    description: "Identifier of the model pair (e.g., 'llama3‑bloom')."
-  similarity:
+    description: "Identifier for the compared models, e.g., 'llama3‑en vs bloom‑fr'."
+  delta_similarity:
     type: number
     minimum: -1
     maximum: 1
-    description: "Cosine similarity between edge‑spectrum bases."
-  ci_95:
-    type: object
-    required:
-      - lower
-      - upper
-    properties:
-      lower:
-        type: number
-        minimum: -1
-        maximum: 1
-      upper:
-        type: number
-        minimum: -1
-        maximum: 1
-    description: "A bootstrap confidence interval at a conventional confidence level."
-  adjusted_similarity:
-    type: number
-    description: "Similarity after control‑analysis adjustment (paired‑architecture)."
-  checksum:
-    type: string
+    description: "Adjusted similarity (observed – control mean)."
+  ci:
+    type: array
+    minItems: 2
+    maxItems: 2
+    description: "A bootstrap confidence interval for Δ similarity at a conventional confidence level."
+    items:
+      type: number
   generated_at:
     type: string
     format: date-time
-additionalProperties: false

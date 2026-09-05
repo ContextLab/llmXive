@@ -1,15 +1,15 @@
 status: none
-intent: download Llama-3 Mistral BLOOM model weights unembedding matrix huggingface
-  hub python package dataset
+intent: download WALS typology, SentEval multilingual STS, STS Benchmark, OSCAR corpora
+  python package dataset
 required_fields:
-- model_name
-- language
-- vocab_size
-- embedding_dim
-- unembedding_matrix
-- architecture
-- model_version
-- weights_download_url
-cache_key: 3b2b25a618090e1f42a143a4af0446f289aa75d05dca8d23e421b6f82e1f1fde
-searched_at: '2026-08-23T21:34:07.895715+00:00'
+- language_code
+- typological_feature_vector
+- sentence1
+- sentence2
+- similarity_score
+- token
+- frequency
+- corpus_language
+cache_key: 75255da02280a510b5414d37abb7f489fef0b9f2b9e87907fe82947c312deebe
+searched_at: '2026-09-05T20:15:08.540118+00:00'
 retry_count: 1
