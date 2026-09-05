@@ -5700,3 +5700,618 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T09:18:50Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: data retrieval output contains at least 5000 compounds fitting within
+    7 GB RAM
+  claim_id: c_fe31064b
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat (where available), and the computed feature columns, fitting
+    within 7 GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_retrieval_output_contains_at_least_5000_compounds_fitti
+  kind: magnitude
+  raw_text: Execute the data retrieval script and verify that the output CSV contains
+    at least 5,000 compounds with non-null values for melting point, latent heat (where
+    available), and the computed feature columns, fitting within 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:46:19Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: NIST MP data overlap threshold is 500 compounds
+  claim_id: c_57743469
+  context: 'Constraint: If the fetch fails OR the overlap with MP data is < 500 compounds,
+    the script MUST fallback to using melting_point as the primary target, flag this
+    in data/results/target_decision.json (setting fallback_triggered: true), and log
+    the limitation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the NIST fetch fails OR the overlap with MP data is < 500 compounds,
+    the script MUST fallback to using melting_point as the primary target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:46:20Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 known PCMs from matbench literature PCM validation set
+  claim_id: c_9a4202f0
+  context: 'Implement code/data/fetch_literature_pcm.py: Fetch the 50 known PCMs required
+    by Constitution Principle VII from the verified HuggingFace dataset matbench/literature_pcm_validation_set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch the 50 known PCMs required by Constitution Principle VII from the
+    verified HuggingFace dataset matbench/literature_pcm_validation_set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:46:49Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Random Forest training time limit is 2 hours and R2 threshold is 0.0
+  claim_id: c_42f3bf30
+  context: "Constraint: Must compute and log R\xB2 score and execution time; fail\
+    \ if time > 2 hours or R\xB2 <= 0.0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train Random Forest model with fixed random seeds and memory constraints;\
+    \ fail if time > 2 hours or R\xB2 <= 0.0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:47:21Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Gradient Boosting training time limit is 2 hours and R2 threshold is
+    0.0
+  claim_id: c_c4a357ac
+  context: "Implement code/models/train_gradient_boosting.py: Train Gradient Boosting\
+    \ model with fixed random seeds and memory constraints. Output: Save model to\
+    \ data/models/gb_model.pkl. Constraint: Must compute and log R\xB2 score and execution\
+    \ time; fail if time > 2 hours or R\xB2 <= 0.0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train Gradient Boosting model with fixed random seeds and memory constraints;\
+    \ fail if time > 2 hours or R\xB2 <= 0.0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:47:49Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: feature importance threshold sweep from 0.05 to 0.5 in steps of 0.05
+  claim_id: c_c369ce9a
+  context: "Implement sensitivity analysis in code/validate/sensitivity_analysis.py:\
+    \ Sweep feature importance thresholds from 0.05 to 0.5 in steps of 0.05 and report\
+    \ the variation in false\u2011positive/false\u2011negative rates."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep feature importance thresholds from 0.05 to 0.5 in steps of 0.05\
+    \ and report the variation in false\u2011positive/false\u2011negative rates."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:48:42Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: unit test coverage requirement is 80 percent
+  claim_id: c_0869ea26
+  context: "Additional unit tests for descriptor computation and stability checks\
+    \ in tests/unit/: Require \u2265 80 % coverage for these modules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Require \u2265 80% coverage for these modules."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:48:43Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: interpretable model success defined as absolute R2 difference less than
+    or equal to 0.05
+  claim_id: c_688f6336
+  context: "SC-002: The predictive power of interpretable models is measured against\
+    \ the R\xB2 performance of the black\u2011box baselines using a paired t\u2011\
+    test, with success defined as |R\xB2_interpretable - R\xB2_baseline| \u2264 0.05\
+    \ (See US\u20112)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interpretable_model_success_defined_as_absolute_R2_differenc
+  kind: magnitude
+  raw_text: "The predictive power of interpretable models is measured against the\
+    \ R\xB2 performance of the black\u2011box baselines using a paired t\u2011test,\
+    \ with success defined as |R\xB2_interpretable - R\xB2_baseline| \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:49:43Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: generalization success defined as at least 60 percent ranking accuracy
+  claim_id: c_0f9572c4
+  context: "SC-003: The generalization capability of derived rules is measured against\
+    \ the ranking accuracy on an independent set of literature PCMs, with success\
+    \ defined as \u2265 60% accuracy on the top [deferred] (See US\u20113)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generalization_success_defined_as_at_least_60_percent_rankin
+  kind: magnitude
+  raw_text: "The generalization capability of derived rules is measured against the\
+    \ ranking accuracy on an independent set of literature PCMs, with success defined\
+    \ as \u2265 60% accuracy on the top [deferred]."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:50:22Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: proxy leakage detected if latent heat performance drops more than 20
+    percent when melting point is removed
+  claim_id: c_c1ec6b20
+  context: 'Proxy Leakage Test: Required to ensure latent heat is not just a proxy
+    for melting point. If performance on latent heat drops by >20% when melting point
+    is removed, leakage is detected, and the ''governing factors'' for latent heat
+    are not being discovered.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_leakage_detected_if_latent_heat_performance_drops_more
+  kind: magnitude
+  raw_text: If performance on latent heat drops by >20% when melting point is removed,
+    leakage is detected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:51:02Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Data retrieval output contains at least 5000 compounds fitting within
+    7 GB RAM
+  claim_id: c_b0971a89
+  context: 'Independent Test: Execute the data retrieval script and verify that the
+    output CSV contains at least 5,000 compounds with non-null values for melting
+    point, latent heat (where available), and the computed feature columns, fitting
+    within 7 GB RAM.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_retrieval_output_contains_at_least_5000_compounds_fitti
+  kind: magnitude
+  raw_text: Execute the data retrieval script and verify that the output CSV contains
+    at least 5,000 compounds with non-null values for melting point, latent heat (where
+    available), and the computed feature columns, fitting within 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:52:04Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: NIST data fetch fallback triggered if overlap with MP data is less than
+    500 compounds
+  claim_id: c_d6b81ace
+  context: 'Constraint: If the fetch fails OR the overlap with MP data is < 500 compounds,
+    the script MUST fallback to using melting_point as the primary target, flag this
+    in data/results/target_decision.json (setting fallback_triggered: true), and log
+    the limitation.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NIST_data_fetch_fallback_triggered_if_overlap_with_MP_data_i
+  kind: magnitude
+  raw_text: If the fetch fails OR the overlap with MP data is < 500 compounds, the
+    script MUST fallback to using melting_point as the primary target
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:52:53Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Fetch 50 known PCMs from matbench/literature_pcm_validation_set
+  claim_id: c_4d714df8
+  context: 'Implement code/data/fetch_literature_pcm.py: Fetch the 50 known PCMs required
+    by Constitution Principle VII from the verified HuggingFace dataset matbench/literature_pcm_validation_set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch the 50 known PCMs required by Constitution Principle VII from the
+    verified HuggingFace dataset matbench/literature_pcm_validation_set
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:52:54Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds from 0.05 to 0.5 in steps of 0.05
+  claim_id: c_5f17d27e
+  context: "Implement sensitivity analysis in code/validate/sensitivity_analysis.py:\
+    \ Sweep feature importance thresholds from 0.05 to 0.5 in steps of 0.05 and report\
+    \ the variation in false\u2011positive/false\u2011negative rates."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep feature importance thresholds from 0.05 to 0.5 in steps of 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:53:31Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Validation performance drop on literature PCMs must be less than or equal
+    to 10%
+  claim_id: c_6e93b715
+  context: "Independent Test: Apply derived rules to an external set of literature\
+    \ PCMs and performance drop \u2264 10% compared to test set; generate sensitivity\
+    \ analysis report."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_performance_drop_on_literature_PCMs_must_be_less
+  kind: magnitude
+  raw_text: "Apply derived rules to an external set of literature PCMs and performance\
+    \ drop \u2264 10% compared to test set"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:54:04Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Unit tests for descriptor computation and stability checks require at
+    least 80 percent coverage
+  claim_id: c_9a8b7543
+  context: "Additional unit tests for descriptor computation and stability checks\
+    \ in tests/unit/: Require \u2265 80 % coverage for these modules."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_for_descriptor_computation_and_stability_checks_r
+  kind: magnitude
+  raw_text: "Require \u2265 80 % coverage for these modules"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:54:35Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "Success criterion for interpretable models is absolute R\xB2 difference\
+    \ less than or equal to 0.05"
+  claim_id: c_24ec3de0
+  context: "SC-002: The predictive power of interpretable models is measured against\
+    \ the R\xB2 performance of the black\u2011box baselines using a paired t\u2011\
+    test, with success defined as |R\xB2_interpretable - R\xB2_baseline| \u2264 0.05\
+    \ (See US\u20112)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Success_criterion_for_interpretable_models_is_absolute_R%C2%B2_di
+  kind: magnitude
+  raw_text: "success defined as |R\xB2_interpretable - R\xB2_baseline| \u2264 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:55:18Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Success criterion for generalization is at least 60 percent ranking accuracy
+  claim_id: c_d0e43936
+  context: "SC-003: The generalization capability of derived rules is measured against\
+    \ the ranking accuracy on an independent set of literature PCMs, with success\
+    \ defined as \u2265 60% accuracy on the top [deferred] (See US\u20113)."
+  evidence:
+    entailment_evidence: Success criterion for generalization is at least 60 percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Success_criterion_for_generalization_is_at_least_60_percent
+  kind: magnitude
+  raw_text: "success defined as \u2265 60% accuracy on the top [deferred]"
+  resolved_value: Success criterion for generalization is at least 60 percent ranking
+    accuracy
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T01:55:20Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Proxy leakage detected if latent heat performance drops more than 20
+    percent without melting point
+  claim_id: c_2ad94884
+  context: 'Proxy Leakage Test: Required to ensure latent heat is not just a proxy
+    for melting point. If performance on latent heat drops by >20% when melting point
+    is removed, leakage is detected, and the ''governing factors'' for latent heat
+    are not being discovered.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_leakage_detected_if_latent_heat_performance_drops_more
+  kind: magnitude
+  raw_text: If performance on latent heat drops by >20% when melting point is removed,
+    leakage is detected
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:55:22Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: fetch 50 known PCMs required by Constitution Principle VII
+  claim_id: c_605031e4
+  context: 'T013 [US1] Implement code/data/fetch_literature_pcm.py: Fetch the 50 known
+    PCMs required by Constitution Principle VII from the verified HuggingFace dataset
+    matbench/literature_pcm_validation_set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch the 50 known PCMs required by Constitution Principle VII from the
+    verified HuggingFace dataset matbench/literature_pcm_validation_set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:56:22Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 50 known phase-change materials in matbench/literature_pcm_validation_set
+    dataset
+  claim_id: c_850ff141
+  context: 'Fetch the **50 known PCMs** required by Constitution Principle VII from
+    the verified HuggingFace dataset `matbench/literature_pcm_validation_set`. Constraint:
+    No pre-bundled files or synthetic fallbacks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch the **50 known PCMs** required by Constitution Principle VII from
+    the verified HuggingFace dataset `matbench/literature_pcm_validation_set`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:56:44Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Materials Project dataset contains material_id or equivalent MP IDs
+  claim_id: c_7c1f282f
+  context: If falling back to `matbench`, the script MUST verify that the dataset
+    contains `material_id` or equivalent MP IDs required for downstream mapping (T013a).
+    If MP IDs are missing, use chemical formula matching to map to the closest available
+    entry.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_dataset_contains_material_id_or_equivalent
+  kind: entity_fact
+  raw_text: If falling back to `matbench`, the script MUST verify that the dataset
+    contains `material_id` or equivalent MP IDs required for downstream mapping (T013a).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:57:29Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Overlap between NIST latent heat data and Materials Project data is less
+    than 500 compounds
+  claim_id: c_1ab18976
+  context: 'If the fetch fails OR the overlap with MP data is < 500 compounds, the
+    script MUST fallback to using `melting_point` as the primary target, flag this
+    in `data/results/target_decision.json` (setting `fallback_triggered: true`), and
+    log the limitation.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Overlap_between_NIST_latent_heat_data_and_Materials_Project
+  kind: magnitude
+  raw_text: If the fetch fails OR the overlap with MP data is < 500 compounds, the
+    script MUST fallback to using `melting_point` as the primary target.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:57:32Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: literature PCM dataset contains exactly 50 entries
+  claim_id: c_d89b5ec2
+  context: Task T013 specifies that the script fetches the 50 known PCMs from the
+    HuggingFace dataset `matbench/literature_pcm_validation_set` and raises an error
+    if the dataset size is not exactly 50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fetch_literature_pcm script must fetch the 50 known PCMs required
+    by Constitution Principle VII from the verified HuggingFace dataset `matbench/literature_pcm_validation_set`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T01:59:20Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: "output CSV contains at least 5000 compounds with required non\u2011\
+    null fields"
+  claim_id: c_65869491
+  context: "User Story 1 states that executing the data retrieval script should verify\
+    \ that the output CSV contains at least 5,000 compounds with non\u2011null values\
+    \ for melting point, latent heat, and computed feature columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_at_least_5000_compounds_with_required_no
+  kind: magnitude
+  raw_text: "The data retrieval script must produce an output CSV containing at least\
+    \ 5,000 compounds with non\u2011null values for melting point, latent heat (where\
+    \ available), and the computed feature columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T02:00:13Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 50 known PCMs required by Constitution Principle VII
+  claim_id: c_590afdf2
+  context: "Task T013 specifies fetching the 50 known phase\u2011change materials\
+    \ (PCMs) required by Constitution Principle VII from the verified HuggingFace\
+    \ dataset matbench/literature_pcm_validation_set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch the 50 known PCMs required by Constitution Principle VII from the
+    verified HuggingFace dataset matbench/literature_pcm_validation_set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T02:00:27Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: 50 known PCMs in matbench literature_pcm_validation_set
+  claim_id: c_5d733d74
+  context: Task T013 specifies implementing code/data/fetch_literature_pcm.py to fetch
+    the 50 known PCMs required by Constitution Principle VII from the verified HuggingFace
+    dataset matbench/literature_pcm_validation_set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/data/fetch_literature_pcm.py: Fetch the 50 known PCMs
+    required by Constitution Principle VII from the verified HuggingFace dataset matbench/literature_pcm_validation_set.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T02:03:26Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Materials Project API provides sufficient access without rate limit issues
+  claim_id: c_1f4346a7
+  context: Assumptions section stating that the Materials Project API will allow downloading
+    the needed data within the allocated time.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_provides_sufficient_access_without_rat
+  kind: entity_fact
+  raw_text: The Materials Project API provides sufficient access to download the required
+    subset of compounds with melting point and heat capacity data without hitting
+    rate limits that exceed the -hour job window.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T02:04:11Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: NIST PCM dataset overlaps significantly with Materials Project data for
+    latent heat values
+  claim_id: c_21d9079e
+  context: Assumptions section asserting overlap between NIST latent heat data and
+    Materials Project data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_PCM_dataset_overlaps_significantly_with_Materials_Proje
+  kind: entity_fact
+  raw_text: The NIST PCM dataset contains latent heat values for a significant overlap
+    with the Materials Project compounds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T02:04:25Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: PySR runs efficiently on GitHub Actions free tier without GPU or proprietary
+    dependencies
+  claim_id: c_fffc1568
+  context: Assumptions section regarding feasibility of running symbolic regression
+    with PySR in CI.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PySR_runs_efficiently_on_GitHub_Actions_free_tier_without_GP
+  kind: entity_fact
+  raw_text: "The PySR library can be installed and run efficiently on the GitHub Actions\
+    \ free\u2011tier environment without requiring proprietary dependencies or GPU\
+    \ acceleration."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T02:07:07Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: Literature PCMs can be mapped to Materials Project IDs or have equivalent
+    structural data
+  claim_id: c_89b0b88e
+  context: "Assumptions section stating that literature phase\u2011change materials\
+    \ can be linked to the Materials Project database for validation."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Literature_PCMs_can_be_mapped_to_Materials_Project_IDs_or_ha
+  kind: entity_fact
+  raw_text: A set of known PCMs from literature can be mapped to the Materials Project
+    database IDs or have equivalent structural data available for validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T02:07:32Z'

@@ -1,39 +1,10 @@
-T001a:
+T003b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`data/raw`, `data/processed`, `data/results`,\
-    \ `data/external`) is provided; the implementer did not supply any file\u2011\
-    system listing, script output, or screenshots confirming their creation. The task\
-    \ remains undone until those directories exist and are shown."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/data`, `code/models`, `code/utils`)
-    is provided; the artifact list is empty, so the claim that the code directories
-    were created cannot be verified.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no concrete evidence (e.g., a directory listing, screenshots,
-    or file tree) that the required `tests/unit`, `tests/integration`, and `tests/contract`
-    directories actually exist in the repository. Without such proof, we cannot verify
-    that the task was completed.
-T005a:
-  c: false
-  h: 74088ecd6794b3645cf58886eeaa2c207e419297bb8065c09e9447ab4cb8d200
-  r: "The `target_consistency_check.py` file is present but the shown code is truncated\
-    \ and does not demonstrate the Pearson correlation calculation or the JSON\u2011\
-    writing step required by the task. Moreover, the expected output file `data/results/target_decision.json`\
-    \ is absent, indicating the script either was not executed or does not create\
-    \ the required artifact. The implementer must ensure the script computes the correlation,\
-    \ decides the target, writes the result to the specified JSON file, and that the\
-    \ JSON file exists."
-T006b:
-  c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required file `contracts/target_decision.schema.yaml` does not exist (listed\
-    \ as missing), so no JSON schema has been provided. The task\u2019s core artifact\
-    \ is absent."
+  r: "No `.flake8` file is present in the provided evidence, and thus the required\
+    \ configuration (max\u2011line\u2011length=88 and appropriate ignore settings)\
+    \ is missing. The implementer must add a non\u2011empty `.flake8` file containing\
+    \ the specified settings."
 T007a:
   c: true
   h: 7f741e0a2cbf89764ad0beb332e0f02193bbfdb58f58b9feb25df2e70fcb1989
@@ -42,3 +13,20 @@ T007a:
     \ and perform validation of the processed dataset, satisfying the implementation\
     \ requirement. The missing input files are external data, not part of the required\
     \ artifact."
+T008a:
+  c: false
+  h: b9ff03bbd7597fb242f8968bb64ccc4e8c1039aebcfda8ea7d5a0d5d4269bba9
+  r: "The required output file `data/checksums.txt` does not exist, so the task\u2019\
+    s primary artifact is missing. Although `code/utils/checksum.py` is present and\
+    \ implements checksum generation, the script has not produced the manifest file\
+    \ as required. The implementer must run the script (or otherwise create) `data/checksums.txt`\
+    \ containing SHA256 checksums for all raw data files."
+T008b:
+  c: false
+  h: b9ff03bbd7597fb242f8968bb64ccc4e8c1039aebcfda8ea7d5a0d5d4269bba9
+  r: "The required output file `data/checksums.txt` does not exist, and the provided\
+    \ `code/utils/checksum.py` snippet is incomplete (truncated) with no evidence\
+    \ that it implements or has been run with the `--stage processed` mode to generate\
+    \ checksums for the processed data files. The task\u2019s core requirement\u2014\
+    recording processed\u2011file SHA256 checksums in `data/checksums.txt`\u2014is\
+    \ therefore unmet."

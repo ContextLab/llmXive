@@ -1,21 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Target Decision Schema"
 type: object
 properties:
   target:
     type: string
-    description: The selected target variable for the model ('melting_point' or 'latent_heat').
+    description: "The selected target variable name, e.g., 'latent_heat' or 'melting_point'."
   coefficient:
     type: number
-    format: float
-    description: The Pearson correlation coefficient between melting_point and latent_heat that informed the decision.
+    description: "Pearson correlation coefficient between the two targets."
   decision_rationale:
     type: string
-    description: A human-readable explanation of why the target was chosen.
+    description: "Explanation for why the target was selected."
   target_override:
     type: boolean
-    description: Flag indicating if the default decision was overridden by a fallback strategy (e.g., due to data mapping failures).
-    default: false
+    description: "Flag indicating if the target was manually overridden."
+  fallback_triggered:
+    type: boolean
+    description: "Indicates whether a fallback to the alternative target was triggered."
 required:
   - target
   - coefficient
   - decision_rationale
+  - fallback_triggered
 additionalProperties: false

@@ -1,62 +1,79 @@
-import os
+"""
+Script to create required data directories for the project.
+
+This module provides a `create_data_directories` function that ensures the
+following sub‑directories exist under the repository's top‑level ``data`` folder:
+
+- data/raw
+- data/processed
+- data/results
+- data/external
+
+The function is idempotent (it will not raise an error if the directories already exist)
+and returns a list of the created ``Path`` objects.
+
+The module also defines a ``main`` entry point so it can be executed directly:
+``python -m code.setup_data_dirs`` or ``python code/setup_data_dirs.py``.
+"""
+
 import logging
 from pathlib import Path
 from typing import List
+
 from config import get_config
 from code.utils.logger import get_pipeline_logger
 
-def create_data_directories() -> List[Path]:
+# ----------------------------------------------------------------------
+# Helper function
+# ----------------------------------------------------------------------
+def create_data_directories(base_path: Path = Path.cwd() / "data") -> List[Path]:
     """
-    Creates the required data directory structure for the project.
-    
-    Directories created:
-    - data/raw: For raw, unprocessed data fetched from external sources
-    - data/processed: For cleaned and feature-engineered data
-    - data/results: For model outputs, validation results, and analysis artifacts
-    - data/external: For external literature data and third-party datasets
-    
-    Returns:
-        List[Path]: List of created directory paths
-    """
-    config = get_config()
-    base_dir = Path(config.get('project_root', '.'))
-    data_dir = base_dir / 'data'
-    
-    required_dirs = [
-        'raw',
-        'processed', 
-        'results',
-        'external'
-    ]
-    
-    created_dirs = []
-    logger = get_pipeline_logger()
-    
-    for dir_name in required_dirs:
-        dir_path = data_dir / dir_name
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(dir_path)
-            logger.info(f"Created directory: {dir_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {dir_path}: {e}")
-            raise
-    
-    return created_dirs
+    Create the standard data sub‑directories required by the project.
 
-def main():
-    """Entry point for creating data directories."""
-    logger = get_pipeline_logger()
-    logger.info("Starting data directory creation...")
-    
+    Parameters
+    ----------
+    base_path : Path, optional
+        The root ``data`` directory. Defaults to ``<repo_root>/data``.
+
+    Returns
+    -------
+    List[Path]
+        List of ``Path`` objects pointing to the created (or already existing)
+        sub‑directories.
+    """
+    subdirs = ["raw", "processed", "results", "external"]
+    created_paths: List[Path] = []
+
+    for sub in subdirs:
+        dir_path = base_path / sub
+        dir_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(dir_path)
+
+    return created_paths
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    CLI entry point that creates the data directories and logs the outcome.
+    """
+    logger = get_pipeline_logger(__name__)
+
+    # Load configuration (may be used in the future; kept for consistency)
     try:
-        created_dirs = create_data_directories()
-        logger.info(f"Successfully created {len(created_dirs)} data directories:")
-        for dir_path in created_dirs:
-            logger.info(f"  - {dir_path}")
+        _ = get_config()
+    except Exception as exc:
+        logger.warning(f"Could not load config (non‑critical for directory creation): {exc}")
+
+    try:
+        created = create_data_directories()
+        logger.info("Data directories ensured:")
+        for p in created:
+            logger.info(f"  - {p}")
     except Exception as e:
         logger.error(f"Failed to create data directories: {e}")
         raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

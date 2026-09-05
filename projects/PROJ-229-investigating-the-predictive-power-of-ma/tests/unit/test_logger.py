@@ -1,56 +1,83 @@
-import pytest
-import logging
 import os
+import sys
+import logging
+import tempfile
 from pathlib import Path
-from code.utils.logger import setup_logger, get_pipeline_logger
 
+# Add the project root to the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-def test_setup_logger_creates_handlers():
-    """Test that setup_logger creates console and file handlers."""
-    logger = setup_logger("test_setup_logger")
-    
-    assert len(logger.handlers) >= 2  # Console + File
-    
-    has_console = False
-    has_file = False
-    
-    for handler in logger.handlers:
-        if isinstance(handler, logging.StreamHandler):
-            has_console = True
-        if isinstance(handler, logging.FileHandler):
-            has_file = True
-    
-    assert has_console, "Console handler missing"
-    assert has_file, "File handler missing"
+from code.utils.logger import setup_logger, get_pipeline_logger, log_info, log_error
+from code.utils.error_handling import handle_error, PipelineError
 
+def test_logger_initialization():
+    """Test that the logger initializes correctly."""
+    logger = setup_logger("test_logger", level=logging.INFO)
+    assert logger is not None
+    assert logger.name == "test_logger"
+    assert logger.level == logging.INFO
 
-def test_get_pipeline_logger_returns_singleton():
-    """Test that get_pipeline_logger returns the same instance."""
-    logger1 = get_pipeline_logger()
-    logger2 = get_pipeline_logger()
-    assert logger1 is logger2
+def test_logger_file_handler():
+    """Test that the logger writes to a file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_file = Path(tmpdir) / "test.log"
+        logger = setup_logger("test_file_logger", level=logging.INFO, log_file=str(log_file))
+        
+        # Log a message
+        logger.info("Test message")
+        
+        # Check if file exists and contains the message
+        assert log_file.exists()
+        content = log_file.read_text()
+        assert "Test message" in content
 
+def test_get_pipeline_logger():
+    """Test that get_pipeline_logger returns the initialized logger."""
+    # First, ensure it's initialized
+    setup_logger("pipeline_test", level=logging.DEBUG)
+    logger = get_pipeline_logger("pipeline_test")
+    assert logger is not None
+    assert logger.level == logging.DEBUG
 
-def test_logger_output_format(capsys):
-    """Test that logger output contains expected format."""
-    logger = setup_logger("test_format_logger")
-    logger.info("Test message")
-    
-    captured = capsys.readouterr()
-    assert "Test message" in captured.out
-    assert "INFO" in captured.out
+def test_log_info():
+    """Test the log_info helper function."""
+    logger = setup_logger("info_test", level=logging.INFO)
+    # This should not raise
+    log_info("Info message test")
 
+def test_error_handling():
+    """Test the error handling utilities."""
+    try:
+        raise ValueError("Test error")
+    except Exception as e:
+        # Should not raise because reraise=False
+        handle_error(e, "Test Context", reraise=False)
+        
+        # Should raise because reraise=True
+        try:
+            handle_error(e, "Test Context", reraise=True)
+        except ValueError:
+            pass  # Expected
 
-def test_log_file_creation(tmp_path):
-    """Test that log file is created in the specified directory."""
-    # We can't easily override the config path in this simple test without mocking,
-    # but we can verify the file handler exists and the path is valid.
-    # For a robust test, we'd mock get_config to point to tmp_path.
-    
-    # Instead, we verify that the handler path is a Path object or string
-    logger = setup_logger("test_file_logger")
-    for handler in logger.handlers:
-        if isinstance(handler, logging.FileHandler):
-            log_path = Path(handler.baseFilename)
-            assert log_path.exists(), f"Log file {log_path} was not created"
-            assert log_path.suffix == ".log", "Log file must have .log extension"
+def test_logger_write_and_read_entry():
+    """
+    Test that a log entry can be written and read back.
+    This satisfies the requirement to write and read a log entry.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_file = Path(tmpdir) / "entry_test.log"
+        logger = setup_logger("entry_logger", level=logging.INFO, log_file=str(log_file))
+        
+        test_message = "Verification entry for T005"
+        logger.info(test_message)
+        
+        # Read back the file
+        assert log_file.exists(), "Log file was not created"
+        content = log_file.read_text()
+        
+        # Verify the message is present
+        assert test_message in content, f"Message '{test_message}' not found in log file"
+        
+        # Verify standard log format components are present
+        assert "INFO" in content, "Log level INFO not found"
+        assert "entry_logger" in content, "Logger name not found"

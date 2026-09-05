@@ -1,121 +1,28 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Phase-Change Material Dataset Schema
-description: |
-  Static schema for the processed PCM dataset used in the predictive power analysis.
-  The actual target column name is determined dynamically at runtime based on 
-  data/results/target_decision.json, but the schema defines the static structure
-  including feature columns and the dynamic target placeholder.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Dataset Schema
+description: Superset schema for the processed dataset. Includes both `melting_point` and `latent_heat` columns to support dynamic target selection.
 type: object
-required:
-  - properties
-  - type
 properties:
-  type:
+  material_id:
     type: string
-    const: object
-  properties:
-    type: object
-    required:
-      - material_id
-      - formula
-      - n_elements
-      - melting_point
-      - latent_heat
-      - density
-      - band_gap
-      - formation_energy
-      - structure_hash
-    properties:
-      material_id:
-        type: string
-        description: Unique identifier from Materials Project
-      formula:
-        type: string
-        description: Chemical formula string
-      n_elements:
-        type: integer
-        description: Number of distinct elements in the compound
-      melting_point:
-        type: number
-        description: Melting point in Kelvin (may be null if not available)
-      latent_heat:
-        type: number
-        description: Latent heat of fusion in J/g (may be null if not available)
-      density:
-        type: number
-        description: Density in g/cm³
-      band_gap:
-        type: number
-        description: Band gap in eV
-      formation_energy:
-        type: number
-        description: Formation energy per atom in eV
-      structure_hash:
-        type: string
-        description: Hash representing the crystal structure
-      elemental_features:
-        type: object
-        description: Object containing elemental descriptor arrays
-        properties:
-          atomic_numbers:
-            type: array
-            items:
-              type: number
-          electronegativities:
-            type: array
-            items:
-              type: number
-          atomic_radii:
-            type: array
-            items:
-              type: number
-        required:
-          - atomic_numbers
-          - electronegativities
-          - atomic_radii
-      structural_features:
-        type: object
-        description: Object containing structural graph features
-        properties:
-          coordination_numbers:
-            type: array
-            items:
-              type: number
-          bond_lengths:
-            type: array
-            items:
-              type: number
-          space_group:
-            type: integer
-        required:
-          - coordination_numbers
-          - bond_lengths
-          - space_group
-      target_value:
-        type: number
-        description: |
-          The actual target variable value (either melting_point or latent_heat)
-          determined at runtime based on target_decision.json. This field is 
-          populated by the validation logic in code/utils/schema_validator.py
-    additionalProperties: false
-  dynamic_target_constraint:
-    type: object
-    description: |
-      Runtime validation constraint that enforces the target field matches
-      the decision in data/results/target_decision.json.
-      This is enforced by code/utils/schema_validator.py, not by static JSON Schema.
-    properties:
-      allowed_targets:
-        type: array
-        items:
-          type: string
-        enum:
-          - melting_point
-          - latent_heat
-      source_file:
-        type: string
-        const: data/results/target_decision.json
-      validation_script:
-        type: string
-        const: code/utils/schema_validator.py
+    description: Unique identifier for the material (e.g., Materials Project ID).
+  formula:
+    type: string
+    description: Chemical formula of the compound.
+  melting_point:
+    type:
+      - number
+      - "null"
+    description: Melting point of the material (K). May be null if not available.
+  latent_heat:
+    type:
+      - number
+      - "null"
+    description: Latent heat of fusion (J/g). May be null if not available.
+  # Additional feature columns can be added here as needed.
+required:
+  - material_id
+  - formula
+  - melting_point
+  - latent_heat
 additionalProperties: false

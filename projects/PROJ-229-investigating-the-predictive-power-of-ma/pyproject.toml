@@ -1,71 +1,65 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-pcm-project"
+name = "llmxive-proj-229"
 version = "0.1.0"
 description = "Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "pymatgen",
-    "scikit-learn",
-    "pysr",
-    "shap",
-    "pandas",
-    "numpy",
-    "matplotlib",
-    "requests",
-    "pyyaml",
-    "black",
-    "flake8",
-    "isort",
-    "pytest",
-    "psutil"
+    "pymatgen>=2023.10.11",
+    "scikit-learn>=1.3.0",
+    "pysr>=0.15.0",
+    "shap>=0.43.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    "requests>=2.31.0",
+    "pyyaml>=6.0",
+    "mp-api>=0.36.0",
+    "datasets>=2.14.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code"]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
 skip = [
-    ".eggs",
     ".git",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "_build",
-    "buck-out",
-    "build",
-    "dist"
-]
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = "E203, W503"
-exclude = [
-    ".eggs",
-    ".git",
+    ".hg",
     ".mypy_cache",
     ".tox",
     ".venv",
@@ -73,12 +67,4 @@ exclude = [
     "buck-out",
     "build",
     "dist",
-    "__pycache__"
 ]
-per-file-ignores = [
-    "__init__.py:F401"
-]
-max-complexity = 15
-count = true
-show-source = true
-statistics = true

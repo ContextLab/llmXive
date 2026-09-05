@@ -123,7 +123,7 @@ tests/
 | :--- | :--- |
 | **MP API Rate Limit** | Fallback to `matbench` dataset from HuggingFace (checksummed and verified). |
 | **Low NIST Overlap** | Switch target to Melting Point; flag limitation. |
-| **PySR Non-Convergence** | Flag limitation; rely on SHAP. Do not fabricate a proxy formula. Report best formula at h, 2h, 4h marks. |
+| **PySR Non-Convergence** | Flag limitation; rely on SHAP. Do not fabricate a proxy formula. Report best formula at h and subsequent multiples. |
 | **Memory Overflow** | Stream data; process in batches of [deferred] compounds. |
 | **Numerical Instability** | `stability_checks.py` logs and excludes NaN/Inf rows. |
 | **Collinearity** | Use VIF > 5 and domain-driven selection instead of ad-hoc r > 0.8 removal. |

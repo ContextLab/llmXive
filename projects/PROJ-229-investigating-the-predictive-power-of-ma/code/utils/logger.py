@@ -1,8 +1,9 @@
 import logging
 import sys
+import os
 from pathlib import Path
 from typing import Optional
-import os
+
 from config import get_config
 
 _logger: Optional[logging.Logger] = None
@@ -83,3 +84,45 @@ def get_pipeline_logger(name: str = "llmXive") -> logging.Logger:
         # Initialize with defaults if not explicitly set up yet
         _logger = setup_logger(name)
     return _logger
+
+def log_error(error: Exception, context: str = "Pipeline Error") -> None:
+    """
+    Log an exception with context using the pipeline logger.
+    
+    Args:
+        error: The exception to log.
+        context: A string describing the context where the error occurred.
+    """
+    logger = get_pipeline_logger()
+    logger.error(f"{context}: {error.__class__.__name__} - {str(error)}")
+    logger.debug(f"Traceback: {''.join(__import__('traceback').format_exception(type(error), error, error.__traceback__))}")
+
+def log_warning(message: str) -> None:
+    """
+    Log a warning message.
+    
+    Args:
+        message: The warning message.
+    """
+    logger = get_pipeline_logger()
+    logger.warning(message)
+
+def log_info(message: str) -> None:
+    """
+    Log an info message.
+    
+    Args:
+        message: The info message.
+    """
+    logger = get_pipeline_logger()
+    logger.info(message)
+
+def log_debug(message: str) -> None:
+    """
+    Log a debug message.
+    
+    Args:
+        message: The debug message.
+    """
+    logger = get_pipeline_logger()
+    logger.debug(message)

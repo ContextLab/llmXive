@@ -1,80 +1,96 @@
 """
-Setup script to create the required code subdirectories.
-This implements task T001b.
+setup_code_dirs.py
+------------------
+
+This module provides a utility to create the standard code sub‑directories for the
+project:
+
+- ``code/data``
+- ``code/models``
+- ``code/utils``
+- ``code/validate``
+
+The function ``create_code_directories`` is idempotent – it can be called multiple
+times without error – and it also creates an empty ``__init__.py`` file in each
+new directory so they are recognised as Python packages.
+
+The script can be executed directly::
+
+    python code/setup_code_dirs.py
+
+which will create the directories (if they do not already exist) and log the
+actions performed.
 """
+
 import os
 import logging
 from pathlib import Path
 from typing import List
 
-# Import logger utility from the existing API surface
+# The project already provides a logger utility; we import it to keep log
+# output consistent with the rest of the code base.
 from code.utils.logger import get_pipeline_logger
-
-# Import config to determine project root if needed, though we assume standard structure
 from config import get_config
 
-def create_code_directories(base_path: Path) -> List[Path]:
-    """
-    Creates the required code subdirectories: data, models, utils.
+LOGGER_NAME = "setup_code_dirs"
 
-    Args:
-        base_path: The root directory of the project.
-
-    Returns:
-        A list of Path objects for the created directories.
+def _ensure_package_dir(path: Path) -> None:
     """
-    code_dirs = [
-        "code/data",
-        "code/models",
-        "code/utils"
+    Create a directory and an empty ``__init__.py`` file so that the directory
+    is recognised as a Python package.
+
+    Parameters
+    ----------
+    path: Path
+        The directory to create.
+    """
+    path.mkdir(parents=True, exist_ok=True)
+    init_file = path / "__init__.py"
+    if not init_file.exists():
+        init_file.touch()
+    logger.debug(f"Ensured package directory: {path}")
+
+def create_code_directories(base_dir: Path = Path(__file__).parent) -> List[Path]:
+    """
+    Create the required ``code/*`` sub‑directories.
+
+    Parameters
+    ----------
+    base_dir: Path, optional
+        The root ``code`` directory. By default it is the directory that
+        contains this file (i.e. the project's ``code`` folder).
+
+    Returns
+    -------
+    List[Path]
+        A list of the directories that were created or already existed.
+    """
+    logger = get_pipeline_logger(LOGGER_NAME)
+
+    # Define the relative sub‑directories that must exist.
+    subdirs = [
+        base_dir / "data",
+        base_dir / "models",
+        base_dir / "utils",
+        base_dir / "validate",
     ]
 
-    created_paths = []
-    logger = get_pipeline_logger()
+    created = []
+    for subdir in subdirs:
+        _ensure_package_dir(subdir)
+        created.append(subdir)
+        logger.info(f"Created/verified code directory: {subdir}")
 
-    for dir_str in code_dirs:
-        target_path = base_path / dir_str
-        try:
-            if not target_path.exists():
-                target_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {target_path}")
-            else:
-                logger.info(f"Directory already exists: {target_path}")
-            created_paths.append(target_path)
-        except OSError as e:
-            logger.error(f"Failed to create directory {target_path}: {e}")
-            raise
+    return created
 
-    return created_paths
-
-def main():
+def main() -> None:
     """
-    Entry point for the script.
-    Creates directories relative to the project root.
+    Entry point for ``python code/setup_code_dirs.py``.
     """
-    # Determine project root. Assuming this script is in code/ or root.
-    # We look for the config.yaml or data/ to find the root.
-    current_file = Path(__file__).resolve()
-    
-    # Heuristic: find the directory containing 'config.yaml' or 'data/'
-    # Usually the project root is the parent of 'code'
-    project_root = current_file.parent.parent if current_file.name.startswith("setup_") else current_file.parent
-    
-    # If running from code/setup_code_dirs.py, root is parent of code
-    if (project_root / "code").exists() and (project_root / "config.yaml").exists():
-        pass # project_root is correct
-    elif (current_file.parent / "config.yaml").exists():
-        project_root = current_file.parent
-    else:
-        # Fallback to current working directory if structure is ambiguous
-        project_root = Path.cwd()
-
-    logging.basicConfig(level=logging.INFO)
-    logger = get_pipeline_logger()
-    logger.info(f"Project root detected at: {project_root}")
-
-    create_code_directories(project_root)
-    logger.info("Code directory setup complete.")
+    logger = get_pipeline_logger(LOGGER_NAME)
+    logger.info("Starting creation of code sub‑directories...")
+    created_dirs = create_code_directories()
+    logger.info(f"Finished. Created/verified {len(created_dirs)} directories.")
 
 if __name__ == "__main__":
     main()
