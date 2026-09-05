@@ -1,0 +1,19 @@
+status: none
+intent: "Allen Institute Neuropixels and CRCNS multi\u2011day electrophysiology behavioral\
+  \ logs python package dataset"
+required_fields:
+- unit_id
+- session_id
+- day
+- spike_times
+- spike_counts
+- trial_id
+- event_times
+- stimulus
+- response
+- behavioral_metrics
+- recording_quality
+- unit_stability_flag
+cache_key: 392f8d1cf66580063c5e2b9d051709d7202aadc2286578c4350085de06e4e32a
+searched_at: '2026-09-05T15:19:32.760463+00:00'
+retry_count: 1

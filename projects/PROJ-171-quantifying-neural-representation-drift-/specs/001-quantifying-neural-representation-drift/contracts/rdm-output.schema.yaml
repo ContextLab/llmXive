@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RepresentationalDissimilarityMatrix"
+description: "Schema for the RDM output."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+  distance_metric:
+    type: "string"
+    enum: ["pearson", "cosine", "mahalanobis"]
+  days:
+    type: "array"
+    items:
+      type: "integer"
+  rdm:
+    type: "array"
+    description: "Flattened symmetric matrix (Days × Days)."
+    items:
+      type: "number"
+  off_diagonal_indices:
+    type: "array"
+    description: "Indices of off-diagonal elements used for drift fitting."
+    items:
+      type: "object"
+      properties:
+        day_i:
+          type: "integer"
+        day_j:
+          type: "integer"
+      required:
+        - day_i
+        - day_j
+required:
+  - subject_id
+  - distance_metric
+  - days
+  - rdm
+  - off_diagonal_indices
