@@ -5,16 +5,6 @@ T000:
     the Summary and Technical Context sections were edited to reference OpenNeuro
     dataset `ds001495` and to remove all mentions of `ds000208`. The required artifact
     is missing.
-T017a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data file showing that the timecourses from T014,\
-    \ T015, and T016 have been loaded and concatenated into a single NumPy array is\
-    \ present. The claim lacks any artifact (e.g., a `.npy` file, a Python function,\
-    \ or console output) demonstrating the required in\u2011memory combination, and\
-    \ there is no evidence that the prerequisite tasks\u2019 outputs even exist. The\
-    \ implementer must provide the actual implementation and proof (e.g., a saved\
-    \ array file or reproducible code) that performs the combination."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

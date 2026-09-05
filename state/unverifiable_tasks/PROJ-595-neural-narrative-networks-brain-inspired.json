@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-595-neural-narrative-networks-brain-inspired",
+  "tasks": [
+    {
+      "task_key": "T017a",
+      "reject_count": 1,
+      "last_reason": "No code, script, notebook, or data file showing that the timecourses from T014, T015, and T016 have been loaded and concatenated into a single NumPy array is present. The claim lacks any artifact (e.g., a `.npy` file, a Python function, or console output) demonstrating the required in\u2011memory combination, and there is no evidence that the prerequisite tasks\u2019 outputs even exist. The implementer must provide the actual implementation and proof (e.g., a saved array file or reproducible code) that performs the combination.",
+      "first_seen": "2026-09-05T06:57:36.752945+00:00",
+      "last_seen": "2026-09-05T06:57:36.752945+00:00"
+    },
+    {
+      "task_key": "T017b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/roi_timecourses.csv, schema.yaml",
+      "first_seen": "2026-09-05T06:57:36.754032+00:00",
+      "last_seen": "2026-09-05T06:57:36.754032+00:00"
+    }
+  ],
+  "updated_at": "2026-09-05T06:57:36.754032+00:00"
+}
