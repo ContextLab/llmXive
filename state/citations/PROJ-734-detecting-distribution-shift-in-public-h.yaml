@@ -53,3 +53,47 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/thu-coai/cdconv/resolve/main/split/2class_dev.tsv%60
   verified_at: '2026-06-30T15:25:57.828284Z'
+- artifact_hash: b16a7874fbb9fc414f944635a88055a9b4abba82b3deacaba4e56185e464b1f7
+  artifact_path: projects/PROJ-734-detecting-distribution-shift-in-public-h/specs/001-detecting-distribution-shift-in-public-h/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/cdcFluView.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/cdcFluView.csv
+  verified_at: '2026-09-06T10:15:42.108927Z'
+- artifact_hash: b16a7874fbb9fc414f944635a88055a9b4abba82b3deacaba4e56185e464b1f7
+  artifact_path: projects/PROJ-734-detecting-distribution-shift-in-public-h/specs/001-detecting-distribution-shift-in-public-h/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/fluOutbreaks.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/fluOutbreaks.csv
+  verified_at: '2026-09-06T10:15:42.108927Z'
+- artifact_hash: b16a7874fbb9fc414f944635a88055a9b4abba82b3deacaba4e56185e464b1f7
+  artifact_path: projects/PROJ-734-detecting-distribution-shift-in-public-h/specs/001-detecting-distribution-shift-in-public-h/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/numenta/NAB
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/numenta/NAB
+  verified_at: '2026-09-06T10:15:42.108927Z'
+- artifact_hash: b16a7874fbb9fc414f944635a88055a9b4abba82b3deacaba4e56185e464b1f7
+  artifact_path: projects/PROJ-734-detecting-distribution-shift-in-public-h/specs/001-detecting-distribution-shift-in-public-h/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: ftp.cdc.gov - /
+  kind: url
+  value: https://ftp.cdc.gov
+  verification_status: pending
+  verified_against_url: https://ftp.cdc.gov
+  verified_at: '2026-09-06T10:15:42.108927Z'
