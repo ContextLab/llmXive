@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 9dbcce5e5f690fa18e070679dad71ee628820d5774984e392329fcfa4ffb59b9
+  artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "openai/gsm8k \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/openai/gsm8k
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/openai/gsm8k
+  verified_at: '2026-09-06T16:25:08.704362Z'

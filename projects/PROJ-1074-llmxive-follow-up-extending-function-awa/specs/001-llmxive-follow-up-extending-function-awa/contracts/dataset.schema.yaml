@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticLogicalDataset"
+description: "Schema for the GSM8K-derived pseudo-code dataset with dependency graphs."
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the math problem."
+  original_question:
+    type: "string"
+    description: "The raw GSM8K question text."
+  steps:
+    type: "array"
+    description: "List of reasoning steps formatted as pseudo-code functions."
+    items:
+      type: "object"
+      properties:
+        step_id:
+          type: "integer"
+          description: "Zero-based index of the step."
+        code:
+          type: "string"
+          description: "The pseudo-code string (e.g., 'def step_0(): return 5')."
+        dependencies:
+          type: "array"
+          description: "List of step_ids this step depends on. Can contain multiple IDs for non-linear graphs."
+          items:
+            type: "integer"
+      required:
+        - step_id
+        - code
+        - dependencies
+  graph_type:
+    type: "string"
+    description: "Type of dependency graph (linear, branching, merging)."
+    enum:
+      - "linear"
+      - "branching"
+      - "merging"
+  answer:
+    type: "string"
+    description: "The final derived fact."
+  depth:
+    type: "integer"
+    description: "Length of the longest dependency chain."
+required:
+  - problem_id
+  - original_question
+  - steps
+  - graph_type
+  - answer
+  - depth

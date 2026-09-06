@@ -9,15 +9,15 @@
 
 ### User Story 1 - Synthetic Logical Dataset Construction (Priority: P1)
 
-As a researcher, I need to convert standard math and logic datasets (GSM8K, LogiQA) into a pseudo-code format where deduction steps are wrapped as `def step_N(): return derived_fact` blocks, so that I can apply the Function-Aware FIM mechanism to non-code reasoning traces.
+As a researcher, I need to convert the GSM8K math dataset into a pseudo-code format where deduction steps are wrapped as `def step_N(): return derived_fact` blocks, so that I can apply the Function-Aware FIM mechanism to non-code reasoning traces while testing on the distinct LogiQA logic dataset.
 
-**Why this priority**: This is the foundational prerequisite. Without the synthetic "logical function call" dataset, the mid-training phase cannot occur, and the core hypothesis cannot be tested. It is the first step in the experimental pipeline.
+**Why this priority**: This is the foundational prerequisite. Without the synthetic "logical function call" dataset, the mid-training phase cannot occur. Strict domain separation (Train: GSM8K, Test: LogiQA) is required to prove the model learns structural bias rather than memorizing specific logical patterns.
 
-**Independent Test**: The dataset construction pipeline can be tested by running it on a small subset of GSM8K, verifying the output format (valid pseudo-code with dependency graphs), and ensuring the total token count matches the target (500k examples) within a 1% tolerance.
+**Independent Test**: The dataset construction pipeline can be tested by running it on a small subset of GSMK, verifying the output format (valid pseudo-code with dependency graphs), and ensuring the total token count matches the target (a sufficient volume of examples) within a 1% tolerance.
 
 **Acceptance Scenarios**:
 
-1. **Given** the raw GSM8K and LogiQA datasets, **When** the conversion script is executed, **Then** the output is a JSONL file where every intermediate reasoning step is wrapped in a `def step_N():` block with a return statement containing the derived fact.
+1. **Given** the raw GSM8K dataset, **When** the conversion script is executed, **Then** the output is a JSONL file where every intermediate reasoning step is wrapped in a `def step_N():` block with a return statement containing the derived fact.
 2. **Given** the generated pseudo-code, **When** the dependency graph extractor runs, **Then** it correctly identifies `step_N` calls as function dependencies, enabling the FIM masking logic to target function bodies.
 3. **Given** the training split, **When** a random sample is inspected, **Then** no answer keys from the original datasets are exposed in the training context, preventing data leakage.
 
@@ -25,77 +25,83 @@ As a researcher, I need to convert standard math and logic datasets (GSM8K, Logi
 
 ### User Story 2 - CPU-Tractable Mid-Training Execution (Priority: P2)
 
-As a researcher, I need to perform a single epoch of Function-Aware FIM mid-training on a small coding model (e.g., Qwen2.5-Coder-1.5B) using the synthetic logical dataset on a CPU-only environment, so that I can induce the structural inductive bias without exceeding resource limits.
+As a researcher, I need to perform a single epoch of Function-Aware FIM mid-training on a small open-source model (≤150M parameters, e.g., TinyLlama-110M) using the synthetic dataset on a CPU-only environment (specifically the GitHub Actions free-tier runner: multiple vCPUs, ~7GB RAM), so that I can induce the structural inductive bias without exceeding resource limits.
 
-**Why this priority**: This is the core experimental intervention. It tests whether the structural bias can be learned on non-code data. It must succeed within the strict hardware constraints (2 CPU, ~7GB RAM, ≤6h) to be feasible.
+**Why this priority**: This is the core experimental intervention. It tests whether the structural bias can be learned on non-code data. It must succeed within the strict hardware constraints (2 vCPU, ~7GB RAM, ≤6h) to be feasible. A Natural Language Control group (trained on the same data as plain text) is included to isolate syntax from structure.
 
-**Independent Test**: The training script can be tested by running a single epoch on a subset of the data (e.g., 10k examples) and verifying that the process completes without OOM errors, does not attempt to load CUDA, and finishes within 30 minutes for the subset (extrapolating to <6h for full data).
+**Independent Test**: The training script can be tested by running a single epoch on a subset of the data (e.g., a representative sample) and verifying that the process completes without OOM errors, does not attempt to load CUDA, generates a `masking_map.json` artifact, and finishes within 30 minutes for the subset (extrapolating to <6h for full data).
 
 **Acceptance Scenarios**:
 
-1. **Given** the Qwen2.5-Coder-1.5B model and the synthetic dataset, **When** the training job starts on a GitHub Actions runner, **Then** the process runs entirely on CPU (no CUDA/GPU errors) and completes within the 6-hour time limit.
-2. **Given** the FIM masking logic, **When** a batch is processed, **Then** the masking targets function bodies and arguments based on the logical dependency graph, not random tokens.
+1. **Given** the TinyLlama-110M model (or equivalent ≤150M) and the synthetic dataset, **When** the training job starts on the GitHub Actions free-tier runner (2 vCPU, 7GB RAM), **Then** the process runs entirely on CPU and completes within the 6-hour time limit.
+2. **Given** the FIM masking logic, **When** a batch is processed, **Then** the masked tokens in the training batch correspond exactly to the token spans of the function bodies identified in the `masking_map.json` artifact.
 3. **Given** the memory constraints, **When** the model loads, **Then** it uses default precision (float32) and does not attempt 8-bit/4-bit quantization which requires CUDA libraries.
 
 ---
 
 ### User Story 3 - Statistical Evaluation of Transferability (Priority: P3)
 
-As a researcher, I need to evaluate the mid-trained model against control groups (standard Causal LM and Baseline) on non-code benchmarks (LogiQA, BFCL) and perform statistical significance testing, so that I can determine if the performance gain is structural or syntactic.
+As a researcher, I need to evaluate the mid-trained model (FIM), the Natural Language Control, and the Baseline against independent non-code benchmarks (LogiQA) and perform statistical significance testing, so that I can determine if the performance gain is structural or syntactic.
 
 **Why this priority**: This provides the answer to the research question. It validates the hypothesis by comparing the FIM-trained model's performance against controls on independent non-code tasks.
 
-**Independent Test**: The evaluation pipeline can be tested by running it on a mock dataset with known scores, verifying that the paired t-test (or Wilcoxon) is calculated correctly and that the results distinguish between the FIM group and the control group.
+**Independent Test**: The evaluation pipeline can be tested by running it on a mock dataset with known scores, verifying that the paired t-test (or Wilcoxon) is calculated correctly, that the report includes the `is_significant` boolean, and that the results distinguish between the FIM group and the control group.
 
 **Acceptance Scenarios**:
 
-1. **Given** the trained models (FIM, Control, Baseline), **When** they are evaluated on LogiQA and BFCL, **Then** the accuracy scores are recorded for each random seed.
-2. **Given** the set of accuracy scores across multiple seeds, **When** the statistical analysis runs, **Then** a paired t-test (or Wilcoxon signed-rank test) is performed to determine if the FIM group's mean accuracy is significantly different from the Control group (p < 0.05).
-3. **Given** the evaluation results, **When** the report is generated, **Then** it explicitly states whether the performance gain is statistically significant and attributes the finding to structural generalization or syntactic dependency.
+1. **Given** the trained models (FIM, NL-Control, Baseline), **When** they are evaluated on LogiQA, **Then** the accuracy scores are recorded for each random seed.
+2. **Given** the set of accuracy scores across multiple seeds, **When** the statistical analysis runs, **Then** a paired t-test (or Wilcoxon signed-rank test) is performed to calculate and report the p-value and test statistic.
+3. **Given** the evaluation results, **When** the report is generated, **Then** it explicitly outputs a boolean field `is_significant` set to `true` if p < 0.05, or `false` otherwise, and includes the calculated p-value.
 
 ---
 
 ### Edge Cases
 
-- **What happens when** the synthetic pseudo-code conversion creates circular dependencies in the logical steps? **System handles** this by detecting cycles in the dependency graph and flattening them into sequential steps before masking.
+- **What happens when** the synthetic pseudo-code conversion creates circular dependencies in the logical steps? **System handles** this by detecting cycles in the dependency graph (using topological sort) and excluding the example from the dataset before training.
 - **How does system handle** the scenario where the CPU-only training exceeds the 6-hour limit? **System handles** this by failing the job with a clear error message, triggering a retry with a smaller batch size or reduced dataset subset (if power analysis allows).
-- **What happens when** the dataset lacks sufficient variance in logical depth? **System handles** this by flagging the dataset construction as `[NEEDS CLARIFICATION: does the synthetic corpus have sufficient logical depth variation?]` and halting training until resolved.
+- **What happens when** the dataset lacks sufficient variance in logical depth? **System handles** this by running a depth-distribution validator on the generated corpus. If the distribution histogram does not match the target profile (min depth 3, max 10, ≥20% depth ≥7), the build fails with error code `VAR-001` and the message: "Depth distribution mismatch: expected ≥20% samples at depth ≥7, observed [X]%."
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST construct a synthetic dataset of 500k logical deduction examples where intermediate steps are formatted as `def step_N(): return fact` blocks, derived from GSM8K and LogiQA (See US-1).
-- **FR-002**: System MUST perform a single epoch of Function-Aware FIM mid-training on a small open-source coding model (e.g., Qwen2.5-Coder-1.5B) using only CPU resources, ensuring no GPU/CUDA dependencies (See US-2).
+- **FR-001**: System MUST construct a synthetic dataset of logical deduction examples derived from GSM8K where intermediate steps are formatted as `def step_N(): return fact` blocks. The system MUST validate that the logical dependency graph is acyclic by performing a topological sort (length must equal step count) and MUST verify that the LogiQA test set has zero overlap with any GSM8K examples or intermediate caches. If overlap > 0, the build MUST fail (See US-1).
+- **FR-002**: System MUST perform a single epoch of Function-Aware FIM mid-training on a model with ≤150M parameters (e.g., TinyLlama-110M) using only CPU resources, ensuring no GPU/CUDA dependencies (See US-2).
 - **FR-003**: System MUST mask function bodies and arguments in the synthetic dataset based on the logical dependency graph, not random token positions (See US-2).
-- **FR-004**: System MUST evaluate all model variants (FIM, Control, Baseline) on independent non-code benchmarks (LogiQA, BFCL) to measure generalization (See US-3).
-- **FR-005**: System MUST perform statistical significance testing (paired t-test or Wilcoxon) across multiple random seeds to compare FIM performance against the control group (See US-3).
-- **FR-006**: System MUST enforce a memory constraint of ≤7 GB RAM and a time constraint of ≤6 hours for the entire training and evaluation pipeline (See US-2).
+- **FR-004**: System MUST evaluate all model variants (FIM, Natural Language Control, Baseline) on independent non-code benchmarks (LogiQA) to measure generalization (See US-3).
+- **FR-005**: System MUST perform statistical significance testing (paired t-test or Wilcoxon) across multiple random seeds to compare FIM performance against the Natural Language Control group (See US-3).
+- **FR-006**: System MUST enforce a time constraint of ≤6 hours for the mid-training phase on the GitHub Actions free-tier runner (See US-2).
+- **FR-007**: System MUST enforce a time constraint of ≤2 hours for the evaluation phase on the GitHub Actions runner (See US-3).
+- **FR-008**: System MUST generate a `masking_map.json` artifact for every training batch, mapping function IDs to token spans, to verify masking correctness (See US-2).
 
 ### Key Entities
 
 - **SyntheticLogicalDataset**: The training corpus containing logical reasoning traces formatted as pseudo-code functions with dependency graphs.
-- **MidTrainedModel**: The coding model (e.g., Qwen2.5-Coder-1.5B) after the single epoch of FIM mid-training on the synthetic dataset.
-- **ControlModel**: The baseline model trained with standard causal language modeling on the same synthetic data.
-- **EvaluationBenchmark**: The set of non-code reasoning tasks (LogiQA, BFCL) used to test transferability.
+- **MidTrainedModel**: The coding model (e.g., TinyLlama-110M) after the single epoch of FIM mid-training on the synthetic dataset.
+- **NLControlModel**: The baseline model trained with standard causal language modeling on the same synthetic data formatted as natural language.
+- **EvaluationBenchmark**: The set of non-code reasoning tasks (LogiQA) used to test transferability.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The mean accuracy of the FIM-trained model on LogiQA and BFCL is measured against the mean accuracy of the Control Group (standard Causal LM) to determine transferability (See FR-004).
-- **SC-002**: The statistical significance (p-value) of the performance difference between the FIM and Control groups is measured against the threshold of p < 0.05 using a paired t-test or Wilcoxon test (See FR-005).
-- **SC-003**: The total wall-clock time for the mid-training and evaluation pipeline is measured against the 6-hour limit on a GitHub Actions free-tier runner (See FR-006).
+- **SC-001**: The mean accuracy of the FIM-trained model on LogiQA is measured against the mean accuracy of the Natural Language Control Group to determine transferability (See FR-004).
+- **SC-002**: The statistical significance (p-value) of the performance difference between the FIM and NL-Control groups is measured against the threshold of p < 0.05 using a paired t-test or Wilcoxon test (See FR-005).
+- **SC-003**: The total wall-clock time for the mid-training pipeline is measured against the 6-hour limit on a GitHub Actions free-tier runner (See FR-006).
 - **SC-004**: The memory usage peak during training is measured against the 7 GB RAM limit to ensure CPU-tractability (See FR-006).
-- **SC-005**: The rate of successful dependency graph construction is measured against [deferred] to ensure no data leakage or format errors in the synthetic dataset (See FR-001).
+- **SC-005**: The rate of successful dependency graph construction (successful_graphs / total_examples) is measured against a target of [deferred] (no failures allowed) to ensure no data leakage or format errors in the synthetic dataset (See FR-001).
+- **SC-006**: The overlap between training (GSM8K) and test (LogiQA) problems is measured against a target of [deferred] to ensure domain separation (See US-1).
 
 ## Assumptions
 
 - **Assumption about data availability**: The GSM8K and LogiQA datasets are accessible and can be converted into the required pseudo-code format without copyright or licensing restrictions for research use.
-- **Assumption about model compatibility**: The Qwen2.5-Coder-1.5B (or similar 1.5B-3B parameter model) is available in a format compatible with CPU-only training (e.g., HuggingFace `transformers` with default precision) and fits within 7 GB RAM.
-- **Assumption about logical structure**: The logical deduction chains in GSM8K and LogiQA can be unambiguously decomposed into sequential "function calls" (steps) where the dependency graph is well-defined and acyclic.
-- **Assumption about compute limits**: The GitHub Actions free-tier runner provides sufficient CPU stability to complete a 1-epoch training run on 500k examples within 6 hours, assuming a batch size of ≤32 and sequence length ≤2048.
-- **Assumption about baseline performance**: The baseline model (no mid-training) and control model (standard Causal LM) will establish a performance floor, ensuring that any observed gain in the FIM group is attributable to the FIM objective and not random variance.
-- **Assumption about statistical power**: A sample size of 500k examples and evaluation across ≥3 random seeds provides sufficient statistical power to detect a medium effect size (Cohen's d ≈ 0.5) with α = 0.05.
+- **Assumption about model compatibility**: A model with ≤150M parameters (e.g., TinyLlama-110M) is available in a format compatible with CPU-only training (e.g., HuggingFace `transformers` with default precision) and fits within 7 GB RAM.
+- **Assumption about logical structure**: The logical deduction chains in GSM8K can be unambiguously decomposed into sequential "function calls" (steps) where the dependency graph is well-defined and acyclic. Non-linear examples are detected by topological sort failure and excluded.
+- **Assumption about compute limits**: The GitHub Actions free-tier runner (2 vCPU, 7GB RAM) provides sufficient CPU stability to complete a 1-epoch training run on [deferred] examples with a ≤150M parameter model within 6 hours, assuming a batch size of ≤32 and sequence length ≤2048.
+- **Assumption about baseline performance**: The baseline model (no mid-training) and Natural Language Control model will establish a performance floor, ensuring that any observed gain in the FIM group is attributable to the FIM objective and not random variance.
+- **Assumption about statistical power**: A sample size of [deferred] examples and evaluation across ≥3 random seeds provides sufficient statistical power to detect a medium effect size (Cohen's d ≈ 0.5) with α = 0.05.
+- **Assumption about domain separation**: The GSM8K (Math) and LogiQA (Logic) datasets are disjoint sets with no overlapping problems or reasoning patterns that would allow direct memorization of test answers from training data.
