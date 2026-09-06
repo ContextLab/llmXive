@@ -1,87 +1,68 @@
 # Data Model: Investigating the Validity of the Equipartition Theorem in Driven Granular Systems
 
-## Overview
+## Entity Relationship Overview
 
-This document defines the data structures used throughout the pipeline, ensuring alignment with the `Key Entities` in the specification and the `Granular Energy Component Isolation` principle.
+The data model is designed to support the flow from raw kinematic data to statistical conclusions.
 
-## Entity Definitions
+1.  **Raw Data**: Particle tracking CSVs (positions, orientations) and driving signal logs.
+2.  **Derived Data**: `EnergySample` records (calculated energy components per particle per frame).
+3.  **Aggregated Data**: `EnergyDistribution` statistics (mean, variance) per bin.
+4.  **Results**: `StatisticalResult` and `RegressionResult` objects.
 
-### 1. ParticleState
+## Core Entities
+
+### ParticleState
 Represents a single particle at a single time step.
--   **particle_id**: `int` (Unique identifier)
--   **timestamp**: `float` (Seconds, synchronized with driving signal)
--   **x**: `float` (Position)
--   **y**: `float` (Position)
--   **z**: `float` (Position)
--   **theta**: `float` (Orientation in radians)
--   **mass**: `float` (kg, derived from material)
--   **radius**: `float` (m, derived from material)
--   **material**: `str` (e.g., "steel", "polymer")
+- `particle_id`: Integer (unique ID)
+- `timestamp`: Float (seconds)
+- `position_x`, `position_y`, `position_z`: Float (meters)
+- `orientation_theta`: Float (radians)
+- `material_type`: String ("steel", "glass", "polymer")
+- `mass`: Float (kg)
+- `moment_of_inertia`: Float (kg·m²)
 
-### 2. EnergySample
-Derived from `ParticleState`. Represents raw energy values.
--   **particle_id**: `int`
--   **timestamp**: `float`
--   **E_trans**: `float` (Joules)
--   **E_rot**: `float` (Joules)
--   **E_pot**: `float` (Joules)
--   **E_vib**: `float` (Joules, **Diagnostic only**, calculated via PSD)
--   **frequency_bin**: `str` (e.g., "10Hz")
+### EnergySample
+Derived entity storing computed energy values.
+- `sample_id`: Integer
+- `particle_id`: Integer
+- `timestamp`: Float
+- `E_trans`: Float (Joules)
+- `E_rot`: Float (Joules)
+- `E_pot`: Float (Joules)
+- `E_vib`: Float (Joules)
+- `frequency_bin`: Integer (e.g., 10 for 10Hz)
+- `is_excluded`: Boolean (true if non-stationary or missing data)
 
-### 3. EnergyDistribution
-Aggregated statistics for a group.
--   **group_label**: `str` (e.g., "Steel_10Hz")
--   **material**: `str`
--   **frequency**: `float`
--   **mean_E_trans**: `float`
--   **mean_E_rot**: `float`
--   **mean_E_pot**: `float`
--   **variance_E_trans**: `float`
--   **sample_size**: `int`
--   **equipartition_ratio**: `float` (Calculated as $\langle E_{trans} \rangle / \langle E_{rot} \rangle$)
--   **deviation_metric**: `float` (Calculated as $|\langle E_{trans} \rangle - \langle E_{rot} \rangle| / \langle E_{total} \rangle$)
+### StatisticalResult
+Outcome of hypothesis tests.
+- `bin_id`: String (e.g., "steel_10Hz")
+- `test_type`: String ("KS", "ChiSq", "Ratio")
+- `statistic_value`: Float
+- `p_value_raw`: Float
+- `p_value_corrected`: Float (Permutation-based FDR)
+- `is_significant`: Boolean
+- `null_hypothesis`: String ("Equipartition holds")
 
-### 4. StatisticalResult
-Outcome of a hypothesis test.
--   **test_type**: `str` ("KS", "ChiSquare", "Regression", "PairedT")
--   **group_label**: `str`
--   **statistic_value**: `float`
--   **p_value**: `float`
--   **is_significant**: `bool`
--   **corrected_p_value**: `float` (after FDR)
--   **threshold**: `float` (alpha used)
--   **slope**: `float` (For Regression)
--   **intercept**: `float` (For Regression)
--   **r_squared**: `float` (For Regression)
--   **slope_p_value**: `float` (For Regression)
--   **t_statistic**: `float` (For Regression)
-
-### 5. RegressionResult
+### RegressionResult
 Outcome of linear regression.
--   **predictor**: `str` (e.g., "frequency")
--   **slope**: `float`
--   **intercept**: `float`
--   **r_squared**: `float`
--   **slope_p_value**: `float`
--   **model_fit_quality**: `str` ("Good", "Poor")
+- `model_id`: String
+- `slope`: Float
+- `intercept`: Float
+- `r_squared`: Float
+- `slope_p_value`: Float
+- `model_fit_quality`: String ("Good", "Poor")
 
 ## Data Flow
 
-1.  **Input**: Raw CSVs (Particle Tracking) + Driving Log.
-2.  **Sync**: `ParticleState` (aligned timestamps).
-3.  **Compute**: `EnergySample` (finite differences + formulas). **E_vib is calculated as a separate diagnostic.**
-4.  **Aggregate**: `EnergyDistribution` (group by material/frequency). **Equipartition Ratio calculated excluding E_vib.**
-5.  **Test**: `StatisticalResult` (KS, Chi-squared, FDR correction, Regression).
-6.  **Model**: `RegressionResult` (Deviation vs. Frequency/Roughness).
+1.  **Ingestion**: `raw_data.csv` -> `ParticleState` (in memory).
+2.  **Calculation**: `ParticleState` -> `EnergySample` (stored in `data/derived/energy_samples.csv`).
+3.  **Binning**: `EnergySample` -> Grouped by `frequency_bin` and `material_type`.
+4.  **Testing**: Grouped data -> `StatisticalResult` (stored in `data/derived/statistical_results.json`).
+5.  **Regression**: `StatisticalResult` (aggregated deviations) -> `RegressionResult` (stored in `data/derived/regression_results.json`).
 
-## Storage Format
+## Constraints & Validation
 
--   **Intermediate**: Parquet files (efficient for columnar data, supports streaming).
--   **Final**: CSV/JSON for reporting.
--   **Configuration**: YAML for seeds and thresholds.
-
-## Clarification on E_vib and Residuals
-
--   **E_vib**: Calculated via PSD integration. It is a **diagnostic component** representing energy in the driven mode. It is **NOT** added to $E_{trans}$ or $E_{rot}$ for the purpose of the equipartition ratio check.
--   **E_vib_residual**: Defined as $E_{total\_measured} - (E_{trans} + E_{rot} + E_{pot})$. This residual captures the energy balance error. It is **NOT** calculated as $Total - (E_{trans} + E_{rot} + E_{pot} + E_{vib})$. This avoids double-counting E_vib in the energy balance if E_vib is already part of the measured total motion.
--   **SSoT**: `energy_output.schema.yaml` is the Single Source of Truth for the primary output artifacts.
+- **Time Continuity**: Gaps in `timestamp` > 2 frames trigger interpolation or exclusion flags.
+- **Energy Units**: All energy values must be in Joules.
+- **Frequency Bins**: Must be discrete (5Hz intervals).
+- **Missing Data**: Any `NaN` in `E_trans`, `E_rot`, etc., must be flagged and excluded from statistical tests.

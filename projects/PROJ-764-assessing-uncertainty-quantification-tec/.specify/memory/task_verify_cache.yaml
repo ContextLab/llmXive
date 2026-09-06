@@ -13,37 +13,42 @@ T003:
     satisfied. The evidence only contains a feature specification unrelated to linting/formatting.
 T005a:
   c: false
-  h: 307c012e1a21b78a635ac83ab8a2bed0f03b2e51afa38bd3019d43e486473166
-  r: "The repository contains `code/data/download.py` with retry logic and parquet\
-    \ materialization, but the required output file `data/raw/oqmd.parquet` was never\
-    \ created, and `data/checksums.json` is absent (and its intended schema would\
-    \ not match the specification). The task\u2019s materialization and checksum recording\
-    \ requirements are therefore unmet."
+  h: d7efa1d1d85da27707da729b19d90c8ecb8cee32498d118f6da6610d9982cc72
+  r: "The repository contains `code/data/download.py` with the required logic, but\
+    \ the required output file `data/raw/oqmd.parquet` is absent, and `data/checksums.json`\
+    \ contains a placeholder hash instead of the real SHA\u2011256 of the parquet\
+    \ file. Both the materialized dataset and a valid checksum are missing, so the\
+    \ task is not genuinely completed."
 T006a:
   c: false
-  h: 1253062d1a096f759aaf4dc621f37d0a9a1669efea28b2599dfaca184f67d555
-  r: "The `code/data/preprocess.py` file is truncated and never writes the train/val/test\
-    \ CSVs, and the three required output files (`data/processed/raw_train.csv`, `raw_val.csv`,\
-    \ `raw_test.csv`) are absent from the repository. Consequently the task\u2019\
-    s core requirement\u2014producing processed CSVs with a `target_bin` column\u2014\
-    is not met."
+  h: dd037ce01c0bb288ae799fb117b85e5968a0adc670cfe5902eaea0a4b0e31bac
+  r: "The provided `code/data/preprocess.py` is truncated and does not contain logic\
+    \ to write the three required CSV files, nor does it finish the `stratified_split`\
+    \ function (syntax error). The expected output files `data/processed/raw_train.csv`,\
+    \ `raw_val.csv`, and `raw_test.csv` are absent from the repository. Consequently,\
+    \ the implementation does not satisfy the task\u2019s requirements."
 T015a:
+  c: true
+  h: 1a0dfb78ce87f8475acc6eb59be425a73808a8cfb1deff375f598e1ec7d22bb5
+  r: "The repository contains a non\u2011empty `code/models/sparse_gp.py` that defines\
+    \ `load_processed_data()` which verifies the presence of `data/processed/features_test_20pca.csv`\
+    \ and `data/processed/pca_transformer.pkl`, raising a `FileNotFoundError` if either\
+    \ is absent, and does not attempt to refit PCA. This satisfies the verification\
+    \ requirement."
+T015c:
   c: false
-  h: 7c068a16cad083bf0d45cbdfafc62997a2d9ff7154559dfff3b7b49d17ada26b
-  r: "The `sparse_gp.py` file does not contain any logic that checks for the presence\
-    \ of `data/processed/features_test_20pca.csv` or `data/processed/pca_transformer.pkl`,\
-    \ nor does it raise an error if they are absent. Additionally, both required data\
-    \ files are missing from the repository, and the provided code is truncated and\
-    \ incomplete (e.g., the `forward` method is unfinished). These issues mean the\
-    \ task\u2019s verification requirement is not satisfied."
-T016b:
+  h: 224a6baf9112e5093b0df447d248de6475070a0bda38857ea99eefe242f2a163
+  r: The provided `code/models/sparse_gp.py` does not contain any code that trains
+    a Sparse GP and writes the resulting model to `results/models/sparse_gp_model.pt`,
+    and the expected output file `results/models/sparse_gp_model.pt` is absent. The
+    task therefore remains unfinished.
+T016a:
   c: false
-  h: 5a08642a0da35c7193ebd6bbcacb3c57471e1b63f69558df0e7fd1588dbf3ab3
-  r: The repository contains a `code/main.py` file, but its content is truncated and
-    does not show the required global timeout handler, the explicit waiting for T013/T014
-    completion, or the full pipeline that merges T016a outputs. Moreover, the expected
-    output file `results/uq_predictions_base.csv` is absent. These missing pieces
-    mean the orchestrator does not fulfill the stated requirements.
+  h: ae1905d49a70096b6568ed6427e0b19ae3c5e598efd2434323e4cf71abc76612
+  r: The provided `run_single_seed.py` does not generate the required CSV with the
+    exact columns (bounds are never computed or written), and the necessary model
+    weight file `results/models/sparse_gp_model.pt` is absent. Consequently the script
+    cannot fulfill the inference and output specifications.
 T022b:
   c: false
   h: 4db8d923de11c400b5cf98678549ce11a26b7bcd2eb4d65f37a49e42570a6979

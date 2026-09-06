@@ -322,3 +322,153 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T11:55:01Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: UQ inference pipeline completes within 5 hours on CPU
+  claim_id: c_97818d26
+  context: 'Independent Test: The system ingests the dataset, trains the baseline,
+    runs UQ inference, and outputs a CSV with (prediction, lower_bound, upper_bound,
+    variance) without GPU errors within 5 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system ingests the dataset, trains the baseline, runs UQ inference,
+    and outputs a CSV with (prediction, lower_bound, upper_bound, variance) without
+    GPU errors within 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:07:41Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Deep Ensemble uses 5 independently initialized models
+  claim_id: c_6579c7bf
+  context: 'T013 [P] [US1] Implement code/models/deep_ensemble.py: Train exactly 5
+    independently initialized copies of the baseline model and aggregate predictions
+    to estimate mean and variance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train exactly 5 independently initialized copies of the baseline model
+    and aggregate predictions to estimate mean and variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:08:08Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: MC Dropout runs 30 stochastic forward passes
+  claim_id: c_4bd81b5f
+  context: 'T014 [P] [US1] Implement code/models/mc_dropout.py: Enable dropout (p=0.2),
+    run 30 stochastic forward passes per sample.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 30 stochastic forward passes per sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:08:55Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: PCA reduces features to 20 principal components
+  claim_id: c_ad46e604
+  context: 'T006b1 [P] [US1] Implement code/data/preprocess.py (PCA Fit/Transform):
+    Read data/processed/raw_train.csv from T006a. Fit PCA on training set only to
+    reduce features to 20 principal components.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fit PCA on training set only to reduce features to 20 principal components.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:09:20Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Baseline model parameter count is at most 10000
+  claim_id: c_0c3825fe
+  context: "T012 [P] [US1] Implement code/models/baseline_nn.py: 2 hidden layers,\
+    \ \u226410k params, heteroscedastic output head. Verification: Before saving the\
+    \ model, calculate the total parameter count. Assert total_params <= 10000."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_parameter_count_is_at_most_10000
+  kind: magnitude
+  raw_text: Assert total_params <= 10000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:10:58Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness evaluation uses seeds 42, 43, and 44
+  claim_id: c_a5b14f35
+  context: 'T025a [P] [US2] REQUIRED: Implement code/run_seeds.py as a Seed Orchestrator.
+    Logic: Iterate over a fixed list of seeds (e.g., [, 43, 44].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over a fixed list of seeds (e.g., [, 43, 44].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:11:30Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness gate passes if Coefficient of Variation is at most 0.05
+  claim_id: c_79079158
+  context: "T025b [US2] REQUIRED: Implement the Coefficient of Variation (CV) calculation\
+    \ logic for ECE scores across seeds. Output: results/robustness_report.json containing:\
+    \ cv (float, or null if calculation fails), pass (boolean, true if CV \u2264 0.05\
+    \ AND cv is not null, else false), seeds_used (array of integers [42, 43, 44])."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_gate_passes_if_Coefficient_of_Variation_is_at_mos
+  kind: magnitude
+  raw_text: "Pass is true if CV \u2264 0.05 AND cv is not null, else false."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:12:17Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 1 if Coefficient of Variation exceeds 0.05
+  claim_id: c_b1058dfe
+  context: 'T026 [US2] REQUIRED: Implement the Robustness Gate in code/main.py. Logic:
+    After T025b completes, main.py must load results/robustness_report.json. If the
+    pass field is false, main.py MUST immediately exit with code 1 and print a clear
+    error message: Robustness Gate Failed: CV > 0.05.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'If the pass field is false, main.py MUST immediately exit with code 1
+    and print a clear error message: Robustness Gate Failed: CV > 0.05.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T10:12:17Z'

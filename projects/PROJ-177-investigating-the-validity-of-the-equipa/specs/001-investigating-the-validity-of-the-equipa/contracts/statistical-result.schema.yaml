@@ -27,7 +27,7 @@ properties:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Corrected p-value (Holm-Bonferroni)."
+    description: "Corrected p-value (Permutation-based FDR)."
   degrees_of_freedom:
     type: "integer"
     description: "Degrees of freedom for the test."

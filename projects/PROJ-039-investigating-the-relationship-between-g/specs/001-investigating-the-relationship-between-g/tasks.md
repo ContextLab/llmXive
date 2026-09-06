@@ -79,8 +79,8 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data loading in `tests/contract/test_data_loading.py` (verify schema compliance for matched pairs or distribution groups)
-- [ ] T011 [P] [US1] Integration test for full preprocessing and matching pipeline in `tests/integration/test_preprocessing.py` (verify file existence, row counts, and successful path selection) <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Contract test for data loading in `tests/contract/test_data_loading.py` (verify schema compliance for matched pairs or distribution groups)
+- [X] T011 [P] [US1] Integration test for full preprocessing and matching pipeline in `tests/integration/test_preprocessing.py` (verify file existence, row counts, and successful path selection) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 

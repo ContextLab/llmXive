@@ -33,7 +33,7 @@ properties:
     description: "Standard deviation of the difference (E_trans - E_rot)."
   ratio_mean:
     type: "number"
-    description: "Ratio of mean translational to mean rotational energy (Primary Equipartition Metric)."
+    description: "Ratio of mean translational to mean rotational energy (Primary Equipartition Metric, DOF normalized)."
   t_statistic:
     type: "number"
     description: "t-statistic from the Paired t-test."
@@ -46,7 +46,7 @@ properties:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "Holm-Bonferroni corrected p-value."
+    description: "Permutation-based FDR corrected p-value."
   ks_statistic:
     type: "number"
     description: "KS statistic comparing observed distribution to theoretical."
@@ -60,7 +60,7 @@ properties:
     description: "True if p_value_corrected < alpha (default 0.05)."
   deviation_metric:
     type: "number"
-    description: "Equipartition Deviation Metric: |<E_trans> - <E_rot>| / <E_total>."
+    description: "Equipartition Deviation Metric: |<E_trans> - <E_rot>| / (<E_trans> + <E_rot>). Excludes E_vib and E_pot."
   # Regression specific fields for SC-005
   slope:
     type: "number"

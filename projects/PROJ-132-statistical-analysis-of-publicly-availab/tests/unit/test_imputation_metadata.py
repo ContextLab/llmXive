@@ -1,7 +1,6 @@
 import json
 import pytest
 from pathlib import Path
-import os
 
 def test_imputation_metadata_exists():
     """

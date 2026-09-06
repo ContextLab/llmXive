@@ -1,18 +1,4 @@
-'|binning cell degree grid interval longitude use':
-  quote: "C-squares (acronym for the Concise Spatial QUery And REpresentation System)\
-    \ is a system of spatially unique, location-based identifiers (geocodes) for areas\
-    \ on the surface of the earth, represented as cells from a latitude- and longitude-based\
-    \ Discrete Global Grid at a hierarchical set of resolution steps, obtained by\
-    \ progressively subdividing 10\xD710 degree World Meteorological Organization\
-    \ squares; the term \"c-square\" is also available for use to designate any component\
-    \ cell of the grid. Individual cell identifiers incorporate literal values of\
-    \ latitude and longitude in an interleaved notation (producing grid resolutions\
-    \ of 10, 1, 0.1 degrees, etc.), together with additional digits that support intermediate\
-    \ grid resolutions of 5, 0.5, 0.05 degrees, etc."
-  source_id: C-squares
-  url: https://en.wikipedia.org/wiki/C-squares
-  value: '10'
-'|binning degree grid resolution':
+'|both cell created degree dimension grid latitude longitude resolution using':
   quote: "C-squares (acronym for the Concise Spatial QUery And REpresentation System)\
     \ is a system of spatially unique, location-based identifiers (geocodes) for areas\
     \ on the surface of the earth, represented as cells from a latitude- and longitude-based\

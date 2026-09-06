@@ -1,4 +1,3 @@
 """
-State directory initialization.
-Contains pipeline execution state and checkpoints.
+State directory for pipeline checkpoints and intermediate states.
 """

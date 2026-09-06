@@ -1,4 +1,3 @@
 """
-Data directory initialization.
-Contains raw and processed galaxy rotation curve data.
+Data directory for raw and processed datasets.
 """

@@ -1,4 +1,3 @@
 """
-Tests package for PROJ-076.
+Test suite for PROJ-076.
 """
-pass

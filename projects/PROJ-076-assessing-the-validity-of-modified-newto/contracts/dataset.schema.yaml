@@ -1,45 +1,97 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Galaxy Rotation Curve Dataset Schema
-description: Schema for validated galaxy rotation curve data from SPARC.
+title: SPARC Galaxy Rotation Curve Dataset
+description: >
+  Schema for the processed and filtered galaxy rotation curve dataset
+  derived from the SPARC (Spitzer Photometry & Accurate Rotation Curves) database.
 type: object
 required:
+  - meta
   - galaxies
 properties:
+  meta:
+    type: object
+    description: Metadata about the dataset generation
+    required:
+      - source
+      - timestamp
+      - version
+      - filter_criteria
+    properties:
+      source:
+        type: string
+        description: Original data source URL or identifier
+        pattern: "^https?://"
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of data generation
+      version:
+        type: string
+        description: Schema version
+      filter_criteria:
+        type: object
+        description: Criteria used to filter the raw data
+        required:
+          - min_points
+          - max_inclination_uncertainty
+        properties:
+          min_points:
+            type: integer
+            minimum: 1
+            description: Minimum number of rotation curve points required
+          max_inclination_uncertainty:
+            type: number
+            minimum: 0
+            maximum: 90
+            description: Maximum allowed inclination uncertainty in degrees
   galaxies:
     type: array
-    description: List of galaxy objects containing rotation curve data.
+    description: List of galaxy rotation curve records
     items:
       type: object
       required:
+        - id
         - name
         - inclination
         - inclination_uncertainty
         - distance
         - distance_uncertainty
-        - mass_to_light_ratio
+        - v_max
         - rotation_curve
       properties:
+        id:
+          type: string
+          description: Unique galaxy identifier
+          pattern: "^G[0-9]{3,}$"
         name:
           type: string
-          description: Galaxy identifier (e.g., NGC number).
+          description: Galaxy name (e.g., NGC 2403)
         inclination:
           type: number
-          description: Inclination angle in degrees.
+          minimum: 0
+          maximum: 90
+          description: Galaxy inclination in degrees
         inclination_uncertainty:
           type: number
-          description: Uncertainty in inclination angle in degrees.
+          minimum: 0
+          maximum: 90
+          description: Uncertainty in inclination measurement
         distance:
           type: number
-          description: Distance to galaxy in Mpc.
+          minimum: 0
+          description: Distance to galaxy in Mpc
         distance_uncertainty:
           type: number
-          description: Uncertainty in distance in Mpc.
-        mass_to_light_ratio:
+          minimum: 0
+          description: Uncertainty in distance measurement
+        v_max:
           type: number
-          description: Mass-to-light ratio in solar units.
+          minimum: 0
+          description: Maximum rotation velocity in km/s
         rotation_curve:
           type: array
-          description: Array of rotation curve points.
+          description: Rotation curve data points
+          minItems: 15
           items:
             type: object
             required:
@@ -49,10 +101,12 @@ properties:
             properties:
               radius:
                 type: number
-                description: Radial distance in kpc.
+                minimum: 0
+                description: Radial distance from center in kpc
               velocity:
                 type: number
-                description: Rotational velocity in km/s.
+                description: Rotation velocity in km/s
               velocity_uncertainty:
                 type: number
-                description: Uncertainty in velocity in km/s.
+                minimum: 0
+                description: Uncertainty in velocity measurement

@@ -15,9 +15,19 @@ T003:
     \ configuration files and ensure they are non\u2011empty and correctly set up."
 T004:
   c: false
-  h: 4e9d23ce51d7d8e27c2f70f43bf9bcdb647d357c4ab29376f56731e208d49cfe
-  r: The test file `tests/contract/test_schemas.py` is present, but it relies on `contracts/dataset.schema.yaml`,
-    which is missing from the repository, so the validators cannot actually match
-    the required schema. Additionally, the shown test code is truncated, suggesting
-    the implementation may be incomplete. The missing schema file must be added (and
-    the test completed) for the task to be satisfied.
+  h: 89ec9c8dbe7893cc09f922712aa93171650483d7d56c916fb97eb80d1bd4b46f
+  r: The required schema file `contracts/dataset.schema.yaml` does not exist, so the
+    test cannot actually validate against a real schema. Moreover, the provided `tests/contract/test_schemas.py`
+    contains only loading helpers and a truncated placeholder; it lacks concrete test
+    functions that enforce the schema. Both the missing schema and the incomplete
+    test implementation mean the task is not genuinely fulfilled.
+T026:
+  c: false
+  h: 192f9721a51679d2d48e2c2e47ea887a5c86f1a7efa62eb758085414adb31fb1
+  r: "The repository contains a partially\u2011implemented `code/sensitivity.py` that\
+    \ defines the analysis functions, but the required output file `results/sensitivity_data.csv`\
+    \ is absent. No script or entry\u2011point is provided that actually runs the\
+    \ analysis and writes the CSV to the specified location, and the shown source\
+    \ is truncated before the final logging line, indicating the implementation is\
+    \ incomplete. The missing result file means the task\u2019s deliverable is not\
+    \ satisfied."

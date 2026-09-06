@@ -14,6 +14,8 @@ if str(code_root) not in sys.path:
 
 def load_config(config_path: str = "code/config.yaml") -> dict:
     """Load configuration from YAML file."""
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 

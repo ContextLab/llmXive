@@ -1,128 +1,194 @@
-"""
-Unit tests for checksum_utils.py
-"""
 import os
 import tempfile
 import hashlib
 from pathlib import Path
 import pytest
 
-from checksum_utils import compute_checksum, generate_checksums, verify_checksums, update_checksum_for_file
+# Ensure we can import from code/
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from checksum_utils import (
+    compute_checksum,
+    generate_checksums,
+    verify_checksums,
+    update_checksum_for_file
+)
 from config import get_project_root
 
 def test_compute_checksum_sha256():
-    """Test SHA256 computation on a known string."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("Hello World")
+    """Test SHA256 checksum computation."""
+    content = b"test data for checksum"
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(content)
         temp_path = Path(f.name)
-    
+
     try:
-        expected = hashlib.sha256(b"Hello World").hexdigest()
-        result = compute_checksum(temp_path, "sha256")
-        assert result == expected
+        expected = hashlib.sha256(content).hexdigest()
+        actual = compute_checksum(temp_path, "sha256")
+        assert actual == expected
     finally:
-        os.unlink(temp_path)
+        temp_path.unlink()
 
 def test_compute_checksum_md5():
-    """Test MD5 computation on a known string."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("Hello World")
+    """Test MD5 checksum computation."""
+    content = b"test data for checksum"
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(content)
         temp_path = Path(f.name)
-    
-    try:
-        expected = hashlib.md5(b"Hello World").hexdigest()
-        result = compute_checksum(temp_path, "md5")
-        assert result == expected
-    finally:
-        os.unlink(temp_path)
 
-def test_compute_checksum_file_not_found():
-    """Test that FileNotFoundError is raised for missing files."""
+    try:
+        expected = hashlib.md5(content).hexdigest()
+        actual = compute_checksum(temp_path, "md5")
+        assert actual == expected
+    finally:
+        temp_path.unlink()
+
+def test_compute_checksum_nonexistent_file():
+    """Test that compute_checksum raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
         compute_checksum(Path("/nonexistent/file.txt"))
 
 def test_compute_checksum_invalid_algorithm():
-    """Test that ValueError is raised for invalid algorithm."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("Test")
+    """Test that compute_checksum raises ValueError for invalid algorithm."""
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(b"data")
         temp_path = Path(f.name)
-    
+
     try:
         with pytest.raises(ValueError):
             compute_checksum(temp_path, "invalid_algo")
     finally:
-        os.unlink(temp_path)
+        temp_path.unlink()
 
 def test_generate_checksums():
     """Test generating checksums for multiple files."""
-    temp_files = []
-    try:
-        # Create 2 temp files
-        for i in range(2):
-            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-                f.write(f"Content {i}")
-                temp_files.append(Path(f.name))
-        
-        checksums = generate_checksums(temp_files, "sha256")
-        
-        # Should return 2 entries
-        assert len(checksums) == 2
-        
-        # Verify keys are relative paths (or at least strings)
-        for key in checksums.keys():
-            assert isinstance(key, str)
-            assert isinstance(checksums[key], str)
-            assert len(checksums[key]) == 64 # SHA256 length
-    finally:
-        for f in temp_files:
-            if f.exists():
-                os.unlink(f)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create test files
+        file1 = Path(tmpdir) / "file1.txt"
+        file2 = Path(tmpdir) / "file2.txt"
+        file1.write_text("content 1")
+        file2.write_text("content 2")
 
-def test_verify_checksums_missing_file():
-    """Test verification fails when a file is missing."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("Content")
-        temp_path = Path(f.name)
-    
-    # Create a fake checksum file
-    checksum_content = f"{hashlib.sha256(b'Content').hexdigest()}  {temp_path.name}\n"
-    checksum_content += f"{hashlib.sha256(b'Missing').hexdigest()}  missing_file.txt\n"
-    
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as cf:
-        cf.write(checksum_content)
-        cf_path = Path(cf.name)
-    
-    try:
-        valid, failed = verify_checksums(cf_path)
-        assert not valid
-        assert "missing_file.txt" in failed
-    finally:
-        os.unlink(temp_path)
-        os.unlink(cf_path)
+        output_file = Path(tmpdir) / "checksums.txt"
+
+        # We need to mock the project root relative path logic or just test the function
+        # Since get_project_root() returns the actual repo root, we'll create files there or adjust logic
+        # For this unit test, we will test the logic by creating files in the actual artifacts dir or temp dir
+        # and ensuring the function handles paths correctly.
+        
+        # To avoid dependency on project root structure for unit tests, 
+        # we will test the core logic by creating files in a temp dir and 
+        # verifying the output file content structure.
+        
+        # Note: The implementation uses relative_to(get_project_root()). 
+        # If files are not under project root, this will fail.
+        # We will create files in the actual data/processed or similar to ensure it works.
+        
+        # Alternative: Mock get_project_root? No, let's create real files in the project structure.
+        # Since we are in a unit test, we can create a temp dir and mock the function if needed,
+        # but simpler is to just ensure the files exist in the project root for the test run.
+        
+        # Let's create files in the actual project's data/raw or similar if it exists, 
+        # or just rely on the fact that the test runner will have the repo structure.
+        # To be safe, we'll create files in the temp dir and patch get_project_root.
+        
+        import checksum_utils
+        original_root = checksum_utils.get_project_root
+        
+        try:
+            # Mock get_project_root to return the temp dir
+            checksum_utils.get_project_root = lambda: Path(tmpdir)
+            
+            checksums = generate_checksums([file1, file2], output_file, "sha256")
+            
+            assert len(checksums) == 2
+            assert "file1.txt" in checksums
+            assert "file2.txt" in checksums
+            
+            # Verify file content
+            assert output_file.exists()
+            content = output_file.read_text()
+            assert "file1.txt" in content
+            assert "file2.txt" in content
+            
+            # Verify JSON manifest
+            json_manifest = Path(tmpdir) / "checksums_manifest.json"
+            assert json_manifest.exists()
+        finally:
+            checksum_utils.get_project_root = original_root
+
+def test_verify_checksums_success():
+    """Test successful verification."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file1 = Path(tmpdir) / "file1.txt"
+        file1.write_text("content")
+        
+        output_file = Path(tmpdir) / "checksums.txt"
+        
+        import checksum_utils
+        original_root = checksum_utils.get_project_root
+        try:
+            checksum_utils.get_project_root = lambda: Path(tmpdir)
+            generate_checksums([file1], output_file, "sha256")
+            
+            valid, passed, failed = verify_checksums(output_file, "sha256")
+            
+            assert valid is True
+            assert len(passed) == 1
+            assert len(failed) == 0
+        finally:
+            checksum_utils.get_project_root = original_root
+
+def test_verify_checksums_failure():
+    """Test verification failure due to content change."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file1 = Path(tmpdir) / "file1.txt"
+        file1.write_text("original content")
+        
+        output_file = Path(tmpdir) / "checksums.txt"
+        
+        import checksum_utils
+        original_root = checksum_utils.get_project_root
+        try:
+            checksum_utils.get_project_root = lambda: Path(tmpdir)
+            generate_checksums([file1], output_file, "sha256")
+            
+            # Modify file
+            file1.write_text("modified content")
+            
+            valid, passed, failed = verify_checksums(output_file, "sha256")
+            
+            assert valid is False
+            assert len(failed) == 1
+        finally:
+            checksum_utils.get_project_root = original_root
 
 def test_update_checksum_for_file():
-    """Test updating the global checksum file."""
-    # Create a temp file
-    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        f.write("Test Update")
-        temp_path = Path(f.name)
-    
-    # Create a temp checksum file
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as cf:
-        cf_path = Path(cf.name)
-    
-    try:
-        # Update the checksum
-        success = update_checksum_for_file(temp_path, "sha256", cf_path)
-        assert success
+    """Test updating a checksum for a file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file1 = Path(tmpdir) / "file1.txt"
+        file1.write_text("content 1")
         
-        # Verify file content
-        with open(cf_path, 'r') as f:
-            content = f.read()
+        output_file = Path(tmpdir) / "checksums.txt"
         
-        assert "Test Update" not in content # Content shouldn't be in file, just hash
-        assert hashlib.sha256(b"Test Update").hexdigest() in content
-        assert str(temp_path.relative_to(get_project_root())) in content or str(temp_path) in content
-    finally:
-        os.unlink(temp_path)
-        os.unlink(cf_path)
+        import checksum_utils
+        original_root = checksum_utils.get_project_root
+        try:
+            checksum_utils.get_project_root = lambda: Path(tmpdir)
+            
+            # Generate initial checksums
+            generate_checksums([file1], output_file, "sha256")
+            
+            # Change content
+            file1.write_text("content 2")
+            
+            # Update checksum
+            success = update_checksum_for_file(file1, output_file, "sha256")
+            assert success is True
+            
+            # Verify updated checksum
+            valid, _, _ = verify_checksums(output_file, "sha256")
+            assert valid is True
+        finally:
+            checksum_utils.get_project_root = original_root

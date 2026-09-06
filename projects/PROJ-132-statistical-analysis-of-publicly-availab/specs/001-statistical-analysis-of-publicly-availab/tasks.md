@@ -92,7 +92,7 @@
 - [X] T009 [P] **Create Base Data Entities**: Write `src/data/entities.py` defining Pydantic models: `MigrationRecord` (species, lat, lon, date, count, checklist_id), `PhenologyMetric` (species, grid_cell, week, first_arrival_date, median_arrival_date, stopover_duration), `ClimateVariable` (grid_cell, week, mean_temperature, total_precipitation, extreme_weather_index), `Trajectory` (species, year, weekly_centroids, shift_vector).
  **Output**: `src/data/entities.py`.
 
-- [ ] T010a [P] **Define Constants**: Write `src/config.py` defining `GRID_RES=0.5`, `MIN_OBSERVATIONS=10`, `RANDOM_SEED=42`, `PERMUTATIONS=10000`, `CI_WIDTH_TARGET=7`, `MAX_PERMUTATION_RUNTIME_HOURS=6`.
+- [X] T010a [P] **Define Constants**: Write `src/config.py` defining `GRID_RES=0.5`, `MIN_OBSERVATIONS=10`, `RANDOM_SEED=42`, `PERMUTATIONS=10000`, `CI_WIDTH_TARGET=7`, `MAX_PERMUTATION_RUNTIME_HOURS=6`.
  **Output**: `src/config.py`.
 
 - [X] T010b [P] **Implement Logging**: Write `src/utils/logging.py` exposing `get_logger(name)` which returns a `logging.Logger` configured to write to `logs/pipeline.log` with JSON formatting.
@@ -209,7 +209,7 @@ ignore = []
  **Output**: `data/processed/preprocessed_data.parquet` (updated).
  **Dependency**: T016 (Provenance must be generated first).
 
-- [ ] T017d [P] **Verify Imputation Metadata**: Write unit test `tests/unit/test_imputation_metadata.py::test_imputation_metadata_exists` that checks for file `data/processed/imputation_metadata.json`, validates JSON schema, and asserts that every record with `is_imputed = true` has a non‑null `imputation_source`.
+- [X] T017d [P] **Verify Imputation Metadata**: Write unit test `tests/unit/test_imputation_metadata.py::test_imputation_metadata_exists` that checks for file `data/processed/imputation_metadata.json`, validates JSON schema, and asserts that every record with `is_imputed = true` has a non‑null `imputation_source`.
  **Dependency**: T015b.
 
 ## Phase 4: User Story 2 – Phenology‑Climate Correlation Modeling (Priority: P2)
@@ -402,7 +402,7 @@ ignore = []
 - [X] T040a [P] **Add unit test for empty input in `src/data/preprocess.py`**.
  **Dependency**: T015b.
 
-- [ ] T040b [P] **Add unit test for single species in `src/models/gamm_fit.py`**.
+- [X] T040b [P] **Add unit test for single species in `src/models/gamm_fit.py`**.
  **Dependency**: T023a_gamm_gp.
 
 - [X] T040c [P] **Add unit test for missing data handling in `src/data/impute.py`**.

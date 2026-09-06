@@ -1,43 +1,73 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Material Sample Schema
-description: |
-  Schema for material sample data used in the uncertainty quantification pipeline.
-  Represents the input features and properties of a material sample.
+description: Schema for material sample data used in uncertainty quantification studies.
 type: object
 required:
   - sample_id
   - composition
+  - structure
   - formation_energy
+  - features
 properties:
   sample_id:
     type: integer
-    description: Unique identifier for the material sample
+    description: Unique identifier for the material sample.
   composition:
-    type: string
-    description: Chemical composition in standard notation (e.g., "Fe2O3")
-  elements:
-    type: array
-    description: List of element symbols in the composition
-    items:
-      type: string
-  structure_type:
-    type: string
-    description: Crystal structure type (e.g., "cubic", "tetragonal")
-  radius:
-    type: number
-    description: Atomic radius feature
-    minimum: 0
-  packing_fraction:
-    type: number
-    description: Packing fraction feature
-    minimum: 0
-    maximum: 1
+    type: object
+    description: Chemical composition of the material.
+    required:
+      - elements
+      - stoichiometry
+    properties:
+      elements:
+        type: array
+        items:
+          type: string
+        description: List of chemical elements present.
+      stoichiometry:
+        type: array
+        items:
+          type: number
+        description: Stoichiometric coefficients for each element.
+  structure:
+    type: object
+    description: Structural descriptors of the material.
+    required:
+      - crystal_system
+      - space_group
+      - radius
+      - packing_fraction
+    properties:
+      crystal_system:
+        type: string
+        enum:
+          - cubic
+          - tetragonal
+          - orthorhombic
+          - monoclinic
+          - triclinic
+          - hexagonal
+          - rhombohedral
+        description: Crystal system classification.
+      space_group:
+        type: integer
+        description: International Tables for Crystallography space group number.
+      radius:
+        type: number
+        description: Effective atomic radius in Angstroms.
+      packing_fraction:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Atomic packing fraction.
   formation_energy:
     type: number
-    description: Formation energy in eV/atom
-  descriptors:
-    type: object
-    description: Additional structural descriptors
-    additionalProperties:
+    description: Formation energy per atom in eV/atom.
+  features:
+    type: array
+    items:
       type: number
-additionalProperties: false
+    description: Feature vector (e.g., PCA-reduced features).
+  target_bin:
+    type: integer
+    description: Quantile bin assignment for the formation energy (used for stratified splitting).

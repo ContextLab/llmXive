@@ -1,36 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "StatisticalResult"
-description: "Outcome of a hypothesis test (KS or Chi-squared). This file is deprecated; use statistical-result.schema.yaml."
+description: "Schema for the outcome of hypothesis tests on energy distributions."
 type: "object"
 properties:
+  bin_id:
+    type: "string"
+    description: "Unique identifier for the frequency/material bin."
   test_type:
     type: "string"
-    enum: ["KS", "ChiSquare"]
+    enum:
+      - "KS"
+      - "ChiSq"
+      - "Ratio"
     description: "Type of statistical test performed."
-  group_label:
-    type: "string"
-    description: "Identifier for the group (e.g., 'Steel_10Hz')."
   statistic_value:
     type: "number"
-    description: "The calculated test statistic."
-  p_value:
+    description: "Value of the test statistic."
+  p_value_raw:
     type: "number"
-    description: "Raw p-value from the test."
+    description: "Raw p-value before correction."
+  p_value_corrected:
+    type: "number"
+    description: "P-value after Permutation-based FDR correction."
   is_significant:
     type: "boolean"
-    description: "Whether the null hypothesis is rejected at the default threshold."
-  corrected_p_value:
-    type: "number"
-    description: "P-value after Benjamini-Hochberg correction."
-  threshold:
-    type: "number"
-    description: "Alpha threshold used for the test."
+    description: "Whether the null hypothesis is rejected."
+  null_hypothesis:
+    type: "string"
+    description: "Description of the null hypothesis."
+  sample_size:
+    type: "integer"
+    description: "Number of samples used in the test."
 required:
+  - bin_id
   - test_type
-  - group_label
   - statistic_value
-  - p_value
+  - p_value_raw
+  - p_value_corrected
   - is_significant
-  - corrected_p_value
-  - threshold
+  - null_hypothesis
+  - sample_size
 additionalProperties: false

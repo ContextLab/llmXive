@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionResult"
+description: "Schema for the outcome of linear regression on deviation metrics."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the regression model."
+  slope:
+    type: "number"
+    description: "Slope of the regression line."
+  intercept:
+    type: "number"
+    description: "Intercept of the regression line."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+  slope_p_value:
+    type: "number"
+    description: "P-value for the slope coefficient."
+  model_fit_quality:
+    type: "string"
+    enum:
+      - "Good"
+      - "Poor"
+      - "Inconclusive"
+    description: "Qualitative assessment of model fit."
+  predictors:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of predictor variables used."
+  target_metric:
+    type: "string"
+    description: "Description of the target metric (e.g., deviation ratio)."
+required:
+  - model_id
+  - slope
+  - intercept
+  - r_squared
+  - slope_p_value
+  - model_fit_quality
+  - predictors
+  - target_metric
+additionalProperties: false

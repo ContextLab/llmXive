@@ -105,7 +105,7 @@
 - [X] T021 [P] [US2] Implement MOND 'simple' model in `code/models/mond.py`: a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0) with a0=1.2e-10; include M/L (mass-to-light ratio) as a free parameter (FR-004, Plan Summary)
 - [X] T022 [P] [US2] Implement NFW model in `code/models/nfw.py` with concentration prior c ~ M_baryon^α, where α is a negative scaling exponent. (Plan Summary; Note: FR-005 spec typo flagged for correction) (FR-005)
 - [X] T023 [US2] Implement fitting engine in `code/fit.py` using `scipy.optimize.curve_fit` with velocity uncertainty weighting (FR-006)
-- [ ] T024 [US2] Implement metric calculator in `code/metrics.py` for reduced χ², AIC, BIC (FR-007)
+- [X] T024 [US2] Implement metric calculator in `code/metrics.py` for reduced χ², AIC, BIC (FR-007)
 - [ ] T025 [US2] Generate `results/fit_summary.csv` with all metrics per galaxy-model
 - [ ] T026 [US2] Implement sensitivity analysis in `code/sensitivity.py` sweeping χ² thresholds across the set of representative values and output `results/sensitivity_data.csv` (FR-012, SC-006)
 - [ ] T035 [US2] Generate `results/sensitivity_report.md` with visualizations comparing pass rates for thresholds across a range of values and summary text (FR-012, SC-006)
@@ -122,14 +122,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for residual calculation in `tests/unit/test_residuals.py`
-- [ ] T029 [P] [US3] Unit test for block-bootstrap logic in `tests/unit/test_bootstrap.py`
-- [ ] T030 [P] [US3] Integration test for full statistical comparison in `tests/integration/test_statistics.py`
+- [X] T028 [P] [US3] Unit test for residual calculation in `tests/unit/test_residuals.py`
+- [X] T029 [P] [US3] Unit test for block-bootstrap logic in `tests/unit/test_bootstrap.py`
+- [X] T030 [P] [US3] Integration test for full statistical comparison in `tests/integration/test_statistics.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement residual calculator in `code/residuals.py` to compute (observed - predicted) distributions (FR-008)
-- [ ] T032 [US3] Implement block-bootstrap permutation test in `code/residuals.py` resampling at galaxy level (FR-009, US3)
+- [X] T031 [US3] Implement residual calculator in `code/residuals.py` to compute (observed - predicted) distributions (FR-008)
+- [X] T032 [US3] Implement block-bootstrap permutation test in `code/residuals.py` resampling at galaxy level (FR-009, US3)
 - [ ] T033 [US3] Implement Holm-Bonferroni correction in `code/residuals.py` for multiple hypothesis tests (FR-010)
 - [ ] T034 [US3] Generate `results/residual_stats.csv` with mean, median, std, p-values per model
 - [ ] T036 [US3] Generate `results/analysis_verdict.md` comparing calculated p-values against alpha=0.05 thresholds (SC-004, SC-005)

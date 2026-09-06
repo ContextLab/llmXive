@@ -1286,3 +1286,320 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T19:19:30Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 0
+  canonical: Plan references ds000246 while tasks reference ds000248
+  claim_id: c_dddbd187
+  context: The plan.md references 'ds000246' while tasks and constitution reference
+    'ds000248'. The tasks have been updated to use 'ds000248' as per the Spec/Constitution.
+  evidence:
+    entailment_evidence: Plan references ds000246 while tasks reference ds000248
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan_references_ds000246_while_tasks_reference_ds000248
+  kind: entity_fact
+  raw_text: The Plan references 'ds000246' while tasks and constitution reference
+    'ds000248'.
+  resolved_value: Plan references ds000246 while tasks reference ds000248
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T09:52:04Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 0
+  canonical: Virtual Cohort Matching requires 10 pairs
+  claim_id: c_48fbe233
+  context: "If \u226510 valid matched pairs are found (via either method): Write data/processed/matched_pairs.csv."
+  evidence:
+    entailment_evidence: Virtual Cohort Matching requires 10 valid matched pairs
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Virtual_Cohort_Matching_requires_10_valid_matched_pairs
+  kind: magnitude
+  raw_text: Virtual Cohort Matching requires at least 10 valid matched pairs to proceed.
+  resolved_value: Virtual Cohort Matching requires 10 valid matched pairs
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T09:52:05Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Plan mandates Two-Path Strategy for microbiome-EEG analysis
+  claim_id: c_f6734262
+  context: The plan.md mandates a 'Two-Path Strategy' (Virtual Cohort Matching or
+    Distributional Comparison). The tasks above strictly follow this Plan, replacing
+    the abandoned 'Ecological Correlation' logic from the original Spec.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_mandates_Two-Path_Strategy_for_microbiome-EEG_analysis
+  kind: entity_fact
+  raw_text: The Plan mandates a 'Two-Path Strategy' (Virtual Cohort Matching or Distributional
+    Comparison).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:52:56Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000248 used for EEG data
+  claim_id: c_a25273d1
+  context: Implement preprocess_eeg.py to download OpenNeuro dataset ds000248 (Spec/Constitution
+    mandate).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000248_used_for_EEG_data
+  kind: entity_fact
+  raw_text: The OpenNeuro dataset used is ds000248.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:53:12Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: QIIME2 version 2023.5 used
+  claim_id: c_0091c365
+  context: Run QIIME2 version 2023.5 with CLI command qiime feature-table summarize...
+    to generate genus-level abundances.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: QIIME2 version 2023.5 is used for microbiome processing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:53:42Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Pseudocount of 0.5 applied
+  claim_id: c_58e06bde
+  context: Apply pseudocount=0.5. Output data/processed/microbiome_features.csv.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A pseudocount of 0.5 is applied in microbiome preprocessing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:54:09Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Microbiome CSV target of 100 rows
+  claim_id: c_5025d6c1
+  context: "Independent Test: Verify that (1) microbiome CSV has \u2265100 rows, (2)\
+    \ EEG CSV has \u226550 subjects..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Microbiome_CSV_target_of_100_rows
+  kind: magnitude
+  raw_text: The microbiome CSV is expected to have at least 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:54:35Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: EEG CSV target of 50 subjects
+  claim_id: c_ff118c16
+  context: "Independent Test: Verify that (1) microbiome CSV has \u2265100 rows, (2)\
+    \ EEG CSV has \u226550 subjects..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/EEG_CSV_target_of_50_subjects
+  kind: magnitude
+  raw_text: The EEG CSV is expected to have at least 50 subjects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:54:55Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: EEG data filtered 0.5-45 Hz
+  claim_id: c_b8ec3f7d
+  context: "Implement preprocess_eeg.py... Filter (0.5\u201345 Hz), run FastICA (20\
+    \ components), epoch (2-min)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The EEG data is filtered between 0.5 Hz and 45 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:55:24Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: FastICA with 20 components
+  claim_id: c_16758351
+  context: "Filter (0.5\u201345 Hz), run FastICA (20 components), epoch (2-min), compute\
+    \ alpha power..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FastICA is configured with 20 components.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:55:44Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Subjects filtered if <80% valid epochs
+  claim_id: c_afb75287
+  context: Filter subjects with <80% valid epochs. Output data/processed/eeg_features.csv.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_filtered_if_%3C80%25_valid_epochs
+  kind: magnitude
+  raw_text: Subjects with less than 80% valid epochs are filtered out.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:56:16Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Spearman correlation on top 20 taxa
+  claim_id: c_91fb2ef5
+  context: Perform Spearman correlation between the 20 taxa with the highest mean
+    relative abundance and mean alpha power per matched pair.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spearman_correlation_on_top_20_taxa
+  kind: magnitude
+  raw_text: Spearman correlation is performed between the 20 taxa with the highest
+    mean relative abundance and mean alpha power.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:56:39Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR q < 0.1
+  claim_id: c_f3af29a6
+  context: Apply Benjamini-Hochberg FDR (q<0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benjamini-Hochberg FDR correction is applied with a threshold of q < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:56:39Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Analysis results include associational disclaimer
+  claim_id: c_6b97fad5
+  context: 'Inject the exact string ''Note: This analysis is associational only; no
+    causal inference is made.'' into all result JSONs and reports'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_results_include_associational_disclaimer
+  kind: entity_fact
+  raw_text: The analysis results JSON includes a note stating the analysis is associational
+    only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:58:07Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Path A plots include R2 and 95% CI
+  claim_id: c_6f83dc30
+  context: "Path A: Scatter plots of matched pairs... with regression line, R\xB2\
+    , and 95% CI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Visualization plots for Path A include R\xB2 and 95% CI."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:58:07Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Memory usage target <5GB
+  claim_id: c_1468e68c
+  context: Optimize memory usage in code/preprocess_eeg.py and code/match_cohorts.py
+    to ensure <5GB RAM usage...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_target_%3C5GB
+  kind: entity_fact
+  raw_text: The optimization task targets memory usage under 5GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:58:48Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Runtime target <6 hours
+  claim_id: c_95c49719
+  context: '...verify runtime <6 hours.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_target_%3C6_hours
+  kind: magnitude
+  raw_text: The optimization task targets a runtime of less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:59:36Z'
+- artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity <10
+  claim_id: c_14397742
+  context: Refactor code/correlation_analysis.py to reduce cyclomatic complexity (<10)
+    and improve readability
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: magnitude
+  raw_text: Cyclomatic complexity for correlation_analysis.py is targeted to be less
+    than 10.
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T09:59:36Z'

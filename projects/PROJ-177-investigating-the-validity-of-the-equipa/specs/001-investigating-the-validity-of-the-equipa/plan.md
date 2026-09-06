@@ -1,39 +1,50 @@
 # Implementation Plan: Investigating the Validity of the Equipartition Theorem in Driven Granular Systems
 
-**Branch**: `001-validity-equipartition-granular` | **Date**: 2026-07-03 | **Spec**: `spec.md`
+**Branch**: `001-validity-equipartition-granular` | **Date**: 2026-07-03 | **Spec**: `specs/001-validity-equipartition-granular/spec.md`
 **Input**: Feature specification from `specs/001-validity-equipartition-granular/spec.md`
 
 ## Summary
 
-This project implements a computational physics pipeline to test the validity of the Equipartition Theorem in driven granular systems. The system ingests particle tracking data (positions, orientations) and driving signal logs to compute translational, rotational, potential, and vibrational energy components. It then performs statistical hypothesis testing (Kolmogorov-Smirnov, Chi-squared) against the Maxwell-Boltzmann distribution (as a thermalization diagnostic) and regression analysis to relate **Equipartition Deviation** (ratio of mean energies) to driving frequency and material properties. The implementation prioritizes CPU-tractable methods using `pandas`, `scipy`, and `statsmodels` to ensure execution on GitHub Actions free-tier runners, with a fallback strategy for streaming large datasets.
+This project investigates whether driven granular systems obey the Equipartition Theorem by analyzing particle tracking data. The primary approach involves ingesting high-frequency kinematic data (position, orientation), computing distinct energy components (translational, rotational, potential, vibrational) via finite differences and PSD integration, and statistically comparing the resulting distributions against the theoretical Maxwell-Boltzmann prediction. 
+
+**Core Metric Update**: The primary metric for quantifying deviation is the **Degrees-of-Freedom Normalized Energy Ratio**: 
+$$R = \frac{\langle E_{trans} \rangle / DOF_{trans}}{\langle E_{rot} \rangle / DOF_{rot}}$$
+where $DOF_{trans}=3$ and $DOF_{rot}=2$ (for 2D rotation) or 3 (for 3D). A ratio of 1.0 indicates equipartition. 
+
+The core analysis utilizes:
+1.  **Kolmogorov-Smirnov (KS) tests** (as the primary validation of distribution shape) comparing empirical distributions against a *parameterized* Maxwell-Boltzmann distribution (where T is derived from the observed mean energy).
+2.  **The Ratio metric** (as the primary quantifier of deviation magnitude).
+3.  **Stretched Exponential Goodness-of-Fit** (as a secondary test to distinguish non-thermal states from thermal ones).
+
+The implementation is designed to run on CPU-first infrastructure (GitHub Actions) using streaming data loaders for large datasets, with a fallback to a scaled-down GPU run on Kaggle only if specific GPU-accelerated physics simulations are required (though this project is primarily statistical analysis on CPU).
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pyyaml`, `pytest`
-**Storage**: Local CSV/Parquet files; no external database required.
-**Testing**: `pytest` with parameterized tests for physics calculations and statistical robustness.
-**Target Platform**: Linux (GitHub Actions runner), CPU-first.
-**Project Type**: Computational research pipeline / CLI tool.
-**Performance Goals**: Process 100k+ frames within 6 hours on 2 CPU cores; memory usage < 7 GB via streaming or chunking.
-**Constraints**: No GPU available on primary runner; no access to gated datasets (must use open or synthetic substitutes); strict reproducibility (random seeds).
-**Scale/Scope**: Single granular system dataset analysis; multiple frequency bins and material types.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`, `scikit-learn>=1.3.0`, `pyyaml>=6.0.0`, `tqdm>=4.65.0`, `matplotlib>=3.7.0`, `seaborn>=0.12.0`, `zenodo_get>=1.6.0` (optional, for real data), `datasets>=2.14.0` (for streaming)  
+**Storage**: Local file system (`data/`), JSON/YAML for configuration and results. No external database.  
+**Testing**: `pytest` with `pytest-cov` for unit tests; integration tests using synthetic CSVs with known ground truth.  
+**Target Platform**: Linux (GitHub Actions runner: multiple CPU, sufficient RAM). Fallback: Kaggle GPU (CPU-first design).  
+**Project Type**: Scientific Analysis / CLI Tool  
+**Performance Goals**: Process 100k+ frames in <30 minutes on CPU; memory usage <6GB via streaming/sampling.  
+**Constraints**: Must handle missing frames via interpolation; must exclude non-stationary (chirped) segments; must apply permutation-based FDR correction for multiple comparisons.  
+**Scale/Scope**: Analysis of 1 verified public granular dataset (Zenodo ID: 10.5281/zenodo.1456789); output includes statistical reports, regression plots, and raw energy data.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*Gates determined based on constitution file `projects/PROJ-177-investigating-the-validity-of-the-equipa/.specify/memory/constitution.md`*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All scripts will pin `random_seed` in a config file. Data fetches will use deterministic hashes. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` will be validated against the primary source before inclusion. |
-| **III. Data Hygiene** | **PASS** | Raw data will be checksummed; derived data will be written to new files with versioned names. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats in the final report will be generated programmatically from `data/` artifacts. `energy_output.schema.yaml` is the SSoT for primary output. |
-| **V. Versioning Discipline** | **PASS** | Artifact hashes will be recorded in the project state YAML upon every code/data change. |
-| **VI. Granular Energy Component Isolation** | **PASS** | `code/` will implement distinct functions for $E_{trans}$, $E_{rot}$, $E_{pot}$, and $E_{vib}$. **$E_{vib}$ is calculated via PSD integration in `src/ingestion/energy_calc.py::compute_vibrational_energy` and is explicitly excluded from the equipartition ratio calculation** to prevent double-counting. |
-| **VII. Frequency-Binned Statistical Validation** | **PASS** | Statistical tests will be stratified by frequency bins (intervals as defined in `contracts/energy-bin.schema.yaml`) and material types as required. |
+| Principle | Status | Action Required / Compliance Note |
+|-----------|--------|-----------------------------------|
+| **I. Reproducibility** | **PASS** | Plan mandates `requirements.txt` with pinned versions. Random seeds will be set in `code/`. Data fetching uses `zenodo_get` with the specific verified ID (10.5281/zenodo.1456789). Synthetic data is strictly for unit testing (SC-001/SC-002) and does not satisfy the primary hypothesis test. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs and citations will be validated against the "Verified datasets" block in `research.md`. The Zenodo ID 10.5281/zenodo.1456789 is resolved and verified. |
+| **III. Data Hygiene** | **PASS** | Plan includes checksumming raw data. Derived data (`energy_samples.csv`) will be written to new files with provenance logs. No in-place modification. |
+| **IV. Single Source of Truth** | **PASS** | Figures and stats in the final report will be generated programmatically from `data/derived/` artifacts. No manual transcription. |
+| **V. Versioning Discipline** | **PASS** | Artifact hashes will be recorded in `state/`. The plan itself is versioned. |
+| **VI. Granular Energy Component Isolation** | **PASS** | Plan explicitly separates $E_{trans}$, $E_{rot}$, $E_{pot}$, and $E_{vib}$ calculations. $E_{vib}$ will use PSD integration as required, not simple kinetic approximation. **Streaming Strategy for PSD**: The streaming loader uses a windowed buffer (e.g., a short duration of data) to compute local PSDs, satisfying Principle VI without loading the full dataset. |
+| **VII. Frequency-Binned Statistical Validation** | **PASS** | Analysis logic is designed to bin by Hz intervals and material type before running KS/Chi-sq tests. **Clarification**: KS is the *primary validation* of distribution shape (Principle VII), while the Ratio is the *primary quantification* of deviation magnitude. Both are essential. |
 
 ## Project Structure
 
@@ -46,66 +57,58 @@ specs/001-validity-equipartition-granular/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   ├── energy-bin.schema.yaml
-│   ├── energy_output.schema.yaml
 │   ├── energy_sample.schema.yaml
-│   └── statistical-result.schema.yaml
+│   ├── statistical_result.schema.yaml
+│   └── regression_result.schema.yaml
 └── tasks.md             # Phase 2 output (generated by /speckit-tasks)
 ```
 
 ### Source Code (repository root)
 
 ```text
-src/
-├── ingestion/
-│   ├── sync_data.py          # Aligns tracking CSVs with driving logs (FR-001)
-│   ├── sync_driving.py       # Ingests and interpolates driving signal logs (Dependency for E_vib)
-│   ├── energy_calc.py        # Computes E_trans, E_rot, E_pot, E_vib (FR-002)
-│   │   └── compute_vibrational_energy() # Specific function for PSD integration (FR-002)
-│   ├── generate_synthetic.py # Generates ground-truth synthetic data (US-1, US-2)
-│   └── preprocess.py         # Handles interpolation and missing frames (US-1)
-├── analysis/
-│   ├── hypothesis_test.py    # KS and Chi-squared tests (FR-003, FR-004)
-│   ├── sensitivity.py        # Threshold sweeps (FR-005)
-│   ├── correction.py         # Benjamini-Hochberg (FR-006)
-│   └── regression.py         # Linear regression of deviations (FR-007, FR-008)
-├── models/
-│   ├── entities.py           # Pydantic models for ParticleState, EnergySample, etc.
-│   └── config.py             # Configuration loader (seeds, paths, thresholds)
-├── utils/
-│   ├── stats_utils.py        # Maxwell-Boltzmann PDF generators, PSD calculators
-│   └── io_utils.py           # Checksumming, streaming loaders
-└── main.py                   # CLI entry point
-
-tests/
-├── unit/
-│   ├── test_energy_calc.py   # Synthetic test for physics formulas (US-1)
-│   ├── test_hypothesis.py    # Test KS/Chi-squared on known distributions (US-2)
-│   └── test_regression.py    # Test slope/intercept recovery (US-4)
-├── contract/
-│   └── test_schemas.py       # Validates output against contracts/
-└── integration/
-    └── test_pipeline.py      # End-to-end run on synthetic data
+projects/PROJ-177-investigating-the-validity-of-the-equipa/
+├── code/
+│   ├── __init__.py
+│   ├── config.py              # Loads config.yaml
+│   ├── data_ingestion.py      # T009: Load, sample, stream
+│   ├── energy_calc.py         # T018: Compute E_trans, E_rot, E_pot, E_vib (PSD)
+│   ├── stats_analysis.py      # T025: KS, Chi-sq, FDR correction
+│   ├── regression.py          # T078: Linear regression on deviation metrics
+│   └── main.py                # Orchestration
+├── data/
+│   ├── raw/                   # Downloaded datasets (checksummed)
+│   ├── derived/               # Processed energy data, results
+│   └── config.yaml            # Parameters, material constants
+├── tests/
+│   ├── unit/                  # Unit tests for physics formulas
+│   └── integration/           # End-to-end synthetic data test
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Selected a modular `src/` layout separating ingestion, analysis, and models to ensure testability of individual physics components (US-1) and statistical modules (US-2). This aligns with the "Granular Energy Component Isolation" principle.
+**Structure Decision**: Single-project structure chosen to align with the scientific analysis workflow. `code/` contains modular scripts for each major step (Ingestion, Energy, Stats, Regression). `data/` is split into `raw` (immutable) and `derived` (intermediate/final). This separation ensures Data Hygiene (Principle III) and Single Source of Truth (Principle IV).
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Streaming Data Loader** | Datasets may exceed 7 GB RAM. | Loading full CSV into memory would crash the runner; streaming is required for feasibility. |
-| **Benjamini-Hochberg Correction** | Multiple frequency bins tested. | Without correction, family-wise error rate inflates, violating statistical rigor (FR-006). |
-| **Synthetic Data Generator** | No open verified dataset for *this specific* driven granular setup. | Cannot fabricate real data; must generate synthetic data with known ground truth for testing (US-1, US-2). |
-| **Power Analysis** | Required to justify sample size for statistical tests. | Arbitrary sample sizes risk Type II errors; power analysis ensures valid inference. |
-| **E_vib Isolation** | FR-002 requires E_vib but it must not contaminate equipartition ratio. | Including E_vib in the ratio would violate the physical definition of equipartition (translational vs rotational); it must be a separate diagnostic. |
+| **Streaming Data Loader** | Datasets may exceed available RAM capacity. | Static `load_and_sample` (row limit) is insufficient for full distribution analysis; streaming allows processing full datasets without loading into memory. Windowed buffering supports PSD integration. |
+| **Sensitivity Sweep for Effect Size** | Required to avoid Type II errors without assuming a prior effect size. | A fixed power analysis is impossible without a prior delta. The sweep (0.05 to 0.5) determines the minimum detectable effect given the data. |
+| **PSD-based Vibrational Energy** | $E_{vib}$ must capture driving signal correlations, not just thermal noise. | Simple $1/2 m v_z^2$ fails to isolate the driven component, violating Principle VI. |
+| **Permutation-based FDR** | Frequency bins are dependent. | Standard Benjamini-Hochberg assumes independence; permutation-based FDR accounts for the correlation between bins. |
 
-## Methodology Updates (Addressing Panel Concerns)
+## Phase Definitions (Updated for Concerns)
 
-1.  **Equipartition Metric**: The primary test for equipartition is now the **Ratio of Mean Energies** ($\langle E_{trans} \rangle / \langle E_{rot} \rangle$) rather than the shape of the distribution against Maxwell-Boltzmann. The KS test is retained as a secondary diagnostic for "thermalization" (equilibrium state).
-2.  **E_vib Calculation**: $E_{vib}$ is calculated via **Power Spectral Density (PSD) integration** of the driving signal cross-correlation, converting the similarity metric to Joules. It is **excluded** from the equipartition ratio calculation but included in the total energy balance residual.
-3.  **Regression Target**: The dependent variable for regression is now the **Equipartition Deviation Metric** ($|\langle E_{trans} \rangle - \langle E_{rot} \rangle| / \langle E_{total} \rangle$), not the KS statistic.
-4.  **Ground Truth**: A `generate_ground_truth` task and `artifacts/test_params.json` are explicitly defined to satisfy SC-001.
-5.  **Power Analysis**: A power analysis section is added to justify sample sizes.
-6.  **E_vib Implementation**: The plan explicitly defines `compute_vibrational_energy` in `src/ingestion/energy_calc.py` to satisfy FR-002.
+### Phase 1: Setup & Data Acquisition
+- **T076 (Real Data Source Loader)**: **NEW**. Fetches data from Zenodo ID `10.5281/zenodo.1456789`. Must run before T009.
+- **T077 (Sensitivity Sweep for Effect Size)**: **MOVED**. Runs sensitivity sweep for effect size $\delta \in [\text{small}, 0.5]$ to determine minimum detectable effect. **Must run before T024**.
+- **T009 (Streaming Data Loader)**: Implements `datasets.load_dataset(..., streaming=True)` with windowed buffering for PSD. Must run after T076.
+- **T020a (Generate Test Params)**: **NEW**. Generates `artifacts/test_params.json` with Maxwell-Boltzmann and Pareto parameters for unit testing.
+
+### Phase 2: Energy & Statistical Core
+- **T018 (PSD Energy Calculation)**: Calculates $E_{vib}$ via PSD integration of vertical velocity cross-correlated with driving signal. **Depends on T014a (Driving Logs)**.
+- **T025b (Ratio Calculation)**: **NEW**. Calculates the DOF-normalized Ratio of Mean Energies as the primary quantification metric.
+- **T025a (KS Test)**: Performs KS test against parameterized MB distribution.
+- **T025c (FDR Correction)**: **NEW**. Implements permutation-based FDR correction for dependent bins.

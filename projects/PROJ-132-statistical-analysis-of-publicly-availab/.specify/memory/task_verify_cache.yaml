@@ -29,11 +29,12 @@ T010c:
     \ are missing."
 T017d:
   c: true
-  h: 51dd9381e1eb53865c4eebf3987f448a27e3924a34c5584d65da38025d026fcb
-  r: "The provided `tests/unit/test_imputation_metadata.py` file exists, is non\u2011\
-    empty, and implements the required checks: it verifies the presence of `data/processed/imputation_metadata.json`,\
-    \ loads and validates it as a JSON list, and asserts that any record with `is_imputed\
-    \ = true` has a non\u2011null `imputation_source`."
+  h: 46e809cb470be233bd45ffebcdb85e1a45a782c9d2a8b17050accebace1c59da
+  r: "The `tests/unit/test_imputation_metadata.py` file exists, is non\u2011empty,\
+    \ and implements the required checks: file existence, JSON loading, list\u2011\
+    of\u2011records schema, and the constraint that any record with `is_imputed =\
+    \ true` has a non\u2011null `imputation_source`. No further artifacts were required\
+    \ by the task."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
