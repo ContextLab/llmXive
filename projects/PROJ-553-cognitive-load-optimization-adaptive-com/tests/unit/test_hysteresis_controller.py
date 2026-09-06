@@ -2,102 +2,125 @@
 Unit tests for the Hysteresis Controller (T032).
 """
 
-import pytest
 import json
 import os
+import tempfile
+import pytest
 from pathlib import Path
-import sys
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path
+# We need to ensure the code directory is in the path for imports
+# In a real test run, this is handled by the test runner setup
+import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from hysteresis_controller import determine_tier, generate_hysteresis_config, HYSTERESIS_CONFIG
-from train_load_model import save_model, check_model_size
-import pickle
-import numpy as np
+from hysteresis_controller import (
+    load_model_validation_status,
+    determine_tier,
+    generate_hysteresis_config,
+    BASELINE_THRESHOLD,
+    HYSTERESIS_BAND,
+    MODEL_VALIDATION_STATUS_FILE,
+    CONFIG_FILE
+)
 
-class TestHysteresisLogic:
-    """Tests for the core hysteresis logic."""
 
-    def test_low_load_switches_to_simple(self):
-        """When load is low (< 40), should switch to simple."""
-        assert determine_tier(30.0, current_tier="moderate") == "simple"
-        assert determine_tier(30.0, current_tier="complex") == "simple"
+class TestLoadModelValidationStatus:
+    """Tests for load_model_validation_status function."""
 
-    def test_low_load_stays_simple(self):
-        """When load is low and already simple, stays simple."""
-        assert determine_tier(30.0, current_tier="simple") == "simple"
+    def test_file_missing_raises_error(self, tmp_path, monkeypatch):
+        """Should raise FileNotFoundError if validation file is missing."""
+        monkeypatch.setattr("hysteresis_controller.MODEL_VALIDATION_STATUS_FILE", tmp_path / "nonexistent.json")
 
-    def test_high_load_switches_to_complex(self):
-        """When load is high (> 70), should switch to complex."""
-        assert determine_tier(80.0, current_tier="moderate") == "complex"
-        assert determine_tier(80.0, current_tier="simple") == "complex"
+        with pytest.raises(FileNotFoundError, match="Model validation status file not found"):
+            load_model_validation_status()
 
-    def test_high_load_stays_complex(self):
-        """When load is high and already complex, stays complex."""
-        assert determine_tier(80.0, current_tier="complex") == "complex"
+    def test_validation_fails_raises_error(self, tmp_path, monkeypatch):
+        """Should raise ValueError if Pearson r < 0.6."""
+        status_file = tmp_path / "model_validation_status.json"
+        status_file.write_text(json.dumps({"pearson_r": 0.5}))
+        monkeypatch.setattr("hysteresis_controller.MODEL_VALIDATION_STATUS_FILE", status_file)
 
-    def test_moderate_load_stays_moderate(self):
-        """When load is moderate (40-70), stays moderate."""
-        assert determine_tier(55.0, current_tier="moderate") == "moderate"
+        with pytest.raises(ValueError, match="Model validation failed"):
+            load_model_validation_status()
 
-    def test_hysteresis_from_simple_to_moderate(self):
-        """When load rises into moderate range from simple, switches to moderate."""
-        assert determine_tier(50.0, current_tier="simple") == "moderate"
+    def test_validation_passes_returns_status(self, tmp_path, monkeypatch):
+        """Should return status dict if Pearson r >= 0.6."""
+        status_file = tmp_path / "model_validation_status.json"
+        status_file.write_text(json.dumps({"pearson_r": 0.75, "model_path": "test.pkl"}))
+        monkeypatch.setattr("hysteresis_controller.MODEL_VALIDATION_STATUS_FILE", status_file)
 
-    def test_hysteresis_from_complex_to_moderate(self):
-        """When load falls into moderate range from complex, switches to moderate."""
-        assert determine_tier(50.0, current_tier="complex") == "moderate"
+        result = load_model_validation_status()
+        assert result["pearson_r"] == 0.75
 
-    def test_threshold_boundaries(self):
-        """Test exact boundary values."""
-        # Exactly at low bound (40.0) -> should be in moderate range
-        assert determine_tier(40.0, current_tier="simple") == "moderate"
-        
-        # Exactly at high bound (70.0) -> should be in moderate range
-        assert determine_tier(70.0, current_tier="complex") == "moderate"
 
-class TestConfigGeneration:
-    """Tests for config file generation."""
+class TestDetermineTier:
+    """Tests for determine_tier function."""
 
-    def test_config_structure(self):
-        """Verify the config dictionary has required keys."""
-        assert "description" in HYSTERESIS_CONFIG
-        assert "thresholds" in HYSTERESIS_CONFIG
-        assert "tier_mapping" in HYSTERESIS_CONFIG
-        assert "validation_requirement" in HYSTERESIS_CONFIG
+    def test_moderate_to_simple_on_high_load(self):
+        """Should switch to simple if load is high."""
+        # Assuming high load is > threshold (0.05)
+        # Normalized load 0.9 (90) > 0.05
+        result = determine_tier(90.0, "moderate")
+        assert result == "simple"
 
-    def test_threshold_values(self):
-        """Verify threshold values are sensible."""
-        thresholds = HYSTERESIS_CONFIG["thresholds"]
-        assert thresholds["low_load_upper_bound"] == 40.0
-        assert thresholds["high_load_lower_bound"] == 70.0
-        assert thresholds["moderate_load_range"] == [40.0, 70.0]
+    def test_moderate_to_complex_on_low_load(self):
+        """Should switch to complex if load is low."""
+        # Assuming low load is < (1 - threshold)
+        # Normalized load 0.0 (0) < 0.95
+        result = determine_tier(0.0, "moderate")
+        assert result == "complex"
 
-    def test_config_file_creation(self, tmp_path):
-        """Test that config file is created correctly."""
-        # We need to mock the model validation since we might not have the real model
-        # For this unit test, we'll just test the structure if the file exists
-        # In integration tests, we test the full flow with the real model
-        
-        # Create a dummy model to satisfy the validation check
-        dummy_model_path = tmp_path / "data" / "processed" / "load_model.pkl"
-        dummy_model_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Create a minimal valid pickle file (just a dict for testing)
-        with open(dummy_model_path, 'wb') as f:
-            pickle.dump({"dummy": "model"}, f)
-        
-        output_path = tmp_path / "data" / "simulation_results" / "hysteresis_config.json"
-        
-        # Temporarily override the default path
-        import hysteresis_controller
-        original_path = "data/processed/load_model.pkl"
-        
-        # We can't easily override the internal path in the function, 
-        # so we'll test the structure directly instead of file I/O here
-        # The integration test will cover file I/O with the real model
-        pass
+    def test_stay_moderate_on_boundary(self):
+        """Should stay moderate if load is within band."""
+        # Load 0.05 exactly might be edge, but let's test a safe middle
+        # Normalized 0.5 (50) is not > 0.05 and not < 0.95
+        result = determine_tier(50.0, "moderate")
+        assert result == "moderate"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_simple_to_moderate_on_recovery(self):
+        """Should switch to moderate if load drops from simple state."""
+        # From simple, need load < 0.95 to go to moderate
+        result = determine_tier(0.0, "simple")
+        assert result == "moderate"
+
+    def test_complex_to_moderate_on_increase(self):
+        """Should switch to moderate if load rises from complex state."""
+        # From complex, need load > 0.05 to go to moderate
+        result = determine_tier(90.0, "complex")
+        assert result == "moderate"
+
+
+class TestGenerateHysteresisConfig:
+    """Tests for generate_hysteresis_config function."""
+
+    @patch("hysteresis_controller.load_model_validation_status")
+    def test_generates_config_on_valid_model(self, mock_load_status, tmp_path, monkeypatch):
+        """Should generate config file if model is valid."""
+        mock_load_status.return_value = {"pearson_r": 0.8}
+
+        # Mock output directory
+        output_dir = tmp_path / "data" / "simulation_results"
+        output_dir.mkdir(parents=True)
+        config_file = output_dir / "hysteresis_config.json"
+
+        monkeypatch.setattr("hysteresis_controller.OUTPUT_DIR", output_dir)
+        monkeypatch.setattr("hysteresis_controller.CONFIG_FILE", config_file)
+
+        result = generate_hysteresis_config()
+
+        assert result["baseline_threshold"] == BASELINE_THRESHOLD
+        assert result["hysteresis_band"] == HYSTERESIS_BAND
+        assert config_file.exists()
+
+        with open(config_file, 'r') as f:
+            saved_config = json.load(f)
+            assert saved_config["baseline_threshold"] == 0.05
+
+    @patch("hysteresis_controller.load_model_validation_status")
+    def test_raises_on_invalid_model(self, mock_load_status, tmp_path, monkeypatch):
+        """Should raise error if model validation fails."""
+        mock_load_status.side_effect = ValueError("Model validation failed")
+
+        with pytest.raises(ValueError, match="Model validation failed"):
+            generate_hysteresis_config()

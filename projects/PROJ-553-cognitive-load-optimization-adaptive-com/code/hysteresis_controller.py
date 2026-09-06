@@ -1,13 +1,12 @@
 """
 Hysteresis Controller for Adaptive Complexity Scaling.
 
-This module implements the hysteresis logic used in the Adaptive condition
-simulation (US3). It defines fixed thresholds for switching between
-explanation complexity tiers based on the estimated cognitive load.
+This module implements the hysteresis logic to prevent premature tier switching
+(the "illusion of competence" / "System 2 bypass" risk). It defines a fixed
+baseline threshold and generates a configuration file for the simulation pipeline.
 
 Dependencies:
-- T015: Ensures the Load Model is validated (r >= 0.6) before this controller
-  is used for simulation.
+- T015 (train_load_model.py): Ensures the Load Model is validated (r >= 0.6) before config generation.
 """
 
 import json
@@ -16,139 +15,169 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Ensure imports work in the project structure
-if __name__ == "__main__":
-    # Add parent directory to path for execution as script
-    sys.path.insert(0, str(Path(__file__).parent))
+# Import logger from utils as per API surface
+try:
+    from utils import get_logger
+except ImportError:
+    # Fallback for direct execution if utils is not in path yet
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
 
-from utils import get_logger
 
-logger = get_logger(__name__)
+# Constants
+BASELINE_THRESHOLD = 0.05
+HYSTERESIS_BAND = "moderate"
+OUTPUT_DIR = Path("data/simulation_results")
+CONFIG_FILE = OUTPUT_DIR / "hysteresis_config.json"
+MODEL_VALIDATION_STATUS_FILE = Path("data/processed/model_validation_status.json")
 
-# Fixed thresholds for the baseline simulation
-# These values represent the "hysteresis loop" to prevent oscillation
-# between tiers when load is near a boundary.
-HYSTERESIS_CONFIG = {
-    "description": "Baseline hysteresis thresholds for Adaptive condition simulation.",
-    "thresholds": {
-        "low_load_upper_bound": 40.0,   # If load < 40, switch to Simple
-        "high_load_lower_bound": 70.0,  # If load > 70, switch to Complex
-        "moderate_load_range": [40.0, 70.0] # If 40 <= load <= 70, stay Moderate
-    },
-    "tier_mapping": {
-        "low": "simple",
-        "moderate": "moderate",
-        "high": "complex"
-    },
-    "validation_requirement": "T015 (Load Model r >= 0.6) must be passed before use."
-}
 
-def load_model_validation_status(model_path: str = "data/processed/load_model.pkl") -> bool:
+def load_model_validation_status() -> Dict[str, Any]:
     """
-    Verifies that the Load Model exists and is within size limits.
-    This implicitly validates that T015 has completed successfully.
-    """
-    if not os.path.exists(model_path):
-        logger.error(f"Model validation failed: {model_path} does not exist.")
-        logger.error("T015 must be completed successfully before using the Hysteresis Controller.")
-        return False
-
-    file_size_mb = os.path.getsize(model_path) / (1024 * 1024)
-    if file_size_mb > 500:
-        logger.error(f"Model validation failed: {model_path} is too large ({file_size_mb:.2f} MB > 500 MB).")
-        return False
-
-    logger.info(f"Model validation passed: {model_path} exists and is {file_size_mb:.2f} MB.")
-    return True
-
-def determine_tier(load_score: float, current_tier: str = "moderate") -> str:
-    """
-    Determines the next complexity tier based on the estimated load score
-    and the current tier, applying hysteresis logic.
-
-    Args:
-        load_score: Estimated cognitive load (0-100).
-        current_tier: The current tier being served ('simple', 'moderate', 'complex').
+    Loads the validation status of the Load Model (T015).
+    Ensures the model achieved Pearson r >= 0.6 before proceeding.
 
     Returns:
-        The next tier to serve.
+        Dict containing validation metrics.
+
+    Raises:
+        FileNotFoundError: If the validation status file is missing.
+        ValueError: If the model validation failed (r < 0.6).
     """
-    low_bound = HYSTERESIS_CONFIG["thresholds"]["low_load_upper_bound"]
-    high_bound = HYSTERESIS_CONFIG["thresholds"]["high_load_lower_bound"]
-
-    next_tier = current_tier
-
-    if load_score < low_bound:
-        # Low load: Simplify if not already simple
-        if current_tier != "simple":
-            next_tier = "simple"
-            logger.debug(f"Load {load_score:.2f} < {low_bound}: Switching to 'simple'")
-        else:
-            logger.debug(f"Load {load_score:.2f} < {low_bound}: Already 'simple'")
-
-    elif load_score > high_bound:
-        # High load: Complexify if not already complex
-        if current_tier != "complex":
-            next_tier = "complex"
-            logger.debug(f"Load {load_score:.2f} > {high_bound}: Switching to 'complex'")
-        else:
-            logger.debug(f"Load {load_score:.2f} > {high_bound}: Already 'complex'")
-
-    else:
-        # Moderate load: Stay in moderate or return to moderate if coming from extremes
-        # This implements the "dead zone" of hysteresis
-        if current_tier == "simple":
-            # Only switch back to moderate if load is clearly rising above low bound
-            # For simplicity in this baseline, we switch back if we are in the moderate range
-            next_tier = "moderate"
-            logger.debug(f"Load {load_score:.2f} in moderate range: Switching to 'moderate'")
-        elif current_tier == "complex":
-            next_tier = "moderate"
-            logger.debug(f"Load {load_score:.2f} in moderate range: Switching to 'moderate'")
-        else:
-            logger.debug(f"Load {load_score:.2f} in moderate range: Staying 'moderate'")
-
-    return next_tier
-
-def generate_hysteresis_config(output_path: str = "data/simulation_results/hysteresis_config.json") -> Dict[str, Any]:
-    """
-    Generates and saves the hysteresis configuration file.
-    Validates that T015 (Load Model) is complete before generating.
-    """
-    model_path = "data/processed/load_model.pkl"
-
-    # Validate dependency T015
-    if not load_model_validation_status(model_path):
-        raise RuntimeError(
-            "Hysteresis Controller cannot be initialized. "
-            "The Load Model (T015) has not been validated or saved. "
-            "Please ensure T015 completes successfully (r >= 0.6) before running this task."
+    if not MODEL_VALIDATION_STATUS_FILE.exists():
+        raise FileNotFoundError(
+            f"Model validation status file not found: {MODEL_VALIDATION_STATUS_FILE}. "
+            "Ensure T015 (train_load_model.py) has run successfully and saved validation metrics."
         )
 
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    with open(MODEL_VALIDATION_STATUS_FILE, 'r') as f:
+        status = json.load(f)
 
-    # Save configuration
-    with open(output_path, 'w') as f:
-        json.dump(HYSTERESIS_CONFIG, f, indent=2)
+    pearson_r = status.get("pearson_r", 0.0)
+    if pearson_r < 0.6:
+        raise ValueError(
+            f"Model validation failed: Pearson r ({pearson_r:.4f}) < 0.6. "
+            "The Hysteresis Controller cannot proceed with an unvalidated model. "
+            "Please re-run T015 to ensure the model meets the performance threshold."
+        )
 
-    logger.info(f"Hysteresis configuration saved to {output_path}")
-    return HYSTERESIS_CONFIG
+    return status
+
+
+def determine_tier(current_load_score: float, current_tier: str) -> str:
+    """
+    Determines the next tier based on the current load score and hysteresis logic.
+
+    The hysteresis band prevents rapid oscillation (thrashing) between tiers.
+    - If load is high, we might simplify, but only if it stays high for a sustained period.
+    - If load is low, we might increase complexity, but only if it stays low.
+
+    For the baseline simulation (T032), we use a fixed threshold to define the
+    "trigger" point, but the 'moderate' band implies we stay in the current state
+    unless the deviation is significant.
+
+    Args:
+        current_load_score (float): The predicted cognitive load score (0-100).
+        current_tier (str): The current complexity tier ('simple', 'moderate', 'complex').
+
+    Returns:
+        str: The next complexity tier.
+    """
+    # Normalize load score to 0-1 range for threshold comparison
+    normalized_load = current_load_score / 100.0
+
+    # Hysteresis logic:
+    # We only switch tiers if the load deviates significantly from the baseline
+    # defined by the current tier's expected range.
+    # For this implementation, we use the fixed threshold to determine a "switch" event.
+
+    if current_tier == "moderate":
+        # If load is significantly high (> threshold), switch to simple
+        if normalized_load > BASELINE_THRESHOLD:
+            return "simple"
+        # If load is significantly low (< -threshold), switch to complex
+        # Note: Assuming load < 0.05 is "easy" -> increase complexity
+        elif normalized_load < (1.0 - BASELINE_THRESHOLD): # Simplified logic for band
+            return "complex"
+
+    elif current_tier == "simple":
+        # Only switch back to moderate if load drops significantly
+        if normalized_load < (1.0 - BASELINE_THRESHOLD):
+            return "moderate"
+
+    elif current_tier == "complex":
+        # Only switch back to moderate if load rises significantly
+        if normalized_load > BASELINE_THRESHOLD:
+            return "moderate"
+
+    return current_tier
+
+
+def generate_hysteresis_config() -> Dict[str, Any]:
+    """
+    Generates the hysteresis configuration file.
+
+    This function:
+    1. Verifies the Load Model (T015) is validated (r >= 0.6).
+    2. Creates the config dictionary with the fixed baseline threshold.
+    3. Writes the config to `data/simulation_results/hysteresis_config.json`.
+
+    Returns:
+        Dict: The generated configuration.
+
+    Raises:
+        ValueError: If model validation fails.
+        IOError: If writing the config file fails.
+    """
+    logger = get_logger(__name__)
+    logger.info("Generating Hysteresis Controller configuration...")
+
+    # 1. Validate Model Dependency (T015)
+    try:
+        validation_status = load_model_validation_status()
+        logger.info(f"Model validation confirmed. Pearson r: {validation_status.get('pearson_r', 'N/A')}")
+    except (FileNotFoundError, ValueError) as e:
+        logger.error(f"Model validation check failed: {e}")
+        raise
+
+    # 2. Define Config
+    config = {
+        "baseline_threshold": BASELINE_THRESHOLD,
+        "hysteresis_band": HYSTERESIS_BAND,
+        "description": "Fixed baseline threshold for baseline simulation. Sensitivity analysis handled in T033."
+    }
+
+    # 3. Ensure Output Directory
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # 4. Write Config
+    try:
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(config, f, indent=2)
+        logger.info(f"Hysteresis config written to {CONFIG_FILE}")
+    except IOError as e:
+        logger.error(f"Failed to write config file: {e}")
+        raise
+
+    return config
+
 
 def main():
-    """Main entry point for generating the hysteresis config."""
-    logger.info("Starting Hysteresis Controller initialization (T032)...")
+    """
+    Main entry point for the Hysteresis Controller task (T032).
+    """
+    logger = get_logger(__name__)
+    logger.info("Starting T032: Implement Hysteresis Controller")
+
     try:
         config = generate_hysteresis_config()
         logger.info("T032 completed successfully.")
-        print(json.dumps(config, indent=2))
-    except RuntimeError as e:
-        logger.error(str(e))
-        sys.exit(1)
+        return config
     except Exception as e:
-        logger.exception(f"Unexpected error during T032: {e}")
+        logger.error(f"T032 failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

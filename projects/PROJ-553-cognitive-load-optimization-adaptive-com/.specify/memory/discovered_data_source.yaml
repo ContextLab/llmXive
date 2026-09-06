@@ -1,0 +1,18 @@
+status: none
+intent: download ASSISTments and OULAD interaction logs with timestamps, errors, hints
+  python package dataset
+required_fields:
+- student_id
+- problem_id
+- timestamp
+- response_latency
+- error_flag
+- error_count
+- hint_requested
+- hint_count
+- pause_duration
+- interaction_features
+- cognitive_load_score
+cache_key: 1fcdb35f06200fb764074a5680aaf015af5552f0c2801fa9a54028c1e8078107
+searched_at: '2026-09-06T17:08:55.017755+00:00'
+retry_count: 1

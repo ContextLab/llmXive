@@ -1,3 +1,21 @@
+T007f:
+  c: false
+  h: cb5b2da45e055aa97665ed71b5b36d6b8a28c8403dab9d0f0a38f51b898126ee
+  r: "The repository contains no `data/processed/golden_set.csv` and no code that\
+    \ performs the required validation\u2011and\u2011halt logic (checking T004 for\
+    \ a public NASA\u2011TLX dataset and raising the exact error message). Without\
+    \ this implementation the task\u2019s specification is not satisfied. The missing\
+    \ artifact is the pipeline code that enforces the golden\u2011set existence check\
+    \ and produces the mandated HALT error."
+T015:
+  c: false
+  h: da2965c2390ffd3ef22cb1928eb852fc471402ba5489578e9780f7c25fa6a062
+  r: The repository lacks the required `data/processed/golden_set.csv` and the model/metrics
+    files (`load_model.pkl`, `load_model_low_confidence.pkl`, `model_metrics.json`).
+    Without the Golden Set the training script cannot run, and the expected output
+    artifacts are absent. Additionally, the provided `train_load_model.py` is truncated,
+    so we cannot confirm it implements the full LightGBM pipeline and conditional
+    saving logic. The task is therefore not satisfied.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,6 +23,13 @@ T016:
     \ for a missing Golden Set or for sample sizes\u202F<\u202F40, nor any explicit\
     \ reporting of these conditions. The required artifact is absent, so the task\
     \ is not satisfied."
+T018:
+  c: false
+  h: c9f7c16e4e987cc9ee20e60aaaff508ee69b7be86eb739aac624b0aa1410f0b5
+  r: "The required artifact `data/processed/load_model.pkl` does not exist, so the\
+    \ existence check cannot pass and no file size verification can be performed.\
+    \ The task\u2019s condition to raise an error for a missing or oversized model\
+    \ is therefore not satisfied."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,9 +45,3 @@ T022:
     \ a jargon dictionary, regex insertions, and the required FK\u2011difference and\
     \ Jaccard\u2011similarity checks (raising ValueError on failure) actually exists.\
     \ The task\u2019s artifact is missing."
-T022b:
-  c: false
-  h: 5710f55cc12c8c93dc34bcaf7a8e6daa43c6ffb8df72a0011a428e1639cebb3a
-  r: "The required output file `data/explanation_tiers/moderate_tiers.csv` is missing,\
-    \ so no moderate\u2011tier content was generated for the instructional units.\
-    \ The task therefore is not satisfied."

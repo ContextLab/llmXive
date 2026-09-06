@@ -1,158 +1,140 @@
+"""
+Validate and Load Golden Set (Task T007f).
+
+This script checks for the existence and validity of the Golden Set file.
+If the file is missing, it checks for a public dataset with concurrent self-reports.
+If neither exists, it raises a hard HALT error with a specific message.
+NO synthetic generation is permitted.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 import pandas as pd
-from datasets import load_dataset
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Ensure we can import from the code directory
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
+
+from utils import get_logger
 
 def ensure_directories():
-    """Ensure required directories exist."""
-    dirs = [
-        Path("data/processed"),
-        Path("data/raw")
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Ensured directory: {d}")
+    """Ensure the data/processed directory exists."""
+    data_processed = Path("data/processed")
+    data_processed.mkdir(parents=True, exist_ok=True)
+    return data_processed
 
-def validate_golden_set_csv(path: Path) -> bool:
+def validate_golden_set_csv(file_path: Path) -> bool:
     """
-    Validate that the golden set CSV exists and meets requirements:
-    - At least 50 rows
-    - Contains 'expert_load_score' column
-    - Values are between 0 and 100
+    Validate the Golden Set CSV file.
+    
+    Checks:
+    1. File exists.
+    2. Contains required columns: 'interaction_id', 'expert_load_score'.
+    3. Contains at least 50 rows.
+    4. 'expert_load_score' values are within 0-100.
+    
+    Returns True if valid, raises ValueError otherwise.
     """
-    if not path.exists():
-        logger.error(f"File not found: {path}")
+    logger = get_logger()
+    
+    if not file_path.exists():
+        logger.error(f"Golden Set file not found: {file_path}")
         return False
 
     try:
-        df = pd.read_csv(path)
+        df = pd.read_csv(file_path)
     except Exception as e:
-        logger.error(f"Failed to read CSV: {e}")
+        logger.error(f"Failed to read Golden Set CSV: {e}")
         return False
 
-    # Check row count
+    required_columns = {'interaction_id', 'expert_load_score'}
+    if not required_columns.issubset(df.columns):
+        missing = required_columns - set(df.columns)
+        logger.error(f"Golden Set missing required columns: {missing}")
+        return False
+
     if len(df) < 50:
-        logger.error(f"Golden set has {len(df)} rows, but requires >= 50.")
+        logger.error(f"Golden Set has {len(df)} rows. Minimum 50 required.")
         return False
 
-    # Check required column
-    if 'expert_load_score' not in df.columns:
-        logger.error("Missing required column: 'expert_load_score'")
+    if not df['expert_load_score'].between(0, 100).all():
+        logger.error("Golden Set contains 'expert_load_score' values outside 0-100 range.")
         return False
 
-    # Validate score range
-    scores = pd.to_numeric(df['expert_load_score'], errors='coerce')
-    if scores.isna().any():
-        logger.error("Found non-numeric values in 'expert_load_score'")
-        return False
-
-    if not ((scores >= 0) & (scores <= 100)).all():
-        logger.error("Found 'expert_load_score' values outside range [0, 100]")
-        return False
-
-    logger.info(f"Validated golden set: {len(df)} rows, valid scores.")
+    logger.info(f"Golden Set validated successfully: {len(df)} rows.")
     return True
 
-def check_public_self_reports():
+def check_public_self_reports() -> bool:
     """
-    Check public datasets (ASSISTments/OULAD) for concurrent self-reported load (e.g., NASA-TLX).
-    If found, create golden_set.csv and write validation_source.txt.
-    """
-    logger.info("Checking public datasets for self-reported load metrics...")
-
-    # Attempt to load ASSISTments dataset
-    try:
-        logger.info("Attempting to load ASSISTments dataset...")
-        # Using a specific version known to have interaction data
-        dataset = load_dataset(" ASSISTments/2017-02-01", split="train")
-        
-        # Check for self-report columns (common names in educational datasets)
-        possible_self_report_cols = [
-            'tlx_load', 'nasa_tlx', 'mental_demand', 'effort_rating', 
-            'frustration_level', 'self_reported_load', 'perceived_load'
-        ]
-        
-        found_col = None
-        for col in possible_self_report_cols:
-            if col in dataset.column_names:
-                found_col = col
-                break
-
-        if found_col:
-            logger.info(f"Found self-report column: {found_col}")
-            df = dataset.to_pandas()
-            
-            # Create golden set structure
-            golden_df = pd.DataFrame({
-                'interaction_id': df.index,
-                'expert_load_score': df[found_col].clip(0, 100) # Normalize if needed
-            })
-            
-            # Ensure we have enough rows
-            if len(golden_df) >= 50:
-                output_path = Path("data/processed/golden_set.csv")
-                golden_df.to_csv(output_path, index=False)
-                logger.info(f"Created golden set from public data: {output_path}")
-                
-                # Write validation source
-                source_path = Path("data/processed/validation_source.txt")
-                source_path.write_text("public_self_report")
-                logger.info("Wrote validation_source.txt: public_self_report")
-                return True
-            else:
-                logger.warning(f"Public dataset has only {len(golden_df)} rows, insufficient for golden set.")
-
-    except Exception as e:
-        logger.warning(f"Could not load or process ASSISTments dataset: {e}")
+    Check if a public dataset with concurrent self-reports (e.g., NASA-TLX) was loaded.
     
-    # Attempt OULAD (often lacks self-reports, but check for similar fields)
-    try:
-        logger.info("Attempting to load OULAD dataset...")
-        dataset = load_dataset("OpenUniversityLearningAnalyticsDataset", split="train")
-        # OULAD typically doesn't have direct NASA-TLX, but checking for any load proxy
-        # If no self-report found in ASSISTments, this is unlikely to have it either.
-        # We proceed to fail if nothing found.
-    except Exception as e:
-        logger.warning(f"Could not load OULAD dataset: {e}")
-
-    logger.error("No valid public self-reported load data found.")
+    This checks for a specific marker file or column in the loaded data that indicates
+    the presence of self-report labels, as per T004's verification logic.
+    Since T004 loads data, we check if the loaded data (or a marker) indicates success.
+    
+    We look for a marker file created by T004 if it found self-reports, 
+    or check the loaded dataset structure if we can access it.
+    For robustness, we check for a specific marker file 'data/processed/.has_self_reports'
+    which T004 should create if it finds valid self-reports.
+    """
+    logger = get_logger()
+    marker_path = Path("data/processed/.has_self_reports")
+    
+    if marker_path.exists():
+        logger.info("Public dataset with concurrent self-reports found (marker exists).")
+        return True
+    
+    # Fallback: Check if the loaded ASSISTments/OULAD data exists and has self-report columns
+    # This is a heuristic check based on T004's expected behavior
+    assistments_path = Path("data/processed/assistments_dataset.csv")
+    if assistments_path.exists():
+        try:
+            df = pd.read_csv(assistments_path)
+            # Check for common self-report column names
+            self_report_cols = ['nasa_tlx', 'self_report_load', 'perceived_load', 'tlx_score']
+            if any(col in df.columns for col in self_report_cols):
+                logger.info("Public dataset with concurrent self-reports found in loaded data.")
+                return True
+        except Exception:
+            pass
+    
+    logger.warning("No public dataset with concurrent self-reports found.")
     return False
 
 def main():
-    """Main execution for T007c."""
+    logger = get_logger()
+    logger.info("Starting Golden Set validation (Task T007f)...")
+
     ensure_directories()
-    
     golden_set_path = Path("data/processed/golden_set.csv")
-    validation_source_path = Path("data/processed/validation_source.txt")
 
-    # 1. Check for existing Golden Set
+    # Step 1: Check for Golden Set file
     if golden_set_path.exists():
-        logger.info("Checking existing golden_set.csv...")
         if validate_golden_set_csv(golden_set_path):
-            logger.info("Golden set is valid. Writing validation_source.txt: golden_set")
-            validation_source_path.write_text("golden_set")
-            logger.info("Task T007c completed successfully.")
-            return
+            logger.info("Golden Set validation PASSED. Pipeline can proceed.")
+            return 0
+        else:
+            logger.error("Golden Set validation FAILED. File exists but is invalid.")
+            return 1
 
-    # 2. If not valid, check public datasets for self-reports
-    logger.info("Existing golden set missing or invalid. Checking public datasets for self-reports...")
+    # Step 2: If Golden Set is missing, check for public dataset with self-reports
+    logger.warning("Golden Set file missing. Checking for public dataset with self-reports...")
     if check_public_self_reports():
-        logger.info("Task T007c completed successfully via public self-reports.")
-        return
+        logger.info("Public dataset with self-reports found. Pipeline can proceed without manual Golden Set.")
+        return 0
 
-    # 3. Fail loudly
-    error_msg = "Validation Data Missing: Golden Set or required interaction features with concurrent self-reports not found. Cannot proceed with model training."
-    logger.error(error_msg)
-    raise FileNotFoundError(error_msg)
+    # Step 3: If neither exists, HALT with specific error message
+    halt_message = (
+        "WAITING_FOR_HUMAN: Golden Set file (data/processed/golden_set.csv) is missing "
+        "AND no public dataset with concurrent self-reports found. "
+        "Please complete the manual labeling process described in `docs/golden_set_creation.md` "
+        "to acquire the Golden Set. The pipeline cannot proceed without external expert labels."
+    )
+    logger.error(halt_message)
+    print(halt_message) # Ensure message is printed to stdout for pipeline capture
+    raise SystemExit(1)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

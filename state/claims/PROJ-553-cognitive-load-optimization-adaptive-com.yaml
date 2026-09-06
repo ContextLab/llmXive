@@ -1095,3 +1095,143 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T22:46:16Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Domain experts must label at least 50 interactions for the Golden Set
+  claim_id: c_aa90da07
+  context: T007d and T007e describe the manual process for creating the Golden Set,
+    stating 'domain experts to label at least 50 interactions' and that 'Domain experts
+    must label interactions from the template'.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Domain_experts_must_label_at_least_50_interactions_for_the_G
+  kind: magnitude
+  raw_text: Domain experts must label interactions from the template and save the
+    result as data/processed/golden_set.csv.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T17:14:13Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Load model artifact size limit is 500 MB
+  claim_id: c_15edb17f
+  context: "T015 states that if validation succeeds, 'save the model to data/processed/load_model.pkl\
+    \ (\u2264 500 MB)'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Save the model to data/processed/load_model.pkl (\u2264 500 MB)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T17:14:14Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Tier generation requires Flesch-Kincaid difference >= 5 and Jaccard similarity
+    >= 0.85
+  claim_id: c_a332f6ba
+  context: "T023 and T024 specify constraints for 'Simple' and 'Complex' tier generation:\
+    \ 'MUST ensure the output Flesch-Kincaid difference vs moderate is \u2265 5 points\
+    \ AND Jaccard similarity \u2265 0.85'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output Flesch-Kincaid difference vs moderate is \u2265 5 points AND Jaccard\
+    \ similarity \u2265 0.85."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T17:14:14Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Tier validation requires Jaccard similarity >= 0.85 and semantic similarity
+    >= 0.90
+  claim_id: c_2487e1ba
+  context: "T025 states: 'Also verify Jaccard similarity (\u2265 0.85) and semantic\
+    \ similarity (\u2265 0.90) against source text'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Jaccard similarity \u2265 0.85 and semantic similarity \u2265 0.90 against\
+    \ source text."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T17:14:14Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Simulation requires N >= 40 historical sessions
+  claim_id: c_5880622c
+  context: "T029 specifies: 'Implement session replay logic in code/simulate_sessions.py:\
+    \ load N \u2265 40 historical sessions'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run the simulation pipeline with N \u2265 40 historical sessions replayed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T17:14:14Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Hysteresis controller baseline threshold is 0.05
+  claim_id: c_89c58f10
+  context: 'T032 states: ''Define the controller logic with a fixed baseline threshold
+    of 0.05 for the baseline simulation''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the controller logic with a fixed baseline threshold of 0.05 for
+    the baseline simulation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T17:14:38Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Hysteresis sensitivity analysis sweeps thresholds 0.01, 0.05, 0.1
+  claim_id: c_a806bb0b
+  context: 'The ''NEW'' notes section mentions: ''T033 handles the sensitivity analysis
+    as a post-hoc step with specific threshold values {0.01, 0.05, 0.1}''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep absolute diff over a range of specific threshold values {0.01, 0.05,
+    0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T17:14:59Z'
+- artifact_path: projects/PROJ-553-cognitive-load-optimization-adaptive-com/specs/001-cognitive-load-optimization-adaptive-com/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit is 6 hours
+  claim_id: c_e46db6f1
+  context: "T039a states: 'Create code/run_pipeline.py to orchestrate the full pipeline\
+    \ (Phases 1-5) and measure total wall-clock time. Assert \u2264 6h total execution\
+    \ time'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert \u2264 6h total execution time."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T17:15:00Z'
