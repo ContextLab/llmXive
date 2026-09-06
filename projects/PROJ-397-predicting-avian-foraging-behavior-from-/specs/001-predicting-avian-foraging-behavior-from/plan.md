@@ -106,7 +106,7 @@ projects/PROJ-397-predicting-avian-foraging-behavior-from-/docs/
 
 | ID | Requirement | Plan Element Addressing It |
 |----|-------------|---------------------------|
-| FR-001 | Extract top 25 species | `data/download_ebd.py` (filtering logic) |
+| FR-001 | Extract top-ranked species. | `data/download_ebd.py` (filtering logic) |
 | FR-002 | NLCD buffers of varying scales
 
 The research question remains: How do different spatial buffer sizes around NLCD land cover classes influence the measured ecological metrics? The method involves generating multiple concentric buffers at incremental resolutions around sample sites to assess scale sensitivity. References include the foundational work by Homer et al. on the NLCD dataset and the scale-dependency analysis by Wu (et al.). | `data/download_nlcd.py`, `data/merge_and_buffer.py` |

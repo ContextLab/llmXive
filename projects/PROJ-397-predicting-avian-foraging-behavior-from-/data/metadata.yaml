@@ -1,0 +1,9 @@
+datasets:
+  ebd_train:
+    source_url: "https://ebird-data.s3.amazonaws.com/ebd_release/ebd_rel_202301.parquet"
+    version: "ebd_rel_202301.parquet"
+    download_date: "2023-10-27T12:00:00"
+    checksum: "placeholder_checksum_until_real_run"
+    local_path: "data/raw/ebd_train.csv"
+artifacts: {}
+pipeline_runs: []

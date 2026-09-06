@@ -4,11 +4,12 @@ import logging
 import json
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
-
 import pandas as pd
+import numpy as np
 
-# Import from utils.config to get project paths
-from utils.config import get_project_root, get_processed_dir, get_raw_data_dir
+# Import path utilities
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from utils.config import get_processed_dir, get_project_root
 
 # Configure logging
 logging.basicConfig(
@@ -17,200 +18,211 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_merged_observations(file_path: str) -> pd.DataFrame:
+def load_merged_observations(input_path: str) -> pd.DataFrame:
     """
-    Load the merged observations CSV file.
+    Load the merged observations CSV from T039.
     
     Args:
-        file_path: Path to the merged observations CSV.
+        input_path: Path to merged_observations.csv
         
     Returns:
-        DataFrame with merged observations.
+        DataFrame with merged observation data
     """
-    logger.info(f"Loading merged observations from {file_path}")
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Input file not found: {file_path}")
+    logger.info(f"Loading merged observations from {input_path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    df = pd.read_csv(file_path)
-    logger.info(f"Loaded {len(df)} observations")
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} observations with columns: {list(df.columns)}")
     return df
 
 def parse_land_cover_proportions(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Ensure land cover proportion columns are numeric and handle missing values.
+    Parse land cover proportion columns from the merged DataFrame.
+    
+    Expected columns: forest_prop_100m, grassland_prop_100m, 
+    wetland_prop_100m, urban_prop_100m, other_prop_100m
     
     Args:
-        df: DataFrame with land cover proportion columns.
+        df: DataFrame with merged observations
         
     Returns:
-        DataFrame with cleaned land cover proportions.
+        DataFrame with parsed land cover columns
     """
-    # Identify land cover proportion columns (columns ending with '_prop')
-    prop_cols = [col for col in df.columns if col.endswith('_prop')]
+    expected_cols = [
+        'forest_prop_100m', 'grassland_prop_100m', 
+        'wetland_prop_100m', 'urban_prop_100m', 'other_prop_100m'
+    ]
     
-    if not prop_cols:
-        logger.warning("No land cover proportion columns found (columns ending with '_prop').")
-        return df
+    missing_cols = [col for col in expected_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing expected land cover columns: {missing_cols}")
     
-    logger.info(f"Found {len(prop_cols)} land cover proportion columns: {prop_cols}")
-    
-    # Convert to numeric, coercing errors to NaN
-    for col in prop_cols:
+    # Ensure numeric types, coercing errors to NaN
+    for col in expected_cols:
         df[col] = pd.to_numeric(df[col], errors='coerce')
     
     return df
 
 def aggregate_species_profiles(
     df: pd.DataFrame,
-    output_log_path: str
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    min_obs: int = 50
+) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Aggregate observations to species-level profiles.
+    Aggregate observations into species-level profiles.
     
-    This function:
-    1. Identifies observations with valid land cover data.
-    2. Aggregates valid observations by species_id and foraging_guild.
-    3. Calculates mean land cover proportions and observation counts.
-    4. Logs dropped observations with specific reason codes.
+    Calculates mean land cover proportions per species and counts
+    observations. Logs dropped observations due to missing data.
     
     Args:
-        df: DataFrame with merged observations.
-        output_log_path: Path to write the drop log JSON.
+        df: DataFrame with parsed land cover proportions
+        min_obs: Minimum observations required per species
         
     Returns:
-        Tuple of (aggregated DataFrame, drop statistics dict).
+        Tuple of (aggregated profiles DataFrame, list of drop logs)
     """
-    # Identify land cover proportion columns
-    prop_cols = [col for col in df.columns if col.endswith('_prop')]
+    logger.info(f"Aggregating species profiles with min_obs={min_obs}")
     
-    if not prop_cols:
-        raise ValueError("No land cover proportion columns found to aggregate.")
+    # Identify land cover columns
+    lc_cols = [
+        'forest_prop_100m', 'grassland_prop_100m', 
+        'wetland_prop_100m', 'urban_prop_100m', 'other_prop_100m'
+    ]
     
-    # Create a mask for valid land cover data (no NaN in any prop column)
-    valid_mask = df[prop_cols].notna().all(axis=1)
+    # Track dropped observations
+    drop_logs = []
     
-    # Identify dropped rows
-    dropped_mask = ~valid_mask
-    dropped_df = df[dropped_mask]
-    
-    # Log dropped observations with reasons
-    drop_log = []
-    for idx, row in dropped_df.iterrows():
-        # Determine specific reason (simplified check for this task)
-        # In a full implementation, we'd check specific tile existence or bounds
-        reason_code = 'missing_value'
-        details = f"Missing land cover data for observation {row.get('observation_id', idx)}"
+    # Check for missing land cover data
+    missing_mask = df[lc_cols].isna().any(axis=1)
+    if missing_mask.any():
+        missing_count = missing_mask.sum()
+        logger.warning(f"Found {missing_count} observations with missing land cover data")
         
-        drop_log.append({
-            'observation_id': row.get('observation_id', idx),
-            'species_id': row.get('species_id', 'unknown'),
-            'reason_code': reason_code,
-            'details': details
-        })
+        # Log details for dropped rows
+        for idx in df[missing_mask].index:
+            row = df.loc[idx]
+            missing_cols = [col for col in lc_cols if pd.isna(row[col])]
+            drop_logs.append({
+                'row_index': int(idx),
+                'reason_code': 'invalid_value',
+                'details': f"Missing values in columns: {missing_cols}"
+            })
+        
+        # Filter out rows with missing data
+        df_clean = df.dropna(subset=lc_cols)
+        logger.info(f"Filtered to {len(df_clean)} valid observations")
+    else:
+        df_clean = df.copy()
     
-    # Write drop log
-    os.makedirs(os.path.dirname(output_log_path), exist_ok=True)
-    with open(output_log_path, 'w') as f:
-        json.dump(drop_log, f, indent=2)
+    # Check for out-of-bounds proportions (should be 0-1)
+    out_of_bounds_mask = (
+        (df_clean[lc_cols] < 0).any(axis=1) | 
+        (df_clean[lc_cols] > 1).any(axis=1)
+    )
+    if out_of_bounds_mask.any():
+        oob_count = out_of_bounds_mask.sum()
+        logger.warning(f"Found {oob_count} observations with out-of-bounds proportions")
+        
+        for idx in df_clean[out_of_bounds_mask].index:
+            row = df_clean.loc[idx]
+            oob_cols = [col for col in lc_cols if row[col] < 0 or row[col] > 1]
+            drop_logs.append({
+                'row_index': int(idx),
+                'reason_code': 'out_of_bounds',
+                'details': f"Invalid proportions in columns: {oob_cols}"
+            })
+        
+        df_clean = df_clean[~out_of_bounds_mask]
+        logger.info(f"Filtered to {len(df_clean)} valid observations after OOB check")
     
-    logger.info(f"Dropped {len(drop_log)} observations due to missing land cover data.")
-    logger.info(f"Drop log written to {output_log_path}")
+    # Group by species and guild
+    profile_cols = ['species_id', 'foraging_guild']
+    agg_dict = {col: 'mean' for col in lc_cols}
+    agg_dict['observation_count'] = 'size'
     
-    # Filter to valid observations
-    valid_df = df[valid_mask].copy()
+    profiles = df_clean.groupby(profile_cols, as_index=False).agg(agg_dict)
     
-    if valid_df.empty:
-        logger.error("No valid observations remaining after filtering.")
-        # Create empty profile with correct schema
-        profile_cols = ['species_id', 'foraging_guild', 'observation_count'] + prop_cols
-        empty_profile = pd.DataFrame(columns=profile_cols)
-        return empty_profile, {'dropped_count': len(dropped_df), 'valid_count': 0}
+    # Filter species with insufficient observations
+    valid_species = profiles[profiles['observation_count'] >= min_obs]
+    dropped_species = profiles[profiles['observation_count'] < min_obs]
     
-    # Aggregate by species_id and foraging_guild
-    agg_dict = {col: 'mean' for col in prop_cols}
-    agg_dict['observation_id'] = 'count'  # Count observations
+    if not dropped_species.empty:
+        logger.warning(f"Excluded {len(dropped_species)} species with < {min_obs} observations")
+        for _, row in dropped_species.iterrows():
+            drop_logs.append({
+                'species_id': row['species_id'],
+                'reason_code': 'insufficient_observations',
+                'details': f"Only {int(row['observation_count'])} observations (min: {min_obs})"
+            })
     
-    # Rename the count column for clarity
-    aggregated = valid_df.groupby(['species_id', 'foraging_guild']).agg(
-        observation_count=('observation_id', 'count'),
-        **agg_dict
-    ).reset_index()
+    final_profiles = valid_species.copy()
+    logger.info(f"Final species profiles: {len(final_profiles)} species")
     
-    # Rename the count column to match expected schema if needed
-    # (Already named observation_count via agg_dict)
-    
-    logger.info(f"Aggregated {len(valid_df)} observations into {len(aggregated)} species profiles.")
-    
-    stats = {
-        'dropped_count': len(dropped_df),
-        'valid_count': len(valid_df),
-        'profile_count': len(aggregated)
-    }
-    
-    return aggregated, stats
+    return final_profiles, drop_logs
 
 def save_species_profiles(
-    df: pd.DataFrame,
+    profiles: pd.DataFrame,
     output_path: str,
-    stats: Dict[str, Any]
+    drop_logs: List[Dict[str, Any]]
 ) -> None:
     """
-    Save the species profiles to CSV and log statistics.
+    Save species profiles and drop logs to disk.
     
     Args:
-        df: Aggregated species profiles DataFrame.
-        output_path: Path to save the CSV.
-        stats: Statistics about the aggregation process.
+        profiles: Aggregated species profiles DataFrame
+        output_path: Path for species_profiles.csv
+        drop_logs: List of dictionaries describing dropped observations
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save profiles
+    profiles.to_csv(output_path, index=False)
     logger.info(f"Saved species profiles to {output_path}")
     
-    # Save aggregation stats
-    stats_path = output_path.replace('.csv', '_stats.json')
-    with open(stats_path, 'w') as f:
-        json.dump(stats, f, indent=2)
-    logger.info(f"Saved aggregation statistics to {stats_path}")
+    # Save drop logs
+    log_path = str(output_path).replace('.csv', '_drop_log.json')
+    with open(log_path, 'w') as f:
+        json.dump(drop_logs, f, indent=2)
+    logger.info(f"Saved drop log to {log_path}")
 
 def main():
-    """
-    Main entry point for the aggregation pipeline step.
-    """
+    """Main entry point for the aggregation pipeline."""
+    logger.info("Starting species aggregation pipeline (T040)")
+    
+    # Define paths
     project_root = get_project_root()
-    processed_dir = get_processed_dir()
-    
-    input_file = processed_dir / "merged_observations.csv"
-    output_file = processed_dir / "species_profiles.csv"
-    drop_log_file = processed_dir / "aggregation_drop_log.json"
-    
-    logger.info(f"Starting aggregation pipeline step.")
-    logger.info(f"Input: {input_file}")
-    logger.info(f"Output: {output_file}")
+    input_path = str(project_root / "data" / "processed" / "merged_observations.csv")
+    output_path = str(project_root / "data" / "processed" / "species_profiles.csv")
     
     try:
-        # Load merged observations
-        df = load_merged_observations(str(input_file))
+        # Load data
+        df = load_merged_observations(input_path)
         
-        # Parse and clean land cover proportions
+        # Parse land cover columns
         df = parse_land_cover_proportions(df)
         
-        # Aggregate to species profiles
-        profiles, stats = aggregate_species_profiles(df, str(drop_log_file))
+        # Aggregate profiles
+        profiles, drop_logs = aggregate_species_profiles(df)
         
         # Save results
-        save_species_profiles(profiles, str(output_file), stats)
+        save_species_profiles(profiles, output_path, drop_logs)
         
-        logger.info("Aggregation step completed successfully.")
+        # Summary
+        logger.info("Aggregation complete")
+        logger.info(f"Output: {output_path}")
+        logger.info(f"Dropped observations logged: {len(drop_logs)} entries")
         
     except FileNotFoundError as e:
-        logger.error(f"Input file not found: {e}")
-        sys.exit(1)
+        logger.error(f"Input file error: {e}")
+        raise
     except ValueError as e:
-        logger.error(f"Data processing error: {e}")
-        sys.exit(1)
+        logger.error(f"Data validation error: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Unexpected error during aggregation: {e}")
-        sys.exit(1)
+        logger.error(f"Unexpected error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

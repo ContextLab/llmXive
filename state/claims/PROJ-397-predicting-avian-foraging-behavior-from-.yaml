@@ -3675,3 +3675,178 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T14:31:14Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Download eBird EBD from s3://ebird-data/ebd_release/
+  claim_id: c_2c587b69
+  context: T036 [US1] [P] Implement data/download_ebd.py to list the S3 bucket s3://ebird-data/ebd_release/,
+    sort files by last_modified descending, select the first .parquet file, download
+    it to data/raw/ebd_train.csv (or parquet), and generate checksums in data/metadata.yaml.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_eBird_EBD_from_s3://ebird-data/ebd_release/
+  kind: entity_fact
+  raw_text: The script MUST download from the canonical S3 bucket s3://ebird-data/ebd_release/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:48:54Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Fetch NLCD 2019 land cover from USGS EarthExplorer API
+  claim_id: c_8a4c88e9
+  context: T037 [US1] [P] Implement data/download_nlcd.py to fetch NLCD land cover
+    data from the canonical USGS EarthExplorer API (Constitution Principle VI) using
+    a deterministic key pattern for the contiguous US (e.g., NLCD_2019_Land_Cover_Land_Use_2019.tif)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST fetch NLCD land cover data from the canonical USGS EarthExplorer
+    API using a deterministic key pattern for the contiguous US (e.g., NLCD_2019_Land_Cover_Land_Use_2019.tif)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:49:18Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Select exactly 25 species with deterministic tie-breaking by lexicographically
+    smallest species_id
+  claim_id: c_a3dae7af
+  context: 'T012.5b [US1] [P] [Depends on T012.5a] Implement data/select_top_species.py...
+    The logic MUST: ... (3) Handle ties at the 25th rank by selecting the species
+    with the lexicographically smallest species_id (deterministic tie-breaking) to
+    ensure exactly 25 species are selected.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_exactly_25_species_with_deterministic_tie-breaking_by
+  kind: magnitude
+  raw_text: The logic MUST handle ties at the 25th rank by selecting the species with
+    the lexicographically smallest species_id to ensure exactly 25 species are selected
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:50:17Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Output schema includes forest_prop_100m, grassland_prop_100m, wetland_prop_100m,
+    urban_prop_100m, other_prop_100m
+  claim_id: c_244f707f
+  context: 'T039 [US1] [Depends on T012.5c, T037, T008b] Implement data/merge_and_buffer.py...
+    The output schema MUST include species_id, foraging_guild, and individual columns
+    for land cover proportions: forest_prop_100m, grassland_prop_100m, wetland_prop_100m,
+    urban_prop_100m, other_prop_100m.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_schema_includes_forest_prop_100m,_grassland_prop_100m
+  kind: entity_fact
+  raw_text: 'The output schema MUST include individual columns for land cover proportions:
+    forest_prop_100m, grassland_prop_100m, wetland_prop_100m, urban_prop_100m, other_prop_100m'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:50:54Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Compare observed accuracy against null distribution to determine land
+    cover predicts guild independent of species identity
+  claim_id: c_ac32bb79
+  context: T042 [US2] [Depends on T041] ... The script MUST compare the observed accuracy
+    against the null distribution to determine if land cover predicts guild independent
+    of species identity.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_observed_accuracy_against_null_distribution_to_deter
+  kind: entity_fact
+  raw_text: The script MUST compare the observed accuracy against the null distribution
+    to determine if land cover predicts guild independent of species identity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:51:22Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Sanity check that permutation test distribution is not degenerate
+  claim_id: c_571dc179
+  context: T042 [US2] [Depends on T041] ... It MUST include a sanity check that the
+    permutation test distribution is not degenerate and raise an error if it is.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sanity_check_that_permutation_test_distribution_is_not_degen
+  kind: entity_fact
+  raw_text: The script MUST perform a sanity check that the permutation test distribution
+    is not degenerate and raise an error if it is
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:51:39Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime less than 6 hours
+  claim_id: c_b02bd4dc
+  context: T035 [SC-004] [FR-002] [Depends on T007.5b] Implement utils/measure_pipeline.py
+    to explicitly measure and log the total pipeline runtime (must be < 6h)...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The pipeline runtime must be less than 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:52:38Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Peak memory usage less than 7GB
+  claim_id: c_e653a6c6
+  context: T035 [SC-004] [FR-002] [Depends on T007.5b] ... and peak memory usage (must
+    be < 7GB) during execution of T007.5b.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_7GB
+  kind: magnitude
+  raw_text: The peak memory usage must be less than 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:52:53Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Constitution Principle VI requires data exclusively from USGS EarthExplorer
+  claim_id: c_5d490fb1
+  context: 'Notes: ... CRITICAL: Constitution Principle VI requires data ''exclusively''
+    from USGS EarthExplorer. No fallback tasks (T011.1, T012.1) are permitted.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Constitution_Principle_VI_requires_data_exclusively_from_USG
+  kind: entity_fact
+  raw_text: Constitution Principle VI requires data exclusively from USGS EarthExplorer
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:54:07Z'

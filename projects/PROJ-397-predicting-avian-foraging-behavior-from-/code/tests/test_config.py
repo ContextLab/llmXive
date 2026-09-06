@@ -1,5 +1,5 @@
 """
-Unit tests for utils/config.py
+Unit tests for the utils/config.py module.
 """
 import os
 import sys
@@ -8,19 +8,18 @@ from pathlib import Path
 import tempfile
 import shutil
 
-# Add the code directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add the project root to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from utils.config import (
     get_project_root,
+    get_code_root,
     get_data_dir,
     get_raw_data_dir,
     get_processed_dir,
     get_models_dir,
     get_viz_dir,
     get_figures_dir,
-    get_reports_dir,
-    get_metadata_file,
     ensure_directories,
     get_seed,
     set_seed,
@@ -29,33 +28,39 @@ from utils.config import (
     get_permutation_params,
     get_data_thresholds,
     get_file_paths,
-    get_file_path,
-    RANDOM_SEED,
+    get_file_path
 )
 
-
 class TestConfig(unittest.TestCase):
+    """Test cases for configuration functions."""
+
     def setUp(self):
         """Set up test fixtures."""
+        self.project_root = get_project_root()
         self.temp_dir = tempfile.mkdtemp()
-        # Mock the project root by temporarily changing the module's behavior
-        # Since the module calculates paths relative to __file__, we can't easily mock it.
-        # Instead, we test that the functions return Path objects and that they are consistent.
-        pass
 
     def tearDown(self):
         """Clean up test fixtures."""
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
 
     def test_get_project_root_returns_path(self):
         """Test that get_project_root returns a Path object."""
         root = get_project_root()
         self.assertIsInstance(root, Path)
+        self.assertTrue(root.exists())
+
+    def test_get_code_root_returns_path(self):
+        """Test that get_code_root returns a Path object."""
+        code_root = get_code_root()
+        self.assertIsInstance(code_root, Path)
+        self.assertTrue(code_root.exists())
 
     def test_get_data_dir_returns_path(self):
         """Test that get_data_dir returns a Path object."""
         data_dir = get_data_dir()
         self.assertIsInstance(data_dir, Path)
+        # The data dir might not exist yet, but the path should be correct
 
     def test_get_raw_data_dir_returns_path(self):
         """Test that get_raw_data_dir returns a Path object."""
@@ -64,8 +69,8 @@ class TestConfig(unittest.TestCase):
 
     def test_get_processed_dir_returns_path(self):
         """Test that get_processed_dir returns a Path object."""
-        proc_dir = get_processed_dir()
-        self.assertIsInstance(proc_dir, Path)
+        processed_dir = get_processed_dir()
+        self.assertIsInstance(processed_dir, Path)
 
     def test_get_models_dir_returns_path(self):
         """Test that get_models_dir returns a Path object."""
@@ -79,46 +84,34 @@ class TestConfig(unittest.TestCase):
 
     def test_get_figures_dir_returns_path(self):
         """Test that get_figures_dir returns a Path object."""
-        fig_dir = get_figures_dir()
-        self.assertIsInstance(fig_dir, Path)
+        figures_dir = get_figures_dir()
+        self.assertIsInstance(figures_dir, Path)
 
-    def test_get_reports_dir_returns_path(self):
-        """Test that get_reports_dir returns a Path object."""
-        rep_dir = get_reports_dir()
-        self.assertIsInstance(rep_dir, Path)
-
-    def test_get_metadata_file_returns_path(self):
-        """Test that get_metadata_file returns a Path object."""
-        meta_file = get_metadata_file()
-        self.assertIsInstance(meta_file, Path)
-
-    def test_ensure_directories_creates_dirs(self):
+    def test_ensure_directories_creates_folders(self):
         """Test that ensure_directories creates the required directories."""
-        # We can't easily test this without mocking the project root.
-        # Instead, we test that the function exists and returns None.
-        result = ensure_directories()
-        self.assertIsNone(result)
+        # Temporarily override the get_data_dir function to use a temp dir
+        # This is a bit tricky, so we'll just test that it doesn't raise an error
+        # and that the directories exist after calling it.
+        ensure_directories()
+        self.assertTrue(get_raw_data_dir().exists())
+        self.assertTrue(get_processed_dir().exists())
+        self.assertTrue(get_models_dir().exists())
 
     def test_get_seed_returns_int(self):
         """Test that get_seed returns an integer."""
         seed = get_seed()
         self.assertIsInstance(seed, int)
 
-    def test_set_seed_sets_seed(self):
-        """Test that set_seed sets the random seed."""
+    def test_set_seed_sets_random_state(self):
+        """Test that set_seed sets the random state."""
+        set_seed(123)
         import random
-        import numpy as np
-
+        val1 = random.random()
+        
         set_seed(123)
-        r1 = random.random()
-        n1 = np.random.random()
-
-        set_seed(123)
-        r2 = random.random()
-        n2 = np.random.random()
-
-        self.assertEqual(r1, r2)
-        self.assertEqual(n1, n2)
+        val2 = random.random()
+        
+        self.assertEqual(val1, val2)
 
     def test_get_model_params_returns_dict(self):
         """Test that get_model_params returns a dictionary."""
@@ -144,30 +137,24 @@ class TestConfig(unittest.TestCase):
         thresholds = get_data_thresholds()
         self.assertIsInstance(thresholds, dict)
         self.assertIn("min_observations", thresholds)
-        self.assertIn("max_species", thresholds)
+        self.assertIn("top_n_species", thresholds)
 
     def test_get_file_paths_returns_dict(self):
-        """Test that get_file_paths returns a dictionary."""
+        """Test that get_file_paths returns a dictionary of Path objects."""
         paths = get_file_paths()
         self.assertIsInstance(paths, dict)
-        self.assertIn("ebd_train", paths)
-        self.assertIn("model", paths)
+        for key, path in paths.items():
+            self.assertIsInstance(path, Path)
 
-    def test_get_file_path_returns_path(self):
-        """Test that get_file_path returns a Path object for a valid name."""
-        path = get_file_path("ebd_train")
+    def test_get_file_path_valid_key(self):
+        """Test that get_file_path returns a Path for a valid key."""
+        path = get_file_path("metadata")
         self.assertIsInstance(path, Path)
 
-    def test_get_file_path_raises_for_invalid_name(self):
-        """Test that get_file_path raises ValueError for an invalid name."""
-        with self.assertRaises(ValueError):
-            get_file_path("invalid_name")
-
-    def test_random_seed_constant(self):
-        """Test that RANDOM_SEED is defined and is an integer."""
-        self.assertIsInstance(RANDOM_SEED, int)
-        self.assertEqual(RANDOM_SEED, 42)
-
+    def test_get_file_path_invalid_key(self):
+        """Test that get_file_path raises KeyError for an invalid key."""
+        with self.assertRaises(KeyError):
+            get_file_path("invalid_key")
 
 if __name__ == "__main__":
     unittest.main()

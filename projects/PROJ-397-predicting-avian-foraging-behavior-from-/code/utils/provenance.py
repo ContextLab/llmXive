@@ -1,10 +1,7 @@
 """
-Provenance module for llmXive automated science pipeline.
-
-This module implements Constitution Principle VI (Habitat Data Provenance) by:
-1. Generating SHA-256 hashes for all data artifacts
-2. Recording source URLs, versions, and extraction dates for external datasets
-3. Managing a centralized metadata.yaml file for reproducibility
+Provenance tracking module for llmXive project.
+Generates SHA-256 hashes for data artifacts and records source metadata
+to satisfy Constitution Principle VI (Habitat Data Provenance).
 """
 import hashlib
 import json
@@ -14,47 +11,46 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Union, List
 import yaml
 
-from utils.config import get_project_root, get_data_dir, get_metadata_file
+from utils.config import get_data_dir, get_metadata_file
 
 
 def compute_file_hash(file_path: Union[str, Path]) -> str:
     """
     Compute SHA-256 hash of a file.
-    
+
     Args:
-        file_path: Path to the file to hash
-        
+        file_path: Path to the file to hash.
+
     Returns:
-        Hexadecimal SHA-256 hash string
-        
+        Hexadecimal string of the SHA-256 hash.
+
     Raises:
-        FileNotFoundError: If the file does not exist
-        IOError: If the file cannot be read
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
     """
-    sha256_hash = hashlib.sha256()
     file_path = Path(file_path)
-    
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-        
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+
+    sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
             for byte_block in iter(lambda: f.read(4096), b""):
                 sha256_hash.update(byte_block)
         return sha256_hash.hexdigest()
     except IOError as e:
-        raise IOError(f"Failed to read file {file_path}: {e}")
+        raise IOError(f"Error reading file {file_path}: {e}")
 
 
 def compute_data_hash(data: Any) -> str:
     """
-    Compute SHA-256 hash of arbitrary data (serializable objects).
-    
+    Compute SHA-256 hash of arbitrary data (serialized to JSON).
+
     Args:
-        data: Any JSON-serializable data structure
-        
+        data: Python object to hash (must be JSON serializable).
+
     Returns:
-        Hexadecimal SHA-256 hash string
+        Hexadecimal string of the SHA-256 hash.
     """
     serialized = json.dumps(data, sort_keys=True).encode('utf-8')
     return hashlib.sha256(serialized).hexdigest()
@@ -64,247 +60,222 @@ def generate_provenance_record(
     artifact_path: Union[str, Path],
     source_url: Optional[str] = None,
     version: Optional[str] = None,
-    extraction_date: Optional[datetime] = None,
-    artifact_type: Optional[str] = None,
+    extraction_date: Optional[str] = None,
     description: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Generate a provenance record for a data artifact.
-    
+
     Args:
-        artifact_path: Path to the artifact
-        source_url: URL where the data was sourced from (for external datasets)
-        version: Version identifier of the source data
-        extraction_date: Date/time when data was extracted (defaults to now)
-        artifact_type: Type of artifact (e.g., 'raw_data', 'processed_data', 'model')
-        description: Human-readable description of the artifact
-        
+        artifact_path: Path to the artifact file.
+        source_url: URL where the data was sourced from.
+        version: Version string of the dataset.
+        extraction_date: Date the data was extracted (ISO format).
+        description: Optional description of the artifact.
+
     Returns:
-        Dictionary containing the provenance record
+        Dictionary containing the provenance record.
     """
     artifact_path = Path(artifact_path)
-    
     if not artifact_path.exists():
         raise FileNotFoundError(f"Artifact not found: {artifact_path}")
-        
+
     file_hash = compute_file_hash(artifact_path)
     file_size = artifact_path.stat().st_size
-    
+    relative_path = str(artifact_path.relative_to(get_data_dir()))
+
     record = {
-        "artifact_path": str(artifact_path),
-        "file_hash": file_hash,
+        "artifact_path": relative_path,
+        "sha256_hash": file_hash,
         "file_size_bytes": file_size,
-        "created_at": datetime.now().isoformat(),
-        "source_url": source_url,
-        "version": version,
-        "extraction_date": extraction_date.isoformat() if extraction_date else None,
-        "artifact_type": artifact_type,
-        "description": description
+        "generated_at": datetime.utcnow().isoformat(),
+        "source_info": {
+            "url": source_url,
+            "version": version,
+            "extraction_date": extraction_date or datetime.utcnow().isoformat(),
+            "description": description
+        }
     }
-    
     return record
 
 
-def save_provenance_record(
-    record: Dict[str, Any],
-    metadata_file: Optional[Path] = None
-) -> Path:
+def load_metadata_config() -> Dict[str, Any]:
     """
-    Save a provenance record to the centralized metadata.yaml file.
-    
-    Args:
-        record: The provenance record dictionary to save
-        metadata_file: Optional path to metadata file (defaults to project metadata)
-        
+    Load the metadata.yaml configuration file.
+    Creates an empty structure if the file does not exist.
+
     Returns:
-        Path to the updated metadata file
+        Dictionary containing the metadata configuration.
     """
-    if metadata_file is None:
-        metadata_file = get_metadata_file()
-        
-    metadata_file = Path(metadata_file)
-    metadata_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load existing metadata or create new structure
-    if metadata_file.exists():
-        with open(metadata_file, 'r') as f:
-            metadata = yaml.safe_load(f) or {}
-    else:
-        metadata = {
-            "pipeline_version": "1.0.0",
-            "created_at": datetime.now().isoformat(),
-            "artifacts": [],
-            "external_sources": []
-        }
-    
-    # Categorize record
-    if record.get("source_url"):
-        # External dataset record
-        source_entry = {
-            "name": record.get("artifact_path", "unknown"),
-            "source_url": record.get("source_url"),
-            "version": record.get("version"),
-            "extraction_date": record.get("extraction_date"),
-            "file_hash": record.get("file_hash"),
-            "retrieved_at": datetime.now().isoformat()
-        }
-        
-        # Check if this source is already recorded
-        existing_sources = metadata.get("external_sources", [])
-        existing_names = [s.get("name") for s in existing_sources]
-        
-        if record.get("artifact_path") not in existing_names:
-            metadata.setdefault("external_sources", []).append(source_entry)
-    else:
-        # Internal artifact record
-        artifact_entry = {
-            "path": record.get("artifact_path"),
-            "file_hash": record.get("file_hash"),
-            "file_size_bytes": record.get("file_size_bytes"),
-            "created_at": record.get("created_at"),
-            "artifact_type": record.get("artifact_type"),
-            "description": record.get("description")
-        }
-        metadata.setdefault("artifacts", []).append(artifact_entry)
-    
-    # Write updated metadata
-    with open(metadata_file, 'w') as f:
+    metadata_path = get_metadata_file()
+    if metadata_path.exists():
+        with open(metadata_path, 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f) or {}
+    return {
+        "datasets": {},
+        "artifacts": {},
+        "pipeline_runs": []
+    }
+
+
+def save_metadata_config(metadata: Dict[str, Any]) -> None:
+    """
+    Save the metadata configuration to data/metadata.yaml.
+
+    Args:
+        metadata: Dictionary to save.
+    """
+    metadata_path = get_metadata_file()
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(metadata_path, 'w', encoding='utf-8') as f:
         yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
-        
-    return metadata_file
 
 
-def log_step(
-    step_name: str,
-    status: str,
-    message: Optional[str] = None,
-    metadata_file: Optional[Path] = None
-) -> Path:
+def save_provenance_record(record: Dict[str, Any]) -> None:
     """
-    Log a pipeline step execution to metadata.
-    
+    Append a provenance record to the metadata.yaml file.
+
     Args:
-        step_name: Name of the pipeline step
-        status: Status of the step (e.g., 'started', 'completed', 'failed')
-        message: Optional message describing the step outcome
-        metadata_file: Optional path to metadata file
-        
-    Returns:
-        Path to the updated metadata file
+        record: The provenance record dictionary to save.
     """
-    if metadata_file is None:
-        metadata_file = get_metadata_file()
-        
-    metadata_file = Path(metadata_file)
-    
-    if metadata_file.exists():
-        with open(metadata_file, 'r') as f:
-            metadata = yaml.safe_load(f) or {}
-    else:
-        metadata = {"pipeline_execution_log": []}
-    
-    log_entry = {
+    metadata = load_metadata_config()
+    artifact_path = record.get("artifact_path")
+    if not artifact_path:
+        raise ValueError("Provenance record must contain 'artifact_path'")
+
+    # Initialize sections if missing
+    if "artifacts" not in metadata:
+        metadata["artifacts"] = {}
+
+    # Update or add the record
+    metadata["artifacts"][artifact_path] = record
+    save_metadata_config(metadata)
+
+
+def record_source_info(
+    dataset_name: str,
+    source_url: str,
+    version: str,
+    extraction_date: str,
+    description: Optional[str] = None
+) -> None:
+    """
+    Record source information for a dataset in metadata.yaml.
+
+    Args:
+        dataset_name: Name of the dataset.
+        source_url: URL where the data was sourced from.
+        version: Version string of the dataset.
+        extraction_date: Date the data was extracted.
+        description: Optional description.
+    """
+    metadata = load_metadata_config()
+    if "datasets" not in metadata:
+        metadata["datasets"] = {}
+
+    metadata["datasets"][dataset_name] = {
+        "source_url": source_url,
+        "version": version,
+        "extraction_date": extraction_date,
+        "description": description,
+        "recorded_at": datetime.utcnow().isoformat()
+    }
+    save_metadata_config(metadata)
+
+
+def log_step(step_name: str, status: str, details: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Log a pipeline step execution to metadata.yaml.
+
+    Args:
+        step_name: Name of the pipeline step.
+        status: Status of the step (e.g., 'success', 'failed').
+        details: Optional dictionary of additional details.
+    """
+    metadata = load_metadata_config()
+    if "pipeline_runs" not in metadata:
+        metadata["pipeline_runs"] = []
+
+    run_entry = {
         "step_name": step_name,
         "status": status,
-        "timestamp": datetime.now().isoformat(),
-        "message": message
+        "timestamp": datetime.utcnow().isoformat(),
+        "details": details or {}
     }
-    
-    metadata.setdefault("pipeline_execution_log", []).append(log_entry)
-    
-    with open(metadata_file, 'w') as f:
-        yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
-        
-    return metadata_file
+    metadata["pipeline_runs"].append(run_entry)
+    save_metadata_config(metadata)
 
 
-def verify_data_integrity(
-    artifact_path: Union[str, Path],
-    expected_hash: str,
-    metadata_file: Optional[Path] = None
-) -> bool:
+def verify_data_integrity(artifact_path: Union[str, Path], expected_hash: str) -> bool:
     """
-    Verify the integrity of an artifact by comparing its hash to an expected value.
-    
+    Verify the integrity of a data artifact by comparing its hash.
+
     Args:
-        artifact_path: Path to the artifact to verify
-        expected_hash: Expected SHA-256 hash
-        metadata_file: Optional path to metadata file for logging
-        
+        artifact_path: Path to the artifact.
+        expected_hash: Expected SHA-256 hash.
+
     Returns:
-        True if hash matches, False otherwise
-        
-    Raises:
-        FileNotFoundError: If the artifact does not exist
+        True if the hash matches, False otherwise.
     """
     actual_hash = compute_file_hash(artifact_path)
-    is_valid = actual_hash == expected_hash
-    
-    if metadata_file:
-        status = "verified" if is_valid else "mismatch"
-        message = f"Hash verification {'passed' if is_valid else 'failed'} for {artifact_path}"
-        log_step(f"verify_{Path(artifact_path).name}", status, message, metadata_file)
-        
-    return is_valid
+    return actual_hash == expected_hash
 
 
-def load_provenance_records(
-    metadata_file: Optional[Path] = None
-) -> Dict[str, Any]:
+def load_provenance_records() -> Dict[str, Any]:
     """
-    Load all provenance records from the metadata file.
-    
-    Args:
-        metadata_file: Optional path to metadata file
-        
+    Load all provenance records from metadata.yaml.
+
     Returns:
-        Dictionary containing all provenance records
+        Dictionary of all recorded artifacts and their provenance.
     """
-    if metadata_file is None:
-        metadata_file = get_metadata_file()
-        
-    metadata_file = Path(metadata_file)
-    
-    if not metadata_file.exists():
-        return {
-            "artifacts": [],
-            "external_sources": [],
-            "pipeline_execution_log": []
-        }
-        
-    with open(metadata_file, 'r') as f:
-        return yaml.safe_load(f) or {}
+    metadata = load_metadata_config()
+    return metadata.get("artifacts", {})
 
 
 def record_artifact_provenance(
     artifact_path: Union[str, Path],
     source_url: Optional[str] = None,
     version: Optional[str] = None,
-    artifact_type: Optional[str] = None,
-    description: Optional[str] = None,
-    metadata_file: Optional[Path] = None
+    extraction_date: Optional[str] = None,
+    description: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Convenience function to generate and save a provenance record in one step.
-    
+
     Args:
-        artifact_path: Path to the artifact
-        source_url: Source URL (for external datasets)
-        version: Version identifier
-        artifact_type: Type of artifact
-        description: Description of the artifact
-        metadata_file: Path to metadata file
-        
+        artifact_path: Path to the artifact.
+        source_url: Source URL.
+        version: Dataset version.
+        extraction_date: Date extracted.
+        description: Optional description.
+
     Returns:
-        The generated provenance record
+        The generated provenance record.
     """
     record = generate_provenance_record(
-        artifact_path=artifact_path,
-        source_url=source_url,
-        version=version,
-        artifact_type=artifact_type,
-        description=description
+        artifact_path, source_url, version, extraction_date, description
     )
-    
-    save_provenance_record(record, metadata_file)
+    save_provenance_record(record)
     return record
+
+
+def main() -> None:
+    """
+    Main entry point for the provenance module.
+    Scans the data directory for artifacts and records their provenance
+    if not already recorded, or updates existing records.
+    """
+    data_dir = get_data_dir()
+    if not data_dir.exists():
+        print(f"Data directory does not exist: {data_dir}")
+        return
+
+    # Example: Record provenance for a hypothetical downloaded file
+    # This is a placeholder for the actual logic that would be called
+    # by download scripts (T036, T037, T008a) after they save files.
+    print("Provenance module loaded. Use record_artifact_provenance() to register files.")
+    print(f"Metadata file location: {get_metadata_file()}")
+
+
+if __name__ == "__main__":
+    main()

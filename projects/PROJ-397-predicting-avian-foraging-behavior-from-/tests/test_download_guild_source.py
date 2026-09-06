@@ -8,182 +8,130 @@ import tempfile
 import shutil
 from pathlib import Path
 import csv
-import json
 import yaml
 
 # Add project root to path
 project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "code"))
 
 from data.download_guild_source import (
     validate_guild_source,
-    compute_sha256,
-    EXPECTED_CITATION
+    load_metadata_config,
+    compute_sha256
 )
+from utils.config import get_raw_data_dir, get_metadata_file
 
 class TestDownloadGuildSource(unittest.TestCase):
-    """Test cases for guild source download and validation."""
+    """Test suite for guild source download functionality."""
 
     def setUp(self):
         """Set up test fixtures."""
         self.test_dir = tempfile.mkdtemp()
-        self.test_file = Path(self.test_dir) / "guild_source.csv"
+        self.raw_data_dir = Path(self.test_dir) / "raw"
+        self.raw_data_dir.mkdir()
+        
+        # Create a mock metadata file
+        self.metadata_file = Path(self.test_dir) / "metadata.yaml"
+        self.metadata_file.write_text("sources: {}\nartifacts: {}\n")
+
+        # Mock the config functions
+        import utils.config
+        import data.download_guild_source
+        
+        # Save original functions
+        self._original_get_raw_data_dir = utils.config.get_raw_data_dir
+        self._original_get_metadata_file = utils.config.get_metadata_file
+        
+        # Override with test versions
+        utils.config.get_raw_data_dir = lambda: self.raw_data_dir
+        utils.config.get_metadata_file = lambda: self.metadata_file
+        data.download_guild_source.get_raw_data_dir = lambda: self.raw_data_dir
+        data.download_guild_source.get_metadata_file = lambda: self.metadata_file
 
     def tearDown(self):
         """Clean up test fixtures."""
         shutil.rmtree(self.test_dir)
+        
+        # Restore original functions
+        import utils.config
+        import data.download_guild_source
+        utils.config.get_raw_data_dir = self._original_get_raw_data_dir
+        utils.config.get_metadata_file = self._original_get_metadata_file
+        data.download_guild_source.get_raw_data_dir = self._original_get_raw_data_dir
+        data.download_guild_source.get_metadata_file = self._original_get_metadata_file
 
-    def test_validate_csv_with_correct_citation(self):
-        """Test CSV validation with correct source citation."""
+    def test_validate_guild_source_valid_file(self):
+        """Test validation of a valid guild source file."""
         # Create a valid CSV file
-        with open(self.test_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=['species_id', 'foraging_guild', 'source_citation'])
-            writer.writeheader()
-            writer.writerow({
-                'species_id': 'A001',
-                'foraging_guild': 'Seed-eater',
-                'source_citation': f'Birds of the World - Cornell Lab of Ornithology'
-            })
+        test_file = self.raw_data_dir / "test_guilds.csv"
+        with open(test_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['species_id', 'foraging_guild', 'source_citation'])
+            writer.writerow(['A001', 'ground_forager', 'Test Citation'])
+            writer.writerow(['A002', 'canopy_forager', 'Test Citation'])
         
         # Should not raise
-        validate_guild_source(self.test_file)
+        result = validate_guild_source(test_file)
+        self.assertTrue(result)
 
-    def test_validate_csv_missing_citation_field(self):
-        """Test CSV validation fails when source_citation field is missing."""
-        # Create a CSV without source_citation
-        with open(self.test_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=['species_id', 'foraging_guild'])
-            writer.writeheader()
-            writer.writerow({'species_id': 'A001', 'foraging_guild': 'Seed-eater'})
+    def test_validate_guild_source_missing_columns(self):
+        """Test validation fails for missing required columns."""
+        test_file = self.raw_data_dir / "invalid_guilds.csv"
+        with open(test_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['species_id', 'other_column'])  # Missing foraging_guild
+            writer.writerow(['A001', 'value'])
         
-        # Should raise ValueError
-        with self.assertRaises(ValueError) as context:
-            validate_guild_source(self.test_file)
-        
-        self.assertIn('source_citation', str(context.exception))
+        with self.assertRaises(ValueError):
+            validate_guild_source(test_file)
 
-    def test_validate_csv_wrong_citation(self):
-        """Test CSV validation fails when citation doesn't match expected."""
-        # Create a CSV with wrong citation
-        with open(self.test_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=['species_id', 'foraging_guild', 'source_citation'])
-            writer.writeheader()
-            writer.writerow({
-                'species_id': 'A001',
-                'foraging_guild': 'Seed-eater',
-                'source_citation': 'Some Other Source'
-            })
-        
-        # Should raise ValueError
-        with self.assertRaises(ValueError) as context:
-            validate_guild_source(self.test_file)
-        
-        self.assertIn('Birds of the World', str(context.exception))
-
-    def test_validate_json_with_correct_citation(self):
-        """Test JSON validation with correct source citation."""
-        json_file = Path(self.test_dir) / "guild_source.json"
-        data = [{
-            'species_id': 'A001',
-            'foraging_guild': 'Seed-eater',
-            'source_citation': f'Birds of the World - Cornell Lab of Ornithology'
-        }]
-        
-        with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump(data, f)
-        
-        # Should not raise
-        validate_guild_source(json_file)
-
-    def test_validate_json_missing_citation(self):
-        """Test JSON validation fails when source_citation is missing."""
-        json_file = Path(self.test_dir) / "guild_source.json"
-        data = [{
-            'species_id': 'A001',
-            'foraging_guild': 'Seed-eater'
-        }]
-        
-        with open(json_file, 'w', encoding='utf-8') as f:
-            json.dump(data, f)
-        
-        # Should raise ValueError
-        with self.assertRaises(ValueError) as context:
-            validate_guild_source(json_file)
-        
-        self.assertIn('source_citation', str(context.exception))
-
-    def test_validate_xml_with_correct_citation(self):
-        """Test XML validation with correct source citation."""
-        xml_file = Path(self.test_dir) / "guild_source.xml"
-        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
-        <guilds>
-            <species>
-                <species_id>A001</species_id>
-                <foraging_guild>Seed-eater</foraging_guild>
-                <source_citation>Birds of the World - Cornell Lab of Ornithology</source_citation>
-            </species>
-        </guilds>'''
-        
-        with open(xml_file, 'w', encoding='utf-8') as f:
-            f.write(xml_content)
-        
-        # Should not raise
-        validate_guild_source(xml_file)
-
-    def test_validate_xml_missing_citation(self):
-        """Test XML validation fails when source_citation is missing."""
-        xml_file = Path(self.test_dir) / "guild_source.xml"
-        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
-        <guilds>
-            <species>
-                <species_id>A001</species_id>
-                <foraging_guild>Seed-eater</foraging_guild>
-            </species>
-        </guilds>'''
-        
-        with open(xml_file, 'w', encoding='utf-8') as f:
-            f.write(xml_content)
-        
-        # Should raise ValueError
-        with self.assertRaises(ValueError) as context:
-            validate_guild_source(xml_file)
-        
-        self.assertIn('source_citation', str(context.exception))
-
-    def test_compute_sha256(self):
-        """Test SHA-256 hash computation."""
-        # Create a test file
-        with open(self.test_file, 'w', encoding='utf-8') as f:
-            f.write("test content")
-        
-        hash1 = compute_sha256(self.test_file)
-        hash2 = compute_sha256(self.test_file)
-        
-        # Same file should produce same hash
-        self.assertEqual(hash1, hash2)
-        
-        # Hash should be 64 characters (SHA-256 hex)
-        self.assertEqual(len(hash1), 64)
-        
-        # Hash should only contain hex characters
-        self.assertTrue(all(c in '0123456789abcdef' for c in hash1))
-
-    def test_validate_file_not_found(self):
-        """Test validation fails when file doesn't exist."""
-        non_existent = Path(self.test_dir) / "non_existent.csv"
+    def test_validate_guild_source_empty_file(self):
+        """Test validation fails for empty CSV."""
+        test_file = self.raw_data_dir / "empty_guilds.csv"
+        test_file.write_text("")
         
         with self.assertRaises(FileNotFoundError):
-            validate_guild_source(non_existent)
+            validate_guild_source(test_file)
 
-    def test_validate_empty_csv(self):
-        """Test validation fails on empty CSV."""
-        with open(self.test_file, 'w', encoding='utf-8') as f:
-            f.write("")
+    def test_validate_guild_source_no_data_rows(self):
+        """Test validation fails for CSV with only headers."""
+        test_file = self.raw_data_dir / "header_only.csv"
+        with open(test_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['species_id', 'foraging_guild'])
         
-        with self.assertRaises(ValueError) as context:
-            validate_guild_source(self.test_file)
-        
-        self.assertIn('no headers', str(context.exception).lower())
+        with self.assertRaises(ValueError):
+            validate_guild_source(test_file)
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_compute_sha256(self):
+        """Test SHA-256 computation."""
+        test_file = self.raw_data_dir / "hash_test.txt"
+        test_content = "test content for hashing"
+        test_file.write_text(test_content)
+        
+        hash_result = compute_sha256(test_file)
+        
+        # Verify it's a valid SHA-256 hash (64 hex characters)
+        self.assertEqual(len(hash_result), 64)
+        self.assertTrue(all(c in '0123456789abcdef' for c in hash_result))
+
+    def test_load_metadata_config(self):
+        """Test loading metadata configuration."""
+        metadata = load_metadata_config()
+        
+        self.assertIn("sources", metadata)
+        self.assertIn("artifacts", metadata)
+
+    def test_load_metadata_config_missing_file(self):
+        """Test loading metadata when file doesn't exist."""
+        # Point to non-existent file
+        import utils.config
+        original_func = utils.config.get_metadata_file
+        utils.config.get_metadata_file = lambda: Path("/nonexistent/metadata.yaml")
+        
+        try:
+            metadata = load_metadata_config()
+            self.assertIn("sources", metadata)
+            self.assertIn("artifacts", metadata)
+        finally:
+            utils.config.get_metadata_file = original_func

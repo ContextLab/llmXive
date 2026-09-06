@@ -5,12 +5,10 @@ import tempfile
 import json
 import pandas as pd
 from pathlib import Path
+import numpy as np
 
-# Add project root to path if needed
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from data.aggregate import (
     load_merged_observations,
     parse_land_cover_proportions,
@@ -19,117 +17,129 @@ from data.aggregate import (
 )
 
 class TestAggregate(unittest.TestCase):
-    
+    """Unit tests for data/aggregate.py functionality."""
+
     def setUp(self):
-        """Set up temporary directory for test files."""
+        """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.input_file = os.path.join(self.temp_dir, "merged_observations.csv")
-        self.output_file = os.path.join(self.temp_dir, "species_profiles.csv")
-        self.drop_log_file = os.path.join(self.temp_dir, "drop_log.json")
+        self.test_data = {
+            'species_id': ['A', 'A', 'A', 'B', 'B', 'C'],
+            'foraging_guild': ['Forest', 'Forest', 'Grassland', 'Forest', 'Forest', 'Urban'],
+            'forest_prop_100m': [0.8, 0.9, 0.1, 0.7, 0.8, 0.2],
+            'grassland_prop_100m': [0.1, 0.05, 0.8, 0.1, 0.05, 0.1],
+            'wetland_prop_100m': [0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
+            'urban_prop_100m': [0.05, 0.0, 0.05, 0.15, 0.15, 0.6],
+            'other_prop_100m': [0.0, 0.0, 0.0, 0.0, 0.0, 0.05]
+        }
         
-        # Create a sample merged observations DataFrame
-        self.sample_data = pd.DataFrame({
-            'species_id': ['A', 'A', 'B', 'B', 'C'],
-            'foraging_guild': ['G1', 'G1', 'G2', 'G2', 'G1'],
-            'observation_id': [1, 2, 3, 4, 5],
-            'forest_prop': [0.5, 0.6, 0.2, 0.3, 0.4],
-            'grassland_prop': [0.3, 0.2, 0.7, 0.6, 0.5],
-            'urban_prop': [0.2, 0.2, 0.1, 0.1, 0.1]
-        })
-        
-        # Save sample data
-        self.sample_data.to_csv(self.input_file, index=False)
-    
+        # Create test input file
+        self.input_path = os.path.join(self.temp_dir, 'merged_observations.csv')
+        df = pd.DataFrame(self.test_data)
+        df.to_csv(self.input_path, index=False)
+
     def tearDown(self):
-        """Clean up temporary directory."""
+        """Clean up temporary files."""
         import shutil
         shutil.rmtree(self.temp_dir, ignore_errors=True)
-    
+
     def test_load_merged_observations(self):
-        """Test loading merged observations from CSV."""
-        df = load_merged_observations(self.input_file)
-        self.assertEqual(len(df), 5)
+        """Test loading the merged observations file."""
+        df = load_merged_observations(self.input_path)
+        self.assertEqual(len(df), 6)
         self.assertIn('species_id', df.columns)
-        self.assertIn('forest_prop', df.columns)
-    
+        self.assertIn('foraging_guild', df.columns)
+
     def test_parse_land_cover_proportions(self):
-        """Test parsing land cover proportions."""
-        df = load_merged_observations(self.input_file)
-        # Add a row with NaN to test parsing
-        df.loc[5] = ['D', 'G3', 6, None, 0.5, 0.5]
-        
+        """Test parsing of land cover columns."""
+        df = load_merged_observations(self.input_path)
         parsed_df = parse_land_cover_proportions(df)
-        self.assertTrue(pd.api.types.is_float_dtype(parsed_df['forest_prop']))
-        self.assertTrue(parsed_df['forest_prop'].isna().iloc[5])
-    
+        
+        expected_cols = [
+            'forest_prop_100m', 'grassland_prop_100m', 
+            'wetland_prop_100m', 'urban_prop_100m', 'other_prop_100m'
+        ]
+        for col in expected_cols:
+            self.assertIn(col, parsed_df.columns)
+            self.assertTrue(pd.api.types.is_float_dtype(parsed_df[col]))
+
     def test_aggregate_species_profiles(self):
-        """Test aggregation of species profiles."""
-        df = load_merged_observations(self.input_file)
-        profiles, stats = aggregate_species_profiles(df, self.drop_log_file)
+        """Test aggregation into species-level profiles."""
+        df = load_merged_observations(self.input_path)
+        df = parse_land_cover_proportions(df)
         
-        # Check that we have 3 unique species
-        self.assertEqual(len(profiles), 3)
+        profiles, drop_logs = aggregate_species_profiles(df, min_obs=2)
         
-        # Check that species A has 2 observations
-        species_a = profiles[profiles['species_id'] == 'A']
-        self.assertEqual(species_a['observation_count'].values[0], 2)
+        # Should have 2 species (A and B with >= 2 obs, C has only 1)
+        self.assertEqual(len(profiles), 2)
+        self.assertIn('species_id', profiles.columns)
+        self.assertIn('observation_count', profiles.columns)
         
-        # Check that mean forest_prop for A is correct
-        expected_forest = (0.5 + 0.6) / 2
-        self.assertAlmostEqual(species_a['forest_prop'].values[0], expected_forest, places=5)
-        
-        # Check stats
-        self.assertEqual(stats['dropped_count'], 0)
-        self.assertEqual(stats['valid_count'], 5)
-        self.assertEqual(stats['profile_count'], 3)
-    
+        # Check that species C was dropped
+        dropped_species = [log['species_id'] for log in drop_logs if log.get('reason_code') == 'insufficient_observations']
+        self.assertIn('C', dropped_species)
+
     def test_aggregate_with_missing_data(self):
-        """Test aggregation with missing land cover data."""
-        # Create data with missing values
-        data_with_missing = pd.DataFrame({
-            'species_id': ['A', 'A', 'B'],
-            'foraging_guild': ['G1', 'G1', 'G2'],
-            'observation_id': [1, 2, 3],
-            'forest_prop': [0.5, None, 0.2],
-            'grassland_prop': [0.3, 0.2, 0.7],
-            'urban_prop': [0.2, 0.2, 0.1]
-        })
+        """Test handling of missing land cover data."""
+        # Create data with NaN values
+        test_data = self.test_data.copy()
+        test_data['forest_prop_100m'][0] = np.nan
         
-        test_input = os.path.join(self.temp_dir, "test_missing.csv")
-        data_with_missing.to_csv(test_input, index=False)
+        df = pd.DataFrame(test_data)
+        test_input = os.path.join(self.temp_dir, 'merged_with_nan.csv')
+        df.to_csv(test_input, index=False)
         
-        df = load_merged_observations(test_input)
-        profiles, stats = aggregate_species_profiles(df, self.drop_log_file)
+        loaded_df = load_merged_observations(test_input)
+        parsed_df = parse_land_cover_proportions(loaded_df)
         
-        # Species A should be dropped because one row has NaN
-        # So only species B remains
-        self.assertEqual(len(profiles), 1)
-        self.assertEqual(profiles['species_id'].values[0], 'B')
+        profiles, drop_logs = aggregate_species_profiles(parsed_df, min_obs=2)
         
-        # Check drop log
-        self.assertTrue(os.path.exists(self.drop_log_file))
-        with open(self.drop_log_file, 'r') as f:
-            drop_log = json.load(f)
-        self.assertEqual(len(drop_log), 1)
-        self.assertEqual(drop_log[0]['species_id'], 'A')
-    
+        # Should have dropped the row with NaN
+        self.assertEqual(len(profiles), 2)  # Still 2 species, but one less observation for A
+        
+        # Check drop log for invalid_value
+        invalid_drops = [log for log in drop_logs if log.get('reason_code') == 'invalid_value']
+        self.assertGreater(len(invalid_drops), 0)
+
     def test_save_species_profiles(self):
-        """Test saving species profiles."""
-        df = load_merged_observations(self.input_file)
-        profiles, stats = aggregate_species_profiles(df, self.drop_log_file)
+        """Test saving species profiles and drop logs."""
+        df = load_merged_observations(self.input_path)
+        df = parse_land_cover_proportions(df)
+        profiles, drop_logs = aggregate_species_profiles(df, min_obs=2)
         
-        save_species_profiles(profiles, self.output_file, stats)
+        output_path = os.path.join(self.temp_dir, 'species_profiles.csv')
+        save_species_profiles(profiles, output_path, drop_logs)
         
-        self.assertTrue(os.path.exists(self.output_file))
-        saved_df = pd.read_csv(self.output_file)
-        self.assertEqual(len(saved_df), 3)
+        # Check files exist
+        self.assertTrue(os.path.exists(output_path))
+        log_path = output_path.replace('.csv', '_drop_log.json')
+        self.assertTrue(os.path.exists(log_path))
         
-        # Check stats file
-        stats_file = self.output_file.replace('.csv', '_stats.json')
-        self.assertTrue(os.path.exists(stats_file))
-        with open(stats_file, 'r') as f:
-            saved_stats = json.load(f)
-        self.assertEqual(saved_stats['profile_count'], 3)
+        # Verify content
+        saved_profiles = pd.read_csv(output_path)
+        self.assertEqual(len(saved_profiles), len(profiles))
+        
+        with open(log_path, 'r') as f:
+            saved_logs = json.load(f)
+        self.assertEqual(len(saved_logs), len(drop_logs))
+
+    def test_out_of_bounds_proportions(self):
+        """Test handling of out-of-bounds proportion values."""
+        # Create data with invalid proportions
+        test_data = self.test_data.copy()
+        test_data['forest_prop_100m'][0] = 1.5  # > 1
+        
+        df = pd.DataFrame(test_data)
+        test_input = os.path.join(self.temp_dir, 'merged_oob.csv')
+        df.to_csv(test_input, index=False)
+        
+        loaded_df = load_merged_observations(test_input)
+        parsed_df = parse_land_cover_proportions(loaded_df)
+        
+        profiles, drop_logs = aggregate_species_profiles(parsed_df, min_obs=2)
+        
+        # Check for out_of_bounds in drop logs
+        oob_drops = [log for log in drop_logs if log.get('reason_code') == 'out_of_bounds']
+        self.assertGreater(len(oob_drops), 0)
 
 if __name__ == '__main__':
     unittest.main()

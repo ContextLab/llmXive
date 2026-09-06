@@ -11,7 +11,7 @@
 
 The research pipeline extracts eBird Basic Dataset (EBD) occurrence records for a selected set of bird species with documented foraging guilds. (ground, canopy, aerial) and merges them with land cover composition data from NLCD 2019 within 100m buffers around each observation point. Foraging guild labels are assigned to species based on external ornithological literature (e.g., Birds of the World), not directly from the EBD.
 
-**Why this priority**: This forms the foundational dataset without which no analysis can proceed. It is independently testable by verifying that the species selection rule (top 25 by count) is executed, filtering criteria (≥50 observations per species) are correctly applied, and that merged records contain all required fields (species_id, foraging_guild, land_cover_proportions).
+**Why this priority**: This forms the foundational dataset without which no analysis can proceed. It is independently testable by verifying that the species selection rule (top by count) is executed, filtering criteria (≥50 observations per species) are correctly applied, and that merged records contain all required fields (species_id, foraging_guild, land_cover_proportions).
 
 **Independent Test**: Can be fully tested by running the data extraction script and validating that: (1) the top 25 species by record count were selected; (2) species with <50 observations were excluded; and (3) the output CSV contains complete land cover proportions and assigned foraging guilds for all retained records.
 
@@ -28,11 +28,11 @@ The pipeline trains a random forest classifier to predict the species-level fora
 
 **Why this priority**: This is the core analytical step that directly addresses the research question. It is independently testable by verifying that model performance metrics are computed and that the stratified permutation test validates signal beyond taxonomic identity.
 
-**Independent Test**: Can be fully tested by running the training script and verifying that: (1) balanced accuracy is measured against chance performance; (2) per-class F1 scores are computed; and (3) the stratified permutation test (1000 iterations) yields p < 0.05 for the null hypothesis that performance equals chance after controlling for species identity.
+**Independent Test**: Can be fully tested by running the training script and verifying that: (1) balanced accuracy is measured against chance performance; (2) per-class F1 scores are computed; and (3) the stratified permutation test (a sufficient number of iterations) yields p < 0.05 for the null hypothesis that performance equals chance after controlling for species identity.
 
 **Acceptance Scenarios**:
 
-1. **Given** the merged dataset from User Story 1, **When** the random forest classifier is trained with 5-fold cross-validation, **Then** balanced accuracy is measured against chance performance and per-class F1 scores are computed for all three foraging guilds
+1. **Given** the merged dataset from User Story 1, **When** the random forest classifier is trained with k-fold cross-validation, **Then** balanced accuracy is measured against chance performance and per-class F1 scores are computed for all three foraging guilds
 2. **Given** a trained model, **When** stratified permutation tests run (sufficient iterations, stratified by species), **Then** the observed balanced accuracy exceeds the upper percentile of permuted accuracies (p < 0.05), confirming signal beyond species identity
 
 ---

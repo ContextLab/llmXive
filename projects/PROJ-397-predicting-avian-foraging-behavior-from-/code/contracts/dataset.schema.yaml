@@ -1,42 +1,71 @@
-# Dataset Schema Definition
-# Defines the expected structure for processed datasets
-
-merged_observations:
-  type: object
-  required:
-    - species_id
-    - foraging_guild
-    - land_cover_proportions
-  properties:
-    species_id:
-      type: string
-    foraging_guild:
-      type: string
-    land_cover_proportions:
-      type: object
-      additionalProperties:
-        type: number
-    observation_id:
-      type: string
-    lat:
-      type: number
-    lon:
-      type: number
-
-species_profiles:
-  type: object
-  required:
-    - species_id
-    - foraging_guild
-    - land_cover_profile
-  properties:
-    species_id:
-      type: string
-    foraging_guild:
-      type: string
-    land_cover_profile:
-      type: object
-      additionalProperties:
-        type: number
-    observation_count:
-      type: integer
+# Dataset Schema for Merged Observations
+# This schema defines the required structure for data/processed/merged_observations.csv
+# Generated for PROJ-397: Predicting Avian Foraging Behavior from eBird and NLCD
+name: merged_observations
+description: Merged eBird observations with NLCD land cover proportions and foraging guilds
+version: 1.0.0
+required_columns:
+  - species_id
+  - foraging_guild
+  - forest_prop_100m
+  - grassland_prop_100m
+  - wetland_prop_100m
+  - urban_prop_100m
+  - other_prop_100m
+column_definitions:
+  species_id:
+    type: string
+    description: Unique identifier for the bird species (e.g., 'melanoleuca')
+    nullable: false
+  foraging_guild:
+    type: string
+    description: Foraging guild classification (e.g., 'ground', 'canopy', 'water')
+    nullable: false
+    allowed_values:
+      - ground
+      - canopy
+      - water
+      - mixed
+      - aerial
+  forest_prop_100m:
+    type: float
+    description: Proportion of forest land cover within 100m buffer (0.0 to 1.0)
+    min: 0.0
+    max: 1.0
+    nullable: false
+  grassland_prop_100m:
+    type: float
+    description: Proportion of grassland land cover within 100m buffer (0.0 to 1.0)
+    min: 0.0
+    max: 1.0
+    nullable: false
+  wetland_prop_100m:
+    type: float
+    description: Proportion of wetland land cover within 100m buffer (0.0 to 1.0)
+    min: 0.0
+    max: 1.0
+    nullable: false
+  urban_prop_100m:
+    type: float
+    description: Proportion of urban land cover within 100m buffer (0.0 to 1.0)
+    min: 0.0
+    max: 1.0
+    nullable: false
+  other_prop_100m:
+    type: float
+    description: Proportion of other land cover within 100m buffer (0.0 to 1.0)
+    min: 0.0
+    max: 1.0
+    nullable: false
+constraints:
+  - description: Sum of all land cover proportions must be approximately 1.0
+    check: "abs(forest_prop_100m + grassland_prop_100m + wetland_prop_100m + urban_prop_100m + other_prop_100m - 1.0) < 0.01"
+  - description: Species ID must not be empty
+    check: "len(species_id) > 0"
+  - description: Foraging guild must be one of the allowed values
+    check: "foraging_guild in ['ground', 'canopy', 'water', 'mixed', 'aerial']"
+metadata:
+  source: eBird + NLCD 2019
+  processing_step: merge_and_buffer
+  projection: EPSG:3857 (Web Mercator)
+  buffer_radius_m: 100

@@ -1,11 +1,5 @@
 """
-Unit tests for the provenance module.
-
-Tests verify:
-1. SHA-256 hash computation for files and data
-2. Provenance record generation and saving
-3. Metadata file management
-4. Data integrity verification
+Unit tests for the utils/provenance.py module.
 """
 import os
 import sys
@@ -14,14 +8,17 @@ import tempfile
 import json
 from pathlib import Path
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add the project root to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from utils.provenance import (
     compute_file_hash,
     compute_data_hash,
     generate_provenance_record,
+    load_metadata_config,
+    save_metadata_config,
     save_provenance_record,
+    record_source_info,
     log_step,
     verify_data_integrity,
     load_provenance_records,
@@ -29,149 +26,156 @@ from utils.provenance import (
 )
 from utils.config import get_metadata_file
 
-
 class TestProvenance(unittest.TestCase):
-    """Test suite for provenance module functions."""
+    """Test cases for provenance functions."""
 
     def setUp(self):
         """Set up test fixtures."""
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.test_file = Path(self.temp_dir.name) / "test_file.txt"
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_file = Path(self.temp_dir) / "test.txt"
+        self.test_file.write_text("Hello, World!")
         
-        # Create a test file with known content
-        test_content = "This is test content for provenance verification."
-        self.test_file.write_text(test_content)
-        
-        # Expected hash for the test content
-        import hashlib
-        self.expected_hash = hashlib.sha256(test_content.encode('utf-8')).hexdigest()
+        # Backup original metadata file if it exists
+        self.metadata_path = get_metadata_file()
+        self.original_metadata = None
+        if self.metadata_path.exists():
+            self.original_metadata = self.metadata_path.read_text()
 
     def tearDown(self):
         """Clean up test fixtures."""
-        self.temp_dir.cleanup()
-
-    def test_compute_file_hash(self):
-        """Test SHA-256 hash computation for a file."""
-        actual_hash = compute_file_hash(self.test_file)
-        self.assertEqual(actual_hash, self.expected_hash)
-
-    def test_compute_file_hash_nonexistent(self):
-        """Test that FileNotFoundError is raised for non-existent file."""
-        nonexistent = Path(self.temp_dir.name) / "nonexistent.txt"
-        with self.assertRaises(FileNotFoundError):
-            compute_file_hash(nonexistent)
-
-    def test_compute_data_hash(self):
-        """Test hash computation for serializable data."""
-        test_data = {"key": "value", "number": 42}
-        hash1 = compute_data_hash(test_data)
-        hash2 = compute_data_hash(test_data)
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
         
-        # Same data should produce same hash
+        # Restore original metadata file
+        if self.original_metadata is not None:
+            self.metadata_path.write_text(self.original_metadata)
+        elif self.metadata_path.exists():
+            self.metadata_path.unlink()
+
+    def test_compute_file_hash_returns_string(self):
+        """Test that compute_file_hash returns a hexadecimal string."""
+        hash_value = compute_file_hash(self.test_file)
+        self.assertIsInstance(hash_value, str)
+        self.assertEqual(len(hash_value), 64)  # SHA-256 hex length
+
+    def test_compute_file_hash_deterministic(self):
+        """Test that compute_file_hash is deterministic."""
+        hash1 = compute_file_hash(self.test_file)
+        hash2 = compute_file_hash(self.test_file)
         self.assertEqual(hash1, hash2)
-        self.assertIsInstance(hash1, str)
-        self.assertEqual(len(hash1), 64)  # SHA-256 hex length
 
-    def test_generate_provenance_record(self):
-        """Test provenance record generation."""
+    def test_compute_data_hash_returns_string(self):
+        """Test that compute_data_hash returns a hexadecimal string."""
+        data = {"key": "value"}
+        hash_value = compute_data_hash(data)
+        self.assertIsInstance(hash_value, str)
+        self.assertEqual(len(hash_value), 64)
+
+    def test_compute_data_hash_deterministic(self):
+        """Test that compute_data_hash is deterministic."""
+        data = {"key": "value"}
+        hash1 = compute_data_hash(data)
+        hash2 = compute_data_hash(data)
+        self.assertEqual(hash1, hash2)
+
+    def test_generate_provenance_record_returns_dict(self):
+        """Test that generate_provenance_record returns a dictionary."""
         record = generate_provenance_record(
-            artifact_path=self.test_file,
-            source_url="https://example.com/data",
+            source_url="http://example.com",
             version="1.0",
-            artifact_type="test_data",
-            description="Test artifact"
+            extraction_date="2023-10-27"
         )
-        
-        self.assertEqual(record["artifact_path"], str(self.test_file))
-        self.assertEqual(record["file_hash"], self.expected_hash)
-        self.assertEqual(record["source_url"], "https://example.com/data")
-        self.assertEqual(record["version"], "1.0")
-        self.assertEqual(record["artifact_type"], "test_data")
-        self.assertIn("created_at", record)
-        self.assertIn("file_size_bytes", record)
+        self.assertIsInstance(record, dict)
+        self.assertIn("source_url", record)
+        self.assertIn("version", record)
+        self.assertIn("extraction_date", record)
+
+    def test_save_and_load_metadata_config(self):
+        """Test saving and loading metadata configuration."""
+        test_metadata = {"test_key": "test_value"}
+        save_metadata_config(test_metadata)
+        loaded_metadata = load_metadata_config()
+        self.assertEqual(loaded_metadata.get("test_key"), "test_value")
 
     def test_save_provenance_record(self):
-        """Test saving provenance record to metadata file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            temp_metadata = Path(f.name)
+        """Test saving a provenance record."""
+        record = generate_provenance_record(
+            source_url="http://example.com",
+            version="1.0",
+            extraction_date="2023-10-27"
+        )
+        save_provenance_record("test_source", record)
         
-        try:
-            record = generate_provenance_record(
-                artifact_path=self.test_file,
-                source_url="https://example.com/data",
-                artifact_type="external_data"
-            )
-            
-            save_provenance_record(record, temp_metadata)
-            
-            # Verify metadata file exists and contains the record
-            self.assertTrue(temp_metadata.exists())
-            
-            loaded = load_provenance_records(temp_metadata)
-            self.assertIn("external_sources", loaded)
-            self.assertEqual(len(loaded["external_sources"]), 1)
-            self.assertEqual(loaded["external_sources"][0]["source_url"], "https://example.com/data")
-        finally:
-            temp_metadata.unlink(missing_ok=True)
+        metadata = load_metadata_config()
+        self.assertIn("sources", metadata)
+        self.assertIn("test_source", metadata["sources"])
+        self.assertEqual(metadata["sources"]["test_source"]["source_url"], "http://example.com")
+
+    def test_record_source_info(self):
+        """Test recording source info with hash."""
+        record_source_info(
+            source_name="test_file",
+            source_url="http://example.com",
+            version="1.0",
+            file_path=self.test_file,
+            notes="Test note"
+        )
+        
+        metadata = load_metadata_config()
+        self.assertIn("sources", metadata)
+        self.assertIn("test_file", metadata["sources"])
+        self.assertIsNotNone(metadata["sources"]["test_file"]["hash"])
 
     def test_log_step(self):
-        """Test pipeline step logging."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            temp_metadata = Path(f.name)
+        """Test logging a pipeline step."""
+        log_step("test_step", "completed", "Test details")
         
-        try:
-            log_step("test_step", "completed", "Test message", temp_metadata)
-            
-            loaded = load_provenance_records(temp_metadata)
-            self.assertIn("pipeline_execution_log", loaded)
-            self.assertEqual(len(loaded["pipeline_execution_log"]), 1)
-            
-            entry = loaded["pipeline_execution_log"][0]
-            self.assertEqual(entry["step_name"], "test_step")
-            self.assertEqual(entry["status"], "completed")
-            self.assertEqual(entry["message"], "Test message")
-        finally:
-            temp_metadata.unlink(missing_ok=True)
+        metadata = load_metadata_config()
+        self.assertIn("execution_log", metadata)
+        self.assertEqual(len(metadata["execution_log"]), 1)
+        self.assertEqual(metadata["execution_log"][0]["step"], "test_step")
 
     def test_verify_data_integrity(self):
-        """Test data integrity verification."""
-        # Valid verification
-        is_valid = verify_data_integrity(self.test_file, self.expected_hash)
-        self.assertTrue(is_valid)
+        """Test verifying data integrity."""
+        # First, record the file
+        hash_value = compute_file_hash(self.test_file)
+        record_source_info(
+            source_name="verify_test",
+            source_url="http://example.com",
+            version="1.0",
+            file_path=self.test_file
+        )
         
-        # Invalid verification
-        is_invalid = verify_data_integrity(self.test_file, "wrong_hash")
-        self.assertFalse(is_invalid)
+        # Then verify
+        self.assertTrue(verify_data_integrity("verify_test", hash_value))
+        self.assertFalse(verify_data_integrity("verify_test", "wrong_hash"))
+
+    def test_load_provenance_records(self):
+        """Test loading all provenance records."""
+        record = generate_provenance_record(
+            source_url="http://example.com",
+            version="1.0",
+            extraction_date="2023-10-27"
+        )
+        save_provenance_record("recorded_source", record)
+        
+        records = load_provenance_records()
+        self.assertIn("recorded_source", records)
 
     def test_record_artifact_provenance(self):
-        """Test the convenience function for recording artifact provenance."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            temp_metadata = Path(f.name)
+        """Test recording artifact provenance."""
+        record_artifact_provenance(
+            artifact_name="test_artifact",
+            file_path=self.test_file,
+            source_url="http://example.com/script.py",
+            version="1.0",
+            notes="Generated by test"
+        )
         
-        try:
-            record = record_artifact_provenance(
-                artifact_path=self.test_file,
-                source_url="https://example.com/data",
-                artifact_type="test_artifact",
-                description="Test artifact",
-                metadata_file=temp_metadata
-            )
-            
-            self.assertEqual(record["file_hash"], self.expected_hash)
-            
-            # Verify it was saved
-            loaded = load_provenance_records(temp_metadata)
-            self.assertTrue(len(loaded["artifacts"]) > 0 or len(loaded.get("external_sources", [])) > 0)
-        finally:
-            temp_metadata.unlink(missing_ok=True)
-
-    def test_load_provenance_records_empty(self):
-        """Test loading from non-existent metadata file."""
-        records = load_provenance_records(Path("/nonexistent/path/metadata.yaml"))
-        self.assertEqual(records["artifacts"], [])
-        self.assertEqual(records["external_sources"], [])
-        self.assertEqual(records["pipeline_execution_log"], [])
-
+        metadata = load_metadata_config()
+        self.assertIn("sources", metadata)
+        self.assertIn("test_artifact", metadata["sources"])
 
 if __name__ == "__main__":
+    import shutil
     unittest.main()

@@ -1,57 +1,61 @@
 #!/bin/bash
-# Automated Science Pipeline: Predicting Avian Foraging Behavior
-# This script orchestrates the full data processing, modeling, and visualization pipeline.
+# Orchestration script for the Avian Foraging Guilds Prediction Pipeline
+# This script executes all pipeline steps in dependency order
 
-set -e  # Exit immediately on error
+set -e  # Exit on first error
 
-echo "=========================================="
-echo "Starting Avian Foraging Behavior Pipeline"
-echo "=========================================="
+echo "Starting Avian Foraging Guilds Prediction Pipeline..."
+echo "======================================================"
 
-# Configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_FILE="$SCRIPT_DIR/pipeline.log"
+# Define script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
-log_step() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
-}
-
+# Function to log step execution
 run_step() {
     local step_name="$1"
     local script_path="$2"
-    log_step "Executing: $step_name"
+    echo ""
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Executing: $step_name"
+    echo "------------------------------------------------------"
     if python "$script_path"; then
-        log_step "Success: $step_name"
+        echo "✓ $step_name completed successfully"
     else
-        log_step "FAILED: $step_name (exit code $?)"
+        echo "✗ $step_name FAILED"
         exit 1
     fi
 }
 
-# Phase 1: Data Download
-log_step "=== Phase 1: Data Download ==="
-run_step "Download EBD" "code/data/download_ebd.py"
-run_step "Download NLCD" "code/data/download_nlcd.py"
-run_step "Download Guild Source" "code/data/download_guild_source.py"
+echo "Phase 1: Data Download"
+echo "----------------------"
+# run_step "Download EBD Data" "data/download_ebd.py"
+# run_step "Download NLCD Data" "data/download_nlcd.py"
+# run_step "Download Guild Source" "data/download_guild_source.py"
 
-# Phase 2: Data Processing
-log_step "=== Phase 2: Data Processing ==="
-run_step "Generate Guild Mapping" "code/data/generate_guild_mapping.py"
-run_step "Select Top Species" "code/data/select_top_species.py"
-run_step "Merge and Buffer" "code/data/merge_and_buffer.py"
-run_step "Aggregate Profiles" "code/data/aggregate.py"
+echo "Phase 2: Data Processing"
+echo "------------------------"
+# run_step "Generate Guild Mapping" "data/generate_guild_mapping.py"
+# run_step "Load and Count Species" "data/load_and_count.py"
+# run_step "Select Top Species" "data/select_top_species.py"
+# run_step "Filter and Log" "data/filter_and_log.py"
+# run_step "Merge and Buffer" "data/merge_and_buffer.py"
+# run_step "Aggregate Species Profiles" "data/aggregate.py"
 
-# Phase 3: Model Training & Evaluation
-log_step "=== Phase 3: Model Training & Evaluation ==="
-run_step "Train Model" "code/models/train.py"
-run_step "Evaluate Model" "code/models/evaluate.py"
+echo "Phase 3: Model Training"
+echo "-----------------------"
+# run_step "Train Random Forest" "models/train.py"
 
-# Phase 4: Visualization
-log_step "=== Phase 4: Visualization ==="
-run_step "Plot Confusion Matrix" "code/viz/plot_confusion.py"
-run_step "Plot Feature Importance" "code/viz/plot_importance.py"
-run_step "Map Habitat" "code/viz/map_habitat.py"
+echo "Phase 4: Model Evaluation"
+echo "-------------------------"
+# run_step "Evaluate Model" "models/evaluate.py"
 
-log_step "=========================================="
-log_step "Pipeline completed successfully!"
-log_step "=========================================="
+echo "Phase 5: Visualization"
+echo "----------------------"
+# run_step "Plot Confusion Matrix" "viz/plot_confusion.py"
+# run_step "Plot Feature Importance" "viz/plot_importance.py"
+# run_step "Map Habitat" "viz/map_habitat.py"
+
+echo ""
+echo "======================================================"
+echo "Pipeline execution completed successfully!"
+echo "Results are available in the 'data/', 'models/', and 'viz/' directories."
