@@ -1,0 +1,10 @@
+transformers
+torch
+faiss-cpu
+pandas
+scikit-learn
+pytesseract
+pdf2image
+reportlab
+pytest
+pyyaml

@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data (generated)
+data/raw/*.pdf
+data/raw/*.json
+data/derived/*.json
+data/derived/*.csv
+
+# Logs
+logs/*.json
+logs/*.log
+
+# OS
+.DS_Store
+Thumbs.db

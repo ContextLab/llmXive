@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Report Schema"
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "VLM identifier."
+  context_size:
+    type: "integer"
+    description: "Context window size."
+  baseline_middle_accuracy:
+    type: "number"
+    description: "Accuracy in baseline condition for middle-third."
+  retrieval_middle_accuracy:
+    type: "number"
+    description: "Accuracy in retrieval condition for middle-third."
+  accuracy_delta:
+    type: "number"
+    description: "Recovery delta (retrieval - baseline)."
+  correlation_coefficient:
+    type: "number"
+    description: "Spearman r (computed across all models)."
+  p_value:
+    type: "number"
+    description: "Significance of the correlation (reported descriptively)."
+  relationship_classification:
+    type: "string"
+    enum:
+      - "inverse"
+      - "no significant"
+      - "positive"
+    description: "Classification of the relationship."
+  p95_retrieval_latency_ms:
+    type: "number"
+    description: "95th percentile retrieval latency in milliseconds."
+  sample_size_used:
+    type: "integer"
+    description: "Number of documents actually processed."
+  runtime_hours:
+    type: "number"
+    description: "Total runtime in hours."
+  feasibility_status:
+    type: "string"
+    enum:
+      - "within_limit"
+      - "exceeded_limit"
+    description: "Status of the 6-hour limit."
+  limitation_note:
+    type: "string"
+    description: "Note on statistical power if sample size < 200."
+required:
+  - model_name
+  - context_size
+  - baseline_middle_accuracy
+  - retrieval_middle_accuracy
+  - accuracy_delta
+  - correlation_coefficient
+  - p_value
+  - relationship_classification
+  - p95_retrieval_latency_ms
+  - sample_size_used
+  - runtime_hours
+  - feasibility_status
+additionalProperties: false

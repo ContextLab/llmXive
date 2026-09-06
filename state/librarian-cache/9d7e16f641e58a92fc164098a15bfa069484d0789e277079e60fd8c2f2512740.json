@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-31T21:31:01Z",
+  "fetched_at": "2026-09-06T20:10:00Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Context Visual Document U\"",
       "target_n": 5
     },
-    "duration_seconds": 45.576,
-    "ended_at": "2026-07-31T21:31:01Z",
+    "duration_seconds": 34.626,
+    "ended_at": "2026-09-06T20:10:00Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -23,75 +23,75 @@
         ],
         [
           3,
-          "controlled benchmarks for document-level multimodal reasoning"
+          "controlled benchmarks for visual document reasoning"
         ],
         [
           4,
-          "long-context visual question answering datasets"
+          "large language models long-context document comprehension"
         ],
         [
           5,
-          "scalable evaluation of vision-language models on documents"
+          "visual document understanding synthetic datasets"
         ],
         [
           6,
-          "synthetic data generation for long-document comprehension"
+          "long-context multimodal document evaluation"
         ],
         [
           7,
-          "visual document understanding with extended context windows"
+          "synthetic data generation for document QA benchmarks"
         ],
         [
           8,
-          "benchmarking multimodal models on complex document layouts"
+          "long-context visual reasoning in language models"
         ],
         [
           9,
-          "synthetic visual document datasets for large language models"
+          "document understanding benchmarks for generative AI"
         ],
         [
           10,
-          "evaluation metrics for long-context visual document processing"
+          "extended context visual document processing"
         ],
         [
           11,
-          "document-centric vision-language model benchmarks"
+          "synthetic visual document comprehension evaluation"
         ],
         [
           12,
-          "generating controlled visual document datasets for AI research"
+          "long-context multimodal benchmarking for LLMs"
         ],
         [
           13,
-          "long-range dependency modeling in visual document understanding"
+          "document layout analysis for long-context models"
         ],
         [
           14,
-          "multimodal reasoning on synthetic long-form documents"
+          "synthetic benchmark generation for visual language models"
         ],
         [
           15,
-          "challenges in evaluating LLMs on visual document tasks"
+          "long-form visual document understanding evaluation"
         ],
         [
           16,
-          "automated generation of visual document benchmarks"
+          "controlled evaluation of long-context document retrieval"
         ],
         [
           17,
-          "visual document parsing with large context windows"
+          "visual document understanding with synthetic ground truth"
         ],
         [
           18,
-          "synthetic benchmarks for document image understanding"
+          "long-context multimodal reasoning datasets"
         ],
         [
           19,
-          "extending visual language model capabilities to long documents"
+          "synthetic document corpus for LLM benchmarking"
         ],
         [
           20,
-          "controlled evaluation frameworks for multimodal document analysis"
+          "visual document understanding scalability benchmarks"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "synthetic document generation visual reasoning",
-      "SynthDocBench long-context document understanding",
-      "hallucination reduction synthetic data augmentation",
-      "document VQA benchmark visual layout analysis",
-      "data contamination synthetic training documents"
+      "synthetic document generation visual benchmark",
+      "SynthDocBench long-context OCR layout analysis",
+      "document understanding homophily visual reasoning",
+      "held-out evaluation long-context visual QA",
+      "training data leakage synthetic document contamination"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -124,12 +124,12 @@
       ]
     },
     "per_query_hit_count": {
-      "SynthDocBench long-context document understanding": 3,
-      "data contamination synthetic training documents": 2,
-      "document VQA benchmark visual layout analysis": 3,
-      "hallucination reduction synthetic data augmentation": 3,
+      "SynthDocBench long-context OCR layout analysis": 3,
+      "document understanding homophily visual reasoning": 3,
+      "held-out evaluation long-context visual QA": 2,
       "llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Context Visual Document U\" computer science": 3,
-      "synthetic document generation visual reasoning": 3
+      "synthetic document generation visual benchmark": 3,
+      "training data leakage synthetic document contamination": 2
     },
     "relevance_judge": {
       "enabled": true,
@@ -138,7 +138,7 @@
       "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-31T21:30:15Z",
+    "started_at": "2026-09-06T20:09:26Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"synthdocbench: controlled benchmark for long-context visual document u\" computer science",
       "raw": "llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Context Visual Document U\" computer science"
@@ -157,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-31T21:30:45Z",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -176,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-31T21:30:45Z",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -194,24 +194,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-31T21:30:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
-          "claimed_authors": [
-            "Dinithi Dissanayake",
-            "Suranga Nanayakkara"
-          ],
-          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16021"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
-        "failed_at": "2026-07-31T21:30:45Z",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -230,93 +213,28 @@
           "primary_pointer": "2307.00161"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='FFPDG: Fast, Fair and Private Data Generation')",
-        "failed_at": "2026-07-31T21:30:45Z",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Humans construct internal world models and reason by manipulating the concepts within these models. Recent advances in AI, particularly chain-of-thought (CoT) reasoning, approximate such human cognitive abilities, where world models are believed to be embedded within large language models. Expert-level performance in formal and abstract domains such as mathematics and programming has been achieved in current systems by relying predominantly on verbal reasoning. However, they still lag far behind humans in domains like physical and spatial intelligence, which require richer representations and prior knowledge. The emergence of unified multimodal models (UMMs) capable of both verbal and visual generation has therefore sparked interest in more human-like reasoning grounded in complementary multimodal pathways, though their benefits remain unclear. From a world-model perspective, this paper presents the first principled study of when and how visual generation benefits reasoning. Our key position is the visual superiority hypothesis: for certain tasks--particularly those grounded in the physical world--visual generation more naturally serves as world models, whereas purely verbal world models encounter bottlenecks arising from representational limitations or insufficient prior knowledge. Theoretically, we formalize internal world modeling as a core component of CoT reasoning and analyze distinctions among different forms of world models. Empirically, we identify tasks that necessitate interleaved visual-verbal CoT reasoning, constructing a new evaluation suite, VisWorld-Eval. Controlled experiments on a state-of-the-art UMM show that interleaved CoT significantly outperforms purely verbal CoT on tasks that favor visual world modeling, but offers no clear advantage otherwise. Together, this work clarifies the potential of multimodal world modeling for more powerful, human-like multimodal AI.",
+          "claimed_abstract": "Vision Language Models have achieved near-human performance on single-document Visual Question Answering, yet their effectiveness degrades significantly when retrieving information from large collections of visually homogeneous documents. Existing multi-document benchmarks aggregate diverse document types, creating artificial separation in embedding space that does not reflect enterprise document repositories where thousands of records share identical visual templates. We identify this as embedding collapse and introduce Invoice Haystack, a benchmark with 1,500 anonymized invoice images paired with 200 discriminative question-answer pairs, specifically designed to stress-test retrieval under strong visual homogeneity. Invoice Haystack exhibits a mean pairwise cosine similarity of 0.73, compared to 0.38 (DocHaystack) and 0.31 (InfoHaystack) in existing benchmarks, posing a fundamentally more challenging retrieval problem. Addressing the identified challenge, we propose VL-RAG, a hybrid retrieval-augmented generation framework that jointly leverages text and visual embeddings to harness the complementary strengths of both modalities, followed by a VLM-based verification filter for precise document identification. VL-RAG achieves 60.0\\% Recall@1 on Invoice Haystack-500, outperforming existing state-of-the-art method by up to an absolute 13.5 percentage points. It further improves retrieval considerably on DocHaystack-1000 (77.1\\% vs.\\ 75.2\\%) and InfoHaystack-1000 (84.5\\% vs.\\ 80.0\\%), establishing the proposed dual-stream fusion as a consistently superior retrieval strategy across both homogeneous and heterogeneous document collections.",
           "claimed_authors": [
-            "Jialong Wu",
-            "Xiaoying Zhang",
-            "Hongyi Yuan",
-            "Xiangcheng Zhang",
-            "Tianhao Huang",
-            "Changjing He",
-            "Chaoyi Deng",
-            "Renrui Zhang",
-            "Youbin Wu",
-            "Mingsheng Long"
+            "Heethanjan Kanagalingam",
+            "Thenukan Pathmanathan",
+            "Mokeeshan Vathanakumar",
+            "Basim Azam",
+            "Sarah Monazam Erfani",
+            "Naveed Akhtar"
           ],
-          "claimed_title": "Visual Generation Unlocks Human-Like Reasoning through Multimodal World Models",
+          "claimed_title": "Invoice Haystack: Benchmarking Document Retrieval and Visual Question Answering Under Strong Visual Homogeneity",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2601.19834"
+          "primary_pointer": "2606.25343"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Visual Generation Unlocks Human-Like Reasoning through Multimodal World Models')",
-        "failed_at": "2026-07-31T21:30:45Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Since their release, Transformers have revolutionized many fields from Natural Language Understanding to Computer Vision. Document Understanding (DU) was not left behind with first Transformer based models for DU dating from late 2019. However, the computational complexity of the self-attention operation limits their capabilities to small sequences. In this paper we explore multiple strategies to apply Transformer based models to long multi-page documents. We introduce 2 new multi-modal (text + layout) long-range models for DU. They are based on efficient implementations of Transformers for long sequences. Long-range models can process whole documents at once effectively and are less impaired by the document's length. We compare them to LayoutLM, a classical Transformer adapted for DU and pre-trained on millions of documents. We further propose 2D relative attention bias to guide self-attention towards relevant tokens without harming model efficiency. We observe improvements on multi-page business documents on Information Retrieval for a small performance cost on smaller sequences. Relative 2D attention revealed to be effective on dense text for both normal and long-range models.",
-          "claimed_authors": [
-            "Thibault Douzon",
-            "Stefan Duffner",
-            "Christophe Garcia",
-            "Jérémy Espinas"
-          ],
-          "claimed_title": "Long-Range Transformer Architectures for Document Understanding",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.05503"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Long-Range Transformer Architectures for Document Understanding')",
-        "failed_at": "2026-07-31T21:30:46Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Transformer-based Language Models are widely used in Natural Language Processing related tasks. Thanks to their pre-training, they have been successfully adapted to Information Extraction in business documents. However, most pre-training tasks proposed in the literature for business documents are too generic and not sufficient to learn more complex structures. In this paper, we use LayoutLM, a language model pre-trained on a collection of business documents, and introduce two new pre-training tasks that further improve its capacity to extract relevant information. The first is aimed at better understanding the complex layout of documents, and the second focuses on numeric values and their order of magnitude. These tasks force the model to learn better-contextualized representations of the scanned documents. We further introduce a new post-processing algorithm to decode BIESO tags in Information Extraction that performs better with complex entities. Our method significantly improves extraction performance on both public (from 93.88 to 95.50 F1 score) and private (from 84.35 to 84.84 F1 score) datasets composed of expense receipts, invoices, and purchase orders.",
-          "claimed_authors": [
-            "Thibault Douzon",
-            "Stefan Duffner",
-            "Christophe Garcia",
-            "Jérémy Espinas"
-          ],
-          "claimed_title": "Improving Information Extraction on Business Documents with Specific Pre-Training Tasks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.05429"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Improving Information Extraction on Business Documents with Specific Pre-Training Tasks')",
-        "failed_at": "2026-07-31T21:30:46Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Remote sensing vision tasks require extensive labeled data across multiple, interconnected domains. However, current generative data augmentation frameworks are task-isolated, i.e., each vision task requires training an independent generative model, and ignores the modeling of geographical information and spatial constraints. To address these issues, we propose \\textbf{TerraGen}, a unified layout-to-image generation framework that enables flexible, spatially controllable synthesis of remote sensing imagery for various high-level vision tasks, e.g., detection, segmentation, and extraction. Specifically, TerraGen introduces a geographic-spatial layout encoder that unifies bounding box and segmentation mask inputs, combined with a multi-scale injection scheme and mask-weighted loss to explicitly encode spatial constraints, from global structures to fine details. Also, we construct the first large-scale multi-task remote sensing layout generation dataset containing 45k images and establish a standardized evaluation protocol for this task. Experimental results show that our TerraGen can achieve the best generation image quality across diverse tasks. Additionally, TerraGen can be used as a universal data-augmentation generator, enhancing downstream task performance significantly and demonstrating robust cross-task generalisation in both full-data and few-shot scenarios.",
-          "claimed_authors": [
-            "Datao Tang",
-            "Hao Wang",
-            "Yudeng Xin",
-            "Hui Qiao",
-            "Dongsheng Jiang",
-            "Yin Li",
-            "Zhiheng Yu",
-            "Xiangyong Cao"
-          ],
-          "claimed_title": "TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.21391"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation')",
-        "failed_at": "2026-07-31T21:30:46Z",
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Invoice Haystack: Benchmarking Document Retrieval and Visual Question Answering Under Strong Visual Homogeneity')",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -338,91 +256,150 @@
           "primary_pointer": "2311.17453"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
-        "failed_at": "2026-07-31T21:30:46Z",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The standard approach to tackling computer vision problems is to train deep convolutional neural network (CNN) models using large-scale image datasets which are representative of the target task. However, in many scenarios, it is often challenging to obtain sufficient image data for the target task. Data augmentation is a way to mitigate this challenge. A common practice is to explicitly transform existing images in desired ways so as to create the required volume and variability of training data necessary to achieve good generalization performance. In situations where data for the target domain is not accessible, a viable workaround is to synthesize training data from scratch--i.e., synthetic data augmentation. This paper presents an extensive review of synthetic data augmentation techniques. It covers data synthesis approaches based on realistic 3D graphics modeling, neural style transfer (NST), differential neural rendering, and generative artificial intelligence (AI) techniques such as generative adversarial networks (GANs) and variational autoencoders (VAEs). For each of these classes of methods, we focus on the important data generation and augmentation techniques, general scope of application and specific use-cases, as well as existing limitations and possible workarounds. Additionally, we provide a summary of common synthetic datasets for training computer vision models, highlighting the main features, application domains and supported tasks. Finally, we discuss the effectiveness of synthetic data augmentation methods. Since this is the first paper to explore synthetic data augmentation methods in great detail, we are hoping to equip readers with the necessary background information and in-depth knowledge of existing methods and their attendant issues.",
+          "claimed_abstract": "Reasoning over long sequences of observations and actions is essential for many robotic tasks. Yet, learning effective long-context policies from demonstrations remains challenging. As context length increases, training becomes increasingly expensive due to rising memory demands, and policy performance often degrades as a result of spurious correlations. Recent methods typically sidestep these issues by truncating context length, discarding historical information that may be critical for subsequent decisions. In this paper, we propose an alternative approach that explicitly regularizes the retention of past information. We first revisit the copycat problem in imitation learning and identify an opposite challenge in recent diffusion policies: rather than over-relying on prior actions, they often fail to capture essential dependencies between past and future actions. To address this, we introduce Past-Token Prediction (PTP), an auxiliary task in which the policy learns to predict past action tokens alongside future ones. This regularization significantly improves temporal modeling in the policy head, with minimal reliance on visual representations. Building on this observation, we further introduce a multistage training strategy: pre-train the visual encoder with short contexts, and fine-tune the policy head using cached long-context embeddings. This strategy preserves the benefits of PTP while greatly reducing memory and computational overhead. Finally, we extend PTP into a self-verification mechanism at test time, enabling the policy to score and select candidates consistent with past actions during inference. Experiments across four real-world and six simulated tasks demonstrate that our proposed method improves the performance of long-context diffusion policies by 3x and accelerates policy training by more than 10x.",
           "claimed_authors": [
-            "Alhassan Mumuni",
-            "Fuseini Mumuni",
-            "Nana Kobina Gerrar"
+            "Marcel Torne",
+            "Andy Tang",
+            "Yuejiang Liu",
+            "Chelsea Finn"
           ],
-          "claimed_title": "A survey of synthetic data augmentation methods in computer vision",
+          "claimed_title": "Learning Long-Context Diffusion Policies via Past-Token Prediction",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.10075"
+          "claimed_year": 2025,
+          "primary_pointer": "2505.09561"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='A survey of synthetic data augmentation methods in computer vision')",
-        "failed_at": "2026-07-31T21:30:46Z",
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Learning Long-Context Diffusion Policies via Past-Token Prediction')",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Every day, thousands of digital documents are generated with useful information for companies, public organizations, and citizens. Given the impossibility of processing them manually, the automatic processing of these documents is becoming increasingly necessary in certain sectors. However, this task remains challenging, since in most cases a text-only based parsing is not enough to fully understand the information presented through different components of varying significance. In this regard, Document Layout Analysis (DLA) has been an interesting research field for many years, which aims to detect and classify the basic components of a document. In this work, we used a procedure to semi-automatically annotate digital documents with different layout labels, including 4 basic layout blocks and 4 text categories. We apply this procedure to collect a novel database for DLA in the public affairs domain, using a set of 24 data sources from the Spanish Administration. The database comprises 37.9K documents with more than 441K document pages, and more than 8M labels associated to 8 layout block units. The results of our experiments validate the proposed text labeling procedure with accuracy up to 99%.",
+          "claimed_abstract": "End-to-end OCR systems based on vision-language models have achieved strong performance in complex document OCR, but their efficiency is limited by the large number of visual tokens produced from document images. Many of these tokens correspond to blank margins or visually redundant regions, yet directly applying generic visual token compression methods may remove OCR-critical fine-grained details. In this paper, we propose LayoutLite, a lightweight plug-and-play module for efficient document OCR. Instead of relying on explicit document layout detection, LayoutLite performs implicit layout analysis at the token level between the vision encoder and the language decoder. It aggregates multi-layer visual representations from the vision encoder, and predicts an importance score for each visual token with a lightweight scoring network. Low-information tokens are then removed before entering the language decoder while preserving the original spatial positional information of retained tokens. To train LayoutLite without human annotations, we cast token selection as a reinforcement learning problem and optimize it with a group-relative policy optimization objective driven by OCR output consistency, together with an auxiliary layout supervision signal to stabilize training. Experiments on OmniDocBench demonstrate that LayoutLite can substantially reduce visual token length and inference cost with negligible degradation in recognition quality. We further evaluate LayoutLite on two OCR-specialized VLMs, FireRed-OCR and Logics-Parsing-V2. Under up to 50% token compression, LayoutLite preserves almost the same score on both models while reducing prefill latency, FLOPs, and KV cache memory by over 40%, with only a small additional inference overhead. These results show that token-level implicit layout analysis is an effective and practical approach for accelerating VLM-based OCR systems.",
           "claimed_authors": [
-            "Alejandro Peña",
-            "Aythami Morales",
-            "Julian Fierrez",
-            "Javier Ortega-Garcia",
-            "Marcos Grande",
-            "Iñigo Puente",
-            "Jorge Cordova",
-            "Gonzalo Cordova"
+            "Xudong Liu",
+            "Bicheng Wan",
+            "Yulin Jin"
           ],
-          "claimed_title": "Document Layout Annotation: Database and Benchmark in the Domain of Public Affairs",
+          "claimed_title": "LayoutLite: Token-Level Implicit Layout Analysis for Efficient Document OCR",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.22200"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='LayoutLite: Token-Level Implicit Layout Analysis for Efficient Document OCR')",
+        "failed_at": "2026-09-06T20:09:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-09-06T20:09:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Since their release, Transformers have revolutionized many fields from Natural Language Understanding to Computer Vision. Document Understanding (DU) was not left behind with first Transformer based models for DU dating from late 2019. However, the computational complexity of the self-attention operation limits their capabilities to small sequences. In this paper we explore multiple strategies to apply Transformer based models to long multi-page documents. We introduce 2 new multi-modal (text + layout) long-range models for DU. They are based on efficient implementations of Transformers for long sequences. Long-range models can process whole documents at once effectively and are less impaired by the document's length. We compare them to LayoutLM, a classical Transformer adapted for DU and pre-trained on millions of documents. We further propose 2D relative attention bias to guide self-attention towards relevant tokens without harming model efficiency. We observe improvements on multi-page business documents on Information Retrieval for a small performance cost on smaller sequences. Relative 2D attention revealed to be effective on dense text for both normal and long-range models.",
+          "claimed_authors": [
+            "Thibault Douzon",
+            "Stefan Duffner",
+            "Christophe Garcia",
+            "Jérémy Espinas"
+          ],
+          "claimed_title": "Long-Range Transformer Architectures for Document Understanding",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2306.10046"
+          "primary_pointer": "2309.05503"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Document Layout Annotation: Database and Benchmark in the Domain of Public Affairs')",
-        "failed_at": "2026-07-31T21:30:46Z",
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Long-Range Transformer Architectures for Document Understanding')",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Existing Visual Question Answering (VQA) methods tend to exploit dataset biases and spurious statistical correlations, instead of producing right answers for the right reasons. To address this issue, recent bias mitigation methods for VQA propose to incorporate visual cues (e.g., human attention maps) to better ground the VQA models, showcasing impressive gains. However, we show that the performance improvements are not a result of improved visual grounding, but a regularization effect which prevents over-fitting to linguistic priors. For instance, we find that it is not actually necessary to provide proper, human-based cues; random, insensible cues also result in similar improvements. Based on this observation, we propose a simpler regularization scheme that does not require any external annotations and yet achieves near state-of-the-art performance on VQA-CPv2.",
+          "claimed_abstract": "Recent advances in Multimodal Large Language Models (MLLMs) have significantly improved performance on tasks such as visual grounding and visual question answering. However, the reasoning processes of these models remain largely opaque; they typically output only final predictions without revealing the intermediate steps or fine-grained evidence (e.g., pixels, locations) that lead to the result. This contrasts with human intelligence, which naturally operates through a chain of visual reasoning. To address this limitation, we introduce the Visual Reasoning Tracer (VRT) task, which requires models to not only localize the target object but also explicitly predict the intermediate objects that form the reasoning path. To advance research in this area, we contribute: (1) VRT-Bench, a human-annotated benchmark for evaluating visual reasoning; (2) a new metric for assessing the quality of reasoning traces; and (3) VRT-80k, a large-scale dataset for reasoning model training. Our experiments reveal that while existing models often produce the correct final output, they struggle to ground their intermediate reasoning. In contrast, models trained on VRT-80k achieve substantial improvements in tracing the reasoning path.",
           "claimed_authors": [
-            "Robik Shrestha",
-            "Kushal Kafle",
-            "Christopher Kanan"
+            "Haobo Yuan",
+            "Yueyi Sun",
+            "Yanwei Li",
+            "Tao Zhang",
+            "Xueqing Deng",
+            "Henghui Ding",
+            "Lu Qi",
+            "Anran Wang",
+            "Xiangtai Li",
+            "Ming-Hsuan Yang"
           ],
-          "claimed_title": "Visual Grounding Methods for VQA are Working for the Wrong Reasons!",
+          "claimed_title": "Visual Reasoning Tracer: Object-Level Grounded Reasoning Benchmark",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2004.05704"
+          "claimed_year": 2025,
+          "primary_pointer": "2512.05091"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Visual Grounding Methods for VQA are Working for the Wrong Reasons!')",
-        "failed_at": "2026-07-31T21:30:46Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Visual Reasoning Tracer: Object-Level Grounded Reasoning Benchmark')",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present document domain randomization (DDR), the first successful transfer of convolutional neural networks (CNNs) trained only on graphically rendered pseudo-paper pages to real-world document segmentation. DDR renders pseudo-document pages by modeling randomized textual and non-textual contents of interest, with user-defined layout and font styles to support joint learning of fine-grained classes. We demonstrate competitive results using our DDR approach to extract nine document classes from the benchmark CS-150 and papers published in two domains, namely annual meetings of Association for Computational Linguistics (ACL) and IEEE Visualization (VIS). We compare DDR to conditions of style mismatch, fewer or more noisy samples that are more easily obtained in the real world. We show that high-fidelity semantic information is not necessary to label semantic classes but style mismatch between train and test can lower model accuracy. Using smaller training samples had a slightly detrimental effect. Finally, network models still achieved high test accuracy when correct labels are diluted towards confusing labels; this behavior hold across several classes.",
+          "claimed_abstract": "Long context is an important topic in Natural Language Processing (NLP), running through the development of NLP architectures, and offers immense opportunities for Large Language Models (LLMs), giving LLMs the lifelong learning potential akin to humans. Unfortunately, the pursuit of a long context is accompanied by numerous obstacles. Nevertheless, long context remains a core competitive advantage for LLMs. In the past two years, the context length of LLMs has achieved a breakthrough extension to millions of tokens. Moreover, research on long-context LLMs has expanded beyond length extrapolation to a comprehensive focus on architecture, infrastructure, training, and evaluation technologies.\n  Inspired by the symphonic poem, Thus Spake Zarathustra, we draw an analogy between the journey of extending the context of LLM and the attempts of humans to transcend their mortality. In this survey, we will illustrate how LLM struggles between the tremendous need for a longer context and its equal need to accept the fact that it is ultimately finite. To achieve this, we give a global picture of the lifecycle of long-context LLMs from four perspectives: architecture, infrastructure, training, and evaluation, showcasing the full spectrum of long-context technologies. At the end of this survey, we will present 10 unanswered questions currently faced by long-context LLMs. We hope this survey can serve as a systematic introduction to research on long-context LLMs.\n  Video: https://www.bilibili.com/video/BV11h9AYoEYj.\n  Github: https://github.com/OpenMOSS/Thus-Spake-Long-Context-LLM.",
           "claimed_authors": [
-            "Meng Ling",
-            "Jian Chen",
-            "Torsten Möller",
-            "Petra Isenberg",
-            "Tobias Isenberg",
-            "Michael Sedlmair",
-            "Robert S. Laramee",
-            "Han-Wei Shen",
-            "Jian Wu",
-            "C. Lee Giles"
+            "Xiaoran Liu",
+            "Ruixiao Li",
+            "Mianqiu Huang",
+            "Zhigeng Liu",
+            "Yuerong Song",
+            "Qipeng Guo",
+            "Siyang He",
+            "Qiqi Wang",
+            "Linlin Li",
+            "Qun Liu",
+            "Ziwei He",
+            "Yaqian Zhou",
+            "Xuanjing Huang",
+            "Xipeng Qiu"
           ],
-          "claimed_title": "Document Domain Randomization for Deep Learning Document Layout Extraction",
+          "claimed_title": "Thus Spake Long-Context Large Language Model",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2105.14931"
+          "claimed_year": 2025,
+          "primary_pointer": "2502.17129"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Document Domain Randomization for Deep Learning Document Layout Extraction')",
-        "failed_at": "2026-07-31T21:30:46Z",
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Thus Spake Long-Context Large Language Model')",
+        "failed_at": "2026-09-06T20:09:53Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Identifying which string produces a given pitch in monophonic electric guitar audio is a classification challenge: a single pitch can often be produced on multiple strings, with timbral differences largely imperceptible to untrained humans. We present Fretiq, a preliminary single-instrument, single-player browser-based string classification system using a 26-dimensional feature representation of frequency band energies, spectral statistics, and 13 Mel-Frequency Cepstral Coefficients. Across five seeds, a shuffled frame-level validation split yields 97.25 +/- 0.32 percent accuracy, with an ablation study identifying MFCCs as the primary accuracy driver (92.09 +/- 0.50 percent without MFCCs). We introduce Comparison Training, a data collection method recording same-pitch pairs on adjacent strings in deliberate alternation. An initial shuffled-split comparison found no net benefit but was confounded by non-comparable validation sets across conditions. A corrected matched evaluation, using an identical recording session held out from training and model selection, shows including comparison-session data improves accuracy by 25.78 +/- 1.46 percentage points; a size-matched control shows this is not explained by training-set size alone. A recording-session-held-out evaluation yields 86.53 +/- 1.23 percent accuracy, closely matching an independently collected free-play evaluation (87.8 percent), both well below the shuffled-split figure, showing shuffled validation substantially overestimates real generalization here. We describe the feature extraction pipeline in Python and TypeScript for training-inference parity and document two implementation failure modes. The system runs entirely in-browser with no specialized hardware required.",
+          "claimed_authors": [
+            "Aadi Garg"
+          ],
+          "claimed_title": "Fretiq: Browser-Native Electric Guitar String Classification via Engineered Spectral Features and Held-Out Free-Play Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.18303"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Fretiq: Browser-Native Electric Guitar String Classification via Engineered Spectral Features and Held-Out Free-Play Evaluation')",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -440,7 +417,7 @@
           "primary_pointer": "1907.02664"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-07-31T21:30:46Z",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       },
       {
@@ -457,7 +434,7 @@
           "primary_pointer": "2005.07866"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SynthDocBench: Controlled Benchmark for Long-Conte', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
-        "failed_at": "2026-07-31T21:30:46Z",
+        "failed_at": "2026-09-06T20:09:53Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -490,7 +467,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-31T21:30:45Z"
+          "verified_at": "2026-09-06T20:09:53Z"
         }
       },
       {
@@ -530,7 +507,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-31T21:30:51Z"
+          "verified_at": "2026-09-06T20:09:58Z"
         }
       },
       {
@@ -558,7 +535,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-31T21:30:51Z"
+          "verified_at": "2026-09-06T20:09:58Z"
         }
       },
       {
@@ -587,7 +564,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-31T21:30:51Z"
+          "verified_at": "2026-09-06T20:09:58Z"
         }
       },
       {
@@ -616,7 +593,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-31T21:30:52Z"
+          "verified_at": "2026-09-06T20:09:59Z"
         }
       }
     ]

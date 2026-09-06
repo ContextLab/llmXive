@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SynthDocBench Dataset Schema"
+type: "object"
+properties:
+  doc_id:
+    type: "string"
+    description: "Unique document identifier."
+  page_number:
+    type: "integer"
+    description: "Page index within the document (1-based)."
+  page_image:
+    type: "string"
+    description: "Base64 encoded raw image bytes of the page."
+  question:
+    type: "string"
+    description: "The query question."
+  answer:
+    type: "string"
+    description: "Ground-truth answer."
+  doc_length:
+    type: "integer"
+    description: "Total number of pages in the document."
+  question_position:
+    type: "string"
+    enum:
+      - "first"
+      - "middle"
+      - "last"
+    description: "Categorical position of the question in the document."
+required:
+  - doc_id
+  - page_number
+  - page_image
+  - question
+  - answer
+  - doc_length
+  - question_position
+additionalProperties: false
