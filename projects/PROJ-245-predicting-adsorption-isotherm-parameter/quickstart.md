@@ -1,48 +1,87 @@
-# Quickstart Guide
+# Quickstart Guide: Predicting Adsorption Isotherm Parameters
 
 ## Prerequisites
-- Python 3.11+
-- pip
 
-## Installation
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+Ensure you have Python 3.8+ and pip installed. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Data Preparation
-1. Run the download script to fetch real data (T043a):
- ```bash
- python code/data/download.py --url <NIST_URL> --output-dir data/raw
- ```
- *Note: Replace <NIST_URL> with the actual NIST data URL.*
 
-2. Run the preprocessing pipeline (T015, T016):
- ```bash
- python code/data/preprocess.py --data-dir data/raw --target langmuir_capacity
- ```
- This will generate `data/processed/outliers.csv` and the cleaned dataset.
+1. **Download Data**: The pipeline fetches real data from the NASA/NIST dataset.
+2. **Merge & Preprocess**: Automatically handled by the main orchestrator.
 
-## Model Training
-1. Run the training pipeline (T020-T022):
- ```bash
- python code/main.py --data-dir data/processed --task train_model --target langmuir_capacity
- ```
+## Running the Pipeline
 
-## Evaluation & SHAP
-1. Run evaluation and SHAP analysis:
- ```bash
- python code/main.py --data-dir data/processed --task shap_analysis
- ```
+The `code/main.py` script orchestrates the full pipeline. It initializes the runtime logger, executes the requested task, and persists the `data/benchmarks/runtime_log.json` file upon completion or failure.
 
-## Validation
-1. Validate the quickstart run:
- ```bash
- python code/scripts/validate_quickstart.py
- ```
+### Full Curation (US1)
 
-## Notes
-- Ensure `data/raw` contains the downloaded CSV before running preprocess.
-- The outlier detection (T016) runs automatically during preprocessing.
-- All data must be real; synthetic data is strictly prohibited.
+```bash
+python code/main.py --task curate_data
+```
+
+This runs:
+1. Download (T060)
+2. Merge (T061)
+3. Preprocess (T015a-1, T015b)
+4. Fitting (T014c)
+5. Audit (T045)
+
+### Training & Evaluation (US2)
+
+```bash
+python code/main.py --task train_model
+```
+
+This runs:
+1. Preprocess
+2. Fitting
+3. Audit
+4. Training (T020, T021)
+5. Null Model (T065)
+6. Null Comparison (T024)
+7. Evaluation (T023)
+
+### SHAP Analysis (US3)
+
+```bash
+python code/main.py --task shap_analysis
+```
+
+This runs:
+1. Training
+2. Evaluation
+3. SHAP Analysis (T030)
+4. Report Generation (T071)
+
+### Benchmark Mode
+
+```bash
+python code/main.py --task benchmark
+```
+
+Runs the full benchmark pipeline with profiling.
+
+## Output Artifacts
+
+Upon successful completion, the following files will be generated:
+
+- `data/benchmarks/runtime_log.json`: Runtime metrics and stage logs (T055).
+- `data/raw/merged_dataset.parquet`: Merged raw data.
+- `data/processed/imputed_dataset.parquet`: Cleaned and imputed data.
+- `data/results/shap_summary.json`: SHAP feature importance.
+- `data/results/consensus_narrative_report.md`: Divergence analysis report.
+- `data/validation/exclusion_log.json`: Logs of excluded entries.
+
+## Verification
+
+To verify the runtime log was written:
+
+```bash
+cat data/benchmarks/runtime_log.json
+```
+
+Ensure `status` is "completed" and `duration_seconds` is populated.

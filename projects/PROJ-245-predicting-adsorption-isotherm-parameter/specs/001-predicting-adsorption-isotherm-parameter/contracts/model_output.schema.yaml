@@ -1,110 +1,62 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ModelOutputSchema
-description: Schema for the model performance metrics and SHAP analysis results.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Output Schema"
+description: "Schema for the JSON output containing model metrics and null model comparison."
 type: object
 properties:
-  model_performance:
+  best_model:
     type: object
     properties:
-      best_model:
+      model_type:
         type: string
-        description: "Name of the best performing model (e.g., 'RandomForest')"
-      metrics:
-        type: object
-        properties:
-          r2:
-            type: number
-            description: "R-squared value on the test set"
-          rmse:
-            type: number
-            description: "Root Mean Squared Error"
-          mae:
-            type: number
-            description: "Mean Absolute Error"
-          cv_r2_mean:
-            type: number
-            description: "Mean R-squared from 5-fold cross-validation"
-          cv_r2_std:
-            type: number
-            description: "Standard deviation of CV R-squared"
-        required:
-          - r2
-          - rmse
-          - mae
-          - cv_r2_mean
-          - cv_r2_std
-      reduced_model_r2:
+        enum: ["Linear Regression", "Random Forest", "Gradient Boosting"]
+      r2:
         type: number
-        description: "R-squared of the model trained ONLY on the top 3 features (SC-003)"
-      material_only_baseline_rmse:
+        description: "R-squared score on the test set."
+      rmse:
         type: number
-        description: "RMSE of the material-only baseline (predicting mean per material)"
-      improvement_over_material_only:
+        description: "Root Mean Squared Error."
+      mae:
         type: number
-        description: "Percentage improvement over material-only baseline (target >= 20%)"
+        description: "Mean Absolute Error."
+      cv_r2_mean:
+        type: number
+        description: "Mean R-squared from cross-validation."
+      cv_r2_std:
+        type: number
+        description: "Standard deviation of R-squared from cross-validation."
     required:
-      - best_model
-      - metrics
-      - reduced_model_r2
-      - material_only_baseline_rmse
-      - improvement_over_material_only
-  feature_importance:
+      - model_type
+      - r2
+      - rmse
+      - mae
+  null_model:
     type: object
     properties:
-      top_5_features:
+      rmse_mean:
+        type: number
+        description: "Mean RMSE of the null model (predicting mean)."
+      fold_rmses:
         type: array
         items:
-          type: object
-          properties:
-            feature_name:
-              type: string
-              description: "Name of the feature"
-            mean_abs_shap:
-              type: number
-              description: "Mean absolute SHAP value"
-            p_value:
-              type: number
-              description: "Permutation-based p-value"
-            adjusted_p_value:
-              type: number
-              description: "FDR-adjusted p-value (q-value) using Benjamini-Hochberg"
-            is_significant:
-              type: boolean
-              description: "True if adjusted_p_value < 0.05"
-          required:
-            - feature_name
-            - mean_abs_shap
-            - p_value
-            - adjusted_p_value
-            - is_significant
-        description: "List of top 5 features with statistical significance"
-      literature_match:
-        type: object
-        properties:
-          consensus_list:
-            type: array
-            items:
-              type: string
-            description: "List of known dominant drivers from literature (a priori)"
-          top_3_matches:
-            type: array
-            items:
-              type: string
-            description: "Features from top 3 that match the consensus list"
-          match_count:
-            type: integer
-            description: "Number of matches"
-          is_valid_negative:
-            type: boolean
-            description: "True if mismatch occurred (valid negative result)"
-        required:
-          - consensus_list
-          - top_3_matches
-          - match_count
-          - is_valid_negative
+          type: number
+        description: "RMSE for each fold of the null model."
     required:
-      - top_5_features
-      - literature_match
+      - rmse_mean
+      - fold_rmses
+  comparison:
+    type: object
+    properties:
+      improvement_percent:
+        type: number
+        description: "Percentage improvement of best model over null model."
+      is_significant:
+        type: boolean
+        description: "True if improvement > 20% (per SC-001)."
+    required:
+      - improvement_percent
+      - is_significant
 required:
-  - model_performance
-  - feature_importance
+  - best_model
+  - null_model
+  - comparison
+additionalProperties: false

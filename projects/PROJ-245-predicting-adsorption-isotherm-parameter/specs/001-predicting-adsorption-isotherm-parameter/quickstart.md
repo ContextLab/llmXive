@@ -1,58 +1,68 @@
 # Quickstart: Predicting Adsorption Isotherm Parameters from Molecular Features
 
 ## Prerequisites
-
 *   Python 3.11+
-*   GitHub repository cloned locally
-*   Virtual environment created and activated (`python -m venv .venv; source .venv/bin/activate`)
+*   `pip`
+*   Access to the `data/` directory (or permission to run `code/data/fetch.py`).
 
 ## Installation
+1.  **Clone and Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-245-predicting-adsorption-isotherm-parameter/code
+    pip install -r requirements.txt
+    ```
 
+2.  **Verify Dependencies**:
+    ```bash
+    python -c "import rdkit; import shap; import sklearn; print('All dependencies OK')"
+    ```
+
+## Running the Pipeline
+
+### Step 1: Data Fetch & Curation
+*Note: The pipeline uses the verified `matsci/qmof` dataset.*
 ```bash
-pip install -r requirements.txt
+python code/data/fetch.py
+python code/data/preprocessing.py --target henry_constant
 ```
+*This generates `data/processed/target_filtered.parquet`.*
 
-## Data Download & Preparation
-
-The pipeline automatically downloads and preprocesses the NIST dataset:
-
+### Step 2: Descriptor Calculation & Imputation
 ```bash
-python src/main.py --data-dir data/raw --task curate_data
+python code/data/descriptors.py
+python code/data/imputation.py
 ```
+*Generates `data/processed/imputed_dataset.parquet` and `data/validation/exclusion_log.json`.*
+*Also generates `data/validation/missing_descriptors_report.json`.*
 
-This command will download the dataset, filter for Type I isotherms, calculate molecular descriptors using RDKit, fit Langmuir/Henry parameters, and output a cleaned CSV file to `data/processed`.
-
-## Model Training & Evaluation
-
-Train and evaluate machine learning models:
-
+### Step 3: Model Training & Evaluation
 ```bash
-python src/main.py --data-dir data/processed --task train_model --target langmuir_capacity
+python code/models/train.py --target henry_constant --models linear rf gb
+python code/models/null_model.py --target henry_constant
 ```
+*Generates `data/results/model_metrics.json`, `data/results/null_model_fold_rmses.json`, and `data/results/null_model_comparison.json`.*
 
-Replace `langmuir_capacity` with the desired target parameter (e.g., `henry_constant`). This command will perform 5-fold cross-validation, train a reduced model with top 3 features, and report performance metrics on a held-out test set.
-
-## SHAP Analysis & Interpretation
-
-Generate SHAP plots to identify key drivers of adsorption behavior:
-
+### Step 4: Interpretation & Reporting
 ```bash
-python src/main.py --data-dir data/processed --model trained_models/best_model.pkl --task shap_analysis
+python code/interpret/shap_analysis.py --model rf
+python code/interpret/permutation.py --cluster-by adsorbent_id
+python code/interpret/consensus.py
 ```
+*Generates `data/results/shap_summary.json`, `data/results/reduced_model_metrics.json`, `data/results/null_model_top3_rmses.json`, and the final report.*
 
-Replace `trained_models/best_model.pkl` with the path to your trained model file. This command will generate SHAP summary plots, partial dependence plots, and perform cluster-aware permutation testing.
+### Step 5: Runtime Logging
+The pipeline automatically generates `data/benchmarks/runtime_log.json` upon completion.
 
-## Output Files
-
-*   `data/processed/cleaned_dataset.csv`: Cleaned and preprocessed dataset
-*   `trained_models/best_model.pkl`: Trained machine learning model
-*   `data/benchmarks/runtime_log.json`: Runtime benchmark log (FR-009)
-*   `shap_plots/summary_plot.png`: SHAP summary plot
-*   `shap_plots/partial_dependence_plot.png`: Partial dependence plot
-*   `reports/feature_importance_report.json`: **Contains adjusted p-values (q-values)** for top features (SC-005)
+## Validation
+To verify the pipeline:
+1.  Check that `data/results/shap_summary.json` contains at least 3 features.
+2.  Verify `data/results/null_model_comparison.json` shows the trained model RMSE is lower than the null model.
+3.  Ensure `data/validation/exclusion_log.json` exists and lists any excluded rows.
+4.  Ensure `data/benchmarks/runtime_log.json` exists and contains `start_time`, `end_time`, and `status`.
+5.  Ensure `data/results/permutation_pvalues.json` exists and contains adjusted p-values.
 
 ## Troubleshooting
-
-*   **Missing dependencies**: Ensure all required packages are installed using `pip install -r requirements.txt`.
-*   **Data download errors**: Check your internet connection and verify the dataset URLs in the configuration file.
-*   **Memory issues**: The pipeline will automatically sample the data if memory limits are exceeded. No external GPU services are used.
+*   **"Dataset not found"**: The `fetch.py` script relies on the `matsci/qmof` dataset name. If this changes, update the `DATASET_NAMES` constant in `code/data/fetch.py`.
+*   **"Memory Error"**: Reduce the `SAMPLE_SIZE` in `code/data/fetch.py` or enable streaming.
+*   **"Type I Filter Failed"**: Check `data/processed/exclusion_log.json` for the column name issue. The fallback physics-based filter will be used if the column is missing.

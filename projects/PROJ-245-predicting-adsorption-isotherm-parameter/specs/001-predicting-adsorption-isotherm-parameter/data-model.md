@@ -1,88 +1,98 @@
 # Data Model: Predicting Adsorption Isotherm Parameters from Molecular Features
 
-## Dataset Schema (NIST)
+## 1. Entity Relationship Overview
+The data model revolves around the `AdsorptionEntry`, linking an `Adsorbate` (gas) and an `Adsorbent` (material) to specific `IsothermParameters`.
 
-This schema describes the structure of the NIST adsorption dataset **after** preprocessing and fitting.
-
-**Important Note on Target Variables**: The fields `langmuir_capacity` and `henry_constant` are **not** direct observations. They are **fitted parameters** derived from non-linear regression of the raw isotherm data (Pressure vs. Amount Adsorbed) using the Langmuir model. The fitting process includes a quality check (R² > 0.9); entries failing this check are excluded.
-
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: NIST Adsorption Dataset (Processed)
-description: Cleaned and preprocessed data from the NIST Adsorption Database. Target variables are fitted parameters.
-type: object
-properties:
-  adsorbate_name:
-    type: string
-    description: Name of the adsorbate gas.
-  adsorbent_material:
-    type: string
-    description: Identifier for the adsorbent material.
-  temperature:
-    type: number
-    format: float
-    unit: "K"
-    description: Temperature at which adsorption was measured.
-  pressure:
-    type: number
-    format: float
-    unit: "kPa"
-    description: Pressure at which adsorption was measured.
-  amount_adsorbed:
-    type: number
-    format: float
-    unit: "mmol/g"
-    description: Amount of adsorbate adsorbed per gram of adsorbent.
-  polarizability:
-    type: number
-    format: float
-    unit: "Å³"
-    description: Polarizability of the adsorbate molecule (calculated via RDKit).
-  molecular_weight:
-    type: number
-    format: float
-    unit: "g/mol"
-    description: Molecular weight of the adsorbate (calculated via RDKit).
-  surface_area:
-    type: number
-    format: float
-    unit: "m²/g"
-    description: Surface area of the adsorbent material (from metadata).
-  pore_volume:
-    type: number
-    format: float
-    unit: "cm³/g"
-    description: Pore volume of the adsorbent material (from metadata).
-  langmuir_capacity:
-    type: number
-    format: float
-    unit: "mmol/g"
-    description: Langmuir capacity parameter (Q_max) FITTED from raw isotherm data.
-  henry_constant:
-    type: number
-    format: float
-    unit: "kPa⁻¹"
-    description: Henry constant (K_H) FITTED from raw isotherm data.
-
-required:
-  - adsorbate_name
-  - adsorbent_material
-  - temperature
-  - pressure
-  - amount_adsorbed
-  - polarizability
-  - molecular_weight
-  - surface_area
-  - langmuir_capacity
-  - henry_constant
+```mermaid
+erDiagram
+    Adsorbate ||--o{ AdsorptionEntry : "is adsorbed in"
+    Adsorbent ||--o{ AdsorptionEntry : "adsorbs"
+    AdsorptionEntry ||--|| IsothermParameter : "has"
+    
+    Adsorbate {
+        string smiles
+        string name
+        float molecular_weight
+        float polarizability
+        float van_der_waals_volume
+    }
+    
+    Adsorbent {
+        string adsorbent_id
+        string material_class
+        float surface_area
+        float pore_volume
+    }
+    
+    AdsorptionEntry {
+        string entry_id
+        string adsorbate_id
+        string adsorbent_id
+        string isotherm_type
+    }
+    
+    IsothermParameter {
+        float henry_constant
+        float langmuir_capacity
+        float freundlich_exponent
+        float henry_se
+        float langmuir_se
+    }
 ```
 
-## Data Relationships
+## 2. Schema Definitions
 
-The dataset is structured as a collection of adsorption measurements, where each row represents an observation for a specific adsorbate/adsorbent pair at a given temperature and pressure. The primary key is a composite key consisting of `adsorbate_name`, `adsorbent_material`, `temperature`, and `pressure`.
+### 2.1 Raw Input Schema
+*Source: matsci/qmof*
+*   **Columns**: `entry_id`, `adsorbate_smiles`, `adsorbent_id`, `surface_area`, `pore_volume`, `isotherm_type`, `henry_constant`, `langmuir_capacity`, `henry_se`, `langmuir_se`, `unit_surface`, `unit_capacity`.
 
-## Assumptions
+### 2.2 Processed Schema (Intermediate)
+*After filtering, normalization, and descriptor calculation*
+*   **Columns**:
+    *   `entry_id` (str)
+    *   `adsorbent_id` (str) - Key for grouping.
+    *   `molecular_weight` (float)
+    *   `polarizability` (float)
+    *   `van_der_waals_volume` (float)
+    *   `polar_surface_area` (float)
+    *   `h_bond_donors` (int)
+    *   `h_bond_acceptors` (int)
+    *   `surface_area_m2_g` (float)
+    *   `pore_volume_cm3_g` (float)
+    *   `target_henry` (float)
+    *   `target_langmuir` (float)
+    *   `target_henry_se` (float) - Uncertainty weight.
+    *   `target_langmuir_se` (float) - Uncertainty weight.
+    *   `is_valid` (bool) - Flag for imputation/exclusion.
 
-*   All descriptors are calculated using consistent units (as specified in the schema).
-*   Missing values have been handled during data preprocessing (e.g., exclusion, not imputation).
-*   Target variables (`langmuir_capacity`, `henry_constant`) are derived quantities with associated fitting uncertainty (not included in this schema but tracked in logs).
+### 2.3 Model Input Schema
+*Features (X) and Targets (y)*
+*   **Features**: All numeric descriptors + engineered interaction terms.
+*   **Target**: `target_henry` or `target_langmuir` (single column).
+*   **Weights**: `target_henry_se` or `target_langmuir_se` (inverse variance).
+
+### 2.4 Output Schema
+*   **Metrics**: `model_type`, `r2`, `rmse`, `mae`, `cv_score_mean`, `cv_score_std`.
+*   **SHAP**: `feature_name`, `mean_abs_shap`, `shap_values` (array).
+*   **Null Model**: `fold_id`, `rmse`.
+
+## 3. Data Flow
+1.  **Ingest**: `fetch.py` -> `data/raw/`
+2.  **Clean**: `preprocessing.py` -> `data/processed/target_filtered.parquet`
+3.  **Impute**: `imputation.py` -> `data/processed/imputed_dataset.parquet`
+    - *Input*: `data/processed/target_filtered.parquet`
+    - *Output*: `data/processed/imputed_dataset.parquet`, `data/validation/exclusion_log.json`
+4.  **Split**: `split.py` -> `data/processed/train.parquet`, `data/processed/test.parquet`
+5.  **Model**: `train.py` -> `data/results/model_metrics.json`
+6.  **Interpret**: `shap_analysis.py` -> `data/results/shap_summary.json`
+    - *Input*: `data/processed/train.parquet`, `data/processed/test.parquet`
+    - *Output*: `data/results/shap_summary.json`, `data/results/permutation_pvalues.json`
+7.  **Null Model**: `null_model.py` -> `data/results/null_model_fold_rmses.json`, `data/results/null_model_comparison.json`
+    - *Output*: `data/results/null_model_top3_rmses.json`, `data/results/reduced_model_metrics.json`
+8.  **Consensus**: `consensus.py` -> Final Report
+9.  **Logging**: `logging.py` -> `data/benchmarks/runtime_log.json`
+
+## 4. Schema Authority
+**Single Source of Truth (SSoT)**: `contracts/dataset.schema.yaml`.
+*   All code (fetch, preprocessing, imputation, split) MUST validate against `contracts/dataset.schema.yaml`.
+*   `contracts/dataset_schema.yaml` is deprecated and contains conflicting field names (e.g., `adsorbate_name` vs `entry_id`). It must not be used for validation.

@@ -8,6 +8,10 @@ pytest
 datasets
 huggingface_hub
 psi4
+pyarrow
 requests
 matplotlib
 seaborn
+scipy
+tqdm
+joblib

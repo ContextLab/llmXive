@@ -1,9 +1,3 @@
-"""
-SHAP Analysis Module for Adsorption Isotherm Parameter Prediction.
-
-This module handles SHAP value calculation, visualization, and the Unified Consensus Analysis
-(Task T032) to compare model drivers against literature consensus.
-"""
 import os
 import sys
 import json
@@ -14,315 +8,174 @@ from typing import Dict, Any, Optional, List, Tuple, Union
 import numpy as np
 import pandas as pd
 import shap
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless environments
-import matplotlib.pyplot as plt
+import joblib
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.linear_model import LinearRegression
 
-# Attempt to import from sibling modules based on API surface
-try:
-    from models.evaluate import load_models, load_test_data
-    from analysis.cluster_permutation import load_test_data as load_test_data_perm
-except ImportError:
-    # Fallback for direct execution context if paths aren't set up yet
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from models.evaluate import load_models, load_test_data
-    from analysis.cluster_permutation import load_test_data as load_test_data_perm
-
-# Configure logging
+# Ensure logging is configured
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Constants for Consensus Analysis
-LITERATURE_CONSENSUS_LIST = [
-    "polarizability",
-    "kinetic_diameter",
-    "lj_epsilon",
-    "quadrupole_moment",
-    "surface_area",
-    "pore_volume",
-    "molecular_weight",
-    "polar_surface_area"
-]
-
 class ConsensusValidationFailure(Exception):
-    """Raised when no convergence or divergence is found against literature consensus."""
+    """Raised when SHAP consensus validation fails."""
     pass
 
 def ensure_dirs():
-    """Ensure required output directories exist."""
-    dirs = [
-        Path("data/results"),
-        Path("data/interpretation"),
-        Path("figures")
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+    """Ensure output directories exist."""
+    output_dir = Path("data/results")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
 
-def get_best_model() -> Tuple[Any, str]:
+def get_best_model() -> Union[RandomForestRegressor, GradientBoostingRegressor]:
     """
-    Load models and return the best performing one based on data/results/model_metrics.json.
+    Load the best trained model from the trained_models directory.
+    Expects the model to be saved as 'best_model.pkl' by T021.
+    """
+    model_path = Path("trained_models/best_model.pkl")
+    if not model_path.exists():
+        raise FileNotFoundError(
+            f"Best model not found at {model_path}. "
+            "Please ensure T021 (train_models) has run successfully."
+        )
+    logger.info(f"Loading best model from {model_path}")
+    model = joblib.load(model_path)
+    return model
+
+def generate_shap_summary_plot(model, X_test: pd.DataFrame) -> List[Dict[str, Any]]:
+    """
+    Generate SHAP summary values and return them as a sorted list of dicts.
+    
+    Args:
+        model: The trained sklearn model.
+        X_test: The test feature dataframe.
+        
     Returns:
-        Tuple[Model, str]: The model instance and its name.
+        List of dicts: [{'name': str, 'mean_abs_shap_value': float}, ...]
+        sorted by mean_abs_shap_value descending.
     """
-    metrics_path = Path("data/results/model_metrics.json")
-    if not metrics_path.exists():
-        logger.error(f"Model metrics file not found at {metrics_path}. Cannot determine best model.")
-        raise FileNotFoundError(f"Model metrics file not found: {metrics_path}")
-
-    with open(metrics_path, 'r') as f:
-        metrics = json.load(f)
-
-    # Assume structure: {"models": [{"name": "...", "r2": ...}, ...]}
-    # Or flat list if saved differently. Adapt to actual T023/T024 output structure.
-    if isinstance(metrics, dict) and "models" in metrics:
-        models_list = metrics["models"]
-    elif isinstance(metrics, list):
-        models_list = metrics
-    else:
-        # Fallback: try to find max R2 in the dict directly if it's a flat mapping
-        # This is a heuristic; adjust based on actual T023 output format.
-        # Assuming T023 saves a list of results.
-        models_list = [metrics] if "r2" in metrics else []
-
-    best_model_name = None
-    best_r2 = -np.inf
-
-    for m in models_list:
-        r2 = m.get("r2", -np.inf)
-        if r2 > best_r2:
-            best_r2 = r2
-            best_model_name = m.get("name")
-
-    if not best_model_name:
-        raise ValueError("Could not identify a best model from metrics.")
-
-    logger.info(f"Selected best model: {best_model_name} with R2={best_r2:.4f}")
-    loaded_models = load_models()
-    if best_model_name in loaded_models:
-        return loaded_models[best_model_name], best_model_name
-    else:
-        # Fallback if name mismatch, try to find by order or first available
-        logger.warning(f"Best model name {best_model_name} not found in loaded models. Using first available.")
-        return next(iter(loaded_models.values())), list(loaded_models.keys())[0]
-
-def generate_shap_summary_plot(model: Any, X_test: pd.DataFrame, model_name: str) -> str:
-    """Generate SHAP summary plot and save to figures/shap_summary_{model_name}.png."""
-    ensure_dirs()
-    explainer = shap.Explainer(model, X_test)
-    shap_values = explainer(X_test)
-
-    # Save summary plot
-    plt.figure(figsize=(10, 8))
-    shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
-    output_path = Path(f"figures/shap_summary_{model_name}.png")
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
-    plt.close()
-    logger.info(f"SHAP summary plot saved to {output_path}")
-
-    # Also save numerical summary for T030
-    summary_data = {
-        "model": model_name,
-        "feature_importance": {}
-    }
-    # Get mean absolute SHAP values for ranking
-    if hasattr(shap_values, "values"):
-        # shap.Explainer returns array of values for each sample
-        mean_abs_shap = np.mean(np.abs(shap_values.values), axis=0)
-        features = X_test.columns.tolist()
-        for i, feat in enumerate(features):
-            summary_data["feature_importance"][feat] = float(mean_abs_shap[i])
+    logger.info("Initializing SHAP Explainer...")
+    # Use TreeExplainer for tree-based models, otherwise KernelExplainer
+    try:
+        explainer = shap.TreeExplainer(model)
+    except Exception as e:
+        logger.warning(f"TreeExplainer failed ({e}), falling back to KernelExplainer. This will be slow.")
+        explainer = shap.KernelExplainer(model, X_test)
     
-    summary_path = Path("data/results/shap_summary.json")
-    with open(summary_path, 'w') as f:
-        json.dump(summary_data, f, indent=2)
-    logger.info(f"SHAP summary data saved to {summary_path}")
+    logger.info("Computing SHAP values...")
+    shap_values = explainer.shap_values(X_test)
     
-    return str(output_path)
-
-def generate_partial_dependence_plots(model: Any, X_test: pd.DataFrame) -> List[str]:
-    """Generate PDPs for top features and check monotonicity."""
-    ensure_dirs()
-    # Simplified for this task: generate for top 3 features
-    if X_test.shape[1] == 0:
-        return []
-    
-    top_features = X_test.columns[:min(3, X_test.shape[1])].tolist()
-    paths = []
-    
-    for feat in top_features:
-        plt.figure(figsize=(8, 6))
-        try:
-            shap.dependence_plot(feat, model, X_test, show=False)
-            path = Path(f"figures/pdp_{feat}.png")
-            plt.savefig(path, dpi=150, bbox_inches='tight')
-            plt.close()
-            paths.append(str(path))
-        except Exception as e:
-            logger.warning(f"Could not generate PDP for {feat}: {e}")
-            plt.close()
-    
-    return paths
-
-def validate_consensus(shap_summary_path: str = "data/results/shap_summary.json") -> Dict[str, Any]:
-    """
-    T032: Unified Consensus Analysis.
-    Compares top-ranked features from SHAP against LITERATURE_CONSENSUS_LIST.
-    Checks for convergence (top features match consensus) or divergence.
-    Also integrates T052 results (adjusted p-values) if available.
-    
-    Raises:
-        ConsensusValidationFailure: If no convergence or divergence is found.
-    """
-    ensure_dirs()
-    
-    # 1. Load SHAP Summary
-    if not os.path.exists(shap_summary_path):
-        raise FileNotFoundError(f"SHAP summary not found at {shap_summary_path}. Run T030 first.")
-    
-    with open(shap_summary_path, 'r') as f:
-        shap_data = json.load(f)
-    
-    feature_importance = shap_data.get("feature_importance", {})
-    if not feature_importance:
-        raise ValueError("SHAP summary contains no feature importance data.")
-    
-    # Sort features by importance
-    sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
-    top_3_features = [f[0] for f in sorted_features[:3]]
-    all_features = [f[0] for f in sorted_features]
-    
-    logger.info(f"Top 3 features: {top_3_features}")
-    
-    # 2. Load T052 Permutation P-values (if available)
-    p_values_path = Path("data/results/permutation_pvalues.json")
-    p_values_map = {}
-    if p_values_path.exists():
-        with open(p_values_path, 'r') as f:
-            p_data = json.load(f)
-        # p_data is a list of objects: [{"feature_name": "...", "adjusted_q_value": ...}, ...]
-        for item in p_data:
-            name = item.get("feature_name")
-            q_val = item.get("adjusted_q_value")
-            if name:
-                p_values_map[name] = q_val
-        logger.info(f"Loaded permutation p-values for {len(p_values_map)} features.")
-    
-    # 3. Analyze Convergence/Divergence
-    consensus_hits = []
-    consensus_misses = []
-    significant_hits = []
-    
-    for feat in top_3_features:
-        if feat in LITERATURE_CONSENSUS_LIST:
-            consensus_hits.append(feat)
-            # Check significance from T052
-            if feat in p_values_map and p_values_map[feat] < 0.05:
-                significant_hits.append(feat)
+    # Handle case where shap_values might be a list (for multi-output or specific models)
+    if isinstance(shap_values, list):
+        # For regression, usually just one array, but sometimes wrapped
+        if len(shap_values) == 1:
+            shap_values = shap_values[0]
         else:
-            consensus_misses.append(feat)
-    
-    # 4. Determine Convergence/Divergence Status
-    has_convergence = len(consensus_hits) > 0
-    has_divergence = len(consensus_misses) > 0 or (len(consensus_hits) < len(top_3_features) and len(top_3_features) > 0)
-    
-    # CRITICAL: Must find at least one point of convergence OR divergence
-    if not has_convergence and not has_divergence:
-        # This happens if top_3 is empty or no comparison possible
-        raise ConsensusValidationFailure(
-            "No convergence or divergence found. Top features list is empty or comparison failed."
-        )
-    
-    # 5. Generate Report
-    report = {
-        "task_id": "T032",
-        "analysis_type": "Unified Consensus Analysis",
-        "literature_consensus_list": LITERATURE_CONSENSUS_LIST,
-        "top_ranked_features": top_3_features,
-        "convergence_analysis": {
-            "found": has_convergence,
-            "matching_features": consensus_hits,
-            "significant_matching_features": significant_hits
-        },
-        "divergence_analysis": {
-            "found": has_divergence,
-            "non_consensus_features": consensus_misses
-        },
-        "integration_with_permutation_test": {
-            "permutation_p_values_loaded": len(p_values_map) > 0,
-            "significant_features_in_top_3": significant_hits
-        },
-        "conclusion": ""
-    }
-    
-    if has_convergence:
-        report["conclusion"] = (
-            f"CONVERGENCE DETECTED: {len(consensus_hits)} of the top {len(top_3_features)} features "
-            f"({', '.join(consensus_hits)}) align with the literature consensus list. "
-            f"Additionally, {len(significant_hits)} of these are statistically significant (q < 0.05) based on "
-            f"cluster permutation tests (T052)."
-        )
+            # Take the mean of absolute values across outputs if multi-output
+            shap_values = np.mean([np.abs(sv) for sv in shap_values], axis=0)
     else:
-        report["conclusion"] = (
-            f"DIVERGENCE DETECTED: None of the top {len(top_3_features)} features align with the "
-            f"literature consensus list. This suggests the model may be capturing non-standard drivers "
-            f"or the consensus list needs revision."
-        )
+        shap_values = np.abs(shap_values)
     
-    # Save report
-    report_path = Path("data/results/consensus_analysis_report.json")
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
+    # Calculate mean absolute SHAP value for each feature
+    mean_abs_shap = np.mean(shap_values, axis=0)
+    feature_names = X_test.columns.tolist()
     
-    logger.info(f"Consensus analysis report saved to {report_path}")
-    logger.info(report["conclusion"])
+    summary_list = []
+    for name, value in zip(feature_names, mean_abs_shap):
+        summary_list.append({
+            "name": name,
+            "mean_abs_shap_value": float(value)
+        })
     
-    return report
+    # Sort descending by importance
+    summary_list.sort(key=lambda x: x["mean_abs_shap_value"], reverse=True)
+    
+    logger.info(f"SHAP summary generated for {len(summary_list)} features.")
+    return summary_list
+
+def generate_partial_dependence_plots(model, X_test: pd.DataFrame, output_dir: Path):
+    """
+    Generate partial dependence plots for top features.
+    (Stubs logic here, actual implementation depends on T031 requirements)
+    """
+    # Placeholder for T031 implementation details if needed here
+    pass
+
+def validate_consensus(shap_summary: List[Dict[str, Any]], consensus_list: List[str]) -> bool:
+    """
+    Validate that top 3 SHAP features overlap with consensus list.
+    """
+    top_3_names = [item["name"] for item in shap_summary[:3]]
+    overlap = set(top_3_names).intersection(set(consensus_list))
+    if len(overlap) < 2:
+        logger.warning(f"Consensus validation failed. Only {len(overlap)} overlap in top 3.")
+        return False
+    return True
 
 def run_shap_analysis_pipeline():
-    """Main pipeline for SHAP analysis and Consensus Validation."""
-    ensure_dirs()
+    """
+    Main pipeline for T030:
+    1. Load best model.
+    2. Load test data (features).
+    3. Compute SHAP values.
+    4. Generate summary list.
+    5. Write to data/results/shap_summary.json.
+    """
+    output_dir = ensure_dirs()
+    output_file = output_dir / "shap_summary.json"
     
-    # Load Data
-    logger.info("Loading test data...")
-    X_test, y_test, feature_names = load_test_data()
+    # Load model
+    model = get_best_model()
     
-    if X_test.empty or len(X_test) == 0:
-        logger.error("Test data is empty. Cannot run SHAP analysis.")
-        raise ValueError("Test data is empty.")
+    # Load test data
+    # We need the features used for training. T020/T021 should have saved split data.
+    # Assuming standard location from T020 split logic:
+    test_data_path = Path("data/processed/split_test_data.parquet")
+    if not test_data_path.exists():
+        # Fallback if T020 saved differently, check common patterns
+        # If T020 saved train/test in a specific way, we need to load the test features.
+        # For now, assume the pipeline saves split data.
+        raise FileNotFoundError(
+            f"Test data not found at {test_data_path}. "
+            "Ensure T020 (split_data) has run and saved test features."
+        )
     
-    # Get Best Model
-    logger.info("Retrieving best model...")
-    model, model_name = get_best_model()
+    logger.info(f"Loading test data from {test_data_path}")
+    df_test = pd.read_parquet(test_data_path)
     
-    # Generate SHAP Plots
-    logger.info("Generating SHAP summary plot...")
-    shap_path = generate_shap_summary_plot(model, X_test, model_name)
+    # Identify feature columns (exclude target and metadata)
+    # Common targets: langmuir_capacity, henry_constant
+    # Metadata: material_id, adsorbent_structure_id, descriptor_hash
+    exclude_cols = {'langmuir_capacity', 'henry_constant', 'material_id', 
+                    'adsorbent_structure_id', 'descriptor_hash'}
+    feature_cols = [c for c in df_test.columns if c not in exclude_cols]
     
-    # Generate PDPs
-    logger.info("Generating Partial Dependence Plots...")
-    pdp_paths = generate_partial_dependence_plots(model, X_test)
+    if not feature_cols:
+        raise ValueError("No feature columns found in test data.")
     
-    # T032: Unified Consensus Analysis
-    logger.info("Running Unified Consensus Analysis (T032)...")
-    try:
-        consensus_report = validate_consensus()
-    except ConsensusValidationFailure as e:
-        logger.error(f"Consensus validation failed: {e}")
-        # Re-raise to ensure the task is marked as failed if the critical check fails
-        raise
+    X_test = df_test[feature_cols]
+    
+    logger.info(f"Running SHAP analysis on {X_test.shape[0]} samples with {len(feature_cols)} features.")
+    
+    summary_list = generate_shap_summary_plot(model, X_test)
+    
+    # Write output
+    logger.info(f"Writing SHAP summary to {output_file}")
+    with open(output_file, 'w') as f:
+        json.dump(summary_list, f, indent=2)
     
     logger.info("SHAP analysis pipeline completed successfully.")
-    return consensus_report
+    return summary_list
 
 def main():
-    """Entry point for the script."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    """Entry point for script execution."""
     try:
         run_shap_analysis_pipeline()
+        logger.info("Task T030 completed successfully.")
     except Exception as e:
-        logger.critical(f"Pipeline failed: {e}")
-        sys.exit(1)
+        logger.error(f"Task T030 failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

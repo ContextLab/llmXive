@@ -8,3 +8,7 @@ requests  # auto-added: imported by run-book but missing from venv
 shap  # auto-added: imported by run-book but missing from venv
 scikit-learn  # auto-added: imported by run-book but missing from venv
 pyyaml  # auto-added: imported by run-book but missing from venv
+datasets  # auto-added: imported by run-book but missing from venv
+psi4  # auto-added: imported by run-book but missing from venv
+pyarrow  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv

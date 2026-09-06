@@ -1,3 +1,12 @@
+T014d:
+  c: false
+  h: 283703fc681b255bee78dd995b1ef1e87d913a7da6aeec5d461d670ba20f932e
+  r: "The repository contains `code/data/descriptors.py`, but the file does not show\
+    \ a function that reads the three `missing_descriptors_*.json` files and writes\
+    \ a combined `data/validation/missing_descriptors_report.json`. Moreover, the\
+    \ expected output file `data/validation/missing_descriptors_report.json` is absent\
+    \ from the project. The task\u2019s core requirement\u2014merging the descriptor\
+    \ logs into the report file\u2014is therefore not fulfilled."
 T014h:
   c: false
   h: a8ed1925184618a3d4397dfa93dd5f8335f28e8d230beb15f1637a1b176f2fb5
@@ -13,6 +22,15 @@ T015a:
     of excluded entries is incomplete, and the file ends abruptly). Moreover, the
     required `data/validation/exclusion_log.json` does not exist. The implementation
     does not fully perform the specified filtering, normalization, and logging steps.
+T015b:
+  c: false
+  h: a762a57a3230aae0a83bbd52def5d738a0506be8bb730dc272f481249e7dd61c
+  r: "The `code/data/imputation.py` file is truncated and contains an undefined variable\
+    \ (`s`) and incomplete logic, so the `impute_pore_volume` function is not fully\
+    \ implemented. Moreover, the required input file `data/processed/target_filtered.parquet`,\
+    \ the output file `data/processed/imputed_dataset.parquet`, and the exclusion\
+    \ log `data/validation/exclusion_log.json` are all missing. The task\u2019s artifacts\
+    \ are therefore absent or non\u2011functional."
 T016:
   c: false
   h: 9977c96c9e8b93cddfe5434babe6e26821ed931a0a2630bf24e1ba617b281340
@@ -21,19 +39,19 @@ T016:
     \ is truncated before any outlier logic). Moreover, the required output file `data/validation/outliers_flagged.csv`\
     \ is absent. Both the function implementation and the flagged\u2011outliers CSV\
     \ are missing, so the task is not satisfied."
-T016#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or documentation implementing outlier detection was\
-    \ provided; the response only repeats project specifications unrelated to the\
-    \ outlier\u2011detection task. Consequently, the required artifact (a functioning\
-    \ outlier\u2011detection component and its validation) is missing."
 T029:
   c: false
   h: 48c8b8e4fb8ee101011b1779c5cad1a3a2735261e85048ff31661bc1b3677b71
   r: "The required integration test file `tests/integration/test_feature_ranking.py`\
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ No further content can be evaluated."
+T030:
+  c: false
+  h: 029f37a2799de1c917ee936f9d9b196bce8457a5c10bfc99d9b5e57aeae437bd
+  r: The repository contains `code/interpret/shap_analysis.py`, but the file is truncated
+    and does not show any logic that writes `data/results/shap_summary.json`. Moreover,
+    the expected output file `data/results/shap_summary.json` is absent from the project.
+    Consequently, the required artifact is missing and the task is not fulfilled.
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -72,21 +90,14 @@ T045:
     the report as specified. The implementation therefore does not fully satisfy the
     task requirements.
 T061:
-  c: false
-  h: e2f4c730eb419dc1ca0a31a5fc4bfceac134e9989c7a9f4aa22e44c1ad713737
-  r: "The repository contains `code/data/merge.py`, but the file is truncated and\
-    \ contains a clear bug (`tables.append` without calling it). Moreover, the required\
-    \ output `data/raw/merged_dataset.parquet` does not exist, so the script has not\
-    \ successfully produced the merged dataset. The task\u2019s core deliverable is\
-    \ therefore missing."
-T065:
-  c: false
-  h: 47eb0071bb9a32bcb76fe0e27fa87919abc24ad5a9ee0482073925c0ea170b41
-  r: "The repository contains `code/models/null_model.py`, but the shown source is\
-    \ truncated (e.g., an unfinished `elif data_path.suffix ==` line) and does not\
-    \ demonstrate that it writes the required `data/results/null_model_fold_rmses.json`.\
-    \ Moreover, the expected results JSON file is absent from the project. The task\u2019\
-    s required output is therefore not present."
+  c: true
+  h: bb20706fb17b432d4ceb5ec2f3732247ae416cc2b51f3f40839dc84f8880eae4
+  r: "The repository contains a non\u2011empty `code/data/merge.py` (4\u202FKB) that\
+    \ implements directory handling, chunk discovery, and a `merge_parquet_files`\
+    \ routine to read and concatenate Parquet chunks into `data/raw/merged_dataset.parquet`.\
+    \ No placeholder or stub code is present, satisfying the task\u2019s requirement\
+    \ to create the merging script. (The merged output file itself is an expected\
+    \ runtime product, not a required artifact.)"
 T066:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -94,3 +105,11 @@ T066:
     leakage audit or extends the existing T045 leakage check. The required artifact\
     \ (e.g., a function/module that verifies descriptors are not derived from test\u2011\
     set targets) is missing, so the task is not satisfied."
+T068:
+  c: false
+  h: 69337dc92ac3dfd4b0cfcf266167ad0b2214d44694e46cb23f2b9875e75f0ae7
+  r: "The provided `null_model.py` does not contain a `null_model_top3` function that\
+    \ loads the top\u20113 features from `data/results/shap_summary.json`, filters\
+    \ the data, trains a mean\u2011predictor, and writes `null_model_top3_rmses.json`.\
+    \ Moreover, `data/results/shap_summary.json` and the expected output file `data/results/null_model_top3_rmses.json`\
+    \ are absent. The task requirements are therefore not met."

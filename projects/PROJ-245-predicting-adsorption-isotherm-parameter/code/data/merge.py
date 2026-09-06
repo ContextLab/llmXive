@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
+import pyarrow as pa
 import pyarrow.parquet as pq
 
 # Configure logging
@@ -90,7 +91,7 @@ def merge_parquet_files(input_files: List[Path], output_path: Path) -> None:
                 table = pq.read_table(file_path)
                 tables.append(table)
             
-            # Concatenate all tables
+            # Concatenate all tables using pyarrow
             merged_table = pa.concat_tables(tables)
         else:
             merged_table = first_table

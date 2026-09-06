@@ -1,8 +1,10 @@
 """
 Null Model Comparison Module.
 
-Implements statistical comparison between trained models and a null baseline
-using paired t-tests or Wilcoxon signed-rank tests on RMSEs.
+Performs statistical comparison between the full model and the null model.
+Implements paired t-test or Wilcoxon signed-rank test on RMSEs.
+Verifies RMSE improvement is at least 20% lower than null model.
+Outputs 95% confidence intervals via bootstrapping.
 """
 
 import os
@@ -13,292 +15,307 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 from scipy import stats
-from sklearn.utils import resample
 
-# Ensure imports work in both module and script contexts
-try:
-    from models.null_model import load_folds, calculate_rmse, run_null_model_baseline
-except ImportError:
-    # Fallback for direct execution
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    from models.null_model import load_folds, calculate_rmse, run_null_model_baseline
+# Ensure imports work when run as script or module
+if __name__ == "__main__" and __package__ is None:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from models.evaluate import bootstrap_confidence_intervals
+    from models.null_model import run_null_model_baseline
+else:
+    from ..models.evaluate import bootstrap_confidence_intervals
+    from ..models.null_model import run_null_model_baseline
 
 logger = logging.getLogger(__name__)
 
 def ensure_dirs(output_dir: Path) -> None:
-    """Ensure output directories exist."""
+    """Ensure output directory exists."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    (output_dir.parent / 'validation').mkdir(parents=True, exist_ok=True)
 
-def load_preprocessed_data(data_path: Path) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def load_preprocessed_data(data_path: Path) -> Tuple[np.ndarray, np.ndarray, List[str]]:
     """
-    Load preprocessed data for comparison.
-    
-    Returns:
-        Tuple of (features, target, material_ids)
+    Load preprocessed data from parquet file.
+    Returns features (X), target (y), and feature names.
     """
     import pandas as pd
+    
+    if not data_path.exists():
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+    
     df = pd.read_parquet(data_path)
     
-    # Assume standard schema based on project specs
-    feature_cols = [col for col in df.columns if col not in ['langmuir_capacity', 'henry_constant', 'adsorbent_structure_id']]
+    # Identify feature columns (exclude target and metadata)
+    target_cols = ['langmuir_capacity', 'henry_constant']
+    metadata_cols = ['material_id', 'adsorbent_structure_id', 'descriptor_hash']
+    
+    feature_cols = [col for col in df.columns 
+                   if col not in target_cols + metadata_cols]
+    
+    if len(feature_cols) == 0:
+        raise ValueError("No feature columns found in dataset")
+    
     X = df[feature_cols].values
     y = df['langmuir_capacity'].values
-    material_ids = df['adsorbent_structure_id'].values
     
-    return X, y, material_ids
+    return X, y, feature_cols
 
-def predict_mean_null_model(X_train: np.ndarray, y_train: np.ndarray, 
-                            X_test: np.ndarray, y_test: np.ndarray) -> Tuple[np.ndarray, float]:
-    """
-    Predict using null model (mean of training set).
-    
-    Returns:
-        Tuple of (predictions, RMSE)
-    """
-    mean_pred = np.mean(y_train)
-    predictions = np.full_like(y_test, mean_pred, dtype=float)
-    rmse = np.sqrt(np.mean((predictions - y_test) ** 2))
-    return predictions, rmse
+def calculate_rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Calculate Root Mean Squared Error."""
+    return np.sqrt(np.mean((y_true - y_pred) ** 2))
 
-def bootstrap_confidence_intervals(values: np.ndarray, 
-                                   n_resamples: int = 1000, 
-                                   random_state: int = 42) -> Dict[str, float]:
+def calculate_null_model_metrics(
+    X: np.ndarray, 
+    y: np.ndarray, 
+    folds_path: Path,
+    exclusion_list_path: Optional[Path] = None
+) -> List[float]:
     """
-    Calculate 95% confidence intervals using bootstrapping.
-    
-    Args:
-        values: Array of values to bootstrap
-        n_resamples: Number of bootstrap resamples
-        random_state: Random seed for reproducibility
-        
-    Returns:
-        Dictionary with 'mean', 'ci_lower', 'ci_upper'
+    Calculate RMSE for null model across folds.
+    Returns list of RMSEs (one per fold).
     """
-    rng = np.random.RandomState(random_state)
-    bootstrap_means = []
-    
-    for _ in range(n_resamples):
-        sample = resample(values, random_state=rng)
-        bootstrap_means.append(np.mean(sample))
-    
-    bootstrap_means = np.array(bootstrap_means)
-    ci_lower = np.percentile(bootstrap_means, 2.5)
-    ci_upper = np.percentile(bootstrap_means, 97.5)
-    
-    return {
-        'mean': float(np.mean(values)),
-        'ci_lower': float(ci_lower),
-        'ci_upper': float(ci_upper),
-        'std': float(np.std(values))
-    }
-
-def calculate_null_model_metrics(folds_path: Path, data_path: Path) -> Dict[str, Any]:
-    """
-    Calculate null model metrics across all folds.
-    
-    Args:
-        folds_path: Path to folds.json
-        data_path: Path to preprocessed data parquet
-        
-    Returns:
-        Dictionary with fold RMSEs and aggregate metrics
-    """
-    import pandas as pd
-    df = pd.read_parquet(data_path)
+    logger.info("Calculating null model metrics across folds...")
     
     # Load folds
     with open(folds_path, 'r') as f:
-        folds = json.load(f)
+        folds_data = json.load(f)
     
     fold_rmses = []
     
-    for fold_idx, fold_data in enumerate(folds):
-        train_indices = fold_data['train']
-        test_indices = fold_data['test']
+    for fold_idx, fold_info in enumerate(folds_data):
+        train_indices = fold_info['train_indices']
+        test_indices = fold_info['test_indices']
         
-        X_train = df.iloc[train_indices].drop(columns=['langmuir_capacity', 'henry_constant', 'adsorbent_structure_id']).values
-        y_train = df.iloc[train_indices]['langmuir_capacity'].values
-        X_test = df.iloc[test_indices].drop(columns=['langmuir_capacity', 'henry_constant', 'adsorbent_structure_id']).values
-        y_test = df.iloc[test_indices]['langmuir_capacity'].values
+        # Train null model on training set (predict mean)
+        y_train = y[train_indices]
+        y_test = y[test_indices]
         
-        _, rmse = predict_mean_null_model(X_train, y_train, X_test, y_test)
+        null_prediction = np.mean(y_train)
+        y_pred_null = np.full_like(y_test, null_prediction, dtype=float)
+        
+        # Calculate RMSE
+        rmse = calculate_rmse(y_test, y_pred_null)
         fold_rmses.append(rmse)
-    
-    return {
-        'fold_rmses': fold_rmses,
-        'mean_rmse': float(np.mean(fold_rmses)),
-        'std_rmse': float(np.std(fold_rmses))
-    }
-
-def calculate_trained_model_metrics(folds_path: Path, data_path: Path, 
-                                    model_path: Path) -> Dict[str, Any]:
-    """
-    Calculate trained model metrics across all folds.
-    
-    Args:
-        folds_path: Path to folds.json
-        data_path: Path to preprocessed data parquet
-        model_path: Path to trained model pickle
         
-    Returns:
-        Dictionary with fold RMSEs and aggregate metrics
+        logger.debug(f"Fold {fold_idx}: Null RMSE = {rmse:.4f}")
+    
+    return fold_rmses
+
+def calculate_trained_model_metrics(
+    X: np.ndarray, 
+    y: np.ndarray, 
+    folds_path: Path,
+    model_path: Path,
+    exclusion_list_path: Optional[Path] = None
+) -> List[float]:
     """
-    import pandas as pd
+    Calculate RMSE for trained model across folds.
+    Returns list of RMSEs (one per fold).
+    """
+    logger.info("Calculating trained model metrics across folds...")
+    
     import joblib
     
-    df = pd.read_parquet(data_path)
+    # Load the best model
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+    
     model = joblib.load(model_path)
     
     # Load folds
     with open(folds_path, 'r') as f:
-        folds = json.load(f)
+        folds_data = json.load(f)
     
     fold_rmses = []
     
-    for fold_idx, fold_data in enumerate(folds):
-        train_indices = fold_data['train']
-        test_indices = fold_data['test']
+    for fold_idx, fold_info in enumerate(folds_data):
+        train_indices = fold_info['train_indices']
+        test_indices = fold_info['test_indices']
         
-        X_train = df.iloc[train_indices].drop(columns=['langmuir_capacity', 'henry_constant', 'adsorbent_structure_id']).values
-        y_train = df.iloc[train_indices]['langmuir_capacity'].values
-        X_test = df.iloc[test_indices].drop(columns=['langmuir_capacity', 'henry_constant', 'adsorbent_structure_id']).values
-        y_test = df.iloc[test_indices]['langmuir_capacity'].values
+        X_train = X[train_indices]
+        y_train = y[train_indices]
+        X_test = X[test_indices]
+        y_test = y[test_indices]
         
-        predictions = model.predict(X_test)
-        rmse = np.sqrt(np.mean((predictions - y_test) ** 2))
+        # Predict using trained model
+        y_pred = model.predict(X_test)
+        
+        # Calculate RMSE
+        rmse = calculate_rmse(y_test, y_pred)
         fold_rmses.append(rmse)
+        
+        logger.debug(f"Fold {fold_idx}: Full Model RMSE = {rmse:.4f}")
     
-    return {
-        'fold_rmses': fold_rmses,
-        'mean_rmse': float(np.mean(fold_rmses)),
-        'std_rmse': float(np.std(fold_rmses))
-    }
+    return fold_rmses
 
-def run_cross_fold_comparison(null_rmses: List[float], 
-                              trained_rmses: List[float],
-                              output_path: Path) -> Dict[str, Any]:
+def run_cross_fold_comparison(
+    null_rmses: List[float], 
+    full_rmses: List[float],
+    improvement_threshold: float = 0.20
+) -> Dict[str, Any]:
     """
-    Perform statistical comparison between null and trained models.
+    Perform paired statistical test between null and full model RMSEs.
     
     Args:
-        null_rmses: List of RMSEs from null model
-        trained_rmses: List of RMSEs from trained model
-        output_path: Path to write comparison results
-        
+        null_rmses: List of RMSEs from null model across folds
+        full_rmses: List of RMSEs from full model across folds
+        improvement_threshold: Minimum required improvement (default 0.20 = 20%)
+    
     Returns:
         Dictionary with comparison results
     """
-    if len(null_rmses) != len(trained_rmses):
+    logger.info("Running cross-fold statistical comparison...")
+    
+    if len(null_rmses) != len(full_rmses):
         raise ValueError("Number of folds must match for both models")
     
-    # Perform paired t-test
-    t_stat, p_value_t = stats.ttest_rel(null_rmses, trained_rmses)
+    if len(null_rmses) < 2:
+        raise ValueError("Need at least 2 folds for statistical comparison")
     
-    # Perform Wilcoxon signed-rank test (non-parametric alternative)
-    w_stat, p_value_w = stats.wilcoxon(null_rmses, trained_rmses)
+    null_rmses = np.array(null_rmses)
+    full_rmses = np.array(full_rmses)
     
-    # Calculate improvement
-    improvements = [n - t for n, t in zip(null_rmses, trained_rmses)]
-    improvement_stats = bootstrap_confidence_intervals(improvements, n_resamples=1000, random_state=42)
+    # Calculate mean RMSEs
+    rmse_null_mean = np.mean(null_rmses)
+    rmse_full_mean = np.mean(full_rmses)
     
-    # Determine significance
-    is_significant = p_value_t < 0.05 or p_value_w < 0.05
+    # Calculate improvement percentage
+    improvement_pct = (rmse_null_mean - rmse_full_mean) / rmse_null_mean
     
-    results = {
-        't_test': {
-            'statistic': float(t_stat),
-            'p_value': float(p_value_t),
-            'significant': bool(p_value_t < 0.05)
-        },
-        'wilcoxon_test': {
-            'statistic': float(w_stat),
-            'p_value': float(p_value_w),
-            'significant': bool(p_value_w < 0.05)
-        },
-        'improvement': {
-            'mean_improvement': improvement_stats['mean'],
-            'ci_lower': improvement_stats['ci_lower'],
-            'ci_upper': improvement_stats['ci_upper'],
-            'std': improvement_stats['std']
-        },
-        'null_model': {
-            'mean_rmse': float(np.mean(null_rmses)),
-            'std_rmse': float(np.std(null_rmses))
-        },
-        'trained_model': {
-            'mean_rmse': float(np.mean(trained_rmses)),
-            'std_rmse': float(np.std(trained_rmses))
-        },
-        'conclusion': {
-            'is_significant': bool(is_significant),
-            'p_value_used': float(p_value_t if p_value_t < p_value_w else p_value_w),
-            'method': 't-test' if p_value_t < p_value_w else 'wilcoxon'
-        }
+    logger.info(f"Null Model Mean RMSE: {rmse_null_mean:.4f}")
+    logger.info(f"Full Model Mean RMSE: {rmse_full_mean:.4f}")
+    logger.info(f"Improvement: {improvement_pct*100:.2f}%")
+    
+    # Check if improvement meets threshold
+    meets_threshold = improvement_pct >= improvement_threshold
+    logger.info(f"Meets {improvement_threshold*100}% improvement threshold: {meets_threshold}")
+    
+    # Perform paired statistical test
+    # Use Wilcoxon signed-rank test (non-parametric, robust to non-normality)
+    # If data is normally distributed, could use t-test
+    stat, p_value = stats.wilcoxon(null_rmses, full_rmses)
+    
+    logger.info(f"Wilcoxon statistic: {stat:.4f}")
+    logger.info(f"P-value: {p_value:.6f}")
+    
+    # Check statistical significance (p < 0.05)
+    is_significant = p_value < 0.05
+    logger.info(f"Statistically significant (p < 0.05): {is_significant}")
+    
+    # Calculate 95% confidence interval for the difference using bootstrapping
+    # Bootstrap the difference in RMSEs
+    n_resamples = 1000
+    random_state = 42
+    
+    np.random.seed(random_state)
+    differences = null_rmses - full_rmses
+    bootstrap_diffs = []
+    
+    for _ in range(n_resamples):
+        sampled_indices = np.random.choice(len(differences), size=len(differences), replace=True)
+        sampled_diff = np.mean(differences[sampled_indices])
+        bootstrap_diffs.append(sampled_diff)
+    
+    ci_95 = np.percentile(bootstrap_diffs, [2.5, 97.5])
+    
+    logger.info(f"95% CI for improvement: [{ci_95[0]:.4f}, {ci_95[1]:.4f}]")
+    
+    result = {
+        "rmse_full": float(rmse_full_mean),
+        "rmse_null": float(rmse_null_mean),
+        "improvement_pct": float(improvement_pct),
+        "meets_threshold": bool(meets_threshold),
+        "p_value": float(p_value),
+        "is_significant": bool(is_significant),
+        "ci_95": [float(ci_95[0]), float(ci_95[1])],
+        "n_folds": len(null_rmses),
+        "test_method": "wilcoxon_signed_rank"
     }
     
-    # Write results to file
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Null model comparison results written to {output_path}")
-    return results
+    return result
 
-def main(args: Optional[List[str]] = None) -> int:
-    """
-    Main entry point for null model comparison.
-    
-    Args:
-        args: Command line arguments (optional)
-        
-    Returns:
-        Exit code (0 for success, 1 for failure)
-    """
+def main():
+    """Main entry point for null model comparison."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Compare null model with trained models')
-    parser.add_argument('--folds-path', type=Path, default='data/results/folds.json',
-                      help='Path to folds.json file')
-    parser.add_argument('--data-path', type=Path, default='data/processed/curated_data.parquet',
-                      help='Path to preprocessed data parquet file')
-    parser.add_argument('--model-path', type=Path, default='trained_models/best_model.pkl',
-                      help='Path to trained model pickle file')
-    parser.add_argument('--output-path', type=Path, default='data/validation/null_model_comparison.json',
-                      help='Path to output comparison results')
+    parser = argparse.ArgumentParser(description="Compare full model vs null model")
+    parser.add_argument("--data-dir", type=str, default="data/processed",
+                      help="Directory containing preprocessed data")
+    parser.add_argument("--model-path", type=str, default="trained_models/best_model.pkl",
+                      help="Path to trained model file")
+    parser.add_argument("--folds-path", type=str, default="data/results/folds.json",
+                      help="Path to folds configuration")
+    parser.add_argument("--output-path", type=str, default="data/validation/null_model_comparison.json",
+                      help="Output path for comparison results")
+    parser.add_argument("--threshold", type=float, default=0.20,
+                      help="Minimum improvement threshold (default: 0.20)")
     
-    parsed_args = parser.parse_args(args)
+    args = parser.parse_args()
+    
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    logger.info("Starting null model comparison...")
     
     try:
-        # Ensure directories exist
-        ensure_dirs(parsed_args.output_path)
+        # Ensure output directory exists
+        output_path = Path(args.output_path)
+        ensure_dirs(output_path.parent)
         
-        # Calculate metrics for both models
-        logger.info("Calculating null model metrics...")
-        null_metrics = calculate_null_model_metrics(parsed_args.folds_path, parsed_args.data_path)
+        # Load data
+        data_path = Path(args.data_dir) / "imputed_dataset.parquet"
+        if not data_path.exists():
+            # Try alternative path
+            data_path = Path(args.data_dir) / "descriptors.parquet"
         
-        logger.info("Calculating trained model metrics...")
-        trained_metrics = calculate_trained_model_metrics(parsed_args.folds_path, parsed_args.data_path, parsed_args.model_path)
+        X, y, feature_names = load_preprocessed_data(data_path)
+        logger.info(f"Loaded {len(y)} samples with {len(feature_names)} features")
         
-        # Perform comparison
-        logger.info("Running cross-fold comparison...")
-        results = run_cross_fold_comparison(
-            null_metrics['fold_rmses'],
-            trained_metrics['fold_rmses'],
-            parsed_args.output_path
-        )
+        # Calculate null model metrics
+        folds_path = Path(args.folds_path)
+        if not folds_path.exists():
+            raise FileNotFoundError(f"Folds file not found: {folds_path}")
         
-        # Log results
-        logger.info(f"T-test p-value: {results['t_test']['p_value']:.4f}")
-        logger.info(f"Wilcoxon p-value: {results['wilcoxon_test']['p_value']:.4f}")
-        logger.info(f"Mean improvement: {results['improvement']['mean_improvement']:.4f}")
-        logger.info(f"Significant (p < 0.05): {results['conclusion']['is_significant']}")
+        null_rmses = calculate_null_model_metrics(X, y, folds_path)
+        
+        # Calculate full model metrics
+        model_path = Path(args.model_path)
+        full_rmses = calculate_trained_model_metrics(X, y, folds_path, model_path)
+        
+        # Run comparison
+        result = run_cross_fold_comparison(null_rmses, full_rmses, args.threshold)
+        
+        # Save results
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        
+        logger.info(f"Results saved to {output_path}")
+        
+        # Print summary
+        print("\n" + "="*60)
+        print("NULL MODEL COMPARISON RESULTS")
+        print("="*60)
+        print(f"Null Model RMSE:   {result['rmse_null']:.4f}")
+        print(f"Full Model RMSE:   {result['rmse_full']:.4f}")
+        print(f"Improvement:       {result['improvement_pct']*100:.2f}%")
+        print(f"Meets Threshold:   {result['meets_threshold']}")
+        print(f"P-value:           {result['p_value']:.6f}")
+        print(f"Significant:       {result['is_significant']}")
+        print(f"95% CI:            [{result['ci_95'][0]:.4f}, {result['ci_95'][1]:.4f}]")
+        print("="*60)
+        
+        if not result['meets_threshold']:
+            logger.warning(f"Improvement ({result['improvement_pct']*100:.2f}%) does not meet threshold ({args.threshold*100}%)")
+        
+        if not result['is_significant']:
+            logger.warning(f"Results not statistically significant (p={result['p_value']:.6f})")
         
         return 0
         
     except Exception as e:
-        logger.error(f"Error in null model comparison: {str(e)}", exc_info=True)
+        logger.error(f"Error during null model comparison: {str(e)}", exc_info=True)
         return 1
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

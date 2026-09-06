@@ -1,49 +1,59 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Adsorption Dataset Schema"
-type: "object"
+title: "Processed Adsorption Dataset Schema"
+description: "Schema for the cleaned and imputed dataset used in model training. This is the Single Source of Truth (SSoT)."
+type: object
 properties:
-  molecule_id:
-    type: "string"
-    description: "Unique identifier for the adsorbate molecule."
-  smiles:
-    type: "string"
-    description: "Canonical SMILES string representing the molecular structure."
-  material_id:
-    type: "string"
-    description: "Unique identifier for the adsorbent material."
-  isotherm_type:
-    type: "string"
-    enum: ["Type I", "Type II", "Type IV"]
-    description: "Classification of the adsorption isotherm."
-  langmuir_capacity:
-    type: "number"
-    description: "Langmuir capacity parameter (Q_max) in mmol/g."
-  henry_constant:
-    type: "number"
-    description: "Henry's constant (K_H) in mmol/g/bar."
+  entry_id:
+    type: string
+    description: "Unique identifier for the adsorption entry."
+  adsorbent_id:
+    type: string
+    description: "Identifier for the adsorbent material (used for grouping and splitting)."
   molecular_weight:
-    type: "number"
-    description: "Molecular weight in g/mol."
+    type: number
+    description: "Molecular weight of the adsorbate in g/mol."
   polarizability:
-    type: "number"
-    description: "Polarizability in Å³."
+    type: number
+    description: "Polarizability of the adsorbate in Å³."
   van_der_waals_volume:
-    type: "number"
+    type: number
     description: "Van der Waals volume in Å³."
-  surface_area:
-    type: "number"
-    description: "Surface area of the adsorbent in m²/g."
-  pore_volume:
-    type: "number"
-    description: "Pore volume of the adsorbent in cm³/g."
+  polar_surface_area:
+    type: number
+    description: "Polar surface area in Å²."
+  h_bond_donors:
+    type: integer
+    description: "Number of hydrogen bond donors."
+  h_bond_acceptors:
+    type: integer
+    description: "Number of hydrogen bond acceptors."
+  surface_area_m2_g:
+    type: number
+    description: "Surface area of adsorbent in m²/g."
+  pore_volume_cm3_g:
+    type: number
+    description: "Pore volume of adsorbent in cm³/g."
+  target_henry:
+    type: number
+    description: "Henry's constant (K_H) for the isotherm."
+  target_langmuir:
+    type: number
+    description: "Langmuir capacity (Q_max) for the isotherm."
+  target_henry_se:
+    type: number
+    description: "Standard error of Henry's constant (for uncertainty weighting)."
+  target_langmuir_se:
+    type: number
+    description: "Standard error of Langmuir capacity (for uncertainty weighting)."
+  is_valid:
+    type: boolean
+    description: "Flag indicating if the row passed all validation checks."
 required:
-  - molecule_id
-  - material_id
-  - isotherm_type
-  - langmuir_capacity
-  - henry_constant
+  - entry_id
+  - adsorbent_id
   - molecular_weight
   - polarizability
   - van_der_waals_volume
-  - surface_area
+  - surface_area_m2_g
+  - is_valid
 additionalProperties: false

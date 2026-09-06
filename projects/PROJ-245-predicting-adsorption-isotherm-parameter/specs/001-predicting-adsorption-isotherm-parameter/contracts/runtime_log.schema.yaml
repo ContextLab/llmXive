@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Runtime Log Schema"
+description: "Schema for the pipeline execution runtime log."
+type: object
+properties:
+  start_time:
+    type: string
+    format: date-time
+  end_time:
+    type: string
+    format: date-time
+  total_duration_seconds:
+    type: number
+  status:
+    type: string
+    enum: ["success", "partial_success", "failed"]
+  steps:
+    type: array
+    items:
+      type: object
+      properties:
+        step_name:
+          type: string
+        duration_seconds:
+          type: number
+        status:
+          type: string
+      required:
+        - step_name
+        - duration_seconds
+        - status
+required:
+  - start_time
+  - end_time
+  - total_duration_seconds
+  - status
+  - steps
+additionalProperties: false
