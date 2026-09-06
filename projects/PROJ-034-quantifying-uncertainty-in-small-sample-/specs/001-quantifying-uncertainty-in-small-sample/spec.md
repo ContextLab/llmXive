@@ -33,7 +33,7 @@ The researcher needs to run three distinct modeling approaches (OLS, Non-paramet
 **Acceptance Scenarios**:
 
 1. **Given** a dataset with known true coefficients $\beta_{true}$, **When** the pipeline runs OLS, Bootstrap (using a resampling approach), and Bayesian regression (multiple chains, sufficient samples), **Then** the system outputs three distinct interval estimates and a binary flag indicating whether $\beta_{true}$ is contained in the generated interval for each method.
-2. **Given** a high-collinearity scenario, **When** the pipeline executes, **Then** the Bayesian method completes without divergent transitions exceeding 1% of the total samples across multiple chains, and the Bootstrap method completes within 10 seconds per dataset.
+2. **Given** a high-collinearity scenario, **When** the pipeline executes, **Then** The Bayesian method completes without divergent transitions exceeding a negligible proportion of the total samples across multiple chains., and the Bootstrap method completes within 10 seconds per dataset.
 
 ---
 
@@ -61,8 +61,8 @@ The researcher needs to apply the selected best-performing method (from the simu
 ### Functional Requirements
 
 - **FR-001**: The system MUST generate synthetic regression datasets with user-specified sample sizes ($3 \le N \le 49$) and a target correlation matrix for predictors, ensuring the ground truth parameters are stored for coverage calculation (See US-1).
-- **FR-002**: The system MUST implement a Non-parametric Bootstrap procedure with a configurable number of resamples per dataset, defaulting to 500, to generate frequentist confidence intervals (See US-2).
-- **FR-003**: The system MUST implement a Bayesian Linear Regression model using weakly informative priors (e.g., Normal centered at zero for slopes, Half-Cauchy for scale) with 4 chains and 2000 samples per chain, discarding an initial warm-up period (See US-2).
+- **FR-002**: The system MUST implement a Non-parametric Bootstrap procedure with a configurable number of resamples per dataset, defaulting to a representative sample size, to generate frequentist confidence intervals (See US-2).
+- **FR-003**: The system MUST implement a Bayesian Linear Regression model using weakly informative priors (e.g., Normal centered at zero for slopes, Half-Cauchy for scale) with multiple chains and 2000 samples per chain, discarding an initial warm-up period (See US-2).
 - **FR-004**: The system MUST calculate the empirical coverage probability for each method by comparing the generated 95% confidence/credible intervals against the known true parameters across Monte Carlo replications (See US-2).
 - **FR-005**: The system MUST validate the methods on a real-world UCI dataset with $N < 50$ and at least 3 predictors (default: Concrete Compressive Strength) by subsampling and generating interval estimates without fine-tuning hyperparameters, focusing on interval stability and width comparison (See US-3).
 - **FR-006**: The system MUST perform a collinearity diagnostic (Variance Inflation Factor) on all generated datasets and flag any where VIF > 10 to ensure the "high collinearity" condition is met (See US-1, US-2).

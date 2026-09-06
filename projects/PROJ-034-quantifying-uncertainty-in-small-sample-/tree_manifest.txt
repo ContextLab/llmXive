@@ -1,0 +1,29 @@
+PROJ-034-quantifying-uncertainty-in-small-sample-
+├── code
+│   ├── metrics
+│   │   └── .gitkeep
+│   ├── models
+│   │   └── .gitkeep
+│   ├── plots
+│   │   └── .gitkeep
+│   ├── scripts
+│   │   └── .gitkeep
+│   ├── simulation
+│   │   └── .gitkeep
+│   └── validation
+│       └── .gitkeep
+├── data
+│   ├── raw
+│   │   └── .gitkeep
+│   ├── results
+│   │   └── .gitkeep
+│   └── simulated
+│       └── .gitkeep
+├── docs
+│   └── paper
+│       └── .gitkeep
+└── tests
+    ├── integration
+    │   └── .gitkeep
+    └── unit
+        └── .gitkeep

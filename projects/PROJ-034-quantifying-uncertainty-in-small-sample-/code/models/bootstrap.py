@@ -1,281 +1,247 @@
 """
-Non-parametric Bootstrap implementation with BCa (Bias-Corrected and Accelerated) interval correction.
-
-This module provides the BootstrapModel class and a convenience function to fit
-a bootstrap regression model and extract confidence intervals for coefficients.
-
-Implements the BCa correction method to improve coverage probability in small samples.
+Bootstrap model implementation for non-parametric uncertainty quantification.
+Implements BCa (Bias-Corrected and Accelerated) interval correction.
 """
-
 from typing import Tuple, Dict, Any, Optional, List
 import numpy as np
 from numpy.typing import ArrayLike
 from scipy import stats
 from scipy.special import norminv, normpdf
 
-
 class BootstrapModel:
     """
-    Non-parametric bootstrap regression model.
-    
-    This model resamples the dataset with replacement to estimate the sampling
-    distribution of regression coefficients and construct confidence intervals.
+    Non-parametric bootstrap regression model with BCa confidence intervals.
     
     Attributes:
-        n_bootstrap (int): Number of bootstrap replications.
-        confidence_level (float): Confidence level for intervals (default 0.95).
-        method (str): Interval method ('basic', 'percentile', 'bca').
-        seed (Optional[int]): Random seed for reproducibility.
+        n_bootstrap: Number of bootstrap replications
+        confidence_level: Confidence level for intervals (default 0.95)
+        random_state: Seed for reproducibility
     """
     
     def __init__(
         self,
         n_bootstrap: int = 2000,
         confidence_level: float = 0.95,
-        method: str = "bca",
-        seed: Optional[int] = None
+        random_state: Optional[int] = None
     ):
         self.n_bootstrap = n_bootstrap
         self.confidence_level = confidence_level
-        self.method = method
-        self.seed = seed
+        self.random_state = random_state
+        self.rng = np.random.default_rng(random_state)
         
-        if seed is not None:
-            np.random.seed(seed)
-        
-        # Internal state
-        self._coefficient_samples: Optional[np.ndarray] = None
-        self._original_coef: Optional[np.ndarray] = None
-        self._alpha: float = 1.0 - confidence_level
-        
-    def _fit_ols_once(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    def _fit_ols(self, X: ArrayLike, y: ArrayLike) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Fit OLS once and return coefficients.
+        Fit OLS regression and return coefficients and residuals.
         
         Args:
             X: Feature matrix (n_samples, n_features)
             y: Target vector (n_samples,)
             
         Returns:
-            np.ndarray: Coefficients (n_features,)
+            Tuple of (coefficients, residuals)
         """
+        X = np.asarray(X)
+        y = np.asarray(y)
+        
         # Add intercept column
-        X_aug = np.column_stack([np.ones(X.shape[0]), X])
+        X_with_intercept = np.column_stack([np.ones(X.shape[0]), X])
         
-        # Solve using normal equations: beta = (X'X)^{-1} X'y
+        # Solve using least squares
         try:
-            # Use pinv for numerical stability with potentially ill-conditioned matrices
-            beta = np.linalg.lstsq(X_aug, y, rcond=None)[0]
+            coeffs, residuals, rank, s = np.linalg.lstsq(
+                X_with_intercept, y, rcond=None
+            )
         except np.linalg.LinAlgError:
-            # Fallback to pseudoinverse if singular
-            beta = np.linalg.pinv(X_aug) @ y
+            # Handle rank-deficient case
+            coeffs = np.zeros(X_with_intercept.shape[1])
+            residuals = np.array([0.0])
         
-        return beta
+        # Calculate residuals for BCa acceleration
+        fitted = X_with_intercept @ coeffs
+        residuals = y - fitted
+        
+        return coeffs, residuals
     
-    def fit(self, X: ArrayLike, y: ArrayLike) -> "BootstrapModel":
+    def _calculate_bca_params(
+        self,
+        theta_hat: np.ndarray,
+        theta_boot: np.ndarray,
+        residuals: np.ndarray,
+        X: ArrayLike
+    ) -> Tuple[float, float, float]:
         """
-        Fit the bootstrap model by resampling and storing coefficient distributions.
+        Calculate BCa parameters: bias correction (z0), acceleration (a), and alpha.
+        
+        Args:
+            theta_hat: Original estimate
+            theta_boot: Bootstrap estimates
+            residuals: Residuals from original fit
+            X: Feature matrix
+            
+        Returns:
+            Tuple of (z0, a, alpha)
+        """
+        # Bias correction (z0)
+        prop_less = np.mean(theta_boot < theta_hat)
+        z0 = norminv(prop_less)
+        
+        # Acceleration (a) using jackknife
+        n = len(residuals)
+        p = X.shape[1] if len(X.shape) > 1 else 1
+        
+        # Use a simplified acceleration calculation based on skewness of residuals
+        # This is a common approximation when full jackknife is computationally expensive
+        skewness = stats.skew(residuals)
+        a = skewness / (6 * np.sqrt(n))
+        
+        # Alpha level
+        alpha = 1 - self.confidence_level
+        
+        return z0, a, alpha
+    
+    def _calculate_bca_intervals(
+        self,
+        theta_hat: np.ndarray,
+        theta_boot: np.ndarray,
+        residuals: np.ndarray,
+        X: ArrayLike
+    ) -> np.ndarray:
+        """
+        Calculate BCa confidence intervals for each coefficient.
+        
+        Args:
+            theta_hat: Original coefficient estimates
+            theta_boot: Bootstrap coefficient estimates (n_bootstrap, n_coeffs)
+            residuals: Residuals from original fit
+            X: Feature matrix
+            
+        Returns:
+            Array of shape (n_coeffs, 2) with [lower, upper] bounds
+        """
+        n_coeffs = len(theta_hat)
+        intervals = np.zeros((n_coeffs, 2))
+        
+        z0, a, alpha = self._calculate_bca_params(
+            theta_hat, theta_boot[:, 0], residuals, X
+        )  # Use first coefficient for z0 calculation as approximation
+        
+        # Calculate BCa adjusted percentiles for each coefficient
+        for i in range(n_coeffs):
+            theta_boot_i = theta_boot[:, i]
+            
+            # Bias correction for this coefficient
+            prop_less = np.mean(theta_boot_i < theta_hat[i])
+            z0_i = norminv(prop_less)
+            
+            # Adjusted percentiles
+            z_alpha_1 = norminv(alpha / 2)
+            z_alpha_2 = norminv(1 - alpha / 2)
+            
+            # BCa adjustment formula
+            if abs(a) < 1e-10:
+                # If acceleration is near zero, use standard percentile
+                lower_idx = int(np.floor((alpha / 2) * self.n_bootstrap))
+                upper_idx = int(np.ceil((1 - alpha / 2) * self.n_bootstrap))
+            else:
+                # Full BCa calculation
+                num1 = z0_i + z_alpha_1
+                den1 = 1 - a * num1
+                z1 = z0_i + num1 / den1
+                
+                num2 = z0_i + z_alpha_2
+                den2 = 1 - a * num2
+                z2 = z0_i + num2 / den2
+                
+                lower_idx = int(np.floor(stats.norm.cdf(z1) * self.n_bootstrap))
+                upper_idx = int(np.ceil(stats.norm.cdf(z2) * self.n_bootstrap))
+            
+            # Ensure indices are within bounds
+            lower_idx = max(0, min(lower_idx, self.n_bootstrap - 1))
+            upper_idx = max(0, min(upper_idx, self.n_bootstrap - 1))
+            
+            # Sort bootstrap estimates and get percentiles
+            sorted_boot = np.sort(theta_boot_i)
+            intervals[i, 0] = sorted_boot[lower_idx]
+            intervals[i, 1] = sorted_boot[upper_idx]
+        
+        return intervals
+    
+    def fit(
+        self,
+        X: ArrayLike,
+        y: ArrayLike,
+        seed: Optional[int] = None
+    ) -> Dict[str, Any]:
+        """
+        Fit the bootstrap model and return coefficients with BCa intervals.
         
         Args:
             X: Feature matrix (n_samples, n_features)
             y: Target vector (n_samples,)
+            seed: Optional seed for reproducibility
             
         Returns:
-            self: Fitted model instance
+            Dictionary containing:
+                - coefficients: Original OLS estimates
+                - intervals: BCa confidence intervals
+                - bootstrap_means: Mean of bootstrap estimates
+                - bootstrap_std: Standard deviation of bootstrap estimates
+                - n_bootstrap: Number of bootstrap samples used
         """
-        X = np.asarray(X, dtype=float)
-        y = np.asarray(y, dtype=float)
+        if seed is not None:
+            self.rng = np.random.default_rng(seed)
+        
+        X = np.asarray(X)
+        y = np.asarray(y)
         
         n_samples, n_features = X.shape
         
         # Fit original model
-        self._original_coef = self._fit_ols_once(X, y)
+        theta_hat, residuals = self._fit_ols(X, y)
         
-        # Store coefficient samples: (n_bootstrap, n_features + 1 for intercept)
-        self._coefficient_samples = np.zeros((self.n_bootstrap, n_features + 1))
+        # Store intercept in coefficients (first element)
+        coefficients = theta_hat[1:] if len(theta_hat) > 1 else np.array([])
+        intercept = theta_hat[0] if len(theta_hat) > 1 else 0.0
         
-        # Bootstrap resampling
-        for i in range(self.n_bootstrap):
+        # Generate bootstrap samples
+        theta_boot_list = []
+        
+        for _ in range(self.n_bootstrap):
             # Resample indices with replacement
-            indices = np.random.choice(n_samples, size=n_samples, replace=True)
+            indices = self.rng.integers(0, n_samples, size=n_samples)
             X_boot = X[indices]
             y_boot = y[indices]
             
-            # Fit on bootstrap sample
-            self._coefficient_samples[i] = self._fit_ols_once(X_boot, y_boot)
+            # Fit bootstrap model
+            theta_boot, _ = self._fit_ols(X_boot, y_boot)
+            theta_boot_list.append(theta_boot)
         
-        return self
-    
-    def _calculate_bca_parameters(
-        self,
-        theta_boot: np.ndarray,
-        theta_hat: float
-    ) -> Tuple[float, float]:
-        """
-        Calculate BCa parameters: z0 (bias correction) and a (acceleration).
+        theta_boot = np.array(theta_boot_list)
         
-        Args:
-            theta_boot: Bootstrap estimates (1D array of shape n_bootstrap)
-            theta_hat: Original estimate
-            
-        Returns:
-            Tuple[float, float]: (z0, a)
-        """
-        # z0: Bias correction factor
-        # Proportion of bootstrap estimates less than original estimate
-        prop_less = np.mean(theta_boot < theta_hat)
-        # Clamp to avoid infinite z0
-        prop_less = np.clip(prop_less, 1e-10, 1 - 1e-10)
-        z0 = norminv(prop_less)
+        # Calculate BCa intervals
+        bca_intervals = self._calculate_bca_intervals(
+            theta_hat, theta_boot, residuals, np.column_stack([np.ones(n_samples), X])
+        )
         
-        # a: Acceleration factor (using jackknife)
-        n = len(theta_boot)  # Approximate n with bootstrap count for efficiency
-        # For proper acceleration, we'd need jackknife samples, but we approximate
-        # using the skewness of bootstrap distribution
-        # This is a common approximation when jackknife is too expensive
-        theta_boot_centered = theta_boot - np.mean(theta_boot)
-        numerator = np.sum(theta_boot_centered ** 3)
-        denominator = 6 * (np.sum(theta_boot_centered ** 2) ** 1.5)
-        
-        if denominator == 0:
-            a = 0.0
+        # Extract intervals for coefficients (excluding intercept)
+        if len(coefficients) > 0:
+            coef_intervals = bca_intervals[1:, :]
         else:
-            a = numerator / denominator
+            coef_intervals = np.array([]).reshape(0, 2)
         
-        return z0, a
-    
-    def _get_bca_intervals(
-        self,
-        coef_idx: int
-    ) -> Tuple[float, float]:
-        """
-        Calculate BCa confidence interval for a specific coefficient.
-        
-        Args:
-            coef_idx: Index of the coefficient (including intercept at 0)
-            
-        Returns:
-            Tuple[float, float]: (lower_bound, upper_bound)
-        """
-        theta_boot = self._coefficient_samples[:, coef_idx]
-        theta_hat = self._original_coef[coef_idx]
-        
-        # Calculate BCa parameters
-        z0, a = self._calculate_bca_parameters(theta_boot, theta_hat)
-        
-        # Standard normal quantiles for alpha/2 and 1-alpha/2
-        z_alpha2 = norminv(self._alpha / 2)
-        z_1_alpha2 = norminv(1 - self._alpha / 2)
-        
-        # BCa adjustment formula
-        # alpha1 = Phi(z0 + (z0 + z_alpha2) / (1 - a * (z0 + z_alpha2)))
-        # alpha2 = Phi(z0 + (z0 + z_1_alpha2) / (1 - a * (z0 + z_1_alpha2)))
-        
-        def bca_adjusted_quantile(z: float) -> float:
-            numerator = z0 + z
-            denominator = 1 - a * numerator
-            if denominator == 0:
-                return 0.5
-            adjusted_z = z0 + numerator / denominator
-            return stats.norm.cdf(adjusted_z)
-        
-        alpha1 = bca_adjusted_quantile(z_alpha2)
-        alpha2 = bca_adjusted_quantile(z_1_alpha2)
-        
-        # Clamp percentiles to valid range [0, 1]
-        alpha1 = np.clip(alpha1, 0.001, 0.999)
-        alpha2 = np.clip(alpha2, 0.001, 0.999)
-        
-        # Get percentiles from bootstrap distribution
-        lower = np.percentile(theta_boot, alpha1 * 100)
-        upper = np.percentile(theta_boot, alpha2 * 100)
-        
-        return lower, upper
-    
-    def get_confidence_intervals(self) -> Dict[str, Any]:
-        """
-        Get confidence intervals for all coefficients.
-        
-        Returns:
-            Dict[str, Any]: Dictionary containing:
-                - 'coef_names': List of coefficient names (intercept, beta_0, ...)
-                - 'estimates': Original coefficient estimates
-                - 'intervals': List of (lower, upper) tuples for each coefficient
-                - 'method': Interval method used
-                - 'confidence_level': Confidence level
-        """
-        if self._coefficient_samples is None or self._original_coef is None:
-            raise RuntimeError("Model must be fitted before getting intervals.")
-        
-        n_coefs = self._original_coef.shape[0]
-        coef_names = ["intercept"] + [f"beta_{i}" for i in range(n_coefs - 1)]
-        
-        intervals = []
-        for i in range(n_coefs):
-            if self.method == "bca":
-                lower, upper = self._get_bca_intervals(i)
-            elif self.method == "percentile":
-                lower = np.percentile(
-                    self._coefficient_samples[:, i],
-                    self._alpha / 2 * 100
-                )
-                upper = np.percentile(
-                    self._coefficient_samples[:, i],
-                    (1 - self._alpha / 2) * 100
-                )
-            else:
-                # Basic (pivotal) interval
-                mean_boot = np.mean(self._coefficient_samples[:, i])
-                lower = 2 * self._original_coef[i] - upper
-                upper = 2 * self._original_coef[i] - lower
-                # Recalculate properly for basic interval
-                diff_upper = self._coefficient_samples[:, i] - self._original_coef[i]
-                diff_lower = self._coefficient_samples[:, i] - self._original_coef[i]
-                lower = self._original_coef[i] - np.percentile(
-                    diff_upper, (1 - self._alpha / 2) * 100
-                )
-                upper = self._original_coef[i] - np.percentile(
-                    diff_lower, self._alpha / 2 * 100
-                )
-            
-            intervals.append((lower, upper))
+        # Calculate bootstrap statistics
+        bootstrap_means = np.mean(theta_boot, axis=0)
+        bootstrap_std = np.std(theta_boot, axis=0)
         
         return {
-            "coef_names": coef_names,
-            "estimates": self._original_coef.tolist(),
-            "intervals": intervals,
-            "method": self.method,
-            "confidence_level": self.confidence_level,
-            "n_bootstrap": self.n_bootstrap
+            'coefficients': coefficients,
+            'intercept': intercept,
+            'intervals': coef_intervals,
+            'bootstrap_means': bootstrap_means[1:] if len(bootstrap_means) > 1 else np.array([]),
+            'bootstrap_std': bootstrap_std[1:] if len(bootstrap_std) > 1 else np.array([]),
+            'n_bootstrap': self.n_bootstrap,
+            'confidence_level': self.confidence_level
         }
-    
-    def get_summary_statistics(self) -> Dict[str, Any]:
-        """
-        Get summary statistics for the bootstrap distribution.
-        
-        Returns:
-            Dict[str, Any]: Dictionary with mean, std, and percentiles for each coefficient.
-        """
-        if self._coefficient_samples is None:
-            raise RuntimeError("Model must be fitted first.")
-        
-        n_coefs = self._coefficient_samples.shape[1]
-        stats_dict = {}
-        
-        for i in range(n_coefs):
-            coef_name = f"beta_{i}" if i > 0 else "intercept"
-            samples = self._coefficient_samples[:, i]
-            stats_dict[coef_name] = {
-                "mean": float(np.mean(samples)),
-                "std": float(np.std(samples)),
-                "median": float(np.median(samples)),
-                "min": float(np.min(samples)),
-                "max": float(np.max(samples)),
-                "percentile_2.5": float(np.percentile(samples, 2.5)),
-                "percentile_97.5": float(np.percentile(samples, 97.5))
-            }
-        
-        return stats_dict
 
 
 def fit_bootstrap_and_get_intervals(
@@ -283,43 +249,24 @@ def fit_bootstrap_and_get_intervals(
     y: ArrayLike,
     n_bootstrap: int = 2000,
     confidence_level: float = 0.95,
-    method: str = "bca",
     seed: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Convenience function to fit a bootstrap model and return confidence intervals.
+    Convenience function to fit bootstrap model and return intervals.
     
     Args:
         X: Feature matrix (n_samples, n_features)
         y: Target vector (n_samples,)
-        n_bootstrap: Number of bootstrap replications (default 2000)
-        confidence_level: Confidence level for intervals (default 0.95)
-        method: Interval method ('basic', 'percentile', 'bca')
+        n_bootstrap: Number of bootstrap replications
+        confidence_level: Confidence level for intervals
         seed: Random seed for reproducibility
         
     Returns:
-        Dict[str, Any]: Dictionary containing:
-            - 'coef_names': List of coefficient names
-            - 'estimates': Original OLS coefficient estimates
-            - 'intervals': List of (lower, upper) tuples for each coefficient
-            - 'method': Interval method used
-            - 'confidence_level': Confidence level
-            - 'n_bootstrap': Number of bootstrap samples
-            - 'summary': Summary statistics for each coefficient
+        Dictionary with coefficients and BCa confidence intervals
     """
     model = BootstrapModel(
         n_bootstrap=n_bootstrap,
         confidence_level=confidence_level,
-        method=method,
-        seed=seed
+        random_state=seed
     )
-    
-    model.fit(X, y)
-    
-    intervals = model.get_confidence_intervals()
-    summary = model.get_summary_statistics()
-    
-    return {
-        **intervals,
-        "summary": summary
-    }
+    return model.fit(X, y, seed=seed)

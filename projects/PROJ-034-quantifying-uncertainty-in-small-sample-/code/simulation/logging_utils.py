@@ -4,16 +4,19 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 from pathlib import Path
 
-LOG_FILE_PATH = "data/results/simulation.log"
-
-def ensure_log_directory() -> Path:
+def ensure_log_directory(log_dir: str = "data/results") -> Path:
     """
-    Ensures the directory for the log file exists.
-    Creates it if it doesn't.
+    Ensure the log directory exists.
+    
+    Args:
+        log_dir: Path to the log directory.
+        
+    Returns:
+        Path object for the log directory.
     """
-    log_path = Path(LOG_FILE_PATH)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    return log_path.parent
+    path = Path(log_dir)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 def log_simulation_run(
     N: int,
@@ -21,53 +24,67 @@ def log_simulation_run(
     seed: int,
     duration: float,
     vif_max: float,
-    output_path: Optional[str] = None
+    regeneration_attempts: int,
+    regeneration_reason: str,
+    log_file: str = "data/results/simulation.log"
 ) -> None:
     """
-    Appends a single JSON line to the simulation log file.
-
+    Log simulation run parameters to a JSON-lines file.
+    
+    This function appends a single JSON record to the specified log file.
+    The record contains all relevant simulation parameters and runtime metrics.
+    
     Args:
         N: Sample size used in the simulation.
-        rho: Target correlation coefficient used.
+        rho: Target correlation coefficient used in the simulation.
         seed: Random seed used for reproducibility.
-        duration: Duration of the run in seconds.
-        vif_max: Maximum VIF score observed in the generated data.
-        output_path: Optional path override for the log file.
+        duration: Execution time in seconds.
+        vif_max: Maximum VIF score observed in the generated dataset.
+        regeneration_attempts: Number of attempts made to generate a valid dataset.
+        regeneration_reason: Reason for any regeneration attempts (e.g., "not_positive_semidefinite").
+        log_file: Path to the log file.
     """
     log_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now().isoformat(),
         "N": N,
         "rho": rho,
         "seed": seed,
         "duration": duration,
-        "vif_max": vif_max
+        "vif_max": vif_max,
+        "regeneration_attempts": regeneration_attempts,
+        "regeneration_reason": regeneration_reason
     }
-
-    path_to_use = output_path if output_path else LOG_FILE_PATH
-    ensure_log_directory()
-
-    with open(path_to_use, "a") as f:
+    
+    log_path = Path(log_file)
+    ensure_log_directory(str(log_path.parent))
+    
+    with open(log_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(log_entry) + "\n")
 
-def get_log_entries(output_path: Optional[str] = None) -> list:
+def get_log_entries(log_file: str = "data/results/simulation.log") -> list:
     """
-    Reads and parses all JSON log entries from the log file.
-
-    Returns:
-        A list of dictionaries, each representing one simulation run.
-    """
-    path_to_use = output_path if output_path else LOG_FILE_PATH
+    Read all log entries from the simulation log file.
     
-    if not os.path.exists(path_to_use):
-        return []
-
+    Args:
+        log_file: Path to the log file.
+        
+    Returns:
+        List of dictionaries, each representing a log entry.
+    """
     entries = []
-    with open(path_to_use, "r") as f:
+    log_path = Path(log_file)
+    
+    if not log_path.exists():
+        return entries
+        
+    with open(log_path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
                 try:
                     entries.append(json.loads(line))
                 except json.JSONDecodeError:
+                    # Skip malformed lines
                     continue
+                    
     return entries

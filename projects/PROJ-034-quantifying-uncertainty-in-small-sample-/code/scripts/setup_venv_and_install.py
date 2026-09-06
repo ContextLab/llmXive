@@ -1,7 +1,3 @@
-"""
-Script to initialize the Python 3.11 virtual environment and install dependencies.
-This script fulfills the 'run' part of T002.
-"""
 import os
 import sys
 import subprocess
@@ -9,59 +5,56 @@ import shutil
 from pathlib import Path
 
 def main():
-    project_root = Path(__file__).resolve().parent.parent.parent
-    venv_dir = project_root / "venv"
-    requirements_file = project_root / "requirements.txt"
+    """
+    Creates a Python 3.11 virtual environment in the project root (venv)
+    and installs dependencies from requirements.txt.
+    """
+    project_root = Path(__file__).resolve().parents[2]
+    venv_path = project_root / "venv"
+    requirements_path = project_root / "requirements.txt"
 
-    print(f"Project root: {project_root}")
-    print(f"Requirements file: {requirements_file}")
-
-    if not requirements_file.exists():
-        print("ERROR: requirements.txt not found. Please run this from the project root.")
+    if not requirements_path.exists():
+        print(f"Error: requirements.txt not found at {requirements_path}")
         sys.exit(1)
 
-    # Check Python version (3.11)
-    python_version = sys.version_info
-    print(f"Current Python version: {python_version.major}.{python_version.minor}.{python_version.micro}")
-    if python_version.major != 3 or python_version.minor < 11:
-        print("WARNING: This project targets Python 3.11. Proceeding with current interpreter.")
-    
-    # Remove existing venv if it exists to ensure clean state
-    if venv_dir.exists():
-        print(f"Removing existing virtual environment at {venv_dir}...")
-        shutil.rmtree(venv_dir)
+    if venv_path.exists():
+        print(f"Removing existing virtual environment at {venv_path}")
+        shutil.rmtree(venv_path)
 
-    # Create virtual environment
-    print(f"Creating virtual environment at {venv_dir}...")
-    subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)
-
-    # Determine the pip path based on OS
-    if os.name == 'nt':
-        pip_executable = venv_dir / "Scripts" / "pip.exe"
-        python_executable = venv_dir / "Scripts" / "python.exe"
-    else:
-        pip_executable = venv_dir / "bin" / "pip"
-        python_executable = venv_dir / "bin" / "python"
-
-    if not pip_executable.exists():
-        print(f"ERROR: pip not found at {pip_executable}")
-        sys.exit(1)
-
-    # Upgrade pip first
-    print("Upgrading pip...")
-    subprocess.run([str(python_executable), "-m", "pip", "install", "--upgrade", "pip"], check=True)
-
-    # Install requirements
-    print(f"Installing dependencies from {requirements_file}...")
+    print(f"Creating virtual environment at {venv_path}...")
     try:
         subprocess.run(
-            [str(pip_executable), "install", "-r", str(requirements_file)],
-            check=True
+            [sys.executable, "-m", "venv", str(venv_path)],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
         )
-        print("SUCCESS: All dependencies installed successfully.")
     except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to install dependencies. Exit code: {e.returncode}")
+        print(f"Error creating virtual environment: {e.stderr.decode()}")
         sys.exit(1)
+
+    # Determine the path to the python executable inside the venv
+    if sys.platform == "win32":
+        python_exe = venv_path / "Scripts" / "python.exe"
+        pip_exe = venv_path / "Scripts" / "pip.exe"
+    else:
+        python_exe = venv_path / "bin" / "python"
+        pip_exe = venv_path / "bin" / "pip"
+
+    print("Upgrading pip...")
+    subprocess.run(
+        [str(python_exe), "-m", "pip", "install", "--upgrade", "pip"],
+        check=True
+    )
+
+    print(f"Installing dependencies from {requirements_path}...")
+    subprocess.run(
+        [str(pip_exe), "install", "-r", str(requirements_path)],
+        check=True
+    )
+
+    print("Virtual environment created and dependencies installed successfully.")
+    print(f"To activate, run: source {venv_path / 'bin' / 'activate'} (Linux/Mac) or {venv_path / 'Scripts' / 'activate.bat'} (Windows)")
 
 if __name__ == "__main__":
     main()

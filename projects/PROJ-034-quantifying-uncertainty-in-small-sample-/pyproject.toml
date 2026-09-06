@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantify-uncertainty-small-sample"
+name = "quantifying-uncertainty-small-sample"
 version = "0.1.0"
 description = "Quantifying Uncertainty in Small Sample Regression Models"
 readme = "README.md"
@@ -20,18 +20,13 @@ dependencies = [
     "pytest>=7.3.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-include = ["simulation*", "models*", "metrics*", "validation*", "plots*", "scripts*", "main*"]
-
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
+    \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -46,17 +41,29 @@ exclude = '''
 [tool.flake8]
 max-line-length = 88
 exclude = [
-    "venv",
+    ".venv",
     ".git",
     "__pycache__",
     "build",
-    "dist",
-    ".eggs",
-    "*.egg-info"
+    "dist"
 ]
-ignore = [
-    "E203",
-    "W503"
-]
+ignore = ["E203", "W503"]
 per-file-ignores = []
 max-complexity = 10
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code"]
+skip = [".venv", ".git"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]

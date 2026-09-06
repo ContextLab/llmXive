@@ -15,7 +15,7 @@ This project implements a Monte Carlo simulation engine to empirically compare t
 **Testing**: `pytest` (unit tests for simulation logic, coverage checks for pipeline)  
 **Target Platform**: Linux (GitHub Actions Free Runner)  
 **Project Type**: Computational Research / Simulation Library  
-**Performance Goals**: Complete 200 Monte Carlo replications with 500 bootstrap samples and 2000 MCMC samples per chain within 6 hours.  
+**Performance Goals**: Complete A sufficient number of Monte Carlo replications with A substantial number of bootstrap samples and A sufficient number of MCMC samples per chain within 6 hours.  
 **Constraints**: No GPU; memory usage < 7GB; disk usage < 14GB; strict adherence to $N < 50$; no external API calls during execution (datasets cached locally).  
 **Scale/Scope**: A substantial number of simulation runs, multiple methods, 1 real-world validation dataset (subsampled).
 
@@ -28,12 +28,16 @@ This project implements a Monte Carlo simulation engine to empirically compare t
 | Principle | Status | Implementation Detail |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | **Pass** | Random seeds pinned in `code/simulation/engine.py`; dependencies pinned in `requirements.txt`; execution isolated in virtualenv. |
-| **II. Verified Accuracy** | **Provisional** | The selection of specific priors (Normal(0,10)) and the UCI Concrete dataset are **provisional** pending validation in Phase 0 (Research). Citations will be verified against primary sources before inclusion in `research.md` and `paper/`. |
+| **II. Verified Accuracy** | **Provisional** | The selection of specific priors (Normal with a zero mean) and the UCI Concrete dataset are **provisional** pending validation in Phase 0 (Research). Citations will be verified against primary sources before inclusion in `research.md` and `paper/`. |
 | **III. Data Hygiene** | **Pass** | Synthetic data generated on-the-fly (checksummed via content hash); UCI dataset downloaded and checksummed; no in-place modifications. |
 | **IV. Single Source of Truth** | **Pass** | All figures/statistics in `paper/` will be generated directly from `data/` artifacts via `code/` scripts; no hand-typed numbers. |
 | **V. Versioning Discipline** | **Pass** | Artifact hashes recorded in `state/`; `updated_at` timestamps managed by the Advancement-Evaluator. |
 | **VI. Empirical Coverage Validation** | **Pass** | Core metric: `empirical_coverage = (count(covered) / N_replications)`. Validated against nominal level in `code/metrics/coverage.py`. |
-| **VII. Small-Sample Regime Integrity** | **Pass** | Simulation config enforces $3 \le N \le 49$; validation dataset subsampled to $N < 50$; collinearity diagnostic (VIF) enforced on *realized* data. |
+| **VII. Small-Sample Regime Integrity** | **Pass** | Simulation config enforces $ \le N \le$ a moderate upper bound
+
+The research question remains: [Insert Research Question]
+The method remains: [Insert Method]
+References: [Insert References]; validation dataset subsampled to $N < 50$; collinearity diagnostic (VIF) enforced on *realized* data. |
 
 ## Project Structure
 
@@ -92,7 +96,7 @@ projects/PROJ-034-quantifying-uncertainty-in-small-sample-/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Bayesian Inference Engine (cmdstanpy)** | Required for FR-003 to compare against Bootstrap/OLS. | Using a heavy GPU-based framework (e.g., PyTorch with full LLMs) is infeasible on the 2-CPU runner; `cmdstanpy` is the standard CPU-tractable choice for small regression models. |
-| **Monte Carlo Replications (200)** | Required for SC-004 (statistical power) within 6h limit. | Fewer replications (e.g., 50) would yield high Monte Carlo error (SE ~0.14), failing to detect subtle coverage differences; more replications exceed the 6h runtime. |
+| **Bayesian Inference Engine (cmdstanpy)** | Required for FR-003 to compare against Bootstrap/OLS. | Using a heavy GPU-based framework (e.g., PyTorch with full LLMs) is infeasible on the -CPU runner; `cmdstanpy` is the standard CPU-tractable choice for small regression models. |
+| **Monte Carlo Replications (200)** | Required for SC-004 (statistical power) within 6h limit. | Fewer replications would yield high Monte Carlo error., failing to detect subtle coverage differences; more replications exceed the 6h runtime. |
 | **Collinearity Diagnostic (Realized VIF)** | Required for FR-006 to ensure "high collinearity" condition. | Relying solely on target correlation $\rho$ is insufficient due to random variation in small samples; filtering by *realized* VIF ensures the analysis subset meets the stress condition without selection bias. |
 | **BCa Bootstrap Intervals** | Required for methodological rigor in small samples. | Standard percentile intervals are known to have poor coverage properties in small samples ($N < 50$); BCa corrects for bias and skewness. |

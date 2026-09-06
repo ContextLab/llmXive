@@ -45,13 +45,13 @@
 
 **⚠️ CRITICAL**: No implementation tasks can begin until this phase is complete.
 
-- [X] T000 [P] Verify UCI Dataset Citation: Consult the primary source for the "Concrete Compressive Strength" dataset (UCI Machine Learning Repository). **Invoke the Reference-Validator Agent** to verify the dataset ID, URL, and citation details against the plan's assumptions. Record the verified citation in `research.md` and confirm the dataset contains sufficient features (≥3 predictors) and sample size potential. **Output**: `data/raw/uci_citation_verified.json` containing the verified URL and citation string, **and update `state/projects/PROJ-034-quantifying-uncertainty-in-small-sample-.yaml` with the verification status** as required by Constitution Principle II.
+- [X] T000 [P] Write Citation Verification Script: **Create** `code/scripts/verify_citation.py`. This script must invoke the Reference-Validator Agent via the project's CLI interface (e.g., `python -m code.scripts.run_validator --target "Concrete Compressive Strength"`) to verify the dataset citation. **Output**: The script must save the verified citation details to `data/raw/uci_citation_verified.json` and update `state/projects/PROJ-034-quantifying-uncertainty-in-small-sample-.yaml` with the verification status. **Constraint**: Do not instruct the user to manually run agents; the script must perform the verification logic using the CLI. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: **Create the directory tree**: `code/simulation`, `code/models`, `code/metrics`, `code/validation`, `code/plots`, `code/scripts`, `data/raw`, `data/simulated`, `data/results`, `tests/unit`, `tests/integration`, `docs/paper`.
+- [ ] T001 [P] Create Project Directory Structure: **Create** the entire directory tree defined in `plan.md` (including `code/simulation`, `code/models`, `code/metrics`, `code/validation`, `code/plots`, `code/scripts`, `data/raw`, `data/simulated`, `data/results`, `tests/unit`, `tests/integration`, `docs/paper`). **Verification**: After creation, run `tree` (or equivalent) and save the output to `tree_manifest.txt` in the project root to prove the structure exists.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -61,9 +61,8 @@
 
 - [X] T002 [P] Initialize Python 3.11 project: Create `requirements.txt` with pinned versions (numpy, pandas, scipy, scikit-learn, cmdstanpy, matplotlib, seaborn, pyyaml, pytest) and run `python -m venv venv && pip install -r requirements.txt`
 - [X] T003 [P] Configure linting: Create `pyproject.toml` with `[tool.black]` (line-length=88) and `[tool.flake8]` (max-line-length=88, exclude=venv) sections
-- [ ] T004 [P] Setup `code/` directory structure: `simulation/`, `models/`, `metrics/`, `validation/`, `plots/`, `scripts/`
 - [X] T005 [P] Implement `code/simulation/config.py` defining `SimulationConfig` schema (N, predictors, correlation matrix, noise, true coefficients)
-- [X] T006 [P] Implement `code/simulation/engine.py`: **Fully implement** the `calculate_vif` function (FR-006) and `generate_synthetic_data` with the exact signature: `def generate_synthetic_data(config: SimulationConfig, seed: int) -> DatasetInstance`. The `DatasetInstance` must include fields: `X` (np.ndarray), `y` (np.ndarray), `beta_true` (np.ndarray), `vif_scores` (dict). **Do not use a skeleton**; provide a complete, working implementation.
+- [X] T006 [P] Implement `code/simulation/engine.py`: **Fully implement** the `calculate_vif` function (FR-006) and `generate_synthetic_data` with the exact signature: `def generate_synthetic_data(config: SimulationConfig, seed: int) -> DatasetInstance`. The `DatasetInstance` must include fields: `X` (np.ndarray), `y` (np.ndarray), `beta_true` (np.ndarray), `vif_scores` (dict). **Do not use a skeleton**; provide a complete, working implementation. This task is the **producer** of the VIF calculation logic. **Dependency**: This task depends on T005 completion.
 - [ ] T007 [P] Create `data/raw/`, `data/simulated/`, and `data/results/` directory structure with `.gitkeep` files in each
 - [X] T009 [P] Setup pytest configuration: Create `pytest.ini` (addopts="-v --tb=short") and `tests/conftest.py` with shared fixtures
 
@@ -81,17 +80,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for correlation matrix generation in `tests/unit/test_simulation.py` (Verify $\rho$ within a predefined tolerance threshold.)
-- [X] T011 [P] [US1] Unit test for rank-checking logic in `tests/unit/test_simulation.py` (Verify handling of $N=5$ or rank-deficient cases)
+- [X] T010 [P] [US1] Unit test for correlation matrix generation in `tests/unit/test_simulation.py`: Verify that the generated correlation matrix matches the target $\rho$ within an acceptable tolerance.
+- [X] T011 [P] [US1] Unit test for rank-checking logic in `tests/unit/test_simulation.py`: Verify handling of $N=5$ or rank-deficient cases with explicit assertions.
 
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/simulation/engine.py`: Generate $X$ matrix with Cholesky decomposition for target correlation
 - [X] T013 [US1] Implement `code/simulation/engine.py`: Generate $y$ vector using true coefficients and Gaussian noise
-- [X] T014 [US1] Implement `code/simulation/engine.py`: Add full VIF calculation and flagging (VIF > 10) for collinearity verification (FR-006), **persisting the flag in the `DatasetInstance` metadata** saved to `data/simulated/`. (Note: `calculate_vif` is already implemented in T006; this task focuses on integration and metadata persistence).
+- [X] T014 [US1] Implement `code/simulation/engine.py`: Add full VIF calculation integration and flagging (VIF > 10 (2005.02245, https://arxiv.org/abs/2005.02245) [UNRESOLVED-CLAIM: c_b53a36c1 — status=not_enough_info]) for collinearity verification (FR-006), **persisting the flag in the `DatasetInstance` metadata** saved to `data/simulated/`. **Note**: Use the `calculate_vif` function implemented in **T006**; do not re-implement the logic. This task focuses on integration and metadata persistence.
 - [X] T015 [US1] Implement `code/simulation/engine.py`: Add positive semi-definite check and auto-regeneration logic for invalid matrices (limited number of attempts per config)
-- [X] T016 [US1] Implement `code/simulation/engine.py`: Save `DatasetInstance` objects (X, y, $\beta_{true}$) to `data/simulated/` with metadata (JSON). **Explicitly mandate serializing the `beta_true` vector** into the JSON output to satisfy FR-001.
-- [ ] T017 [US1] Add logging for simulation run parameters: Write to `data/results/simulation.log` in JSON format with fields: `N`, `rho`, `seed`, `duration`, `vif_max`
+- [X] T016 [US1] Implement `code/simulation/engine.py`: Save `DatasetInstance` objects (X, y, $\beta_{true}$) to `data/simulated/` with metadata (JSON). **Explicitly mandate**: Convert `beta_true` (np.ndarray) to a **list** for JSON serialization and preserve the `dtype` in the metadata JSON to ensure ground truth integrity (FR-001).
+- [ ] T017 [US1] Add logging for simulation run parameters: Write to `data/results/simulation.log` in JSON format with fields: `N`, `rho`, `seed`, `duration`, `vif_max`, **AND** `regeneration_attempts` and `regeneration_reason` to verify the "stable" assumption against actual behavior.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -114,20 +113,25 @@
 - [X] T021 [P] [US2] Implement `code/models/ols.py`: OLS fit and standard 95% confidence interval calculation
 - [X] T022 [US2] Implement `code/models/bootstrap.py`: Non-parametric bootstrap with BCa interval correction
 - [X] T023 [US2] Implement `code/models/bayesian.py`: CmdStanPy model definition with Normal(0, 10) priors and Half-Cauchy scale
-- [X] T024 [US2] Implement `code/models/bayesian.py`: Execution wrapper (multiple chains, a sufficient number of samples per chain, an adequate warmup period) and divergent transition check
-- [X] T025 [US2] Implement `code/metrics/coverage.py`: Logic to compare intervals against $\beta_{true}$ and return binary "covered" status
-- [X] T026 [US2] Implement `code/main.py`: Orchestration loop for Monte Carlo replications. **CRITICAL**: Implement a **fixed `for` loop over N=200 replications**. For each run, if the model fails convergence (R-hat > 1.05) or VIF > 10, **flag it as under-coverage or record the exclusion reason in a separate log**, but **DO NOT resample**. Output aggregated results to `data/results/coverage_metrics.json` with the **exact schema**:
+- [ ] T024 [US2] Implement `code/models/bayesian.py`: Execution wrapper (multiple chains, a sufficient number of samples per chain, an adequate warmup period) and divergent transition check
+- [ ] T025 [US2] Implement `code/metrics/coverage.py`: Logic to compare intervals against $\beta_{true}$ and return binary "covered" status
+- [ ] T026 [US2] Implement `code/main.py`: Orchestration loop for Monte Carlo replications. **CRITICAL**: Implement a **fixed `for` loop over N=200 replications **.
+ 1. **Timeout/Budget**: Enforce a **total execution time limit of 6 hours [UNRESOLVED-CLAIM: c_b3f57302 — status=not_enough_info] ** for the entire 200-run loop (SC-004). If the total time exceeds 6 hours, log a warning and stop, but do not use a per-run timeout that exceeds the total budget.
+ 2. **Coverage Logic**: For each run, if the model fails convergence (R-hat > 1.05 [UNRESOLVED-CLAIM: c_74ab97f2 — status=refuted]) or VIF > 10, **flag the run as "INVALID"** and **exclude it from the final coverage calculation denominator**. Do NOT count it as "NOT COVERED". Log these invalid runs separately.
+ 3. **Artifact Output**: Save **individual run results** to `data/results/run_{i}.json` for every iteration `i` across the full experimental range., containing: `seed`, `vif_max`, `r_hat`, `covered` (bool), `interval_width`, `method_id`, and `is_valid` (bool).
+ 4. **Aggregation**: Output aggregated results to `data/results/coverage_metrics.json` with the **exact schema**:
  ```json
  {
  "coverage_rate": float,
  "interval_width": float,
+ "total_n": 200,
  "valid_n": int,
  "invalid_run_count": int,
  "failure_reasons": {"r_hat_fail": int, "vif_fail": int, "other": int},
  "method_id": "string"
  }
  ```
-- [ ] T027 [US2] Implement `code/main.py`: Filter logic to exclude runs with R-hat > 1.05 or VIF > 10 from final coverage calculation; output filtered results to `data/results/filtered_metrics.json`. Ensure this task runs only after T026 completes successfully.
+ **Dependency**: Requires T006 (engine) and T021-T025 (models) to be complete.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,7 +141,13 @@
 
 **Goal**: Generate comparative metrics and plots for all three methods to assess trade-offs, as required by FR-007 and SC-003.
 
-- [ ] T027.5 [US2] Implement `code/scripts/analyze_comparative.py`: Analyze `data/results/coverage_metrics.json` to generate **comparative metrics and calibration plots for all three methods**. **Algorithm**: Calculate coverage deviation and average interval width for OLS, Bootstrap, and Bayesian. **Output**: `data/results/comparative_metrics.json` with schema: `{"methods": [{"name": "string", "coverage": float, "width": float, "deviation": float}], "calibration_plot_path": "string"}`. **The plot must show all three methods side-by-side**. **Dependency**: Requires T027 to be complete.
+- [ ] T027.5 [Cross-Story] Implement `code/scripts/analyze_comparative.py`: **Read** `data/results/coverage_metrics.json` and individual run logs to generate **comparative metrics and the calibration plot artifact**.
+ 1. **Binning Logic**: **Aggregate data across the 200 replications** by binning the results based on **realized VIF** (e.g., Low, Medium, High) or **N**. This is required to generate a statistically valid calibration curve.
+ 2. **Algorithm**: Calculate coverage deviation and average interval width for OLS, Bootstrap, and Bayesian **within each bin**.
+ 3. **Plot Generation**: **Generate the calibration plot** (Interval Width vs. Coverage Probability) comparing all three methods side-by-side. **Save the plot** to `data/results/calibration_plot.png`. The plot must explicitly show Interval Width on the X-axis and Coverage Probability on the Y-axis, with points representing the binned aggregates.
+ 4. **Provenance**: Embed the **content hash** of the input data (`coverage_metrics.json`) into the plot metadata or filename to satisfy Constitution Principle IV.
+ 5. **Output**: Save `data/results/comparative_metrics.json` with schema: `{"methods": [{"name": "string", "coverage": float, "width": float, "deviation": float}], "calibration_plot_path": "data/results/calibration_plot.png", "input_hash": "string"}`.
+ 6. **Dependency**: **Must run only after T026 completes successfully**. This task replaces the previous T027 and T034, consolidating the logic.
 
 **Checkpoint**: Comparative analysis complete; US3 can now proceed.
 
@@ -151,13 +161,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T028 [P] [US3] Integration test for UCI dataset loading and subsampling in `tests/integration/test_validation.py`
+- [ ] T028 [P] [US3] Integration test for UCI dataset loading and subsampling in `tests/integration/test_validation.py`
 
 ### Implementation for User Story 3
 
-- [X] T029 [US3] Implement `code/validation/uci_runner.py`: Fetch UCI Concrete Compressive Strength dataset using the **verified URL from T000** and cache to `data/raw/`.
-- [ ] T030 [US3] Implement `code/validation/uci_runner.py`: Subsample logic to $N < 50$ using stratified random sampling with **explicit validation ensuring at least 3 predictors are retained**. If N <= p (sample size <= predictors), **SKIP that specific configuration, log a warning: "Rank-deficient: N={N} <= p={p}", and continue to the next configuration**. Do NOT raise a hard exception. Output validated subsample to `data/raw/uci_subsampled.csv` with metadata confirming predictor count and N > p status (or log of skipped attempts).
-- [ ] T031 [US3] Implement `code/validation/uci_runner.py`: **Run all three methods** (OLS, Bootstrap, Bayesian) on the subsampled data. **Dependency**: Depends on T027.5 and T030. Generate interval estimates for all methods and save to `data/results/uci_validation_results.json`.
+- [ ] T029 [US3] Implement `code/validation/uci_runner.py`: Fetch UCI Concrete Compressive Strength dataset using the **verified URL from T000** and cache to `data/raw/`.
+- [ ] T030 [US3] Implement `code/validation/uci_runner.py`: **Subsample logic** with a deterministic configuration space.
+ 1. **Configuration Space**: Iterate over `N=40` and feature subsets of size 3, 4, 5, and 6 [UNRESOLVED-CLAIM: c_01d9f77d — status=not_enough_info].
+ 2. **Validation**: For each configuration, check if $N > p$. If $N \le p$, **log a warning** "Rank-deficient: N={N} <= p={p}" and **continue** to the next configuration.
+ 3. **Graceful Failure**: If **no valid subsample** is found after exhausting the entire configuration space, **log a warning** "VALIDATION_SKIPPED: No valid subsample found for N < 50 and p >= 3" and **skip the validation step** (do not raise a RuntimeError).
+ 4. **Output**: Save the **first valid subsample** to `data/raw/uci_subsampled.csv` with metadata confirming predictor count and N > p status.
+ 5. **Dependency**: Depends on T029.
+- [ ] T031 [US3] Implement `code/validation/uci_runner.py`: **Run all three methods** (OLS, Bootstrap, Bayesian) on the subsampled data. **Dependency**: **Explicitly depends on T030 (data prep) and model implementations (T021-T024)**. Generate interval estimates for all methods and save to `data/results/uci_validation_results.json`. **Note**: This task is independent of T027.5 (simulation analysis).
 - [ ] T032 [US3] Implement `code/validation/uci_runner.py`: Generate interval stability metrics and width comparison (Bayesian vs OLS)
 - [ ] T033 [US3] Implement `code/validation/uci_runner.py`: Generate diagnostic plots (posterior distributions, interval widths) saved to `data/results/`
 
@@ -169,15 +184,13 @@
 
 **Purpose**: Improvements that affect multiple user stories and final reporting
 
-- [ ] T034 [P] Implement `code/plots/calibration.py` to generate final publication-ready calibration plots (Interval Width vs. Coverage) for all three methods (FR-007). **Dependency**: Requires comparative metrics from T027.5.
 - [ ] T035 [P] Create `code/scripts/run_full_simulation.sh` for reproducible end-to-end execution on CI
-- [ ] T036 [P] Implement `code/scripts/verify_runtime.py`: Automated script to run the full simulation (multiple runs) and generate `data/results/runtime_log.json` with `total_duration` field; **add a check in run_full_simulation.sh that FAILS the build (exit code 1) if `total_duration` > 21600s (6 hours)**. **Dependency**: Requires T027 to be complete and functional.
+- [ ] T036 [P] Implement `code/scripts/verify_runtime.py`: **Create a script** that reads `data/results/runtime_log.json` (generated by the simulation runner) and **exits with code 1** if `total_duration` > 21600s (6 hours). **Update** `run_full_simulation.sh` to call this script after the simulation and fail the build if it returns 1. **Dependency**: Requires T026 to be complete and functional.
 - [ ] T037 [P] Update `README.md` with execution instructions (Installation, Usage, Data Flow) and a Mermaid diagram. **Diagram Content**: "Data Flow: Simulation (engine.py) -> Models (ols, bootstrap, bayesian) -> Metrics (coverage.py) -> Results (json/csv)".
 - [ ] T038 [P] Run `pytest` on all unit and integration tests; ensure **full pass rate** and generate `pytest-report.xml` as the required artifact.
-- [ ] T039 [P] Generate `specs/001-quantify-uncertainty-small-sample/research.md` draft using the project template. **Required Sections**: Abstract (summary of methods), Methods (detailed simulation setup), Results (placeholder for coverage metrics), Discussion (implications of small-sample uncertainty).
+- [ ] T039 [P] Generate `specs/001-quantifying-uncertainty-in-small-sample/research.md` draft using the project template. **Required Sections**: Abstract (summary of methods), Methods (detailed simulation setup), Results (placeholder for coverage metrics), Discussion (implications of small-sample uncertainty).
 - [ ] T040 [P] Add explicit error handling in `code/simulation/engine.py` and `code/validation/uci_runner.py` to fail loudly if real data fetch fails, ensuring no synthetic fallback is used (Constitution Principle II).
 - [ ] T041 [P] Add a final validation script `code/scripts/validate_results.py` that checks `data/results/coverage_metrics.json` for expected keys and non-zero valid counts before generating plots.
-- [ ] T042 [P] Implement `code/scripts/post_hoc_analysis.py`: Generate a final report comparing the simulation results (US2) with the real-world validation (US3), discussing any discrepancies in coverage or interval width.
 
 ---
 
@@ -197,7 +210,7 @@
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories.
 - **User Story 2 (P2)**: Depends on User Story 1 (requires `data/simulated/` output).
-- **User Story 3 (P3)**: Depends on User Story 2 (requires comparative metrics from T027.5) AND data preparation (T030).
+- **User Story 3 (P3)**: Depends on data preparation (T030) and model implementations (T021-T024). **Independent** of T027.5 (simulation analysis).
 
 ### Within Each User Story
 
@@ -278,4 +291,4 @@ With multiple developers:
 - **Real Data Only**: No synthetic data generation for the validation dataset (US3); must use the real UCI Concrete dataset.
 - **Runtime**: Ensure 200 Monte Carlo replications complete within 6 hours on free-tier CI. **Hard fail if exceeded**.
 - **Fail Loudly**: Data loaders must raise exceptions on fetch failure; no synthetic fallbacks allowed.
-- **Retry Logic**: Simulation (T026) must run a fixed number of replications (200) and flag invalid runs, not resample.
+- **Retry Logic**: Simulation (T026) must run a fixed number of replications (200) and count invalid runs separately, excluding them from coverage calculation.
