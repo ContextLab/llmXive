@@ -1,4 +1,4 @@
-- artifact_hash: 89b9bf1d3c3198ca11d3072c3115613ae4b2c0270b87afbaef106ad9b88327dc
+- artifact_hash: b46596c6c541dc61acbd4e6f8f1253b3ded85f851595c0720a0d716d7e6bd385
   artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/research.md
   cite_id: c-001
   cited_authors: []
@@ -8,23 +8,34 @@
     \ \xB7 GitHub"
   kind: url
   value: https://github.com/rjust/defects4j`
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://github.com/rjust/defects4j
-  verified_at: '2026-07-08T22:36:41.224312Z'
-- artifact_hash: 89b9bf1d3c3198ca11d3072c3115613ae4b2c0270b87afbaef106ad9b88327dc
+  verified_at: '2026-09-06T17:37:19.972142Z'
+- artifact_hash: b46596c6c541dc61acbd4e6f8f1253b3ded85f851595c0720a0d716d7e6bd385
   artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Statistical hypothesis test - Wikipedia
   kind: url
-  value: https://github.com/rjust/defects4j/blob/master/framework/projects/project-list.json`
-  verification_status: mismatch
-  verified_against_url: https://github.com/rjust/defects4j/blob/master/framework/projects/project-list.json
-  verified_at: '2026-07-08T22:36:41.224312Z'
-- artifact_hash: 7c9a96181a476fcf2799d12bcb14a3396c64843727f9dd5e5453cad0d86ee0b8
+  value: https://en.wikipedia.org/wiki/Statistical_hypothesis_test`
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+  verified_at: '2026-09-06T17:37:19.972142Z'
+- artifact_hash: 46317d2e79149aa805a32a5b143433f65885b097927865155267ecedadc3027a
   artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/quickstart.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: pending
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-09-06T17:37:23.331884Z'
+- artifact_hash: 46317d2e79149aa805a32a5b143433f65885b097927865155267ecedadc3027a
+  artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/quickstart.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: "GitHub - rjust/defects4j: A Database of Real Faults and an Experimental\
@@ -32,10 +43,10 @@
     \ \xB7 GitHub"
   kind: url
   value: https://github.com/rjust/defects4j`
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://github.com/rjust/defects4j
-  verified_at: '2026-07-08T22:37:03.866410Z'
-- artifact_hash: 6603a101aafa8f38b8e111c638a885da4d34d57223587ce2e16c9dcb60e7ce86
+  verified_at: '2026-09-06T17:37:23.331884Z'
+- artifact_hash: 0d4a4665bd105936314cc89678a63e159e7391baf5b6fed9389a33b35effb552
   artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -45,4 +56,4 @@
   value: https://github.com/javaparser/javaparser/wiki/Token-Definitions
   verification_status: pending
   verified_against_url: https://github.com/javaparser/javaparser/wiki/Token-Definitions
-  verified_at: '2026-09-03T17:56:13.486450Z'
+  verified_at: '2026-09-06T17:56:41.231013Z'

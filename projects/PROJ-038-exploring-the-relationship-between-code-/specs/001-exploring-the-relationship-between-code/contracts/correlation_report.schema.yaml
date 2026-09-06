@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Report Schema"
+description: "Schema for correlation_report.json containing statistical analysis results."
+type: "object"
+properties:
+  metrics:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        metric_name:
+          type: "string"
+          description: "Name of the metric (e.g., 'Cyclomatic_Complexity')."
+        point_biserial:
+          type: "object"
+          properties:
+            coefficient:
+              type: "number"
+              description: "Point-Biserial correlation coefficient."
+            p_value:
+              type: "number"
+              description: "P-value for the correlation."
+          required:
+            - coefficient
+            - p_value
+        spearman:
+          type: "object"
+          properties:
+            coefficient:
+              type: "number"
+              description: "Spearman rank correlation coefficient."
+            p_value:
+              type: "number"
+              description: "P-value for the correlation."
+          required:
+            - coefficient
+            - p_value
+        vif_score:
+          type:
+            - "number"
+            - "null"
+          description: "Variance Inflation Factor score for multicollinearity check."
+        partial_correlation:
+          type:
+            - "number"
+            - "null"
+          description: "Partial correlation coefficient controlling for other metrics."
+      required:
+        - metric_name
+        - point_biserial
+        - spearman
+  alpha_threshold:
+    type: "number"
+    description: "Significance threshold used (default 0.05)."
+    default: 0.05
+  decision_rule:
+    type: "string"
+    description: "The rule used to select the reported correlation if they diverge."
+    default: "Default to Spearman if p-value difference > 0.05"
+required:
+  - metrics
+  - alpha_threshold
+additionalProperties: false

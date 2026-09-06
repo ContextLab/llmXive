@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for model_results.csv containing cross-validation performance metrics."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'LogisticRegression', 'RandomForest')."
+  metric_type:
+    type: "string"
+    description: "Type of metric (e.g., 'ROC-AUC', 'F1-Score')."
+  mean_score:
+    type: "number"
+    description: "Mean score across all folds."
+  std_score:
+    type: "number"
+    description: "Standard deviation of scores."
+  fold_scores:
+    type: "array"
+    description: "List of scores for each of the 50 folds."
+    items:
+      type: "number"
+  permutation_test_p_value:
+    type: "number"
+    description: "P-value from the paired permutation test (only for model comparison rows)."
+    nullable: true
+required:
+  - model_name
+  - metric_type
+  - mean_score
+  - std_score
+  - fold_scores
+additionalProperties: false

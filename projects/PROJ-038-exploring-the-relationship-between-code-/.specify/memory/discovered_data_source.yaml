@@ -1,0 +1,12 @@
+status: none
+intent: download Defects4J Java bug dataset and associated metadata python package
+  dataset
+required_fields:
+- file_path
+- cyclomatic_complexity
+- halstead_volume
+- loc
+- is_buggy
+cache_key: ffbdeb9d3bb775a40f493bd14b71d29b70da0ac12c564e4455c00838546f438d
+searched_at: '2026-09-06T17:26:41.741678+00:00'
+retry_count: 1
