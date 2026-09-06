@@ -1,0 +1,11 @@
+status: none
+intent: LPBF 316L laser powder bed fusion dataset Zenodo OpenML python package dataset
+required_fields:
+- laser_power
+- scan_speed
+- hatch_spacing
+- layer_thickness
+- porosity
+cache_key: ece23246fb663d68b4a24f9dda7b9471c1fef9bb4161f3b26e9fba80a6b29b15
+searched_at: '2026-09-06T02:57:59.199983+00:00'
+retry_count: 1

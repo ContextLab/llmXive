@@ -11,14 +11,45 @@ T001b:
   r: No evidence of the `projects/PROJ-363-predicting-the-impact-of-additive-manufa/`
     directory (or any subfolders) is provided; the claim cannot be verified without
     an actual filesystem artifact.
-T017:
+T015:
   c: false
-  h: 0032f126bfd12fe6438d05060c2aa706f87198071979e3c71fc9ff49665e5267
-  r: "The `code/preprocess.py` script does not contain a concrete call that loads\
-    \ `contracts/dataset.schema.yaml`, nor does it explicitly exit on validation failure\
-    \ (it only raises an exception). Moreover, the required `contracts/dataset.schema.yaml`\
-    \ file is missing from the repository, so the validation step cannot even be performed.\
-    \ The task\u2019s core requirement is therefore unmet."
+  h: c5bca6ec8d4fb8f51880f6dda996a232cd1244cfe7faa9378ee0f86f95a37c64
+  r: 'The repository lacks the required `data/processed/degenerate_flag.json` file
+    and the `state.yaml` does not contain a `degenerate: true` entry. Moreover, the
+    provided `code/preprocess.py` (truncated) shows no implementation that writes
+    the flag file, updates `state.yaml`, or exits on detection of zero porosity variance.
+    These essential pieces are missing, so the task is not satisfied.'
+T016b:
+  c: false
+  h: 1af00c0073cf49459c0351726a2d277c0ff3ecede7d201f768880b6001dc4439
+  r: "The required output files `data/processed/X_raw.csv` and `data/processed/X_derived.csv`\
+    \ are not present, and the provided `code/preprocess.py` is truncated (ends mid\u2011\
+    function) with no visible logic that creates the two subsets and writes them to\
+    \ those CSV files. The task\u2019s core requirement is therefore unmet."
+T017b:
+  c: false
+  h: 2c532f2d1038886500749abf00ee9992c36fb29418bb356f73f132448d99efa8
+  r: "The provided `code/preprocess.py` is truncated (ends abruptly at `def normal`)\
+    \ and does not contain the full validation logic or any code that loads `contracts/dataset.schema.yaml`.\
+    \ Moreover, the required schema file itself is missing from the repository. Consequently,\
+    \ the task\u2019s requirement to validate processed data against the schema and\
+    \ to verify success/failure cases is not satisfied."
+T021:
+  c: false
+  h: 02493c18100fe861ebfb129432f7700a6ad4604c267ccc951ba96247acc2d966
+  r: The `code/train_models.py` script contains a `load_data` function that attempts
+    to read `data/processed/X_raw.csv`, but the required `X_raw.csv` file is absent
+    from the repository, so the script cannot actually load the feature subset and
+    split into X and y as required. The missing dataset file must be provided for
+    the task to be complete.
+T021b:
+  c: false
+  h: f58b043033ca2cd851ffbcdf5cc4e1906f35e022c90834452b0d17c88bcc0beb
+  r: The `code/train_models.py` script is present and contains a `load_data` function
+    that attempts to read `data/processed/X_derived.csv`, but the required `data/processed/X_derived.csv`
+    file is missing from the repository, so the script cannot actually load the specified
+    data as the task demands. The missing file must be added (or the script adjusted)
+    for the requirement to be satisfied.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -39,3 +70,18 @@ T029:
     \ calculation is present; the evidence provided contains only the high\u2011level\
     \ specification and no concrete test implementation or results. The required artifact\
     \ (a runnable unit test) is missing."
+T030:
+  c: false
+  h: 76785d4bed4aa89d9d15f7905b1a4d16553c20728797980c2f8af16f71a3b195
+  r: The script `code/analyze_explainability.py` exists, but the required `state/selected_model.yaml`
+    (and the model/data files it should point to) are missing, so the loading logic
+    cannot be exercised or verified. Provide the `state/selected_model.yaml` (with
+    the expected format) and ensure the referenced model and CSV files are present.
+T035:
+  c: false
+  h: 7e3fd480ec567051482e758bcdfe3676e030effa546c93df2323710e7a44ad60
+  r: "The repository lacks the required `results/reports/feature_comparison.json`\
+    \ file, and the provided `code/analyze_explainability.py` excerpt shows only model\
+    \ loading and a placeholder for SHAP calculation\u2014no implementation of Spearman\
+    \ correlation, side\u2011by\u2011side bar chart, or JSON report generation. The\
+    \ task\u2019s core output is therefore missing."

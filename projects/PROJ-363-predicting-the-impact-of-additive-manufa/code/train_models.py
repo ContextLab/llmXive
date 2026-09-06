@@ -6,194 +6,313 @@ import pickle
 import time
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from sklearn.model_selection import cross_val_score, KFold
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.dummy import DummyRegressor
 from sklearn.metrics import mean_squared_error, r2_score
-from utils import set_seed, setup_logging, load_state, update_state, compute_file_hash
+from utils import setup_logging, set_seed, load_state, update_state, compute_file_hash
 
 # Configure logging
 logger = setup_logging(__name__)
 
-def load_data():
-    """Load the preprocessed dataset."""
-    data_path = Path("data/processed/cleaned_316L.csv")
-    if not data_path.exists():
-        raise FileNotFoundError(f"Data file not found at {data_path}")
-    df = pd.read_csv(data_path)
-    logger.info(f"Loaded data with shape {df.shape}")
-    return df
+def load_data(raw_path, subset_path):
+    """
+    Load the cleaned dataset and the specific feature subset (X_raw or X_derived).
+    Returns X (features) and y (target).
+    """
+    logger.info(f"Loading cleaned data from {raw_path}")
+    df = pd.read_csv(raw_path)
+    
+    logger.info(f"Loading feature subset from {subset_path}")
+    X_df = pd.read_csv(subset_path)
+    
+    # Ensure target is present in the raw dataframe
+    if 'porosity' not in df.columns:
+        raise ValueError("Target column 'porosity' not found in cleaned dataset.")
+    
+    y = df['porosity'].values
+    X = X_df.values
+    
+    logger.info(f"Loaded X shape: {X.shape}, y shape: {y.shape}")
+    return X, y
 
-def train_gradient_boosting(X, y, seed=42):
-    """Train a Gradient Boosting Regressor with 5-fold CV."""
-    set_seed(seed)
+def train_gradient_boosting(X, y, cv_folds=5, random_state=42):
+    """
+    Train a Gradient Boosting Regressor using 5-fold Cross Validation.
+    Returns the trained model (fitted on full data for artifact saving) and CV scores.
+    """
+    logger.info("Training Gradient Boosting Regressor with 5-fold CV...")
+    
+    # Set seed for reproducibility
+    set_seed(random_state)
+    
+    # Define the model
     model = GradientBoostingRegressor(
         n_estimators=100,
         learning_rate=0.1,
         max_depth=3,
-        random_state=seed
+        random_state=random_state,
+        subsample=0.8
     )
-    return model
+    
+    # Configure KFold
+    kfold = KFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
+    
+    # Perform cross-validation
+    # We use negative MSE from sklearn, convert to RMSE later if needed
+    cv_scores = cross_val_score(model, X, y, cv=kfold, scoring='neg_mean_squared_error')
+    
+    # Calculate R2 scores for CV
+    cv_r2_scores = cross_val_score(model, X, y, cv=kfold, scoring='r2')
+    
+    # Fit the model on the full dataset for saving as an artifact
+    model.fit(X, y)
+    
+    logger.info(f"Gradient Boosting CV RMSE: {np.sqrt(-cv_scores)}")
+    logger.info(f"Gradient Boosting CV R2: {cv_r2_scores}")
+    
+    return model, cv_scores, cv_r2_scores
 
-def train_mlp(X, y, seed=42):
-    """Train an MLP Regressor with 5-fold CV."""
-    set_seed(seed)
-    # Hidden layers tuned for small dataset
+def train_mlp(X, y, cv_folds=5, random_state=42, max_iter=1000):
+    """
+    Train a Multi-Layer Perceptron (MLP) Regressor using 5-fold Cross Validation.
+    CPU-only execution enforced (no CUDA).
+    """
+    logger.info("Training MLP Regressor with 5-fold CV...")
+    
+    set_seed(random_state)
+    
+    # Define the model
+    # Using a simple architecture suitable for tabular data
     model = MLPRegressor(
         hidden_layer_sizes=(64, 32),
         activation='relu',
         solver='adam',
         alpha=0.0001,
-        batch_size='auto',
+        batch_size=32,
         learning_rate='adaptive',
         learning_rate_init=0.001,
-        max_iter=500,
+        max_iter=max_iter,
+        random_state=random_state,
         early_stopping=True,
         validation_fraction=0.1,
         n_iter_no_change=10,
-        random_state=seed,
-        verbose=False
+        # Explicitly enforce CPU if torch is available, though sklearn defaults to CPU
+        # sklearn MLPRegressor does not have a direct 'device' param like pytorch
+        # but it runs on CPU by default.
     )
-    return model
-
-def train_dummy_baseline(X, y, seed=42):
-    """Train a dummy baseline regressor (mean strategy)."""
-    set_seed(seed)
-    model = DummyRegressor(strategy='mean')
-    return model
-
-def compute_metrics(model, X, y, cv_folds=5, seed=42):
-    """Compute RMSE and R² for each fold and aggregate mean."""
-    set_seed(seed)
-    kf = KFold(n_splits=cv_folds, shuffle=True, random_state=seed)
     
-    rmse_scores = []
-    r2_scores = []
+    kfold = KFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
     
-    for train_idx, test_idx in kf.split(X):
-        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
-        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
-        
-        model_clone = type(model)(**model.get_params())
-        model_clone.fit(X_train, y_train)
-        y_pred = model_clone.predict(X_test)
-        
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-        r2 = r2_score(y_test, y_pred)
-        
-        rmse_scores.append(rmse)
-        r2_scores.append(r2)
+    # Cross-validation scores
+    cv_scores = cross_val_score(model, X, y, cv=kfold, scoring='neg_mean_squared_error')
+    cv_r2_scores = cross_val_score(model, X, y, cv=kfold, scoring='r2')
+    
+    # Fit on full data
+    model.fit(X, y)
+    
+    logger.info(f"MLP CV RMSE: {np.sqrt(-cv_scores)}")
+    logger.info(f"MLP CV R2: {cv_r2_scores}")
+    
+    return model, cv_scores, cv_r2_scores
+
+def train_dummy_baseline(X, y, cv_folds=5, random_state=42):
+    """
+    Train a Dummy Regressor (mean strategy) for baseline comparison (SC-001).
+    """
+    logger.info("Training Dummy Regressor (Mean Strategy) for baseline...")
+    
+    set_seed(random_state)
+    
+    model = DummyRegressor(strategy='mean', random_state=random_state)
+    kfold = KFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
+    
+    cv_scores = cross_val_score(model, X, y, cv=kfold, scoring='neg_mean_squared_error')
+    cv_r2_scores = cross_val_score(model, X, y, cv=kfold, scoring='r2')
+    
+    model.fit(X, y)
+    
+    logger.info(f"Dummy CV RMSE: {np.sqrt(-cv_scores)}")
+    logger.info(f"Dummy CV R2: {cv_r2_scores}")
+    
+    return model, cv_scores, cv_r2_scores
+
+def compute_metrics(cv_r2_scores, cv_mse_scores):
+    """
+    Compute aggregate metrics from CV scores.
+    """
+    rmse_scores = np.sqrt(-cv_mse_scores)
+    mean_rmse = np.mean(rmse_scores)
+    std_rmse = np.std(rmse_scores)
+    mean_r2 = np.mean(cv_r2_scores)
+    std_r2 = np.std(cv_r2_scores)
     
     return {
-        'rmse_per_fold': rmse_scores,
-        'r2_per_fold': r2_scores,
-        'mean_rmse': np.mean(rmse_scores),
-        'mean_r2': np.mean(r2_scores),
-        'std_rmse': np.std(rmse_scores),
-        'std_r2': np.std(r2_scores)
+        'mean_rmse': float(mean_rmse),
+        'std_rmse': float(std_rmse),
+        'mean_r2': float(mean_r2),
+        'std_r2': float(std_r2),
+        'fold_rmse': [float(x) for x in rmse_scores],
+        'fold_r2': [float(x) for x in cv_r2_scores]
     }
 
-def save_model(model, model_name, output_path):
-    """Save the trained model to a pickle file."""
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'wb') as f:
+def save_model(model, path):
+    """
+    Save the trained model to a pickle file.
+    """
+    logger.info(f"Saving model to {path}")
+    with open(path, 'wb') as f:
         pickle.dump(model, f)
-    
-    logger.info(f"Model saved to {output_path}")
-    return output_path
 
 def main():
-    """Main execution for T025: Save trained models."""
-    logger.info("Starting model training and saving (T025)")
+    """
+    Main execution function for T022 (and associated US2 tasks).
+    Trains Gradient Boosting and MLP on X_raw and X_derived subsets.
+    """
+    logger.info("Starting Model Training Pipeline (US2)")
     
-    # Load data
-    df = load_data()
+    # Paths
+    base_dir = Path(__file__).parent.parent
+    cleaned_data_path = base_dir / "data" / "processed" / "cleaned_316L.csv"
+    x_raw_path = base_dir / "data" / "processed" / "X_raw.csv"
+    x_derived_path = base_dir / "data" / "processed" / "X_derived.csv"
     
-    # Define features and target
-    # Assuming columns: power, speed, hatch, thickness, porosity (target)
-    # Energy density might be derived or present, but we use raw params for model
-    feature_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
-    target_col = 'porosity'
+    models_dir = base_dir / "models" / "artifacts"
+    results_dir = base_dir / "results" / "reports"
+    state_path = base_dir / "state" / "state.yaml"
     
-    # Validate columns exist
-    missing_cols = [col for col in feature_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required feature columns: {missing_cols}")
-    if target_col not in df.columns:
-        raise ValueError(f"Missing target column: {target_col}")
+    os.makedirs(models_dir, exist_ok=True)
+    os.makedirs(results_dir, exist_ok=True)
     
-    X = df[feature_cols]
-    y = df[target_col]
+    # --- Subset 1: X_raw ---
+    logger.info("--- Processing X_raw Subset ---")
+    try:
+        X_raw, y = load_data(cleaned_data_path, x_raw_path)
+    except FileNotFoundError as e:
+        logger.error(f"Data files not found. Ensure T018 and T016b are complete: {e}")
+        sys.exit(1)
     
-    logger.info(f"Features: {feature_cols}, Target: {target_col}")
+    # Train Gradient Boosting on X_raw
+    gb_raw_model, gb_raw_mse, gb_raw_r2 = train_gradient_boosting(X_raw, y)
+    save_model(gb_raw_model, models_dir / "gb_raw_model.pkl")
     
-    # Train Gradient Boosting
-    logger.info("Training Gradient Boosting model...")
-    gb_model = train_gradient_boosting(X, y)
-    gb_model.fit(X, y)  # Fit on full data for saving
+    # Train MLP on X_raw
+    mlp_raw_model, mlp_raw_mse, mlp_raw_r2 = train_mlp(X_raw, y)
+    save_model(mlp_raw_model, models_dir / "mlp_raw_model.pkl")
     
-    # Train MLP
-    logger.info("Training MLP model...")
-    mlp_model = train_mlp(X, y)
-    mlp_model.fit(X, y)  # Fit on full data for saving
+    # Train Dummy Baseline on X_raw
+    dummy_raw_model, dummy_raw_mse, dummy_raw_r2 = train_dummy_baseline(X_raw, y)
+    save_model(dummy_raw_model, models_dir / "dummy_raw_model.pkl")
     
-    # Compute metrics for reporting (T026 dependency)
-    logger.info("Computing metrics...")
-    gb_metrics = compute_metrics(gb_model, X, y)
-    mlp_metrics = compute_metrics(mlp_model, X, y)
-    
-    # Train dummy baseline for comparison (T027b dependency)
-    logger.info("Training dummy baseline...")
-    dummy_model = train_dummy_baseline(X, y)
-    dummy_model.fit(X, y)
-    dummy_metrics = compute_metrics(dummy_model, X, y)
-    
-    # Save models to artifacts directory
-    artifacts_dir = Path("models/artifacts")
-    
-    gb_path = save_model(gb_model, "gradient_boosting", artifacts_dir / "gradient_boosting.pkl")
-    mlp_path = save_model(mlp_model, "mlp", artifacts_dir / "mlp.pkl")
-    
-    # Save metrics to JSON (T026)
-    metrics_report = {
-        "gradient_boosting": gb_metrics,
-        "mlp": mlp_metrics,
-        "dummy_baseline": dummy_metrics,
-        "best_model": "gradient_boosting" if gb_metrics['mean_r2'] > mlp_metrics['mean_r2'] else "mlp"
+    # Compute Metrics for X_raw
+    metrics_raw = {
+        'gradient_boosting': compute_metrics(gb_raw_r2, gb_raw_mse),
+        'mlp': compute_metrics(mlp_raw_r2, mlp_raw_mse),
+        'dummy_baseline': compute_metrics(dummy_raw_r2, dummy_raw_mse)
     }
     
-    metrics_path = Path("results/reports/model_metrics.json")
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    # SC-001 Check for Raw
+    best_raw_r2 = max(metrics_raw['gradient_boosting']['mean_r2'], metrics_raw['mlp']['mean_r2'])
+    dummy_raw_r2_val = metrics_raw['dummy_baseline']['mean_r2']
     
-    with open(metrics_path, 'w') as f:
-        json.dump(metrics_report, f, indent=2)
-    
-    logger.info(f"Metrics saved to {metrics_path}")
-    
-    # Update state.yaml
-    state = load_state()
-    state['artifacts']['models'] = {
-        'gradient_boosting': {
-            'path': str(gb_path),
-            'hash': compute_file_hash(gb_path)
-        },
-        'mlp': {
-            'path': str(mlp_path),
-            'hash': compute_file_hash(mlp_path)
-        }
+    sc001_pass = (best_raw_r2 > dummy_raw_r2_val) or (best_raw_r2 >= 0.65)
+    metrics_raw['sc001_success_check'] = {
+        'best_model_r2': best_raw_r2,
+        'dummy_r2': dummy_raw_r2_val,
+        'passed': sc001_pass,
+        'condition': f"({best_raw_r2:.4f} > {dummy_raw_r2_val:.4f}) OR ({best_raw_r2:.4f} >= 0.65)"
     }
-    state['artifacts']['metrics_report'] = {
-        'path': str(metrics_path),
-        'hash': compute_file_hash(metrics_path)
-    }
-    update_state(state)
     
-    logger.info("T025 completed successfully")
-    return True
+    if not sc001_pass:
+        logger.warning(f"SC-001 Failed for X_raw: Best R2 ({best_raw_r2}) <= Dummy R2 ({dummy_raw_r2_val}) AND < 0.65")
+        # Note: Task T027b handles the strict raise, but we log here for visibility
+    
+    # Save Raw Metrics
+    raw_metrics_path = results_dir / "model_metrics_raw.json"
+    with open(raw_metrics_path, 'w') as f:
+        json.dump(metrics_raw, f, indent=2)
+    logger.info(f"Saved raw metrics to {raw_metrics_path}")
+    
+    # --- Subset 2: X_derived ---
+    logger.info("--- Processing X_derived Subset ---")
+    try:
+        X_derived, y = load_data(cleaned_data_path, x_derived_path)
+    except FileNotFoundError as e:
+        logger.error(f"Derived data files not found. Ensure T016b is complete: {e}")
+        sys.exit(1)
+    
+    # Train Gradient Boosting on X_derived
+    gb_derived_model, gb_derived_mse, gb_derived_r2 = train_gradient_boosting(X_derived, y)
+    save_model(gb_derived_model, models_dir / "gb_derived_model.pkl")
+    
+    # Train MLP on X_derived
+    mlp_derived_model, mlp_derived_mse, mlp_derived_r2 = train_mlp(X_derived, y)
+    save_model(mlp_derived_model, models_dir / "mlp_derived_model.pkl")
+    
+    # Train Dummy Baseline on X_derived
+    dummy_derived_model, dummy_derived_mse, dummy_derived_r2 = train_dummy_baseline(X_derived, y)
+    save_model(dummy_derived_model, models_dir / "dummy_derived_model.pkl")
+    
+    # Compute Metrics for X_derived
+    metrics_derived = {
+        'gradient_boosting': compute_metrics(gb_derived_r2, gb_derived_mse),
+        'mlp': compute_metrics(mlp_derived_r2, mlp_derived_mse),
+        'dummy_baseline': compute_metrics(dummy_derived_r2, dummy_derived_mse)
+    }
+    
+    # SC-001 Check for Derived
+    best_derived_r2 = max(metrics_derived['gradient_boosting']['mean_r2'], metrics_derived['mlp']['mean_r2'])
+    dummy_derived_r2_val = metrics_derived['dummy_baseline']['mean_r2']
+    
+    sc001_pass_derived = (best_derived_r2 > dummy_derived_r2_val) or (best_derived_r2 >= 0.65)
+    metrics_derived['sc001_success_check'] = {
+        'best_model_r2': best_derived_r2,
+        'dummy_r2': dummy_derived_r2_val,
+        'passed': sc001_pass_derived,
+        'condition': f"({best_derived_r2:.4f} > {dummy_derived_r2_val:.4f}) OR ({best_derived_r2:.4f} >= 0.65)"
+    }
+    
+    if not sc001_pass_derived:
+        logger.warning(f"SC-001 Failed for X_derived: Best R2 ({best_derived_r2}) <= Dummy R2 ({dummy_derived_r2_val}) AND < 0.65")
+    
+    # Save Derived Metrics
+    derived_metrics_path = results_dir / "model_metrics_derived.json"
+    with open(derived_metrics_path, 'w') as f:
+        json.dump(metrics_derived, f, indent=2)
+    logger.info(f"Saved derived metrics to {derived_metrics_path}")
+    
+    # Update State
+    logger.info("Updating state.yaml with model artifacts and metrics hashes...")
+    state = load_state(state_path)
+    
+    # Hash models
+    model_files = [
+        "models/artifacts/gb_raw_model.pkl",
+        "models/artifacts/mlp_raw_model.pkl",
+        "models/artifacts/gb_derived_model.pkl",
+        "models/artifacts/mlp_derived_model.pkl",
+        "models/artifacts/dummy_raw_model.pkl",
+        "models/artifacts/dummy_derived_model.pkl"
+    ]
+    
+    for rel_path in model_files:
+        full_path = base_dir / rel_path
+        if full_path.exists():
+            h = compute_file_hash(full_path)
+            state['artifacts'][rel_path] = h
+    
+    # Hash metrics
+    for rel_path in ["results/reports/model_metrics_raw.json", "results/reports/model_metrics_derived.json"]:
+        full_path = base_dir / rel_path
+        if full_path.exists():
+            h = compute_file_hash(full_path)
+            state['artifacts'][rel_path] = h
+    
+    update_state(state_path, state)
+    logger.info("State updated successfully.")
+    
+    logger.info("Model Training Pipeline completed.")
 
 if __name__ == "__main__":
     main()

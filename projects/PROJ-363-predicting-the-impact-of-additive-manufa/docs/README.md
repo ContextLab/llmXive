@@ -2,107 +2,115 @@
 
 ## Project Overview
 
-This project implements an automated machine learning pipeline to predict the porosity of 316L Stainless Steel parts produced via Laser Powder Bed Fusion (LPBF). The pipeline ingests process parameters (laser power, scan speed, hatch spacing, layer thickness), engineers Volumetric Energy Density (Ev), trains regression models, and performs statistical explainability analysis (SHAP, Permutation Importance, Bootstrap CIs).
+This project implements an automated science pipeline to predict the porosity of 316L Stainless Steel produced via Laser Powder Bed Fusion (LPBF) based on manufacturing parameters. The pipeline downloads real-world experimental data, preprocesses it, trains machine learning models, and performs statistical explainability analysis.
 
 ## Prerequisites
 
 - Python 3.9+
-- pip (package installer)
-- A Unix-like environment (Linux/macOS) or WSL on Windows
+- Virtual environment tool (`venv`)
+- Git
 
 ## Installation
 
-1. **Clone the repository** (if applicable) and navigate to the project root.
+1. Clone the repository and navigate to the project directory:
+ ```bash
+ cd projects/PROJ-363-predicting-the-impact-of-additive-manufa
+ ```
 
-2. **Create a virtual environment** (recommended):
+2. Create and activate a virtual environment:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Directory Structure
+## Project Structure
 
-```text
+```
 .
 ├── code/ # Implementation scripts
-│ ├── download_data.py # Fetches raw 316L dataset
-│ ├── preprocess.py # Cleans, validates, and engineers features
-│ ├── train_models.py # Trains GB and MLP models
-│ ├── analyze_explainability.py # SHAP and statistical analysis
-│ └── utils.py # Shared utilities
+│ ├── download_data.py # Fetches real 316L LPBF dataset
+│ ├── preprocess.py # Cleans, normalizes, and engineers features
+│ ├── train_models.py # Trains GB and MLP models with CV
+│ ├── analyze_explainability.py # SHAP and Permutation Importance analysis
+│ ├── run_pipeline_with_timer.py # Orchestrates full pipeline with timing
+│ └── utils.py # Shared utilities (logging, hashing, state)
 ├── data/
-│ ├── raw/ # Downloaded raw CSVs
-│ └── processed/ # Cleaned datasets (cleaned_316L.csv)
+│ ├── raw/ # Raw downloaded dataset
+│ └── processed/ # Cleaned and normalized data
 ├── models/
-│ └── artifacts/ # Trained.pkl model files
+│ └── artifacts/ # Trained model pickles (.pkl)
 ├── results/
-│ ├── reports/ # JSON metrics and significance reports
-│ └── plots/ # SHAP summary plots (PNG)
-├── contracts/ # Data schema definitions (YAML)
-├── state/ # Artifact versioning state (state.yaml)
+│ ├── plots/ # SHAP summary plots and comparison charts
+│ └── reports/ # JSON metrics and statistical analysis reports
+├── state/
+│ └── state.yaml # Artifact versioning and hashes
 ├── tests/ # Unit and contract tests
+├── contracts/ # Data schemas
 └── docs/ # Documentation
 ```
 
-## Usage Instructions
+## Quickstart
 
-The pipeline is executed sequentially. Run the following scripts in order:
+Run the entire pipeline end-to-end with a timer wrapper:
 
-### 1. Data Acquisition
-Downloads the verified 316L LPBF dataset and validates the material type.
 ```bash
-python code/download_data.py
+python code/run_pipeline_with_timer.py
 ```
-*Output*: `data/raw/` (raw CSV), updates `state.yaml`.
 
-### 2. Preprocessing
-Validates schema, handles missing values (median imputation), normalizes features, and engineers Volumetric Energy Density.
+This script executes the following steps in sequence:
+1. **Download Data**: Fetches the verified 316L LPBF dataset from the canonical source.
+2. **Preprocess**: Cleans data, imputes missing values, normalizes features, and calculates Volumetric Energy Density.
+3. **Train Models**: Trains Gradient Boosting and MLP regressors on both raw and derived feature subsets using 5-fold CV.
+4. **Analyze**: Performs SHAP analysis, permutation importance, and statistical significance testing.
+
+The pipeline enforces a 6-hour time limit. If exceeded, it exits with code 1.
+
+## Command-Line Arguments
+
+### `code/download_data.py`
+- No arguments required. Fetches the dataset defined in `research.md` and `state.yaml`.
+- **Behavior**: Fails loudly if the real source is unreachable. No synthetic fallback.
+
+### `code/preprocess.py`
+- No arguments required. Loads `data/raw/`, applies schema validation, and outputs to `data/processed/`.
+- **Behavior**: Handles degenerate datasets by writing a flag file and exiting cleanly.
+
+### `code/train_models.py`
+- No arguments required. Trains models on `data/processed/` subsets.
+- **Behavior**: Validates Success Criterion SC-001 (Model R² > Dummy R² or R² ≥ 0.65).
+
+### `code/analyze_explainability.py`
+- No arguments required. Loads the best selected model and generates SHAP/Permutation reports.
+- **Behavior**: Generates unified statistical reports with 95% Bootstrap CIs.
+
+### `code/run_pipeline_with_timer.py`
+- No arguments required. Orchestrates the full pipeline.
+- **Output**: Writes start/end timestamps to `results/reports/` and validates duration.
+
+## Verification & Success Criteria
+
+The pipeline validates the following success criteria:
+- **SC-001**: Model performance exceeds dummy baseline or meets R² ≥ 0.65.
+- **SC-002**: At least one feature has statistical significance (p < 0.05) in Permutation Importance.
+- **SC-003**: Pipeline completes within 6 hours.
+- **SC-004**: Final dataset has zero missing values.
+
+Run the validation suite:
 ```bash
-python code/preprocess.py
+python tests/contract/test_success_criteria.py
 ```
-*Output*: `data/processed/cleaned_316L.csv`, `data/processed/X_raw.csv`, `data/processed/X_derived.csv`.
 
-### 3. Model Training
-Trains Gradient Boosting and MLP regressors using 5-fold Cross-Validation on both `X_raw` and `X_derived` subsets.
-```bash
-python code/train_models.py
-```
-*Output*: `models/artifacts/*.pkl`, `results/reports/model_metrics_*.json`.
+## Data Integrity
 
-### 4. Explainability & Statistical Analysis
-Generates SHAP plots, calculates Permutation Importance, and computes Bootstrap Confidence Intervals with p-values.
-```bash
-python code/analyze_explainability.py
-```
-*Output*: `results/plots/shap_summary_*.png`, `results/reports/significance_report_*.json`, `results/reports/feature_comparison.json`.
-
-### 5. State Verification
-Verifies that all artifacts match their recorded hashes in `state.yaml`.
+All artifacts (data, models, reports) are versioned in `state.yaml` with SHA-256 hashes.
+Verify integrity:
 ```bash
 python code/verify_artifacts.py
-```
-
-## Configuration
-
-- **Seed**: Set via `code/utils.py` (default `42`).
-- **Data Source**: The pipeline fetches data from a verified public source (Zenodo/OpenML) as defined in `code/download_data.py`. No synthetic data is generated.
-
-## Testing
-
-Run the test suite to verify pipeline integrity:
-
-```bash
-# Run all tests
-pytest tests/ -v
-
-# Run specific test categories
-pytest tests/unit/ -v
-pytest tests/contract/ -v
 ```
 
 ## License

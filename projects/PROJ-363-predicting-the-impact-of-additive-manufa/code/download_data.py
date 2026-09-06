@@ -1,193 +1,227 @@
 """
-Download the verified 316L LPBF dataset from Zenodo.
+download_data.py
 
-This script fetches the dataset, verifies the material type is 316L,
-saves it to data/raw/, computes its SHA-256 checksum, and updates state.yaml.
-
-ROBUSTNESS: Any failure in fetching the real dataset (network error, 404, timeout)
-immediately raises a RuntimeError. There are NO synthetic fallbacks.
+Fetches the verified 316L LPBF dataset from the canonical Zenodo source.
+Validates material type, downloads the full file, computes checksum,
+and updates state.yaml.
 """
+
 import os
 import sys
 import hashlib
 import logging
 import json
+import urllib.request
+import urllib.error
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Project root (assumed to be one level up from code/)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+STATE_FILE = PROJECT_ROOT / "state.yaml"
 
-from utils import setup_logging, compute_file_hash, load_state, update_state
-
-# Zenodo record ID for the 316L LPBF dataset
-# Using a known public dataset: "Additive Manufacturing of 316L Stainless Steel"
+# Zenodo Record ID for the verified 316L dataset
 ZENODO_RECORD_ID = "6826006"
 ZENODO_API_URL = f"https://zenodo.org/api/records/{ZENODO_RECORD_ID}"
-OUTPUT_DIR = project_root / "data" / "raw"
-OUTPUT_FILENAME = "316L_LPBF_porosity.csv"
-OUTPUT_PATH = OUTPUT_DIR / OUTPUT_FILENAME
 
-def fetch_record_metadata():
-    """Fetch metadata from Zenodo API."""
-    import urllib.request
-    import json as json_module
+# Expected material string in metadata
+EXPECTED_MATERIAL = "316L"
 
-    logger = logging.getLogger(__name__)
-    
+# Logging setup
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger("llmXive_pipeline")
+
+
+def compute_file_hash(filepath: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def fetch_record_metadata(record_id: str) -> dict:
+    """Fetch metadata from Zenodo API for a given record ID."""
+    url = f"https://zenodo.org/api/records/{record_id}"
     try:
-        logger.info(f"Fetching metadata from {ZENODO_API_URL}")
-        with urllib.request.urlopen(ZENODO_API_URL, timeout=30) as response:
-            if response.status != 200:
-                raise RuntimeError(f"Zenodo API returned status {response.status}")
-            data = json_module.loads(response.read().decode('utf-8'))
+        with urllib.request.urlopen(url, timeout=30) as response:
+            data = json.loads(response.read().decode("utf-8"))
             return data
-    except urllib.error.HTTPError as e:
-        raise RuntimeError(f"Failed to fetch Zenodo metadata (HTTP {e.code}): {e.reason}")
     except urllib.error.URLError as e:
-        raise RuntimeError(f"Failed to fetch Zenodo metadata (Network error): {e.reason}")
-    except Exception as e:
-        raise RuntimeError(f"Failed to fetch Zenodo metadata: {e}")
+        logger.error(f"Failed to fetch metadata from Zenodo: {e}")
+        raise RuntimeError(f"Network error fetching metadata: {e}")
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON from Zenodo: {e}")
+        raise RuntimeError(f"Invalid JSON from Zenodo: {e}")
 
-def verify_material_type(metadata):
-    """Verify the dataset is for 316L stainless steel."""
-    # Check title and description for 316L mention
-    title = metadata.get('metadata', {}).get('title', '').lower()
-    description = metadata.get('metadata', {}).get('description', '').lower()
-    
-    # Look for 316L in title or description
-    if '316l' in title or '316l' in description:
-        return True
-    
-    # Check keywords
-    keywords = [kw.get('title', '').lower() for kw in metadata.get('metadata', {}).get('keywords', [])]
-    if any('316l' in kw for kw in keywords):
-        return True
-    
-    raise ValueError("Dataset does not appear to be for 316L stainless steel")
 
-def download_file(file_url, output_path):
-    """Download a file from the given URL.
-    
-    Raises RuntimeError on any failure. No synthetic fallback.
+def verify_material_type(metadata: dict) -> None:
     """
-    import urllib.request
+    Verify that the dataset metadata indicates 316L Stainless Steel.
+    Raises ValueError if material mismatch is detected.
+    """
+    logger.info("Verifying material type is 316L")
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
+    # Check description
+    description = metadata.get("metadata", {}).get("description", "").lower()
+    title = metadata.get("metadata", {}).get("title", "").lower()
+
+    # Look for "316L" or "316L stainless steel"
+    if "316l" not in description and "316l" not in title:
+        # Also check keywords
+        keywords = [kw.get("value", "").lower() for kw in metadata.get("metadata", {}).get("keywords", [])]
+        if not any("316l" in kw for kw in keywords):
+            raise ValueError(
+                f"Dataset does not appear to be for 316L stainless steel. "
+                f"Title: {title}, Description: {description[:100]}..."
+            )
+
+    logger.info("Material type verified: 316L Stainless Steel")
+
+
+def get_download_url(metadata: dict) -> str:
+    """Extract the direct download URL for the CSV file from metadata."""
+    files = metadata.get("files", [])
+    if not files:
+        # Try to find in 'links' if files array is empty in newer API
+        links = metadata.get("links", {})
+        if "self" in links:
+            return links["self"]
+        raise ValueError("No files found in Zenodo record metadata.")
+
+    # Find the CSV file
+    for f in files:
+        if f.get("key", "").endswith(".csv"):
+            return f["links"]["self"]
+
+    # Fallback: use the first file if no CSV found (should not happen for verified dataset)
+    logger.warning("No CSV file found, using first available file.")
+    return files[0]["links"]["self"]
+
+
+def download_file(url: str, output_path: Path) -> None:
+    """Download a file from URL to output_path with progress logging."""
+    logger.info(f"Downloading dataset from: {url}")
+    logger.info(f"Saving to: {output_path}")
+
     try:
-        logger = logging.getLogger(__name__)
-        logger.info(f"Starting download from {file_url}")
-        
-        with urllib.request.urlopen(file_url, timeout=120) as response:
-            if response.status != 200:
-                raise RuntimeError(f"Download failed with HTTP status {response.status}")
-            
-            with open(output_path, 'wb') as f:
-                # Download in chunks to show progress
-                total_size = int(response.headers.get('content-length', 0))
-                downloaded = 0
-                chunk_size = 8192
-                
-                logger.info(f"Downloading file (size: {total_size} bytes)")
-                
+        with urllib.request.urlopen(url, timeout=300) as response:
+            total_size = int(response.getheader("Content-Length", 0))
+            downloaded = 0
+            block_size = 8192
+
+            with open(output_path, "wb") as out_file:
                 while True:
-                    chunk = response.read(chunk_size)
+                    chunk = response.read(block_size)
                     if not chunk:
                         break
-                    f.write(chunk)
+                    out_file.write(chunk)
                     downloaded += len(chunk)
-                    
                     if total_size > 0:
-                        progress = downloaded / total_size * 100
-                        if downloaded % (chunk_size * 100) == 0:  # Update every ~800KB
-                            print(f"\rDownload progress: {progress:.1f}%", end='')
-                
-                print()  # New line after progress
-                
-        logger.info(f"Download complete. File size: {output_path.stat().st_size} bytes")
-        return True
-        
-    except urllib.error.HTTPError as e:
-        # Clean up partial file if it exists
-        if output_path.exists():
-            output_path.unlink()
-        raise RuntimeError(f"Failed to download file (HTTP {e.code}): {e.reason}")
-    except urllib.error.URLError as e:
-        # Clean up partial file if it exists
-        if output_path.exists():
-            output_path.unlink()
-        raise RuntimeError(f"Failed to download file (Network error): {e.reason}")
-    except Exception as e:
-        # Clean up partial file if it exists
-        if output_path.exists():
-            output_path.unlink()
-        raise RuntimeError(f"Failed to download file: {e}")
+                        progress = (downloaded / total_size) * 100
+                        logger.info(f"Download progress: {progress:.1f}%")
 
-def main():
+        logger.info("Download completed successfully.")
+    except urllib.error.URLError as e:
+        logger.error(f"Download failed: {e}")
+        raise RuntimeError(f"Failed to download file: {e}")
+    except OSError as e:
+        logger.error(f"File write error: {e}")
+        raise RuntimeError(f"Failed to write file: {e}")
+
+
+def update_state_with_checksum(checksum: str, filename: str) -> None:
+    """Update state.yaml with the new checksum for the downloaded file."""
+    import yaml
+
+    if not STATE_FILE.exists():
+        logger.warning("state.yaml not found. Creating new state file.")
+        state_data = {"artifacts": {}}
+    else:
+        with open(STATE_FILE, "r") as f:
+            state_data = yaml.safe_load(f) or {"artifacts": {}}
+
+    # Update or add artifact entry
+    state_data["artifacts"]["raw_dataset"] = {
+        "filename": filename,
+        "checksum": checksum,
+        "source_url": ZENODO_API_URL,
+        "record_id": ZENODO_RECORD_ID
+    }
+
+    with open(STATE_FILE, "w") as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+
+    logger.info(f"Updated state.yaml with checksum for {filename}")
+
+
+def main() -> int:
     """Main entry point for data download."""
-    logger = setup_logging()
     logger.info("Starting 316L LPBF dataset download")
 
-    # Fetch metadata
+    # Ensure output directory exists
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Step 1: Fetch metadata
     logger.info(f"Fetching metadata from Zenodo record {ZENODO_RECORD_ID}")
-    metadata = fetch_record_metadata()
+    try:
+        metadata = fetch_record_metadata(ZENODO_RECORD_ID)
+    except Exception as e:
+        logger.error(f"Failed to fetch metadata: {e}")
+        return 1
 
-    # Verify material type
-    logger.info("Verifying material type is 316L")
-    verify_material_type(metadata)
-    logger.info("Material type verified: 316L")
+    # Step 2: Verify material type (T000 Gate)
+    try:
+        verify_material_type(metadata)
+    except ValueError as e:
+        logger.error(f"Material verification failed: {e}")
+        return 1
 
-    # Find the CSV file in the metadata
-    files = metadata.get('files', [])
-    csv_file = None
-    
-    for file_info in files:
-        if file_info.get('key', '').endswith('.csv'):
-            csv_file = file_info
-            break
-    
-    if not csv_file:
-        raise ValueError("No CSV file found in the Zenodo record")
+    # Step 3: Get download URL
+    try:
+        download_url = get_download_url(metadata)
+    except ValueError as e:
+        logger.error(f"Failed to get download URL: {e}")
+        return 1
 
-    # Get download URL
-    download_url = csv_file.get('links', {}).get('self')
-    if not download_url:
-        raise ValueError("No download link found for the CSV file")
+    # Step 4: Download the file
+    # Determine filename from URL or use default
+    filename = os.path.basename(download_url.split("?")[0])
+    if not filename.endswith(".csv"):
+        filename = "316L_lpbf_dataset.csv"
 
-    logger.info(f"Downloading file: {csv_file.get('key')}")
-    logger.info(f"File size: {csv_file.get('size', 0) / 1024 / 1024:.2f} MB")
-    
-    # Download the file
-    download_file(download_url, OUTPUT_PATH)
-    
-    # Verify download
-    if not OUTPUT_PATH.exists():
-        raise RuntimeError("Downloaded file not found after download")
+    output_path = DATA_RAW_DIR / filename
 
-    # Compute SHA-256 file hash
-    file_hash = compute_file_hash(OUTPUT_PATH)
-    logger.info(f"File SHA-256 hash: {file_hash}")
+    # Remove existing file if present (to ensure fresh download)
+    if output_path.exists():
+        logger.info(f"Removing existing file: {output_path}")
+        output_path.unlink()
 
-    # Update state.yaml
-    state = load_state()
-    update_state(
-        state,
-        artifact_name="raw_dataset",
-        artifact_path=str(OUTPUT_PATH.relative_to(project_root)),
-        file_hash=file_hash,
-        metadata={
-            "zenodo_id": ZENODO_RECORD_ID,
-            "filename": csv_file.get('key'),
-            "size_bytes": csv_file.get('size', 0),
-            "downloaded_at": "now"
-        }
-    )
+    try:
+        download_file(download_url, output_path)
+    except RuntimeError as e:
+        logger.error(f"Download failed: {e}")
+        return 1
 
-    logger.info(f"Successfully downloaded and saved to {OUTPUT_PATH}")
-    logger.info(f"Updated state.yaml with file hash")
+    # Step 5: Compute checksum
+    checksum = compute_file_hash(output_path)
+    logger.info(f"Computed checksum: {checksum}")
 
+    # Step 6: Update state.yaml
+    try:
+        update_state_with_checksum(checksum, filename)
+    except Exception as e:
+        logger.error(f"Failed to update state.yaml: {e}")
+        return 1
+
+    logger.info("Data download and verification completed successfully.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

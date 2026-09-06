@@ -22,3 +22,16 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2102.02470
   verified_at: '2026-08-31T15:40:57.301666Z'
+- artifact_hash: 23ab9f81e8bc340b47d3e285842f8c692d1fecd77e9a0677f3e7ecf4ee534fb3
+  artifact_path: projects/PROJ-363-predicting-the-impact-of-additive-manufa/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Source code for subclustering, figure production in R, and scGSEA
+    for publication &#34;Pre-existing interferon gamma conditions the lung to mediate
+    early control of SARS-CoV-2&#34; | Zenodo
+  kind: url
+  value: https://zenodo.org/records/10068024
+  verification_status: pending
+  verified_against_url: https://zenodo.org/records/10068024
+  verified_at: '2026-09-06T02:34:42.177113Z'
