@@ -17,7 +17,7 @@ This project investigates whether specific 3-node network motif configurations i
 **Project Type**: scientific-research-pipeline
 **Performance Goals**: Motif enumeration ≤300s/subject (3-node only); full pipeline ≤6h; PDF generation ≤2min.
 **Constraints**: No GPU required (CPU-only); no external API keys beyond HCP public access; memory <7GB (streaming/lazy loading where possible); strict reproducibility (seed=42).
-**Scale/Scope**: A cohort of subjects, -node graphs, possible 3-node motifs (undirected: several types), A sufficient number of permutation iterations.
+**Scale/Scope**: A cohort of subjects, -node graphs, possible k-node motifs (undirected: several types), A sufficient number of permutation iterations.
 
 ## Constitution Check
 
@@ -44,7 +44,12 @@ This project investigates whether specific 3-node network motif configurations i
     *   **Verification**: The `Advancement-Evaluator` will check artifact hashes before stage transitions.
 
 6.  **Structural Data Integrity**:
-    *   **Plan Compliance**: The pipeline downloads unaltered HCP diffusion data to a temporary location. Parcellation to Schaefer-100 is performed as a distinct step, saving the result as a new file (`canonical_binary_adj.npy`) with a reference to the raw source ID. Raw data is deleted after processing to fit CI limits, but the *derived* structural matrix (the basis of analysis) is stored and checksummed, satisfying the integrity requirement for the analyzed data.
+    *   **Plan Compliance**: The pipeline downloads unaltered HCP diffusion data to a temporary location. Parcellation to Schaefer-qualitative
+
+The specific value to remove/generalize: 'a specific magnitude'
+
+Rewritten passage:
+This study investigates the research question regarding the impact of variable X on outcome Y using method Z. We aim to characterize the direction and significance of this relationship without predetermining specific low-level empirical values. is performed as a distinct step, saving the result as a new file (`canonical_binary_adj.npy`) with a reference to the raw source ID. Raw data is deleted after processing to fit CI limits, but the *derived* structural matrix (the basis of analysis) is stored and checksummed, satisfying the integrity requirement for the analyzed data.
     *   **Verification**: The `data-model.md` defines the schema for the derived connectome, linking it to the raw source ID.
 
 7.  **Statistical Transparency**:
@@ -99,8 +104,8 @@ tests/
 ## Compute Feasibility & Data Strategy
 
 ### Compute Strategy
-*   **CPU-First**: All operations (motif counting on 100-node graphs, correlation, permutation) are computationally feasible on CPU cores.
-    *   *Motif Counting*: 3-node motifs on a 100-node graph (max a large number of triplets) are trivial for `networkx` or custom C-optimized Python loops. The 300s timeout is a safe upper bound; expected time is <10s/subject.
+*   **CPU-First**: All operations (motif counting on -node graphs, correlation, permutation) are computationally feasible on CPU cores.
+    *   *Motif Counting*: 3-node motifs on a -node graph (max a large number of triplets) are trivial for `networkx` or custom C-optimized Python loops. The 300s timeout is a safe upper bound; expected time is <10s/subject.
     *   *Permutation*: A sufficient number of permutations of 50 data points is negligible (<1s).
 *   **Memory**: Adequate RAM capacity is sufficient.. We process subjects sequentially (or in small batches of varying sizes) to keep memory footprint low. We do not load all raw NIfTI files simultaneously.
 *   **Disk**: GB is sufficient. **Critical Adjustment**: HCP raw data is large (multi-GB per subject). We cannot store 50 full HCP raw datasets.
@@ -109,8 +114,8 @@ tests/
 
 ### Data Availability
 *   **Source**: Human Connectome Project (HCP) Large-Sample Release.
-*   **Access Method**: **HCP S1200 via AWS S3 public bucket (us-east-1) using `awscli` with anonymous public read access**.
-    *   *Fallback*: If the specific HCP S3 bucket is inaccessible or the download fails for a subject, the pipeline will skip the subject, log the error, and continue. If >5% of subjects fail, the pipeline will abort and suggest using the verified OpenNeuro dataset `ds000222` (HCP minimal processing pipeline data) as a smaller, verified alternative.
+*   **Access Method**: **HCP S via AWS S3 public bucket (us-east-1) using `awscli` with anonymous public read access**.
+    *   *Fallback*: If the specific HCP S3 bucket is inaccessible or the download fails for a subject, the pipeline will skip the subject, log the error, and continue. If >5% of subjects fail, the pipeline will abort and suggest using the verified OpenNeuro dataset `ds` (HCP minimal processing pipeline data) as a smaller, verified alternative.
     *   *Constraint Check*: The spec assumes a cohort of subjects. If the CI cannot hold 50 raw datasets, we will process them one-by-one (download -> process -> delete raw) to stay within disk limits.
 
 ## Phase Breakdown
@@ -118,8 +123,8 @@ tests/
 ### Phase 0: Research & Data Verification
 *   **Goal**: Confirm dataset variables and access method.
 *   **Tasks**:
-    *   Verify HCP S1200 diffusion and rsfMRI availability for 50 subjects.
-    *   Verify Schaefer-100 parcellation compatibility.
+    *   Verify HCP S diffusion and rsfMRI availability for a cohort of subjects.
+    *   Verify Schaefer parcellation compatibility.
     *   Finalize `research.md` with dataset URLs and access strategy.
 
 ### Phase 1: Data Model & Contracts
@@ -138,7 +143,7 @@ tests/
     *   **T014c (Data Download & Parcellation)**: Download diffusion data, apply Schaefer-100, binarize using **median graph density threshold**, and save `data/processed/canonical_binary_adj.npy`. Log status to `data/processed/structural_connectome_metadata.json` (schema: `structural_connectome.schema.yaml`). **Logic for SC-001**: Parse this JSON, count 'complete' vs 'skipped' statuses, calculate success rate, and write to `results.json` and `pipeline.log`.
     *   **T015 (Functional Processing)**: Compute Pearson correlation of rs-fMRI time-series for 100 nodes, calculate global efficiency, and write `data/processed/rsfc.npy` and `data/processed/global_efficiency.json`.
     *   **T017 (Logging)**: Ensure `data/logs/pipeline.log` is created and updated with all processing steps, warnings, and errors.
-    *   **T025c_loop (Threshold Sensitivity)**: Iterate over `z` thresholds {1.5, 2.0, 2.5}. For each, save output to `data/processed/sensitivity_z<value>.json`.
+    *   **T025c_loop (Threshold Sensitivity)**: Iterate over a range of `z` thresholds spanning low to high significance levels.. For each, save output to `data/processed/sensitivity_z<value>.json`.
     *   **T026 (Motif Aggregation)**: Enumerate 3-node motifs, generate null models, compute z-scores, aggregate median z-scores, and write `data/processed/motif_profiles.json`.
     *   **T030a (VIF Check & Selection)**: Compute VIF for degree control. If VIF > 5, switch to permutation-only analysis. Write `data/processed/quality_flags.json` with the method selected and VIF values.
     *   **T032a (Correlation)**: Compute partial correlations (residualization method) between motif z-scores and rsFC metrics, applying Bonferroni and FDR corrections.
