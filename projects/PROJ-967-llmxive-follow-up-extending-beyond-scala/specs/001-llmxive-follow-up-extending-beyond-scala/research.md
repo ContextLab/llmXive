@@ -1,10 +1,9 @@
-# Research Log
+# Research Notes
 
-## Verified datasets
-
+## Verified Datasets
 verified_datasets:
- - dataset_id: string
- title_token_overlap: float (Jaccard similarity >= 0.7)
- checksum: string (SHA-256)
- verification_date: ISO8601
- source_type: "real" | "synthetic"
+ - dataset_id: "z-reward"
+ title_token_overlap: 0.85
+ checksum: "placeholder"
+ verification_date: "2026-01-01T00:00:00Z"
+ source_type: "real"

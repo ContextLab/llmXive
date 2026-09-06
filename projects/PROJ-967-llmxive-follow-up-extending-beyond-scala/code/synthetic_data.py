@@ -1,248 +1,198 @@
-"""
-Synthetic Data Generator for Z-Reward Schema.
-
-Generates a schema-compliant synthetic dataset for unit testing purposes only.
-This data is NOT for hypothesis validation or final metric calculation.
-
-Schema (from T001d):
-- prompt: string
-- image_url: string
-- teacher_scores: object (Alignment, Realism, Aesthetics, Plausibility) -> float
-- student_scalar: float
-- human_annotations: object (Alignment, Realism, Aesthetics, Plausibility) -> float
-- primary_dimension: string
-"""
-
 import argparse
 import json
 import logging
 import os
 import sys
 import random
-from pathlib import Path
-from typing import List, Dict, Any
-
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-
-def generate_synthetic_prompt(seed: int, index: int) -> str:
-    """Generate a deterministic synthetic prompt."""
-    # Use a small corpus of templates to ensure variety but determinism
-    templates = [
-        "Describe an image of {topic} in {style} style.",
-        "Generate a realistic depiction of {topic} with {mood} mood.",
-        "Create an artistic rendering of {topic} focusing on {aspect}.",
-        "Write a caption for an image showing {topic} in {context}.",
+def generate_synthetic_prompt(seed_offset: int = 0) -> str:
+    """Generate a synthetic prompt string."""
+    base_prompts = [
+        "Describe the image in detail.",
+        "What is happening in this scene?",
+        "Evaluate the realism of the depicted scenario.",
+        "Assess the aesthetic quality of the composition.",
+        "Determine the plausibility of the event."
     ]
-    
-    topics = ["mountains", "ocean", "cityscape", "forest", "desert", "space", "animals", "architecture"]
-    styles = ["photorealistic", "impressionist", "cyberpunk", "watercolor", "oil painting"]
-    moods = ["serene", "chaotic", "melancholic", "joyful", "mysterious"]
-    aspects = ["lighting", "texture", "composition", "color palette"]
-    contexts = ["sunset", "midnight", "dawn", "stormy weather", "clear day"]
+    return f"{base_prompts[seed_offset % len(base_prompts)]} [ID:{seed_offset}]"
 
-    rng = np.random.default_rng(seed + index)
-    
-    template = rng.choice(templates)
+def generate_synthetic_image_url(seed_offset: int = 0) -> str:
+    """Generate a synthetic image URL."""
+    return f"https://example.com/images/synth_{seed_offset:05d}.jpg"
+
+def generate_teacher_scores(seed: int, n_samples: int) -> pd.DataFrame:
+    """
+    Generate teacher scores for four rubric dimensions.
+    Scores are sampled from np.random.normal(loc=5, scale=2).
+    """
+    rng = np.random.default_rng(seed)
     data = {
-        "topic": rng.choice(topics),
-        "style": rng.choice(styles),
-        "mood": rng.choice(moods),
-        "aspect": rng.choice(aspects),
-        "context": rng.choice(contexts)
+        "Alignment": rng.normal(loc=5, scale=2, size=n_samples),
+        "Realism": rng.normal(loc=5, scale=2, size=n_samples),
+        "Aesthetics": rng.normal(loc=5, scale=2, size=n_samples),
+        "Plausibility": rng.normal(loc=5, scale=2, size=n_samples)
     }
-    
-    try:
-        return template.format(**data)
-    except KeyError:
-        # Fallback if template keys don't match data keys
-        return f"Prompt for sample {index} involving {rng.choice(topics)}"
+    return pd.DataFrame(data)
 
+def generate_student_scalar(seed: int, n_samples: int) -> np.ndarray:
+    """Generate student scalar scores."""
+    rng = np.random.default_rng(seed + 1) # Different seed for independence
+    return rng.normal(loc=5, scale=2, size=n_samples)
 
-def generate_synthetic_image_url(index: int) -> str:
-    """Generate a deterministic synthetic image URL."""
-    return f"https://example.com/images/synthetic/{index:08d}.jpg"
-
-
-def generate_teacher_scores(seed: int, index: int) -> Dict[str, float]:
+def generate_human_annotations(seed: int, n_samples: int) -> pd.DataFrame:
     """
-    Generate teacher scores for the four rubric dimensions.
-    Sampled from normal distribution: loc=5, scale=2.
+    Generate human annotations for four rubric dimensions.
+    CRITICAL: Sampled independently from teacher scores with a different seed
+    to guarantee independent noise structures for unit testing.
     """
-    rng = np.random.default_rng(seed + index)
+    rng = np.random.default_rng(seed + 2) # Different seed for independence
+    data = {
+        "Alignment": rng.normal(loc=5, scale=2, size=n_samples),
+        "Realism": rng.normal(loc=5, scale=2, size=n_samples),
+        "Aesthetics": rng.normal(loc=5, scale=2, size=n_samples),
+        "Plausibility": rng.normal(loc=5, scale=2, size=n_samples)
+    }
+    return pd.DataFrame(data)
+
+def generate_primary_dimension(seed: int, n_samples: int) -> np.ndarray:
+    """Generate primary dimension labels based on metadata rules."""
+    rng = np.random.default_rng(seed + 3)
     dimensions = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-    
-    # Generate scores with some correlation structure to mimic real data
-    # Base score
-    base = rng.normal(loc=5.0, scale=2.0)
-    
-    scores = {}
-    for dim in dimensions:
-        # Add dimension-specific noise
-        noise = rng.normal(loc=0.0, scale=1.0)
-        scores[dim] = round(float(base + noise), 4)
-        
-    return scores
-
-
-def generate_student_scalar(seed: int, index: int, teacher_scores: Dict[str, float]) -> float:
-    """
-    Generate student scalar score.
-    Ideally correlated with teacher scores but with independent noise.
-    """
-    rng = np.random.default_rng(seed + index + 1000) # Offset seed for independence
-    
-    # Calculate average teacher score
-    avg_teacher = sum(teacher_scores.values()) / len(teacher_scores)
-    
-    # Student score is correlated but with noise
-    student_score = avg_teacher + rng.normal(loc=0.0, scale=1.5)
-    
-    return round(float(student_score), 4)
-
-
-def generate_human_annotations(seed: int, index: int) -> Dict[str, float]:
-    """
-    Generate human annotations for the four rubric dimensions.
-    IMPORTANT: These are MOCKS for code structure testing only.
-    They are sampled independently from teacher scores with a different seed.
-    """
-    rng = np.random.default_rng(seed + index + 5000) # Distinct seed for independence
-    dimensions = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-    
-    annotations = {}
-    for dim in dimensions:
-        # Independent noise structure as per requirement
-        annotations[dim] = round(float(rng.normal(loc=5.0, scale=2.0)), 4)
-        
-    return annotations
-
-
-def generate_primary_dimension(seed: int, index: int) -> str:
-    """
-    Generate a primary dimension based on a deterministic hash of the index.
-    This satisfies the requirement for a metadata-based derivation rule.
-    """
-    dimensions = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-    # Use a simple hash to pick one deterministically
-    idx = (seed + index) % len(dimensions)
-    return dimensions[idx]
-
+    return rng.choice(dimensions, size=n_samples)
 
 def generate_synthetic_dataset(n_samples: int, seed: int) -> pd.DataFrame:
     """
-    Generate the full synthetic dataset.
-    
-    Args:
-        n_samples: Number of samples to generate.
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        pandas.DataFrame matching the Z-Reward schema.
+    Generate a complete synthetic dataset matching the schema.
+    NOTE: This data is for unit-testing only.
     """
-    logger.info(f"Generating {n_samples} synthetic samples with seed {seed}...")
+    logger.info(f"Generating synthetic dataset with {n_samples} samples and seed {seed}")
     
-    data = {
-        "prompt": [],
-        "image_url": [],
-        "teacher_scores": [],
-        "student_scalar": [],
-        "human_annotations": [],
-        "primary_dimension": []
-    }
+    # Generate components
+    prompts = [generate_synthetic_prompt(i) for i in range(n_samples)]
+    image_urls = [generate_synthetic_image_url(i) for i in range(n_samples)]
     
-    for i in range(n_samples):
-        prompt = generate_synthetic_prompt(seed, i)
-        image_url = generate_synthetic_image_url(i)
-        teacher_scores = generate_teacher_scores(seed, i)
-        student_scalar = generate_student_scalar(seed, i, teacher_scores)
-        human_annotations = generate_human_annotations(seed, i)
-        primary_dimension = generate_primary_dimension(seed, i)
-        
-        data["prompt"].append(prompt)
-        data["image_url"].append(image_url)
-        data["teacher_scores"].append(teacher_scores)
-        data["student_scalar"].append(student_scalar)
-        data["human_annotations"].append(human_annotations)
-        data["primary_dimension"].append(primary_dimension)
-        
-        if (i + 1) % 100 == 0:
-            logger.info(f"Generated {i + 1}/{n_samples} samples...")
-            
-    df = pd.DataFrame(data)
-    logger.info("Synthetic dataset generation complete.")
+    teacher_df = generate_teacher_scores(seed, n_samples)
+    student_scalars = generate_student_scalar(seed, n_samples)
+    human_df = generate_human_annotations(seed, n_samples)
+    primary_dims = generate_primary_dimension(seed, n_samples)
+    
+    # Construct DataFrame
+    df = pd.DataFrame({
+        "prompt": prompts,
+        "image_url": image_urls,
+        "teacher_scores": [teacher_df.iloc[i].to_dict() for i in range(n_samples)],
+        "student_scalar": student_scalars,
+        "human_annotations": [human_df.iloc[i].to_dict() for i in range(n_samples)],
+        "primary_dimension": primary_dims
+    })
+    
     return df
 
+def save_config(output_path: Path, is_mock: bool = True) -> None:
+    """Update data/processed/config.json with the mock flag."""
+    config_path = output_path.parent / "config.json"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    config = {}
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+    
+    config["IS_MOCK_DATA"] = is_mock
+    
+    with open(config_path, 'w') as f:
+        json.dump(config, f, indent=2)
+    logger.info(f"Updated config.json at {config_path}")
+
+def update_research_md(project_root: Path, is_mock: bool = True) -> None:
+    """Append a note to research.md indicating synthetic data source."""
+    specs_dir = project_root / "specs" / "001-llmxive-follow-up-extending-beyond-scala"
+    research_md_path = specs_dir / "research.md"
+    
+    if not specs_dir.exists():
+        specs_dir.mkdir(parents=True, exist_ok=True)
+        
+    note = "\n\n## Synthetic Data Note\n"
+    note += "This run used mock data generated for unit testing (T037b). "
+    note += "Human annotations are mocks for code structure testing only "
+    note += "and MUST NOT be used to validate the hypothesis or calculate final fidelity loss metrics.\n"
+    
+    if research_md_path.exists():
+        with open(research_md_path, 'r') as f:
+            content = f.read()
+        if "Synthetic Data Note" not in content:
+            with open(research_md_path, 'a') as f:
+                f.write(note)
+    else:
+        with open(research_md_path, 'w') as f:
+            f.write("# Research Notes\n")
+            f.write(note)
+    
+    logger.info(f"Updated research.md at {research_md_path}")
+
+def update_results_json(project_root: Path) -> None:
+    """Write IS_SYNTHETIC_RUN: true to results.json."""
+    results_path = project_root / "results" / "results.json"
+    results_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    data = {}
+    if results_path.exists():
+        with open(results_path, 'r') as f:
+            data = json.load(f)
+    
+    data["IS_SYNTHETIC_RUN"] = True
+    
+    with open(results_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Updated results.json at {results_path}")
 
 def parse_args() -> argparse.Namespace:
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Generate synthetic Z-Reward dataset for unit testing."
-    )
-    parser.add_argument(
-        "--n-samples", 
-        type=int, 
-        default=50,
-        help="Number of synthetic samples to generate (default: 50)"
-    )
-    parser.add_argument(
-        "--seed", 
-        type=int, 
-        default=42,
-        help="Random seed for reproducibility (default: 42)"
-    )
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default="data/raw/mock_z_reward.parquet",
-        help="Output file path (default: data/raw/mock_z_reward.parquet)"
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Logging level"
-    )
+    parser = argparse.ArgumentParser(description="Generate synthetic dataset for unit testing.")
+    parser.add_argument("--n-samples", type=int, default=50, help="Number of samples to generate.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
+    parser.add_argument("--output", type=str, default="data/raw/mock_z_reward.parquet", 
+                        help="Output path for the parquet file.")
+    parser.add_argument("--project-root", type=str, default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala",
+                        help="Root path of the project.")
     return parser.parse_args()
 
-
 def main() -> None:
-    """Main entry point for synthetic data generation."""
     args = parse_args()
     
-    # Set logging level
-    logging.getLogger().setLevel(getattr(logging, args.log_level))
-    
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure paths are relative to the project root
+    project_root = Path(args.project_root)
+    output_path = project_root / args.output
     
     # Generate dataset
     df = generate_synthetic_dataset(n_samples=args.n_samples, seed=args.seed)
     
-    # Write to parquet
-    # Using compression='snappy' for efficiency, or 'none' if dependencies are limited
-    try:
-        df.to_parquet(output_path, index=False, compression='snappy')
-    except Exception as e:
-        logger.warning(f"Snappy compression failed, trying gzip: {e}")
-        df.to_parquet(output_path, index=False, compression='gzip')
-        
-    logger.info(f"Dataset written to {output_path}")
-    logger.info(f"Schema verification: {list(df.columns)}")
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Log a sample row for quick verification
-    logger.info(f"Sample row 0: {df.iloc[0].to_dict()}")
-
+    # Save to parquet
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved synthetic dataset to {output_path}")
+    
+    # Update config.json
+    save_config(output_path, is_mock=True)
+    
+    # Update research.md
+    update_research_md(project_root)
+    
+    # Update results.json
+    update_results_json(project_root)
+    
+    logger.info("Synthetic dataset generation completed successfully.")
 
 if __name__ == "__main__":
     main()

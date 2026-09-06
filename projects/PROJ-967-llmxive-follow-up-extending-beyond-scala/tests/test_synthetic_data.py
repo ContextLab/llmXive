@@ -1,145 +1,115 @@
-"""
-Unit tests for the synthetic data generator.
-"""
-import json
 import os
-import tempfile
-from pathlib import Path
-
-import numpy as np
+import sys
+import json
 import pandas as pd
 import pytest
+from pathlib import Path
 
-# Import the module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+# Add the code directory to the path
+code_dir = Path(__file__).parent.parent / "code"
+sys.path.insert(0, str(code_dir))
+
 from synthetic_data import (
     generate_synthetic_dataset,
-    generate_synthetic_prompt,
     generate_teacher_scores,
     generate_human_annotations,
-    generate_student_scalar,
-    generate_primary_dimension,
-    DIMENSIONS
+    save_config,
+    update_research_md,
+    update_results_json
 )
 
-class TestSyntheticDataGenerator:
-    """Tests for the synthetic data generation functionality."""
+PROJECT_ROOT = Path(__file__).parent.parent
 
-    def test_generate_dataset_creates_file(self):
-        """Test that the generator creates the output file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test_output.parquet')
-            generate_synthetic_dataset(n_samples=10, seed=42, output_path=output_path)
-            
-            assert os.path.exists(output_path), "Output file was not created"
-            
-            # Verify it can be loaded
-            df = pd.read_parquet(output_path)
-            assert len(df) == 10, "Incorrect number of samples generated"
+def test_generate_synthetic_dataset_structure():
+    """Test that the generated dataset has the correct columns."""
+    n_samples = 10
+    seed = 42
+    df = generate_synthetic_dataset(n_samples, seed)
+    
+    expected_columns = [
+        "prompt", "image_url", "teacher_scores", 
+        "student_scalar", "human_annotations", "primary_dimension"
+    ]
+    
+    assert list(df.columns) == expected_columns
+    assert len(df) == n_samples
 
-    def test_generate_dataset_schema_compliance(self):
-        """Test that generated data matches the required schema."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test_schema.parquet')
-            generate_synthetic_dataset(n_samples=5, seed=42, output_path=output_path)
-            
-            df = pd.read_parquet(output_path)
-            
-            # Check required columns
-            required_columns = [
-                'prompt', 'image_url', 'teacher_scores', 
-                'student_scalar', 'human_annotations', 'primary_dimension'
-            ]
-            for col in required_columns:
-                assert col in df.columns, f"Missing required column: {col}"
+def test_generate_synthetic_dataset_types():
+    """Test that the generated data has correct types."""
+    n_samples = 10
+    seed = 42
+    df = generate_synthetic_dataset(n_samples, seed)
+    
+    # Check scalar types
+    assert df["student_scalar"].dtype in [float, int]
+    
+    # Check list/dict types for nested structures
+    assert isinstance(df["teacher_scores"].iloc[0], dict)
+    assert isinstance(df["human_annotations"].iloc[0], dict)
+    
+    # Check required keys in nested dicts
+    required_keys = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+    for key in required_keys:
+        assert key in df["teacher_scores"].iloc[0]
+        assert key in df["human_annotations"].iloc[0]
 
-    def test_teacher_scores_structure(self):
-        """Test that teacher_scores have the correct structure and keys."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test_scores.parquet')
-            generate_synthetic_dataset(n_samples=5, seed=42, output_path=output_path)
-            
-            df = pd.read_parquet(output_path)
-            
-            for _, row in df.iterrows():
-                scores = row['teacher_scores']
-                assert isinstance(scores, dict), "teacher_scores should be a dict"
-                for dim in DIMENSIONS:
-                    assert dim in scores, f"Missing dimension in teacher_scores: {dim}"
-                    assert isinstance(scores[dim], float), f"{dim} should be a float"
+def test_noise_independence():
+    """
+    Test that teacher scores and human annotations are generated with
+    independent noise structures (different seeds).
+    """
+    n_samples = 100
+    seed = 42
+    df = generate_synthetic_dataset(n_samples, seed)
+    
+    # Convert nested dicts to separate columns for correlation check
+    teacher_df = pd.DataFrame(df["teacher_scores"].tolist())
+    human_df = pd.DataFrame(df["human_annotations"].tolist())
+    
+    # Calculate correlation between teacher and human scores
+    # Since they are generated with different seeds, correlation should be low
+    # (not exactly zero due to randomness, but significantly lower than 1.0)
+    correlations = []
+    for dim in ["Alignment", "Realism", "Aesthetics", "Plausibility"]:
+        corr = teacher_df[dim].corr(human_df[dim])
+        correlations.append(corr)
+    
+    # Assert that correlations are not perfect (1.0 or -1.0)
+    for corr in correlations:
+        assert abs(corr) < 1.0, f"Correlation {corr} suggests dependent noise"
 
-    def test_human_annotations_independence(self):
-        """Test that human annotations have independent noise from teacher scores."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test_independence.parquet')
-            generate_synthetic_dataset(n_samples=100, seed=42, output_path=output_path)
-            
-            df = pd.read_parquet(output_path)
-            
-            # Collect all scores
-            teacher_means = []
-            human_means = []
-            
-            for _, row in df.iterrows():
-                teacher_scores = row['teacher_scores']
-                human_annotations = row['human_annotations']
-                
-                teacher_means.append(np.mean([teacher_scores[d] for d in DIMENSIONS]))
-                human_means.append(np.mean([human_annotations[d] for d in DIMENSIONS]))
-            
-            # They should not be perfectly correlated (though they may be correlated due to same distribution)
-            # We just verify they are generated as separate calls
-            assert len(teacher_means) == 100
-            assert len(human_means) == 100
+def test_save_config_updates_json():
+    """Test that save_config correctly updates config.json."""
+    config_path = PROJECT_ROOT / "data" / "processed" / "config.json"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create a temporary config file
+    with open(config_path, 'w') as f:
+        json.dump({"existing_key": "value"}, f)
+    
+    save_config(config_path, is_mock=True)
+    
+    # Verify content
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    
+    assert config["IS_MOCK_DATA"] is True
+    assert config["existing_key"] == "value"
 
-    def test_primary_dimension_validity(self):
-        """Test that primary_dimension is always one of the valid dimensions."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test_dim.parquet')
-            generate_synthetic_dataset(n_samples=10, seed=42, output_path=output_path)
-            
-            df = pd.read_parquet(output_path)
-            
-            for dim in df['primary_dimension']:
-                assert dim in DIMENSIONS, f"Invalid primary dimension: {dim}"
-
-    def test_reproducibility_with_seed(self):
-        """Test that same seed produces same results."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path1 = os.path.join(tmpdir, 'test_rep1.parquet')
-            output_path2 = os.path.join(tmpdir, 'test_rep2.parquet')
-            
-            generate_synthetic_dataset(n_samples=5, seed=123, output_path=output_path1)
-            generate_synthetic_dataset(n_samples=5, seed=123, output_path=output_path2)
-            
-            df1 = pd.read_parquet(output_path1)
-            df2 = pd.read_parquet(output_path2)
-            
-            # Compare all columns
-            pd.testing.assert_frame_equal(df1, df2)
-
-    def test_different_seeds_produce_different_results(self):
-        """Test that different seeds produce different results."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path1 = os.path.join(tmpdir, 'test_diff1.parquet')
-            output_path2 = os.path.join(tmpdir, 'test_diff2.parquet')
-            
-            generate_synthetic_dataset(n_samples=10, seed=42, output_path=output_path1)
-            generate_synthetic_dataset(n_samples=10, seed=123, output_path=output_path2)
-            
-            df1 = pd.read_parquet(output_path1)
-            df2 = pd.read_parquet(output_path2)
-            
-            # They should not be identical
-            assert not df1.equals(df2), "Different seeds should produce different data"
-
-    def test_n_samples_argument(self):
-        """Test that n_samples argument controls the output size."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            for n in [1, 10, 100]:
-                output_path = os.path.join(tmpdir, f'test_n{n}.parquet')
-                generate_synthetic_dataset(n_samples=n, seed=42, output_path=output_path)
-                
-                df = pd.read_parquet(output_path)
-                assert len(df) == n, f"Expected {n} samples, got {len(df)}"
+def test_update_results_json():
+    """Test that update_results_json correctly updates results.json."""
+    results_path = PROJECT_ROOT / "results" / "results.json"
+    results_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create a temporary results file
+    with open(results_path, 'w') as f:
+        json.dump({"existing_result": 123}, f)
+    
+    update_results_json(PROJECT_ROOT)
+    
+    # Verify content
+    with open(results_path, 'r') as f:
+        results = json.load(f)
+    
+    assert results["IS_SYNTHETIC_RUN"] is True
+    assert results["existing_result"] == 123

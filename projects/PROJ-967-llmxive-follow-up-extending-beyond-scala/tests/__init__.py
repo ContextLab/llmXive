@@ -1,3 +1,3 @@
 """
-Test suite for the llmXive Follow-up: Teacher Entanglement vs. Scalar Distillation Loss project.
+Test suite for PROJ-967-llmxive-follow-up-extending-beyond-scala.
 """

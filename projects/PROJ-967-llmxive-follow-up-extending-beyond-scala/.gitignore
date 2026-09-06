@@ -25,26 +25,27 @@ venv/
 ENV/
 env/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Data
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
 data/raw/*.parquet
-data/raw/*.zip
 data/processed/*.parquet
 data/processed/*.csv
 data/processed/*.json
 results/*.json
 results/*.pkl
 results/*.png
+results/*.pdf
 results/*.prof
-
-# Logs
-*.log
-
-# OS
-.DS_Store
-Thumbs.db
+logs/
+.pytest_cache/
+.coverage
+htmlcov/

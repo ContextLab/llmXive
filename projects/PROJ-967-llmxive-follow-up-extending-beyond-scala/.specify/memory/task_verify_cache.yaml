@@ -1,9 +1,52 @@
-T000a:
+T000b:
+  c: false
+  h: cce6768b3a9e1aa927506b8ec230e6c1eb4bcee85bfaf5b374633ff34719f4d1
+  r: "The repository only contains a partially shown `code/verify_dataset.py`; there\
+    \ is no evidence that it was run, no JSON stdout captured, and `research.md` was\
+    \ not updated with the required fields. Moreover, the required `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/config.json`\
+    \ file is missing entirely, so the `IS_SYNTHETIC_RUN` flag could not be written.\
+    \ The task\u2019s core artifacts are absent."
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file was presented, nor any evidence that it was created or\
-    \ contains the required `verified_datasets` YAML section. The implementer\u2019\
-    s claim lacks the actual artifact, so the task is not satisfied."
+  r: No directory listings or file system evidence were provided showing that the
+    required `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/...` folders
+    exist; without such proof the task requirement is not satisfied.
+T001b:
+  c: false
+  h: 9d91057e95ee3332c2aa520fb336384bd111856d22fc5477fdc512397c1fced3
+  r: "The required files under `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/`\
+    \ (`code/requirements.txt`, `.gitignore`, and `pytest.ini`) are missing; only\
+    \ a top\u2011level `code/requirements.txt` exists. The task specifically demanded\
+    \ those three empty files in the project directory, which are not present."
+T001c:
+  c: false
+  h: 8f3a25b1405a4319ce2009a444157d5845db825d62f31a12786bde8fd3c012cc
+  r: The required file `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt`
+    does not exist, so the task of writing the pinned dependencies at the specified
+    location is not fulfilled. The existing `code/requirements.txt` is irrelevant
+    to the required path.
+T001e:
+  c: false
+  h: fb93b0f49d188ffe7722da5432cc50b0bf11b38ea52fe9f3387ae2f3ca88a5df
+  r: 'The `features.json` file correctly contains `[]`, but `results.json` contains
+    `{"IS_SYNTHETIC_RUN": true}` instead of the required empty JSON object `{}`. The
+    task explicitly demanded `{}` as the file content, so the artifact does not meet
+    the specification.'
+T003a:
+  c: false
+  h: 719c21a5a07ebb9afc29aa041feae48ca8e852876b9a4c77c062dff7488b1133
+  r: "The `pyproject.toml` file is present and correctly pins `ruff==0.9.0` and `black==24.8.0`\
+    \ with appropriate configuration, but the required `.ruff.toml` file is missing\
+    \ entirely, so the task\u2019s requirement is not fully satisfied."
+T012:
+  c: false
+  h: 3b896525807703d5dc85b059b1076b553ccc79c2dc51b1dea8690b69e0c506e1
+  r: "The `code/ingest.py` script does not load or handle the required `logits` and\
+    \ pre\u2011computed inference output columns, does not implement the `--use-mock-data`\
+    \ flag logic, and never writes a processed Parquet file to `data/processed/raw_data.parquet`\
+    \ (the file is missing). Consequently the core ingestion requirements are not\
+    \ met."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -70,19 +113,20 @@ T036:
     quickstart.md was executed and its reproducibility checks passed was provided.
     Without such evidence, the claim that the quickstart validation was run cannot
     be verified.
-T037:
+T037c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No dataset files, download scripts, or ingestion code are present; the claim\
-    \ provides only a textual description without any tangible artifact confirming\
-    \ that the Z\u2011Reward evaluation dataset was actually obtained or that an adaptive\
-    \ fallback mechanism was implemented. The required concrete evidence (e.g., downloaded\
-    \ data files, a script that fetches them, logs showing successful download) is\
-    \ missing."
-T037b:
+  r: "No code, data files, or generated outputs were provided; the claim contains\
+    \ only a textual description of desired functionality without any actual ingestion\
+    \ script, feature\u2011engineering module, or predictive\u2011model artifacts.\
+    \ Consequently the required synthetic dataset generation and associated processing\
+    \ steps are not demonstrated."
+T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No synthetic dataset files, generation scripts, or documentation were provided;\
-    \ the claim contains only a description of downstream tasks without any actual\
-    \ artifact fulfilling the \u201Cgenerate synthetic dataset for unit testing\u201D\
-    \ requirement. The required dataset (or code to create it) is missing."
+  r: No code, data files, or output artifacts (e.g., ingestion script, JSON feature
+    records, covariance matrix, Random Forest training script, or evaluation results)
+    were provided. Without these concrete artifacts, the required dataset loading,
+    entanglement computation, and predictive modeling steps cannot be verified. The
+    implementer must supply the actual scripts and generated outputs that satisfy
+    the three user stories.
