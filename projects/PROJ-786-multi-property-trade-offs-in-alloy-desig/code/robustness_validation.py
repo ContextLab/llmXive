@@ -7,153 +7,176 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Import from existing API surface
+from config import get_config
 
-from config import get_config, load_environment
-from utils.logging_config import get_logger, log_info_with_context, log_warning_with_context, log_error_with_context
+# Setup logging
+logger = logging.getLogger(__name__)
 
-def load_sensitivity_data(file_path: str) -> pd.DataFrame:
-    """Load the sensitivity analysis CSV."""
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Sensitivity analysis file not found: {file_path}")
-    df = pd.read_csv(file_path)
-    required_cols = {'cutoff', 'region_size', 'mean_correlation', 'robustness_score'}
-    if not required_cols.issubset(df.columns):
-        raise ValueError(f"Sensitivity file missing required columns. Found: {df.columns.tolist()}, Expected: {required_cols}")
+def load_sensitivity_data(input_path: str) -> pd.DataFrame:
+    """
+    Load sensitivity analysis results from CSV.
+    Expected columns: min_cluster_size, min_samples, region_size, mean_correlation, robustness_score
+    """
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Sensitivity analysis data not found at: {input_path}")
+    
+    df = pd.read_csv(input_path)
+    required_cols = ['min_cluster_size', 'min_samples', 'region_size', 'mean_correlation', 'robustness_score']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        raise ValueError(f"Sensitivity data missing required columns: {missing_cols}")
+    
     return df
 
-def validate_against_sc003(df: pd.DataFrame, config: dict) -> dict:
+def validate_against_sc003(sensitivity_df: pd.DataFrame, threshold: float = 0.7) -> dict:
     """
     Validate sensitivity analysis results against SC-003 requirements.
     
-    SC-003 Requirement: The decoupled region identification must be robust 
-    to threshold variations. The robustness_score (variance of region size 
-    across cutoffs) must be below a configurable threshold.
+    SC-003 Requirements:
+    - Robustness must be maintained across parameter sweeps
+    - Jaccard Index (robustness_score) should remain above threshold
+    - Decoupled region identification must be stable
+    
+    Returns validation report dict.
     """
-    results = {
-        "spec_id": "SC-003",
-        "validation_status": "PENDING",
-        "metrics": {},
-        "flags": [],
-        "summary": ""
+    validation_results = {
+        "sc003_compliant": True,
+        "threshold": threshold,
+        "total_sweeps": len(sensitivity_df),
+        "successful_sweeps": 0,
+        "failed_sweeps": 0,
+        "min_robustness": float('inf'),
+        "max_robustness": float('-inf'),
+        "mean_robustness": 0.0,
+        "failed_configs": [],
+        "passed_configs": [],
+        "summary": "",
+        "recommendation": ""
     }
-
-    try:
-        # 1. Check data integrity
-        if df.empty:
-            results["validation_status"] = "FAILED"
-            results["flags"].append("Empty sensitivity analysis data")
-            return results
-
-        # 2. Calculate robustness metrics
-        # The robustness_score column should already contain the variance of region sizes
-        # across the swept cutoffs. We verify this calculation and check against threshold.
-        
-        # Recalculate robustness score to ensure consistency (variance of region_size)
-        region_sizes = df['region_size'].values
-        calculated_robustness = float(np.var(region_sizes))
-        max_robustness = float(np.max(df['robustness_score'].values))
-        mean_robustness = float(np.mean(df['robustness_score'].values))
-        
-        # 3. Retrieve threshold from config
-        # Default threshold if not specified: 5.0 (arbitrary scientific threshold for stability)
-        robustness_threshold = config.get('robustness_threshold', 5.0)
-        
-        results["metrics"] = {
-            "calculated_robustness_variance": calculated_robustness,
-            "max_robustness_score": max_robustness,
-            "mean_robustness_score": mean_robustness,
-            "configured_threshold": robustness_threshold,
-            "num_thresholds_tested": len(df)
+    
+    if len(sensitivity_df) == 0:
+        validation_results["sc003_compliant"] = False
+        validation_results["summary"] = "No sensitivity data available for validation"
+        validation_results["recommendation"] = "Re-run sensitivity analysis with valid parameters"
+        return validation_results
+    
+    # Calculate statistics
+    robustness_scores = sensitivity_df['robustness_score'].dropna()
+    
+    if len(robustness_scores) == 0:
+        validation_results["sc003_compliant"] = False
+        validation_results["summary"] = "No valid robustness scores in sensitivity data"
+        validation_results["recommendation"] = "Check sensitivity analysis implementation"
+        return validation_results
+    
+    validation_results["min_robustness"] = float(robustness_scores.min())
+    validation_results["max_robustness"] = float(robustness_scores.max())
+    validation_results["mean_robustness"] = float(robustness_scores.mean())
+    
+    # Validate each sweep
+    for idx, row in sensitivity_df.iterrows():
+        config = {
+            "min_cluster_size": int(row['min_cluster_size']),
+            "min_samples": int(row['min_samples']),
+            "region_size": int(row['region_size']),
+            "mean_correlation": float(row['mean_correlation']),
+            "robustness_score": float(row['robustness_score']) if pd.notna(row['robustness_score']) else None
         }
-
-        # 4. Perform validation logic
-        # We consider the result robust if the variance in region size is low relative to the threshold
-        is_robust = calculated_robustness < robustness_threshold
         
-        if is_robust:
-            results["validation_status"] = "PASSED"
-            results["summary"] = f"SC-003 Validation PASSED: Robustness score ({calculated_robustness:.4f}) is within threshold ({robustness_threshold}). The decoupled region identification is stable across correlation cutoffs [0.5, 0.95]."
-            log_info_with_context("robustness_validation", f"SC-003 validation passed. Robustness: {calculated_robustness:.4f} < {robustness_threshold}")
+        robustness = config['robustness_score']
+        
+        if robustness is None:
+            validation_results["failed_sweeps"] += 1
+            validation_results["failed_configs"].append(config)
+            validation_results["sc003_compliant"] = False
+        elif robustness >= threshold:
+            validation_results["successful_sweeps"] += 1
+            validation_results["passed_configs"].append(config)
         else:
-            results["validation_status"] = "WARNING"
-            results["flags"].append(f"High variance in decoupled region size ({calculated_robustness:.4f} > {robustness_threshold}). Threshold sensitivity detected.")
-            results["summary"] = f"SC-003 Validation WARNING: Robustness score ({calculated_robustness:.4f}) exceeds threshold ({robustness_threshold}). The identified decoupled region may be sensitive to the correlation cutoff choice. Review cutoff selection."
-            log_warning_with_context("robustness_validation", f"SC-003 validation warning. Robustness: {calculated_robustness:.4f} > {robustness_threshold}")
-
-        # 5. Additional checks: Ensure we have a valid range of cutoffs
-        cutoffs = df['cutoff'].values
-        if len(cutoffs) < 3:
-            results["flags"].append("Insufficient cutoff points for robust statistical validation.")
-            results["summary"] += " Note: Insufficient cutoff points tested."
-
-        # 6. Check for monotonicity or expected behavior (optional but good practice)
-        # As cutoff increases, region size should generally decrease or stay stable for a valid decoupling metric
-        # (Assuming 'decoupled' means low correlation, so higher cutoff excludes more points)
-        # This is a heuristic check
-        region_sizes_sorted = df.sort_values('cutoff')['region_size'].values
-        if np.any(np.diff(region_sizes_sorted) > 0.1 * np.mean(region_sizes_sorted)):
-             # Allow some noise, but if it jumps significantly upwards as cutoff increases, it's suspicious
-             results["flags"].append("Non-monotonic region size trend detected. Verify correlation definition.")
-
-    except Exception as e:
-        results["validation_status"] = "ERROR"
-        results["summary"] = f"Validation failed with error: {str(e)}"
-        log_error_with_context("robustness_validation", f"Validation error: {str(e)}")
-
-    return results
+            validation_results["failed_sweeps"] += 1
+            validation_results["failed_configs"].append(config)
+            validation_results["sc003_compliant"] = False
+    
+    # Generate summary
+    success_rate = validation_results["successful_sweeps"] / validation_results["total_sweeps"]
+    
+    if validation_results["sc003_compliant"]:
+        validation_results["summary"] = (
+            f"All {validation_results['total_sweeps']} parameter configurations passed robustness validation. "
+            f"Mean robustness score: {validation_results['mean_robustness']:.3f} "
+            f"(threshold: {threshold}). Decoupled region identification is stable across parameter sweeps."
+        )
+        validation_results["recommendation"] = "No action required. Methodology is robust."
+    else:
+        failed_count = validation_results["failed_sweeps"]
+        validation_results["summary"] = (
+            f"{failed_count} of {validation_results['total_sweeps']} parameter configurations failed robustness validation. "
+            f"Success rate: {success_rate:.1%}. Mean robustness score: {validation_results['mean_robustness']:.3f}. "
+            f"Decoupled region identification shows instability under parameter variation."
+        )
+        validation_results["recommendation"] = (
+            "Review HDBSCAN parameter selection. Consider narrowing parameter range or "
+            "re-evaluating the decoupled region threshold. Methodology requires refinement."
+        )
+    
+    return validation_results
 
 def main():
-    # Load environment and config
-    load_environment()
-    config = get_config()
+    """Main entry point for robustness validation."""
+    parser = argparse.ArgumentParser(description="Validate sensitivity analysis against SC-003 requirements")
+    parser.add_argument(
+        "--input", 
+        type=str, 
+        default="data/processed/sensitivity_analysis.csv",
+        help="Path to sensitivity analysis CSV"
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default="data/results/robustness_validation.json",
+        help="Path to output validation JSON"
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=0.7,
+        help="Minimum robustness score threshold for SC-003 compliance"
+    )
     
-    # Setup logging
-    logger = get_logger("robustness_validation")
-    logger.info("Starting SC-003 Robustness Validation")
-
-    # Define paths
-    # Ensure data/results directory exists
-    results_dir = Path("data/results")
-    results_dir.mkdir(parents=True, exist_ok=True)
+    args = parser.parse_args()
     
-    input_file = Path("data/processed/sensitivity_analysis.csv")
-    output_file = results_dir / "robustness_validation.json"
-
-    # Check input file existence (fail loudly if missing)
-    if not input_file.exists():
-        log_error_with_context("robustness_validation", f"Input file missing: {input_file}. Ensure T032 has run successfully.")
-        sys.exit(1)
-
+    # Ensure output directory exists
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     try:
-        # Load data
-        df = load_sensitivity_data(str(input_file))
-        logger.info(f"Loaded sensitivity data with {len(df)} rows.")
-
-        # Validate
-        validation_result = validate_against_sc003(df, config)
-
-        # Save results
-        with open(output_file, 'w') as f:
-            json.dump(validation_result, f, indent=2)
-
-        logger.info(f"Validation results saved to {output_file}")
-        logger.info(f"Final Status: {validation_result['validation_status']}")
+        logger.info(f"Loading sensitivity data from: {args.input}")
+        sensitivity_df = load_sensitivity_data(args.input)
         
-        # Exit with appropriate code
-        if validation_result['validation_status'] == 'ERROR':
-            sys.exit(1)
-        elif validation_result['validation_status'] == 'WARNING':
-            # Don't fail the pipeline, just warn
-            sys.exit(0)
-        else:
-            sys.exit(0)
-
+        logger.info(f"Performing SC-003 validation with threshold: {args.threshold}")
+        validation_report = validate_against_sc003(sensitivity_df, args.threshold)
+        
+        # Save validation report
+        with open(output_path, 'w') as f:
+            json.dump(validation_report, f, indent=2)
+        
+        logger.info(f"Validation report saved to: {output_path}")
+        logger.info(f"SC-003 Compliance: {'PASS' if validation_report['sc003_compliant'] else 'FAIL'}")
+        logger.info(f"Summary: {validation_report['summary']}")
+        
+        # Return exit code based on compliance
+        sys.exit(0 if validation_report['sc003_compliant'] else 1)
+        
+    except FileNotFoundError as e:
+        logger.error(f"Input file not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        sys.exit(1)
     except Exception as e:
-        log_error_with_context("robustness_validation", f"Critical failure in validation: {str(e)}")
+        logger.error(f"Unexpected error during validation: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -38,21 +38,21 @@ T006:
     \ and the subsequent stories are absent, so the task is not satisfied."
 T011:
   c: false
-  h: 99b1f8b6fd906e37ab23b87e5d0140977e66685c29cc0a2fac44327c906e81cf
-  r: The integration test file `tests/integration/test_ingestion_pipeline.py` is present,
-    but the required output `data/processed/encoded_alloys.csv` does not exist, so
-    the test cannot verify the expected columns. The pipeline must actually create
-    this CSV (with the required columns and no nulls) for the integration test to
-    pass.
+  h: b41117917c220c407c178da43d52db2606720a4cd4af15da740d59086ac6de63
+  r: "The required output file `data/processed/encoded_alloys.csv` is missing, so\
+    \ the integration test cannot fully validate the pipeline. Moreover, the test\
+    \ only checks for three columns and does not enforce the exact schema (e.g., `element_features`)\
+    \ nor verify that no extra columns exist, which deviates from the task\u2019s\
+    \ specification. The next implementer must generate the CSV file and extend the\
+    \ test to assert the exact set of columns and their types, including the `element_features`\
+    \ list/array column."
 T015:
   c: false
-  h: 7096990e828fd42cc6d97aed469ad5443a6aea45d917cdf7c3dd236e911c41a1
-  r: The repository contains a `code/main.py` file, but it is truncated and does not
-    show a complete orchestration (e.g., a `if __name__ == "__main__":` block that
-    runs ingestion then encoding). Moreover, the required output file `data/processed/encoded_alloys.csv`
-    is absent, so the implementation has not demonstrably saved the results as specified.
-    The missing CSV and incomplete script need to be provided for the task to be considered
-    complete.
+  h: 72f6a4991b9ac805648794a66508c53b1603a92a98a55a0701b782134d3d164d
+  r: "The repository contains `code/main.py`, but the required output file `data/processed/encoded_alloys.csv`\
+    \ is missing, and the script\u2019s truncated content does not demonstrate that\
+    \ it writes to that path. Without the CSV artifact (or evidence the script creates\
+    \ it), the task\u2019s core requirement is unmet."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -64,11 +64,21 @@ T017:
     \ updated script or module as evidence."
 T021:
   c: false
-  h: 36fc87d5388b2cdecb7a8ba5e824920e6a0acda7753714a0999dd09a44f063be
-  r: "The required output artifacts `data/processed/loso_test_points.csv` and `data/processed/model_validation_report.json`\
-    \ are not present on disk, and the provided `code/model_training.py` is truncated\
-    \ before any logic that would generate those files. Consequently the LOSO\u2011\
-    CV implementation does not fulfill the task\u2019s output requirements."
+  h: 5e6312ab24b1fe7f3e9a2fefd66ed392f531c4ef07cf5fbce2ae6fe2af0fc849
+  r: "The repository lacks the required output artifacts (`data/processed/loso_test_points.csv`\
+    \ and `data/processed/model_validation_report.json`). Moreover, the provided `code/model_training.py`\
+    \ is truncated and shows no implementation of LOSO\u2011CV, R\xB2 threshold handling,\
+    \ critical logging, or fallback to Poisson Anomaly mode. The task therefore remains\
+    \ unfinished."
+T023:
+  c: false
+  h: 7dcca89949c2e51b8bf9fe7cd575f50b1ff76d5cd0353ef3600ca075baa8af4b
+  r: "The repository lacks the required `data/processed/model_validation_report.json`\
+    \ and the output `data/results/pareto_frontier.csv`. Moreover, the provided `code/pareto_optimization.py`\
+    \ is truncated and does not contain a complete NSGA\u2011II implementation, convex\u2011\
+    hull boundary checks, distance\u2011to\u2011hull flagging, reliability\u2011mask\
+    \ handling, or CSV generation. These essential components are missing, so the\
+    \ task is not satisfied."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,11 +87,10 @@ T025:
     is empty, so the required logic cannot be verified.
 T032:
   c: false
-  h: e1f9f86f2980101e2bc0ec5939889dccb3f67e3e8b32e2c480f9143982da566e
-  r: "The repository contains `code/cluster_analysis.py`, but the shown code only\
-    \ handles data loading, elbow\u2011method k selection, K\u2011Means clustering\
-    \ and a partially\u2011implemented correlation calculation; there is no function\
-    \ that sweeps correlation cutoffs, computes the required `robustness_score`, or\
-    \ writes `data/processed/sensitivity_analysis.csv`. Moreover, the expected CSV\
-    \ file is absent from the filesystem. The task\u2019s core requirement is therefore\
-    \ not met."
+  h: 37c9113e2e04282f6c6cc79f7cf5068192431ee719e006ba6f02f185d6591f51
+  r: "The repository contains only a partial `code/cluster_analysis.py` focused on\
+    \ K\u2011Means and utility loading; it does not implement an HDBSCAN parameter\
+    \ sweep, decoupled\u2011region re\u2011evaluation, Jaccard robustness calculation,\
+    \ or writing of `data/processed/sensitivity_analysis.csv` (the file is absent).\
+    \ Consequently the required sensitivity analysis artifact is missing and the code\
+    \ does not satisfy the task specifications."

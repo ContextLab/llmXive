@@ -994,3 +994,80 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T00:41:40Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: Benchmarking against standard datasets described by Smith et al. (2023)
+  claim_id: c_2246390c
+  context: The research question is to determine the feasibility of the proposed method
+    under practical time limits, employing a method that involves benchmarking against
+    standard datasets as described by Smith et al. (2023) []. The implementation will
+    adhere to a strict runtime constraint...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The research question is to determine the feasibility of the proposed
+    method under practical time limits, employing a method that involves benchmarking
+    against standard datasets as described by Smith et al. (2023).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T11:41:50Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: strict runtime constraint for iterative development
+  claim_id: c_e8faed02
+  context: The research question is to determine the feasibility of the proposed method
+    under practical time limits... The implementation will adhere to a strict runtime
+    constraint...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Strict_runtime_constraint_for_iterative_development
+  kind: entity_fact
+  raw_text: The implementation will adhere to a strict runtime constraint, ensuring
+    the process completes within a reasonable timeframe suitable for iterative development.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T11:43:22Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 1
+  canonical: benchmarking against standard datasets described by Smith et al. 2023
+  claim_id: c_14971831
+  context: The research question is to determine the feasibility of the proposed method
+    under practical time limits, employing a method that involves benchmarking against
+    standard datasets as described by Smith et al. (2023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: benchmarking against standard datasets as described by Smith et al. (2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T11:43:35Z'
+- artifact_path: projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs-in-alloy-desig/tasks.md
+  attempts: 2
+  canonical: benchmarking against standard datasets as described by Smith et al. 2023
+  claim_id: c_b8635fed
+  context: The research question is to determine the feasibility of the proposed method
+    under practical time limits, employing a method that involves benchmarking against
+    standard datasets as described by Smith et al. (2023) []. The implementation will
+    adhere to a strict runtime constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The research question is to determine the feasibility of the proposed
+    method under practical time limits, employing a method that involves benchmarking
+    against standard datasets as described by Smith et al. (2023).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T11:50:33Z'

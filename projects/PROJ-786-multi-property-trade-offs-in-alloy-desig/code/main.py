@@ -1,165 +1,185 @@
+"""
+Main orchestration script for the Multi-Property Trade-Offs in Alloy Design pipeline.
+Executes the full research workflow: Ingestion -> Encoding -> Training -> Validation -> Pareto -> Clustering.
+"""
 import os
 import sys
 import logging
 import argparse
+import json
 from pathlib import Path
-from datetime import datetime
 
-from config import get_config, verify_config
-from utils.logging_config import configure_root_logger, log_info_with_context, log_error_with_context
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent
+sys.path.insert(0, str(project_root))
 
-# Import pipeline steps
+from config import load_environment, parse_cli_args, get_config
 from data_ingestion import load_oqmd_data, filter_valid_entries, save_processed_data
 from feature_encoder import encode_dataframe, save_encoded_data
-from model_training import run_training_pipeline
-from model_validation import generate_validation_report, save_validation_report
-from cluster_analysis import run_sensitivity_analysis, save_results as save_cluster_results
+from model_training import run_training_pipeline, generate_validation_report, save_validation_report
+from model_validation import load_loso_results, calculate_system_coverage, identify_unreliable_regions
 from pareto_optimization import run_nsgaII, save_results as save_pareto_results
-from metrics_calculation import calculate_dominance_metrics, main as calc_metrics_main
+from cluster_analysis import run_sensitivity_analysis, save_results as save_cluster_results
+from metrics_calculation import calculate_dominance_metrics
+from visualization import plot_trade_off_space
 
-logger = logging.getLogger(__name__)
+from utils.logging_config import configure_root_logger, log_info_with_context, log_error_with_context
 
-def run_ingestion_step():
-    """Runs the data ingestion step."""
-    log_info_with_context("Starting data ingestion", context="main")
-    config = get_config()
-    
+def setup_logging(config):
+    """Configure logging based on config."""
+    log_level = getattr(logging, config.get('log_level', 'INFO').upper())
+    log_file = config.get('log_file', 'pipeline.log')
+    configure_root_logger(level=log_level, log_file=log_file)
+    return logging.getLogger(__name__)
+
+def run_ingestion_step(logger, config):
+    """Step 1: Ingest and filter OQMD data."""
+    log_info_with_context(logger, "Starting Data Ingestion", step="ingestion")
     try:
-        df = load_oqmd_data()
-        valid_df = filter_valid_entries(df)
-        
-        if len(valid_df) < 500:
-            log_info_with_context(
-                f"Insufficient data for statistical analysis (N < 500). Found {len(valid_df)} rows.",
-                context="main"
+        raw_data = load_oqmd_data(config)
+        if raw_data is None or raw_data.empty:
+            log_error_with_context(logger, "Failed to load OQMD data", step="ingestion")
+            return False
+
+        filtered_data = filter_valid_entries(raw_data, config)
+        if len(filtered_data) < 500:
+            log_error_with_context(
+                logger,
+                f"Insufficient data for research validity; minimum 500 entries required. Found {len(filtered_data)}.",
+                step="ingestion"
             )
-        
-        output_path = os.path.join(config["processed_dir"], "encoded_alloys.csv")
-        save_processed_data(valid_df, output_path)
-        log_info_with_context(f"Ingestion complete. Output: {output_path}", context="main")
-        return valid_df
-    except Exception as e:
-        log_error_with_context(f"Ingestion failed: {str(e)}", context="main")
-        raise
+            sys.exit(1)
 
-def run_encoding_step(input_df):
-    """Runs the feature encoding step."""
-    log_info_with_context("Starting feature encoding", context="main")
-    
-    try:
-        encoded_df = encode_dataframe(input_df)
-        output_path = os.path.join(get_config()["processed_dir"], "encoded_alloys.csv")
-        save_encoded_data(encoded_df, output_path)
-        log_info_with_context(f"Encoding complete. Output: {output_path}", context="main")
-        return encoded_df
+        save_processed_data(filtered_data, config)
+        log_info_with_context(logger, f"Ingestion complete. {len(filtered_data)} valid entries saved.", step="ingestion")
+        return True
     except Exception as e:
-        log_error_with_context(f"Encoding failed: {str(e)}", context="main")
-        raise
+        log_error_with_context(logger, f"Ingestion failed: {str(e)}", step="ingestion")
+        return False
 
-def run_training_step(encoded_df):
-    """Runs the model training step."""
-    log_info_with_context("Starting model training", context="main")
+def run_encoding_step(logger, config):
+    """Step 2: Encode compositions."""
+    log_info_with_context(logger, "Starting Composition Encoding", step="encoding")
     try:
-        metrics, models = run_training_pipeline(encoded_df)
-        log_info_with_context("Training complete", context="main")
-        return metrics, models
-    except Exception as e:
-        log_error_with_context(f"Training failed: {str(e)}", context="main")
-        raise
+        df = encode_dataframe(config)
+        if df is None or df.empty:
+            log_error_with_context(logger, "Encoding produced no data", step="encoding")
+            return False
 
-def run_validation_step(models, encoded_df):
-    """Runs the model validation step."""
-    log_info_with_context("Starting model validation", context="main")
-    try:
-        report = generate_validation_report(models, encoded_df)
-        output_path = os.path.join(get_config()["processed_dir"], "model_validation_report.json")
-        save_validation_report(report, output_path)
-        log_info_with_context(f"Validation complete. Output: {output_path}", context="main")
-        return report
+        save_encoded_data(df, config)
+        log_info_with_context(logger, f"Encoding complete. Output shape: {df.shape}", step="encoding")
+        return True
     except Exception as e:
-        log_error_with_context(f"Validation failed: {str(e)}", context="main")
-        raise
+        log_error_with_context(logger, f"Encoding failed: {str(e)}", step="encoding")
+        return False
 
-def run_pareto_step(models, encoded_df):
-    """Runs the Pareto optimization step."""
-    log_info_with_context("Starting Pareto optimization", context="main")
+def run_training_step(logger, config):
+    """Step 3: Train surrogate models."""
+    log_info_with_context(logger, "Starting Model Training", step="training")
     try:
-        frontier = run_nsgaII(models, encoded_df)
-        output_path = os.path.join(get_config()["processed_dir"], "pareto_frontier.csv")
-        save_pareto_results(frontier, output_path)
-        log_info_with_context(f"Pareto optimization complete. Output: {output_path}", context="main")
-        return frontier
+        results = run_training_pipeline(config)
+        if not results:
+            log_error_with_context(logger, "Training pipeline failed", step="training")
+            return False
+        log_info_with_context(logger, "Training complete.", step="training")
+        return True
     except Exception as e:
-        log_error_with_context(f"Pareto optimization failed: {str(e)}", context="main")
-        raise
+        log_error_with_context(logger, f"Training failed: {str(e)}", step="training")
+        return False
 
-def run_cluster_step(encoded_df):
-    """Runs the cluster analysis step."""
-    log_info_with_context("Starting cluster analysis", context="main")
+def run_validation_step(logger, config):
+    """Step 4: Validate models and generate report."""
+    log_info_with_context(logger, "Starting Model Validation", step="validation")
     try:
-        results = run_sensitivity_analysis(encoded_df)
-        output_path = os.path.join(get_config()["processed_dir"], "sensitivity_analysis.csv")
-        save_cluster_results(results, output_path)
-        log_info_with_context(f"Cluster analysis complete. Output: {output_path}", context="main")
-        return results
+        # Ensure the report exists (generated by training step usually, but explicit call here for safety)
+        # The training step calls generate_validation_report internally, but we call it here to ensure file write
+        generate_validation_report(config)
+        log_info_with_context(logger, "Validation report generated.", step="validation")
+        return True
     except Exception as e:
-        log_error_with_context(f"Cluster analysis failed: {str(e)}", context="main")
-        raise
+        log_error_with_context(logger, f"Validation failed: {str(e)}", step="validation")
+        return False
 
-def run_metrics_step(frontier, encoded_df):
-    """Runs the metrics calculation step."""
-    log_info_with_context("Starting metrics calculation", context="main")
+def run_pareto_step(logger, config):
+    """Step 5: Run Pareto Optimization."""
+    log_info_with_context(logger, "Starting Pareto Optimization", step="pareto")
     try:
-        metrics = calculate_dominance_metrics(frontier, encoded_df)
-        output_path = os.path.join(get_config()["processed_dir"], "dominance_metrics.json")
-        with open(output_path, 'w') as f:
-            import json
-            json.dump(metrics, f, indent=2)
-        log_info_with_context(f"Metrics calculation complete. Output: {output_path}", context="main")
-        return metrics
+        run_nsgaII(config)
+        log_info_with_context(logger, "Pareto optimization complete.", step="pareto")
+        return True
     except Exception as e:
-        log_error_with_context(f"Metrics calculation failed: {str(e)}", context="main")
-        raise
+        log_error_with_context(logger, f"Pareto optimization failed: {str(e)}", step="pareto")
+        return False
+
+def run_cluster_step(logger, config):
+    """Step 6: Run Clustering and Sensitivity Analysis."""
+    log_info_with_context(logger, "Starting Clustering Analysis", step="clustering")
+    try:
+        # Run sensitivity analysis which includes HDBSCAN and correlation checks
+        run_sensitivity_analysis(config)
+        log_info_with_context(logger, "Clustering and sensitivity analysis complete.", step="clustering")
+        return True
+    except Exception as e:
+        log_error_with_context(logger, f"Clustering failed: {str(e)}", step="clustering")
+        return False
+
+def run_metrics_step(logger, config):
+    """Step 7: Calculate Metrics."""
+    log_info_with_context(logger, "Starting Metrics Calculation", step="metrics")
+    try:
+        calculate_dominance_metrics(config)
+        log_info_with_context(logger, "Metrics calculation complete.", step="metrics")
+        return True
+    except Exception as e:
+        log_error_with_context(logger, f"Metrics calculation failed: {str(e)}", step="metrics")
+        return False
+
+def run_visualization_step(logger, config):
+    """Step 8: Generate Visualizations."""
+    log_info_with_context(logger, "Starting Visualization", step="visualization")
+    try:
+        plot_trade_off_space(config)
+        log_info_with_context(logger, "Visualization complete.", step="visualization")
+        return True
+    except Exception as e:
+        log_error_with_context(logger, f"Visualization failed: {str(e)}", step="visualization")
+        return False
 
 def main():
-    """Main orchestration entry point."""
-    configure_root_logger()
-    config = get_config()
+    """Main entry point."""
+    config = load_environment()
+    cli_args = parse_cli_args()
+    config.update(vars(cli_args))
     verify_config(config)
-    
-    log_info_with_context("Starting Alloy Design Pipeline", context="main")
-    start_time = datetime.now()
-    
-    try:
-        # Step 1: Ingestion
-        raw_df = run_ingestion_step()
-        
-        # Step 2: Encoding
-        encoded_df = run_encoding_step(raw_df)
-        
-        # Step 3: Training
-        metrics, models = run_training_step(encoded_df)
-        
-        # Step 4: Validation
-        validation_report = run_validation_step(models, encoded_df)
-        
-        # Step 5: Pareto Optimization
-        frontier = run_pareto_step(models, encoded_df)
-        
-        # Step 6: Cluster Analysis
-        cluster_results = run_cluster_step(encoded_df)
-        
-        # Step 7: Metrics Calculation
-        dominance_metrics = run_metrics_step(frontier, encoded_df)
-        
-        end_time = datetime.now()
-        duration = end_time - start_time
-        log_info_with_context(f"Pipeline completed successfully in {duration}", context="main")
-        return 0
-        
-    except Exception as e:
-        log_error_with_context(f"Pipeline failed: {str(e)}", context="main")
-        return 1
+
+    logger = setup_logging(config)
+    log_info_with_context(logger, "Pipeline starting", step="main")
+
+    steps = [
+        ("ingestion", run_ingestion_step),
+        ("encoding", run_encoding_step),
+        ("training", run_training_step),
+        ("validation", run_validation_step),
+        ("pareto", run_pareto_step),
+        ("clustering", run_cluster_step),
+        ("metrics", run_metrics_step),
+        ("visualization", run_visualization_step),
+    ]
+
+    success = True
+    for step_name, step_func in steps:
+        if not step_func(logger, config):
+            success = False
+            if config.get('fail_fast', False):
+                log_error_with_context(logger, f"Pipeline aborted at {step_name} due to failure.", step="main")
+                sys.exit(1)
+
+    if success:
+        log_info_with_context(logger, "Pipeline completed successfully.", step="main")
+        sys.exit(0)
+    else:
+        log_error_with_context(logger, "Pipeline completed with errors.", step="main")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

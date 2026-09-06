@@ -1,17 +1,23 @@
 {
   "project_id": "PROJ-786-multi-property-trade-offs-in-alloy-desig",
   "ok": false,
-  "reason": "2 command(s) failed: python code/data_ingestion.py (rc=1); python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/encoded_alloys.csv; data/processed/model_validation_report.json; data/processed/sensitivity_analysis.csv",
+  "reason": "7 run-book script(s) missing (plan/impl path mismatch): python ingestion/load_oqmd.py; python ingestion/encode_composition.py; python modeling/train_surrogates.py; 1 command(s) failed: python code/main.py (rc=1); 3 declared deliverable(s) absent: data/processed/encoded_alloys.csv; data/processed/model_validation_report.json; data/processed/sensitivity_analysis.csv",
   "artifacts": [],
   "failures": [
-    "python code/data_ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/data_ingestion.py\", line 6, in <module>\n    from datasets import load_dataset\nModuleNotFoundError: No module named 'datasets'",
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/main.py\", line 8, in <module>\n    from config import parse_cli_args, load_environment, get_config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/config.py\", line 4, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'"
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/main.py\", line 15, in <module>\n    from model_validation import generate_validation_report, save_validation_report\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/model_validation.py\", line 12, in <module>\n    from models.alloy_entry import AlloyEntry\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/models/__in",
+    "python ingestion/load_oqmd.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/ingestion/load_oqmd.py': [Errno 2] No such file or directory",
+    "python ingestion/encode_composition.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/ingestion/encode_composition.py': [Errno 2] No such file or directory",
+    "python modeling/train_surrogates.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/modeling/train_surrogates.py': [Errno 2] No such file or directory",
+    "python analysis/feasibility_check.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/analysis/feasibility_check.py': [Errno 2] No such file or directory",
+    "python analysis/clustering.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/analysis/clustering.py': [Errno 2] No such file or directory",
+    "python analysis/sensitivity.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/analysis/sensitivity.py': [Errno 2] No such file or directory",
+    "python modeling/pareto_optimize.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/modeling/pareto_optimize.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-23T00:28:20Z"
+  "updated_at": "2026-09-06T11:40:34Z"
 }

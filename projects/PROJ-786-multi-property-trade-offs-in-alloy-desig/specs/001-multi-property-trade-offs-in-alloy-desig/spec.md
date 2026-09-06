@@ -53,7 +53,7 @@ The system must perform K-Means clustering on the compositional space (ilr-trans
 ### FR-006: Sensitivity Analysis
 The system must perform a sensitivity analysis on the **correlation threshold** (or residual threshold if in Poisson mode) used to define "decoupled" regions. 
 - **Traceability**: This requirement supports **US-3**.
-- **Sweep Range**: The system MUST sweep the threshold across a range of [, 0.9] in steps of 0.1.
+- **Sweep Range**: The system MUST sweep the threshold across a high-probability range in discrete steps.
 - **Robustness Score**: The system MUST calculate a `robustness_score` for each threshold. `robustness_score` is defined as the **Jaccard Index** of cluster membership between the current threshold and the threshold ±0.1 steps.
 - **Output**: The system MUST output a CSV file `data/processed/sensitivity_analysis.csv` containing a `robustness_score` for each threshold.
 

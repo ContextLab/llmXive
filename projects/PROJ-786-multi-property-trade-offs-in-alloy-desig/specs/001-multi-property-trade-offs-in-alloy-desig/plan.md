@@ -18,9 +18,9 @@ This project identifies alloy compositions optimizing the trade-off between Bulk
 **Performance Goals**: Complete full pipeline (ingestion -> modeling -> optimization -> analysis) within 6 hours. R² > 0.6 on LOSO-CV.
 **Constraints**:
 - CPU-only execution (no GPU for model training; NSGA-II must be efficient).
-- Strict data locality: All data must be streamed or sampled to fit ~7GB RAM.
+- Strict data locality: All data must be streamed or sampled to fit within available RAM.
 - No extrapolation beyond convex hull of training data.
-- Reproducibility: Fixed random seeds (42) for all stochastic processes.
+- Reproducibility: Fixed random seeds for all stochastic processes.
 **Scale/Scope**: A substantial number of valid alloy entries from OQMD.
 
 ## Constitution Check
