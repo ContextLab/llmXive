@@ -1,0 +1,42 @@
+T002b:
+  c: false
+  h: 869cf3895a3ef9fe7160c34abbb1ebc61b48bbb7276c9b63d82909c743751666
+  r: The required `requirements.txt` file is missing, so no dependencies could be
+    installed or verified in a virtual environment. Without the file, the implementer
+    could not fulfill the installation and verification steps.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.env` file, configuration\u2011loading code, or documentation of relative\u2011\
+    path handling is present in the provided artifacts. The implementer has not supplied\
+    \ any evidence that environment configuration management was set up, so the requirement\
+    \ is unmet."
+T018:
+  c: false
+  h: ed74d439975b51ecd345970ca51b463a351fb5d0f20660351879a39d0040c835
+  r: "The `preprocessing.py` file does not contain any logic for detecting ACE outliers\
+    \ >3\u202FSD or adding a flag column (the code is truncated and lacks such functionality),\
+    \ and the required output file `data/processed/cleaned_dataset.csv` is absent.\
+    \ Both the implementation and the resulting flagged dataset are missing."
+T022:
+  c: false
+  h: bf1d1a639a734476fa814803f0057c2ab1e7bb755a463ed1bfc58bbe8b60dd45
+  r: The required artifact `tests/unit/test_results.py` does not exist, so no unit
+    test for the Bonferroni correction logic is present. The task cannot be considered
+    completed until this file is added with appropriate test code.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No output report artifacts were supplied, so there is no evidence that the findings\
+    \ are explicitly framed as \u201Cassociational only.\u201D The implementer must\
+    \ provide the actual report files (e.g., markdown, PDF, or HTML) and demonstrate\
+    \ that every statement about the relationship between early life stress and hippocampal\
+    \ subfield volumes uses associative language (e.g., \u201Cis associated with\u201D\
+    ) and avoids causal phrasing."
+T037:
+  c: false
+  h: 022a8d91015b87b545f9b45b5f636ffe808fe01598968ef9d941ee69d023e3b0
+  r: "The required output file `data/processed/sensitivity_report.csv` does not exist,\
+    \ and the provided `code/analysis/robustness.py` (truncated) contains no logic\
+    \ for counting significant findings per threshold or writing a summary table with\
+    \ a variation metric. Consequently the task\u2019s core requirement is unmet."

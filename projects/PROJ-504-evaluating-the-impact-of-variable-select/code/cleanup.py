@@ -1,20 +1,3 @@
-"""
-Code cleanup and refactoring utility for the llmXive project.
-
-This module provides tools to:
-1. Identify Python files in the codebase
-2. Check syntax validity
-3. Validate docstrings presence
-4. Validate API surface consistency
-5. Remove debug code (print statements, TODOs, etc.)
-
-Usage:
-    python code/cleanup.py [--fix]
-
-The --fix flag will automatically remove debug code and report issues.
-Without --fix, it only reports issues without modifying files.
-"""
-
 from __future__ import annotations
 
 import ast
@@ -22,63 +5,57 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Dict, List, Set, Any
+from typing import List, Tuple, Optional, Dict, Any
 
 from utils.logger import get_logger
 
-# Configure logging
 logger = get_logger(__name__)
 
-# Patterns for debug code detection
+# Patterns to identify debug code that should be removed
 DEBUG_PATTERNS = [
-    re.compile(r'^\s*print\s*\(', re.MULTILINE),
-    re.compile(r'^\s*TODO\b', re.IGNORECASE | re.MULTILINE),
-    re.compile(r'^\s*FIXME\b', re.IGNORECASE | re.MULTILINE),
-    re.compile(r'^\s*DEBUG\b', re.IGNORECASE | re.MULTILINE),
-    re.compile(r'^\s*pdb\.set_trace\(\)', re.MULTILINE),
-    re.compile(r'^\s*breakpoint\(\)', re.MULTILINE),
-    re.compile(r'^\s*import pdb\b', re.MULTILINE),
-    re.compile(r'^\s*ipdb\.set_trace\(\)', re.MULTILINE),
+    re.compile(r'\bprint\s*\(', re.IGNORECASE),
+    re.compile(r'\blog\.debug\s*\(', re.IGNORECASE),
+    re.compile(r'\bassert\s+False\b', re.IGNORECASE),
+    re.compile(r'#\s*DEBUG\b', re.IGNORECASE),
+    re.compile(r'#\s*TODO\b', re.IGNORECASE),
+    re.compile(r'#\s*FIXME\b', re.IGNORECASE),
+    re.compile(r'#\s*XXX\b', re.IGNORECASE),
+    re.compile(r'#\s*HACK\b', re.IGNORECASE),
+    re.compile(r'#\s*BREAKPOINT\b', re.IGNORECASE),
+    re.compile(r'\bbreakpoint\s*\(', re.IGNORECASE),
+    re.compile(r'\bpdb\.set_trace\s*\(', re.IGNORECASE),
+    re.compile(r'\bipdb\.set_trace\s*\(', re.IGNORECASE),
+    re.compile(r'\bimport pdb\b', re.IGNORECASE),
+    re.compile(r'\bimport ipdb\b', re.IGNORECASE),
 ]
 
-# Patterns for unused imports (basic detection)
-UNUSED_IMPORT_PATTERN = re.compile(
-    r'^\s*(from\s+\S+\s+)?import\s+(\w+)\b',
-    re.MULTILINE
-)
+# Patterns to identify unused imports
+UNUSED_IMPORT_PATTERN = re.compile(r'^\s*import\s+(\w+)|^\s*from\s+[\w.]+\s+import\s+(\w+)')
 
-def get_python_files(root_dir: Path) -> List[Path]:
+def get_python_files(base_dir: str = "code") -> List[Path]:
     """
-    Recursively find all Python files in the code directory.
-    
+    Recursively find all Python files in the given directory.
+
     Args:
-        root_dir: Root directory to search (typically project root)
-        
+        base_dir: The base directory to search (default: "code")
+
     Returns:
         List of Path objects for all .py files found
     """
-    code_dir = root_dir / "code"
-    if not code_dir.exists():
-        logger.warning(f"Code directory not found: {code_dir}")
+    base_path = Path(base_dir)
+    if not base_path.exists():
+        logger.warning(f"Base directory {base_dir} does not exist")
         return []
-    
-    python_files = []
-    for py_file in code_dir.rglob("*.py"):
-        # Skip __pycache__ and hidden directories
-        if "__pycache__" in str(py_file) or py_file.name.startswith("."):
-            continue
-        python_files.append(py_file)
-    
-    logger.info(f"Found {len(python_files)} Python files in {code_dir}")
-    return python_files
 
-def check_syntax(file_path: Path) -> tuple[bool, str]:
+    return sorted(base_path.rglob("*.py"))
+
+def check_syntax(file_path: Path) -> Tuple[bool, Optional[str]]:
     """
     Check if a Python file has valid syntax.
-    
+
     Args:
         file_path: Path to the Python file
-        
+
     Returns:
         Tuple of (is_valid, error_message)
     """
@@ -86,214 +63,213 @@ def check_syntax(file_path: Path) -> tuple[bool, str]:
         with open(file_path, "r", encoding="utf-8") as f:
             source = f.read()
         ast.parse(source)
-        return True, ""
+        return True, None
     except SyntaxError as e:
-        return False, f"Syntax error at line {e.lineno}: {e.msg}"
-    except Exception as e:
-        return False, f"Error reading file: {str(e)}"
+        return False, f"Syntax error in {file_path}: {e}"
 
-def check_docstrings(file_path: Path) -> List[Dict[str, Any]]:
+def check_docstrings(file_path: Path) -> List[str]:
     """
-    Check for missing docstrings in functions and classes.
-    
+    Check for missing docstrings in functions, classes, and modules.
+
     Args:
         file_path: Path to the Python file
-        
+
     Returns:
-        List of dictionaries with missing docstring info
+        List of warnings about missing docstrings
     """
-    issues = []
+    warnings = []
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             source = f.read()
-        
         tree = ast.parse(source)
-        
+
+        # Check module docstring
+        if not ast.get_docstring(tree):
+            warnings.append(f"Missing module docstring in {file_path}")
+
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                docstring = ast.get_docstring(node)
-                if docstring is None:
-                    issues.append({
-                        "type": "missing_docstring",
-                        "line": node.lineno,
-                        "name": node.name,
-                        "kind": "class" if isinstance(node, ast.ClassDef) else "function"
-                    })
-    except Exception as e:
-        logger.error(f"Error checking docstrings in {file_path}: {e}")
-    
-    return issues
+                if not ast.get_docstring(node):
+                    warnings.append(
+                        f"Missing docstring in {node.__class__.__name__.lower()} '{node.name}' in {file_path}"
+                    )
 
-def validate_api_surface(file_path: Path, expected_exports: Set[str]) -> List[Dict[str, Any]]:
+    except SyntaxError as e:
+        warnings.append(f"Cannot check docstrings in {file_path} due to syntax error: {e}")
+
+    return warnings
+
+def validate_api_surface(file_path: Path) -> List[str]:
     """
-    Validate that a file's public API matches expected exports.
-    
+    Validate that the file's public API surface is consistent.
+
+    Checks for:
+    - Functions/classes that start with underscore (private)
+    - Inconsistent naming conventions
+
     Args:
         file_path: Path to the Python file
-        expected_exports: Set of expected public function/class names
-        
+
     Returns:
-        List of validation issues
+        List of warnings about API surface issues
     """
-    issues = []
+    warnings = []
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             source = f.read()
-        
         tree = ast.parse(source)
-        
-        # Find all public definitions (not starting with _)
-        public_names = set()
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                if not node.name.startswith("_"):
-                    public_names.add(node.name)
-        
-        # Check for missing exports
-        missing = expected_exports - public_names
-        for name in missing:
-            issues.append({
-                "type": "missing_export",
-                "name": name,
-                "message": f"Expected public export '{name}' not found"
-            })
-        
-        # Check for unexpected exports
-        unexpected = public_names - expected_exports
-        for name in unexpected:
-            # Only flag if it looks like it should be private (starts with _)
-            # or if it's not a standard Python dunder
-            if not name.startswith("_") and not name.startswith("__"):
-                issues.append({
-                    "type": "unexpected_export",
-                    "name": name,
-                    "message": f"Unexpected public export '{name}'"
-                })
-                
-    except Exception as e:
-        logger.error(f"Error validating API surface in {file_path}: {e}")
-    
-    return issues
 
-def remove_debug_code(file_path: Path, dry_run: bool = True) -> tuple[int, List[str]]:
+        for node in ast.iter_child_nodes(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                # Check for inconsistent naming (e.g., mixedCase in Python)
+                if node.name and node.name[0].isupper() and '_' in node.name:
+                    warnings.append(
+                        f"Class '{node.name}' in {file_path} uses snake_case, consider PascalCase"
+                    )
+                elif node.name and node.name[0].islower() and any(c.isupper() for c in node.name[1:]):
+                    warnings.append(
+                        f"Function '{node.name}' in {file_path} uses mixedCase, consider snake_case"
+                    )
+
+    except SyntaxError as e:
+        warnings.append(f"Cannot validate API surface in {file_path} due to syntax error: {e}")
+
+    return warnings
+
+def remove_debug_code(file_path: Path) -> Tuple[bool, List[str]]:
     """
     Remove debug code patterns from a file.
-    
+
     Args:
         file_path: Path to the Python file
-        dry_run: If True, don't actually modify the file, just report
-        
+
     Returns:
-        Tuple of (lines_removed, list_of_removed_lines)
+        Tuple of (was_modified, list of removed patterns)
     """
-    removed_lines = []
-    lines_to_remove = []
-    
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             lines = f.readlines()
-        
-        for i, line in enumerate(lines, 1):
+
+        modified_lines = []
+        removed_patterns = []
+        is_modified = False
+
+        for line_num, line in enumerate(lines, 1):
+            pattern_found = False
             for pattern in DEBUG_PATTERNS:
                 if pattern.search(line):
-                    lines_to_remove.append((i, line.rstrip()))
+                    pattern_found = True
+                    removed_patterns.append(f"Line {line_num}: {line.strip()}")
                     break
-        
-        if not dry_run and lines_to_remove:
-            # Remove lines in reverse order to maintain line numbers
-            for line_num, _ in sorted(lines_to_remove, reverse=True):
-                del lines[line_num - 1]
-            
+
+            if not pattern_found:
+                modified_lines.append(line)
+            else:
+                is_modified = True
+
+        if is_modified:
             with open(file_path, "w", encoding="utf-8") as f:
-                f.writelines(lines)
-            removed_lines = [line for _, line in lines_to_remove]
-        elif lines_to_remove:
-            removed_lines = [line for _, line in lines_to_remove]
-        
-        return len(removed_lines), removed_lines
-        
+                f.writelines(modified_lines)
+
+        return is_modified, removed_patterns
+
     except Exception as e:
         logger.error(f"Error processing {file_path}: {e}")
-        return 0, []
+        return False, []
 
 def main() -> int:
     """
     Main entry point for the cleanup script.
-    
+
+    Performs the following:
+    1. Finds all Python files in the code/ directory
+    2. Checks syntax validity
+    3. Checks for missing docstrings
+    4. Validates API surface consistency
+    5. Removes debug code patterns
+    6. Reports findings
+
     Returns:
-        Exit code (0 for success, 1 for issues found)
+        0 if all checks pass, 1 if issues found
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Code cleanup and refactoring tool")
-    parser.add_argument(
-        "--fix",
-        action="store_true",
-        help="Actually remove debug code instead of just reporting"
-    )
-    parser.add_argument(
-        "--project-root",
-        type=Path,
-        default=Path(__file__).parent.parent,
-        help="Project root directory (default: parent of this script's directory)"
-    )
-    
-    args = parser.parse_args()
-    
-    logger.info("Starting code cleanup and refactoring...")
-    
-    # Get all Python files
-    python_files = get_python_files(args.project_root)
+    logger.info("Starting code cleanup and refactoring validation")
+
+    python_files = get_python_files()
     if not python_files:
-        logger.error("No Python files found to process")
-        return 1
-    
+        logger.warning("No Python files found in code/ directory")
+        return 0
+
     total_issues = 0
-    total_debug_lines = 0
-    
+    syntax_errors = []
+    docstring_warnings = []
+    api_warnings = []
+    debug_removals = []
+
     for file_path in python_files:
-        logger.info(f"Processing: {file_path}")
-        
+        logger.info(f"Processing {file_path}")
+
         # Check syntax
-        is_valid, error_msg = check_syntax(file_path)
+        is_valid, error = check_syntax(file_path)
         if not is_valid:
-            logger.error(f"  Syntax error: {error_msg}")
+            syntax_errors.append(error)
             total_issues += 1
             continue
-        
+
         # Check docstrings
-        docstring_issues = check_docstrings(file_path)
-        for issue in docstring_issues:
-            logger.warning(f"  Missing docstring: {issue['kind']} '{issue['name']}' at line {issue['line']}")
-            total_issues += 1
-        
+        doc_warnings = check_docstrings(file_path)
+        docstring_warnings.extend(doc_warnings)
+        total_issues += len(doc_warnings)
+
+        # Validate API surface
+        api_warnings_file = validate_api_surface(file_path)
+        api_warnings.extend(api_warnings_file)
+        total_issues += len(api_warnings_file)
+
         # Remove debug code
-        lines_removed, removed_lines = remove_debug_code(file_path, dry_run=not args.fix)
-        if lines_removed > 0:
-            if args.fix:
-                logger.info(f"  Removed {lines_removed} debug lines")
-            else:
-                logger.info(f"  Found {lines_removed} debug lines (use --fix to remove)")
-                for line in removed_lines[:5]:  # Show first 5
-                    logger.info(f"    {line}")
-                if lines_removed > 5:
-                    logger.info(f"    ... and {lines_removed - 5} more")
-        total_debug_lines += lines_removed
-    
-    # Summary
-    logger.info("=" * 50)
-    logger.info("Cleanup Summary:")
-    logger.info(f"  Files processed: {len(python_files)}")
-    logger.info(f"  Syntax errors: {total_issues}")
-    logger.info(f"  Debug lines found: {total_debug_lines}")
-    if args.fix:
-        logger.info(f"  Debug lines removed: {total_debug_lines}")
+        was_modified, removed = remove_debug_code(file_path)
+        if was_modified:
+            debug_removals.extend(removed)
+            logger.info(f"Removed {len(removed)} debug patterns from {file_path}")
+
+    # Report results
+    logger.info("=" * 60)
+    logger.info("CLEANUP REPORT")
+    logger.info("=" * 60)
+
+    if syntax_errors:
+        logger.error(f"SYNTAX ERRORS ({len(syntax_errors)}):")
+        for error in syntax_errors:
+            logger.error(f"  - {error}")
+
+    if docstring_warnings:
+        logger.warning(f"MISSING DOCSTRINGS ({len(docstring_warnings)}):")
+        for warning in docstring_warnings[:10]:  # Limit output
+            logger.warning(f"  - {warning}")
+        if len(docstring_warnings) > 10:
+            logger.warning(f"  ... and {len(docstring_warnings) - 10} more")
+
+    if api_warnings:
+        logger.warning(f"API SURFACE ISSUES ({len(api_warnings)}):")
+        for warning in api_warnings[:10]:  # Limit output
+            logger.warning(f"  - {warning}")
+        if len(api_warnings) > 10:
+            logger.warning(f"  ... and {len(api_warnings) - 10} more")
+
+    if debug_removals:
+        logger.info(f"DEBUG CODE REMOVED ({len(debug_removals)}):")
+        for removal in debug_removals[:10]:  # Limit output
+            logger.info(f"  - {removal}")
+        if len(debug_removals) > 10:
+            logger.info(f"  ... and {len(debug_removals) - 10} more")
+
+    logger.info("=" * 60)
+    if total_issues == 0 and not debug_removals:
+        logger.info("SUCCESS: No issues found. Code is clean.")
+        return 0
     else:
-        logger.info("  Use --fix to remove debug lines")
-    
-    if total_issues > 0 or total_debug_lines > 0:
+        logger.warning(f"FOUND {total_issues} issues and removed {len(debug_removals)} debug patterns")
         return 1
-    return 0
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

@@ -1,11 +1,11 @@
-'|bootstrap calculated confidence interval level will':
-  quote: moderately fewer than 95% of subsequent indicator values fall within 95%
-    confidence
+'|alpha analysi power threshold use':
+  quote: '0.05'
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
+  value: '0.05'
+'|bootstrap computed confidence interval level':
+  quote: a first sample can take any value between 0 and 0.95. The exact value depends
+    on the two
   source_id: '1710.08708'
   url: https://arxiv.org/abs/1710.08708
-  value: 95%
-'|holm journal multiple procedure rejective scandinavian sequentially simple statistic test':
-  quote: navian Journal of Statistics 6, 65-70.
-  source_id: '1703.06336'
-  url: https://arxiv.org/abs/1703.06336
-  value: 65-70
+  value: '0.95'

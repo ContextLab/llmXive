@@ -5,6 +5,12 @@ T003:
     `pyproject.toml` with Black settings) or documentation of their setup are present;
     the claim provides no tangible artifact demonstrating that ruff/flake8 and Black
     have been configured for the project.
+T018:
+  c: false
+  h: 0a35ad2b764485e5a2608e59fd51ed747deddd75c24eaac0c43ed078bd07f36d
+  r: "The required file `data/processed/merged_data.csv` is missing, so no validation\
+    \ could be performed. The task\u2019s core artifact does not exist, violating\
+    \ the requirement."
 T021:
   c: false
   h: 3f2a6e5a6f97b3a2fc58361039569f1114c56771e4076f0a3ee181be04c7e237

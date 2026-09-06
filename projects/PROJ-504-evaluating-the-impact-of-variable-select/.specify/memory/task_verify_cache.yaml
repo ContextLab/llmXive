@@ -26,35 +26,3 @@ T027:
     \ Moreover, the required `data/processed/simulation_results.csv` file is absent.\
     \ The task\u2019s core requirement of persisting these metrics to the specified\
     \ CSV/Parquet file is therefore unmet."
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated README.md or docs/ files were provided; the only evidence shown relates
-    to feature specifications, not to any documentation changes. The required documentation
-    artifacts are missing.
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files, diff, or documentation were presented showing any cleanup or refactoring
-    in the `code/` directory, and the provided specification concerns data simulation
-    and analysis rather than code maintenance. Consequently, there is no evidence
-    that the required cleanup work was performed.
-T047:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any new files or content under `tests/unit/` was provided; the
-    claim that additional unit tests were added cannot be verified. The required artifact
-    (the added unit test code) is missing.
-T048:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a quickstart.md validation run (e.g., execution logs, validation
-    report, or updated documentation) is provided; the required artifact is missing,
-    so the task is not satisfied.
-T049:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No reproducibility artifacts (e.g., a script that re\u2011runs the entire pipeline\
-    \ with fixed random seeds, logs of the run, and checksum files for outputs) were\
-    \ supplied; the claim provides only the original feature specification, not the\
-    \ required re\u2011run and checksum comparison evidence."

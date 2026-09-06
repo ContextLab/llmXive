@@ -2453,3 +2453,250 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T16:39:06Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Kruskal-Wallis tests performed on 24,000 simulation-level rows
+  claim_id: c_c861922c
+  context: T037 [P] [US3] Implement code/analysis/comparators.py to perform Kruskal-Wallis
+    tests on the **simulation-level data** (n=24,000 rows) from data/processed/simulation_results.csv
+    per Spec FR-005
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analysis/comparators.py to perform Kruskal-Wallis tests
+    on the simulation-level data (n=24,000 rows) from data/processed/simulation_results.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:22:39Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Pre-check asserts input dataframe contains 24,000 individual simulation-level
+    rows
+  claim_id: c_e5233246
+  context: T055 [US3] Add a pre-check in code/analysis/comparators.py to assert that
+    the input dataframe contains **individual simulation-level rows** (n=24,000) and
+    NOT aggregated means before running Kruskal-Wallis
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a pre-check in code/analysis/comparators.py to assert that the input
+    dataframe contains individual simulation-level rows (n=24,000) and NOT aggregated
+    means before running Kruskal-Wallis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:22:59Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: OpenML datasets validated with at least 100 rows and at least 3 predictors
+  claim_id: c_16755dc2
+  context: "T014 [P] [US1] Implement code/data/downloader.py to fetch regression datasets\
+    \ from OpenML with retry logic with **time-based exponential backoff** (limited\
+    \ retry attempts) and checksumming; validate \u2265 100 rows and \u2265 3 predictors"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OpenML_datasets_validated_with_at_least_100_rows_and_at_leas
+  kind: magnitude
+  raw_text: "Implement code/data/downloader.py to fetch regression datasets from OpenML\
+    \ with retry logic with time-based exponential backoff (limited retry attempts)\
+    \ and checksumming; validate \u2265 100 rows and \u2265 3 predictors"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:23:44Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Pipeline fetches exactly 10 OpenML datasets
+  claim_id: c_947ef2fc
+  context: T018 [US1] Implement logic in code/data/pipeline.py to **fetch exactly
+    10 datasets** from OpenML.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/pipeline.py to fetch exactly 10 datasets from OpenML
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:24:00Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Downloader test asserts 10 datasets with at least 100 rows and 3 features
+  claim_id: c_7ce7d315
+  context: 'T011 [TDD-First] [P] [US1] Unit test for OpenML downloader in tests/unit/test_downloader.py:
+    function test_downloader_fetches_10_datasets asserts len(datasets) == 10 and all(d.n_rows
+    >= 100) and all(d.n_features >= 3)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Downloader_test_asserts_10_datasets_with_at_least_100_rows_a
+  kind: magnitude
+  raw_text: Unit test for OpenML downloader in tests/unit/test_downloader.py asserts
+    len(datasets) == 10 and all(d.n_rows >= 100) and all(d.n_features >= 3)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:24:28Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Simulation supports sparsity levels 0.2 and 0.4
+  claim_id: c_5d9c67fb
+  context: T016 [P] [US1] Implement code/data/simulators.py configuration to support
+    low to moderate SNR levels and Sparsity levels **{, 0.2, 0.4}**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic in code/data/simulators.py configuration to support low
+    to moderate SNR levels and Sparsity levels {, 0.2, 0.4}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:24:49Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Forward Stepwise selection uses AIC criterion
+  claim_id: c_0f78d0f1
+  context: T024 [P] [US2] Implement code/analysis/selectors.py for Forward Stepwise
+    selection using CPU-only execution and **AIC criterion**
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Forward_Stepwise_selection_uses_AIC_criterion
+  kind: entity_fact
+  raw_text: Implement code/analysis/selectors.py for Forward Stepwise selection using
+    CPU-only execution and AIC criterion
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:25:13Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Final report includes sections for Executive Summary, Statistical Results,
+    Power Curves, and Methodology Notes
+  claim_id: c_b3c150fd
+  context: 'T042 [US3] Generate final summary report as Markdown at results/final_report.md
+    with sections: ''Executive Summary'', ''Statistical Results (Kruskal-Wallis, Dunn)'',
+    ''Power Curves'', and ''Methodology Notes'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_includes_sections_for_Executive_Summary,_Statis
+  kind: entity_fact
+  raw_text: 'Generate final summary report as Markdown at results/final_report.md
+    with sections: ''Executive Summary'', ''Statistical Results (Kruskal-Wallis, Dunn)'',
+    ''Power Curves'', and ''Methodology Notes'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:25:39Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Sensitivity report compares power rates at Alpha 0.01, 0.05, and 0.10
+  claim_id: c_b6b0bb36
+  context: T056 [US3] Implement a 'Sensitivity Report' task in code/analysis/comparators.py
+    that explicitly compares power rates at Alpha=0.01, 0.05, and 0.10 and writes
+    a summary CSV to results/sensitivity_report.csv
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a 'Sensitivity Report' task in code/analysis/comparators.py
+    that explicitly compares power rates at Alpha=0.01, 0.05, and 0.10 and writes
+    a summary CSV to results/sensitivity_report.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:26:12Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
+  attempts: 1
+  canonical: Power vs SNR curves generated for Alpha thresholds 0.05 and 0.10
+  claim_id: c_0bbaaffe
+  context: T040 [US3] Implement code/viz/plots.py to generate Power vs. SNR curves
+    for each selection method, explicitly faceted or differentiated by Sparsity level
+    **AND Alpha thresholds (including 0.05 and 0.10) will be evaluated to determine
+    the optimal significance level for the analysis.**
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/viz/plots.py to generate Power vs. SNR curves for each
+    selection method, explicitly faceted or differentiated by Sparsity level AND Alpha
+    thresholds (including 0.05 and 0.10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:26:33Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/results/reproducibility_report.md
+  attempts: 1
+  canonical: 60 total simulations using 10 datasets, 3 SNR levels, and 2 sparsity
+    levels
+  claim_id: c_266b22d6
+  context: "## Execution Summary\n- **Run Status**: SUCCESS\n- **Total Simulations**:\
+    \ 60 (10 datasets \xD7 3 SNR \xD7 2 sparsity)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Total Simulations: 60 (10 datasets \xD7 3 SNR \xD7 2 sparsity)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:28:36Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/results/reproducibility_report.md
+  attempts: 1
+  canonical: 10 OpenML regression datasets used in the pipeline
+  claim_id: c_e95b97c5
+  context: '## Configuration
+
+    - **Random Seed**: 42
+
+    - **Datasets**: 10 OpenML regression datasets'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10 OpenML regression datasets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:28:56Z'
+- artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/results/reproducibility_report.md
+  attempts: 1
+  canonical: All 60 simulation records present in the output
+  claim_id: c_bc2dcdcd
+  context: '## Verification Steps
+
+    - [x] Pipeline executed without errors
+
+    - [x] All 60 simulation records present'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All 60 simulation records present
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:29:22Z'

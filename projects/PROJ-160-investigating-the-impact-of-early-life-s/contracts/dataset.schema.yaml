@@ -1,87 +1,96 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Preprocessed Dataset Schema
-description: |
-  Schema for the preprocessed dataset derived from the ABCD Study Release 4.0.
-  Contains Adverse Childhood Experiences (ACE) scores, demographic data,
-  and normalized hippocampal subfield volumes.
+description: >
+  Schema for the preprocessed dataset used in the analysis of the impact of 
+  early life stress on hippocampal subfield volumes. Derived from ABCD Study 
+  Release 4.0 after filtering for missing ACE scores and MRI quality, and 
+  normalizing volumes by ICV.
 type: object
 required:
-  - properties
-  - required
-  - type
+  - columns
 properties:
-  type:
-    type: string
-    const: object
-  required:
+  columns:
     type: array
+    description: List of column definitions in the dataset.
     items:
-      type: string
-  properties:
+      type: object
+      required:
+        - name
+        - type
+        - description
+      properties:
+        name:
+          type: string
+          description: The exact column name as it appears in the CSV.
+        type:
+          type: string
+          enum:
+            - integer
+            - float
+            - string
+            - boolean
+          description: The expected data type.
+        description:
+          type: string
+          description: Human-readable description of the column.
+        nullable:
+          type: boolean
+          default: false
+          description: Whether the column can contain null values.
+  metadata:
     type: object
+    description: Additional metadata about the dataset.
     properties:
-      ACE:
-        description: Adverse Childhood Experiences score.
-        type: number
-        minimum: 0
-      Age:
-        description: Age of the participant at baseline (years).
-        type: number
-        minimum: 9
-        maximum: 11
-      Sex:
-        description: Biological sex of the participant.
+      source:
         type: string
-        enum: [Male, Female]
-      Site:
-        description: Scanning site identifier.
+        default: "ABCD Study Release 4.0"
+      preprocessing_steps:
+        type: array
+        items:
+          type: string
+        description: List of steps applied to generate this dataset.
+      retention_rate:
+        type: number
+        description: Percentage of original participants retained after filtering.
+examples:
+  - columns:
+      - name: ACE
+        type: float
+        description: Adverse Childhood Experiences score (raw or log-transformed).
+        nullable: false
+      - name: Age
+        type: float
+        description: Age of the participant at baseline.
+        nullable: false
+      - name: Sex
         type: string
-      FamilyID:
-        description: Unique identifier for the family unit (to handle clustering).
+        description: Biological sex of the participant (e.g., 'M', 'F').
+        nullable: false
+      - name: Site
         type: string
-      CA3:
-        description: Raw volume of the CA3 hippocampal subfield.
-        type: number
-        minimum: 0
-      DG:
-        description: Raw volume of the Dentate Gyrus hippocampal subfield.
-        type: number
-        minimum: 0
-      Subiculum:
-        description: Raw volume of the Subiculum hippocampal subfield.
-        type: number
-        minimum: 0
-      ICV:
-        description: Intracranial volume used for normalization.
-        type: number
-        minimum: 0
-      Normalized_Volumes:
-        description: |
-          Object containing ICV-normalized volumes for each subfield.
-          Calculated as: RawVolume / ICV.
-        type: object
-        required:
-          - CA3
-          - DG
-          - Subiculum
-        properties:
-          CA3:
-            description: Normalized CA3 volume.
-            type: number
-          DG:
-            description: Normalized DG volume.
-            type: number
-          Subiculum:
-            description: Normalized Subiculum volume.
-            type: number
-    required:
-      - ACE
-      - Age
-      - Sex
-      - Site
-      - FamilyID
-      - CA3
-      - DG
-      - Subiculum
-      - ICV
-      - Normalized_Volumes
+        description: MRI scanner site identifier.
+        nullable: false
+      - name: FamilyID
+        type: integer
+        description: Unique identifier for family clusters.
+        nullable: false
+      - name: CA3
+        type: float
+        description: Normalized volume of the CA3 hippocampal subfield.
+        nullable: false
+      - name: DG
+        type: float
+        description: Normalized volume of the Dentate Gyrus hippocampal subfield.
+        nullable: false
+      - name: Subiculum
+        type: float
+        description: Normalized volume of the Subiculum hippocampal subfield.
+        nullable: false
+      - name: ICV
+        type: float
+        description: Intracranial Volume (used for normalization).
+        nullable: false
+      - name: Normalized_Volumes
+        type: string
+        description: JSON string or delimited list of normalized subfield volumes.
+        nullable: false

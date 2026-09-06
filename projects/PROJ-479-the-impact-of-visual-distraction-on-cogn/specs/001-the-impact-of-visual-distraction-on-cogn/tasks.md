@@ -53,7 +53,7 @@ description: "Task list template for feature implementation"
  1. **Holm-Bonferroni**: Holm, S. (1979). "A Simple Sequentially Rejective Multiple Test Procedure". Scandinavian Journal of Statistics.
  2. **OpenCV Edge Detection**: Canny, J. (1986). "A Computational Approach to Edge Detection". IEEE TPAMI.
  3. **Color Entropy**: Shannon, C.E. (1948). "A Mathematical Theory of Communication".
- 4. **YOLOv8**: Redmon, J., et al. (n.d.) and Ultralytics YOLOv8 documentation. [UNRESOLVED-CLAIM: c_d38acdf2 — status=not_enough_info]
+ 4. **YOLOv8**: Redmon, J., et al. (n.d.) and Ultralytics YOLOv8 documentation.
  5. **p<0.05 Threshold**: ASA Statement on p-values (Wasserstein & Lazar, n.d.).
  6. **Verification**: Validate YAML syntax and ensure all citations are primary sources (not Wikipedia).
 
@@ -96,9 +96,9 @@ description: "Task list template for feature implementation"
  3. **Verify**: Log count of sanitized images.
  **DEPENDS ON: T015 (Step 2b/c)**. **Note**: This function must be called by T015 BEFORE the final merge.
 
-- [ ] T017 [P] [US1] Create `data/citations.yaml` with verified primary sources (Moved to Phase 2 for independence). **Verification**: Validate YAML syntax and ensure all citations are primary sources (not Wikipedia).
+- [X] T017 [P] [US1] Create `data/citations.yaml` with verified primary sources (Moved to Phase 2 for independence). **Verification**: Validate YAML syntax and ensure all citations are primary sources (not Wikipedia).
 
-- [ ] T018 [US1] **VERIFY DATA INTEGRITY**: Run validation on `data/processed/merged_data.csv` to ensure:
+- [ ] T018 [US1] **VERIFY DATA INTEGRITY**: Run validation on `data/processed/merged_data.csv` to ensure: <!-- FAILED: unspecified -->
  1. N ≥ 100.
  2. No missing values in `reaction_time` or `accuracy` > 5%.
  3. Metadata exists for all images.
@@ -123,7 +123,7 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T026a [US2] **IMPLEMENT EDGE DENSITY**: Implement `code/02_visual_metrics.py` function `compute_edge_density`.
+- [X] T026a [US2] **IMPLEMENT EDGE DENSITY**: Implement `code/02_visual_metrics.py` function `compute_edge_density`.
  1. **Edge Density**: Implement using OpenCV Canny/Sobel edge detection, outputting normalized values [0, 1].
  2. **Verification**: Ensure function passes unit test T021.
  **DEPENDS ON: T018 (Data Ready)**. **FR Tags**: [FR-002], [SC-006].
@@ -216,7 +216,7 @@ description: "Task list template for feature implementation"
 
 - [ ] T019b [US3] **POWER ANALYSIS (POST-HOC)**: Implement power analysis in `code/03_analysis.py` using `statsmodels.stats.power.FTestPower` to calculate achieved power based on the observed effect size from `final_analysis_data.csv`. **Output**: Save `results/statistics/power_analysis_post_hoc.md`. **DEPENDS ON: T031-verify**.
 
-- [ ] T037 [US3] **Generate Alpha Threshold Justification**: Read `data/citations.yaml` (from T017) and generate the p<0.05 threshold justification content.
+- [ ] T037 [US3] **Generate Alpha Threshold Justification**: Read `data/citations.yaml` (from T017) and generate the p<0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)) threshold justification content.
  1. Frame all findings as associational (no causal claims).
  2. Load citation content for ASA Statement from `citations.yaml`.
  3. **Template**: The justification must include:

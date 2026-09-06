@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Pi
   verified_at: '2026-07-29T16:26:54.744342Z'
-- artifact_hash: 81bffa6ab93952e3b1b75e7dd4738edfb455afcc00f863f54fb4e522a0318c4c
+- artifact_hash: ce3a027d00e36b17699d7fe66646488babea4546169a112a1dd7a8b31b1d08d1
   artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/README.md
   cite_id: c-001
   cited_authors: []
@@ -19,21 +19,10 @@
   value: https://www.openml.org/
   verification_status: pending
   verified_against_url: https://www.openml.org/
-  verified_at: '2026-07-29T16:31:32.697487Z'
-- artifact_hash: 81bffa6ab93952e3b1b75e7dd4738edfb455afcc00f863f54fb4e522a0318c4c
+  verified_at: '2026-09-06T15:19:05.805973Z'
+- artifact_hash: ce3a027d00e36b17699d7fe66646488babea4546169a112a1dd7a8b31b1d08d1
   artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/README.md
   cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.statsmodels.org/
-  verification_status: pending
-  verified_against_url: https://www.statsmodels.org/
-  verified_at: '2026-07-29T16:31:32.697487Z'
-- artifact_hash: 81bffa6ab93952e3b1b75e7dd4738edfb455afcc00f863f54fb4e522a0318c4c
-  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/README.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: 'scikit-learn: machine learning in Python &mdash; scikit-learn 0.16.1
@@ -42,8 +31,19 @@
   value: https://scikit-learn.org/
   verification_status: pending
   verified_against_url: https://scikit-learn.org/
-  verified_at: '2026-07-29T16:31:32.697487Z'
-- artifact_hash: 81bffa6ab93952e3b1b75e7dd4738edfb455afcc00f863f54fb4e522a0318c4c
+  verified_at: '2026-09-06T15:19:05.805973Z'
+- artifact_hash: ce3a027d00e36b17699d7fe66646488babea4546169a112a1dd7a8b31b1d08d1
+  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/README.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.statsmodels.org/
+  verification_status: pending
+  verified_against_url: https://www.statsmodels.org/
+  verified_at: '2026-09-06T15:19:05.805973Z'
+- artifact_hash: ce3a027d00e36b17699d7fe66646488babea4546169a112a1dd7a8b31b1d08d1
   artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/README.md
   cite_id: c-004
   cited_authors: []
@@ -53,8 +53,8 @@
   value: 10.21105/joss.01686
   verification_status: pending
   verified_against_url: https://doi.org/10.21105/joss.01686
-  verified_at: '2026-07-29T16:31:32.697487Z'
-- artifact_hash: 389f7b243d1f5a895893e7ee7709026315ebb730017f78138a69630f140634c2
+  verified_at: '2026-09-06T15:19:05.805973Z'
+- artifact_hash: b32744723b7f8bd158752dae54d96eaa0bf04be9a737a78df359446bea04110c
   artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,8 +64,8 @@
   value: https://en.wikipedia.org/wiki/Python_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Python
-  verified_at: '2026-07-29T16:40:04.967602Z'
-- artifact_hash: 389f7b243d1f5a895893e7ee7709026315ebb730017f78138a69630f140634c2
+  verified_at: '2026-09-06T15:29:23.591854Z'
+- artifact_hash: b32744723b7f8bd158752dae54d96eaa0bf04be9a737a78df359446bea04110c
   artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -75,4 +75,4 @@
   value: 10.21105/joss.01686
   verification_status: pending
   verified_against_url: https://doi.org/10.21105/joss.01686
-  verified_at: '2026-07-29T16:40:04.967602Z'
+  verified_at: '2026-09-06T15:29:23.591854Z'

@@ -191,22 +191,6 @@
   updated_at: '2026-07-04T03:37:26Z'
 - artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
   attempts: 1
-  canonical: 5000 permutation tests complete within 3 hours
-  claim_id: c_9b56765e
-  context: 'Independent Test: Verify 5,000 permutation tests complete within 3 hours,
-    sensitivity sweeps run, and ICV-restricted analysis outputs effect size change.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify 5,000 permutation tests complete within 3 hours
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-04T03:38:16Z'
-- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
-  attempts: 1
   canonical: Total pipeline runtime from acquisition to robustness is less than or
     equal to 6 hours
   claim_id: c_29ee9fe7
@@ -411,3 +395,72 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T03:46:18Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 2
+  canonical: 5000 permutation tests complete within 3 hours
+  claim_id: c_9b56765e
+  context: 'Independent Test: Verify 5,000 permutation tests complete within 3 hours,
+    sensitivity sweeps run, and ICV-restricted analysis outputs effect size change.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify 5,000 permutation tests complete within 3 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:34:14Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime is less than or equal to 6 hours
+  claim_id: c_6532f67b
+  context: "T045 Verify total pipeline runtime (Acquisition \u2192 Robustness) is\
+    \ \u2264 6 hours (SC-006)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_is_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "Verify total pipeline runtime (Acquisition \u2192 Robustness) is \u2264\
+    \ 6 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:34:37Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: normalized dataset retention is greater than or equal to 80 percent
+  claim_id: c_c0ed52ac
+  context: "Independent Test: Verify pipeline downloads CSVs, filters missing ACE/poor\
+    \ MRI quality, and outputs normalized dataset with \u226580% retention."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Normalized_dataset_retention_is_greater_than_or_equal_to_80
+  kind: magnitude
+  raw_text: "output normalized dataset with \u226580% retention."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:35:01Z'
+- artifact_path: projects/PROJ-160-investigating-the-impact-of-early-life-s/specs/001-investigating-the-impact-of-early-life-s/tasks.md
+  attempts: 1
+  canonical: statistical models complete within 45 minutes
+  claim_id: c_4bcbcf74
+  context: "Independent Test: Verify three separate models output standardized \u03B2\
+    , 95% CI, p-values (corrected and uncorrected) and complete within 45 mins."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: complete within 45 mins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T15:35:22Z'
