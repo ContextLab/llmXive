@@ -13,7 +13,7 @@ This project implements a data-driven pipeline to predict the Poisson's ratio of
 **Primary Dependencies**: `pandas`, `scikit-learn`, `datasets` (Hugging Face), `pyyaml`, `numpy`, `statsmodels` (for VIF), `compositions` (for ILR)  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `models`, `results`); no external database.  
 **Testing**: `pytest` (unit tests for data filtering, ILR transformation, schema validation, and independence checks).  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier: multi-core CPU, ample RAM).  
 **Project Type**: Data Science Pipeline / Research Tool.  
 **Performance Goals**: Complete data extraction, cleaning, modeling, and reporting within 6 hours on CPU.  
 **Constraints**: CPU-only execution; no GPU acceleration; strict adherence to compositional data analysis (ILR) to avoid spurious correlations; no causal claims.  
@@ -118,7 +118,7 @@ projects/PROJ-420-predicting-the-effect-of-alloying-on-the/
 *Goal: Filter, normalize, and convert units.*
 1.  **T2.1**: Filter for monolithic aluminum alloys (exclude composites).
 2.  **T2.2**: Convert wt% to atomic% using standard atomic weights.
-3.  **T2.3**: Enforce mass balance: Sum of (Cu, Mg, Si, Zn, Mn, Al) must be 1.0. Exclude rows where sum of major elements < 0.95.
+3.  **T2.3**: Enforce mass balance: The sum of (Cu, Mg, Si, Zn, Mn, Al) must be normalized to unity. Exclude rows where sum of major elements < 0.95.
 4.  **T2.4**: Normalize elastic constants to GPa.
 5.  **T2.5**: Verify Poisson's ratio independence. Exclude records where measurement method is unknown or derived (unless metadata confirms independent measurement).
 

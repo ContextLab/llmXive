@@ -61,6 +61,12 @@ class Config:
         def _missing_attr(*args: Any, **kwargs: Any) -> Any:
             return None
         return _missing_attr
+    
+    # Explicit property for data_processed (addressing the specific contract failure)
+    @property
+    def data_processed(self) -> Path:
+        """Alias for data_processed_dir to satisfy callers expecting .data_processed."""
+        return self.data_processed_dir
 
 _CONFIG: Optional[Config] = None
 
@@ -78,6 +84,7 @@ def main():
     print(f"Data directory: {config.data_dir}")
     print(f"Models directory: {config.models_dir}")
     print(f"Results directory: {config.results_dir}")
+    print(f"Data processed path: {config.data_processed}")
 
 if __name__ == "__main__":
     main()

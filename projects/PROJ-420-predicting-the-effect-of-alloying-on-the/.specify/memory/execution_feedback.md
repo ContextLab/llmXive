@@ -1,13 +1,19 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/main_pipeline.py`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python code/main.py (rc=1)
+**Summary**: 1 run-book script(s) missing (plan/impl path mismatch): python code/main_pipeline.py
 
 ## Failing / missing run-book commands
 
-- python code/main.py -> rc=1
-    
+- python code/main_pipeline.py -> rc=2 [script missing]
+    /home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main_pipeline.py': [Errno 2] No such file or directory
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -17,20 +23,21 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `setup_logging` — defined in `code/logging_config.py`; called 12 way(s):
+### `setup_logging` — defined in `code/logging_config.py`; called 13 way(s):
 
-- code/format_check.py: setup_logging()
-- code/validate_quickstart.py: logger = setup_logging(level="INFO")
-- code/memory_utils.py: setup_logging(config)
-- code/memory_monitor.py: setup_logging(config)
 - code/logging_config.py: - setup_logging()
 - code/logging_config.py: - setup_logging(level="INFO")
 - code/logging_config.py: - setup_logging(log_level="INFO")
 - code/logging_config.py: - setup_logging(config)
+- code/logging_config.py: - setup_logging(log_file="data/logs/app.log")
+- code/validate_quickstart.py: logger = setup_logging(level="INFO")
+- code/memory_utils.py: setup_logging(config)
+- code/memory_monitor.py: setup_logging(config)
+- code/format_check.py: setup_logging()
 - code/data/download.py: setup_logging()
-- code/cli/download_cli.py: logger = setup_logging(level=args.log_level)
-- code/cli/model_cli.py: logger = setup_logging(level=args.log_level)
 - code/cli/clean_cli.py: logger = setup_logging(log_level=args.log_level)
+- code/cli/model_cli.py: logger = setup_logging(level=args.log_level)
+- code/cli/download_cli.py: logger = setup_logging(level=args.log_level)
 
 Make `setup_logging` in `code/logging_config.py` accept ALL of the above.
 
@@ -140,5 +147,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/data/processed/model_metrics.json`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/main.py`, `code/validate_quickstart.py`, `code/modeling.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/data/processed/model_metrics.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/main.py`, `code/validate_quickstart.py`, `code/modeling.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/validate_quickstart.py`, `code/main.py`, `code/modeling.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/data/processed/model_metrics.json`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/validate_quickstart.py`, `code/main.py`, `code/modeling.py`.

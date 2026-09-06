@@ -1,11 +1,3 @@
-T006:
-  c: false
-  h: 92a199773869ba60868529c593e8fb97825e433b3df0e83502938d135b5e4b2b
-  r: "The `code/logging_config.py` file exists and defines a JSON\u2011compatible\
-    \ `LogEntry` and a rotating handler, but the required schema file `contracts/logging_schema.yaml`\
-    \ is missing, and there is no test or assertion code confirming that logged entries\
-    \ conform to that schema or that rotation occurs after 10\u202FMB. These missing\
-    \ artifacts prevent the task from being fully satisfied."
 T014:
   c: false
   h: dc995f972425f645f30b08c05c2c144194b598347f1b8fcb32646f8594abced5
@@ -23,15 +15,22 @@ T016:
     \ function that writes (or creates) `exclusion_log.txt` in the logs directory,\
     \ adding a CSV header if needed and appending rows in the required `step,count,reason`\
     \ format. No placeholder or stub code is present, satisfying the task\u2019s specification."
-T024:
+T020:
   c: false
-  h: dd9fe0e9e24f315d264900fa85fbc8e4b4bb945af69c48599064233fbb7c3663
-  r: The repository lacks the required input data (`data/processed/alloys_clean.parquet`)
-    and the hyperparameter file (`results/cv_best_hyperparameters.json`). No `models/rf_model.pkl`
-    is present, and the provided `code/modeling.py` is truncated and does not contain
-    logic to train the final model with the best hyperparameters and serialize it
-    as specified. These essential artifacts must be added for the task to be considered
-    complete.
+  h: 4b7cb4d9f1fbb941df612cfc27cb67c160ef5e2f59eb1ba73229a18fb927d795
+  r: "The repository lacks the required `data/processed/split_indices.json` file,\
+    \ and the `save_split_indices` function in `code/modeling.py` is truncated and\
+    \ does not show a complete implementation of the 80/20 `train_test_split` and\
+    \ JSON saving logic. Without the output file (and a full implementation), the\
+    \ task\u2019s requirement is not satisfied."
+T021:
+  c: false
+  h: fe5b521867ba0f3c59d07884aabdc28da786b56706cb62f9bf284d508c30a601
+  r: "The repository lacks the required `data/processed/alloys_clean.parquet` file\
+    \ and the `results/cv_best_hyperparameters.json` output. Moreover, the shown portion\
+    \ of `code/modeling.py` does not contain any implementation of repeated 5\u2011\
+    fold cross\u2011validation, CV\u2011MAE computation, confidence intervals, or\
+    \ JSON saving of hyperparameters. These essential artifacts and logic are missing."
 T025:
   c: false
   h: a1fed8b642f9c7433ef3638c2b8c7758e213a2b68c04b60e68ccfee06ad42c02
