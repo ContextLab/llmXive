@@ -1,18 +1,22 @@
-T012:
+T015b:
   c: false
-  h: 0a861b87aee1a950c1a06c356832365040ec0f6f761d77433f13c9949d375618
-  r: The `download_gsm8k.py` file is present but only a partial snippet is shown,
-    ending abruptly before the dataset loading and saving logic, so we cannot confirm
-    it actually downloads, filters, asserts >200 valid examples, and writes `data/raw/gsm8k_verified.parquet`.
-    Moreover, the required parquet file does not exist. The implementation needs to
-    be completed and verified.
-T014:
+  h: 0fd94698c57a9bae82ff96e3e2dea65ed74c9071c295f5874336e33b9f80a725
+  r: "The required files `data/processed/delta_coefficients.json` and `contracts/delta_oracle.schema.yaml`\
+    \ are missing, so no validation could have been performed. The task\u2019s core\
+    \ requirement is not satisfied."
+T015c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code or test output was provided showing that `generate_oracle.py` now computes\
-    \ the variance of the output coefficients and aborts when the variance \u2264\u202F\
-    1e\u20119. The required artifact (the updated script with the explicit variance\
-    \ validation) is missing."
+  r: "No code, script, or test output was provided that actually computes the global\
+    \ variance of the DelTA coefficients, checks it against the 1e\u20119 threshold,\
+    \ or raises `RuntimeError('ERR_TRIVIAL_TARGET')` on failure. The required artifact\
+    \ is missing, so the task is not satisfied."
+T015d:
+  c: false
+  h: cade575e1f555bba5c101f6b87cd9d7444e2135c13e1398919e75329ca5ec7f9
+  r: The required artifact `data/processed/delta_coefficients.json` does not exist,
+    so there is no data to inspect for NaN or Inf values. The task cannot be verified
+    until the file is present and contains valid numeric entries.
 T018:
   c: false
   h: b346213ca08feeec73d76cc68abca864348912b28d63226ce45f9f0726d2980e

@@ -320,3 +320,448 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T10:03:58Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: N=500 target examples with minimum 10 examples and Llama-3-8B Oracle
+    model
+  claim_id: c_169d3d81
+  context: Create deviation_log.md in specs/001-delta-static-approximation/ documenting
+    the N=500/Min=10 constraint and Llama-3-8B Oracle model choice.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The deviation log documents the N=500/Min=10 constraint and Llama-3-8B
+    Oracle model choice.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:33:36Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Configuration sets N_EXAMPLES_TARGET=500, N_EXAMPLES_MIN=10, ORACLE_MODEL=meta-llama/Meta-Llama-3-8B-Instruct
+  claim_id: c_56318813
+  context: 'Update code/config.py to reflect the Plan constraints: set N_EXAMPLES_TARGET=500,
+    N_EXAMPLES_MIN=10, ORACLE_MODEL=''meta-llama/Meta-Llama-3-8B-Instruct''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration sets N_EXAMPLES_TARGET=500, N_EXAMPLES_MIN=10, and ORACLE_MODEL
+    to meta-llama/Meta-Llama-3-8B-Instruct.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:36:36Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: 2-layer MLP with 128 hidden units per layer and ReLU activation
+  claim_id: c_40e3ebf9
+  context: 'Implement code/models/mlp.py (FR-004): Define a 2-layer MLP with 128 hidden
+    units per layer and ReLU activation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/2-layer_MLP_with_128_hidden_units_per_layer_and_ReLU_activat
+  kind: entity_fact
+  raw_text: The model architecture is defined as a 2-layer MLP with 128 hidden units
+    per layer and ReLU activation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:42:13Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Uniform baseline normalized to mean=0 and std=1
+  claim_id: c_d667a963
+  context: 'Verify: Normalize the vector to match the scale of the DelTA coefficients
+    (mean=0, std=1 or equivalent scaling).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The uniform baseline vector is normalized to have mean=0 and std=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:42:58Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Random baseline from N(0,1) with seed=42
+  claim_id: c_d364abd9
+  context: 'Implement code/eval/baseline_random.py: Generate a random baseline vector
+    from N(0,1) with seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random baseline vector is generated from a normal distribution N(0,1)
+    with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:43:29Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Emergent signal defined as low Spearman correlation and mean Permutation
+    Importance >= 0.01
+  claim_id: c_8d419956
+  context: "Decision Logic: Emergent Signal: Spearman correlation low/non-significant\
+    \ AND mean Permutation Importance \u2265 0.01."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Emergent_signal_defined_as_low_Spearman_correlation_and_mean
+  kind: entity_fact
+  raw_text: "Emergent signal is defined as Spearman correlation low/non-significant\
+    \ AND mean Permutation Importance \u2265 0.01."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:44:01Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Poor proxies defined as low Spearman correlation and mean Permutation
+    Importance < 0.01
+  claim_id: c_7a12238c
+  context: 'Decision Logic: Poor Proxies: Spearman correlation low/non-significant
+    AND mean Permutation Importance < 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Poor proxies are defined as Spearman correlation low/non-significant AND
+    mean Permutation Importance < 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:44:01Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Peak RAM limit of 16 GB
+  claim_id: c_b74c040b
+  context: "Generate a memory-profile report (memory_profile.txt) and ensure peak\
+    \ RAM \u2264 16 GB."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: on an AMD Ryzen 5 3600 CPU with 16 GB RAM
+      source_id: '2107.09801'
+      url: https://arxiv.org/abs/2107.09801
+      value: 16 GB
+    filled: true
+  kind: numeric
+  raw_text: The peak RAM limit for the pipeline is 16 GB.
+  resolved_value: 16 GB
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T00:44:23Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Oracle model is meta-llama/Meta-Llama-3-8B-Instruct
+  claim_id: c_fc52e001
+  context: 'T002b CONFIG UPDATE: Update code/config.py to reflect the Plan constraints
+    and set ORACLE_MODEL to meta-llama/Meta-Llama-3-8B-Instruct.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "set `ORACLE_MODEL=\"meta-llama/Meta-Llama-3-8B-Instruct\"` (Llama\u2011\
+    3\u20118B)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:45:20Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Reference dataset for semantic similarity is OpenMathInstruct-1
+  claim_id: c_a4484a2e
+  context: "T036a SPEC AMENDMENT: Update spec.md FR\u2011003 to replace MathQA with\
+    \ OpenMathInstruct-1 as the reference dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: replace "MathQA" with "OpenMathInstruct-1" as the reference dataset for
+    semantic similarity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:45:43Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: OpenMathInstruct-1 dataset is available on HuggingFace
+  claim_id: c_ab3f7ca5
+  context: 'T018a REFERENCE SET: Implement code/data/download_reference.py to download
+    the OpenMathInstruct-1 dataset from HuggingFace.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download the OpenMathInstruct-1 dataset from HuggingFace (verified source
+    per Plan).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:46:04Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset is downloaded from HuggingFace and filtered for verified
+    correct solutions
+  claim_id: c_94d1d1f8
+  context: 'T012 IMPLEMENTATION: code/data/download_gsm8k.py downloads GSM8K from
+    HuggingFace, filters for verified correct solutions, and saves the result.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSM8K_dataset_is_downloaded_from_HuggingFace_and_filtered_fo
+  kind: entity_fact
+  raw_text: Download GSM8K from HuggingFace, filter for verified correct solutions,
+    save to data/raw/gsm8k_verified.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:46:31Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Feature extraction uses sentence-transformers/all-MiniLM-L6-v2 model
+  claim_id: c_f5d670f5
+  context: "T018 FEATURE EXTRACTION: Extract semantic similarity using sentence-transformers/all\u2011\
+    MiniLM\u2011L6\u2011v2."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: "using sentence-transformers/all\u2011MiniLM\u2011L6\u2011v2."
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T00:46:54Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: meta-llama/Meta-Llama-3-8B-Instruct used as the Oracle model
+  claim_id: c_4efc0a38
+  context: Create deviation_log.md documenting the N=500/Min=10 constraint and Llama-3-8B
+    Oracle model choice, referencing Constitution Principle VII.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Llama-3-8B Oracle model choice
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:48:12Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: OpenMathInstruct-1 used as the reference dataset for semantic similarity
+  claim_id: c_a754fbcd
+  context: Update spec.md FR-003 to replace "MathQA" with "OpenMathInstruct-1" as
+    the reference dataset for semantic similarity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: replace 'MathQA' with 'OpenMathInstruct-1' as the reference dataset for
+    semantic similarity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:48:12Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: example-level shuffle used for the permutation test
+  claim_id: c_719e9f0f
+  context: Update spec.md FR-006 to replace "token-level shuffle" with "example-level
+    shuffle" for the permutation test.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Example-level_shuffle_used_for_the_permutation_test
+  kind: entity_fact
+  raw_text: replace 'token-level shuffle' with 'example-level shuffle' for the permutation
+    test
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:48:59Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Oracle model is Meta-Llama-3-8B-Instruct
+  claim_id: c_011a33f1
+  context: "Phase 2 deviation log and config update specify the Oracle model choice\
+    \ as Llama\u20113\u20118B."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Oracle model used is meta-llama/Meta-Llama-3-8B-Instruct (Llama\u2011\
+    3\u20118B)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:50:28Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Reference dataset is OpenMathInstruct-1
+  claim_id: c_a5f71157
+  context: "Spec amendment T036a updates FR\u2011003 to use OpenMathInstruct-1 as\
+    \ the reference dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reference dataset for semantic similarity is OpenMathInstruct-1, replacing
+    MathQA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:50:45Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Permutation test uses example-level shuffle
+  claim_id: c_790d0c3d
+  context: Spec amendment T037a replaces token-level shuffle with example-level shuffle
+    for the permutation test.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_uses_example-level_shuffle
+  kind: entity_fact
+  raw_text: The permutation test shuffles example-level coefficients instead of token-level,
+    as specified in spec amendment T037a.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:51:22Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Generate DelTA coefficients for 500 GSM8K examples using Llama-3-8B
+  claim_id: c_23600e24
+  context: User Story 1 aims to generate DelTA coefficients on a fixed subset of 500
+    GSM8K examples with seed=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ground\u2011truth DelTA coefficients will be generated for a fixed subset\
+    \ of 500 GSM8K examples (seed=42) using the Llama\u20113\u20118B Oracle."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:51:44Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Oracle model is meta-llama/Meta-Llama-3-8B-Instruct
+  claim_id: c_212f9bfb
+  context: The deviation log documents the N=500/Min=10 constraint and Llama-3-8B
+    Oracle model choice.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Oracle model choice is meta-llama/Meta-Llama-3-8B-Instruct
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:52:29Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Reference dataset for semantic similarity is OpenMathInstruct-1
+  claim_id: c_3c03c5de
+  context: "Spec amendment updates FR\u2011003 to replace \"MathQA\" with \"OpenMathInstruct-1\"\
+    \ as the reference dataset for semantic similarity."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reference dataset for semantic similarity is OpenMathInstruct-1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:52:49Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: Deviation log documents N=500 Min=10 constraint
+  claim_id: c_6b5afc00
+  context: 'T002a DEVIATION LOG: Create deviation_log.md documenting the N=500/Min=10
+    constraint and Llama-3-8B Oracle model choice.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The deviation log documents the N=500/Min=10 constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:53:48Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: meta-llama/Meta-Llama-3-8B-Instruct used as Oracle model
+  claim_id: c_d40a3ced
+  context: "The deviation log documents the Llama\u20113\u20118B Oracle model choice\
+    \ and config updates set ORACLE_MODEL=\"meta-llama/Meta-Llama-3-8B-Instruct\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use meta-llama/Meta-Llama-3-8B-Instruct as the Oracle model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:54:28Z'
+- artifact_path: projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md
+  attempts: 1
+  canonical: OpenMathInstruct-1 dataset used as reference dataset
+  claim_id: c_adf1d633
+  context: Task T018a specifies downloading the OpenMathInstruct-1 dataset from HuggingFace
+    to replace MathQA as the reference set for semantic similarity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use OpenMathInstruct-1 dataset from HuggingFace as the reference dataset
+    for semantic similarity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:54:50Z'
