@@ -1,0 +1,12 @@
+status: none
+intent: MiniGrid gymnasium synthetic state graph environments python package dataset
+required_fields:
+- node_id
+- edge_list
+- transition_type
+- reward_value
+- tier_level
+- state_features
+cache_key: a64e489c6d2b36a5c639875cf6f3ef3cff6c06066c1f897c5f9b9b9b0ef21079
+searched_at: '2026-09-06T13:12:11.734157+00:00'
+retry_count: 1

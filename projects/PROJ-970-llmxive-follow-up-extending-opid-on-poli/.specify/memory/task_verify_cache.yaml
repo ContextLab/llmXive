@@ -1,0 +1,89 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No project files, directories, or any structural artifacts were presented; the\
+    \ claim provides only a feature specification and user stories, but no evidence\
+    \ of a created repository layout, configuration files, or code scaffolding required\
+    \ by \u201CCreate project structure per implementation plan.\u201D The required\
+    \ artifact is missing."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No project files (e.g., `pyproject.toml`, `requirements.txt`, or a virtual environment\
+    \ setup) are present to demonstrate that a Python\u202F3.11 project was created\
+    \ and that the listed dependencies (`networkx`, `numpy`, `pandas`, `scipy`, `pytest`)\
+    \ are declared. The implementer must provide the actual project scaffold with\
+    \ those dependencies specified."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or any setup scripts) are present in the
+    provided evidence, nor is there any documentation showing that Ruff and Black
+    have been installed and integrated into the project workflow. The required artifacts
+    to demonstrate that linting and formatting tools are configured are missing.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation was provided that shows random
+    seed initialization being set up for reproducibility. The claim lacks any tangible
+    artifact (e.g., a `seed.py` module, a settings entry, or test runs demonstrating
+    deterministic behavior), so the requirement is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory structure (`data/raw/synthetic_graphs/`
+    and `data/processed/`) or any logging infrastructure (e.g., config files, logger
+    initialization code) was provided. The implementer must create the specified folders
+    and add functional logging setup to satisfy the task.
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, or example output was provided that actually generates a\
+    \ Tier\u202F1 graph with a single deterministic path of 5\u201110 nodes and zero\
+    \ stochastic branching. The required artifact (environment generator implementation)\
+    \ is missing, so the task is not satisfied."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, or documentation for a Tier\u20112 environment generator\
+    \ was provided; thus there is no artifact demonstrating a graph with \u226520\
+    \ nodes, branching paths, and stochastic transition probabilities as required.\
+    \ The task lacks the necessary implementation evidence."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or generated environment artifacts for Tier\u202F3 (or\
+    \ any tier) are provided; the claim cannot be verified against any concrete output.\
+    \ The required Tier\u202F3 graph with 100+ nodes, sparse rewards, and high\u2011\
+    entropy transitions is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing a graph\u2011validation step\
+    \ (checking that a generated graph contains a reachable path from start to goal\
+    \ and regenerating if not) was provided. The evidence consists only of the task\
+    \ description; the required artifact is missing."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or documentation showing a seed\u2011based deterministic graph\
+    \ regeneration system (using seed + code version hash, on\u2011the\u2011fly generation,\
+    \ and checksum validation) was provided. The evidence only contains high\u2011\
+    level user story descriptions, not the required implementation artifact. The task\
+    \ remains undone until such a module and its verification outputs are supplied."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or documentation artifacts were provided for the synthetic environment\
+    \ generator, the OPID routing\u2011threshold integration, or the performance measurements.\
+    \ Consequently, there is no evidence that the Bernoulli\u2011trial routing logic\
+    \ (p\u202F=\u202F1\u202F\u2212\u202Fthreshold) was implemented or tested, nor\
+    \ that the required experiments were run. The task remains unfinished."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation implementing the hindsight skill\u2011distillation\
+    \ injection logic (or any of the three user stories) was provided; the claim lacks\
+    \ any tangible artifact to verify that the routing\u2011based injection behavior\
+    \ exists. The required implementation and validation artifacts are missing."

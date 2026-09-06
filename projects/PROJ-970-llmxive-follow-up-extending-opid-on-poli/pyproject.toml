@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-opid-routing"
+version = "0.1.0"
+description = "OPID Critical-First Routing Complexity Analysis"
+requires-python = ">=3.11"
+dependencies = [
+    "networkx>=3.2",
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "scipy>=1.11",
+    "pytest>=7.4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.12",
+    "ruff>=0.1.0",
+    "pytest-cov>=4.1",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"

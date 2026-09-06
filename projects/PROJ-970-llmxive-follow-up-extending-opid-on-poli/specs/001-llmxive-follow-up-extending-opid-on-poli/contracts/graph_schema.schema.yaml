@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StateGraph"
+description: "Schema for the synthetic State-Graph Environment metadata."
+type: "object"
+properties:
+  graph_id:
+    type: "string"
+    description: "Unique identifier for the graph."
+  tier:
+    type: "integer"
+    description: "Complexity tier (1, 2, or 3)."
+    minimum: 1
+    maximum: 3
+  num_nodes:
+    type: "integer"
+    description: "Total number of nodes."
+    minimum: 5
+  num_edges:
+    type: "integer"
+    description: "Total number of edges."
+    minimum: 1
+  is_stochastic:
+    type: "boolean"
+    description: "Whether transitions are probabilistic."
+  reward_sparsity:
+    type: "number"
+    description: "Fraction of nodes with non-zero rewards."
+    minimum: 0.0
+    maximum: 1.0
+  seed:
+    type: "integer"
+    description: "Random seed used for generation."
+  start_node:
+    type: "string"
+    description: "ID of the start node."
+  goal_node:
+    type: "string"
+    description: "ID of the goal node."
+  path_length:
+    type: "integer"
+    description: "Length of the ground-truth path."
+    minimum: 1
+required:
+  - graph_id
+  - tier
+  - num_nodes
+  - num_edges
+  - is_stochastic
+  - reward_sparsity
+  - seed
+  - start_node
+  - goal_node
+  - path_length
+additionalProperties: false

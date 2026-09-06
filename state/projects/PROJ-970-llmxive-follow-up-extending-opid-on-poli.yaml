@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T20:07:29.082920Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-970-llmxive-follow-up-extending-opid-on-poli
-last_run_id: 55f501ae-8acf-41ec-9cf4-0ccd0827e420
+last_run_id: 7da98665-3f39-419b-a0a8-59f366b2272f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli
 title: 'llmXive follow-up: extending "OPID: On-Policy Skill Distillation for Agentic
   Reinforcement Learning"'
-updated_at: '2026-08-24T07:05:34.094429Z'
+updated_at: '2026-09-06T13:45:27.308333Z'

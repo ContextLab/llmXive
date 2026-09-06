@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SummaryStats"
+description: "Schema for aggregated statistics per (Tier, Threshold) combination."
+type: "object"
+properties:
+  tier:
+    type: "integer"
+    description: "Complexity tier (1, 2, or 3)."
+    minimum: 1
+    maximum: 3
+  threshold:
+    type: "number"
+    description: "Routing threshold (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  n_episodes:
+    type: "integer"
+    description: "Number of episodes aggregated."
+    minimum: 1
+  success_rate:
+    type: "number"
+    description: "Mean success rate (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  mean_entropy:
+    type: "number"
+    description: "Mean action entropy."
+    minimum: 0.0
+  entropy_variance:
+    type: "number"
+    description: "Mean raw variance of action entropy (policy rigidity)."
+    minimum: 0.0
+  log_prob_shift_mean:
+    type: "number"
+    description: "Mean log-probability shift."
+  quadratic_fit_r2:
+    type: "number"
+    description: "R-squared of quadratic fit for non-monotonicity."
+    minimum: 0.0
+    maximum: 1.0
+  quadratic_fit_p:
+    type: "number"
+    description: "P-value of the quadratic term."
+    minimum: 0.0
+    maximum: 1.0
+required:
+  - tier
+  - threshold
+  - n_episodes
+  - success_rate
+  - mean_entropy
+  - entropy_variance
+  - log_prob_shift_mean
+  - quadratic_fit_r2
+  - quadratic_fit_p
+additionalProperties: false

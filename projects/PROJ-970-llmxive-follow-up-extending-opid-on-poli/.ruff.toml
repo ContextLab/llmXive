@@ -1,0 +1,21 @@
+# Ruff configuration for OPID Routing Complexity
+line-length = 88
+target-version = "py311"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort
+    "N",  # pep8-naming
+    "UP", # pyupgrade
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "SIM" # flake8-simplify
+]
+ignore = []
+
+[format]
+quote-style = "double"
+indent-style = "space"
