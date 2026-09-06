@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Results"
+description: "Schema for statistical analysis of FTLE deviation."
+type: "object"
+properties:
+  selected_model:
+    type: "string"
+    description: "The model selected (e.g., 'power_law', 'logarithmic')."
+  noise_level:
+    type: "number"
+    description: "Noise level for this regression group."
+  mean_deviation:
+    type: "number"
+    description: "Mean Delta lambda across trials."
+  std_deviation:
+    type: "number"
+    description: "Standard error of the mean."
+  regression_coefficients:
+    type: "object"
+    properties:
+      alpha:
+        type: "number"
+        description: "Intercept."
+      beta:
+        type: "number"
+        description: "Coefficient for noise amplitude (bias term)."
+      gamma:
+        type: "number"
+        description: "Coefficient for window size inverse."
+    required:
+      - alpha
+      - beta
+      - gamma
+  p_value:
+    type: "number"
+    description: "P-value for the bias term beta (t-test)."
+  effect_size:
+    type: "number"
+    description: "Effect size (e.g., Cohen's d) for the bias term."
+  trial_count:
+    type: "integer"
+    description: "Number of independent trials used (k)."
+required:
+  - selected_model
+  - noise_level
+  - mean_deviation
+  - regression_coefficients
+  - p_value
+  - effect_size
+  - trial_count

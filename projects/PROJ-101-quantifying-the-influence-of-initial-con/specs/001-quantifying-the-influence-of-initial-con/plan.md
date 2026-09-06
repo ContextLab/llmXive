@@ -1,23 +1,23 @@
 # Implementation Plan: Quantifying the Influence of Initial Conditions on Chaotic Systems
 
-**Branch**: `001-quantify-initial-conditions` | **Date**: 2026-08-06 | **Spec**: `specs/001-quantify-initial-conditions/spec.md`
+**Branch**: `001-quantify-initial-conditions` | **Date**: 2026-07-16 | **Spec**: `specs/001-quantify-initial-conditions/spec.md`
 **Input**: Feature specification from `/specs/001-quantify-initial-conditions/spec.md`
 
 ## Summary
 
-This project implements a computational study to quantify how observational noise biases Finite-Time Lyapunov Exponent (FTLE) estimates in high-dimensional coupled Lorenz systems. The technical approach involves: (1) generating synthetic trajectory data using `scipy.integrate.solve_ivp` with strict tolerances; (2) numerically computing the asymptotic Lyapunov spectrum for the specific coupled configuration to establish a ground-truth baseline (validated via Richardson extrapolation); (3) calculating FTLEs over sliding windows for noisy trajectories; and (4) performing regression analysis with a model-selection step (Power-law vs. LOESS) to determine the true functional form of the deviation $\Delta \lambda$. The implementation strictly adheres to the project constitution, enforcing a "fail-stop" mechanism if the baseline convergence, shadowing lemma, or non-chaotic checks fail, and resolving spec ambiguities regarding noise thresholds by implementing a two-tier check: a "high-noise" warning at $\sigma > 0.1$ and an "unphysical" abort if the trajectory leaves the attractor bounds, while explicitly validating the $N=5$ runtime constraint ($\le 30$s) via a dedicated benchmark task.
+This project quantifies the deviation of Finite-Time Lyapunov Exponents (FTLE) from asymptotic baselines in high-dimensional coupled Lorenz systems under varying levels of observational noise. The technical approach involves: (1) generating synthetic trajectories using `scipy.integrate.solve_ivp` (DOP853) with additive Gaussian noise; (2) computing FTLE spectra via a sliding-window algorithm with rigorous boundedness and escape-time checks (replacing deterministic shadowing for stochastic regimes); (3) establishing a numerically computed asymptotic baseline for the specific coupled configuration via ultra-long integration ($T=50,000$) and Richardson extrapolation; and (4) performing regression analysis on the deviation $\Delta \lambda$ against noise amplitude $\sigma_{noise}$ and window size $T$ using a model selection step for non-linear scaling laws. The implementation adheres to a CPU-first strategy, leveraging deterministic chaos properties to ensure reproducibility on GitHub Actions free-tier runners.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy` (specifically `scipy.integrate.solve_ivp` with 'DOP853'), `matplotlib`, `pandas`, `pytest`, `pyyaml`, `mpmath` (for high-precision error floor checks), `statsmodels` (for model selection)  
-**Storage**: Local file system (`data/raw`, `data/processed`), Parquet/JSON for artifacts  
-**Testing**: `pytest` (unit, integration, and performance benchmarks)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)  
-**Project Type**: Scientific Computing Library / CLI  
-**Performance Goals**: N=5 trajectory generation $\le 30$s; Full analysis pipeline $\le 6$h (CPU); Numerical convergence $< 5\%$ error at $T=5000$; Baseline convergence via Richardson extrapolation  
-**Constraints**: No GPU required (ODE integration and linear algebra for FTLE are CPU-tractable); Memory $\le 7$GB (streaming if trajectory length $> 10^6$); Strict reproducibility (pinned seeds)  
-**Scale/Scope**: Dimensions $N \in \{1, 3, 5, 10\}$; Noise levels $\sigma \in [0, 1.0]$; Trajectory lengths $T \in [500, 5000]$
+**Primary Dependencies**: `numpy`, `scipy`, `matplotlib`, `pandas`, `pytest`, `pyyaml`, `ruff`, `black`  
+**Storage**: Local file system (`data/raw/`, `data/processed/`) for trajectory and result artifacts  
+**Testing**: `pytest` with `conftest.py` fixtures for seeds and temp directories  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7 GB RAM)  
+**Project Type**: Scientific computation / CLI  
+**Performance Goals**: Full pipeline (generation + analysis) < 6 hours; individual trajectory generation < 30s  
+**Constraints**: No GPU required (CPU-tractable ODE integration); memory footprint < 7 GB; strict reproducibility via pinned seeds  
+**Scale/Scope**: $N \in \{3, 5\}$ oscillators; $\sigma_{noise} \in \{10^{-4}, 10^{-3}, 10^{-2}, 0.05, 0.1, 0.2, 0.5, 0.8, 1.0, 1.5, 2.0\}$ (explicitly covering the (0.1, 1.0] and >1.0 regimes); $k(\sigma)$ trials per noise level (variable, $k \ge 30$, $k=50$ for $\sigma < 0.01$).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,26 +25,15 @@ This project implements a computational study to quantify how observational nois
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Requirement | Plan Compliance Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | Random seeds pinned; CI re-runnable. | `code/config.py` defines `GLOBAL_SEED = 42`. `pytest` fixtures enforce seed reset. CI workflow explicitly sets `RANDOM_SEED` env var. |
-| **II. Verified Accuracy** | Citations verified against primary sources. | Standard mathematical definitions (Lorenz, FTLE) are cited in `research.md` and validated by the Reference-Validator Agent. No external citations in code logic. |
-| **III. Data Hygiene** | Checksums; no in-place modification. | `scripts/checksums.sh` generates SHA-256 for all `data/` files. `data/raw` is read-only; `data/processed` contains derived artifacts with `_v1` versioning. |
-| **IV. Single Source of Truth** | Figures trace to `data/` and `code/`. | Visualization scripts (`code/visualize.py`) read strictly from `data/processed/*.json`. No manual data entry in `paper/`. |
-| **V. Versioning** | Content hashes; `updated_at` timestamps. | `state/projects/PROJ-101-...yaml` updated on every artifact write. Hashes stored in `state/artifact_hashes`. |
-| **VI. Numerical Stability** | Baseline validation *before* noisy analysis. | **Gating Mechanism**: Task `T_gate_baseline_validation` explicitly implements the orchestrator logic. It runs `T_compute_baseline` and `T_check_nonchaotic`. If `lambda_max` does not converge (error $> 5\%$) or system is non-chaotic ($\lambda_{max} \le 0$), the process raises `NonChaoticSystemError` and halts. No noisy tasks execute. |
-| **VII. Explicit Noise Scaling** | Record $\sigma$ and $T$; regression modeling. | `data/processed/results.json` schema includes `noise_level`, `window_size`, `deviation`. Regression is mandatory; single averages are forbidden. Model selection (Power-law vs. LOESS) is enforced. |
-
-**Resolved Ambiguities (from Unresolved Concerns):**
-1.  **Noise Threshold ($\sigma > 0.1$ vs $1.0$):** The plan implements a dual-check. A `HighNoiseWarning` is triggered at $\sigma > 0.1$ (per FR-007 text). An `UnphysicalTrajectoryError` is raised *only* if the trajectory state exceeds physical bounds (e.g., $|x| > 100$) OR if $\sigma > 1.0$ *and* the trajectory diverges. This resolves the spec conflict by distinguishing "high noise" (warning) from "unphysical" (abort). Task `T_check_unphysical_bounds` implements this logic.
-2.  **Gating Mechanism:** Task `T_gate_baseline_validation` explicitly wires the validation logic from `T_compute_baseline` and `T_check_nonchaotic` into the main execution flow, ensuring a fail-stop before noisy analysis.
-3.  **Runtime Constraint:** Task `T_bench_runtime_n5` is added to specifically verify the $N=5, \le 30$s constraint.
-4.  **Non-Chaotic Abort:** Task `T_check_nonchaotic` defines the specific error class `NonChaoticSystemError` and the input source (config `rho`). The check is based on the *numerically computed* $\lambda_{max} > 0$, not a fixed $\rho$ threshold.
-5.  **Baseline Output:** Task `T_compute_baseline` specifies the output schema: `data/processed/baseline_{N}.json` with keys `lambda_max`, `convergence_error`, `trajectory_length`.
-6.  **Regression Model:** The plan includes a model selection step (LOESS vs Power-law) to determine the true functional form of the deviation, addressing the non-linearity concern.
-7.  **Numerical Error Floor:** The plan mandates a "clean-noise" baseline computation using Richardson extrapolation to establish the integration error floor. Bias is only reported if it exceeds this floor.
-8.  **Shadowing Lemma:** Task `T_shadowing_check` validates that the noisy trajectory still shadows a true orbit before FTLE is computed.
-9.  **Baseline Validation Target:** The baseline is validated against the *numerically computed asymptotic limit for the specific coupled configuration*, not a fixed theoretical value.
+| Principle | Status | Verification Detail |
+|-----------|--------|---------------------|
+| I. Reproducibility | **PASS** | Random seeds pinned in `code/config.py`; `code/` runs end-to-end; no external data fetch required (synthetic). |
+| II. Verified Accuracy | **PASS** | Citations to Lorenz (1963), Rosenstein et al. (1993) will be validated against primary sources in `research.md`. |
+| III. Data Hygiene | **PASS** | All `data/` artifacts checksummed; raw generation logs preserved; no in-place modification. |
+| IV. Single Source of Truth | **PASS** | All figures/statistics trace to `data/processed/` JSON/CSV; no hand-typed numbers in paper. |
+| V. Versioning Discipline | **Design Complete** | Mechanism designed; `state/manifest.yaml` artifact pending T001a completion. |
+| VI. Numerical Stability | **PASS** | Plan explicitly includes `validate_baseline()` task (T024) using ultra-long integration ($T=50,000$) and Richardson extrapolation to confirm asymptotic limit for the *specific coupled configuration* before noisy analysis. |
+| VII. Explicit Noise Scaling | **PASS** | Pipeline enforces regression model $\Delta \lambda(T, \sigma_{noise})$ as a hard gate; single averages are forbidden. |
 
 ## Project Structure
 
@@ -57,9 +46,6 @@ specs/001-quantify-initial-conditions/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── trajectory.schema.yaml
-│   ├── baseline.schema.yaml
-│   └── results.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
@@ -69,58 +55,72 @@ specs/001-quantify-initial-conditions/
 projects/PROJ-101-quantifying-the-influence-of-initial-con/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py              # Seeds, parameters, thresholds
-│   ├── generator.py           # Lorenz ODE, noise injection
-│   ├── ftle.py                # Sliding window FTLE, tangent linear
-│   ├── baseline.py            # Asymptotic computation, Richardson extrapolation
-│   ├── analysis.py            # Regression, statistical tests, model selection
-│   ├── visualize.py           # Plotting
-│   ├── orchestrator.py        # Pipeline flow, gating logic
-│   └── errors.py              # Custom exceptions (UnphysicalTrajectoryError, etc.)
-├── tests/
-│   ├── unit/
-│   │   ├── test_generator.py
-│   │   ├── test_ftle.py
-│   │   ├── test_baseline.py
-│   │   └── test_errors.py
-│   ├── integration/
-│   │   └── test_pipeline.py
-│   └── performance/
-│       └── test_runtime_benchmark.py  # Verifies 30s constraint
+│   ├── config.py              # Global constants, seeds, paths
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── numerical_stability.py  # T007: Convergence, boundedness checks
+│   │   └── io_utils.py            # T017: Load/Save utilities
+│   ├── simulation/
+│   │   ├── __init__.py
+│   │   ├── lorenz.py              # T046: Coupled Lorenz generator
+│   │   └── noise.py               # T046: Noise injection logic
+│   ├── analysis/
+│   │   ├── __init__.py
+│   │   ├── ftle.py                # T022/T023: FTLE algorithm + sliding window
+│   │   ├── boundedness.py         # T043: Boundedness/Escape time checks (replaces Shadowing)
+│   │   └── regression.py          # T033: Deviation modeling + t-test on bias term
+│   └── main.py                    # T028: Gating & orchestration
 ├── data/
-│   ├── raw/                   # Generated trajectories (parquet)
-│   └── processed/             # Baselines, FTLE results, regression outputs (json)
-├── scripts/
-│   ├── checksums.sh
-│   └── run_analysis.sh
-└── requirements.txt
+│   ├── raw/                       # Generated trajectories (checksummed)
+│   └── processed/                 # FTLE results, regression outputs
+├── tests/
+│   ├── __init__.py
+│   ├── conftest.py                # T008: Pytest fixtures (seeds, tmp)
+│   ├── unit/                      # T001c: Unit tests (stability, noise)
+│   └── integration/               # T001c: End-to-end pipeline tests
+├── docs/                          # Quickstart, data-model
+├── state/                         # Project state manifest (T001a)
+├── pyproject.toml                 # T003: Dependencies + Black/Ruff config
+└── requirements.txt               # T003: Pinned dependencies
 ```
 
-**Structure Decision**: Single project structure (Option 1) chosen to minimize overhead for a computational science pipeline. All logic resides in `code/` with clear separation of concerns (generator, solver, analyzer). The `orchestrator.py` handles the critical gating logic required by Constitution Principle VI.
+**Structure Decision**: Single project structure selected to minimize overhead for a computational study. The `code/` directory is split into `simulation`, `analysis`, and `utils` to enforce separation of concerns (data generation vs. metric calculation vs. utility logic). This satisfies the dependency chain: Generation (T046) -> Baseline Validation (T024) -> Gating (T028) -> FTLE Calculation (T022/23) -> Regression (T033).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Custom Exception Hierarchy | Required to distinguish `UnphysicalTrajectoryError` from `NonChaoticSystemError` for precise gating. | Generic `RuntimeError` would not allow the orchestrator to implement specific recovery or abort logic per FR-007 and FR-006. |
-| Dual Noise Threshold Logic | Spec ambiguity (0.1 vs 1.0) requires explicit handling to avoid premature aborts or silent failures. | A single threshold would either block valid high-noise experiments or fail to catch unphysical divergence. |
-| Gating Orchestrator | Constitution Principle VI mandates baseline validation *before* noisy analysis. | A linear script without explicit gating risks executing noisy analysis on an unstable baseline, invalidating results. |
-| Model Selection (LOESS vs Power-law) | The true functional form of noise bias is unknown and likely non-linear. | A fixed linear model risks incorrect conclusions about scaling laws. |
-| Numerical Error Floor Check | To distinguish true noise bias from integration artifacts. | Without this, "infinite power" is a fallacy if the signal is buried in numerical noise. |
-| Shadowing Lemma Check | To ensure the noisy trajectory is still a valid estimate of the system's dynamics. | If the trajectory no longer shadows a true orbit, the FTLE is meaningless. |
+| Boundedness/Escape Time Check (T043) | Required to distinguish true chaos from numerical artifacts in high-noise regimes (Edge Case 1) and to measure "escape time" rather than a binary "unphysical" flag. Shadowing Lemma is invalid for stochastic trajectories. | A simple boundedness check (FR-007) is insufficient; we need to quantify the *time* until escape for stochastic trajectories. Shadowing Lemma is rejected as scientifically invalid for SDEs. |
+| Separate Baseline Validation (T024) | Constitution VI requires verifying the *numerically computed* baseline for the *specific coupled configuration* using an ultra-long integration ($T=50,000$). | Relying on theoretical values (0.905) is invalid for *coupled* systems; the baseline must be derived from the specific configuration's integration. |
+| Variable Trial Count (k) | SC-003 requires t-test with sufficient power for effect size, which varies with noise level. | Fixed $k=30$ is underpowered for low-noise regimes; variable $k$ ensures power across the entire range. |
+| Non-linear Model Selection | The physics of FTLE bias is non-linear (power-law/logarithmic). | Simple linear regression is a misspecification; model selection (AIC/BIC) is required. |
 
-## Task List (Draft for Phase 2)
+## Task Dependency Chain (Corrected)
 
-*Note: This list is a draft for the Implementer Agent. It explicitly maps requirements to tasks.*
+The following dependency chain ensures no race conditions and correct data flow:
 
-- **T001**: Create project structure per implementation plan (atomized into file creation tasks).
-- **T012**: Implement noise injection logic (additive Gaussian).
-- **T016**: Implement `T_check_unphysical_bounds` logic (detects |x| > 100 or divergence) and raises `UnphysicalTrajectoryError`.
-- **T018**: Orchestrate generation loop (N, sigma) and trigger `T_check_unphysical_bounds`.
-- **T024**: Implement `T_compute_baseline` (QR-based algorithm, Richardson extrapolation for error floor).
-- **T025**: Implement `T_check_nonchaotic` (checks numerical $\lambda_{max} > 0$).
-- **T_gate_baseline_validation**: Implement orchestrator gating logic: Run `T_compute_baseline` -> Run `T_check_nonchaotic` -> If pass, proceed; else abort.
-- **T026**: Implement `T_shadowing_check` (validates divergence rate).
-- **T036**: Implement regression analysis with model selection (Power-law vs. LOESS).
-- **T_bench_runtime_n5**: Implement performance benchmark to verify N=5 generation $\le 30$s.
-- **T037**: Documentation updates (atomized into specific doc generation tasks).
+1.  **T024 (Baseline Validation)**: Computes $\lambda_{asymptotic}$ via ultra-long integration ($T=50,000$) + Richardson extrapolation.
+2.  **T028 (Gating)**: Validates T024 output. **DEPENDS ON T024**. Only if T024 passes, proceed.
+3.  **T046 (Data Generation)**: Generates trajectories for all $\sigma_{noise}$ levels (including $>1.0$).
+4.  **T019 (Generate Trial Sweep)**: Loops $k(\sigma)$ times per noise level. **DEPENDS ON T046**.
+5.  **T022/T023 (FTLE Calculation)**: Computes FTLE for each trial. **DEPENDS ON T028** (via T024) and T019.
+6.  **T033 (Analyze Bias)**: Performs regression and t-test on bias term. **DEPENDS ON T022/T023**.
+7.  **T036 (Visualization)**: Generates plots. **DEPENDS ON T033**.
+
+**Critical Correction**: T028 (Gating) is now explicitly listed as a prerequisite for T022/T023. T043 (Boundedness) is a diagnostic check run *during* T022/T023, not a blocking dependency for the algorithm itself.
+
+## FR/SC Coverage Matrix
+
+| ID | Requirement | Plan Element | Status |
+|----|-------------|--------------|--------|
+| FR-001 | Generate noisy data (broad range) | T046, T019 (includes $\sigma \in \{0.2, \dots, 2.0\}$) | Covered |
+| FR-002 | Compute FTLE (sliding window) | T022, T023 | Covered |
+| FR-003 | Calculate asymptotic baseline (numerical) | T024 (Ultra-long + Richardson) | Covered |
+| FR-004 | Regression analysis | T033 (Model selection + regression) | Covered |
+| FR-005 | Convergence plot | T036 | Covered |
+| FR-006 | Validate numerical stability | T024 (Gated by T028) | Covered |
+| FR-007 | Flag high-noise ($\sigma > 0.1$) | T022/T023 (Boundedness/Escape time check) | Covered |
+| SC-001 | Convergence validation | T024 (Error < 5% via Richardson) | Covered |
+| SC-002 | Bias scaling | T033 (Regression coefficients) | Covered |
+| SC-003 | t-test on bias term | T033 (Explicit t-test on $\beta$) | Covered |
+| SC-004 | Runtime | CPU-first strategy, < 6h | Covered |

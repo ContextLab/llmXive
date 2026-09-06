@@ -26,7 +26,10 @@ properties:
           description: "Unique identifier for the trial."
         shadowing_valid:
           type: "boolean"
-          description: "True if the trajectory passed the shadowing lemma check."
+          description: "Diagnostic: True if the trajectory passed the shadowing lemma check."
+        escape_time:
+          type: ["number", "null"]
+          description: "Time step at which trajectory exited basin (or null if bounded)."
       required:
         - window_size
         - ftle_estimate
@@ -34,6 +37,7 @@ properties:
         - noise_level
         - trial_id
         - shadowing_valid
+        - escape_time
   regression_model:
     type: "object"
     description: "Results of the regression analysis."

@@ -1,17 +1,13 @@
 status: none
-intent: downloadable python package synthetic coupled Lorenz oscillator trajectories
-  dataset python package dataset
+intent: downloadable python package synthetic coupled Lorenz oscillator dataset with
+  additive Gaussian noise
 required_fields:
 - time
-- state_vector
+- oscillator_index
+- x
+- y
+- z
 - noise_std
-- trial_id
-- sigma_noise
-- integration_method
-- rtol
-- atol
-- num_oscillators
-- num_time_steps
-cache_key: 903a5255cc458a7d3f1c4cee5c30e462975e2136d0cbe4c41ee48fdd3c1f19e9
-searched_at: '2026-08-31T13:44:48.541729+00:00'
+cache_key: d5dc478e9bd83dfd76558f139daa3dc0d5f59a63c2488677605ee766fc5bd83e
+searched_at: '2026-09-06T08:30:22.771123+00:00'
 retry_count: 1

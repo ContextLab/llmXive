@@ -1,38 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "FTLEResult"
-description: "Schema for a single Finite-Time Lyapunov Exponent estimate."
-type: object
+title: "FTLE Results"
+description: "Schema for aggregated FTLE estimates across trials and noise levels."
+type: "object"
 properties:
   trajectory_id:
-    type: string
-    description: "Reference to the parent trajectory UUID."
+    type: "string"
+    description: "Reference to parent trajectory."
   window_size:
-    type: integer
-    minimum: 1
-    description: "Time window T used for the FTLE calculation, or the actual time used if an escape occurred."
-  max_ftle:
-    type: ["number", "null"]
-    description: "The estimated maximum Lyapunov exponent. Null if the trajectory escaped before the window completed."
-  deviation:
-    type: ["number", "null"]
-    description: "Difference between max_ftle and the asymptotic baseline. Null if max_ftle is null."
-  is_converged:
-    type: ["boolean", "null"]
-    description: "True if the estimate is within 5% of the asymptotic baseline (for clean cases). Null if max_ftle is null."
-  escape_event:
-    type: boolean
-    description: "True if the trajectory escaped the attractor during the window."
-  shadowing_valid:
-    type: boolean
-    description: "True if the trajectory passed the shadowing lemma check."
+    type: "integer"
+    description: "Time window T used for calculation."
+  start_time:
+    type: "integer"
+    description: "Start index of the window."
+  max_exponent:
+    type: "number"
+    description: "Maximum Lyapunov exponent for this window."
   full_spectrum:
-    type: ["array", "null"]
+    type: "array"
+    description: "Full spectrum of Lyapunov exponents."
     items:
-      type: number
-    description: "Optional: The full spectrum of 3N Lyapunov exponents."
+      type: "number"
+  deviation:
+    type: "number"
+    description: "Deviation from asymptotic baseline (Delta lambda)."
+  noise_level:
+    type: "number"
+    description: "Noise level of the parent trajectory."
+  escape_time:
+    type: ["number", "null"]
+    description: "Time step at which trajectory exited basin (or null if bounded)."
 required:
   - trajectory_id
   - window_size
-  - escape_event
-  - shadowing_valid
-additionalProperties: false
+  - max_exponent
+  - deviation
+  - noise_level
+  - escape_time

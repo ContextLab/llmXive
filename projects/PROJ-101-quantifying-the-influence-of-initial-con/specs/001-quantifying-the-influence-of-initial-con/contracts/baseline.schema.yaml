@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Asymptotic Baseline Schema"
-description: "Schema for the computed asymptotic Lyapunov spectrum and convergence metrics."
+description: "Schema for the computed asymptotic Lyapunov spectrum and convergence metrics via Richardson extrapolation."
 type: "object"
 properties:
   system_dimension:
@@ -16,16 +16,16 @@ properties:
       type: "number"
   convergence_error:
     type: "number"
- description: "Relative change in lambda_max over the last [deferred] of the trajectory."
+    description: "Relative change in lambda_max over the last [deferred] of the trajectory."
   richardson_error:
     type: "number"
     description: "Error estimate from Richardson extrapolation (comparing T and 2T)."
   trajectory_length:
     type: "integer"
-    description: "Total number of time steps used for baseline computation."
+    description: "Total number of time steps used for baseline computation (e.g., 50000)."
   validated:
     type: "boolean"
- description: "True if convergence_error < 0.05 and richardson_error is small."
+    description: "True if convergence_error < 0.05 and richardson_error is small."
   is_chaotic:
     type: "boolean"
     description: "True if lambda_max > 0."
