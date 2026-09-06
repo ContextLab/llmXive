@@ -110,8 +110,8 @@ projects/PROJ-553-cognitive-load-optimization-adaptive-com/
   2.  **Moderate**: Standard academic text.
   3.  **Complex**: High jargon density, nested clauses.
 - **Metrics**: Flesch-Kincaid Grade Level.
-- **Constraint**: Adjacent tiers must differ by $\ge 5$ points.
-- **Fidelity**: Jaccard similarity of key terms $\ge 0.85$; semantic similarity $\ge 0.90$.
+- **Constraint**: Adjacent tiers must differ by a significant margin.
+- **Fidelity**: Jaccard similarity of key terms is high.; semantic similarity exceeding a high threshold.
 
 ## Phase 3: Adaptive vs Static Simulation (US-3)
 
@@ -126,7 +126,7 @@ projects/PROJ-553-cognitive-load-optimization-adaptive-com/
 - **Statistical Test**: Linear Mixed-Effects Model (LMM).
   - Fixed Effects: Condition, Estimated Load, Condition × Load.
   - Random Effects: Session ID (intercept).
-  - Output: Cohen's $d$, 95% CI, $p$-value.
+  - Output: Cohen's $d$, confidence interval, $p$-value.
 - **Corrections**: Family-wise error correction (e.g., Bonferroni) if multiple hypotheses tested.
 - **Assumption**: Since the load model is validated against external ground truth, the "Potential Gain" metric is now empirically grounded, not a heuristic artifact.
 
