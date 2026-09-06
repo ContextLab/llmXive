@@ -19,7 +19,7 @@ This project evaluates the robustness of "CollectionLoRA" (a synthesized multi-e
 **Project Type**: Research Pipeline / CLI Tool.  
 **Performance Goals**: Complete generation and analysis within ≤6 hours; memory usage <14GB.  
 **Constraints**: Must run on CPU without CUDA; must handle OOM (Exit 137) gracefully; must synthesize adapter if public source fails.  
-**Scale/Scope**: A set of distinct prompts × multiple quantization levels (FP, INT8, INT4) × 5 seeds (approx. 150 images); Multiple distinct effects in the adapter.
+**Scale/Scope**: A set of distinct prompts × multiple quantization levels (FP, INT, INT4) × 5 seeds (approx. 150 images); Multiple distinct effects in the adapter.
 
 > **Note on Dataset/Model Availability**: The `stabilityai/collection-lora` repository does not exist. The plan **explicitly implements** a Synthetic Adapter Construction phase (Phase 0) using verified single-effect LoRAs or procedural generation to satisfy FR-001 and FR-010.
 

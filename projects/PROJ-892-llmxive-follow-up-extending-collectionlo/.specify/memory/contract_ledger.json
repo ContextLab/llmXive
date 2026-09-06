@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "load_fp16_adapter_and_base_model",
+    "owner": null
+  }
+]

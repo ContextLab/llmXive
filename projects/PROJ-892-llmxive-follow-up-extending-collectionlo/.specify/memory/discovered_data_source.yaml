@@ -1,10 +1,12 @@
 status: none
-intent: download MS COCO Captions and LAION-5B image-text datasets python package
-  dataset
+intent: pip install coco dataset with captions and ImageNet validation for LPIPS python
+  package dataset
 required_fields:
 - image_id
-- image_url
+- file_name
 - caption
-cache_key: 197173f76154b7a6bbb03d241d94d2ebfc2d8af350f1cc6b274ebe27117bea56
-searched_at: '2026-09-05T10:32:13.929028+00:00'
+- image_url
+- split
+cache_key: e0c57ea164e075d2eb1b60c684602471f1560042505c183ec3b11a5493db1ade
+searched_at: '2026-09-06T08:31:55.231154+00:00'
 retry_count: 1

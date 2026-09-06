@@ -1,14 +1,22 @@
 {
   "project_id": "PROJ-892-llmxive-follow-up-extending-collectionlo",
   "ok": false,
-  "reason": "run-book completed but produced no data/figure artifacts; 3 declared deliverable(s) absent: data/analysis_results.json; data/ci_report.json; data/results.csv",
-  "artifacts": [],
-  "failures": [],
-  "fix_rounds": 2,
+  "reason": "5 command(s) failed: python code/main.py --phase prepare (rc=1); python code/main.py --phase generate --level FP16 (rc=1); python code/main.py --phase generate --level INT8 (rc=1); 4 declared deliverable(s) absent: data/analysis_results.json; data/references/other_effect_refs.json; data/results.csv",
+  "artifacts": [
+    "data/ci_report.json"
+  ],
+  "failures": [
+    "python code/main.py --phase prepare -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner",
+    "python code/main.py --phase generate --level FP16 -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File",
+    "python code/main.py --phase generate --level INT8 -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File",
+    "python code/main.py --phase generate --level INT4 -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File",
+    "python code/main.py --phase analyze -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner"
+  ],
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
-  "failure_class": "unknown",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-05T10:31:23Z"
+  "updated_at": "2026-09-06T08:31:16Z"
 }

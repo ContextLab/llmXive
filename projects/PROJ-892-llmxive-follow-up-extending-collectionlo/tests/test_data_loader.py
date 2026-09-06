@@ -1,68 +1,225 @@
+import pytest
+import json
 import os
-import tempfile
-import shutil
 from pathlib import Path
-import yaml
+from unittest.mock import patch, MagicMock
+import sys
 
-# Mock the environment to avoid actual downloads in unit tests
-# We test the logic of registration and hashing without network calls
+# Add the code directory to the path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_compute_sha256():
-    from code.data_loader import compute_sha256
-    import hashlib
+from data_loader import load_subspace_ranks, get_project_root, load_artifacts_state, save_artifacts_state
 
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"test data")
-        tmp_path = Path(tmp.name)
+class TestLoadSubspaceRanks:
+    """Tests for the load_subspace_ranks function (T009c)."""
 
-    try:
-        expected_hash = hashlib.sha256(b"test data").hexdigest()
-        actual_hash = compute_sha256(tmp_path)
-        assert actual_hash == expected_hash
-    finally:
-        os.unlink(tmp_path)
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.project_root = get_project_root()
+        self.ranks_path = self.project_root / "data" / "subspace_ranks_merged.json"
+        self.state_path = self.project_root / "state" / "artifacts.yaml"
+        
+        # Ensure directories exist
+        self.ranks_path.parent.mkdir(parents=True, exist_ok=True)
+        (self.project_root / "state").mkdir(parents=True, exist_ok=True)
 
-def test_register_downloaded_artifact():
-    from code.data_loader import register_downloaded_artifact, load_artifacts_state, save_artifacts_state, PROJECT_ROOT
+    def teardown_method(self):
+        """Clean up test fixtures."""
+        # Remove test file if it exists
+        if self.ranks_path.exists():
+            self.ranks_path.unlink()
+        
+        # Reset state
+        if self.state_path.exists():
+            self.state_path.unlink()
 
-    # Create a temp state file to avoid polluting real state
-    temp_state_path = PROJECT_ROOT / "state" / "test_artifacts.yaml"
-    original_state_path = PROJECT_ROOT / "state" / "artifacts.yaml"
+    def test_load_subspace_ranks_success(self):
+        """Test successful loading of subspace ranks."""
+        # Create a valid test file
+        test_data = {
+            "tolerance": 1e-5,
+            "effects": {
+                "oil_painting": {"rank": 8, "key": "oil_painting"},
+                "watercolor": {"rank": 12, "key": "watercolor"},
+                "cyberpunk": {"rank": 10, "key": "cyberpunk"}
+            }
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        # Load and verify
+        result = load_subspace_ranks()
+        
+        assert result == test_data
+        assert result['tolerance'] == 1e-5
+        assert len(result['effects']) == 3
 
-    # Backup original if exists
-    if original_state_path.exists():
-        shutil.copy(original_state_path, original_state_path.with_suffix(".bak"))
+    def test_load_subspace_ranks_file_not_found(self):
+        """Test error when file does not exist."""
+        with pytest.raises(FileNotFoundError, match="Subspace ranks file not found"):
+            load_subspace_ranks()
 
-    try:
-        # Initialize empty state
-        temp_state_path.parent.mkdir(parents=True, exist_ok=True)
-        save_artifacts_state({"artifacts": {}})
-        # Temporarily swap paths (hack for test isolation)
-        import code.data_loader as dl
-        dl.STATE_FILE_PATH = temp_state_path
+    def test_load_subspace_ranks_missing_tolerance(self):
+        """Test error when tolerance is missing."""
+        test_data = {
+            "effects": {
+                "oil_painting": {"rank": 8}
+            }
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        with pytest.raises(ValueError, match="Tolerance threshold not found"):
+            load_subspace_ranks()
 
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"mock adapter data")
-            tmp_path = Path(tmp.name)
+    def test_load_subspace_ranks_invalid_tolerance(self):
+        """Test error when tolerance is invalid."""
+        test_data = {
+            "tolerance": -1e-5,
+            "effects": {
+                "oil_painting": {"rank": 8}
+            }
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        with pytest.raises(ValueError, match="Invalid tolerance threshold"):
+            load_subspace_ranks()
 
-        try:
-            hash_val = register_downloaded_artifact(
-                name="test_adapter",
-                file_path=tmp_path,
-                artifact_type="lora_adapter",
-                metadata={"test": True}
-            )
+    def test_load_subspace_ranks_missing_effects(self):
+        """Test error when effects data is missing."""
+        test_data = {
+            "tolerance": 1e-5
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        with pytest.raises(ValueError, match="No 'effects' data found"):
+            load_subspace_ranks()
 
-            state = load_artifacts_state()
-            assert "test_adapter" in state["artifacts"]
-            assert state["artifacts"]["test_adapter"]["hash"] == hash_val
-            assert state["artifacts"]["test_adapter"]["type"] == "lora_adapter"
-        finally:
-            os.unlink(tmp_path)
-            dl.STATE_FILE_PATH = original_state_path
-    finally:
-        # Restore original state
-        if original_state_path.with_suffix(".bak").exists():
-            shutil.move(original_state_path.with_suffix(".bak"), original_state_path)
-        if temp_state_path.exists():
-            os.unlink(temp_state_path)
+    def test_load_subspace_ranks_empty_effects(self):
+        """Test error when effects data is empty."""
+        test_data = {
+            "tolerance": 1e-5,
+            "effects": {}
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        with pytest.raises(ValueError, match="Effects data is empty"):
+            load_subspace_ranks()
+
+    def test_load_subspace_ranks_missing_rank(self):
+        """Test error when rank is missing for an effect."""
+        test_data = {
+            "tolerance": 1e-5,
+            "effects": {
+                "oil_painting": {"key": "oil_painting"}
+            }
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        with pytest.raises(ValueError, match="Rank not found for effect"):
+            load_subspace_ranks()
+
+    def test_load_subspace_ranks_invalid_rank(self):
+        """Test error when rank is invalid."""
+        test_data = {
+            "tolerance": 1e-5,
+            "effects": {
+                "oil_painting": {"rank": -5, "key": "oil_painting"}
+            }
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        with pytest.raises(ValueError, match="Invalid rank for effect"):
+            load_subspace_ranks()
+
+    def test_load_subspace_ranks_registers_in_state(self):
+        """Test that the function registers the file in state if not present."""
+        test_data = {
+            "tolerance": 1e-5,
+            "effects": {
+                "oil_painting": {"rank": 8}
+            }
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        # Ensure state is empty
+        save_artifacts_state({})
+        
+        # Load
+        load_subspace_ranks()
+        
+        # Check state
+        state = load_artifacts_state()
+        assert 'subspace_ranks_merged' in state
+        assert state['subspace_ranks_merged']['path'] == str(self.ranks_path.relative_to(self.project_root))
+        assert 'hash' in state['subspace_ranks_merged']
+        assert state['subspace_ranks_merged']['type'] == 'subspace_ranks'
+
+    def test_load_subspace_ranks_updates_hash_mismatch(self):
+        """Test that the function updates the hash if there's a mismatch."""
+        test_data = {
+            "tolerance": 1e-5,
+            "effects": {
+                "oil_painting": {"rank": 8}
+            }
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        # Set up state with wrong hash
+        state = {
+            'subspace_ranks_merged': {
+                'path': str(self.ranks_path.relative_to(self.project_root)),
+                'hash': 'wrong_hash',
+                'type': 'subspace_ranks'
+            }
+        }
+        save_artifacts_state(state)
+        
+        # Load
+        load_subspace_ranks()
+        
+        # Check state was updated
+        state = load_artifacts_state()
+        assert state['subspace_ranks_merged']['hash'] != 'wrong_hash'
+        assert len(state['subspace_ranks_merged']['hash']) == 64  # SHA256 hex length
+
+    def test_load_subspace_ranks_validates_multiple_effects(self):
+        """Test loading with multiple effects."""
+        test_data = {
+            "tolerance": 1e-5,
+            "effects": {
+                "oil_painting": {"rank": 8, "key": "oil_painting"},
+                "watercolor": {"rank": 12, "key": "watercolor"},
+                "cyberpunk": {"rank": 10, "key": "cyberpunk"},
+                "pencil_sketch": {"rank": 6, "key": "pencil_sketch"},
+                "ink_wash": {"rank": 9, "key": "ink_wash"}
+            }
+        }
+        
+        with open(self.ranks_path, 'w') as f:
+            json.dump(test_data, f)
+        
+        result = load_subspace_ranks()
+        
+        assert len(result['effects']) == 5
+        for effect_name, effect_data in result['effects'].items():
+            assert 'rank' in effect_data
+            assert effect_data['rank'] > 0
+            assert 'key' in effect_data
+            assert effect_data['key'] == effect_name

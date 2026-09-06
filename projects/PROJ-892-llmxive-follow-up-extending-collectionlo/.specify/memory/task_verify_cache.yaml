@@ -1,12 +1,31 @@
-T002:
+T001d:
   c: false
-  h: 0fdb636da729aac63ee3668fba7732016cdb6ad05b2fe38e61f5ab5a5812543d
-  r: "The `data/models/collection_lora.safetensors` file is absent and `state/artifacts.yaml`\
-    \ lacks an entry for it (the only entry points to a zero\u2011byte placeholder).\
-    \ Moreover, the provided `code/data_loader.py` excerpt shows only download and\
-    \ utility helpers and does not contain any implementation of the required Weighted\
-    \ Linear Addition with Orthogonal Projection merging logic. The task\u2019s core\
-    \ functionality and resulting artifacts are therefore not present."
+  h: 1b5db5c97276b3bdc0c3c30c02bbda49e0efb0661795e7b48587aa69c31f87e0
+  r: "The provided `code/data_loader.py` excerpt does not contain a `compute_source_ranks`\
+    \ implementation, and the required output file `data/subspace_ranks_source.json`\
+    \ is absent from the repository. Without the function and its generated JSON,\
+    \ the task\u2019s specifications are not met."
+T004b:
+  c: false
+  h: 7f06fb16b6e0416dd13717cf8a4c18a85663e9ba3eec92f7c08865d2ae781784
+  r: "The provided `code/data_loader.py` does not contain a `map_prompts_to_effects`\
+    \ implementation (the file is truncated and the function is absent), and the required\
+    \ `data/subspace_ranks_merged.json` file is missing, so the mapping logic cannot\
+    \ be executed. The task\u2019s core requirement is therefore not satisfied."
+T004c:
+  c: false
+  h: 4d63320caffcc76ff42d12e16120af5da44c4e5119a5a085ee2a34a7b44c6731
+  r: The provided `code/data_loader.py` does not contain a `validate_prompt_mapping`
+    implementation (the file is truncated before any such function appears), and the
+    required output file `data/config/validated_prompts.json` is absent. Both the
+    core function and its expected JSON artifact are missing, so the task is not fulfilled.
+T009c:
+  c: false
+  h: 09e55d5d308c5750df99a04541dc8ca2de83f512491612c263c7a91f83ff5155
+  r: The required `data/subspace_ranks_merged.json` file does not exist, and `state/artifacts.yaml`
+    lacks any entry (checksum, size, etc.) for that file. Consequently, the loading
+    logic, tolerance validation, and artifact registration are not demonstrated. The
+    missing JSON and artifact entry must be added for the task to be considered complete.
 T011:
   c: false
   h: 94b482a58e3d056405b3ac4384b6ff322b5e697d2a0d22cc30ba1c1ef12e1302
@@ -15,13 +34,6 @@ T011:
     \ show loading the FP16 adapter nor a complete implementation of the image\u2011\
     generation function (the code is truncated). Consequently the task\u2019s core\
     \ requirement is not satisfied."
-T011e:
-  c: false
-  h: e059c580c312c017a349fe50a2d6436562e26d5e50ba9e91166292a6f594eed5
-  r: "The repository lacks the required `data/references/other_effect_refs.json` file,\
-    \ and the provided `code/data_loader.py` does not contain a function that loads\
-    \ the T011d lookup table, builds the \u201Cother\u2011effect\u201D reference lists,\
-    \ and writes them to that JSON file. The implementation is therefore missing."
 T014a:
   c: false
   h: 991d14c22a04fdeda38127a4aa66b4a81c360c5d82699e63638b24f2de2e70d3
@@ -87,3 +99,32 @@ T035:
     \ Reference\u201D images in `data/references/distractor_refs/`. Moreover, the\
     \ required `data/references/distractor_embeddings.json` file is absent. The task\u2019\
     s core outputs are therefore missing."
+T051:
+  c: true
+  h: f0022859458a376d7d9574853228465316552a2821bfa6e7341ad647f2175e30
+  r: "The repository contains a non\u2011empty `code/dependency_checker.py` that defines\
+    \ checks for `data/generated/baseline/` and `data/references/other_effect_refs.json`,\
+    \ raising a `DependencyError` with a clear message indicating the missing artifact\
+    \ and its producing task. This matches the task\u2019s specification."
+T052:
+  c: false
+  h: 54928786925a0747a31b4472a5ee02a897faa7db522998545d9e67eeba0eaddf
+  r: "The provided `code/data_loader.py` shows no implementation of a fallback for\
+    \ `torch.ao.quantization` failures (no quantization code or error\u2011handling\
+    \ logic is present), and the required `requirements.txt` file is missing entirely.\
+    \ Consequently the task\u2019s core requirement is not satisfied."
+T053:
+  c: true
+  h: ae4048a2d0df30708699fa60e4e69d722ea20d7fb1a0b4e24f7b6ec5947d04dd
+  r: "The repository contains a non\u2011empty `code/validate_results.py` that implements\
+    \ all required checks (row presence per quantization level, non\u2011null metric\
+    \ columns, and effect\u2011to\u2011subspace\u2011rank mapping) and logs \u201C\
+    Result Integrity Error\u201D on failure. The missing `data/results.csv` is not\
+    \ part of the implementation deliverable."
+T056:
+  c: true
+  h: bf17f5524e7cb87e1eb96f65f30107dae4caf0e6982d26bce37327ea7def607a
+  r: "The provided `docs/quickstart.md` contains the exact command sequence (environment\
+    \ setup, pre\u2011flight check T051, pipeline run, final validation T055), and\
+    \ lists the expected output files and directories. It also notes the current status\
+    \ of `config.yaml`, satisfying the documentation\u2011consistency requirement."

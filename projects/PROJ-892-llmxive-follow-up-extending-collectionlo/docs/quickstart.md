@@ -1,111 +1,146 @@
-# Quickstart Guide: Quantization Robustness of Multi-Effect LoRA Adapters
+# Quickstart Guide
 
-This guide provides instructions for running the `llmXive` Quantization Robustness pipeline on **CPU-only runners**. The pipeline is designed to be robust against memory constraints and can handle quantization tasks on standard hardware.
+This guide provides instructions for running the llmXive automated science pipeline for the Quantization Robustness of Multi-Effect LoRA Adapters project.
 
 ## Prerequisites
 
-- **Python 3.11+** installed.
-- **Git** for cloning the repository.
-- **CPU-only environment** (no NVIDIA GPU required).
-- **Internet connection** to download models and datasets initially.
+- Python 3.9+
+- Required dependencies (see `code/requirements.txt`)
+- Access to HuggingFace Hub (for model downloads)
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd PROJ-892-llmxive-follow-up-extending-collectionlo
- ```
-
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
+1. Clone the repository
+2. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
- *Note: This will install `torch` with CPU support if no CUDA is detected, along with `diffusers`, `transformers`, `pymc`, and other required libraries.*
-
-## Configuration
-
-The pipeline relies on a configuration file located at `code/config.yaml`. This file contains:
-- A list of effect prompts (e.g., "oil painting", "watercolor").
-- Seed values for deterministic generation.
-- Model paths and quantization settings.
-
-Ensure `code/config.yaml` is populated before running.
 
 ## Running the Pipeline
 
-The main entry point is `code/main.py`. It orchestrates the entire workflow:
-1. **Data Loading**: Downloads the `CollectionLoRA` adapter and base model.
-2. **Validation**: Verifies the adapter contains the required distinct effects.
-3. **Baseline Generation**: Generates FP16 reference images.
-4. **Quantization**: Applies INT8 and INT4 quantization.
-5. **Analysis**: Computes metrics (CLIP, LPIPS, CESR) and runs Bayesian analysis.
+The pipeline is executed in phases. Run the following commands in order:
 
-### Full Pipeline Execution
-
-Run the following command from the project root:
+### Phase 0: Adapter Synthesis & Verification
 
 ```bash
-python code/main.py
+# T001a: Load and verify source LoRAs
+python code/main.py --phase adapter_synthesis
+
+# T002: Merge collection LoRA
+python code/main.py --phase merge
 ```
 
-**CPU-Specific Behavior**:
-- The script automatically detects CPU-only environments.
-- It sets `torch.set_num_threads` to optimize CPU usage.
-- It handles `MemoryError` and SIGKILL (Exit Code 137) gracefully, logging "Quantization Failure" and skipping the affected quantization level to prevent the entire job from crashing (FR-008).
+### Phase 1: Setup
 
-### Output Artifacts
+```bash
+# T004a: Create config.yaml
+# (Already created in project setup)
 
-Upon successful completion, the following artifacts will be generated:
+# T004b: Map prompts to effects
+python code/main.py --phase map_prompts
 
-- **Data**:
- - `data/models/adapter_fp16.safetensors`: Downloaded LoRA adapter.
- - `data/quantized/adapter_int8.safetensors`, `adapter_int4.safetensors`: Quantized adapters.
- - `data/references/fp16_refs/`: Reference images for all effects.
- - `data/results.csv`: Comprehensive metrics (Cosine Similarity, LPIPS, CESR).
- - `data/analysis_results.json`: Bayesian statistical analysis results.
-- **State**:
- - `state/artifacts.yaml`: SHA-256 hashes of all generated artifacts.
-- **Logs**:
- - Console logs and `logs/pipeline.log` (if configured).
+# T004c: Validate prompt mapping
+python code/main.py --phase validate_prompts
+```
+
+### Phase 2: Foundational
+
+```bash
+# T001e: Compute merged ranks (T009c dependency)
+python code/main.py --phase compute_merged_ranks
+
+# T009c: Load and validate subspace ranks
+python code/main.py --phase validate_subspace_ranks
+
+# T007b-1: Load verified CollectionLoRA adapter
+python code/main.py --phase load_adapter
+
+# T007c: Download base model
+python code/main.py --phase download_base_model
+```
+
+### Phase 2.5: Reference Generation
+
+```bash
+# T035: Generate distractor references
+python code/main.py --phase generate_distractors
+
+# T011c: Generate FP16 reference images
+python code/main.py --phase generate_fp16_refs
+```
+
+### Phase 3: Baseline Fidelity Measurement
+
+```bash
+# T010b: Load FP16 adapter
+# (Integrated into generation loop)
+
+# T011: Generate baseline images
+python code/main.py --phase generate --level FP16
+
+# T014a: Run baseline generation loop
+python code/main.py --phase baseline
+```
+
+### Phase 4: Quantization Impact Analysis
+
+```bash
+# T016a: Quantize LoRA adapters
+python code/main.py --phase quantize
+
+# T017: Generate quantized images
+python code/main.py --phase generate --level INT8
+python code/main.py --phase generate --level INT4
+
+# T020a: Run quantized generation loop
+python code/main.py --phase quantized
+```
+
+### Phase 5: Bayesian Statistical Analysis
+
+```bash
+# T023a: Load Bayesian data
+# (Integrated into analysis)
+
+# T024: Run Bayesian Hierarchical Model
+python code/main.py --phase analyze
+
+# T027a: Save analysis results
+# (Integrated into analyze phase)
+```
+
+### Final Validation
+
+```bash
+# T055: Final artifact hashing
+python code/final_hash_check.py
+
+# T056: Documentation consistency check
+# (Manual verification)
+```
+
+## Output Artifacts
+
+The pipeline produces the following key artifacts:
+
+- `data/subspace_ranks_merged.json`: Subspace ranks for merged adapter effects
+- `data/results.csv`: Comprehensive results with similarity, LPIPS, and CESR scores
+- `data/analysis_results.json`: Bayesian analysis results with posterior distributions
+- `data/references/other_effect_refs.json`: Other effect reference embeddings
+- `state/artifacts.yaml`: SHA-256 hashes of all artifacts
 
 ## Troubleshooting
 
-### Memory Errors (OOM)
-If the runner encounters a memory limit:
-- The pipeline is designed to catch `MemoryError` and subprocess exits (SIGKILL).
-- It will log "Quantization Failure" and skip the specific quantization level (e.g., INT4) while continuing with others.
-- Check `state/artifacts.yaml` to see which artifacts were successfully saved.
+### Common Issues
 
-### Missing Models
-The pipeline requires an initial download of the `CollectionLoRA` adapter from HuggingFace.
-- Ensure you have a stable internet connection.
-- If the download fails, the script will raise a `FileNotFoundError` (no synthetic fallback).
+1. **Missing artifacts**: Ensure all previous phases have completed successfully.
+2. **Memory errors**: The pipeline includes handling for OOM errors; quantization levels may be skipped.
+3. **Model download failures**: Check network connectivity and HuggingFace credentials.
 
-### Backend Unavailable
-If `torch.ao.quantization` backend is unavailable on your specific CPU build:
-- The script will log "Backend Unavailable" and skip that quantization level rather than crashing.
+### Running on CPU-only runners
 
-## Verification
+The pipeline is designed to work on CPU-only runners. Ensure you have sufficient memory (at least 16GB) for the baseline generation phase.
 
-To verify the integrity of the downloaded models and generated artifacts:
+## Next Steps
 
-```bash
-python code/verify_artifacts.py
-```
-
-This script compares the SHA-256 hashes in `state/artifacts.yaml` against the actual files on disk.
-
-## CI/CD Integration
-
-For CI/CD environments (e.g., GitHub Actions), use the `code/run_pipeline_timing.py` script which generates a `data/ci_report.json` containing job duration and status, ensuring the total job duration remains under the 6-hour limit (SC-005).
-
-```bash
-python code/run_pipeline_timing.py
-```
+After completing the pipeline, review the `data/analysis_results.json` file for the final statistical findings and correlation between subspace rank and concept bleeding.
