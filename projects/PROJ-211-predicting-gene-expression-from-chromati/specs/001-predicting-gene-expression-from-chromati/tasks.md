@@ -172,6 +172,18 @@
 
 - [ ] T037 Run `quickstart.md` validation. **Pass/Fail**: Execute `quickstart.md`; verify exit code 0 and that all generated artifacts exist in `data/`.
 
+- [ ] T060 [US3] Update `spec.md` Section 1.3 (Limitations) to explicitly include the "First-Order Approximation" caveat, stating that bulk profiles smooth over single-cell heterogeneity which is the true engine of differentiation, and that the model identifies statistical associations rather than causal laws. **Deliverable**: Updated `spec.md`.
+
+- [ ] T061 [US3] Add a dedicated section to `docs/regulatory_context.md` titled "Dappled Models vs. Unified Laws" that synthesizes the ENCODE consortium's findings on regulatory complexity and the limitations of bulk averaging. **Deliverable**: Updated `docs/regulatory_context.md`.
+
+- [ ] T062 [US3] Add a subsection to `docs/regulatory_context.md` titled "Correlation vs. Causation" that clarifies the statistical nature of the Elastic Net findings and explicitly warns against inferring direct causal regulatory links from these bulk correlations. **Deliverable**: Updated `docs/regulatory_context.md`.
+
+- [ ] T063 [US3] Update `docs/regulatory_context.md` to include a new subsection "The Bulk Averaging Artifact" that explicitly quantifies how bulk profiles smooth over single-cell heterogeneity, citing the ENCODE finding that regulatory landscapes are cell-state specific. **Deliverable**: Updated `docs/regulatory_context.md`.
+
+- [ ] T064 [US3] Modify the final summary report generation in `code/interpret.py` to automatically prepend a "Causality Warning" header to any output file containing correlation metrics, stating that the model identifies statistical associations, not causal regulatory mechanisms. **Deliverable**: Updated `code/interpret.py` and example output in `docs/regulatory_insights_report.md`.
+
+- [ ] T065 [US3] Add a validation task to `tests/integration/test_interpretation.py` that asserts the presence of the "first-order approximation" caveat in all generated report headers. **Deliverable**: Updated `tests/integration/test_interpretation.py`.
+
 ---
 
 ## Phase 7: Review & Documentation (General)
@@ -300,6 +312,6 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All data generation must use synthetic data with fixed seeds to ensure CPU-only CI feasibility (no external API dependencies) ONLY IF real data fetch fails.
 - **Constraint**: No GPU/CUDA.
-- **Revision Note**: Phase 7 tasks T057-T059 are now standard documentation tasks addressing "Bulk Averaging" and "Correlation vs Causation" as required by the spec, removing the fabricated "Freeman Dyson" review reference.
+- **Revision Note**: Phase 6 and 7 tasks T060-T065 address the "freeman-dyson-simulated" review regarding "First-Order Approximation", "Dappled Models", and "Correlation vs. Causation", ensuring the spec and docs explicitly state the limitations of bulk data.
 - **Revision Note**: T010 now implements real ENCODE data download, satisfying FR-001.
 - **Revision Note**: T026 now correctly implements cell-line holdout validation for SC-006.
