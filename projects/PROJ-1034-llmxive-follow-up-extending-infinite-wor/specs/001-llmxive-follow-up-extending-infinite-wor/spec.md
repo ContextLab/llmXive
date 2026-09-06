@@ -97,7 +97,7 @@ A researcher needs to confirm whether the optimal CA configuration achieves stat
 
 ## Assumptions
 
-- The open-source LingBot-World 2.0 training corpus or a sufficiently representative synthetic dataset can be generated to simulate a large number of environmental state transitions within the GB disk limit.
+- The open-source LingBot-World training corpus or a sufficiently representative synthetic dataset can be generated to simulate a large number of environmental state transitions within the GB disk limit.
 - The pilot agent weights are available and can be loaded into CPU memory without requiring quantization or CUDA acceleration.
 - The "coherence" metric is defined as the deviation from expected physical constraints (e.g., conservation of mass/energy) provided by an external physics oracle, not as tautological rule adherence.
 - The "diversity" metric is defined as event entropy calculated from the state transition log, independent of the specific input parameters used to generate the state.

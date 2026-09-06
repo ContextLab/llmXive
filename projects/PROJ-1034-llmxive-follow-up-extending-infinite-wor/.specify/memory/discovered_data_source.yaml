@@ -1,13 +1,13 @@
 status: none
-intent: Stochastic Physics Sandbox python package dataset for cellular automata simulation
-  python package dataset
+intent: Stochastic Physics Sandbox generator python package dataset
 required_fields:
-- timestep
+- time_step
 - grid_state
 - external_force_vector
-- agent_positions
-- collision_events
-- noise_parameters
-cache_key: e3e08498f8424c52f93d0d71f891b02112c767146ace0a3b22db1b8d47ebde7d
-searched_at: '2026-09-03T14:37:50.373823+00:00'
+- agent_collision_events
+- neighborhood_radius
+- state_memory_depth
+- update_function_parameters
+cache_key: 443223209f2c5ddf41106c00fb7105193cbf6ced947ce3b96690f8f4bc7badbc
+searched_at: '2026-09-06T15:39:05.250275+00:00'
 retry_count: 1

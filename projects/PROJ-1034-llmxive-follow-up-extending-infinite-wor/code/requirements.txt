@@ -11,3 +11,4 @@ pytest>=7.0
 psutil>=5.9
 datasets>=2.14
 pyarrow>=12.0
+tomli  # auto-added: imported by run-book but missing from venv

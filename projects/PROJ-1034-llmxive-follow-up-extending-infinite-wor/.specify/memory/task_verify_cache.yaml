@@ -1,9 +1,33 @@
+T016b:
+  c: false
+  h: ac050cd1811c47108536cf6e4d2e70a1611db401e5c3e3f4a0feb76fe410f7c6
+  r: "The script never reads `config/default.yaml` nor extracts a `target_steps` value;\
+    \ it relies solely on a command\u2011line `--steps` argument with a hard\u2011\
+    coded default. The required fallback warning and use of the config\u2011derived\
+    \ step count are absent, and the config file itself is missing. The task\u2019\
+    s core requirement is therefore not met."
+T016c:
+  c: false
+  h: 11cbab05a62e679b6395b66e42f52021dd52dd5e2a37d4946e2b8e077682706a
+  r: "The `run_simulation.py` script lacks any verification of reaching `target_steps`,\
+    \ does not apply a \u201CTime\u2011Bound Baseline\u201D flag, and never writes\
+    \ a Parquet file to `data/raw/baseline_partial.parquet`. Moreover, the required\
+    \ `baseline_partial.parquet` file is missing from the repository. These omissions\
+    \ mean the task\u2019s core requirements are not met."
 T019:
   c: false
   h: ce2c8c1687e344c040a912b5a13803cf319ef6b6a31b902df2a2a6805dcb850f
   r: The required artifact `tests/integration/test_lmm_data_prep.py` does not exist,
     so the integration test for LMM data preparation is missing. The task cannot be
     considered complete until this file is created with appropriate test code.
+T026b:
+  c: false
+  h: 7e68bfb9b5c685f5e77ea6aff0c764c6c959e889b7dead1324f50235085e68c4
+  r: The `run_simulation.py` script never reads a `config.yaml` file, does not load
+    a `target_steps` value, and writes its output to `data/output.json` instead of
+    recording metrics under `data/processed/`. Moreover, the required `config.yaml`
+    file is missing from the repository. These omissions mean the implementation does
+    not meet the stated task requirements.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
