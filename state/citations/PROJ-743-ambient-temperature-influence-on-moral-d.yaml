@@ -53,14 +53,14 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1126/science.aar7000
   verified_at: '2026-08-19T21:43:10.349798Z'
-- artifact_hash: 7e284b44bdfb8f6e42136cf328fa4bd89dd088b2094e3c7bdced8b6f59ebdac9
+- artifact_hash: 48a0273e633b936484d186770ca574ea1a42478813bd8b57203f5fe1678aea27
   artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: OSF
+  fetched_title: Moral Machine - Wikidata
   kind: url
-  value: https://osf.io/...`
+  value: https://www.wikidata.org/wiki/Q30324255
   verification_status: pending
-  verified_against_url: https://osf.io/
-  verified_at: '2026-09-03T04:56:14.751265Z'
+  verified_against_url: https://www.wikidata.org/wiki/Q30324255
+  verified_at: '2026-09-06T09:56:42.824521Z'

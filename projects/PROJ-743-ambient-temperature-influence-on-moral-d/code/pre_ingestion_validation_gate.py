@@ -1,3 +1,11 @@
+"""
+Pre-Ingestion Validation Gate (T006)
+
+Aggregates results from prior validation tasks (T001a, T001b, T001c, T001d, T004)
+and verifies the existence of the full ERA5 dataset (T002d).
+If any validation fails or required files are missing, raises an exception to abort the pipeline.
+Logs the final gate status to results/logs/data_validation_log.txt.
+"""
 import os
 import sys
 import json
@@ -5,132 +13,134 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-# Import from existing API surface
-from setup_logging import setup_logging, get_data_quality_logger
+# Import shared utilities from existing API surface
+from setup_logging import get_data_quality_logger, ensure_directories
 from config import get_path_env_override
 
-def load_json_log(path: Path) -> dict:
-    """Load a JSON log file if it exists."""
-    if not path.exists():
+# Define expected file paths based on task descriptions
+# T001a, T001b, T001c, T001d, T004 all log to this file
+VALIDATION_LOG_PATH = Path("results/logs/data_validation_log.txt")
+
+# T002d output
+ERA5_FULL_PARQUET_PATH = Path("data/raw/era5_full.parquet")
+
+# Checksum state file (T002e, T003)
+STATE_FILE_PATH = Path("state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml")
+
+def load_json_log(log_path: Path) -> dict:
+    """
+    Attempt to load a JSON log file if it exists.
+    Returns an empty dict if the file is missing or invalid JSON.
+    """
+    if not log_path.exists():
         return {}
     try:
-        with open(path, 'r') as f:
+        with open(log_path, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        logging.warning(f"Could not load JSON log {path}: {e}")
+    except (json.JSONDecodeError, IOError):
         return {}
 
-def check_file_exists(path: Path) -> bool:
-    """Check if a file exists and has non-zero size."""
-    return path.exists() and path.stat().st_size > 0
+def check_file_exists(path: Path, description: str) -> bool:
+    """Check if a required file exists. Log result and return status."""
+    if path.exists():
+        logging.info(f"[VALIDATION] {description} exists: {path}")
+        return True
+    else:
+        logging.error(f"[VALIDATION] {description} MISSING: {path}")
+        return False
 
-def run_validation_gate(
-    t001c_log: Path,
-    t001b_log: Path,
-    t004_log: Path,
-    era5_full_path: Path
-) -> tuple[bool, dict]:
+def run_validation_gate(logger: logging.Logger) -> bool:
     """
-    Aggregate results from T001c, T001b, T004 and verify era5_full existence.
-    Returns (passed, details_dict).
+    Execute the pre-ingestion validation gate logic.
+    Returns True if all checks pass, False otherwise.
     """
-    results = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "checks": {}
-    }
+    all_checks_passed = True
+    timestamp = datetime.now().isoformat()
+    
+    logger.info(f"Starting Pre-Ingestion Validation Gate at {timestamp}")
+    logger.info("Dependencies: T001a, T001b, T001c, T001d, T004, T002c, T002d, T002e")
 
-    # 1. Check T001c (Validate Data Sources)
-    # We assume the log file indicates success if it exists and is non-empty
-    t001c_ok = t001c_log.exists() and t001c_log.stat().st_size > 0
-    results["checks"]["T001c_validate_sources"] = {
-        "passed": t001c_ok,
-        "path": str(t001c_log)
-    }
+    # 1. Verify ERA5 Full Dataset Existence (T002d)
+    logger.info("Checking for data/raw/era5_full.parquet (T002d output)...")
+    if not check_file_exists(ERA5_FULL_PARQUET_PATH, "Full ERA5 Dataset"):
+        all_checks_passed = False
+    
+    # 2. Verify Validation Log Existence (T001a, T001b, T001c, T001d, T004)
+    # We assume the log exists if previous tasks ran, but we check its content for "Fail" markers
+    logger.info("Checking validation log for prior failures...")
+    if VALIDATION_LOG_PATH.exists():
+        try:
+            with open(VALIDATION_LOG_PATH, 'r', encoding='utf-8') as f:
+                log_content = f.read()
+                if "FAIL" in log_content.upper() or "ERROR" in log_content.upper():
+                    logger.error("[VALIDATION] Prior validation logs contain failure indicators.")
+                    all_checks_passed = False
+                else:
+                    logger.info("[VALIDATION] Prior validation logs appear clean.")
+        except Exception as e:
+            logger.error(f"[VALIDATION] Could not read validation log: {e}")
+            all_checks_passed = False
+    else:
+        logger.warning("[VALIDATION] Validation log file not found. Assuming prior tasks did not run or failed.")
+        # This might be acceptable if T001 tasks haven't run, but T006 depends on them.
+        # Strictly speaking, if T001 tasks are marked done, this file should exist.
+        # We will treat missing log as a failure if we expect it.
+        all_checks_passed = False
 
-    # 2. Check T001b (Ingest & Validate ERA5 Sample)
-    t001b_ok = t001b_log.exists() and t001b_log.stat().st_size > 0
-    results["checks"]["T001b_ingest_era5_sample"] = {
-        "passed": t001b_ok,
-        "path": str(t001b_log)
-    }
+    # 3. Verify State File Integrity (T002e, T003)
+    logger.info("Checking state file for checksum records...")
+    if not check_file_exists(STATE_FILE_PATH, "Project State File"):
+        all_checks_passed = False
+    else:
+        # Optional: Verify specific keys exist in state file if needed
+        try:
+            import yaml
+            with open(STATE_FILE_PATH, 'r', encoding='utf-8') as f:
+                state = yaml.safe_load(f)
+                if not state or 'artifact_hashes' not in state:
+                    logger.warning("[VALIDATION] State file exists but lacks 'artifact_hashes' section.")
+                    # Not a hard fail if we just check existence, but good to note
+        except Exception as e:
+            logger.error(f"[VALIDATION] Could not parse state file: {e}")
+            all_checks_passed = False
 
-    # 3. Check T004 (Validate ERA5 Sample Integrity)
-    t004_ok = t004_log.exists() and t004_log.stat().st_size > 0
-    results["checks"]["T004_validate_integrity"] = {
-        "passed": t004_ok,
-        "path": str(t004_log)
-    }
-
-    # 4. Check T002c output (data/raw/era5_full.h5)
-    era5_full_ok = check_file_exists(era5_full_path)
-    results["checks"]["T002c_era5_full_exists"] = {
-        "passed": era5_full_ok,
-        "path": str(era5_full_path)
-    }
-
-    all_passed = all(c["passed"] for c in results["checks"].values())
-    results["gate_status"] = "PASS" if all_passed else "FAIL"
-
-    return all_passed, results
+    # Final Decision
+    if all_checks_passed:
+        logger.info("Pre-Ingestion Validation Gate: PASSED")
+        return True
+    else:
+        logger.error("Pre-Ingestion Validation Gate: FAILED - Aborting pipeline.")
+        return False
 
 def main():
-    setup_logging()
-    logger = get_data_quality_logger()
-
-    # Define paths based on project structure
-    root = Path(get_path_env_override("PROJECT_ROOT", "."))
-    logs_dir = root / "results" / "logs"
-    data_raw_dir = root / "data" / "raw"
-
-    # Input log files (produced by previous tasks)
-    t001c_log = logs_dir / "data_validation_log.txt"
-    t001b_log = logs_dir / "data_validation_log.txt" # Often shared, or specific file if separated
-    t004_log = logs_dir / "data_validation_log.txt"
+    """Main entry point for the validation gate."""
+    # Ensure output directories exist
+    ensure_directories()
     
-    # Specific file checks: if tasks wrote to specific JSON logs, adjust here.
-    # For now, we assume the main validation log is the indicator.
-    # If specific JSONs exist, prefer them:
-    t001c_json = logs_dir / "validation_report.json"
-    t001b_json = logs_dir / "era5_sample_validation.json"
-    t004_json = logs_dir / "integrity_validation.json"
-
-    if t001c_json.exists(): t001c_log = t001c_json
-    if t001b_json.exists(): t001b_log = t001b_json
-    if t004_json.exists(): t004_log = t004_json
-
-    era5_full_path = data_raw_dir / "era5_full.h5"
-
-    logger.info("Starting Pre-Ingestion Validation Gate (T006)...")
-
+    # Setup logging
+    logger = get_data_quality_logger()
+    
     try:
-        passed, details = run_validation_gate(t001c_log, t001b_log, t004_log, era5_full_path)
+        success = run_validation_gate(logger)
         
-        # Log final status to the required file
-        output_log_path = logs_dir / "data_validation_log.txt"
-        output_log_path.parent.mkdir(parents=True, exist_ok=True)
+        # Append final status to the validation log file
+        with open(VALIDATION_LOG_PATH, 'a', encoding='utf-8') as f:
+            status = "PASSED" if success else "FAILED"
+            f.write(f"{datetime.now().isoformat()} - Pre-Ingestion Gate: {status}\n")
         
-        with open(output_log_path, 'a') as f:
-            f.write(f"\n--- T006 Pre-Ingestion Validation Gate ---\n")
-            f.write(f"Timestamp: {details['timestamp']}\n")
-            f.write(f"Gate Status: {details['gate_status']}\n")
-            for check_name, check_data in details["checks"].items():
-                status = "PASS" if check_data["passed"] else "FAIL"
-                f.write(f"  {check_name}: {status} ({check_data['path']})\n")
-            f.write(f"---------------------------------------------\n")
-
-        if passed:
-            logger.info("Validation Gate PASSED. Proceeding to ingestion.")
-            print("T006: PASS")
-        else:
-            logger.error("Validation Gate FAILED. Aborting pipeline.")
-            # Log details to stderr for visibility
-            print("T006: FAIL - See results/logs/data_validation_log.txt for details", file=sys.stderr)
-            raise RuntimeError("Pre-ingestion validation failed. Pipeline aborted.")
-
+        if not success:
+            # Fail loudly as per constraints
+            raise RuntimeError("Pre-Ingestion Validation Gate Failed. Pipeline aborted.")
+            
+        print("Validation Gate Successful.")
+        sys.exit(0)
+        
     except Exception as e:
-        logger.exception("Validation Gate execution failed.")
-        print(f"T006: ERROR - {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Validation Gate Exception: {e}")
+        # Ensure failure is logged
+        with open(VALIDATION_LOG_PATH, 'a', encoding='utf-8') as f:
+            f.write(f"{datetime.now().isoformat()} - Pre-Ingestion Gate: FAILED - Exception: {e}\n")
+        raise
 
 if __name__ == "__main__":
     main()

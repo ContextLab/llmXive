@@ -4,8 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T002d` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/era5_full.h5, state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml
-- `T003` (rejected 1x): declared artifact(s) missing/empty/invalid: data/raw/era5_sample.h5, state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml
+- `T006` (rejected 1x): The required file `data/raw/era5_full.parquet` is missing, so the validation gate cannot pass, yet the log only shows per‑source “Pass” entries and does not record a final gate status (Pass/Fail). The task’s core requirement—to verify the file’s existence and log the overall gate result—is not satisfied.
 
 ## Required change
 

@@ -33,7 +33,7 @@ This feature implements a statistical analysis pipeline to investigate the corre
 | Principle | Status | Evidence/Action |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | ✅ Pass | `requirements.txt` pins all versions; random seeds set in `code/`; data fetched from canonical CDS API (ERA5) and Moral Machine. |
-| **II. Verified Accuracy** | ✅ Pass | Dataset URLs and API endpoints verified; ERA source covers the Moral Machine period beginning in the mid-2010s., resolving temporal mismatch. |
+| **II. Verified Accuracy** | ✅ Pass | Dataset URLs and API endpoints verified; ERA source covers the Moral Machine period beginning in the mids., resolving temporal mismatch. |
 | **III. Data Hygiene** | ✅ Pass | Checksums recorded in `state/`; raw data immutable; derived files in `data/processed/`; PII scan in CI. |
 | **IV. Single Source of Truth** | ✅ Pass | All stats trace to `results/stats/` JSON/CSV; figures trace to `results/figures/`. |
 | **V. Versioning** | ✅ Pass | Artifacts hashed; `state` updated on change. |

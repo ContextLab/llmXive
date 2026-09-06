@@ -3391,3 +3391,726 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T05:03:20Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset columns include latitude, longitude, timestamp,
+    response_time, country, dilemma_id
+  claim_id: c_538f7cfa
+  context: 'Validate Moral Machine Source: Implement code/validate_sources.py to:
+    1. Fetch the canonical URL for the Moral Machine dataset (OSF or specified source).
+    2. Verify the presence of required columns: latitude, longitude, timestamp, response_time,
+    country, dilemma_id.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_columns_include_latitude,_longitude,_t
+  kind: entity_fact
+  raw_text: 'The Moral Machine dataset contains required columns: latitude, longitude,
+    timestamp, response_time, country, dilemma_id.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:39:02Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample fetched for London 51.5074 -0.1278 Jan 1 to Jan 7 2016
+  claim_id: c_414ff991
+  context: "Ingest & Validate ERA5 Sample: Write code/validate_era5.py to fetch a\
+    \ specific sample subset (Jan 1 \u2013 Jan 7 2016) for London (51.5074, -0.1278)\
+    \ using the CDS API."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ERA5 sample data was fetched for London (51.5074, -0.1278) for the period\
+    \ Jan 1 \u2013 Jan 7 2016."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:39:48Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample data has hourly resolution
+  claim_id: c_7019edc3
+  context: Validate that the file contains hourly resolution, a floating-point data
+    type, and temperature values within a physically plausible range.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Freely available Global Atmospheric Models such as ERA5 data are generated
+        using Copernicus Climate Change Service Information developed for numerical
+        weather prediction. These models can provide accurate and high-resolution
+        (still is coarse for InSAR studies) parameters for characterizing the atmosphere
+        state. Therefore, these methods are promising and practical techniques for
+        atmospheric noise mitigation in InSAR technique. Based on the combination
+        of different input datasets, the ERA5 is a global atmospheric model calculated
+        by the European Center for Medium-Range Weather Forecasting (ECMWF). Several
+        meteorological parameters are provided, such as pressure, temperature, and
+        relative humidity, at hourly intervals with a horizontal resolution of 0.25
+        degrees and a vertical resolution of 37 intervals from sea level to 50 km.
+      source_id: Atmospheric correction for interferometric synthetic aperture radar
+        technique
+      url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
+      value: hourly
+    filled: true
+  kind: entity_fact
+  raw_text: The ERA5 sample data contains hourly resolution.
+  resolved_value: hourly
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T09:40:15Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Minimum response time threshold is 100 ms
+  claim_id: c_d5343ce1
+  context: 'Create base configuration module code/config.py defining paths, random
+    seeds, and configurable thresholds: 3. RESPONSE_TIME_MIN_MS = 100, RESPONSE_TIME_MAX_MS
+    = 10000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum response time threshold is 100 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:40:56Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Maximum response time threshold is 10000 ms
+  claim_id: c_594ba7c0
+  context: 'Create base configuration module code/config.py defining paths, random
+    seeds, and configurable thresholds: 3. RESPONSE_TIME_MIN_MS = 100, RESPONSE_TIME_MAX_MS
+    = 10000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum response time threshold is 10,000 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:41:37Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: World Bank indicators SP.POP..ZS and SP.POP.TOTL.FE.ZS used for age and
+    gender proxies
+  claim_id: c_6f8f6e51
+  context: 'Check and Fetch Demographic Covariates: Retrieve age and gender proxies
+    from the World Bank API using specific indicators (e.g., SP.POP..ZS for working
+    age, SP.POP.TOTL.FE.ZS for female population percentage).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_indicators_SP.POP..ZS_and_SP.POP.TOTL.FE.ZS_used
+  kind: entity_fact
+  raw_text: World Bank indicators SP.POP..ZS and SP.POP.TOTL.FE.ZS are used for age
+    and gender proxies.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:42:49Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Temperature gaps greater than 2 hours result in record exclusion
+  claim_id: c_7474af30
+  context: "Gap Definition: Calculate the time difference between the ERA5 timestamp\
+    \ preceding the Moral Machine record and the ERA5 timestamp following it for the\
+    \ specific grid cell. 2. If gap \u2264 2 hours \u2192 linearly interpolate. 3.\
+    \ If gap > 2 hours \u2192 exclude the record and log reason temperature gap >\
+    \ 2 hours."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Temperature_gaps_greater_than_2_hours_result_in_record_exclu
+  kind: causal
+  raw_text: Temperature gaps greater than 2 hours result in record exclusion.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:42:52Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Anderson-Darling test performed on 10% sample of residuals
+  claim_id: c_a1aa38f7
+  context: 'Anderson-Darling Test: Sample [deferred] of residuals (per ANDERSON_DARLING_SAMPLE_FRACTION)
+    and compute Anderson-Darling statistic; log p-value to results/logs/ad_test.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Anderson-Darling test is performed on a 10% sample of residuals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:42:53Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset columns include latitude, longitude, timestamp,
+    response_time, country, dilemma_id
+  claim_id: c_511b2be9
+  context: Task T001a requires verifying the presence of required columns in the Moral
+    Machine dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_columns_include_latitude,_longitude,_t
+  kind: entity_fact
+  raw_text: 'The Moral Machine dataset contains required columns: latitude, longitude,
+    timestamp, response_time, country, dilemma_id.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:43:42Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample subset for London covers Jan 1 to Jan 7 2016
+  claim_id: c_fe465624
+  context: "Task T001b specifies fetching a specific sample subset for London for\
+    \ the dates Jan 1 \u2013 Jan 7 2016."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The ERA5 sample subset for London (51.5074, -0.1278) covers the period\
+    \ Jan 1 \u2013 Jan 7 2016."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:44:22Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample uses variable 2m_temperature and product_type reanalysis
+  claim_id: c_cd819fae
+  context: Task T001b specifies fetching ERA5 data with variable='2m_temperature'
+    and product_type='reanalysis'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ERA5_sample_uses_variable_2m_temperature_and_product_type_re
+  kind: entity_fact
+  raw_text: The ERA5 sample data is requested with variable '2m_temperature' and product_type
+    'reanalysis'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:45:09Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: World Bank indicator SP.POP..ZS represents working age population
+  claim_id: c_ed5b23ef
+  context: Task T028a specifies retrieving age proxies using indicator SP.POP..ZS.
+  evidence:
+    entailment_evidence: ZS represents working age popul
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/World_Bank_indicator_SP.POP..ZS_represents_working_age_popul
+  kind: entity_fact
+  raw_text: The World Bank API indicator SP.POP..ZS is used for working age population
+    proxies.
+  resolved_value: World Bank indicator SP.POP..ZS represents working age population
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T09:45:12Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: World Bank indicator SP.POP.TOTL.FE.ZS represents female population percentage
+  claim_id: c_69e1851a
+  context: Task T028a specifies retrieving gender proxies using indicator SP.POP.TOTL.FE.ZS.
+  evidence:
+    entailment_evidence: ZS represents female pop
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/World_Bank_indicator_SP.POP.TOTL.FE.ZS_represents_female_pop
+  kind: entity_fact
+  raw_text: The World Bank API indicator SP.POP.TOTL.FE.ZS is used for female population
+    percentage proxies.
+  resolved_value: World Bank indicator SP.POP.TOTL.FE.ZS represents female population
+    percentage
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T09:45:16Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Response times outside 100 ms to 10000 ms range are filtered
+  claim_id: c_c5e7fda4
+  context: Task T017 specifies hard filtering records with response times < 100 ms
+    or > 10,000 ms.
+  evidence:
+    entailment_evidence: Response times outside 100 ms to 10000 ms range are filtered
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Response_times_outside_100_ms_to_10000_ms_range_are_filtered
+  kind: magnitude
+  raw_text: Records with response times less than 100 ms or greater than 10,000 ms
+    are filtered out.
+  resolved_value: Response times outside 100 ms to 10000 ms range are filtered
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T09:45:20Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Temperature gaps exceeding 2 hours lead to record exclusion
+  claim_id: c_c834a9c2
+  context: Task T019c specifies that if the gap between ERA5 timestamps is > 2 hours,
+    the record is excluded.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Temperature_gaps_exceeding_2_hours_lead_to_record_exclusion
+  kind: causal
+  raw_text: Temperature gaps greater than 2 hours between ERA5 timestamps result in
+    record exclusion.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:45:23Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Primary model dependent variable is log(response_time)
+  claim_id: c_374e1b87
+  context: Task T026 specifies the primary mixed-effects model uses log(response_time)
+    as the dependent variable.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_model_dependent_variable_is_log(response_time)
+  kind: entity_fact
+  raw_text: The primary mixed-effects model uses log(response_time) as the dependent
+    variable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:46:03Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Primary model fixed effects include temperature_celsius, age, gender,
+    dilemma_complexity, time_of_day, dilemma_choice
+  claim_id: c_38d6e9ca
+  context: Task T026 lists the fixed effects for the primary mixed-effects model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_model_fixed_effects_include_temperature_celsius,_age
+  kind: entity_fact
+  raw_text: The primary mixed-effects model includes temperature_celsius, age, gender,
+    dilemma_complexity, time_of_day, and dilemma_choice as fixed effects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:47:33Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Primary model random intercepts are participant_id and cultural_region
+  claim_id: c_f038cb72
+  context: Task T026 lists the random intercepts for the primary mixed-effects model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_model_random_intercepts_are_participant_id_and_cultu
+  kind: entity_fact
+  raw_text: The primary mixed-effects model includes participant_id and cultural_region
+    as random intercepts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:48:42Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Anderson-Darling test uses 0.1 fraction of residuals
+  claim_id: c_da7a6ad0
+  context: Task T028b specifies sampling 0.1 of residuals for the Anderson-Darling
+    test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Anderson-Darling test is performed on a sample fraction of 0.1 of
+    the residuals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:49:18Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset available via OSF or specified source
+  claim_id: c_81855fef
+  context: 'T001a [S] Validate Moral Machine Source: Implement code/validate_sources.py
+    to: 1. Fetch the canonical URL for the Moral Machine dataset (OSF or specified
+    source).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: http://moralmachine.mit.edu'
+      source_id: Q30324255
+      url: https://www.wikidata.org/wiki/Q30324255
+      value: http://moralmachine.mit.edu
+    filled: true
+  kind: entity_fact
+  raw_text: Fetch the canonical URL for the Moral Machine dataset (OSF or specified
+    source).
+  resolved_value: http://moralmachine.mit.edu
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T09:50:58Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset contains columns latitude, longitude, timestamp,
+    response_time, country, dilemma_id
+  claim_id: c_5de909fa
+  context: 'T001a [S] Validate Moral Machine Source: Implement code/validate_sources.py
+    to: ... 2. Verify the presence of required columns: latitude, longitude, timestamp,
+    response_time, country, dilemma_id.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_contains_columns_latitude,_longitude,
+  kind: entity_fact
+  raw_text: 'Verify the presence of required columns: latitude, longitude, timestamp,
+    response_time, country, dilemma_id.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:51:24Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: "ERA5 sample subset Jan 1\u2013Jan 7 2016 for London (51.5074, -0.1278)\
+    \ with variable 2m_temperature"
+  claim_id: c_8cf9a7b5
+  context: "T001b [S] Ingest & Validate ERA5 Sample: Write code/validate_era5.py to\
+    \ fetch a specific sample subset (Jan 1 \u2013 Jan 7 2016) for London (51.5074,\
+    \ \u20110.1278) using the CDS API with product_type='reanalysis', variable='2m_temperature',\
+    \ and grid_resolution='a fine spatial scale'."
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Fetch a specific sample subset (Jan 1 \u2013 Jan 7 2016) for London (51.5074,\
+    \ \u20110.1278) using the CDS API with product_type='reanalysis', variable='2m_temperature',\
+    \ and grid_resolution='a fine spatial scale'."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T09:51:25Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 data contains hourly resolution and floating-point temperature values
+  claim_id: c_f842e8e0
+  context: 'T001b [S] Ingest & Validate ERA5 Sample: ... 3. Validate that the file
+    contains hourly resolution, a floating-point data type, and temperature values
+    within a physically plausible range.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ERA5_data_contains_hourly_resolution_and_floating-point_temp
+  kind: entity_fact
+  raw_text: Validate that the file contains hourly resolution, a floating-point data
+    type, and temperature values within a physically plausible range.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:52:04Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample saved in HDF5 format with compression
+  claim_id: c_95c53794
+  context: 'T001b [S] Ingest & Validate ERA5 Sample: ... 2. Save to data/raw/era5_sample.h5
+    (HDF5 format with compression).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ERA5_sample_saved_in_HDF5_format_with_compression
+  kind: entity_fact
+  raw_text: Save to data/raw/era5_sample.h5 (HDF5 format with compression).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:52:31Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine data integrity verified via SHA-256 checksum
+  claim_id: c_428004b5
+  context: 'T001d [S] Validate Moral Machine Data Source: ... 2. Verify file integrity
+    via SHA-256 checksum against state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute SHA-256 checksum against state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:52:47Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 2
+  canonical: Response times filtered to range 100 ms to 10000 ms
+  claim_id: c_7f43730b
+  context: 'T017 [US1] Load, Filter & Count: ... 3. HARD FILTER 2: Filter out records
+    with response times < 100 ms or > 10 000 ms.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter out records with response times < 100 ms or > 10 000 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:52:48Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Geospatial match quality flagged as low if distance exceeds 100 km
+  claim_id: c_5a87215a
+  context: 'T019 [US1] Geospatial Matching & Flagging: ... 3. If distance > DISTANCE_THRESHOLD_KM
+    (from code/config.py), set match_quality = ''low'', add entry to results/logs/data_quality_log.json
+    with reason ''distance > 100km''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If distance > DISTANCE_THRESHOLD_KM (from code/config.py), set match_quality
+    = 'low', add entry to results/logs/data_quality_log.json with reason 'distance
+    > 100km'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:52:49Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Records excluded if temperature interpolation gap exceeds 2 hours
+  claim_id: c_8182c7ba
+  context: "T019c [US1] Interpolate & Flag Gaps: ... 3. If gap > 2 hours \u2192 exclude\
+    \ the record and log reason 'temperature gap > 2 hours' to results/logs/data_quality_log.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If gap > 2 hours \u2192 exclude the record and log reason 'temperature\
+    \ gap > 2 hours'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:52:50Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Likelihood-ratio test compares full model with temperature to null model
+    without temperature
+  claim_id: c_fbad1b1a
+  context: "T027 [US2] Likelihood\u2011Ratio Test: Compare the full model (with temperature)\
+    \ to a null model (without temperature) and log test statistic and p-value to\
+    \ results/stats/lrt.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Likelihood-ratio_test_compares_full_model_with_temperature_t
+  kind: entity_fact
+  raw_text: Compare the full model (with temperature) to a null model (without temperature)
+    and log test statistic and p-value to results/stats/lrt.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:53:25Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Anderson-Darling test performed on sampled residuals
+  claim_id: c_150c402a
+  context: "T028b [US2] Anderson\u2011Darling Test: Sample [deferred] of residuals\
+    \ (per ANDERSON_DARLING_SAMPLE_FRACTION) and compute Anderson\u2011Darling statistic;\
+    \ log p-value to results/logs/ad_test.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Anderson-Darling_test_performed_on_sampled_residuals
+  kind: entity_fact
+  raw_text: "Sample [deferred] of residuals (per ANDERSON_DARLING_SAMPLE_FRACTION)\
+    \ and compute Anderson\u2011Darling statistic; log p-value to results/logs/ad_test.json."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:53:52Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps outlier threshold over one to several standard
+    deviations
+  claim_id: c_a2f8c8f6
+  context: 'T047 [US3] Temperature Outlier Threshold Sensitivity: Sweep the outlier
+    exclusion threshold over a sensible range (e.g., one to several standard deviations)
+    and for each threshold record the temperature coefficient and its p-value.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_outlier_threshold_over_one_to_se
+  kind: entity_fact
+  raw_text: Sweep the outlier exclusion threshold over a sensible range (e.g., one
+    to several standard deviations) and for each threshold record the temperature
+    coefficient and its p-value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:54:40Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Wikidata Q30324255
+  claim_id: c_19ace496
+  context: 'Implement code/validate_sources.py to: 1. {{claim:c_81855fef}} (Wikidata
+    Q30324255, https://www.wikidata.org/wiki/Q30324255)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q30324255
+  kind: entity_fact
+  raw_text: Wikidata Q30324255
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:55:45Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Use cdsapi library for ERA5 metadata retrieval
+  claim_id: c_235ad9f3
+  context: 'T001c [S] Validate ERA5 Citation: Verify the canonical URL for the Copernicus
+    Climate Data Store (CDS) API. Implement logic in code/validate_sources.py to:
+    1. Fetch ERA metadata (product_type, variable, grid_resolution) using the cdsapi
+    library.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_cdsapi_library_for_ERA5_metadata_retrieval
+  kind: entity_fact
+  raw_text: Fetch ERA5 metadata using the cdsapi library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:58:07Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset is Wikidata Q30324255
+  claim_id: c_d744201b
+  context: 'T001a [S] Validate Moral Machine Source: Implement code/validate_sources.py
+    to: 1. {{claim:c_81855fef}} (Wikidata Q30324255, https://www.wikidata.org/wiki/Q30324255)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_is_Wikidata_Q30324255
+  kind: entity_fact
+  raw_text: The Moral Machine dataset corresponds to Wikidata Q30324255.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:58:49Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample fetch uses 2m_temperature variable
+  claim_id: c_703787cd
+  context: "T001b [S] Ingest & Validate ERA5 Sample: Write code/validate_era5.py to\
+    \ fetch a specific sample subset (Jan 1 \u2013 Jan 7 2016) for London (51.5074,\
+    \ \u20110.1278) using the CDS API with product_type='reanalysis', variable='2m_temperature',\
+    \ and grid_resolution='a fine spatial scale'."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ERA5_sample_fetch_uses_2m_temperature_variable
+  kind: entity_fact
+  raw_text: The CDS API variable for the sample fetch is 2m_temperature.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:59:09Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample subset covers Jan 1 to Jan 7 2016
+  claim_id: c_a87d2b2a
+  context: "T001b [S] Ingest & Validate ERA5 Sample: Write code/validate_era5.py to\
+    \ fetch a specific sample subset (Jan 1 \u2013 Jan 7 2016) for London (51.5074,\
+    \ \u20110.1278) using the CDS API..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The ERA5 sample subset covers the dates Jan 1 \u2013 Jan 7 2016."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T09:59:36Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 sample subset location is London at 51.5074, -0.1278
+  claim_id: c_5f39e66a
+  context: "T001b [S] Ingest & Validate ERA5 Sample: Write code/validate_era5.py to\
+    \ fetch a specific sample subset (Jan 1 \u2013 Jan 7 2016) for London (51.5074,\
+    \ \u20110.1278) using the CDS API..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sample subset location for ERA5 is London at coordinates 51.5074,\
+    \ \u20110.1278."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:00:16Z'

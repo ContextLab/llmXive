@@ -6,12 +6,6 @@ T001b:
     is incomplete/truncated and there is no evidence that it fetched, saved, and validated
     the data as specified. The missing HDF5 file and lack of concrete validation logs
     must be addressed.
-T006:
-  c: false
-  h: bebd4fcc56bb6f1d1ad35aa31c8d7cd1f51176c5270323bb4b6842194fd905ec
-  r: "The required `data/raw/era5_full.h5` file is missing, so the existence check\
-    \ fails, and the log file does not contain a final \u201CPass/Fail\u201D entry\
-    \ for the gate. Consequently the validation gate was not correctly completed."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
