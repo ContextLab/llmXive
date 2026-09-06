@@ -19,23 +19,6 @@ T015:
     provided `code/preprocess.py` (truncated) shows no implementation that writes
     the flag file, updates `state.yaml`, or exits on detection of zero porosity variance.
     These essential pieces are missing, so the task is not satisfied.'
-T016b:
-  c: false
-  h: f68f7ece86cdcc36e4ec756696781dd73825aa1c08066eb26d735281d82317df
-  r: "The provided `preprocess.py` contains schema loading, validation, and a degenerate\u2011\
-    dataset check, but it never creates the `X_raw` and `X_derived` DataFrames nor\
-    \ writes them to `data/processed/X_raw.csv` and `data/processed/X_derived.csv`.\
-    \ Both CSV files are absent from the repository. The core requirement of generating\
-    \ and saving the distinct feature subsets is therefore not satisfied."
-T017b:
-  c: false
-  h: 45b51eb7fb21ad9b4a5ba2936d0c9fab6ca06a87056cfa46d38ead4eb6db4d5c
-  r: "The provided `code/preprocess.py` defines schema\u2011loading and validation\
-    \ helpers but does not contain a runnable routine that loads the processed DataFrame,\
-    \ validates it against the required `contracts/dataset.schema.yaml`, and exits\
-    \ on failure. Moreover, the referenced schema file (`contracts/dataset.schema.yaml`)\
-    \ is absent from the repository, so the validation cannot actually be performed.\
-    \ The task therefore remains unfinished."
 T021:
   c: true
   h: b9282f17092b50426123d1802ad19caef9d2320e6a47fb5d3591262257bf9f5c
@@ -78,11 +61,3 @@ T030:
     \ and map it to the correct model (`best_raw_model.pkl` or `best_derived_model.pkl`)\
     \ and data CSV (`X_raw.csv` or `X_derived.csv`). This matches the task\u2019s\
     \ required loading logic."
-T035:
-  c: false
-  h: 38553c152edf06db5ea3eec2ef3e7943743289fe31db31fc01c5f9d65325f30b
-  r: "The `code/analyze_explainability.py` file is present but the provided excerpt\
-    \ ends abruptly and shows no implementation of the required separate\u2011model\
-    \ comparison, Spearman correlation calculation, side\u2011by\u2011side bar chart,\
-    \ or JSON report generation. Moreover, the expected output file `results/reports/feature_comparison.json`\
-    \ does not exist. The task\u2019s deliverables are therefore missing."

@@ -1,68 +1,81 @@
 # Quickstart: The Impact of Network Efficiency on Age-Related Changes in Resting-State EEG
 
-## Prerequisites
-- Python 3.11+
-- Git
-- Substantial RAM (recommended for full dataset)
+## 1. Prerequisites
 
-## Installation
+- **Python**: 3.11+
+- **System**: Linux (Ubuntu 22.04 recommended) or macOS (ARM64/x64).
+- **Disk Space**: ~15GB (for raw data download and processing).
+- **Memory**: 7GB+ (recommended for full dataset; 4GB minimum for streaming).
 
-1. **Clone and Setup**:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-429-the-impact-of-network-efficiency-on-age-/
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- pip install -r code/requirements.txt
- ```
+## 2. Installation
 
-2. **Verify Data Sources**:
- Ensure you have internet access to fetch the verified datasets. The script will attempt to download from:
- - ` (TUH EEG Corpus)
- - *Note*: If the TUH EEG Corpus does not contain linked cognitive scores, the pipeline will run in "EEG-Only" mode.
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-429-the-impact-of-network-efficiency-on-age-
+   ```
 
-## Running the Pipeline
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-Execute the full pipeline sequentially. Parameters (thresholds, bands) are loaded from `code/config.yaml`.
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Note: `requirements.txt` pins MNE-Python, NetworkX, SciPy, Pandas, Statsmodels, etc.*
+
+## 3. Data Acquisition
+
+The project uses the **TUH EEG Corpus**.
+- **Automatic Download**: Run the download script. It will fetch a subset of adult subjects.
+  ```bash
+  python code/data/download.py --subset adults --limit 100
+  ```
+  *(Use `--limit` to restrict the number of subjects for testing; omit for full run if disk allows)*.
+- **Manual Download**: If automatic download fails, download the EDF files from PhysioNet and place them in `data/raw/`.
+
+## 4. Running the Pipeline
+
+Execute the full pipeline (Preprocessing -> Connectivity -> Analysis -> Viz):
 
 ```bash
-# 1. Download Data (or skip if already present)
-# This step converts raw TUH data (EDF/JSON) to Parquet for batch processing
-python code/01_download_data.py
-
-# 2. Preprocess EEG (Filter, ICA, Epoch)
-python code/02_preprocess_eeeg.py
-
-# 3. Compute Graph Metrics (using Imaginary Coherence)
-python code/03_compute_graph_metrics.py
-
-# 4. Run Power Analysis & Correlation Analysis
-python code/04_correlation_analysis.py
-
-# 5. Run Regression & Stratification
-python code/05_regression_analysis.py
-
-# 6. Generate Visualizations
-python code/06_visualization.py
+python code/main.py
 ```
 
-## Expected Outputs
+**Expected Output**:
+- `data/processed/epochs/`: MNE epoch files.
+- `data/results/network_metrics.csv`: Participant-level metrics.
+- `data/results/correlation_results.csv`: Statistical results.
+- `data/results/sensitivity_report.md`: Robustness analysis.
+- `data/quality/exclusion_log.csv`: Records excluded due to missing data.
+- `data/quality/version_map.json`: Aggregated SHA-256 hashes.
 
-- `data/processed/metrics.csv`: Network metrics per participant.
-- `results/correlations.json`: Spearman correlations and p-values (Age only if Cognition missing).
-- `results/power_analysis.json`: Simulation-based power analysis results.
-- `results/fwer_check.json`: Family-Wise Error Rate measurement.
-- `results/regression_summary.json`: Regression coefficients and warnings (e.g., "Missing Cognitive Data").
-- `results/plots/`: Age-stratified network efficiency plots.
+## 5. Validation
 
-## Testing
+Verify the results against the schema:
 
-Run unit tests to verify graph metric calculations:
 ```bash
-pytest tests/test_graph_metrics.py -v
+python code/tests/test_schema_validation.py
 ```
 
-Run integration test on a small subset:
-```bash
-python tests/test_pipeline.py --subset 5
-```
+This script checks:
+- Presence of `trace_id` (SHA-256) in CSVs.
+- Correct data types for all columns.
+- Formula verification (Global Eff = 1/Path Length) via unit test.
+- Handling of missing files.
+
+## 6. Troubleshooting
+
+- **Memory Error**: If you encounter `MemoryError`, reduce the `--limit` flag in the download step or enable streaming mode in `code/data/download.py`.
+- **Missing Cognitive Scores**: The TUH corpus does not have cognitive scores for all subjects. The pipeline will automatically filter for valid records and report the count in `data/quality/download_report.json`. Excluded records will be logged in `data/quality/exclusion_log.csv`.
+- **ICA Failure**: If ICA fails for a subject (e.g., too few epochs), the subject is skipped and logged in `data/quality/download_report.json`.
+
+## 7. Reproducibility Check
+
+To verify reproducibility:
+1. Delete `data/processed/` and `data/results/`.
+2. Run `python code/main.py` again.
+3. Compare the SHA-256 hash of the new `network_metrics.csv` with the previous run (stored in `state/`). They must match.

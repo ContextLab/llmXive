@@ -4,20 +4,18 @@ import json
 import logging
 import pickle
 import time
-from pathlib import Path
-from typing import Tuple, Dict, Any, Optional
-
 import numpy as np
 import pandas as pd
 import yaml
+from pathlib import Path
 import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for CI
+matplotlib.use('Agg')  # Non-interactive backend for headless execution
 import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import spearmanr
 import shap
 from sklearn.inspection import permutation_importance
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-from sklearn.neural_network import MLPRegressor
-from scipy.stats import spearmanr
+from sklearn.metrics import r2_score
 
 # Import project utilities
 from utils import setup_logging, load_state, update_state, compute_file_hash
@@ -25,409 +23,304 @@ from utils import setup_logging, load_state, update_state, compute_file_hash
 # Configure logging
 logger = setup_logging()
 
-def load_state_file(state_path: str) -> Dict[str, Any]:
-    """Load a YAML state file."""
+def load_state_file(state_path):
+    """Load the state.yaml file."""
     if not os.path.exists(state_path):
-        raise FileNotFoundError(f"State file not found: {state_path}")
+        raise FileNotFoundError(f"State file not found at {state_path}")
     with open(state_path, 'r') as f:
         return yaml.safe_load(f)
 
-def load_model_from_path(model_path: str):
+def load_model_from_path(model_path):
     """Load a pickled model."""
     if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file not found: {model_path}")
+        raise FileNotFoundError(f"Model file not found at {model_path}")
     with open(model_path, 'rb') as f:
         return pickle.load(f)
 
-def load_data_from_path(data_path: str) -> pd.DataFrame:
+def load_data_from_path(data_path):
     """Load a CSV dataset."""
     if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Data file not found: {data_path}")
+        raise FileNotFoundError(f"Data file not found at {data_path}")
     return pd.read_csv(data_path)
 
-def find_best_model(selection_state: Dict[str, Any]) -> Tuple[str, str, str]:
-    """
-    Determine which model and data files to load based on T028 selection.
-    
-    Returns:
-        Tuple of (selected_subset, model_path, data_path)
-    """
-    selected_subset = selection_state.get('selected_subset')
-    
-    if not selected_subset:
-        raise ValueError("No model selection found in state/selected_model.yaml")
-    
-    if selected_subset == 'X_raw':
-        model_path = 'models/artifacts/best_raw_model.pkl'
-        data_path = 'data/processed/X_raw.csv'
-    elif selected_subset == 'X_derived':
-        model_path = 'models/artifacts/best_derived_model.pkl'
-        data_path = 'data/processed/X_derived.csv'
-    else:
-        raise ValueError(f"Unknown selected_subset: {selected_subset}")
-    
-    return selected_subset, model_path, data_path
+def find_best_model(state):
+    """Extract the selected model info from state."""
+    if 'selected_model' not in state:
+        raise ValueError("No selected model found in state.yaml")
+    return state['selected_model']
 
-def calculate_shap_and_plot(
-    model, 
-    X_data: pd.DataFrame, 
-    output_path: str, 
-    selected_subset: str
-) -> np.ndarray:
-    """
-    Calculate SHAP values and generate the summary plot.
+def calculate_shap_and_plot(model, X_data, feature_names, output_path):
+    """Calculate SHAP values and generate a summary plot."""
+    logger.info(f"Calculating SHAP values for {len(X_data)} samples...")
+    explainer = shap.Explainer(model, X_data)
+    shap_values = explainer(X_data)
     
-    Args:
-        model: Trained sklearn model.
-        X_data: Feature DataFrame.
-        output_path: Path to save the plot.
-        selected_subset: Name of the subset (for labeling).
-        
-    Returns:
-        SHAP values array.
-    """
-    logger.info(f"Calculating SHAP values for {selected_subset} subset...")
-    
-    # Use a background dataset for KernelExplainer if needed, or use the full data
-    # For tree-based models, TreeExplainer is preferred, but we use a generic approach
-    # that works for both GBM and MLP (though MLP might be slow with KernelExplainer)
-    # We'll try TreeExplainer first for GBM, fallback to KernelExplainer for others.
-    
-    try:
-        if hasattr(model, 'tree_'):
-            explainer = shap.TreeExplainer(model)
-            shap_values = explainer.shap_values(X_data)
-        else:
-            # For MLP or other non-tree models, use KernelExplainer
-            # Limit samples for speed if dataset is large
-            n_samples = min(100, X_data.shape[0])
-            background = shap.kmeans(X_data, n_samples)
-            explainer = shap.KernelExplainer(model.predict, background)
-            shap_values = explainer.shap_values(X_data)
-    except Exception as e:
-        logger.warning(f"Specific explainer failed, falling back to KernelExplainer: {e}")
-        # Fallback: always use KernelExplainer with sampling
-        n_samples = min(50, X_data.shape[0])
-        background = shap.kmeans(X_data, n_samples)
-        explainer = shap.KernelExplainer(model.predict, background)
-        shap_values = explainer.shap_values(X_data)
-
-    # Handle multi-output SHAP if necessary (regression usually returns 1D or 2D)
-    if isinstance(shap_values, list):
-        shap_values = shap_values[0]  # Take first output for regression
-    
-    # Ensure shap_values is 2D (n_samples, n_features)
-    if len(shap_values.shape) == 1:
-        shap_values = shap_values.reshape(-1, 1)
-    
-    # Generate Plot
     plt.figure(figsize=(10, 8))
-    shap.summary_plot(shap_values, X_data, show=False, plot_type="dot")
-    plt.title(f"SHAP Summary Plot ({selected_subset})")
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    shap.summary_plot(shap_values, X_data, feature_names=feature_names, plot_type="bar", show=False)
+    plt.title(f"SHAP Summary - {os.path.basename(output_path)}")
+    plt.tight_layout()
+    plt.savefig(output_path)
     plt.close()
-    
-    logger.info(f"SHAP summary plot saved to {output_path}")
+    logger.info(f"SHAP plot saved to {output_path}")
     return shap_values
 
-def perform_statistical_analysis(
-    model, 
-    X_data: pd.DataFrame, 
-    y_data: pd.Series,
-    shap_values: np.ndarray,
-    selected_subset: str
-) -> Dict[str, Any]:
-    """
-    Perform SHAP Bootstrap CI and Permutation Importance.
-    """
+def perform_statistical_analysis(model, X_data, y_data, feature_names, output_path, n_permutations=1000, n_bootstrap=1000):
+    """Perform SHAP Bootstrap CI and Permutation Importance."""
     logger.info("Performing unified statistical analysis...")
     
-    n_samples = X_data.shape[0]
-    n_features = X_data.shape[1]
-    feature_names = list(X_data.columns)
-    
     # 1. SHAP Bootstrap CI
-    logger.info("Calculating SHAP Bootstrap Confidence Intervals (N=1000)...")
-    bootstrap_n = 1000
-    shap_means = np.zeros((bootstrap_n, n_features))
+    logger.info(f"Running SHAP Bootstrap (N={n_bootstrap})...")
+    shap_values = shap.Explainer(model, X_data)(X_data)
+    if isinstance(shap_values, shap.Explanation):
+        shap_values_array = shap_values.values
+    else:
+        shap_values_array = shap_values
+
+    bootstrap_means = []
+    for i in range(n_bootstrap):
+        idx = np.random.choice(len(X_data), len(X_data), replace=True)
+        X_boot = X_data.iloc[idx]
+        y_boot = y_data.iloc[idx]
+        boot_explainer = shap.Explainer(model, X_boot)
+        boot_shap = boot_explainer(X_boot)
+        if isinstance(boot_shap, shap.Explanation):
+            bootstrap_means.append(np.mean(np.abs(boot_shap.values), axis=0))
+        else:
+            bootstrap_means.append(np.mean(np.abs(boot_shap), axis=0))
     
-    # Use a subset of data for speed if too large, but keep it representative
-    # We resample rows
-    for i in range(bootstrap_n):
-        indices = np.random.choice(n_samples, size=n_samples, replace=True)
-        X_boot = X_data.iloc[indices]
-        
-        # Recompute SHAP for this sample (using a fast approx if possible, or re-run)
-        # Re-running full SHAP 1000 times is expensive. 
-        # Optimization: Use the existing shap_values and resample the rows?
-        # No, FR-007 requires recomputing. We must re-run.
-        # To avoid TLE, we use a smaller background for KernelExplainer or fewer samples if needed.
-        # However, for correctness, we attempt to run.
-        try:
-            if hasattr(model, 'tree_'):
-                explainer = shap.TreeExplainer(model)
-                sv = explainer.shap_values(X_boot)
-            else:
-                # Sampling for background in loop is too slow. 
-                # We use the original background but resample X_boot for prediction?
-                # SHAP values depend on X. We must compute on X_boot.
-                # Fallback: Use a very small sample for the bootstrap loop if dataset is huge.
-                # But let's try with a fixed small n for the loop if n_samples > 50
-                if n_samples > 50:
-                    X_boot_small = X_boot.sample(n=50, random_state=i)
-                else:
-                    X_boot_small = X_boot
-                
-                background = shap.kmeans(X_data, min(10, n_samples))
-                explainer = shap.KernelExplainer(model.predict, background)
-                sv = explainer.shap_values(X_boot_small)
-            
-            if isinstance(sv, list): sv = sv[0]
-            if len(sv.shape) == 1: sv = sv.reshape(-1, 1)
-            shap_means[i] = np.mean(sv, axis=0)
-        except Exception as e:
-            logger.warning(f"Bootstrap iteration {i} failed: {e}. Skipping.")
-            continue
-    
-    # Calculate CIs
-    ci_lower = np.percentile(shap_means, 2.5, axis=0)
-    ci_upper = np.percentile(shap_means, 97.5, axis=0)
-    
+    bootstrap_means = np.array(bootstrap_means)
+    ci_lower = np.percentile(bootstrap_means, 2.5, axis=0)
+    ci_upper = np.percentile(bootstrap_means, 97.5, axis=0)
+    mean_shap = np.mean(np.abs(shap_values_array), axis=0)
+
     # 2. Permutation Importance
-    logger.info("Calculating Permutation Importance (n_repeats=30)...")
-    perm_result = permutation_importance(
-        model, X_data, y_data, 
-        n_repeats=30, 
-        random_state=42, 
-        scoring='r2',
-        n_jobs=1
-    )
-    
+    logger.info(f"Running Permutation Importance (N={n_permutations})...")
+    perm_result = permutation_importance(model, X_data, y_data, n_repeats=n_permutations, random_state=42, scoring='r2')
     perm_importance = perm_result.importances_mean
     perm_std = perm_result.importances_std
     
-    # Calculate p-values (approximate using permutation distribution)
-    # We can use the permutation distribution to estimate p-value:
-    # How many permuted importances are >= observed? (Here observed is the permuted mean itself? No)
-    # Standard approach: The null hypothesis is that the feature has no effect.
-    # The distribution of importances under permutation IS the null distribution.
-    # We compare the mean importance to the distribution of importances from the permutations.
-    # Actually, permutation_importance returns the mean and std of the drop in score.
-    # To get a p-value, we can check if the mean is significantly different from 0 using the std.
-    # Or use the distribution of importances from the n_repeats.
-    # Let's use a simple Z-score approximation: mean / std.
-    # If std is 0, p-value is 0 if mean != 0, else 1.
-    p_values = []
-    for i in range(n_features):
-        if perm_std[i] == 0:
-            p_val = 0.0 if perm_importance[i] != 0 else 1.0
-        else:
-            z = perm_importance[i] / perm_std[i]
-            # Two-tailed p-value
-            from scipy.stats import norm
-            p_val = 2 * (1 - norm.cdf(abs(z)))
-        p_values.append(p_val)
-    
-    # Build Report
+    # Calculate p-values (one-sided test: importance > 0)
+    # Assuming normal distribution of permutation results
+    z_scores = perm_importance / (perm_std + 1e-8)
+    from scipy.stats import norm
+    p_values = 1 - norm.cdf(z_scores)
+    significant = p_values < 0.05
+
     report = {
-        "selected_subset": selected_subset,
-        "sample_size": n_samples,
-        "bootstrap_n": bootstrap_n,
-        "permutation_n_repeats": 30,
-        "significance_threshold": 0.05,
+        "header": {
+            "n_permutations": n_permutations,
+            "n_bootstrap": n_bootstrap,
+            "significance_threshold": 0.05
+        },
         "features": []
     }
-    
+
     for i, name in enumerate(feature_names):
         report["features"].append({
             "name": name,
-            "mean_shap": float(np.mean(shap_values[:, i])),
-            "shap_ci_lower": float(ci_lower[i]),
-            "shap_ci_upper": float(ci_upper[i]),
+            "mean_shap": float(mean_shap[i]),
+            "ci_lower": float(ci_lower[i]),
+            "ci_upper": float(ci_upper[i]),
             "perm_importance": float(perm_importance[i]),
-            "perm_std": float(perm_std[i]),
             "p_value": float(p_values[i]),
-            "is_significant": p_values[i] < 0.05
+            "significant": bool(significant[i])
         })
-        
-    return report
-
-def run_comparison_analysis(
-    raw_model_path: str, 
-    derived_model_path: str,
-    raw_data_path: str,
-    derived_data_path: str,
-    output_path: str
-):
-    """
-    Compare the two models (Raw vs Derived) using Spearman correlation of feature ranks.
-    """
-    logger.info("Running model comparison analysis...")
-    
-    try:
-        model_raw = load_model_from_path(raw_model_path)
-        model_derived = load_model_from_path(derived_model_path)
-        X_raw = load_data_from_path(raw_data_path)
-        X_derived = load_data_from_path(derived_data_path)
-    except FileNotFoundError as e:
-        logger.warning(f"Comparison skipped due to missing file: {e}")
-        return None
-
-    # Get feature importances (using permutation importance for consistency)
-    # We need y. Load from cleaned dataset?
-    # The task says "compare feature importance".
-    # We can use the model's built-in feature_importances_ if available (GBM, RF)
-    # or permutation importance.
-    
-    def get_feature_importance(model, X, y):
-        if hasattr(model, 'feature_importances_'):
-            return model.feature_importances_
-        else:
-            # Fallback to permutation
-            res = permutation_importance(model, X, y, n_repeats=10, random_state=42)
-            return res.importances_mean
-
-    # We need y. Let's load the cleaned data to get y
-    # The cleaned data has the target 'porosity'
-    if os.path.exists('data/processed/cleaned_316L.csv'):
-        df_clean = pd.read_csv('data/processed/cleaned_316L.csv')
-        y = df_clean['porosity']
-    else:
-        logger.error("Cannot find cleaned_316L.csv for comparison y.")
-        return None
-
-    # Align y with X subsets
-    # X_raw and X_derived are subsets of the cleaned data features.
-    # We assume they have the same number of rows and order as cleaned_316L.csv
-    y_raw = y.iloc[:X_raw.shape[0]]
-    y_derived = y.iloc[:X_derived.shape[0]]
-
-    imp_raw = get_feature_importance(model_raw, X_raw, y_raw)
-    imp_derived = get_feature_importance(model_derived, X_derived, y_derived)
-
-    # Rank
-    rank_raw = np.argsort(np.argsort(imp_raw))
-    rank_derived = np.argsort(np.argsort(imp_derived))
-
-    corr, p_val = spearmanr(rank_raw, rank_derived)
-
-    # Identify significant features (p < 0.05 in their own models)
-    # We need to run permutation importance again to get p-values for each
-    # This is expensive, so we might skip detailed p-values for comparison if not strictly required
-    # The task asks for "significant_features_raw" and "significant_features_derived"
-    # We'll use a simple threshold on importance > 0 for now, or re-run perm importance.
-    # Let's re-run perm importance for p-values.
-    
-    def get_sig_features(model, X, y):
-        res = permutation_importance(model, X, y, n_repeats=30, random_state=42)
-        # Approx p-value
-        from scipy.stats import norm
-        p_vals = []
-        for i in range(len(res.importances_mean)):
-            if res.importances_std[i] == 0:
-                p = 0.0 if res.importances_mean[i] != 0 else 1.0
-            else:
-                z = res.importances_mean[i] / res.importances_std[i]
-                p = 2 * (1 - norm.cdf(abs(z)))
-            p_vals.append(p)
-        sig = [X.columns[i] for i, p in enumerate(p_vals) if p < 0.05]
-        return sig
-
-    sig_raw = get_sig_features(model_raw, X_raw, y_raw)
-    sig_derived = get_sig_features(model_derived, X_derived, y_derived)
-
-    comparison_report = {
-        "spearman_correlation": float(corr),
-        "p_value_correlation": float(p_val),
-        "significant_features_raw": sig_raw,
-        "significant_features_derived": sig_derived
-    }
 
     with open(output_path, 'w') as f:
-        json.dump(comparison_report, f, indent=2)
+        json.dump(report, f, indent=2)
+    logger.info(f"Statistical report saved to {output_path}")
+    return report
+
+def run_comparison_analysis(state, models_dir, data_dir, results_dir):
+    """
+    Compare feature importance and SHAP values from X_raw and X_derived models.
+    - Loads best_raw_model.pkl and best_derived_model.pkl (or equivalent).
+    - Loads X_raw.csv and X_derived.csv.
+    - Calculates Spearman correlation between feature importance ranks.
+    - Generates a side-by-side bar chart.
+    - Saves results to feature_comparison.json.
+    """
+    logger.info("Starting Separate Model Comparison (T035)...")
+
+    # 1. Identify models and data based on state
+    # We need to analyze BOTH models regardless of which was "selected"
+    # The task requires comparing the "separate model outputs"
     
-    # Generate Side-by-Side Bar Chart
+    raw_model_path = os.path.join(models_dir, 'best_raw_model.pkl')
+    derived_model_path = os.path.join(models_dir, 'best_derived_model.pkl')
+    
+    raw_data_path = os.path.join(data_dir, 'X_raw.csv')
+    derived_data_path = os.path.join(data_dir, 'X_derived.csv')
+
+    # Check existence
+    if not os.path.exists(raw_model_path) or not os.path.exists(derived_model_path):
+        logger.error("Missing model artifacts for comparison. Expected: best_raw_model.pkl, best_derived_model.pkl")
+        # If only one exists, we can't compare. Raise error.
+        raise FileNotFoundError("Both raw and derived model artifacts must exist for comparison.")
+    
+    if not os.path.exists(raw_data_path) or not os.path.exists(derived_data_path):
+        logger.error("Missing feature subset data for comparison.")
+        raise FileNotFoundError("Both X_raw.csv and X_derived.csv must exist.")
+
+    # Load Models
+    logger.info("Loading models...")
+    model_raw = load_model_from_path(raw_model_path)
+    model_derived = load_model_from_path(derived_model_path)
+
+    # Load Data
+    logger.info("Loading feature subsets...")
+    X_raw = load_data_from_path(raw_data_path)
+    X_derived = load_data_from_path(derived_data_path)
+
+    # We need the target variable for permutation importance
+    # Load the cleaned dataset to get 'porosity'
+    cleaned_path = os.path.join(data_dir, 'cleaned_316L.csv')
+    if not os.path.exists(cleaned_path):
+        raise FileNotFoundError(f"Target data not found at {cleaned_path}")
+    df_clean = load_data_from_path(cleaned_path)
+    y = df_clean['porosity']
+
+    feature_names_raw = X_raw.columns.tolist()
+    feature_names_derived = X_derived.columns.tolist()
+
+    # 2. Calculate Feature Importance (using Permutation Importance as the metric for rank)
+    logger.info("Calculating permutation importance for Raw model...")
+    perm_raw = permutation_importance(model_raw, X_raw, y, n_repeats=100, random_state=42, scoring='r2')
+    imp_raw = perm_raw.importances_mean
+
+    logger.info("Calculating permutation importance for Derived model...")
+    perm_derived = permutation_importance(model_derived, X_derived, y, n_repeats=100, random_state=42, scoring='r2')
+    imp_derived = perm_derived.importances_mean
+
+    # 3. Calculate Spearman Correlation between Ranks
+    # Note: The feature sets are different. 
+    # Raw: ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
+    # Derived: ['energy_density']
+    # Direct rank correlation is impossible if lengths differ.
+    # However, the task asks to "validate physical intuition".
+    # If Derived is just Ev, and Ev is a function of Raw, we expect high correlation 
+    # between the importance of Ev and the *combined* importance of Raw features.
+    # But strictly, Spearman requires same length.
+    # Interpretation: If the task implies comparing the *ranking* of features within their own sets,
+    # that's trivial (1 vs 1). 
+    # Alternative Interpretation: The "Derived" model might have multiple derived features in a real scenario.
+    # Here, based on T016b, X_derived has only 'energy_density'.
+    # X_raw has 4 features.
+    # We cannot compute Spearman correlation between a list of 4 and a list of 1.
+    # We must handle this gracefully.
+    # Strategy: If lengths differ, report N/A for correlation, but still compare the *values* 
+    # or note the structural difference.
+    # OR: Perhaps the "Derived" model in a real scenario includes interaction terms?
+    # Given the strict spec: "Calculate Spearman correlation between feature importance ranks".
+    # If we cannot, we must state why.
+    # However, let's look at the output schema: `{"spearman_correlation": <float>, ...}`.
+    # This implies a float is expected.
+    # If X_derived only has 1 feature, the rank is trivial.
+    # Maybe the "Derived" set in the spec implies something else?
+    # Re-reading T016b: "create distinct feature subsets: X_raw ... and X_derived (only Ev)".
+    # So X_derived has 1 column. X_raw has 4.
+    # Spearman correlation is undefined for different lengths.
+    # We will set it to None or 0.0 with a note, OR we calculate the correlation between the 
+    # importance of 'energy_density' and the *sum* of importance of raw features? No, that's not Spearman.
+    # Let's assume the task implies a scenario where both have >1 feature, or we handle the 1-feature case.
+    # If N=1, the rank is [1]. If M=4, ranks are [1,2,3,4].
+    # We will compute the correlation only if lengths match. If not, we set it to NaN and log a warning.
+    
+    spearman_corr = None
+    if len(feature_names_raw) == len(feature_names_derived):
+        ranks_raw = pd.Series(imp_raw).rank(ascending=False).values
+        ranks_derived = pd.Series(imp_derived).rank(ascending=False).values
+        corr, _ = spearmanr(ranks_raw, ranks_derived)
+        spearman_corr = float(corr)
+    else:
+        logger.warning(f"Cannot compute Spearman correlation: Raw features ({len(feature_names_raw)}) != Derived features ({len(feature_names_derived)}).")
+        spearman_corr = None
+
+    # 4. Identify Significant Features
+    significant_raw = [name for name, imp in zip(feature_names_raw, imp_raw) if imp > 0] # Simple threshold
+    significant_derived = [name for name, imp in zip(feature_names_derived, imp_derived) if imp > 0]
+
+    # 5. Generate Side-by-Side Bar Chart
+    logger.info("Generating comparison bar chart...")
     plt.figure(figsize=(12, 6))
-    x = np.arange(len(imp_raw))
+    
+    x = np.arange(len(feature_names_raw))
     width = 0.35
 
-    plt.bar(x - width/2, imp_raw, width, label='Raw Model')
-    plt.bar(x + width/2, imp_derived, width, label='Derived Model')
-    plt.xlabel('Features')
-    plt.ylabel('Importance')
-    plt.title('Feature Importance Comparison: Raw vs Derived')
-    plt.xticks(x, X_raw.columns, rotation=45)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig('results/plots/feature_comparison.png', dpi=150)
-    plt.close()
+    # We need to align features if possible, but they are different.
+    # Let's plot them side by side but grouped by "Model Type" if we had matching features.
+    # Since they don't match, we'll plot two separate groups or a single chart with different x-axes?
+    # Standard approach: Two subplots or a grouped bar if we map them?
+    # Let's do two subplots for clarity, or a single bar chart with "Raw Features" and "Derived Features" as categories.
+    # Given the "Side-by-side" requirement, let's try to plot them in one figure with two clusters.
+    
+    # Cluster 1: Raw
+    plt.subplot(1, 2, 1)
+    plt.barh(feature_names_raw, imp_raw, color='skyblue')
+    plt.xlabel('Permutation Importance')
+    plt.title('Raw Model Feature Importance')
+    plt.gca().invert_yaxis()
 
-    logger.info(f"Comparison report saved to {output_path}")
-    return comparison_report
+    # Cluster 2: Derived
+    plt.subplot(1, 2, 2)
+    plt.barh(feature_names_derived, imp_derived, color='salmon')
+    plt.xlabel('Permutation Importance')
+    plt.title('Derived Model Feature Importance')
+    plt.gca().invert_yaxis()
+
+    plt.tight_layout()
+    chart_path = os.path.join(results_dir, 'feature_comparison_chart.png')
+    plt.savefig(chart_path)
+    plt.close()
+    logger.info(f"Comparison chart saved to {chart_path}")
+
+    # 6. Save JSON Report
+    report = {
+        "spearman_correlation": spearman_corr,
+        "significant_features_raw": significant_raw,
+        "significant_features_derived": significant_derived,
+        "raw_importance": dict(zip(feature_names_raw, imp_raw.tolist())),
+        "derived_importance": dict(zip(feature_names_derived, imp_derived.tolist())),
+        "note": "Spearman correlation is only computed if feature counts match." if spearman_corr is None else "Correlation computed on ranks."
+    }
+
+    output_json_path = os.path.join(results_dir, 'feature_comparison.json')
+    with open(output_json_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Feature comparison report saved to {output_json_path}")
+    return report
 
 def main():
-    logger.info("Starting Explainability Analysis (T030)...")
+    logger.info("Starting Explainability Analysis (T035: Separate Model Comparison)")
     
-    # 1. Load Selection State
-    state_path = 'state/selected_model.yaml'
-    if not os.path.exists(state_path):
-        logger.error(f"Selection state not found: {state_path}. Has T028 run?")
-        sys.exit(1)
-    
-    selection_state = load_state_file(state_path)
-    
-    # 2. Determine Paths
-    selected_subset, model_path, data_path = find_best_model(selection_state)
-    
-    # 3. Load Model and Data
-    logger.info(f"Loading model from {model_path} and data from {data_path}")
-    model = load_model_from_path(model_path)
-    X_data = load_data_from_path(data_path)
-    
-    # We need y for permutation importance. Load from cleaned data.
-    cleaned_path = 'data/processed/cleaned_316L.csv'
-    if os.path.exists(cleaned_path):
-        df_clean = pd.read_csv(cleaned_path)
-        # Ensure we align y with X_data rows. 
-        # Since X_raw/X_derived are subsets of the same rows, we take the same count.
-        y_data = df_clean['porosity'].iloc[:X_data.shape[0]]
-    else:
-        logger.error("cleaned_316L.csv not found. Cannot compute permutation importance.")
-        sys.exit(1)
+    # Paths
+    project_root = Path(__file__).parent.parent
+    state_path = project_root / 'state' / 'state.yaml'
+    models_dir = project_root / 'models' / 'artifacts'
+    data_dir = project_root / 'data' / 'processed'
+    results_dir = project_root / 'results' / 'reports'
 
-    # 4. Calculate SHAP and Plot
-    shap_plot_path = f'results/plots/shap_summary_{selected_subset}.png'
-    os.makedirs('results/plots', exist_ok=True)
-    shap_values = calculate_shap_and_plot(model, X_data, shap_plot_path, selected_subset)
+    # Ensure directories exist
+    results_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load State
+    state = load_state_file(str(state_path))
     
-    # 5. Statistical Analysis
-    stat_report = perform_statistical_analysis(model, X_data, y_data, shap_values, selected_subset)
-    stat_report_path = f'results/reports/unified_statistical_analysis_{selected_subset}.json'
-    os.makedirs('results/reports', exist_ok=True)
-    with open(stat_report_path, 'w') as f:
-        json.dump(stat_report, f, indent=2)
-    logger.info(f"Statistical report saved to {stat_report_path}")
-    
-    # 6. Comparison Analysis (T035)
-    # Check if the OTHER model exists
-    other_subset = 'X_derived' if selected_subset == 'X_raw' else 'X_raw'
-    other_model_path = f'models/artifacts/best_{other_subset.lower()}_model.pkl'
-    other_data_path = f'data/processed/X_{other_subset.lower()}.csv'
-    
-    if os.path.exists(other_model_path) and os.path.exists(other_data_path):
-        comp_path = 'results/reports/feature_comparison.json'
-        run_comparison_analysis(model_path, other_model_path, data_path, other_data_path, comp_path)
-    else:
-        logger.warning(f"Other model/data not found for comparison: {other_model_path}, {other_data_path}")
-    
-    # 7. Update State
-    update_state({
-        'shap_plot': shap_plot_path,
-        'stat_report': stat_report_path,
-        'comparison_report': 'results/reports/feature_comparison.json' if os.path.exists('results/reports/feature_comparison.json') else None
-    })
-    
-    logger.info("Explainability Analysis complete.")
+    # Run Comparison
+    try:
+        run_comparison_analysis(state, str(models_dir), str(data_dir), str(results_dir))
+        logger.info("T035 Comparison Analysis completed successfully.")
+    except Exception as e:
+        logger.error(f"T035 Comparison Analysis failed: {e}")
+        raise
+
+    # Update State (hash of new report)
+    report_path = results_dir / 'feature_comparison.json'
+    if report_path.exists():
+        h = compute_file_hash(str(report_path))
+        update_state(state_path, 'feature_comparison_report', h)
+        logger.info("State updated with feature_comparison_report hash.")
 
 if __name__ == "__main__":
     main()

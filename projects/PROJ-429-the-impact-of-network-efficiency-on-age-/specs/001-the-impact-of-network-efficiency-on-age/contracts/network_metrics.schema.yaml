@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Metrics Result Schema"
+description: "Schema for the output CSV: data/results/network_metrics.csv"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Anonymized unique identifier for the participant."
+  age:
+    type: "integer"
+    description: "Age of the participant in years (>= 18)."
+  sex:
+    type: "string"
+    description: "Sex of the participant."
+    enum: ["M", "F", "Unknown"]
+  cognitive_score:
+    type: ["number", "null"]
+    description: "MMSE or MoCA score. Null if not available."
+  cognitive_instrument:
+    type: ["string", "null"]
+    description: "Name of the cognitive instrument used (e.g., MMSE, MoCA)."
+  global_efficiency:
+    type: "number"
+    description: "Global efficiency of the network (harmonic mean of inverse shortest paths)."
+  local_efficiency:
+    type: "number"
+    description: "Local efficiency calculated as average of local efficiencies of each node."
+  path_length:
+    type: "number"
+    description: "Characteristic path length of the network."
+  clustering_coeff:
+    type: "number"
+    description: "Clustering coefficient of the network."
+  modularity:
+    type: "number"
+    description: "Modularity of the network."
+  trace_id:
+    type: "string"
+    description: "SHA-256 hash of the run artifact for reproducibility."
+    pattern: "^[a-f0-9]{64}$"
+  snr_flag:
+    type: "boolean"
+    description: "True if the average SNR for the subject was < 10dB."
+  frequency_band:
+    type: "string"
+    description: "Frequency band used (e.g., 'alpha')."
+    enum: ["alpha", "beta", "theta"]
+required:
+  - subject_id
+  - age
+  - sex
+  - global_efficiency
+  - local_efficiency
+  - path_length
+  - clustering_coeff
+  - modularity
+  - trace_id
+  - snr_flag
+  - frequency_band
+additionalProperties: false

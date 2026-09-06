@@ -1,0 +1,16 @@
+status: none
+intent: TUH EEG Corpus EEG cognitive scores MMSE MoCA python package dataset
+required_fields:
+- subject_id
+- eeg_file_path
+- sampling_rate
+- channel_names
+- age
+- gender
+- diagnosis
+- mmse_score
+- moca_score
+- recording_date
+cache_key: 9c1391f9e2c5affd5da290693e3ee4c425c574f427697080d151c64782de7a99
+searched_at: '2026-09-06T12:41:47.521602+00:00'
+retry_count: 1
