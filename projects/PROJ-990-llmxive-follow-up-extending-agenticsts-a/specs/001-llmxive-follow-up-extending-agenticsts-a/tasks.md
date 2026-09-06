@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -184,3 +184,17 @@
 - [X] T057b [US3] **Aggregate Statistical Data**. **Logic**: Read `data/processed/mcnemar_results.json` OR `data/processed/permutation_results.json` (whichever exists from T025b), `data/processed/statistical_test_summary.json`, `data/processed/power_analysis.json`, `data/processed/divergence_analysis.json`. **Action**: If `mcnemar_results.json` is missing, use `permutation_results.json`. If both are missing, log an error and proceed with empty data. **Output**: `data/processed/agg_stats.json`. **Depends on**: T025b, T025c, T044.
 - [X] T057c [US3] **Assemble Final Statistical Report**. **Logic**: Fill `data/processed/statistical_analysis_report_template.md` (T057a) with data from `data/processed/agg_stats.json` (T057b) and `data/processed/success_criteria_report.json`. **Output**: `data/processed/statistical_analysis_report.md`. **Depends on**: T057a, T057b, T026.
 - [X] T058 [US1] **Validate Data Pipeline Integrity**. **Logic**: Run a comprehensive end-to-end validation of the entire data pipeline from raw data ingestion to final statistical reporting. **Action**: Verify that all intermediate files are correctly generated, checksums match, and no data corruption occurred. **Constraint**: This task ensures the reproducibility of the entire experiment and validates the "Single Source of Truth" principle. **Output**: `data/processed/pipeline_validation_report.json`. **Depends on**: T005b, T006a, T008, T009, T017, T019, T025b.
+
+---
+
+## Phase 8: Final Verification & Cleanup (Revision Round 2)
+
+**Goal**: Ensure all edge cases are handled, logs are complete, and the final report is ready for publication.
+
+- [ ] T059 [US3] **Verify NaN/Inf Handling in Entropy Module**. **Logic**: Run unit tests on `code/entropy.py` specifically for inputs that generate `NaN` or `Infinity` (e.g., division by zero, empty move lists). **Action**: Ensure that the module logs a warning to `data/processed/edge_case_warnings.log` and returns the sentinel value that triggers the "all-layers" fallback in T015b. **Output**: `tests/unit/test_entropy_nan_handling.py` (updated) and `data/processed/edge_case_warnings.log` (verified). **Depends on**: T006b, T055.
+- [ ] T060 [US1] **Validate Token Budget Pruning Logic**. **Logic**: Run integration tests on `code/simulator.py` to ensure that when the token budget is exceeded, the least useful layers are pruned correctly and the `pruning_reason` is logged accurately in `data/processed/pruning_logs.jsonl`. **Action**: Verify that the pruning logic respects the "Current Objective" layer minimum floor (T015a). **Output**: `tests/integration/test_token_budget_pruning.py` (updated) and `data/processed/pruning_logs.jsonl` (verified). **Depends on**: T015c, T056.
+- [ ] T061 [US3] **Finalize Statistical Power Report**. **Logic**: Review `data/processed/power_analysis.json` and `data/processed/final_report.md` to ensure that the limitation regarding sample size (n < 300) is clearly stated and that the interpretation of results is cautious. **Action**: If the sample size is insufficient, add a prominent warning in the final report. **Output**: Updated `data/processed/final_report.md`. **Depends on**: T053, T055.
+- [ ] T062 [US1] **Verify Streaming Data Ingestion**. **Logic**: Run a test with a large synthetic file (simulating the full dataset size) to ensure that the streaming implementation in `code/parser.py` (T052) does not exceed memory limits. **Action**: Verify that memory usage remains stable and that all data is processed correctly. **Output**: `data/processed/streaming_verification_report.json`. **Depends on**: T052, T039.
+- [ ] T063 [US3] **Final Statistical Report Assembly**. **Logic**: Combine all final reports (`data/processed/statistical_analysis_report.md`, `data/processed/success_criteria_report.json`, `data/processed/final_report.md`) into a single comprehensive document. **Action**: Ensure that all sections are complete, all warnings are documented, and the report is ready for publication. **Output**: `data/processed/final_comprehensive_report.md`. **Depends on**: T057c, T061, T063.
+- [ ] T064 [US1] **Final Data Pipeline Validation**. **Logic**: Run a final end-to-end validation of the entire data pipeline, ensuring that all intermediate files are correctly generated, checksums match, and no data corruption occurred. **Action**: Verify that the pipeline is reproducible and that all edge cases are handled correctly. **Output**: `data/processed/final_pipeline_validation_report.json`. **Depends on**: T058, T062.
+- [ ] T065 [US3] **Final Documentation Review**. **Logic**: Review all documentation files (`docs/edge_cases.md`, `data/processed/final_comprehensive_report.md`, `README.md`) to ensure that they are clear, complete, and accurate. **Action**: Update any missing or incorrect information. **Output**: Updated documentation files. **Depends on**: T055, T063, T064.
