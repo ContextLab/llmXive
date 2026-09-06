@@ -5336,3 +5336,226 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T15:49:47Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 0
+  canonical: Sample size n=30 targets statistical power of 0.8
+  claim_id: c_c382378f
+  context: 'Requirement: Source for n=30: Standard statistical power analysis for
+    paired t-tests (target power >= 0.8) and Spec FR-006.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: target power >= 0.8
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T14:29:13Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default simulation steps is 1,000
+  claim_id: c_6e4c60c4
+  context: Setup environment configuration management in code/config.py with a Config
+    dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6, RANDOM_SEED, NUM_MATRICES=10000
+    (Default 10,000 per FR-001), SIMULATION_STEPS=1000 (Default per Constitution Principle
+    VI), NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SIMULATION_STEPS=1000 (Default per Constitution Principle VI)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T14:29:50Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default number of simulation runs is 30
+  claim_id: c_224fbfdf
+  context: Setup environment configuration management in code/config.py with a Config
+    dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6, RANDOM_SEED, NUM_MATRICES=10000
+    (Default 10,000 per FR-001), SIMULATION_STEPS=1000 (Default per Constitution Principle
+    VI), NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NUM_RUNS=30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T14:31:05Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: PyTorch version requirement is 2.1.0+cpu
+  claim_id: c_7c7f96e8
+  context: 'Initialize Python 3.x project with pinned requirements.txt. Action: Create
+    requirements.txt with numpy, scipy, torch==2.1.0+cpu --index-url https://download.pytorch.org/whl/cpu,
+    scikit-learn, pandas, pyarrow, pytest, matplotlib.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.1.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T14:32:03Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: SingleStepSinkhorn solver handles near-zero variance with threshold 1e-6
+  claim_id: c_37dcabb6
+  context: 'Implement unit test for SingleStepSinkhorn solver convergence and edge
+    cases in tests/test_data_generation.py. Deliverable: A test file that verifies
+    SingleStepSinkhornSolver handles near-zero variance (threshold: e-6) and non-convergence
+    (raises SinkhornConvergenceError).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'epsilon floor threshold: e-6'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T14:33:03Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Theoretical lower bound of KL-divergence formula
+  claim_id: c_678f0254
+  context: 'Implement code/analysis/theoretical_lower_bound.py to calculate the theoretical
+    lower bound of KL-divergence. Requirement: Must derive the analytical lower bound
+    based on the quantization noise model defined in T032_base (Uniform INT8). Formula:
+    KL_lower_bound = 0.5 * log2(2 * pi * e * sigma_q^2) where sigma_q^2 = (Delta^2)
+    / 12 and Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN) / 255.'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: KL_lower_bound = 0.5 * log2(2 * pi * e * sigma_q^2)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T14:33:04Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization noise variance formula
+  claim_id: c_7ec0a363
+  context: 'Requirement: Must derive the analytical lower bound based on the quantization
+    noise model defined in T032_base (Uniform INT8). Formula: KL_lower_bound = 0.5
+    * log2(2 * pi * e * sigma_q^2) where sigma_q^2 = (Delta^2) / 12 and Delta = (QUANTIZATION_MAX
+    - QUANTIZATION_MIN) / 255.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sigma_q^2 = (Delta^2) / 12
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T14:35:08Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization step size formula for Uniform INT8
+  claim_id: c_f0ffb34e
+  context: 'Requirement: Must derive the analytical lower bound based on the quantization
+    noise model defined in T032_base (Uniform INT8). Formula: KL_lower_bound = 0.5
+    * log2(2 * pi * e * sigma_q^2) where sigma_q^2 = (Delta^2) / 12 and Delta = (QUANTIZATION_MAX
+    - QUANTIZATION_MIN) / 255.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN) / 255
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T14:35:30Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Quantization model is Uniform INT8
+  claim_id: c_d3db8a73
+  context: 'Define quantization constants in code/config.py. Action: Define QUANTIZATION_MAX
+    and QUANTIZATION_MIN for Uniform INT8 Quantization.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Quantization_model_is_Uniform_INT8
+  kind: entity_fact
+  raw_text: Uniform INT8 Quantization
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-06T14:35:54Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Batch runner generates 30 simulation run files
+  claim_id: c_87d7aa23
+  context: 'Execute batch_runner.py to generate a sufficient number of independent
+    simulation runs. Action: Execute with n=30 (per FR-006) using pattern simulation_run_{:03d}.json.
+    Algorithm: For each run i from 0 to 29, use base_seed + i as the random seed (where
+    base_seed is config.RANDOM_SEED). Output: data/results/simulation_run_001.json
+    through data/results/simulation_run_030.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 30 simulation run files generated
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T14:36:17Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: theoretical lower bound KL-divergence formula sigma_q^2 = Delta^2 / 12
+    with Delta = (MAX-MIN)/255
+  claim_id: c_10f7ea91
+  context: 'Requirement: Must derive the analytical lower bound based on the quantization
+    noise model defined in T032_base (Uniform INT8). Formula: {{claim:c_678f0254}}
+    where sigma_q^2 = (Delta^2) / 12 and Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The formula for theoretical lower bound of KL-divergence is {{claim:c_678f0254}}
+    where sigma_q^2 = (Delta^2) / 12 and Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN)
+    / 255.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T14:38:21Z'

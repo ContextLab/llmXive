@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-08-03T04:39:44.068818Z'
-- artifact_hash: 2d617dd4958130366237c645e9a63c2231d1acc30ebf23013ec6a5744f69e110
+- artifact_hash: 710ea731f12d051bf3fc377cb7ab3fb0615f2ceb7e93baf2f8e9aea45201afc0
   artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,15 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-09-05T16:10:09.416437Z'
+  verified_at: '2026-09-06T14:44:57.419390Z'
+- artifact_hash: 710ea731f12d051bf3fc377cb7ab3fb0615f2ceb7e93baf2f8e9aea45201afc0
+  artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Power - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Power_
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Power
+  verified_at: '2026-09-06T14:44:57.419390Z'

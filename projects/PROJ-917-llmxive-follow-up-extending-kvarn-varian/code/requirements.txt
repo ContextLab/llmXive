@@ -7,3 +7,5 @@ pyarrow
 pytest
 matplotlib
 pyyaml
+tomli  # auto-added: imported by run-book but missing from venv
+tomli_w  # auto-added: imported by run-book but missing from venv

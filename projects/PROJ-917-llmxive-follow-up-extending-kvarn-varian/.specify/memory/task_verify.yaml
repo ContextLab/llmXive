@@ -1,3 +1,12 @@
 T001a: 2
-T017c: 2
+? 'T009_calc [P] [US3] [FR-008] Implement `code/analysis/theoretical_lower_bound.py`
+  to **calculate the theoretical lower bound** of KL-divergence. **Requirement**:
+  Must derive the analytical lower bound based on the quantization noise model defined
+  in T032_base (Uniform INT8). **Formula**: `{{claim:c_678f0254}}` where `sigma_q^2
+  = (Delta^2) / 12 ` and `Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN) / 255 `. **Requirement**:
+  Must output `data/analysis/theoretical_lower_bound.json` containing the scalar bound
+  value and the derivation formula. **Requirement**: This artifact is required for
+  FR-008 and SC-002 to avoid circular validation. **Dependency**: T032_base. **Deliverable**:
+  Theoretical lower bound artifact.'
+: 1
 T035c: 1

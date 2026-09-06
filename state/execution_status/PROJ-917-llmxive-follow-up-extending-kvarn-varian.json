@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-917-llmxive-follow-up-extending-kvarn-varian",
+  "ok": false,
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/run_pilot_sensitivity.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026matrices):             # Generate a synthetic attention matrix\u2026\u201d; code/data_generation/synthetic_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026atrixStats]:     \"\"\"     Generate a synthetic static attention matrix\u2026\u201d; code/data_generation/synthetic_attention.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Main entry point for the synthetic attention data generation script.\"\"\"\u2026\u201d; 4 run-book script(s) missing (plan/impl path mismatch): python code/main.py --task generate_data; python code/main.py --task train_model; python code/main.py --task run_simulation --runs multiple_runs; 1 declared deliverable(s) absent: data/metrics/baseline_comparison.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --task generate_data -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --task train_model -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --task run_simulation --runs multiple_runs -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --task analyze_results -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-06T14:27:53Z"
+}

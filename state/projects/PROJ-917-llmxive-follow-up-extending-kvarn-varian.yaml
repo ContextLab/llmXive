@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-917-llmxive-follow-up-extending-kvarn-varian
-last_run_id: eba7b65d-b897-4067-bfc5-67ab65401244
+last_run_id: 36e0f142-0c42-4390-a041-573e45d5f500
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian
 title: 'llmXive follow-up: extending "KVarN: Variance-Normalized KV-Cache Quantization
   Mitigates Error Accum"'
-updated_at: '2026-09-05T16:10:38.013241Z'
+updated_at: '2026-09-06T14:49:56.449893Z'
