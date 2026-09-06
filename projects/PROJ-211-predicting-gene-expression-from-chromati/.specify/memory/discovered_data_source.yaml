@@ -1,0 +1,14 @@
+status: none
+intent: ENCODE paired RNA-seq and ATAC-seq count matrix download python package dataset
+required_fields:
+- gene_id
+- gene_name
+- chromosome
+- start
+- end
+- rna_counts
+- atac_counts
+- cell_line
+cache_key: 5547cd0e38f031c01d36d0939f762f126b67f3829ce94bd8f09f9bab6d8567af
+searched_at: '2026-09-06T21:35:19.974687+00:00'
+retry_count: 1

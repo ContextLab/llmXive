@@ -1,63 +1,108 @@
 # Quickstart: Predicting Gene Expression from Chromatin Accessibility
 
-## Prerequisites
+## 1. Prerequisites
 
--   Python 3.11+
--   `git`
--   System dependency: `bedtools` (optional, can be simulated in Python).
--   Internet access (not required for data, as synthetic data is generated locally).
+- Python 3.11+
+- Git
+- 7GB+ RAM
+- ~GB disk space
 
-## Installation
+## 2. Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-211-predicting-gene-expression-from-chromati
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-The pipeline is executed via a main entry point script.
-
-### Step 1: Generate and Preprocess Data
 ```bash
-python code/generate_data.py --output data/raw/
-python code/preprocess.py --input data/raw/ --output data/processed/
+# Clone the repository
+git clone
+cd PROJ-211-predicting-gene-expression-from-chromati
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
-*This step generates synthetic paired RNA-seq and DNase-seq data with valid genomic coordinates, maps peaks to TSS windows (±50kb), and filters zero-expression genes.*
 
-### Step 2: Train Models
+## 3. Data Download (First Run)
+
 ```bash
-python code/train.py --input data/processed/ --output data/models/
+# Download ENCODE data (this may take a moderate duration)
+python code/download_encode.py --cell-lines GM12878,K562,HMEC,IMR90,HepG2
 ```
-*Trains Elastic Net models for each cell line with 5-fold cross-validation.*
 
-### Step 3: Evaluate and Interpret
+This will populate `data/raw/` with:
+- `encode_counts.csv`
+- `encode_peaks.bed`
+- `gene_coords.bed`
+
+**Note**: The script will verify checksums and record them in `state/projects/PROJ-211-predicting-gene-expression-from-chromati.yaml`.
+
+## 4. Preprocessing
+
 ```bash
-python code/evaluate.py --models data/models/ --output results/
-python code/interpret.py --models data/models/ --output results/
+# Run the full preprocessing pipeline
+python code/preprocess.py
 ```
-*Generates R² scores, Bonferroni-corrected p-values, and feature importance rankings.*
 
-### Step 4: Validate Contracts
+This will generate:
+- `data/processed/filtered_expression.csv`
+- `data/processed/binned_matrix.csv` (A fixed number of bins per gene)
+- `data/processed/imputed_expression.csv`
+- `data/processed/housekeeping_genes.csv`
+- `data/processed/cell_type_specific_genes.csv`
+- `data/processed/housekeeping_matrix.csv`
+
+## 5. Model Training
+
 ```bash
+# Train Elastic Net models for all cell lines (with Sample Size Gate)
+python code/train.py
+```
+
+This will generate:
+- `data/models/elastic_net_{cell_line}.pkl`
+- `data/processed/cv_scores.json` (LOOCV results)
+
+**Note**: Cell lines with N < 4 samples will be skipped.
+
+## 6. Analysis & Reporting
+
+```bash
+# Generate feature importance and TSS mapping
+python code/analyze.py
+```
+
+This will generate:
+- `data/processed/feature_importance.csv`
+- `data/processed/sc003_verification.json` (SC-003 check)
+- `data/processed/housekeeping_r2.csv` (FR-009)
+- `data/processed/performance_gap.csv` (FR-010)
+- `data/processed/external_validation.json` (SC-006)
+- `paper/results.md`
+- `paper/limitations.md`
+
+## 7. Testing
+
+```bash
+# Run unit tests
+pytest tests/unit/
+
+# Run contract tests (schema validation)
 pytest tests/contract/
+
+# Run integration tests (with synthetic data)
+pytest tests/integration/
 ```
-*Ensures all output files match the schemas defined in `contracts/`.*
 
-## Troubleshooting
+## 8. Verification
 
--   **Memory Error**: If the pipeline fails due to RAM, reduce the number of peaks selected in `code/preprocess.py` (adjust `MAX_PEAKS` constant).
--   **Data Generation Error**: If the synthetic data generator fails, check that the random seed is pinned and the environment has sufficient disk space.
--   **Runtime Limit**: If the job exceeds 6 hours, enable the `--sample` flag in `code/train.py` to use a subset of genes for the initial run.
+To verify reproducibility:
+
+```bash
+# Checksums for raw data
+md5sum data/raw/*
+
+# Checksums for processed data
+md5sum data/processed/*
+```
+
+Compare with hashes in `state/projects/PROJ-211-predicting-gene-expression-from-chromati.yaml`.

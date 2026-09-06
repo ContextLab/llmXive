@@ -59,7 +59,7 @@
 
 - [X] T004 Setup data schema contracts in `specs/001-gene-regulation/contracts/` (`dataset_schema.schema.yaml`, `output_schema.schema.yaml`) by generating schema files based on `data-model.md` definitions.
 
-- [X] T005 [P] Implement deterministic synthetic data generator in `code/generate_data.py` (seeded, schema-valid, CPU-feasible) to produce `data/raw/synthetic_counts.csv` and `data/raw/synthetic_peaks.bed` with Seed=42, dimensions [deferred] genes x cell lines x [deferred] peaks. **Deliverable**: `code/generate_data.py`.
+- [X] T005 [P] Implement deterministic synthetic data generator in `code/generate_data.py` (seeded, schema-valid, CPU-feasible) to produce `data/raw/synthetic_counts.csv` and `data/raw/synthetic_peaks.bed` with Seed=42, dimensions [deferred] genes x cell lines x [deferred] peaks. **Deliverable**: `code/generate_data.py`. **Note**: This generator is for CI validation ONLY. Real data is required for research output.
 
 - [X] T006 [P] Create base utility module `code/utils.py` for logging, checksumming, and config loading. **Function**: `checksum_file(path)` must be implemented and tested.
 
@@ -82,27 +82,68 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement ENCODE data download logic in `code/download_encode.py` to fetch paired RNA-seq and DNase-seq/ATAC-seq count data for a diverse panel of cell lines. **Input**: ENCODE API endpoints. **Deliverable**: `code/download_encode.py` and `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed`. **Note**: If ENCODE API fails, fall back to synthetic data generation (T011b) for CI validation only. **Checksum**: Run `utils.checksum_file()` on outputs. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T010 [US1] **Conditional Execution**: Implement ENCODE data download logic in `code/download_encode.py`.
+  - **Logic**:
+    1. Attempt real data fetch from ENCODE.
+    2. **If successful**: Save to `data/raw/encode_counts.csv` and `data/raw/encode_peaks.bed`. **Skip T011**.
+    3. **If failed AND CI_MODE=1**: Log "Real data fetch failed in CI mode. Switching to synthetic fallback." and exit successfully (allowing T011 to run).
+    4. **If failed AND CI_MODE=0**: Raise a hard `SystemExit` with message "Real data fetch failed and CI_MODE=0. Pipeline halted. No synthetic fallback allowed." **Do not run T011**.
+  - **Deliverable**: `data/raw/encode_counts.csv`, `data/raw/encode_peaks.bed` (if successful) OR exit code 1 (if failed in non-CI).
+  - **Checksum**: Run `utils.checksum_file()` on outputs if successful.
+  - **Constraint**: Synthetic data is NEVER used for research output unless `CI_MODE=1` and real fetch fails.
 
-- [ ] T011 [US1] Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42 for CI validation if real data is unavailable. **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`. **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
+- [ ] T011 [US1] **Conditional Fallback**: Execute `generate_data.py` to produce paired RNA-seq and DNase-seq counts for GM12878, K562, HMEC, IMR90, and HepG2 with Seed=42.
+  - **Condition**: Run ONLY if `CI_MODE=1` AND T010 failed to fetch real data.
+  - **Logic**: If T010 succeeded (real data present), skip this task entirely.
+  - **Deliverable**: `data/raw/synthetic_counts.csv`, `data/raw/synthetic_peaks.bed`.
+  - **Checksum**: Run `utils.checksum_file()` on outputs and record in `logs/checksums.txt`.
+  - **Constraint**: These artifacts are for CI testing ONLY.
 
-- [ ] T012.0 [US1] Implement Python windowing logic in `code/preprocess.py` to aggregate accessibility signal within ±50kb of TSS using synthetic peak and gene coordinate files. **Input**: `data/raw/synthetic_peaks.bed`, `data/raw/synthetic_genes.bed`. **Deliverable**: `code/preprocess.py` function `aggregate_signal`.
+- [ ] T012.1 [P] [US1] Implement unit tests in `tests/unit/test_preprocess.py` to validate Python windowing logic against synthetic in-memory coordinates. **Input**: Synthetic coordinates. **Deliverable**: `tests/unit/test_preprocess.py`. **Dependency**: Must pass before T012.0 is considered production-ready.
 
-- [ ] T012.1 [US1] Implement unit tests in `tests/unit/test_preprocess.py` to validate Python windowing logic against synthetic in-memory coordinates. **Input**: Synthetic coordinates. **Deliverable**: `tests/unit/test_preprocess.py`. **Dependency**: Must pass before T012.0 is considered production-ready.
+- [ ] T012.0 [US1] Implement Python windowing logic in `code/preprocess.py` to aggregate accessibility signal within ±50kb of TSS.
+  - **Input**: `data/raw/encode_peaks.bed` (if T010 success) OR `data/raw/synthetic_peaks.bed` (if T011 executed).
+  - **Deliverable**: `data/processed/tss_aggregated_features.csv`.
+  - **Checkpoint**: Verify `tss_aggregated_features.csv` exists and is non-empty. If input is missing, raise `DependencyError`.
 
-- [ ] T012.5 [US1] Merge aggregated peak features with gene expression counts to form the joint matrix required for filtering. **Input**: `data/processed/tss_aggregated_features.csv`, `data/raw/encode_counts.csv` (or synthetic equivalent). **Deliverable**: `data/processed/merged_matrix.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T013 [US1] **Staged Acceptance**: Implement gene filtering in `code/preprocess.py`.
+  - **Input**: `data/processed/tss_aggregated_features.csv`.
+  - **Logic**: Filter genes with zero expression in all samples. Apply log pseudocount transformation.
+  - **Staged Acceptance**: If input is missing, write `data/processed/filtered_expression.csv.blocked` with content "BLOCKED: Input tss_aggregated_features.csv missing" and raise `DependencyError`. Do not attempt to generate output.
+  - **Deliverable**: `data/processed/filtered_expression.csv` (if input present) OR `.blocked` marker (if input missing).
+  - **Checksum**: Run `utils.checksum_file()` on output if successful.
 
-- [ ] T013 [US1] Implement gene filtering in `code/preprocess.py` to filter genes with zero expression in all samples and apply a logarithmic pseudocount transformation to handle zero values. **Input**: `data/processed/merged_matrix.csv`. **Deliverable**: `data/processed/filtered_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T014 [US1] **Staged Acceptance**: Implement missing value imputation in `code/preprocess.py`.
+  - **Input**: `data/processed/filtered_expression.csv`.
+  - **Logic**: Median imputation per peak.
+  - **Staged Acceptance**: If input is missing (or `.blocked` marker exists), write `data/processed/imputed_expression.csv.blocked` with content "BLOCKED: Input filtered_expression.csv missing" and raise `DependencyError`.
+  - **Deliverable**: `data/processed/imputed_expression.csv` (if input present) OR `.blocked` marker.
+  - **Checksum**: Run `utils.checksum_file()` on output if successful.
 
-- [ ] T014 [US1] Implement missing value imputation in `code/preprocess.py` using median imputation per peak. **Input**: `data/processed/filtered_expression.csv`. **Deliverable**: `data/processed/imputed_expression.csv`. **Checksum**: Run `utils.checksum_file()` on output. <!-- FAILED: unspecified -->
+- [ ] T015 [US1] Merge aggregated peak features with gene expression counts to form the joint matrix.
+  - **Input**: `data/processed/tss_aggregated_features.csv`, `data/processed/filtered_expression.csv`.
+  - **Deliverable**: `data/processed/merged_matrix.csv`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T016 [US1] Define housekeeping genes in `code/preprocess.py` by calculating the coefficient of variation across all cell lines using a configurable threshold (default CV < 0.2). **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/housekeeping_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T016 [US1] **Staged Acceptance**: Define housekeeping genes in `code/preprocess.py`.
+  - **Input**: `data/processed/imputed_expression.csv`.
+  - **Logic**: Calculate coefficient of variation (CV < 0.2).
+  - **Staged Acceptance**: If input is missing (or `.blocked` marker exists), write `data/processed/housekeeping_genes.csv.blocked` with content "BLOCKED: Input imputed_expression.csv missing" and raise `DependencyError`.
+  - **Deliverable**: `data/processed/housekeeping_genes.csv` (if input present) OR `.blocked` marker.
+  - **Checksum**: Run `utils.checksum_file()` on output if successful.
 
-- [ ] T016b [US1] Define cell-type-specific genes in `code/preprocess.py` by selecting genes with high coefficient of variation (CV > 0.5) across cell lines. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/processed/cell_type_specific_genes.csv`. **Checksum**: Run `utils.checksum_file()` on output. <!-- FAILED: unspecified -->
+- [ ] T016b [US1] Define cell-type-specific genes in `code/preprocess.py`.
+  - **Input**: `data/processed/imputed_expression.csv`.
+  - **Logic**: Select genes with high CV (CV > 0.5).
+  - **Deliverable**: `data/processed/cell_type_specific_genes.csv`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
-- [ ] T016c [US1] Filter the feature matrix and target vector to only housekeeping genes in `code/preprocess.py` for specific metric calculation. **Input**: `data/processed/imputed_expression.csv`, `data/processed/housekeeping_genes.csv`. **Deliverable**: `data/processed/housekeeping_matrix.csv`. **Checksum**: Run `utils.checksum_file()` on output.
+- [ ] T016c [US1] Filter the feature matrix and target vector to only housekeeping genes.
+  - **Input**: `data/processed/imputed_expression.csv`, `data/processed/housekeeping_genes.csv`.
+  - **Deliverable**: `data/processed/housekeeping_matrix.csv`.
+  - **Checksum**: Run `utils.checksum_file()` on output.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **Requirement**: All Phase 3 tasks must complete successfully before Phase 4 can begin. All artifacts must exist and be checksummed.
 
 ---
 
@@ -121,7 +162,7 @@
 
 - [ ] T021 [US2] Implement Elastic Net training in `code/train.py` (α=0.5, λ via internal k-fold cross-validation) for each cell line. **Input**: `data/processed/imputed_expression.csv`. **Deliverable**: `data/models/elastic_net_{cell_line}.pkl`, `data/processed/cv_scores.json`.
 
-- [~] T023 [US2] Calculate Pearson correlation between predicted and actual expression in `code/evaluate.py`. **Deliverable**: Correlation matrix in `data/processed/correlations.csv`.
+- [ ] T023 [US2] Calculate Pearson correlation between predicted and actual expression in `code/evaluate.py`. **Deliverable**: Correlation matrix in `data/processed/correlations.csv`.
 
 - [ ] T024 [US2] Apply Bonferroni correction to p-values in `code/evaluate.py` (FR-006) using `scipy.stats`. **Deliverable**: Corrected p-values in `data/processed/pvalues_corrected.csv`.
 
@@ -166,23 +207,32 @@
 
 ## Phase 6: Research & Documentation (Revision & Insights)
 
-**Purpose**: Address reviewer concerns and document findings
-
-- [ ] T047 [US3] Document the limitation of "unexplained variance" and lack of single-cell heterogeneity metrics in `docs/regulatory_insights_report.md` (FR-010, SC-001). Explicitly state that the model provides a "first-order approximation" and cannot capture cell-type heterogeneity due to bulk data constraints. **Deliverable**: Updated `docs/regulatory_insights_report.md`.
+**Purpose**: Address reviewer concerns and document findings. Consolidated to remove duplication.
 
 - [ ] T037 Run `quickstart.md` validation. **Pass/Fail**: Execute `quickstart.md`; verify exit code 0 and that all generated artifacts exist in `data/`.
 
-- [ ] T060 [US3] Update `spec.md` Section 1.3 (Limitations) to explicitly include the "First-Order Approximation" caveat, stating that bulk profiles smooth over single-cell heterogeneity which is the true engine of differentiation, and that the model identifies statistical associations rather than causal laws. **Deliverable**: Updated `spec.md`.
+- [ ] T060 [US3] **Single Source of Truth**: Create and update `docs/LIMITATIONS_MASTER.md`.
+  - **Content**: Consolidate all limitations including "First-Order Approximation", "Dappled Models", "Correlation vs. Causation", and "Bulk Averaging Artifact".
+  - **Action**: Write the definitive text for these limitations here. Update `spec.md` Section 1.3 to reference this file.
+  - **Deliverable**: `docs/LIMITATIONS_MASTER.md`.
 
-- [ ] T061 [US3] Add a dedicated section to `docs/regulatory_context.md` titled "Dappled Models vs. Unified Laws" that synthesizes the ENCODE consortium's findings on regulatory complexity and the limitations of bulk averaging. **Deliverable**: Updated `docs/regulatory_context.md`.
+- [ ] T061 [US3] Update `docs/regulatory_context.md` to reference `docs/LIMITATIONS_MASTER.md`.
+  - **Action**: Remove duplicated text about "Dappled Models" and "Correlation vs. Causation". Instead, include a section "See `docs/LIMITATIONS_MASTER.md` for detailed limitations" and a brief summary.
+  - **Deliverable**: Updated `docs/regulatory_context.md`.
 
-- [ ] T062 [US3] Add a subsection to `docs/regulatory_context.md` titled "Correlation vs. Causation" that clarifies the statistical nature of the Elastic Net findings and explicitly warns against inferring direct causal regulatory links from these bulk correlations. **Deliverable**: Updated `docs/regulatory_context.md`.
+- [ ] T062 [US3] Update `docs/regulatory_context.md` to reference `docs/LIMITATIONS_MASTER.md` for "Correlation vs. Causation".
+  - **Action**: Remove duplicated text. Reference the master file.
+  - **Deliverable**: Updated `docs/regulatory_context.md`.
 
-- [ ] T063 [US3] Update `docs/regulatory_context.md` to include a new subsection "The Bulk Averaging Artifact" that explicitly quantifies how bulk profiles smooth over single-cell heterogeneity, citing the ENCODE finding that regulatory landscapes are cell-state specific. **Deliverable**: Updated `docs/regulatory_context.md`.
+- [ ] T063 [US3] Update `docs/regulatory_context.md` to reference `docs/LIMITATIONS_MASTER.md` for "Bulk Averaging Artifact".
+  - **Action**: Remove duplicated text. Reference the master file.
+  - **Deliverable**: Updated `docs/regulatory_context.md`.
 
-- [ ] T064 [US3] Modify the final summary report generation in `code/interpret.py` to automatically prepend a "Causality Warning" header to any output file containing correlation metrics, stating that the model identifies statistical associations, not causal regulatory mechanisms. **Deliverable**: Updated `code/interpret.py` and example output in `docs/regulatory_insights_report.md`.
+- [ ] T064 [US3] Modify the final summary report generation in `code/interpret.py` to load and prepend the content from `docs/LIMITATIONS_MASTER.md` to any output file containing correlation metrics.
+  - **Deliverable**: Updated `code/interpret.py` and example output in `docs/regulatory_insights_report.md`.
 
-- [ ] T065 [US3] Add a validation task to `tests/integration/test_interpretation.py` that asserts the presence of the "first-order approximation" caveat in all generated report headers. **Deliverable**: Updated `tests/integration/test_interpretation.py`.
+- [ ] T065 [US3] Add a validation task to `tests/integration/test_interpretation.py` that asserts the presence of the "first-order approximation" caveat (from `docs/LIMITATIONS_MASTER.md`) in all generated report headers.
+  - **Deliverable**: Updated `tests/integration/test_interpretation.py`.
 
 ---
 
@@ -190,15 +240,7 @@
 
 **Purpose**: Final documentation and limitations
 
-- [ ] T048 [US3] Add a dedicated section to `docs/regulatory_context.md` titled "Dappled Models vs. Unified Laws" that synthesizes the ENCODE consortium's findings on regulatory complexity. **Deliverable**: Updated `docs/regulatory_context.md`.
-
-- [ ] T050 [US3] Add a subsection to `docs/regulatory_context.md` titled "Correlation vs. Causation" that clarifies the statistical nature of the Elastic Net findings and explicitly warns against inferring direct causal regulatory links from these bulk correlations. **Deliverable**: Updated `docs/regulatory_context.md`.
-
-- [ ] T057 [US3] Update `docs/regulatory_context.md` to include a new subsection "The Bulk Averaging Artifact" that explicitly quantifies how bulk profiles smooth over single-cell heterogeneity, citing the ENCODE finding that regulatory landscapes are cell-state specific. **Deliverable**: Updated `docs/regulatory_context.md`.
-
-- [ ] T058 [US3] Modify the final summary report generation in `code/interpret.py` to automatically prepend a "Causality Warning" header to any output file containing correlation metrics, stating that the model identifies statistical associations, not causal regulatory mechanisms. **Deliverable**: Updated `code/interpret.py` and example output in `docs/regulatory_insights_report.md`.
-
-- [ ] T059 [US3] Add a validation task to `tests/integration/test_interpretation.py` that asserts the presence of the "first-order approximation" caveat in all generated report headers. **Deliverable**: Updated `tests/integration/test_interpretation.py`.
+**Note**: This phase has been removed. All documentation updates are now performed in Phase 6 to eliminate duplication and ensure a single source of truth.
 
 ---
 
@@ -310,8 +352,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All data generation must use synthetic data with fixed seeds to ensure CPU-only CI feasibility (no external API dependencies) ONLY IF real data fetch fails.
+- **Constraint**: All data generation must use synthetic data with fixed seeds to ensure CPU-only CI feasibility (no external API dependencies) ONLY IF real data fetch fails AND CI_MODE=1. Real data is mandatory for final research output.
 - **Constraint**: No GPU/CUDA.
 - **Revision Note**: Phase 6 and 7 tasks T060-T065 address the "freeman-dyson-simulated" review regarding "First-Order Approximation", "Dappled Models", and "Correlation vs. Causation", ensuring the spec and docs explicitly state the limitations of bulk data.
-- **Revision Note**: T010 now implements real ENCODE data download, satisfying FR-001.
+- **Revision Note**: T010 now implements real ENCODE data download, satisfying FR-001. Synthetic fallback is CI-only and conditional.
 - **Revision Note**: T026 now correctly implements cell-line holdout validation for SC-006.
+- **Revision Note**: Phase 7 tasks (T048-T059) have been removed to eliminate duplication with Phase 6.
+- **Revision Note**: T013, T014, T016 now include explicit "Staged Acceptance" criteria to handle missing inputs without silent failure.
+- **Revision Note**: T060-T064 now reference `docs/LIMITATIONS_MASTER.md` as the single source of truth for limitations, eliminating text duplication.

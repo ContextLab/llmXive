@@ -77,6 +77,12 @@ properties:
               - file_path
               - schema_ref
               - checksum
+          housekeeping_matrix:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
         
       models:
         type: object
@@ -138,6 +144,12 @@ properties:
               - schema_ref
               - checksum
           external_validation_r2:
+            type: object
+            required:
+              - file_path
+              - schema_ref
+              - checksum
+          sc003_verification:
             type: object
             required:
               - file_path

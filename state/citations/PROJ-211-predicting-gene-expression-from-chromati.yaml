@@ -9,3 +9,36 @@
   verification_status: pending
   verified_against_url: https://www.encodeproject.org/
   verified_at: '2026-08-02T05:00:56.245772Z'
+- artifact_hash: e5f4037252bc2f9c1965359dea78e4c9e35d1dd34352461cb1a79fa0dcbceb4b
+  artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: ENCODE
+  kind: url
+  value: https://www.encodeproject.org/
+  verification_status: pending
+  verified_against_url: https://www.encodeproject.org/
+  verified_at: '2026-09-06T21:48:19.337593Z'
+- artifact_hash: e5f4037252bc2f9c1965359dea78e4c9e35d1dd34352461cb1a79fa0dcbceb4b
+  artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2507.20048] Irredundant $k$-Fold Cross-Validation'
+  kind: url
+  value: https://arxiv.org/abs/2507.20048
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2507.20048
+  verified_at: '2026-09-06T21:48:19.337593Z'
+- artifact_hash: cd154a0be8611c1bf455b51e7cab7bcdec099d3b6c417c10be87a3329e3cf31e
+  artifact_path: projects/PROJ-211-predicting-gene-expression-from-chromati/specs/001-predicting-gene-expression-from-chromati/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/PROJ-211-predicting-gene-expression-from-chromati.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-211-predicting-gene-expression-from-chromati
+  verified_at: '2026-09-06T21:48:51.075813Z'

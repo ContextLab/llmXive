@@ -1,0 +1,166 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ENCODE Dataset Schema
+description: Schema for raw and processed ENCODE data files used in the gene expression prediction pipeline.
+type: object
+properties:
+  raw_rna_counts:
+    type: object
+    description: Raw RNA-seq count matrix from ENCODE.
+    required:
+      - gene_id
+      - gene_name
+      - sample_id
+      - cell_line
+      - count
+    properties:
+      gene_id:
+        type: string
+        description: Ensembl gene ID.
+      gene_name:
+        type: string
+        description: Gene symbol.
+      sample_id:
+        type: string
+        description: ENCODE sample ID.
+      cell_line:
+        type: string
+        enum:
+          - GM12878
+          - K562
+          - HMEC
+          - IMR90
+          - HepG2
+        description: Cell line name.
+      count:
+        type: integer
+        minimum: 0
+        description: Raw read count.
+  raw_peaks:
+    type: object
+    description: Raw DNase/ATAC-seq peak calls from ENCODE.
+    required:
+      - chrom
+      - start
+      - end
+      - score
+      - strand
+    properties:
+      chrom:
+        type: string
+        description: Chromosome (e.g., chr1).
+      start:
+        type: integer
+        minimum: 0
+        description: 0-based start position.
+      end:
+        type: integer
+        minimum: 0
+        description: 0-based end position.
+      score:
+        type: number
+        description: Peak score (e.g., -log10 p-value).
+      strand:
+        type: string
+        enum:
+          - "+"
+          - "-"
+          - "."
+        description: Strand.
+  processed_feature_matrix:
+    type: object
+    description: Aggregated accessibility signal matrix (200 bins per gene).
+    required:
+      - gene_id
+      - cell_line
+      - features
+    properties:
+      gene_id:
+        type: string
+        description: Ensembl gene ID.
+      cell_line:
+        type: string
+        enum:
+          - GM12878
+          - K562
+          - HMEC
+          - IMR90
+          - HepG2
+        description: Cell line name.
+      features:
+        type: array
+        description: List of 200 aggregated bin scores for this gene.
+        items:
+          type: number
+        minItems: 200
+        maxItems: 200
+  processed_target_vector:
+    type: object
+    description: Log-transformed gene expression values.
+    required:
+      - gene_id
+      - cell_line
+      - log_count
+    properties:
+      gene_id:
+        type: string
+        description: Ensembl gene ID.
+      cell_line:
+        type: string
+        enum:
+          - GM12878
+          - K562
+          - HMEC
+          - IMR90
+          - HepG2
+        description: Cell line name.
+      log_count:
+        type: number
+        minimum: 0
+        description: log(count + 1).
+  housekeeping_genes:
+    type: object
+    description: Genes with CV < 0.2.
+    required:
+      - gene_id
+      - gene_name
+      - cv
+    properties:
+      gene_id:
+        type: string
+        description: Ensembl gene ID.
+      gene_name:
+        type: string
+        description: Gene symbol.
+      cv:
+        type: number
+        minimum: 0
+        maximum: 0.2
+        description: Coefficient of variation.
+  cell_type_specific_genes:
+    type: object
+    description: Genes with CV > 0.5.
+    required:
+      - gene_id
+      - gene_name
+      - max_cv
+      - cell_line
+    properties:
+      gene_id:
+        type: string
+        description: Ensembl gene ID.
+      gene_name:
+        type: string
+        description: Gene symbol.
+      max_cv:
+        type: number
+        minimum: 0.5
+        description: Maximum CV across cell lines.
+      cell_line:
+        type: string
+        enum:
+          - GM12878
+          - K562
+          - HMEC
+          - IMR90
+          - HepG2
+        description: Cell line with max CV.

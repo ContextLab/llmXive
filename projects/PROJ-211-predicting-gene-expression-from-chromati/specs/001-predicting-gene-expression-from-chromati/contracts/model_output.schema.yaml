@@ -1,0 +1,107 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Elastic Net Model Output Schema
+description: Schema for model artifacts and cross-validation scores (LOOCV).
+type: object
+properties:
+  model_artifact:
+    type: object
+    description: Serialized Elastic Net model.
+    required:
+      - cell_line
+      - alpha
+      - l1_ratio
+      - coef
+      - intercept
+    properties:
+      cell_line:
+        type: string
+        enum:
+          - GM12878
+          - K562
+          - HMEC
+          - IMR90
+          - HepG2
+        description: Cell line name.
+      alpha:
+        type: number
+        description: Regularization strength.
+      l1_ratio:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Elastic net mixing parameter.
+      coef:
+        type: array
+        description: Model coefficients (200 bins).
+        items:
+          type: number
+        minItems: 200
+        maxItems: 200
+      intercept:
+        type: number
+        description: Model intercept.
+  cv_scores:
+    type: object
+    description: Cross-validation scores (LOOCV).
+    required:
+      - cell_line
+      - fold
+      - r2
+      - pearson_r
+      - p_value
+      - p_value_corrected
+    properties:
+      cell_line:
+        type: string
+        enum:
+          - GM12878
+          - K562
+          - HMEC
+          - IMR90
+          - HepG2
+        description: Cell line name.
+      fold:
+        type: integer
+        minimum: 1
+        description: LOOCV fold number (1 to N).
+      r2:
+        type: number
+        description: R-squared score.
+      pearson_r:
+        type: number
+        description: Pearson correlation coefficient.
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Raw p-value.
+      p_value_corrected:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Bonferroni-corrected p-value (m=5).
+  feature_importance:
+    type: object
+    description: Feature importance report (binned).
+    required:
+      - gene_id
+      - bin_id
+      - coefficient
+      - distance_to_tss
+      - within_10kb
+    properties:
+      gene_id:
+        type: string
+        description: Ensembl gene ID.
+      bin_id:
+        type: string
+        description: Bin identifier (e.g., "bin_50").
+      coefficient:
+        type: number
+        description: Elastic Net coefficient.
+      distance_to_tss:
+        type: integer
+        description: Distance from bin center to TSS (bp).
+      within_10kb:
+        type: boolean
+        description: True if distance ≤ 10kb.
