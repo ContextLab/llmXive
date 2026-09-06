@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-04T14:27:55.296425Z'
-- artifact_hash: b7ac6adbba4f91007faa79148a5edced93cdeb54ca569739a7bf6e01b162f6dc
+- artifact_hash: ebf06f98662a3022e6b1ee38116c07e5769be8d7467356c3b075936e575ce429
   artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://www.wikidata.org/wiki/Q87892954
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q87892954
-  verified_at: '2026-07-28T04:41:19.902191Z'
+  verified_at: '2026-09-06T18:49:00.591362Z'

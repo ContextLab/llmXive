@@ -1,6 +1,3 @@
 """
-Test suite for the TSI reconstruction pipeline.
-
-Contains unit tests, integration tests, and performance tests
-for all components of the reconstruction pipeline.
+Tests package for the Solar Irradiance Reconstruction project.
 """

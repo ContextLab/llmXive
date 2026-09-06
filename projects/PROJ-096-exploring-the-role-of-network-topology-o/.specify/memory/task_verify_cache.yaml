@@ -7,18 +7,27 @@ T006:
     structure and the metadata schema need to be created to satisfy the task.
 T009b:
   c: false
-  h: 22169d2729c09ef291dcbd5bf07a56f485760791ab1b3c0cba8e043061c3fbd4
+  h: 13bf40463558579d361cc92cfe80b9afc2bbcab068a0629fd5b7de483de1f4ca
   r: "The required `data/processed/config.json` file is missing, so the condition\
-    \ to trigger the contingency log cannot be verified; yet `compute_contingency.md`\
-    \ was generated regardless. The task\u2019s prerequisite input is absent, meaning\
-    \ the artifact was not produced under the specified condition."
+    \ (`SC_003_VIOLATION=true` or an `error` field) cannot be verified; consequently\
+    \ the generation of `compute_contingency.md` does not satisfy the task\u2019s\
+    \ conditional requirement. The existing markdown file alone is insufficient."
+T016:
+  c: false
+  h: 5e410fac2c67b14c650f361a292d0beb15921f3d8b8d09978a85953f232ddc00
+  r: The repository lacks `data/processed/config.json`, so the script cannot read
+    the required N value. Moreover, the provided portion of `code/generate_topology.py`
+    shows only helper functions and does not contain the requested batch generation
+    loop over p from 0.0 to 1.0 in 50 steps. Both the missing configuration file and
+    the absent loop mean the task is not genuinely fulfilled.
 T021:
   c: false
-  h: e646a0b4e107444b0d2c084b1108635f85a776af5e4c717f937ef9ab9391fc26
-  r: "The `kuramoto_derivative` function is present, but the required error\u2011\
-    handling logic for the `SC_003_VIOLATION` flag is not implemented, and the dependent\
-    \ file `data/processed/config.json` is missing, so the function cannot be exercised\
-    \ as specified."
+  h: 6b09f0c82207e80330e2616dd0b33f666d115b05506b64d9835669491fea809e
+  r: "The `kuramoto_derivative` function is present, but the script does not actually\
+    \ read `data/processed/config.json` for `time_steps`, the required config file\
+    \ is missing, and the code lacks the specified error\u2011handling logic (warning\
+    \ and fallback when `time_steps` is 0 or an `error` key exists, or when `SC_003_VIOLATION`\
+    \ is set)."
 T025:
   c: false
   h: d791a5b4117ee14eacf23990e932dc254cf1906f201f30b1c929cc842339fde6

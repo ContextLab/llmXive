@@ -11,4 +11,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T008** — No configuration files, scripts, or documentation were presented that define or manage environment variables for data paths. The claim provides no tangible artifact (e.g., a `.env` file, a Python module using `os.getenv`, or instructions) to verify that environment variable management has been set up. Consequently, the requirement is not satisfied.
 - **T022** — declared artifact(s) missing/empty/invalid: data/processed/reconstruction_1610_2002.parquet
 - **T023** — declared artifact(s) missing/empty/invalid: data/processed/variance_analysis.json
-- **T026** — declared artifact(s) missing/empty/invalid: code/analysis/comparison.py
+- **T028** — declared artifact(s) missing/empty/invalid: data/processed/final_report.md
+- **T032a** — No `README.md` file or modification is presented, and there is no evidence that the installation section now contains environment‑setup instructions. The required artifact is missing, so the task is not satisfied.

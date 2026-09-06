@@ -85,7 +85,7 @@
  **Functions to implement**: `spearman_corr(x, y) -> tuple`, `p_value(spearman_stat, n) -> float`, `bonferroni_correction(p_values, alpha) -> list`.
  **Verification**: `python -c "from code.utils.stats_utils import spearman_corr, p_value, bonferroni_correction; print('OK')"`.
 
-- [ ] T006 [P] **Setup Data Directory Structure and Metadata Schema**: Create `data/processed/`, `data/raw/`, and initialize `data/checksums.txt`. Define the `graph_metadata.json` schema in `docs/data_model.md` (or inline comment) containing keys: `node_count` (int), `avg_degree` (float), `p` (float), `seed` (int), `checksum` (string).
+- [X] T006 [P] **Setup Data Directory Structure and Metadata Schema**: Create `data/processed/`, `data/raw/`, and initialize `data/checksums.txt`. Define the `graph_metadata.json` schema in `docs/data_model.md` (or inline comment) containing keys: `node_count` (int), `avg_degree` (float), `p` (float), `seed` (int), `checksum` (string).
  **Checksum Format**: `data/checksums.txt` must contain SHA256 hashes of ALL data artifacts (raw downloads and generated `.gpickle` files), formatted as `hash filename`.
  **Verification**: `test -d data/processed && test -f data/checksums.txt && echo 'OK' || exit 1`.
 
@@ -153,7 +153,7 @@
  1. Implement a **real ODE solver** function in `code/feasibility_study.py` using `scipy.integrate.odeint` on a small sample graph (N=500, k=2, p=0.1) to measure actual overhead.
  2. Run **two micro-benchmarks**: one with `time_steps` = 100 and one with `time_steps` = 500.
  3. Calculate a **scaling factor** for non-linear behavior: `scaling_factor = (time_500 / 500) / (time_100 / 100)`.
- 4. Use this scaling factor to extrapolate the runtime for larger step counts during the binary search. [UNRESOLVED-CLAIM: c_89d3cf76 — status=not_enough_info]
+ 4. Use this scaling factor to extrapolate the runtime for larger step counts during the binary search.
  5. Binary search for max `time_steps` such that `50 * (time_steps/1000) * runtime_per_1k_steps * scaling_factor <= 5.1 hours` (reserving sufficient time for verification).
  6. If max `time_steps` < 1000, calculate `n_topologies` = floor(5.1h / (runtime_per_1k_steps * 1)).
  7. **CONTINGENCY PLAN (SC-003)**: If the calculated feasible `n_topologies` < 10, DO NOT halt. Log "CRITICAL WARNING: Insufficient compute for minimum scientific validity", set `n_topologies = 10` (minimum viable), set `scope_reduction_factor` = (10 / target), and write `data/processed/config.json`. The pipeline MUST proceed with this reduced scope.
@@ -195,7 +195,7 @@
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] Implement Kuramoto ODE derivative function in `code/simulate_kuramoto.py`. **Dependency**: Depends on T009 (reads `data/processed/config.json` for `time_steps`). **Error Handling**: If `config.json` has `time_steps=0` OR `error` key is present, proceed with fallback values and log a warning (do NOT raise RuntimeError). If `SC_003_VIOLATION` flag is set in `config.json`, proceed with reduced scope.
-- [ ] T022 [US2] Implement order parameter $R$ calculation and time-series aggregation in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 (ODE function).
+- [X] T022 [US2] Implement order parameter $R$ calculation and time-series aggregation in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 (ODE function).
 - [ ] T023 [US2] Implement binary search algorithm for $K_c$ (threshold defined qualitatively, max iterations, tol specified) in `code/simulate_kuramoto.py`. **Dependency**: Depends on T021 and T022.
 - [ ] T024 [US2] Implement fallback linear sweep if binary search fails in `code/simulate_kuramoto.py`. **Dependency**: Depends on T023.
 - [ ] T025 [US2] Run simulation batch for all valid topologies from US1 using time steps resolved by T009 (read from `data/processed/config.json`).
@@ -257,7 +257,7 @@
  **Logic**: Parse `invariance_verification.json`. If any entry has `status: "variant"` or `status: "unstable"`, the task fails immediately with `PHYSICAL_INVARIANCE_FAILURE` or `STABILITY_FAILURE`. If all are "invariant", the task passes.
 
 - [X] T027a [US2] [SC-001] Implement stability check script `code/check_stability.py`.
- **Logic**: Simulate Kuramoto dynamics multiple times per topology for **ALL valid topologies** (or stratified sample if >100). **Run Count**: Read `run_count` from `data/processed/config.json` (default set to a representative magnitude, adjusted by `scope_reduction_factor` if applicable). Calculate sample variance of R. [UNRESOLVED-CLAIM: c_9795e594 — status=not_enough_info]
+ **Logic**: Simulate Kuramoto dynamics multiple times per topology for **ALL valid topologies** (or stratified sample if >100). **Run Count**: Read `run_count` from `data/processed/config.json` (default set to a representative magnitude, adjusted by `scope_reduction_factor` if applicable). Calculate sample variance of R.
  **Input**: `data/processed/config.json` (for `run_count`).
  **Constraint**: If `run_count` < 10, the task MUST fail immediately with `STABILITY_FAILURE` and exit code 1. It does NOT proceed with a warning. This ensures SC-001 is not silently weakened.
  **Output**: `data/processed/stability_results.json`. **Schema**: `[{topology_id, variance, status: 'stable'|'unstable'}]`.
@@ -268,7 +268,7 @@
 
 - [X] T027b [US2] Run `code/check_stability.py` to check stability.
  **Verification**: `test -f data/processed/stability_results.json && echo 'OK' || exit 1`.
- **Logic**: If `STABILITY_FAILURE` flag is set, the pipeline must halt with a 'STABILITY_FAILURE' error. If <10% unstable, the pipeline continues with a 'Partial Stability' status. [UNRESOLVED-CLAIM: c_4b8b93a6 — status=not_enough_info]
+ **Logic**: If `STABILITY_FAILURE` flag is set, the pipeline must halt with a 'STABILITY_FAILURE' error. If <10% unstable, the pipeline continues with a 'Partial Stability' status.
 
 - [ ] T027d [US2] [FR-007] **Implement Sensitivity Analysis Script**: Create `code/sensitivity_analysis.py` to perform the threshold sweep required by FR-007.
  **Logic**:

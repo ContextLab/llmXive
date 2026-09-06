@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.15317",
+  "judged_at": "2026-09-06T18:56:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video generation models are general-purpose vision learners\" computer science",
+  "rationale": "The paper focuses on Graph Neural Networks (GNNs) and graph representation learning, which is a distinct domain from the user's question regarding \"Video Generation Models\" and \"General-Purpose Vision Learners\" (typically involving Transformers or Diffusion models on pixel/video data). While both fields involve \"pre-training\" and \"prompting,\" the underlying mechanisms, data modalities, and empirical populations are entirely different, failing the \"off-domain entirely\" rejection criterion.",
+  "relevant": false
+}

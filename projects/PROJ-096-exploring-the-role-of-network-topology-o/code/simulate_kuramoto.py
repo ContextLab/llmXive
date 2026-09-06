@@ -1,359 +1,355 @@
 """
 Kuramoto Oscillator Simulation Module.
 
-This module implements the Kuramoto model dynamics, including the ODE derivative,
-order parameter calculation, and binary search for the critical coupling strength (Kc).
-It provides batch simulation capabilities for multiple network topologies.
+Implements the Kuramoto model dynamics, order parameter calculation,
+and critical coupling strength detection.
 """
+from __future__ import annotations
 
-import os
 import json
 import logging
+import os
+import sys
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any, List
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-import networkx as nx
-from scipy.integrate import solve_ivp
+from scipy.integrate import odeint
 
-# Import local utilities
-from utils.logging_utils import init_logging, get_logger
-from utils.graph_utils import is_connected
+# Import shared utilities
+# Note: We use the tolerant logging_utils provided in the project
+from utils.logging_utils import get_logger
 
-# Constants
-DEFAULT_TIME_STEPS = 1000
-DEFAULT_T_START = 0.0
-DEFAULT_T_END = 100.0
-ORDER_PARAM_THRESHOLD = 0.5
-BINARY_SEARCH_TOL = 0.05
-BINARY_SEARCH_MAX_ITER = 10
-LINEAR_SWEEP_MIN_K = 0.0
-LINEAR_SWEEP_MAX_K = 5.0
-LINEAR_SWEEP_STEPS = 50
+# Import graph utilities if needed (though we mostly work with adjacency matrices here)
+# from utils.graph_utils import is_connected # Not strictly needed here as we assume valid input
 
+# Global logger instance
 logger = get_logger(__name__)
+
 
 def load_config(config_path: str) -> Dict[str, Any]:
     """Load configuration from JSON file."""
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-    
-    with open(config_path, 'r') as f:
-        config = json.load(f)
-    
-    # Validate required keys
-    if 'time_steps' not in config:
-        raise ValueError("Config must contain 'time_steps'")
-    
-    return config
+    path = Path(config_path)
+    if not path.exists():
+        logger.log("config_missing", path=str(path))
+        # Return fallback config to allow script to run in test environments if needed
+        # However, per task T021, we should warn and proceed with fallbacks if config is missing/error
+        return {
+            "time_steps": 1000,
+            "n_topologies": 10,
+            "run_count": 10,
+            "SC_003_VIOLATION": False,
+            "error": "CONFIG_MISSING_FALLBACK"
+        }
+    with open(path, "r") as f:
+        return json.load(f)
 
-def kuramoto_derivative(t: float, theta: np.ndarray, K: float, adj_matrix: np.ndarray, omega: np.ndarray) -> np.ndarray:
+
+def kuramoto_derivative(
+    theta: np.ndarray,
+    t: float,
+    adj_matrix: np.ndarray,
+    omega: np.ndarray,
+    K: float
+) -> np.ndarray:
     """
-    Compute the derivative of the Kuramoto model.
-    
-    d(theta_i)/dt = omega_i + (K/N) * sum_j(adj_ij * sin(theta_j - theta_i))
-    
+    Compute the derivative of phases for the Kuramoto model.
+
+    d(theta_i)/dt = omega_i + (K/N) * sum_{j} A_ij * sin(theta_j - theta_i)
+
     Args:
-        t: Current time (unused, but required by solve_ivp)
-        theta: Current phase angles
-        K: Coupling strength
-        adj_matrix: Adjacency matrix of the network
-        omega: Natural frequencies of oscillators
-    
+        theta: Current phase angles (N,)
+        t: Current time (unused, required by odeint)
+        adj_matrix: Adjacency matrix of the network (N, N)
+        omega: Natural frequencies of oscillators (N,)
+        K: Global coupling strength
+
     Returns:
-        Derivative of phase angles
+        dtheta: Time derivative of phases (N,)
     """
     N = len(theta)
-    # Calculate phase differences
-    diff = theta[:, np.newaxis] - theta[np.newaxis, :]
-    # Calculate coupling term
-    coupling = (K / N) * np.dot(adj_matrix, np.sin(diff))
-    # Total derivative
-    return omega + np.sum(coupling, axis=1)
+    # Vectorized calculation of the coupling term
+    # sin(theta_j - theta_i) -> sin(theta_j)cos(theta_i) - cos(theta_j)sin(theta_i)
+    # But direct matrix multiplication is clearer:
+    # coupling_i = sum_j A_ij * sin(theta_j - theta_i)
 
-def calculate_order_parameter(theta: np.ndarray) -> float:
+    # Calculate phase differences matrix
+    # theta_diff[i, j] = theta[j] - theta[i]
+    theta_diff = theta[np.newaxis, :] - theta[:, np.newaxis]
+    sin_diff = np.sin(theta_diff)
+
+    # Multiply by adjacency matrix
+    # coupling_term[i] = sum_j A_ij * sin(theta_j - theta_i)
+    coupling_term = adj_matrix @ sin_diff
+
+    dtheta = omega + (K / N) * coupling_term
+    return dtheta
+
+
+def calculate_order_parameter(theta: np.ndarray) -> Tuple[float, complex]:
     """
-    Calculate the Kuramoto order parameter R.
-    
-    R = | (1/N) * sum_j(exp(i * theta_j)) |
-    
+    Calculate the complex order parameter R * e^(i*psi).
+
+    R = | (1/N) * sum_{j} e^(i * theta_j) |
+    psi = arg( (1/N) * sum_{j} e^(i * theta_j) )
+
     Args:
-        theta: Array of phase angles
-    
+        theta: Array of phase angles (N,)
+
     Returns:
-        Order parameter R (0 <= R <= 1)
+        R: Magnitude of the order parameter (0.0 to 1.0)
+        psi: Phase of the order parameter
     """
     N = len(theta)
-    complex_order = np.sum(np.exp(1j * theta)) / N
-    return np.abs(complex_order)
+    z = np.mean(np.exp(1j * theta))
+    R = np.abs(z)
+    psi = np.angle(z)
+    return R, psi
+
 
 def simulate_kuramoto(
     adj_matrix: np.ndarray,
     omega: np.ndarray,
     K: float,
-    time_steps: int,
-    t_eval: Optional[np.ndarray] = None,
-    seed: Optional[int] = None
+    t_eval: np.ndarray,
+    seed: int = 42
 ) -> Tuple[np.ndarray, float]:
     """
-    Simulate Kuramoto dynamics for a given coupling strength.
-    
+    Simulate Kuramoto dynamics for a given coupling strength K.
+
     Args:
-        adj_matrix: Adjacency matrix of the network
-        omega: Natural frequencies
+        adj_matrix: Adjacency matrix (N, N)
+        omega: Natural frequencies (N,)
         K: Coupling strength
-        time_steps: Number of time steps
-        t_eval: Time points for evaluation (optional)
-        seed: Random seed for reproducibility (optional)
-    
+        t_eval: Time points for integration
+        seed: Random seed for initial phases
+
     Returns:
-        Tuple of (final_order_parameter, mean_order_parameter_over_time)
+        theta_final: Final phase angles at t_eval[-1]
+        R_final: Final order parameter magnitude
     """
     N = len(omega)
-    if seed is not None:
-        np.random.seed(seed)
-    
-    # Initialize phases randomly
-    theta0 = np.random.uniform(0, 2 * np.pi, N)
-    
-    # Create time array if not provided
-    if t_eval is None:
-        t_eval = np.linspace(0, 100, time_steps)
-    
+    np.random.seed(seed)
+    theta_0 = np.random.uniform(0, 2 * np.pi, N)
+
     # Solve ODE
-    try:
-        sol = solve_ivp(
-            lambda t, y: kuramoto_derivative(t, y, K, adj_matrix, omega),
-            [t_eval[0], t_eval[-1]],
-            theta0,
-            t_eval=t_eval,
-            method='RK45',
-            rtol=1e-6,
-            atol=1e-9
-        )
-        
-        if not sol.success:
-            logger.warning(f"ODE integration failed: {sol.message}")
-            # Return fallback values
-            return 0.0, 0.0
-        
-        # Calculate order parameter at each time step
-        order_params = []
-        for i in range(len(t_eval)):
-            order_params.append(calculate_order_parameter(sol.y[:, i]))
-        
-        final_order = order_params[-1]
-        mean_order = np.mean(order_params[-len(order_params)//4:])  # Average last quarter
-        
-        return final_order, mean_order
-        
-    except Exception as e:
-        logger.error(f"Simulation error: {str(e)}")
-        return 0.0, 0.0
+    sol = odeint(kuramoto_derivative, theta_0, t_eval, args=(adj_matrix, omega, K))
+
+    # Calculate order parameter at the final time step
+    theta_final = sol[-1]
+    R_final, _ = calculate_order_parameter(theta_final)
+
+    return theta_final, R_final
+
 
 def find_critical_coupling_binary_search(
     adj_matrix: np.ndarray,
     omega: np.ndarray,
-    time_steps: int,
-    threshold: float = ORDER_PARAM_THRESHOLD,
-    tol: float = BINARY_SEARCH_TOL,
-    max_iter: int = BINARY_SEARCH_MAX_ITER,
-    seed: Optional[int] = None
-) -> Tuple[Optional[float], str]:
+    t_eval: np.ndarray,
+    K_min: float = 0.0,
+    K_max: float = 10.0,
+    tol: float = 0.05,
+    max_iter: int = 20,
+    threshold: float = 0.5,
+    seed: int = 42
+) -> Tuple[float, str]:
     """
     Find the critical coupling strength Kc using binary search.
-    
+
+    Kc is defined as the minimum K such that the order parameter R >= threshold.
+
     Args:
         adj_matrix: Adjacency matrix
         omega: Natural frequencies
-        time_steps: Number of time steps
-        threshold: Order parameter threshold for synchronization
-        tol: Tolerance for binary search
+        t_eval: Time points
+        K_min: Lower bound for search
+        K_max: Upper bound for search
+        tol: Tolerance for Kc convergence
         max_iter: Maximum iterations
+        threshold: Order parameter threshold for synchronization
         seed: Random seed
-    
+
     Returns:
-        Tuple of (Kc, status) where status is 'found', 'not_found', or 'failed'
+        Kc: Estimated critical coupling
+        status: 'converged' or 'failed'
     """
-    K_low = LINEAR_SWEEP_MIN_K
-    K_high = LINEAR_SWEEP_MAX_K
-    
-    for iteration in range(max_iter):
-        K_mid = (K_low + K_high) / 2
-        
-        final_R, mean_R = simulate_kuramoto(
-            adj_matrix, omega, K_mid, time_steps, seed=seed
-        )
-        
-        if final_R >= threshold:
+    K_low = K_min
+    K_high = K_max
+    Kc = K_max
+    status = "failed"
+
+    for i in range(max_iter):
+        K_mid = (K_low + K_high) / 2.0
+        _, R = simulate_kuramoto(adj_matrix, omega, K_mid, t_eval, seed)
+
+        if R >= threshold:
+            Kc = K_mid
             K_high = K_mid
+            # Check convergence
+            if (K_high - K_low) < tol:
+                status = "converged"
+                break
         else:
             K_low = K_mid
-        
-        if (K_high - K_low) < tol:
-            return K_mid, 'found'
-    
-    # Return best estimate if max iterations reached
-    K_est = (K_low + K_high) / 2
-    final_R, _ = simulate_kuramoto(adj_matrix, omega, K_est, time_steps, seed=seed)
-    
-    if final_R >= threshold:
-        return K_est, 'found'
-    else:
-        return None, 'not_found'
+
+    if status == "failed" and (K_high - K_low) >= tol:
+        # If we didn't converge within max_iter, return the best estimate
+        status = "max_iter_reached"
+
+    return Kc, status
+
 
 def find_critical_coupling_linear_sweep(
     adj_matrix: np.ndarray,
     omega: np.ndarray,
-    time_steps: int,
-    threshold: float = ORDER_PARAM_THRESHOLD,
-    seed: Optional[int] = None
-) -> Tuple[Optional[float], str]:
+    t_eval: np.ndarray,
+    K_range: np.ndarray,
+    threshold: float = 0.5,
+    seed: int = 42
+) -> Tuple[float, str]:
     """
-    Fallback: Find Kc using linear sweep.
-    
+    Fallback method: Linear sweep to find Kc.
+
     Args:
         adj_matrix: Adjacency matrix
         omega: Natural frequencies
-        time_steps: Number of time steps
+        t_eval: Time points
+        K_range: Array of K values to test
         threshold: Order parameter threshold
         seed: Random seed
-    
-    Returns:
-        Tuple of (Kc, status)
-    """
-    K_values = np.linspace(LINEAR_SWEEP_MIN_K, LINEAR_SWEEP_MAX_K, LINEAR_SWEEP_STEPS)
-    
-    for K in K_values:
-        final_R, _ = simulate_kuramoto(adj_matrix, omega, K, time_steps, seed=seed)
-        if final_R >= threshold:
-            return K, 'found'
-    
-    return None, 'not_found'
 
-def run_simulation_batch(config_path: str, output_path: str) -> None:
+    Returns:
+        Kc: Estimated critical coupling
+        status: 'found' or 'failed'
+    """
+    for K in K_range:
+        _, R = simulate_kuramoto(adj_matrix, omega, K, t_eval, seed)
+        if R >= threshold:
+            return K, "found"
+    return float('nan'), "failed"
+
+
+def run_simulation_batch(
+    topology_paths: List[str],
+    config: Dict[str, Any],
+    output_path: str
+) -> None:
     """
     Run simulation batch for all valid topologies.
-    
+
     Args:
-        config_path: Path to configuration file
-        output_path: Path to output CSV file
+        topology_paths: List of paths to topology files
+        config: Configuration dictionary
+        output_path: Path for output CSV
     """
-    # Load configuration
-    try:
-        config = load_config(config_path)
-        time_steps = config['time_steps']
-        n_topologies = config.get('n_topologies', 50)
-        sc_003_violation = config.get('SC_003_VIOLATION', False)
-        
-        if sc_003_violation:
-            logger.info(f"Running with reduced scope due to SC-003 violation")
-            logger.info(f"Time steps: {time_steps}, Topologies: {n_topologies}")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Config file missing: {e}")
-        raise RuntimeError("CONFIG_MISSING")
-    except Exception as e:
-        logger.error(f"Error loading config: {e}")
-        raise RuntimeError(f"CONFIG_ERROR: {str(e)}")
-    
-    # Find topology files
-    topology_dir = Path('data/processed')
-    topology_files = sorted(topology_dir.glob('topology_*.gpickle'))
-    
-    if not topology_files:
-        logger.error("No topology files found in data/processed/")
-        raise RuntimeError("NO_TOPOLOGIES_FOUND")
-    
-    logger.info(f"Found {len(topology_files)} topology files")
-    
-    # Prepare output data
+    time_steps = config.get("time_steps", 1000)
+    # Define time evaluation points
+    t_eval = np.linspace(0, 10, time_steps)
+
+    # Threshold for synchronization (can be made configurable)
+    threshold = 0.5
+
     results = []
-    
-    for topology_file in topology_files:
-        # Extract topology ID and p value from filename
-        filename = topology_file.name
-        parts = filename.replace('.gpickle', '').split('_')
-        topology_id = parts[1]  # topology_{id}
-        p_value = float(parts[3].replace('p', ''))  # p{p:.2f}
-        seed = int(parts[5].replace('seed_', ''))  # seed_{seed}
-        
-        logger.info(f"Processing topology {topology_id} (p={p_value}, seed={seed})")
-        
+
+    for path in topology_paths:
         try:
-            # Load graph
-            G = nx.read_gpickle(topology_file)
-            
-            if not is_connected(G):
-                logger.warning(f"Graph {topology_id} is not connected, skipping")
-                continue
-            
-            # Convert to adjacency matrix
+            import networkx as nx
+            G = nx.read_gpickle(path)
             adj_matrix = nx.to_numpy_array(G)
-            N = len(adj_matrix)
-            
-            # Generate natural frequencies (uniform distribution)
-            np.random.seed(seed)
-            omega = np.random.uniform(-0.5, 0.5, N)
-            
-            # Run binary search for Kc
-            kc_binary, status_binary = find_critical_coupling_binary_search(
-                adj_matrix, omega, time_steps, seed=seed
+            N = G.number_of_nodes()
+
+            # Generate natural frequencies (random uniform for now, or from data if available)
+            # Standard Kuramoto often uses uniform distribution or specific distribution
+            # Here we use uniform [0, 1] for simplicity unless specified
+            omega = np.random.uniform(0, 1, N)
+            # Set seed for reproducibility if needed, but we might want to vary it for stability checks
+            # For this task, we use a fixed seed or derive from topology_id
+            seed = 42 # Default seed, can be varied
+
+            # Binary search for Kc
+            Kc_binary, status_binary = find_critical_coupling_binary_search(
+                adj_matrix, omega, t_eval, seed=seed
             )
-            
-            # If binary search fails, use linear sweep
-            if status_binary == 'not_found' or kc_binary is None:
-                logger.info(f"Binary search failed for {topology_id}, using linear sweep")
-                kc_linear, status_linear = find_critical_coupling_linear_sweep(
-                    adj_matrix, omega, time_steps, seed=seed
+
+            # If binary search failed, try linear sweep
+            if status_binary == "failed":
+                K_range = np.linspace(0, 10, 100)
+                Kc_linear, status_linear = find_critical_coupling_linear_sweep(
+                    adj_matrix, omega, t_eval, K_range, seed=seed
                 )
-                kc_result = kc_linear
-                status_result = f"linear_{status_linear}"
+                status = status_linear
+                Kc = Kc_linear
             else:
-                kc_result = kc_binary
-                status_result = status_binary
-            
+                status = status_binary
+                Kc = Kc_binary
+                Kc_linear = float('nan') # Not computed
+
+            # Extract metadata from filename if possible
+            # Expected format: topology_{topology_id}_p{p:.2f}_seed_{seed}.gpickle
+            filename = os.path.basename(path)
+            parts = filename.replace(".gpickle", "").split("_")
+            topology_id = parts[1] if len(parts) > 1 else "unknown"
+            p_val = float(parts[3]) if len(parts) > 3 and parts[2] == "p" else 0.0
+
             results.append({
-                'topology_id': topology_id,
-                'p': p_value,
-                'kc_binary': kc_result if kc_result is not None else '',
-                'kc_linear': '',  # Only filled if binary failed
-                'status': status_result
+                "topology_id": topology_id,
+                "p": p_val,
+                "kc_binary": Kc_binary,
+                "kc_linear": Kc_linear if 'Kc_linear' in locals() else float('nan'),
+                "status": status
             })
-            
+
         except Exception as e:
-            logger.error(f"Error processing {topology_file}: {str(e)}")
+            logger.log("simulation_error", file=path, error=str(e))
+            # Extract metadata even on error
+            filename = os.path.basename(path)
+            parts = filename.replace(".gpickle", "").split("_")
+            topology_id = parts[1] if len(parts) > 1 else "unknown"
+            p_val = float(parts[3]) if len(parts) > 3 and parts[2] == "p" else 0.0
             results.append({
-                'topology_id': topology_id,
-                'p': p_value,
-                'kc_binary': '',
-                'kc_linear': '',
-                'status': f'error: {str(e)}'
+                "topology_id": topology_id,
+                "p": p_val,
+                "kc_binary": float('nan'),
+                "kc_linear": float('nan'),
+                "status": f"error: {str(e)}"
             })
-    
+
     # Write results to CSV
-    import csv
-    with open(output_path, 'w', newline='') as csvfile:
-        fieldnames = ['topology_id', 'p', 'kc_binary', 'kc_linear', 'status']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
-    
-    logger.info(f"Simulation results written to {output_path}")
-    logger.info(f"Processed {len(results)} topologies")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", newline="") as f:
+        if results:
+            writer = csv.DictWriter(f, fieldnames=results[0].keys())
+            writer.writeheader()
+            writer.writerows(results)
+        else:
+            f.write("topology_id,p,kc_binary,kc_linear,status\n")
+
 
 def main():
-    """Main entry point for the simulation batch."""
-    init_logging()
-    
-    config_path = 'data/processed/config.json'
-    output_path = 'data/processed/simulation_results.csv'
-    
-    try:
-        run_simulation_batch(config_path, output_path)
-        logger.info("Simulation batch completed successfully")
-    except Exception as e:
-        logger.error(f"Simulation batch failed: {str(e)}")
-        raise
+    """Main entry point for simulation batch."""
+    config_path = "data/processed/config.json"
+    output_path = "data/processed/simulation_results.csv"
 
-if __name__ == '__main__':
+    # Load config
+    config = load_config(config_path)
+
+    # Find all topology files
+    topology_files = sorted(glob.glob("data/processed/topology_*.gpickle"))
+
+    if not topology_files:
+        logger.log("no_topologies_found")
+        # Create empty output file
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, "w") as f:
+            f.write("topology_id,p,kc_binary,kc_linear,status\n")
+        return
+
+    logger.log("starting_batch_simulation", num_topologies=len(topology_files))
+    run_simulation_batch(topology_files, config, output_path)
+    logger.log("batch_simulation_complete", output=output_path)
+
+
+if __name__ == "__main__":
+    import csv
+    import glob
     main()

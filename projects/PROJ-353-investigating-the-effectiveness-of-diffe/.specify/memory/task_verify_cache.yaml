@@ -13,3 +13,32 @@ T003:
     \ requirement to configure linting and formatting tools is not satisfied. The\
     \ implementer must add the appropriate configuration files and ensure they are\
     \ non\u2011empty and correctly set up."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or its contents were provided, so we cannot verify that all\
+    \ occurrences of \u201C50\u201D were replaced with \u201C110\u201D in FR\u2011\
+    001 and US\u20111 Acceptance Scenario\u202F1. The required artifact is missing."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided, and there is no evidence showing that\
+    \ the text of FR\u2011005 and US\u20112 Acceptance Scenario\u202F1 has been edited\
+    \ to replace \u201C\u2265\u202F[deferred]\u201D with \u201C\u2265\u202F0.90\u201D\
+    . The implementer\u2019s claim cannot be verified without the actual specification\
+    \ document."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or excerpt showing the required changes is provided; therefore\
+    \ we cannot confirm that FR\u2011006 and FR\u2011007 have been updated to replace\
+    \ \u201CPearson correlation\u201D and \u201CANCOVA\u201D with \u201CTobit Regression\u201D\
+    \ and \u201CCox Proportional Hazards\u201D. The implementer must supply the modified\
+    \ `spec.md` containing the corrected functional requirement text."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No spec.md file or excerpt showing the revised FR\u2011008 is provided; without\
+    \ the updated specification we cannot confirm that the \u201Ccorrelation coefficients\u201D\
+    \ requirement was removed and the scope limited to \u201CTobit/Cox interaction\
+    \ terms only.\u201D The required artifact is missing."

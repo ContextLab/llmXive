@@ -1,9 +1,3 @@
-"""
-Topology Generation Module for Kuramoto Synchronization Study.
-
-Implements synthetic ring lattice generation, Watts-Strogatz rewiring,
-connectivity validation, and batch generation with metadata logging.
-"""
 from __future__ import annotations
 
 import json
@@ -11,351 +5,298 @@ import logging
 import os
 import random
 import time
-from datetime import datetime
+import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Tuple
 
 import networkx as nx
 import numpy as np
 
 from utils.logging_utils import get_logger, log_operation
+from utils.graph_utils import is_connected, calculate_graph_metrics
 
-# Constants
-DEFAULT_N_NODES = 500
-DEFAULT_K_NEIGHBORS = 2
-DEFAULT_SEED = 42
-MAX_RETRIES = 10
-LOG_FILE = "data/processed/simulation_{}.log"
+# Initialize logger tolerant of call signatures
+logger = get_logger("generate_topology")
 
-# Initialize logger
-logger = get_logger(__name__)
-
-
-def load_config(config_path: str = "data/processed/config.json") -> Dict[str, Any]:
+def load_config(config_path: str) -> Dict[str, Any]:
     """Load configuration from JSON file."""
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-    
-    with open(config_path, "r") as f:
+    with open(config_path, 'r') as f:
         return json.load(f)
 
-
-def generate_regular_ring_lattice(n: int = DEFAULT_N_NODES, k: int = DEFAULT_K_NEIGHBORS) -> nx.Graph:
+def generate_regular_ring_lattice(n: int, k: int, seed: int) -> nx.Graph:
     """
     Generate a synthetic regular ring lattice.
     
     Args:
         n: Number of nodes
         k: Each node is joined with its k nearest neighbors
-        
+        seed: Random seed for reproducibility
+    
     Returns:
-        NetworkX Graph representing the ring lattice
+        NetworkX Graph object
     """
-    logger.log("generate_regular_ring_lattice", n=n, k=k)
-    G = nx.watts_strogatz_graph(n, k, 0.0, seed=DEFAULT_SEED)
+    # Using networkx's built-in function which creates a regular ring lattice
+    # when p=0. We set p=0 explicitly to ensure it is a regular ring.
+    G = nx.watts_strogatz_graph(n, k, 0.0, seed=seed)
     return G
 
-
-def generate_watts_strogatz_graph(
-    n: int = DEFAULT_N_NODES,
-    k: int = DEFAULT_K_NEIGHBORS,
-    p: float = 0.1,
-    seed: Optional[int] = None
-) -> nx.Graph:
+def generate_watts_strogatz_graph(n: int, k: int, p: float, seed: int) -> nx.Graph:
     """
     Generate a Watts-Strogatz small-world graph.
     
     Args:
         n: Number of nodes
-        k: Each node is joined with its k nearest neighbors
-        p: Probability of rewiring each edge
-        seed: Random seed for reproducibility
-        
+        k: Initial number of neighbors (must be even)
+        p: Rewiring probability
+        seed: Random seed
+    
     Returns:
-        NetworkX Graph representing the Watts-Strogatz graph
+        NetworkX Graph object
     """
-    if seed is None:
-        seed = random.randint(0, 2**32 - 1)
-        
-    logger.log("generate_watts_strogatz_graph", n=n, k=k, p=p, seed=seed)
     G = nx.watts_strogatz_graph(n, k, p, seed=seed)
     return G
 
-
-def validate_graph(G: nx.Graph, n_expected: int = DEFAULT_N_NODES) -> Tuple[bool, str]:
+def validate_graph(G: nx.Graph, n: int) -> Tuple[bool, str]:
     """
-    Validate graph properties for connectivity and node count.
+    Validate graph properties.
     
     Args:
-        G: NetworkX Graph to validate
-        n_expected: Expected number of nodes
-        
+        G: NetworkX Graph
+        n: Expected number of nodes
+    
     Returns:
-        Tuple of (is_valid, message)
+        Tuple (is_valid, message)
     """
-    logger.log("validate_graph", n_nodes=G.number_of_nodes(), n_expected=n_expected)
+    if G.number_of_nodes() != n:
+        return False, f"Node count mismatch: expected {n}, got {G.number_of_nodes()}"
     
-    if G.number_of_nodes() != n_expected:
-        return False, f"Node count mismatch: {G.number_of_nodes()} != {n_expected}"
+    if not is_connected(G):
+        return False, "Graph is not connected"
     
-    if not nx.is_connected(G):
-        return False, "Graph is disconnected"
-    
-    return True, "Graph is valid"
-
+    return True, "Valid"
 
 def compute_graph_checksum(G: nx.Graph) -> str:
     """
-    Compute a checksum of the graph structure for reproducibility.
+    Compute a deterministic checksum of the graph structure.
     
     Args:
         G: NetworkX Graph
-        
+    
     Returns:
-        SHA256 checksum string
+        SHA256 hex digest string
     """
-    # Serialize graph to a canonical string representation
+    # Sort nodes and edges for deterministic serialization
     nodes = sorted(G.nodes())
-    edges = sorted([tuple(sorted(e)) for e in G.edges()])
-    data = f"{nodes}_{edges}"
+    edges = sorted(tuple(sorted(e)) for e in G.edges())
+    
+    # Create a string representation
+    data = f"nodes:{nodes};edges:{edges}"
     return hashlib.sha256(data.encode()).hexdigest()
 
-
 def save_graph_and_metadata(
-    G: nx.Graph,
-    topology_id: int,
-    p: float,
-    seed: int,
-    output_dir: str = "data/processed"
+    G: nx.Graph, 
+    topology_id: int, 
+    p: float, 
+    seed: int, 
+    output_dir: str,
+    metadata_list: list
 ) -> str:
     """
-    Save graph to disk and update metadata JSON.
+    Save graph to gpickle and update metadata list.
     
     Args:
         G: NetworkX Graph
-        topology_id: Unique identifier for this topology
+        topology_id: Unique ID for this topology
         p: Rewiring probability
         seed: Random seed used
         output_dir: Directory to save files
-        
+        metadata_list: List to append metadata to
+    
     Returns:
-        Path to the saved graph file
+        Path to the saved gpickle file
     """
-    os.makedirs(output_dir, exist_ok=True)
+    filename = f"topology_{topology_id}_p{p:.2f}_seed_{seed}.gpickle"
+    filepath = os.path.join(output_dir, filename)
     
-    # File naming convention
-    graph_filename = f"topology_{topology_id}_p{p:.2f}_seed_{seed}.gpickle"
-    graph_path = os.path.join(output_dir, graph_filename)
-    
-    # Save graph
-    nx.write_gpickle(G, graph_path)
+    nx.write_gpickle(G, filepath)
     
     # Compute checksum
     checksum = compute_graph_checksum(G)
     
-    # Load or initialize metadata
-    metadata_path = os.path.join(output_dir, "graph_metadata.json")
-    if os.path.exists(metadata_path):
-        with open(metadata_path, "r") as f:
-            metadata_list = json.load(f)
-    else:
-        metadata_list = []
+    # Calculate metrics
+    metrics = calculate_graph_metrics(G)
     
-    # Append new entry
-    new_entry = {
+    metadata = {
         "topology_id": topology_id,
         "p": p,
         "seed": seed,
         "node_count": G.number_of_nodes(),
         "edge_count": G.number_of_edges(),
-        "avg_degree": sum(dict(G.degree()).values()) / G.number_of_nodes(),
+        "avg_degree": float(metrics.get("average_degree", 0.0)),
+        "clustering_coefficient": float(metrics.get("clustering_coefficient", 0.0)),
         "checksum": checksum,
-        "timestamp": datetime.utcnow().isoformat(),
-        "filename": graph_filename
+        "file_path": filepath
     }
-    metadata_list.append(new_entry)
     
-    # Save updated metadata
-    with open(metadata_path, "w") as f:
-        json.dump(metadata_list, f, indent=2)
+    metadata_list.append(metadata)
     
-    logger.log("save_graph_and_metadata", path=graph_path, checksum=checksum)
-    return graph_path
+    return filepath
 
-
-def log_disconnected_graph(
-    p: float,
-    seed: int,
-    log_file: str = "data/processed/disconnected_log.json"
-) -> None:
-    """
-    Log a disconnected graph attempt.
+def log_disconnected_graph(p: float, seed: int, log_file: str, output_dir: str):
+    """Log disconnected graph attempts to a specific file."""
+    log_path = os.path.join(output_dir, "disconnected_log.json")
     
-    Args:
-        p: Rewiring probability that failed
-        seed: Seed that failed
-        log_file: Path to the disconnected log file
-    """
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    
-    if os.path.exists(log_file):
-        with open(log_file, "r") as f:
-            disconnected_log = json.load(f)
-    else:
-        disconnected_log = []
-    
-    disconnected_log.append({
+    entry = {
         "p": p,
         "seed": seed,
-        "timestamp": datetime.utcnow().isoformat(),
-        "reason": "Disconnected graph"
-    })
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    }
     
-    with open(log_file, "w") as f:
-        json.dump(disconnected_log, f, indent=2)
+    # Read existing log if exists
+    existing = []
+    if os.path.exists(log_path):
+        try:
+            with open(log_path, 'r') as f:
+                existing = json.load(f)
+        except json.JSONDecodeError:
+            existing = []
     
-    logger.log("log_disconnected_graph", p=p, seed=seed)
-
-
-def log_methodology_correction(
-    base_graph: str = "synthetic_regular_ring_lattice",
-    n_nodes: int = DEFAULT_N_NODES,
-    k_neighbors: int = DEFAULT_K_NEIGHBORS
-) -> None:
-    """
-    Log the methodology correction regarding the base graph.
+    existing.append(entry)
     
-    Args:
-        base_graph: Type of base graph used
-        n_nodes: Number of nodes
-        k_neighbors: Number of neighbors
-    """
-    logger.log(
-        "log_methodology_correction",
-        base_graph=base_graph,
-        n_nodes=n_nodes,
-        k_neighbors=k_neighbors,
-        note="Using synthetic regular ring lattice instead of ca-AstroPh per T000a"
-    )
+    with open(log_path, 'w') as f:
+        json.dump(existing, f, indent=2)
 
+def log_methodology_correction(output_dir: str):
+    """Log the methodology correction (synthetic ring lattice) to a file."""
+    log_path = os.path.join(output_dir, "methodology_correction.json")
+    
+    correction = {
+        "source": "FR-001 (Original) vs T000a (Correction)",
+        "original_requirement": "Use ca-AstroPh citation network",
+        "corrected_requirement": "Generate synthetic regular ring lattice (N=500, k=2)",
+        "reason": "Reconstructing an irregular citation network into a regular ring lattice is methodologically incoherent. The Watts-Strogatz model requires a regular ring base.",
+        "verified_by": "T000a (Spec Verification)"
+    }
+    
+    with open(log_path, 'w') as f:
+        json.dump(correction, f, indent=2)
 
-def run_generation_batch(
-    n_topologies: int,
-    config_path: str = "data/processed/config.json"
+def generate_batch(
+    n_topologies: int, 
+    config_path: str,
+    n_nodes: int = 500,
+    k_neighbors: int = 2
 ) -> List[str]:
     """
-    Generate a batch of connected Watts-Strogatz graphs.
+    Generate a batch of N valid (connected) Watts-Strogatz graphs.
+    
+    Logic:
+    1. Read n_topologies from config.json.
+    2. Generate a list of p values based on n_topologies count.
+    3. Loop to generate valid graphs. Retry up to MAX_RETRIES for each p.
+    4. Skip p if MAX_RETRIES reached, log warning.
+    5. Stop when n_topologies valid graphs are saved or p-values exhausted.
     
     Args:
-        n_topologies: Target number of valid graphs to generate
-        config_path: Path to configuration file
-        
+        n_topologies: Target number of valid topologies to generate
+        config_path: Path to data/processed/config.json
+        n_nodes: Number of nodes (default 500)
+        k_neighbors: Number of neighbors (default 2)
+    
     Returns:
-        List of paths to generated graph files
+        List of paths to saved .gpickle files
     """
-    logger.log("run_generation_batch", n_topologies=n_topologies)
-    
     # Load config
-    try:
-        config = load_config(config_path)
-    except FileNotFoundError:
-        logger.log("run_generation_batch", error="Config not found", severity="ERROR")
-        # Create fallback config if missing
-        config = {
-            "n_topologies": n_topologies,
-            "n_nodes": DEFAULT_N_NODES,
-            "k_neighbors": DEFAULT_K_NEIGHBORS,
-            "sampling_p_values": [0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0][:n_topologies]
-        }
-        os.makedirs(os.path.dirname(config_path), exist_ok=True)
-        with open(config_path, "w") as f:
-            json.dump(config, f, indent=2)
+    config = load_config(config_path)
     
-    n_nodes = config.get("n_nodes", DEFAULT_N_NODES)
-    k_neighbors = config.get("k_neighbors", DEFAULT_K_NEIGHBORS)
-    
-    # Determine p values
-    if "sampling_p_values" in config:
-        p_values = config["sampling_p_values"]
+    # Determine sampling strategy for p values
+    if n_topologies >= 10:
+        # Systematic coverage
+        p_values = np.linspace(0.0, 1.0, n_topologies).tolist()
     else:
-        if n_topologies >= 10:
-            p_values = np.linspace(0.0, 1.0, n_topologies).tolist()
-        else:
-            p_values = [0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0][:n_topologies]
+        # Fixed representative set truncated
+        fixed_p = [0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0]
+        p_values = fixed_p[:n_topologies]
     
-    # Record sampling strategy in config
+    # Record this in config for audit (update the loaded config dict)
     config["sampling_p_values"] = p_values
-    with open(config_path, "w") as f:
+    
+    # Save updated config back
+    with open(config_path, 'w') as f:
         json.dump(config, f, indent=2)
     
-    generated_graphs = []
+    output_dir = os.path.dirname(config_path)
+    metadata_list = []
+    saved_paths = []
+    MAX_RETRIES = 10
+    
+    log_methodology_correction(output_dir)
+    
     topology_id = 0
     
     for p in p_values:
-        if len(generated_graphs) >= n_topologies:
-            break
+        logger.info(f"Attempting to generate connected graph for p={p:.2f}")
+        found_for_p = False
         
-        retries = 0
-        success = False
-        
-        while retries < MAX_RETRIES and not success:
+        for retry in range(MAX_RETRIES):
             seed = random.randint(0, 2**32 - 1)
             try:
+                # Generate graph
                 G = generate_watts_strogatz_graph(n_nodes, k_neighbors, p, seed)
+                
+                # Validate
                 is_valid, msg = validate_graph(G, n_nodes)
                 
                 if is_valid:
-                    graph_path = save_graph_and_metadata(
-                        G, topology_id, p, seed
+                    path = save_graph_and_metadata(
+                        G, topology_id, p, seed, output_dir, metadata_list
                     )
-                    generated_graphs.append(graph_path)
+                    saved_paths.append(path)
                     topology_id += 1
-                    success = True
+                    found_for_p = True
+                    logger.info(f"Saved topology_{topology_id-1} (p={p:.2f}, seed={seed})")
+                    
+                    if len(saved_paths) >= n_topologies:
+                        break
                 else:
-                    log_disconnected_graph(p, seed)
-                    retries += 1
-                    logger.log(
-                        "run_generation_batch",
-                        p=p,
-                        seed=seed,
-                        retry=retries,
-                        reason=msg
-                    )
+                    # Log disconnected attempt
+                    log_disconnected_graph(p, seed, output_dir, output_dir)
+                    logger.warning(f"Graph disconnected for p={p:.2f}, seed={seed} (retry {retry+1}/{MAX_RETRIES})")
+                    
             except Exception as e:
-                logger.log("run_generation_batch", error=str(e), severity="ERROR")
-                retries += 1
+                logger.error(f"Error generating graph for p={p:.2f}, seed={seed}: {e}")
+                log_disconnected_graph(p, seed, output_dir, output_dir)
         
-        if not success:
-            logger.log(
-                "run_generation_batch",
-                warning=f"Failed to generate connected graph for p={p:.2f} after {MAX_RETRIES} retries"
-            )
+        if not found_for_p:
+            logger.warning(f"Failed to generate connected graph for p={p:.2f} after {MAX_RETRIES} retries. Skipping.")
+        
+        if len(saved_paths) >= n_topologies:
+            break
     
-    logger.log("run_generation_batch", total_generated=len(generated_graphs))
-    return generated_graphs
+    # Save metadata
+    metadata_path = os.path.join(output_dir, "graph_metadata.json")
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata_list, f, indent=2)
+    
+    logger.info(f"Batch generation complete. Saved {len(saved_paths)} topologies.")
+    return saved_paths
 
-
-def main() -> None:
-    """Main entry point for topology generation."""
-    logger.log("main", status="starting")
-    
-    # Ensure output directory exists
-    os.makedirs("data/processed", exist_ok=True)
-    
-    # Run batch generation
+def main():
+    """Main entry point for batch generation."""
     config_path = "data/processed/config.json"
-    if os.path.exists(config_path):
-        with open(config_path, "r") as f:
-            config = json.load(f)
-        n_topologies = config.get("n_topologies", 10)
-    else:
-        n_topologies = 10
     
-    generated_paths = run_generation_batch(n_topologies, config_path)
+    if not os.path.exists(config_path):
+        logger.error(f"Config file not found: {config_path}")
+        sys.exit(1)
     
-    logger.log("main", status="completed", files_generated=len(generated_paths))
-    print(f"Generated {len(generated_paths)} topologies")
-
+    config = load_config(config_path)
+    n_topologies = config.get("n_topologies", 10)
+    
+    logger.info(f"Starting batch generation for {n_topologies} topologies...")
+    
+    paths = generate_batch(n_topologies, config_path)
+    
+    logger.info(f"Generation finished. Total files: {len(paths)}")
 
 if __name__ == "__main__":
     main()

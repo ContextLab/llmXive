@@ -64,3 +64,36 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/cmip6/cmip6-historical
   verified_at: '2026-07-09T21:17:41.587923Z'
+- artifact_hash: a916ef9d7b6c5f1b5bc6120f589192a5d3f362b123ed882ffda401b53046a029
+  artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/README_ENV_SETUP.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://your-custom-silso-mirror.com/data/
+  verification_status: unreachable
+  verified_against_url: https://your-custom-silso-mirror.com/data/
+  verified_at: '2026-09-06T18:36:55.209658Z'
+- artifact_hash: a916ef9d7b6c5f1b5bc6120f589192a5d3f362b123ed882ffda401b53046a029
+  artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/README_ENV_SETUP.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://your-custom-sorce-mirror.com/data/
+  verification_status: unreachable
+  verified_against_url: https://your-custom-sorce-mirror.com/data/
+  verified_at: '2026-09-06T18:36:55.209658Z'
+- artifact_hash: a916ef9d7b6c5f1b5bc6120f589192a5d3f362b123ed882ffda401b53046a029
+  artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/README_ENV_SETUP.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: SIDC -- Solar Influences Data Analysis Center | SIDC
+  kind: url
+  value: https://www.sidc.be/
+  verification_status: pending
+  verified_against_url: https://www.sidc.be/
+  verified_at: '2026-09-06T18:36:55.209658Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.12588",
+  "judged_at": "2026-09-06T18:55:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video generation models are general-purpose vision learners\" computer science",
+  "rationale": "The paper focuses on continual learning and catastrophic forgetting in general neural networks, which is a distinct construct from the user's specific question about extending the \"Video Generation Models are General-Purpose Vision Learners\" hypothesis to LLMs (likely referring to the \"Video Generation Models are General-Purpose Vision Learners\" paper by Ma et al. or similar work on video models as vision backbones). While both involve representation learning, the candidate paper does not addres",
+  "relevant": false
+}

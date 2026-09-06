@@ -1,6 +1,5 @@
 """
-llmXive Solar Irradiance Reconstruction Project.
+Solar Irradiance Reconstruction Project - Code Package.
 
-This package contains the core implementation for reconstructing
-Total Solar Irradiance (TSI) from historical sunspot records.
+This package contains all the Python modules for the project.
 """

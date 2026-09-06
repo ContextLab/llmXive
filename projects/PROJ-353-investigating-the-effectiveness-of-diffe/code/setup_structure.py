@@ -1,66 +1,58 @@
 """
-Project Structure Initialization Script.
-Creates the required directory hierarchy for the research pipeline.
+Project structure initialization script.
+Creates the required directory hierarchy for the llmXive research pipeline.
 """
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """Create the standard project directories."""
-    root = Path(__file__).parent.parent
+    """
+    Initialize the project directory structure.
+    Creates code/, tests/, data/ (with subdirs), and specs/ if they don't exist.
+    """
+    base_dir = Path(__file__).parent.parent
     
     directories = [
-        root / "code",
-        root / "tests",
-        root / "data" / "raw",
-        root / "data" / "logs",
-        root / "data" / "analysis",
-        root / "data" / "figures",
-        root / "specs",
-        root / "contracts",
+        "code",
+        "tests",
+        "data/raw",
+        "data/logs",
+        "data/analysis",
+        "specs",
+        "figures"
     ]
     
-    created_count = 0
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path.relative_to(root)}")
-            created_count += 1
+    created = []
+    for d in directories:
+        path = base_dir / d
+        if not path.exists():
+            path.mkdir(parents=True)
+            created.append(str(path.relative_to(base_dir)))
+            print(f"Created directory: {path}")
         else:
-            print(f"Directory exists: {dir_path.relative_to(root)}")
+            print(f"Directory exists: {path}")
     
-    # Create __init__.py files if missing
-    init_files = [
-        root / "code" / "__init__.py",
-        root / "tests" / "__init__.py",
-    ]
+    # Create __init__.py files to make them packages
+    package_dirs = ["code", "tests", "data"]
+    for d in package_dirs:
+        path = base_dir / d / "__init__.py"
+        if not path.exists():
+            path.write_text(f"# {d} package\n")
+            print(f"Created {path}")
     
-    for init_file in init_files:
-        if not init_file.exists():
-            init_file.write_text("# Package initialization\n")
-            print(f"Created init file: {init_file.relative_to(root)}")
-            created_count += 1
-
-    # Create .gitkeep files for data directories to ensure they are tracked
-    data_dirs = [
-        root / "data" / "raw",
-        root / "data" / "logs",
-        root / "data" / "analysis",
-        root / "data" / "figures",
-    ]
+    # Create .gitkeep files in data subdirectories to ensure they are tracked
+    data_subdirs = ["data/raw", "data/logs", "data/analysis"]
+    for d in data_subdirs:
+        path = base_dir / d / ".gitkeep"
+        if not path.exists():
+            path.write_text(f"# {d} directory\n")
+            print(f"Created {path}")
     
-    for data_dir in data_dirs:
-        keep_file = data_dir / ".gitkeep"
-        if not keep_file.exists():
-            keep_file.write_text("# Keep directory in git\n")
-            print(f"Created .gitkeep: {keep_file.relative_to(root)}")
-            created_count += 1
-
-    if created_count == 0:
-        print("Project structure already exists. Nothing to do.")
+    if not created:
+        print("All directories already exist.")
     else:
-        print(f"Successfully created/verified {created_count} items.")
+        print(f"Successfully created {len(created)} directories.")
     
     return 0
 

@@ -1,3 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmXive-graph-loss"
+version = "0.1.0"
+description = "Investigating the effectiveness of different loss functions on small-world graphs"
+requires-python = ">=3.10"
+dependencies = [
+    "networkx>=3.0",
+    "torch>=2.0.0",
+    "scikit-learn>=1.2.0",
+    "statsmodels>=0.14.0",
+    "lifelines>=0.28.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+]
+
 [tool.black]
 line-length = 88
 target-version = ['py310']
@@ -13,27 +32,31 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | data
 )/
 '''
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203, W503"
+exclude = [
+    ".git",
+    "__pycache__",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+]
+per-file-ignores = []
+max-complexity = 15
 
 [tool.isort]
 profile = "black"
 line_length = 88
 known_first_party = ["power_analysis", "setup_structure"]
-skip = ["data", ".git", "__pycache__"]
 
-[project]
-name = "llmxive-proj-353"
-version = "0.1.0"
-description = "Investigating the effectiveness of different loss functions on small-world graphs"
-requires-python = ">=3.10"
-dependencies = [
-    "networkx",
-    "torch",
-    "scikit-learn",
-    "statsmodels",
-    "lifelines",
-    "numpy",
-    "pandas"
-]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

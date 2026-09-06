@@ -1,1 +1,1 @@
-# Data package for llmXive research pipeline
+# llmXive research pipeline: data module

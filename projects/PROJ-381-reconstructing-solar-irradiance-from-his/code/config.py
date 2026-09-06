@@ -1,53 +1,54 @@
+"""
+Configuration module for the Solar Irradiance Reconstruction project.
+Provides path management, random seeds, and constants.
+"""
 import os
 from pathlib import Path
 from typing import Final
 
 from env_manager import setup_environment, get_data_path
 
-# Initialize environment paths
-PATHS = setup_environment()
+# Ensure environment variables are loaded
+setup_environment()
 
-# Project root
-PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
+# Project root directory
+PROJECT_ROOT: Final[Path] = Path(__file__).parent.parent
 
-# Data paths
-DATA_ROOT: Final[Path] = PATHS['data_root']
-RAW_DATA_DIR: Final[Path] = PATHS['raw']
-PROCESSED_DATA_DIR: Final[Path] = PATHS['processed']
-FIGURES_DIR: Final[Path] = PATHS['figures']
+# Data directories
+DATA_RAW_DIR: Final[Path] = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR: Final[Path] = PROJECT_ROOT / "data" / "processed"
 
-# Model artifacts directory
-MODELS_DIR: Final[Path] = PROJECT_ROOT / "code" / "models" / "artifacts"
+# Code directories
+CODE_MODELS_DIR: Final[Path] = PROJECT_ROOT / "code" / "models"
+CODE_ANALYSIS_DIR: Final[Path] = PROJECT_ROOT / "code" / "analysis"
+CODE_DATA_DIR: Final[Path] = PROJECT_ROOT / "code" / "data"
 
-# Contracts directory
-CONTRACTS_DIR: Final[Path] = PROJECT_ROOT / "contracts"
-
-# Specs directory
-SPECS_DIR: Final[Path] = PROJECT_ROOT / "specs"
-
-# Random seeds
+# Random seed for reproducibility
 RANDOM_SEED: Final[int] = 42
 
-# FR-002 Gap logic constants
-GAP_THRESHOLD_YEARS: Final[float] = 1.0
-GAP_PROXY_GSN: Final[int] = 0
+# FR-002: Gap filling threshold (1 year in days)
+GAP_THRESHOLD_DAYS: Final[int] = 365
 
-# FR-009 Thresholds
-INCONSISTENCY_TOLERANCE_THRESHOLDS: Final[list] = [0.01, 0.05, 0.1]
-
-# Bootstrap iterations (FR-005)
-BOOTSTRAP_ITERATIONS: Final[int] = 1000
+# FR-009: Sensitivity analysis thresholds
+SENSITIVITY_THRESHOLDS: Final[list[float]] = [0.01, 0.05, 0.1]
 
 def ensure_directories() -> None:
-    """Ensure all required directories exist."""
-    for path in [DATA_ROOT, RAW_DATA_DIR, PROCESSED_DATA_DIR, FIGURES_DIR, MODELS_DIR, CONTRACTS_DIR, SPECS_DIR]:
-        path.mkdir(parents=True, exist_ok=True)
+    """
+    Ensure all required project directories exist.
+    Creates them if they don't exist.
+    """
+    directories = [
+        DATA_RAW_DIR,
+        DATA_PROCESSED_DIR,
+        CODE_MODELS_DIR,
+        CODE_ANALYSIS_DIR,
+        CODE_DATA_DIR,
+    ]
+    
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Ensured directory exists: {directory}")
 
-# Re-export for backward compatibility if needed elsewhere
-__all__ = [
-    'PROJECT_ROOT', 'DATA_ROOT', 'RAW_DATA_DIR', 'PROCESSED_DATA_DIR', 
-    'FIGURES_DIR', 'MODELS_DIR', 'CONTRACTS_DIR', 'SPECS_DIR',
-    'RANDOM_SEED', 'GAP_THRESHOLD_YEARS', 'GAP_PROXY_GSN',
-    'INCONSISTENCY_TOLERANCE_THRESHOLDS', 'BOOTSTRAP_ITERATIONS',
-    'ensure_directories'
-]
+if __name__ == "__main__":
+    ensure_directories()
+    print("All directories ensured.")

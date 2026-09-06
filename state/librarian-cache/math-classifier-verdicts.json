@@ -263,6 +263,10 @@
     "classified_at": "2026-09-01T03:44:01Z",
     "verdict": false
   },
+  "PROJ-1054-llmxive-follow-up-extending-video-genera::1.6.0": {
+    "classified_at": "2026-09-06T18:55:17Z",
+    "verdict": false
+  },
   "PROJ-1060-llmxive-follow-up-extending-abot-agentos::1.6.0": {
     "classified_at": "2026-07-31T10:03:27Z",
     "verdict": false
@@ -633,6 +637,10 @@
   },
   "PROJ-386-predicting-the-impact-of-processing-temp::1.6.0": {
     "classified_at": "2026-07-01T21:36:55Z",
+    "verdict": false
+  },
+  "PROJ-389-the-impact-of-simulated-social-compariso::1.6.0": {
+    "classified_at": "2026-09-06T18:54:00Z",
     "verdict": false
   },
   "PROJ-400-can-publicly-available-data-reveal-subtl::1.6.0": {

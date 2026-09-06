@@ -1,135 +1,149 @@
+"""
+Tests for the environment variable management module (env_manager.py).
+
+These tests verify that:
+1. Environment variables are loaded correctly from .env files
+2. Default paths are constructed correctly
+3. Path validation works as expected
+4. Fallback mechanisms function properly
+"""
+
 import os
-import tempfile
-from pathlib import Path
 import pytest
-from unittest.mock import patch
+from pathlib import Path
+import tempfile
+import shutil
 
-from env_manager import (
-    load_env_vars,
-    get_env_var,
-    get_data_path,
-    validate_data_paths,
-    setup_environment,
-    DEFAULT_DATA_ROOT,
-    DEFAULT_RAW_DATA_DIR,
-    DEFAULT_PROCESSED_DATA_DIR,
-    DEFAULT_FIGURES_DIR
-)
+# Import the module under test
+from code import env_manager
 
-
-class TestLoadEnvVars:
-    def test_load_from_existing_file(self, tmp_path):
-        env_file = tmp_path / ".env"
-        env_file.write_text("KEY1=value1\nKEY2=value2\n")
-        
-        result = load_env_vars(env_file)
-        
-        assert result == {"KEY1": "value1", "KEY2": "value2"}
-        assert os.getenv("KEY1") == "value1"
-        assert os.getenv("KEY2") == "value2"
+@pytest.fixture
+def temp_project_dir():
+    """Create a temporary directory structure simulating a project."""
+    temp_dir = tempfile.mkdtemp()
     
-    def test_load_ignores_comments(self, tmp_path):
-        env_file = tmp_path / ".env"
-        env_file.write_text("# This is a comment\nKEY=value\n")
+    # Create a minimal project structure
+    code_dir = Path(temp_dir) / "code"
+    code_dir.mkdir()
+    data_dir = Path(temp_dir) / "data"
+    data_dir.mkdir()
+    (data_dir / "raw").mkdir()
+    (data_dir / "processed").mkdir()
+    (code_dir / "models").mkdir()
+    (code_dir / "analysis").mkdir()
+    
+    # Create a dummy .env file
+    env_content = """
+    DATA_ROOT_PATH=/custom/data/root
+    DATA_RAW_PATH=/custom/data/raw
+    DATA_PROCESSED_PATH=/custom/data/processed
+    MODEL_ARTIFACTS_PATH=/custom/code/models/artifacts
+    DATA_FIGURES_PATH=/custom/data/figures
+    """
+    env_file = code_dir / ".env"
+    env_file.write_text(env_content)
+    
+    # Create a dummy __init__.py
+    (code_dir / "__init__.py").write_text("")
+    
+    yield temp_dir
+    
+    # Cleanup
+    shutil.rmtree(temp_dir)
+
+def test_get_project_root(temp_project_dir):
+    """Test that project root is correctly identified."""
+    # Change to the temp directory
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(temp_project_dir)
+        # Reset the cached project root
+        env_manager._PROJECT_ROOT = None
         
-        result = load_env_vars(env_file)
+        root = env_manager._get_project_root()
+        assert root == Path(temp_project_dir)
+    finally:
+        os.chdir(original_cwd)
+
+def test_load_env_vars_from_file(temp_project_dir):
+    """Test loading environment variables from a .env file."""
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(temp_project_dir)
         
-        assert result == {"KEY": "value"}
-    
-    def test_load_ignores_empty_lines(self, tmp_path):
-        env_file = tmp_path / ".env"
-        env_file.write_text("\n\nKEY=value\n\n")
+        # Load env vars
+        env_vars = env_manager.load_env_vars()
         
-        result = load_env_vars(env_file)
+        assert "DATA_ROOT_PATH" in env_vars
+        assert env_vars["DATA_ROOT_PATH"] == "/custom/data/root"
+        assert env_vars["DATA_RAW_PATH"] == "/custom/data/raw"
+    finally:
+        os.chdir(original_cwd)
+
+def test_get_env_var_fallback():
+    """Test the fallback chain for getting environment variables."""
+    # Set a real env var
+    os.environ["TEST_VAR"] = "from_os_environ"
+    
+    # Test priority: passed dict > os.environ > default
+    result = env_manager.get_env_var("TEST_VAR", default="default_value", env_vars={"TEST_VAR": "from_dict"})
+    assert result == "from_dict"
+    
+    result = env_manager.get_env_var("TEST_VAR", default="default_value")
+    assert result == "from_os_environ"
+    
+    result = env_manager.get_env_var("NON_EXISTENT_VAR", default="default_value")
+    assert result == "default_value"
+    
+    # Cleanup
+    del os.environ["TEST_VAR"]
+
+def test_get_data_path_defaults(temp_project_dir):
+    """Test that data paths default correctly when env vars are not set."""
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(temp_project_dir)
+        env_manager._PROJECT_ROOT = None  # Reset cache
         
-        assert result == {"KEY": "value"}
-    
-    def test_load_nonexistent_file_returns_empty(self, tmp_path):
-        result = load_env_vars(tmp_path / "nonexistent.env")
-        assert result == {}
-
-
-class TestGetEnvVar:
-    def test_get_existing_var(self):
-        os.environ["TEST_KEY"] = "test_value"
-        assert get_env_var("TEST_KEY") == "test_value"
-    
-    def test_get_nonexistent_var_with_default(self):
-        assert get_env_var("NONEXISTENT_KEY", "default") == "default"
-    
-    def test_get_nonexistent_var_without_default(self):
-        assert get_env_var("NONEXISTENT_KEY") is None
-
-
-class TestGetDataPath:
-    def test_default_data_root(self):
-        # Ensure no custom env var is set
-        if "LXXIVE_DATA_ROOT" in os.environ:
-            del os.environ["LXXIVE_DATA_ROOT"]
+        # Clear any existing env vars for these keys
+        for key in [env_manager.ENV_DATA_ROOT, env_manager.ENV_DATA_RAW, env_manager.ENV_DATA_PROCESSED]:
+            if key in os.environ:
+                del os.environ[key]
         
-        path = get_data_path()
-        expected = Path.cwd() / DEFAULT_DATA_ROOT
-        assert path == expected
-    
-    def test_with_sub_path(self):
-        if "LXXIVE_DATA_ROOT" in os.environ:
-            del os.environ["LXXIVE_DATA_ROOT"]
+        # Test default paths
+        root = env_manager.get_data_path(env_var_name=env_manager.ENV_DATA_ROOT, default=env_manager.DEFAULT_DATA_ROOT)
+        assert root == Path(temp_project_dir) / "data"
         
-        path = get_data_path("raw")
-        expected = Path.cwd() / DEFAULT_DATA_ROOT / "raw"
-        assert path == expected
-    
-    def test_with_custom_env_root(self, tmp_path):
-        custom_root = tmp_path / "custom_data"
-        with patch.dict(os.environ, {"LXXIVE_DATA_ROOT": str(custom_root)}):
-            path = get_data_path()
-            assert path == custom_root
-    
-    def test_creates_directory_when_requested(self, tmp_path):
-        test_dir = tmp_path / "test_create"
-        with patch.dict(os.environ, {"LXXIVE_DATA_ROOT": str(tmp_path)}):
-            path = get_data_path("test_create", create=True)
-            assert path.exists()
-            assert path.is_dir()
+        raw = env_manager.get_data_path(env_var_name=env_manager.ENV_DATA_RAW, default=env_manager.DEFAULT_DATA_RAW)
+        assert raw == Path(temp_project_dir) / "data" / "raw"
+    finally:
+        os.chdir(original_cwd)
 
+def test_validate_data_paths(temp_project_dir):
+    """Test path validation."""
+    original_cwd = os.getcwd()
+    try:
+        os.chdir(temp_project_dir)
+        env_manager._PROJECT_ROOT = None  # Reset cache
+        
+        # The temp directory has the required structure
+        results = env_manager.validate_data_paths()
+        
+        # All paths should exist in the temp setup
+        assert results["data_root"] is True
+        assert results["data_raw"] is True
+        assert results["data_processed"] is True
+    finally:
+        os.chdir(original_cwd)
 
-class TestValidateDataPaths:
-    def test_validates_and_creates_missing_dirs(self, tmp_path):
-        # Patch to use tmp_path as root
-        with patch.dict(os.environ, {"LXXIVE_DATA_ROOT": str(tmp_path)}):
-            # Remove env vars that might be set from previous tests
-            for key in ["LXXIVE_RAW_DATA_DIR", "LXXIVE_PROCESSED_DATA_DIR", "LXXIVE_FIGURES_DIR"]:
-                if key in os.environ:
-                    del os.environ[key]
-            
-            result = validate_data_paths()
-            assert result is True
-            
-            # Verify directories were created
-            assert (tmp_path / DEFAULT_RAW_DATA_DIR).exists()
-            assert (tmp_path / DEFAULT_PROCESSED_DATA_DIR).exists()
-            assert (tmp_path / DEFAULT_FIGURES_DIR).exists()
+def test_get_silso_url():
+    """Test getting the SILSO URL."""
+    url = env_manager.get_silso_url()
+    assert url is not None
+    assert "sidc.be" in url
 
-
-class TestSetupEnvironment:
-    def test_setup_creates_all_directories(self, tmp_path):
-        with patch.dict(os.environ, {"LXXIVE_DATA_ROOT": str(tmp_path)}):
-            # Clear specific overrides to test defaults
-            for key in ["LXXIVE_RAW_DATA_DIR", "LXXIVE_PROCESSED_DATA_DIR", "LXXIVE_FIGURES_DIR"]:
-                if key in os.environ:
-                    del os.environ[key]
-            
-            paths = setup_environment()
-            
-            assert 'data_root' in paths
-            assert 'raw' in paths
-            assert 'processed' in paths
-            assert 'figures' in paths
-            
-            assert paths['raw'].exists()
-            assert paths['processed'].exists()
-            assert paths['figures'].exists()
-            
-            assert paths['raw'] == tmp_path / DEFAULT_RAW_DATA_DIR
-            assert paths['processed'] == tmp_path / DEFAULT_PROCESSED_DATA_DIR
-            assert paths['figures'] == tmp_path / DEFAULT_FIGURES_DIR
+def test_get_sorce_url():
+    """Test getting the SORCE URL."""
+    url = env_manager.get_sorce_url()
+    assert url is not None
+    assert "colorado.edu" in url or "lasp" in url

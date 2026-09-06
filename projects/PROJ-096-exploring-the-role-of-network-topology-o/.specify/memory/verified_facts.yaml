@@ -1,5 +1,5 @@
-'|all if process':
-  quote: 'P508: 21839'
-  source_id: Q23400
-  url: https://www.wikidata.org/wiki/Q23400
-  value: '21839'
+'|binary conducted fixed range search step time topology':
+  quote: 25 75025
+  source_id: A039834
+  url: https://oeis.org/A039834
+  value: '50'

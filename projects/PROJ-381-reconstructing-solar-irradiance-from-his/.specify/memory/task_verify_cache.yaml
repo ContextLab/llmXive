@@ -1,43 +1,12 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`,
-    `code/models/`, `code/analysis/`) is provided; without a listing or screenshots
-    we cannot confirm they exist. The implementer must supply proof that the specified
-    folder hierarchy has been created.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of `__init__.py` files in the `code/` subdirectories or in `tests/`
-    was presented; without a file listing or the actual files, we cannot confirm they
-    exist. The implementer must add and show the created `__init__.py` files in every
-    required directory.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no evidence that `.gitkeep` files exist in `data/raw/` or
-    `data/processed/`; without the actual files present, the requirement of creating
-    them to track the directories is not satisfied. The next implementer must add
-    a `.gitkeep` (or any placeholder file) in each of those two directories.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `black.toml`, or a `pre-commit` hook) are present, nor any documentation showing
-    that `ruff` and `black` have been set up for the project. The claim provides only
-    unrelated feature specifications, so the required linting/formatting setup is
-    missing.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files, scripts, or documentation were presented that define
-    or manage environment variables for data paths. The claim provides no tangible
-    artifact (e.g., a `.env` file, a Python module using `os.getenv`, or instructions)
-    to verify that environment variable management has been set up. Consequently,
-    the requirement is not satisfied.
 T024:
   c: false
   h: baa7b0bde8138d5fe0fb948423589c848475851e36342994ecf4e95b69cd744b
   r: The required artifact `tests/test_comparison.py` does not exist on disk, so no
     unit test for error reduction calculation is present. The task cannot be considered
     completed until the file is created with appropriate test code.
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file or modification is presented, and there is no evidence that\
+    \ the installation section now contains environment\u2011setup instructions. The\
+    \ required artifact is missing, so the task is not satisfied."

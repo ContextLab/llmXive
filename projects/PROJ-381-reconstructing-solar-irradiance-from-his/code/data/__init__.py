@@ -1,6 +1,7 @@
 """
-Data module for TSI reconstruction.
+Data handling module for the Solar Irradiance Reconstruction project.
 
-Contains modules for data ingestion, preprocessing, and
-management of raw and processed datasets.
+This module provides utilities for data ingestion, preprocessing, and management.
 """
+
+from code.env_manager import get_data_path

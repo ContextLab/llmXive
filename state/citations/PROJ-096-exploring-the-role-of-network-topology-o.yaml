@@ -1,4 +1,4 @@
-- artifact_hash: f9e14e6c0b97fbbb01c976d028af16921299157679cb548c5ccec35abfc1f71a
+- artifact_hash: 5ec3bec96289974b4f2afc573b4e3f9b0e4718b88c53330c982466fbc2b91532
   artifact_path: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.wikidata.org/wiki/Q23400
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q23400
-  verified_at: '2026-08-05T18:19:05.003945Z'
+  verified_at: '2026-09-06T18:31:04.655762Z'

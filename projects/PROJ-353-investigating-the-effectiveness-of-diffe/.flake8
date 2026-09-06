@@ -1,10 +1,14 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, E501
+extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
-    data,
+    .tox,
+    .venv,
     build,
     dist,
-    .eggs
+    *.egg-info
+per-file-ignores =
+    # Allow longer lines in data files if any
+    data/*.py:E501

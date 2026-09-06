@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.00086",
+  "judged_at": "2026-09-06T18:56:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video generation models are general-purpose vision learners\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it investigates the same core mechanism (integrating LLMs with vision encoders for general-purpose learning) and serves as a foundational methodological reference for the specific domain of hierarchical vision-language pre-training, which is directly relevant to extending the \"Video Generation Models are General-Purpose Vision Learners\" work.",
+  "relevant": true
+}

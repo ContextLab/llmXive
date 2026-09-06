@@ -163,7 +163,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/analysis/comparison.py`:
+- [X] T026 [US3] Implement `code/analysis/comparison.py`:
  - Load a baseline year and CMIP v3.2 data.
  - Calculate RMSE over the overlapping satellite era (2016–present), per SC-001.
  - Compute percentage error reduction (SC-001).

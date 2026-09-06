@@ -1,139 +1,241 @@
+"""
+Environment variable management for the Solar Irradiance Reconstruction project.
+
+This module handles loading, validating, and providing access to environment variables
+that control data paths and configuration settings.
+
+It supports:
+1. Loading from a .env file in the project root
+2. Fallback to os.environ
+3. Default values derived from project structure
+4. Validation of path existence
+"""
+
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
+import logging
 
-# Default paths relative to project root
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Default relative paths from project root
 DEFAULT_DATA_ROOT = "data"
-DEFAULT_RAW_DATA_DIR = "data/raw"
-DEFAULT_PROCESSED_DATA_DIR = "data/processed"
-DEFAULT_FIGURES_DIR = "figures"
-DEFAULT_CONFIG_FILE = ".env"
+DEFAULT_DATA_RAW = "data/raw"
+DEFAULT_DATA_PROCESSED = "data/processed"
+DEFAULT_MODEL_ARTIFACTS = "code/models/artifacts"
+DEFAULT_DATA_FIGURES = "data/figures"
 
-# Environment variable keys
-ENV_DATA_ROOT = "LXXIVE_DATA_ROOT"
-ENV_RAW_DIR = "LXXIVE_RAW_DATA_DIR"
-ENV_PROCESSED_DIR = "LXXIVE_PROCESSED_DATA_DIR"
-ENV_FIGURES_DIR = "LXXIVE_FIGURES_DIR"
+# Environment variable names
+ENV_DATA_ROOT = "DATA_ROOT_PATH"
+ENV_DATA_RAW = "DATA_RAW_PATH"
+ENV_DATA_PROCESSED = "DATA_PROCESSED_PATH"
+ENV_MODEL_ARTIFACTS = "MODEL_ARTIFACTS_PATH"
+ENV_DATA_FIGURES = "DATA_FIGURES_PATH"
+ENV_SILSO_URL = "SILSO_URL"
+ENV_SORCE_URL = "SORCE_URL"
 
+# Default URLs
+DEFAULT_SILSO_URL = "https://www.sidc.be/users/silso/datafiles/monthlydata_files/"
+DEFAULT_SORCE_URL = "https://lasp.colorado.edu/sorce/data/tim/"
 
-def load_env_vars(env_file: Optional[Path] = None) -> Dict[str, str]:
+# Project root (assumed to be the directory containing 'code/')
+# In a real deployment, this might be passed explicitly or detected differently
+_PROJECT_ROOT: Optional[Path] = None
+
+def _get_project_root() -> Path:
+    """Determine the project root directory."""
+    global _PROJECT_ROOT
+    if _PROJECT_ROOT is None:
+        # Start from current working directory
+        cwd = Path.cwd()
+        # Look for the 'code' directory to identify project root
+        if (cwd / "code").exists():
+            _PROJECT_ROOT = cwd
+        elif (cwd / "code" / "env_manager.py").exists():
+            _PROJECT_ROOT = cwd
+        else:
+            # Fallback: assume current directory is root
+            _PROJECT_ROOT = cwd
+        logger.info(f"Detected project root at: {_PROJECT_ROOT}")
+    return _PROJECT_ROOT
+
+def load_env_vars(env_path: Optional[Path] = None) -> Dict[str, str]:
     """
-    Load environment variables from a .env file if it exists.
+    Load environment variables from a .env file.
     
     Args:
-        env_file: Path to the .env file. Defaults to project root .env.
-        
+        env_path: Path to the .env file. If None, looks for .env in project root.
+    
     Returns:
         Dictionary of loaded environment variables.
     """
-    if env_file is None:
-        env_file = Path.cwd() / DEFAULT_CONFIG_FILE
-        
+    if env_path is None:
+        project_root = _get_project_root()
+        env_path = project_root / "code" / ".env"
+        if not env_path.exists():
+            # Try root directory
+            env_path = project_root / ".env"
+    
     env_vars = {}
-    if env_file.exists():
-        with open(env_file, 'r') as f:
+    if env_path.exists():
+        logger.info(f"Loading environment variables from {env_path}")
+        with open(env_path, 'r') as f:
             for line in f:
                 line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
-                    key, _, value = line.partition('=')
+                # Skip empty lines and comments
+                if not line or line.startswith('#'):
+                    continue
+                if '=' in line:
+                    key, value = line.split('=', 1)
                     key = key.strip()
                     value = value.strip().strip('"').strip("'")
                     env_vars[key] = value
-                    # Also set in actual OS environment for os.getenv compatibility
-                    os.environ[key] = value
+        logger.info(f"Loaded {len(env_vars)} environment variables")
+    else:
+        logger.warning(f".env file not found at {env_path}. Using os.environ and defaults.")
+    
     return env_vars
 
-
-def get_env_var(key: str, default: Optional[str] = None) -> Optional[str]:
+def get_env_var(key: str, default: Optional[str] = None, env_vars: Optional[Dict[str, str]] = None) -> Optional[str]:
     """
-    Get an environment variable, falling back to a default if not set.
+    Get an environment variable with fallback chain:
+    1. Passed env_vars dict (if provided)
+    2. os.environ
+    3. Default value (if provided)
     
     Args:
-        key: The environment variable key.
-        default: Default value if the key is not found.
-        
+        key: The environment variable name.
+        default: Default value if not found.
+        env_vars: Optional dictionary of loaded env vars (from load_env_vars).
+    
     Returns:
         The value of the environment variable or the default.
     """
-    return os.getenv(key, default)
+    if env_vars and key in env_vars:
+        return env_vars[key]
+    
+    if key in os.environ:
+        return os.environ[key]
+    
+    return default
 
-
-def get_data_path(sub_path: Optional[str] = None, create: bool = False) -> Path:
+def get_data_path(relative_path: Optional[str] = None, env_var_name: Optional[str] = None, default: Optional[str] = None) -> Path:
     """
-    Get the absolute path to a data directory or file.
+    Get a resolved Path object for data files.
+    
+    This function constructs absolute paths based on environment variables,
+    falling back to defaults relative to the project root.
     
     Args:
-        sub_path: Optional sub-path relative to the data root.
-        create: If True, create the directory if it doesn't exist.
-        
-    Returns:
-        Absolute Path object.
-        
-    Raises:
-        ValueError: If the data root is not configured and no default is available.
-    """
-    # Try to get from environment, then fallback to defaults
-    data_root = os.getenv(ENV_DATA_ROOT)
-    if not data_root:
-        # Fallback to default relative to project root
-        data_root = DEFAULT_DATA_ROOT
-    
-    base_path = Path(data_root)
-    
-    # If sub_path is provided, join it
-    if sub_path:
-        base_path = base_path / sub_path
-        
-    # Ensure path is absolute if data_root was relative
-    if not base_path.is_absolute():
-        base_path = Path.cwd() / base_path
-        
-    if create:
-        base_path.mkdir(parents=True, exist_ok=True)
-        
-    return base_path
-
-
-def validate_data_paths() -> bool:
-    """
-    Validate that required data directories are configured and accessible.
+        relative_path: A relative path to append to the base path.
+        env_var_name: The environment variable name for the base path.
+        default: Default relative path if env var is not set.
     
     Returns:
-        True if all paths are valid, False otherwise.
+        A resolved Path object.
     """
-    required_dirs = [
-        get_data_path(DEFAULT_RAW_DATA_DIR),
-        get_data_path(DEFAULT_PROCESSED_DATA_DIR),
-        get_data_path(DEFAULT_FIGURES_DIR)
-    ]
+    project_root = _get_project_root()
     
-    for dir_path in required_dirs:
-        if not dir_path.exists():
-            # Try to create them
-            try:
-                dir_path.mkdir(parents=True, exist_ok=True)
-            except OSError:
-                return False
-    return True
+    # Determine base path
+    base_path_str = None
+    if env_var_name:
+        base_path_str = get_env_var(env_var_name)
+    
+    if not base_path_str:
+        base_path_str = default
+    
+    if not base_path_str:
+        # Last resort: use project root
+        base_path = project_root
+    else:
+        base_path = Path(base_path_str)
+        if not base_path.is_absolute():
+            base_path = project_root / base_path
+    
+    # Resolve the path
+    resolved_path = base_path
+    if relative_path:
+        resolved_path = resolved_path / relative_path
+    
+    # Ensure path exists (create directories if necessary)
+    # Note: We don't automatically create directories here to avoid side effects
+    # The caller should use ensure_directories() if creation is needed.
+    
+    return resolved_path.resolve()
 
-
-def setup_environment() -> Dict[str, Path]:
+def validate_data_paths() -> Dict[str, bool]:
     """
-    Initialize the environment by loading .env and ensuring directories exist.
+    Validate that all configured data paths exist.
     
     Returns:
-        Dictionary of key paths for easy access.
+        Dictionary mapping path names to existence status.
     """
-    load_env_vars()
+    project_root = _get_project_root()
     
-    paths = {
-        'data_root': get_data_path(),
-        'raw': get_data_path(DEFAULT_RAW_DATA_DIR, create=True),
-        'processed': get_data_path(DEFAULT_PROCESSED_DATA_DIR, create=True),
-        'figures': get_data_path(DEFAULT_FIGURES_DIR, create=True)
+    paths_to_check = {
+        "data_root": get_data_path(env_var_name=ENV_DATA_ROOT, default=DEFAULT_DATA_ROOT),
+        "data_raw": get_data_path(env_var_name=ENV_DATA_RAW, default=DEFAULT_DATA_RAW),
+        "data_processed": get_data_path(env_var_name=ENV_DATA_PROCESSED, default=DEFAULT_DATA_PROCESSED),
+        "model_artifacts": get_data_path(env_var_name=ENV_MODEL_ARTIFACTS, default=DEFAULT_MODEL_ARTIFACTS),
+        "data_figures": get_data_path(env_var_name=ENV_DATA_FIGURES, default=DEFAULT_DATA_FIGURES),
     }
     
-    if not validate_data_paths():
-        raise RuntimeError("Failed to setup data directories. Check configuration.")
-        
-    return paths
+    results = {}
+    all_valid = True
+    
+    for name, path in paths_to_check.items():
+        exists = path.exists()
+        results[name] = exists
+        if not exists:
+            logger.warning(f"Path does not exist: {name} -> {path}")
+            all_valid = False
+        else:
+            logger.info(f"Path valid: {name} -> {path}")
+    
+    if all_valid:
+        logger.info("All data paths are valid.")
+    else:
+        logger.warning("Some data paths are missing. Please check your configuration.")
+    
+    return results
+
+def setup_environment() -> Dict[str, Any]:
+    """
+    Full setup routine: load .env, validate paths, and return configuration.
+    
+    Returns:
+        Dictionary containing loaded configuration and path objects.
+    """
+    # Load environment variables
+    env_vars = load_env_vars()
+    
+    # Get paths
+    config = {
+        "project_root": _get_project_root(),
+        "data_root": get_data_path(env_var_name=ENV_DATA_ROOT, default=DEFAULT_DATA_ROOT),
+        "data_raw": get_data_path(env_var_name=ENV_DATA_RAW, default=DEFAULT_DATA_RAW),
+        "data_processed": get_data_path(env_var_name=ENV_DATA_PROCESSED, default=DEFAULT_DATA_PROCESSED),
+        "model_artifacts": get_data_path(env_var_name=ENV_MODEL_ARTIFACTS, default=DEFAULT_MODEL_ARTIFACTS),
+        "data_figures": get_data_path(env_var_name=ENV_DATA_FIGURES, default=DEFAULT_DATA_FIGURES),
+        "silso_url": get_env_var(ENV_SILSO_URL, default=DEFAULT_SILSO_URL),
+        "sorce_url": get_env_var(ENV_SORCE_URL, default=DEFAULT_SORCE_URL),
+        "env_vars": env_vars,
+    }
+    
+    # Validate paths
+    config["paths_valid"] = validate_data_paths()
+    
+    logger.info("Environment setup complete.")
+    return config
+
+# Convenience functions for direct import in other modules
+
+def get_silso_url() -> str:
+    """Get the SILSO data URL."""
+    return get_env_var(ENV_SILSO_URL, default=DEFAULT_SILSO_URL)
+
+def get_sorce_url() -> str:
+    """Get the SORCE data URL."""
+    return get_env_var(ENV_SORCE_URL, default=DEFAULT_SORCE_URL)

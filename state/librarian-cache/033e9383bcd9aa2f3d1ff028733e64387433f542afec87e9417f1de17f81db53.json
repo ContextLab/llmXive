@@ -1,0 +1,422 @@
+{
+  "fetched_at": "2026-09-06T18:54:29Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Simulated Social Comparison on Self-Evaluation in Online Environments",
+      "target_n": 5
+    },
+    "duration_seconds": 58.501,
+    "ended_at": "2026-09-06T18:54:29Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "social comparison theory online self-assessment"
+        ],
+        [
+          2,
+          "upward and downward social comparison digital platforms"
+        ],
+        [
+          3,
+          "online social comparison and self-esteem"
+        ],
+        [
+          4,
+          "simulated social feedback effects on self-perception"
+        ],
+        [
+          5,
+          "social comparison processes in social media"
+        ],
+        [
+          6,
+          "virtual social comparison and self-evaluation"
+        ],
+        [
+          7,
+          "impact of online peer comparison on self-worth"
+        ],
+        [
+          8,
+          "social comparison orientation and digital environments"
+        ],
+        [
+          9,
+          "experimental social comparison in virtual settings"
+        ],
+        [
+          10,
+          "social comparison and self-concept clarity online"
+        ],
+        [
+          11,
+          "effects of curated online profiles on self-evaluation"
+        ],
+        [
+          12,
+          "social comparison and self-enhancement in digital contexts"
+        ],
+        [
+          13,
+          "perceived social comparison and psychological well-being online"
+        ],
+        [
+          14,
+          "social comparison mechanisms in computer-mediated communication"
+        ],
+        [
+          15,
+          "online social comparison and self-discrepancy"
+        ],
+        [
+          16,
+          "social comparison theory and internet usage"
+        ],
+        [
+          17,
+          "experimental manipulation of social comparison online"
+        ],
+        [
+          18,
+          "social comparison and self-verification in virtual worlds"
+        ],
+        [
+          19,
+          "online social comparison and self-regulation"
+        ],
+        [
+          20,
+          "social comparison and identity formation in digital spaces"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Simulated Social Comparison on Self-Evaluation in Online Environments psychology": 0,
+        "social comparison theory online self-assessment": 3,
+        "upward and downward social comparison digital platforms": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "upward downward social comparison online",
+      "Facebook Instagram social media feedback",
+      "social comparison orientation SCO scale",
+      "self-esteem rating subjective well-being metrics",
+      "social comparison theory Festinger self-evaluation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2408.10351"
+      ]
+    },
+    "per_query_hit_count": {
+      "Facebook Instagram social media feedback": 3,
+      "The Impact of Simulated Social Comparison on Self-Evaluation in Online Environments psychology": 3,
+      "self-esteem rating subjective well-being metrics": 3,
+      "social comparison orientation SCO scale": 2,
+      "social comparison theory Festinger self-evaluation": 0,
+      "upward downward social comparison online": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2203.15752",
+          "rationale": "The paper focuses on structural network properties (boundary spanning, information consumption) and user roles in decentralized social networks, which does not measure the psychological mechanism of \"simulated social comparison\" or its impact on \"self-evaluation.\" While both involve online environments, the paper lacks the specific independent variable (social comparison manipulation) and dependent variable (self-evaluation metrics) required by the user's question, failing to meet criteria (a) o",
+          "title": "Information Consumption and Boundary Spanning in Decentralized Online Social Networks: the case of Mastodon Users"
+        },
+        {
+          "primary_pointer": "1310.2671",
+          "rationale": "The paper focuses on the geographic spread and dynamics of trending topics on Twitter, which is an off-domain study regarding information diffusion rather than the psychological mechanism of \"simulated social comparison\" or its impact on \"self-evaluation.\" It fails to measure the user's independent variable (social comparison) or dependent variable (self-evaluation) and does not address the specific psychological construct, satisfying the rejection rule for distinct constructs sharing only homon",
+          "title": "Traveling Trends: Social Butterflies or Frequent Fliers?"
+        },
+        {
+          "primary_pointer": "1303.0093",
+          "rationale": "The paper focuses on the structural engineering of social networks for recommendation algorithms (identifying layers, measuring density, and generating suggestions) rather than the psychological mechanism of \"simulated social comparison\" or its impact on \"self-evaluation.\" It falls under the rejection rule for distinct constructs sharing only homonym keywords (\"social network\" in a computer science context vs. \"social comparison\" in a psychology context) and lacks any measurable connection to th",
+          "title": "Multidimensional Social Network in the Social Recommender System"
+        },
+        {
+          "primary_pointer": "1307.2418",
+          "rationale": "The paper is a theoretical mathematics study on statistical continuity and compactness of real-valued functions, which shares the word \"statistical\" with the user's query but addresses a completely distinct construct (mathematical analysis vs. social psychology). It fails to meet any inclusion criteria as it has no measurable connection to the mechanism of social comparison, the domain of online environments, or the variable of self-evaluation.",
+          "title": "Upward and downward statistical continuities"
+        },
+        {
+          "primary_pointer": "2409.07720",
+          "rationale": "The paper focuses on detecting adversarial influence networks and \"astroturfing\" operations using machine learning, which is a distinct construct from the psychological mechanism of \"simulated social comparison\" and its impact on \"self-evaluation.\" While both involve online environments, the candidate paper addresses information security and network analysis rather than the specific psychological variables or causal mechanisms requested by the user.",
+          "title": "Keeping it Authentic: The Social Footprint of the Trolls Network"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-06T18:53:30Z",
+    "term_input": {
+      "normalized": "the impact of simulated social comparison on self-evaluation in online environments psychology",
+      "raw": "The Impact of Simulated Social Comparison on Self-Evaluation in Online Environments psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Decentralized Online Social Networks (DOSNs) represent a growing trend in the social media landscape, as opposed to the well-known centralized peers, which are often in the spotlight due to privacy concerns and a vision typically focused on monetization through user relationships. By exploiting open-source software, DOSNs allow users to create their own servers, or instances, thus favoring the proliferation of platforms that are independent yet interconnected with each other in a transparent way. Nonetheless, the resulting cooperation model, commonly known as the Fediverse, still represents a world to be fully discovered, since existing studies have mainly focused on a limited number of structural aspects of interest in DOSNs. In this work, we aim to fill a lack of study on user relations and roles in DOSNs, by taking two main actions: understanding the impact of decentralization on how users relate to each other within their membership instance and/or across different instances, and unveiling user roles that can explain two interrelated axes of social behavioral phenomena, namely information consumption and boundary spanning. To this purpose, we build our analysis on user networks from Mastodon, since it represents the most widely used DOSN platform. We believe that the findings drawn from our study on Mastodon users' roles and information flow can pave a way for further development of fascinating research on DOSNs.",
+          "claimed_authors": [
+            "Lucio La Cava",
+            "Andrea Tagarelli"
+          ],
+          "claimed_title": "Information Consumption and Boundary Spanning in Decentralized Online Social Networks: the case of Mastodon Users",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.15752"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='Information Consumption and Boundary Spanning in Decentralized Online Social Networks: the case of Mastodon Users')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Trending topics are the online conversations that grab collective attention on social media. They are continually changing and often reflect exogenous events that happen in the real world. Trends are localized in space and time as they are driven by activity in specific geographic areas that act as sources of traffic and information flow. Taken independently, trends and geography have been discussed in recent literature on online social media; although, so far, little has been done to characterize the relation between trends and geography. Here we investigate more than eleven thousand topics that trended on Twitter in 63 main US locations during a period of 50 days in 2013. This data allows us to study the origins and pathways of trends, how they compete for popularity at the local level to emerge as winners at the country level, and what dynamics underlie their production and consumption in different geographic areas. We identify two main classes of trending topics: those that surface locally, coinciding with three different geographic clusters (East coast, Midwest and Southwest); and those that emerge globally from several metropolitan areas, coinciding with the major air traffic hubs of the country. These hubs act as trendsetters, generating topics that eventually trend at the country level, and driving the conversation across the country. This poses an intriguing conjecture, drawing a parallel between the spread of information and diseases: Do trends travel faster by airplane than over the Internet?",
+          "claimed_authors": [
+            "Emilio Ferrara",
+            "Onur Varol",
+            "Filippo Menczer",
+            "Alessandro Flammini"
+          ],
+          "claimed_title": "Traveling Trends: Social Butterflies or Frequent Fliers?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1310.2671"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='Traveling Trends: Social Butterflies or Frequent Fliers?')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "All online sharing systems gather data that reflects users' collective behaviour and their shared activities. This data can be used to extract different kinds of relationships, which can be grouped into layers, and which are basic components of the multidimensional social network proposed in the paper. The layers are created on the basis of two types of relations between humans, i.e. direct and object-based ones which respectively correspond to either social or semantic links between individuals. For better understanding of the complexity of the social network structure, layers and their profiles were identified and studied on two, spanned in time, snapshots of the Flickr population. Additionally, for each layer, a separate strength measure was proposed. The experiments on the Flickr photo sharing system revealed that the relationships between users result either from semantic links between objects they operate on or from social connections of these users. Moreover, the density of the social network increases in time. The second part of the study is devoted to building a social recommender system that supports the creation of new relations between users in a multimedia sharing system. Its main goal is to generate personalized suggestions that are continuously adapted to users' needs depending on the personal weights assigned to each layer in the multidimensional social network. The conducted experiments confirmed the usefulness of the proposed model.",
+          "claimed_authors": [
+            "Przemyslaw Kazienko",
+            "Katarzyna Musial",
+            "Tomasz Kajdanowicz"
+          ],
+          "claimed_title": "Multidimensional Social Network in the Social Recommender System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0093"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='Multidimensional Social Network in the Social Recommender System')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Stress and depression are prevalent nowadays across people of all ages due to the quick paces of life. People use social media to express their feelings. Thus, social media constitute a valuable form of information for the early detection of stress and depression. Although many research works have been introduced targeting the early recognition of stress and depression, there are still limitations. There have been proposed multi-task learning settings, which use depression and emotion (or figurative language) as the primary and auxiliary tasks respectively. However, although stress is inextricably linked with depression, researchers face these two tasks as two separate tasks. To address these limitations, we present the first study, which exploits two different datasets collected under different conditions, and introduce two multitask learning frameworks, which use depression and stress as the main and auxiliary tasks respectively. Specifically, we use a depression dataset and a stressful dataset including stressful posts from ten subreddits of five domains. In terms of the first approach, each post passes through a shared BERT layer, which is updated by both tasks. Next, two separate BERT encoder layers are exploited, which are updated by each task separately. Regarding the second approach, it consists of shared and task-specific layers weighted by attention fusion networks. We conduct a series of experiments and compare our approaches with existing research initiatives, single-task learning, and transfer learning. Experiments show multiple advantages of our approaches over state-of-the-art ones.",
+          "claimed_authors": [
+            "Loukas Ilias",
+            "Dimitris Askounis"
+          ],
+          "claimed_title": "Multitask learning for recognizing stress and depression in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.18907"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='Multitask learning for recognizing stress and depression in social media')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Politicization is a social phenomenon studied by political science characterized by the extent to which ideas and facts are given a political tone. A range of topics, such as climate change, religion and vaccines has been subject to increasing politicization in the media and social media platforms. In this work, we propose a computational method for assessing politicization in online conversations based on topic shifts, i.e., the degree to which people switch topics in online conversations. The intuition is that topic shifts from a non-political topic to politics are a direct measure of politicization -- making something political, and that the more people switch conversations to politics, the more they perceive politics as playing a vital role in their daily lives. A fundamental challenge that must be addressed when one studies politicization in social media is that, a priori, any topic may be politicized. Hence, any keyword-based method or even machine learning approaches that rely on topic labels to classify topics are expensive to run and potentially ineffective. Instead, we learn from a seed of political keywords and use Positive-Unlabeled (PU) Learning to detect political comments in reaction to non-political news articles posted on Twitter, YouTube, and TikTok during the 2022 Brazilian presidential elections. Our findings indicate that all platforms show evidence of politicization as discussion around topics adjacent to politics such as economy, crime and drugs tend to shift to politics. Even the least politicized topics had the rate in which their topics shift to politics increased in the lead up to the elections and after other political events in Brazil -- an evidence of politicization.",
+          "claimed_authors": [
+            "Marcelo Sartori Locatelli",
+            "Pedro Calais",
+            "Matheus Prado Miranda",
+            "João Pedro Junho",
+            "Tomas Lacerda Muniz",
+            "Wagner Meira",
+            "Virgilio Almeida"
+          ],
+          "claimed_title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11326"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='Topic Shifts as a Proxy for Assessing Politicization in Social Media')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Coordinated online behaviors are an essential part of information and influence operations, as they allow a more effective disinformation's spread. Most studies on coordinated behaviors involved manual investigations, and the few existing computational approaches make bold assumptions or oversimplify the problem to make it tractable. Here, we propose a new network-based framework for uncovering and studying coordinated behaviors on social media. Our research extends existing systems and goes beyond limiting binary classifications of coordinated and uncoordinated behaviors. It allows to expose different coordination patterns and to estimate the degree of coordination that characterizes diverse communities. We apply our framework to a dataset collected during the 2019 UK General Election, detecting and characterizing coordinated communities that participated in the electoral debate. Our work conveys both theoretical and practical implications and provides more nuanced and fine-grained results for studying online information manipulation.",
+          "claimed_authors": [
+            "Leonardo Nizzoli",
+            "Serena Tardelli",
+            "Marco Avvenuti",
+            "Stefano Cresci",
+            "Maurizio Tesconi"
+          ],
+          "claimed_title": "Coordinated Behavior on Social Media in 2019 UK General Election",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.08370"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='Coordinated Behavior on Social Media in 2019 UK General Election')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bots have been playing a crucial role in online platform ecosystems, as efficient and automatic tools to generate content and diffuse information to the social media human population. In this chapter, we will discuss the role of social bots in content spreading dynamics in social media. In particular, we will first investigate some differences between diffusion dynamics of content generated by bots, as opposed to humans, in the context of political communication, then study the characteristics of bots behind the diffusion dynamics of social media spam campaigns.",
+          "claimed_authors": [
+            "Emilio Ferrara"
+          ],
+          "claimed_title": "Measuring social spam and the effect of bots on information diffusion in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.08134"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='Measuring social spam and the effect of bots on information diffusion in social media')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In 2016, a network of social media accounts animated by Russian operatives attempted to divert political discourse within the American public around the presidential elections. This was a coordinated effort, part of a Russian-led complex information operation. Utilizing the anonymity and outreach of social media platforms Russian operatives created an online astroturf that is in direct contact with regular Americans, promoting Russian agenda and goals. The elusiveness of this type of adversarial approach rendered security agencies helpless, stressing the unique challenges this type of intervention presents. Building on existing scholarship on the functions within influence networks on social media, we suggest a new approach to map those types of operations. We argue that pretending to be legitimate social actors obliges the network to adhere to social expectations, leaving a social footprint. To test the robustness of this social footprint we train artificial intelligence to identify it and create a predictive model. We use Twitter data identified as part of the Russian influence network for training the artificial intelligence and to test the prediction. Our model attains 88% prediction accuracy for the test set. Testing our prediction on two additional models results in 90.7% and 90.5% accuracy, validating our model. The predictive and validation results suggest that building a machine learning model around social functions within the Russian influence network can be used to map its actors and functions.",
+          "claimed_authors": [
+            "Ori Swed",
+            "Sachith Dassanayaka",
+            "Dimitri Volchenkov"
+          ],
+          "claimed_title": "Keeping it Authentic: The Social Footprint of the Trolls Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.07720"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='Keeping it Authentic: The Social Footprint of the Trolls Network')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence (AI) is changing the world, but its impacts on the environment and human well-being remain uncertain. We conducted a systematic literature review of 1,291 studies selected from 6,655 records, identifying the main impacts of AI and how they are assessed. The evidence reveals an uneven landscape: 72% of environmental studies focus narrowly on energy use and CO2 emissions, while only 11% consider systemic effects. Well-being research is largely conceptual and overlooks subjective dimensions. Strikingly, 83% of environmental studies portray AI's impacts as positive, while well-being analyses show a near-even split overall (44% positive; 46% negative). However, this split masks differences across well-being dimensions. While the impacts of AI on income and health are expected to be positive, its impacts on inequality, social cohesion, and employment are expected to be negative. Based on our findings, we suggest several areas for future research. Environmental assessments should incorporate water, material, and biodiversity impacts, and apply a full life-cycle perspective, while well-being research should prioritise empirical analyses. Evaluating AI's overall impact requires accounting for computing-related, application-level, and systemic impacts, while integrating both environmental and social dimensions. Bridging these gaps is essential to understand the full scope of AI's impacts and to steer its development towards environmental sustainability and human flourishing.",
+          "claimed_authors": [
+            "Noemi Luna Carmeno",
+            "Tiago Domingos",
+            "Daniel W. O'Neill"
+          ],
+          "claimed_title": "The impacts of artificial intelligence on environmental sustainability and human well-being",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.24091"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='The impacts of artificial intelligence on environmental sustainability and human well-being')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has become clear that early career astrophysics researchers (doctoral researchers, post-docs, etc) have a very diverse appreciation of their career, with some declaring it the best job that you can have and others suffering from overwork, harrassment and stress from the precarity of their job, and associated difficulties. In order to establish how astrophysics researchers, primarily in France, experience their career, we sent out a survey to understand the impact that their job has on their well-being. 276 people responded to the survey. Whilst around half of the respondents expressed pleasure derived from their career, it is clear that many (early career) researchers are suffering due to overwork, with more than a quarter saying that they work in excess of 50 hours per week and 2\\% in excess of 90 h per week. Almost 30\\% professed to having suffered harrassment or discrimination in the course of their work. Further, whilst only 20\\% had suffered mental health issues before starting their career in astrophysics, $\\sim$45\\% said that they suffered with mental health problems since starting in astrophysics. Here we provide results from the survey as well as possible avenues to explore and a list of recommendations to improve (early) careers in astrophysics.",
+          "claimed_authors": [
+            "N. A. Webb",
+            "C. Bot",
+            "S. Charpinet",
+            "T. Contini",
+            "L. Jouve",
+            "F. Koliopanos",
+            "A. Lamberts",
+            "H. Meheut",
+            "S. Mei",
+            "I. Ristorcelli",
+            "G. Soucail"
+          ],
+          "claimed_title": "Well-being in French Astrophysics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.01768"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='Well-being in French Astrophysics')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For most health or well-being interventions, the process of evaluation is distinct from the activity itself, both in terms of who is involved, and how the actual data is collected and analyzed. Tangible interaction affords the opportunity to combine direct and embodied collaboration with a holistic approach to data collection and evaluation. We demonstrate this potential by describing our experiences designing and using the Communal Loom, an artifact for art therapy that translates quantitative data to collectively woven artifacts.",
+          "claimed_authors": [
+            "Niti Parikh",
+            "Yiran Zhao",
+            "Maria Alinea-Bravo",
+            "Tapan Parikh"
+          ],
+          "claimed_title": "The Communal Loom: Integrating Tangible Interaction and Participatory Data Collection for Assessing Well-Being",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.24036"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Simulated Social Comparison on Self-Evaluation in Online Environme', candidate_title='The Communal Loom: Integrating Tangible Interaction and Participatory Data Collection for Assessing Well-Being')",
+        "failed_at": "2026-09-06T18:54:00Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sunil Arora",
+            "Sahil Arora",
+            "John D. Hastings"
+          ],
+          "title": "The Psychological Impacts of Algorithmic and AI-Driven Social Media on Teenagers: A Call to Action",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.10351",
+        "summary": "This study investigates the meta-issues surrounding social media, which, while theoretically designed to enhance social interactions and improve our social lives by facilitating the sharing of personal experiences and life events, often results in adverse psychological impacts. Our investigation reveals a paradoxical outcome: rather than fostering closer relationships and improving social lives, the algorithms and structures that underlie social media platforms inadvertently contribute to a profound psychological impact on individuals, influencing them in unforeseen ways. This phenomenon is particularly pronounced among teenagers, who are disproportionately affected by curated online personas, peer pressure to present a perfect digital image, and the constant bombardment of notifications and updates that characterize their social media experience. As such, we issue a call to action for policymakers, platform developers, and educators to prioritize the well-being of teenagers in the digital age and work towards creating secure and safe social media platforms that protect the young from harm, online harassment, and exploitation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.10351",
+          "http_status": 200,
+          "pdf_sample_score": 0.2377,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-06T18:54:13Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of simulated social comparison on self-evaluation in online environments psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
