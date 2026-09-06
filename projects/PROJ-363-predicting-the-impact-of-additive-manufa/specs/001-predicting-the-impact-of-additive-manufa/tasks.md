@@ -116,7 +116,7 @@
 
 ### Implementation for User Story 2 (Raw Parameters)
 
-- [ ] T021 [US2] Implement `code/train_models.py` to load `data/processed/cleaned_316L.csv` (Depends on T018) and the `data/processed/X_raw.csv` (Depends on T016b), split into features (X) and target (y).
+- [X] T021 [US2] Implement `code/train_models.py` to load `data/processed/cleaned_316L.csv` (Depends on T018) and the `data/processed/X_raw.csv` (Depends on T016b), split into features (X) and target (y). <!-- ATOMIZE: requested -->
 - [X] T022 [US2] Implement `code/train_models.py` to train a Gradient Boosting Regressor on `X_raw` using 5-fold CV, ensuring no GPU usage.
 - [X] T023 [US2] Implement `code/train_models.py` to train a Multi-Layer Perceptron (MLP) Regressor on `X_raw` using 5-fold CV, ensuring CPU-only execution and fixed seed. <!-- FAILED: unspecified -->
 - [X] T024 [US2] Implement `code/train_models.py` to compute RMSE and R² for each of the 5 folds and the aggregate mean performance for `X_raw` models. <!-- FAILED: unspecified -->
@@ -127,7 +127,7 @@
 
 ### Implementation for User Story 2 (Derived Feature Subset)
 
-- [ ] T021b [US2] Implement `code/train_models.py` to load `data/processed/cleaned_316L.csv` and the `data/processed/X_derived.csv`, split into features (X) and target (y). <!-- FAILED: unspecified -->
+- [X] T021b [US2] Implement `code/train_models.py` to load `data/processed/cleaned_316L.csv` and the `data/processed/X_derived.csv`, split into features (X) and target (y). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T022b [US2] Implement `code/train_models.py` to train a Gradient Boosting Regressor on `X_derived` using 5-fold CV.
 - [X] T023b [US2] Implement `code/train_models.py` to train a Multi-Layer Perceptron (MLP) Regressor on `X_derived` using 5-fold CV. <!-- FAILED: unspecified -->
 - [X] T024b [US2] Implement `code/train_models.py` to compute RMSE and R² for each of the 5 folds and the aggregate mean performance for `X_derived` models. <!-- FAILED: unspecified -->
@@ -157,7 +157,7 @@
 
 ### Implementation for User Story 3 (Selected Best Model)
 
-- [ ] T030 [US3] Implement `code/analyze_explainability.py` to **load** the model selected in T028 (read from `state/selected_model.yaml`). **Logic**: If `state/selected_model.yaml` indicates `X_raw`, load `models/artifacts/best_raw_model.pkl` and `data/processed/X_raw.csv`. If `X_derived`, load `models/artifacts/best_derived_model.pkl` and `data/processed/X_derived.csv`. <!-- FAILED: unspecified -->
+- [X] T030 [US3] Implement `code/analyze_explainability.py` to **load** the model selected in T028 (read from `state/selected_model.yaml`). **Logic**: If `state/selected_model.yaml` indicates `X_raw`, load `models/artifacts/best_raw_model.pkl` and `data/processed/X_raw.csv`. If `X_derived`, load `models/artifacts/best_derived_model.pkl` and `data/processed/X_derived.csv`. <!-- FAILED: unspecified -->
 - [X] T031 [US3] Implement `code/analyze_explainability.py` to **calculate SHAP values** and generate a summary plot saved to `results/plots/shap_summary_{selected_subset}.png`. **Dependency**: Depends on T030.
 - [X] T033 [US3] **Unified Statistical Analysis (SHAP Bootstrap CI + Permutation Importance)**: Implement `code/analyze_explainability.py` to perform **both** SHAP Bootstrap Confidence Intervals and Permutation Importance testing in a single run, generating a **unified** statistical report. <!-- FAILED: unspecified -->
  1. **SHAP Bootstrap CI**: Resample the dataset with replacement `N` times (e.g., 1000), recompute SHAP values for each sample, and calculate the 2.5th and 97.5th percentiles for each feature to form **95% Confidence Intervals**.
@@ -171,7 +171,7 @@
  - Significance flag
  4. **Dependency**: Depends on T030 (Model) and T031 (SHAP values). **Constraint**: This unified report ensures the bootstrap CIs are explicitly tied to the SHAP values as required by FR-007.
 - [X] T034 [US3] Ensure `code/analyze_explainability.py` explicitly logs the sample size (N) used for Permutation Importance and states the significance threshold (p < 0.05) in the output report header. <!-- FAILED: unspecified -->
-- [ ] T035 [US3] **Separate Model Comparison**: Implement `code/analyze_explainability.py` to **compare** the feature importance and SHAP values from `X_raw` (if available) and `X_derived` (if available) to validate physical intuition, **strictly ensuring** that the comparison is performed on **separate model outputs** and does NOT involve a joint analysis or combined model inputs (enforcing FR-010). **Metric**: Calculate Spearman correlation between feature importance ranks of the two models and generate a side-by-side bar chart. **Output**: Save a comparison report in `results/reports/feature_comparison.json` containing: `{"spearman_correlation": <float>, "significant_features_raw": [...], "significant_features_derived": [...]}`. **Dependency**: Depends on T031b and T033b (non-selected model artifacts). <!-- FAILED: unspecified -->
+- [ ] T035 [US3] **Separate Model Comparison**: Implement `code/analyze_explainability.py` to **compare** the feature importance and SHAP values from `X_raw` (if available) and `X_derived` (if available) to validate physical intuition, **strictly ensuring** that the comparison is performed on **separate model outputs** and does NOT involve a joint analysis or combined model inputs (enforcing FR-010). **Metric**: Calculate Spearman correlation between feature importance ranks of the two models and generate a side-by-side bar chart. **Output**: Save a comparison report in `results/reports/feature_comparison.json` containing: `{"spearman_correlation": <float>, "significant_features_raw": [...], "significant_features_derived": [...]}`. **Dependency**: Depends on T031b and T033b (non-selected model artifacts). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T036 [US3] Update `state.yaml` with hashes of plots and statistical reports.
 
 ### Implementation for User Story 3 (Non-Selected Model - Required for Comparison)

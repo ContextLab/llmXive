@@ -3,20 +3,33 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-proj-367"
+name = "algorithmic-recommendation-study"
 version = "0.1.0"
-description = "The influence of algorithmic recommendations on exploration vs. exploitation"
+description = "Study on the influence of algorithmic recommendations on exploration vs. exploitation"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.2.0",
+    "statsmodels>=0.14.0",
+    "datasets>=2.14.0",
+    "pyarrow>=12.0.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.4.0",
+]
+
+[tool.setuptools]
+packages = ["code"]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
+    \.git
   | \.hg
   | \.mypy_cache
   | \.tox
@@ -29,62 +42,35 @@ exclude = '''
 '''
 
 [tool.ruff]
-# Same as Black.
 line-length = 88
-indent-width = 4
 target-version = "py311"
-
-[tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of pycodestyle (`E`) codes.
-select = ["E", "F", "W", "I", "N", "UP", "ANN", "S", "BLE", "B", "A", "C4", "COM", "DTZ", "T10", "EM", "ISC", "ICN", "G", "INP", "PIE", "T20", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "PERF", "RUF"]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
 ignore = [
-  "ANN101", # Missing type annotation for `self` in method
-  "ANN102", # Missing type annotation for `cls` in classmethod
-  "S101",   # Use of `assert` detected (allowed for tests)
-  "B008",   # Do not perform function call in argument defaults (common in fastapi/pytest)
-  "PERF203",# `try`-`except` within a loop incurs performance overhead
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
-# Exclude a few specific files/directories.
-exclude = [
-  ".bzr",
-  ".direnv",
-  ".eggs",
-  ".git",
-  ".git-rewrite",
-  ".hg",
-  ".mypy_cache",
-  ".nox",
-  ".pants.d",
-  ".pytype",
-  ".ruff_cache",
-  ".svn",
-  ".tox",
-  ".venv",
-  "__pypackages__",
-  "_build",
-  "buck-out",
-  "build",
-  "dist",
-  "node_modules",
-  "venv",
+[tool.ruff.isort]
+known-first-party = ["ingestion", "metrics", "modeling", "robustness", "reporting", "main"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
 ]
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101", "ANN"]
-"code/main.py" = ["T201"] # Allow print in main entry point if needed
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-docstring-code-format = false
-docstring-code-line-length = "dynamic"

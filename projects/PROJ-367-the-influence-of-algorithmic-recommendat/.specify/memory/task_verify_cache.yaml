@@ -1,40 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, dataset, or output files were presented; the claim lacks any\
-    \ tangible artifact (e.g., preprocessing script, JSON results, modeling script,\
-    \ or regression output) to verify that the required data ingestion, diversity\
-    \ metric calculation, and propensity\u2011score weighting have been implemented.\
-    \ The task cannot be considered complete without these concrete deliverables."
-T002:
-  c: false
-  h: cc7c95a512b86e24cae76bd795f02f94d65c29ee81f44452a1de7e85ad32f9d4
-  r: "The required file `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt`\
-    \ is missing; only a different `code/requirements.txt` exists, which does not\
-    \ satisfy the specified path. The task\u2019s core artifact is absent, so the\
-    \ requirement is not met."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ and Ruff settings, a `.flake8` config, or corresponding CI scripts) are present,\
-    \ and the provided project description contains only data\u2011processing requirements.\
-    \ Consequently, the task of configuring ruff/flake8 and Black has not been delivered."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No pytest configuration (e.g., `pytest.ini`, `conftest.py`, or test discovery
-    settings) is present in the indicated `projects/PROJ-367-the-influence-of-algorithmic-recommendat/tests/`
-    directory, nor any evidence that pytest has been set up. The required artifact
-    is missing, so the task is not satisfied.
-T015:
-  c: false
-  h: 05e56ea883ccf3d6c8cc34ce9c7ba158f28674b749352dfc34675b5ee9015a2f
-  r: "The required output file `data/processed/diversity_scores.parquet` does not\
-    \ exist, and the provided `code/main.py` snippet does not show any logic that\
-    \ writes such a parquet file or completes the verification comparison. The task\u2019\
-    s core deliverable\u2014producing the parquet with the specified columns and validated\
-    \ scores\u2014is missing."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -64,3 +27,18 @@ T025:
     \ associational language and avoid causal phrasing, as required by task T025.\
     \ The implementer must supply the actual report files or verification evidence\
     \ showing compliance with FR\u2011006."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No sensitivity analysis report table was provided; there is no artifact containing\
+    \ coefficient stability values or p\u2011values across different thresholds, nor\
+    \ any code or output that demonstrates such a table was generated. The claim cannot\
+    \ be verified because the required deliverable is missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains no code, script, notebook, or documentation that adds\
+    \ an E\u2011value calculation to the analysis pipeline; no function implementing\u202F\
+    E\u2011value\u202F=\u202FOR\u202F+\u202F\u221A(OR\xB7(OR\u20111)) or any usage\
+    \ of it as a limitation metric is present. Consequently the required artifact\
+    \ is missing."

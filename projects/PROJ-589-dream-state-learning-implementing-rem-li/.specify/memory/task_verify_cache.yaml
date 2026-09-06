@@ -1,38 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file list showing the required folders (`code/`, `tests/`,
-    `data/`, `data/raw/`, `data/checkpoints/`, `data/results/`, `data/logs/`, `tests/unit/`,
-    `tests/integration/`, `tests/contract/`) was provided. The evidence needed to
-    confirm the project structure exists is missing.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or a `ruff` section, or a pre\u2011commit config invoking\
-    \ Black and Ruff) were provided, nor any evidence that these tools have been set\
-    \ up in the repository. The required artifacts are missing."
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or documentation showing that the `memory_monitor` from T005
-    was integrated into the training loop, nor any evidence (e.g., logs, tests) that
-    OOM conditions trigger an abort and checkpoint save. The required artifact is
-    missing.
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or log output showing added logging for wake/dream phase\
-    \ transitions, entropy metrics, or warm\u2011up status was provided; the claim\
-    \ lacks any concrete artifact to verify the required logging was implemented."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output file was provided that computes the accuracy\
-    \ difference and performs the Wilcoxon signed\u2011rank test using `scipy.stats.wilcoxon`\
-    \ across the five seed accuracies. The required artifact (e.g., a function or\
-    \ report containing the computed difference and p\u2011value) is missing, so the\
-    \ task is not satisfied."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,3 +13,39 @@ T051:
   r: No `docs/` directory or updated `quickstart.md` file was provided; the claim
     lacks any tangible documentation artifacts, so the required documentation updates
     are missing.
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, diff, or documentation showing any cleanup or refactoring was provided;\
+    \ the only content present is the feature specification, which does not demonstrate\
+    \ the claimed T052 work. Consequently, the required artifact for \u201Ccode cleanup\
+    \ and refactoring\u201D is missing."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence only describes the Dream\u2011State Learning feature and\
+    \ its user stories; there is no code, configuration, benchmark results, or documentation\
+    \ showing batching or data\u2011loading optimizations applied across the stories.\
+    \ Consequently, the required performance\u2011optimization artifacts are missing."
+T054:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any files under `tests/unit/` was provided; the response contains
+    only a feature specification and no actual unit test code or files, so the required
+    additional unit tests are missing.
+T055:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, checkpoints, or evaluation reports were provided, and the\
+    \ only material shown is a feature specification for a Dream\u2011State Learning\
+    \ experiment, which does not address the \u201CT055 Security hardening\u201D task\
+    \ at all. Consequently, there is no evidence that the required security\u2011\
+    hardening deliverables exist or meet the specification."
+T056:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation output, log file, or report for the `quickstart.md` check is present.
+    The implementer provided only the feature specification for Dream-State Learning,
+    with no evidence that the quickstart documentation was parsed, validated, or that
+    any errors were reported or fixed. Consequently the required artifact for task
+    T056 is missing.

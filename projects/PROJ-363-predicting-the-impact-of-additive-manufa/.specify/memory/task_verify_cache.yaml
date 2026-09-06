@@ -21,35 +21,35 @@ T015:
     These essential pieces are missing, so the task is not satisfied.'
 T016b:
   c: false
-  h: 1af00c0073cf49459c0351726a2d277c0ff3ecede7d201f768880b6001dc4439
-  r: "The required output files `data/processed/X_raw.csv` and `data/processed/X_derived.csv`\
-    \ are not present, and the provided `code/preprocess.py` is truncated (ends mid\u2011\
-    function) with no visible logic that creates the two subsets and writes them to\
-    \ those CSV files. The task\u2019s core requirement is therefore unmet."
+  h: f68f7ece86cdcc36e4ec756696781dd73825aa1c08066eb26d735281d82317df
+  r: "The provided `preprocess.py` contains schema loading, validation, and a degenerate\u2011\
+    dataset check, but it never creates the `X_raw` and `X_derived` DataFrames nor\
+    \ writes them to `data/processed/X_raw.csv` and `data/processed/X_derived.csv`.\
+    \ Both CSV files are absent from the repository. The core requirement of generating\
+    \ and saving the distinct feature subsets is therefore not satisfied."
 T017b:
   c: false
-  h: 2c532f2d1038886500749abf00ee9992c36fb29418bb356f73f132448d99efa8
-  r: "The provided `code/preprocess.py` is truncated (ends abruptly at `def normal`)\
-    \ and does not contain the full validation logic or any code that loads `contracts/dataset.schema.yaml`.\
-    \ Moreover, the required schema file itself is missing from the repository. Consequently,\
-    \ the task\u2019s requirement to validate processed data against the schema and\
-    \ to verify success/failure cases is not satisfied."
+  h: 45b51eb7fb21ad9b4a5ba2936d0c9fab6ca06a87056cfa46d38ead4eb6db4d5c
+  r: "The provided `code/preprocess.py` defines schema\u2011loading and validation\
+    \ helpers but does not contain a runnable routine that loads the processed DataFrame,\
+    \ validates it against the required `contracts/dataset.schema.yaml`, and exits\
+    \ on failure. Moreover, the referenced schema file (`contracts/dataset.schema.yaml`)\
+    \ is absent from the repository, so the validation cannot actually be performed.\
+    \ The task therefore remains unfinished."
 T021:
-  c: false
-  h: 02493c18100fe861ebfb129432f7700a6ad4604c267ccc951ba96247acc2d966
-  r: The `code/train_models.py` script contains a `load_data` function that attempts
-    to read `data/processed/X_raw.csv`, but the required `X_raw.csv` file is absent
-    from the repository, so the script cannot actually load the feature subset and
-    split into X and y as required. The missing dataset file must be provided for
-    the task to be complete.
+  c: true
+  h: b9282f17092b50426123d1802ad19caef9d2320e6a47fb5d3591262257bf9f5c
+  r: "The file `code/train_models.py` exists, is non\u2011empty, and defines a `load_data`\
+    \ function that reads `data/processed/cleaned_316L.csv` and `data/processed/X_raw.csv`,\
+    \ extracting the target column `porosity` as\u202Fy and the feature matrix X,\
+    \ fulfilling the task\u2019s specification."
 T021b:
-  c: false
-  h: f58b043033ca2cd851ffbcdf5cc4e1906f35e022c90834452b0d17c88bcc0beb
-  r: The `code/train_models.py` script is present and contains a `load_data` function
-    that attempts to read `data/processed/X_derived.csv`, but the required `data/processed/X_derived.csv`
-    file is missing from the repository, so the script cannot actually load the specified
-    data as the task demands. The missing file must be added (or the script adjusted)
-    for the requirement to be satisfied.
+  c: true
+  h: a0f418b1a19d98efa8e9acdbc40b2ac833530663c16b7db92969198490a30f7f
+  r: "The `code/train_models.py` file exists, is non\u2011empty, and defines a `load_data`\
+    \ function that reads `data/processed/cleaned_316L.csv` and `data/processed/X_derived.csv`,\
+    \ extracts the target column `porosity`, and returns the feature matrix `X` and\
+    \ target vector `y`, satisfying the task\u2019s requirement."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -71,17 +71,18 @@ T029:
     \ specification and no concrete test implementation or results. The required artifact\
     \ (a runnable unit test) is missing."
 T030:
-  c: false
-  h: 76785d4bed4aa89d9d15f7905b1a4d16553c20728797980c2f8af16f71a3b195
-  r: The script `code/analyze_explainability.py` exists, but the required `state/selected_model.yaml`
-    (and the model/data files it should point to) are missing, so the loading logic
-    cannot be exercised or verified. Provide the `state/selected_model.yaml` (with
-    the expected format) and ensure the referenced model and CSV files are present.
+  c: true
+  h: aced317ba30d5af960e2f7d849d0df190a1341f7fe7d0cae61ad87834b5c4ba9
+  r: "The `code/analyze_explainability.py` file exists, is non\u2011empty, and contains\
+    \ functions that read `state/selected_model.yaml`, determine the selected subset,\
+    \ and map it to the correct model (`best_raw_model.pkl` or `best_derived_model.pkl`)\
+    \ and data CSV (`X_raw.csv` or `X_derived.csv`). This matches the task\u2019s\
+    \ required loading logic."
 T035:
   c: false
-  h: 7e3fd480ec567051482e758bcdfe3676e030effa546c93df2323710e7a44ad60
-  r: "The repository lacks the required `results/reports/feature_comparison.json`\
-    \ file, and the provided `code/analyze_explainability.py` excerpt shows only model\
-    \ loading and a placeholder for SHAP calculation\u2014no implementation of Spearman\
-    \ correlation, side\u2011by\u2011side bar chart, or JSON report generation. The\
-    \ task\u2019s core output is therefore missing."
+  h: 38553c152edf06db5ea3eec2ef3e7943743289fe31db31fc01c5f9d65325f30b
+  r: "The `code/analyze_explainability.py` file is present but the provided excerpt\
+    \ ends abruptly and shows no implementation of the required separate\u2011model\
+    \ comparison, Spearman correlation calculation, side\u2011by\u2011side bar chart,\
+    \ or JSON report generation. Moreover, the expected output file `results/reports/feature_comparison.json`\
+    \ does not exist. The task\u2019s deliverables are therefore missing."

@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
+- [ ] T001 Create project structure per implementation plan <!-- ATOMIZE: requested -->
 - [ ] T002 Initialize Python 3.11 project with dependencies in `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt` <!-- FAILED: unspecified -->
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 - [X] T036 [P] Initialize Pipeline Runtime Instrumentation in `code/main.py` to log start/end timestamps and calculate total duration for SC-005.
@@ -56,7 +56,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` for paths, seeds, and semantic similarity thresholds
+- [X] T004 Create `code/config.py` for paths, seeds, and semantic similarity thresholds
 - [X] T005 [P] Implement `code/ingestion.py` schema validation (FR-007) raising `DataSchemaError` with exact message: "Required columns [recommended_categories, enrolled_categories] missing. Dataset does not support the specified experimental design."
 - [X] T006 [P] Setup `code/metrics.py` for Shannon entropy calculation (log base 2) (FR-001)
 - [X] T007 [P] Create `code/modeling.py` skeleton for Propensity Score Weighting (PSW) and GLS fallback
@@ -129,8 +129,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement **Residual Permutation Test** in `code/robustness.py` with ≥1,000 iterations (FR-004). Logic: Calculate residuals from the fitted model, shuffle residuals, re-fit model with shuffled residuals, record coefficient. Repeat to generate null distribution. Compare observed effect size against 95% CI of null distribution (SC-003).
-- [ ] T027 [US3] Implement sensitivity analysis sweep for semantic similarity thresholds {0.01, 0.05, 0.1} in `code/robustness.py` (FR-005)
+- [X] T026 [US3] Implement **Residual Permutation Test** in `code/robustness.py` with ≥1,000 iterations (FR-004). Logic: Calculate residuals from the fitted model, shuffle residuals, re-fit model with shuffled residuals, record coefficient. Repeat to generate null distribution. Compare observed effect size against 95% CI of null distribution (SC-003).
+- [X] T027 [US3] Implement sensitivity analysis sweep for semantic similarity thresholds {0.01, 0.05, 0.1} in `code/robustness.py` (FR-005)
 - [ ] T028 [US3] Generate sensitivity analysis report table showing coefficient stability and p-values across thresholds
 - [ ] T029 [US3] Add **E-value calculation** as a sensitivity diagnostic for unmeasured confounding (Plan.md Complexity Tracking). Formula: E-value = OR + sqrt(OR * (OR - 1)), where OR is the observed odds ratio (or equivalent for linear model). Report as a limitation metric, not a causal effect size.
 - [ ] T030 [US3] Generate final report in `docs/reports/final_analysis.md` with all diagnostics and associational framing
@@ -147,7 +147,7 @@
 
 ### Implementation for Review Response
 
-- [ ] T031 [US3] Update `code/robustness.py` to ensure all permutation test outputs are clearly labeled as "Null Distribution" and "Observed Statistic" without causal inference claims.
+- [X] T031 [US3] Update `code/robustness.py` to ensure all permutation test outputs are clearly labeled as "Null Distribution" and "Observed Statistic" without causal inference claims.
 - [ ] T032 [US3] Update `code/modeling.py` to ensure VIF diagnostics and weight stability flags are prominently displayed in the final report as limitations.
 - [ ] T033 [US3] Refine `docs/reports/final_analysis.md` template to include a dedicated "Limitations" section that explicitly states: "Findings are associational; no causal claims are made due to lack of randomization." (FR-006)
 - [ ] T034 [US3] Verify that the E-value calculation (T029) is presented as a sensitivity metric for unmeasured confounding, not a causal effect size.

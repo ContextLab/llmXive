@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T21:44:42.930059Z'
-current_stage: flesh_out_in_progress
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-972-llmxive-follow-up-extending-spatialbench
-last_run_id: b4d679ca-641c-4104-a045-b7d5f4290dfe
+last_run_id: 48fd7b5c-8155-4d14-a835-a8bede447dd1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "SpatialBench: Is Your Spatial Foundation Model
   an All-Round Player?"'
-updated_at: '2026-08-14T18:52:12.524878Z'
+updated_at: '2026-09-06T03:42:43.048207Z'

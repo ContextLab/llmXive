@@ -1,11 +1,15 @@
-# Ruff configuration file
-line-length = 100
-target-version = "py38"
-
-[lint]
-select = ["E", "F", "I", "W"]
-ignore = ["E501"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
+# Extends pyproject.toml settings if needed, or provides standalone config.
+# Currently, pyproject.toml is the primary source of truth for Ruff.
+extend = "pyproject.toml"
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+]

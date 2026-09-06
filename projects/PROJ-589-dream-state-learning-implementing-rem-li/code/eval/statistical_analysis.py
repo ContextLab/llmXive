@@ -1,10 +1,11 @@
 """
-Statistical analysis module for Dream-State Learning experiments.
+Statistical analysis module for Dream-State Learning project.
 
-Implements Wilcoxon signed-rank test and accuracy difference calculations
-to compare experimental (Dream-State) vs baseline (Continuous SFT) models.
+Implements Wilcoxon signed-rank test for comparing experimental vs baseline
+model performance across multiple seeds.
 """
-from typing import List, Tuple, Dict, Any
+
+from typing import List, Tuple, Dict, Any, Optional
 import numpy as np
 from scipy.stats import wilcoxon
 from utils.logger import get_logger
@@ -14,240 +15,272 @@ from config import Config
 
 logger = get_logger(__name__)
 
-def load_accuracy_results(results_path: str) -> Dict[str, List[float]]:
+
+def load_accuracy_results(results_dir: Path, model_type: str) -> List[float]:
     """
-    Load accuracy results from a JSON file containing lists of accuracies per seed.
-    
-    Expected JSON structure:
-    {
-        "experimental": [acc1, acc2, acc3, acc4, acc5],
-        "baseline": [acc1, acc2, acc3, acc4, acc5]
-    }
+    Load accuracy results for a specific model type across all seeds.
     
     Args:
-        results_path: Path to the JSON file containing accuracy results.
+        results_dir: Directory containing seed result files
+        model_type: Either 'experimental' or 'baseline'
         
     Returns:
-        Dictionary with 'experimental' and 'baseline' keys mapping to lists of floats.
+        List of accuracy floats (one per seed)
         
     Raises:
-        FileNotFoundError: If the results file does not exist.
-        ValueError: If the file format is invalid or missing required keys.
+        FileNotFoundError: If no results found for the model type
     """
-    path = Path(results_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Results file not found: {results_path}")
+    accuracies = []
+    seed_files = sorted(results_dir.glob(f"{model_type}_seed_*.json"))
+    
+    if not seed_files:
+        raise FileNotFoundError(f"No results found for {model_type} model in {results_dir}")
+    
+    for seed_file in seed_files:
+        try:
+            with open(seed_file, 'r') as f:
+                data = json.load(f)
+                # Expecting 'final_accuracy' key in result files
+                accuracy = float(data.get('final_accuracy', 0.0))
+                accuracies.append(accuracy)
+                logger.info(f"Loaded {model_type} accuracy {accuracy:.4f} from {seed_file.name}")
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            logger.warning(f"Failed to parse {seed_file.name}: {e}")
+            continue
+    
+    if len(accuracies) == 0:
+        raise FileNotFoundError(f"No valid accuracy results found for {model_type}")
         
-    with open(path, 'r') as f:
-        data = json.load(f)
-        
-    if 'experimental' not in data or 'baseline' not in data:
-        raise ValueError("Results file must contain 'experimental' and 'baseline' keys")
-        
-    if not isinstance(data['experimental'], list) or not isinstance(data['baseline'], list):
-        raise ValueError("Accuracies must be stored as lists")
-        
-    if len(data['experimental']) != 5 or len(data['baseline']) != 5:
-        logger.warning(f"Expected 5 seeds per model, found {len(data['experimental'])} experimental and {len(data['baseline'])} baseline")
-        
-    return {
-        'experimental': [float(x) for x in data['experimental']],
-        'baseline': [float(x) for x in data['baseline']]
-    }
+    return accuracies
 
-def compute_accuracy_difference(experimental_acc: List[float], baseline_acc: List[float]) -> float:
+
+def compute_accuracy_difference(experimental_accs: List[float], 
+                              baseline_accs: List[float]) -> float:
     """
-    Compute the mean accuracy difference between experimental and baseline models.
+    Compute the mean accuracy difference between experimental and baseline.
     
     Args:
-        experimental_acc: List of accuracy values for the experimental model across seeds.
-        baseline_acc: List of accuracy values for the baseline model across seeds.
+        experimental_accs: List of experimental model accuracies
+        baseline_accs: List of baseline model accuracies
         
     Returns:
-        Mean difference (experimental - baseline).
+        Mean difference (experimental - baseline)
     """
-    if len(experimental_acc) != len(baseline_acc):
-        raise ValueError("Experimental and baseline accuracy lists must have the same length")
-        
-    experimental_arr = np.array(experimental_acc)
-    baseline_arr = np.array(baseline_acc)
+    if len(experimental_accs) != len(baseline_accs):
+        logger.warning(f"Accuracy lists have different lengths: {len(experimental_accs)} vs {len(baseline_accs)}")
+        min_len = min(len(experimental_accs), len(baseline_accs))
+        experimental_accs = experimental_accs[:min_len]
+        baseline_accs = baseline_accs[:min_len]
     
-    diff = np.mean(experimental_arr - baseline_arr)
-    logger.info(f"Mean accuracy difference (Experimental - Baseline): {diff:.6f}")
-    return float(diff)
+    diff = np.array(experimental_accs) - np.array(baseline_accs)
+    return float(np.mean(diff))
 
-def run_wilcoxon_test(experimental_acc: List[float], baseline_acc: List[float], 
-                     alpha: float = 0.05) -> Dict[str, Any]:
+
+def run_wilcoxon_test(experimental_accs: List[float], 
+                    baseline_accs: List[float],
+                    alpha: float = 0.05) -> Dict[str, Any]:
     """
-    Perform Wilcoxon signed-rank test to determine statistical significance.
+    Perform Wilcoxon signed-rank test to compare experimental vs baseline.
     
     Args:
-        experimental_acc: List of accuracy values for the experimental model across seeds.
-        baseline_acc: List of accuracy values for the baseline model across seeds.
-        alpha: Significance level (default 0.05).
+        experimental_accs: List of experimental model accuracies (n seeds)
+        baseline_accs: List of baseline model accuracies (n seeds)
+        alpha: Significance level (default 0.05)
         
     Returns:
         Dictionary containing:
             - statistic: Wilcoxon test statistic
-            - pvalue: p-value from the test
-            - significant: Boolean indicating if p-value < alpha
+            - pvalue: Two-sided p-value
+            - significant: Boolean indicating if p < alpha
             - alpha: The significance level used
+            - n_seeds: Number of seeds tested
     """
-    if len(experimental_acc) != len(baseline_acc):
-        raise ValueError("Experimental and baseline accuracy lists must have the same length")
-        
-    if len(experimental_acc) < 2:
-        raise ValueError("Wilcoxon test requires at least 2 paired samples")
-        
-    experimental_arr = np.array(experimental_acc)
-    baseline_arr = np.array(baseline_acc)
+    if len(experimental_accs) != len(baseline_accs):
+        raise ValueError(f"Accuracy lists must have same length: {len(experimental_accs)} vs {len(baseline_accs)}")
     
-    # Perform Wilcoxon signed-rank test
-    statistic, pvalue = wilcoxon(experimental_arr, baseline_arr)
+    if len(experimental_accs) < 2:
+        raise ValueError(f"Need at least 2 seeds for Wilcoxon test, got {len(experimental_accs)}")
     
-    significant = pvalue < alpha
+    # Convert to numpy arrays
+    exp_arr = np.array(experimental_accs)
+    base_arr = np.array(baseline_accs)
     
-    logger.info(f"Wilcoxon Test Results:")
-    logger.info(f"  Statistic: {statistic:.6f}")
-    logger.info(f"  P-value: {pvalue:.6f}")
-    logger.info(f"  Alpha: {alpha}")
-    logger.info(f"  Significant (p < alpha): {significant}")
+    # Run Wilcoxon signed-rank test
+    statistic, pvalue = wilcoxon(exp_arr, base_arr)
     
-    return {
-        'statistic': float(statistic),
-        'pvalue': float(pvalue),
-        'significant': significant,
-        'alpha': alpha
+    result = {
+        "statistic": float(statistic),
+        "pvalue": float(pvalue),
+        "significant": bool(pvalue < alpha),
+        "alpha": alpha,
+        "n_seeds": len(experimental_accs),
+        "experimental_mean": float(np.mean(exp_arr)),
+        "baseline_mean": float(np.mean(base_arr)),
+        "experimental_std": float(np.std(exp_arr)),
+        "baseline_std": float(np.std(base_arr)),
+        "mean_difference": float(np.mean(exp_arr - base_arr))
     }
+    
+    logger.info(f"Wilcoxon test: statistic={statistic:.4f}, p-value={pvalue:.4f}, significant={result['significant']}")
+    return result
 
-def analyze_model_performance(experimental_acc: List[float], baseline_acc: List[float],
-                             alpha: float = 0.05) -> Dict[str, Any]:
+
+def analyze_model_performance(experimental_accs: List[float], 
+                            baseline_accs: List[float],
+                            alpha: float = 0.05) -> Dict[str, Any]:
     """
-    Comprehensive analysis of model performance comparing experimental vs baseline.
+    Comprehensive analysis comparing experimental and baseline models.
     
     Args:
-        experimental_acc: List of accuracy values for the experimental model across seeds.
-        baseline_acc: List of accuracy values for the baseline model across seeds.
-        alpha: Significance level for statistical test (default 0.05).
+        experimental_accs: List of experimental model accuracies
+        baseline_accs: List of baseline model accuracies
+        alpha: Significance level for statistical test
         
     Returns:
-        Dictionary containing:
-            - experimental_stats: Mean, std, min, max of experimental accuracies
-            - baseline_stats: Mean, std, min, max of baseline accuracies
-            - accuracy_difference: Mean difference (experimental - baseline)
-            - wilcoxon_test: Results from Wilcoxon signed-rank test
+        Dictionary containing full analysis results
     """
-    if len(experimental_acc) != len(baseline_acc):
-        raise ValueError("Experimental and baseline accuracy lists must have the same length")
-        
-    # Calculate statistics
-    experimental_arr = np.array(experimental_acc)
-    baseline_arr = np.array(baseline_acc)
+    # Basic statistics
+    exp_mean = float(np.mean(experimental_accs))
+    exp_std = float(np.std(experimental_accs))
+    base_mean = float(np.mean(baseline_accs))
+    base_std = float(np.std(baseline_accs))
+    mean_diff = exp_mean - base_mean
     
-    experimental_stats = {
-        'mean': float(np.mean(experimental_arr)),
-        'std': float(np.std(experimental_arr)),
-        'min': float(np.min(experimental_arr)),
-        'max': float(np.max(experimental_arr))
-    }
+    # Statistical test
+    wilcoxon_result = run_wilcoxon_test(experimental_accs, baseline_accs, alpha)
     
-    baseline_stats = {
-        'mean': float(np.mean(baseline_arr)),
-        'std': float(np.std(baseline_arr)),
-        'min': float(np.min(baseline_arr)),
-        'max': float(np.max(baseline_arr))
-    }
-    
-    # Compute difference and run statistical test
-    accuracy_difference = compute_accuracy_difference(experimental_acc, baseline_acc)
-    wilcoxon_results = run_wilcoxon_test(experimental_acc, baseline_acc, alpha)
+    # Effect size (Cohen's d approximation for paired data)
+    if base_std > 0:
+        effect_size = mean_diff / base_std
+    else:
+        effect_size = 0.0
     
     return {
-        'experimental_stats': experimental_stats,
-        'baseline_stats': baseline_stats,
-        'accuracy_difference': accuracy_difference,
-        'wilcoxon_test': wilcoxon_results
+        "experimental": {
+            "mean": exp_mean,
+            "std": exp_std,
+            "n": len(experimental_accs),
+            "values": experimental_accs
+        },
+        "baseline": {
+            "mean": base_mean,
+            "std": base_std,
+            "n": len(baseline_accs),
+            "values": baseline_accs
+        },
+        "comparison": {
+            "mean_difference": mean_diff,
+            "effect_size": effect_size,
+            "wilcoxon": wilcoxon_result
+        },
+        "conclusion": "Experimental model outperforms baseline" if mean_diff > 0 and wilcoxon_result['significant'] else
+                     "No significant difference" if not wilcoxon_result['significant'] else
+                     "Baseline outperforms experimental"
     }
 
-def save_analysis_report(analysis_results: Dict[str, Any], output_path: str) -> None:
-    """
-    Save the analysis results to a JSON file.
-    
-    Args:
-        analysis_results: Dictionary containing analysis results.
-        output_path: Path to save the JSON report.
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w') as f:
-        json.dump(analysis_results, f, indent=2)
-        
-    logger.info(f"Analysis report saved to: {output_path}")
 
-def load_and_analyze(results_path: str, output_path: str, alpha: float = 0.05) -> Dict[str, Any]:
+def save_analysis_report(analysis_result: Dict[str, Any], 
+                       output_path: Path) -> None:
     """
-    Convenience function to load results, perform analysis, and save report.
+    Save analysis results to a JSON file.
     
     Args:
-        results_path: Path to JSON file containing accuracy results.
-        output_path: Path to save the analysis report.
-        alpha: Significance level for statistical test.
+        analysis_result: Dictionary containing analysis results
+        output_path: Path to save the JSON report
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(analysis_result, f, indent=2)
+    
+    logger.info(f"Analysis report saved to {output_path}")
+
+def load_and_analyze(results_dir: Path, 
+                   output_path: Optional[Path] = None,
+                   alpha: float = 0.05) -> Dict[str, Any]:
+    """
+    Convenience function to load results and perform full analysis.
+    
+    Args:
+        results_dir: Directory containing seed result files
+        output_path: Optional path to save the analysis report
+        alpha: Significance level for statistical test
         
     Returns:
-        Dictionary containing the full analysis results.
+        Dictionary containing analysis results
     """
-    # Load results
-    results = load_accuracy_results(results_path)
+    results_dir = Path(results_dir)
+    
+    # Load accuracies for both models
+    experimental_accs = load_accuracy_results(results_dir, "experimental")
+    baseline_accs = load_accuracy_results(results_dir, "baseline")
+    
+    logger.info(f"Loaded {len(experimental_accs)} experimental and {len(baseline_accs)} baseline results")
     
     # Perform analysis
-    analysis = analyze_model_performance(
-        results['experimental'],
-        results['baseline'],
-        alpha
-    )
+    analysis_result = analyze_model_performance(experimental_accs, baseline_accs, alpha)
     
-    # Save report
-    save_analysis_report(analysis, output_path)
+    # Save if output path provided
+    if output_path:
+        save_analysis_report(analysis_result, output_path)
     
-    return analysis
+    return analysis_result
+
 
 def main():
     """
-    Main function to run statistical analysis on model comparison results.
+    Main entry point for statistical analysis script.
     
-    This function loads accuracy results from data/results/accuracies.json,
-    performs Wilcoxon signed-rank test, and saves the analysis report to
-    data/results/statistical_analysis.json.
+    Usage:
+        python code/eval/statistical_analysis.py [--results-dir DATA/results] [--output DATA/results/analysis.json]
     """
-    config = Config()
+    import argparse
     
-    results_path = config.data_dir / "results" / "accuracies.json"
-    output_path = config.data_dir / "results" / "statistical_analysis.json"
+    parser = argparse.ArgumentParser(description="Statistical analysis for Dream-State Learning")
+    parser.add_argument("--results-dir", type=str, default="data/results",
+                      help="Directory containing seed result files")
+    parser.add_argument("--output", type=str, default="data/results/statistical_analysis.json",
+                      help="Output path for analysis report")
+    parser.add_argument("--alpha", type=float, default=0.05,
+                      help="Significance level for statistical test")
     
-    if not results_path.exists():
-        logger.error(f"Results file not found: {results_path}")
-        logger.error("Please run experiments first to generate accuracy results.")
-        return
-        
-    logger.info(f"Loading results from: {results_path}")
-    logger.info(f"Output will be saved to: {output_path}")
+    args = parser.parse_args()
+    
+    results_dir = Path(args.results_dir)
+    output_path = Path(args.output)
+    
+    if not results_dir.exists():
+        logger.error(f"Results directory not found: {results_dir}")
+        return 1
     
     try:
-        analysis = load_and_analyze(
-            results_path=str(results_path),
-            output_path=str(output_path),
-            alpha=config.statistical_alpha
-        )
+        analysis_result = load_and_analyze(results_dir, output_path, args.alpha)
         
-        logger.info("Analysis complete!")
-        logger.info(f"Mean difference: {analysis['accuracy_difference']:.6f}")
-        logger.info(f"P-value: {analysis['wilcoxon_test']['pvalue']:.6f}")
-        logger.info(f"Significant: {analysis['wilcoxon_test']['significant']}")
+        # Print summary to stdout
+        print("\n" + "="*60)
+        print("STATISTICAL ANALYSIS SUMMARY")
+        print("="*60)
+        print(f"Experimental: mean={analysis_result['experimental']['mean']:.4f} ± {analysis_result['experimental']['std']:.4f} (n={analysis_result['experimental']['n']})")
+        print(f"Baseline:     mean={analysis_result['baseline']['mean']:.4f} ± {analysis_result['baseline']['std']:.4f} (n={analysis_result['baseline']['n']})")
+        print(f"Difference:   {analysis_result['comparison']['mean_difference']:.4f}")
+        print(f"Wilcoxon:     statistic={analysis_result['comparison']['wilcoxon']['statistic']:.4f}, p-value={analysis_result['comparison']['wilcoxon']['pvalue']:.4f}")
+        print(f"Significant:  {analysis_result['comparison']['wilcoxon']['significant']} (α={args.alpha})")
+        print(f"Conclusion:   {analysis_result['conclusion']}")
+        print("="*60 + "\n")
         
+        logger.info("Analysis completed successfully")
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data loading error: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Analysis error: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Analysis failed: {str(e)}")
-        raise
+        logger.error(f"Unexpected error: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

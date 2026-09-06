@@ -3,50 +3,90 @@ import sys
 from pathlib import Path
 
 def create_directories():
-    """Create the required project directory structure."""
-    root = Path.cwd()
-    dirs = [
-        'code',
-        'tests',
-        'tests/unit',
-        'tests/integration',
-        'tests/contract',
-        'data',
-        'data/raw',
-        'data/checkpoints',
-        'data/results',
-        'data/logs'
+    """
+    Creates the project directory structure as defined in the implementation plan.
+    
+    Directories created:
+    - code/
+    - tests/
+    - data/
+    - data/raw/
+    - data/checkpoints/
+    - data/results/
+    - data/logs/
+    - tests/unit/
+    - tests/integration/
+    - tests/contract/
+    """
+    base_path = Path(__file__).parent.parent
+    
+    directories = [
+        "code",
+        "tests",
+        "data",
+        "data/raw",
+        "data/checkpoints",
+        "data/results",
+        "data/logs",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
     ]
     
     created = []
-    for d in dirs:
-        path = root / d
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            created.append(str(path))
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
+            print(f"Created directory: {dir_path}")
+        else:
+            print(f"Directory already exists: {dir_path}")
     
-    if created:
-        print(f"Created directories: {', '.join(created)}")
-    else:
-        print("All directories already exist.")
     return created
 
 def verify_structure():
-    """Verify that all required directories exist."""
-    root = Path.cwd()
-    required = [
-        'code', 'tests', 'data', 
-        'data/raw', 'data/checkpoints', 'data/results', 'data/logs',
-        'tests/unit', 'tests/integration', 'tests/contract'
+    """
+    Verifies that all required directories exist.
+    
+    Returns:
+        bool: True if all directories exist, False otherwise.
+    """
+    base_path = Path(__file__).parent.parent
+    
+    required_dirs = [
+        "code",
+        "tests",
+        "data",
+        "data/raw",
+        "data/checkpoints",
+        "data/results",
+        "data/logs",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
     ]
     
     missing = []
-    for d in required:
-        if not (root / d).exists():
-            missing.append(d)
+    for dir_name in required_dirs:
+        dir_path = base_path / dir_name
+        if not dir_path.exists() or not dir_path.is_dir():
+            missing.append(str(dir_path))
     
     if missing:
-        print(f"Missing directories: {', '.join(missing)}")
+        print(f"Missing directories: {missing}")
         return False
-    print("Project structure verified successfully.")
+    
+    print("All required directories exist.")
     return True
+
+if __name__ == "__main__":
+    print("Creating project structure...")
+    create_directories()
+    print("\nVerifying structure...")
+    if verify_structure():
+        print("\nProject structure verification successful.")
+        sys.exit(0)
+    else:
+        print("\nProject structure verification failed.")
+        sys.exit(1)

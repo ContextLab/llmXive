@@ -1,208 +1,169 @@
-"""
-Sensitivity Analysis Reporting Module.
-
-Implements reporting logic for variance in final accuracy across temperature sweeps.
-Dependent on T036 (temperature sweep execution).
-"""
-
 import json
 import os
 import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 from datetime import datetime
-
 import numpy as np
-from scipy.stats import variance as scipy_variance
-
-# Project imports
 from config import Config
-from utils.logger import get_logger, log_event
-
-# Ensure project root is in path if running as script
-if __name__ == "__main__" and __package__ is None:
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-
-def load_temperature_sweep_results(config: Config) -> List[Dict[str, Any]]:
+def load_temperature_sweep_results(results_dir: Optional[str] = None) -> List[Dict[str, Any]]:
     """
-    Loads results from the temperature sweep execution (T036).
-
-    Expects results to be stored in the configured results directory.
-    The sweep typically generates a JSON file containing accuracy per temperature.
-
-    Args:
-        config: Configuration object containing paths.
-
-    Returns:
-        List of result dictionaries containing temperature and accuracy.
+    Loads the results from the temperature sweep experiments.
+    Expects JSON files named 'seed_{seed}_temp_{temp}.json' or a single aggregated file.
     """
-    results_dir = Path(config.RESULTS_DIR)
-    # Expected output from T036 sweep execution
-    sweep_file = results_dir / "temperature_sweep_results.json"
+    config = Config()
+    if results_dir is None:
+        results_dir = str(config.results_dir / "sensitivity")
+    
+    results_path = Path(results_dir)
+    if not results_path.exists():
+        logger.error(f"Results directory not found: {results_path}")
+        return []
 
-    if not sweep_file.exists():
-        # Fallback: look for any json in results if exact name varies
-        json_files = list(results_dir.glob("*sweep*.json"))
-        if not json_files:
-            raise FileNotFoundError(
-                f"Temperature sweep results not found at {sweep_file}. "
-                "Ensure T036 (run_temperature_sweep) has been executed."
-            )
-        sweep_file = json_files[0]
-        logger.warning(f"Using alternative sweep file: {sweep_file}")
+    all_results = []
+    
+    # Try to find a single aggregated report first
+    aggregated_file = results_path / "sweep_results.json"
+    if aggregated_file.exists():
+        with open(aggregated_file, 'r') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                all_results = data
+            else:
+                all_results = [data]
+        logger.info(f"Loaded aggregated results from {aggregated_file}")
+        return all_results
 
-    with open(sweep_file, 'r') as f:
-        data = json.load(f)
-
-    # Normalize to list of dicts if structure is different
-    if isinstance(data, dict) and 'results' in data:
-        return data['results']
-    elif isinstance(data, list):
-        return data
-    else:
-        # Try to interpret as single run
-        return [data]
-
+    # Otherwise, scan for individual seed results
+    for file_path in results_path.glob("*.json"):
+        try:
+            with open(file_path, 'r') as f:
+                data = json.load(f)
+                # Normalize structure if needed
+                if 'temperature' not in data and 'final_accuracy' not in data:
+                    logger.warning(f"Skipping file {file_path} due to missing expected keys")
+                    continue
+                all_results.append(data)
+        except json.JSONDecodeError:
+            logger.warning(f"Could not parse JSON in {file_path}")
+    
+    logger.info(f"Loaded {len(all_results)} individual results from {results_path}")
+    return all_results
 
 def compute_variance_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Computes statistical variance and summary metrics from the sweep results.
-
-    Args:
-        results: List of dicts with 'temperature' and 'accuracy' keys.
-
-    Returns:
-        Dictionary containing variance, mean, min, max, and full distribution.
+    Computes variance and other statistical metrics for final accuracy across temperatures.
     """
     if not results:
-        return {"error": "No results provided"}
+        return {"error": "No results to analyze"}
 
-    accuracies = [r.get('accuracy', 0.0) for r in results]
-    temperatures = [r.get('temperature', 0.0) for r in results]
+    # Group by temperature
+    temp_accuracies: Dict[float, List[float]] = {}
+    
+    for res in results:
+        temp = float(res.get('temperature', 0.0))
+        acc = float(res.get('final_accuracy', 0.0))
+        
+        if temp not in temp_accuracies:
+            temp_accuracies[temp] = []
+        temp_accuracies[temp].append(acc)
 
-    if len(accuracies) < 2:
-        logger.warning("Insufficient data points for variance calculation.")
-        return {
-            "variance": 0.0,
-            "mean": accuracies[0] if accuracies else 0.0,
-            "count": len(accuracies),
-            "temperatures": temperatures
+    metrics = {
+        "timestamp": datetime.now().isoformat(),
+        "total_runs": len(results),
+        "temperatures_analyzed": sorted(temp_accuracies.keys()),
+        "per_temperature_stats": {}
+    }
+
+    for temp, accuracies in temp_accuracies.items():
+        if len(accuracies) < 2:
+            variance = 0.0
+            std_dev = 0.0
+            logger.warning(f"Only {len(accuracies)} run(s) for temp={temp}, variance set to 0.0")
+        else:
+            variance = float(np.var(accuracies, ddof=1)) # Sample variance
+            std_dev = float(np.std(accuracies, ddof=1))
+        
+        mean_acc = float(np.mean(accuracies))
+        min_acc = float(np.min(accuracies))
+        max_acc = float(np.max(accuracies))
+
+        metrics["per_temperature_stats"][str(temp)] = {
+            "mean_accuracy": mean_acc,
+            "variance": variance,
+            "std_dev": std_dev,
+            "min_accuracy": min_acc,
+            "max_accuracy": max_acc,
+            "n_runs": len(accuracies),
+            "raw_accuracies": accuracies
         }
 
-    # Use scipy variance (ddof=1 for sample variance)
-    var_val = float(scipy_variance(accuracies, ddof=1))
-    mean_val = float(np.mean(accuracies))
-    min_val = float(np.min(accuracies))
-    max_val = float(np.max(accuracies))
-    std_val = float(np.std(accuracies, ddof=1))
+    # Overall variance across all runs (global variance)
+    all_accuracies = [float(r.get('final_accuracy', 0.0)) for r in results]
+    metrics["global_variance"] = float(np.var(all_accuracies, ddof=1)) if len(all_accuracies) > 1 else 0.0
+    metrics["global_std_dev"] = float(np.std(all_accuracies, ddof=1)) if len(all_accuracies) > 1 else 0.0
+    metrics["global_mean_accuracy"] = float(np.mean(all_accuracies))
 
-    return {
-        "variance": var_val,
-        "std_dev": std_val,
-        "mean_accuracy": mean_val,
-        "min_accuracy": min_val,
-        "max_accuracy": max_val,
-        "sample_size": len(accuracies),
-        "temperatures": temperatures,
-        "accuracies": accuracies
-    }
+    return metrics
 
-
-def generate_sensitivity_report(config: Config, output_filename: str = "sensitivity_analysis_report.json") -> str:
+def generate_sensitivity_report(metrics: Dict[str, Any], output_path: Optional[str] = None) -> str:
     """
-    Generates the final sensitivity analysis report.
-
-    1. Loads raw sweep results.
-    2. Computes variance statistics.
-    3. Saves report to data/results.
-
-    Args:
-        config: Configuration object.
-        output_filename: Name of the output file.
-
-    Returns:
-        Path to the generated report.
+    Generates a JSON report containing the variance analysis.
     """
-    logger.info("Generating sensitivity analysis report...")
-
-    # Load data
-    try:
-        raw_results = load_temperature_sweep_results(config)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
-
-    # Compute metrics
-    metrics = compute_variance_metrics(raw_results)
-
-    # Construct report
+    config = Config()
+    if output_path is None:
+        output_path = str(config.results_dir / "sensitivity" / "variance_report.json")
+    
     report = {
-        "report_type": "sensitivity_analysis",
-        "generated_at": datetime.utcnow().isoformat(),
-        "config_snapshot": {
-            "temperatures_swept": metrics.get("temperatures", []),
-            "metric": "accuracy"
+        "report_type": "temperature_sensitivity_variance",
+        "generated_at": datetime.now().isoformat(),
+        "summary": {
+            "global_variance": metrics.get("global_variance", 0.0),
+            "global_std_dev": metrics.get("global_std_dev", 0.0),
+            "temperatures_tested": metrics.get("temperatures_analyzed", []),
+            "total_experiments": metrics.get("total_runs", 0)
         },
-        "statistics": {
-            "variance": metrics.get("variance"),
-            "standard_deviation": metrics.get("std_dev"),
-            "mean": metrics.get("mean_accuracy"),
-            "min": metrics.get("min_accuracy"),
-            "max": metrics.get("max_accuracy"),
-            "n": metrics.get("sample_size")
-        },
-        "raw_data": raw_results,
-        "interpretation": ""
+        "detailed_stats": metrics.get("per_temperature_stats", {})
     }
 
-    # Add interpretation
-    if metrics.get("variance", 0) < 0.001:
-        report["interpretation"] = (
-            "Low variance observed across temperature settings. "
-            "The model's performance is robust to temperature changes in the sweep range."
-        )
-    elif metrics.get("variance", 0) < 0.01:
-        report["interpretation"] = (
-            "Moderate variance observed. Temperature selection may impact performance, "
-            "but the model remains generally stable."
-        )
-    else:
-        report["interpretation"] = (
-            "High variance observed. The model is highly sensitive to temperature "
-            "hyperparameters within the tested range. Careful tuning is required."
-        )
+    report_path = Path(output_path)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Save report
-    results_dir = Path(config.RESULTS_DIR)
-    results_dir.mkdir(parents=True, exist_ok=True)
-    output_path = results_dir / output_filename
-
-    with open(output_path, 'w') as f:
+    with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
 
-    logger.info(f"Sensitivity report saved to {output_path}")
-    log_event("sensitivity_report_generated", {
-        "path": str(output_path),
-        "variance": report["statistics"]["variance"]
-    })
+    logger.info(f"Sensitivity variance report saved to {report_path}")
+    
+    # Print summary to stdout
+    print(f"\n--- Sensitivity Analysis Report ---")
+    print(f"Temperatures tested: {report['summary']['temperatures_tested']}")
+    print(f"Global Variance: {report['summary']['global_variance']:.6f}")
+    print(f"Global Std Dev: {report['summary']['global_std_dev']:.6f}")
+    print(f"Total Experiments: {report['summary']['total_experiments']}")
+    print("-----------------------------------\n")
 
-    return str(output_path)
-
+    return output_path
 
 def main():
-    """Entry point for script execution."""
-    config = Config()
-    try:
-        report_path = generate_sensitivity_report(config)
-        print(f"Report generated successfully: {report_path}")
-        return 0
-    except Exception as e:
-        logger.error(f"Failed to generate report: {e}")
-        return 1
+    """
+    Entry point for running the sensitivity report generation.
+    """
+    logger.info("Starting sensitivity variance report generation...")
+    
+    results = load_temperature_sweep_results()
+    if not results:
+        logger.error("No results found to generate report. Ensure temperature sweep has been run.")
+        sys.exit(1)
 
+    metrics = compute_variance_metrics(results)
+    output_file = generate_sensitivity_report(metrics)
+    
+    logger.info(f"Report generation complete: {output_file}")
+    return output_file
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

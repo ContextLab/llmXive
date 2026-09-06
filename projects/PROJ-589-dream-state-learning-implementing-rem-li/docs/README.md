@@ -1,128 +1,95 @@
 # Dream-State Learning: REM-like Consolidation in Language Models
 
-## Overview
+## Project Overview
 
-This project implements a novel training paradigm for language models that mimics the biological processes of REM sleep to enhance memory consolidation. By alternating between "Wake" (supervised fine-tuning on real data) and "Dream" (denoising autoencoder reconstruction of masked inputs) phases, the model learns more robust representations.
+This project implements a novel training paradigm for language models inspired by the biological mechanisms of REM (Rapid Eye Movement) sleep. The core hypothesis is that alternating between "Wake" (standard supervised fine-tuning) and "Dream" (Denoising Autoencoder-based reconstruction) phases enhances model consolidation and generalization.
 
-## Core Concepts
+## Key Concepts
 
-### Wake Phase
-Standard supervised fine-tuning on real GLUE/SuperGLUE datasets using cross-entropy loss. The model learns to predict next tokens from actual text sequences.
+### What is "Consolidated" in a Digital System?
+Unlike biological systems where consolidation involves structural remodeling (protein synthesis, synaptic strengthening), in a digital neural network, a "consolidated" state is defined operationally as:
+1. **Stability**: The model's performance on held-out validation data remains stable or improves after the Dream phase, despite the introduction of noise.
+2. **Robustness**: The model's loss landscape becomes smoother, reducing sensitivity to input perturbations (measured via entropy checks).
+3. **Generalization**: The model achieves lower perplexity on out-of-distribution samples compared to a baseline trained with continuous supervised fine-tuning (SFT) for the same token count.
 
-### Dream Phase
-The model generates masked inputs and attempts to reconstruct the original tokens. This Denoising Autoencoder (DAE) approach encourages the model to learn deeper semantic relationships and improve generalization.
+### The Wake/Dream Cycle
+- **Wake Phase**: Standard Cross-Entropy loss on real data (GLUE/SuperGLUE).
+- **Dream Phase**: The model is presented with masked inputs (DAE) and tasked with reconstructing the original tokens. This forces the model to rely on learned internal representations rather than immediate context, mimicking memory replay.
+- **Ratio**: A 4:1 ratio of Wake to Dream steps is enforced by the `DreamScheduler`.
 
-### Consolidation Mechanism
-The "consolidated" state in this digital system is defined as:
-1. **Stable Weight Configuration**: Model weights that minimize both wake-phase loss and dream-phase reconstruction error
-2. **Entropy Control**: Outputs maintain entropy above a threshold (0.5 bits), preventing collapse to low-diversity patterns
-3. **Memory Replay**: Periodic reconstruction of previously seen patterns strengthens long-term retention
+## Architecture
 
-## Project Structure
+The project is structured as follows:
 
 ```
-PROJ-589-dream-state-learning-implementing-rem-li/
-├── code/
-│ ├── config.py # Hyperparameters and configuration
-│ ├── main.py # Entry point for training and evaluation
-│ ├── data/
-│ │ ├── augment.py # DAE masking logic
-│ │ └── loader.py # Dataset loading with checksum verification
-│ ├── models/
-│ │ ├── trainer.py # Core wake/dream training loop
-│ │ └── __init__.py # Model initialization
-│ ├── eval/
-│ │ ├── metrics.py # Evaluation metrics and statistical tests
-│ │ ├── reporting.py # Result reporting and visualization
-│ │ ├── sensitivity_report.py # Temperature sweep analysis
-│ │ └── statistical_analysis.py # Wilcoxon signed-rank tests
-│ ├── utils/
-│ │ ├── logger.py # Structured logging
-│ │ ├── memory_monitor.py # Memory usage tracking and limits
-│ │ └── exceptions.py # Custom exceptions
-│ └── scripts/
-│ ├── generate_final_report.py
-│ └── verify_feasibility.sh
+code/
+├── config.py # Hyperparameters, paths, seed management
+├── main.py # Entry point, orchestration of experiments
 ├── data/
-│ ├── raw/ # Downloaded datasets
-│ ├── checkpoints/ # Model checkpoints
-│ ├── results/ # Evaluation results
-│ └── logs/ # Training logs
-├── tests/
-│ ├── unit/ # Unit tests
-│ ├── integration/ # Integration tests
-│ └── contract/ # Schema validation tests
-├── docs/
-│ └── README.md # This file
-├── quickstart.md # Quick start guide
-└── requirements.txt # Python dependencies
+│ ├── loader.py # Real data loading (GLUE/SuperGLUE) with checksum verification
+│ └── augment.py # DAE masking logic
+├── models/
+│ ├── trainer.py # Core Wake/Dream training loop, DreamScheduler
+│ └── __init__.py # Model initialization (DistilBERT/TinyLlama)
+├── eval/
+│ ├── metrics.py # Accuracy, Wilcoxon statistical tests
+│ ├── statistical_analysis.py # Comparative analysis logic
+│ └── sensitivity_report.py # Temperature sweep analysis
+├── utils/
+│ ├── logger.py # Structured logging
+│ ├── memory_monitor.py # RAM tracking and OOM enforcement
+│ └── exceptions.py # Custom exceptions (DataIntegrityError, TimeLimitExceeded)
+└── scripts/
+ └── generate_final_report.py # Aggregates results from multiple seeds
 ```
 
-## Installation
+## Usage
 
-1. Clone the repository:
+### Prerequisites
+- Python 3.9+
+- CPU-only environment (optimized for CI/GitHub Actions)
+- Dependencies listed in `code/requirements.txt`
+
+### Installation
 ```bash
-git clone <repository-url>
-cd PROJ-589-dream-state-learning-implementing-rem-li
+cd code
+pip install -r requirements.txt
 ```
 
-2. Install dependencies:
+### Running an Experiment
+To run a single experiment with the default configuration:
 ```bash
-pip install -r code/requirements.txt
+python main.py --seed 42 --max-steps 100
 ```
 
-## Quick Start
-
-See [quickstart.md](../quickstart.md) for detailed instructions on running the training pipeline.
-
-## Configuration
-
-Key hyperparameters are defined in `code/config.py`:
-- `WAKE_DREAM_RATIO`: Ratio of wake to dream steps (default 4:1)
-- `MASK_RATE`: Probability of token masking in dream phase
-- `ENTROPY_THRESHOLD`: Minimum entropy for valid outputs (0.5 bits)
-- `WARMUP_STEPS`: Number of steps before dream phase begins (10)
-- `MAX_WALL_CLOCK_HOURS`: Maximum training time (5 hours)
-
-## Running Experiments
-
-### Single Seed Experiment
+To run the full comparative analysis (5 seeds, experimental vs. baseline):
 ```bash
-python code/main.py --seed 42 --dataset glue-sst2 --epochs 1
+python main.py --mode full_comparison
 ```
 
-### Temperature Sweep
+To run the temperature sensitivity sweep:
 ```bash
-python code/main.py --temperature-sweep --temps 0.5,0.7,0.9
+python main.py --mode temperature_sweep
 ```
 
-### Baseline Comparison
-```bash
-python code/main.py --baseline --dataset glue-sst2
-```
+### Output Artifacts
+Results are saved to the `data/` directory:
+- `data/results/comparison_report.json`: Statistical comparison between experimental and baseline models.
+- `data/results/sensitivity_report.json`: Variance analysis across temperature settings.
+- `data/logs/`: Structured JSON logs of training progress, phase transitions, and entropy metrics.
+- `data/checkpoints/`: Model states saved upon completion or OOM events.
 
-## Evaluation
+## Statistical Methodology
 
-The project implements:
-- Few-shot accuracy on held-out GLUE/SuperGLUE subsets
-- Wilcoxon signed-rank test for statistical significance (α=0.05)
-- Temperature sensitivity analysis
-- Memory and time constraint verification
+The primary success criterion is the **Wilcoxon signed-rank test** (α=0.05) comparing the accuracy of the Dream-State model against a continuous SFT baseline across 5 independent seeds. This non-parametric test is chosen due to the likely unequal variance between the two distributions.
 
-## Results
+## Constraints & Safety
 
-Results are saved to:
-- `data/results/comparison_report.json`: Comparative analysis between experimental and baseline models
-- `data/results/sensitivity_report.json`: Temperature sweep variance analysis
-- `data/logs/`: Structured JSON logs of training events
+- **Memory Limits**: The `MemoryMonitor` enforces a hard RAM limit (default 6GB). If exceeded, the process aborts and saves the current checkpoint.
+- **Time Limits**: A wall-clock limit (default 5 hours) prevents runaway processes in CI environments.
+- **Data Integrity**: All datasets are downloaded via the HuggingFace `datasets` library with SHA-256 checksum verification. Any mismatch triggers a `DataIntegrityError`.
 
-## Contributing
+## References
 
-1. Create a feature branch
-2. Implement changes following the existing code structure
-3. Add tests for new functionality
-4. Submit a pull request
-
-## License
-
-MIT License
+- Plan Constitution Principle VII: Statistical robustness via non-parametric testing.
+- Biological Inspiration: REM sleep mechanisms in memory consolidation (Kandel et al., Dyson et al.).
