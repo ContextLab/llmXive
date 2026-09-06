@@ -1,10 +1,3 @@
-T000#1:
-  c: false
-  h: c0f4ee8ad50828ed99ff011d2c19c9c55edc16d45663aa972a6851c19e05da26
-  r: "The `verify_scope.py` script is truncated and does not contain the logic to\
-    \ write `data/artifacts/scope_change_record.json`. Moreover, the required JSON\
-    \ output file is missing from the repository. The task\u2019s core requirement\u2014\
-    producing the approved scope change record\u2014is therefore not satisfied."
 T001:
   c: false
   h: 6c3f469119350f0273f760d69b90c7210c0fd353b7168142a522e87a90f354e9
@@ -14,12 +7,6 @@ T001:
     \ the specified logic, even though a `code/config.yaml` file is present. The task\
     \ needs a complete `generate_config.py` that reads the JSON, checks `approved`,\
     \ and writes the config, plus the missing scope record JSON."
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `main.py` file was presented at the required location (`projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`),\
-    \ nor any content showing it has been initialized. The implementer must add a\
-    \ non\u2011empty `main.py` at that path to satisfy the task."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,12 +43,6 @@ T016:
   r: "No `split_data.py` file (or its contents) was provided for the path `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`,\
     \ so we cannot confirm that the micro\u2011corpus was split into train/test with\
     \ the required ratio and no overlap. The required artifact is missing."
-T026:
-  c: false
-  h: c1ae34d2c5f32ff7bf65e48208aaddd73820f699467e55448946b9f881ded8a1
-  r: "The required `verify_params.py` script is not shown, and the expected output\
-    \ file `data/artifacts/parameter_validation.json` does not exist, so the parameter\u2011\
-    count verification and JSON report are missing."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

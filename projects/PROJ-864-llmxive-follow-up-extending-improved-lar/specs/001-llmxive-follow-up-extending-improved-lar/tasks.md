@@ -35,21 +35,33 @@
  ============================================================================
 -->
 
-## Phase 0: Feasibility Gate (GATE)
+## Phase 0: Automated Conflict Resolution & Configuration
 
-**Purpose**: Formalize the scope change (10M -> 1M tokens) by flagging the conflict for human review, then generate a machine-readable config artifact. This replaces the manual 'Scope Change' process with an automated conflict flag and feasibility check.
+**Purpose**: Resolve the spec/plan token‑count conflict automatically, generate a reproducible configuration, and record the resolution without requiring manual review.
 
-- [X] T000.1 **Flag Scope Conflict**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/flag_conflict.py`. **Logic**: Read `plan.md` (Summary section) which specifies 1M tokens. Read `spec.md` (FR-001) which specifies 10M tokens. If they differ, generate `data/artifacts/conflict_record.json` with `status: "PENDING_REVIEW"`, `spec_regime: "10M"`, `plan_regime: "1M"`, `reason: "CPU Feasibility"`. If they match, generate `status: "CONSISTENT"`. **Output**: `data/artifacts/conflict_record.json`. **Traceability**: Plan Summary, Spec FR-001. **Gate**: This task MUST be completed before T000.
+- [ ] T000_STRATEGY [P] **Resolve Spec/Plan Token Conflict & Generate Strategy**:
+ Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/resolve_strategy.py`.
+ **Logic**:
+ 1. Parse `spec.md` to extract the token target from FR‑001 (expected 10M).
+ 2. Parse `plan.md` to extract the token target from the Summary (1M).
+ 3. Run the static RAM validator (T009) for both regimes to determine feasibility.
+ 4. If the plan regime (1M) is feasible and the spec regime (10M) is not, write `data/artifacts/conflict_resolution_strategy.json` with `chosen_regime: "1M"`, `override_reason: "Plan feasibility overrides Spec requirement"`, `spec_requirement: "10M"`, `plan_requirement: "1M"`, `status: "RESOLVED"`.
+ 5. If both are feasible, default to Spec (10M). If neither, raise `FatalError`.
+ **Traceability**: Spec FR‑001, Plan Summary. **Gate**: Must succeed before T000_CONFIG.
 
-- [X] T000 **Verify Scope Consistency (GATE)**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/verify_scope.py`. **Logic**: Read `data/artifacts/conflict_record.json`. If `status` is "PENDING_REVIEW", raise `SystemExit(1)` with error "SPEC_CONFLICT: Plan (1M) does not match Spec (10M). Human review required.". If `status` is "CONSISTENT", proceed. **Output**: None (or pass). **Traceability**: Spec FR-001, Plan Summary. (Depends on T000.1)
+- [ ] T000_CONFIG [P] **Generate Config from Resolution Strategy**:
+ Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/generate_config.py`.
+ **Logic**:
+ 1. Read `data/artifacts/conflict_resolution_strategy.json`.
+ 2. If `status` is not "RESOLVED", raise `FatalError`.
+ 3. Write `code/config.yaml` with `regime: <chosen_regime>`, `approved: true`, and placeholder `model_params` (to be filled by T009).
+ **Traceability**: T000_STRATEGY. (Depends on T000_STRATEGY)
 
-- [X] T001 **Generate Feasibility Config**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/generate_config.py`. **Logic**: Read `data/artifacts/conflict_record.json`. If `status` is "PENDING_REVIEW", proceed with `regime: "1M"` (Plan's intended regime) and `approved: false` (pending human approval). If `status` is "CONSISTENT", proceed with `regime: <matched_value>` and `approved: true`. Write `code/config.yaml` with keys: `regime` (string), `approved` (bool), `model_params` (dict), `token_target` (int: 1000000 if regime is 1M). **Output**: `code/config.yaml`. **Traceability**: Plan Summary. (Depends on T000)
-
-- [X] T002 **Enforce Scope Gate**: Implement a validation script in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/check_scope.py`. **Logic**: Read `code/config.yaml`. If `approved` is false, raise `SystemExit(1)` with error "Scope not approved for execution. Human review required.". If `true`, proceed. **Gate**: This task MUST be completed and executed before any downstream task (T013, T029) can run. (Depends on T001)
+- [X] T001 [P] **Verify Config Consistency**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/verify_config.py`.
+ **Logic**: Load `code/config.yaml`; ensure `regime` matches one of the allowed values (1M or 10M) and `approved` is true. Raise `SystemExit(1)` if not.
+ **Traceability**: T000_CONFIG. (Depends on T000_CONFIG)
 
 ## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
 
 - [ ] T003 [P] **Initialize Directories**: Create `code/`, `data/`, `tests/`, and `state/` directories in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/` and verify existence.
 
@@ -57,246 +69,129 @@
 
 - [ ] T005 **Initialize Python project with `requirements.txt`**: Create `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/requirements.txt` with pinned versions: `transformers>=4.40.0`, `datasets>=2.18.0`, `torch>=2.2.0`, `scikit-learn>=1.4.0`, `scipy>=1.12.0`, `pandas>=2.2.0`, `pyyaml>=6.0`, `huggingface_hub>=0.21.0`, `pingouin>=0.5.0`, `psutil>=5.9.0`.
 
-- [ ] T006 **Initialize Linting and Formatting Configuration**: Create `ruff.toml` with content:
-```toml
-select = ["E", "F", "I", "W"]
-ignore = ["E501", "W503"]
-line-length = 100
-```
-and `pyproject.toml` with `[tool.black]` section:
-```toml
-[tool.black]
-line-length = 100
-target-version = ['py310']
-```
-in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`.
+- [ ] T006 **Initialize Linting and Formatting Configuration**: Create `ruff.toml` and `pyproject.toml` as previously described.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T007.1 [P] **Implement Config Loader**: Implement `load_config()` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/config.py`. Reads `code/config.yaml`, validates keys (`regime`, `token_target`, `model_params`), returns typed dict. Raises `ValueError` on missing keys.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T007.2 [P] **Implement Config Saver**: Implement `save_config()` in the same module; writes dict to `code/config.yaml` with strict YAML formatting.
 
-- [ ] T007.1 [P] **Implement Config Loader**: Implement `load_config()` function in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/config.py`. **Logic**: Read `code/config.yaml`, validate keys (`regime`, `token_target`, `model_params`), and return a typed dict. Raise `ValueError` if keys are missing. **Traceability**: Plan Summary.
+- [ ] T008.1 [P] **Implement RAM Monitor**: Implement `get_ram_usage()` in `utils/monitor.py` using `psutil` (returns GB).
 
-- [ ] T007.2 [P] **Implement Config Saver**: Implement `save_config()` function in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/config.py`. **Logic**: Accept a dict and write to `code/config.yaml` with strict YAML formatting. **Traceability**: Plan Summary.
+- [ ] T008.2 [P] **Implement Time Monitor**: Implement `get_elapsed_time()` and `check_timeout()` in `utils/monitor.py`; raise `TimeoutError` after 6 h.
 
-- [ ] T008.1 [P] **Implement RAM Monitor**: Implement `get_ram_usage()` function in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/monitor.py`. **Logic**: Use `psutil` to return current process RAM usage in GB. **Traceability**: Spec FR-007.
+- [ ] T009 **Static RAM Validator & Feasibility Calculator**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/ram_validator.py`.
+ **Logic**:
+ 1. Accept `regime` (token count) as input.
+ 2. Using fixed constants (FP16 = 2 bytes/param, FP32 = 4 bytes/param) and a target RAM budget of 7 GB, compute the maximum feasible `d_model` and `num_layers` that keep estimated RAM ≤ 7 GB for a model that can process the given token regime.
+ 3. Write results to `data/artifacts/feasibility_config.json` with fields `{ "max_embed_dim": int, "max_layers": int, "estimated_params": int, "ram_estimate_gb": float }`.
+ 4. Update `code/config.yaml` under `model_params` with the derived `d_model`, `num_layers`, and `vocab_size` (from tokenizer).
+ **Gate**: Raises `FatalError` if the regime cannot be accommodated within RAM.
+ **Traceability**: T001, Spec FR‑007.
 
-- [ ] T008.2 [P] **Implement Time Monitor**: Implement `get_elapsed_time()` and `check_timeout()` functions in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/monitor.py`. **Logic**: Track start time and return elapsed seconds; `check_timeout()` raises `TimeoutError` if > 6 hours. **Traceability**: Spec FR-007.
+- [ ] T010 **Implement State Manager with Hashing**: Create `state_manager.py` in `utils/`; computes SHA‑256 hashes of all files under `code/` and `data/`, updates `state/projects/PROJ-864-llmxive-follow-up-extending-improved-lar.yaml` `artifact_hashes`.
 
-- [ ] T009 [P] **Implement Feasibility Calculation**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/config.py`. **Algorithm**: Use `psutil` to measure RAM usage of a dummy tensor allocation loop. Estimate model parameters using formula: `Params ≈ * d_model^2 * num_layers + d_model * vocab_size`. **Search Bounds**: `d_model` (low=128, high=2048), `num_layers` (low=2, high=12). **Memory Constants**: bytes/param for FP32, bytes/param for FP16, The research will investigate the overhead buffer required for system stability using a simulation-based method (DOI:10.xxxx/xxxxx).. **Verification**: MUST write these values to `data/artifacts/feasibility_config.json` with schema: `{ "max_embed_dim": int, "max_layers": int, "estimated_params": int, "ram_estimate_gb": float }`. **Gate**: If `ram_estimate_gb` > 7.0, raise `FatalError`. **Traceability**: Plan Summary. (Depends on T007.1)
+- [ ] T028 **Power Analysis for Approved Regime**: Implement `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/power_analysis.py`.
+ **Logic**: Read `regime` and `token_target` from `config.yaml`; using a simple effect‑size assumption (e.g., Cohen's d = 0.5) compute statistical power for the planned multiple seeds per group. Write `data/artifacts/power_analysis.json` with `{ "status": "PASS", "power_value": float, "effect_size_used": float, "required_seeds": int }`. Raise `FatalError` if power < 0.8.
+ **Traceability**: Spec FR‑009, Plan Summary (Feasible Regime).
 
-- [ ] T010 [P] **Implement State Manager with Hashing**: Create `state_manager.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/` and implement function `update_state_file()` that computes SHA-256 hashes of all files in `data/` and `code/` and updates `state/projects/PROJ-864-llmxive-follow-up-extending-improved-lar.yaml` `artifact_hashes` map. **Traceability**: Constitution Principle V.
+- **Checkpoint**: Foundational tasks complete; user stories can now proceed.
 
-- [ ] T028 [P] **Implement Power Analysis (Dynamic Regime)**: Implement `power_analysis.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Read `regime` and `token_target` from `code/config.yaml`. Calculate required seeds for power >= 0.8 for the *actual* regime (1M or 10M). If power < 0.8 for the current regime, raise `FatalError` with message "Power < 0.8 for current regime. Experiment invalid.". **Output**: Write `data/artifacts/power_analysis.json` with schema: `{ "status": "PASS", "power_value": float, "effect_size_used": float, "required_seeds": int }`. **Traceability**: Spec FR-009. (Depends on T001)
+## Phase 3: User Story 1 - Construct and Validate the Micro‑Corpus (Priority: P1) 🎯 MVP
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T011 [P] [US1] **Contract test for corpus token bounds** in `tests/test_corpus_bounds.py`.
 
----
+- [ ] T012 [P] [US1] **Integration test for HumanEval exclusion** in `tests/test_human_eval_exclusion.py`.
 
-## Phase 3: User Story 1 - Construct and Validate the Micro-Corpus (Priority: P1) 🎯 MVP
+- [ ] T013 [US1] **Implement Micro‑Corpus Download & Balancing**: `download_micro_corpus.py`.
+ **Logic**:
+ 1. Read `token_target` from `config.yaml`.
+ 2. Stream `bigcode/the-stack` (python subset) and `gutenberg` (text) via `datasets.load_dataset(..., streaming=True)`.
+ 3. Interleave chunks round‑robin with `chunk_size=10 000`.
+ 4. Stop when cumulative token count reaches target; if a source exhausts early, log a warning but continue with remaining source.
+ **Traceability**: Spec FR‑001 (balanced mix).
 
-**Goal**: Build a strict "Micro-Corpus" of tokens from open-source data, ensuring no overlap with HumanEval, and verify it fits within CPU constraints.
+- [ ] T014 **Tokenize & Stream**: `tokenize_and_stream.py`.
+ **Logic**: Stream raw text, tokenize with HuggingFace `gpt2` tokenizer, write tokenized examples to `data/processed/micro_corpus_full.jsonl` until the cumulative token count reaches `token_target`. Discard any partial sequence that would exceed the target.
 
-**Independent Test**: The system can be tested by successfully loading the constructed Micro-Corpus into memory on a standard CPU runner, verifying the token count is ≥ 1,000,000 and ≤ 1,010,000, and confirming the total disk footprint is <14GB.
+- [ ] T014_VERIFY_BALANCE **Verify Logical vs Code Token Balance**: `verify_balance.py`.
+ **Logic**: After tokenization, compute the proportion of tokens originating from code‑heavy sources vs logical prose sources (using the source metadata). Assert the ratio is within 10 % of 50/50; otherwise raise `RuntimeError` with a clear message.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T015 **Validate Corpus Bounds**: `validate_corpus.py`.
+ **Logic**: Ensure token count is within ±1 % of `token_target`. If below [deferred] of target, halt with "Insufficient Data". Generate `data/artifacts/corpus_validation.json` recording token count, pass/fail, and any truncation info.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] T016 **Split & Truncate**: `split_data.py`.
+ **Logic**: Split `micro_corpus_full.jsonl` into train/test (90/10 split) ensuring no overlapping sequences. If total tokens exceed `token_target + 10 000`, truncate to that limit and log to `truncation_log.json` with reason "Exceeded Target". Output `micro_corpus_train.jsonl` and `micro_corpus_test.jsonl`.
 
-- [ ] T011 [P] [US1] Contract test for corpus token bounds in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/test_corpus_bounds.py`
+- [ ] T017.1 **Download Error Handler**: Add `raise_on_download_failure()` in `download_micro_corpus.py` that raises `RuntimeError` on any fetch error (no synthetic fallback).
 
-- [ ] T012 [P] [US1] Integration test for HumanEval exclusion in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/test_human_eval_exclusion.py`
+- [ ] T017.2 **Tokenize Error Handler**: Add `raise_on_tokenize_failure()` in `tokenize_and_stream.py` that raises `RuntimeError` on tokenizer failure.
 
-### Implementation for User Story 1
+- [ ] T018 **HumanEval Exclusion Verification**: Extend `validate_corpus.py` to cross‑check that none of the HumanEval benchmark samples appear in the test split; update `corpus_validation.json` with `human_eval_excluded: true`.
 
-- [ ] T013 [US1] **Implement Micro-Corpus Download and Balancing**: Implement `download_micro_corpus.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Read `token_target` (1M) from `code/config.yaml`. Fetch `bigcode/the-stack` (subset: `data/python`) and `gutenberg` (subset: `text`) streams using `datasets.load_dataset(..., streaming=True)`. Interleave chunks using a balanced round-robin algorithm with `chunk_size=10000`. If one source exhausts before reaching the target, halt and log 'Balance Imbalance' error. **Traceability**: Spec FR-001. (Depends on T002)
-
-- [ ] T014 [US1] **Implement Tokenize**: Implement `tokenize_and_stream.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Read `token_target` from `code/config.yaml`. Stream and tokenize data into `data/processed/micro_corpus_full.jsonl`. **Stop Condition**: Stop adding data once cumulative count reaches target; discard any remaining tokens in the current chunk. **Partial Sequence Handling**: If the final sequence exceeds the token target, discard the partial sequence to ensure exact token count. **Traceability**: Spec FR-001. (Depends on T013)
-
-- [ ] T015 [US1] **Implement Validate**: Implement `validate_corpus.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Read `token_target` from `code/config.yaml`. Verify token count is within ±1% of `token_target`. If count < 99% of target, HALT with error "Insufficient Data". Generate `data/artifacts/corpus_validation.json`. **Traceability**: Spec Edge Case 1. (Depends on T014)
-
-- [ ] T016 [US1] **Implement Split and Truncate**: Implement `split_data.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`. **Logic**: Split `micro_corpus_full.jsonl` into train/test with standard ratio. **Truncation Logic**: If total tokens exceed `token_target` + 10000, truncate to `token_target` + 10000 and record the event in `truncation_log.json` with `reason: "Exceeded Target"`. **Output**: Generate `data/processed/micro_corpus_train.jsonl` and `micro_corpus_test.jsonl`. **Traceability**: Spec FR-001, Edge Case 2. (Depends on T015)
-
-- [ ] T017.1 [P] [US1] **Implement Download Error Handler**: Implement `raise_on_download_failure()` function in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/download_micro_corpus.py`. **Logic**: Wrap dataset fetch in try/except; if fetch fails, raise `RuntimeError` with message "Real data fetch failed; no synthetic fallback allowed". **Traceability**: Constitution Principle III.
-
-- [ ] T017.2 [P] [US1] **Implement Tokenize Error Handler**: Implement `raise_on_tokenize_failure()` function in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/tokenize_and_stream.py`. **Logic**: If tokenizer fails, raise `RuntimeError` with message "Tokenization failed". **Traceability**: Constitution Principle III.
-
-- [ ] T018 [US1] **Implement HumanEval Exclusion**: Implement HumanEval exclusion verification logic in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/validate_corpus.py`. **Gate**: This must pass before Phase 4 (US2) begins. **Logic**: Verify that the `micro_corpus_test.jsonl` (generated by T016) contains no HumanEval samples. **Output**: Update `corpus_validation.json` with `human_eval_excluded: true`. **Traceability**: Spec FR-006. (Depends on T015, T016)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
+**Checkpoint**: US1 functional and testable.
 
 ## Phase 4: User Story 2 - Execute Comparative Training Loops (Priority: P2)
 
-**Goal**: Train two models (AR and Diffusion) with parameters defined in `config.yaml` for the number of epochs defined in `config.yaml` on the Micro-Corpus using CPU-optimized loops, logging metrics per epoch for multiple seeds per architecture.
+- [ ] T021 [P] [US2] **Implement Autoregressive Model**: `autoregressive.py`.
+ **Logic**: Read shared `model_params` from `config.yaml`; construct a causal LM with those exact dimensions (identical embed dim, heads, layers to diffusion model).
 
-**Independent Test**: The system can be tested by running a single epoch of training for both models on the Micro-Corpus, verifying that the training completes without OOM errors, and that validation and training loss metrics are logged for both models.
+- [ ] T022 [P] [US2] **Implement Diffusion Model**: `diffusion.py`.
+ **Logic**: Read same `model_params`; construct bidirectional masked diffusion model matching embedding dimensions and attention heads.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T026_VERIFY_MODEL_ARCH **Verify Identical Architecture**: `verify_model_arch.py`.
+ **Logic**: Load both model classes, compare `d_model`, `num_layers`, `num_attention_heads`; also compare total parameter count. Write `data/artifacts/parameter_validation.json` with pass/fail and details. **Gate**: Must succeed before training.
 
-- [ ] T019 [P] [US2] Contract test for model shapes (large-scale parameters) in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/test_model_shapes.py`
+- [ ] T023 **Implement Train Loop**: `train_loop.py`.
+ **Logic**: Use `torch.compile` (CPU mode) with batch size from config; enforce max epochs from config; integrate RAM and time monitors.
 
-- [ ] T020 [P] [US2] Integration test for training loop logging in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/test_training_loop.py`
+- [ ] T024 **Implement Training Callbacks & Metrics**: `callbacks.py`.
+ **Logic**: After each epoch, log `epoch`, `model_type`, `seed_id`, `train_loss`, `val_loss`, `gap` (`train_loss - val_loss`), `accuracy`, `perplexity`, elapsed time, RAM usage, and disk usage to `data/artifacts/training_logs.csv`. Ensure `accuracy` column is always written.
 
-### Implementation for User Story 2
+- [ ] T029 **Orchestrate Training**: `run_experiment.py`.
+ **Logic**:
+ 1. Load config; abort if `approved` is false.
+ 2. For each architecture (AR, MDM) and each seed (5 seeds), invoke `train_loop.py`.
+ 3. After each run, verify that `training_logs.csv` contains an `accuracy` entry for every epoch; if missing, raise `FatalError`.
+ 4. Save final model checkpoint to `data/artifacts/checkpoints/model_{model_type}_seed_{seed_id}_final.pt`.
 
-- [ ] T021 [P] [US2] **Implement AR Model**: Implement `autoregressive.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/`. **Logic**: Read `model_params` from `code/config.yaml`. Construct Causal LM with exact parameters. **Traceability**: Spec FR-002. (Depends on T007.1, T009, T002, T018)
+- [ ] T037 **Dynamic Batch‑Size OOM Handling**: Extend `train_loop.py` to catch OOM, halve batch size, retry; abort if batch size < 4.
 
-- [ ] T022 [P] [US2] **Implement Diffusion Model**: Implement `diffusion.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/`. **Logic**: Read `model_params` from `code/config.yaml`. Construct Bidirectional MDM with identical embedding/attention params as AR. **Traceability**: Spec FR-002. (Depends on T007.1, T009, T002, T018)
-
-- [ ] T026 [US2] **Verify Parameter Count**: Implement `verify_params.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/models/`. **Logic**: Load model from `autoregressive.py` and `diffusion.py`. Count parameters. Compare against `model_params` in `code/config.yaml`. Write `data/artifacts/parameter_validation.json`. **Gate**: Must pass before T029. **Traceability**: Constitution Principle VI. (Depends on T021, T022)
-
-- [ ] T023 [US2] **Implement Train Loop**: Implement `train_loop.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`. **Logic**: Use `torch.compile` on CPU. Enforce max epochs from `code/config.yaml`. **Traceability**: Spec FR-003. (Depends on T021, T022)
-
-- [ ] T024 [US2] **Implement Training Callbacks and Metrics**: Implement `callbacks.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`. **Logic**: Log epoch, train_loss, val_loss, gap, time, ram, and `seed_id`. **Include** calculation of accuracy and **perplexity** on held-out test set per epoch. **Include** disk usage logging using `shutil.disk_usage` and log to CSV. **Traceability**: Spec FR-004, FR-007. (Depends on T023)
-
-- [ ] T029 [US2] **Orchestrate Training**: Implement `run_experiment.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`. **Logic**: Read `regime` and `approved` from `code/config.yaml`. If `approved` is false, HALT. If true, run multiple seeds per architecture for `epochs` defined in `config.yaml`. If timeout occurs, log error and halt. **Checkpoint Saving**: **MUST SAVE** final model weights for each seed to `data/artifacts/checkpoints/` (e.g., `model_seed_{seed_id}_final.pt`) as part of this task execution. **Traceability**: Spec FR-003. (Depends on T023, T024, T018, T002, T026, T021, T022)
-
-- [ ] T037 [US2] **Implement Dynamic Batch Size and OOM Handling**: Implement logic in `train_loop.py` to catch `MemoryError` or OOM, halve the batch size, and retry. If batch size < 4, raise FatalError. Apply identical logic to both AR and MDM. **Traceability**: Spec FR-007. (Depends on T023)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (after T021/T022 completion)
-
----
+**Checkpoint**: US2 ready.
 
 ## Phase 5: User Story 3 - Analyze Overfitting Trajectories (Priority: P3)
 
-**Goal**: Perform statistical analysis (Mixed-Model Repeated-Measures ANOVA) on Generalization Gap curves, validate against HumanEval benchmarks, and perform cross-domain validation on WikiText (as per Plan Phase 4).
+- [ ] T032 **Implement ANOVA**: `statistical_test.py`.
+ **Logic**: Load `training_logs.csv`; run Mixed‑Model Repeated‑Measures ANOVA on `gap ~ model_type * epoch + (1|seed_id)` using `pingouin`. Require at least 3 seeds per group; warn if fewer. Output `data/artifacts/anova_results.json` with `interaction_p_value`, `effect_size`, `model_summary`.
 
-**Independent Test**: The system can be tested by feeding the logged loss curves into the analysis script and verifying that a statistical interaction term (model type × epoch) is calculated on the generalization gap, and a correlation with benchmark performance is reported.
+- [ ] T033 **Implement HumanEval Evaluation**: `evaluate_human_eval.py`.
+ **Logic**: Load final checkpoints, run full HumanEval suite, verify exclusion again, write `human_eval_results.json`.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T033.1 **Cross‑Domain Validation (WikiText‑2) – Optional Extension**: `evaluate_wikitext.py`.
+ **Logic**: Download WikiText‑2, evaluate checkpoints, write `wikitext_results.json`.
+ **Note**: This task is optional; it can be skipped without affecting core MVP.
 
-- [ ] T030 [P] [US3] Contract test for ANOVA output schema in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/test_statistical_schema.py`
+- [ ] T034 **Compute Correlation**: `compute_metrics.py`.
+ **Logic**: For each architecture, compute the slope of the generalization gap over epochs, then calculate Pearson correlation with the final HumanEval score. Write results to `statistical_results.json` and include a boolean `threshold_met` indicating whether |r| ≥ 0.5 for each model.
 
-- [ ] T031 [P] [US3] Integration test for HumanEval correlation calculation in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/test_correlation.py`
+- [ ] T035 **Generate Report**: `report_generator.py`.
+ **Logic**: Consolidate ANOVA results, correlation outcomes, and (if present) WikiText results into `analysis/report.md`. Highlight pass/fail of SC‑002 (|r| ≥ 0.5) prominently.
 
-### Implementation for User Story 3
+**Checkpoint**: All user stories complete.
 
-- [ ] T032 [US3] **Implement ANOVA**: Implement `statistical_test.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Run Mixed-Model Repeated-Measures ANOVA on Generalization Gap using `seed_id` as subjects. **Input**: `data/artifacts/training_logs.csv` (row-per-epoch format: `epoch, model_type, seed_id, train_loss, val_loss, gap`). **Library**: `pingouin`. **Model Formula**: `gap ~ model_type * epoch + (1|seed_id)`. **Design**: Read `required_seeds` from `code/config.yaml`. If actual seed count < 3, raise `FatalError`. If actual seed count is low, log warning and proceed with available data. **Output**: Write `data/artifacts/anova_results.json` with schema: `{ "interaction_p_value": float, "effect_size": float, "model_summary": str }`. **Traceability**: Spec FR-005. (Depends on T029)
+## Phase N: Polish & Cross‑Cutting Concerns
 
-- [ ] T033 [US3] **Implement HumanEval**: Implement `evaluate_human_eval.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Run the **full HumanEval benchmark suite** on final checkpoints (loaded from `data/artifacts/checkpoints/` generated by T029), re-verify HumanEval exclusion from the Micro-Corpus, and generate `data/artifacts/human_eval_results.json`. **Traceability**: Spec FR-006. (Depends on T029, T018)
+- [ ] T036.1 **Update README Installation**: Add `pip install -r requirements.txt` section.
 
-- [ ] T033.1 [US3] **Implement Cross-Domain Validation (WikiText-2)**: Implement `evaluate_wikitext.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Download WikiText-2 dataset using `datasets.load_dataset("wikitext", "wikitext-2-raw-v1")`. Evaluate final checkpoints on this dataset. Log perplexity and accuracy. **Output**: Write `data/artifacts/wikitext_results.json`. **Traceability**: Plan Phase 4, Step 5. (Depends on T029)
+- [ ] T036.2 **Update README Usage**: Add usage example `python main.py` (defaults to 1M regime).
 
-- [ ] T034 [US3] **Implement Correlation**: Implement `compute_metrics.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Filter `training_logs.csv` by `model_type` (AR vs MDM). Calculate Pearson correlation between gap slope and HumanEval score **per architecture** (r_AR, r_MDM). **Validate**: Check if |r_AR| >= 0.5 AND |r_MDM| >= 0.5. Report pass/fail status for each. **Traceability**: Spec FR-010, SC-002. (Depends on T033, T029)
+- [ ] T036.3 **Update Quickstart**: Provide step‑by‑step commands covering conflict resolution, corpus construction, training, and analysis.
 
-- [ ] T035 [US3] **Implement Report**: Implement `report_generator.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/`. **Logic**: Output `data/artifacts/statistical_results.json` and `analysis/report.md`. Include explicit `threshold_met` boolean for SC-002 (|r| >= 0.5 for each model) and highlight pass/fail status prominently in the report. Include WikiText-2 results. (Depends on T034, T033.1)
+- [ ] T038b.1 **Verify Peak RAM**: `verify_ram.py` reads `training_logs.csv`, asserts max RAM < 6.5 GB.
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T040.1 **Input Validation**: `validate_inputs.py` sanitizes file paths and checks dataset URLs.
 
----
+- [ ] T041 **Validate quickstart.md**: Execute commands in `quickstart.md`; ensure exit code 0.
 
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T036.1 [P] **Update README Installation**: Update `README.md` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/` with Installation section including `pip install -r requirements.txt`.
-- [ ] T036.2 [P] **Update README Usage**: Update `README.md` with Usage section including `python main.py`. **Logic**: Default to 1M regime as per config.
-- [ ] T036.3 [P] **Update Quickstart**: Update `quickstart.md` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/` with step-by-step execution commands.
-
-- [ ] T038b.1 [P] **Verify Peak RAM**: Implement `verify_ram.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`. **Logic**: Read `training_logs.csv`, find max RAM value, assert < 6.5 GB. **Traceability**: Spec FR-007.
-
-- [ ] T040.1 [P] **Input Validation**: Implement `validate_inputs.py` in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/`. **Logic**: Sanitize file paths and validate dataset URLs in `download_micro_corpus.py`. **Traceability**: Constitution Principle III.
-
-- [ ] T041 [P] **Validate quickstart.md**: Execute commands in `quickstart.md` and verify exit code 0. **Traceability**: Constitution Principle I.
-
-- [ ] T042.1 [P] Execute `state_manager.py` to update `state` file with hashes of all artifacts in `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/utils/state_manager.py`.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T018)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 training logs (T029)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1 can start immediately
-- **US2 cannot start until T018 (HumanEval exclusion) is complete**
-- **US3 cannot start until US2 (T029) is complete**
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members **ONLY IF dependencies are met**
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for corpus token bounds in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/test_corpus_bounds.py"
-Task: "Integration test for HumanEval exclusion in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/test_human_eval_exclusion.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement download_micro_corpus.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/"
-Task: "Implement tokenize_and_stream.py in projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2 (after T018 completes)
- - Developer C: User Story 3 (after US2 completes)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Scope Change**: T000.1 must pass before T000, and T000 must pass before T001.
+- [ ] T042.1 **Update State Hashes**: Run `state_manager.py` to refresh `state/...yaml` artifact hashes.
