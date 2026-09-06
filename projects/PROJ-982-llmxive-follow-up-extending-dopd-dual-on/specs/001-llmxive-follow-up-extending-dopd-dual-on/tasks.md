@@ -56,7 +56,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/env/privilege_mdp.py`: Define discrete grid-world with hidden state `H` and observable `O`, enforcing max grid dimension 10x10 (RAM < 7GB) per FR-008 and ensuring `H` is strictly masked from Student observations via projection function `O = state[:, 0:2]` per FR-001
+- [X] T012 [US1] Implement `code/env/privilege_mdp.py`: Define discrete grid-world with hidden state `H` and observable `O`, enforcing max grid dimension 10x10 (RAM < 7GB) per FR-008. Explicitly project state vector to first 2 dimensions for Student observation (`O = state[:, 0:2]`) per FR-001.
 - [X] T013 [US1] Implement `code/env/privilege_mdp.py`: Define transition logic where `H` dictates optimal action to ensure Student fails without it
 - [X] T014 [US1] Implement `code/agents/teacher.py`: Create Oracle policy with full state access `(O, H)`
 - [X] T015 [US1] Implement `code/agents/student.py`: Create Tabular Q-table agent with partial state access `O`
@@ -81,15 +81,17 @@
 
 ### Implementation for User Story 2
 
-- [X] T028 [US2] Implement `code/training/dopd_distillation.py`: Add epsilon-guarded division (epsilon=1e-8) to prevent ZeroDivisionError when self-supervision signal is sparse or zero per Edge Cases and FR-002
-- [X] T022a [US2] Implement `code/agents/baseline_estimator.py`: Simulate random policy over 1000 steps using Monte Carlo estimation to generate state trajectories and compute state-value function `V_baseline(s)` per FR-002
+- [X] T021 [US2] Implement `code/training/uniform_distillation.py`: Fixed-weight distillation loss logic (independent of advantage gap)
+- [X] T022a [US2] Implement `code/agents/baseline_estimator.py`: Simulate random policy over a sufficient number of steps using Monte Carlo estimation (a sufficient number of episodes per batch) to generate state trajectories and compute state-value function `V_baseline(s)` per FR-002. Convergence check: Stop if std dev < 0.01 for 100 consecutive batches.
 - [X] T022 [US2] [Depends: T022a] Implement `code/training/dopd_distillation.py`: Calculate Teacher advantage gap (Q(s,a) - V_baseline(s)) using output from T022a per FR-002
-- [X] T023 [US2] Implement `code/training/dopd_distillation.py`: Measure dynamic range of advantage gap (max - min) over a sliding window; if dynamic range < 0.1, trigger min-max normalization switch per FR-002
+- [X] T023 [US2] Implement `code/training/dopd_distillation.py`: Measure dynamic range of advantage gap (max - min) over the **current batch**; if dynamic range < 0.1, trigger min-max normalization switch per FR-002
 - [X] T024 [US2] Implement `code/training/dopd_distillation.py`: Dynamic weighting logic for distillation loss vs. self-supervision
-- [X] T021 [US2] Implement `code/training/uniform_distillation.py`: Fixed-weight distillation loss logic
+- [X] T028 [US2] Implement `code/training/dopd_distillation.py`: Add epsilon-guarded division (epsilon=1e-8) to prevent ZeroDivisionError when self-supervision signal is sparse or zero per Edge Cases and FR-002
 - [X] T025 [US2] Implement `code/utils/logging.py`: Log training accuracy, convergence steps, and action entropy per FR-006
 - [X] T019 [US2] Implement `code/analysis/generalization_test.py`: Masked evaluation logic to remove `H` during inference
 - [X] T020 [US2] Implement `code/analysis/generalization_test.py`: Calculate performance drop metric: `(acc_unmasked - acc_masked) / R_max`
+- [X] T057a [US2] [Edge Case] Implement `code/tests/test_dopd.py`: Unit test for 'noise signal H' scenario where privileged signal is uncorrelated with optimal action; verify system handles this without crashing per Edge Cases
+- [X] T022b [US2] Implement `code/agents/baseline_estimator.py`: Fallback logic if T022a fails to converge within 2000 steps; log warning, set `is_converged=False`, and return last valid estimate to prevent silent bias per FR-002
 
 ### Tests for User Story 2
 
@@ -112,11 +114,11 @@
 
 ### Implementation for User Story 3
 
-- [X] T035 [US3] Create `code/scripts/run_experiment.py`: Orchestrate 50 independent seeds with distinct training/test seeds (using `seed_train` and `seed_test = seed_train + offset`), verify `seed_train != seed_test`, and log to `data/raw/`, ensuring count >= 50 per FR-005 & FR-007
+- [X] T035 [US3] Create `code/scripts/run_experiment.py`: Orchestrate multiple independent seeds with distinct training/test seeds. Algorithm: `seed_test = seed_train + offset`, where `offset` is a fixed positive integer distinct from zero.. Verification: Assert `len(set(train_seeds) & set(eval_seeds)) == 0`. Log to `data/raw/`, ensuring count >= 50 per FR-005 & FR-007
 - [X] T036 [US3] Create `code/scripts/aggregate_results.py`: Aggregate logs and generate `data/processed/` metrics
 - [X] T032 [US3] Implement `code/analysis/stats.py`: Execute one-tailed Mann-Whitney U test (H0: mean(DOPD) <= mean(Uniform)) on accuracy logs per FR-005
 - [X] T033 [US3] Implement `code/analysis/stats.py`: Calculate effect size; if effect size < 0.5, log entry "Study is exploratory" and write to `data/processed/` per FR-005
-- [X] T039 [US3] Implement `code/analysis/stats.py`: Calculate and compare convergence steps between DOPD and Uniform regimes per SC-003
+- [X] T039 [US3] Implement `code/analysis/stats.py`: Calculate and compare convergence steps between DOPD and Uniform regimes. Convergence defined as: when action entropy stabilizes (std dev < 0.01 over 50 steps) OR reward variance < 0.05 per SC-003
 
 ### Tests for User Story 3
 
@@ -134,17 +136,30 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T055 [P] Calculate and Report CV: Implement Coefficient of Variation (CV) calculation in `code/analysis/stats.py` and generate final reproducibility report JSON at `data/processed/reproducibility_metrics.json` linking CV calculation to artifact per SC-005
+- [X] T055 [P] Calculate and Report CV: Implement Coefficient of Variation (CV) calculation in `code/analysis/stats.py`. Generate final reproducibility report JSON at `data/processed/reproducibility_metrics.json` containing keys: `cv_value`, `mean_accuracy`, `std_dev`, linking CV calculation to artifact per SC-005
 - [X] T043 [P] Implement checksumming utility in `code/utils/checksum.py` to generate hashes for artifacts
 - [X] T044 [P] Create `code/scripts/record_hashes.py` to invoke checksum utility and record hashes in `state/projects/...yaml` per Constitution Principle III & V
 - [X] T045 [P] Refactor logging to structured JSON format for easier parsing
 - [X] T062 [P] Remove unused imports and dead code from all modules
 - [X] T047 [P] Documentation updates in `docs/` and `README.md`
-- [X] T053 [P] Profile simulation speed to verify the performance constraint for 50 seeds per Plan Performance Goals
+- [X] T053 [P] Profile simulation speed to verify the performance constraint for multiple seeds per Plan Performance Goals
 - [X] T054 [P] Optimize simulation loop to meet temporal constraints if profiling fails
-- [X] T057 [P] Additional unit tests for edge cases (noise signal `H`, sparse rewards)
+- [X] T057 [P] Additional unit tests for edge cases (noise signal `H`, sparse rewards) - *Note: Core noise test moved to T057a*
 - [X] T058 [P] Run `quickstart.md` validation
 - [X] T059 [P] Verify all artifacts checksummed and versioned per Constitution Principle V
+
+---
+
+## Phase 7: Data Integrity & Execution Safety (Revision)
+
+**Purpose**: Address execution gate concerns regarding data loading safety, reproducibility verification, and failure modes.
+
+- [ ] T063 [US1] [Depends: T012] Implement `code/env/privilege_mdp.py`: Add explicit assertion in `reset()` and `step()` to raise `RuntimeError` if `H` is accidentally exposed in `student_obs` to enforce strict information asymmetry at runtime
+- [ ] T064 [US2] [Depends: T022a] Implement `code/agents/baseline_estimator.py`: Add explicit assertion that `V_baseline` convergence check (std dev < 0.01) is met before returning, raising `RuntimeError` if max iterations are exceeded to prevent noisy baselines
+- [ ] T065 [US2] [Depends: T022] Implement `code/training/dopd_distillation.py`: Add explicit logging of the `lambda` switch event (Uniform vs. Min-Max) to `data/raw/training_log.json` for every seed to verify FR-002 fallback logic
+- [ ] T066 [US3] [Depends: T035] Implement `code/scripts/run_experiment.py`: Add explicit check to verify `seed_train` and `seed_test` sets are disjoint before execution, raising `RuntimeError` if intersection is non-empty per FR-007
+- [ ] T067 [US3] [Depends: T032] Implement `code/analysis/stats.py`: Add explicit check for `n_samples >= 50`. If `n_samples < 50`, log "Study is exploratory due to insufficient samples", set `is_exploratory=True`, and proceed with Mann-Whitney U test (do NOT raise RuntimeError) per FR-005
+- [ ] T068 [US3] [Depends: T033] Implement `code/analysis/stats.py`: Add explicit logging of "Study is exploratory" flag to `data/processed/statistical_summary.json` when Cliff's Delta < 0.5 per FR-005
 
 ---
 
@@ -158,6 +173,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Data Integrity (Phase 7)**: Must be integrated into all previous phases before final execution
 
 ### User Story Dependencies
 
@@ -182,6 +198,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase 7 safety tasks are NOT parallel with their target modules; they depend on them.
 
 ---
 
@@ -240,3 +257,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical**: All Phase 7 tasks are mandatory for execution gate approval to ensure no synthetic fallbacks or data integrity violations.
