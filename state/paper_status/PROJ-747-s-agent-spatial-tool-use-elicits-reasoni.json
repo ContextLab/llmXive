@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-09-06T22:55:11.412392+00:00"
+    "audited_at": "2026-09-06T23:21:28.254876+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-747-s-agent-spatial-tool-use-elicits-reasoni",
-  "updated_at": "2026-09-06T22:55:11.412403+00:00"
+  "updated_at": "2026-09-06T23:21:28.254887+00:00"
 }
