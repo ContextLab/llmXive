@@ -1,0 +1,11 @@
+networkx
+scikit-learn
+spacy
+sentence-transformers
+pandas
+numpy
+scipy
+pytest
+requests
+pydantic
+# Note: Run 'python -m spacy download en_core_web_sm' after installing requirements to download the default language model.

@@ -1,0 +1,7 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/raw/`, `data/processed/`,
+    `tests/unit/`, `tests/integration/`, `config/`, `output/`) is presented; the claim
+    lacks any artifact confirming the project structure exists. The implementer must
+    create and show the directory tree containing these folders.
