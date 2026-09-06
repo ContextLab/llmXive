@@ -10,4 +10,7 @@ pytrends
 reportlab
 pytest
 responses
+jsonschema
+pdfplumber
+pydantic
 python-dotenv

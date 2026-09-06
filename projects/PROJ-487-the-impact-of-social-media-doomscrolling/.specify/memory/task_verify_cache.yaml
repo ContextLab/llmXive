@@ -1,32 +1,44 @@
-T000:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file (or its contents) was provided in the evidence, so we\
-    \ cannot confirm that the required document exists, is non\u2011empty, or contains\
-    \ the filtered Technical Context and correct Summary as specified. The implementer\
-    \ must supply the actual `projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-news-volume-anxiety/research.md`\
-    \ file with the appropriate content."
-T004a:
+  r: No evidence of a `.project_init.json` file in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/`
+    was provided, nor any content shown matching the required JSON. The required marker
+    file is missing, so the task is not satisfied.
+T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `venv` directory or any activation scripts/files was provided
-    in the artifacts; the implementer did not supply proof that `python -m venv venv`
-    was executed in the specified project path. The required virtual environment is
-    missing.
-T004b:
+  r: No directory structure or `.gitkeep` files were presented as evidence; the claim
+    that `data/raw/`, `data/processed/`, and `data/reports/` (each containing a `.gitkeep`)
+    exist in the specified project path cannot be verified. The implementer must provide
+    a listing or screenshots showing the created folders and placeholder files.
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing a `venv` directory with a `bin/activate` script,\
-    \ nor any check that the file is executable. The required artifact (the virtual\
-    \ environment activation script) is missing, so the task\u2019s requirement is\
-    \ not satisfied."
-T011:
+  r: "No evidence of the required directories (`code/data/`, `code/tests/`, `code/utils/`)\
+    \ or the `__init__.py` files within them is provided. The implementer\u2019s claim\
+    \ cannot be verified because the artifacts are missing from the supplied information."
+T007a:
+  c: true
+  h: d838f12221c9a5856f636988e08d13d93267c769e6a546f7ea811f0fe9e6962f
+  r: "The provided `code/contracts/dataset.schema.yaml` file exists, is non\u2011\
+    empty, and contains a valid JSON\u2011Schema definition matching the expected\
+    \ structure. No required files are missing, and the artifact fulfills the task\u2019\
+    s specification."
+T008:
+  c: false
+  h: c679922adc013f48242269bba45094eb6e211fd72d39a040de7d467f42a47546
+  r: "The provided `validation.py` is truncated and does not show the required pre\u2011\
+    check for the presence of both schema files **and** the Pydantic models file,\
+    \ nor does it demonstrate functions that actually validate data against the two\
+    \ schemas and the models. Moreover, the Pydantic models file (`utils/models.py`\
+    \ or equivalent) is not listed among the artifacts, so the script cannot verify\
+    \ its existence. The task\u2019s core requirements are therefore not satisfied."
+T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `test_fetch_google_trends.py` file in the specified `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`\
-    \ directory was provided, nor any content showing the required mock\u2011based\
-    \ test that checks for a `ValueError` on an invalid keyword. The required test\
-    \ artifact is missing."
+  r: "No `test_fetch_gdelt.py` file was found in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`,\
+    \ nor any accompanying T015d real\u2011call verification artifact. Without these\
+    \ files the required test and its supporting verification are missing."
 T012:
   c: false
   h: 983383fcfe9357ea6c04c258c9c23644ef3e23988e1438f8c698f4c1eacd1baa
@@ -46,12 +58,13 @@ T013:
     is not fulfilled. The implementer must add the CSV\u2011writing step (or run the\
     \ script to generate the file) and ensure the file exists and contains the expected\
     \ data for the specified keywords and date range."
-T014:
+T015c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `test_fetch_error_handling.py` file was presented in the specified directory,
-    nor any code showing the required mocking of 500 errors, the `test_500_exit_code`
-    implementation, or evidence that the test was run. The essential artifact is missing.
+  r: "No script, program output, or data file was provided that calculates and prints\
+    \ the percentage of days with non\u2011null values, nor any evidence that the\
+    \ process exits with a non\u2011zero status when the percentage is below 95\u202F\
+    %. The required artifact (a runnable verification tool or its result) is missing."
 T017:
   c: false
   h: b78606058de20d14f4ad7e37a37235c1b876985bfd7a9a6cb7fca3521208d944
@@ -75,10 +88,3 @@ T031:
     for the `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` directory,
     so we cannot verify that CLI usage and environment setup steps were added as required.
     The necessary documentation artifacts are missing.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `plan.md` file (or its contents) was provided, and there is no evidence that
-    the required Governance Note was inserted into the Technical Context section of
-    the specified path. The implementer must supply the updated `plan.md` showing
-    the exact text block in the correct location.

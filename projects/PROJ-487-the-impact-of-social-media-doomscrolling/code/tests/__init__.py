@@ -1,1 +1,3 @@
-"""Test suite for the news volume anxiety study."""
+"""
+Test suite for the research pipeline.
+"""

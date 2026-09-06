@@ -1,1 +1,2 @@
-# Keep this directory for generated reports
+# This file ensures the data/reports directory is tracked by version control.
+# Analysis reports (PDF, JSON) will be placed here.

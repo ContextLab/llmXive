@@ -1,12 +1,5 @@
-0.0|coefficient correlated pearson perfectly sery uncorrelated:
-  quote: "Several types of correlation coefficient exist, each with their own definition\
-    \ and range of usability and characteristics. They all assume values in the range\
-    \ from \u22121 to +1, where \xB11 indicates the strongest possible correlation\
-    \ and 0 indicates no correlation. As tools of analysis, correlation coefficients\
-    \ present certain problems, including the propensity of some types to be distorted\
-    \ by outliers and the possibility of incorrectly being used to infer a causal\
-    \ relationship between the variables (for more, see Correlation does not imply\
-    \ causation)."
-  source_id: Correlation coefficient
-  url: https://en.wikipedia.org/wiki/Correlation_coefficient
-  value: "\xB11"
+'|check length':
+  quote: 'P4020: \mathsf{L}'
+  source_id: Q36253
+  url: https://www.wikidata.org/wiki/Q36253
+  value: '20'

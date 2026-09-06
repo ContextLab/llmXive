@@ -1,80 +1,91 @@
 import unittest
 import sys
 import os
-from unittest.mock import patch, MagicMock, call
-from utils.logging import get_logger
-from data.fetch_google_trends import fetch_google_trends
+
+# Add the parent directory to the path to allow imports from code/
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data.fetch_google_trends import validate_keywords
+
 
 class TestGoogleTrendsKeywordValidation(unittest.TestCase):
-    """
-    Unit tests for Google Trends keyword validation logic.
-    This test ensures that the fetch function correctly identifies and rejects invalid keywords.
-    """
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.logger = get_logger(__name__)
-        self.valid_keywords = ["anticipatory anxiety", "worry about future"]
-        self.invalid_keyword = "!!!!!"
-        self.mixed_keywords = ["valid keyword", "!!!!!", "another valid"]
+    """Unit tests for Google Trends keyword validation logic."""
 
     def test_invalid_keyword_validation(self):
         """
-        Test that a ValueError is raised when an invalid keyword is provided.
-        The error message must list the invalid keyword found.
+        Test that an invalid keyword (containing only special characters)
+        raises a ValueError with a message listing the invalid keyword.
         """
-        # Arrange: Prepare a list containing one invalid keyword
-        keywords_with_invalid = [self.invalid_keyword]
+        # Setup: A list containing one invalid keyword
+        invalid_keywords = ["!!!!!", "ValidKeyword", "AnotherValid"]
 
-        # Act & Assert: Expect ValueError with a message listing the invalid keyword
+        # Action & Assertion: Expect ValueError with specific message
         with self.assertRaises(ValueError) as context:
-            # We mock the actual network call to ensure we only test validation logic
-            # The validation happens before the network call in the real implementation
-            fetch_google_trends(keywords_with_invalid, start_date="2020-01-01", end_date="2023-12-31")
+            validate_keywords(invalid_keywords)
 
         # Verify the error message contains the invalid keyword
         error_message = str(context.exception)
-        self.assertIn(self.invalid_keyword, error_message,
-                      f"Error message '{error_message}' should list the invalid keyword '{self.invalid_keyword}'")
-        self.logger.info("Test passed: ValueError raised for invalid keyword '%s'", self.invalid_keyword)
+        self.assertIn("!!!!!", error_message)
+        self.assertIn("Invalid keyword", error_message)
 
-    def test_mixed_keywords_validation(self):
+    def test_all_valid_keywords(self):
         """
-        Test that a ValueError is raised when a list contains both valid and invalid keywords.
-        The error message must list the invalid keyword.
+        Test that a list of valid keywords passes validation without error.
         """
-        # Arrange
-        keywords = self.mixed_keywords
+        # Setup: A list of valid keywords
+        valid_keywords = ["anticipatory anxiety", "worry about future", "stress"]
 
-        # Act & Assert
+        # Action: Should not raise
+        try:
+            validate_keywords(valid_keywords)
+        except ValueError:
+            self.fail("validate_keywords() raised ValueError unexpectedly for valid keywords")
+
+    def test_empty_keyword_string(self):
+        """
+        Test that an empty string keyword raises a ValueError.
+        """
+        # Setup: A list containing an empty string
+        invalid_keywords = ["", "valid"]
+
+        # Action & Assertion: Expect ValueError
         with self.assertRaises(ValueError) as context:
-            fetch_google_trends(keywords, start_date="2020-01-01", end_date="2023-12-31")
+            validate_keywords(invalid_keywords)
 
-        # Verify the error message contains the invalid keyword
+        # Verify the error message indicates the empty string
         error_message = str(context.exception)
-        self.assertIn(self.invalid_keyword, error_message,
-                      f"Error message '{error_message}' should list the invalid keyword '{self.invalid_keyword}'")
-        self.logger.info("Test passed: ValueError raised for mixed keywords list containing '%s'", self.invalid_keyword)
+        self.assertIn("empty", error_message.lower())
 
-    def test_valid_keywords_no_error(self):
+    def test_keyword_with_only_whitespace(self):
         """
-        Test that valid keywords do not raise a ValueError during validation.
-        Note: This test mocks the API call to avoid network dependency.
+        Test that a keyword consisting only of whitespace raises a ValueError.
         """
-        # Arrange
-        keywords = self.valid_keywords
+        # Setup: A list containing a whitespace-only string
+        invalid_keywords = ["   ", "valid"]
 
-        # Mock the underlying API call to return a dummy response
-        # This isolates the test to the validation logic
-        with patch('data.fetch_google_trends._make_api_request') as mock_api:
-            mock_api.return_value = MagicMock()
+        # Action & Assertion: Expect ValueError
+        with self.assertRaises(ValueError) as context:
+            validate_keywords(invalid_keywords)
 
-            # Act: This should not raise ValueError
-            try:
-                fetch_google_trends(keywords, start_date="2020-01-01", end_date="2023-12-31")
-                self.logger.info("Test passed: No ValueError raised for valid keywords")
-            except ValueError:
-                self.fail("fetch_google_trends raised ValueError unexpectedly for valid keywords")
+        # Verify the error message indicates the issue
+        error_message = str(context.exception)
+        self.assertIn("whitespace", error_message.lower()) or self.assertIn("empty", error_message.lower())
+
+    def test_multiple_invalid_keywords(self):
+        """
+        Test that if multiple invalid keywords exist, the error message lists them.
+        """
+        # Setup: A list with multiple invalid keywords
+        invalid_keywords = ["!!!", "@@@@", "valid"]
+
+        # Action & Assertion: Expect ValueError
+        with self.assertRaises(ValueError) as context:
+            validate_keywords(invalid_keywords)
+
+        error_message = str(context.exception)
+        self.assertIn("!!!", error_message)
+        self.assertIn("@@@@", error_message)
+
 
 if __name__ == '__main__':
     unittest.main()

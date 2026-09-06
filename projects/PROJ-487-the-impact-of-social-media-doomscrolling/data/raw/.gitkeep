@@ -1,1 +1,2 @@
-# Keep this directory for raw data files
+# This file ensures the data/raw directory is tracked by version control.
+# Raw data files (e.g., gdelt_events.csv, google_trends.csv) will be placed here.

@@ -1,1 +1,3 @@
-"""Utility modules for the news volume anxiety study."""
+"""
+Utility functions and shared components.
+"""

@@ -1,11 +1,8 @@
 """
-Task T015b: Target Date Range Validation.
+Task T015b: Target Date Range Validation
 
 Verifies that data/raw/gdelt_events.csv and data/raw/google_trends.csv
 explicitly cover the target date range (2020-01-01 to 2023-12-31).
-
-Exits with code 0 if coverage is complete.
-Exits with code 1 if coverage is incomplete.
 """
 import os
 import sys
@@ -14,100 +11,91 @@ import pandas as pd
 from datetime import datetime
 from pathlib import Path
 
-# Project root relative to this script location
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+# Import logger from utils
+try:
+    from utils.logging import get_logger
+    logger = get_logger(__name__)
+except ImportError:
+    # Fallback if utils.logging is not available yet
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
-# Target date range as per task description
-TARGET_START = datetime(2020, 1, 1).date()
-TARGET_END = datetime(2023, 12, 31).date()
+# Configuration
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = PROJECT_ROOT / "data" / "raw"
+TARGET_START = datetime(2020, 1, 1)
+TARGET_END = datetime(2023, 12, 31)
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+FILES_TO_CHECK = [
+    "gdelt_events.csv",
+    "google_trends.csv"
+]
 
-def validate_file_date_range(file_path: Path, target_start: datetime, target_end: datetime) -> bool:
+def validate_file_date_range(file_path: Path) -> bool:
     """
     Validates that a CSV file covers the target date range.
-
-    Args:
-        file_path: Path to the CSV file.
-        target_start: Start date of the required range.
-        target_end: End date of the required range.
-
-    Returns:
-        True if the file covers the range, False otherwise.
+    Returns True if valid, False otherwise.
     """
     if not file_path.exists():
         logger.error(f"File not found: {file_path}")
         return False
 
     try:
-        # Load the CSV
         df = pd.read_csv(file_path)
-
-        # Identify the date column
-        # Assuming standard schema from T007a: 'date' column exists
-        date_col = 'date'
-        if date_col not in df.columns:
-            logger.error(f"Column '{date_col}' not found in {file_path}. Columns: {list(df.columns)}")
-            return False
-
-        # Parse dates
-        df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
-
-        # Drop rows where date parsing failed
-        valid_dates = df[df[date_col].notna()]
-
-        if valid_dates.empty:
-            logger.error(f"No valid dates found in {file_path}")
-            return False
-
-        # Get min and max dates
-        min_date = valid_dates[date_col].min().date()
-        max_date = valid_dates[date_col].max().date()
-
-        logger.info(f"File: {file_path.name}")
-        logger.info(f"  Date range found: {min_date} to {max_date}")
-        logger.info(f"  Target range:     {target_start} to {target_end}")
-
-        # Check coverage
-        covers_start = min_date <= target_start
-        covers_end = max_date >= target_end
-
-        if covers_start and covers_end:
-            logger.info(f"  Status: COVERAGE COMPLETE")
-            return True
-        else:
-            reasons = []
-            if not covers_start:
-                reasons.append(f"Missing start (found {min_date}, need <= {target_start})")
-            if not covers_end:
-                reasons.append(f"Missing end (found {max_date}, need >= {target_end})")
-            logger.error(f"  Status: COVERAGE INCOMPLETE - {', '.join(reasons)}")
-            return False
-
     except Exception as e:
-        logger.error(f"Error processing {file_path}: {e}")
+        logger.error(f"Failed to read {file_path}: {e}")
         return False
 
+    # Identify date column
+    date_col = None
+    for col in df.columns:
+        if 'date' in col.lower():
+            date_col = col
+            break
+
+    if not date_col:
+        logger.error(f"No 'date' column found in {file_path}. Columns: {list(df.columns)}")
+        return False
+
+    # Parse dates
+    try:
+        df[date_col] = pd.to_datetime(df[date_col])
+    except Exception as e:
+        logger.error(f"Failed to parse dates in {file_path}: {e}")
+        return False
+
+    min_date = df[date_col].min()
+    max_date = df[date_col].max()
+
+    logger.info(f"Checking {file_path.name}:")
+    logger.info(f"  Date range in file: {min_date.strftime('%Y-%m-%d')} to {max_date.strftime('%Y-%m-%d')}")
+    logger.info(f"  Target range:       {TARGET_START.strftime('%Y-%m-%d')} to {TARGET_END.strftime('%Y-%m-%d')}")
+
+    if min_date > TARGET_START:
+        logger.error(f"  FAIL: File starts after target start date ({min_date} > {TARGET_START})")
+        return False
+
+    if max_date < TARGET_END:
+        logger.error(f"  FAIL: File ends before target end date ({max_date} < {TARGET_END})")
+        return False
+
+    logger.info(f"  PASS: File covers the target date range.")
+    return True
+
 def main():
-    logger.info("Starting Target Date Range Validation (T015b)")
+    logger.info("Starting Target Date Range Validation (T015b)...")
+    all_valid = True
 
-    gdelt_path = DATA_RAW_DIR / "gdelt_events.csv"
-    trends_path = DATA_RAW_DIR / "google_trends.csv"
+    for filename in FILES_TO_CHECK:
+        file_path = DATA_DIR / filename
+        if not validate_file_date_range(file_path):
+            all_valid = False
 
-    gdelt_ok = validate_file_date_range(gdelt_path, TARGET_START, TARGET_END)
-    trends_ok = validate_file_date_range(trends_path, TARGET_START, TARGET_END)
-
-    if gdelt_ok and trends_ok:
-        logger.info("Validation PASSED: Both files cover the target date range.")
+    if all_valid:
+        logger.info("SUCCESS: All files cover the target date range (2020-01-01 to 2023-12-31).")
         sys.exit(0)
     else:
-        logger.error("Validation FAILED: One or more files do not cover the target date range.")
+        logger.error("FAILURE: One or more files do not cover the target date range.")
         sys.exit(1)
 
 if __name__ == "__main__":

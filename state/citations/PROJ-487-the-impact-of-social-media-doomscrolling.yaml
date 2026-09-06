@@ -1,4 +1,4 @@
-- artifact_hash: bfa098845736cbd636de1d9ac6f6d9f66cb0a7dd544d1b4ddbdbaed0e268543b
+- artifact_hash: 9e2db71bc5d789c90e48f92f001640fb01f05f1617780e6a76d5f436c88321e4
   artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,15 +8,15 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-09-05T21:49:51.101861Z'
-- artifact_hash: bfa098845736cbd636de1d9ac6f6d9f66cb0a7dd544d1b4ddbdbaed0e268543b
+  verified_at: '2026-09-06T22:45:41.153838Z'
+- artifact_hash: 9e2db71bc5d789c90e48f92f001640fb01f05f1617780e6a76d5f436c88321e4
   artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: length - Wikidata
   kind: url
-  value: http://data.gdeltproject.org/api/v2/event/count`
-  verification_status: mismatch
-  verified_against_url: https://data.gdeltproject.org/api/v2/event/count
-  verified_at: '2026-09-05T21:49:51.101861Z'
+  value: https://www.wikidata.org/wiki/Q36253
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q36253
+  verified_at: '2026-09-06T22:45:41.153838Z'
