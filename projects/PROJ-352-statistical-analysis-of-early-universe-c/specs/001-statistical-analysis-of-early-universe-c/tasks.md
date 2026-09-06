@@ -68,7 +68,7 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download Planck 2015/2018 SMICA CMB temperature map at Nside=128, validate integrity, apply Galactic mask, and verify pixel counts.
+**Goal**: Download Planck 2015/2018 SMICA CMB temperature map at Nside=128 [UNRESOLVED-CLAIM: c_756b72f7 — status=not_enough_info], validate integrity, apply Galactic mask, and verify pixel counts.
 
 **Independent Test**: Can be fully tested by downloading a single Planck map, applying the Galactic mask, and verifying pixel counts and coverage.
 
@@ -85,7 +85,7 @@
 - [X] T013 [US1] Implement `code/download.py`: Validate file integrity via MD5/SHA checksums against known Planck values <!-- FAILED: unspecified -->
 - [X] T014 [US1] Implement `code/mask.py`: Load a Galactic mask (or equivalent) and apply to CMB map
 - [X] T015 [US1] Implement `code/mask.py`: Apply a pixel buffer zone as PRIMARY method per Spec Edge Cases by setting pixels within N=2 of mask edge to 0. Algorithm: For each pixel, if distance to nearest masked pixel <= 2, set value to 0.
-- [ ] T015b [US1] Implement `code/mask.py`: Apply Schmalzing & Gorski (1998) analytical correction as SECONDARY verification step; compare T015 output against analytical expectations and log comparison
+- [ ] T015b [US1] Implement `code/mask.py`: Apply Schmalzing & Gorski (1998) analytical correction [UNRESOLVED-CLAIM: c_98086935 — status=not_enough_info] as SECONDARY verification step; compare T015 output against analytical expectations and log comparison
 - [ ] T016 [US1] {{claim:c_8f22d433}} (FR-002) using formula: `sky_coverage = valid_pixels / (12 * 128^2)`. Save verification result to `data/processed/coverage_report.json`
 - [ ] T017 [US1] Compute basic statistics (mean, std) on masked map to ensure physical plausibility and Save mean/std to `data/processed/map_stats.json`
 - [ ] T018 [US1] Save masked map to `data/processed/masked_cmb_n128.fits`
@@ -111,7 +111,7 @@
 - [ ] T022 [US2] Implement `code/minkowski.py`: Apply Schmalzing & Gorski mask correction to MF results
 - [ ] T023 [US2] Compute functionals at thresholds {±0.5σ, ±1σ, 0σ}
 - [ ] T024a [US2] Generate theoretical genus curve for Gaussian Random Field using analytic formula (e.g., Schmalzing & Barreiro) based on input power spectrum and save to `data/processed/theoretical_genus_curve.json`
-- [ ] T024 [US2] Verify numerical precision (≥6 decimal places) and reproducibility (±0.001% tolerance) using synthetic Gaussian map (seed=42). Assertion logic: `assert abs(val1 - val2) / val1 < 0.00001` in `tests/test_minkowski.py::test_precision_tolerance`
+- [ ] T024 [US2] Verify numerical precision (≥6 decimal places) and reproducibility (±0.001% tolerance) using synthetic Gaussian map (seed=42) [UNRESOLVED-CLAIM: c_734c9c4a — status=not_enough_info]. Assertion logic: `assert abs(val1 - val2) / val1 < 0.00001` in `tests/test_minkowski.py::test_precision_tolerance`
 - [ ] T024c [US2] Compute RMS deviation between observed MFs (from T025) and theoretical genus curve (from T024a). This measures physics deviation (signal vs null hypothesis). Target: ≤1% (SC-002). Save report to `data/processed/computation_accuracy_report.json`
 - [ ] T025 [US2] Save MF results to `data/processed/minkowski_functionals_observed.json`
 - [ ] T025d [US2] Validate computation accuracy: Generate synthetic Gaussian map (seed=42), compute MFs, calculate RMS deviation against analytic genus curve (from T024a); verify target ≤1% (SC-002). Save report to `data/processed/computation_accuracy_report.json`
@@ -133,10 +133,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `code/simulate.py`: Load theoretical LCDM power spectrum (Planck 2018 TT, TE, EE)
+- [ ] T028 [US3] Implement `code/simulate.py`: Load theoretical LCDM power spectrum (Planck 2018 TT, TE, EE) [UNRESOLVED-CLAIM: c_4cdfabca — status=not_enough_info]
 - [ ] T029 [US3] Implement `code/simulate.py`: Load Planck beam transfer function and SMICA noise covariance maps
-- [ ] T030 [US3] Implement `code/simulate.py`: Generate N=500 Gaussian random field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (σ²=1.1 μK²)
-- [ ] T030b [US3] Implement `code/simulate.py`: Verify total runtime for N=1000 (500 Gaussian + 500 String) < 6h on GitHub Actions free-tier. Abort if exceeded.
+- [ ] T030 [US3] Implement `code/simulate.py`: Generate N=500 Gaussian random field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (σ²=1.1 μK²) [UNRESOLVED-CLAIM: c_a45f6a51 — status=not_enough_info]
+- [ ] T030b [US3] Implement `code/simulate.py`: Verify total runtime for N=1000 (500 Gaussian + 500 String) < 6h on GitHub Actions free-tier [UNRESOLVED-CLAIM: c_881dc769 — status=not_enough_info]. Abort if exceeded.
 - [ ] T031 [US3] Implement `code/simulate.py`: Process simulations in batches (Generate -> Compute MF -> Discard Map) to stay under available RAM constraints.
 - [ ] T032 [US3] Compute Minkowski Functionals for each simulation using `code/minkowski.py`
 - [ ] T036 [US3] Implement `code/simulate.py`: {{claim:c_1feb14ee}} and compute their MFs to build the H1 distribution

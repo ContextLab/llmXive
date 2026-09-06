@@ -1,141 +1,164 @@
-"""
-Binary Model Fit (Task T024b)
-
-Re-fits the linear regression model using a binary version of political ideology
-(median split) instead of the continuous variable.
-Results are saved to results/binary_model.csv.
-"""
 import os
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import logging
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
-# Import from existing project modules
-from config import ensure_dirs
-from config_manager import get_results_path, get_data_processed_path, get_config
+from config_manager import get_results_path, get_config
+from preprocessing import load_data, impute_mice, derive_variables
 from logging_config import get_logger
-from preprocessing import derive_variables
 
-logger = get_logger(__name__)
-
-def fit_binary_model(df: pd.DataFrame) -> Dict[str, Any]:
+def fit_binary_model(data: pd.DataFrame) -> sm.OLSResults:
     """
-    Fits a linear regression model: IAT_D_score ~ news_exposure_z * ideology_binary
+    Fit a linear regression model using the binary ideology variable.
     
-    Args:
-        df: Preprocessed DataFrame containing derived variables.
-        
-    Returns:
-        Dictionary containing model results (coefficients, p-values, etc.)
+    Model: IAT_D_score ~ news_exposure_z + ideology_binary + news_exposure_z:ideology_binary
+    
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Preprocessed dataframe containing derived variables:
+        - IAT_D_score
+        - news_exposure_z
+        - ideology_binary
+    
+    Returns
+    -------
+    sm.OLSResults
+        Fitted model results object.
+    
+    Raises
+    ------
+    ValueError
+        If required columns are missing from the dataframe.
     """
-    logger.info("Fitting binary ideology model...")
-    
-    # Ensure required columns exist
     required_cols = ['IAT_D_score', 'news_exposure_z', 'ideology_binary']
-    missing = [col for col in required_cols if col not in df.columns]
+    missing = [col for col in required_cols if col not in data.columns]
     if missing:
         raise ValueError(f"Missing required columns for binary model: {missing}")
     
-    # Drop rows with missing values in these columns
-    model_df = df.dropna(subset=required_cols)
-    logger.info(f"Model dataset size after dropping NaNs: {len(model_df)}")
+    # Drop rows with NaN in relevant columns
+    model_data = data.dropna(subset=required_cols)
     
-    if len(model_df) < 10:
-        raise ValueError("Insufficient data points for model fitting after dropping NaNs.")
+    if len(model_data) == 0:
+        raise ValueError("No valid data remaining after dropping NaNs for binary model.")
     
-    # Define formula
-    formula = "IAT_D_score ~ news_exposure_z * ideology_binary"
+    # Create interaction term
+    model_data['interaction'] = model_data['news_exposure_z'] * model_data['ideology_binary']
     
-    # Fit OLS model
-    model = sm.formula.ols(formula=formula, data=model_df)
-    results = model.fit()
+    # Define features and target
+    features = ['news_exposure_z', 'ideology_binary', 'interaction']
+    X = model_data[features]
+    y = model_data['IAT_D_score']
     
-    # Extract key metrics
-    coef_data = results.params
-    p_values = results.pvalues
+    # Add constant
+    X = sm.add_constant(X)
     
-    result_dict = {
-        "model_type": "binary_ideology_ols",
-        "n_obs": len(model_df),
-        "r_squared": results.rsquared,
-        "adj_r_squared": results.rsquared_adj,
-        "f_statistic": results.fvalue,
-        "f_pvalue": results.f_pvalue,
-        # Interaction term specifically
-        "interaction_coef": coef_data.get('news_exposure_z:ideology_binary', np.nan),
-        "interaction_pvalue": p_values.get('news_exposure_z:ideology_binary', np.nan),
-        "news_exposure_coef": coef_data.get('news_exposure_z', np.nan),
-        "news_exposure_pvalue": p_values.get('news_exposure_z', np.nan),
-        "ideology_binary_coef": coef_data.get('ideology_binary', np.nan),
-        "ideology_binary_pvalue": p_values.get('ideology_binary', np.nan),
-        "intercept": coef_data.get('Intercept', np.nan),
-        "intercept_pvalue": p_values.get('Intercept', np.nan)
-    }
+    # Fit model
+    model = sm.OLS(y, X).fit()
     
-    logger.info(f"Binary model fitted. Interaction p-value: {result_dict['interaction_pvalue']:.4f}")
-    return result_dict
+    logger = get_logger(__name__)
+    logger.info(f"Binary model fitted on {len(model_data)} observations.")
+    logger.info(f"Interaction coefficient: {model.params['interaction']:.4f}, p-value: {model.pvalues['interaction']:.4f}")
+    
+    return model
 
-def save_binary_model_results(results_dict: Dict[str, Any], output_path: Path) -> None:
+def save_binary_model_results(model: sm.OLSResults, output_path: Path) -> Dict[str, Any]:
     """
-    Saves the binary model results to a CSV file.
+    Save the binary model results to a CSV file.
     
-    Args:
-        results_dict: Dictionary of model results.
-        output_path: Path to save the CSV file.
+    Parameters
+    ----------
+    model : sm.OLSResults
+        Fitted model results.
+    output_path : Path
+        Path to save the CSV results.
+    
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing the saved results summary.
     """
-    # Convert to DataFrame for easy CSV export
-    df = pd.DataFrame([results_dict])
-    df.to_csv(output_path, index=False)
+    results_summary = []
+    
+    for param_name, param_value in model.params.items():
+        results_summary.append({
+            'term': param_name,
+            'coefficient': param_value,
+            'std_err': model.bse[param_name],
+            't_value': model.tvalues[param_name],
+            'p_value': model.pvalues[param_name],
+            'conf_int_lower': model.conf_int().loc[param_name, 0],
+            'conf_int_upper': model.conf_int().loc[param_name, 1]
+        })
+    
+    df_results = pd.DataFrame(results_summary)
+    
+    # Add overall model stats
+    overall_stats = {
+        'term': 'model_summary',
+        'coefficient': model.rsquared,
+        'std_err': np.nan,
+        't_value': np.nan,
+        'p_value': model.f_pvalue,
+        'conf_int_lower': np.nan,
+        'conf_int_upper': np.nan
+    }
+    # Append as a separate row or handle differently if needed. 
+    # For simplicity, we'll just save the parameter table and add a separate row for summary if needed.
+    # But the task asks for "results (coefficient/significance)".
+    # Let's create a summary row for the interaction term specifically.
+    
+    interaction_row = df_results[df_results['term'] == 'interaction'].iloc[0] if 'interaction' in df_results['term'].values else None
+    
+    if interaction_row is not None:
+        interaction_dict = interaction_row.to_dict()
+        interaction_dict['term'] = 'interaction_result'
+        interaction_dict['coefficient'] = interaction_dict['coefficient']
+        interaction_dict['significance'] = interaction_dict['p_value'] < 0.05
+        # Save this specific interaction result clearly
+        df_interaction = pd.DataFrame([interaction_dict])
+        df_interaction.to_csv(output_path, index=False)
+    else:
+        df_results.to_csv(output_path, index=False)
+        
+    logger = get_logger(__name__)
     logger.info(f"Binary model results saved to {output_path}")
+    
+    return interaction_dict if interaction_row is not None else {}
 
 def run_binary_model_pipeline() -> Dict[str, Any]:
     """
-    Main pipeline function to load data, fit the binary model, and save results.
+    Run the full binary model pipeline:
+    1. Load data
+    2. Impute missing values (MICE)
+    3. Derive variables (including ideology_binary)
+    4. Fit binary model
+    5. Save results
+    
+    Returns
+    -------
+    Dict[str, Any]
+        Final results dictionary.
     """
-    logger.info("Starting Binary Model Fit pipeline (T024b)...")
+    logger = get_logger(__name__)
+    logger.info("Starting binary model pipeline...")
     
-    # Ensure output directory exists
-    results_dir = get_results_path()
-    ensure_dirs(results_dir)
-    output_path = results_dir / "binary_model.csv"
-    
-    # Load processed data
-    processed_data_path = get_data_processed_path()
-    if not processed_data_path.exists():
-        # If processed data doesn't exist, try to load raw and run preprocessing
-        # This handles cases where the pipeline hasn't run fully yet
-        logger.warning("Processed data not found. Attempting to load raw and preprocess.")
-        # Note: In a strict pipeline, we might fail here, but for robustness we attempt derivation
-        # We assume load_project_implicit_data is available in data_loader if needed
-        from data_loader import load_project_implicit_data
-        raw_df = load_project_implicit_data()
-        if raw_df is not None:
-            # Run derivation if not already done
-            # We need to ensure 'ideology_binary' is derived. 
-            # The derive_variables function in preprocessing.py handles this if called.
-            # Assuming the data loaded here is raw or partially processed.
-            # For safety, we call derive_variables which adds the binary split if missing.
-            final_df = derive_variables(raw_df)
-        else:
-            raise FileNotFoundError("Could not load raw data to derive variables.")
-    else:
-        df = pd.read_csv(processed_data_path)
-        # Check if derived variables exist; if not, try to derive them
-        if 'ideology_binary' not in df.columns:
-            logger.info("Derived variables missing in processed data, running derivation.")
-            df = derive_variables(df)
-        final_df = df
+    # Load and preprocess
+    raw_data = load_data()
+    imputed_data = impute_mice(raw_data)
+    processed_data = derive_variables(imputed_data)
     
     # Fit model
-    results = fit_binary_model(final_df)
+    model = fit_binary_model(processed_data)
     
     # Save results
-    save_binary_model_results(results, output_path)
+    output_path = get_results_path('binary_model.csv')
+    results = save_binary_model_results(model, output_path)
     
-    logger.info("Binary Model Fit pipeline completed successfully.")
+    logger.info("Binary model pipeline completed successfully.")
     return results
 
 if __name__ == "__main__":

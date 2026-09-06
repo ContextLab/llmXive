@@ -2506,3 +2506,186 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-01T16:28:41Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: 500 Gaussian random field realizations with FWHM=5.0 arcmin and noise
+    sigma squared=1.1 micro Kelvin squared
+  claim_id: c_a45f6a51
+  context: "Phase 5, User Story 3 Implementation: T030 [US3] Implement code/simulate.py:\
+    \ Generate N=500 Gaussian random field realizations with beam smoothing (FWHM=5.0\
+    \ arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate N=500 Gaussian random field realizations with beam smoothing\
+    \ (FWHM=5.0 arcmin) and noise (\u03C3\xB2=1.1 \u03BCK\xB2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:35:18Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: 1000 simulation runtime less than 6 hours on GitHub Actions free-tier
+  claim_id: c_881dc769
+  context: 'Phase 5, User Story 3 Implementation: T030b [US3] Implement code/simulate.py:
+    Verify total runtime for N=1000 (500 Gaussian + 500 String) < 6h on GitHub Actions
+    free-tier. Abort if exceeded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/1000_simulation_runtime_less_than_6_hours_on_GitHub_Actions
+  kind: magnitude
+  raw_text: Verify total runtime for N=1000 (500 Gaussian + 500 String) < 6h on GitHub
+    Actions free-tier
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:35:41Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Planck 2015/2018 SMICA CMB temperature map Nside=128
+  claim_id: c_756b72f7
+  context: 'Phase 3, User Story 1 Goal: Download Planck 2015/2018 SMICA CMB temperature
+    map at Nside=128, validate integrity, apply Galactic mask, and verify pixel counts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download Planck 2015/2018 SMICA CMB temperature map at Nside=128
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:37:44Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: COM_CMB_ILM-NR1-000_R2.01.fits file from Planck Legacy Archive
+  claim_id: c_44e478b0
+  context: 'Phase 3, User Story 1 Implementation: T012 [US1] Implement code/download.py:
+    Fetch COM_CMB_ILM-NR1-000_R2.01.fits (SMICA Nside=128) from Planck Legacy Archive
+    with retry logic'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch COM_CMB_ILM-NR1-000_R2.01.fits (SMICA Nside=128) from Planck Legacy
+    Archive
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:39:04Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: 2 pixel buffer zone for mask edge handling
+  claim_id: c_7e0cdc67
+  context: 'Phase 3, User Story 1 Implementation: T015 [US1] Implement code/mask.py:
+    Apply a pixel buffer zone as PRIMARY method per Spec Edge Cases by setting pixels
+    within N=2 of mask edge to 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a pixel buffer zone by setting pixels within N=2 of mask edge to
+    0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:39:36Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Minkowski Functionals computed at thresholds plus minus 0.5 sigma, plus
+    minus 1 sigma, and 0 sigma
+  claim_id: c_c65cb636
+  context: "Phase 4, User Story 2 Goal: Compute all three Minkowski Functionals (area,\
+    \ perimeter, genus) on the masked CMB map at thresholds {\xB10.5\u03C3, \xB11\u03C3\
+    , 0\u03C3} with mask-corrected estimators."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute Minkowski Functionals at thresholds {\xB10.5\u03C3, \xB11\u03C3\
+    , 0\u03C3}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:39:59Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Numerical precision 6 decimal places and reproducibility 0.001 percent
+    tolerance with seed 42
+  claim_id: c_734c9c4a
+  context: "Phase 4, User Story 2 Implementation: T024 [US2] Verify numerical precision\
+    \ (\u22656 decimal places) and reproducibility (\xB10.001% tolerance) using synthetic\
+    \ Gaussian map (seed=42)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify numerical precision (\u22656 decimal places) and reproducibility\
+    \ (\xB10.001% tolerance) using synthetic Gaussian map (seed=42)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:40:25Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: RMS deviation between observed Minkowski Functionals and theoretical
+    genus curve target less than or equal to 1 percent
+  claim_id: c_b5196e0e
+  context: "Phase 4, User Story 2 Implementation: T024c [US2] Compute RMS deviation\
+    \ between observed MFs (from T025) and theoretical genus curve (from T024a). This\
+    \ measures physics deviation (signal vs null hypothesis). Target: \u22641% (SC-002)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMS_deviation_between_observed_Minkowski_Functionals_and_the
+  kind: magnitude
+  raw_text: "Compute RMS deviation between observed MFs and theoretical genus curve\
+    \ with target \u22641%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:41:04Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Planck 2018 TT TE EE power spectrum
+  claim_id: c_4cdfabca
+  context: 'Phase 5, User Story 3 Implementation: T028 [US3] Implement code/simulate.py:
+    Load theoretical LCDM power spectrum (Planck 2018 TT, TE, EE)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load theoretical LCDM power spectrum (Planck 2018 TT, TE, EE)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:42:20Z'
+- artifact_path: projects/PROJ-352-statistical-analysis-of-early-universe-c/specs/001-statistical-analysis-of-early-universe-c/tasks.md
+  attempts: 1
+  canonical: Schmalzing and Gorski 1998 analytical correction
+  claim_id: c_98086935
+  context: 'Phase 3, User Story 1 Implementation: T015b [US1] Implement code/mask.py:
+    Apply Schmalzing & Gorski (1998) analytical correction as SECONDARY verification
+    step'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Schmalzing & Gorski (1998) analytical correction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T21:44:43Z'

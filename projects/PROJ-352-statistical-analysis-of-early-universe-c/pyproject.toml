@@ -1,23 +1,17 @@
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py38', 'py39', 'py310']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
   | _build
   | buck-out
   | build
   | dist
 )/
 '''
-
-[tool.pylint.messages_control]
-disable = [
-    "C0111",  # missing-docstring
-    "R0903",  # too-few-public-methods
-]

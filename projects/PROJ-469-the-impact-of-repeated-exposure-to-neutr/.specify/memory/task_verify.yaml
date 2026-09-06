@@ -1,4 +1,11 @@
-? T007 Create `contracts/dataset.schema.yaml` defining columns `IAT_D_score`, `political_ideology`,
-  `news_exposure_freq` and validation logic
-: 2
-T008 Configure error handling and logging infrastructure in `code/` (logging to `logs/` and console): 1
+T007: 1
+T008: 1
+T014: 1
+T017a: 1
+T017b: 1
+T022: 1
+T024b: 1
+T026: 1
+T029: 1
+T030: 1
+T038: 1

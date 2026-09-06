@@ -1,0 +1,41 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a logging configuration or error\u2011handling code was provided\
+    \ in the `code/` directory, nor is there a `logs/` folder or any script that sets\
+    \ up console logging. The required artifact (logging infrastructure) is missing,\
+    \ so the task is not satisfied."
+T014:
+  c: false
+  h: 2ac8274479677becf09687ac24ce30da0b98d856463092176f0640e73c7ddac7
+  r: "The `code/preprocessing.py` file only contains placeholder functions that raise\
+    \ `NotImplementedError`, so MICE imputation, missingness\u2011rate checking, logging,\
+    \ and CSV output are not implemented. Additionally, the required output file `data/processed/imputed_data.csv`\
+    \ does not exist. The task requirements are therefore not met."
+T017a:
+  c: false
+  h: a4021f1409c53fb227ba8784727c956ed3ccdb2afb6d04b48d109db58416c6cd
+  r: "The `code/power.py` file is truncated, contains syntax errors (`required_n =\
+    \ fi`) and does not implement writing the required `results/power_design.csv`.\
+    \ Moreover, the `results/power_design.csv` file is absent. The task\u2019s deliverables\
+    \ are therefore not present or functional."
+T022:
+  c: false
+  h: c27139df1ef38c91b1793071bbfc7233b15095c7139dbdf1c65a08714c60f8b1
+  r: "The provided `code/robustness.py` snippet ends during the bootstrap function\
+    \ and shows no implementation of an alpha\u2011sweep routine that evaluates significance\
+    \ at 0.01, 0.05, and 0.10 and writes a CSV. Moreover, the required output file\
+    \ `results/alpha_sweep.csv` is absent from the repository. Both the functional\
+    \ artifact and its result file are missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `model_summary.csv` or `diagnostics.csv` files are present in the provided
+    evidence, and no content for these summary tables is shown. The required CSV artifacts
+    are missing, so the task is not satisfied.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, figures, or report files implementing the interaction plot or bootstrap
+    distribution using seaborn/matplotlib were presented. Consequently, the required
+    plotting functions and their embedding in the report are missing.

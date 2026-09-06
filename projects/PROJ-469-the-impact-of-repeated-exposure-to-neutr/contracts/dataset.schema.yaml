@@ -1,84 +1,103 @@
+name: project_implicit_political_iat
+description: >-
+  Schema for the Project Implicit Political IAT dataset used in the study
+  "The Impact of Self-Reported Political News Exposure on Implicit Political Bias".
+  Defines required columns, data types, and validation logic for data ingestion.
 version: "1.0.0"
-description: >
-  Schema for the Project Implicit Political IAT dataset.
-  Defines required columns, data types, and validation logic
-  to ensure data integrity before analysis.
-source: "Project Implicit"
-last_updated: "2023-10-27"
 
 columns:
   - name: IAT_D_score
     type: float
-    description: >
+    description: >-
       The D-score measure of implicit bias from the Implicit Association Test.
-      Positive values indicate bias toward the first category, negative toward the second.
+      Positive values indicate faster association of the first category with the
+      first attribute (e.g., Liberal+Good), negative values indicate the reverse.
+      Calculated using the improved D-algorithm.
     validation:
       - min: -4.0
         max: 4.0
-        message: "IAT_D_score must be between -4.0 and 4.0."
+        message: "IAT_D_score must be within the plausible range [-4.0, 4.0]."
       - not_null: true
         message: "IAT_D_score cannot be null."
 
   - name: political_ideology
     type: float
-    description: >
-      Self-reported political ideology score.
-      Typically a continuous scale (e.g., 1-7) where lower values indicate liberal and higher conservative.
+    description: >-
+      Self-reported political ideology on a continuous scale (typically 1-7).
+      1 = Very Liberal, 7 = Very Conservative. Used as a continuous predictor
+      in the primary interaction model.
     validation:
       - min: 1.0
         max: 7.0
-        message: "political_ideology must be between 1.0 and 7.0."
+        message: "political_ideology must be within the scale range [1.0, 7.0]."
       - not_null: true
         message: "political_ideology cannot be null."
 
   - name: news_exposure_freq
     type: float
-    description: >
-      Frequency of exposure to political news.
-      Self-reported frequency score (e.g., 1-5 or 1-7 scale).
+    description: >-
+      Frequency of political news exposure (self-reported).
+      Typically measured on a Likert scale (e.g., 1 = Never, 5 = Daily).
+      Used as the primary exposure variable.
     validation:
       - min: 1.0
         max: 7.0
-        message: "news_exposure_freq must be between 1.0 and 7.0."
+        message: "news_exposure_freq must be within the plausible scale range [1.0, 7.0]."
       - not_null: true
         message: "news_exposure_freq cannot be null."
 
-optional_columns:
+  # Optional covariates often present in the raw data, validated if present
   - name: age
     type: float
     description: "Participant age in years."
+    validation:
+      - min: 18.0
+        max: 120.0
+        message: "age must be between 18 and 120."
+      - not_null: false # Optional in primary analysis, but if present must be valid
+
   - name: gender
     type: string
-    description: "Participant gender."
+    description: "Self-reported gender."
+    validation:
+      - allowed_values: ["Male", "Female", "Non-binary", "Prefer not to say", "Other"]
+        message: "gender must be one of the allowed categories."
+
   - name: education
-    type: float
-    description: "Education level code."
+    type: string
+    description: "Highest level of education completed."
+    validation:
+      - allowed_values: ["High School", "Some College", "Bachelor's Degree", "Master's Degree", "Doctorate", "Professional Degree"]
+        message: "education must be one of the allowed categories."
 
 validation_logic:
-  - name: check_core_columns
-    description: >
-      Ensures that all core columns defined in 'columns' are present in the dataset.
-      Raises ValueError if any are missing.
-    implementation: >
-      required = {col['name'] for col in columns if col.get('not_null')}
-      missing = required - set(df.columns)
-      if missing:
-          raise ValueError(f"Missing required columns: {missing}")
-  - name: check_value_ranges
-    description: >
-      Validates that numeric columns fall within their specified min/max ranges.
-      Rows with out-of-range values are flagged or dropped depending on strictness.
-    implementation: >
-      for col_def in columns:
-          col_name = col_def['name']
-          if col_name in df.columns:
-              min_val = col_def['validation'][0]['min']
-              max_val = col_def['validation'][0]['max']
-              invalid = df[(df[col_name] < min_val) | (df[col_name] > max_val)]
-              if not invalid.empty:
-                  # Log warning or raise error based on configuration
-                  pass
-notes: >
-  This schema is used by code/data_loader.py to validate the raw dataset
-  immediately after fetching or loading. It ensures that the downstream
-  analysis (T013-T018) operates on data with the expected structure.
+  description: >-
+    Rules to be applied when loading data to ensure integrity before analysis.
+  steps:
+    - name: check_required_columns
+      description: "Verify all columns marked 'required' in the analysis plan exist."
+      columns: ["IAT_D_score", "political_ideology", "news_exposure_freq"]
+      action: "raise ValueError"
+
+    - name: validate_ranges
+      description: "Ensure numeric columns fall within their defined min/max bounds."
+      action: "raise ValueError"
+
+    - name: check_missingness
+      description: >-
+        Calculate missingness rate for each required column.
+        If any required column has > 50% missing values, halt processing.
+        (Imputation will handle lower rates of missingness).
+      threshold: 0.50
+      action: "raise ValueError"
+
+    - name: type_coercion
+      description: "Ensure all numeric columns are cast to float64."
+      action: "warn and coerce"
+
+meta:
+  source: "Project Implicit Research Data"
+  license: "CC BY-NC-SA 4.0"
+  citation: >-
+    Nosek, B. A., et al. (2002). Project Implicit: The Implicit Association Test.
+    Retrieved from https://implicit.harvard.edu/implicit/
