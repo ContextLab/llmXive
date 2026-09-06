@@ -7,3 +7,18 @@ T030:
     \ computes the reduction percentage, or writes `data/processed/latency_metrics.json`.\
     \ Moreover, the expected output file `data/processed/latency_metrics.json` does\
     \ not exist. The task\u2019s core requirements are therefore unmet."
+T039:
+  c: false
+  h: 3c5f73fdb78700407871ba10dd95a149a3e4b859cc328ce8ea5e7dd2e201bf57
+  r: "The required `docs/reports/001-llmxive-mipu-gap-bounds_viz.md` file is missing,\
+    \ and the provided `generate_visualization_report.py` script is truncated and\
+    \ does not contain the full logic to produce the markdown report and embed the\
+    \ three specified plots. The task\u2019s core deliverable (the visualization report)\
+    \ has not been generated."
+T042:
+  c: false
+  h: d77d538e26302e51ae0c0edf8831840fbe5ca5a6fe6d018d4e82b50cd4781bae
+  r: The `verify_model_robustness.py` script is present but truncated and does not
+    show the full implementation of the sensitivity analysis or the JSON logging step.
+    Moreover, the required output file `data/processed/model_robustness.json` is missing
+    from the repository. The task is therefore not fully satisfied.
