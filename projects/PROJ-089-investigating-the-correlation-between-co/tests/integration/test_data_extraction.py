@@ -1,107 +1,71 @@
 """
 Integration tests for data extraction module.
-
-These tests verify that:
-1. GitHub API queries return valid data.
-2. Repository cloning works.
-3. Git metrics extraction produces expected fields.
+Tests T010: Query GitHub API and filter repos.
 """
 import pytest
 import os
-import tempfile
 from pathlib import Path
-import csv
+from unittest.mock import patch, MagicMock
+import pandas as pd
 
-# We need to mock the network calls for a pure unit test, 
-# but for integration we might want to run a small subset if credentials exist.
-# Given the constraints, we will test the logic flow and structure.
+from code.data_extraction import query_github_repos, save_repos_metadata
 
-# Mocking requests and pydriller for pure logic testing without network
-from unittest.mock import patch, MagicMock, mock_open
-import requests
-
-# Import the module
-import code.data_extraction as de
-from code.config import ensure_directories
-
-
-class TestDataExtraction:
-    
-    @patch('code.data_extraction.requests.get')
-    def test_query_github_repos(self, mock_get):
-        """Test that query_github_repos returns expected structure."""
-        # Mock response
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "items": [
-                {
-                    "name": "test-repo",
-                    "full_name": "owner/test-repo",
-                    "html_url": "https://github.com/owner/test-repo",
-                    "stargazers_count": 1000,
-                    "language": "Python",
-                    "created_at": "2020-01-01T00:00:00Z",
-                    "clone_url": "https://github.com/owner/test-repo.git",
-                    "fork": False
-                }
-            ]
-        }
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
-        
-        repos = de.query_github_repos(min_stars=100, min_age_years=1, languages=["Python"], max_results=1)
-        
-        assert len(repos) == 1
-        assert repos[0]["name"] == "test-repo"
-        assert repos[0]["stargazers_count"] == 1000
-        assert repos[0]["language"] == "Python"
-        
-    @patch('code.data_extraction.subprocess.run')
-    def test_clone_repository(self, mock_run):
-        """Test repository cloning logic."""
-        mock_run.return_value = MagicMock(check_returncode=0)
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            target = Path(tmpdir) / "test-repo"
-            # Mock the directory existence check
-            with patch.object(Path, 'exists', return_value=False):
-                result = de.clone_repository("https://github.com/test/repo.git", target)
-                
-            # subprocess.run should have been called
-            assert mock_run.called
-            # Note: actual success depends on git command, we mock the call
-            # In a real integration test with network, this would be True
-            
-    def test_aggregate_file_metrics(self):
-        """Test aggregation of file metrics."""
-        metrics = [
-            {"file_path": "a.py", "total_lines_changed": 10, "commit_count": 2, "contributor_count": 1},
-            {"file_path": "b.py", "total_lines_changed": 5, "commit_count": 1, "contributor_count": 1}
+@pytest.fixture
+def mock_github_response():
+    """Mock GitHub API response."""
+    return {
+        "items": [
+            {
+                "id": 12345,
+                "full_name": "test/repo1",
+                "html_url": "https://github.com/test/repo1",
+                "stargazers_count": 6000,
+                "language": "Python",
+                "created_at": "2020-01-01T00:00:00Z",
+                "default_branch": "main"
+            },
+            {
+                "id": 67890,
+                "full_name": "test/repo2",
+                "html_url": "https://github.com/test/repo2",
+                "stargazers_count": 10000,
+                "language": "Java",
+                "created_at": "2019-05-15T00:00:00Z",
+                "default_branch": "master"
+            }
         ]
-        
-        result = de.aggregate_file_metrics(metrics, "test/repo")
-        
-        assert len(result) == 2
-        assert result[0]["repo_name"] == "test/repo"
-        assert result[1]["repo_name"] == "test/repo"
-        
-    @patch('code.data_extraction.save_repos_metadata')
-    def test_run_data_extraction_flow(self, mock_save):
-        """Test the high-level flow of run_data_extraction."""
-        with patch.object(de, 'query_github_repos') as mock_query, \
-             patch.object(de, 'process_single_repo') as mock_process, \
-             patch.object(de, 'Path') as MockPath:
-             
-            mock_query.return_value = [{"full_name": "test/repo", "clone_url": "url"}]
-            mock_process.return_value = [{"repo_name": "test/repo", "file_path": "a.py"}]
-            
-            MockPath.return_value.mkdir = MagicMock()
-            
-            result = de.run_data_extraction(max_repos=1)
-            
-            assert len(result) == 1
-            assert mock_query.called
-            assert mock_process.called
+    }
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_query_github_repos_filters(mock_github_response):
+    """Test that query_github_repos correctly filters by stars and age."""
+    with patch('code.data_extraction.requests.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = mock_github_response
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        repos = query_github_repos(min_stars=500, min_age_years=2, max_results=10)
+
+        assert len(repos) == 2
+        assert repos[0]["stargazers_count"] >= 500
+        assert repos[1]["stargazers_count"] >= 500
+        # Check that repo_id is present
+        assert "repo_id" in repos[0]
+        assert "repo_id" in repos[1]
+
+def test_save_repos_metadata_creates_file(tmp_path):
+    """Test that save_repos_metadata creates a valid CSV."""
+    repos = [
+        {"repo_id": "1", "full_name": "a/b", "html_url": "url", "stargazers_count": 1000, "language": "Py", "created_at": "2020", "default_branch": "main"}
+    ]
+    output_path = tmp_path / "test_repos.csv"
+    
+    save_repos_metadata(repos, output_path)
+    
+    assert output_path.exists()
+    df = pd.read_csv(output_path)
+    assert len(df) == 1
+    assert df.iloc[0]["repo_id"] == "1"
+    assert df.iloc[0]["full_name"] == "a/b"
+    assert "total_lines_changed" not in df.columns # Metadata only
+    assert "stargazers_count" in df.columns

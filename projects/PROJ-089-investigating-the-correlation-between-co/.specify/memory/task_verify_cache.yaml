@@ -1,3 +1,49 @@
+T007a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.py` file with the required function stubs (`run_extraction()`, `run_analysis()`,\
+    \ `run_reporting()`, `main()`) is provided in the evidence; without the actual\
+    \ file we cannot verify its existence or content. The implementer must supply\
+    \ a non\u2011empty `main.py` containing only the import statements and empty function\
+    \ definitions as specified."
+T007b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.py` file or its contents are provided, so we cannot verify that error\
+    \ handling, a 6\u2011hour timeout, and pipeline orchestration are implemented\
+    \ or that it runs on mock data and logs timeouts. The required artifact is missing."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data_extraction.py` script or a populated `data/raw/git_history/`\
+    \ directory is provided; without these artifacts we cannot confirm that repositories\
+    \ were cloned and per\u2011file commit/line\u2011change data were extracted as\
+    \ required. The implementer must supply the script and the resulting raw git\u2011\
+    history files."
+T013c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `spec.md` file or its contents was provided, so we cannot verify
+    that the required text was replaced as specified. The implementer must supply
+    the updated `spec.md` showing the exact change.
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file (or its contents) was provided, so we cannot confirm that\
+    \ the required text replacements (\u201Csonar\u2011scanner CLI version 10.4 LTS\u201D\
+    \ \u2192 \u201Csemgrep version 1.30.0\u201D and \u201CSum of Code Smells + Cyclomatic\
+    \ Complexity\u201D \u2192 \u201CSum of Code Smells + Cyclomatic Complexity (as\
+    \ reported by Semgrep)\u201D) were actually made. The implementer must supply\
+    \ the updated `spec.md` showing those exact changes."
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No edited `spec.md` file is presented; the claim that the specification was\
+    \ updated to replace \u201Cchurn density\u201D/\u201Cdebt density\u201D with \u201C\
+    total_lines_changed\u201D and \u201Cdebt_score\u201D, and to change \u201Cdensity\
+    \ metrics\u201D to \u201Craw metrics + covariate control (avg_loc)\u201D, cannot\
+    \ be verified because the required artifact is missing. The next implementer must\
+    \ provide the updated `spec.md` containing the specified revisions."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,6 +64,13 @@ T021:
     \ of Fisher\u2011transformed r coefficients is present. The artifact is missing\
     \ entirely, so the task\u2019s core requirement (performing the meta\u2011analysis\
     \ and controlling family\u2011wise error rate) is not satisfied."
+T021b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or excerpt showing the required edit is provided; the implementer\u2019\
+    s claim is not backed by any visible artifact confirming that \u201CBonferroni\
+    \ correction\u201D was replaced with \u201CMeta-analysis of Fisher-transformed\
+    \ r coefficients.\u201D The task therefore remains unverified."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,6 +78,12 @@ T022:
     \ re\u2011run with `avg_loc` thresholds of 5,\u202F10,\u202F20 on the T015 datasets.\
     \ Without the actual code or results, the sensitivity\u2011analysis requirement\
     \ is not satisfied."
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or its contents are provided, so we cannot verify that the\
+    \ phrase \u201Cvarying average LOC\u201D was replaced with \u201Cthresholds of\
+    \ 5, 10, and 20\u201D. The required artifact is missing."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
