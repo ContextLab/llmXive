@@ -4,199 +4,258 @@ import logging
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
+
 import pandas as pd
 import numpy as np
 from scipy.stats import spearmanr
 from statsmodels.stats.multitest import multipletests
 
+from utils.config import get_processed_path, get_results_path, get_use_synthetic_data, get_random_seed
 from utils.logging_config import get_logger
-from utils.validators import validate_correlation_results_schema
 
 logger = get_logger(__name__)
 
-def load_preprocessed_data(input_path: str) -> pd.DataFrame:
-    """Load the preprocessed dataset containing CLR transformed taxa and log_titer."""
-    logger.info(f"Loading preprocessed data from {input_path}")
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+def load_preprocessed_data() -> pd.DataFrame:
+    """
+    Load the CLR-transformed dataset from data/processed/cleared_final.csv.
+    """
+    processed_path = get_processed_path()
+    input_file = processed_path / "cleared_final.csv"
     
-    df = pd.read_csv(input_path)
+    if not input_file.exists():
+        raise FileNotFoundError(f"Preprocessed data not found at {input_file}. "
+                                "Please ensure T020a (CLR transformation) has completed.")
     
-    # Identify CLR columns (suffix '_clr')
-    clr_columns = [col for col in df.columns if col.endswith('_clr')]
-    if not clr_columns:
-        raise ValueError("No CLR-transformed taxon columns found in the dataset.")
-    
-    if 'log_titer' not in df.columns:
-        raise ValueError("Column 'log_titer' not found in the dataset.")
-    
-    return df, clr_columns
+    logger.info(f"Loading preprocessed data from {input_file}")
+    df = pd.read_csv(input_file)
+    logger.info(f"Loaded dataset with shape: {df.shape}")
+    return df
 
-def identify_zero_variance_taxa(df: pd.DataFrame, clr_columns: List[str], threshold: float = 1e-9) -> List[str]:
-    """Identify taxa with zero or near-zero variance."""
+def identify_taxa_columns(df: pd.DataFrame) -> List[str]:
+    """
+    Identify columns representing taxa (CLR transformed) in the dataframe.
+    Assumes columns starting with 'taxa_clr_' or containing 'taxon_' are taxa columns.
+    Excludes 'subject_id', 'shannon_diversity', 'log_titer', etc.
+    """
+    exclude_cols = {'subject_id', 'shannon_diversity', 'log_titer', 
+                    'titer_baseline', 'titer_post', 'titer_pre_log', 'titer_post_log'}
+    
+    taxa_cols = []
+    for col in df.columns:
+        if col in exclude_cols:
+            continue
+        # Heuristic: CLR columns usually have a specific prefix or pattern based on T020a
+        # T020a adds columns like 'taxa_clr_TaxonName' or just 'taxon_X_clr'
+        # Based on task T020a description: "Add columns `taxa_clr` (new columns for each taxon)"
+        # We assume the CLR columns are numeric and not in the exclude list.
+        if col.startswith('taxa_clr_') or col.startswith('taxon_') and '_clr' in col:
+            taxa_cols.append(col)
+        elif col not in exclude_cols and np.issubdtype(df[col].dtype, np.number):
+            # Fallback: if it's a numeric column not explicitly excluded, it might be a taxon
+            # But we need to be careful not to include 'shannon_diversity' or 'log_titer' if they slipped in
+            if col not in ['shannon_diversity', 'log_titer']:
+                taxa_cols.append(col)
+    
+    # Remove duplicates and ensure we have a clean list
+    taxa_cols = list(set(taxa_cols))
+    logger.info(f"Identified {len(taxa_cols)} taxa columns: {taxa_cols[:5]}...")
+    return taxa_cols
+
+def identify_zero_variance_taxa(df: pd.DataFrame, taxa_cols: List[str], threshold: float = 1e-9) -> List[str]:
+    """
+    Identify taxa with zero (or near-zero) variance.
+    """
     zero_var_taxa = []
-    for col in clr_columns:
-        if df[col].var() < threshold:
+    for col in taxa_cols:
+        var = df[col].var()
+        if var < threshold:
             zero_var_taxa.append(col)
+    
+    logger.info(f"Identified {len(zero_var_taxa)} zero-variance taxa.")
     return zero_var_taxa
 
-def filter_zero_variance_taxa(df: pd.DataFrame, clr_columns: List[str], variance_filtered_taxa: List[str]) -> Tuple[pd.DataFrame, List[str]]:
-    """Filter out zero-variance taxa and return the dataframe and remaining columns."""
-    remaining_columns = [col for col in clr_columns if col in variance_filtered_taxa]
-    if not remaining_columns:
-        logger.warning("All taxa filtered out due to zero variance. Reverting to variance-filtered set.")
-        # If variance filter logic failed to pass any, use all available CLR columns that passed variance check previously
-        # But here we assume variance_filtered_taxa was passed from T032a correctly.
-        # If it's empty, we raise an error as per T032a logic.
-        raise ValueError("No taxa remain after variance filtering.")
-    
-    subset_df = df[remaining_columns + ['log_titer']].copy()
-    return subset_df, remaining_columns
-
-def perform_spearman_correlation(df: pd.DataFrame, feature_columns: List[str], target_column: str = 'log_titer') -> List[Dict[str, Any]]:
-    """Perform Spearman correlation between each feature and the target."""
-    results = []
-    for col in feature_columns:
-        # Handle potential NaNs in correlation
-        valid_pairs = df[[col, target_column]].dropna()
-        if len(valid_pairs) < 2:
-            corr, p_val = 0.0, 1.0
-        else:
-            try:
-                corr, p_val = spearmanr(valid_pairs[col], valid_pairs[target_column])
-                if np.isnan(corr):
-                    corr, p_val = 0.0, 1.0
-            except Exception as e:
-                logger.warning(f"Correlation failed for {col}: {e}")
-                corr, p_val = 0.0, 1.0
+def filter_zero_variance_taxa(df: pd.DataFrame, taxa_cols: List[str], 
+                              variance_filtered_taxa_file: Path, threshold: float = 1e-9) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Filter out taxa with variance < threshold.
+    Loads the variance-filtered list from T032a if available, otherwise calculates it.
+    """
+    if variance_filtered_taxa_file.exists():
+        logger.info(f"Loading variance-filtered taxa from {variance_filtered_taxa_file}")
+        with open(variance_filtered_taxa_file, 'r') as f:
+            filtered_taxa = json.load(f)
+        # Ensure these columns exist in the dataframe
+        valid_taxa = [t for t in filtered_taxa if t in df.columns]
+        if len(valid_taxa) != len(filtered_taxa):
+            missing = set(filtered_taxa) - set(valid_taxa)
+            logger.warning(f"Some variance-filtered taxa not found in data: {missing}")
+        taxa_cols = valid_taxa
+    else:
+        logger.warning(f"Variance filtered taxa file {variance_filtered_taxa_file} not found. "
+                       "Calculating variance filter now.")
+        zero_var = identify_zero_variance_taxa(df, taxa_cols, threshold)
+        taxa_cols = [c for c in taxa_cols if c not in zero_var]
+        if len(taxa_cols) == 0:
+            raise Exception("NoFeaturesError: No taxa with variance > 1e-9 found.")
         
+        # Save the calculated list for consistency
+        with open(variance_filtered_taxa_file, 'w') as f:
+            json.dump(taxa_cols, f)
+        logger.info(f"Saved calculated variance-filtered taxa to {variance_filtered_taxa_file}")
+
+    return df[taxa_cols], taxa_cols
+
+def perform_spearman_correlation(df: pd.DataFrame, taxa_cols: List[str], target_col: str = 'log_titer') -> pd.DataFrame:
+    """
+    Perform Spearman Rank Correlation between each taxon and the target variable.
+    Returns a DataFrame with columns: taxon, coefficient, raw_pvalue.
+    """
+    results = []
+    logger.info(f"Performing Spearman correlation for {len(taxa_cols)} taxa against {target_col}")
+    
+    for taxon in taxa_cols:
+        if taxon == target_col or target_col not in df.columns:
+            continue
+        
+        # Handle NaNs
+        valid_data = df[[taxon, target_col]].dropna()
+        if len(valid_data) < 3:
+            logger.warning(f"Not enough data points for {taxon}. Skipping.")
+            continue
+        
+        corr, pval = spearmanr(valid_data[taxon], valid_data[target_col])
         results.append({
-            'taxon': col.replace('_clr', ''),
-            'coefficient': float(corr),
-            'raw_pvalue': float(p_val)
+            'taxon': taxon,
+            'coefficient': corr,
+            'raw_pvalue': pval
         })
-    return results
-
-def apply_bh_correction(correlation_results: List[Dict[str, Any]], alpha: float = 0.05) -> List[Dict[str, Any]]:
-    """Apply Benjamini-Hochberg correction to p-values."""
-    p_values = [item['raw_pvalue'] for item in correlation_results]
-    n = len(p_values)
-    if n == 0:
-        return correlation_results
     
-    # multipletests returns (reject, pvals_corrected, alphacSidak, alphacBonf)
+    return pd.DataFrame(results)
+
+def apply_bh_correction(df_results: pd.DataFrame) -> pd.DataFrame:
+    """
+    Apply Benjamini-Hochberg correction to raw p-values.
+    Adds 'adj_pvalue' column.
+    """
+    if df_results.empty:
+        logger.warning("No results to correct.")
+        return df_results
+    
+    pvals = df_results['raw_pvalue'].values
+    if len(pvals) == 0:
+        return df_results
+    
+    # multipletests returns (reject, p_corrected, p_corrected_sidak, p_corrected_simes)
+    # We want 'p_corrected' which is the BH adjusted p-value
     try:
-        _, p_adj, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
+        _, pvals_adj, _, _ = multipletests(pvals, alpha=0.05, method='fdr_bh')
+        df_results['adj_pvalue'] = pvals_adj
     except Exception as e:
-        logger.error(f"BH correction failed: {e}")
-        p_adj = [1.0] * n
+        logger.error(f"Error applying BH correction: {e}")
+        # Fallback: set adj_pvalue to raw_pvalue if correction fails
+        df_results['adj_pvalue'] = pvals
     
-    for i, item in enumerate(correlation_results):
-        item['adj_pvalue'] = float(p_adj[i])
-        item['significant'] = bool(p_adj[i] < alpha)
-    
-    return correlation_results
+    return df_results
 
-def select_significant_taxa(correlation_results: List[Dict[str, Any]]) -> List[str]:
-    """Select taxa that are significant after BH correction."""
-    significant = [item['taxon'] for item in correlation_results if item['significant']]
+def select_significant_taxa(df_results: pd.DataFrame, alpha: float = 0.05) -> List[str]:
+    """
+    Select taxa with adjusted p-value < alpha.
+    """
+    significant = df_results[df_results['adj_pvalue'] < alpha]['taxon'].tolist()
+    logger.info(f"Selected {len(significant)} significant taxa (adj p < {alpha})")
     return significant
 
-def save_results(correlation_results: List[Dict[str, Any]], output_path: str):
-    """Save correlation results to JSON."""
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+def save_results(df_results: pd.DataFrame, significant_taxa: List[str], output_path: Path):
+    """
+    Save correlation results to JSON.
+    """
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    results_list = df_results.to_dict(orient='records')
+    output_data = {
+        'correlations': results_list,
+        'significant_taxa': significant_taxa,
+        'total_taxa_tested': len(df_results),
+        'method': 'Spearman',
+        'correction': 'Benjamini-Hochberg',
+        'alpha': 0.05
+    }
     
     with open(output_path, 'w') as f:
-        json.dump(correlation_results, f, indent=2)
-    logger.info(f"Correlation results saved to {output_path}")
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Saved correlation results to {output_path}")
 
-def run_correlation_pipeline(
-    input_path: str, 
-    variance_filtered_path: str, 
-    output_path: str
-) -> Dict[str, Any]:
+def run_correlation_pipeline():
     """
-    Run the full correlation analysis pipeline:
-    1. Load data
-    2. Filter zero-variance taxa (using variance_filtered_taxa list)
-    3. Perform Spearman correlation
-    4. Apply BH correction
-    5. Save results
+    Main pipeline function for T032.
+    1. Load preprocessed data.
+    2. Identify taxa columns.
+    3. Filter zero-variance taxa (using T032a output if available).
+    4. Perform Spearman correlation.
+    5. Apply BH correction.
+    6. Select significant taxa.
+    7. Save results.
     """
-    logger.info("Starting correlation analysis pipeline")
-    
-    # Load preprocessed data
-    df, clr_columns = load_preprocessed_data(input_path)
-    logger.info(f"Loaded {len(df)} samples and {len(clr_columns)} taxa")
-    
-    # Load variance filtered taxa
-    if not os.path.exists(variance_filtered_path):
-        raise FileNotFoundError(f"Variance filtered taxa file not found: {variance_filtered_path}")
-    
-    with open(variance_filtered_path, 'r') as f:
-        variance_filtered_taxa = json.load(f)
-    
-    logger.info(f"Loaded {len(variance_filtered_taxa)} variance-filtered taxa")
-    
-    # Filter data to only include variance-filtered taxa
-    # Note: variance_filtered_taxa contains taxon names (without '_clr'), so we need to map back
-    target_clr_columns = [col for col in clr_columns if col.replace('_clr', '') in variance_filtered_taxa]
-    
-    if not target_clr_columns:
-        logger.warning("No taxa from variance filter found in CLR columns. Using all CLR columns.")
-        target_clr_columns = clr_columns
-    
-    # Perform correlation
-    correlation_results = perform_spearman_correlation(df, target_clr_columns)
-    logger.info(f"Performed Spearman correlation on {len(correlation_results)} taxa")
-    
-    # Apply BH correction
-    correlation_results = apply_bh_correction(correlation_results)
-    
-    # Identify significant taxa
-    significant_taxa = select_significant_taxa(correlation_results)
-    logger.info(f"Found {len(significant_taxa)} significant taxa (adj p < 0.05)")
-    
-    # Save results
-    save_results(correlation_results, output_path)
-    
-    # Validate output schema
-    validate_correlation_results_schema(output_path)
-    
-    return {
-        'total_taxa_tested': len(correlation_results),
-        'significant_taxa_count': len(significant_taxa),
-        'significant_taxa': significant_taxa,
-        'output_path': output_path
-    }
+    try:
+        # Setup paths
+        results_path = get_results_path()
+        variance_filtered_file = results_path / "variance_filtered_taxa.json"
+        output_file = results_path / "correlation_results.json"
+        
+        # 1. Load Data
+        df = load_preprocessed_data()
+        
+        # 2. Identify Taxa
+        taxa_cols = identify_taxa_columns(df)
+        
+        if not taxa_cols:
+            logger.error("No taxa columns found in dataset.")
+            # Fallback to variance filter logic to raise error if truly empty
+            if not variance_filtered_file.exists():
+                raise Exception("NoFeaturesError: No taxa found in dataset.")
+            # If variance file exists but no cols found, it's a mismatch
+            raise Exception("NoFeaturesError: Variance file exists but no matching columns in data.")
+
+        # 3. Filter Zero Variance (Delegated to T032a output if present)
+        # We call the helper which handles loading T032a's output or recalculating
+        df_taxa, valid_taxa_list = filter_zero_variance_taxa(df, taxa_cols, variance_filtered_file)
+        
+        if not valid_taxa_list:
+            raise Exception("NoFeaturesError: No taxa with variance > 1e-9 found.")
+
+        # 4. Perform Correlation
+        corr_results = perform_spearman_correlation(df_taxa, valid_taxa_list, target_col='log_titer')
+        
+        if corr_results.empty:
+            logger.warning("No correlations could be calculated.")
+            # Still save empty result to allow pipeline to continue
+            save_results(corr_results, [], output_file)
+            return
+
+        # 5. Apply BH Correction
+        corr_results = apply_bh_correction(corr_results)
+        
+        # 6. Select Significant Taxa
+        significant_taxa = select_significant_taxa(corr_results)
+        
+        # 7. Save Results
+        save_results(corr_results, significant_taxa, output_file)
+        
+        logger.info("Correlation pipeline completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Correlation pipeline failed: {e}")
+        # Re-raise to allow the orchestrator to handle the failure
+        raise
 
 def main():
-    """Main entry point for the correlation analysis task."""
-    # Paths
-    input_path = os.getenv('INPUT_PATH', 'data/processed/cleared_with_diversity.csv')
-    variance_filtered_path = os.getenv('VARIANCE_FILTERED_PATH', 'data/results/variance_filtered_taxa.json')
-    output_path = os.getenv('OUTPUT_PATH', 'data/results/correlation_results.json')
-    
-    # Ensure paths are absolute relative to project root if needed
-    project_root = Path(__file__).resolve().parent.parent
-    input_path = project_root / input_path
-    variance_filtered_path = project_root / variance_filtered_path
-    output_path = project_root / output_path
-    
-    try:
-        result = run_correlation_pipeline(
-            str(input_path),
-            str(variance_filtered_path),
-            str(output_path)
-        )
-        print(json.dumps(result, indent=2))
-        sys.exit(0)
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        print(json.dumps({'error': str(e)}, indent=2))
-        sys.exit(1)
+    """
+    Entry point for the script.
+    """
+    logging.basicConfig(level=logging.INFO)
+    run_correlation_pipeline()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

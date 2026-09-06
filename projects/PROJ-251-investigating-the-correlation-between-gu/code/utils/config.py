@@ -1,9 +1,3 @@
-"""
-Configuration module for the gut microbiome and influenza vaccination study.
-
-This module provides centralized access to configuration parameters, including
-paths, seeds, thresholds, and data source settings.
-"""
 import os
 import secrets
 from pathlib import Path
@@ -17,132 +11,176 @@ load_dotenv()
 # Project root directory
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# Default values for configuration
-DEFAULTS = {
-    'SRA_ACCESSION': None,
-    'LOD_VALUE': 10.0,
-    'SEROCONVERSION_THRESHOLD': 4.0,
-    'HAI_THRESHOLD': 40,
-    'MIN_SAMPLE_SIZE': 50,
-    'USE_SYNTHETIC_DATA': False,
-    'RANDOM_SEED': 42,
-    'PSEUDOCOUNT': 1e-6,
-    'SIGNIFICANT_TAXA_RANGE': (1, 10),  # Expected range for significant taxa
+# Paths
+DATA_RAW = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+DATA_RESULTS = PROJECT_ROOT / "data" / "results"
+DATA_RESEARCH = PROJECT_ROOT / "data" / "research"
+CODE_DIR = PROJECT_ROOT / "code"
+SPECS_DIR = PROJECT_ROOT / "specs" / "001-investigating-the-correlation-between-gu"
+
+# Configuration values with defaults
+_DEFAULTS = {
+    "SRA_ACCESSION": None,
+    "LOD_VALUE": 10.0,
+    "SEROCONVERSION_THRESHOLD": 4.0,
+    "NUM_SYNTHETIC_TAXA": 5,
+    "TARGET_CORRELATION": 0.6,
+    "USE_SYNTHETIC_DATA": False,
+    "RANDOM_SEED": 42,
+    "MIN_SAMPLE_SIZE": 50,
+    "PSEUDOCOUNT": 1e-6,
+    "HAI_THRESHOLD": 40.0,
+    "SIGNIFICANT_TAXA_RANGE": [2, 10],
 }
 
 def get_env_var(key: str, default: Any = None) -> Any:
-    """Get an environment variable with a default fallback."""
-    value = os.getenv(key)
-    if value is None:
-        return default
-    # Try to convert to appropriate type
-    if value.lower() in ('true', 'yes', '1'):
-        return True
-    elif value.lower() in ('false', 'no', '0'):
-        return False
-    try:
-        return int(value)
-    except ValueError:
-        try:
-            return float(value)
-        except ValueError:
-            return value
+    """Retrieve an environment variable with a default fallback."""
+    return os.getenv(key, default)
 
 def get_sra_accession() -> Optional[str]:
-    """Get the SRA accession ID from environment or config."""
-    return get_env_var('SRA_ACCESSION', DEFAULTS['SRA_ACCESSION'])
+    """Get the SRA accession ID from config or env."""
+    val = os.getenv("SRA_ACCESSION")
+    if val:
+        return val
+    return _DEFAULTS.get("SRA_ACCESSION")
 
 def get_lod_value() -> float:
-    """Get the Limit of Detection (LOD) value for titer measurements."""
-    return get_env_var('LOD_VALUE', DEFAULTS['LOD_VALUE'])
+    """Get the Limit of Detection value."""
+    val = os.getenv("LOD_VALUE")
+    if val:
+        return float(val)
+    return _DEFAULTS["LOD_VALUE"]
 
 def get_impute_lod() -> float:
-    """Get the value used for imputing LOD measurements (0.5 * LOD)."""
-    return 0.5 * get_lod_value()
+    """Get the imputation factor for LOD (default 0.5)."""
+    val = os.getenv("IMPUTE_LOD_FACTOR")
+    if val:
+        return float(val)
+    return 0.5
 
 def get_lod_handling_methods() -> List[str]:
-    """Get the list of methods for handling LOD values."""
-    return ['impute', 'exclude']
+    """Get list of LOD handling methods."""
+    val = os.getenv("LOD_HANDLING_METHODS")
+    if val:
+        return val.split(",")
+    return ["impute_0.5"]
 
 def get_min_sample_size() -> int:
-    """Get the minimum required sample size."""
-    return get_env_var('MIN_SAMPLE_SIZE', DEFAULTS['MIN_SAMPLE_SIZE'])
+    """Get minimum required sample size."""
+    val = os.getenv("MIN_SAMPLE_SIZE")
+    if val:
+        return int(val)
+    return _DEFAULTS["MIN_SAMPLE_SIZE"]
 
 def get_use_synthetic_data() -> bool:
-    """Get the flag indicating whether to use synthetic data."""
-    return get_env_var('USE_SYNTHETIC_DATA', DEFAULTS['USE_SYNTHETIC_DATA'])
+    """Check if synthetic data should be used."""
+    val = os.getenv("USE_SYNTHETIC_DATA")
+    if val is not None:
+        return val.lower() in ("true", "1", "yes")
+    return _DEFAULTS["USE_SYNTHETIC_DATA"]
 
 def get_random_seed() -> int:
     """Get the random seed for reproducibility."""
-    return get_env_var('RANDOM_SEED', DEFAULTS['RANDOM_SEED'])
+    val = os.getenv("RANDOM_SEED")
+    if val:
+        return int(val)
+    return _DEFAULTS["RANDOM_SEED"]
+
+def get_num_synthetic_taxa() -> int:
+    """Get the number of synthetic taxa to generate."""
+    val = os.getenv("NUM_SYNTHETIC_TAXA")
+    if val:
+        return int(val)
+    return _DEFAULTS["NUM_SYNTHETIC_TAXA"]
+
+def get_target_correlation() -> float:
+    """Get the target correlation for synthetic data."""
+    val = os.getenv("TARGET_CORRELATION")
+    if val:
+        return float(val)
+    return _DEFAULTS["TARGET_CORRELATION"]
 
 def get_pseudocount() -> float:
-    """Get the pseudo-count value for CLR transformation."""
-    return get_env_var('PSEUDOCOUNT', DEFAULTS['PSEUDOCOUNT'])
+    """Get the pseudocount value for CLR transformation."""
+    val = os.getenv("PSEUDOCOUNT")
+    if val:
+        return float(val)
+    return _DEFAULTS["PSEUDOCOUNT"]
 
 def get_seroconversion_threshold() -> float:
-    """Get the threshold for defining seroconversion (fold rise)."""
-    return get_env_var('SEROCONVERSION_THRESHOLD', DEFAULTS['SEROCONVERSION_THRESHOLD'])
+    """Get the seroconversion threshold (fold rise)."""
+    val = os.getenv("SEROCONVERSION_THRESHOLD")
+    if val:
+        return float(val)
+    return _DEFAULTS["SEROCONVERSION_THRESHOLD"]
 
-def get_hai_threshold() -> int:
-    """Get the threshold for defining response based on absolute HAI titer."""
-    return get_env_var('HAI_THRESHOLD', DEFAULTS['HAI_THRESHOLD'])
+def get_hai_threshold() -> float:
+    """Get the absolute HAI titer threshold."""
+    val = os.getenv("HAI_THRESHOLD")
+    if val:
+        return float(val)
+    return _DEFAULTS["HAI_THRESHOLD"]
 
-def get_significant_taxa_range() -> tuple:
-    """Get the expected range for the number of significant taxa."""
-    val = get_env_var('SIGNIFICANT_TAXA_RANGE')
-    if val and isinstance(val, str):
-        parts = val.strip('()').split(',')
-        return (int(parts[0]), int(parts[1]))
-    return DEFAULTS['SIGNIFICANT_TAXA_RANGE']
+def get_significant_taxa_range() -> List[int]:
+    """Get the expected range of significant taxa for real data."""
+    val = os.getenv("SIGNIFICANT_TAXA_RANGE")
+    if val:
+        parts = val.split(",")
+        return [int(p) for p in parts]
+    return _DEFAULTS["SIGNIFICANT_TAXA_RANGE"]
 
 def get_raw_path() -> Path:
     """Get the path to the raw data directory."""
-    return PROJECT_ROOT / 'data' / 'raw'
+    return DATA_RAW
 
 def get_processed_path() -> Path:
     """Get the path to the processed data directory."""
-    return PROJECT_ROOT / 'data' / 'processed'
+    return DATA_PROCESSED
 
 def get_results_path() -> Path:
     """Get the path to the results directory."""
-    return PROJECT_ROOT / 'data' / 'results'
+    return DATA_RESULTS
 
 def get_research_path() -> Path:
     """Get the path to the research data directory."""
-    return PROJECT_ROOT / 'data' / 'research'
+    return DATA_RESEARCH
 
 def get_specs_path() -> Path:
-    """Get the path to the specifications directory."""
-    return PROJECT_ROOT / 'specs' / '001-investigating-the-correlation-between-gu'
+    """Get the path to the specs directory."""
+    return SPECS_DIR
 
 def get_cache_dir() -> Path:
-    """Get the path to the cache directory."""
-    cache_dir = PROJECT_ROOT / '.cache'
-    cache_dir.mkdir(exist_ok=True)
-    return cache_dir
+    """Get the cache directory path."""
+    cache = os.getenv("CACHE_DIR")
+    if cache:
+        return Path(cache)
+    return PROJECT_ROOT / ".cache"
 
 def get_hf_token() -> Optional[str]:
-    """Get the Hugging Face token from environment."""
-    return os.getenv('HF_TOKEN')
+    """Get the Hugging Face token."""
+    return os.getenv("HF_TOKEN")
 
 def get_ncbi_api_key() -> Optional[str]:
-    """Get the NCBI API key from environment."""
-    return os.getenv('NCBI_API_KEY')
+    """Get the NCBI API key."""
+    return os.getenv("NCBI_API_KEY")
 
 def get_max_workers() -> int:
-    """Get the maximum number of worker threads/processes."""
-    return get_env_var('MAX_WORKERS', 4)
+    """Get the maximum number of workers for parallel processing."""
+    val = os.getenv("MAX_WORKERS")
+    if val:
+        return int(val)
+    return 4
 
 def get_timeout_seconds() -> int:
-    """Get the timeout in seconds for network operations."""
-    return get_env_var('TIMEOUT_SECONDS', 300)
+    """Get the timeout for network requests in seconds."""
+    val = os.getenv("TIMEOUT_SECONDS")
+    if val:
+        return int(val)
+    return 30
 
 def ensure_directories():
     """Ensure all required directories exist."""
-    for path_func in [get_raw_path, get_processed_path, get_results_path, get_research_path]:
-        path = path_func()
-        path.mkdir(parents=True, exist_ok=True)
-
-# Initialize directories on module import
-ensure_directories()
+    dirs = [DATA_RAW, DATA_PROCESSED, DATA_RESULTS, DATA_RESEARCH, CODE_DIR, SPECS_DIR]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)

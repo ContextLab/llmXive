@@ -2,73 +2,61 @@ import os
 import sys
 from pathlib import Path
 import logging
+from utils.logging_config import get_logger
 
-# Configure logging for the setup process
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-def create_directories():
+def create_directories(base_path: Path) -> None:
     """
-    Create the required project root directories explicitly.
+    Create the required project directory structure.
     
-    Directories created:
+    Directories created relative to base_path:
     - code/
     - data/raw
     - data/processed
     - data/results
-    - tests/
     - data/research
-    
-    Returns:
-        list: List of created directory paths as strings.
+    - tests/
     """
-    # Define the base directory (project root)
-    base_dir = Path(__file__).resolve().parent.parent
+    logger = get_logger(__name__)
     
-    # Define relative paths for directories to be created
     directories = [
         "code",
         "data/raw",
         "data/processed",
         "data/results",
-        "tests",
-        "data/research"
+        "data/research",
+        "tests"
     ]
     
-    created_dirs = []
-    
-    for dir_path in directories:
-        full_path = base_dir / dir_path
+    for dir_name in directories:
+        dir_path = base_path / dir_name
         try:
-            if not full_path.exists():
-                full_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {full_path}")
-                created_dirs.append(str(full_path))
-            else:
-                logger.info(f"Directory already exists: {full_path}")
-                created_dirs.append(str(full_path))
-        except Exception as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {dir_path}: {e}")
             raise
-    
-    return created_dirs
 
-def main():
+def main() -> int:
     """
-    Main entry point for directory creation script.
+    Main entry point for directory setup.
+    
+    Returns:
+        int: 0 on success, 1 on failure
     """
-    logger.info("Starting directory creation process...")
+    logger = get_logger(__name__)
+    logger.info("Starting directory setup...")
+    
     try:
-        created = create_directories()
-        logger.info(f"Successfully created/verified {len(created)} directories.")
-        for d in created:
-            logger.info(f"  - {d}")
+        # Determine project root (assuming script is in code/ directory)
+        script_path = Path(__file__).resolve()
+        project_root = script_path.parent.parent
+        
+        create_directories(project_root)
+        
+        logger.info("Directory setup completed successfully.")
         return 0
     except Exception as e:
-        logger.error(f"Directory creation failed: {e}")
+        logger.error(f"Directory setup failed: {e}")
         return 1
 
 if __name__ == "__main__":

@@ -7,178 +7,176 @@ from typing import Dict, Any, List
 
 import yaml
 import pandas as pd
-from utils.config import get_processed_path, get_research_path, get_specs_path
-from utils.logging_config import get_logger, log_error_context
+from code.utils.logging_config import get_logger, log_error_context
+from code.utils.config import get_processed_path, get_specs_path, get_research_path
 
 logger = get_logger(__name__)
 
-def load_schema(schema_path: str) -> Dict[str, Any]:
-    """
-    Load the YAML schema definition from a file.
-    """
-    try:
-        with open(schema_path, 'r') as f:
-            schema = yaml.safe_load(f)
-        if not isinstance(schema, dict):
-            raise ValueError("Schema must be a YAML dictionary/object")
-        return schema
-    except FileNotFoundError:
-        logger.error(f"Schema file not found: {schema_path}")
-        raise
-    except yaml.YAMLError as e:
-        logger.error(f"Error parsing YAML schema: {e}")
-        raise
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load the YAML schema definition."""
+    logger.info(f"Loading schema from {schema_path}")
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
+    
+    if not isinstance(schema, dict):
+        raise ValueError("Schema must be a YAML object (dict)")
+    
+    return schema
 
-def validate_csv_against_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> List[Dict[str, Any]]:
+def validate_csv_against_schema(data_path: Path, schema: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Validate a DataFrame against a YAML schema definition.
+    Validate a CSV file against the provided schema.
     
-    The schema is expected to follow the format:
-    {
-        "type": "object",
-        "required": ["col1", "col2"],
-        "properties": {
-            "col1": {"type": "string"},
-            "col2": {"type": "number"}
-        }
+    Checks:
+    1. Required columns exist (mapping schema 'required' to CSV headers).
+    2. Data types for numeric columns are valid.
+    3. No null values in required columns.
+    """
+    validation_results = {
+        "data_path": str(data_path),
+        "schema_path": str(schema.get("_path", "unknown")),
+        "valid": True,
+        "errors": [],
+        "warnings": [],
+        "row_count": 0,
+        "column_count": 0
     }
+
+    if not data_path.exists():
+        validation_results["valid"] = False
+        validation_results["errors"].append(f"Data file not found: {data_path}")
+        return validation_results
+
+    try:
+        df = pd.read_csv(data_path)
+    except Exception as e:
+        validation_results["valid"] = False
+        validation_results["errors"].append(f"Failed to read CSV: {str(e)}")
+        return validation_results
+
+    validation_results["row_count"] = len(df)
+    validation_results["column_count"] = len(df.columns)
+
+    required_fields = schema.get("required", [])
+    properties = schema.get("properties", {})
+
+    # Map schema required fields to CSV columns
+    # The schema defines 'taxa_abundances' as an object, but in CSV these are flat columns.
+    # We validate the explicit scalar required fields first.
+    explicit_required = [f for f in required_fields if f != 'taxa_abundances']
     
-    Returns a list of validation errors.
-    """
-    errors = []
-    
-    # Check required columns
-    required_cols = schema.get("required", [])
-    actual_cols = set(df.columns)
-    missing_cols = set(required_cols) - actual_cols
+    missing_cols = []
+    for field in explicit_required:
+        if field not in df.columns:
+            missing_cols.append(field)
     
     if missing_cols:
-        errors.append({
-            "error_type": "MissingRequiredColumns",
-            "message": f"Missing required columns: {list(missing_cols)}",
-            "missing": list(missing_cols)
-        })
-    
-    # If required columns are missing, we can't proceed with type checks
-    if errors:
-        return errors
-        
-    # Check property types
-    properties = schema.get("properties", {})
-    
-    for col_name, col_spec in properties.items():
-        if col_name not in df.columns:
-            continue  # Already handled by required check
-            
-        expected_type = col_spec.get("type")
-        
-        if expected_type == "string":
-            # Check if all non-null values are strings
-            non_null = df[col_name].dropna()
-            if not non_null.empty:
-                # Allow mixed types if object dtype, but check for obvious non-strings
-                if df[col_name].dtype != 'object' and df[col_name].dtype != 'string':
-                    # If it's numeric, it might be coerced, but let's be lenient for numbers that can be strings
-                    pass
-                
-        elif expected_type == "number":
-            # Check if column is numeric
-            if not pd.api.types.is_numeric_dtype(df[col_name]):
-                # Check if it can be converted
+        validation_results["valid"] = False
+        validation_results["errors"].append(f"Missing required columns: {missing_cols}")
+
+    # Check for nulls in required scalar columns
+    for field in explicit_required:
+        if field in df.columns:
+            null_count = df[field].isnull().sum()
+            if null_count > 0:
+                validation_results["valid"] = False
+                validation_results["errors"].append(
+                    f"Column '{field}' contains {null_count} null values (required field)."
+                )
+
+    # Validate numeric types for known numeric fields
+    numeric_fields = ['titer_baseline', 'titer_post', 'shannon_diversity', 'log_titer']
+    for field in numeric_fields:
+        if field in df.columns:
+            if not pd.api.types.is_numeric_dtype(df[field]):
+                validation_results["warnings"].append(
+                    f"Column '{field}' is not numeric (dtype: {df[field].dtype}). "
+                    "Attempting to coerce."
+                )
                 try:
-                    pd.to_numeric(df[col_name], errors='raise')
-                except (ValueError, TypeError):
-                    errors.append({
-                        "error_type": "InvalidColumnType",
-                        "field": col_name,
-                        "expected": expected_type,
-                        "actual": str(df[col_name].dtype),
-                        "message": f"Column '{col_name}' should be numeric but is {df[col_name].dtype}"
-                    })
-                    
-    return errors
+                    df[field] = pd.to_numeric(df[field], errors='raise')
+                except ValueError:
+                    validation_results["valid"] = False
+                    validation_results["errors"].append(
+                        f"Column '{field}' contains non-numeric values that cannot be coerced."
+                    )
+
+    # Validate taxa abundances (all columns not in explicit required or known metadata)
+    # Assuming any column starting with 'taxon_' or present in the schema's additionalProperties context
+    # is a taxon abundance and should be numeric.
+    known_metadata = set(explicit_required + ['subject_id'])
+    taxon_cols = [c for c in df.columns if c not in known_metadata]
+    
+    for col in taxon_cols:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            # It's common for taxon columns to be floats. If they are objects, try to convert.
+            validation_results["warnings"].append(
+                f"Taxon column '{col}' is not numeric (dtype: {df[col].dtype}). "
+                "Attempting to coerce."
+            )
+            try:
+                df[col] = pd.to_numeric(df[col], errors='raise')
+            except ValueError:
+                validation_results["valid"] = False
+                validation_results["errors"].append(
+                    f"Taxon column '{col}' contains non-numeric values."
+                )
+
+    return validation_results
 
 def run_validation() -> Dict[str, Any]:
-    """
-    Main validation routine.
-    Loads the processed data and the schema, validates, and writes results.
-    """
-    results_path = Path(get_processed_path())
-    schema_path = Path(get_specs_path()) / "contracts" / "dataset.schema.yaml"
-    output_path = Path(get_research_path()) / "results" / "schema_validation_report.json"
+    """Main entry point for schema validation."""
+    logger.info("Starting schema validation task T013")
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Determine paths
+    # The schema is in specs/.../contracts/
+    specs_root = get_specs_path()
+    schema_path = specs_root / "contracts" / "dataset.schema.yaml"
     
-    logger.info(f"Loading schema from: {schema_path}")
-    schema = load_schema(str(schema_path))
+    # The data is in data/processed/cleared_final.csv
+    processed_path = get_processed_path()
+    data_path = processed_path / "cleared_final.csv"
     
-    logger.info(f"Loading processed data from: {results_path}")
-    try:
-        df = pd.read_csv(results_path)
-    except FileNotFoundError:
-        error_report = {
-            "status": "error",
-            "error_type": "FileNotFoundError",
-            "message": f"Processed data file not found: {results_path}",
-            "validated": False
-        }
-        with open(output_path, 'w') as f:
-            json.dump(error_report, f, indent=2)
-        raise
-    except Exception as e:
-        error_report = {
-            "status": "error",
-            "error_type": "DataLoadError",
-            "message": str(e),
-            "validated": False
-        }
-        with open(output_path, 'w') as f:
-            json.dump(error_report, f, indent=2)
-        raise
-    
-    logger.info(f"Validating {len(df)} rows against schema...")
-    validation_errors = validate_csv_against_schema(df, schema)
-    
-    report = {
-        "schema_path": str(schema_path),
-        "data_path": str(results_path),
-        "rows_validated": len(df),
-        "columns_checked": list(df.columns),
-        "is_valid": len(validation_errors) == 0,
-        "errors": validation_errors
-    }
-    
-    if validation_errors:
-        logger.warning(f"Validation failed with {len(validation_errors)} errors")
-        for err in validation_errors:
-            logger.warning(f"  - {err.get('error_type')}: {err.get('message')}")
-    else:
-        logger.info("Validation successful: All required fields and types match schema.")
-    
-    # Write report
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-        
-    logger.info(f"Validation report written to: {output_path}")
-    
-    return report
+    # Output report
+    results_path = get_research_path() / "results"
+    results_path.mkdir(parents=True, exist_ok=True)
+    output_path = results_path / "schema_validation_report.json"
 
-def main():
-    """
-    Entry point for the validation script.
-    """
     try:
-        result = run_validation()
-        if not result["is_valid"]:
-            logger.error("Schema validation failed. See report for details.")
-            sys.exit(1)
+        schema = load_schema(schema_path)
+        schema["_path"] = str(schema_path) # Tag for report
+        
+        report = validate_csv_against_schema(data_path, schema)
+        
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Validation complete. Report written to {output_path}")
+        if report["valid"]:
+            logger.info("Schema validation PASSED.")
         else:
-            logger.info("Schema validation passed.")
-            sys.exit(0)
+            logger.warning("Schema validation FAILED. See errors in report.")
+            
+        return report
+
     except Exception as e:
         log_error_context(e, "Schema validation failed")
+        return {
+            "valid": False,
+            "errors": [str(e)],
+            "data_path": str(data_path),
+            "schema_path": str(schema_path)
+        }
+
+def main():
+    """CLI entry point."""
+    result = run_validation()
+    if not result.get("valid", False):
         sys.exit(1)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

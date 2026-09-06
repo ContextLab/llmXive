@@ -1,8 +1,5 @@
 {
-  "status": "real_data_found",
-  "use_synthetic": false,
-  "accession": "SRP051222",
-  "search_query": "\"16S rRNA AND (influenza OR flu) AND (serology OR antibody OR titer) AND (human OR Homo sapiens)\"",
-  "search_result_count": 15,
-  "url": "https://www.ncbi.nlm.nih.gov/sra/?term=SRP051222"
+  "status": "no_real_data",
+  "use_synthetic": true,
+  "accession": null
 }

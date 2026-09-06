@@ -7,6 +7,7 @@ import yaml
 import pandas as pd
 from pathlib import Path
 from code.utils.validators import validate_dataset_schema
+from code.utils.data_loader import filter_complete_records
 
 class TestIngest(unittest.TestCase):
     def setUp(self):
@@ -67,9 +68,9 @@ class TestIngest(unittest.TestCase):
         
         df = pd.DataFrame(test_data)
         
-        # Apply filtering logic (mimicking T011d logic)
-        # Filter out rows where titer_baseline OR titer_post is NaN
-        filtered_df = df.dropna(subset=['titer_baseline', 'titer_post'])
+        # Apply the actual filtering logic from the data_loader module
+        # This ensures we are testing the real implementation used in T011d
+        filtered_df = filter_complete_records(df, ['titer_baseline', 'titer_post'])
         
         # Expected: S001 and S004 should remain (S002 has null baseline, S003 has null post)
         expected_ids = {'S001', 'S004'}

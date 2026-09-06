@@ -1,19 +1,30 @@
-T011b:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No synthetic dataset file or code to generate one was provided; the evidence\
-    \ contains only the original user story specifications, with no actual dataset,\
-    \ script, or description of how the synthetic data was created. The required artifact\
-    \ (a non\u2011empty synthetic dataset) is missing."
-T011d:
+  r: "No directory listings or file system snapshots were provided, so there is no\
+    \ evidence that the required folders (`code/`, `data/raw`, `data/processed`, `data/results`,\
+    \ `tests/`, `data/research`) actually exist or contain any content. The implementer\u2019\
+    s claim cannot be verified."
+T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or result artifacts (e.g., ingestion script, cleaned CSV,\
-    \ correlation tables, adjusted p\u2011values, Shannon index calculations, or modeling\
-    \ outputs) were provided. Without these concrete outputs, we cannot confirm that\
-    \ the required data ingestion, validation, correlation analysis, multiple\u2011\
-    testing correction, or predictive modeling were actually implemented. The next\
-    \ implementer must supply the relevant scripts and generated result files."
+  r: No `.env` template file was presented in the evidence; the implementer did not
+    provide a file containing placeholders for `SRA_TOKEN` and `DATA_SOURCE_URL`,
+    so the required artifact is missing.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No ingestion script, output CSV, logs, or analysis results were provided; the
+    claim lacks any tangible artifacts (code, data files, or result tables) required
+    to demonstrate that the NCBI SRA search, data validation, correlation analysis,
+    or predictive modeling were actually performed. The task therefore remains unfinished.
+T011a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data artifact for fetching the pre\u2011processed OTU table\
+    \ and serology metadata is present in the provided evidence; the claim lacks any\
+    \ tangible implementation or output file. The required fetching functionality\
+    \ is therefore not demonstrated."
 T020a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -38,14 +49,6 @@ T021:
     transformed, LOD values are treated as required, or that the output dataset meets\
     \ the specification. The task remains unfinished until such an implementation\
     \ and its resulting output are supplied."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ingestion script, data validation logs, correlation analysis results, or\
-    \ modeling code/output were provided. The required artifacts (e.g., CSV of filtered\
-    \ subjects, Spearman correlation table with raw and BH\u2011adjusted p\u2011values,\
-    \ Shannon diversity calculations, and nested\u2011CV Random Forest performance\
-    \ metrics) are missing, so the task is not satisfied."
 T032a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -69,3 +72,9 @@ T036a:
     \ precision, recall, or F1\u2011score for the high/low responder classification\
     \ was provided. The claim lacks any concrete artifact demonstrating that these\
     \ metrics were calculated and recorded."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that a ruff linting pass or black formatting\
+    \ was executed on the `code/` directory, nor any report of issues being fixed.\
+    \ The required artifact (a cleaned, lint\u2011free codebase) is missing."

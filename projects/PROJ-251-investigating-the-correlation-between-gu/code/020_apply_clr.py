@@ -1,12 +1,16 @@
 """
-Task T020a: CLR Transformation for Microbiome Data.
+CLR Transformation Module (T020a).
 
-This script applies a Centered Log-Ratio (CLR) transformation to the microbiome
-abundance data in the pre-processed dataset. It handles zero abundances by adding
-a small pseudo-count before transformation.
+Implements the Centered Log-Ratio (CLR) transformation for microbiome data.
+Input: data/processed/cleared_shannon_log.csv
+Output: data/processed/cleared_final.csv
 
-Input: data/processed/cleared_with_diversity.csv (output of T021)
-Output: data/processed/cleared_with_diversity.csv (updated with taxa_clr columns)
+Steps:
+1. Load data.
+2. Identify taxa columns.
+3. Apply zero-replacement (pseudo-count).
+4. Apply CLR transformation.
+5. Write output.
 """
 import os
 import sys
@@ -14,154 +18,173 @@ import logging
 import json
 from pathlib import Path
 from typing import List, Optional
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-# Add project root to path to allow imports from code.utils
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from utils.config import get_pseudocount, get_processed_path, get_results_path, get_use_synthetic_data
+from utils.config import get_pseudocount, get_random_seed, get_processed_path
 from utils.logging_config import get_logger, log_error_context
 
 logger = get_logger(__name__)
 
-def load_cleared_data(input_path: Path) -> pd.DataFrame:
-    """Load the dataset from the previous step."""
-    if not input_path.exists():
+def load_cleared_data(input_path: Optional[Path] = None) -> pd.DataFrame:
+    """
+    Load the cleared, Shannon-diversity, and log-transformed data.
+    """
+    if input_path is None:
+        input_path = get_processed_path() / "cleared_shannon_log.csv"
+    
+    if not os.path.exists(input_path):
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
+    logger.info(f"Loading data from {input_path}")
     df = pd.read_csv(input_path)
-    logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns from {input_path}")
+    logger.info(f"Loaded {len(df)} rows, {len(df.columns)} columns")
     return df
 
 def identify_taxa_columns(df: pd.DataFrame) -> List[str]:
     """
-    Identify columns that represent taxon abundances.
-    We assume these are numeric columns that are NOT the standard metadata columns.
+    Identify columns that represent taxa abundances.
+    Heuristic: Columns that are NOT subject_id, titer_*, shannon_diversity, or log_titer.
     """
     exclude_cols = {
-        'subject_id', 'titer_baseline', 'titer_post', 
-        'shannon_diversity', 'titer_pre_log', 'titer_post_log', 'log_titer'
+        'subject_id', 
+        'titer_baseline', 'titer_post', 
+        'shannon_diversity', 
+        'titer_pre_log', 'titer_post_log',
+        'log_titer'
     }
     
-    taxa_cols = []
-    for col in df.columns:
-        if col in exclude_cols:
-            continue
-        if col.startswith('taxa_') and col != 'taxa_clr':
-            # Check if it's numeric
-            if pd.api.types.is_numeric_dtype(df[col]):
-                taxa_cols.append(col)
-        elif col not in exclude_cols and pd.api.types.is_numeric_dtype(df[col]):
-            # Fallback: assume any other numeric column is a taxon
-            # This might need adjustment based on actual column naming conventions
-            taxa_cols.append(col)
+    taxa_cols = [col for col in df.columns if col not in exclude_cols]
     
-    if not taxa_cols:
-        logger.warning("No taxa columns identified. Checking for columns starting with 'taxa_'...")
-        # Explicit search for taxa columns
-        for col in df.columns:
-            if col.startswith('taxa_') and col != 'taxa_clr' and pd.api.types.is_numeric_dtype(df[col]):
-                taxa_cols.append(col)
+    # Additional check: ensure they are numeric (or can be cast to float)
+    numeric_taxa = []
+    for col in taxa_cols:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            numeric_taxa.append(col)
+        else:
+            try:
+                df[col] = pd.to_numeric(df[col], errors='raise')
+                numeric_taxa.append(col)
+            except (ValueError, TypeError):
+                logger.warning(f"Column {col} is not numeric and cannot be cast. Skipping.")
     
-    logger.info(f"Identified {len(taxa_cols)} taxa columns: {taxa_cols[:5]}...")
-    return taxa_cols
+    logger.info(f"Identified {len(numeric_taxa)} taxa columns: {numeric_taxa[:5]}...")
+    return numeric_taxa
 
-def apply_clr_transformation(df: pd.DataFrame, taxa_cols: List[str], pseudocount: float = 1e-6) -> pd.DataFrame:
+def apply_clr_transformation(df: pd.DataFrame, taxa_cols: List[str], pseudo_count: Optional[float] = None) -> pd.DataFrame:
     """
-    Apply CLR transformation to the specified taxa columns.
+    Apply Centered Log-Ratio (CLR) transformation.
     
-    Steps:
-    1. Replace zeros with pseudocount
-    2. Calculate geometric mean for each row (subject)
-    3. Compute log(x / geometric_mean) for each taxon
+    1. Zero Replacement: Add a small pseudo-count to all zeros in taxa columns.
+    2. Log Transform: Take natural log of the values.
+    3. Centering: Subtract the geometric mean (mean of logs) for each sample.
     
-    The result is stored in a new column 'taxa_clr' as a JSON string or list.
+    Formula: clr(x_i) = ln(x_i) - mean(ln(x_j)) for j in taxa
     """
-    logger.info(f"Applying CLR transformation with pseudocount={pseudocount}")
+    if pseudo_count is None:
+        pseudo_count = get_pseudocount()
     
-    # Create a copy to avoid modifying the original
+    logger.info(f"Applying CLR transformation with pseudo-count: {pseudo_count}")
+    
     df_transformed = df.copy()
     
-    # Extract taxa data
-    taxa_data = df_transformed[taxa_cols].values.astype(float)
+    # Step 1: Zero replacement
+    # We only replace zeros in the taxa columns
+    for col in taxa_cols:
+        # Ensure no negative values before log (though abundances should be >= 0)
+        # Replace 0 with pseudo_count
+        mask = df_transformed[col] == 0
+        if mask.any():
+            count = mask.sum()
+            df_transformed.loc[mask, col] = pseudo_count
+            logger.debug(f"Replaced {count} zeros in {col} with {pseudo_count}")
     
-    # Step 1: Handle zeros by adding pseudocount
-    zero_mask = taxa_data == 0
-    taxa_data[zero_mask] = pseudocount
+    # Step 2 & 3: Log transform and Center
+    # Calculate log of taxa columns
+    log_taxa = df_transformed[taxa_cols].apply(np.log)
     
-    # Step 2: Calculate geometric mean for each row
-    # Geometric mean = exp(mean(log(x)))
-    log_data = np.log(taxa_data)
-    log_mean = np.mean(log_data, axis=1, keepdims=True)
+    # Calculate the geometric mean (mean of logs) for each row
+    # axis=1 means row-wise
+    geo_mean_log = log_taxa.mean(axis=1)
     
-    # Step 3: Compute CLR = log(x) - mean(log(x))
-    clr_data = log_data - log_mean
+    # Subtract row-wise mean from each log value
+    clr_taxa = log_taxa.sub(geo_mean_log, axis=0)
     
-    # Store results as a list in a new column
-    # We'll store it as a JSON string to keep the CSV format clean
-    clr_list = [list(row) for row in clr_data]
-    df_transformed['taxa_clr'] = clr_list
+    # Rename columns to indicate CLR transformation
+    clr_col_names = [f"{col}_clr" for col in taxa_cols]
+    clr_taxa.columns = clr_col_names
     
-    logger.info(f"CLR transformation complete. Added 'taxa_clr' column with {len(clr_list)} entries.")
+    # Append CLR columns to the dataframe
+    # We keep original columns as well for traceability, or we could drop them.
+    # Per spec: "Add columns `taxa_clr` (new columns for each taxon)."
+    # We will add them alongside.
+    df_transformed = pd.concat([df_transformed, clr_taxa], axis=1)
     
+    logger.info(f"Added {len(clr_col_names)} CLR columns")
     return df_transformed
 
-def write_updated_dataset(df: pd.DataFrame, output_path: Path):
-    """Write the updated dataset to CSV."""
-    # Ensure output directory exists
+def write_updated_dataset(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
+    """
+    Write the transformed dataset to CSV.
+    """
+    if output_path is None:
+        output_path = get_processed_path() / "cleared_final.csv"
+    
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
+    logger.info(f"Writing output to {output_path}")
     df.to_csv(output_path, index=False)
-    logger.info(f"Updated dataset written to {output_path}")
+    
+    # Verify file size
+    size_mb = output_path.stat().st_size / (1024 * 1024)
+    logger.info(f"Output file written: {size_mb:.2f} MB, {len(df)} rows")
+    
+    return output_path
 
-def run_clr_pipeline(input_path: Optional[Path] = None, output_path: Optional[Path] = None):
-    """Run the full CLR transformation pipeline."""
-    logger.info("Starting CLR transformation pipeline (Task T020a)")
-    
-    # Determine paths
-    if input_path is None:
-        input_path = get_processed_path() / "cleared_with_diversity.csv"
-    if output_path is None:
-        output_path = get_processed_path() / "cleared_with_diversity.csv"
-    
+def run_clr_pipeline(input_path: Optional[Path] = None, output_path: Optional[Path] = None) -> Path:
+    """
+    Run the full CLR pipeline.
+    """
     try:
-        # Load data
+        # 1. Load
         df = load_cleared_data(input_path)
         
-        # Identify taxa columns
+        # 2. Identify taxa
         taxa_cols = identify_taxa_columns(df)
+        
         if not taxa_cols:
-            raise ValueError("No taxa columns found in the dataset. Cannot perform CLR transformation.")
+            raise ValueError("No taxa columns found for CLR transformation.")
         
-        # Get pseudocount from config
-        pseudocount = get_pseudocount()
+        # 3. Transform
+        df_clr = apply_clr_transformation(df, taxa_cols)
         
-        # Apply CLR transformation
-        df_transformed = apply_clr_transformation(df, taxa_cols, pseudocount)
+        # 4. Write
+        out_path = write_updated_dataset(df_clr, output_path)
         
-        # Write updated dataset
-        write_updated_dataset(df_transformed, output_path)
-        
-        # Log success
-        logger.info("CLR transformation pipeline completed successfully.")
-        return True
+        return out_path
         
     except Exception as e:
-        logger.error(f"CLR transformation pipeline failed: {str(e)}", exc_info=True)
-        with log_error_context("CLR Transformation Failed"):
-            raise
+        log_error_context(e)
+        raise
 
 def main():
-    """Main entry point for the script."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    """
+    Entry point for the script.
+    """
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Starting CLR Transformation Pipeline (T020a)")
     
-    success = run_clr_pipeline()
-    sys.exit(0 if success else 1)
+    try:
+        output_path = run_clr_pipeline()
+        logger.info(f"Pipeline completed successfully. Output: {output_path}")
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

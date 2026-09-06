@@ -1,16 +1,11 @@
 type: object
 required:
   - subject_id
-  - taxa_abundances
   - titer_baseline
   - titer_post
 properties:
   subject_id:
     type: string
-  taxa_abundances:
-    type: object
-    additionalProperties:
-      type: number
   titer_baseline:
     type: number
   titer_post:
@@ -19,7 +14,6 @@ properties:
     type: number
   log_titer:
     type: number
-  taxa_clr:
-    type: array
-    items:
-      type: number
+  # Dynamic numeric columns for taxa abundances and CLR values
+  additionalProperties:
+    type: number
