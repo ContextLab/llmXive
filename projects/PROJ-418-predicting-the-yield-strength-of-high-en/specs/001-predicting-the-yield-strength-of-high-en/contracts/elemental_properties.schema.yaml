@@ -29,5 +29,5 @@ additionalProperties:
       minimum: 0
     atomic_mass:
       type: number
-      description: "Atomic mass in atomic mass units."
+      description: "Atomic mass in atomic units."
       minimum: 0

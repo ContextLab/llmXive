@@ -28,8 +28,10 @@ properties:
         type: number
       cv_mean:
         type: number
+        description: "Mean CV performance across folds."
       cv_std:
         type: number
+        description: "Standard deviation of CV performance."
     required: [R2, MAE, RMSE, cv_mean, cv_std]
   Linear:
     type: object

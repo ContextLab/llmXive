@@ -34,6 +34,10 @@ properties:
           data_limitation_flag:
             type: boolean
             description: "True if total_processed < 500 (or <50 for LOOCV)."
+    required:
+      - source_url
+      - filter_criteria
+      - counts
   records:
     type: array
     items:

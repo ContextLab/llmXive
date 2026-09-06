@@ -1,13 +1,11 @@
 status: none
-intent: OpenML HEA_Composition_Yield dataset download python package and materials
-  elemental_properties
+intent: HEA Yield-Strength open dataset download pip package dataset
 required_fields:
-- alloy_id
-- element_symbols
-- element_fractions
+- composition
+- atomic_radius
+- electronegativity
+- melting_point
 - yield_strength
-- measurement_temperature
-- phase
-cache_key: 4446367b45727319e4349adbd26889d8f508da45ec1cc277ecd523172cf755a7
-searched_at: '2026-08-23T21:38:00.219169+00:00'
+cache_key: f316aa6bb31abaec082efcf385af7f8294acc86cc00e6eba03733246b554bfa6
+searched_at: '2026-09-06T01:51:32.964081+00:00'
 retry_count: 1

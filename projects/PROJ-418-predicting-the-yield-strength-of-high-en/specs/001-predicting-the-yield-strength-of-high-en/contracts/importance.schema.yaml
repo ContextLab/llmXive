@@ -1,27 +1,24 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Permutation Importance Results"
-type: array
-items:
-  type: object
-  required:
-    - feature
-    - mean_importance
-    - std_importance
-    - raw_p
-    - bonferroni_p
-  additionalProperties: false
-  properties:
-    feature:
-      type: string
-    mean_importance:
-      type: number
-    std_importance:
-      type: number
-    raw_p:
-      type: number
-      minimum: 0
-      maximum: 1
-    bonferroni_p:
-      type: number
-      minimum: 0
-      maximum: 1
+type: object
+required:
+  - feature
+  - importance_score
+  - p_value
+  - significant
+properties:
+  feature:
+    type: string
+    description: "Descriptor name."
+  importance_score:
+    type: number
+    description: "Mean decrease in model performance when the feature is permuted."
+  p_value:
+    type: number
+    description: "Permutation test p‑value (Holm‑Bonferroni corrected)."
+    minimum: 0
+    maximum: 1
+  significant:
+    type: boolean
+    description: "True if p_value < 0.05 after correction."
+additionalProperties: false

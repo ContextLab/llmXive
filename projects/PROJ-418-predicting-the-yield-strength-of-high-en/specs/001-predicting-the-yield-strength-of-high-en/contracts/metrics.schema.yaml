@@ -1,66 +1,32 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Metrics and Validation Schema"
-description: "Schema for output/metrics.json and output/stability.json."
+title: "Model Performance Metrics"
 type: object
-properties:
-  model_performance:
-    type: object
-    description: "Performance metrics for RF, GBM, and OLS."
-    additionalProperties:
-      type: object
-      properties:
-        R2:
-          type: number
-          description: "Coefficient of determination."
-        MAE:
-          type: number
-          description: "Mean Absolute Error."
-        RMSE:
-          type: number
-          description: "Root Mean Squared Error."
-      required:
-        - R2
-        - MAE
-        - RMSE
-  statistical_validation:
-    type: object
-    description: "Results from permutation, bootstrap, and VIF analysis."
-    properties:
-      permutation_p_values:
-        type: object
-        additionalProperties:
-          type: number
-          description: "P-value from permutation test for each descriptor (k=5)."
-      corrected_p_values:
-        type: object
-        additionalProperties:
-          type: number
-          description: "Multiple‑comparison corrected p-values (Bonferroni k=5)."
-      bootstrap_ci:
-        type: object
-        properties:
-          R2_lower:
-            type: number
-            description: "95% CI lower bound for R2."
-          R2_upper:
-            type: number
-            description: "95% CI upper bound for R2."
-      vif_flags:
-        type: array
-        items:
-          type: object
-          properties:
-            descriptor:
-              type: string
-            vif_value:
-              type: number
-            is_collinear:
-              type: boolean
-  disclaimer:
-    type: string
-    const: "Associational analysis only; no causal inference"
-    description: "Mandatory disclaimer string."
 required:
-  - model_performance
-  - statistical_validation
-  - disclaimer
+  - r2
+  - pearson_r
+  - p_value
+  - bootstrap_ci
+properties:
+  r2:
+    type: number
+    description: "Coefficient of determination on the held‑out test set."
+    minimum: -1
+    maximum: 1
+  pearson_r:
+    type: number
+    description: "Pearson correlation coefficient between predictions and true yield strength."
+    minimum: -1
+    maximum: 1
+  p_value:
+    type: number
+    description: "Two‑tailed p‑value for the Pearson correlation."
+    minimum: 0
+    maximum: 1
+  bootstrap_ci:
+    type: array
+    description: "Bootstrap confidence interval for R² (lower, upper) at a conventional confidence level."
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+additionalProperties: false
