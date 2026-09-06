@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T019** — The repository contains `code/03_compute_graph_metrics.py`, but the required output file `data/processed/graph_metrics.csv` is absent, so the script has not produced the mandated CSV of graph metrics. Without this artifact the task’s primary requirement is unmet.
-- **T044** — No test file containing `test_collinearity_filter` is present, and there is no evidence that a failing unit test exists prior to T023 implementation. The required artifact (the unit test) is missing, so the task is not satisfied.
-- **T023** — The script `code/04_train_model.py` is present but its content is truncated and does not clearly show the required nested cross‑validation, grid‑search with the specified hyperparameter grids, or the CLI handling of `--threshold`. Moreover, the expected output artifacts (`data/processed/model.pkl`, `cv_results.json`, `model_params.json`) are absent, indicating the script has not yet produced the required results. The next implementer must ensure the full implementation of the nested CV pipeline, the exact grid values, proper feature‑selection leakage safeguards, a functional CLI, and that runn
