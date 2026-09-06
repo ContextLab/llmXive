@@ -1,9 +1,3 @@
-T002a:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided specification excerpt shows `spec.md` contains FR-002 with the\
-    \ exact wording \u201CPyMC5 (successor to PyMC3)\u201D, fulfilling the required\
-    \ update."
 T006:
   c: false
   h: 411017b817ef932c925c2a29f4facee9ace4fe633c65211a5c4e313c59e07997
@@ -12,6 +6,20 @@ T006:
     \ Moreover, the required `data/processed/test.csv` and `state/artifact_hashes.yaml`\
     \ files are absent, so the verification command cannot succeed. The task\u2019\
     s deliverables are therefore not satisfied."
+T013:
+  c: false
+  h: 6f817d1f01e3e1943a82ce03f2f89bce2615147781388eb1ae6599e3d8d87cf0
+  r: "The required output file `data/processed/synthetic_mfq.csv` does not exist,\
+    \ and the script does not validate the `ground_truth_effect` against the MDES\
+    \ report\u2019s `effect_size` as stipulated (it only checks literature bounds).\
+    \ Both the deliverable artifact and a key validation step are missing."
+T014:
+  c: false
+  h: 325eac4c325767563e277249048e34eee2484097af1bb0a637b0652dfa6baf12
+  r: "The required output file `data/processed/synthetic_logs.csv` does not exist,\
+    \ so the deliverable is missing despite the presence of `simulation_stories.py`.\
+    \ Without the CSV containing the specified columns, the task\u2019s core requirement\
+    \ is not satisfied."
 T015:
   c: false
   h: 961e0f689872327f01a13473b7c8f9765aba0d95a8ee1e23fddab132bcd3224b
@@ -21,14 +29,28 @@ T015:
     \ missing). The exclusion log file `data/logs/exclusion.log` does not exist, and\
     \ there is no hard assertion that `DATA_MODE` is defined. Consequently, the implementation\
     \ does not meet the task\u2019s specifications."
-T017:
+T015#1:
   c: false
-  h: a2ba8c176f29ba28e0d498cd1a37ed1937901aa9de5c0d6252f58c60a50fc93c
-  r: The provided `code/utils/norms.py` does not contain a `validate_mfq_distribution()`
-    function (the shown code ends with `get_correlation_matrix` and no validation
-    logic). Additionally, the required output file `data/logs/norm_validation.log`
-    is absent. Both the function and the log file are missing, so the task is not
-    fulfilled.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, or documentation were provided to demonstrate that the system
+    actually ingests MFQ and Moral Stories data, validates them against the Pydantic
+    schemas, and maps them to VR salience conditions as required by US1. Without concrete
+    artifacts, the claim cannot be verified.
+T016b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or documentation artifacts were presented to demonstrate that
+    US1 (data ingestion and preprocessing) has been implemented, nor any evidence
+    of schema validation, mapping to VR salience conditions, or quality checks. Without
+    tangible artifacts, the claim cannot be verified as meeting the task requirements.
+T018:
+  c: false
+  h: 07d4d7342729102ce6c45a935db87aab1ad7d7d94446ca6891aa9705432a016b
+  r: The repository contains `code/utils/hashing.py`, but the required simulation
+    CSVs (`data/processed/synthetic_mfq.csv`, `data/processed/synthetic_logs.csv`)
+    and the `state/artifact_hashes.yaml` file are missing, so the hashing integration
+    cannot be verified or demonstrated as updating the state file. The task therefore
+    remains incomplete.
 T027c:
   c: false
   h: dcc43575b672cc4ab9e1235ea8bea82de9ce7990c1149c2f467c1647aa28e4f1
@@ -36,6 +58,13 @@ T027c:
     \ unfinished line `coverage_95ci = covered / n_samples if n_samp`). It never writes\
     \ the required `data/results/parameter_recovery.json`, and that JSON file is absent\
     \ from the repository. The task\u2019s deliverable is therefore not fulfilled."
+T027d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, model, or results for the Bayesian model execution (US2) are present;\
+    \ the implementer only notes that the task was \u201Cremoved/merged\u201D and\
+    \ provides no artifact such as PyMC5 model scripts, execution logs, or baseline\
+    \ comparison outputs. Consequently the required deliverable is missing."
 T032:
   c: false
   h: 20289c6dc2e521952af44a099e8e34c39b96ccde9568c4a1506f73fac12162d0
@@ -81,3 +110,26 @@ T043:
     \ are missing, and `ingest.py` does not import or call them (it references a non\u2011\
     existent `code.data.ingest_real` module and raises a placeholder RuntimeError).\
     \ The real\u2011data routing and hard assertion are therefore not fully implemented."
+T054b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or other artifacts were provided for verification; therefore\
+    \ we cannot confirm that any of the required outputs (e.g., data ingestion pipelines,\
+    \ PyMC5 Bayesian model, VR simulation, model comparison metrics, sensitivity analysis,\
+    \ or real\u2011data integration) exist or meet the specification. The implementer\u2019\
+    s claim cannot be substantiated without concrete artifacts."
+T054c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any real VR log ingestion, mapping verification, or failure\u2011\
+    mode handling is present; the implementer provided no code, data files, logs,\
+    \ or reports demonstrating that the system fetched and processed actual VR data\
+    \ as required by US4 and FR\u2011006. The task therefore remains unfulfilled."
+T054d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (e.g., scripts, logs, test reports, or processed real\u2011data\
+    \ outputs) were provided to demonstrate that the system actually fetched, validated,\
+    \ and processed real MFQ and VR interaction logs end\u2011to\u2011end, nor any\
+    \ evidence that synthetic data was not used. The claim lacks the required concrete\
+    \ evidence of a successful real\u2011data run."

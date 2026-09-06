@@ -1,329 +1,216 @@
 """
-Norms handling for Moral Foundations Questionnaire (MFQ) data.
-Loads Gervais et al. psychometric norms and provides validation utilities.
+Norms utility module for loading and validating MFQ distributions against
+Gervais et al. psychometric norms.
 """
 from __future__ import annotations
 
-import os
-import sys
-import json
 import logging
+import json
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List
-import numpy as np
+from typing import Dict, Any, Optional, List, Tuple
+import yaml
 import pandas as pd
+import numpy as np
 from scipy import stats
 
+# Import config for paths
 from code.config import get_path
 
-# Setup logging
+# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-def load_norms() -> Dict[str, Any]:
+# Constants
+NORMS_CONFIG_PATH = "data/config/gervais_norms.yaml"
+LOG_FILE_PATH = "data/logs/norm_validation.log"
+
+def load_norms() -> Dict[str, Dict[str, float]]:
     """
-    Load Gervais et al. psychometric norms from configuration.
+    Load Gervais et al. psychometric norms from the YAML configuration file.
 
     Returns:
-        Dictionary containing mean and std for each foundation.
+        Dict[str, Dict[str, float]]: Dictionary with foundation names as keys
+            and nested dicts containing 'mean' and 'std' values.
     """
-    norms_path = get_path("data/config/gervais_norms.yaml")
-    if not os.path.exists(norms_path):
-        raise FileNotFoundError(f"Norms file not found at {norms_path}")
+    config_path = get_path(NORMS_CONFIG_PATH)
+    if not config_path.exists():
+        raise FileNotFoundError(f"Norms configuration not found at {config_path}")
 
-    import yaml
-    with open(norms_path, 'r') as f:
-        return yaml.safe_load(f)
+    with open(config_path, 'r', encoding='utf-8') as f:
+        norms = yaml.safe_load(f)
 
-def load_norms_data() -> Dict[str, Any]:
-    """
-    Load and return the full norms data structure.
-    Alias for load_norms() for backward compatibility.
-    """
-    return load_norms()
+    logger.info(f"Loaded norms from {config_path}")
+    return norms
 
-def load_gervais_norms() -> Dict[str, Any]:
+def get_correlation_matrix() -> np.ndarray:
     """
-    Load Gervais et al. norms.
-    Alias for load_norms() for backward compatibility.
+    Returns a placeholder correlation matrix for MFQ dimensions.
+    In a real implementation, this would be derived from literature or data.
     """
-    return load_norms()
+    # 5 foundations: Care, Fairness, Loyalty, Authority, Purity
+    # Placeholder: Identity matrix (uncorrelated) or a simple structure
+    # Based on typical moral foundations theory, some positive correlations exist.
+    # Using a simple symmetric matrix with 0.5 off-diagonals as a placeholder.
+    n = 5
+    corr = np.ones((n, n))
+    for i in range(n):
+        for j in range(i + 1, n):
+            corr[i, j] = 0.3
+            corr[j, i] = 0.3
+    return corr
 
-def get_means(norms: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
+def validate_mfq_distribution(
+    mfq_data: pd.DataFrame,
+    norms: Optional[Dict[str, Dict[str, float]]] = None,
+    tolerance_sd: float = 1.0
+) -> Dict[str, Any]:
     """
-    Extract mean values from norms.
+    Validate that the synthetic MFQ distribution matches the published norms
+    within a specified tolerance (default: 1 SD).
+
+    This function performs two checks:
+    1. Kolmogorov-Smirnov (KS) test against the theoretical distribution defined
+       by the norms (p > 0.05 indicates no significant difference).
+    2. Mean comparison: checks if the sample mean is within `tolerance_sd` * std
+       of the population mean.
 
     Args:
-        norms: Optional norms dictionary. If None, loads from file.
+        mfq_data: DataFrame containing MFQ scores with columns for each foundation
+            (e.g., 'care', 'fairness', 'loyalty', 'authority', 'purity').
+        norms: Dictionary of norms. If None, loads from config.
+        tolerance_sd: Number of standard deviations allowed for mean difference.
 
     Returns:
-        Dictionary mapping foundation names to mean values.
+        Dict[str, Any]: Validation report containing:
+            - 'status': 'PASS' or 'FAIL'
+            - 'details': List of per-foundation results (KS p-value, mean diff, pass/fail)
+            - 'log_path': Path to the written log file.
     """
     if norms is None:
         norms = load_norms()
-
-    means = {}
-    for foundation in ['care', 'fairness', 'loyalty', 'authority', 'purity']:
-        if foundation in norms:
-            means[foundation] = norms[foundation].get('mean', 0.0)
-        else:
-            logger.warning(f"Foundation {foundation} not found in norms")
-            means[foundation] = 0.0
-    return means
-
-def get_std_devs(norms: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
-    """
-    Extract standard deviation values from norms.
-
-    Args:
-        norms: Optional norms dictionary. If None, loads from file.
-
-    Returns:
-        Dictionary mapping foundation names to std values.
-    """
-    if norms is None:
-        norms = load_norms()
-
-    stds = {}
-    for foundation in ['care', 'fairness', 'loyalty', 'authority', 'purity']:
-        if foundation in norms:
-            stds[foundation] = norms[foundation].get('std', 1.0)
-        else:
-            logger.warning(f"Foundation {foundation} not found in norms")
-            stds[foundation] = 1.0
-    return stds
-
-def get_correlation_matrix(norms: Optional[Dict[str, Any]] = None) -> np.ndarray:
-    """
-    Extract correlation matrix from norms.
-
-    Args:
-        norms: Optional norms dictionary. If None, loads from file.
-
-    Returns:
-        Correlation matrix as numpy array.
-    """
-    if norms is None:
-        norms = load_norms()
-
-    # Default correlation matrix if not specified
-    # Based on typical MFQ correlations (positive inter-foundation correlations)
-    if 'correlation_matrix' in norms:
-        corr_data = norms['correlation_matrix']
-        return np.array(corr_data)
-    else:
-        # Default: identity matrix with slight positive off-diagonals
-        foundations = ['care', 'fairness', 'loyalty', 'authority', 'purity']
-        n = len(foundations)
-        corr = np.eye(n)
-        for i in range(n):
-            for j in range(i+1, n):
-                corr[i, j] = 0.3  # Typical moderate positive correlation
-                corr[j, i] = 0.3
-        return corr
-
-def get_covariance_matrix(norms: Optional[Dict[str, Any]] = None) -> np.ndarray:
-    """
-    Compute covariance matrix from means, stds, and correlation.
-
-    Args:
-        norms: Optional norms dictionary. If None, loads from file.
-
-    Returns:
-        Covariance matrix as numpy array.
-    """
-    if norms is None:
-        norms = load_norms()
-
-    stds = list(get_std_devs(norms).values())
-    corr = get_correlation_matrix(norms)
-
-    # Convert correlation to covariance: Cov = D * Corr * D
-    # where D is diagonal matrix of stds
-    D = np.diag(stds)
-    cov = D @ corr @ D
-    return cov
-
-def generate_synthetic_mfq_from_norms(n_samples: int, seed: int = 42) -> pd.DataFrame:
-    """
-    Generate synthetic MFQ data matching Gervais et al. norms.
-
-    Args:
-        n_samples: Number of samples to generate.
-        seed: Random seed for reproducibility.
-
-    Returns:
-        DataFrame with synthetic MFQ responses.
-    """
-    np.random.seed(seed)
-    norms = load_norms()
-    means = list(get_means(norms).values())
-    cov = get_covariance_matrix(norms)
-
-    # Generate multivariate normal samples
-    data = np.random.multivariate_normal(means, cov, size=n_samples)
-
-    # Create DataFrame
-    columns = ['care', 'fairness', 'loyalty', 'authority', 'purity']
-    df = pd.DataFrame(data, columns=columns)
-
-    # Add participant IDs
-    df.insert(0, 'participant_id', [f'P{i:04d}' for i in range(n_samples)])
-
-    # Calculate total score
-    df['total_score'] = df[['care', 'fairness', 'loyalty', 'authority', 'purity']].sum(axis=1)
-
-    return df
-
-def validate_against_norms(df: pd.DataFrame, norms: Optional[Dict[str, Any]] = None, 
-                           max_sd_threshold: float = 1.0) -> Dict[str, Any]:
-    """
-    Validate that synthetic MFQ distribution matches published norms.
-    
-    Checks if the mean and std of each foundation in the data are within
-    max_sd_threshold standard deviations of the published norms.
-    
-    Args:
-        df: DataFrame containing MFQ data with columns: care, fairness, 
-            loyalty, authority, purity.
-        norms: Optional norms dictionary. If None, loads from file.
-        max_sd_threshold: Maximum allowed deviation in standard deviations.
-                        
-    Returns:
-        Dictionary with validation results for each foundation.
-        Keys: foundation names, values: dict with 'mean_diff', 'std_diff', 
-              'mean_within_threshold', 'std_within_threshold', 'pass'.
-    """
-    if norms is None:
-        norms = load_norms()
-
-    results = {}
-    all_pass = True
 
     foundations = ['care', 'fairness', 'loyalty', 'authority', 'purity']
-    
+    report_details = []
+    all_passed = True
+
+    # Ensure output directory exists
+    log_path = get_path(LOG_FILE_PATH)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Prepare log content
+    log_entries = []
+    log_entries.append(f"Validation started at {pd.Timestamp.now().isoformat()}")
+    log_entries.append(f"Input data shape: {mfq_data.shape}")
+    log_entries.append(f"Foundations checked: {foundations}")
+    log_entries.append("-" * 50)
+
     for foundation in foundations:
-        if foundation not in df.columns:
-            results[foundation] = {
-                'mean_diff': None,
-                'std_diff': None,
-                'mean_within_threshold': False,
-                'std_within_threshold': False,
-                'pass': False,
-                'error': f"Column {foundation} not found in data"
-            }
-            all_pass = False
+        # Map to norm keys (case sensitivity check)
+        # Norms file uses Title Case, data usually lowercase
+        norm_key = foundation.capitalize()
+        if norm_key not in norms:
+            error_msg = f"Norm not found for {norm_key}"
+            log_entries.append(f"[ERROR] {error_msg}")
+            report_details.append({
+                "foundation": foundation,
+                "status": "FAIL",
+                "error": error_msg
+            })
+            all_passed = False
             continue
 
-        if foundation not in norms:
-            results[foundation] = {
-                'mean_diff': None,
-                'std_diff': None,
-                'mean_within_threshold': False,
-                'std_within_threshold': False,
-                'pass': False,
-                'error': f"Foundation {foundation} not found in norms"
-            }
-            all_pass = False
+        target_mean = norms[norm_key]['mean']
+        target_std = norms[norm_key]['std']
+
+        if foundation not in mfq_data.columns:
+            error_msg = f"Column {foundation} not found in data"
+            log_entries.append(f"[ERROR] {error_msg}")
+            report_details.append({
+                "foundation": foundation,
+                "status": "FAIL",
+                "error": error_msg
+            })
+            all_passed = False
             continue
 
-        # Calculate statistics
-        data_mean = df[foundation].mean()
-        data_std = df[foundation].std()
-        norm_mean = norms[foundation].get('mean', 0.0)
-        norm_std = norms[foundation].get('std', 1.0)
+        sample_data = mfq_data[foundation].dropna()
+        if len(sample_data) == 0:
+            error_msg = f"No data for {foundation}"
+            log_entries.append(f"[ERROR] {error_msg}")
+            report_details.append({
+                "foundation": foundation,
+                "status": "FAIL",
+                "error": error_msg
+            })
+            all_passed = False
+            continue
 
-        # Calculate differences in standard deviations
-        mean_diff = (data_mean - norm_mean) / norm_std if norm_std > 0 else 0.0
-        std_diff = (data_std - norm_std) / norm_std if norm_std > 0 else 0.0
+        # 1. Kolmogorov-Smirnov Test
+        # Compare sample against normal distribution defined by norms
+        ks_stat, p_value = stats.kstest(
+            sample_data,
+            'norm',
+            args=(target_mean, target_std)
+        )
+        ks_pass = p_value > 0.05
 
-        # Check thresholds
-        mean_within = abs(mean_diff) <= max_sd_threshold
-        std_within = abs(std_diff) <= max_sd_threshold
-        foundation_pass = mean_within and std_within
+        # 2. Mean Comparison
+        sample_mean = sample_data.mean()
+        mean_diff = abs(sample_mean - target_mean)
+        mean_pass = mean_diff <= (tolerance_sd * target_std)
+
+        foundation_pass = ks_pass and mean_pass
+        status = "PASS" if foundation_pass else "FAIL"
 
         if not foundation_pass:
-            all_pass = False
+            all_passed = False
 
-        results[foundation] = {
-            'data_mean': float(data_mean),
-            'data_std': float(data_std),
-            'norm_mean': float(norm_mean),
-            'norm_std': float(norm_std),
-            'mean_diff': float(mean_diff),
-            'std_diff': float(std_diff),
-            'mean_within_threshold': mean_within,
-            'std_within_threshold': std_within,
-            'pass': foundation_pass
+        detail = {
+            "foundation": foundation,
+            "status": status,
+            "ks_statistic": float(ks_stat),
+            "ks_p_value": float(p_value),
+            "ks_pass": ks_pass,
+            "sample_mean": float(sample_mean),
+            "target_mean": target_mean,
+            "mean_diff": float(mean_diff),
+            "tolerance_limit": float(tolerance_sd * target_std),
+            "mean_pass": mean_pass
         }
+        report_details.append(detail)
 
-    # Add overall summary
-    results['summary'] = {
-        'all_foundations_pass': all_pass,
-        'max_sd_threshold': max_sd_threshold,
-        'foundations_checked': len(foundations),
-        'foundations_passed': sum(1 for f in foundations if results.get(f, {}).get('pass', False))
+        log_entries.append(f"Foundation: {foundation}")
+        log_entries.append(f"  KS Test: p={p_value:.4f} ({'PASS' if ks_pass else 'FAIL'})")
+        log_entries.append(f"  Mean Check: diff={mean_diff:.4f} <= {tolerance_sd * target_std:.4f} ({'PASS' if mean_pass else 'FAIL'})")
+        log_entries.append(f"  Overall: {status}")
+        log_entries.append("-" * 50)
+
+    final_status = "PASS" if all_passed else "FAIL"
+    log_entries.append(f"FINAL STATUS: {final_status}")
+
+    # Write log file
+    with open(log_path, 'w', encoding='utf-8') as f:
+        f.write("\n".join(log_entries))
+
+    logger.info(f"Validation report written to {log_path}")
+
+    return {
+        "status": final_status,
+        "details": report_details,
+        "log_path": str(log_path)
     }
 
-    return results
-
-def run_validation_pipeline(data_path: Optional[str] = None, 
-                            output_path: Optional[str] = None,
-                            max_sd_threshold: float = 1.0) -> Dict[str, Any]:
+def run_norm_validation_pipeline(
+    mfq_data: pd.DataFrame,
+    tolerance_sd: float = 1.0
+) -> Dict[str, Any]:
     """
-    Run the full validation pipeline on MFQ data.
-    
-    Args:
-        data_path: Path to CSV file with MFQ data. If None, expects 
-                   'data/processed/synthetic_mfq.csv'.
-        output_path: Path to write JSON results. If None, writes to 
-                    'state/norm_validation_results.json'.
-        max_sd_threshold: Maximum allowed deviation in standard deviations.
-                        
-    Returns:
-        Validation results dictionary.
+    Wrapper to run the full validation pipeline.
     """
-    if data_path is None:
-        data_path = get_path("data/processed/synthetic_mfq.csv")
-    if output_path is None:
-        output_path = get_path("state/norm_validation_results.json")
+    logger.info("Starting MFQ Norm Validation Pipeline")
+    result = validate_mfq_distribution(mfq_data, tolerance_sd=tolerance_sd)
+    logger.info(f"Pipeline completed with status: {result['status']}")
+    return result
 
-    logger.info(f"Loading data from {data_path}")
-    df = pd.read_csv(data_path)
-
-    logger.info("Validating against norms")
-    results = validate_against_norms(df, max_sd_threshold=max_sd_threshold)
-
-    logger.info(f"Writing results to {output_path}")
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
-
-    return results
-
-def main():
-    """Main entry point for norms validation."""
-    logging.basicConfig(level=logging.INFO)
-    
-    logger.info("Starting MFQ norms validation pipeline (T017)")
-    
-    try:
-        results = run_validation_pipeline()
-        
-        if results['summary']['all_foundations_pass']:
-            logger.info("SUCCESS: All foundations within threshold")
-            logger.info(f"Foundations passed: {results['summary']['foundations_passed']}/{results['summary']['foundations_checked']}")
-        else:
-            logger.warning("WARNING: Some foundations outside threshold")
-            logger.warning(f"Foundations passed: {results['summary']['foundations_passed']}/{results['summary']['foundations_checked']}")
-            
-        for foundation in ['care', 'fairness', 'loyalty', 'authority', 'purity']:
-            if foundation in results:
-                status = "PASS" if results[foundation].get('pass', False) else "FAIL"
-                logger.info(f"{foundation}: {status} (mean_diff={results[foundation].get('mean_diff'):.2f}, std_diff={results[foundation].get('std_diff'):.2f})")
-                
-    except Exception as e:
-        logger.error(f"Validation failed: {e}")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
+# For backward compatibility if needed
+def get_norms() -> Dict[str, Dict[str, float]]:
+    return load_norms()
