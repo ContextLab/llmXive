@@ -1,62 +1,65 @@
-# Quickstart Guide: Predicting Molecular Conductivity
-
-This guide walks you through running the full pipeline to predict molecular conductivity from graph-based features.
+# Quickstart Guide
 
 ## Prerequisites
 
-- Python 3.9+
-- Install dependencies: `pip install -r requirements.txt`
+- Python 3.11+
+- Virtual environment with dependencies installed
 
-## 1. Prepare Data
+## Installation
 
-Ensure you have a raw SMILES file in `data/raw/smiles.csv` with a `smiles` column.
-If you don't have one, create a sample:
+1. Create virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-```bash
-echo "smiles
-c1ccccc1
-C=CC=C
-CCCCCC" > data/raw/sample_smiles.csv
-```
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-## 2. Run Descriptor Pipeline
+## Run Pipeline
 
-Compute graph-based descriptors for the molecules.
+The pipeline consists of several steps. Run them in order:
 
-```bash
-python code/run_descriptor_pipeline.py --input data/raw/sample_smiles.csv --output data/processed/descriptors.csv
-```
+1. **Generate Descriptors**:
+ ```bash
+ python code/run_descriptor_pipeline.py --input data/raw/sample_smiles.csv --output data/processed/descriptors.csv
+ ```
 
-## 3. Train Models
+2. **Train Models and Run Sensitivity Analysis**:
+ ```bash
+ python code/save_model_results.py --data data/processed/descriptors.csv --output data/processed/model_results.json --sensitivity-output data/processed/sensitivity_analysis.json
+ ```
 
-Train Random Forest and Gradient Boosting models on the descriptors.
+3. **Run Feature Importance Analysis**:
+ ```bash
+ python code/feature_importance.py --data data/processed/descriptors.csv --output data/processed/feature_importance.csv
+ ```
 
-```bash
-python code/model_training.py --data data/processed/descriptors.csv --output data/processed/model_results.json
-```
+4. **Generate Analysis Summary**:
+ ```bash
+ python code/analysis_summary.py --feature-importance data/processed/feature_importance.csv --output data/processed/analysis_summary.json
+ ```
 
-## 4. Run Sensitivity Analysis
+5. **Generate Plots**:
+ ```bash
+ python code/plot_top_features.py --data data/processed/descriptors.csv --importance data/processed/feature_importance.csv --output data/processed/corr_plot_top5.png
+ ```
 
-Analyze model stability against outlier removal thresholds.
+## Validate Results
 
-```bash
-python code/analysis.py --data data/processed/descriptors.csv --output data/processed/sensitivity_analysis.json --thresholds 1.0 2.0 3.0
-```
-
-## 5. Generate Analysis Summary
-
-Generate feature importance and correlation plots.
-
-```bash
-python code/save_analysis_outputs.py --data data/processed/descriptors.csv --results data/processed/model_results.json --output data/processed/analysis_summary.json --plots data/processed/corr_plot_top5.png
-```
-
-## 6. Validate
-
-Check that all expected output files are generated:
-
+Check that all output files exist:
 - `data/processed/descriptors.csv`
 - `data/processed/model_results.json`
 - `data/processed/sensitivity_analysis.json`
+- `data/processed/feature_importance.csv`
 - `data/processed/analysis_summary.json`
 - `data/processed/corr_plot_top5.png`
+
+## Full Pipeline Validation
+
+Run the full validation script:
+```bash
+python code/run_quickstart_validation.py
+```

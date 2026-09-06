@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from code.model_training import train_models
+from code.model_training import train_models, apply_log_transformation
 
 @pytest.fixture
 def sample_data():
@@ -79,3 +79,25 @@ def test_cross_validation_scores_consistency(sample_data):
         metrics1['gb_cv_scores'], 
         metrics2['gb_cv_scores']
     )
+
+def test_log_transform_target():
+    """Test that np.log(input_values) matches expected_output for a known array."""
+    input_values = np.array([1.0, np.e, np.e**2, np.e**3])
+    expected_output = np.array([0.0, 1.0, 2.0, 3.0])
+    
+    result = apply_log_transformation(input_values)
+    
+    np.testing.assert_array_almost_equal(result, expected_output)
+    
+    # Test with pandas Series
+    series_input = pd.Series([1.0, np.e, np.e**2])
+    series_result = apply_log_transformation(series_input)
+    np.testing.assert_array_almost_equal(series_result.values, [0.0, 1.0, 2.0])
+    
+    # Test that log of non-positive values raises or handles appropriately
+    # (depending on implementation, this might raise a warning or return nan)
+    negative_input = np.array([-1.0, 0.0, 1.0])
+    negative_result = apply_log_transformation(negative_input)
+    assert np.isnan(negative_result[0])  # log(-1) is nan
+    assert np.isnan(negative_result[1])  # log(0) is -inf (treated as nan in comparison)
+    assert np.isclose(negative_result[2], 0.0)

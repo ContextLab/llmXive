@@ -7,4 +7,4 @@ seaborn
 pyyaml
 pytest
 statsmodels
-argparse
+scipy
