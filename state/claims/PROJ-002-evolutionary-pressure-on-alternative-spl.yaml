@@ -1331,3 +1331,310 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T01:49:13Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: 'SRA accessions for primate RNA-seq data: Human (SRP), Chimp (SRP009050),
+    Macaque (SRP009051), Marmoset (SRP009052)'
+  claim_id: c_09eda52e
+  context: T013 [US1] Implement SRA download script (src/pipeline/download.py) to
+    fetch FASTQs for Human (SRP), Chimp (SRP009050), Macaque (SRP009051), Marmoset
+    (SRP009052).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SRA_accessions_for_primate_RNA-seq_data:_Human_(SRP),_Chimp
+  kind: entity_fact
+  raw_text: Fetch FASTQs for Human (SRP), Chimp (SRP009050), Macaque (SRP009051),
+    Marmoset (SRP009052).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:36:59Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksums generated for intermediate and final files including
+    BAMs, PSI tables, and results TSVs
+  claim_id: c_bd160865
+  context: 'T006 [P] Setup artifact hashing utilities (src/utils/hash.py) per FR-009/SC-005:
+    Must generate SHA-256 checksums for all intermediate and final files (BAMs, PSI
+    tables, results TSVs) AND record the hash of external input artifacts (e.g., primate_tree.nwk)
+    in the manifest.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate SHA-256 checksums for all intermediate and final files (BAMs,
+    PSI tables, results TSVs).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:37:29Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: UCSC Multi-way Vertebrate Conservation track used for phyloP score retrieval
+  claim_id: c_31c041ce
+  context: 'T025 [P] [US2] Implement phyloP score retrieval (src/pipeline/annotate_phyloP.py)
+    using pyBigWig to query UCSC Multi-way Vertebrate Conservation track. Source:
+    UCSC Table Browser (phyloPway).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCSC_Multi-way_Vertebrate_Conservation_track_used_for_phyloP
+  kind: entity_fact
+  raw_text: Query UCSC Multi-way Vertebrate Conservation track for phyloP score retrieval.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:38:19Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Permutation test executed with 1000 or more iterations shuffling LSE
+    status
+  claim_id: c_4f4e6004
+  context: "T036 [US3] Implement permutation test (\u22651,000 iterations) in stats.R\
+    \ shuffling LSE status across the combined LSE+Control cohort..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute permutation test with \u22651,000 iterations shuffling LSE status."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:38:19Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Minimum 3 replicates required to detect absolute delta PSI of 0.1 or
+    greater
+  claim_id: c_a9e5dafa
+  context: "T041 [P] Execute power_analysis.R to validate the minimum 3 replicates\
+    \ requirement for detecting |\u0394PSI| \u2265 0.1"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate minimum 3 replicates requirement for detecting |\u0394PSI| \u2265\
+    \ 0.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:39:06Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: SRA accession numbers for primate RNA-seq data
+  claim_id: c_d837a678
+  context: Implement SRA download script to fetch FASTQs for Human (SRP), Chimp (SRP009050),
+    Macaque (SRP009051), Marmoset (SRP009052).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SRA_accession_numbers_for_primate_RNA-seq_data
+  kind: entity_fact
+  raw_text: Human (SRP), Chimp (SRP009050), Macaque (SRP009051), Marmoset (SRP009052)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:42:29Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Flanking sequence extraction window size
+  claim_id: c_7a6ab415
+  context: "Goal: Extract \xB1500 bp flanking intronic sequences and annotate them\
+    \ with real phyloP conservation scores."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\xB1500 bp flanking intronic sequences"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:49:11Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Delta PSI threshold for lineage-specific event detection
+  claim_id: c_6b467b04
+  context: "Implement lineage-specific event detection applying |\u0394PSI| > 0.1\
+    \ and FDR < 0.05 thresholds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "|\u0394PSI| > 0.1"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:49:11Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: FDR threshold for lineage-specific event detection
+  claim_id: c_65c3a0fb
+  context: "Implement lineage-specific event detection applying |\u0394PSI| > 0.1\
+    \ and FDR < 0.05 thresholds."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FDR < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:49:12Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Minimum sample size requirement for statistical power
+  claim_id: c_172b36fc
+  context: "Execute power_analysis.R to validate the minimum 3 replicates requirement\
+    \ for detecting |\u0394PSI| \u2265 0.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum 3 replicates
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:50:01Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Minimum effect size for power analysis
+  claim_id: c_b73ae751
+  context: "Execute power_analysis.R to validate the minimum 3 replicates requirement\
+    \ for detecting |\u0394PSI| \u2265 0.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "|\u0394PSI| \u2265 0.1"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:50:01Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Permutation test iteration count
+  claim_id: c_f10dbb11
+  context: "Implement permutation test (\u22651,000 iterations) in stats.R shuffling\
+    \ LSE status across the combined LSE+Control cohort."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u22651,000 iterations"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:50:01Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: CI configuration resource constraints
+  claim_id: c_2a49c4fb
+  context: Create config/ci.yaml with RAM=7GB, cores=2, disk=14GB explicitly matching
+    the plan.md Compute Feasibility constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM=7GB, cores=2, disk=14GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:50:38Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: HPC configuration resource constraints
+  claim_id: c_64d9811f
+  context: Create config/hpc.yaml with RAM=32GB, cores=8 explicitly matching the plan.md
+    Compute Feasibility constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM=32GB, cores=8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:51:31Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: List of genome assemblies configured for the project
+  claim_id: c_0ccee4d9
+  context: Setup configuration management for genome assemblies (GRCh, panTro6, rheMac10,
+    calJac4) in config/genomes.yaml.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/List_of_genome_assemblies_configured_for_the_project
+  kind: entity_fact
+  raw_text: GRCh, panTro6, rheMac10, calJac4
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:52:20Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Error code for insufficient replicates
+  claim_id: c_ec03ac83
+  context: Verify pipeline aborts with error 101 if <3 replicates and error 102 if
+    >5 replicates per FR-011.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: error code 101 (<3 replicates)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:53:11Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Error code for excessive replicates
+  claim_id: c_480bc348
+  context: Verify pipeline aborts with error 101 if <3 replicates and error 102 if
+    >5 replicates per FR-011.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: error code 102 (>5 replicates)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:53:12Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Maximum allowable replicates per species
+  claim_id: c_51095c64
+  context: Verify pipeline aborts with error 101 if <3 replicates and error 102 if
+    >5 replicates per FR-011.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '>5 replicates'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T05:53:12Z'

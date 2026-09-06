@@ -28,7 +28,7 @@
 - [X] T001b Create configuration skeleton files: `config/genomes.yaml`, `config/species_replicates.yaml`
 - [ ] T001c Create test directory structure: `tests/unit/`, `tests/integration/`, `tests/contract/`
 - [X] T002 Create `requirements.txt` pinning versions for: pandas, numpy, pyyaml, biopython, requests, tqdm, pybedtools, pyBigWig, scikit-learn, loguru. Create `renv.lock` for R dependencies: phylolm, ape, data.table, ggplot2.
-- [ ] T003 [P] Configure linting (flake, black) and formatting tools [UNRESOLVED-CLAIM: c_0c804ed2 — status=not_enough_info]
+- [ ] T003 [P] Configure linting (flake8, black) and formatting tools to ensure code quality and reproducibility per FR-009.
 
 ---
 
@@ -38,16 +38,18 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup configuration management for genome assemblies (GRCh, panTro6, rheMac10, calJac4) in `config/genomes.yaml`
-- [ ] T005 [P] Implement logging infrastructure (`src/utils/logger.py`) with timestamped, multi-level logging and error code tracking
-- [ ] T006 [P] Setup artifact hashing utilities (`src/utils/hash.py`) to generate SHA-256 checksums for all intermediate and final files (BAMs, PSI tables, results TSVs), AND to record the hash of external input artifacts (e.g., `primate_tree.nwk`) in the manifest.
+**Sequential Execution Note**: While most tasks in this phase are marked [P] (parallel), T009 (Lifecycle Hooks) explicitly depends on T005 (Logging) and must run sequentially after T005 is complete.
+
+- [X] T004 Setup configuration management for genome assemblies (GRCh, panTro6, rheMac10, calJac4 [UNRESOLVED-CLAIM: c_0ccee4d9 — status=not_enough_info]) in `config/genomes.yaml`
+- [ ] T005 [P] Implement logging infrastructure (`src/utils/logger.py`) per FR-009: Must capture timestamps, exit codes, and step summaries for all major stages (download, alignment, quantification, annotation, stats). Must implement a logging wrapper to ensure all steps are captured.
+- [ ] T006 [P] Setup artifact hashing utilities (`src/utils/hash.py`) per FR-009/SC-005: Must generate SHA-256 checksums for all intermediate and final files (BAMs, PSI tables, results TSVs) AND record the hash of external input artifacts (e.g., `primate_tree.nwk`) in the manifest.
 - [ ] T007a Create `src/data_models/rna_seq_sample.py` defining `RNASeqSample` class with attributes: `accession_id`, `species`, `fastq_path`, `replicate_group`
 - [ ] T007b Create `src/data_models/splicing_event.py` defining `SplicingEvent` class with attributes: `event_id`, `gene_id`, `delta_psi`, `fdr`, `flank_seq`, `phyloP_score`, `accelerated_flag`
 - [ ] T007c Create `src/data_models/enrichment_result.py` defining `EnrichmentResult` class with attributes: `lineage`, `odds_ratio`, `p_raw`, `p_corrected_phylo`, `p_fdr`, `p_empirical`
 - [ ] T007d Create `src/data_models/phylogenetic_tree.py` defining `PhylogeneticTree` class with attributes: `tree_file_path`, `source`, `topology_hash`
-- [X] T008 Create `config/ci.yaml` with RAM=7GB, cores=2, disk=14GB and `config/hpc.yaml` with RAM=32GB, cores=8 explicitly matching the plan.md "Compute Feasibility" constraints.
-- [ ] T009 Implement lifecycle management retention hooks (`src/pipeline/lifecycle.py`) for configurable retention logic (metadata recording, file age checking). **Note**: T009 depends on T005 (Logging) and must run sequentially after T005.
-- [ ] T055 [P] Implement cron-triggered `lifecycle_manager` script (`src/pipeline/lifecycle_manager.py`) to compress FASTQs, deposit to Zenodo, record DOI in `metadata.json`, and delete local copies after a defined retention period.
+- [X] T008 Create `config/ci.yaml` with RAM=7GB, cores=2, disk=14GB [UNRESOLVED-CLAIM: c_2a49c4fb — status=not_enough_info] and `config/hpc.yaml` with RAM=32GB, cores=8 [UNRESOLVED-CLAIM: c_64d9811f — status=not_enough_info] explicitly matching the plan.md "Compute Feasibility" constraints.
+- [ ] T009 [NOT-P] Implement lifecycle management retention hooks (`src/pipeline/lifecycle.py`) for configurable retention logic (metadata recording, file age checking). **Note**: T009 depends on T005 (Logging) and must run sequentially after T005.
+- [ ] T055 [NOT-P] Implement cron-triggered `lifecycle_manager` script (`src/pipeline/lifecycle_manager.py`) to compress FASTQs, deposit to Zenodo, record DOI in `metadata.json`, and delete local copies after a defined retention period. **Implementation Detail**: Must create a `github-actions-schedule.yml` workflow file to trigger the script at 00:00 UTC as per FR-010. **Dependency**: T055 depends on T009 (lifecycle hooks) and T005 (logging).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,20 +65,20 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Contract test for data download and replicate validation in `tests/contract/test_download_replicates.py`: Verify pipeline aborts with error 101 if <3 replicates and error 102 if >5 replicates [UNRESOLVED-CLAIM: c_66427f40 — status=not_enough_info], including informative error messages as specified in US-1 acceptance scenarios.
+- [X] T010 [P] [US1] Contract test for data download and replicate validation in `tests/contract/test_download_replicates.py`: Verify pipeline aborts with error 101 if <3 replicates and error 102 if >5 replicates [UNRESOLVED-CLAIM: c_51095c64 — status=not_enough_info] per FR-011, including informative error messages as specified in US-1 acceptance scenarios.
 - [X] T011 [P] [US1] Integration test for full alignment and PSI quantification flow in `tests/integration/test_psi_pipeline.py`: Verify PSI table is produced, `pipeline.log` contains timestamps, and at least one splice junction is reported.
 - [ ] T012 [P] [US1] Unit test for alignment duration validation script (`validate_alignment_time.py`) in `tests/unit/test_align_time.py`: Verify script correctly parses duration from `pipeline.log` and asserts ≤2 hours.
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement SRA download script (`src/pipeline/download.py`) to fetch FASTQs for Human (SRP), Chimp (SRP009050), Macaque (SRP009051), Marmoset (SRP009052)
-- [ ] T014 [US1] Implement replicate count validation in `src/pipeline/download.py` to abort with error code 101 (<3 replicates) or error code 102 (>5 replicates) and log to `pipeline.log`
+- [ ] T014 [US1] Implement replicate count validation in `src/pipeline/download.py` to abort with error code 101 (<3 replicates) [UNRESOLVED-CLAIM: c_ec03ac83 — status=not_enough_info] or error code 102 (>5 replicates) [UNRESOLVED-CLAIM: c_480bc348 — status=not_enough_info] and log to `pipeline.log`. **Note**: This task MUST run before T013 (Download).
+- [ ] T013 [US1] Implement SRA download script (`src/pipeline/download.py`) to fetch FASTQs for Human (SRP), Chimp (SRP009050), Macaque (SRP009051), Marmoset (SRP009052) [UNRESOLVED-CLAIM: c_d837a678 — status=not_enough_info]. **Dependency**: T013 depends on T014 completion.
 - [ ] T015 [P] [US1] Implement STAR alignment wrapper (`src/pipeline/align.py`) with default parameters and wall-time logging
 - [ ] T016 [P] [US1] Implement SUPPA2 quantification script (`src/pipeline/quantify.py`) to generate unified PSI TSV
-- [ ] T017 [US1] Implement lineage-specific event detection (`src/pipeline/detect_events.py`) applying |ΔPSI| > 0.1 and FDR < 0.05 thresholds
+- [ ] T017 [US1] Implement lineage-specific event detection (`src/pipeline/detect_events.py`) applying |ΔPSI| > 0.1 [UNRESOLVED-CLAIM: c_6b467b04 — status=not_enough_info] and FDR < 0.05 [UNRESOLVED-CLAIM: c_65c3a0fb — status=not_enough_info] thresholds
 - [ ] T018 [US1] Implement placeholder flagging logic in `detect_events.py` to mark synthetic data results as "PLACEHOLDER" per FR-016. Ensure flags propagate to ALL downstream outputs, including any future statistical or annotation artifacts, to prevent accidental publication of synthetic data as findings.
 - [ ] T021 [US1] Implement lifecycle manifest generation (`lifecycle_manifest.json`) with download timestamps and checksums. **Note**: This must complete before T019 (Artifact Manifest) runs.
-- [ ] T019 [US1] Implement integration logic in main pipeline loop to call hashing utility (T006) for BAMs, PSI tables, TSVs, AND record the hash of the external input `primate_tree.nwk` in `artifacts_manifest.json`. **Note**: This must run after T021 (Lifecycle Manifest) to ensure the lifecycle manifest is generated before being hashed.
+- [ ] T019 [US1] Implement integration logic in main pipeline loop to call hashing utility (T006) for BAMs, PSI tables, TSVs, AND record the hash of the external input `primate_tree.nwk` in `artifacts_manifest.json`. **Note**: This must run after T006 (Hashing utility) and T021 (Lifecycle Manifest) to ensure the lifecycle manifest is generated before being hashed. The hash of `primate_tree.nwk` is recorded here as an input validation step.
 - [ ] T020 [P] [US1] Create validation script `validate_alignment_time.py` to benchmark alignment duration on a multi-core reference node
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -85,7 +87,7 @@
 
 ## Phase 4: User Story 2 - Annotate regulatory regions surrounding splicing events (Priority: P2)
 
-**Goal**: Extract ±500 bp flanking intronic sequences and annotate them with real phyloP conservation scores and accelerated-evolution flags.
+**Goal**: Extract ±500 bp flanking intronic sequences [UNRESOLVED-CLAIM: c_7a6ab415 — status=not_enough_info] and annotate them with real phyloP conservation scores and accelerated-evolution flags.
 
 **Independent Test**: Run the annotation module on a pre‑filtered list of splicing events and confirm that a BED file with sequence coordinates and a CSV file with actual phyloP scores and acceleration flags are generated.
 
@@ -97,10 +99,10 @@
 ### Implementation for User Story 2
 
 - [ ] T024 [P] [US2] Implement flanking sequence extraction (`src/pipeline/extract_flanks.py`) using `bedtools getfasta` for ±500 bp regions
-- [ ] T025 [P] [US2] Implement phyloP score retrieval (`src/pipeline/annotate_phyloP.py`) using `pyBigWig` to query UCSC Multi-way Vertebrate Conservation track. Source: UCSC Table Browser (phyloP100way).
+- [ ] T025 [P] [US2] Implement phyloP score retrieval (`src/pipeline/annotate_phyloP.py`) using `pyBigWig` to query UCSC Multi-way Vertebrate Conservation track. Source: UCSC Table Browser (phyloPway).
 - [ ] T026 [US2] Implement logic to calculate average phyloP score (ignoring Ns) and record `NA` for assembly gaps
-- [ ] T027 [US2] Implement accelerated-evolution flagging logic (TRUE if average phyloP score ≤ -2.0) [UNRESOLVED-CLAIM: c_a31a891e — status=not_enough_info] in `annotate_phyloP.py`
-- [ ] T028 [P] [US2] Implement sensitivity analysis script (`src/pipeline/sensitivity_analysis.py`) to sweep the acceleration threshold (±0.5) AND validates the permutation null model's robustness by comparing empirical p-values against model-based p-values across threshold sweeps.
+- [ ] T027 [US2] Implement accelerated-evolution flagging logic (TRUE if average phyloP score indicates significant evolutionary conservation.) per FR-006 in `annotate_phyloP.py`. **Implementation Detail**: The threshold value MUST be configurable via `config/species_replicates.yaml` to allow the sensitivity analysis script (T028) to sweep values.
+- [ ] T028 [P] [US2] Implement sensitivity analysis script (`src/pipeline/sensitivity_analysis.py`) to sweep the acceleration threshold (±0.5) to validate the threshold choice as per FR-014.
 - [ ] T029 [P] [US2] Ensure exclusion of events with `NA` phyloP scores from downstream enrichment tests
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -123,8 +125,8 @@
 
 - [ ] T033 [P] [US3] Implement control region generation (`src/pipeline/generate_controls.py`) to create a matched set of non-LSE intronic regions to break circularity as required by FR-007
 - [ ] T034 [US3] Implement cohort assembly (`src/pipeline/assemble_cohort.py`) merging LSEs and Controls into `regression_cohort.tsv`
-- [ ] T035 [P] [US3] Implement R statistical script (`src/pipeline/stats.R`) using `phylolm::phyloglm` with **LSE status** (binary) as response and **accelerated_flag** (binary) as predictor, per FR-007. The continuous `mean_phyloP` is used ONLY for sensitivity analysis (FR-014) and descriptive stats, NOT as the primary predictor.
-- [ ] T036 [US3] Implement permutation test (≥1,000 iterations) in `stats.R` shuffling LSE status across the **combined LSE+Control cohort** (generated by T033 and T034) while preserving genomic distance to break circularity and avoid breaking the phylogenetic signal.
+- [ ] T035 [P] [US3] Implement R statistical script (`src/pipeline/stats.R`) using `phylolm::phyloglm` with **LSE status** (binary) as response and **accelerated_flag** (binary) as predictor, per FR-007. **Critical Constraint**: The primary model MUST use the binary accelerated_flag as the predictor variable. The continuous mean_phyloP score is used ONLY for sensitivity analysis (T028) and descriptive statistics, NOT for the primary enrichment test.
+- [ ] T036 [US3] Implement permutation test (≥1,000 iterations [UNRESOLVED-CLAIM: c_f10dbb11 — status=not_enough_info]) in `stats.R` shuffling LSE status across the **combined LSE+Control cohort** (generated by T033 and T034) while preserving genomic distance using **phylogenetic independent contrasts (PIC) permutation** to break circularity and avoid breaking the phylogenetic signal. **Crucial**: Must filter out any events with 'PLACEHOLDER' flags (from T018) before shuffling. **Dependency**: T036 depends on T018.
 - [ ] T037 [US3] Implement Benjamini-Hochberg FDR correction across the multiple lineage tests in `stats.R`
 - [ ] T038 [P] [US3] Implement Manhattan plot generation (`src/pipeline/plot.py`) outputting PNG (≥1200×800 px) with chromosome labels and significance threshold line
 - [ ] T039 [US3] Implement validation script `validate_plot.py` to explicitly check: PNG dimensions (≥1200×800), exact X-axis label "Chromosome", exact Y-axis label "–log₁₀(p)", presence of title, and presence of horizontal significance threshold line as per SC-004.
@@ -138,14 +140,14 @@
 
 **Goal**: Validate sample size requirements and ensure pipeline logic handles edge cases correctly.
 
-- [ ] T041 [P] Execute `power_analysis.R` to validate the minimum 3 replicates requirement for detecting |ΔPSI| ≥ 0.1
+- [ ] T041 [P] Execute `power_analysis.R` to validate the minimum 3 replicates [UNRESOLVED-CLAIM: c_172b36fc — status=not_enough_info] requirement for detecting |ΔPSI| ≥ 0.1 [UNRESOLVED-CLAIM: c_b73ae751 — status=not_enough_info]
 - [ ] T042 [P] Implement synthetic data generation for CI logic validation (ensuring no scientific findings are derived from synthetic data); **Note**: `validate_alignment_time.py` is a benchmark for the 8-core reference node and is NOT run on free-tier CI; CI verification uses synthetic data with relaxed timing constraints
 - [ ] T043 [P] Implement integration test `test_full_pipeline.py` to verify end-to-end flow with synthetic data
 - [ ] T044 [P] Verify that `primate_tree.nwk` is loaded correctly and aborts with specific error if missing or malformed
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
@@ -167,7 +169,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Power Analysis (Phase 6)**: Depends on Foundational - can run in parallel with US1 implementation
-- **Polish (Phase 7)**: Depends on all desired user stories being complete
+- **Polish (Phase 8)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
@@ -186,7 +188,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) EXCEPT T009 which depends on T005.
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) EXCEPT T009 and T055 which have explicit sequential dependencies.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -197,8 +199,10 @@
 
 - **T005 (Logging) vs T009 (Hooks)**: T009 (lifecycle hooks) depends on T005 (logging infrastructure) being initialized to function correctly. T009 is NOT parallel [P] and must run after T005.
 - **T006 (Hashing)**: T006 now includes the logic for external input artifacts. No separate task exists for this.
-- **T019 (Artifact Manifest)**: T019 must run after T021 (Lifecycle Manifest) to ensure the lifecycle manifest is generated before being hashed. T019 is the final task in Phase 3.
-- **T036 (Permutation)**: T036 explicitly depends on T033 (Control generation) and T034 (Cohort assembly) to ensure the "combined LSE+Control cohort" exists and is correctly formatted before shuffling.
+- **T019 (Artifact Manifest)**: T019 must run after T006 (Hashing utility) and T021 (Lifecycle Manifest) to ensure the lifecycle manifest is generated before being hashed. The hash of `primate_tree.nwk` is recorded here as an input validation step.
+- **T013 (Download) vs T014 (Validation)**: T014 (replicate validation) MUST run before T013 (download) to prevent downloading data if the sample count is invalid. T013 is NOT parallel [P] due to this dependency.
+- **T036 (Permutation)**: T036 explicitly depends on T033 (Control generation), T034 (Cohort assembly), and T018 (Placeholder flagging) to ensure the "combined LSE+Control cohort" exists and is correctly formatted, and to filter out synthetic data before shuffling.
+- **T055 (Lifecycle Manager)**: T055 depends on T009 (lifecycle hooks) and T005 (logging) to function. T055 is NOT parallel [P].
 
 ---
 
@@ -259,7 +263,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be feasible on free-tier CPU-only CI (a limited number of cores, constrained RAM, constrained disk, no GPU).. Use sampled data or pre-aligned BAMs for CI; full data for HPC.
+- **Critical Constraint**: All tasks must be feasible on free-tier CPU-only CI (a limited number of cores, constrained RAM, constrained disk, no GPU). Use sampled data or pre-aligned BAMs for CI; full data for HPC.
 - **Data Integrity**: Never fabricate data. Use real SRA accessions or clearly flagged synthetic data for CI logic only.
 - **Reproducibility**: Every artifact must have a SHA-256 hash recorded in `pipeline.log` or `artifacts_manifest.json`.
-- **Scope**: The project strictly adheres to FR-001 through FR-016. No teleological or functional enrichment analysis is included.
+- **Scope**: The project strictly adheres to FR-001 through FR-016. **No scope creep**: Phase 7 has been removed to align with spec constraints.

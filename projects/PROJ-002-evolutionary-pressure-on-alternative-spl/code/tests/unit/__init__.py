@@ -1,4 +1,1 @@
-"""
-Unit tests for llmXive PROJ-002.
-These tests verify individual components in isolation.
-"""
+"""Unit tests for PROJ-002 evolutionary pressure pipeline."""

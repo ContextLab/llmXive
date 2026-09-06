@@ -1,21 +1,27 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, E501, W503
+extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
-    .venv,
-    venv,
-    env,
     .eggs,
-    *.egg-info,
     build,
     dist,
-    data,
-    results,
-    docs
+    *.egg-info
 per-file-ignores =
     # Allow unused imports in __init__.py
-    */__init__.py: F401
-    # Allow high line length in tests for readability
-    tests/*: E501
+    code/data_models/__init__.py: F401
+    code/utils/__init__.py: F401
+    code/pipeline/__init__.py: F401
+    code/tests/__init__.py: F401
+    # Allow print statements in scripts
+    code/pipeline/download.py: T201
+    code/pipeline/align.py: T201
+    code/pipeline/quantify.py: T201
+    code/pipeline/detect_events.py: T201
+    code/pipeline/extract_flanks.py: T201
+    code/pipeline/annotate_phyloP.py: T201
+    code/pipeline/generate_controls.py: T201
+    code/pipeline/assemble_cohort.py: T201
+    code/pipeline/plot.py: T201
+    code/pipeline/lifecycle_manager.py: T201
