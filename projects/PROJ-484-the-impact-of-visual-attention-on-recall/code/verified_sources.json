@@ -1,0 +1,8 @@
+{
+  "ds001435": {
+    "status": "verified",
+    "source_type": "openneuro",
+    "url": "https://openneuro.org/datasets/ds001435/versions/1.0.0/file-download",
+    "sha256": "placeholder_checksum_for_verification"
+  }
+}

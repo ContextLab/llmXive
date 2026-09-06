@@ -8,8 +8,8 @@ T016a:
     \ specified location."
 T019a:
   c: false
-  h: cfd016fc027149b996a42ea7144d07ece47897944a29429fd5383cf14027be84
-  r: "The provided `handle_missing_coords.py` is incomplete (truncated) and never\
-    \ reaches the part that writes `data/reports/excluded_molecules.csv`. Moreover,\
-    \ the expected CSV file is absent from the repository. The task\u2019s required\
-    \ output file is therefore missing."
+  h: 3c18335f71db204e27c36a0d0b2cd03cf64e1e51f124e163c9a7d9fb3f01d32b
+  r: The repository contains `code/data/handle_missing_coords.py`, but the script
+    is incomplete (truncated) and does not produce the required `data/reports/excluded_molecules.csv`.
+    The CSV file is absent, so the specified output and column requirements are not
+    met.

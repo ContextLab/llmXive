@@ -1,8 +1,6 @@
 """
-Model Training Module for Glass Forming Region Prediction.
-
-Trains a Random Forest regressor with cross-validation.
-Evaluates against a null model.
+Train a Random Forest model on the processed alloy data.
+Performs train-test split, cross-validation, and final evaluation.
 """
 import logging
 import sys
@@ -11,150 +9,167 @@ import json
 import pickle
 from typing import Dict, Any, Tuple, List
 import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor, DummyRegressor
-from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.dummy import DummyRegressor
 from sklearn.metrics import mean_squared_error
+import numpy as np
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Add parent directory to path for imports if running as script
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils import get_logger, ensure_dir
 
-# Project paths
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
-MODELS_DIR = os.path.join(DATA_DIR, "models")
+# Constants
+DATA_PATH = "data/processed/processed_alloys.csv"
+MODEL_DIR = "data/models"
+CV_METRICS_PATH = os.path.join(MODEL_DIR, "cv_metrics.json")
+MODEL_PATH = os.path.join(MODEL_DIR, "random_forest_model.pkl")
+NULL_MODEL_RMSE_PATH = os.path.join(MODEL_DIR, "null_model_rmse.json")
+NULL_MODEL_PREDICTIONS_PATH = os.path.join(MODEL_DIR, "null_model_predictions.npy")
 
-def load_data() -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Load processed data and perform train-test split.
-    """
-    data_path = os.path.join(PROCESSED_DIR, "processed_alloys.csv")
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Processed data not found at {data_path}. Run ingestion.py first.")
+def load_data() -> Tuple[pd.DataFrame, pd.Series]:
+    """Load processed alloy data and split features/target."""
+    logger = get_logger(__name__)
+    if not os.path.exists(DATA_PATH):
+        raise FileNotFoundError(f"Processed data not found at {DATA_PATH}. Run ingestion.py first.")
     
-    df = pd.read_csv(data_path)
+    df = pd.read_csv(DATA_PATH)
     
-    # Select features
-    feature_cols = ['atomic_size_mismatch', 'electronegativity_variance']
-    # Add mixing_enthalpy if available
-    if 'mixing_enthalpy' in df.columns:
-        feature_cols.append('mixing_enthalpy')
+    # Expected feature columns based on T014, T015 implementation
+    # These must exist in the processed CSV
+    feature_cols = [
+        'mixing_enthalpy', 
+        'atomic_size_mismatch', 
+        'electronegativity_variance'
+    ]
     
-    # Drop rows with NaN in features or target
-    df = df.dropna(subset=feature_cols + ['critical_cooling_rate'])
+    # Verify all required columns exist
+    missing_cols = [col for col in feature_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required feature columns in {DATA_PATH}: {missing_cols}")
     
-    X = df[feature_cols].values
-    y = df['critical_cooling_rate'].values
+    if 'critical_cooling_rate' not in df.columns:
+        raise ValueError(f"Target column 'critical_cooling_rate' not found in {DATA_PATH}")
     
-    # Train-test split
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    X = df[feature_cols]
+    y = df['critical_cooling_rate']
     
-    logger.info(f"Train set size: {len(X_train)}, Test set size: {len(X_test)}")
-    return X_train, X_test, y_train, y_test
+    logger.info(f"Loaded data: {X.shape[0]} samples, {X.shape[1]} features")
+    return X, y
 
-def train_model(X_train: np.ndarray, y_train: np.ndarray) -> Any:
-    """
-    Train a Random Forest regressor.
-    """
+def train_model(X_train: pd.DataFrame, y_train: pd.Series, random_state: int = 42) -> RandomForestRegressor:
+    """Train a Random Forest Regressor."""
+    logger = get_logger(__name__)
     model = RandomForestRegressor(
-        n_estimators=100, 
-        random_state=42,
+        n_estimators=100,
+        random_state=random_state,
         n_jobs=-1
     )
     model.fit(X_train, y_train)
+    logger.info("Model trained successfully")
     return model
 
-def run_cross_validation(model: Any, X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
-    """
-    Perform 5-fold cross-validation.
-    """
-    scores = cross_val_score(
-        model, X, y, cv=5, scoring='neg_mean_squared_error', n_jobs=-1
-    )
-    rmse_scores = np.sqrt(-scores)
+def run_cross_validation(model: RandomForestRegressor, X: pd.DataFrame, y: pd.Series, cv_folds: int = 5) -> Dict[str, Any]:
+    """Perform k-fold cross-validation and save metrics."""
+    logger = get_logger(__name__)
+    ensure_dir(MODEL_DIR)
     
-    result = {
-        'fold_scores': rmse_scores.tolist(),
-        'mean_rmse': float(np.mean(rmse_scores))
+    scores = cross_val_score(model, X, y, cv=cv_folds, scoring='neg_root_mean_squared_error')
+    rmse_scores = np.abs(scores)
+    
+    metrics = {
+        "fold_scores": rmse_scores.tolist(),
+        "mean_rmse": float(np.mean(rmse_scores)),
+        "std_rmse": float(np.std(rmse_scores))
     }
-    return result
+    
+    with open(CV_METRICS_PATH, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    logger.info(f"Cross-validation completed: Mean RMSE = {metrics['mean_rmse']:.4f} (+/- {metrics['std_rmse']:.4f})")
+    return metrics
 
-def evaluate_on_test(model: Any, X_test: np.ndarray, y_test: np.ndarray) -> float:
-    """
-    Evaluate model on test set.
-    """
+def evaluate_on_test(model: RandomForestRegressor, X_test: pd.DataFrame, y_test: pd.Series) -> float:
+    """Evaluate model on held-out test set and return RMSE."""
+    logger = get_logger(__name__)
     y_pred = model.predict(X_test)
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    return float(rmse)
+    logger.info(f"Test set RMSE: {rmse:.4f}")
+    return rmse
 
-def save_model(model: Any, filepath: str):
-    """
-    Save model to pickle file.
-    """
-    with open(filepath, 'wb') as f:
+def save_model(model: RandomForestRegressor, model_path: str) -> None:
+    """Save the trained model to disk."""
+    logger = get_logger(__name__)
+    ensure_dir(os.path.dirname(model_path))
+    with open(model_path, 'wb') as f:
         pickle.dump(model, f)
-    logger.info(f"Model saved to {filepath}")
+    logger.info(f"Model saved to {model_path}")
 
-def train_and_evaluate_null_model(X_train: np.ndarray, y_train: np.ndarray, 
-                                  X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, Any]:
-    """
-    Train a DummyRegressor (mean strategy) and evaluate.
-    """
-    null_model = DummyRegressor(strategy='mean')
+def train_and_evaluate_null_model(X_train: pd.DataFrame, y_train: pd.Series, 
+                                  X_test: pd.DataFrame, y_test: pd.Series,
+                                  random_state: int = 42) -> Dict[str, Any]:
+    """Train a DummyRegressor and evaluate on test set."""
+    logger = get_logger(__name__)
+    
+    # Train null model
+    null_model = DummyRegressor(strategy='mean', random_state=random_state)
     null_model.fit(X_train, y_train)
     
-    y_pred_null = null_model.predict(X_test)
-    rmse_null = np.sqrt(mean_squared_error(y_test, y_pred_null))
+    # Predict on test set
+    null_predictions = null_model.predict(X_test)
+    null_rmse = np.sqrt(mean_squared_error(y_test, null_predictions))
     
-    return {
-        'rmse': float(rmse_null)
+    # Save predictions
+    np.save(NULL_MODEL_PREDICTIONS_PATH, null_predictions)
+    
+    # Save RMSE metrics
+    metrics = {
+        "null_model_rmse": float(null_rmse),
+        "strategy": "mean"
     }
-
-def run_training():
-    """
-    Main function to run the training pipeline.
-    """
-    logger.info("Starting Model Training Pipeline...")
+    with open(NULL_MODEL_RMSE_PATH, 'w') as f:
+        json.dump(metrics, f, indent=2)
     
-    # Ensure output directory exists
-    os.makedirs(MODELS_DIR, exist_ok=True)
+    logger.info(f"Null model (mean strategy) test RMSE: {null_rmse:.4f}")
+    return metrics
+
+def run_training() -> None:
+    """Main entry point for training pipeline."""
+    logger = get_logger(__name__)
+    logger.info("Starting training pipeline")
     
     # Load data
-    X_train, X_test, y_train, y_test = load_data()
+    X, y = load_data()
+    
+    # Train-test split (80/20)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+    logger.info(f"Train set: {X_train.shape[0]}, Test set: {X_test.shape[0]}")
     
     # Train model
     model = train_model(X_train, y_train)
     
     # Cross-validation
-    cv_results = run_cross_validation(model, X_train, y_train)
-    cv_path = os.path.join(MODELS_DIR, "cv_metrics.json")
-    with open(cv_path, 'w') as f:
-        json.dump(cv_results, f, indent=2)
-    logger.info(f"CV metrics saved to {cv_path}")
+    cv_metrics = run_cross_validation(model, X_train, y_train)
     
     # Evaluate on test set
     test_rmse = evaluate_on_test(model, X_test, y_test)
-    logger.info(f"Test RMSE: {test_rmse:.4f}")
     
     # Save model
-    model_path = os.path.join(MODELS_DIR, "random_forest_model.pkl")
-    save_model(model, model_path)
+    save_model(model, MODEL_PATH)
     
     # Train and evaluate null model
-    null_results = train_and_evaluate_null_model(X_train, y_train, X_test, y_test)
-    null_path = os.path.join(MODELS_DIR, "null_model_rmse.json")
-    with open(null_path, 'w') as f:
-        json.dump(null_results, f, indent=2)
-    logger.info(f"Null model RMSE saved to {null_path}")
+    null_metrics = train_and_evaluate_null_model(X_train, y_train, X_test, y_test)
     
-    return model, cv_results, null_results
+    logger.info("Training pipeline completed successfully")
+    
+    # Print summary
+    print(f"\n=== Training Summary ===")
+    print(f"CV Mean RMSE: {cv_metrics['mean_rmse']:.4f}")
+    print(f"Test RMSE: {test_rmse:.4f}")
+    print(f"Null Model RMSE: {null_metrics['null_model_rmse']:.4f}")
+    print(f"Model saved to: {MODEL_PATH}")
 
 if __name__ == "__main__":
     run_training()

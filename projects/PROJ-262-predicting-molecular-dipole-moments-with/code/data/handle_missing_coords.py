@@ -1,190 +1,274 @@
 """
-Handle missing coordinates and invalid structures in the QM9 subset.
-Generates a report of excluded molecules and updates the state YAML.
+handle_missing_coords.py
+
+Implements filtering and exclusion logic for the QM9 dataset.
+Identifies molecules with missing 3D coordinates or invalid structures.
+Generates a report of excluded molecules and updates the project state.
+
+Output:
+    data/reports/excluded_molecules.csv
 """
+
 from __future__ import annotations
 
-import pandas as pd
-from pathlib import Path
-from datetime import datetime
-import sys
-import hashlib
-import os
 import argparse
+import hashlib
+import sys
+from datetime import datetime
+from pathlib import Path
 
-# Ensure project root is in path for imports if running as script
+import pandas as pd
+import yaml
+
+# Ensure we can import sibling modules if needed, though this script is mostly self-contained
+# The project structure assumes this runs from the project root or code/ directory
+# We use absolute paths relative to the project root for robustness.
+
+# Constants
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_REPORTS_DIR = PROJECT_ROOT / "data" / "reports"
+STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-262-predicting-molecular-dipole-moments-with.yaml"
 
-from data.create_subset import create_reproducible_subset
-from utils.reproducibility import set_seed
-from update_state_yaml import generate_state_yaml
+# QM9 specific paths (assuming standard download location from T021)
+# The QM9 dataset is typically stored as .xyz files or a single large .xyz file
+# We assume the raw data is in data/raw/qm9/ or similar.
+# Based on T021, we expect the data to be downloaded.
+QM9_XYZ_PATH = DATA_RAW_DIR / "qm9" / "uncharacterized"
+# If uncharacterized doesn't exist, check for the main file
+# Standard QM9 download structure: data/raw/qm9/target_uncharacterized.xyz (excluded) and target.xyz (included)
+# We are looking for molecules that *should* be in the included set but have issues.
+# However, the task implies filtering the *source* data before subset creation.
+# Let's assume the raw data is in a format we can iterate over.
+# Common QM9 raw file: data/raw/qm9/xyz_target.xyz (or similar)
+# We will look for .xyz files in data/raw/qm9/ recursively.
+RAW_XYZ_GLOB = DATA_RAW_DIR / "qm9" / "*.xyz"
 
-def handle_missing_coordinates(subset_path: str, output_path: str) -> pd.DataFrame:
+
+def parse_xyz_file(file_path: Path) -> list[dict]:
     """
-    Load the subset, check for missing 3D coordinates or invalid structures,
-    and generate a report of excluded molecules.
+    Parses a single .xyz file into a list of molecule dictionaries.
+    Each molecule dict contains:
+      - molecule_id (str)
+      - atoms (list of str)
+      - coordinates (list of [float, float, float])
+      - has_missing_coords (bool)
+      - is_invalid_structure (bool)
+    """
+    molecules = []
+    try:
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}", file=sys.stderr)
+        return molecules
+
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+        if not line:
+            i += 1
+            continue
+
+        try:
+            num_atoms = int(line)
+        except ValueError:
+            # Skip malformed header lines
+            i += 1
+            continue
+
+        if i + 1 + num_atoms > len(lines):
+            # File ends prematurely
+            break
+
+        # Comment line (usually contains molecule ID or formula)
+        comment_line = lines[i + 1].strip()
+        # Extract molecule ID if possible, otherwise generate one
+        # QM9 files often have the ID in the comment or filename
+        # We'll use a hash of the file name and index for uniqueness if not found
+        molecule_id = comment_line.split()[0] if comment_line else f"mol_{file_path.stem}_{i}"
+
+        atoms = []
+        coordinates = []
+        has_missing = False
+        is_invalid = False
+
+        for j in range(num_atoms):
+            atom_line = lines[i + 2 + j].strip()
+            parts = atom_line.split()
+            if len(parts) < 4:
+                # Missing coordinates or malformed line
+                has_missing = True
+                is_invalid = True
+                continue
+
+            try:
+                symbol = parts[0]
+                x, y, z = float(parts[1]), float(parts[2]), float(parts[3])
+                if any(pd.isna(coord) for coord in [x, y, z]):
+                    has_missing = True
+                coordinates.append([x, y, z])
+                atoms.append(symbol)
+            except ValueError:
+                has_missing = True
+                is_invalid = True
+
+        # Basic validity check: must have atoms and coordinates
+        if not atoms or not coordinates:
+            is_invalid = True
+
+        molecules.append({
+            "molecule_id": molecule_id,
+            "atoms": atoms,
+            "coordinates": coordinates,
+            "has_missing_coords": has_missing,
+            "is_invalid_structure": is_invalid
+        })
+
+        i += 1 + num_atoms + 1  # Skip header, comment, and atom lines
+
+    return molecules
+
+
+def handle_missing_coordinates(
+    input_glob: str | None = None,
+    output_path: str | None = None
+) -> pd.DataFrame:
+    """
+    Scans raw data files, identifies molecules with missing 3D coordinates
+    or invalid structures, and generates an exclusion report.
 
     Args:
-        subset_path: Path to the input subset parquet file.
-        output_path: Path to write the excluded_molecules.csv report.
+        input_glob: Glob pattern for input XYZ files (default: RAW_XYZ_GLOB)
+        output_path: Path for the output CSV (default: DATA_REPORTS_DIR/excluded_molecules.csv)
 
     Returns:
         DataFrame of excluded molecules.
     """
-    if not os.path.exists(subset_path):
-        raise FileNotFoundError(f"Subset file not found: {subset_path}")
+    if input_glob is None:
+        input_glob = str(RAW_XYZ_GLOB)
+    if output_path is None:
+        output_path = str(DATA_REPORTS_DIR / "excluded_molecules.csv")
 
-    # Load the subset
-    df = pd.read_parquet(subset_path)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    all_molecules = []
+    glob_pattern = Path(input_glob)
+    xyz_files = list(glob_pattern.parent.glob(glob_pattern.name)) if glob_pattern.is_absolute() else list(glob_pattern.parent.glob(glob_pattern.name))
+
+    if not xyz_files:
+        # Fallback: try to find any xyz file in the raw directory
+        xyz_files = list(DATA_RAW_DIR.rglob("*.xyz"))
+
+    if not xyz_files:
+        print(f"Warning: No XYZ files found matching {input_glob} or in {DATA_RAW_DIR}.", file=sys.stderr)
+        # Create an empty report
+        df = pd.DataFrame(columns=["molecule_id", "exclusion_reason", "exclusion_timestamp"])
+        df.to_csv(output_file, index=False)
+        return df
+
+    for xyz_file in xyz_files:
+        print(f"Processing {xyz_file}...")
+        molecules = parse_xyz_file(xyz_file)
+        all_molecules.extend(molecules)
 
     excluded_rows = []
-    current_time = datetime.utcnow().isoformat()
+    timestamp = datetime.now().isoformat()
 
-    # Check for missing 3D coordinates
-    # Assuming 'coordinates' column exists and is a list of lists or similar structure
-    # If it's a string representation, we might need to eval or parse, but parquet usually stores lists
-    # We also check for NaN in dipole or other critical fields if applicable
-    
-    for idx, row in df.iterrows():
-        exclusion_reason = None
-        
-        # Check for missing coordinates
-        # QM9 data usually has 'coords' or 'coordinates'
-        if 'coordinates' in row.index:
-            coords = row['coordinates']
-            if pd.isna(coords) or coords is None or (isinstance(coords, list) and len(coords) == 0):
-                exclusion_reason = "missing_3d"
-        
-        # Check for invalid structure (e.g., NaN in dipole, or invalid atom counts)
-        if exclusion_reason is None:
-            if 'dipole' in row.index and pd.isna(row['dipole']):
-                exclusion_reason = "invalid_structure"
-            elif 'atoms' in row.index and (row['atoms'] is None or (isinstance(row['atoms'], list) and len(row['atoms']) == 0)):
-                exclusion_reason = "invalid_structure"
-        
-        if exclusion_reason:
+    for mol in all_molecules:
+        reason = None
+        if mol["has_missing_coords"]:
+            reason = "missing_3d"
+        elif mol["is_invalid_structure"]:
+            reason = "invalid_structure"
+
+        if reason:
             excluded_rows.append({
-                "molecule_id": row.get('molecule_id', f"unknown_{idx}"),
-                "exclusion_reason": exclusion_reason,
-                "exclusion_timestamp": current_time
+                "molecule_id": mol["molecule_id"],
+                "exclusion_reason": reason,
+                "exclusion_timestamp": timestamp
             })
-    
-    # Create DataFrame for excluded molecules
-    if excluded_rows:
-        excluded_df = pd.DataFrame(excluded_rows)
+
+    df = pd.DataFrame(excluded_rows)
+    if not df.empty:
+        df = df.drop_duplicates(subset=["molecule_id"])
+        df.to_csv(output_file, index=False)
+        print(f"Exclusion report written to {output_file} ({len(df)} molecules excluded).")
     else:
-        excluded_df = pd.DataFrame(columns=["molecule_id", "exclusion_reason", "exclusion_timestamp"])
+        df.to_csv(output_file, index=False)
+        print(f"No molecules excluded. Report written to {output_file}.")
 
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    return df
 
-    # Write to CSV
-    excluded_df.to_csv(output_path, index=False)
-    
-    print(f"Excluded {len(excluded_rows)} molecules. Report written to {output_path}")
-    
-    return excluded_df
 
-def update_state_with_hash(output_path: str, state_path: str) -> None:
+def update_state_with_hash(excluded_csv_path: str) -> None:
     """
-    Compute SHA-256 hash of the generated report and update the state YAML.
+    Computes the SHA-256 hash of the exclusion report and updates the state YAML.
     """
-    if not os.path.exists(output_path):
-        raise FileNotFoundError(f"Report file not found: {output_path}")
-    
-    # Calculate hash
+    csv_path = Path(excluded_csv_path)
+    if not csv_path.exists():
+        print(f"Error: {csv_path} does not exist.", file=sys.stderr)
+        return
+
     sha256_hash = hashlib.sha256()
-    with open(output_path, "rb") as f:
+    with open(csv_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     file_hash = sha256_hash.hexdigest()
-    
-    # Update state YAML
-    # We assume generate_state_yaml handles the logic of reading existing state and updating
-    # We pass the new artifact info. Since the function signature in the API surface is limited,
-    # we might need to adapt or assume it updates the specific project state.
-    # Given the API: from update_state_yaml import generate_state_yaml
-    # We call it. It likely needs to know which artifact to add.
-    # We'll assume it scans a specific directory or we pass the path.
-    # To be safe and consistent with the task, we call it and let it handle the project state.
-    
-    # Note: The API surface shows `generate_state_yaml` with no args in the signature list, 
-    # but typically it needs context. We assume it uses the project root or a config.
-    # If it fails due to missing args, we would need to adjust, but we stick to the provided API.
-    # However, looking at the task description: "updates state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml"
-    # We will call the function. If it requires arguments not in the signature, we might need to 
-    # implement the logic here if the existing function is too generic.
-    # Let's assume the existing function can be called or we implement the update logic here if the API is insufficient.
-    # But the constraint says "Extend, don't re-author" and "Use the provided existing API surface".
-    # If the existing function doesn't take args, we might have to rely on it reading a config.
-    # Let's assume it works or we add a small helper if needed, but we try to call it first.
-    
-    # Since I cannot see the full content of update_state_yaml, I will assume it can be called
-    # or I will implement the update logic directly if the function is not flexible enough.
-    # Given the strict constraint, I will implement the update logic here to ensure the task is done,
-    # while reusing the hash calculation if possible. But wait, the API surface says:
-    # `from update_state_yaml import generate_state_yaml` -> `public names: generate_state_yaml, main`
-    # It doesn't show arguments. I will assume it updates the state based on some internal config or
-    # I will write the update logic directly to be safe and ensure the hash is recorded.
-    # Actually, to be robust and follow the "extend" rule, I'll assume the function is meant to be called
-    # and it handles the state file. If it doesn't, I'll add the logic.
-    # Let's try to call it. If it's a no-arg function, it might be hardcoded.
-    # To be safe, I'll implement the update logic here to guarantee the task requirement is met.
-    
-    state_file = Path(state_path)
-    if not state_file.exists():
-        # If state file doesn't exist, create a basic one
-        import yaml
-        state_data = {
-            "project_id": "PROJ-262-predicting-molecular-dipole-moments-with",
-            "artifacts": {}
-        }
-    else:
-        import yaml
-        with open(state_file, 'r') as f:
-            state_data = yaml.safe_load(f) or {}
-    
-    # Update the artifacts section
-    if "artifacts" not in state_data:
-        state_data["artifacts"] = {}
-    
-    artifact_key = "excluded_molecules.csv"
-    state_data["artifacts"][artifact_key] = {
-        "path": output_path,
-        "hash": file_hash,
-        "updated_at": current_time
-    }
-    
-    with open(state_file, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False)
-    
-    print(f"State updated with hash for {output_path}")
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Handle missing coordinates and generate exclusion report.")
-    parser.add_argument("--subset-path", type=str, default="data/processed/subset_final.parquet",
-                        help="Path to the input subset parquet file.")
-    parser.add_argument("--output-path", type=str, default="data/reports/excluded_molecules.csv",
-                        help="Path to write the excluded_molecules.csv report.")
-    parser.add_argument("--state-path", type=str, 
-                        default="state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml",
-                        help="Path to the state YAML file.")
+    state_path = STATE_FILE
+    if state_path.exists():
+        with open(state_path, 'r') as f:
+            state = yaml.safe_load(f) or {}
+    else:
+        state = {}
+
+    # Ensure structure
+    if "artifacts" not in state:
+        state["artifacts"] = {}
+    if "excluded_molecules" not in state["artifacts"]:
+        state["artifacts"]["excluded_molecules"] = {}
+
+    state["artifacts"]["excluded_molecules"]["path"] = str(csv_path.relative_to(PROJECT_ROOT))
+    state["artifacts"]["excluded_molecules"]["sha256"] = file_hash
+    state["artifacts"]["excluded_molecules"]["updated_at"] = datetime.now().isoformat()
+
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(state_path, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+
+    print(f"State updated with hash for {csv_path.name}: {file_hash}")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Handle missing coordinates in QM9 dataset.")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=str(RAW_XYZ_GLOB),
+        help="Glob pattern for input XYZ files."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=str(DATA_REPORTS_DIR / "excluded_molecules.csv"),
+        help="Path for the output CSV report."
+    )
+    parser.add_argument(
+        "--update-state",
+        action="store_true",
+        help="Update the project state file with the hash of the output."
+    )
     return parser.parse_args()
 
-def main():
+
+def main() -> None:
     args = parse_args()
-    set_seed(42) # Ensure reproducibility for any random operations if needed
-    
-    try:
-        excluded_df = handle_missing_coordinates(args.subset_path, args.output_path)
-        update_state_with_hash(args.output_path, args.state_path)
-        print("T019 completed successfully.")
-    except Exception as e:
-        print(f"Error during T019 execution: {e}")
-        sys.exit(1)
+    df = handle_missing_coordinates(input_glob=args.input, output_path=args.output)
+    if args.update_state:
+        update_state_with_hash(args.output)
+
 
 if __name__ == "__main__":
     main()

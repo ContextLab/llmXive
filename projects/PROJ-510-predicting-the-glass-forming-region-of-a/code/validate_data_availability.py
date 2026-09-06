@@ -1,85 +1,49 @@
 """
-Task T012b: Validate dataset size against FR-001 target.
+Data Availability Validation Module.
 
-This script validates that the processed alloy dataset meets the minimum
-sample size requirement (N >= 1000) as specified in FR-001.
+This module validates that the processed dataset meets the FR-001 target.
 """
-
 import logging
 import sys
 import os
 import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+from utils import get_logger
 
-# Constants
-DATA_PATH = os.path.join("data", "processed", "processed_alloys_raw.csv")
-MIN_SAMPLES = 1000
+logger = get_logger(__name__)
 
-
-def validate_data_availability(data_path: str, min_samples: int = 1000) -> bool:
+def validate_data_availability(df: pd.DataFrame) -> None:
     """
-    Validate that the dataset meets the minimum sample size requirement.
-
+    Validate data availability against FR-001 target.
+    
     Args:
-        data_path: Path to the processed alloys CSV file.
-        min_samples: Minimum required number of samples (default 1000).
-
-    Returns:
-        bool: True if validation passes, False otherwise.
-
+        df: Processed DataFrame
+        
     Raises:
-        FileNotFoundError: If the data file does not exist.
-        ValueError: If the sample count is below the required threshold.
+        ValueError: If N < 1000.
     """
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(
-            f"Data file not found at {data_path}. "
-            "Run ingestion.py first to generate the processed data."
-        )
-
-    df = pd.read_csv(data_path)
-    n_samples = len(df)
-
-    logger.info(f"Loaded {n_samples} samples from {data_path}")
-
-    if n_samples < min_samples:
-        error_msg = (
-            f"Data availability error: N = {n_samples} < {min_samples}. "
-            f"Target N >= {min_samples} required by FR-001."
-        )
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-
-    logger.info(f"Data validation PASSED: N = {n_samples} >= {min_samples}")
-    return True
-
+    n = len(df)
+    
+    if n < 1000:
+        raise ValueError(f"Data availability error: N < 1000. Target N >= 1000 required by FR-001.")
+    
+    if 1000 <= n < 5000:
+        logger.info(f"Data is sufficient but below ideal: N={n}")
+    else:
+        logger.info(f"Data is sufficient: N={n}")
 
 def run_validation():
-    """Main entry point for the validation script."""
-    try:
-        validate_data_availability(DATA_PATH, MIN_SAMPLES)
-        logger.info("Validation completed successfully.")
-        return 0
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Validation failed: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error during validation: {e}")
-        return 1
-
+    """
+    Main function to run data availability validation.
+    """
+    input_path = "data/processed/processed_alloys.csv"
+    
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Processed data not found at {input_path}. Run features.py first.")
+    
+    df = pd.read_csv(input_path)
+    validate_data_availability(df)
+    logger.info("Data availability validation passed")
 
 if __name__ == "__main__":
-    exit_code = run_validation()
-    sys.exit(exit_code)
+    run_validation()

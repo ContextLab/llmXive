@@ -1,0 +1,13 @@
+{
+  "ds001435": {
+    "status": "hypothetical",
+    "source_type": "mock",
+    "mock_data_path": "data/raw/mock_ds001435.zip",
+    "description": "Dataset ds001435 is currently unavailable (401/404). Pipeline will run in hypothetical mode using mock data if this config is present.",
+    "geometry_defaults": {
+      "screen_width_px": 1920,
+      "viewing_distance_mm": 600,
+      "sampling_rate_hz": 1000
+    }
+  }
+}

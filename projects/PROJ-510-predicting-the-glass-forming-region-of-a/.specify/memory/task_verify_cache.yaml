@@ -24,23 +24,6 @@ T021:
     \ to `data/models/cv_metrics.json`. Moreover, the required `cv_metrics.json` file\
     \ does not exist on disk, so the verification command would fail. The task\u2019\
     s core output is missing."
-T024c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No data ingestion script, output CSV, feature\u2011engineering code, model training\
-    \ script, saved model, or metrics report were supplied. Consequently the required\
-    \ artifacts (\u2265500\u2011row CSV with thermodynamic columns and critical_cooling_rate,\
-    \ logs, trained Random Forest model, and evaluation metrics) are missing, so the\
-    \ task is not satisfied."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `random_forest_model_stable.pkl` or any permutation\u2011importance results\
-    \ were provided, and the required `feature_importance.json` file is absent. Consequently\
-    \ there is no evidence that permutation importance was computed, p\u2011values\
-    \ were derived, or that a thermodynamic feature meets the top\u20112 / p\u202F\
-    <\u202F0.05 criterion. The implementer must supply the stable model, the computed\
-    \ importance data, and the JSON output meeting the specified conditions."
 T029a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -63,13 +46,6 @@ T030b:
     \ stability (e.g., permutation importance results, sensitivity plots, or stability\
     \ metrics) was provided. The required artifact for User Story\u202F3 is missing,\
     \ so the task is not satisfied."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, notebook, or results were provided for the required \u201CThreshold\u2011\
-    Sweep Sensitivity Analysis.\u201D The claim contains only a placeholder comment\
-    \ (\u201CFAILED: unspecified\u201D) and no artifact (e.g., script, plots, or report)\
-    \ that actually performs the analysis, so the requirement is not satisfied."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

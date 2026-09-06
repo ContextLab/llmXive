@@ -53,7 +53,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
   verified_at: '2026-08-29T07:38:43.929793Z'
-- artifact_hash: 54936448c5e214d0bcc0e9efc459d2aaa80bf01ecc4ecfe835af231ac8c13ea2
+- artifact_hash: f5ffd182e5d6be0952096569118b20e84931b54abfc54c77fda328941c008edf
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,8 +63,8 @@
   value: https://www.wikidata.org/wiki/Q138548786
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q138548786
-  verified_at: '2026-09-02T12:49:53.093223Z'
-- artifact_hash: 54936448c5e214d0bcc0e9efc459d2aaa80bf01ecc4ecfe835af231ac8c13ea2
+  verified_at: '2026-09-06T06:39:34.442257Z'
+- artifact_hash: f5ffd182e5d6be0952096569118b20e84931b54abfc54c77fda328941c008edf
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -74,8 +74,8 @@
   value: https://www.wikidata.org/wiki/Q126592664
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q126592664
-  verified_at: '2026-09-02T12:49:53.093223Z'
-- artifact_hash: 54936448c5e214d0bcc0e9efc459d2aaa80bf01ecc4ecfe835af231ac8c13ea2
+  verified_at: '2026-09-06T06:39:34.442257Z'
+- artifact_hash: f5ffd182e5d6be0952096569118b20e84931b54abfc54c77fda328941c008edf
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -85,4 +85,4 @@
   value: 10.1038/sdata.2014.22
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-09-02T12:49:53.093223Z'
+  verified_at: '2026-09-06T06:39:34.442257Z'

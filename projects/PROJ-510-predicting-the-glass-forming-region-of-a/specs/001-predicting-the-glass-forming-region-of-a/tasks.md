@@ -81,7 +81,7 @@ shap
  5. **Data Volume Handling**: Process ALL valid data. If the dataset exceeds memory limits (e.g., >100k rows), stream and process in chunks, accumulating statistics online. Do NOT hardcode a sampling cap that reduces data below the FR-001 target of N >= 1000.
  6. Write the filtered rows to `data/processed/processed_alloys_raw.csv`.
 - [X] T012a [US1] Implement `code/ingestion.py` parsing and validation logic as a distinct function `parse_composition_and_validate` to ensure atomicity. <!-- FAILED: unspecified -->
-- [ ] T012b [US1] Validate dataset size against FR-001 target:
+- [ ] T012b [US1] Validate dataset size against FR-001 target: <!-- ATOMIZE: requested -->
  - Load `data/processed/processed_alloys_raw.csv`.
  - If N < 1000, raise `ValueError("Data availability error: N < 1000. Target N >= 1000 required by FR-001.")`.
  - If N >= 1000, log `INFO` (data is sufficient).
@@ -92,9 +92,9 @@ shap
  **Formulas**:
  - `atomic_size_mismatch` ($\delta$): $1 - \frac{\sum c_i r_i}{\bar{r}}$, where $r_i$ is atomic radius from `mendeleev` and $\bar{r}$ is the weighted average radius.
  - `electronegativity_variance`: Variance of electronegativity values weighted by composition $c_i$.
-- [ ] T010a [US1] Unit test `test_features.py::test_mixing_enthalpy` and `test_size_mismatch` (runs after successful implementation of T014 & T015).
+- [ ] T010a [US1] Unit test `test_features.py::test_mixing_enthalpy` and `test_size_mismatch` (runs after successful implementation of T014 & T015). <!-- FAILED: unspecified -->
 - [ ] T016a [US1] Save the engineered dataset (including all thermodynamic columns) to `data/processed/processed_alloys.csv`.
-- [ ] T016b [US1] Validate processed data: <!-- FAILED: unspecified -->
+- [ ] T016b [US1] Validate processed data: <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  - Verify schema compliance against `contracts/dataset.schema.yaml`.
  - **CRITICAL**: Load `data/processed/processed_alloys.csv`. If N < 1000, raise `ValueError("Data availability error: N < 1000. Target N >= 1000 required by FR-001.")`.
  - If 1000 <= N < 5000, log `INFO` (data is sufficient but below ideal).
@@ -105,10 +105,10 @@ shap
 
 **Goal**: Train a Random Forest regressor with k-fold cross-validation and evaluate against a null model.
 
-- [ ] T020 [US2] Load `processed_alloys.csv`; perform a standard train-test split (`random_state=42`).
-- [ ] T021 [US2] Train `RandomForestRegressor` on the training set; perform 5‑fold CV, record each fold RMSE in `data/models/cv_metrics.json` (`{"fold_scores": [...], "mean_rmse":...}`). <!-- FAILED: unspecified -->
+- [ ] T020 [US2] Load `processed_alloys.csv`; perform a standard train-test split (`random_state=42`). <!-- ATOMIZE: requested -->
+- [ ] T021 [US2] Train `RandomForestRegressor` on the training set; perform 5‑fold CV, record each fold RMSE in `data/models/cv_metrics.json` (`{"fold_scores": [...], "mean_rmse":...}`). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T022 [US2] Evaluate on the held‑out test set; save RMSE and the trained model to `data/models/random_forest_model.pkl`.
-- [ ] T022b [US2] Train a `DummyRegressor` (strategy='mean') on the same training split; compute test RMSE; save predictions (`null_model_predictions.npy`) and RMSE (`null_model_rmse.json`). <!-- FAILED: unspecified -->
+- [ ] T022b [US2] Train a `DummyRegressor` (strategy='mean') on the same training split; compute test RMSE; save predictions (`null_model_predictions.npy`) and RMSE (`null_model_rmse.json`). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Statistical Validation (SC‑002)
 
@@ -147,11 +147,11 @@ shap
 
 ### Permutation Importance (SC‑004)
 
-- [ ] T028 [US3] Using the **stable model** (`random_forest_model_stable.pkl`), compute permutation importance (`n_permutations=1000`, `random_state=42`). Calculate p-values using a **one-sample t-test** comparing the observed importance of each feature against the distribution of importance scores from the 1000 permutations (shuffled baseline). Write `feature_importance.json` (list of `{feature, p_value}`) ensuring at least one thermodynamic feature is in the top‑2 with `p_value < 0.05`. <!-- FAILED: unspecified -->
+- [ ] T028 [US3] Using the **stable model** (`random_forest_model_stable.pkl`), compute permutation importance (`n_permutations=1000`, `random_state=42`). Calculate p-values using a **one-sample t-test** comparing the observed importance of each feature against the distribution of importance scores from the 1000 permutations (shuffled baseline). Write `feature_importance.json` (list of `{feature, p_value}`) ensuring at least one thermodynamic feature is in the top‑2 with `p_value < 0.05`. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 ### Sensitivity Analysis (SC‑003)
 
-- [ ] T031 [US3] Perform **Threshold‑Sweep Sensitivity Analysis**:
+- [ ] T031 [US3] Perform **Threshold‑Sweep Sensitivity Analysis**: <!-- FAILED: unspecified -->
  1. Load the **stable model** (`random_forest_model_stable.pkl`) and the full processed dataset.
  2. **Regression Metric (Constant)**: Compute RMSE on the continuous target using the stable model. This value is invariant to the threshold.
  3. **Classification F1 Stability Sweep**:

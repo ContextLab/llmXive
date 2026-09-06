@@ -1,4 +1,4 @@
-"""Schema validation and seed configuration management."""
+"""Schema definitions and validation for seed configuration."""
 import json
 import hashlib
 import os
@@ -7,55 +7,74 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 # Path to the seed configuration file
-SEED_CONFIG_PATH = Path(__file__).parent / "seed_config.json"
+SEED_CONFIG_PATH = Path("code/simulation/seed_config.json")
 
-# JSON Schema definition for seed_config
-SEED_SCHEMA = {
+# JSON Schema definition for seed_config.json
+SEED_CONFIG_SCHEMA = {
     "type": "object",
-    "additionalProperties": {
-        "type": "object",
-        "properties": {
-            "seed": {"type": "integer"},
-            "timestamp": {"type": "string"},
-            "config_hash": {"type": "string"}
-        },
-        "required": ["seed", "timestamp", "config_hash"]
-    }
+    "patternProperties": {
+        "^batch_[0-9]+$": {  # Keys must look like batch_N
+            "type": "object",
+            "properties": {
+                "seed": {"type": "integer"},
+                "timestamp": {"type": "string", "format": "date-time"},
+                "config_hash": {"type": "string", "minLength": 64, "maxLength": 64}
+            },
+            "required": ["seed", "timestamp", "config_hash"]
+        }
+    },
+    "additionalProperties": False
 }
-
 
 def validate_seed_config(config: Dict[str, Any]) -> bool:
     """
     Validate a seed configuration dictionary against the schema.
-
-    Args:
-        config: Dictionary to validate
-
-    Returns:
-        True if valid, False otherwise
+    Returns True if valid, False otherwise.
     """
+    # Basic type check
     if not isinstance(config, dict):
         return False
 
+    # Check that all keys follow the batch_N pattern
+    import re
+    batch_pattern = re.compile(r'^batch_[0-9]+$')
+    for key in config.keys():
+        if not batch_pattern.match(key):
+            return False
+
+    # Check each batch entry
     for batch_id, entry in config.items():
         if not isinstance(entry, dict):
             return False
-        if not isinstance(entry.get("seed"), int):
+
+        # Check required fields
+        required_fields = ["seed", "timestamp", "config_hash"]
+        for field in required_fields:
+            if field not in entry:
+                return False
+
+        # Type checks
+        if not isinstance(entry["seed"], int):
             return False
-        if not isinstance(entry.get("timestamp"), str):
+        if not isinstance(entry["timestamp"], str):
             return False
-        if not isinstance(entry.get("config_hash"), str):
+        if not isinstance(entry["config_hash"], str):
+            return False
+
+        # Config hash should be a valid SHA256 hex string (64 chars)
+        if len(entry["config_hash"]) != 64:
+            return False
+        try:
+            int(entry["config_hash"], 16)
+        except ValueError:
             return False
 
     return True
 
-
 def load_seed_config() -> Dict[str, Any]:
     """
-    Load the seed configuration from the JSON file.
-
-    Returns:
-        Dictionary containing the seed configuration, or empty dict if file doesn't exist.
+    Load the seed configuration from disk.
+    Returns an empty dict if the file doesn't exist.
     """
     if not SEED_CONFIG_PATH.exists():
         return {}
@@ -63,62 +82,59 @@ def load_seed_config() -> Dict[str, Any]:
     try:
         with open(SEED_CONFIG_PATH, 'r') as f:
             config = json.load(f)
-            if validate_seed_config(config):
-                return config
-            else:
-                # If validation fails, return empty config to avoid corruption
-                return {}
+        if not validate_seed_config(config):
+            # If validation fails, return empty config to avoid corruption
+            return {}
+        return config
     except (json.JSONDecodeError, IOError):
         return {}
 
-
-def save_seed_config(batch_id: str, seed: int, config: Dict[str, Any]) -> None:
+def save_seed_config(batch_id: str, seed: int, config_hash: str) -> None:
     """
     Append a new batch's seed configuration to the seed_config.json file.
-    This function is append-only; existing entries are never overwritten.
-
+    The file is append-only: existing keys are never overwritten.
+    
     Args:
-        batch_id: Unique identifier for the batch
-        seed: Random seed used for this batch
-        config: Simulation configuration dictionary to hash
+        batch_id: The batch identifier (e.g., 'batch_1')
+        seed: The random seed for this batch
+        config_hash: SHA256 hash of the configuration
     """
     # Load existing config
-    existing_config = load_seed_config()
+    config = load_seed_config()
 
-    # Generate config hash
-    config_str = json.dumps(config, sort_keys=True)
-    config_hash = hashlib.sha256(config_str.encode()).hexdigest()
+    # Check if batch_id already exists (should not happen in normal operation)
+    if batch_id in config:
+        # Skip to avoid overwriting (append-only policy)
+        return
 
     # Create new entry
-    timestamp = datetime.utcnow().isoformat()
     new_entry = {
         "seed": seed,
-        "timestamp": timestamp,
+        "timestamp": datetime.utcnow().isoformat(),
         "config_hash": config_hash
     }
 
-    # Append to existing config (batch_id is the key)
-    existing_config[batch_id] = new_entry
+    # Add to config
+    config[batch_id] = new_entry
 
     # Validate before writing
-    if not validate_seed_config(existing_config):
-        raise ValueError("Generated seed config failed validation")
+    if not validate_seed_config(config):
+        raise ValueError(f"Invalid seed configuration after adding {batch_id}")
 
     # Ensure directory exists
     SEED_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     # Write to file
     with open(SEED_CONFIG_PATH, 'w') as f:
-        json.dump(existing_config, f, indent=2)
-
+        json.dump(config, f, indent=2)
 
 def get_seed_for_batch(batch_id: str) -> Optional[int]:
     """
     Retrieve the seed for a specific batch.
-
+    
     Args:
         batch_id: The batch identifier
-
+        
     Returns:
         The seed integer if found, None otherwise
     """
@@ -126,3 +142,17 @@ def get_seed_for_batch(batch_id: str) -> Optional[int]:
     if batch_id in config:
         return config[batch_id].get("seed")
     return None
+
+def compute_config_hash(config_dict: Dict[str, Any]) -> str:
+    """
+    Compute a SHA256 hash of a configuration dictionary.
+    
+    Args:
+        config_dict: The configuration dictionary to hash
+        
+    Returns:
+        Hexadecimal string of the SHA256 hash
+    """
+    # Serialize with sorted keys for consistency
+    config_str = json.dumps(config_dict, sort_keys=True)
+    return hashlib.sha256(config_str.encode()).hexdigest()
