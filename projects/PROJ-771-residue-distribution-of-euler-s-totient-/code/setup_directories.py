@@ -1,31 +1,34 @@
+"""
+Directory setup script for the Residue Distribution of Euler's Totient Function project.
+Creates the essential directory structure required for the pipeline.
+"""
 import os
 from pathlib import Path
 
+
 def setup_directories():
     """
-    Creates the necessary directory structure for the project.
-    Implements T001a, T001b, T001c.
+    Creates the root directory structure: code/, data/, results/, tests/.
+    This function ensures the foundational folders exist for the project.
     """
-    base = Path(".")
+    root = Path(".")
     
-    # T001a: Create code directory (usually exists, but ensure)
-    (base / "code").mkdir(exist_ok=True)
+    directories = [
+        "code",
+        "data",
+        "data/raw",
+        "data/processed",
+        "results",
+        "results/plots",
+        "results/reports",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+    ]
     
-    # T001b: Create data/raw and data/processed
-    (base / "data" / "raw").mkdir(parents=True, exist_ok=True)
-    (base / "data" / "processed").mkdir(parents=True, exist_ok=True)
-    
-    # T001c: Create results/plots and results/reports
-    (base / "results" / "plots").mkdir(parents=True, exist_ok=True)
-    (base / "results" / "reports").mkdir(parents=True, exist_ok=True)
-    
-    # Print confirmation for verification
-    print("Directory structure created successfully:")
-    print("  - code/")
-    print("  - data/raw/")
-    print("  - data/processed/")
-    print("  - results/plots/")
-    print("  - results/reports/")
+    for dir_path in directories:
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created/Verified: {full_path}")
 
-if __name__ == "__main__":
-    setup_directories()
+    return True

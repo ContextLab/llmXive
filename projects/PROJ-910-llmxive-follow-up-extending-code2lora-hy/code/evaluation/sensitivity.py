@@ -1,324 +1,376 @@
 """
-Sensitivity Analysis Module for US3.
+Sensitivity analysis module for User Story 3.
 
-Implements the sensitivity loop that sequentially calls the adapter generator (T015)
-and evaluator (T021) for each feature subset to determine the minimum feature set
-required to maintain >80% of baseline accuracy.
+Implements the sensitivity loop that sequentially calls the adapter generator
+and evaluator for different feature subsets to determine the minimum required
+feature set for acceptable performance.
 
 Dependencies:
-- T015: Adapter Generator (code/hypernetwork/adapter_generator.py)
-- T021: Evaluation Runner (code/evaluation/runner.py)
-- T029: Feature Subset Definitions
+- T015 (adapter_generator.py): Generates adapters for specific feature subsets
+- T021 (runner.py): Evaluates adapters and produces score CSVs
+
+This module orchestrates the loop: for each subset -> generate adapter -> evaluate -> collect scores.
 """
 
-from typing import List, Dict, Any, Optional, Tuple
-from enum import Enum
-from dataclasses import dataclass
-import json
-import csv
 import os
 import sys
 import time
+import json
+import csv
 import logging
 from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
+from enum import Enum
+from dataclasses import dataclass
 
-# Import project utilities and modules based on API surface
-from utils.config import load_config, Config
+# Import from sibling modules as per API surface
+from utils.config import load_config
 from utils.logging import get_logger
 from utils.memory_monitor import run_step_with_memory_logging
-from hypernetwork.adapter_generator import generate_adapter, AdapterGenerationError
+from feature_extractor.ast_parser import get_feature_vector_size
+from feature_extractor.graph_builder import get_graph_feature_vector_size
+
+# Import hypernetwork components
+from hypernetwork.adapter_generator import (
+    generate_adapter, 
+    MemoryLimitError, 
+    CheckpointIncompatibilityError,
+    AdapterGenerationError
+)
+
+# Import evaluation components
 from evaluation.runner import run_evaluation, save_results
 
-# Setup logger
+# Setup logging
 logger = get_logger(__name__)
 
 class FeatureSubset(Enum):
-    """Enumeration of feature subsets to analyze."""
+    """Enum defining available feature subsets for sensitivity analysis."""
     TOKENS_ONLY = "tokens_only"
     CYCLOMATIC_ONLY = "cyclomatic_only"
-    DEPTH_ONLY = "depth_only"
-    COMBINED_SIMPLE = "combined_simple"
+    INHERITANCE_ONLY = "inheritance_only"
+    GRAPH_CENTRALITY = "graph_centrality"
     FULL_AST = "full_ast"
+    COMBINED_SIMPLE = "combined_simple"
 
 @dataclass
 class FeatureSubsetConfig:
     """Configuration for a specific feature subset."""
     name: str
-    description: str
     features: List[str]
-    enabled: bool = True
-
+    description: str
+    
 def get_feature_subsets() -> List[FeatureSubsetConfig]:
     """
-    Define the list of feature subsets to test.
-    Matches the definitions expected by the sensitivity analysis loop.
+    Returns a list of feature subset configurations to test.
+    
+    These represent different combinations of AST features to evaluate
+    their individual and combined impact on adapter performance.
     """
     return [
         FeatureSubsetConfig(
-            name=FeatureSubset.TOKENS_ONLY.value,
-            description="Token counts and histograms only",
-            features=["token_histogram"]
+            name="tokens_only",
+            features=["token_histogram"],
+            description="Only token frequency histograms"
         ),
         FeatureSubsetConfig(
-            name=FeatureSubset.CYCLOMATIC_ONLY.value,
-            description="Cyclomatic complexity only",
-            features=["cyclomatic_complexity"]
+            name="cyclomatic_only",
+            features=["cyclomatic_complexity"],
+            description="Only cyclomatic complexity metrics"
         ),
         FeatureSubsetConfig(
-            name=FeatureSubset.DEPTH_ONLY.value,
-            description="Inheritance depth only",
-            features=["inheritance_depth"]
+            name="inheritance_only",
+            features=["inheritance_depth"],
+            description="Only inheritance depth metrics"
         ),
         FeatureSubsetConfig(
-            name=FeatureSubset.COMBINED_SIMPLE.value,
-            description="Cyclomatic + Depth",
-            features=["cyclomatic_complexity", "inheritance_depth"]
+            name="graph_centrality",
+            features=["graph_centrality"],
+            description="Only import graph centrality metrics"
         ),
         FeatureSubsetConfig(
-            name=FeatureSubset.FULL_AST.value,
-            description="Full AST feature set",
-            features=["token_histogram", "cyclomatic_complexity", "inheritance_depth"]
+            name="full_ast",
+            features=["token_histogram", "cyclomatic_complexity", "inheritance_depth", "graph_centrality"],
+            description="Full set of AST features"
+        ),
+        FeatureSubsetConfig(
+            name="combined_simple",
+            features=["token_histogram", "cyclomatic_complexity"],
+            description="Combined simple features"
         )
     ]
 
 def get_subset_by_name(name: str) -> Optional[FeatureSubsetConfig]:
-    """Retrieve a subset config by its string name."""
-    for subset in get_feature_subsets():
+    """Retrieve a feature subset configuration by its name."""
+    subsets = get_feature_subsets()
+    for subset in subsets:
         if subset.name == name:
             return subset
     return None
 
-def validate_subset_features(subset: FeatureSubsetConfig, config: Config) -> bool:
+def validate_subset_features(subset_config: FeatureSubsetConfig) -> bool:
     """
-    Validate that the subset features are valid according to the AST parser.
-    This ensures the adapter generator can actually process the requested features.
+    Validate that the features in the subset are supported.
+    
+    Returns True if valid, False otherwise.
     """
-    # In a full implementation, this would cross-reference with ast_parser.py
-    # to ensure requested features exist. For now, we assume valid names.
-    if not subset.features:
-        logger.error(f"Subset {subset.name} has no features defined.")
-        return False
+    supported_features = {
+        "token_histogram", "cyclomatic_complexity", 
+        "inheritance_depth", "graph_centrality"
+    }
+    for feature in subset_config.features:
+        if feature not in supported_features:
+            logger.error(f"Unsupported feature in subset {subset_config.name}: {feature}")
+            return False
     return True
 
-def extract_features_for_subset(subset: FeatureSubsetConfig, repo_path: Path) -> Dict[str, Any]:
+def extract_features_for_subset(subset_config: FeatureSubsetConfig) -> Dict[str, Any]:
     """
-    Extract features for a specific subset from a repository.
-    This is a placeholder for the actual extraction logic which would
-    call ast_parser.py and graph_builder.py with specific feature filters.
+    Extract features based on the subset configuration.
+    
+    This function prepares the feature extraction parameters for the adapter generator.
+    In a real implementation, this would interface with the AST parser and graph builder
+    to extract only the specified features.
     """
-    # In a real implementation, this would call:
-    # from feature_extractor.ast_parser import extract_ast_features
-    # and pass the specific feature list to filter the output.
-    # For the sensitivity loop, we rely on the adapter_generator
-    # to handle the feature selection based on the config passed.
-    # Here we just return the subset name to be used as a key.
+    # For now, we return the configuration which will be used by the adapter generator
+    # The actual feature extraction happens inside generate_adapter based on this config
     return {
-        "subset_name": subset.name,
-        "features_requested": subset.features,
-        "repo_path": str(repo_path)
+        "subset_name": subset_config.name,
+        "features": subset_config.features,
+        "description": subset_config.description
     }
 
-def calculate_score_drop(subset_score: float, baseline_score: float) -> float:
-    """Calculate the percentage drop from baseline."""
-    if baseline_score == 0:
+def calculate_score_drop(base_score: float, current_score: float) -> float:
+    """Calculate the percentage drop from the baseline score."""
+    if base_score == 0:
         return 0.0
-    return ((baseline_score - subset_score) / baseline_score) * 100
+    return ((base_score - current_score) / base_score) * 100
 
 def run_sensitivity_loop(
-    subsets: List[FeatureSubsetConfig],
-    repo_paths: List[Path],
-    config: Config,
-    output_dir: Path
+    feature_subsets: List[FeatureSubsetConfig],
+    base_model_path: str,
+    data_path: str,
+    output_dir: Path,
+    config: Optional[Dict[str, Any]] = None
 ) -> List[Dict[str, Any]]:
     """
-    The core sensitivity loop.
-    For each subset:
-    1. Configure the adapter generator to use only the subset's features.
-    2. Call generate_adapter (T015) to create the adapter.
-    3. Call run_evaluation (T021) to score the adapter.
-    4. Record the score and latency.
+    Main sensitivity analysis loop.
+    
+    For each feature subset:
+    1. Generate adapter using T015 (adapter_generator)
+    2. Evaluate adapter using T021 (runner)
+    3. Collect scores and metadata
+    
+    Returns a list of result dictionaries for each subset.
     """
     results = []
-    results_dir = output_dir / "results"
-    results_dir.mkdir(parents=True, exist_ok=True)
-
-    # Ensure baseline adapter exists if needed for comparison (though T030 focuses on AST variants)
-    # We assume T021 handles loading the specific adapter generated for this run.
-
-    for subset in subsets:
-        if not subset.enabled:
-            logger.info(f"Skipping disabled subset: {subset.name}")
-            continue
-
-        logger.info(f"--- Starting Sensitivity Loop for Subset: {subset.name} ---")
-        logger.info(f"Features: {subset.features}")
-
-        subset_results = {
-            "subset_name": subset.name,
-            "features": subset.features,
-            "status": "pending",
-            "adapter_path": None,
-            "score": None,
-            "latency_ms": None,
-            "error": None
-        }
-
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Starting sensitivity loop with {len(feature_subsets)} subsets")
+    logger.info(f"Base model: {base_model_path}")
+    logger.info(f"Data path: {data_path}")
+    logger.info(f"Output directory: {output_dir}")
+    
+    for idx, subset_config in enumerate(feature_subsets):
+        subset_name = subset_config.name
+        logger.info(f"\n--- Processing subset {idx+1}/{len(feature_subsets)}: {subset_name} ---")
+        
         try:
-            # 1. Prepare configuration for this specific subset
-            # We need to inject the feature list into the config or pass it to the generator.
-            # Since config is global, we might need to temporarily modify it or pass args.
-            # For this implementation, we assume the adapter_generator reads a specific
-            # environment variable or config override for 'feature_subset'.
-            # However, to keep it clean, we will pass the feature list to the generator function
-            # if it accepts it, or modify the config object in place.
-
-            # Temporarily modify config to reflect the current subset
-            # Note: In a robust system, this would be a dedicated config object per run.
-            original_features = getattr(config, 'feature_subset', None)
-            config.feature_subset = subset.features
-            config.feature_vector_size = len(subset.features) * 10 # Approximate size, real logic in parser
-
-            adapter_output_path = results_dir / f"adapter_{subset.name}.safetensors"
-
-            # 2. Call Adapter Generator (T015)
-            logger.info(f"Generating adapter for {subset.name}...")
-            start_gen = time.time()
+            # Step 1: Prepare feature extraction for this subset
+            feature_config = extract_features_for_subset(subset_config)
+            logger.info(f"Feature configuration: {feature_config}")
             
-            # We call the public interface generate_adapter
-            # It should handle memory checks and feature extraction internally
+            # Step 2: Generate adapter for this subset
+            # This calls T015 functionality
+            adapter_path = output_dir / f"adapter_{subset_name}.safetensors"
+            generation_start = time.time()
+            
+            logger.info(f"Generating adapter for {subset_name}...")
+            
+            # We need to pass the feature configuration to the adapter generator
+            # The generate_adapter function should handle subset-specific feature extraction
             generate_adapter(
-                config=config,
-                repo_paths=repo_paths,
-                output_path=str(adapter_output_path),
-                feature_subset=subset.features # Passing explicitly if supported, else relies on config
+                base_model_path=base_model_path,
+                data_path=data_path,
+                output_path=str(adapter_path),
+                feature_subset=subset_config.name,
+                features=subset_config.features,
+                config=config
             )
             
-            gen_duration = time.time() - start_gen
-            logger.info(f"Adapter generation completed in {gen_duration:.2f}s")
-
-            if not adapter_output_path.exists():
-                raise FileNotFoundError(f"Adapter generator did not produce file: {adapter_output_path}")
-
-            subset_results["adapter_path"] = str(adapter_output_path)
-            subset_results["status"] = "generated"
-
-            # 3. Call Evaluator (T021)
-            logger.info(f"Evaluating adapter for {subset.name}...")
-            start_eval = time.time()
-
-            # Run evaluation on the generated adapter
-            # T021 (runner.py) expects to load the adapter and run against RepoPeftBench
-            eval_results = run_evaluation(
-                config=config,
-                adapter_path=str(adapter_output_path),
-                output_path=str(results_dir / f"scores_{subset.name}.csv")
-            )
-
-            eval_duration = time.time() - start_eval
+            generation_time = time.time() - generation_start
+            logger.info(f"Adapter generated in {generation_time:.2f}s: {adapter_path}")
             
-            # Extract score and latency from eval results
-            # Assuming eval_results is a dict with 'exact_match' and 'latency_ms'
-            if isinstance(eval_results, dict):
-                score = eval_results.get('exact_match', 0.0)
-                latency = eval_results.get('latency_ms', 0.0)
+            # Verify adapter file exists
+            if not adapter_path.exists():
+                logger.error(f"Adapter file not created: {adapter_path}")
+                results.append({
+                    "subset_name": subset_name,
+                    "status": "failed",
+                    "error": "Adapter file not created",
+                    "generation_time": generation_time
+                })
+                continue
+            
+            # Step 3: Evaluate adapter using T021 (runner)
+            logger.info(f"Evaluating adapter for {subset_name}...")
+            
+            # Run evaluation - this will produce scores
+            evaluation_results = run_evaluation(
+                adapter_path=str(adapter_path),
+                data_path=data_path,
+                output_dir=output_dir,
+                subset_name=subset_name
+            )
+            
+            # Extract the exact match score from evaluation results
+            # The runner returns a dictionary with scores
+            if "exact_match" in evaluation_results:
+                score = evaluation_results["exact_match"]
+            elif "scores" in evaluation_results and len(evaluation_results["scores"]) > 0:
+                # Average exact match from multiple tasks
+                scores = [s.get("exact_match", 0) for s in evaluation_results["scores"]]
+                score = sum(scores) / len(scores) if scores else 0.0
             else:
-                # Fallback if run_evaluation returns a path or different structure
-                # In a real scenario, we'd parse the CSV or return structured data
                 score = 0.0
-                latency = 0.0
-                logger.warning(f"Unexpected evaluation result type: {type(eval_results)}")
-
-            subset_results["score"] = score
-            subset_results["latency_ms"] = latency
-            subset_results["status"] = "completed"
-            subset_results["gen_duration"] = gen_duration
-            subset_results["eval_duration"] = eval_duration
-
-            logger.info(f"Subset {subset.name} completed. Score: {score:.4f}, Latency: {latency:.2f}ms")
-
+                logger.warning(f"Could not extract exact_match score for {subset_name}")
+            
+            # Record results
+            result = {
+                "subset_name": subset_name,
+                "features": subset_config.features,
+                "description": subset_config.description,
+                "exact_match": score,
+                "generation_time": generation_time,
+                "status": "success",
+                "adapter_path": str(adapter_path),
+                "evaluation_results": evaluation_results
+            }
+            results.append(result)
+            
+            logger.info(f"Subset {subset_name} completed. Score: {score:.4f}")
+            
+        except MemoryLimitError as e:
+            logger.error(f"Memory limit exceeded for {subset_name}: {e}")
+            results.append({
+                "subset_name": subset_name,
+                "status": "failed",
+                "error": f"MemoryLimitError: {str(e)}",
+                "features": subset_config.features
+            })
+        except CheckpointIncompatibilityError as e:
+            logger.error(f"Checkpoint incompatibility for {subset_name}: {e}")
+            results.append({
+                "subset_name": subset_name,
+                "status": "failed",
+                "error": f"CheckpointIncompatibilityError: {str(e)}",
+                "features": subset_config.features
+            })
         except AdapterGenerationError as e:
-            logger.error(f"Adapter generation failed for {subset.name}: {e}")
-            subset_results["status"] = "failed_generation"
-            subset_results["error"] = str(e)
+            logger.error(f"Adapter generation error for {subset_name}: {e}")
+            results.append({
+                "subset_name": subset_name,
+                "status": "failed",
+                "error": f"AdapterGenerationError: {str(e)}",
+                "features": subset_config.features
+            })
         except Exception as e:
-            logger.error(f"Evaluation failed for {subset.name}: {e}", exc_info=True)
-            subset_results["status"] = "failed_evaluation"
-            subset_results["error"] = str(e)
-        finally:
-            # Restore original config if it was modified
-            if original_features is not None:
-                config.feature_subset = original_features
-
-        results.append(subset_results)
-
+            logger.exception(f"Unexpected error processing {subset_name}: {e}")
+            results.append({
+                "subset_name": subset_name,
+                "status": "failed",
+                "error": f"UnexpectedError: {str(e)}",
+                "features": subset_config.features
+            })
+    
     return results
 
+def save_sensitivity_results(results: List[Dict[str, Any]], output_path: Path) -> None:
+    """Save sensitivity analysis results to a JSON file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+    
+    logger.info(f"Sensitivity results saved to {output_path}")
+
 def run_sensitivity_analysis(
-    config: Optional[Config] = None,
-    repo_paths: Optional[List[Path]] = None,
-    output_dir: Optional[Path] = None
-) -> Dict[str, Any]:
+    config_path: Optional[str] = None,
+    output_dir: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
     Main entry point for sensitivity analysis.
-    Orchestrates the loop and saves results.
+    
+    Loads configuration, runs the sensitivity loop, and saves results.
     """
-    if config is None:
-        config = load_config()
-    if repo_paths is None:
-        # Default to data/raw if not specified
-        repo_paths = [Path("data/raw")]
-    if output_dir is None:
-        output_dir = Path("data")
-
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    subsets = get_feature_subsets()
-    logger.info(f"Starting sensitivity analysis with {len(subsets)} subsets.")
-
-    results = run_sensitivity_loop(subsets, repo_paths, config, output_dir)
-
-    # Save results to JSON
-    results_path = output_dir / "results" / "sensitivity_results.json"
-    with open(results_path, 'w') as f:
-        json.dump(results, f, indent=2)
-
-    logger.info(f"Sensitivity analysis complete. Results saved to {results_path}")
-
-    return {
-        "status": "completed",
-        "results_path": str(results_path),
-        "results": results
-    }
-
-def save_sensitivity_results(results: List[Dict[str, Any]], output_path: Path):
-    """Save the sensitivity results to a CSV summary file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["subset_name", "score", "latency_ms", "status", "error"])
-        writer.writeheader()
-        for res in results:
-            writer.writerow({
-                "subset_name": res["subset_name"],
-                "score": res.get("score", 0.0),
-                "latency_ms": res.get("latency_ms", 0.0),
-                "status": res["status"],
-                "error": res.get("error", "")
-            })
+    # Load configuration
+    config = load_config(config_path) if config_path else load_config()
+    
+    # Set output directory
+    if output_dir:
+        output_path = Path(output_dir)
+    else:
+        output_path = Path(config.get("output_dir", "data/results"))
+    
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # Get feature subsets
+    feature_subsets = get_feature_subsets()
+    logger.info(f"Will test {len(feature_subsets)} feature subsets")
+    
+    # Run the sensitivity loop
+    results = run_sensitivity_loop(
+        feature_subsets=feature_subsets,
+        base_model_path=config.get("base_model_path", "TinyLlama-1.1B-Chat-hf"),
+        data_path=config.get("repo_peft_bench_path", "data/raw"),
+        output_dir=output_path,
+        config=config
+    )
+    
+    # Save results
+    results_path = output_path / "sensitivity_results.json"
+    save_sensitivity_results(results, results_path)
+    
+    return results
 
 def main():
-    """CLI entry point for sensitivity analysis."""
-    logger.info("Running Sensitivity Analysis via CLI")
-    config = load_config()
-    repo_paths = [Path(config.repo_peft_bench_path)]
+    """Command-line entry point for sensitivity analysis."""
+    import argparse
     
-    # Ensure data/raw exists for the sample
-    if not repo_paths[0].exists():
-        logger.warning(f"Repo path {repo_paths[0]} does not exist. Ensure T055 has run.")
-        # In a real run, we might exit or try to download, but for this task we assume data is present.
+    parser = argparse.ArgumentParser(description="Run sensitivity analysis on feature subsets")
+    parser.add_argument("--config", type=str, help="Path to config file")
+    parser.add_argument("--output", type=str, help="Output directory for results")
+    parser.add_argument("--subsets", type=str, nargs="+", 
+                      help="Specific subsets to test (default: all)")
     
-    result = run_sensitivity_analysis(config=config, repo_paths=repo_paths)
-    print(json.dumps(result, indent=2))
+    args = parser.parse_args()
+    
+    # If specific subsets requested, filter
+    if args.subsets:
+        all_subsets = get_feature_subsets()
+        feature_subsets = [s for s in all_subsets if s.name in args.subsets]
+        if not feature_subsets:
+            logger.error(f"No valid subsets found: {args.subsets}")
+            sys.exit(1)
+        logger.info(f"Testing specific subsets: {args.subsets}")
+    else:
+        feature_subsets = get_feature_subsets()
+    
+    # Run analysis
+    results = run_sensitivity_analysis(
+        config_path=args.config,
+        output_dir=args.output
+    )
+    
+    # Print summary
+    print("\n=== Sensitivity Analysis Summary ===")
+    for r in results:
+        if r["status"] == "success":
+            print(f"{r['subset_name']}: {r['exact_match']:.4f} (time: {r['generation_time']:.2f}s)")
+        else:
+            print(f"{r['subset_name']}: FAILED - {r.get('error', 'Unknown error')}")
+    
+    print(f"\nResults saved to: data/results/sensitivity_results.json")
 
 if __name__ == "__main__":
     main()

@@ -1,186 +1,136 @@
-$schema: http://json-schema.org/draft-07/schema#
+# Schema Definition: TransitionStateGraph
+# Project: PROJ-005-machine-learned-potentials-for-transition-metal-catalysis
+# Task: T008
+#
+# This schema defines the structure and attributes for graphs representing
+# transition state geometries in the QM9-TS dataset, filtered for Pd, Ni, Cu.
+# It is used for validation in src/data/validate_graphs.py.
+
+$schema: "http://json-schema.org/draft-07/schema#"
 title: TransitionStateGraph
 description: |
-  Schema definition for TransitionStateGraph objects used in the 
-  Machine-Learned Potentials for Transition-Metal Catalysis pipeline.
-  This schema defines the structure of nodes, edges, and global graph 
-  properties required for GNN training and validation.
-
+  A graph representation of a transition state geometry.
+  Nodes represent atoms, edges represent spatial proximity within a cutoff.
 type: object
+
 required:
   - nodes
   - edges
-  - energy_dft
-  - barrier_height
-  - graph_id
+  - metadata
 
 properties:
-  graph_id:
-    type: string
-    description: Unique identifier for the graph instance.
-    examples:
-      - "qm9ts_0001"
-      - "qm9ts_Pd_0042"
-
   nodes:
     type: object
-    description: Node-level attributes for each atom in the transition state.
+    description: "Array of node attributes for each atom in the system."
     required:
-      - atomic_numbers
-      - formal_charges
-      - coordinates
-      - coordination_numbers
-      - is_outlier
+      - atomic_number
+      - formal_charge
+      - position
+      - coordination_number
+      - ligand_class
     properties:
-      atomic_numbers:
+      atomic_number:
         type: array
         items:
           type: integer
-        description: List of atomic numbers (Z) for each node.
+        description: "Atomic number (Z) for each atom (e.g., 46 for Pd, 28 for Ni, 29 for Cu)."
         minItems: 1
-        examples:
-          - [46, 6, 1, 1, 8]  # Pd, C, H, H, O
-
-      formal_charges:
+      formal_charge:
         type: array
         items:
           type: integer
-        description: Formal charge for each node.
-        minItems: 1
-        examples:
-          - [0, 0, 0, 0, 0]
-
-      coordinates:
+        description: "Formal charge assigned to each atom."
+      position:
         type: array
         items:
-          type: array
-          items:
-            type: number
-          minItems: 3
-          maxItems: 3
-        description: 3D Cartesian coordinates (x, y, z) in Angstroms for each node.
-        minItems: 1
-        examples:
-          - [[0.0, 0.0, 0.0], [1.5, 0.0, 0.0], [2.0, 1.0, 0.0]]
-
-      coordination_numbers:
+          type: object
+          required:
+            - x
+            - y
+            - z
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+            z:
+              type: number
+        description: "3D Cartesian coordinates (Angstroms) for each atom."
+      coordination_number:
         type: array
         items:
           type: number
-        description: Calculated coordination number for each node based on 
-          distance-based cutoff (default 3.5 Angstroms).
-        minItems: 1
-        examples:
-          - [4.0, 3.5, 1.0, 1.0, 2.0]
-
-      is_outlier:
+        description: "Calculated coordination number based on 3.5 Angstrom cutoff."
+      ligand_class:
         type: array
         items:
-          type: boolean
-        description: Boolean flag indicating if the node has coordination number > 6.
-          These are flagged for exclusion from training but retained in test sets.
-        minItems: 1
-        examples:
-          - [false, false, false, false, false]
+          type: string
+          enum: ["Group 13", "Conventional", "Unknown"]
+        description: "Classification of the ligand environment for the central metal."
 
   edges:
     type: object
-    description: Edge-level attributes representing bonds/interactions between atoms.
+    description: "Array of edge attributes representing pairwise interactions."
     required:
-      - edge_index
-      - distances
-      - edge_features
+      - source
+      - target
+      - distance
+      - edge_type
     properties:
-      edge_index:
+      source:
         type: array
         items:
-          type: array
-          items:
-            type: integer
-          minItems: 2
-          maxItems: 2
-        description: List of [source, target] index pairs for edges.
-        minItems: 1
-        examples:
-          - [[0, 1], [1, 2], [0, 4]]
-
-      distances:
+          type: integer
+        description: "Source node indices for edges."
+      target:
+        type: array
+        items:
+          type: integer
+        description: "Target node indices for edges."
+      distance:
         type: array
         items:
           type: number
-        description: Euclidean distance between connected nodes in Angstroms.
-        minItems: 1
-        examples:
-          - [1.5, 1.8, 2.1]
-
-      edge_features:
+        description: "Euclidean distance between connected nodes (Angstroms)."
+      edge_type:
         type: array
         items:
-          type: array
-          items:
-            type: number
-        description: Encoded edge features (e.g., Gaussian smearing of distances).
-          Shape: (num_edges, num_gaussian_kernels).
-        minItems: 1
-        examples:
-          - [[0.1, 0.8, 0.1, 0.0], [0.0, 0.2, 0.7, 0.1]]
-
-  energy_dft:
-    type: number
-    description: Total DFT energy of the transition state structure in eV.
-    examples:
-      - -125.4567
-      - -89.1234
-
-  barrier_height:
-    type: number
-    description: Reaction barrier height (activation energy) in eV relative 
-      to the reactant state.
-    examples:
-      - 0.85
-      - 1.23
-
-  ligand_class:
-    type: string
-    description: Classification of the ligand environment.
-    enum:
-      - Group 13
-      - Conventional
-      - Unknown
-    examples:
-      - "Group 13"
-      - "Conventional"
-
-  metal_center:
-    type: string
-    description: Symbol of the transition metal center.
-    enum:
-      - Pd
-      - Ni
-      - Cu
-    examples:
-      - "Pd"
-      - "Ni"
+          type: string
+        description: "Type of edge interaction (e.g., 'bond', 'proximity')."
 
   metadata:
     type: object
-    description: Additional metadata about the graph construction.
+    description: "Global properties of the transition state complex."
+    required:
+      - reaction_id
+      - energy_dft
+      - barrier_height
+      - central_metal
+      - is_outlier
     properties:
+      reaction_id:
+        type: string
+        description: "Unique identifier for the reaction step (e.g., from QM9-TS)."
+      energy_dft:
+        type: number
+        description: "Total DFT energy of the transition state (eV or Hartree)."
+      barrier_height:
+        type: number
+        description: "Activation barrier height relative to reactants (eV)."
+      central_metal:
+        type: string
+        enum: ["Pd", "Ni", "Cu"]
+        description: "The transition metal center of the complex."
+      is_outlier:
+        type: boolean
+        description: "Flag indicating if the sample has coordination > 6 (excluded from training)."
       source_dataset:
         type: string
-        description: Name of the source dataset (e.g., "QM9-TS").
-        examples:
-          - "QM9-TS"
-
-      cutoff_radius:
+        default: "QM9-TS"
+        description: "Source dataset name."
+      cutoff_used:
         type: number
-        description: Distance cutoff used for edge construction in Angstroms.
-        examples:
-          - 3.5
+        default: 3.5
+        description: "Distance cutoff used for graph construction (Angstroms)."
 
-      ligand_scaffold_id:
-        type: string
-        description: Identifier for the ligand scaffold (used in LLSO splits).
-        examples:
-          - "scaffold_001"
-          - "scaffold_phosphine"
+additionalProperties: false

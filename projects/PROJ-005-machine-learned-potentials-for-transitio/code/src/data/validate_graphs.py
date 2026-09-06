@@ -1,371 +1,295 @@
-"""
-Graph Schema Validation Module.
-
-This module validates output graphs against the `contracts/dataset_graph.schema.yaml`
-definition before saving. It ensures that node attributes, edge attributes, and
-graph metadata conform to the expected schema.
-
-Raises:
-    GraphValidationError: If validation fails.
-"""
 import json
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
 import numpy as np
 import pandas as pd
-import yaml
+import logging
 
-# Import logging utilities from existing project structure
-from src.utils.logging import get_logger
+from src.utils.config import get_project_root
+from src.utils.logging import setup_logger
 
-logger = get_logger(__name__)
-
+# Configure logging
+logger = setup_logger("validate_graphs")
 
 class GraphValidationError(Exception):
     """Custom exception for graph validation failures."""
     pass
 
-
-def get_project_root() -> Path:
+def load_schema(schema_path: Path) -> Dict[str, Any]:
     """
-    Determine the project root directory.
-    Assumes the script is run from the repository root or code/ directory.
+    Load the graph schema from a YAML/JSON file.
+    Expects a dictionary with 'nodes', 'edges', and 'metadata' definitions.
     """
-    current = Path(__file__).resolve()
-    # Traverse up until we find 'contracts' or 'data' at root level
-    for parent in current.parents:
-        if (parent / "contracts").exists() and (parent / "data").exists():
-            return parent
-    # Fallback: assume current directory is root
-    return current.parent.parent
-
-
-def load_schema(schema_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Load the graph schema from YAML.
-
-    Args:
-        schema_path: Path to the schema file. Defaults to contracts/dataset_graph.schema.yaml.
-
-    Returns:
-        Dictionary containing the schema definition.
-
-    Raises:
-        FileNotFoundError: If schema file is not found.
-        yaml.YAMLError: If schema file is invalid YAML.
-    """
-    if schema_path is None:
-        root = get_project_root()
-        schema_path = root / "contracts" / "dataset_graph.schema.yaml"
-
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
 
-    with open(schema_path, "r") as f:
-        return yaml.safe_load(f)
+    # Try loading as JSON first, then YAML if needed (though tasks.md says .yaml)
+    # Since we need to support .yaml without external yaml lib if not strictly needed,
+    # but requirements.txt has pyyaml. Let's assume standard yaml loading.
+    try:
+        import yaml
+        with open(schema_path, 'r') as f:
+            schema = yaml.safe_load(f)
+    except ImportError:
+        logger.warning("PyYAML not installed, attempting JSON fallback for schema.")
+        try:
+            with open(schema_path, 'r') as f:
+                schema = json.load(f)
+        except json.JSONDecodeError:
+            raise ValueError("Schema file is not valid JSON or YAML.")
+    
+    if not isinstance(schema, dict):
+        raise ValueError("Schema must be a dictionary.")
+    
+    return schema
 
-
-def validate_node_attributes(
-    nodes: pd.DataFrame,
-    schema: Dict[str, Any]
-) -> List[str]:
+def validate_node_attributes(df_nodes: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
     """
     Validate node attributes against the schema.
-
-    Args:
-        nodes: DataFrame containing node features.
-        schema: The loaded schema dictionary.
-
-    Returns:
-        List of validation error messages (empty if valid).
+    Returns a list of error messages.
     """
     errors = []
-    required_nodes = schema.get("nodes", {}).get("required_attributes", [])
-    node_types = schema.get("nodes", {}).get("attribute_types", {})
-
-    # Check required columns
-    existing_cols = set(nodes.columns)
-    missing_cols = set(required_nodes) - existing_cols
-    if missing_cols:
-        errors.append(f"Missing required node attributes: {missing_cols}")
-
+    node_schema = schema.get('nodes', {})
+    
+    required_attrs = node_schema.get('required', [])
+    type_schema = node_schema.get('types', {})
+    
+    existing_cols = set(df_nodes.columns)
+    
+    # Check required attributes
+    missing = set(required_attrs) - existing_cols
+    if missing:
+        errors.append(f"Missing required node attributes: {missing}")
+    
     # Check types
-    for col, expected_type in node_types.items():
+    for col, expected_type in type_schema.items():
         if col in existing_cols:
-            dtype = nodes[col].dtype
-            # Basic type mapping check
-            if expected_type == "int" and not np.issubdtype(dtype, np.integer):
-                errors.append(f"Node attribute '{col}' should be integer, got {dtype}")
-            elif expected_type == "float" and not np.issubdtype(dtype, np.floating):
-                errors.append(f"Node attribute '{col}' should be float, got {dtype}")
-            elif expected_type == "str" and not np.issubdtype(dtype, np.object_):
-                # Allow object for strings
-                pass
-
+            actual_type = str(df_nodes[col].dtype)
+            # Map pandas types to generic python types for comparison if needed
+            # For now, just log if there's a gross mismatch if we can detect it
+            if expected_type == 'int' and not np.issubdtype(df_nodes[col].dtype, np.integer):
+                errors.append(f"Node attribute '{col}' expected int, got {actual_type}")
+            elif expected_type == 'float' and not np.issubdtype(df_nodes[col].dtype, np.floating):
+                errors.append(f"Node attribute '{col}' expected float, got {actual_type}")
+    
     return errors
 
-
-def validate_edge_attributes(
-    edges: pd.DataFrame,
-    schema: Dict[str, Any]
-) -> List[str]:
+def validate_edge_attributes(df_edges: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
     """
     Validate edge attributes against the schema.
-
-    Args:
-        edges: DataFrame containing edge features.
-        schema: The loaded schema dictionary.
-
-    Returns:
-        List of validation error messages (empty if valid).
+    Returns a list of error messages.
     """
     errors = []
-    required_edges = schema.get("edges", {}).get("required_attributes", [])
-    edge_types = schema.get("edges", {}).get("attribute_types", {})
-
-    existing_cols = set(edges.columns)
-    missing_cols = set(required_edges) - existing_cols
-    if missing_cols:
-        errors.append(f"Missing required edge attributes: {missing_cols}")
-
-    for col, expected_type in edge_types.items():
+    edge_schema = schema.get('edges', {})
+    
+    required_attrs = edge_schema.get('required', [])
+    type_schema = edge_schema.get('types', {})
+    
+    existing_cols = set(df_edges.columns)
+    
+    # Check required attributes
+    missing = set(required_attrs) - existing_cols
+    if missing:
+        errors.append(f"Missing required edge attributes: {missing}")
+    
+    # Check types
+    for col, expected_type in type_schema.items():
         if col in existing_cols:
-            dtype = edges[col].dtype
-            if expected_type == "float" and not np.issubdtype(dtype, np.floating):
-                errors.append(f"Edge attribute '{col}' should be float, got {dtype}")
-
+            actual_type = str(df_edges[col].dtype)
+            if expected_type == 'int' and not np.issubdtype(df_edges[col].dtype, np.integer):
+                errors.append(f"Edge attribute '{col}' expected int, got {actual_type}")
+            elif expected_type == 'float' and not np.issubdtype(df_edges[col].dtype, np.floating):
+                errors.append(f"Edge attribute '{col}' expected float, got {actual_type}")
+    
     return errors
 
-
-def validate_graph_metadata(
-    metadata: Dict[str, Any],
-    schema: Dict[str, Any]
-) -> List[str]:
+def validate_graph_metadata(metadata: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
     """
-    Validate graph-level metadata.
-
-    Args:
-        metadata: Dictionary containing graph metadata.
-        schema: The loaded schema dictionary.
-
-    Returns:
-        List of validation error messages (empty if valid).
+    Validate graph metadata against the schema.
+    Returns a list of error messages.
     """
     errors = []
-    required_meta = schema.get("metadata", {}).get("required_fields", [])
-    meta_types = schema.get("metadata", {}).get("field_types", {})
-
-    missing = set(required_meta) - set(metadata.keys())
+    meta_schema = schema.get('metadata', {})
+    
+    required_fields = meta_schema.get('required', [])
+    type_schema = meta_schema.get('types', {})
+    
+    # Check required fields
+    missing = set(required_fields) - set(metadata.keys())
     if missing:
         errors.append(f"Missing required metadata fields: {missing}")
-
-    for field, expected_type in meta_types.items():
+    
+    # Check types
+    for field, expected_type in type_schema.items():
         if field in metadata:
             val = metadata[field]
-            if expected_type == "int" and not isinstance(val, int):
-                errors.append(f"Metadata '{field}' should be int, got {type(val)}")
-            elif expected_type == "float" and not isinstance(val, (int, float)):
-                errors.append(f"Metadata '{field}' should be float, got {type(val)}")
-
+            if expected_type == 'int' and not isinstance(val, int):
+                errors.append(f"Metadata field '{field}' expected int, got {type(val).__name__}")
+            elif expected_type == 'float' and not isinstance(val, (int, float)):
+                errors.append(f"Metadata field '{field}' expected float, got {type(val).__name__}")
+            elif expected_type == 'str' and not isinstance(val, str):
+                errors.append(f"Metadata field '{field}' expected str, got {type(val).__name__}")
+    
     return errors
 
-
-def validate_graph_structure(
-    graph: Dict[str, Any],
-    schema: Dict[str, Any]
-) -> List[str]:
+def validate_graph_structure(nodes_df: pd.DataFrame, edges_df: pd.DataFrame) -> List[str]:
     """
-    Validate the structural integrity of the graph (e.g., node/edge counts match).
-
-    Args:
-        graph: Dictionary containing 'nodes', 'edges', 'metadata'.
-        schema: The loaded schema dictionary.
-
-    Returns:
-        List of validation error messages (empty if valid).
+    Validate basic graph structure (e.g., no self-loops if disallowed, consistent IDs).
+    Returns a list of error messages.
     """
     errors = []
-    nodes = graph.get("nodes")
-    edges = graph.get("edges")
-
-    if nodes is None or edges is None:
-        errors.append("Graph must contain 'nodes' and 'edges' dataframes")
-        return errors
-
-    # Check for self-loops if disallowed by schema
-    if not schema.get("edges", {}).get("allow_self_loops", True):
-        if "source" in edges.columns and "target" in edges.columns:
-            self_loops = (edges["source"] == edges["target"]).sum()
-            if self_loops > 0:
-                errors.append(f"Self-loops found: {self_loops} (schema disallows)")
-
-    # Check connectivity if required (basic check)
-    if schema.get("graph", {}).get("require_connected", False):
-        # Placeholder for connectivity check implementation
-        pass
-
+    
+    if 'node_id' in nodes_df.columns and 'source' in edges_df.columns and 'target' in edges_df.columns:
+        node_ids = set(nodes_df['node_id'])
+        edge_sources = set(edges_df['source'])
+        edge_targets = set(edges_df['target'])
+        
+        # Check if all edge endpoints exist in nodes
+        invalid_sources = edge_sources - node_ids
+        invalid_targets = edge_targets - node_ids
+        
+        if invalid_sources:
+            errors.append(f"Edge sources {invalid_sources} not found in nodes.")
+        if invalid_targets:
+            errors.append(f"Edge targets {invalid_targets} not found in nodes.")
+        
+        # Check for self-loops if schema disallows them (assumption: disallowed by default unless specified)
+        # This is a basic check; specific schema rules might vary.
+        if 'source' in edges_df.columns and 'target' in edges_df.columns:
+            self_loops = edges_df[edges_df['source'] == edges_df['target']]
+            if not self_loops.empty:
+                # Count unique self-loops
+                count = len(self_loops)
+                errors.append(f"Found {count} self-loops. Self-loops are typically disallowed in this schema.")
+    
     return errors
 
-
-def validate_graph(
-    graph: Dict[str, Any],
-    schema: Optional[Dict[str, Any]] = None
-) -> Tuple[bool, List[str]]:
+def validate_graph(nodes_df: pd.DataFrame, edges_df: pd.DataFrame, metadata: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validate a single graph object against the schema.
-
-    Args:
-        graph: Dictionary with keys 'nodes', 'edges', 'metadata'.
-        schema: Optional pre-loaded schema.
-
-    Returns:
-        Tuple of (is_valid, list_of_errors).
+    Perform full validation on a single graph instance.
+    Returns (is_valid, list_of_errors).
     """
-    if schema is None:
-        schema = load_schema()
-
     all_errors = []
+    
+    all_errors.extend(validate_node_attributes(nodes_df, schema))
+    all_errors.extend(validate_edge_attributes(edges_df, schema))
+    all_errors.extend(validate_graph_metadata(metadata, schema))
+    all_errors.extend(validate_graph_structure(nodes_df, edges_df))
+    
+    return len(all_errors) == 0, all_errors
 
-    # Validate components
-    all_errors.extend(validate_node_attributes(graph.get("nodes"), schema))
-    all_errors.extend(validate_edge_attributes(graph.get("edges"), schema))
-    all_errors.extend(validate_graph_metadata(graph.get("metadata"), schema))
-    all_errors.extend(validate_graph_structure(graph, schema))
-
-    return (len(all_errors) == 0, all_errors)
-
-
-def validate_all_graphs(
-    graphs: List[Dict[str, Any]],
-    schema: Optional[Dict[str, Any]] = None,
-    stop_on_first_error: bool = False
-) -> Tuple[bool, Dict[int, List[str]]]:
+def validate_all_graphs(graphs_df: pd.DataFrame, schema: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Validate a list of graphs.
-
-    Args:
-        graphs: List of graph dictionaries.
-        schema: Optional pre-loaded schema.
-        stop_on_first_error: If True, stop after first invalid graph.
-
-    Returns:
-        Tuple of (all_valid, dict_of_index_to_errors).
+    Validate a batch of graphs stored in a parquet-like dataframe structure.
+    Assumes the dataframe has columns: 'graph_id', 'nodes' (list of dicts or serialized), 'edges' (list of dicts), 'metadata'.
+    Or, if nodes/edges are already exploded into separate DataFrames with a 'graph_id' foreign key.
+    
+    For this implementation, we assume the input `graphs_df` is a summary or the output of a loader that 
+    has parsed nodes/edges into lists per graph_id, OR we iterate if the schema implies a specific format.
+    
+    Given the context of `src/data/graph_construction.py` saving to parquet, it likely saves a row per graph 
+    with nodes/edges as complex types or separate files. 
+    However, `validate_graphs` is usually run on the saved Parquet file.
+    Parquet with nested structures is supported by pandas/pyarrow.
+    
+    Let's assume the input `graphs_df` has columns:
+    - graph_id
+    - nodes (list of dicts or similar)
+    - edges (list of dicts or similar)
+    - metadata (dict)
+    
+    If the data is flat (one row per node), we would need to group by graph_id.
+    Based on `graph_construction.py` saving to parquet, it likely saves a list of graphs.
+    We will assume a structure where we can reconstruct node/edge DFs per graph.
     """
-    if schema is None:
-        schema = load_schema()
+    results = {
+        "total_graphs": 0,
+        "valid_graphs": 0,
+        "invalid_graphs": 0,
+        "errors": []
+    }
+    
+    results["total_graphs"] = len(graphs_df)
+    
+    for idx, row in graphs_df.iterrows():
+        graph_id = row.get('graph_id', idx)
+        try:
+            # Handle potential serialization formats
+            nodes_data = row.get('nodes', [])
+            edges_data = row.get('edges', [])
+            metadata = row.get('metadata', {})
+            
+            # Convert to DataFrames for validation functions
+            nodes_df = pd.DataFrame(nodes_data) if nodes_data else pd.DataFrame()
+            edges_df = pd.DataFrame(edges_data) if edges_data else pd.DataFrame()
+            
+            is_valid, errors = validate_graph(nodes_df, edges_df, metadata, schema)
+            
+            if is_valid:
+                results["valid_graphs"] += 1
+            else:
+                results["invalid_graphs"] += 1
+                results["errors"].append({
+                    "graph_id": str(graph_id),
+                    "errors": errors
+                })
+                
+        except Exception as e:
+            results["invalid_graphs"] += 1
+            results["errors"].append({
+                "graph_id": str(graph_id),
+                "errors": [f"Exception during validation: {str(e)}"]
+            })
+    
+    return results
 
-    errors_by_index = {}
-    all_valid = True
-
-    for idx, graph in enumerate(graphs):
-        is_valid, errors = validate_graph(graph, schema)
-        if not is_valid:
-            all_valid = False
-            errors_by_index[idx] = errors
-            logger.warning(f"Graph {idx} validation failed: {errors}")
-            if stop_on_first_error:
-                break
-        else:
-            logger.debug(f"Graph {idx} validation passed")
-
-    return all_valid, errors_by_index
-
-
-def main() -> int:
+def main():
     """
-    Entry point for CLI validation of processed graphs.
-    Expects processed graphs in data/processed/graphs.parquet.
+    Main entry point to validate graphs against the schema.
+    Loads graphs from data/processed/graphs.parquet and schema from contracts/dataset_graph.schema.yaml.
     """
-    root = get_project_root()
-    graphs_path = root / "data" / "processed" / "graphs.parquet"
-    schema_path = root / "contracts" / "dataset_graph.schema.yaml"
-
-    if not graphs_path.exists():
-        logger.error(f"Processed graphs not found at {graphs_path}")
-        return 1
-
-    if not schema_path.exists():
-        logger.error(f"Schema not found at {schema_path}")
-        return 1
-
+    project_root = get_project_root()
+    schema_path = project_root / "contracts" / "dataset_graph.schema.yaml"
+    graphs_path = project_root / "data" / "processed" / "graphs.parquet"
+    output_path = project_root / "data" / "results" / "validation_report.json"
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Starting graph validation. Schema: {schema_path}, Data: {graphs_path}")
+    
     try:
-        logger.info(f"Loading graphs from {graphs_path}...")
-        # Load as a list of dicts or a single large dataframe depending on storage format
-        # Assuming parquet stores a list of graphs or a long-form table.
-        # For this implementation, we assume the parquet file contains a single
-        # table where each row is a node, and we need to reconstruct graphs,
-        # OR it contains a list of dictionaries.
-        # Given typical usage in this project, let's assume it's a list of graph dicts
-        # saved via json or a specific parquet serialization.
-        # If it's a flat table, we would group by graph_id.
-        # Here we assume the output of T016/T018 is a list of dicts for validation.
-
-        # Attempt to load as a list of dictionaries if possible, or flat table.
-        # Fallback: If it's a flat table, we validate the schema of the table itself.
-        df = pd.read_parquet(graphs_path)
-
-        # Heuristic: If 'graph_id' exists, it's a flat table of nodes/edges.
-        # We will validate the schema of the table structure itself against
-        # the "nodes" and "edges" definitions if the file contains combined data.
-        # However, the task asks to validate *graphs*.
-        # Let's assume the file format is a list of JSON objects in a single column
-        # or a specific structure.
-        # To be robust, we check if it's a flat table first.
-
-        if "graph_id" in df.columns:
-            logger.info("Detected flat table format. Validating schema of table...")
-            # This is a simplified check for the flat table structure
-            # We treat the whole table as a collection of nodes/edges
-            # and validate against the 'nodes' part of the schema if present.
-            # In a real scenario, we'd group by graph_id.
-            # For T019, we ensure the schema matches the columns.
-            schema = load_schema()
-            # Validate nodes part
-            node_errors = validate_node_attributes(df, schema)
-            if node_errors:
-                logger.error(f"Table schema validation failed: {node_errors}")
-                return 1
-            logger.info("Flat table schema validation passed.")
-            return 0
-        else:
-            # Assume it's a list of graphs (e.g. loaded from JSON lines or similar)
-            # Since parquet usually stores tabular data, if it's not flat,
-            # it might be a single column with serialized graphs.
-            # We will assume for T019 that the previous step saved a list of dicts
-            # in a way that pandas reads as a DataFrame where each row is a graph
-            # (e.g. object columns for nodes/edges).
-            # If that fails, we fall back to a generic check.
-            logger.warning("Graph format not standard flat table. Attempting generic validation.")
-            # This part is tricky without knowing exact serialization of T016.
-            # We will assume the previous step saved a JSON file or the parquet
-            # contains a specific structure.
-            # For the purpose of this task, we assume the existence of a function
-            # to load the graphs as a list of dicts if not flat.
-            # If not, we validate the DataFrame columns against the schema.
-            schema = load_schema()
-            # If it's a list of graphs in object columns, we iterate.
-            # If it's a single row with huge objects, we iterate.
-            # Let's assume a list of graphs was saved.
-            # We'll try to load as JSON first if parquet fails to give structure.
-            # But we already read parquet.
-            # Let's assume the previous step saved a list of dicts to a JSON file
-            # and we are validating that, or the parquet is a list of dicts.
-            # Given the ambiguity, we will perform a schema check on the DataFrame
-            # assuming it represents the 'nodes' table of a single graph or multiple.
-            # This is a safe fallback for T019.
-            pass
-
-        # If we reach here, we assume the data is valid enough for the schema check
-        # or we have already validated the flat table.
-        logger.info("Validation completed successfully.")
+        # Load Schema
+        schema = load_schema(schema_path)
+        logger.info("Schema loaded successfully.")
+        
+        # Load Graphs
+        if not graphs_path.exists():
+            raise FileNotFoundError(f"Graphs file not found: {graphs_path}")
+        
+        graphs_df = pd.read_parquet(graphs_path)
+        logger.info(f"Loaded {len(graphs_df)} graphs from {graphs_path}")
+        
+        # Validate
+        validation_results = validate_all_graphs(graphs_df, schema)
+        
+        # Save Results
+        with open(output_path, 'w') as f:
+            json.dump(validation_results, f, indent=2)
+        
+        logger.info(f"Validation complete. Report saved to {output_path}")
+        logger.info(f"Valid: {validation_results['valid_graphs']}, Invalid: {validation_results['invalid_graphs']}")
+        
+        if validation_results['invalid_graphs'] > 0:
+            logger.warning("Some graphs failed validation. Check the report for details.")
+            return 1
+        
         return 0
-
+        
     except Exception as e:
-        logger.error(f"Validation failed with exception: {e}")
-        raise GraphValidationError(str(e))
-
+        logger.error(f"Validation failed with error: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T23:44:34.029332Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-910-llmxive-follow-up-extending-code2lora-hy
-last_run_id: 20cf9a14-85aa-4e12-b4cb-aa36280d1753
+last_run_id: 734a7ace-d33b-45b0-b8b5-035004a49774
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy
 title: 'llmXive follow-up: extending "Code2LoRA: Hypernetwork-Generated Adapters for
   Code Language Models un"'
-updated_at: '2026-08-15T23:32:41.711368Z'
+updated_at: '2026-09-06T01:34:35.129731Z'

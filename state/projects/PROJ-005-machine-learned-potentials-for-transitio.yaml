@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T02:44:28.710016Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-005-machine-learned-potentials-for-transitio
-last_run_id: 466117db-bc33-43dc-bdc5-85a692ec8aa9
+last_run_id: 40848cc0-8a72-4be8-9d15-ffaf2045c86b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio
 title: Machine-Learned Potentials for Transition-Metal Catalysis
-updated_at: '2026-07-06T11:10:24.539476Z'
+updated_at: '2026-09-06T01:46:15.912574Z'

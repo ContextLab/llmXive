@@ -1,9 +1,14 @@
 """
-Adapter Generator Module.
+Adapter Generator Module for Code2LoRA Hypernetwork.
 
 Implements the generation of repository-specific LoRA adapters using AST features
-and a lightweight MLP hypernetwork. Includes robust error handling for memory limits
-and checkpoint compatibility as per FR-008, FR-006, and FR-009.
+and a lightweight MLP projection, with robust error handling for memory and checkpoint
+compatibility issues.
+
+This module implements FR-008, FR-006, and FR-009:
+- Pre-flight and runtime memory checks (E001, E003)
+- Checkpoint compatibility validation (E002)
+- Graceful error handling in main.py
 """
 import os
 import sys
@@ -11,325 +16,450 @@ import time
 import json
 import resource
 import traceback
-import logging
+from typing import Dict, Any, Optional, Tuple
 from pathlib import Path
-from typing import Optional, Dict, Any
-
+import logging
 import torch
-from transformers import AutoModelForCausalLM, AutoConfig
+import torch.nn as nn
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+import numpy as np
 
-# Import from project API
+# Import from project modules
 from utils.config import load_config, Config
-from utils.logging import get_logger, warning_handler
-from hypernetwork.mlp_projection import MLPProjection, verify_projection_shape
+from utils.logging import get_logger
+from hypernetwork.mlp_projection import MLPProjection
+from feature_extractor.ast_parser import extract_features_from_directory, get_feature_vector_size
+from feature_extractor.graph_builder import extract_graph_features, get_graph_feature_vector_size
+
+logger = get_logger(__name__)
 
 # --- Custom Exceptions ---
 
 class AdapterGenerationError(Exception):
-    """Base exception for adapter generation failures."""
+    """Base exception for adapter generation errors."""
     pass
 
 class MemoryLimitError(AdapterGenerationError):
-    """Raised when available memory is insufficient or runtime usage exceeds limits."""
+    """
+    Raised when memory limits are exceeded.
+    
+    Codes:
+    - E001: Pre-flight RAM check failed (< 7GB available)
+    - E003: Runtime RAM check failed (> 7GB RSS)
+    """
     def __init__(self, code: str, message: str):
         self.code = code
         self.message = message
         super().__init__(f"{code}: {message}")
 
 class CheckpointIncompatibilityError(AdapterGenerationError):
-    """Raised when the base model checkpoint is incompatible with the generation logic."""
-    def __init__(self, code: str, reason: str):
-        self.code = code
-        self.reason = reason
-        super().__init__(f"{code}: Incompatible Checkpoint: {reason}")
+    """
+    Raised when the base model checkpoint is incompatible.
+    
+    Code:
+    - E002: Checkpoint compatibility validation failed
+    """
+    def __init__(self, message: str):
+        self.code = "E002"
+        self.message = message
+        super().__init__(f"{self.code}: {message}")
 
-# --- Helper Functions ---
+# --- Memory Monitoring Functions ---
 
 def check_memory_usage() -> float:
     """
-    Check current RSS memory usage in GB.
+    Check current memory usage (RSS) in GB.
     
     Returns:
-        float: Current RSS memory usage in GB.
+        float: Current RSS memory usage in GB
     """
-    usage_bytes = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    # On macOS, ru_maxrss is in bytes; on Linux, it is in kilobytes.
-    # To be safe across platforms, we check the typical scale.
-    # However, `resource` module behavior varies. 
-    # Standard approach for cross-platform GB calculation:
-    if sys.platform == 'darwin':
-        # macOS: bytes
-        return usage_bytes / (1024 ** 3)
-    else:
-        # Linux: kilobytes
-        return (usage_bytes * 1024) / (1024 ** 3)
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    return usage.ru_maxrss / 1024.0  # Convert KB to GB
 
-def validate_base_model_compatibility(model_path: str, config: Config) -> None:
+def pre_flight_memory_check(min_required_gb: float = 7.0) -> None:
     """
-    Validates that the base model checkpoint is compatible with the generation logic.
+    Perform pre-flight memory check.
     
     Args:
-        model_path: Path to the base model.
-        config: Configuration object.
+        min_required_gb: Minimum required RAM in GB (default 7.0)
         
     Raises:
-        CheckpointIncompatibilityError: If the model is incompatible.
+        MemoryLimitError: If available RAM is below threshold
+    """
+    # Get available memory (on Linux, /proc/meminfo gives MemAvailable)
+    try:
+        with open('/proc/meminfo', 'r') as f:
+            meminfo = f.read()
+        
+        for line in meminfo.split('\n'):
+            if line.startswith('MemAvailable:'):
+                available_kb = int(line.split()[1])
+                available_gb = available_kb / (1024.0 * 1024.0)
+                
+                if available_gb < min_required_gb:
+                    error_msg = f"ERROR: E001: Memory Limit Exceeded ({int(min_required_gb)}GB) - Pre-flight"
+                    logger.error(error_msg)
+                    raise MemoryLimitError("E001", f"Memory Limit Exceeded ({int(min_required_gb)}GB) - Pre-flight. Available: {available_gb:.2f}GB")
+                break
+    except FileNotFoundError:
+        # Fallback for non-Linux systems
+        logger.warning("Could not read /proc/meminfo, skipping pre-flight memory check")
+        return
+
+def runtime_memory_check(max_allowed_gb: float = 7.0) -> None:
+    """
+    Perform runtime memory check.
+    
+    Args:
+        max_allowed_gb: Maximum allowed RSS in GB (default 7.0)
+        
+    Raises:
+        MemoryLimitError: If RSS exceeds threshold
+    """
+    current_rss_gb = check_memory_usage()
+    
+    if current_rss_gb > max_allowed_gb:
+        error_msg = f"ERROR: E003: Memory Limit Exceeded ({int(max_allowed_gb)}GB) - Runtime"
+        logger.error(error_msg)
+        raise MemoryLimitError("E003", f"Memory Limit Exceeded ({int(max_allowed_gb)}GB) - Runtime. Current RSS: {current_rss_gb:.2f}GB")
+
+# --- Checkpoint Validation ---
+
+def validate_base_model_compatibility(model_name_or_path: str, config: Config) -> None:
+    """
+    Validate that the base model checkpoint is compatible with adapter generation.
+    
+    Args:
+        model_name_or_path: Path or name of the base model
+        config: Configuration object
+        
+    Raises:
+        CheckpointIncompatibilityError: If checkpoint is incompatible
     """
     try:
-        # Attempt to load config to check basic properties
-        hf_config = AutoConfig.from_pretrained(model_path, trust_remote_code=True)
+        # Check if model can be loaded
+        tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name_or_path,
+            torch_dtype=torch.float32,
+            device_map="cpu",  # Force CPU for safety
+            low_cpu_mem_usage=True
+        )
         
-        # Check for required attributes
-        if not hasattr(hf_config, 'hidden_size'):
-            raise CheckpointIncompatibilityError(
-                "E002", 
-                f"Model '{model_path}' does not expose 'hidden_size' in config."
-            )
+        # Verify model has required attributes
+        if not hasattr(model, 'config'):
+            raise CheckpointIncompatibilityError("E002: Model missing 'config' attribute")
         
-        # Check architecture compatibility (e.g., ensure it's a causal LM)
-        if not hasattr(hf_config, 'vocab_size'):
-            raise CheckpointIncompatibilityError(
-                "E002",
-                f"Model '{model_path}' does not expose 'vocab_size' in config."
-            )
+        if not hasattr(model.config, 'hidden_size'):
+            raise CheckpointIncompatibilityError("E002: Model config missing 'hidden_size'")
         
-        # Check if model is too large for the memory budget if we were to load it fully
-        # (Simple heuristic check based on config parameters if available)
-        # This is a pre-flight check before full model loading in the main generation flow.
+        # Verify tokenizer
+        if not hasattr(tokenizer, 'pad_token') and tokenizer.pad_token is None:
+            logger.warning("Tokenizer has no pad_token, setting to eos_token")
+            tokenizer.pad_token = tokenizer.eos_token
         
-    except FileNotFoundError:
-        raise CheckpointIncompatibilityError("E002", f"Model path '{model_path}' not found.")
+        # Check model size compatibility
+        model_hidden = model.config.hidden_size
+        expected_hidden = config.hidden_size if hasattr(config, 'hidden_size') else None
+        
+        if expected_hidden and model_hidden != expected_hidden:
+            logger.warning(f"Model hidden size ({model_hidden}) differs from config ({expected_hidden})")
+        
+        logger.info(f"Checkpoint validation successful for {model_name_or_path}")
+        
     except Exception as e:
-        raise CheckpointIncompatibilityError("E002", f"Failed to load model config: {str(e)}")
+        if isinstance(e, CheckpointIncompatibilityError):
+            raise
+        raise CheckpointIncompatibilityError(f"E002: Failed to load or validate checkpoint: {str(e)}")
+
+# --- Dataset Class ---
+
+class ASTFeatureDataset(torch.utils.data.Dataset):
+    """Dataset for AST feature vectors."""
+    
+    def __init__(self, features: Dict[str, Any], graph_features: Dict[str, Any]):
+        self.features = features
+        self.graph_features = graph_features
+        self.keys = list(features.keys())
+    
+    def __len__(self):
+        return len(self.keys)
+    
+    def __getitem__(self, idx):
+        key = self.keys[idx]
+        ast_feat = self.features[key]
+        graph_feat = self.graph_features.get(key, np.zeros(get_graph_feature_vector_size()))
+        
+        # Concatenate AST and graph features
+        combined = np.concatenate([ast_feat, graph_feat])
+        return torch.tensor(combined, dtype=torch.float32), key
 
 # --- Core Generation Logic ---
 
-class ASTFeatureDataset(torch.utils.data.Dataset):
-    """Dataset wrapper for AST feature vectors."""
-    def __init__(self, features: torch.Tensor):
-        self.features = features
-
-    def __len__(self):
-        return len(self.features)
-
-    def __getitem__(self, idx):
-        return self.features[idx]
-
-def load_frozen_base_model(model_path: str, config: Config) -> torch.nn.Module:
+def load_frozen_base_model(model_name_or_path: str, config: Config) -> Tuple[nn.Module, AutoTokenizer]:
     """
-    Loads the base model with weights frozen.
+    Load the frozen base model for adapter generation.
     
     Args:
-        model_path: Path to the base model.
-        config: Configuration object.
+        model_name_or_path: Path or name of the base model
+        config: Configuration object
         
     Returns:
-        Loaded base model with parameters frozen.
+        Tuple of (frozen model, tokenizer)
     """
-    logger = get_logger(__name__)
-    logger.info(f"Loading frozen base model from {model_path}...")
+    # Pre-flight memory check
+    pre_flight_memory_check()
     
-    # Pre-flight memory check (E001)
-    current_ram_gb = check_memory_usage()
-    # We need roughly 7GB free for the operation. 
-    # We check if available RAM is < 7GB.
-    # Note: resource.getrusage gives usage, not available. 
-    # For a robust check, we assume a fixed system RAM limit or check total vs usage.
-    # Since we cannot easily get 'available' RAM portably without psutil, 
-    # we check if current usage + estimated load > total_limit.
-    # However, the task specifically asks for "Pre-flight RAM Check: Before allocation, 
-    # check available RAM; if < 7 GB, raise".
-    # We will use a heuristic: if current usage is already high, we assume low availability.
-    # A more robust way in CI is often to check /proc/meminfo or use psutil.
-    # Given constraints, we simulate the check based on usage threshold.
-    # If usage > (Total - 7GB), we fail. Assuming Total is 16GB for safety, 
-    # or we just check if usage is already too high.
-    # Let's implement the specific requirement: "check available RAM".
-    # We will use psutil if available, otherwise fallback to a conservative estimate.
-    try:
-        import psutil
-        available = psutil.virtual_memory().available / (1024 ** 3)
-        if available < 7.0:
-            raise MemoryLimitError("E001", "Memory Limit Exceeded (7GB) - Pre-flight")
-    except ImportError:
-        # Fallback: If psutil is not installed, we rely on the usage check later 
-        # or assume we have enough if we are not at the limit yet.
-        # For strict adherence to the task, we might need to install psutil.
-        # We will assume psutil is available as per requirements.txt in T002.
-        pass
-
-    device = torch.device("cpu") # Running on CPU as per spec
+    # Validate checkpoint compatibility
+    validate_base_model_compatibility(model_name_or_path, config)
     
-    try:
-        model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            torch_dtype=torch.float32,
-            device_map="cpu", # Force CPU
-            low_cpu_mem_usage=False # Keep it simple for CPU
-        )
-    except Exception as e:
-        raise CheckpointIncompatibilityError("E002", f"Failed to load model: {str(e)}")
-
-    # Freeze parameters
+    # Load model and tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name_or_path,
+        torch_dtype=torch.float32,
+        device_map="cpu",
+        low_cpu_mem_usage=True
+    )
+    
+    # Freeze all parameters
     for param in model.parameters():
         param.requires_grad = False
-        
-    logger.info("Base model loaded and frozen.")
-    return model
+    
+    # Runtime memory check after loading
+    runtime_memory_check()
+    
+    logger.info(f"Base model loaded and frozen: {model_name_or_path}")
+    return model, tokenizer
 
 def train_mlp_projection(
-    base_model: torch.nn.Module, 
-    features: torch.Tensor, 
-    config: Config
-) -> torch.nn.Module:
+    model: nn.Module,
+    features: Dict[str, Any],
+    graph_features: Dict[str, Any],
+    config: Config,
+    epochs: int = 10,
+    batch_size: int = 32,
+    learning_rate: float = 1e-3
+) -> nn.Module:
     """
-    Trains the MLP projection layer to map AST features to model embeddings.
+    Train the MLP projection layer to map AST features to model embeddings.
     
     Args:
-        base_model: The frozen base model.
-        features: AST feature vectors.
-        config: Configuration object.
+        model: Frozen base model
+        features: AST feature dictionary
+        graph_features: Graph feature dictionary
+        config: Configuration object
+        epochs: Number of training epochs
+        batch_size: Batch size for training
+        learning_rate: Learning rate
         
     Returns:
-        Trained MLP model.
+        Trained MLP projection model
     """
-    logger = get_logger(__name__)
+    # Runtime memory check before training
+    runtime_memory_check()
     
-    # Determine dimensions
-    input_dim = config.feature_vector_size
-    # Derive output_dim from base model config
-    output_dim = base_model.config.hidden_size
+    # Create dataset
+    dataset = ASTFeatureDataset(features, graph_features)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
     
-    mlp = MLPProjection(input_dim=input_dim, output_dim=output_dim)
+    # Initialize MLP
+    input_dim = get_feature_vector_size() + get_graph_feature_vector_size()
+    output_dim = model.config.hidden_size
+    mlp = MLPProjection(input_dim, output_dim)
     
-    # Runtime memory check (E003) - before allocating large tensors
-    current_ram_gb = check_memory_usage()
-    # We need to ensure we don't exceed 7GB during training.
-    # If current usage is already close to limit, we raise.
-    # Assuming 7GB is the hard limit for the process.
-    if current_ram_gb > 7.0:
-        raise MemoryLimitError("E003", "Memory Limit Exceeded (7GB) - Runtime")
+    # Move to CPU (no GPU)
+    mlp = mlp.to(torch.device('cpu'))
     
-    # Training setup (simplified for demo/CI)
-    optimizer = torch.optim.Adam(mlp.parameters(), lr=0.001)
-    criterion = torch.nn.MSELoss()
+    # Training setup
+    optimizer = torch.optim.Adam(mlp.parameters(), lr=learning_rate)
+    criterion = nn.MSELoss()
     
-    # Create dataset and loader
-    dataset = ASTFeatureDataset(features)
-    loader = torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=True)
+    logger.info(f"Starting MLP training: {input_dim} -> {output_dim}, {epochs} epochs")
     
-    mlp.train()
-    logger.info("Starting MLP training...")
-    
-    for epoch in range(config.num_epochs):
+    for epoch in range(epochs):
         total_loss = 0.0
-        for batch in loader:
-            optimizer.zero_grad()
-            # Forward pass (simulated projection to target embedding space)
-            # In a real scenario, we would compare against target embeddings from the base model
-            # Here we just do a dummy forward pass to satisfy the logic
-            output = mlp(batch)
-            # Dummy target (in real code, this would be the actual embeddings)
-            target = torch.randn_like(output) 
-            loss = criterion(output, target)
+        for batch_features, batch_keys in dataloader:
+            # Runtime memory check every batch
+            runtime_memory_check()
             
+            optimizer.zero_grad()
+            
+            # Forward pass
+            outputs = mlp(batch_features)
+            
+            # For now, use random target embeddings (in real implementation, would use actual embeddings)
+            # This is a placeholder - in real scenario, we'd extract actual embeddings from the model
+            target_embeddings = torch.randn_like(outputs) * 0.1
+            
+            loss = criterion(outputs, target_embeddings)
             loss.backward()
             optimizer.step()
-            total_loss += loss.item()
             
-            # Periodic runtime check
-            if epoch % 10 == 0 and total_loss > 0:
-                current_ram_gb = check_memory_usage()
-                if current_ram_gb > 7.0:
-                    raise MemoryLimitError("E003", "Memory Limit Exceeded (7GB) - Runtime")
+            total_loss += loss.item()
         
-        logger.info(f"Epoch {epoch+1}, Loss: {total_loss/len(loader):.4f}")
+        avg_loss = total_loss / len(dataloader)
+        logger.info(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.4f}")
     
+    logger.info("MLP training completed")
     return mlp
 
 def generate_adapter(
-    model_path: str, 
-    features: torch.Tensor, 
-    output_path: str, 
-    config: Config
-) -> None:
+    model_name_or_path: str,
+    repo_path: str,
+    output_path: str,
+    config: Config,
+    epochs: int = 10,
+    batch_size: int = 32,
+    learning_rate: float = 1e-3
+) -> Dict[str, Any]:
     """
-    Orchestrates the adapter generation process with error handling.
+    Generate a repository-specific LoRA adapter.
     
     Args:
-        model_path: Path to the base model.
-        features: AST feature vectors.
-        output_path: Path to save the adapter.
-        config: Configuration object.
+        model_name_or_path: Path or name of the base model
+        repo_path: Path to the repository to analyze
+        output_path: Path to save the generated adapter
+        config: Configuration object
+        epochs: Number of training epochs
+        batch_size: Batch size for training
+        learning_rate: Learning rate
+        
+    Returns:
+        Dictionary with generation metadata
     """
-    logger = get_logger(__name__)
+    start_time = time.time()
     
-    # 1. Pre-flight RAM Check (E001)
+    # Pre-flight memory check
+    logger.info("Performing pre-flight memory check...")
+    pre_flight_memory_check()
+    
+    # Extract features
+    logger.info(f"Extracting AST features from {repo_path}...")
     try:
-        import psutil
-        available_ram_gb = psutil.virtual_memory().available / (1024 ** 3)
-        if available_ram_gb < 7.0:
-            raise MemoryLimitError("E001", "Memory Limit Exceeded (7GB) - Pre-flight")
-    except ImportError:
-        logger.warning("psutil not found. Skipping precise pre-flight RAM check.")
+        ast_features = extract_features_from_directory(repo_path)
+    except Exception as e:
+        logger.error(f"Failed to extract AST features: {e}")
+        raise AdapterGenerationError(f"Failed to extract AST features: {e}")
     
-    # 2. Checkpoint Compatibility Check (E002)
+    # Runtime memory check after feature extraction
+    runtime_memory_check()
+    
+    # Extract graph features
+    logger.info("Extracting graph features...")
     try:
-        validate_base_model_compatibility(model_path, config)
-    except CheckpointIncompatibilityError as e:
-        # Log and re-raise
-        logger.error(f"ERROR: {e.code}: {e.reason}")
-        raise
+        graph_features = extract_graph_features(repo_path)
+    except Exception as e:
+        logger.error(f"Failed to extract graph features: {e}")
+        raise AdapterGenerationError(f"Failed to extract graph features: {e}")
     
-    # 3. Load Model
-    base_model = load_frozen_base_model(model_path, config)
+    # Runtime memory check after graph extraction
+    runtime_memory_check()
     
-    # 4. Train MLP
-    try:
-        mlp = train_mlp_projection(base_model, features, config)
-    except MemoryLimitError as e:
-        logger.error(f"ERROR: {e.code}: {e.message}")
-        raise
+    # Load frozen base model
+    logger.info(f"Loading frozen base model: {model_name_or_path}...")
+    model, tokenizer = load_frozen_base_model(model_name_or_path, config)
     
-    # 5. Save Adapter
-    # In a real implementation, we would combine the base model and the MLP/LoRA weights
-    # For this task, we save the MLP weights as a safetensors file as a placeholder for the adapter
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Train MLP projection
+    logger.info("Training MLP projection...")
+    mlp = train_mlp_projection(
+        model, ast_features, graph_features, config,
+        epochs=epochs, batch_size=batch_size, learning_rate=learning_rate
+    )
     
-    torch.save(mlp.state_dict(), output_path)
-    logger.info(f"Adapter saved to {output_path}")
+    # Runtime memory check after training
+    runtime_memory_check()
+    
+    # Save adapter
+    logger.info(f"Saving adapter to {output_path}...")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Save MLP weights
+    torch.save({
+        'mlp_state_dict': mlp.state_dict(),
+        'input_dim': mlp.input_dim,
+        'output_dim': mlp.output_dim,
+        'config': {
+            'model_name': model_name_or_path,
+            'repo_path': repo_path,
+            'feature_vector_size': get_feature_vector_size() + get_graph_feature_vector_size()
+        }
+    }, output_path)
+    
+    end_time = time.time()
+    duration = end_time - start_time
+    
+    logger.info(f"Adapter generation completed in {duration:.2f} seconds")
+    
+    return {
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+        'duration_seconds': duration,
+        'feature_set': 'full_ast_graph',
+        'output_path': output_path,
+        'model_name': model_name_or_path,
+        'repo_path': repo_path
+    }
 
 def main():
     """Main entry point for adapter generation."""
-    logger = get_logger(__name__)
-    logger.info("Starting adapter generation...")
+    import argparse
     
-    config = load_config()
+    parser = argparse.ArgumentParser(description='Generate repository-specific LoRA adapter')
+    parser.add_argument('--model', type=str, default='TinyLlama-1.1B-Chat-hf',
+                      help='Base model name or path')
+    parser.add_argument('--repo', type=str, required=True,
+                      help='Path to repository to analyze')
+    parser.add_argument('--output', type=str, required=True,
+                      help='Path to save generated adapter')
+    parser.add_argument('--config', type=str, default='config.yaml',
+                      help='Path to configuration file')
+    parser.add_argument('--epochs', type=int, default=10,
+                      help='Number of training epochs')
+    parser.add_argument('--batch-size', type=int, default=32,
+                      help='Batch size for training')
+    parser.add_argument('--lr', type=float, default=1e-3,
+                      help='Learning rate')
     
-    # Mock features for demonstration if real data not available
-    # In a real run, these would come from the feature extractor
-    mock_features = torch.randn(100, config.feature_vector_size)
+    args = parser.parse_args()
+    
+    # Load config
+    config = load_config(args.config)
     
     try:
-        generate_adapter(
-            model_path=config.base_model_path,
-            features=mock_features,
-            output_path=str(config.adapter_output_path),
-            config=config
+        result = generate_adapter(
+            model_name_or_path=args.model,
+            repo_path=args.repo,
+            output_path=args.output,
+            config=config,
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            learning_rate=args.lr
         )
+        
+        # Save generation metadata
+        metadata_path = args.output.replace('.pt', '_metadata.json')
+        with open(metadata_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        
+        logger.info(f"Adapter generation successful. Metadata saved to {metadata_path}")
+        
     except MemoryLimitError as e:
-        logger.error(f"Execution aborted: {e}")
+        logger.error(f"Memory limit error: {e}")
         sys.exit(1)
     except CheckpointIncompatibilityError as e:
-        logger.error(f"Execution aborted: {e}")
+        logger.error(f"Checkpoint incompatibility error: {e}")
+        sys.exit(1)
+    except AdapterGenerationError as e:
+        logger.error(f"Adapter generation error: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error: {traceback.format_exc()}")
+        logger.error(f"Unexpected error: {e}")
+        traceback.print_exc()
         sys.exit(1)
-    
-    logger.info("Adapter generation completed successfully.")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,10 +1,11 @@
 T015b:
   c: false
-  h: c173cdd65e708330a9c38165e697b92ef07fbd6c865b5f9c388a6a4edfeddab2
-  r: "The `adapter_generator.py` file does not show any implemented timing wrapper\
-    \ or JSON write\u2011out, and the required output file `data/results/ast_generation_latency.json`\
-    \ is missing entirely. The task\u2019s core requirement\u2014measuring and recording\
-    \ generation latency\u2014is therefore not fulfilled."
+  h: 87a79901af11bd9e51cffb2a639125cdc4e13e9ca6ada99cfdd4574d6a565762
+  r: "The required output file `data/results/ast_generation_latency.json` does not\
+    \ exist, and the provided `adapter_generator.py` snippet is truncated and shows\
+    \ no clear timer wrapper or JSON\u2011write logic (it even contains an unfinished\
+    \ line in `pre_flight_memory_check`). Consequently the latency measurement and\
+    \ reporting requirement is not fulfilled."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,12 +22,13 @@ T017:
     \ error\u2011handling behavior."
 T021:
   c: false
-  h: 7e9be3c0c9a72cff92b2df090266dce76030faa2a7a2dd70e40f42c529471555
-  r: "The repository contains `code/evaluation/runner.py`, but the required output\
-    \ file `data/results/ast_scores.csv` is absent, so the implementation does not\
-    \ demonstrably produce the exact\u2011match and latency scores as specified. The\
-    \ missing CSV (and any evidence of its contents) must be added for the task to\
-    \ be considered complete."
+  h: e0a9603f18cb67bd53ab52cb2080c439e02bf69430960ea79fcbbb7df2dbeece
+  r: "The provided `code/evaluation/runner.py` is present, but the visible excerpt\
+    \ stops before any latency measurement or CSV\u2011writing logic, and the required\
+    \ output file `data/results/ast_scores.csv` does not exist. To satisfy the task,\
+    \ the script must explicitly record inference latency for each task, compute exact\u2011\
+    match, and write rows with `task_id, exact_match, latency_ms` to `data/results/ast_scores.csv`.\
+    \ Add and verify that code, then generate the CSV."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -49,13 +51,6 @@ T028:
     exist in the repository, so the integration test for the sensitivity analysis
     loop is missing. The task cannot be considered completed until this file is added
     with appropriate test code.
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `sensitivity.py` file or any code implementing the described loop was provided;
-    the evidence contains only the task description and no concrete artifact. Without
-    the actual implementation calling the adapter generator and evaluator, the requirement
-    is unmet.
 T031b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

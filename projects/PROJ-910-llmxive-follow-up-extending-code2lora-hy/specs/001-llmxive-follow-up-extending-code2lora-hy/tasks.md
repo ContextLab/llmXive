@@ -61,7 +61,7 @@
 
 **Goal**: Generate a repository-specific LoRA adapter using only static AST features and a lightweight MLP, running on CPU‑only CI.
 
-**Independent Test**: The system processes a sample repo, generates an adapter file, and verifies it loads without GPU.
+**Independent Test**: The system processes a sample repo, generates an adapter file, and verifies it loads without GPU. [UNRESOLVED-CLAIM: c_6b23ab37 — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -130,7 +130,7 @@
 - [X] T031a [US3] **NEW**: Implement logic to extract the **baseline accuracy score** from the neural evaluation results (T021/T024) and save it to `data/results/baseline_score.json`. **Must be completed before T032.**
 - [ ] T031b [US3] **NEW**: Ensure `baseline_score.json` is written by T031a with a single key `score` (float).
 - [ ] T032 [US3] **Depends on T031a**: Implement logic to parse `data/results/sensitivity_summary.csv` (from T033) and `data/results/baseline_score.json` (from T031a). Calculate the threshold (% of baseline). Identify the minimal feature set meeting the threshold. **Output the result to `data/results/minimal_feature_set.txt` containing the feature set name.** (US‑3 Scenario 3). **[WAITING ON T031a]**
-- [X] T033 [US3] Generate a **CSV summary** `data/results/sensitivity_summary.csv` with columns `feature_set, accuracy, meets_threshold`. The research question investigates the sensitivity of model accuracy to different feature sets. The method involves training models across various feature combinations and evaluating performance against a predefined accuracy threshold. References: (Author et al.,).. Verify the file exists and is non‑empty. *(No visual plot is produced, respecting the spec.)*
+- [X] T033 [US3] Generate a **CSV summary** `data/results/sensitivity_summary.csv` with columns `feature_set, accuracy, meets_threshold`. The research question investigates the sensitivity of model accuracy to different feature sets. [UNRESOLVED-CLAIM: c_53c8e1e2 — status=not_enough_info] The method involves training models across various feature combinations and evaluating performance against a predefined accuracy threshold. References: (Author et al.,).. Verify the file exists and is non‑empty. *(No visual plot is produced, respecting the spec.)*
 
 **Checkpoint**: All user stories should now be independently functional
 

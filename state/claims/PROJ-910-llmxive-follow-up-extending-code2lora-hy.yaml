@@ -401,3 +401,155 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T00:56:48Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: System processes sample repo and generates GPU-independent adapter
+  claim_id: c_6b23ab37
+  context: 'Independent Test for User Story 1: The system processes a sample repo,
+    generates an adapter file, and verifies it loads without GPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_processes_sample_repo_and_generates_GPU-independent_a
+  kind: entity_fact
+  raw_text: The system processes a sample repo, generates an adapter file, and verifies
+    it loads without GPU.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:31:08Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: System runs RepoPeftBench tasks and outputs exact-match scores
+  claim_id: c_d7a81bdd
+  context: 'Independent Test for User Story 2: The system loads an adapter, runs RepoPeftBench
+    tasks, and outputs exact-match scores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_runs_RepoPeftBench_tasks_and_outputs_exact-match_scor
+  kind: entity_fact
+  raw_text: The system loads an adapter, runs RepoPeftBench tasks, and outputs exact-match
+    scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:31:41Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Minimum AST feature set maintains 80 percent of baseline accuracy
+  claim_id: c_89fcc1dc
+  context: 'Goal for User Story 3: Determine the minimum AST feature set required
+    to maintain >80 % of baseline accuracy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Determine the minimum AST feature set required to maintain >80 % of baseline
+    accuracy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:31:41Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Research investigates sensitivity of model accuracy to feature sets
+  claim_id: c_53c8e1e2
+  context: 'T033 description: The research question investigates the sensitivity of
+    model accuracy to different feature sets. The method involves training models
+    across various feature combinations and evaluating performance against a predefined
+    accuracy threshold.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_investigates_sensitivity_of_model_accuracy_to_featu
+  kind: entity_fact
+  raw_text: The research question investigates the sensitivity of model accuracy to
+    different feature sets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:32:33Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Latency reduction is at least 10 times
+  claim_id: c_a05a6873
+  context: "T049b description: Compute the latency reduction ratio (AST generation\
+    \ latency from T015b / baseline generation latency from T049a) and store a comparison\
+    \ report in data/results/generation_latency_comparison.json. Ensure the reduction\
+    \ is \u2265 10\xD7 as required by SC\u2011001."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_reduction_is_at_least_10_times
+  kind: magnitude
+  raw_text: "Ensure the reduction is \u2265 10\xD7 as required by SC\u2011001."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:33:25Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Peak RAM stays under 7 GB and total runtime under 6 hours
+  claim_id: c_e7e16fa1
+  context: "T050 description: Aggregate peak memory usage logs from data/results/memory_log.csv,\
+    \ compute total runtime per stage, and write a summary data/results/resource_summary.csv.\
+    \ Verify that peak RAM stays \u2264 7 GB and total runtime \u2264 6 h."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that peak RAM stays \u2264 7 GB and total runtime \u2264 6 h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:33:25Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Fetch first 10 repositories from RepoPeftBench with seed 42
+  claim_id: c_d7ef293d
+  context: 'T055 description: Download a verified, deterministic subset of the RepoPeftBench
+    dataset to data/raw/sample_repo. Use code/data/download_repopeftbench.py to fetch
+    the first N repositories (e.g., N=10, seed=42) from the official dataset using
+    streaming to avoid memory overflow.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use code/data/download_repopeftbench.py to fetch the first N repositories
+    (e.g., N=10, seed=42) from the official dataset using streaming.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:33:46Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Fetch RepoPeftBench Python subset from HuggingFace
+  claim_id: c_f95008e8
+  context: 'T054 description: Implement code/data/download_repopeftbench.py to fetch
+    the RepoPeftBench Python subset from the official HuggingFace dataset (datasets.load_dataset(''repo-peft-bench'',
+    ''python'')) or Zenodo mirror, verifying checksums before writing to data/raw/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_RepoPeftBench_Python_subset_from_HuggingFace
+  kind: entity_fact
+  raw_text: fetch the RepoPeftBench Python subset from the official HuggingFace dataset
+    (datasets.load_dataset('repo-peft-bench', 'python'))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:34:25Z'

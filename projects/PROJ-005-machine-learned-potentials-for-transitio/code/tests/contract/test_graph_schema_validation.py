@@ -1,229 +1,171 @@
-"""
-Contract tests for Graph Schema Validation.
-
-These tests ensure that the validation logic in src/data/validate_graphs.py
-correctly identifies valid and invalid graphs according to the schema.
-"""
 import json
 import tempfile
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import pytest
 import yaml
 
 from src.data.validate_graphs import (
-    GraphValidationError,
     load_schema,
     validate_node_attributes,
     validate_edge_attributes,
     validate_graph_metadata,
     validate_graph_structure,
     validate_graph,
-    validate_all_graphs,
-    get_project_root
+    GraphValidationError
 )
 
-
-@pytest.fixture
-def sample_schema(tmp_path):
-    """Create a temporary schema file for testing."""
-    schema = {
-        "nodes": {
-            "required_attributes": ["atomic_number", "formal_charge"],
-            "attribute_types": {
-                "atomic_number": "int",
-                "formal_charge": "int",
-                "element_symbol": "str"
-            }
-        },
-        "edges": {
-            "required_attributes": ["distance"],
-            "attribute_types": {
-                "distance": "float",
-                "edge_type": "str"
-            }
-        },
-        "metadata": {
-            "required_fields": ["graph_id", "energy_dft"],
-            "field_types": {
-                "graph_id": "str",
-                "energy_dft": "float",
-                "ligand_class": "str"
-            }
-        },
-        "graph": {
-            "allow_self_loops": False,
-            "require_connected": False
+# Sample Schema for testing
+sample_schema = {
+    "nodes": {
+        "required": ["atomic_number", "formal_charge"],
+        "types": {
+            "atomic_number": "int",
+            "formal_charge": "int",
+            "coordination_number": "int"
+        }
+    },
+    "edges": {
+        "required": ["source", "target", "distance"],
+        "types": {
+            "source": "int",
+            "target": "int",
+            "distance": "float"
+        }
+    },
+    "metadata": {
+        "required": ["energy_dft", "barrier_height"],
+        "types": {
+            "energy_dft": "float",
+            "barrier_height": "float",
+            "ligand_class": "str"
         }
     }
+}
 
-    schema_path = tmp_path / "test_schema.yaml"
-    with open(schema_path, "w") as f:
-        yaml.dump(schema, f)
+# Valid test data
+valid_nodes = pd.DataFrame([
+    {"atomic_number": 28, "formal_charge": 0, "coordination_number": 4},
+    {"atomic_number": 6, "formal_charge": 0, "coordination_number": 3}
+])
 
-    return schema_path, schema
+valid_edges = pd.DataFrame([
+    {"source": 0, "target": 1, "distance": 1.54},
+    {"source": 1, "target": 0, "distance": 1.54}
+])
 
+valid_metadata = {
+    "energy_dft": -123.45,
+    "barrier_height": 15.2,
+    "ligand_class": "Group 13"
+}
 
-@pytest.fixture
-def valid_nodes():
-    return pd.DataFrame({
-        "atomic_number": [6, 8, 7],
-        "formal_charge": [0, 0, 0],
-        "element_symbol": ["C", "O", "N"]
-    })
+valid_graph = (valid_nodes, valid_edges, valid_metadata)
 
-
-@pytest.fixture
-def valid_edges():
-    return pd.DataFrame({
-        "source": [0, 1, 2],
-        "target": [1, 2, 0],
-        "distance": [1.2, 1.4, 1.3],
-        "edge_type": ["single", "double", "single"]
-    })
-
-
-@pytest.fixture
-def valid_metadata():
-    return {
-        "graph_id": "test_001",
-        "energy_dft": -123.45,
-        "ligand_class": "Group 13",
-        "num_nodes": 3,
-        "num_edges": 3
-    }
-
-
-@pytest.fixture
-def valid_graph(valid_nodes, valid_edges, valid_metadata):
-    return {
-        "nodes": valid_nodes,
-        "edges": valid_edges,
-        "metadata": valid_metadata
-    }
-
-
-def test_load_schema_valid(sample_schema):
-    path, _ = sample_schema
-    schema = load_schema(path)
-    assert "nodes" in schema
-    assert "edges" in schema
-    assert "metadata" in schema
-
+def test_load_schema_valid(tmp_path):
+    schema_file = tmp_path / "schema.yaml"
+    with open(schema_file, 'w') as f:
+        yaml.dump(sample_schema, f)
+    
+    loaded = load_schema(schema_file)
+    assert loaded == sample_schema
 
 def test_load_schema_missing_file():
     with pytest.raises(FileNotFoundError):
         load_schema(Path("/nonexistent/path/schema.yaml"))
 
-
-def test_validate_node_attributes_valid(valid_nodes, sample_schema):
-    _, schema = sample_schema
-    errors = validate_node_attributes(valid_nodes, schema)
+def test_validate_node_attributes_valid():
+    errors = validate_node_attributes(valid_nodes, sample_schema)
     assert len(errors) == 0
 
+def test_validate_node_attributes_missing_column():
+    bad_nodes = pd.DataFrame([{"atomic_number": 28}]) # missing formal_charge
+    errors = validate_node_attributes(bad_nodes, sample_schema)
+    assert any("Missing required node attributes" in e for e in errors)
+    assert "formal_charge" in errors[0]
 
-def test_validate_node_attributes_missing_column(valid_nodes, sample_schema):
-    _, schema = sample_schema
-    # Remove a required column
-    bad_nodes = valid_nodes.drop(columns=["atomic_number"])
-    errors = validate_node_attributes(bad_nodes, schema)
-    assert len(errors) > 0
-    assert "atomic_number" in str(errors[0])
+def test_validate_node_attributes_wrong_type():
+    bad_nodes = pd.DataFrame([{"atomic_number": "not_an_int", "formal_charge": 0}])
+    errors = validate_node_attributes(bad_nodes, sample_schema)
+    assert any("expected int" in e for e in errors)
 
-
-def test_validate_node_attributes_wrong_type(valid_nodes, sample_schema):
-    _, schema = sample_schema
-    # Change type of atomic_number to float
-    bad_nodes = valid_nodes.copy()
-    bad_nodes["atomic_number"] = bad_nodes["atomic_number"].astype(float)
-    errors = validate_node_attributes(bad_nodes, schema)
-    assert len(errors) > 0
-    assert "atomic_number" in str(errors[0])
-
-
-def test_validate_edge_attributes_valid(valid_edges, sample_schema):
-    _, schema = sample_schema
-    errors = validate_edge_attributes(valid_edges, schema)
+def test_validate_edge_attributes_valid():
+    errors = validate_edge_attributes(valid_edges, sample_schema)
     assert len(errors) == 0
 
+def test_validate_edge_attributes_missing_column():
+    bad_edges = pd.DataFrame([{"source": 0}]) # missing target, distance
+    errors = validate_edge_attributes(bad_edges, sample_schema)
+    assert any("Missing required edge attributes" in e for e in errors)
 
-def test_validate_edge_attributes_missing_column(valid_edges, sample_schema):
-    _, schema = sample_schema
-    bad_edges = valid_edges.drop(columns=["distance"])
-    errors = validate_edge_attributes(bad_edges, schema)
-    assert len(errors) > 0
-    assert "distance" in str(errors[0])
-
-
-def test_validate_graph_metadata_valid(valid_metadata, sample_schema):
-    _, schema = sample_schema
-    errors = validate_graph_metadata(valid_metadata, schema)
+def test_validate_graph_metadata_valid():
+    errors = validate_graph_metadata(valid_metadata, sample_schema)
     assert len(errors) == 0
 
+def test_validate_graph_metadata_missing_field():
+    bad_meta = {"energy_dft": -123.45} # missing barrier_height
+    errors = validate_graph_metadata(bad_meta, sample_schema)
+    assert any("Missing required metadata fields" in e for e in errors)
 
-def test_validate_graph_metadata_missing_field(valid_metadata, sample_schema):
-    _, schema = sample_schema
-    bad_meta = valid_metadata.copy()
-    del bad_meta["energy_dft"]
-    errors = validate_graph_metadata(bad_meta, schema)
-    assert len(errors) > 0
-    assert "energy_dft" in str(errors[0])
-
-
-def test_validate_graph_structure_valid(valid_graph, sample_schema):
-    _, schema = sample_schema
-    errors = validate_graph_structure(valid_graph, schema)
+def test_validate_graph_structure_valid():
+    nodes = pd.DataFrame({"node_id": [0, 1]})
+    edges = pd.DataFrame({"source": [0, 1], "target": [1, 0]})
+    errors = validate_graph_structure(nodes, edges)
     assert len(errors) == 0
 
+def test_validate_graph_structure_self_loops_disallowed():
+    nodes = pd.DataFrame({"node_id": [0, 1]})
+    edges = pd.DataFrame({"source": [0, 0], "target": [1, 0]}) # 0->0 is self loop
+    errors = validate_graph_structure(nodes, edges)
+    assert any("self-loops" in e for e in errors)
 
-def test_validate_graph_structure_self_loops_disallowed(valid_graph, sample_schema):
-    _, schema = sample_schema
-    # Add a self-loop
-    bad_edges = valid_graph["edges"].copy()
-    bad_edges = pd.concat([bad_edges, pd.DataFrame({"source": [0], "target": [0], "distance": [1.0], "edge_type": ["single"]})], ignore_index=True)
-    bad_graph = valid_graph.copy()
-    bad_graph["edges"] = bad_edges
-
-    errors = validate_graph_structure(bad_graph, schema)
-    assert len(errors) > 0
-    assert "self-loops" in str(errors[0]).lower()
-
-
-def test_validate_graph_full_valid(valid_graph, sample_schema):
-    _, schema = sample_schema
-    is_valid, errors = validate_graph(valid_graph, schema)
-    assert is_valid is True
+def test_validate_graph_full_valid():
+    is_valid, errors = validate_graph(*valid_graph, sample_schema)
+    assert is_valid
     assert len(errors) == 0
 
-
-def test_validate_graph_full_invalid(valid_graph, sample_schema):
-    _, schema = sample_schema
-    # Make nodes invalid
-    bad_graph = valid_graph.copy()
-    bad_graph["nodes"] = bad_graph["nodes"].drop(columns=["atomic_number"])
-
-    is_valid, errors = validate_graph(bad_graph, schema)
-    assert is_valid is False
+def test_validate_graph_full_invalid():
+    bad_nodes = pd.DataFrame([{"atomic_number": "str"}])
+    bad_edges = valid_edges
+    bad_meta = valid_metadata
+    is_valid, errors = validate_graph(bad_nodes, bad_edges, bad_meta, sample_schema)
+    assert not is_valid
     assert len(errors) > 0
 
+def test_validate_all_graphs_valid():
+    # Mock a dataframe with nested structures
+    mock_data = pd.DataFrame([{
+        "graph_id": 1,
+        "nodes": valid_nodes.to_dict('records'),
+        "edges": valid_edges.to_dict('records'),
+        "metadata": valid_metadata
+    }])
+    
+    results = validate_all_graphs(mock_data, sample_schema)
+    assert results["valid_graphs"] == 1
+    assert results["invalid_graphs"] == 0
+    assert len(results["errors"]) == 0
 
-def test_validate_all_graphs_valid(valid_graph, sample_schema):
-    _, schema = sample_schema
-    graphs = [valid_graph, valid_graph]
-    all_valid, errors_by_idx = validate_all_graphs(graphs, schema)
-    assert all_valid is True
-    assert len(errors_by_idx) == 0
-
-
-def test_validate_all_graphs_mixed(valid_graph, sample_schema):
-    _, schema = sample_schema
-    bad_graph = valid_graph.copy()
-    bad_graph["nodes"] = bad_graph["nodes"].drop(columns=["atomic_number"])
-
-    graphs = [valid_graph, bad_graph]
-    all_valid, errors_by_idx = validate_all_graphs(graphs, schema)
-    assert all_valid is False
-    assert 1 in errors_by_idx
-    assert len(errors_by_idx[1]) > 0
+def test_validate_all_graphs_mixed():
+    bad_nodes = pd.DataFrame([{"atomic_number": "str"}])
+    mock_data = pd.DataFrame([
+        {
+            "graph_id": 1,
+            "nodes": valid_nodes.to_dict('records'),
+            "edges": valid_edges.to_dict('records'),
+            "metadata": valid_metadata
+        },
+        {
+            "graph_id": 2,
+            "nodes": bad_nodes.to_dict('records'),
+            "edges": valid_edges.to_dict('records'),
+            "metadata": valid_metadata
+        }
+    ])
+    
+    results = validate_all_graphs(mock_data, sample_schema)
+    assert results["valid_graphs"] == 1
+    assert results["invalid_graphs"] == 1
+    assert len(results["errors"]) == 1
+    assert results["errors"][0]["graph_id"] == "2"

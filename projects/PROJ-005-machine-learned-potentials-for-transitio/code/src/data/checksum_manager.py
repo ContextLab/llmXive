@@ -1,9 +1,10 @@
 """
-Checksum Manager for verifying downloaded artifacts.
+Checksum Manager for Data Integrity Verification.
 
-This module provides utilities to compute, store, and verify SHA-256 checksums
-for files in the data/raw directory. It ensures data integrity by comparing
-computed checksums against a manifest.
+This module provides utilities to compute, store, and verify file checksums
+(SHA-256) for artifacts in the data/raw/ directory. It ensures data integrity
+by maintaining a manifest of expected checksums and verifying downloaded files
+against them.
 """
 
 import hashlib
@@ -14,38 +15,33 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-# Import logging setup from existing project utilities
-try:
-    from src.utils.logging import get_logger
-except ImportError:
-    # Fallback if utils/logging.py is not yet fully ready or path differs
-    def get_logger(name: str):
-        logger = logging.getLogger(name)
-        if not logger.handlers:
-            handler = logging.StreamHandler(sys.stdout)
-            handler.setLevel(logging.INFO)
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-            handler.setFormatter(formatter)
-            logger.addHandler(handler)
-            logger.setLevel(logging.INFO)
-        return logger
+# Configure logging
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+# Constants
+CHECKSUM_ALGORITHM = 'sha256'
+MANIFEST_FILENAME = 'checksum_manifest.json'
+RAW_DATA_DIR = 'data/raw'
 
-MANIFEST_FILENAME = "checksums.json"
 
 def get_project_root() -> Path:
-    """Determine the project root directory (parent of 'code')."""
-    current_file = Path(__file__).resolve()
-    # Assuming structure: code/src/data/checksum_manager.py -> root is 3 levels up
-    return current_file.parent.parent.parent
+    """
+    Determine the project root directory.
+    Assumes the script is run from the project root or code/ directory.
+    """
+    current_path = Path(__file__).resolve()
+    # Traverse up to find the directory containing 'data' and 'specs'
+    # Usually the project root is 2 levels up from code/src/data/
+    project_root = current_path.parent.parent.parent.parent
+    return project_root
 
-def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
+
+def compute_file_checksum(file_path: Path, algorithm: str = CHECKSUM_ALGORITHM) -> str:
     """
     Compute the SHA-256 checksum of a file.
 
     Args:
-        file_path: Path to the file.
+        file_path: Path to the file to checksum.
         algorithm: Hash algorithm to use (default: sha256).
 
     Returns:
@@ -53,221 +49,301 @@ def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
 
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the file is not a regular file.
+        ValueError: If the algorithm is not supported.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-    if not file_path.is_file():
-        raise ValueError(f"Path is not a file: {file_path}")
 
-    hash_func = hashlib.new(algorithm)
+    hash_obj = hashlib.new(algorithm)
+
     try:
-        with open(file_path, "rb") as f:
-            # Read in chunks to handle large files without memory issues
-            for chunk in iter(lambda: f.read(8192), b""):
-                hash_func.update(chunk)
-        return hash_func.hexdigest()
+        with open(file_path, 'rb') as f:
+            # Read in chunks to handle large files
+            for chunk in iter(lambda: f.read(8192), b''):
+                hash_obj.update(chunk)
     except IOError as e:
-        logger.error(f"Error reading file {file_path}: {e}")
+        logger.error(f"IO error while reading {file_path}: {e}")
         raise
 
-def load_checksum_manifest(manifest_path: Optional[Path] = None) -> Dict[str, str]:
+    return hash_obj.hexdigest()
+
+
+def load_checksum_manifest(manifest_path: Optional[Path] = None) -> Dict[str, Any]:
     """
     Load the checksum manifest from disk.
 
     Args:
-        manifest_path: Optional path to the manifest. Defaults to data/raw/checksums.json.
+        manifest_path: Optional path to the manifest file. If None, uses the default
+                       location in the project root.
 
     Returns:
-        Dictionary mapping relative file paths to their expected checksums.
+        Dictionary containing the manifest data. Empty dict if file doesn't exist.
     """
     if manifest_path is None:
         project_root = get_project_root()
-        manifest_path = project_root / "data" / "raw" / MANIFEST_FILENAME
+        manifest_path = project_root / RAW_DATA_DIR / MANIFEST_FILENAME
 
     if not manifest_path.exists():
-        logger.warning(f"Checksum manifest not found at {manifest_path}. Returning empty manifest.")
-        return {}
+        logger.info(f"Checksum manifest not found at {manifest_path}. Initializing empty manifest.")
+        return {
+            "version": "1.0",
+            "algorithm": CHECKSUM_ALGORITHM,
+            "files": {}
+        }
 
     try:
-        with open(manifest_path, "r") as f:
-            return json.load(f)
+        with open(manifest_path, 'r') as f:
+            data = json.load(f)
+        logger.info(f"Loaded checksum manifest from {manifest_path}")
+        return data
     except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in checksum manifest: {e}")
+        logger.error(f"Failed to parse checksum manifest: {e}")
         raise
     except IOError as e:
-        logger.error(f"Error reading manifest: {e}")
+        logger.error(f"IO error while reading manifest: {e}")
         raise
 
-def save_checksum_manifest(checksums: Dict[str, str], manifest_path: Optional[Path] = None) -> None:
+
+def save_checksum_manifest(manifest: Dict[str, Any], manifest_path: Optional[Path] = None) -> None:
     """
     Save the checksum manifest to disk.
 
     Args:
-        checksums: Dictionary mapping relative file paths to checksums.
-        manifest_path: Optional path to save the manifest.
+        manifest: Dictionary containing the manifest data.
+        manifest_path: Optional path to save the manifest. Defaults to standard location.
     """
     if manifest_path is None:
         project_root = get_project_root()
-        raw_dir = project_root / "data" / "raw"
-        raw_dir.mkdir(parents=True, exist_ok=True)
-        manifest_path = raw_dir / MANIFEST_FILENAME
+        manifest_path = project_root / RAW_DATA_DIR / MANIFEST_FILENAME
+
+    # Ensure directory exists
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        with open(manifest_path, "w") as f:
-            json.dump(checksums, f, indent=2)
-        logger.info(f"Checksum manifest saved to {manifest_path}")
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest, f, indent=2)
+        logger.info(f"Saved checksum manifest to {manifest_path}")
     except IOError as e:
-        logger.error(f"Error writing manifest: {e}")
+        logger.error(f"Failed to save checksum manifest: {e}")
         raise
 
-def verify_checksum(file_path: Path, expected_checksum: str, algorithm: str = "sha256") -> bool:
+
+def verify_checksum(file_path: Path, expected_checksum: str, algorithm: str = CHECKSUM_ALGORITHM) -> bool:
     """
-    Verify a single file's checksum against an expected value.
+    Verify a file's checksum against an expected value.
 
     Args:
-        file_path: Path to the file.
-        expected_checksum: Expected SHA-256 hex string.
-        algorithm: Hash algorithm.
+        file_path: Path to the file to verify.
+        expected_checksum: Expected hexadecimal checksum string.
+        algorithm: Hash algorithm to use.
 
     Returns:
         True if checksum matches, False otherwise.
     """
     try:
-        computed = compute_file_checksum(file_path, algorithm)
-        if computed.lower() == expected_checksum.lower():
+        actual_checksum = compute_file_checksum(file_path, algorithm)
+        if actual_checksum.lower() == expected_checksum.lower():
             logger.info(f"Checksum verified for {file_path.name}")
             return True
         else:
-            logger.error(f"Checksum MISMATCH for {file_path.name}")
-            logger.error(f"  Expected: {expected_checksum}")
-            logger.error(f"  Computed: {computed}")
+            logger.error(f"Checksum mismatch for {file_path.name}. "
+                         f"Expected: {expected_checksum}, Got: {actual_checksum}")
             return False
-    except Exception as e:
-        logger.error(f"Error verifying checksum for {file_path}: {e}")
-        return False
+    except FileNotFoundError as e:
+        logger.error(f"File not found during verification: {file_path}")
+        raise
 
-def verify_all_files(manifest_path: Optional[Path] = None) -> Tuple[bool, List[str]]:
+
+def verify_all_files(manifest: Optional[Dict[str, Any]] = None) -> Tuple[bool, List[str]]:
     """
-    Verify all files listed in the checksum manifest.
+    Verify all files listed in the manifest against their stored checksums.
 
     Args:
-        manifest_path: Optional path to the manifest.
+        manifest: Optional manifest dictionary. If None, loads from disk.
 
     Returns:
-        Tuple of (all_passed: bool, failed_files: List[str]).
+        Tuple of (all_verified: bool, failed_files: List[str])
     """
-    checksums = load_checksum_manifest(manifest_path)
-    if not checksums:
-        logger.warning("Manifest is empty. Nothing to verify.")
-        return True, []
+    if manifest is None:
+        manifest = load_checksum_manifest()
+
+    files_dict = manifest.get('files', {})
+    failed_files = []
+    all_verified = True
 
     project_root = get_project_root()
-    raw_dir = project_root / "data" / "raw"
-    failed_files = []
+    raw_data_dir = project_root / RAW_DATA_DIR
 
-    for relative_path, expected_checksum in checksums.items():
-        full_path = raw_dir / relative_path
-        if not full_path.exists():
-            logger.error(f"File missing in manifest verification: {full_path}")
+    if not raw_data_dir.exists():
+        logger.warning(f"Raw data directory does not exist: {raw_data_dir}")
+        return False, ["Raw data directory missing"]
+
+    for relative_path, checksum_info in files_dict.items():
+        file_path = raw_data_dir / relative_path
+        expected_checksum = checksum_info.get('checksum')
+
+        if not file_path.exists():
+            logger.error(f"File missing from verification: {relative_path}")
             failed_files.append(relative_path)
+            all_verified = False
             continue
 
-        if not verify_checksum(full_path, expected_checksum):
+        if expected_checksum is None:
+            logger.warning(f"No checksum found for {relative_path} in manifest")
+            continue
+
+        if not verify_checksum(file_path, expected_checksum):
             failed_files.append(relative_path)
+            all_verified = False
 
-    all_passed = len(failed_files) == 0
-    if all_passed:
-        logger.info("All files verified successfully.")
-    else:
-        logger.error(f"Verification failed for {len(failed_files)} file(s).")
+    return all_verified, failed_files
 
-    return all_passed, failed_files
 
-def update_checksum_for_file(file_path: Path, manifest_path: Optional[Path] = None) -> None:
+def update_checksum_for_file(file_path: Path, manifest: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Compute checksum for a file and update the manifest.
-    This is used when a new file is downloaded.
+    Compute and update the checksum for a specific file in the manifest.
 
     Args:
-        file_path: Path to the file to checksum.
-        manifest_path: Optional path to the manifest.
+        file_path: Path to the file (relative to data/raw or absolute).
+        manifest: Optional manifest to update in memory.
+
+    Returns:
+        Updated manifest dictionary.
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Cannot update checksum for missing file: {file_path}")
+    if manifest is None:
+        manifest = load_checksum_manifest()
 
-    relative_path = file_path.relative_to(get_project_root() / "data" / "raw")
-    checksum = compute_file_checksum(file_path)
+    # Resolve path relative to raw_data_dir if it's not absolute
+    project_root = get_project_root()
+    raw_data_dir = project_root / RAW_DATA_DIR
 
-    checksums = load_checksum_manifest(manifest_path)
-    checksums[str(relative_path)] = checksum
-    save_checksum_manifest(checksums, manifest_path)
+    if not file_path.is_absolute():
+        # Assume it's relative to raw_data_dir
+        full_path = raw_data_dir / file_path
+        relative_path = str(file_path)
+    else:
+        full_path = Path(file_path)
+        try:
+            relative_path = str(full_path.relative_to(raw_data_dir))
+        except ValueError:
+            # If not relative to raw_data_dir, use the filename as key
+            relative_path = full_path.name
+
+    if not full_path.exists():
+        raise FileNotFoundError(f"File not found: {full_path}")
+
+    checksum = compute_file_checksum(full_path)
+
+    if 'files' not in manifest:
+        manifest['files'] = {}
+
+    manifest['files'][relative_path] = {
+        'checksum': checksum,
+        'algorithm': CHECKSUM_ALGORITHM,
+        'last_updated': str(Path(full_path).stat().st_mtime)
+    }
+
+    logger.info(f"Updated checksum for {relative_path}: {checksum}")
+    return manifest
+
 
 def main() -> int:
     """
-    CLI entry point for checksum management.
+    CLI entry point for checksum management operations.
 
     Usage:
-      python -m src.data.checksum_manager verify-all
-      python -m src.data.checksum_manager update <file_path>
-      python -m src.data.checksum_manager compute <file_path>
+        python -m src.data.checksum_manager [command] [args]
+
+    Commands:
+        verify [filename]   - Verify a specific file or all files in manifest
+        add [filename]      - Add/update checksum for a specific file
+        init                - Initialize a new empty manifest
+        list                - List all tracked files and their status
     """
     if len(sys.argv) < 2:
         print("Usage: python -m src.data.checksum_manager <command> [args]")
-        print("Commands:")
-        print("  verify-all              Verify all files in data/raw against manifest")
-        print("  update <file_path>      Compute checksum and update manifest for file")
-        print("  compute <file_path>     Compute and print checksum for file only")
+        print("Commands: verify, add, init, list")
         return 1
 
     command = sys.argv[1]
     project_root = get_project_root()
-    raw_dir = project_root / "data" / "raw"
+    raw_data_dir = project_root / RAW_DATA_DIR
 
-    if not raw_dir.exists():
-        logger.warning(f"Data raw directory does not exist yet: {raw_dir}")
-        # Create it to allow subsequent operations if needed, or just warn
-        # For this task, we ensure the directory exists as part of setup
-        raw_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created directory: {raw_dir}")
+    if command == "init":
+        manifest = {
+            "version": "1.0",
+            "algorithm": CHECKSUM_ALGORITHM,
+            "files": {}
+        }
+        save_checksum_manifest(manifest)
+        print(f"Initialized checksum manifest at {raw_data_dir / MANIFEST_FILENAME}")
+        return 0
 
-    if command == "verify-all":
-        success, failed = verify_all_files()
-        return 0 if success else 1
-
-    elif command == "update":
+    elif command == "add":
         if len(sys.argv) < 3:
-            print("Error: update command requires a file path argument.")
+            print("Error: Filename required for 'add' command")
             return 1
-        file_path = Path(sys.argv[2])
-        if not file_path.is_absolute():
-            file_path = raw_dir / file_path
-        try:
-            update_checksum_for_file(file_path)
-            print(f"Updated checksum for {file_path.name}")
-            return 0
-        except Exception as e:
-            print(f"Error updating checksum: {e}")
+        filename = sys.argv[2]
+        file_path = raw_data_dir / filename
+        if not file_path.exists():
+            print(f"Error: File not found: {file_path}")
             return 1
 
-    elif command == "compute":
-        if len(sys.argv) < 3:
-            print("Error: compute command requires a file path argument.")
-            return 1
-        file_path = Path(sys.argv[2])
-        if not file_path.is_absolute():
-            file_path = raw_dir / file_path
-        try:
-            checksum = compute_file_checksum(file_path)
-            print(f"SHA256({file_path.name}): {checksum}")
+        manifest = load_checksum_manifest()
+        manifest = update_checksum_for_file(file_path, manifest)
+        save_checksum_manifest(manifest)
+        return 0
+
+    elif command == "verify":
+        if len(sys.argv) >= 3:
+            filename = sys.argv[2]
+            file_path = raw_data_dir / filename
+            if not file_path.exists():
+                print(f"Error: File not found: {file_path}")
+                return 1
+            manifest = load_checksum_manifest()
+            files_dict = manifest.get('files', {})
+            if filename not in files_dict:
+                print(f"Error: File not in manifest: {filename}")
+                return 1
+            expected = files_dict[filename].get('checksum')
+            if expected:
+                if verify_checksum(file_path, expected):
+                    print(f"OK: {filename}")
+                    return 0
+                else:
+                    print(f"FAIL: {filename}")
+                    return 1
+            else:
+                print(f"Error: No checksum in manifest for {filename}")
+                return 1
+        else:
+            all_ok, failed = verify_all_files()
+            if all_ok:
+                print("All files verified successfully.")
+                return 0
+            else:
+                print(f"Verification failed for {len(failed)} file(s):")
+                for f in failed:
+                    print(f"  - {f}")
+                return 1
+
+    elif command == "list":
+        manifest = load_checksum_manifest()
+        files_dict = manifest.get('files', {})
+        if not files_dict:
+            print("No files tracked in manifest.")
             return 0
-        except Exception as e:
-            print(f"Error computing checksum: {e}")
-            return 1
+        print(f"Tracked files ({len(files_dict)}):")
+        for rel_path, info in files_dict.items():
+            checksum = info.get('checksum', 'N/A')
+            print(f"  {rel_path}: {checksum[:16]}...")
+        return 0
 
     else:
         print(f"Unknown command: {command}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

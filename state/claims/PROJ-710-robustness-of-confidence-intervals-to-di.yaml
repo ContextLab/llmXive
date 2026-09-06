@@ -4109,24 +4109,6 @@
   updated_at: '2026-09-01T05:36:40Z'
 - artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
   attempts: 1
-  canonical: verify standard error of coverage is less than 0.5 percent
-  claim_id: c_7d7ce7b5
-  context: T033 [P] Implement code/analysis/convergence_check.py to run simulation
-    with multiple seeds and verify standard error of coverage < 0.5%
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_is_less_than_0.5_percent
-  kind: magnitude
-  raw_text: Verify that standard error of coverage is less than 0.5%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-01T05:36:43Z'
-- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
-  attempts: 1
   canonical: enforce minimum sample size n less than 10 for valid bootstrap
   claim_id: c_11460e7d
   context: T014c [P] [US1] Implement code/analysis/edge_cases.py function enforce_min_sample_size
@@ -6158,3 +6140,382 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T15:15:30Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Generate 3 synthetic populations of 1,000,000 rows each
+  claim_id: c_1c01ed3e
+  context: 'Generate Synthetic Populations for Ground Truth. Create code/data/synthetic_pop.py
+    to generate THREE separate synthetic populations of N=1,000,000 rows each: one
+    for UCI Adult, one for UCI Iris, and one for UCI Wine Quality.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create code/data/synthetic_pop.py to generate THREE separate synthetic
+    populations of N=1,000,000 rows each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:50:29Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Set simulation count to 1000
+  claim_id: c_4689c43e
+  context: Implement code/config.py with hyperparameters, random seeds, artifact paths,
+    and nominal_coverage_target. Set N_sim = 1000 to match plan feasibility check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:50:52Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Perform 1000 bootstrap resamples
+  claim_id: c_3ce76c49
+  context: 'For each sample from T013a: Add DP noise, Apply bias/variance adjustments,
+    Perform B=1000 bootstrap resamples, Construct confidence intervals.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform B=1000 bootstrap resamples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:51:14Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Raise ValueError for sample size less than 10
+  claim_id: c_e2cbeaaa
+  context: 'Implement Edge Case Handlers. enforce_min_sample_size: Raises ValueError
+    if sample size < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_ValueError_for_sample_size_less_than_10
+  kind: magnitude
+  raw_text: Raises ValueError if sample size < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:51:53Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Variance inflation formula Var_adj equals Var_dp plus 2 sigma squared
+    noise over n
+  claim_id: c_955e99e2
+  context: 'Variance Inflation: Karwa & Vadhan (2017) Finite Sample Analysis of Differentially
+    Private Estimators. Formula: Var_adj = Var_dp + 2*sigma^2_noise / n.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Formula: Var_adj = Var_dp + 2*sigma^2_noise / n'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:53:33Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Verify standard error of coverage is less than 0.5 percent
+  claim_id: c_e361bc57
+  context: Implement code/analysis/convergence_check.py to run simulation with multiple
+    seeds and verify standard error of coverage < 0.5%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_is_less_than_0.5_percent
+  kind: magnitude
+  raw_text: Verify standard error of coverage < 0.5%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:53:55Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Ensure peak memory usage is less than 7 GB
+  claim_id: c_b98dc238
+  context: 'Performance optimization: Extract memory-heavy loop into generator. Verification:
+    Use tracemalloc to ensure peak memory usage < 7GB during a representative run.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_peak_memory_usage_is_less_than_7_GB
+  kind: magnitude
+  raw_text: Ensure peak memory usage < 7GB during a representative run
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:54:48Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Verify 1000 simulation fits within 6 hour runtime limit
+  claim_id: c_1184b40d
+  context: Add a code/utils/feasibility_check.py script that runs a micro-benchmark
+    at startup to verify that the full N_sim=1000 simulation will fit within the 6-hour
+    runtime limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the full N_sim=1000 simulation will fit within the 6-hour
+    runtime limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:55:08Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Exit with warning if projected time exceeds 5.5 hours
+  claim_id: c_60e36638
+  context: 'Threshold: If projected time > 5.5 hours, exit with warning WARNING: Projected
+    time Xh exceeds 5.5h limit; reduce N_sim in config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If projected time > 5.5 hours, exit with warning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:55:09Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: Exit with warning if memory exceeds 6.5 GB
+  claim_id: c_6babe4e3
+  context: 'If projected time > 5.5 hours OR memory > 6.5 GB, exit with warning WARNING:
+    Projected resource usage exceeds limits; reduce N_sim in config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory > 6.5 GB, exit with warning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:55:10Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: generate three synthetic populations of 1,000,000 rows for UCI Adult,
+    Iris, and Wine Quality
+  claim_id: c_ef997ddf
+  context: T003 [P] Generate Synthetic Populations for Ground Truth. Create code/data/synthetic_pop.py
+    to generate THREE separate synthetic populations of N=1,000,000 rows each...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create code/data/synthetic_pop.py to generate THREE separate synthetic
+    populations of N=1,000,000 rows each: one for UCI Adult (Multinomial/Normal mix),
+    one for UCI Iris (Multivariate Normal), and one for UCI Wine Quality (Multivariate
+    Normal).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:57:11Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: set simulation count N_sim to 1000
+  claim_id: c_c683bf70
+  context: T002 [P] Implement code/config.py... Set N_sim = 1000 to match plan feasibility
+    check.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set N_sim = 1000 to match plan feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:57:12Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: draw 1000 independent samples from real UCI data
+  claim_id: c_b9a53014
+  context: T013a [US1] Implement Outer Loop (Simulation)... Draw N_sim=1000 independent
+    samples from the Real UCI data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Draw N_sim=1000 independent samples from the Real UCI data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:57:45Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: perform 1000 bootstrap resamples
+  claim_id: c_705927f4
+  context: T013b [US1] Implement Inner Loop (Bootstrap & Adjustments)... (3) Perform
+    B=1000 bootstrap resamples...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform B=1000 bootstrap resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:57:46Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: bias correction formula from Covington et al. 2021
+  claim_id: c_d18fb577
+  context: 'T020a [US2] Implement Adjustments... Citations: Bias Correction: Covington
+    et al. (2021) ''Bias-Corrected Estimators for Differentially Private Data''...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Bias Correction formula: Covington et al. (2021) ''Bias-Corrected Estimators
+    for Differentially Private Data''. Formula: theta_hat_bc = theta_hat_dp - (1/n)
+    * sum(noise_bias).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T00:58:11Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: variance inflation formula from Karwa and Vadhan 2017
+  claim_id: c_689e1601
+  context: 'T020a [US2] Implement Adjustments... Citations: Variance Inflation: Karwa
+    & Vadhan (2017) ''Finite Sample Analysis of Differentially Private Estimators''...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Variance Inflation formula: Karwa & Vadhan (2017) ''Finite Sample Analysis
+    of Differentially Private Estimators''. Formula: Var_adj = Var_dp + (2 * sigma^2_noise)
+    / n.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:00:12Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 2
+  canonical: verify standard error of coverage is less than 0.5 percent
+  claim_id: c_7d7ce7b5
+  context: T033 [P] Implement code/analysis/convergence_check.py to run simulation
+    with multiple seeds and verify standard error of coverage < 0.5%
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_standard_error_of_coverage_is_less_than_0.5_percent
+  kind: magnitude
+  raw_text: Verify that standard error of coverage is less than 0.5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:00:54Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: ensure peak memory usage is less than 7 GB
+  claim_id: c_fe46122f
+  context: 'T034a [P] Performance optimization... Verification: Use tracemalloc to
+    ensure peak memory usage < 7GB during a representative run.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_peak_memory_usage_is_less_than_7_GB
+  kind: magnitude
+  raw_text: Ensure peak memory usage is less than 7GB during a representative run.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:04:13Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: verify simulation fits within 6 hour runtime limit
+  claim_id: c_8980cefe
+  context: T043 [P] [Review] Add a code/utils/feasibility_check.py script... verify
+    that the full N_sim=1000 simulation will fit within the 6-hour runtime limit...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the full N_sim=1000 simulation will fit within the 6-hour
+    runtime limit on the target CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:07:08Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: exit with warning if projected time exceeds 5.5 hours
+  claim_id: c_ce62cdfd
+  context: 'T043 [P] [Review] ... Threshold: If projected time > 5.5 hours, exit with
+    warning WARNING: Projected time Xh exceeds 5.5h limit; reduce N_sim in config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If projected time > 5.5 hours, exit with warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:07:09Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: exit with warning if memory exceeds 6.5 GB
+  claim_id: c_b3bf1e28
+  context: 'T043 [P] ... Threshold: If projected time > 5.5 hours OR memory > 6.5
+    GB, exit with warning WARNING: Projected resource usage exceeds limits; reduce
+    N_sim in config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory > 6.5 GB, exit with warning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:07:10Z'
+- artifact_path: projects/PROJ-710-robustness-of-confidence-intervals-to-di/specs/001-robustness-of-confidence-intervals-to-di/tasks.md
+  attempts: 1
+  canonical: raise ValueError if sample size is less than 10
+  claim_id: c_451c553d
+  context: 'T014b [US1] Implement Edge Case Handlers... 2. enforce_min_sample_size:
+    Raises ValueError if sample size < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_ValueError_if_sample_size_is_less_than_10
+  kind: magnitude
+  raw_text: Raises ValueError if sample size < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T01:07:14Z'

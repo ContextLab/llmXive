@@ -12,4 +12,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T017** — declared artifact(s) missing/empty/invalid: src/data/sweep_cutoff.py, data/results/cutoff_sensitivity.json
 - **T018** — No code, script, configuration, or documentation was provided that implements outlier handling (i.e., detecting samples with coordination numbers > 6 and flagging them for exclusion from training while keeping them in the test set). The required artifact is missing, so the task is not satisfied.
 - **T019** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T042** — No `research.md` file or its updated contents were provided; without the actual document showing the final findings on ligand generalization and structural features, the task requirement cannot be verified as satisfied.

@@ -1,227 +1,169 @@
 """
-Outlier handling for transition state graphs.
+Outlier Handling Module for Transition State Graphs.
 
-This module implements logic to flag samples with coordination numbers > 6
-for exclusion from training while retaining them in the test set.
+This module implements logic to detect samples with coordination numbers > 6,
+flag them for exclusion from training, but retain them in the test set.
 """
 
 import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
+
 import pandas as pd
 import numpy as np
 
-from src.utils.logging import get_logger
-from src.data.graph_construction import calculate_coordination_number
+# Import existing utilities from the project
+from src.utils.logging import get_logger, log_progress
+from src.utils.config import get_project_root
+
+# Constants
+COORDINATION_THRESHOLD = 6
+OUTLIER_COLUMN = "is_outlier"
+COORD_COLUMN = "coordination_number"
 
 logger = get_logger(__name__)
 
-def load_graphs_with_metadata(graphs_path: Path) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def load_graphs_with_metadata(graphs_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load processed graphs and their metadata.
-    
-    Args:
-        graphs_path: Path to the graphs.parquet file
-        
-    Returns:
-        Tuple of (graphs DataFrame, metadata dict)
+    Load the processed graphs dataframe.
+    Expects the file to exist at data/processed/graphs.parquet.
     """
+    if graphs_path is None:
+        project_root = get_project_root()
+        graphs_path = project_root / "data" / "processed" / "graphs.parquet"
+
     if not graphs_path.exists():
-        raise FileNotFoundError(f"Graphs file not found: {graphs_path}")
-    
-    graphs_df = pd.read_parquet(graphs_path)
-    
-    # Try to load metadata if it exists
-    metadata_path = graphs_path.parent / "graphs_metadata.json"
-    metadata = {}
-    if metadata_path.exists():
-        with open(metadata_path, 'r') as f:
-            metadata = json.load(f)
-    
-    return graphs_df, metadata
+        raise FileNotFoundError(f"Graphs file not found at {graphs_path}. "
+                                "Run graph_construction.py first.")
 
-def compute_coordination_numbers(graphs_df: pd.DataFrame) -> pd.Series:
-    """
-    Compute coordination numbers for each graph in the dataset.
-    
-    Args:
-        graphs_df: DataFrame containing graph data with 'nodes' and 'edges' columns
-        
-    Returns:
-        Series of coordination numbers, one per graph
-    """
-    coord_numbers = []
-    
-    for idx, row in graphs_df.iterrows():
-        try:
-            # Extract node and edge information
-            nodes = row.get('nodes')
-            edges = row.get('edges')
-            
-            if nodes is None or edges is None:
-                coord_numbers.append(np.nan)
-                continue
-            
-            # Calculate coordination number using the existing function
-            # We assume the graph data is structured appropriately for the function
-            cn = calculate_coordination_number(nodes, edges, cutoff=3.5)
-            coord_numbers.append(cn)
-            
-        except Exception as e:
-            logger.warning(f"Failed to compute coordination number for graph {idx}: {e}")
-            coord_numbers.append(np.nan)
-    
-    return pd.Series(coord_numbers, index=graphs_df.index)
+    logger.info(f"Loading graphs from {graphs_path}")
+    df = pd.read_parquet(graphs_path)
 
-def flag_outliers(
-    graphs_df: pd.DataFrame,
-    threshold: int = 6,
-    max_coord_key: str = 'max_coordination_number',
-    is_outlier_key: str = 'is_training_outlier'
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    # Ensure necessary columns exist (coordination number might be added by graph_construction)
+    if COORD_COLUMN not in df.columns:
+        # Fallback: if not present, we assume it needs to be computed or is missing.
+        # Based on T016, coordination number should be calculated.
+        # If strictly missing, we raise an error to prevent silent failure.
+        raise ValueError(f"Column '{COORD_COLUMN}' not found in graphs. "
+                         "Ensure graph_construction.py calculates coordination numbers.")
+
+    return df
+
+def compute_coordination_numbers(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Flag samples with coordination numbers > threshold as outliers.
-    
-    Outliers are marked for exclusion from training but retained in test set.
-    
-    Args:
-        graphs_df: DataFrame containing graph data
-        threshold: Coordination number threshold (default: 6)
-        max_coord_key: Column name for max coordination number
-        is_outlier_key: Column name for outlier flag
-        
-    Returns:
-        Tuple of (updated DataFrame, summary statistics dict)
+    Ensure coordination numbers are present.
+    If the column exists, return as is. If not, this function assumes
+    the data should have been pre-computed.
     """
-    logger.info(f"Computing coordination numbers and flagging outliers (threshold={threshold})")
-    
-    # Compute coordination numbers
-    graphs_df[max_coord_key] = compute_coordination_numbers(graphs_df)
-    
-    # Flag outliers: coordination number > threshold
-    graphs_df[is_outlier_key] = graphs_df[max_coord_key] > threshold
-    
-    # Calculate statistics
-    total_samples = len(graphs_df)
-    outlier_count = graphs_df[is_outlier_key].sum()
-    training_samples = total_samples - outlier_count
-    outlier_percentage = (outlier_count / total_samples * 100) if total_samples > 0 else 0
-    
-    summary = {
-        'total_samples': int(total_samples),
-        'outlier_count': int(outlier_count),
-        'training_samples': int(training_samples),
-        'outlier_percentage': float(outlier_percentage),
-        'threshold': int(threshold),
-        'outlier_indices': graphs_df[graphs_df[is_outlier_key]].index.tolist()
+    if COORD_COLUMN not in df.columns:
+        # In a real pipeline, we might re-calculate here if we had raw geometry access,
+        # but T016 should have done this. We raise if missing to enforce T016 completion.
+        raise RuntimeError("Coordination numbers missing. T016 must complete first.")
+    return df
+
+def flag_outliers(df: pd.DataFrame, threshold: int = COORDINATION_THRESHOLD) -> pd.DataFrame:
+    """
+    Flag samples with coordination number > threshold as outliers.
+    Logic:
+      - is_outlier = True if coordination_number > threshold
+      - These samples are flagged for EXCLUSION from training.
+      - They are RETAINED in the dataset for potential test set inclusion.
+    """
+    logger.info(f"Flagging outliers with coordination number > {threshold}")
+
+    df = df.copy()
+    df[OUTLIER_COLUMN] = df[COORD_COLUMN] > threshold
+
+    outlier_count = df[OUTLIER_COLUMN].sum()
+    total_count = len(df)
+    log_progress(logger, "Outlier Detection", {
+        "total_samples": total_count,
+        "outliers_flagged": int(outlier_count),
+        "outlier_percentage": float(outlier_count / total_count * 100) if total_count > 0 else 0.0
+    })
+
+    return df
+
+def save_outlier_summary(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
+    """
+    Save a summary of outlier handling to JSON.
+    Schema: {
+      "total_samples": int,
+      "outliers_count": int,
+      "outliers_percentage": float,
+      "threshold": int,
+      "strategy": "exclude_train_retain_test"
     }
-    
-    logger.info(f"Outlier handling complete: {outlier_count}/{total_samples} samples flagged ({outlier_percentage:.2f}%)")
-    logger.info(f"Training set size: {training_samples} samples")
-    
-    return graphs_df, summary
+    """
+    if output_path is None:
+        project_root = get_project_root()
+        output_path = project_root / "data" / "processed" / "outlier_summary.json"
 
-def save_outlier_summary(summary: Dict[str, Any], output_path: Path) -> None:
-    """
-    Save outlier handling summary to JSON file.
-    
-    Args:
-        summary: Summary statistics dictionary
-        output_path: Path to save the JSON file
-    """
+    summary = {
+        "total_samples": int(len(df)),
+        "outliers_count": int(df[OUTLIER_COLUMN].sum()),
+        "outliers_percentage": float(df[OUTLIER_COLUMN].mean() * 100),
+        "threshold": COORDINATION_THRESHOLD,
+        "strategy": "exclude_train_retain_test",
+        "outlier_indices": df[df[OUTLIER_COLUMN]].index.tolist()
+    }
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(output_path, 'w') as f:
         json.dump(summary, f, indent=2)
-    
-    logger.info(f"Outlier summary saved to: {output_path}")
 
-def save_flagged_graphs(graphs_df: pd.DataFrame, output_path: Path) -> None:
+    logger.info(f"Saved outlier summary to {output_path}")
+    return output_path
+
+def save_flagged_graphs(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
     """
-    Save graphs with outlier flags to parquet file.
-    
-    Args:
-        graphs_df: DataFrame with outlier flags added
-        output_path: Path to save the parquet file
+    Save the dataframe with the outlier flag to a new parquet file.
+    This file is used for downstream splitting (T028) and training (T024).
     """
+    if output_path is None:
+        project_root = get_project_root()
+        output_path = project_root / "data" / "processed" / "graphs_flagged.parquet"
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    graphs_df.to_parquet(output_path, index=False)
-    logger.info(f"Flagged graphs saved to: {output_path}")
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved flagged graphs to {output_path}")
+    return output_path
 
 def run_outlier_handling(
-    input_graphs_path: Path,
-    output_graphs_path: Path,
-    output_summary_path: Path,
-    threshold: int = 6
-) -> Dict[str, Any]:
+    input_path: Optional[Path] = None,
+    output_graphs_path: Optional[Path] = None,
+    output_summary_path: Optional[Path] = None,
+    threshold: int = COORDINATION_THRESHOLD
+) -> Tuple[pd.DataFrame, Path, Path]:
     """
-    Main function to run outlier handling on a dataset.
-    
-    Args:
-        input_graphs_path: Path to input graphs.parquet
-        output_graphs_path: Path to save flagged graphs.parquet
-        output_summary_path: Path to save outlier summary JSON
-        threshold: Coordination number threshold (default: 6)
-        
-    Returns:
-        Summary statistics dictionary
+    Main entry point for outlier handling.
+    1. Load graphs.
+    2. Flag outliers (coordination > threshold).
+    3. Save summary and flagged graphs.
     """
-    logger.info(f"Starting outlier handling with threshold={threshold}")
-    logger.info(f"Input: {input_graphs_path}")
-    
-    # Load graphs
-    graphs_df, metadata = load_graphs_with_metadata(input_graphs_path)
-    logger.info(f"Loaded {len(graphs_df)} graphs")
-    
-    # Flag outliers
-    graphs_df, summary = flag_outliers(graphs_df, threshold=threshold)
-    
-    # Save results
-    save_flagged_graphs(graphs_df, output_graphs_path)
-    save_outlier_summary(summary, output_summary_path)
-    
-    logger.info("Outlier handling completed successfully")
-    return summary
+    df = load_graphs_with_metadata(input_path)
+    df = flag_outliers(df, threshold=threshold)
 
-def main() -> None:
-    """Main entry point for outlier handling script."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Flag outlier graphs based on coordination number")
-    parser.add_argument(
-        "--input",
-        type=Path,
-        default=Path("data/processed/graphs.parquet"),
-        help="Path to input graphs.parquet"
-    )
-    parser.add_argument(
-        "--output-graphs",
-        type=Path,
-        default=Path("data/processed/graphs_flagged.parquet"),
-        help="Path to save flagged graphs"
-    )
-    parser.add_argument(
-        "--output-summary",
-        type=Path,
-        default=Path("data/processed/outlier_summary.json"),
-        help="Path to save outlier summary"
-    )
-    parser.add_argument(
-        "--threshold",
-        type=int,
-        default=6,
-        help="Coordination number threshold for outliers (default: 6)"
-    )
-    
-    args = parser.parse_args()
-    
-    run_outlier_handling(
-        input_graphs_path=args.input,
-        output_graphs_path=args.output_graphs,
-        output_summary_path=args.output_summary,
-        threshold=args.threshold
-    )
+    summary_path = save_outlier_summary(df, output_summary_path)
+    graphs_path = save_flagged_graphs(df, output_graphs_path)
+
+    return df, summary_path, graphs_path
+
+def main():
+    """CLI entry point."""
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Starting Outlier Handling (T018)")
+
+    try:
+        df, summary_path, graphs_path = run_outlier_handling()
+        logger.info(f"Outlier handling complete. Summary: {summary_path}, Graphs: {graphs_path}")
+    except FileNotFoundError as e:
+        logger.error(f"Data not found: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error during outlier handling: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

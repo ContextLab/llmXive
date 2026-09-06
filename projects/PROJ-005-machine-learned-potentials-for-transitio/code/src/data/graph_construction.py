@@ -1,422 +1,408 @@
 """
-Graph Construction Module for Transition State Graphs.
+Graph Construction Module for Transition State Data.
 
-Converts geometric data (atomic positions, species, charges) into
-TransitionStateGraph objects suitable for GNN training.
-
-Implements FR-002: Coordination number calculation using a 3.5 Angstrom cutoff.
-Implements FR-018: Outlier handling for coordination numbers > 6.
+This module implements the conversion of raw geometric data into
+TransitionStateGraph objects, including coordination number calculation,
+adjacency matrix construction, and outlier filtering.
 """
-
 import json
 import math
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple, Set
-
 import numpy as np
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 
-from src.utils.logging import get_logger
+from src.utils.logging import get_logger, setup_logger
+from src.utils.config import get_project_root
 
-logger = get_logger(__name__)
+# Initialize logger
+logger = setup_logger("graph_construction")
 
 # Constants
-DEFAULT_CUTOFF = 3.5  # Angstroms
-MAX_COORDINATION_OUTLIER = 6
-EPSILON = 1e-8
+COORDINATION_CUTOFF_ANGSTROM = 3.5
+OUTLIER_COORDINATION_THRESHOLD = 6
+PROJECT_ROOT = get_project_root()
 
-
-def calculate_coordination_number(
-    positions: np.ndarray,
-    atomic_numbers: np.ndarray,
-    cutoff: float = DEFAULT_CUTOFF
-) -> np.ndarray:
+def calculate_coordination_number(atomic_numbers: np.ndarray, coordinates: np.ndarray, cutoff: float = COORDINATION_CUTOFF_ANGSTROM) -> np.ndarray:
     """
-    Calculate the coordination number for each atom in the system.
-
-    Uses a distance-based cutoff to determine neighbors.
-    Coordination number = number of atoms within 'cutoff' distance (excluding self).
+    Calculate the coordination number for each atom based on a distance-based cutoff.
 
     Args:
-        positions: Array of shape (N, 3) with atomic coordinates in Angstroms.
-        atomic_numbers: Array of shape (N,) with atomic numbers (used to filter self).
+        atomic_numbers: Array of atomic numbers (Z).
+        coordinates: Array of atomic coordinates (N, 3) in Angstroms.
         cutoff: Distance cutoff in Angstroms.
 
     Returns:
-        Array of shape (N,) with coordination numbers for each atom.
+        Array of coordination numbers for each atom.
     """
-    if len(positions) == 0:
+    n_atoms = len(atomic_numbers)
+    if n_atoms == 0:
         return np.array([], dtype=int)
 
     # Calculate pairwise distances
-    # Using broadcasting: (N, 1, 3) - (1, N, 3) -> (N, N, 3)
-    diff = positions[:, np.newaxis, :] - positions[np.newaxis, :, :]
-    distances = np.sqrt(np.sum(diff**2, axis=2))
+    # coordinates shape: (N, 3)
+    diff = coordinates[:, np.newaxis, :] - coordinates[np.newaxis, :, :]
+    distances = np.sqrt(np.sum(diff ** 2, axis=2))
 
-    # Create adjacency mask (exclude self)
-    # distances < cutoff AND distances > 0 (to avoid self-loops)
-    adj_mask = (distances < cutoff) & (distances > EPSILON)
+    # Create adjacency mask (exclude self-loops)
+    mask = distances < cutoff
+    np.fill_diagonal(mask, False)
 
-    # Sum along axis 1 to get coordination number for each atom
-    coord_numbers = np.sum(adj_mask, axis=1).astype(int)
+    # Count neighbors for each atom
+    coord_numbers = np.sum(mask, axis=1).astype(int)
 
     return coord_numbers
 
-
-def build_adjacency_matrix(
-    positions: np.ndarray,
-    cutoff: float = DEFAULT_CUTOFF
-) -> np.ndarray:
+def build_adjacency_matrix(atomic_numbers: np.ndarray, coordinates: np.ndarray, cutoff: float = COORDINATION_CUTOFF_ANGSTROM) -> np.ndarray:
     """
-    Build a binary adjacency matrix based on distance cutoff.
+    Build an adjacency matrix based on distance cutoff.
 
     Args:
-        positions: Array of shape (N, 3) with atomic coordinates.
+        atomic_numbers: Array of atomic numbers.
+        coordinates: Array of atomic coordinates (N, 3).
         cutoff: Distance cutoff in Angstroms.
 
     Returns:
-        Binary adjacency matrix of shape (N, N).
+        Binary adjacency matrix (N, N).
     """
-    if len(positions) == 0:
-        return np.array([[]], dtype=bool)
+    n_atoms = len(atomic_numbers)
+    if n_atoms == 0:
+        return np.zeros((0, 0), dtype=bool)
 
-    diff = positions[:, np.newaxis, :] - positions[np.newaxis, :, :]
-    distances = np.sqrt(np.sum(diff**2, axis=2))
+    diff = coordinates[:, np.newaxis, :] - coordinates[np.newaxis, :, :]
+    distances = np.sqrt(np.sum(diff ** 2, axis=2))
 
-    adj_matrix = (distances < cutoff) & (distances > EPSILON)
-    return adj_matrix
+    adj = distances < cutoff
+    np.fill_diagonal(adj, False)
 
+    return adj
 
 def extract_edge_attributes(
-    positions: np.ndarray,
-    adj_matrix: np.ndarray
-) -> Tuple[np.ndarray, np.ndarray]:
+    atomic_numbers: np.ndarray,
+    coordinates: np.ndarray,
+    cutoff: float = COORDINATION_CUTOFF_ANGSTROM
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Extract edge attributes (distances) and indices from adjacency matrix.
+    Extract edge attributes: source, target, and distance.
 
     Args:
-        positions: Array of shape (N, 3).
-        adj_matrix: Binary adjacency matrix of shape (N, N).
+        atomic_numbers: Array of atomic numbers.
+        coordinates: Array of atomic coordinates (N, 3).
+        cutoff: Distance cutoff in Angstroms.
 
     Returns:
-        Tuple of (edge_indices, edge_distances)
-        edge_indices: Shape (2, num_edges) containing source and target indices.
-        edge_distances: Shape (num_edges,) containing distance for each edge.
+        Tuple of (edge_source, edge_target, edge_distances).
     """
-    if len(positions) == 0:
-        return np.empty((2, 0), dtype=int), np.empty(0)
+    adj = build_adjacency_matrix(atomic_numbers, coordinates, cutoff)
+    n_atoms = len(atomic_numbers)
+
+    if n_atoms == 0:
+        return np.array([], dtype=int), np.array([], dtype=int), np.array([], dtype=float)
 
     # Get indices of edges
-    edge_indices = np.argwhere(adj_matrix)
-    edge_indices = edge_indices.T  # Shape: (2, num_edges)
+    edge_source, edge_target = np.where(adj)
+    edge_indices = np.stack([edge_source, edge_target], axis=1)
 
     # Calculate distances for these edges
-    edge_distances = []
-    for src, tgt in edge_indices.T:
-        dist = np.linalg.norm(positions[src] - positions[tgt])
-        edge_distances.append(dist)
+    diff = coordinates[edge_source] - coordinates[edge_target]
+    edge_distances = np.sqrt(np.sum(diff ** 2, axis=1))
 
-    edge_distances = np.array(edge_distances)
-
-    return edge_indices, edge_distances
-
+    return edge_source, edge_target, edge_distances
 
 def construct_transition_state_graph(
-    atomic_numbers: List[int],
-    formal_charges: List[int],
-    positions: np.ndarray,
-    energy_dft: Optional[float] = None,
-    barrier_height: Optional[float] = None,
-    ligand_class: Optional[str] = None,
-    reaction_id: Optional[str] = None,
-    cutoff: float = DEFAULT_CUTOFF
+    row: pd.Series,
+    cutoff: float = COORDINATION_CUTOFF_ANGSTROM
 ) -> Dict[str, Any]:
     """
-    Construct a TransitionStateGraph dictionary from geometric data.
+    Construct a TransitionStateGraph dictionary from a single data row.
 
-    Implements the schema defined in contracts/dataset_graph.schema.yaml:
-    - nodes: atomic_number, formal_charge, coordination_number
-    - edges: distance, source, target
-    - metadata: energy_dft, barrier_height, ligand_class, reaction_id
+    Expected row columns:
+        - atomic_numbers: list of ints
+        - coordinates: list of lists (N, 3)
+        - formal_charges: list of ints (optional, default 0)
+        - energy_dft: float
+        - barrier_height: float
+        - reaction_id: str
 
     Args:
-        atomic_numbers: List of atomic numbers for each atom.
-        formal_charges: List of formal charges for each atom.
-        positions: Array of shape (N, 3) with atomic coordinates.
-        energy_dft: DFT computed energy (optional).
-        barrier_height: DFT computed barrier height (optional).
-        ligand_class: Class label for the ligand (e.g., "Group 13", "Conventional").
-        reaction_id: Unique identifier for the reaction.
-        cutoff: Distance cutoff for edge construction.
+        row: Pandas Series containing reaction data.
+        cutoff: Distance cutoff for graph construction.
 
     Returns:
-        Dictionary representing the TransitionStateGraph.
+        Dictionary representing the graph with nodes, edges, and metadata.
     """
-    if len(atomic_numbers) != len(formal_charges) or len(atomic_numbers) != len(positions):
-        raise ValueError("Lengths of atomic_numbers, formal_charges, and positions must match.")
+    atomic_numbers = np.array(row['atomic_numbers'])
+    coordinates = np.array(row['coordinates'])
+    formal_charges = row.get('formal_charges', np.zeros(len(atomic_numbers), dtype=int))
+    if isinstance(formal_charges, list):
+        formal_charges = np.array(formal_charges)
 
-    atomic_numbers = np.array(atomic_numbers)
-    formal_charges = np.array(formal_charges)
+    n_atoms = len(atomic_numbers)
+
+    # Node attributes
+    node_features = {
+        'atomic_numbers': atomic_numbers.tolist(),
+        'formal_charges': formal_charges.tolist()
+    }
 
     # Calculate coordination numbers
-    coord_numbers = calculate_coordination_number(positions, atomic_numbers, cutoff)
+    coord_numbers = calculate_coordination_number(atomic_numbers, coordinates, cutoff)
+    node_features['coordination_numbers'] = coord_numbers.tolist()
 
-    # Build adjacency matrix
-    adj_matrix = build_adjacency_matrix(positions, cutoff)
+    # Edge attributes
+    edge_source, edge_target, edge_distances = extract_edge_attributes(
+        atomic_numbers, coordinates, cutoff
+    )
 
-    # Extract edge attributes
-    edge_indices, edge_distances = extract_edge_attributes(positions, adj_matrix)
-
-    # Construct node features
-    nodes = []
-    for i in range(len(atomic_numbers)):
-        node = {
-            "atomic_number": int(atomic_numbers[i]),
-            "formal_charge": int(formal_charges[i]),
-            "coordination_number": int(coord_numbers[i]),
-            "position": positions[i].tolist()
-        }
-        nodes.append(node)
-
-    # Construct edge features
-    edges = []
-    for i in range(len(edge_indices.T)):
-        src, tgt = edge_indices[0, i], edge_indices[1, i]
-        edge = {
-            "source": int(src),
-            "target": int(tgt),
-            "distance": float(edge_distances[i])
-        }
-        edges.append(edge)
-
-    # Construct metadata
-    metadata = {
-        "energy_dft": energy_dft,
-        "barrier_height": barrier_height,
-        "ligand_class": ligand_class,
-        "reaction_id": reaction_id,
-        "num_nodes": len(nodes),
-        "num_edges": len(edges),
-        "cutoff_used": cutoff
+    edge_features = {
+        'source': edge_source.tolist(),
+        'target': edge_target.tolist(),
+        'distances': edge_distances.tolist()
     }
+
+    # Graph metadata
+    metadata = {
+        'reaction_id': row['reaction_id'],
+        'n_atoms': n_atoms,
+        'energy_dft': float(row['energy_dft']),
+        'barrier_height': float(row['barrier_height']),
+        'cutoff_used': cutoff,
+        'max_coordination': int(np.max(coord_numbers)) if n_atoms > 0 else 0
+    }
+
+    # Ligand class classification (simplified heuristic based on transition metal)
+    # Assuming Pd, Ni, Cu are the transition metals of interest
+    transition_metals = {28, 29, 46}  # Ni, Cu, Pd
+    has_transition_metal = any(z in transition_metals for z in atomic_numbers)
+    metadata['has_transition_metal'] = has_transition_metal
 
     return {
-        "nodes": nodes,
-        "edges": edges,
-        "metadata": metadata
+        'nodes': node_features,
+        'edges': edge_features,
+        'metadata': metadata
     }
-
 
 def filter_outliers(
     graphs: List[Dict[str, Any]],
-    max_coordination: int = MAX_COORDINATION_OUTLIER
+    threshold: int = OUTLIER_COORDINATION_THRESHOLD
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Filter graphs based on coordination number outliers.
+    Filter graphs based on maximum coordination number.
 
-    Graphs with any node having coordination_number > max_coordination are
-    flagged as outliers. These are excluded from training but retained for
-    potential test set usage (as per FR-018).
+    Graphs with any atom having coordination number > threshold are flagged
+    as outliers. Outliers are separated into a list for exclusion from training
+    but retention for testing.
 
     Args:
         graphs: List of graph dictionaries.
-        max_coordination: Maximum allowed coordination number.
+        threshold: Maximum allowed coordination number.
 
     Returns:
-        Tuple of (training_graphs, outlier_graphs).
+        Tuple of (clean_graphs, outlier_graphs).
     """
-    training_graphs = []
+    clean_graphs = []
     outlier_graphs = []
 
     for graph in graphs:
-        max_cn = 0
-        for node in graph["nodes"]:
-            cn = node.get("coordination_number", 0)
-            if cn > max_cn:
-                max_cn = cn
+        coord_numbers = graph['nodes']['coordination_numbers']
+        max_coord = max(coord_numbers) if coord_numbers else 0
 
-        if max_cn > max_coordination:
-            # Mark as outlier
-            graph["metadata"]["is_outlier"] = True
-            graph["metadata"]["max_coordination"] = max_cn
+        if max_coord > threshold:
+            graph['metadata']['is_outlier'] = True
             outlier_graphs.append(graph)
-            logger.info(
-                f"Flagged outlier: {graph['metadata'].get('reaction_id', 'unknown')} "
-                f"with max coordination {max_cn}"
-            )
         else:
-            graph["metadata"]["is_outlier"] = False
-            training_graphs.append(graph)
+            graph['metadata']['is_outlier'] = False
+            clean_graphs.append(graph)
 
-    logger.info(f"Total graphs: {len(graphs)}, Training: {len(training_graphs)}, Outliers: {len(outlier_graphs)}")
-    return training_graphs, outlier_graphs
+    logger.info(f"Filtered {len(outlier_graphs)} outliers (max coordination > {threshold}) "
+                f"from {len(graphs)} total graphs. Retaining {len(clean_graphs)} for training.")
 
+    return clean_graphs, outlier_graphs
 
 def save_graphs_to_parquet(
     graphs: List[Dict[str, Any]],
     output_path: Path,
-    split_label: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 ) -> None:
     """
-    Save a list of graphs to a Parquet file.
+    Save a list of graph dictionaries to a Parquet file.
 
-    The graphs are flattened into a DataFrame where each row represents a graph.
-    Node and edge lists are stored as JSON strings to maintain structure.
+    The graphs are flattened into a tabular format for Parquet storage.
+    Complex nested structures are serialized as JSON strings.
 
     Args:
         graphs: List of graph dictionaries.
         output_path: Path to the output Parquet file.
-        split_label: Optional label for the split (e.g., 'train', 'test').
+        metadata: Optional metadata dictionary to include.
     """
     if not graphs:
         logger.warning("No graphs to save.")
+        # Create empty file with schema
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        empty_df = pd.DataFrame(columns=[
+            'reaction_id', 'n_atoms', 'energy_dft', 'barrier_height',
+            'nodes_atomic_numbers', 'nodes_formal_charges', 'nodes_coordination_numbers',
+            'edges_source', 'edges_target', 'edges_distances', 'is_outlier',
+            'has_transition_metal'
+        ])
+        pq.write_table(pa.Table.from_pandas(empty_df), output_path)
         return
 
-    rows = []
-    for i, graph in enumerate(graphs):
-        row = {
-            "graph_id": i,
-            "num_nodes": len(graph["nodes"]),
-            "num_edges": len(graph["edges"]),
-            "nodes_json": json.dumps(graph["nodes"]),
-            "edges_json": json.dumps(graph["edges"]),
-            "energy_dft": graph["metadata"].get("energy_dft"),
-            "barrier_height": graph["metadata"].get("barrier_height"),
-            "ligand_class": graph["metadata"].get("ligand_class"),
-            "reaction_id": graph["metadata"].get("reaction_id"),
-            "is_outlier": graph["metadata"].get("is_outlier", False),
-            "max_coordination": graph["metadata"].get("max_coordination", 0)
+    records = []
+    for graph in graphs:
+        meta = graph['metadata']
+        nodes = graph['nodes']
+        edges = graph['edges']
+
+        record = {
+            'reaction_id': meta['reaction_id'],
+            'n_atoms': meta['n_atoms'],
+            'energy_dft': meta['energy_dft'],
+            'barrier_height': meta['barrier_height'],
+            'nodes_atomic_numbers': json.dumps(nodes['atomic_numbers']),
+            'nodes_formal_charges': json.dumps(nodes['formal_charges']),
+            'nodes_coordination_numbers': json.dumps(nodes['coordination_numbers']),
+            'edges_source': json.dumps(edges['source']),
+            'edges_target': json.dumps(edges['target']),
+            'edges_distances': json.dumps(edges['distances']),
+            'is_outlier': meta.get('is_outlier', False),
+            'has_transition_metal': meta.get('has_transition_metal', False)
         }
-        if split_label:
-            row["split"] = split_label
-        rows.append(row)
+        records.append(record)
 
-    df = pd.DataFrame(rows)
+    df = pd.DataFrame(records)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Saved {len(graphs)} graphs to {output_path}")
-
+    pq.write_table(pa.Table.from_pandas(df), output_path)
+    logger.info(f"Saved {len(df)} graphs to {output_path}")
 
 def save_metadata(
-    training_graphs: List[Dict[str, Any]],
-    outlier_graphs: List[Dict[str, Any]],
-    output_dir: Path
+    clean_count: int,
+    outlier_count: int,
+    total_count: int,
+    cutoff: float,
+    output_path: Path
 ) -> None:
     """
-    Save metadata about the constructed graphs.
+    Save graph construction metadata to a JSON file.
 
     Args:
-        training_graphs: List of training graphs.
-        outlier_graphs: List of outlier graphs.
-        output_dir: Directory to save metadata files.
+        clean_count: Number of non-outlier graphs.
+        outlier_count: Number of outlier graphs.
+        total_count: Total number of graphs processed.
+        cutoff: Distance cutoff used.
+        output_path: Path to the output JSON file.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-
     metadata = {
-        "total_graphs": len(training_graphs) + len(outlier_graphs),
-        "training_graphs": len(training_graphs),
-        "outlier_graphs": len(outlier_graphs),
-        "cutoff_used": DEFAULT_CUTOFF,
-        "max_coordination_threshold": MAX_COORDINATION_OUTLIER,
-        "timestamp": str(pd.Timestamp.now())
+        'total_graphs': total_count,
+        'clean_graphs': clean_count,
+        'outlier_graphs': outlier_count,
+        'coordination_cutoff': cutoff,
+        'outlier_threshold': OUTLIER_COORDINATION_THRESHOLD
     }
-
-    # Save summary JSON
-    metadata_path = output_dir / "graph_construction_metadata.json"
-    with open(metadata_path, "w") as f:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(metadata, f, indent=2)
-    logger.info(f"Saved metadata to {metadata_path}")
+    logger.info(f"Saved metadata to {output_path}")
 
-
-def main() -> None:
+def run_graph_construction(
+    input_path: Path,
+    output_graphs_path: Path,
+    output_metadata_path: Path,
+    cutoff: float = COORDINATION_CUTOFF_ANGSTROM
+) -> None:
     """
     Main entry point for graph construction pipeline.
 
-    Reads processed data from data/raw/ (or wherever ingest.py puts it),
-    constructs graphs, filters outliers, and saves to data/processed/graphs.parquet.
+    Reads processed data, constructs graphs, filters outliers, and saves results.
+
+    Args:
+        input_path: Path to input processed data (Parquet).
+        output_graphs_path: Path to save constructed graphs (Parquet).
+        output_metadata_path: Path to save construction metadata (JSON).
+        cutoff: Distance cutoff for graph construction.
     """
-    logger.info("Starting graph construction...")
+    logger.info(f"Starting graph construction from {input_path} with cutoff {cutoff} Å")
 
-    # Define paths based on project structure
-    project_root = Path(__file__).resolve().parent.parent.parent.parent
-    input_path = project_root / "data" / "raw" / "qm9_ts_filtered.json"
-    output_dir = project_root / "data" / "processed"
-
-    # Check if input exists (if not, we assume ingest.py hasn't run yet or data is elsewhere)
-    # For this task, we assume the data is available in a JSON format from ingest.py
-    # If the specific file doesn't exist, we log an error and exit.
     if not input_path.exists():
-        # Try alternative common location from T014/T015
-        alt_path = project_root / "data" / "raw" / "qm9_ts.json"
-        if alt_path.exists():
-            input_path = alt_path
-        else:
-            logger.error(f"Input data not found at {input_path} or {alt_path}. "
-                         "Please ensure T014/T015 (ingest) has completed successfully.")
-            return
+        raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    logger.info(f"Loading data from {input_path}")
+    # Load input data
+    df = pq.read_table(input_path).to_pandas()
+    logger.info(f"Loaded {len(df)} reactions from {input_path}")
 
-    try:
-        with open(input_path, "r") as f:
-            raw_data = json.load(f)
-    except Exception as e:
-        logger.error(f"Failed to load input data: {e}")
-        return
-
-    # Expecting raw_data to be a list of reaction dictionaries
-    # Structure assumed from T014/T015:
-    # [
-    #   {
-    #     "reaction_id": "...",
-    #     "atomic_numbers": [...],
-    #     "formal_charges": [...],
-    #     "positions": [[x,y,z], ...],
-    #     "energy_dft": ...,
-    #     "barrier_height": ...,
-    #     "ligand_class": "..."
-    #   },
-    #   ...
-    # ]
-
+    # Construct graphs
     graphs = []
-    for reaction in raw_data:
+    for _, row in df.iterrows():
         try:
-            graph = construct_transition_state_graph(
-                atomic_numbers=reaction["atomic_numbers"],
-                formal_charges=reaction["formal_charges"],
-                positions=np.array(reaction["positions"]),
-                energy_dft=reaction.get("energy_dft"),
-                barrier_height=reaction.get("barrier_height"),
-                ligand_class=reaction.get("ligand_class"),
-                reaction_id=reaction.get("reaction_id")
-            )
+            graph = construct_transition_state_graph(row, cutoff=cutoff)
             graphs.append(graph)
         except Exception as e:
-            logger.warning(f"Failed to construct graph for {reaction.get('reaction_id', 'unknown')}: {e}")
+            logger.error(f"Error constructing graph for {row.get('reaction_id', 'unknown')}: {e}")
             continue
 
     if not graphs:
-        logger.error("No graphs were successfully constructed.")
-        return
+        raise RuntimeError("No graphs were successfully constructed.")
 
     # Filter outliers
-    training_graphs, outlier_graphs = filter_outliers(graphs)
+    clean_graphs, outlier_graphs = filter_outliers(graphs, threshold=OUTLIER_COORDINATION_THRESHOLD)
 
-    # Save training graphs
-    training_path = output_dir / "graphs.parquet"
-    save_graphs_to_parquet(training_graphs, training_path)
+    # Combine for saving (all graphs go to file, marked with is_outlier flag)
+    all_graphs = clean_graphs + outlier_graphs
 
-    # Save outlier graphs separately (optional but good practice)
-    if outlier_graphs:
-        outlier_path = output_dir / "graphs_outliers.parquet"
-        save_graphs_to_parquet(outlier_graphs, outlier_path, split_label="outlier")
+    # Save graphs
+    save_graphs_to_parquet(all_graphs, output_graphs_path)
 
     # Save metadata
-    save_metadata(training_graphs, outlier_graphs, output_dir)
+    save_metadata(
+        clean_count=len(clean_graphs),
+        outlier_count=len(outlier_graphs),
+        total_count=len(all_graphs),
+        cutoff=cutoff,
+        output_path=output_metadata_path
+    )
 
     logger.info("Graph construction completed successfully.")
 
+def main():
+    """CLI entry point for graph construction."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Construct Transition State Graphs from processed data.")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=str(PROJECT_ROOT / "data" / "processed" / "filtered_reactions.parquet"),
+        help="Path to input processed reactions Parquet file."
+    )
+    parser.add_argument(
+        "--output-graphs",
+        type=str,
+        default=str(PROJECT_ROOT / "data" / "processed" / "graphs.parquet"),
+        help="Path to output graphs Parquet file."
+    )
+    parser.add_argument(
+        "--output-metadata",
+        type=str,
+        default=str(PROJECT_ROOT / "data" / "processed" / "graph_construction_metadata.json"),
+        help="Path to output metadata JSON file."
+    )
+    parser.add_argument(
+        "--cutoff",
+        type=float,
+        default=COORDINATION_CUTOFF_ANGSTROM,
+        help=f"Distance cutoff in Angstroms (default: {COORDINATION_CUTOFF_ANGSTROM})"
+    )
+
+    args = parser.parse_args()
+
+    run_graph_construction(
+        input_path=Path(args.input),
+        output_graphs_path=Path(args.output_graphs),
+        output_metadata_path=Path(args.output_metadata),
+        cutoff=args.cutoff
+    )
 
 if __name__ == "__main__":
     main()
