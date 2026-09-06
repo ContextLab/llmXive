@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-08T03:15:40.776943Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1010-llmxive-follow-up-extending-omniopt-taxo
-last_run_id: cff14681-d936-4658-9f63-01a150acc932
+last_run_id: 45c74b2c-bfe2-4601-82aa-a58d033a006d
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/specs/001-llmxive-follow-up-extending-omniopt-taxo
 title: 'llmXive follow-up: extending "OmniOpt: Taxonomy, Geometry, and Benchmarking
   of Modern Optimizers"'
-updated_at: '2026-07-31T16:19:28.830215Z'
+updated_at: '2026-09-06T19:57:34.125625Z'

@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omniopt-taxonomy-pipeline"
+version = "0.1.0"
+description = "Spectral optimizer prediction pipeline extending OmniOpt"
+requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "transformers",
+    "scikit-learn",
+    "datasets",
+    "numpy",
+    "scipy",
+    "pandas",
+    "pyyaml",
+    "pytest",
+    "ruff",
+    "black",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["utils*", "data*", "analysis*", "tests*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

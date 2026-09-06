@@ -1,0 +1,18 @@
+status: none
+intent: download gradient covariance spectral signatures dataset deep learning python
+  package
+required_fields:
+- model_identifier
+- architecture_name
+- parameter_count
+- random_seed
+- proxy_dataset_name
+- training_steps
+- batch_size
+- spectral_radius
+- condition_number
+- tail_decay_exponent
+- top_50_eigenvalues
+cache_key: 7d6f90f153ee6f763cb5c3540b757d27f1a27ffa47edb9bd21d3bed9c97d568d
+searched_at: '2026-09-06T19:12:47.988263+00:00'
+retry_count: 1

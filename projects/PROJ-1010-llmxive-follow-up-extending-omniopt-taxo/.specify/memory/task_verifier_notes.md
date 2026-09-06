@@ -1,0 +1,12 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — No directory structure is shown in the provided evidence; the required `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/` folder and its subfolders (`code/`, `data/`, `tests/`, `state/`) are not present or documented. The implementer must create and list these directories (and ensure they are not empty placeholders).
+- **T001b** — No evidence of the required subdirectories (`code/utils/`, `code/data/`, `code/analysis/`) being present was provided; the claim lacks any artifact showing that these folders exist or contain files. The implementer must create the three directories (and optionally add placeholder files) and supply a directory listing as proof.
+- **T001c** — No evidence of the required `tests/unit/` and `tests/integration/` directories was provided; the artifact list is empty, so the task of creating those test subdirectories has not been demonstrated.
+- **T002a** — The required file at `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/requirements.txt` does not exist, and the provided `requirements.txt` (in a different location) lists unpinned package names and even includes extra packages (`ruff`, `black`) not requested. The task’s specification for a correctly‑located, pinned requirements file is therefore not satisfied.
+- **T002b** — No artifact (e.g., a script, CI configuration, README note, or runtime check output) was provided that demonstrates Python 3.11+ is available in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/`. The implementer’s claim lacks concrete evidence, so the requirement is not satisfied.
+- **T003** — No linting/formatting configuration files (e.g., `pyproject.toml` entries for ruff and black, a `.ruff.toml`, or a pre‑commit hook) or any evidence of them being added to `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/` were provided. The required artifacts are missing, so the task is not satisfied.
+- **T007** — declared artifact(s) missing/empty/invalid: data/omniopt_lookup.json
+- **T013c** — declared artifact(s) missing/empty/invalid: data/processed/spectral_features.csv

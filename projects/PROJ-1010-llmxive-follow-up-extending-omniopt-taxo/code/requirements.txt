@@ -1,0 +1,11 @@
+torch
+transformers
+scikit-learn
+datasets
+numpy
+scipy
+pandas
+pyyaml
+pytest
+ruff
+black
