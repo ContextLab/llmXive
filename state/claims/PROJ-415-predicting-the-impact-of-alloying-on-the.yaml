@@ -520,3 +520,197 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T23:44:20Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 0 if valid entries N < 50
+  claim_id: c_e9ef0787
+  context: Task T008 instructions for handling small datasets fetched from NIST/Materials
+    Project sources.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_exits_with_code_0_if_valid_entries_N_%3C_50
+  kind: magnitude
+  raw_text: If the fetched dataset contains fewer than 50 valid entries (after streaming/filtering),
+    save a flag data/raw/data_insufficient_flag.json with reason 'N < 50', log the
+    event, and exit with code 0 (success) to allow the pipeline to proceed to a 'Low
+    Predictive Power' state.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:14:59Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Mock dataset contains at least 100 rows
+  claim_id: c_08a87ed8
+  context: Task T012.1 outputs for generating synthetic mock data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_dataset_contains_at_least_100_rows
+  kind: magnitude
+  raw_text: Generate data/mock/mock_diffusion.csv with at least 100 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:15:40Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: GridSearch performed on training set with test_size=0.2 and random_state=42
+  claim_id: c_d1523f57
+  context: Task T021 critical instruction to prevent data leakage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform GridSearch ONLY on the training set (after train_test_split with
+    test_size=0.2, random_state=42) to prevent data leakage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:16:32Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: SystemExit raised with specific message if GridSearch triggers MemoryError
+  claim_id: c_6b68811d
+  context: Task T021 error handling for Random Forest training.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SystemExit_raised_with_specific_message_if_GridSearch_trigge
+  kind: entity_fact
+  raw_text: 'If a MemoryError occurs, raise SystemExit with ''Memory Error: GridSearch
+    exceeds resource limits'' instead of reducing search space.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:17:34Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Classification threshold sweep range 0.45 eV to 0.55 eV in 0.01 eV increments
+  claim_id: c_bbf3088b
+  context: Task T032 logic for sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep classification threshold across the exact range 0.45 eV to 0.55
+    eV in 0.01 eV increments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:18:50Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: SystemExit raised if unique baseline_shift values are less than 5
+  claim_id: c_f8f4a7d5
+  context: Task T033 critical check for stability metric calculation.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SystemExit_raised_if_unique_baseline_shift_values_are_less_t
+  kind: magnitude
+  raw_text: 'If the number of unique baseline_shift values is < 5, raise SystemExit
+    with ''Stability Error: Insufficient variance in baseline shifts. Metric cannot
+    be computed.'''
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:19:19Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime asserted to be less than 6 hours
+  claim_id: c_17bbcb64
+  context: Task T038.1 performance logging requirements.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_asserted_to_be_less_than_6_hours
+  kind: magnitude
+  raw_text: Assert total_runtime < 6h. If exceeded, log a warning but do not crash.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:20:13Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: SystemExit raised if sample size for bootstrap CI is less than 10
+  claim_id: c_6908edb5
+  context: Task T062 revision for statistical validity check.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SystemExit_raised_if_sample_size_for_bootstrap_CI_is_less_th
+  kind: magnitude
+  raw_text: 'If len(X) < 10, raise SystemExit with ''Statistical Error: Insufficient
+    samples for bootstrap CI (N < 10)''.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:20:56Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: GridSearchCV timeout limit set to 30 minutes
+  claim_id: c_4ac6c71c
+  context: Task T061 revision to prevent indefinite hangs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wrap GridSearchCV in a signal.timeout (Unix) or multiprocessing wrapper
+    with a 30-minute limit per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:21:27Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: RAM warning logged if usage exceeds 6GB
+  claim_id: c_06497e23
+  context: Task T063 resource monitoring logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_warning_logged_if_usage_exceeds_6GB
+  kind: entity_fact
+  raw_text: 'If RAM usage > 6GB, log a warning: ''RAM Warning: Usage exceeded 6GB
+    threshold''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:22:26Z'
+- artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  attempts: 1
+  canonical: RAM usage logged using psutil at major task stages
+  claim_id: c_ac9bc7b7
+  context: Task T063 implementation details for resource monitoring.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_logged_using_psutil_at_major_task_stages
+  kind: entity_fact
+  raw_text: Use psutil to log process.memory_info().rss at the start and end of each
+    major task.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T04:23:15Z'

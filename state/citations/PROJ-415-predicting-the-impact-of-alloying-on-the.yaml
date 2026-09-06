@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 18120c19d0f33aa7189c904f44d65e2b7c9af763d60769cb4b50c0ba04f3b00c
+  artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/nist/.../diffusion_data.csv`
+  verification_status: mismatch
+  verified_against_url: https://raw.githubusercontent.com/nist/.../diffusion_data.csv
+  verified_at: '2026-09-06T04:31:01.639271Z'

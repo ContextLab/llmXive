@@ -1,9 +1,10 @@
+# Existing dependencies
 pandas
 numpy
 scikit-learn
-scipy
 requests
-pymatgen
-pytest
-ruff
-black
+joblib
+pyyaml
+
+# New dependency for T063: Resource Monitoring
+psutil
