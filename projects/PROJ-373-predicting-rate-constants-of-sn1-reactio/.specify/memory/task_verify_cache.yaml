@@ -1,35 +1,30 @@
-T011a:
+T012:
   c: false
-  h: 885feabe65d9fb31188cef1582e6019d8bdac47357bb962738fe5cfc2b6329b6
-  r: The `code/data/schema_check.py` file exists but is incomplete (truncated) and
-    we cannot verify that it raises a fatal `ValueError` on missing columns. Moreover,
-    the required output log `data/processed/schema_check.log` is missing, indicating
-    the script either was not executed or does not produce the expected log file.
-    The task therefore is not fully satisfied.
-T011b:
+  h: 2184f1df9052851740452fac086bc262d6e0da23ca82b55e94c50e260c38fdbc
+  r: "The required input `data/processed/intermediate_sn1.csv`, the log `data/processed/clean.log`,\
+    \ and the output `data/processed/cleaned_intermediate.csv` are all absent, so\
+    \ the script cannot be exercised or verified. Moreover, the implementation contains\
+    \ a `calculate_steric_index` proxy function, violating the \u201CDo NOT use proxies\u201D\
+    \ constraint. The guard clause also does not clearly raise a `ValueError` with\
+    \ the specified log format. These issues must be fixed and the missing files generated\
+    \ for the task to be considered complete."
+T013:
   c: false
-  h: d2684447dcae0adb6db69bfee5612d5d49c33406329be10882f3b02545583156
-  r: "The provided `code/data/download.py` is truncated and does not contain the full\
-    \ implementation (e.g., the `download_dataset` function is incomplete and never\
-    \ writes `sn1_raw.parquet`). Moreover, the required output file `data/raw/sn1_raw.parquet`\
-    \ is missing from the repository. The task\u2019s core requirements are therefore\
-    \ not satisfied."
-T011c:
+  h: b0f74481a3146edc9d7dbbaffba61f283c1227230b8023520be098a1a2cfb0c7
+  r: "The repository contains a partially\u2011implemented `code/data/descriptors.py`,\
+    \ but the script is truncated and does not show logic for reading data, writing\
+    \ `data/processed/descriptors.csv`, or appending failures to `data/processed/exclusion_raw.log`.\
+    \ Moreover, both `data/processed/exclusion_raw.log` and `data/processed/descriptors.csv`\
+    \ are absent from the file tree. These required output artifacts are missing,\
+    \ so the task is not fully satisfied."
+T014:
   c: false
-  h: 7df610cb0687e5df05c59b7e3e91189fab95d8403c5a46a635c251698af7cb20
-  r: "The provided `code/data/mapping.py` is truncated and ends mid\u2011statement,\
-    \ so it does not contain a complete implementation (e.g., no code to write `intermediate_sn1.csv`\
-    \ or to log exclusions). Additionally, the required output files `data/processed/exclusion_raw.log`\
-    \ and `data/processed/intermediate_sn1.csv` are absent. The task\u2019s mapping\
-    \ and cleaning logic is therefore not fully realized."
-T015:
-  c: false
-  h: 780590bf995b69034b7bf3fc3babe60ce3545be25d3a40927b1d8c963d3903a2
-  r: "The required `data/processed/clean.log` is missing, and consequently the guard\u2011\
-    clause output `data/processed/exclusion_report.csv` was never created. Additionally,\
-    \ the expected `exclusion_mapped.json` and the validation schema file are absent.\
-    \ Without these artifacts the merging, mapping, validation, and final report steps\
-    \ cannot have been performed."
+  h: 6bf54ab615cb0a21b2efb6fcc9bef3715657bc5c7e7df46008d7726da6da7b0c
+  r: "The repository contains a `code/data/split.py` file, but the required input\
+    \ file `data/processed/cleaned_sn1.csv` is absent, and none of the expected output\
+    \ files (`split_train.csv`, `split_val.csv`, `split_test.csv`, `split_report.json`)\
+    \ were generated. Without the input data and the resulting split files, the task\u2019\
+    s functional requirements are not satisfied."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,3 +40,10 @@ T028:
     \ is present. Additionally, the provided `collinearity.py` is truncated and does\
     \ not show the full VIF calculation and JSON generation logic. The task\u2019\
     s essential artifacts are missing."
+T029:
+  c: false
+  h: db07041fc8b6400b4d072b90dc66e44c7fa3208f64be6e103b3406e26621303f
+  r: "The repository lacks the required `data/processed/split_test.csv` file, and\
+    \ the provided `interpret.py` does not contain the perturbation\u2011study implementation\
+    \ (no SHAP\u2011based atom removal, inference, R\xB2 computation, or CSV output).\
+    \ Consequently the expected `artifacts/perturbation_results.csv` is also absent."

@@ -4,7 +4,11 @@
 
 ## Summary
 
-This feature implements a reproducible, CPU-first pipeline to predict SN1 reaction rate constants from molecular structure. The system ingests kinetic data from verified HuggingFace sources (`DTS-SN-15-01-2024`, `SN-All-20240204`), validates strict metadata requirements (temperature, solvent, explicit substrate class), computes electronic descriptors (Gasteiger charges, topological indices) via RDKit, and trains a Message Passing Neural Network (MPNN) with Nested Cross-Validation. Performance is evaluated against linear and Kernel Ridge Regression baselines using R² and MAE, with statistical significance tested via bootstrap and Holm-Bonferroni correction. Interpretability is achieved via SHAP attributions (framed associatively) and robustness is verified through sensitivity and perturbation analyses.
+This feature implements a reproducible, CPU-first pipeline to predict SN1 reaction rate constants from molecular structure. The system ingests kinetic data from verified HuggingFace sources (`DTS-SN-01-2024`, `SN-All-Date
+
+The specific value to remove/generalize: '-Date'
+
+Rewritten passage:`), validates strict metadata requirements (temperature, solvent, explicit substrate class), computes electronic descriptors (Gasteiger charges, topological indices) via RDKit, and trains a Message Passing Neural Network (MPNN) with Nested Cross-Validation. Performance is evaluated against linear and Kernel Ridge Regression baselines using R² and MAE, with statistical significance tested via bootstrap and Holm-Bonferroni correction. Interpretability is achieved via SHAP attributions (framed associatively) and robustness is verified through sensitivity and perturbation analyses.
 
 ## Technical Context
 

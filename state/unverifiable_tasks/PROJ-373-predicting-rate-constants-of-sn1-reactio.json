@@ -1,0 +1,41 @@
+{
+  "project_id": "PROJ-373-predicting-rate-constants-of-sn1-reactio",
+  "tasks": [
+    {
+      "task_key": "T011a",
+      "reject_count": 1,
+      "last_reason": "The provided `code/data/schema_check.py` is truncated, does not pass `revision='main'` to `load_dataset`, and does not contain logic that raises a fatal `ValueError` when required columns are missing. Moreover, the expected output file `data/processed/schema_check.log` is absent. These issues mean the implementation does not fulfill the task\u2019s specifications.",
+      "first_seen": "2026-09-06T06:51:13.812739+00:00",
+      "last_seen": "2026-09-06T06:51:13.812739+00:00"
+    },
+    {
+      "task_key": "T011b",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required `data/raw/sn1_raw.parquet` file, and the provided `download.py` does not clearly implement the conditional \u201cuse streaming if size\u202f>\u202f7\u202fGB\u201d (it forces `USE_STREAMING = True`). Moreover, the script is truncated before the actual download\u2011and\u2011save logic, so we cannot verify it writes the parquet file. These issues mean the task\u2019s output and constraints are not satisfied.",
+      "first_seen": "2026-09-06T06:51:16.620771+00:00",
+      "last_seen": "2026-09-06T06:51:16.620771+00:00"
+    },
+    {
+      "task_key": "T011c",
+      "reject_count": 1,
+      "last_reason": "The provided `code/data/mapping.py` is truncated and ends mid\u2011statement, so it does not contain a complete implementation (e.g., no code to write `intermediate_sn1.csv` or to log exclusions). Additionally, the required output files `data/processed/exclusion_raw.log` and `data/processed/intermediate_sn1.csv` are absent. The task\u2019s mapping and cleaning logic is therefore not fully realized.",
+      "first_seen": "2026-09-06T06:51:16.622128+00:00",
+      "last_seen": "2026-09-06T06:51:16.622128+00:00"
+    },
+    {
+      "task_key": "T015",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/clean.log, data/processed/exclusion_raw.log, data/processed/exclusion_report.csv, data/processed/exclusion_mapped.json, schema.yaml",
+      "first_seen": "2026-09-06T06:51:23.514488+00:00",
+      "last_seen": "2026-09-06T06:51:23.514488+00:00"
+    },
+    {
+      "task_key": "T016",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/cleaned_sn1.csv, data/processed/success_rate.json",
+      "first_seen": "2026-09-06T06:51:23.515702+00:00",
+      "last_seen": "2026-09-06T06:51:23.515702+00:00"
+    }
+  ],
+  "updated_at": "2026-09-06T06:51:23.515702+00:00"
+}
