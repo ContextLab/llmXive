@@ -1,50 +1,15 @@
-status: verified
-kind: pypi_package
-ref: gym-minigrid
-access_python: "import gym\nfrom gym_minigrid import register_minigrid_envs\n\n# Register\
-  \ all MiniGrid environments\nregister_minigrid_envs()\n\n# Create the environment\
-  \ without gym wrappers that trigger numpy.bool8 checks\nenv = gym.make(\"MiniGrid-Empty-5x5-v0\"\
-  ).unwrapped\n\nseed = 123\nreset_result = env.reset(seed=seed)\nobs = reset_result[0]\
-  \ if isinstance(reset_result, tuple) else reset_result\n\nrecords = []\nstate_id\
-  \ = 0\n\nwhile len(records) < 20:\n    # Full privileged state (grid encoding)\n\
-  \    full_state = env.grid.encode()\n    # Agent's partial observation\n    student_obs\
-  \ = obs\n    # Action space size\n    action_space = env.action_space.n\n    # Sample\
-  \ random action\n    action = env.action_space.sample()\n    # Step the environment\n\
-  \    step_result = env.step(action)\n    if len(step_result) == 5:  # gymnasium\
-  \ API\n        next_obs, reward, terminated, truncated, info = step_result\n   \
-  \     done = terminated or truncated\n    else:  # classic gym API\n        next_obs,\
-  \ reward, done, info = step_result\n        terminated = done\n        truncated\
-  \ = False\n    # Record transition details\n    records.append({\n        \"full_state_vector\"\
-  : full_state,\n        \"student_observation\": student_obs,\n        \"privileged_variable\"\
-  : full_state,\n        \"action_space\": action_space,\n        \"reward\": reward,\n\
-  \        \"next_state_vector\": next_obs,\n        \"transition_function\": f\"\
-  action_{action}\",\n        \"state_id\": state_id,\n        \"seed\": seed,\n \
-  \   })\n    obs = next_obs\n    state_id += 1\n    if terminated or truncated:\n\
-  \        reset_result = env.reset(seed=seed)\n        obs = reset_result[0] if isinstance(reset_result,\
-  \ tuple) else reset_result\n\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=full_state_vector,student_observation,privileged_variable,action_space,reward,next_state_vector,transition_function,state_id,seed\"\
-  )"
-record_count: 20
-sample_fields:
-- full_state_vector
-- student_observation
-- privileged_variable
-- action_space
-- reward
-- next_state_vector
-- transition_function
-- state_id
-- seed
-field_coverage: 1.0
+status: none
+intent: Privileged Gridworld MDP environment MiniGrid OpenAI Gym python package dataset
 required_fields:
-- full_state_vector
+- full_state
+- privileged_signal
 - student_observation
-- privileged_variable
-- action_space
+- student_action
 - reward
-- next_state_vector
-- transition_function
-- state_id
-- seed
-intent: gym-minigrid hidden privileged state gridworld environment python package
-  dataset
-cache_key: 639b7dc6e5ae244e087c86b99df7a3c5af276d63e75d7df268af27e6bec03f56
+- next_student_observation
+- teacher_action
+- episode_id
+- timestep
+cache_key: 6a688ea19b4804c24019f0b086941a970ed0be502657e5e76059dbba14b1aece
+searched_at: '2026-09-06T23:20:44.796406+00:00'
+retry_count: 1

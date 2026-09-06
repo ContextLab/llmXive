@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-982-llmxive-follow-up-extending-dopd-dual-on",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/agents/student.py: function `select_action` returns a bare RNG draw (line 133) \u2014 a reported value computed from no real input; code/training/dopd_distillation.py: self-declared fabricated metric \u2014 \u201c\u2026r.     # For now, we return a dummy result.     return {         'accura\u2026\u201d; 2 run-book script(s) missing (plan/impl path mismatch): python code/main.py --seed 42 --regime dopd --steps 1000; python code/main.py --seeds 50 --regimes uniform,dopd,randomized_weight --steps 10000",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --seed 42 --regime dopd --steps 1000 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --seeds 50 --regimes uniform,dopd,randomized_weight --steps 10000 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-982-llmxive-follow-up-extending-dopd-dual-on/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-06T23:19:37Z"
+}

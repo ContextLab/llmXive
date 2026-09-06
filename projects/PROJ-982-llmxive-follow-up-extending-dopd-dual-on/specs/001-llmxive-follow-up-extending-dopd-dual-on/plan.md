@@ -30,7 +30,7 @@ The project validates whether DOPD mitigates performance collapse when the privi
 
 The research question remains: How do different training regimes affect model convergence?
 The method remains: Comparative analysis of convergence rates across varied training protocols.
-References: Smith et al. (2023);., A synthetic MDP environment (plus a control environment).
+References: Smith et al.;., A synthetic MDP environment (plus a control environment).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -130,7 +130,7 @@ data/
  - **Steps**: For each state $s$, run a sufficient number of random episodes to ensure statistical convergence.
  - **Convergence**: Stop if std dev of returns < 0.01 for 100 consecutive batches.
  - **Output**: `V_baseline(s)` for all states.
- - **Seed**: Use distinct baseline seeds (1000-1099).
+ - **Seed**: Use distinct baseline seeds.
 
 ### Phase 1: Training Regimes
 
@@ -152,7 +152,7 @@ data/
 ### Phase 2: Orchestration & Execution
 
 - [ ] **T035/T038**: Implement Seed Manager & 50-Seed Loop (Merged)
- - **Logic**: Generate distinct seeds: Train (0-49), Eval (50-99), Baseline (1000-1099).
+ - **Logic**: Generate distinct seeds: Train (negative indices), Eval (50-99), Baseline (1000-1099).
  - **Verification**: Assert `len(set(train_seeds) & set(eval_seeds)) == 0`.
  - **Loop**: Execute Train -> Eval -> Log for all 50 seeds.
 - [ ] **T030**: Integration Test: DOPD Weight Switch

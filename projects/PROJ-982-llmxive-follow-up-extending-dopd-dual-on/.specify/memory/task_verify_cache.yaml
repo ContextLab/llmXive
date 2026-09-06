@@ -1,13 +1,3 @@
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation showing that division\u2011by\u2011zero safety\
-    \ checks were added to the self\u2011supervision signal handling were provided;\
-    \ the only artifacts described relate to MDP environment construction and training\
-    \ loops, not the required safety\u2011check implementation. The implementer must\
-    \ supply the modified source files (e.g., the loss or signal\u2011processing module)\
-    \ with the added guard clauses, and accompanying unit tests or runtime checks\
-    \ confirming that zero\u2011denominator cases are handled gracefully."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
