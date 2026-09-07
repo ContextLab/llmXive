@@ -1,8 +1,8 @@
 """
-State Manager Module
+State Manager Module for llmXive Project PROJ-516.
 
-Computes SHA-256 hashes for derived artifacts and updates the state YAML file.
-This module is critical for tracking data lineage and ensuring reproducibility.
+This module provides functionality to compute SHA-256 hashes for derived artifacts
+and update the project state file (state/...yaml) to track artifact integrity and versioning.
 """
 
 import hashlib
@@ -11,24 +11,19 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-
 import yaml
 
-# Project root relative to this file
+# Project root is assumed to be the parent of the 'code' directory
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 STATE_DIR = PROJECT_ROOT / "state"
 STATE_FILE = STATE_DIR / "artifact_state.yaml"
 
-# Ensure state directory exists
-STATE_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def compute_sha256(file_path: str) -> str:
+def compute_sha256(file_path: Path) -> str:
     """
     Compute the SHA-256 hash of a file.
 
     Args:
-        file_path: Absolute or relative path to the file.
+        file_path: Path to the file to hash.
 
     Returns:
         Hexadecimal string of the SHA-256 hash.
@@ -37,7 +32,6 @@ def compute_sha256(file_path: str) -> str:
         FileNotFoundError: If the file does not exist.
         IOError: If the file cannot be read.
     """
-    file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
 
@@ -51,130 +45,124 @@ def compute_sha256(file_path: str) -> str:
     except IOError as e:
         raise IOError(f"Error reading file {file_path}: {e}")
 
-
 def load_state() -> Dict[str, Any]:
     """
-    Load the current state from the YAML file.
+    Load the current state from the state file.
 
     Returns:
-        Dictionary containing the state. Returns an empty dict if file doesn't exist.
+        Dictionary containing the current state. Returns an empty dict if file doesn't exist.
     """
     if not STATE_FILE.exists():
-        return {"artifacts": {}, "last_updated": None}
+        # Ensure state directory exists
+        STATE_DIR.mkdir(parents=True, exist_ok=True)
+        return {
+            "last_updated": None,
+            "artifacts": {}
+        }
 
     try:
         with open(STATE_FILE, "r") as f:
-            state = yaml.safe_load(f)
-            return state if state else {"artifacts": {}, "last_updated": None}
+            return yaml.safe_load(f) or {"last_updated": None, "artifacts": {}}
     except yaml.YAMLError as e:
-        print(f"Warning: Could not parse state file {STATE_FILE}: {e}. Starting fresh.")
-        return {"artifacts": {}, "last_updated": None}
-
+        raise ValueError(f"Error parsing state file {STATE_FILE}: {e}")
 
 def save_state(state: Dict[str, Any]) -> None:
     """
-    Save the state dictionary to the YAML file.
+    Save the state dictionary to the state file.
 
     Args:
-        state: The state dictionary to save.
+        state: Dictionary containing the state to save.
     """
-    state["last_updated"] = datetime.now().isoformat()
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
     with open(STATE_FILE, "w") as f:
         yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
-
-def update_artifact_state(
-    artifact_path: str,
-    artifact_type: Optional[str] = None,
-    description: Optional[str] = None
-) -> Dict[str, Any]:
+def update_artifact_state(artifact_path: Path, description: Optional[str] = None) -> None:
     """
-    Compute the hash for a specific artifact and update the state file.
+    Compute the hash for a single artifact and update the state file.
 
     Args:
-        artifact_path: Path to the artifact file (relative to project root).
-        artifact_type: Optional type label (e.g., 'csv', 'json', 'model').
-        description: Optional human-readable description.
-
-    Returns:
-        The updated artifact entry in the state dictionary.
+        artifact_path: Relative or absolute path to the artifact.
+        description: Optional description of the artifact.
     """
+    # Resolve to absolute path
+    abs_path = artifact_path.resolve()
+
+    # Verify file exists
+    if not abs_path.exists():
+        raise FileNotFoundError(f"Cannot update state for non-existent file: {abs_path}")
+
+    # Compute hash
+    file_hash = compute_sha256(abs_path)
+
+    # Load current state
     state = load_state()
 
-    # Resolve path relative to project root
-    full_path = Path(artifact_path)
-    if not full_path.is_absolute():
-        full_path = PROJECT_ROOT / artifact_path
+    # Determine relative path for storage
+    try:
+        rel_path = str(abs_path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        # If not under project root, use absolute path string
+        rel_path = str(abs_path)
 
-    if not full_path.exists():
-        raise FileNotFoundError(f"Artifact not found for hashing: {full_path}")
-
-    file_hash = compute_sha256(full_path)
-
-    # Normalize path for storage (relative to project root)
-    relative_path = str(full_path.relative_to(PROJECT_ROOT))
-
-    entry = {
-        "path": relative_path,
+    # Update state entry
+    state["artifacts"][rel_path] = {
         "hash": file_hash,
-        "type": artifact_type or "unknown",
-        "description": description or "Auto-generated by state_manager",
-        "updated_at": datetime.now().isoformat()
+        "size_bytes": abs_path.stat().st_size,
+        "description": description or "No description provided",
+        "last_updated": datetime.utcnow().isoformat()
     }
 
-    state["artifacts"][relative_path] = entry
+    # Update timestamp
+    state["last_updated"] = datetime.utcnow().isoformat()
+
+    # Save state
     save_state(state)
 
-    return entry
-
-
-def update_state_for_multiple_artifacts(
-    artifact_list: List[Dict[str, Any]]
-) -> None:
+def update_state_for_multiple_artifacts(artifacts: List[Dict[str, Any]]) -> None:
     """
-    Update the state for multiple artifacts at once.
+    Update state for multiple artifacts at once.
 
     Args:
-        artifact_list: List of dicts with keys: path, type (optional), description (optional).
+        artifacts: List of dictionaries with keys:
+                   - 'path': Path to the artifact (str or Path)
+                   - 'description': Optional description (str)
     """
     state = load_state()
 
-    for item in artifact_list:
-        path = item.get("path")
-        if not path:
-            raise ValueError("Each artifact entry must have a 'path' key.")
+    for item in artifacts:
+        path = item["path"]
+        desc = item.get("description")
 
-        full_path = Path(path)
-        if not full_path.is_absolute():
-            full_path = PROJECT_ROOT / path
+        abs_path = Path(path).resolve()
 
-        if not full_path.exists():
-            print(f"Warning: Skipping non-existent artifact {full_path}")
+        if not abs_path.exists():
+            print(f"Warning: Skipping non-existent file {abs_path}", file=sys.stderr)
             continue
 
-        file_hash = compute_sha256(full_path)
-        relative_path = str(full_path.relative_to(PROJECT_ROOT))
+        file_hash = compute_sha256(abs_path)
 
-        entry = {
-            "path": relative_path,
+        try:
+            rel_path = str(abs_path.relative_to(PROJECT_ROOT))
+        except ValueError:
+            rel_path = str(abs_path)
+
+        state["artifacts"][rel_path] = {
             "hash": file_hash,
-            "type": item.get("type", "unknown"),
-            "description": item.get("description", "Auto-generated"),
-            "updated_at": datetime.now().isoformat()
+            "size_bytes": abs_path.stat().st_size,
+            "description": desc or "No description provided",
+            "last_updated": datetime.utcnow().isoformat()
         }
 
-        state["artifacts"][relative_path] = entry
-
+    state["last_updated"] = datetime.utcnow().isoformat()
     save_state(state)
 
-
-def verify_artifact(artifact_path: str, expected_hash: Optional[str] = None) -> bool:
+def verify_artifact(artifact_path: Path) -> bool:
     """
-    Verify the integrity of an artifact against its stored hash or an expected hash.
+    Verify an artifact's hash against the stored state.
 
     Args:
-        artifact_path: Path to the artifact.
-        expected_hash: Optional hash to compare against. If None, uses the stored hash.
+        artifact_path: Path to the artifact to verify.
 
     Returns:
         True if the hash matches, False otherwise.
@@ -182,62 +170,56 @@ def verify_artifact(artifact_path: str, expected_hash: Optional[str] = None) -> 
     Raises:
         FileNotFoundError: If the artifact or state file is missing.
     """
-    full_path = Path(artifact_path)
-    if not full_path.is_absolute():
-        full_path = PROJECT_ROOT / artifact_path
+    abs_path = artifact_path.resolve()
 
-    if not full_path.exists():
-        raise FileNotFoundError(f"Artifact not found: {full_path}")
+    if not abs_path.exists():
+        raise FileNotFoundError(f"Artifact not found: {abs_path}")
 
-    current_hash = compute_sha256(full_path)
+    try:
+        rel_path = str(abs_path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        rel_path = str(abs_path)
 
-    if expected_hash:
-        return current_hash == expected_hash
-
-    # Load stored hash
     state = load_state()
-    relative_path = str(full_path.relative_to(PROJECT_ROOT))
 
-    if relative_path not in state.get("artifacts", {}):
-        raise FileNotFoundError(f"No stored state found for artifact: {relative_path}")
+    if rel_path not in state.get("artifacts", {}):
+        raise FileNotFoundError(f"No state record found for: {rel_path}")
 
-    stored_hash = state["artifacts"][relative_path].get("hash")
-    if not stored_hash:
-        raise ValueError(f"No hash stored for artifact: {relative_path}")
+    stored_hash = state["artifacts"][rel_path]["hash"]
+    current_hash = compute_sha256(abs_path)
 
-    return current_hash == stored_hash
-
+    return stored_hash == current_hash
 
 def main():
     """
-    CLI entry point for state_manager.
+    CLI entry point for state management operations.
     Usage: python -m code.utils.state_manager <update|verify> <file_path>
     """
     if len(sys.argv) < 3:
         print("Usage: python -m code.utils.state_manager <update|verify> <file_path>")
         sys.exit(1)
 
-    command = sys.argv[1]
-    file_path = sys.argv[2]
+    operation = sys.argv[1].lower()
+    file_path = Path(sys.argv[2])
 
     try:
-        if command == "update":
-            entry = update_artifact_state(file_path)
-            print(f"Updated state for {file_path}: {entry['hash']}")
-        elif command == "verify":
-            is_valid = verify_artifact(file_path)
-            if is_valid:
-                print(f"Verification passed for {file_path}")
+        if operation == "update":
+            update_artifact_state(file_path)
+            print(f"State updated for: {file_path}")
+        elif operation == "verify":
+            if verify_artifact(file_path):
+                print(f"Verification PASSED for: {file_path}")
+                sys.exit(0)
             else:
-                print(f"Verification FAILED for {file_path}: Hash mismatch")
+                print(f"Verification FAILED for: {file_path} (Hash mismatch)")
                 sys.exit(1)
         else:
-            print(f"Unknown command: {command}")
+            print(f"Unknown operation: {operation}")
+            print("Usage: python -m code.utils.state_manager <update|verify> <file_path>")
             sys.exit(1)
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

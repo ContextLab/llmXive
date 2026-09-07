@@ -13,14 +13,13 @@ T003:
     .isort.cfg) or integration scripts are present in the provided evidence, so the
     requirement to configure flake8/pylint and black/isort is not satisfied. The implementer
     must add the appropriate config files and ensure they are applied in the project.
-T006:
+T004:
   c: false
-  h: 209cec7dc363469a204730487178089a43eb5be5c1b18c10ce950c0d0a2756fe
-  r: 'The `data_fetcher.py` implementation is present and reads a `delay_multiplier`
-    from a `retry` section in `config.yaml`, but the required `config.yaml` file does
-    not exist in the repository, so the configurable retry logic cannot be verified.
-    Add a `config.yaml` containing at least `retry: { delay_multiplier: <value>, max_attempts:
-    3, base_delay_seconds: 1.0, max_delay_seconds: 60.0 }`.'
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state_manager.py` file was presented, and there is no evidence that SHA\u2011\
+    256 hashes are being computed for derived artifacts or that any `state/...yaml`\
+    \ files have been updated. The required artifact is missing, so the task is not\
+    \ satisfied."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

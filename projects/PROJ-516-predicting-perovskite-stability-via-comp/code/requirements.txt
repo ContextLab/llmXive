@@ -6,3 +6,4 @@ numpy
 pymatgen
 python-dotenv
 urllib3
+joblib  # auto-added: imported by run-book but missing from venv

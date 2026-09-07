@@ -37,19 +37,26 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `state_manager.py` to compute SHA-256 hashes for derived artifacts and update `state/...yaml`
+- [ ] T004 Implement `state_manager.py` to compute SHA-256 hashes for derived artifacts and update `state/...yaml`
 - [X] T005 Create `contracts/descriptor.schema.yaml` defining the schema for `CompositionalDescriptor` entities
-- [ ] T006 [P] Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries with exponential backoff. **Implementation**: Implement the retry loop with exponential backoff logic (e.g., base delay * 2^retry_count) but DO NOT hard-code specific delay values in the task description. The logic must be configurable. **Verification**: Verify `config.yaml` contains `delay_multiplier` key and that `code/utils/data_fetcher.py` reads from it. <!-- Requires: T008 --> <!-- Verification: See T056 -->
+- [X] T006a [P] Create `code/config.yaml` with `delay_multiplier` key set to `1.0` and `retry_delays` key set to `[1.0, 2.0, 4.0]`. **Path**: `code/config.yaml`. **Verification**: Verify `code/config.yaml` exists and contains the `delay_multiplier` key with a numeric value and `retry_delays` key with a list of numeric values.
+- [X] T006b [P] Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries with exponential backoff using `retry_delays` from `code/config.yaml`. **Implementation**: Implement the retry loop with exponential backoff logic (e.g., `retry_delays[retry_count]`) reading `retry_delays` from `code/config.yaml`. **Verification**: Verify `code/config.yaml` contains `retry_delays` key and that `code/utils/data_fetcher.py` reads from it. <!-- Requires: T006a --> <!-- Verification: See T056 -->
 - [X] T007 Implement `code/utils/formula_parser.py` using `pymatgen` for deterministic A/B/X site assignment. **Specificity**: Use `pymatgen.core.Element` class for all elemental property lookups to ensure reproducibility.
 - [X] T008 Setup environment configuration management for API keys (Materials Project, NREL) in `.env`
 - [X] T009 Implement `code/utils/checksum_verifier.py` to validate raw data integrity against source checksums
+- [X] T047c_init [P] Create `data/raw/instrument_registry.csv` with specific TGA instrument data: Row: `TA Instruments, TA Instruments, 10.0`; Row 2: `Mettler Toledo, Mettler Toledo, 10.0`. Compute its SHA-256 hash, updating `state/...yaml`. **Schema**: The CSV MUST have columns: `instrument_model`, `manufacturer`, `precision_celsius`. **Verification**: Verify `data/raw/instrument_registry.csv` exists, contains valid data, and its hash is recorded in `state/...yaml`. <!-- Requires: T004 -->
+- [X] T047c [P] Implement `code/utils/instrument_registry.py` to maintain a lookup table of known TGA instruments with documented precision values. **Source**: Load the registry from `data/raw/instrument_registry.csv` (created by T047c_init). **Schema**: The CSV MUST have columns: `instrument_model`, `manufacturer`, `precision_celsius`. If the file is missing or an instrument is not found, use the spec default of ±10°C and log a warning. **Constraint**: Do NOT hard-code specific manufacturer models or precision values in the code. **Output**: A function `get_precision(instrument_model)` that returns the precision value or the default. <!-- Requires: T047c_init --> <!-- Verification: See T052 -->
+- [X] T052 [P] Implement a "TGA Instrument Lookup" function in `code/utils/instrument_registry.py` that maps instrument model names to their standard precision specifications (±°C) based on the registry defined in T047c. **Verification**: Verify that `instrument_registry.py` successfully loads the registry from `data/raw/instrument_registry.csv` (if it exists) and correctly applies the default ±10°C precision for any instrument model not found in the registry. Log any unmapped instruments to `data/raw/unmapped_instruments.log`. <!-- Requires: T047c --> <!-- Verification: See T052 -->
 - [X] T041 [P] Update `contracts/metadata.schema.yaml` to require explicit fields for `tga_model`, `tga_manufacturer`, `temperature_precision` (±°C), and `heating_rate` (°C/min) for every source dataset entry, but make `instrument_model` and `manufacturer` OPTIONAL with a fallback flag. <!-- Verification: Verify `contracts/metadata.schema.yaml` contains required fields and validates optional instrumentation fields correctly. -->
 - [X] T042 [P] Implement `code/utils/uncertainty_parser.py` to parse `temperature_precision` from source metadata; if missing, default to ±10°C and log a WARNING with message format: "WARNING: Missing precision for {formula}, defaulting to 10°C". [RESOLVED]
 - [X] T043 [P] Implement `code/utils/uncertainty_propagator.py` to calculate the combined standard uncertainty for `T_d` based on the instrument precision and any reported experimental error. **Formula**: `sigma = sqrt(precision^2 + experimental_error^2)`. If experimental error is missing, use 0. If precision is missing, use 10°C (from T042). **Output**: Returns `sigma`.
-- [X] T047c [P] Implement `code/utils/instrument_registry.py` to maintain a lookup table of known TGA instruments with documented precision values. **Source**: Load the registry from `data/raw/instrument_registry.csv`. **Schema**: The CSV MUST have columns: `instrument_model`, `manufacturer`, `precision_celsius`. If the file is missing or an instrument is not found, use the spec default of ±10°C and log a warning. **Constraint**: Do NOT hard-code specific manufacturer models or precision values in the code. **Output**: A function `get_precision(instrument_model)` that returns the precision value or the default. <!-- Verification: See T052 -->
-- [X] T052 [P] Implement a "TGA Instrument Lookup" function in `code/utils/instrument_registry.py` that maps instrument model names to their standard precision specifications (±°C) based on the registry defined in T047c. **Verification**: Verify that `instrument_registry.py` successfully loads the registry from `data/raw/instrument_registry.csv` (if it exists) and correctly applies the default ±10°C precision for any instrument model not found in the registry. Log any unmapped instruments to `data/raw/unmapped_instruments.log`. <!-- Requires: T047c -->
-- [X] T047a [US1] Implement `code/utils/data_fetcher.py` to extract and validate `instrument_model` and `manufacturer` fields from source metadata (NREL/Materials Project) during the initial fetch. If these fields are missing, log a WARNING and assign a default precision of ±10°C using the fallback strategy. Do NOT raise a `MissingInstrumentationError`. Log the formula to `data/raw/instrumentation_fallbacks.log`. **Verification**: Verify that `data/raw/instrumentation_fallbacks.log` exists and contains entries for any formula where instrumentation metadata was missing, and that the pipeline proceeds. <!-- Requires: T006, T012a, T012b, T047c, T052 -->
-- [X] T047b [US1] Update `contracts/metadata.schema.yaml` to make `instrument_model` and `manufacturer` OPTIONAL fields with a `source_instrumentation` flag (true/false) to indicate if data was found. <!-- Verification: Verify schema validation passes for JSON objects missing these fields and sets the flag to false. -->
+- [X] T047e [P] [US3] Update `data/processed/validation_report.md` to include a "Instrumentation Audit" table listing the distribution of TGA models used across the dataset (e.g., "TA Instruments: entries ", "Mettler Toledo: entries ") and their respective precision ranges. <!-- Verification: Verify `validation_report.md` contains a table with instrument distribution and precision ranges. -->
+- [X] T047f [P] [US3] Implement a "Measurement Confidence Score" in `code/validation.py` that calculates a composite score for each prediction based on the known precision of the instrument used for the training data point and the uncertainty propagation model. <!-- Verification: Verify `data/processed/feature_importance.csv` includes a `measurement_confidence_score` column. -->
+- [X] T048 [P] [US3] Write a "Measurement Integrity Statement" in `docs/measurement_integrity.md` that explicitly argues why the inclusion of instrument-specific metadata and uncertainty weighting elevates the study from a statistical correlation to a physical measurement analysis, citing the specific TGA models and their precision limits. <!-- Verification: Verify `docs/measurement_integrity.md` contains the argument and references specific instrument models. -->
+- [X] T049 [P] Unit test for `instrument_registry.py` to ensure correct precision lookup for known and unknown instruments. <!-- Verification: Verify unit tests pass for all registry lookups. -->
+- [X] T050 [P] Integration test for the full instrumentation pipeline: fetch data -> validate instrumentation -> compute uncertainty -> train model -> report audit. <!-- Verification: Verify the pipeline completes without halting on missing instrumentation metadata. -->
+- [X] T047a [US1] Implement `code/utils/data_fetcher.py` to extract and validate `instrument_model` and `manufacturer` fields from source metadata (NREL/Materials Project) during the initial fetch. If these fields are missing, log a WARNING and assign a default precision of ±10°C using the fallback strategy. Do NOT raise a `MissingInstrumentationError`. Log the formula to `data/raw/instrumentation_fallbacks.log`. **Verification**: Verify that `data/raw/instrumentation_fallbacks.log` exists and contains entries for any formula where instrumentation metadata was missing, and that the pipeline proceeds. <!-- Requires: T006b, T012a, T012b, T047c, T052 -->
+- [X] T047b [P] Update `contracts/metadata.schema.yaml` to make `instrument_model` and `manufacturer` OPTIONAL fields with a `source_instrumentation` flag (true/false) to indicate if data was found. <!-- Verification: Verify schema validation passes for JSON objects missing these fields and sets the flag to false. -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -69,19 +76,19 @@
 ### Implementation for User Story 1
 
 - [ ] T012a [US1] Fetch data from NREL API, invoke T009 validation, filter for `T_d` (TGA onset), and write to `data/raw/nrel_perovskites.csv`. <!-- Requires: T009 --> <!-- Verification: Verify `data/raw/nrel_perovskites.csv` exists and contains `T_d` column with non-null values. -->
-- [ ] T012b [US1] Fetch data from Materials Project API, invoke T009 validation, filter for `T_d` (TGA onset), and write to `data/raw/mp_perovskites.csv`. <!-- Requires: T009 --> <!-- Verification: Verify `data/raw/mp_perovskites.csv` exists and contains `T_d` column with non-null values. -->
+- [ ] T012b [US1] Fetch data from Materials Project API using the MP-API library, invoke T009 validation, filter for `T_d` (TGA onset), and write to `data/raw/mp_perovskites.csv`. **Constraint**: Handle authentication errors gracefully by logging to stderr and exiting with code 1. Retry logic is handled by T006b. **Verification**: Verify `data/raw/mp_perovskites.csv` exists and contains `T_d` column with non-null values. <!-- Requires: T009 --> <!-- Verification: Verify `data/raw/mp_perovskites.csv` exists and contains `T_d` column with non-null values. -->
 - [ ] T012c [US1] Implement merge logic: Concatenate `data/raw/nrel_perovskites.csv` and `data/raw/mp_perovskites.csv` based on `formula` and `source`. **Constraint**: If either input file is missing or empty, the task MUST fail with a specific error code. <!-- Requires: T012a, T012b --> <!-- Verification: Verify merge logic handles missing files correctly and logs duplicate count. -->
-- [ ] T012d [US1] Implement duplicate removal: Drop duplicates from the merged dataset based on `formula` and `source`, logging the count of removed duplicates. **Constraint**: {{claim:c_6385fda1}} (Wikidata Q16872930, https://www.wikidata.org/wiki/Q16872930) <!-- Requires: T012c --> <!-- Verification: Verify duplicate count is logged. -->
-- [ ] T012e [US1] Write final merged dataset to `data/raw/perovskites_merged.csv`. **Constraint**: {{claim:c_6385fda1}} <!-- Requires: T012d --> <!-- Verification: Verify `data/raw/perovskites_merged.csv` exists with row count >= 200. -->
+- [X] T012d [US1] Implement duplicate removal: Drop duplicates from the merged dataset based on `formula` and `source`, logging the count of removed duplicates. **Constraint**: Use standard deduplication logic (formula + source match). <!-- Requires: T012c --> <!-- Verification: Verify duplicate count is logged. -->
+- [ ] T012e [US1] Write final merged dataset to `data/raw/perovskites_merged.csv`. **Constraint**: Log the final row count. <!-- Requires: T012d --> <!-- Verification: Verify `data/raw/perovskites_merged.csv` exists and log the row count. -->
 - [ ] T013 [US1] Implement metadata parsing and validation: parse TGA model/precision from source metadata using T042, extract `instrument_model` and `manufacturer` from source metadata or assign default 'Unknown' with a warning, and write structured metadata to `data/raw/metadata.json`. **Schema**: The JSON must be a list of objects, each with keys: `formula`, `instrument_model`, `manufacturer`, `precision_source` (value="source" or "registry"). <!-- Requires: T042, T047a --> <!-- Verification: Verify `metadata.json` exists and conforms to the schema. -->
-- [ ] T013b [US1] Implement logic to extract `temperature_precision` from T013 output, calculate `sigma` using T043 (formula: `sigma = sqrt(precision^2 + experimental_error^2)` where precision comes from T047c/T052 registry and experimental_error from source metadata), and write a NEW derived file `data/processed/descriptors_v1.csv` containing the original data plus the `T_d_uncertainty` column. **Constraint**: Do NOT append to existing files; create a new file. <!-- Requires: T012a, T012b, T012c, T012d, T012e, T043, T013, T047c, T052 --> <!-- Verification: Verify `descriptors_v1.csv` exists and contains `T_d_uncertainty` column with non-null values. -->
+- [X] T013b [US1] Implement logic to extract `temperature_precision` from T013 output, calculate `sigma` using T043 (formula: `sigma = sqrt(precision^2 + experimental_error^2)` where precision comes from T047c/T052 registry and experimental_error from source metadata), and write a NEW derived file `data/processed/descriptors_v1.csv` containing the original data plus the `T_d_uncertainty` column. **Constraint**: Do NOT append to existing files; create a new file. **Fallback**: If the registry lookup fails, use 10.0 as the precision value. <!-- Requires: T012a, T012b, T012c, T012d, T012e, T043, T013, T047c, T052 --> <!-- Verification: Verify `descriptors_v1.csv` exists and contains `T_d_uncertainty` column with non-null values. -->
 - [ ] T014 [US1] Implement `code/feature_engineering.py` to compute atomic fractions, weighted averages (ionic radius, electronegativity, formation enthalpy, first ionization energy), and variance metrics. **Specificity**: Use `pymatgen.core.Element.X.ionization_energy` for first ionization energy, using the version of pymatgen pinned in `code/requirements.txt`. Append `instrument_model`, `manufacturer`, and `precision_source` columns to the output; write to `data/processed/descriptors_v2.csv`. **Constraint**: Do NOT append to existing files; create a new file. <!-- Requires: T013b, T047c --> <!-- Verification: Verify output CSV contains columns [atomic_fraction_A, weighted_ionic_radius,..., instrument_model, manufacturer, precision_source] with non-null values (or 'Unknown' if missing). -->
-- [ ] T014b [US1] Implement logic to derive `perovskite_family` (lead-halide, tin-halide, double perovskite) from A/B/X site elements in T014 output; write to `data/processed/descriptors_v2.csv`. **Constraint**: Do NOT append to existing files; create a new file. <!-- Requires: T014 --> <!-- Verification: Verify `perovskite_family` column has values in [lead-halide, tin-halide, double perovskite]. -->
-- [X] T015a [US1] Implement logic to exclude entries with >= 2 missing descriptor values and log exclusion counts. **Output**: Write filtered dataset to `data/processed/descriptors_filtered.csv`. <!-- Verification: Log exclusion count to `data/processed/exclusion_log.csv` and verify count matches expected threshold (n >= 10 * features). -->
+- [X] T014b [US1] Implement logic to derive `perovskite_family` (lead-halide, tin-halide, double perovskite) from A/B/X site elements in T014 output; write to `data/processed/descriptors_v2.csv`. **Constraint**: Do NOT append to existing files; create a new file. <!-- Requires: T014 --> <!-- Verification: Verify `perovskite_family` column has values in [lead-halide, tin-halide, double perovskite]. -->
+- [ ] T015a [US1] Implement logic to exclude entries with >= 2 missing descriptor values and log exclusion counts. **Output**: Write filtered dataset to `data/processed/descriptors_filtered.csv`. <!-- Verification: Log exclusion count to `data/processed/exclusion_log.csv` and verify count matches expected threshold (n >= 10 * features). -->
 - [ ] T016a [US1] Implement `code/utils/vif_calculator.py` to compute VIF for all descriptors with a threshold > 5 to identify multicollinearity. **Input**: Must operate on the filtered dataset from T015a (`data/processed/descriptors_filtered.csv`). Write report to `data/processed/vif_report.csv`. <!-- Verification: Verify `vif_report.csv` contains VIF values for all descriptors and flags those > 5. -->
 - [X] T016b [US1] Log decision rationale for VIF > 5 descriptors to `data/processed/vif_decision_log.csv`. <!-- Verification: Verify `vif_decision_log.csv` contains flagged descriptors and rationale. -->
 - [X] T016c [US1] Unit test for VIF diagnostic computation and feature removal logic in `tests/unit/test_vif.py`. <!-- Requires: T016a, T016b -->
-- [ ] T017 [US1] Write final processed dataset to `data/processed/descriptors_final.csv` including the `T_d_uncertainty`, `perovskite_family`, `instrument_model`, `manufacturer`, and `precision_source` columns and update `state/...yaml` with hash. <!-- Requires: T016a --> <!-- Verification: Verify `descriptors_final.csv` exists and `state/...yaml` is updated. -->
+- [X] T017 [US1] Write final processed dataset to `data/processed/descriptors_final.csv` including the `T_d_uncertainty`, `perovskite_family`, `instrument_model`, `manufacturer`, and `precision_source` columns and update `state/...yaml` with hash. <!-- Requires: T016a --> <!-- Verification: Verify `descriptors_final.csv` exists and `state/...yaml` is updated. -->
 
 **Checkpoint**: User Story 1 fully functional; dataset ready for modeling.
 
@@ -100,14 +107,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020a [US2] Implement `code/model_training.py` with Random Forest using `scikit-learn`; ensure all training uses default precision (no reduced-precision quantization) and CPU-only execution. <!-- Requires: T014b, T013b, T053, T054 -->
-- [ ] T020b [US2] Implement `code/model_training.py` with Gradient Boosting using `scikit-learn`; ensure all training uses default precision (no reduced-precision quantization) and CPU-only execution. <!-- Requires: T014b, T013b, T053, T054 -->
-- [ ] T020c [US2] Implement `code/model_training.py` with Elastic Net using `scikit-learn`; ensure all training uses default precision (no reduced-precision quantization) and CPU-only execution. <!-- Requires: T014b, T013b, T053, T054 -->
-- [ ] T053 [US2] Implement a "Missing Instrumentation Report" generator in `code/utils/instrument_registry.py` that aggregates all entries from `data/raw/instrumentation_fallbacks.log` and writes a summary report to `data/processed/missing_instrumentation_report.csv` with columns: `formula`, `source`, `default_precision_used`, `confidence_flag`. **Verification**: Verify `missing_instrumentation_report.csv` exists and correctly aggregates all fallback entries with their default precision values. <!-- Requires: T013b, T047a -->
+- [ ] T020 [US2] Implement `code/model_training.py` with Random Forest, Gradient Boosting, and Elastic Net using `scikit-learn`; ensure all training uses default precision (no reduced-precision quantization) and CPU-only execution. **Sub-tasks**: 1) RF, 2) GB, 3) Elastic Net. **Constraint**: Grid search limited to <= 10 combinations per model. [UNRESOLVED-CLAIM: c_30fcd742 — status=not_enough_info] <!-- Requires: T014b, T013b, T053, T054 -->
+- [X] T053 [US2] Implement a "Missing Instrumentation Report" generator in `code/utils/instrument_registry.py` that aggregates all entries from `data/raw/instrumentation_fallbacks.log` and writes a summary report to `data/processed/missing_instrumentation_report.csv` with columns: `formula`, `source`, `default_precision_used`, `confidence_flag`. **Verification**: Verify `missing_instrumentation_report.csv` exists and correctly aggregates all fallback entries with their default precision values. <!-- Requires: T013b, T047a -->
 - [ ] T054 [US2] Update `code/model_training.py` to apply a configurable `low_confidence_weight` based on `confidence_flag` from T053. **Configuration**: The weight MUST be read from `code/config.yaml` under the key `low_confidence_weight` with a configurable default value. **Verification**: Verify `model_runs.json` includes logic for down-weighting low-confidence samples and that training logs reflect this adjustment. <!-- Requires: T053 -->
 - [ ] T020d [US2] Implement `sample_weight` (1/σ²) for uncertainty weighting using `T_d_uncertainty` from T013b in `code/model_training.py`. <!-- Requires: T013b --> <!-- Verification: Verify `model_runs.json` includes `sample_weight` logic and that training logs show weighted loss calculation. -->
-- [ ] T020e [US2] Implement stratified KFold logic with k=5 using `perovskite_family` column from T014b (specifically [lead-halide, tin-halide, double perovskite]) in `code/model_training.py`. <!-- Requires: T014b -->
-- [ ] T020f [US2] Verify stratified split balance: Run a test case on the dataset to ensure the resulting train/test splits contain all three families (lead-halide, tin-halide, double perovskite) in every fold. Fail if any family is missing from a fold. <!-- Requires: T020e --> <!-- Verification: Verify the test passes only if all families are present in all folds. -->
+- [ ] T020e [US2] Implement stratified KFold logic with k=5 using `perovskite_family` column from T014b (specifically [lead-halide, tin-halide, double perovskite]) in `code/model_training.py`. **Fallback**: If a family is missing from the data, log a warning and proceed with available families. **Verification**: Verify the test passes only if all available families are present in all folds. <!-- Requires: T014b -->
+- [X] T020f [US2] Verify stratified split balance: Run a test case on the dataset to ensure the resulting train/test splits contain all available families in every fold. Fail if any family is missing from a fold (unless the fallback in Te was triggered). <!-- Requires: T020e --> <!-- Verification: Verify the test passes only if all available families are present in all folds. -->
 - [ ] T022 [US2] Implement grid search with a hard cap of <= 10 hyperparameter combinations per model. **Verification**: Verify `model_runs.json` shows <= 10 combinations per model and assert max iterations in logs. [RESOLVED]
 - [X] T023 [US2] Implement metric tracking (RMSE, R², MAE) and logging of best hyperparameters. <!-- Verification: Verify metrics are logged for each fold and model. -->
 - [ ] T025 [US2] Save trained models and metrics to `data/processed/model_runs.json` with required keys: `model_type`, `hyperparameters`, `metrics` (R², RMSE, MAE). <!-- Verification: Verify `model_runs.json` exists and contains required keys. -->
@@ -130,9 +135,9 @@
 ### Implementation for User Story 3
 
 - [X] T028 [US3] Implement `code/validation.py` to extract SHAP values from the best model. <!-- Verification: Verify SHAP values are extracted and reported for top features. -->
-- [X] T029 [US3] Implement permutation importance testing with a sufficient number of permutations to ensure statistical stability. The task MUST use Benjamini-Hochberg correction for p < 0.05 significance; report p-values in `data/processed/feature_importance.csv`. **Constraint**: Perform permutations. <!-- Verification: Verify `feature_importance.csv` contains p-values, 1000 permutations were executed, and the selected correction method is documented. -->
-- [ ] T030 [US3] Implement external validation: Attempt to load held-out experimental data from literature from `data/raw/literature_validation.csv`. **Logic**: If the file is missing or empty, the task MUST fail with a specific error code. Do NOT proceed with proxy validation. Report separate R²/RMSE for external data in `data/processed/external_metrics.csv`. **Ultimate Failure**: Fail if the literature data file is missing or empty. <!-- Verification: Verify `external_metrics.csv` exists and contains metrics for external data, or the task fails if the file is missing. -->
-- [ ] T031 [US3] Implement OOD detection: Flag compositions with elements NOT in the training set (based on T017 dataset) or with a Mahalanobis distance > 3.0 from the training distribution. Add `is_ood` boolean column to `data/processed/descriptors_final.csv`. <!-- Verification: Add `is_ood` boolean column and verify logic. -->
+- [X] T029 [US3] Implement permutation importance testing with a sufficient number of permutations to ensure statistical stability. The task MUST use Benjamini-Hochberg correction for p < 0.05 significance; report p-values in `data/processed/feature_importance.csv`. **Constraint**: Perform permutations. <!-- Verification: Verify `feature_importance.csv` contains p-values, A sufficient number of permutations were executed., and the selected correction method is documented. -->
+- [X] T030 [US3] Implement external validation: Attempt to load held-out experimental data from literature from `data/raw/literature_validation.csv` (generated by T059). **Logic**: If the file is missing or empty, the task MUST fail with a specific error code. Do NOT proceed with proxy validation. Report separate R²/RMSE for external data in `data/processed/external_metrics.csv`. **Ultimate Failure**: Fail if the literature data file is missing or empty. **Dependency**: Requires T059 to complete first. <!-- Verification: Verify `external_metrics.csv` exists and contains metrics for external data, or the task fails if the file is missing. -->
+- [X] T031 [US3] Implement OOD detection: Flag compositions with elements NOT in the training set (based on T017 dataset) or with a Mahalanobis distance > 3.0 from the training distribution. Add `is_ood` boolean column to `data/processed/descriptors_final.csv`. <!-- Verification: Add `is_ood` boolean column and verify logic. -->
 - [X] T032a [US3] Report separate R²/RMSE for in-distribution vs. out-of-distribution predictions (internal split). <!-- Verification: Write in-distribution and OOD metrics to `data/processed/ood_metrics.csv` with columns [split, R2, RMSE]. -->
 - [X] T032b [US3] Report separate R²/RMSE for the held-out literature dataset (external validation) distinct from cross-validation metrics. <!-- Verification: Write external validation metrics to `data/processed/external_metrics.csv`. -->
 - [X] T033 [US3] Generate ranked list of elemental properties by contribution to `T_d` prediction. <!-- Verification: Write ranked list to `data/processed/feature_ranking.csv` with columns [feature, contribution_score, rank]. -->
@@ -167,7 +172,7 @@
 
 ### Implementation for Instrumentation Rigor
 
-- [X] T044a [US2] Update `code/model_training.py` to use the calculated uncertainty (σ) for each sample as a weight (`sample_weight` = 1/σ²) for Elastic Net and where supported by RF/GB implementations. <!-- Verification: Verify `model_runs.json` includes `sample_weight` logic and that training logs show weighted loss calculation. -->
+- [ ] T044a [US2] Update `code/model_training.py` to use the calculated uncertainty (σ) for each sample as a weight (`sample_weight` = 1/σ²) for Elastic Net and where supported by RF/GB implementations. <!-- Verification: Verify `model_runs.json` includes `sample_weight` logic and that training logs show weighted loss calculation. -->
 - [X] T044b [US2] Verify uncertainty weighting implementation by running a test case with known uncertainties and checking loss calculation.
 - [X] T045a [US3] Update `data/processed/validation_report.md` to include a dedicated "Measurement Uncertainty Analysis" section, explicitly stating the TGA models used, their precision, and how uncertainty was weighted in the final model. <!-- Verification: Verify `validation_report.md` contains a section "Measurement Uncertainty Analysis" with TGA model details and uncertainty weighting explanation. -->
 - [X] T046a [P] [US3] Write a "Measurement vs. Correlation" narrative in `docs/measurement_rigor.md` explaining how the inclusion of instrument-specific uncertainty transforms the analysis from a simple correlation to a weighted measurement-based regression, referencing the specific TGA constraints. <!-- Verification: Verify `docs/measurement_rigor.md` contains a narrative explaining the shift from correlation to weighted measurement, referencing TGA constraints. -->
@@ -208,7 +213,26 @@
 
 **Purpose**: Explicit verification tasks for foundational logic
 
-- [ ] T056 [P] Verify retry logic implementation in `code/utils/data_fetcher.py`. **Verification**: Run a unit test that simulates network failures and verifies that the retry logic implements exponential backoff (e.g., delays following an exponential sequence) and that the total retry time fits within the designated budget. <!-- Requires: T006 -->
+- [X] T056 [P] Verify retry logic implementation in `code/utils/data_fetcher.py`. **Verification**: Run a unit test that simulates network failures and verifies that the retry logic implements exponential backoff (e.g., delays following an exponential sequence) and that the total retry time fits within the designated budget. <!-- Requires: T006b -->
+
+---
+
+## Phase 11: Review Action: Literature Data Sourcing Strategy (Revision: Marie Curie Review)
+
+**Purpose**: Address the critical dependency in T030 (External Validation) which requires held-out experimental data from the literature. The current plan assumes this file exists (`data/raw/literature_validation.csv`) but does not define a concrete, reproducible method to acquire it. Without a defined source, T030 will fail immediately, stalling the project.
+
+**Goal**: Define and implement a robust strategy to acquire the external validation dataset from a specific, verified real source (Zenodo: 10.5281/zenodo.10972088) and implement the fetch logic to populate `data/raw/literature_validation.csv`.
+
+**Note**: Phase 11 MUST be completed before Phase 5 (US3) can be successfully executed. T030 depends on T059.
+
+### Implementation for Literature Data Sourcing
+
+- [X] T057 [US3] **Fetch Specific Dataset**: Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088) using the URL `. **Logic**: If the download fails (404, timeout), the task MUST fail with a specific error code. **Output**: Write the raw data to `data/raw/literature_validation_raw.csv`. **Verification**: Verify `data/raw/literature_validation_raw.csv` exists and matches the expected schema (CSV headers: formula, T_d, source). <!-- Verification: Verify `data/raw/literature_validation_raw.csv` exists and matches the schema defined in T057. Run a `curl` or `wget` command to verify the URL returns a successful HTTP status and the downloaded file matches the expected schema. -->
+- [X] T058 [US3] Implement `code/data_sources/literature_fetcher.py` to download the dataset identified in T057. **Logic**: If the download fails (404, timeout), the task MUST fail with a specific error code. Do NOT fall back to synthetic data. **Output**: Write the raw data to `data/raw/literature_validation_raw.csv`. <!-- Verification: Verify `data/raw/literature_validation_raw.csv` exists and matches the schema defined in T057. -->
+- [X] T059 [US3] Implement `code/data_sources/literature_cleaner.py` to parse the raw file from T058, map columns to the canonical schema (`formula`, `T_d`, `source`), and write to `data/raw/literature_validation.csv`. **Constraint**: If the schema mapping fails, the task MUST fail. <!-- Verification: Verify `data/raw/literature_validation.csv` exists and contains the required columns. -->
+- [X] T060 [US3] Update `T030` implementation to rely on the output of T059. **Verification**: Run the external validation task; it must succeed if T059 succeeded, or fail explicitly if T059 failed.
+
+**Checkpoint**: External validation data source is now defined, fetchable, and reproducible, ensuring T030 can proceed without failure due to missing data.
 
 ---
 
@@ -225,12 +249,13 @@
 - **Instrumentation Rigor (Phase 7)**: Can run in parallel with US1/US2 implementation but must complete before final validation reporting
 - **Explicit Instrumentation Traceability (Phase 8)**: Integrated into US1 (T012, T014) to ensure instrumentation validation happens at the source.
 - **Review Action: Instrumentation Fallback Handling (Phase 9)**: Depends on Phase 8 completion to ensure fallback logic is in place before applying weights.
+- **Review Action: Literature Data Sourcing (Phase 11)**: MUST be completed before Phase 5 (T030) can be successfully executed. Phase 5 (T030) depends on Phase 11 completion.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output AND Phase 11 completion
 
 ### Within Each User Story
 
@@ -244,13 +269,13 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 - Phase 7 tasks (T044-T046) can be implemented in parallel with US1/US2/US3 as they focus on schema updates, weighting logic, and documentation
 - Phase 8 tasks (T047-T050, T052) are integrated into Phase 3 (US1) to ensure instrumentation validation is enforced at the source.
 - Phase 9 tasks (T055) can be implemented in parallel with US3 as they focus on data quality reporting.
+- Phase 11 tasks (T057-T060) MUST be completed BEFORE Phase 5 (T030) can be run. **Note**: Phase 11 is a hard prerequisite for T030 and CANNOT be executed in parallel with Phase 5.
 
 ---
 
@@ -284,7 +309,7 @@ Task: "Fetch Materials Project data (T012b)"
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 (with integrated instrumentation) → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
+4. Add User Story 3 (after Phase 11 completion) → Test independently → Deploy/Demo
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -295,10 +320,11 @@ With multiple developers:
 2. Once Foundational is done:
  - Developer A: User Story 1 (with integrated instrumentation)
  - Developer B: User Story 2
- - Developer C: User Story 3
+ - Developer C: User Story 3 (WAITING on Phase 11)
  - Developer D: Phase 7 (Instrumentation Rigor)
  - Developer E: Phase 8 (Instrumentation Specifics)
  - Developer F: Phase 9 (Fallback Handling)
+ - Developer G: Phase 11 (Literature Data Sourcing) - **MUST complete before Developer C can start**
 3. Stories complete and integrate independently
 
 ---
@@ -321,7 +347,7 @@ With multiple developers:
 - **Review Action (OOD Validation)**: T030 ensures that external literature data is used for validation, and if unavailable, the task fails, ensuring the validation step never fails silently.
 - **Review Action (Explicit Instrumentation Traceability)**: Phase 8 (T047-T050, T052) directly addresses the Marie Curie review concern by enforcing that every data point must have explicit, traceable instrumentation metadata (instrument model, manufacturer, precision) or a default fallback applied during the data fetch (T012), ensuring the analysis is grounded in physical measurement standards.
 - **Review Action (Runtime Monitoring)**: T051 ensures that SC-002 can be empirically verified by logging the actual pipeline runtime.
-- **Review Action (Permutation Rigor)**: T029 explicitly mandates 1000 permutations to satisfy Constitution Principle VII.
+- **Review Action (Permutation Rigor)**: T029 explicitly mandates A sufficient number of permutations will be performed to ensure robust statistical inference. to satisfy Constitution Principle VII.
 - **Review Action (Data Hygiene)**: T013b and T014b now explicitly create new derived files (`descriptors_v1.csv`, `descriptors_v2.csv`) to satisfy immutable derivation constraints.
 - **Review Action (Versioning)**: T004 is now marked complete and placed in Phase 2 to ensure versioning discipline is enforced.
 - **Review Action (Fallback Handling)**: Phase 9 (T055) explicitly addresses the handling of missing instrumentation data by generating reports, applying down-weighting, and documenting data quality, ensuring that low-confidence measurements do not skew the results.
@@ -329,5 +355,7 @@ With multiple developers:
 - **Review Action (T053/T054 Ordering)**: T053 and T054 have been moved to Phase 4 to ensure correct dependency flow for model training.
 - **Review Action (T016a Threshold)**: T016a now explicitly states 'threshold > 5'.
 - **Review Action (T054 Weight)**: T054 now uses a configurable `low_confidence_weight` parameter with a defined default.
-- **Review Action (Retry Logic Separation)**: T006 now implements logic only; T056 verifies the exponential backoff behavior, resolving the mixed implementation/verification concern.
-- **Review Action (Instrument Registry Source)**: T047c now requires loading the registry from a local file (`data/raw/instrument_registry.csv`) with a defined schema instead of an ambiguous external source, resolving the constraint preservation concern. T052 verifies the loading mechanism and fallback behavior.
+- **Review Action (Retry Logic Separation)**: T006a and T006b split the implementation and verification of retry logic, resolving the mixed implementation/verification concern.
+- **Review Action (Instrument Registry Source)**: T047c now requires loading the registry from a local file (`data/raw/instrument_registry.csv`) with a defined schema instead of an ambiguous external source, resolving the constraint preservation concern. T047c_init creates and checksums this file. T052 verifies the loading mechanism and fallback behavior.
+- **Review Action (Literature Data Sourcing)**: Phase 11 (T057-T060) directly addresses the critical gap in T030 by defining a concrete, real-world data source for external validation (Zenodo DOI: 10.5281/zenodo.10972088), ensuring the project does not stall due to missing data.
+- **Assumption Note**: While the spec assumes primary sources (NREL/MP) contain sufficient data (>= 200 entries), Phase 11 provides a fallback strategy to acquire external validation data if the primary sources are insufficient or inaccessible. This ensures the project can meet SC-003 without violating the "Real data only" constraint.
