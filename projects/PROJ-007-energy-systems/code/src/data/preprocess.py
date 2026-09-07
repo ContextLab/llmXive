@@ -1,188 +1,234 @@
-"""
-Data preprocessing module.
-Implements filtering, winsorization, treatment construction, and missing value handling.
-"""
 import pandas as pd
 import numpy as np
 from typing import List, Optional, Tuple
-
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
 class PowerError(Exception):
-    """Raised when insufficient adopters remain after filtering."""
+    """Raised when the number of adopters is insufficient for analysis."""
     pass
 
 
-def filter_low_income(df: pd.DataFrame, income_col: str = 'income', threshold_pct: float = 150) -> pd.DataFrame:
+def filter_low_income(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter households in census tracts with median income < 150% of FPL.
-    (Note: This assumes the input df already has tract-level median income or a proxy).
+    Filter households based on low-income criteria.
 
-    For this implementation, we assume 'income' is household income and we filter
-    based on a proxy for low-income status (e.g., income < 150% of a base FPL).
-    Since FPL varies by household size, we use a simplified threshold here.
+    According to the project specifications (US1), this filters for households
+    in census tracts with median income < 150% of the Federal Poverty Line (FPL).
+    It expects a column indicating income relative to FPL (e.g., 'income_fpl_ratio').
 
     Args:
-        df: Input DataFrame.
-        income_col: Column name for income.
-        threshold_pct: Percentage of FPL threshold (default 150).
+        df: Input DataFrame containing household data.
 
     Returns:
-        Filtered DataFrame.
+        Filtered DataFrame containing only low-income households.
+
+    Raises:
+        NotImplementedError: If this is a stub implementation.
+        KeyError: If required columns are missing.
     """
-    # Simplified: Assume FPL base is $14,000 for a single person, scale by household size if available.
-    # If not, we just use a raw income threshold for demonstration.
-    # In a real scenario, we would join with ACS tract data.
-    # Here, we assume the data is already filtered or we use a simple heuristic.
-    # Let's assume we have a column 'fpl_percentage' or calculate it.
-    # If not present, we skip and warn.
+    logger.info("Starting low-income filtering...")
 
-    if 'fpl_percentage' not in df.columns:
-        logger.warning("Column 'fpl_percentage' not found. Assuming all data is low-income for this step.")
-        return df
+    if 'income_fpl_ratio' not in df.columns:
+        raise KeyError(
+            "Required column 'income_fpl_ratio' missing for low-income filtering. "
+            "Ensure ingestion step calculated this ratio."
+        )
 
-    threshold = threshold_pct
-    mask = df['fpl_percentage'] <= threshold
-    logger.info(f"Filtered to {mask.sum()} low-income households (FPL <= {threshold}%).")
-    return df[mask]
+    # Filter: income < 150% of FPL (ratio < 1.5)
+    low_income_mask = df['income_fpl_ratio'] < 1.5
+    filtered_df = df[low_income_mask].copy()
+
+    logger.info(
+        f"Filtered {len(df) - len(filtered_df)} households. "
+        f"Remaining: {len(filtered_df)} low-income households."
+    )
+
+    return filtered_df
 
 
 def winsorize(df: pd.DataFrame, lower: float = 0.01, upper: float = 0.99) -> pd.DataFrame:
     """
-    Winsorize continuous variables to handle outliers.
+    Winsorize continuous variables to handle outliers and zero energy costs.
+
+    This function caps values at the specified percentiles (default 1st and 99th)
+    to reduce the influence of extreme outliers before regression analysis.
 
     Args:
         df: Input DataFrame.
-        lower: Lower percentile.
-        upper: Upper percentile.
+        lower: Lower percentile bound (e.g., 0.01 for 1st percentile).
+        upper: Upper percentile bound (e.g., 0.99 for 99th percentile).
 
     Returns:
-        DataFrame with winsorized numeric columns.
-    """
-    df_out = df.copy()
-    numeric_cols = df_out.select_dtypes(include=[np.number]).columns
+        DataFrame with winsorized continuous variables.
 
-    for col in numeric_cols:
-        if col in ['treatment', 'id', 'fpl_percentage']:
+    Raises:
+        NotImplementedError: If this is a stub implementation.
+    """
+    logger.info(f"Starting winsorization at {lower*100}% and {upper*100}% percentiles.")
+
+    # Identify continuous numeric columns that are likely to need winsorization
+    # Exclude boolean, object, and ID columns
+    continuous_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+
+    # Specific columns to winsorize based on domain knowledge (energy cost, income)
+    target_cols = [col for col in continuous_cols if col not in ['treatment', 'pair_id']]
+
+    winsorized_df = df.copy()
+
+    for col in target_cols:
+        lower_bound = df[col].quantile(lower)
+        upper_bound = df[col].quantile(upper)
+
+        # Handle cases where all values are the same (lower == upper)
+        if lower_bound == upper_bound:
+            logger.debug(f"Column {col} has no variance; skipping winsorization.")
             continue
-        lower_val = df_out[col].quantile(lower)
-        upper_val = df_out[col].quantile(upper)
-        df_out[col] = df_out[col].clip(lower_val, upper_val)
 
-    logger.info(f"Winsorized numeric columns at {lower*100}% and {upper*100}% percentiles.")
-    return df_out
+        winsorized_df[col] = winsorized_df[col].clip(lower=lower_bound, upper=upper_bound)
+        logger.debug(f"Winsorized {col}: [{lower_bound:.2f}, {upper_bound:.2f}]")
+
+    logger.info("Winsorization complete.")
+    return winsorized_df
 
 
-def construct_treatment(df: pd.DataFrame, solar_col: str = 'solar_installation') -> pd.DataFrame:
+def construct_treatment(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Construct binary treatment variable.
+    Construct the binary treatment variable.
+
+    Creates a 'treatment' column (1 if solar/microgrid adopter, 0 otherwise).
+    The logic depends on the presence of specific installation columns (e.g., 'solar_installation').
 
     Args:
         df: Input DataFrame.
-        solar_col: Column indicating solar/microgrid installation.
 
     Returns:
-        DataFrame with 'treatment' column.
-    """
-    df_out = df.copy()
-    if solar_col in df_out.columns:
-        df_out['treatment'] = (df_out[solar_col] > 0).astype(int)
-    else:
-        logger.warning(f"Column '{solar_col}' not found. Creating empty treatment column.")
-        df_out['treatment'] = 0
+        DataFrame with a new 'treatment' column.
 
-    logger.info(f"Constructed treatment variable. Adopters: {df_out['treatment'].sum()}")
-    return df_out
+    Raises:
+        NotImplementedError: If this is a stub implementation.
+        KeyError: If required columns for treatment determination are missing.
+    """
+    logger.info("Constructing treatment variable...")
+
+    # Check for expected columns that indicate treatment status
+    # Based on US1 spec: solar_installation is a key indicator
+    treatment_candidates = ['solar_installation', 'microgrid_installation', 'treatment_flag']
+    available_candidate = next((col for col in treatment_candidates if col in df.columns), None)
+
+    if available_candidate is None:
+        raise KeyError(
+            "No treatment indicator column found. Expected one of: "
+            f"{treatment_candidates}. Ensure ingestion step populated these fields."
+        )
+
+    treatment_df = df.copy()
+
+    # Assume 1 (or True) indicates treatment
+    treatment_df['treatment'] = (treatment_df[available_candidate] == 1).astype(int)
+
+    n_adopters = treatment_df['treatment'].sum()
+    logger.info(
+        f"Treatment constructed. Adopters: {n_adopters}, Controls: {len(treatment_df) - n_adopters}"
+    )
+
+    return treatment_df
 
 
 def check_adopter_power(df: pd.DataFrame, min_adopters: int = 50) -> None:
     """
-    Check if sufficient adopters remain.
+    Check if the number of adopters meets the minimum power requirement.
 
     Args:
-        df: DataFrame with 'treatment' column.
-        min_adopters: Minimum required adopters.
+        df: DataFrame containing the 'treatment' column.
+        min_adopters: Minimum required number of adopters (default 50).
 
     Raises:
-        PowerError: If adopters < min_adopters.
+        PowerError: If the number of adopters is below the threshold.
     """
-    n_adopters = df[df['treatment'] == 1].shape[0]
+    if 'treatment' not in df.columns:
+        raise KeyError("Cannot check power: 'treatment' column missing.")
+
+    n_adopters = df['treatment'].sum()
+
     if n_adopters < min_adopters:
+        logger.error(f"Insufficient adopters: {n_adopters} < {min_adopters}")
         raise PowerError(f"Insufficient adopters ({n_adopters} < {min_adopters})")
-    logger.info(f"Power check passed: {n_adopters} adopters.")
 
-
-def preprocess_pipeline(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Run the full preprocessing pipeline.
-
-    1. Filter low income.
-    2. Construct treatment.
-    3. Check power.
-    4. Winsorize.
-    5. Handle missing values.
-
-    Args:
-        df: Raw input data.
-
-    Returns:
-        Preprocessed DataFrame.
-    """
-    logger.info("Starting preprocessing pipeline...")
-
-    # 1. Filter
-    df = filter_low_income(df)
-
-    # 2. Construct Treatment
-    df = construct_treatment(df)
-
-    # 3. Power Check
-    check_adopter_power(df)
-
-    # 4. Winsorize
-    df = winsorize(df)
-
-    # 5. Missing Value Handling
-    df = handle_missing_values(df)
-
-    logger.info("Preprocessing pipeline completed.")
-    return df
+    logger.info(f"Power check passed: {n_adopters} adopters found.")
 
 
 def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Handle missing values: Median Imputation for continuous, 'Missing' flag for categorical.
+    Handle missing values using Median Imputation for continuous and 'Missing' flag for categorical.
 
     Args:
         df: Input DataFrame.
 
     Returns:
-        DataFrame with imputed values.
+        DataFrame with missing values handled.
     """
-    df_out = df.copy()
-    numeric_cols = df_out.select_dtypes(include=[np.number]).columns
-    categorical_cols = df_out.select_dtypes(include=['object', 'category']).columns
+    logger.info("Handling missing values...")
+    missing_df = df.copy()
 
-    # Numeric: Median Imputation
+    # Identify numeric and categorical columns
+    numeric_cols = missing_df.select_dtypes(include=[np.number]).columns
+    categorical_cols = missing_df.select_dtypes(include=['object', 'category']).columns
+
+    # Median Imputation for continuous variables
     for col in numeric_cols:
-        if df_out[col].isnull().any():
-            median_val = df_out[col].median()
-            df_out[col] = df_out[col].fillna(median_val)
-            logger.info(f"Imputed missing values in '{col}' with median {median_val:.2f}.")
+        if missing_df[col].isnull().any():
+            median_val = missing_df[col].median()
+            missing_df[col] = missing_df[col].fillna(median_val)
+            logger.debug(f"Imputed {col} with median {median_val}")
 
-    # Categorical: 'Missing' flag
+    # Flag 'Missing' for categorical variables
     for col in categorical_cols:
-        if df_out[col].isnull().any():
-            df_out[col] = df_out[col].fillna('Missing')
-            logger.info(f"Flagged missing values in '{col}' as 'Missing'.")
+        if missing_df[col].isnull().any():
+            missing_df[col] = missing_df[col].fillna('Missing')
+            logger.debug(f"Flagged missing values in {col} as 'Missing'")
 
-    # Verify no silent data loss
-    if df_out.isnull().any().any():
-        logger.warning("Some missing values remain after imputation.")
-    else:
-        logger.info("No missing values remaining.")
+    return missing_df
 
-    return df_out
+
+def preprocess_pipeline(df: pd.DataFrame, config: Optional[dict] = None) -> pd.DataFrame:
+    """
+    Execute the full preprocessing pipeline.
+
+    1. Handle missing values
+    2. Filter low income
+    3. Construct treatment
+    4. Check power
+    5. Winsorize
+
+    Args:
+        df: Raw input DataFrame.
+        config: Optional configuration dictionary for thresholds.
+
+    Returns:
+        Preprocessed DataFrame ready for PSM.
+    """
+    logger.info("Starting full preprocessing pipeline.")
+
+    # 1. Handle Missing Values
+    df = handle_missing_values(df)
+
+    # 2. Filter Low Income
+    df = filter_low_income(df)
+
+    # 3. Construct Treatment
+    df = construct_treatment(df)
+
+    # 4. Check Power (Fail loudly if insufficient)
+    check_adopter_power(df)
+
+    # 5. Winsorize
+    winsorize_bounds = (0.01, 0.99)
+    if config and 'winsorize_bounds' in config:
+        winsorize_bounds = tuple(config['winsorize_bounds'])
+    df = winsorize(df, lower=winsorize_bounds[0], upper=winsorize_bounds[1])
+
+    logger.info("Preprocessing pipeline complete.")
+    return df

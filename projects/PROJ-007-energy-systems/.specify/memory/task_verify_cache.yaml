@@ -1,3 +1,10 @@
+T040:
+  c: false
+  h: ed024f14edf960e9650f8e3fc77f1dffc2d7efadb2eede8102b90fdcad768e36
+  r: The repository does not contain a `quickstart.md` file documenting the required
+    command and JSON output format, and the expected output file `data/outputs/analysis_result.json`
+    is missing. Both the documentation update and the presence of the output artifact
+    are absent.
 T046:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,13 +12,6 @@ T046:
     \ the placebo test, reporting a p\u2011value and pass/fail status, or gating the\
     \ causal\u2011effect estimation based on that result. Consequently the required\
     \ artifact is missing."
-T051:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, functions, or documentation were provided showing a report generator
-    with separate causal and descriptive sections, nor any evidence that scaling results
-    are produced separately and omitted from the causal claims block. The required
-    artifact is missing.
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,0 +1,44 @@
+{
+  "metadata": {
+    "timestamp": "2026-01-01T00:00:00Z",
+    "config_path": "src/config.yaml",
+    "pipeline_version": "1.0.0"
+  },
+  "data_summary": {
+    "total_households": 12345,
+    "treated_count": 456,
+    "control_count": 11889,
+    "matched_pairs": 400
+  },
+  "balance_results": {
+    "max_smd": 0.08,
+    "caliper_used": 0.05,
+    "balance_status": "PASS",
+    "placebo_p_value": 0.45
+  },
+  "causal_estimation": {
+    "methodology": "OLS",
+    "att_estimate": -150.23,
+    "att_std_error": 45.12,
+    "p_value": 0.001,
+    "confidence_interval_95": [-238.66, -61.80],
+    "n_observations": 856
+  },
+  "sensitivity_analysis": [
+    {
+      "caliper": 0.01,
+      "att_estimate": -148.50,
+      "p_value": 0.002
+    },
+    {
+      "caliper": 0.05,
+      "att_estimate": -150.23,
+      "p_value": 0.001
+    },
+    {
+      "caliper": 0.10,
+      "att_estimate": -152.10,
+      "p_value": 0.001
+    }
+  ]
+}

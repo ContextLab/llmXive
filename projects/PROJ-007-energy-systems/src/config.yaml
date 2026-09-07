@@ -1,82 +1,19 @@
-# Configuration for PROJ-007-energy-systems
-# This file contains seeds, paths, and analysis thresholds.
-# All paths are relative to the project root.
+# Core Data & ML
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
 
-# --- Random Seeds ---
-# Used for reproducibility in sampling, splitting, and stochastic algorithms.
-seeds:
-  global: 42
-  numpy: 42
-  pandas: 42
-  sklearn: 42
-  tensorflow: null  # Not currently used, but reserved for future DL modules
+# Utilities
+pyyaml>=6.0
+matplotlib>=3.7.0
+pyarrow>=12.0.0
 
-# --- File Paths ---
-# Root directories
-paths:
-  root: "."
-  data_raw: "data/raw"
-  data_processed: "data/processed"
-  data_interim: "data/interim"
-  figures: "figures"
-  logs: "logs"
-  output: "data/output"
-  specs: "specs/001-energy-systems"
+# Testing
+pytest>=7.4.0
 
-# Data source URLs (placeholders for real sources)
-data_sources:
-  eia_rec_url: "https://www.eia.gov/consumption/residential/data/2020/microdata/RECS2020.zip"
-  # ACS data is fetched via censusdata API, so no direct URL here
-  census_api_key_env_var: "CENSUS_API_KEY"  # Expected to be set in environment
+# Security (for T044)
+detect-secrets>=1.4.0
 
-# --- Analysis Thresholds & Parameters ---
-
-# Propensity Score Matching (PSM)
-psm:
-  # Caliper: maximum distance in propensity score for matching
-  # Standard recommendation: 0.2 * SD of propensity score logit
-  default_caliper: 0.2
-  min_caliper: 0.01
-  max_iterations: 10
-  # Covariates used for matching
-  covariates:
-    - household_income
-    - housing_type
-    - region
-    - home_value
-    - education_level
-
-# Balance Validation
-balance:
-  # Standardized Mean Difference (SMD) threshold
-  # SMD <= 0.1 is generally considered balanced
-  smd_threshold: 0.1
-  # P-value threshold for placebo tests
-  placebo_p_threshold: 0.05
-
-# Preprocessing
-preprocessing:
-  # Winsorization percentiles
-  lower_percentile: 1
-  upper_percentile: 99
-  # Missing value handling
-  missing_strategy_continuous: "median"
-  missing_strategy_categorical: "Missing"
-  # Power check
-  min_adopters: 50
-
-# Causal Inference
-causal:
-  # Outcome variable for OLS
-  outcome_variable: "energy_cost_burden"
-  # Treatment variable
-  treatment_variable: "treatment"
-  # Confidence interval level
-  ci_level: 0.95
-
-# Scaling Law Analysis
-scaling:
-  # Reference sublinear exponent from Bettencourt et al. (approx 0.85 for infrastructure)
-  reference_beta: 0.85
-  # Minimum tract population for scaling analysis
-  min_tract_population: 1000
+# Data Fetching (if needed)
+censusdata>=2.0.0

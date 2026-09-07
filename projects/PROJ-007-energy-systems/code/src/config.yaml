@@ -1,0 +1,33 @@
+# Configuration for Energy Inequity Causal Analysis Pipeline
+
+seeds:
+  random: 42
+  numpy: 42
+  pandas: 42
+
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  eia_url: "https://www.eia.gov/consumption/residential/data/2020/hc/" # Placeholder for real URL logic
+  acs_api_key: "" # Should be set via env or secret
+  output_json: "data/outputs/analysis_result.json"
+  report_output: "data/outputs/final_report.pdf"
+
+thresholds:
+  income_fpl_ratio: 1.5 # 150% of Federal Poverty Line
+  winsorize_percentiles: [0.01, 0.99]
+  caliper: 0.05
+  smd_limit: 0.1
+  min_adopters: 50
+
+params:
+  max_matching_attempts: 5
+  sensitivity_calipers: [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10]
+  placebo_alpha: 0.05
+
+covariates:
+  - income
+  - housing_type
+  - location
+  - home_value
+  - education_level
