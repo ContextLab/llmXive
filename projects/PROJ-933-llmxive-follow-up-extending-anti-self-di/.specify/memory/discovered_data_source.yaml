@@ -1,0 +1,12 @@
+status: none
+intent: "UltraFeedback Dolly multi\u2011solution reasoning dataset download site HuggingFace\
+  \ python package dataset"
+required_fields:
+- prompt_id
+- prompt_text
+- rationale_id
+- rationale_text
+- rationale_quality_score
+cache_key: acdb1fd8ae2836a9c1ba391776d002bd866bec0dd08b58dbda680ad1742977a2
+searched_at: '2026-09-07T05:43:25.982257+00:00'
+retry_count: 1

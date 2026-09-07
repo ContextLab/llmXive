@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Filtered Dataset Schema
+description: Schema for the filtered UltraFeedback/Dolly dataset containing prompts with >= 4 rationales.
+type: object
+properties:
+  prompt_id:
+    type: string
+    description: Unique identifier for the prompt.
+  prompt_text:
+    type: string
+    description: The user query.
+  rationales:
+    type: array
+    items:
+      type: string
+    description: List of annotated reasoning traces.
+    minItems: 4
+  rationale_count:
+    type: integer
+    minimum: 4
+    description: Number of rationales.
+  source:
+    type: string
+    description: Origin dataset name.
+required:
+  - prompt_id
+  - prompt_text
+  - rationales
+  - rationale_count
+  - source

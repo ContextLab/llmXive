@@ -1,0 +1,99 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: Schema for the final statistical analysis results.
+type: object
+properties:
+  sample_size:
+    type: integer
+    minimum: 1
+    description: Total number of prompts processed.
+  power_analysis:
+    type: object
+    properties:
+      power:
+        type: number
+        description: Calculated statistical power.
+      effect_size:
+        type: number
+        description: Observed effect size (Cohen's d).
+      n:
+        type: integer
+        description: Sample size used.
+    required:
+      - power
+      - effect_size
+      - n
+  metrics:
+    type: object
+    properties:
+      anti_sd:
+        type: object
+        properties:
+          mean_deliberation_freq:
+            type: number
+          mean_bleu:
+            type: number
+          mean_quality_score:
+            type: number
+        required:
+          - mean_deliberation_freq
+          - mean_bleu
+          - mean_quality_score
+      standard_sd:
+        type: object
+        properties:
+          mean_deliberation_freq:
+            type: number
+          mean_bleu:
+            type: number
+          mean_quality_score:
+            type: number
+        required:
+          - mean_deliberation_freq
+          - mean_bleu
+          - mean_quality_score
+    required:
+      - anti_sd
+      - standard_sd
+  wilcoxon_results:
+    type: object
+    properties:
+      deliberation_freq:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+        required:
+          - p_value
+          - statistic
+      quality_score:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+        required:
+          - p_value
+          - statistic
+    required:
+      - deliberation_freq
+      - quality_score
+  correlation_results:
+    type: object
+    properties:
+      pearson_r:
+        type: number
+      p_value:
+        type: number
+    required:
+      - pearson_r
+      - p_value
+required:
+  - sample_size
+  - power_analysis
+  - metrics
+  - wilcoxon_results
+  - correlation_results

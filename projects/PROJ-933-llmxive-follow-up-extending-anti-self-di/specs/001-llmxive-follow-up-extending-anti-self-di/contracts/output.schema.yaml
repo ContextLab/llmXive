@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Metrics Schema
+description: Schema for the aggregated evaluation metrics per prompt and condition.
+type: object
+properties:
+  prompt_id:
+    type: string
+    description: "Link to the prompt"
+  condition:
+    type: string
+    enum:
+      - AntiSD
+      - Standard
+    description: "The training condition used"
+  deliberation_frequency:
+    type: number
+    description: "Frequency of deliberation tokens (e.g., 'Wait', 'However') in the trajectory"
+  bleu_score_vs_unselected:
+    type: number
+    description: "Average pairwise BLEU score against the unselected rationales (internal proxy for diversity)"
+  diversity_score:
+    type: number
+    description: "Diversity metric defined as 1 - BLEU score (higher is more diverse)"
+  semantic_similarity_vs_unselected:
+    type: number
+    description: "Average cosine similarity against the unselected rationales (internal proxy for diversity)"
+  quality_coherence_score:
+    type: number
+    description: "Reasoning Quality Score defined as Perplexity against the Privileged Context (lower is better). Replaces external Gold Standard."
+  js_divergence_final:
+    type: number
+    description: "Final JS divergence value after training"
+  steps_completed:
+    type: integer
+    description: "Number of training steps completed (max 50)"
+required:
+  - prompt_id
+  - condition
+  - deliberation_frequency
+  - quality_coherence_score
+  - steps_completed
+additionalProperties: false
