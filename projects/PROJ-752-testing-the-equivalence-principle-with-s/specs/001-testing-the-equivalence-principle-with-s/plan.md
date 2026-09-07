@@ -40,7 +40,7 @@ A small cohort of target satellites, multi-year data (streamed), Multiple geopot
     *   *Rationale*: Separate fits amplify numerical noise and fail to account for correlated errors between satellites in the same orbital regime. Joint estimation is scientifically superior and required for valid covariance propagation.
 
 2.  **FR-001 (Data Source)**:
-    *   *Original*: "System MUST download... for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette."
+    *   *Original*: "System MUST download... for LAGEOS, LAGEOS-2, Etalon-1, Etalon-2, and Starlette."
     *   *Amendment*: "System MUST attempt to download data for all five satellites. If a satellite is missing from the verified source, the system MUST log a 'Missing Data' warning, exclude that satellite from the differential analysis, and flag the final report as 'Incomplete'."
     *   *Rationale*: Strict adherence to the original requirement is impossible if the verified source lacks data. This amendment ensures feasibility while maintaining transparency.
 
