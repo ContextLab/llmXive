@@ -1,16 +1,3 @@
-"""
-Logging infrastructure for the Visual Motion Agency project.
-
-Provides a centralized logging configuration that records:
-- Data provenance (source, timestamp, checksum)
-- Processing steps (input files, parameters, output files)
-- System events and errors
-
-Usage:
-    from utils.logging_config import get_logger
-    logger = get_logger('data_ingestion')
-    logger.info("Starting data download")
-"""
 import logging
 import os
 import sys
@@ -19,157 +6,109 @@ from datetime import datetime
 from typing import Optional
 import json
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Define the log directory relative to project root
+LOG_DIR = Path(__file__).resolve().parent.parent.parent / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Ensure log directories exist
-LOGS_DIR = PROJECT_ROOT / "logs"
-LOGS_DIR.mkdir(exist_ok=True)
+# Global logger instance
+_logger: Optional[logging.Logger] = None
 
-# Log format with timestamp, level, module, and message
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+def get_logger(name: str = "llmXive_pipeline") -> logging.Logger:
+    """
+    Returns a configured logger instance.
+    Creates the logger only once and reuses it on subsequent calls.
+    """
+    global _logger
+    if _logger is None:
+        _logger = logging.getLogger(name)
+        _logger.setLevel(logging.DEBUG)
 
-# Global logger registry to avoid duplicate handlers
-_logger_registry = {}
+        if not _logger.handlers:
+            # Console Handler
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setLevel(logging.INFO)
+            console_formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S"
+            )
+            console_handler.setFormatter(console_formatter)
+            _logger.addHandler(console_handler)
 
-def get_logger(name: str, log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
-    """
-    Get or create a logger with the specified name.
-    
-    Args:
-        name: Logger name (e.g., 'data_ingestion', 'preprocessing')
-        log_file: Optional filename relative to logs/ directory. 
-                 If None, logs to 'project.log' by default.
-        level: Logging level (default: INFO)
-    
-    Returns:
-        Configured logging.Logger instance
-    """
-    if name in _logger_registry:
-        return _logger_registry[name]
-    
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    
-    # Avoid adding handlers if already configured
-    if logger.handlers:
-        _logger_registry[name] = logger
-        return logger
-    
-    # Create formatter
-    formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
-    # File handler (default or specified)
-    if log_file is None:
-        log_file = "project.log"
-    
-    log_path = LOGS_DIR / log_file
-    file_handler = logging.FileHandler(log_path)
-    file_handler.setLevel(level)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    
-    # Add a special handler for provenance logs if requested
-    if name.startswith("provenance"):
-        provenance_handler = logging.FileHandler(LOGS_DIR / "provenance.log")
-        provenance_handler.setLevel(logging.INFO)
-        provenance_handler.setFormatter(formatter)
-        logger.addHandler(provenance_handler)
-    
-    _logger_registry[name] = logger
-    return logger
+            # File Handler (Rotating)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            log_file_path = LOG_DIR / f"pipeline_{timestamp}.log"
+            file_handler = logging.FileHandler(log_file_path)
+            file_handler.setLevel(logging.DEBUG)
+            file_formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s",
+                datefmt="%Y-%m-%d %H:%M:%S"
+            )
+            file_handler.setFormatter(file_formatter)
+            _logger.addHandler(file_handler)
 
-def log_provenance(source: str, destination: str, metadata: dict, logger_name: str = "provenance") -> None:
-    """
-    Log data provenance information.
-    
-    Args:
-        source: Source file/path or data identifier
-        destination: Destination file/path
-        metadata: Dictionary containing provenance details (e.g., checksum, timestamp, parameters)
-        logger_name: Name of the logger to use
-    """
-    logger = get_logger(logger_name)
-    
-    provenance_entry = {
-        "timestamp": datetime.now().isoformat(),
-        "source": str(source),
-        "destination": str(destination),
-        "metadata": metadata
-    }
-    
-    # Log as JSON for machine readability
-    logger.info(json.dumps(provenance_entry))
+    return _logger
 
-def log_processing_step(step_name: str, input_files: list, output_files: list, 
-                       parameters: dict, logger_name: str = "processing") -> None:
+def log_provenance(step_name: str, input_source: str, output_target: str, details: Optional[dict] = None) -> None:
     """
-    Log a processing step with inputs, outputs, and parameters.
-    
-    Args:
-        step_name: Name of the processing step
-        input_files: List of input file paths
-        output_files: List of output file paths
-        parameters: Dictionary of parameters used
-        logger_name: Name of the logger to use
+    Logs data provenance information for audit trails.
+    Records where data came from, what step processed it, and where it went.
     """
-    logger = get_logger(logger_name)
+    logger = get_logger()
+    timestamp = datetime.now().isoformat()
     
-    step_entry = {
-        "timestamp": datetime.now().isoformat(),
+    log_entry = {
+        "timestamp": timestamp,
+        "event_type": "PROVENANCE",
         "step": step_name,
-        "inputs": [str(f) for f in input_files],
-        "outputs": [str(f) for f in output_files],
-        "parameters": parameters
+        "input_source": input_source,
+        "output_target": output_target,
+        "details": details or {}
     }
     
-    logger.info(f"Starting step: {step_name}")
-    logger.info(json.dumps(step_entry))
+    logger.info(f"PROVENANCE: {json.dumps(log_entry)}")
 
-def log_error(step_name: str, error: Exception, context: dict = None, logger_name: str = "errors") -> None:
+def log_processing_step(step_name: str, status: str, metrics: Optional[dict] = None) -> None:
     """
-    Log an error with context.
-    
-    Args:
-        step_name: Name of the step where error occurred
-        error: Exception instance
-        context: Optional dictionary of contextual information
-        logger_name: Name of the logger to use
+    Logs the status of a specific processing step.
+    Status can be 'START', 'COMPLETE', 'WARN', 'FAIL'.
     """
-    logger = get_logger(logger_name, level=logging.ERROR)
+    logger = get_logger()
+    timestamp = datetime.now().isoformat()
     
-    error_entry = {
-        "timestamp": datetime.now().isoformat(),
+    log_entry = {
+        "timestamp": timestamp,
+        "event_type": "PROCESSING_STEP",
         "step": step_name,
-        "error_type": type(error).__name__,
-        "error_message": str(error),
-        "context": context or {}
+        "status": status,
+        "metrics": metrics or {}
     }
     
-    logger.error(f"Error in step: {step_name}")
-    logger.error(json.dumps(error_entry))
+    if status == "FAIL":
+        logger.error(f"STEP_FAIL: {json.dumps(log_entry)}")
+    elif status == "WARN":
+        logger.warning(f"STEP_WARN: {json.dumps(log_entry)}")
+    else:
+        logger.info(f"STEP_{status}: {json.dumps(log_entry)}")
 
-# Initialize default loggers
-get_logger("project")
-get_logger("data_ingestion")
-get_logger("preprocessing")
-get_logger("modeling")
-get_logger("visualization")
-get_logger("errors")
-get_logger("provenance")
-
-__all__ = [
-    "get_logger",
-    "log_provenance",
-    "log_processing_step",
-    "log_error",
-    "PROJECT_ROOT",
-    "LOGS_DIR"
-]
+def log_error(step_name: str, error_message: str, error_type: str, traceback_str: Optional[str] = None) -> None:
+    """
+    Logs a structured error event.
+    """
+    logger = get_logger()
+    timestamp = datetime.now().isoformat()
+    
+    log_entry = {
+        "timestamp": timestamp,
+        "event_type": "ERROR",
+        "step": step_name,
+        "error_type": error_type,
+        "error_message": error_message,
+        "traceback": traceback_str
+    }
+    
+    logger.error(f"ERROR_LOG: {json.dumps(log_entry)}")
+    
+    # Also write a dedicated error file for easy retrieval
+    error_log_path = LOG_DIR / f"errors_{datetime.now().strftime('%Y%m%d')}.jsonl"
+    with open(error_log_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(log_entry) + "\n")

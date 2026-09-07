@@ -1,3 +1,7 @@
+"""
+Schema definitions for PR data extraction.
+Defines dataclasses for PullRequest, BugDetection, and AlignmentResult.
+"""
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 from enum import Enum
@@ -17,30 +21,36 @@ class Severity(Enum):
         try:
             return cls(value.lower())
         except ValueError:
-            raise ValueError(f"Invalid severity: {value}. Must be one of {list(cls)}")
+            raise ValueError(f"Invalid severity: {value}. Must be one of {[s.value for s in cls]}")
 
 
 @dataclass
 class PullRequest:
-    """Data class representing a GitHub Pull Request and its metadata."""
-    pr_id: str
+    """
+    Dataclass representing a GitHub Pull Request.
+    Contains PR metadata, diff content, and associated comments/issues.
+    """
+    pr_id: int
     repo_name: str
     title: str
     body: Optional[str]
     state: str
     created_at: str
     updated_at: str
-    author: str
-    base_branch: str
-    head_branch: str
-    diff: str
-    linked_issue_ids: List[str] = field(default_factory=list)
-    review_comments: List[Dict[str, Any]] = field(default_factory=list)
-    is_verified_bug: bool = False
-    verification_method: Optional[str] = None
-    
+    user_login: str
+    diff_url: str
+    html_url: str
+    # Extracted content
+    diff_text: str
+    comments: List[Dict[str, Any]] = field(default_factory=list)
+    linked_issue_ids: List[int] = field(default_factory=list)
+    # Processing metadata
+    is_truncated: bool = False
+    token_count: int = 0
+    checksum: Optional[str] = None
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
+        """Convert to dictionary representation."""
         return {
             "pr_id": self.pr_id,
             "repo_name": self.repo_name,
@@ -49,14 +59,15 @@ class PullRequest:
             "state": self.state,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "author": self.author,
-            "base_branch": self.base_branch,
-            "head_branch": self.head_branch,
-            "diff": self.diff,
+            "user_login": self.user_login,
+            "diff_url": self.diff_url,
+            "html_url": self.html_url,
+            "diff_text": self.diff_text,
+            "comments": self.comments,
             "linked_issue_ids": self.linked_issue_ids,
-            "review_comments": self.review_comments,
-            "is_verified_bug": self.is_verified_bug,
-            "verification_method": self.verification_method,
+            "is_truncated": self.is_truncated,
+            "token_count": self.token_count,
+            "checksum": self.checksum
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -74,42 +85,54 @@ class PullRequest:
             state=data["state"],
             created_at=data["created_at"],
             updated_at=data["updated_at"],
-            author=data["author"],
-            base_branch=data["base_branch"],
-            head_branch=data["head_branch"],
-            diff=data["diff"],
+            user_login=data["user_login"],
+            diff_url=data["diff_url"],
+            html_url=data["html_url"],
+            diff_text=data["diff_text"],
+            comments=data.get("comments", []),
             linked_issue_ids=data.get("linked_issue_ids", []),
-            review_comments=data.get("review_comments", []),
-            is_verified_bug=data.get("is_verified_bug", False),
-            verification_method=data.get("verification_method"),
+            is_truncated=data.get("is_truncated", False),
+            token_count=data.get("token_count", 0),
+            checksum=data.get("checksum")
         )
 
 
 @dataclass
 class BugDetection:
-    """Data class representing a detected bug in a code change."""
-    pr_id: str
+    """
+    Dataclass representing a detected bug or issue in code.
+    Used for both human-verified and LLM-detected bugs.
+    """
+    pr_id: int
     file_path: str
     line_start: int
     line_end: int
     severity: Severity
     description: str
-    source: str  # "human" or "llm"
+    # Detection source
+    detection_source: str  # "human" or "llm"
+    # Additional metadata
     confidence: Optional[float] = None
+    is_verified: bool = False
+    verification_method: Optional[str] = None
     llm_error_flag: bool = False
-    
+    raw_context: Optional[str] = None
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
+        """Convert to dictionary representation."""
         return {
             "pr_id": self.pr_id,
             "file_path": self.file_path,
             "line_start": self.line_start,
             "line_end": self.line_end,
-            "severity": self.severity.value if isinstance(self.severity, Severity) else self.severity,
+            "severity": self.severity.value,
             "description": self.description,
-            "source": self.source,
+            "detection_source": self.detection_source,
             "confidence": self.confidence,
+            "is_verified": self.is_verified,
+            "verification_method": self.verification_method,
             "llm_error_flag": self.llm_error_flag,
+            "raw_context": self.raw_context
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -122,7 +145,11 @@ class BugDetection:
         severity = data["severity"]
         if isinstance(severity, str):
             severity = Severity.from_string(severity)
-        
+        elif isinstance(severity, Severity):
+            pass
+        else:
+            raise ValueError(f"Invalid severity type: {type(severity)}")
+
         return cls(
             pr_id=data["pr_id"],
             file_path=data["file_path"],
@@ -130,31 +157,39 @@ class BugDetection:
             line_end=data["line_end"],
             severity=severity,
             description=data["description"],
-            source=data["source"],
+            detection_source=data["detection_source"],
             confidence=data.get("confidence"),
+            is_verified=data.get("is_verified", False),
+            verification_method=data.get("verification_method"),
             llm_error_flag=data.get("llm_error_flag", False),
+            raw_context=data.get("raw_context")
         )
 
 
 @dataclass
 class AlignmentResult:
-    """Data class representing the alignment between human and LLM bug detections."""
+    """
+    Dataclass representing the alignment between a human-verified bug
+    and an LLM-detected bug.
+    """
     human_bug: BugDetection
     llm_bug: BugDetection
-    alignment_score: float
+    match_score: float
     jaccard_index: float
+    cosine_similarity: float
     is_match: bool
-    match_reason: Optional[str] = None
-    
+    match_criteria: Dict[str, Any] = field(default_factory=dict)
+
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for JSON serialization."""
+        """Convert to dictionary representation."""
         return {
             "human_bug": self.human_bug.to_dict(),
             "llm_bug": self.llm_bug.to_dict(),
-            "alignment_score": self.alignment_score,
+            "match_score": self.match_score,
             "jaccard_index": self.jaccard_index,
+            "cosine_similarity": self.cosine_similarity,
             "is_match": self.is_match,
-            "match_reason": self.match_reason,
+            "match_criteria": self.match_criteria
         }
 
     def to_json(self, indent: int = 2) -> str:
@@ -166,12 +201,13 @@ class AlignmentResult:
         """Create instance from dictionary."""
         human_bug = BugDetection.from_dict(data["human_bug"])
         llm_bug = BugDetection.from_dict(data["llm_bug"])
-        
+
         return cls(
             human_bug=human_bug,
             llm_bug=llm_bug,
-            alignment_score=data["alignment_score"],
+            match_score=data["match_score"],
             jaccard_index=data["jaccard_index"],
+            cosine_similarity=data["cosine_similarity"],
             is_match=data["is_match"],
-            match_reason=data.get("match_reason"),
+            match_criteria=data.get("match_criteria", {})
         )

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T17:22:58.212471Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-212-exploring-the-impact-of-network-structur
-last_run_id: 970b0262-cca4-49ee-9eeb-75d0e9fc4751
+last_run_id: 38842a08-d01c-4d52-a103-ebdf8126a7ca
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-212-exploring-the-impact-of-network-structur/specs/001-exploring-the-impact-of-network-structur
 title: Exploring the Impact of Network Structure on Synchronization in Complex Physical
   Systems
-updated_at: '2026-09-04T17:23:47.479434Z'
+updated_at: '2026-09-07T21:28:34.022229Z'

@@ -1,166 +1,150 @@
-"""
-Model loading utilities for LLM-assisted bug detection.
-
-This module provides functionality to load the StarCoder2-3B model
-with memory constraints to ensure usage stays within 7GB (FR-015).
-"""
-
 import logging
 import torch
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from config.settings import get_config, ensure_directories
-from src.utils.logger import get_logger
 
-# Configure logging
-logger = get_logger(__name__)
+# Import memory watchdog to enforce FR-015 (≤7GB limit)
+from src.utils.memory_watchdog import get_memory_usage_bytes, check_memory_limit, MemoryLimitExceeded
 
-# Model configuration
+logger = logging.getLogger(__name__)
+
+# Constants
 MODEL_ID = "bigcode/starcoder2-3b"
-MEMORY_LIMIT_GB = 7.0
-DEFAULT_DEVICE_MAP = "auto"
-DEFAULT_LOW_CPU_MEM_USAGE = True
+MEMORY_LIMIT_GB = 7
+MEMORY_LIMIT_BYTES = MEMORY_LIMIT_GB * 1024 * 1024 * 1024
 
 def load_model_and_tokenizer(
-    model_id: str = MODEL_ID,
-    device_map: str = DEFAULT_DEVICE_MAP,
-    low_cpu_mem_usage: bool = DEFAULT_LOW_CPU_MEM_USAGE,
-    torch_dtype: torch.dtype = torch.float16,
-    max_memory: Optional[Dict[str, Any]] = None,
-):
+    model_id: Optional[str] = None,
+    device_map: str = "auto",
+    low_cpu_mem_usage: bool = True,
+    max_memory: Optional[Dict[str, Any]] = None
+) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
-    Load StarCoder2-3B model and tokenizer with memory constraints.
-
+    Load StarCoder2-3B model and tokenizer.
+    
     Args:
-        model_id: HuggingFace model identifier
+        model_id: Model identifier (defaults to bigcode/starcoder2-3b)
         device_map: Device mapping strategy (default: "auto")
         low_cpu_mem_usage: Optimize CPU memory usage (default: True)
-        torch_dtype: Precision for model weights (default: float16)
-        max_memory: Optional dictionary mapping device to max memory in bytes/GB
-
+        max_memory: Optional max memory constraints per device
+    
     Returns:
         Tuple of (model, tokenizer)
-
+    
     Raises:
-        RuntimeError: If model loading fails or memory constraints are violated
-        ValueError: If unsupported configuration is provided
+        MemoryLimitExceeded: If memory usage exceeds 7GB during loading
+        RuntimeError: If model loading fails
     """
+    if model_id is None:
+        model_id = MODEL_ID
+    
     logger.info(f"Loading model: {model_id}")
-    logger.info(f"Device map: {device_map}, Low CPU memory usage: {low_cpu_mem_usage}")
-    logger.info(f"Target precision: {torch_dtype}")
-
-    # Validate device_map
-    if device_map != "auto" and device_map != "cpu" and not isinstance(device_map, dict):
-        raise ValueError(f"Unsupported device_map: {device_map}. Use 'auto', 'cpu', or a dict.")
-
-    # Set up memory constraints if not explicitly provided
-    if max_memory is None:
-        # Calculate max memory based on limit (7GB)
-        # Reserve some headroom for activation memory
-        max_memory_gb = MEMORY_LIMIT_GB * 0.9  # 90% of limit for model weights
-        max_memory = {"cpu": f"{max_memory_gb}GB"}
-        logger.info(f"Setting max memory to {max_memory_gb}GB per device")
-
+    logger.info(f"Device map: {device_map}, Low CPU memory: {low_cpu_mem_usage}")
+    
+    # Load tokenizer first
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_id,
+        trust_remote_code=True
+    )
+    
+    # Configure model loading
+    model_kwargs = {
+        "device_map": device_map,
+        "low_cpu_mem_usage": low_cpu_mem_usage,
+        "trust_remote_code": True,
+    }
+    
+    # Add memory constraints if provided
+    if max_memory is not None:
+        model_kwargs["max_memory"] = max_memory
+    
+    # Check memory usage before loading
+    pre_load_memory = get_memory_usage_bytes()
+    logger.info(f"Memory usage before loading: {pre_load_memory / (1024**3):.2f} GB")
+    
     try:
-        # Load tokenizer
-        logger.info("Loading tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_id,
-            trust_remote_code=True,
-        )
-
-        # Configure model loading with memory optimization
-        logger.info("Loading model with memory optimization...")
         model = AutoModelForCausalLM.from_pretrained(
             model_id,
-            device_map=device_map,
-            low_cpu_mem_usage=low_cpu_mem_usage,
-            torch_dtype=torch_dtype,
-            max_memory=max_memory,
-            trust_remote_code=True,
-            # Additional memory optimizations
-            attn_implementation="flash_attention_2" if torch.cuda.is_available() else None,
+            **model_kwargs
         )
-
-        # Verify model is loaded successfully
-        if model is None:
-            raise RuntimeError("Failed to load model - model object is None")
-
-        logger.info(f"Model loaded successfully on device: {next(model.parameters()).device}")
-        logger.info(f"Model dtype: {model.dtype}")
-
-        # Log model size estimate
-        num_params = sum(p.numel() for p in model.parameters())
-        param_size_gb = (num_params * model.element_size()) / (1024 ** 3)
-        logger.info(f"Model parameters: {num_params:,} (~{param_size_gb:.2f}GB at {model.element_size() * 8} bits)")
-
-        return model, tokenizer
-
     except Exception as e:
-        logger.error(f"Failed to load model: {str(e)}", exc_info=True)
-        raise RuntimeError(f"Model loading failed: {str(e)}") from e
+        logger.error(f"Failed to load model: {e}")
+        raise RuntimeError(f"Model loading failed: {e}")
+    
+    # Check memory usage after loading
+    post_load_memory = get_memory_usage_bytes()
+    memory_delta = post_load_memory - pre_load_memory
+    logger.info(f"Memory usage after loading: {post_load_memory / (1024**3):.2f} GB")
+    logger.info(f"Memory delta: {memory_delta / (1024**3):.2f} GB")
+    
+    # Verify memory constraint (FR-015)
+    if post_load_memory > MEMORY_LIMIT_BYTES:
+        logger.error(f"Memory limit exceeded: {post_load_memory / (1024**3):.2f} GB > {MEMORY_LIMIT_GB} GB")
+        raise MemoryLimitExceeded(
+            f"Model loading exceeded memory limit of {MEMORY_LIMIT_GB}GB. "
+            f"Current usage: {post_load_memory / (1024**3):.2f} GB"
+        )
+    
+    logger.info(f"Successfully loaded {model_id}")
+    return model, tokenizer
 
 def load_model_for_inference(
-    model_id: str = MODEL_ID,
-    use_float16: bool = True,
-):
+    model_id: Optional[str] = None,
+    precision: str = "default"
+) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
-    Load model optimized for inference with memory constraints.
-
-    This is the primary entry point for loading the model in the inference pipeline.
-
+    Load model configured for inference with memory constraints.
+    
     Args:
-        model_id: HuggingFace model identifier
-        use_float16: Use float16 precision for memory efficiency (default: True)
-
+        model_id: Model identifier
+        precision: Precision mode (default: "default" for FP16/BF16 if available)
+    
     Returns:
         Tuple of (model, tokenizer)
+    
+    Raises:
+        MemoryLimitExceeded: If memory usage exceeds 7GB
     """
-    dtype = torch.float16 if use_float16 else torch.float32
-    return load_model_and_tokenizer(
+    # Default precision uses model's native precision (usually FP16 for StarCoder2)
+    # StarCoder2-3B is designed to run efficiently in FP16
+    model, tokenizer = load_model_and_tokenizer(
         model_id=model_id,
-        device_map=DEFAULT_DEVICE_MAP,
-        low_cpu_mem_usage=DEFAULT_LOW_CPU_MEM_USAGE,
-        torch_dtype=dtype,
+        device_map="auto",
+        low_cpu_mem_usage=True
     )
+    
+    logger.info(f"Model loaded with {precision} precision")
+    return model, tokenizer
 
 def main():
-    """
-    Main function to test model loading.
-    """
-    # Ensure output directories exist
-    config = get_config()
+    """Main entry point for testing model loading."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
     ensure_directories()
-
-    logger.info("Starting model loading test...")
-
+    
     try:
+        logger.info("Starting model load test...")
         model, tokenizer = load_model_for_inference()
-        logger.info("Model loading test PASSED")
-
-        # Test basic inference capability
-        test_input = "def hello_world():"
-        inputs = tokenizer(test_input, return_tensors="pt").to(model.device)
+        logger.info(f"Model loaded successfully. Model type: {type(model)}")
+        logger.info(f"Tokenizer type: {type(tokenizer)}")
         
-        with torch.no_grad():
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=10,
-                do_sample=False,
-                pad_token_id=tokenizer.eos_token_id,
-            )
+        # Verify model is on correct device
+        if hasattr(model, 'hf_device_map'):
+            logger.info(f"Model device map: {model.hf_device_map}")
         
-        result = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        logger.info(f"Test generation successful: {result[:100]}...")
-
         return 0
-
+    except MemoryLimitExceeded as e:
+        logger.error(f"Memory limit exceeded: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Model loading test FAILED: {str(e)}", exc_info=True)
+        logger.error(f"Unexpected error: {e}", exc_info=True)
         return 1
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    exit(main())

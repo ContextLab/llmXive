@@ -1,11 +1,11 @@
 """
-Validation logic to exclude trait/personality measures from primary regression.
+Covariate Filtering Module for T018.
 
-This module implements the logic to:
-1. Identify and exclude trait/personality measures from the primary feature set.
-2. Allow these measures only as covariates in secondary checks.
+Implements validation logic to exclude trait/personality measures from
+primary regression analysis, allowing them only as covariates in secondary checks.
 
-Assumption: Trait measures are typically post-task ratings or psychometric scores.
+This enforces the project scope (synthetic data stress-test) and prevents
+conflation of motion features with personality constructs in primary hypotheses.
 """
 import os
 import pandas as pd
@@ -13,178 +13,235 @@ import json
 from pathlib import Path
 from typing import List, Set, Tuple, Dict, Any
 
-# Standardized list of known trait/personality measure column patterns
-# These should be excluded from primary regression features
-TRAIT_MEASURE_PATTERNS = [
-    'trait', 'personality', 'big_five', 'neuroticism', 'extraversion',
-    'openness', 'agreeableness', 'conscientiousness', 'bfi', 'iip',
-    'post_task_rating', 'survey_score', 'psychometric', 'trait_anxiety',
-    'trait_self_report', 'demographic_trait'
-]
+# List of known trait/personality measures that must be excluded from primary regression
+# Based on standard psychometric constructs often confused with motion agency
+TRAIT_MEASURES: Set[str] = {
+    # Personality Traits (Big Five)
+    'openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism',
+    'ocean_openness', 'ocean_conscientiousness', 'ocean_extraversion', 'ocean_agreeableness', 'ocean_neuroticism',
+    'big5_openness', 'big5_conscientiousness', 'big5_extraversion', 'big5_agreeableness', 'big5_neuroticism',
+    
+    # Social/Interpersonal Traits
+    'social_anxiety', 'trait_anxiety', 'state_anxiety', 'trait_aggression',
+    'empathy_score', 'perspective_taking', 'fantasy_scale', 'empathic_concern',
+    'personal_distress', 'interpersonal_reactivity',
+    
+    # Self-Report/Post-Task Ratings (Explicitly excluded per task assumption)
+    'post_task_rating', 'post_task_agency', 'post_task_smoothness', 'post_task_latency',
+    'self_report_agency', 'self_report_smoothness', 'self_report_latency',
+    'subjective_agency', 'subjective_smoothness', 'subjective_latency',
+    'perceived_control', 'sense_of_agency', 'agency_feeling',
+    
+    # Demographic/Static Traits (Not motion-based)
+    'age', 'gender', 'sex', 'education', 'income', 'occupation',
+    'tech_experience', 'gaming_experience', 'vr_experience',
+    'baseline_agency', 'baseline_smoothness', 'baseline_latency',
+    
+    # Composite/Aggregate Trait Scores
+    'trait_score', 'personality_score', 'disposition_score',
+    'characteristic_agency', 'stable_agency', 'trait_agency'
+}
 
-# Columns that are strictly outcome variables (not features)
-OUTCOME_COLUMNS = ['agency_score', 'participant_id']
+# Motion features that ARE valid for primary regression
+VALID_MOTION_FEATURES: Set[str] = {
+    'latency', 'smoothness', 'lead_time', 'jerk', 'velocity', 'acceleration',
+    'trajectory_deviation', 'motion_entropy', 'response_time', 'reaction_time',
+    'movement_duration', 'peak_velocity', 'mean_velocity', 'velocity_variance'
+}
 
 def is_trait_measure(column_name: str) -> bool:
     """
-    Check if a column name matches known trait/personality measure patterns.
+    Determine if a column represents a trait/personality measure.
     
     Args:
-        column_name: The name of the column to check.
+        column_name: The name of the dataframe column to check.
         
     Returns:
-        True if the column appears to be a trait/personality measure.
+        True if the column matches a known trait measure, False otherwise.
     """
-    col_lower = column_name.lower()
-    return any(pattern in col_lower for pattern in TRAIT_MEASURE_PATTERNS)
+    col_lower = column_name.lower().strip()
+    
+    # Direct match
+    if col_lower in TRAIT_MEASURES:
+        return True
+        
+    # Partial match for compound names (e.g., 'big5_openness_score')
+    for trait in TRAIT_MEASURES:
+        if trait in col_lower or col_lower in trait:
+            # Check if it's a valid motion feature disguised as a trait
+            if col_lower in VALID_MOTION_FEATURES:
+                continue
+            return True
+            
+    return False
 
 def filter_features_for_primary_regression(
     df: pd.DataFrame, 
-    exclude_patterns: List[str] = None
-) -> Tuple[pd.DataFrame, List[str], List[str]]:
+    target_col: str = 'agency_score'
+) -> Tuple[List[str], List[str]]:
     """
-    Separate features into primary regression set and covariate-only set.
+    Separate features into primary regression candidates and covariates.
     
-    Primary regression features: Motion features (latency, smoothness, lead_time, etc.)
-    Covariate set: Trait/personality measures (excluded from primary, allowed in secondary)
+    Primary regression candidates must be motion-based features.
+    Trait/personality measures are excluded from primary regression but
+    retained for secondary covariate checks.
     
     Args:
-        df: The input DataFrame.
-        exclude_patterns: Optional list of additional column patterns to exclude from primary.
+        df: The dataframe containing all features.
+        target_col: The name of the target variable (default: 'agency_score').
         
     Returns:
-        Tuple of (primary_features_df, primary_feature_names, covariate_feature_names)
+        A tuple (primary_features, covariate_features):
+        - primary_features: List of columns suitable for primary regression
+        - covariate_features: List of trait measures to be used only in secondary checks
+        
+    Raises:
+        ValueError: If no valid motion features are found for primary regression.
     """
-    all_columns = set(df.columns)
-    
-    # Remove outcome variables
-    feature_columns = all_columns - set(OUTCOME_COLUMNS)
+    columns = [col for col in df.columns if col != target_col]
     
     primary_features = []
     covariate_features = []
     
-    for col in feature_columns:
+    for col in columns:
         if is_trait_measure(col):
             covariate_features.append(col)
         else:
             primary_features.append(col)
     
-    # Apply additional exclusions if provided
-    if exclude_patterns:
-        additional_exclusions = []
-        for col in primary_features:
-            if any(pat.lower() in col.lower() for pat in exclude_patterns):
-                additional_exclusions.append(col)
-        
-        primary_features = [f for f in primary_features if f not in additional_exclusions]
-        covariate_features.extend(additional_exclusions)
+    if not primary_features:
+        raise ValueError(
+            f"No valid motion features found for primary regression. "
+            f"All columns were identified as trait measures: {columns}"
+        )
     
-    # Create DataFrames
-    primary_df = df[[c for c in primary_features if c in df.columns]]
-    
-    return primary_df, primary_features, covariate_features
+    return primary_features, covariate_features
 
 def run_covariate_filtering(
     input_path: str,
     output_primary_path: str,
     output_covariate_path: str,
-    output_log_path: str,
-    config: Dict[str, Any] = None
+    config_path: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Main function to run covariate filtering on the cleaned dataset.
+    Main entry point for filtering covariates from the dataset.
+    
+    Reads the cleaned data, separates features, and writes two outputs:
+    1. A dataset with only primary regression features
+    2. A dataset with only covariate features (for secondary checks)
     
     Args:
-        input_path: Path to the cleaned input CSV (from T017).
-        output_primary_path: Path to save primary features CSV.
-        output_covariate_path: Path to save covariate features CSV.
-        output_log_path: Path to save the filtering log/report.
-        config: Optional configuration dictionary.
+        input_path: Path to the input cleaned data CSV.
+        output_primary_path: Path to write the primary regression dataset.
+        output_covariate_path: Path to write the covariate dataset.
+        config_path: Optional path to a configuration file for custom trait lists.
         
     Returns:
-        Dictionary with filtering results and metadata.
+        A dictionary with filtering statistics and paths.
+        
+    Raises:
+        FileNotFoundError: If input file doesn't exist.
+        ValueError: If filtering results in no primary features.
     """
-    config = config or {}
+    input_path = Path(input_path)
+    output_primary_path = Path(output_primary_path)
+    output_covariate_path = Path(output_covariate_path)
     
-    # Load data
-    if not os.path.exists(input_path):
+    if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
+    # Load data
     df = pd.read_csv(input_path)
     
-    # Extract features
-    primary_df, primary_cols, covariate_cols = filter_features_for_primary_regression(
-        df, 
-        exclude_patterns=config.get('additional_exclude_patterns', [])
+    # Determine target column (usually 'agency_score' or the last column)
+    target_col = 'agency_score'
+    if target_col not in df.columns:
+        # Fallback to the last column if agency_score isn't found
+        target_col = df.columns[-1]
+    
+    # Filter features
+    primary_features, covariate_features = filter_features_for_primary_regression(
+        df, target_col=target_col
     )
     
-    # Save primary features (for primary regression)
-    os.makedirs(os.path.dirname(output_primary_path), exist_ok=True)
-    primary_df.to_csv(output_primary_path, index=False)
+    # Create primary dataset (features + target)
+    primary_df = df[primary_features + [target_col]]
     
-    # Save covariate features (for secondary checks only)
-    if covariate_cols:
-        covariate_df = df[[c for c in covariate_cols if c in df.columns]]
-        os.makedirs(os.path.dirname(output_covariate_path), exist_ok=True)
-        covariate_df.to_csv(output_covariate_path, index=False)
+    # Create covariate dataset (covariates + target)
+    if covariate_features:
+        covariate_df = df[covariate_features + [target_col]]
     else:
-        # Create empty file if no covariates found
-        os.makedirs(os.path.dirname(output_covariate_path), exist_ok=True)
-        pd.DataFrame(columns=covariate_cols).to_csv(output_covariate_path, index=False)
+        # If no covariates, create empty dataframe with correct structure
+        covariate_df = pd.DataFrame(columns=[target_col])
     
-    # Generate log report
-    log_report = {
-        "input_file": input_path,
-        "total_rows": len(df),
-        "total_columns_initial": len(df.columns),
-        "primary_features": primary_cols,
-        "primary_feature_count": len(primary_cols),
-        "covariate_features": covariate_cols,
-        "covariate_feature_count": len(covariate_cols),
-        "excluded_from_primary": [c for c in df.columns if c not in primary_cols and c not in OUTCOME_COLUMNS],
-        "status": "success"
+    # Ensure output directories exist
+    output_primary_path.parent.mkdir(parents=True, exist_ok=True)
+    output_covariate_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write outputs
+    primary_df.to_csv(output_primary_path, index=False)
+    covariate_df.to_csv(output_covariate_path, index=False)
+    
+    # Generate summary report
+    report = {
+        'input_file': str(input_path),
+        'total_columns': len(df.columns),
+        'primary_features_count': len(primary_features),
+        'primary_features': primary_features,
+        'covariate_features_count': len(covariate_features),
+        'covariate_features': covariate_features,
+        'target_column': target_col,
+        'output_primary_file': str(output_primary_path),
+        'output_covariate_file': str(output_covariate_path),
+        'filtering_logic': 'Excluded trait/personality measures from primary regression'
     }
     
-    os.makedirs(os.path.dirname(output_log_path), exist_ok=True)
-    with open(output_log_path, 'w') as f:
-        json.dump(log_report, f, indent=2)
+    # Write report to JSON
+    report_path = output_primary_path.parent / 'filtering_report.json'
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
     
-    return log_report
+    return report
 
 def main():
-    """Entry point for command-line execution."""
-    # Default paths based on project structure
-    input_path = "data/processed/cleaned_data.csv"
-    output_primary_path = "data/processed/primary_features.csv"
-    output_covariate_path = "data/processed/covariate_features.csv"
-    output_log_path = "data/processed/covariate_filter_log.json"
+    """
+    Command-line entry point for T018 covariate filtering.
     
-    # Check if input exists
-    if not os.path.exists(input_path):
-        print(f"Error: Input file not found: {input_path}")
-        print("Please ensure T017 (output_cleaned_data.py) has been completed.")
-        return 1
+    Reads from data/processed/cleaned_data.csv and produces:
+    - data/processed/primary_regression_data.csv
+    - data/processed/covariate_data.csv
+    - data/processed/filtering_report.json
+    """
+    # Default paths
+    input_path = 'data/processed/cleaned_data.csv'
+    output_primary = 'data/processed/primary_regression_data.csv'
+    output_covariate = 'data/processed/covariate_data.csv'
+    
+    # Check for command-line arguments
+    if len(__import__('sys').argv) > 1:
+        input_path = __import__('sys').argv[1]
+    if len(__import__('sys').argv) > 2:
+        output_primary = __import__('sys').argv[2]
+    if len(__import__('sys').argv) > 3:
+        output_covariate = __import__('sys').argv[3]
     
     try:
-        result = run_covariate_filtering(
+        report = run_covariate_filtering(
             input_path=input_path,
-            output_primary_path=output_primary_path,
-            output_covariate_path=output_covariate_path,
-            output_log_path=output_log_path
+            output_primary_path=output_primary,
+            output_covariate_path=output_covariate
         )
         
-        print(f"Covariate filtering completed successfully.")
-        print(f"Primary features saved to: {output_primary_path}")
-        print(f"Covariate features saved to: {output_covariate_path}")
-        print(f"Log report saved to: {output_log_path}")
-        print(f"Primary features count: {result['primary_feature_count']}")
-        print(f"Covariate features count: {result['covariate_feature_count']}")
-        
-        return 0
+        print(f"T018 Covariate Filtering Complete:")
+        print(f"  Primary features: {report['primary_features_count']}")
+        print(f"  Covariates: {report['covariate_features_count']}")
+        print(f"  Primary data: {report['output_primary_file']}")
+        print(f"  Covariate data: {report['output_covariate_file']}")
+        print(f"  Report: {input_path.parent}/filtering_report.json")
         
     except Exception as e:
-        print(f"Error during covariate filtering: {str(e)}")
-        return 1
+        print(f"Error during T018 filtering: {str(e)}")
+        __import__('sys').exit(1)
 
-if __name__ == "__main__":
-    exit(main())
+if __name__ == '__main__':
+    main()

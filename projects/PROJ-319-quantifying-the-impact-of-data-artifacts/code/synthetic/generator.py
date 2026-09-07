@@ -1,29 +1,32 @@
 """
-Synthetic planetary nebulae generation module.
+Synthetic planetary nebulae generator.
 
-Generates configurable sets of synthetic planetary nebulae with known ground-truth
-ellipticity and asymmetry values. Adheres to FR-001 and Constitution Principle IV.
+Generates a configurable set of N synthetic planetary nebulae with known
+ground-truth ellipticity and asymmetry. Saves images as FITS files and
+ground-truth metadata as JSON.
+
+Adheres to Constitution Principle IV (Ground Truth) and FR-001.
 """
 import json
 import logging
 import numpy as np
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
+from astropy.io import fits
+from astropy.wcs import WCS
 
 from code.config import (
     get_project_root,
     GENERATOR_SEED,
     IMAGE_SIZE,
     DEFAULT_N_IMAGES,
-    GT_METADATA_FILE,
     DATA_SYNTHETIC,
+    GT_METADATA_FILE,
     FITS_EXT,
-    compute_file_checksum,
-    compute_array_checksum
+    JSON_EXT
 )
-from code.io.writer import save_fits_image, save_metadata_json
+from code.io.writer import compute_file_checksum, save_metadata_json
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def generate_nebula_base(
@@ -31,79 +34,92 @@ def generate_nebula_base(
     center: Tuple[float, float],
     ellipticity: float,
     position_angle: float,
+    flux: float,
     seed: int
 ) -> np.ndarray:
     """
-    Generate a base synthetic planetary nebula profile (elliptical Gaussian-like).
-
+    Generate a base synthetic planetary nebula image (elliptical Gaussian).
+    
     Args:
         shape: Image shape (height, width).
-        center: (x, y) center of the nebula.
-        ellipticity: e = 1 - (b/a), where a and b are semi-major/minor axes.
+        center: Center of the nebula (x, y).
+        ellipticity: Ellipticity value (0.0 = circle, 1.0 = line).
         position_angle: Position angle in radians.
-        seed: Random seed for noise/profile variation.
-
+        flux: Total flux of the nebula.
+        seed: Random seed for minor asymmetry injection.
+    
     Returns:
-        2D numpy array representing the nebula intensity.
+        2D numpy array representing the nebula image.
     """
     rng = np.random.default_rng(seed)
     h, w = shape
     y, x = np.ogrid[:h, :w]
-
-    # Normalize coordinates to center
+    
     cx, cy = center
-    x_norm = (x - cx).astype(float)
-    y_norm = (y - cy).astype(float)
-
-    # Rotate coordinates based on position angle
+    
+    # Calculate semi-major and semi-minor axes based on ellipticity
+    # Assume a base sigma of 20 pixels
+    sigma_base = 20.0
+    if ellipticity >= 1.0:
+        sigma_minor = 1.0
+    else:
+        sigma_minor = sigma_base * (1.0 - ellipticity)
+    sigma_major = sigma_base
+    
+    # Rotation matrix
     cos_pa = np.cos(position_angle)
     sin_pa = np.sin(position_angle)
-    x_rot = x_norm * cos_pa - y_norm * sin_pa
-    y_rot = x_norm * sin_pa + y_norm * cos_pa
-
-    # Define semi-axes
-    # Base size
-    a_base = min(w, h) * 0.15
-    b_base = a_base * (1 - ellipticity)
-
-    # Add some random variation to the size to ensure diversity
-    scale_factor = 1.0 + rng.uniform(-0.1, 0.1)
-    a = a_base * scale_factor
-    b = b_base * scale_factor
-
-    # Elliptical Gaussian profile
-    # I(x,y) = I0 * exp( -0.5 * ( (x'/a)^2 + (y'/b)^2 ) )
-    # Add a slight ring-like structure (common in PNe) by modulating radius
-    r_sq = (x_rot / a)**2 + (y_rot / b)**2
-    r = np.sqrt(r_sq)
-
-    # Ring modulation: create a shell-like feature
-    # Peak intensity at r ~ 1.0, decaying inward and outward
-    ring_factor = np.exp(-0.5 * ((r - 1.0) / 0.2)**2)
     
-    # Core Gaussian
-    core = np.exp(-0.5 * r_sq * 0.5) # Slightly broader core
-
-    # Combine core and ring
-    intensity = 0.3 * core + 0.7 * ring_factor
-
-    # Normalize to [0, 1] and scale to arbitrary flux units (e.g., 10000)
-    intensity = intensity / intensity.max() * 10000.0
+    # Rotated coordinates
+    dx = x - cx
+    dy = y - cy
     
-    # Add slight random asymmetry to the shape itself (not noise)
-    # by perturbing the radius field slightly
-    asymmetry_noise = rng.normal(0, 0.02, shape)
-    intensity = intensity * (1.0 + asymmetry_noise)
-    intensity = np.clip(intensity, 0, None)
+    # Coordinate transformation for ellipse
+    # x' = x cos(theta) + y sin(theta)
+    # y' = -x sin(theta) + y cos(theta)
+    x_rot = dx * cos_pa + dy * sin_pa
+    y_rot = -dx * sin_pa + dy * cos_pa
+    
+    # Elliptical Gaussian
+    # I = I0 * exp( -0.5 * (x'^2/sigma_major^2 + y'^2/sigma_minor^2) )
+    exponent = -0.5 * (
+        (x_rot ** 2) / (sigma_major ** 2) + 
+        (y_rot ** 2) / (sigma_minor ** 2)
+    )
+    
+    # Normalize to total flux
+    # Integral of Gaussian = I0 * 2 * pi * sigma_major * sigma_minor
+    # I0 = Flux / (2 * pi * sigma_major * sigma_minor)
+    normalization = 2 * np.pi * sigma_major * sigma_minor
+    image = (flux / normalization) * np.exp(exponent)
+    
+    # Add minor random asymmetry (low amplitude) to make it realistic
+    # but not enough to dominate the ground truth
+    noise_asym = rng.normal(0, 0.005, shape) # 0.5% noise
+    image = image + noise_asym
+    image = np.maximum(image, 0) # Ensure non-negative
+    
+    return image
 
-    return intensity
-
-def calculate_true_ellipticity(ellipticity_input: float) -> float:
+def calculate_true_ellipticity(
+    major_axis: float,
+    minor_axis: float
+) -> float:
     """
-    Return the ground-truth ellipticity used to generate the image.
-    For this synthetic generator, the input parameter IS the ground truth.
+    Calculate ellipticity from axis lengths.
+    
+    Ellipticity e = 1 - (b/a) where a is major axis, b is minor axis.
+    
+    Args:
+        major_axis: Length of major axis.
+        minor_axis: Length of minor axis.
+    
+    Returns:
+        Ellipticity value between 0.0 and 1.0.
     """
-    return float(ellipticity_input)
+    if major_axis <= 0:
+        return 0.0
+    return 1.0 - (minor_axis / major_axis)
 
 def calculate_true_asymmetry(
     image: np.ndarray,
@@ -111,168 +127,193 @@ def calculate_true_asymmetry(
     seed: int
 ) -> float:
     """
-    Calculate the theoretical asymmetry index (A-statistic) for the generated image.
+    Calculate true asymmetry index for the generated image.
     
-    The Conselice (2003) asymmetry index is A = (1/S) * sum |I - I_180|,
-    where I_180 is the image rotated 180 degrees around the center.
-    We calculate this on the clean generated image to establish ground truth.
+    Uses the Conselice (2003) definition: A = sum(|I - I_180|) / sum(I)
+    The center is rotated 180 degrees around the specified center point.
+    
+    Args:
+        image: 2D numpy array of the image.
+        center: Center point (x, y) for rotation.
+        seed: Seed for deterministic calculation if needed (though calculation is deterministic).
+    
+    Returns:
+        Asymmetry index (float).
     """
-    # Rotate 180 degrees
-    # np.rot90 rotates 90 degrees counter-clockwise. 2 rotations = 180.
-    # We need to rotate around the specific center, not just the array center.
-    # Since we generated the image centered in the array (mostly), simple rotation
-    # works if we generated it exactly centered. To be safe, we rotate the array.
-    img_rotated = np.rot90(image, k=2)
+    # Create 180 degree rotated image
+    # We rotate the image 180 degrees around the center
+    # I_180(x, y) = I(2*cx - x, 2*cy - y)
     
-    # Calculate difference
-    diff = np.abs(image - img_rotated)
-    S = np.sum(image)
+    h, w = image.shape
+    cx, cy = center
     
-    if S == 0:
+    # Create grid of indices
+    y_idx, x_idx = np.indices((h, w))
+    
+    # Calculate rotated coordinates
+    # x_rot = 2*cx - x
+    # y_rot = 2*cy - y
+    x_rot = 2 * cx - x_idx
+    y_rot = 2 * cy - y_idx
+    
+    # Clip to image bounds (edges will be zero-padded effectively)
+    x_rot = np.clip(x_rot, 0, w - 1)
+    y_rot = np.clip(y_rot, 0, h - 1)
+    
+    # Get rotated image values
+    # Using integer indexing for exact 180 rotation
+    image_180 = image[y_rot.astype(int), x_rot.astype(int)]
+    
+    # Calculate asymmetry
+    numerator = np.sum(np.abs(image - image_180))
+    denominator = np.sum(image)
+    
+    if denominator == 0:
         return 0.0
     
-    asymmetry = np.sum(diff) / S
-    return float(asymmetry)
+    return numerator / denominator
 
 def generate_synthetic_nebula(
     image_id: int,
-    n_images: int,
-    seed: int
+    shape: Tuple[int, int],
+    seed: int,
+    ellipticity_range: Tuple[float, float] = (0.1, 0.6),
+    asymmetry_range: Tuple[float, float] = (0.05, 0.3)
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    Generate a single synthetic planetary nebula.
+    Generate a single synthetic planetary nebula with ground truth.
     
     Args:
-        image_id: Unique identifier for this image (0 to N-1).
-        n_images: Total number of images to generate (for spacing).
-        seed: Base seed.
-
+        image_id: Unique identifier for the image.
+        shape: Image shape (height, width).
+        seed: Random seed for this specific image.
+        ellipticity_range: Range (min, max) for ellipticity.
+        asymmetry_range: Range (min, max) for asymmetry target (used to guide generation).
+    
     Returns:
-        Tuple of (image_array, metadata_dict).
+        Tuple of (image_array, ground_truth_dict).
     """
-    # Deterministic parameters based on ID
-    rng = np.random.default_rng(seed + image_id)
+    rng = np.random.default_rng(seed)
     
-    # Ellipticity: Moderate range (0.1 to 0.5)
-    # Distribute across the range to ensure coverage
-    # e.g., 0.1 + (i / (N-1)) * 0.4
-    if n_images > 1:
-        fraction = image_id / (n_images - 1)
-    else:
-        fraction = 0.5
-    ellipticity = 0.1 + fraction * 0.4
-    
-    # Position Angle: Random uniform [0, pi)
+    # Generate random parameters
+    ellipticity = rng.uniform(*ellipticity_range)
     position_angle = rng.uniform(0, np.pi)
-    
-    # Center: Slightly random offset from image center to test robustness
-    h, w = IMAGE_SIZE
-    center_x = w / 2 + rng.uniform(-10, 10)
-    center_y = h / 2 + rng.uniform(-10, 10)
+    center_x = rng.uniform(shape[1] * 0.2, shape[1] * 0.8)
+    center_y = rng.uniform(shape[0] * 0.2, shape[0] * 0.8)
+    flux = rng.uniform(1000, 5000)
     
     # Generate base image
     image = generate_nebula_base(
-        shape=IMAGE_SIZE,
+        shape=shape,
         center=(center_x, center_y),
         ellipticity=ellipticity,
         position_angle=position_angle,
-        seed=GENERATOR_SEED + image_id
+        flux=flux,
+        seed=seed + 1
     )
     
-    # Calculate ground truth asymmetry
-    true_asymmetry = calculate_true_asymmetry(image, (center_x, center_y), GENERATOR_SEED + image_id + 999)
+    # Calculate true asymmetry
+    true_asymmetry = calculate_true_asymmetry(image, (center_x, center_y), seed)
     
-    # Add small Gaussian noise to the "clean" image to make it realistic but known
-    # Noise level is negligible for ground truth definition but adds realism
-    noise = rng.normal(0, 0.001, IMAGE_SIZE)
-    image = image + noise
-    image = np.clip(image, 0, None)
+    # Ensure asymmetry is within a reasonable low-to-moderate interval
+    # If the generated asymmetry is too high, we might need to adjust,
+    # but for this task we accept the calculated value as ground truth.
+    # The generation process naturally produces low-to-moderate asymmetry
+    # due to the Gaussian nature + small noise.
     
-    metadata = {
+    gt = {
         "image_id": f"{image_id:03d}",
-        "ellipticity": calculate_true_ellipticity(ellipticity),
-        "asymmetry": true_asymmetry,
-        "position_angle": float(position_angle),
+        "filename": f"synth_{image_id:03d}.fits",
+        "ellipticity": float(ellipticity),
+        "asymmetry": float(true_asymmetry),
         "center_x": float(center_x),
         "center_y": float(center_y),
-        "checksum": None # Will be computed after saving
+        "position_angle": float(position_angle),
+        "flux": float(flux),
+        "checksum": "" # To be filled after file writing
     }
     
-    return image, metadata
+    return image, gt
 
 def generate_gt_metadata(
-    n_images: int,
-    output_path: Path,
-    metadata_list: List[Dict[str, Any]]
+    metadata_list: List[Dict[str, Any]],
+    output_path: Path
 ) -> None:
     """
-    Save the ground truth metadata to a JSON file.
+    Save ground truth metadata to a JSON file.
     
     Args:
-        n_images: Number of images generated.
-        output_path: Path to save the JSON file.
-        metadata_list: List of metadata dictionaries for each image.
+        metadata_list: List of ground truth dictionaries.
+        output_path: Path to the output JSON file.
     """
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Compute checksums for the metadata file itself? No, the task asks for checksums of images.
-    # The schema requires checksum of the image file.
-    # We need to save the images first, compute their checksums, then save the JSON.
-    # However, this function is called AFTER generation loop in main.
-    # We will assume the caller has updated the metadata_list with checksums.
-    
     save_metadata_json(metadata_list, output_path)
-    logger.info(f"Saved ground truth metadata to {output_path}")
+    logger.info(f"Ground truth metadata saved to {output_path}")
 
-def main():
+def main(
+    n_images: int = DEFAULT_N_IMAGES,
+    output_dir: str = str(DATA_SYNTHETIC),
+    seed: int = GENERATOR_SEED
+) -> None:
     """
-    Main entry point to generate synthetic planetary nebulae.
-    Generates N images, saves them as FITS, and saves ground truth metadata.
-    """
-    logger.info("Starting synthetic planetary nebulae generation...")
+    Main function to generate synthetic planetary nebulae.
     
-    # Load configuration
+    Args:
+        n_images: Number of images to generate.
+        output_dir: Directory to save generated images and metadata.
+        seed: Global random seed.
+    """
+    logger.info(f"Starting synthetic nebula generation: {n_images} images")
+    
     root = get_project_root()
-    n_images = DEFAULT_N_IMAGES
-    output_dir = DATA_SYNTHETIC
-    metadata_file = output_dir / GT_METADATA_FILE
-    
-    logger.info(f"Generating {n_images} images to {output_dir}")
-    
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = root / output_dir
+    output_path.mkdir(parents=True, exist_ok=True)
     
     metadata_list = []
     
+    rng = np.random.default_rng(seed)
+    
     for i in range(n_images):
-        logger.info(f"Generating image {i+1}/{n_images}...")
+        # Generate a unique seed for this image
+        image_seed = rng.integers(0, 2**32)
         
-        # Generate image and metadata
-        image, meta = generate_synthetic_nebula(i, n_images, GENERATOR_SEED)
+        image, gt = generate_synthetic_nebula(
+            image_id=i,
+            shape=IMAGE_SIZE,
+            seed=int(image_seed)
+        )
         
-        # Filename
-        filename = f"synth_{i:03d}{FITS_EXT}"
-        filepath = output_dir / filename
+        # Save image
+        filename = gt["filename"]
+        filepath = output_path / filename
         
-        # Save FITS
-        # We need to compute checksum before adding to list
-        save_fits_image(image, filepath, meta)
+        # Create FITS file with WCS
+        hdu = fits.PrimaryHDU(image.astype(np.float32))
         
-        # Compute checksum of the saved file
+        # Create a simple WCS
+        wcs = WCS(naxis=2)
+        wcs.wcs.crpix = [IMAGE_SIZE[1]/2, IMAGE_SIZE[0]/2]
+        wcs.wcs.cdelt = [1.0, 1.0] # 1 pixel per unit
+        wcs.wcs.crval = [0.0, 0.0]
+        wcs.wcs.ctype = ["X", "Y"]
+        
+        hdu.header.update(wcs.to_header())
+        hdu.header['BUNIT'] = 'ADU'
+        
+        hdu.writeto(filepath, overwrite=True)
+        
+        # Compute checksum
         checksum = compute_file_checksum(filepath)
-        meta["filename"] = filename
-        meta["checksum"] = checksum
+        gt["checksum"] = checksum
+        metadata_list.append(gt)
         
-        metadata_list.append(meta)
-        
-        logger.info(f"Saved {filename} (checksum: {checksum[:16]}...)")
+        logger.debug(f"Generated {filename} (ellipticity={gt['ellipticity']:.3f}, asymmetry={gt['asymmetry']:.3f})")
     
     # Save ground truth metadata
-    generate_gt_metadata(n_images, metadata_file, metadata_list)
+    gt_filepath = output_path / GT_METADATA_FILE
+    generate_gt_metadata(metadata_list, gt_filepath)
     
-    logger.info("Synthetic data generation complete.")
-    logger.info(f"Ground truth metadata saved to: {metadata_file}")
+    logger.info(f"Synthetic data generation complete. {n_images} images saved.")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

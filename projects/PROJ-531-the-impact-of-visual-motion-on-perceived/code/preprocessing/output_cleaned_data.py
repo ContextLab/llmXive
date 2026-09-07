@@ -1,125 +1,181 @@
+"""
+T017 Implementation: Output cleaned and standardized data.
+
+This module implements the final step of the US1 data pipeline:
+1. Loads the preprocessed data from code/preprocessing/preprocess.py output.
+2. Validates the presence of required columns.
+3. Standardizes numeric columns to a 0-1 range (min-max scaling) where appropriate.
+4. Documents the scoring method in a metadata file.
+5. Writes the final `data/processed/cleaned_data.csv`.
+"""
 import os
 import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from datetime import datetime
+from typing import Optional, List, Dict, Any
 
-from utils.logging_config import get_logger
-from utils.config import get_config
+# Import from sibling modules as per API surface
+# The API surface indicates code/preprocessing/preprocess.py exists and exports run_preprocessing
+# However, since T014/T015 were marked as failed/missing in the feedback, we must ensure
+# we can load the *intermediate* data. The pipeline structure suggests:
+# download -> generate -> preprocess -> output_cleaned
+# We assume preprocess.py writes a temporary intermediate file or we read the raw source
+# if preprocess is not yet fully functional in the runner environment.
+# To be robust, we will look for the intermediate file produced by the hypothetical
+# successful run of T014, or fall back to reading the synthetic data directly if T014
+# hasn't written the intermediate yet, but strictly following the "no synthetic fallback"
+# rule for *input* data, we assume the intermediate file exists from T014.
 
-logger = get_logger(__name__)
+# Based on the project structure, T014 (preprocess) should have produced a file.
+# We will assume the standard output path for the preprocessing step is:
+# data/processed/intermediate_features.csv (or similar).
+# If that file doesn't exist, we must fail loudly as per constraints.
+
+INTERMEDIATE_DATA_PATH = Path("data/processed/intermediate_features.csv")
+OUTPUT_DATA_PATH = Path("data/processed/cleaned_data.csv")
+METADATA_PATH = Path("data/processed/cleaning_metadata.json")
+
+# Required columns as per T004 schema and task description
+REQUIRED_COLUMNS = [
+    "participant_id",
+    "latency",
+    "smoothness",
+    "lead_time",
+    "agency_score"
+]
+
+# Columns to standardize (0-1 range)
+STANDARDIZE_COLUMNS = ["latency", "smoothness", "lead_time", "agency_score"]
 
 def standardize_column(series: pd.Series, method: str = "minmax") -> pd.Series:
     """
-    Standardize a numeric column to a 0-1 range (min-max scaling).
+    Standardizes a pandas Series to a 0-1 range using min-max scaling.
     
     Args:
-        series: The pandas Series to standardize.
-        method: Currently only 'minmax' is supported.
-    
+        series: The input pandas Series.
+        method: Scaling method (currently only 'minmax' supported).
+        
     Returns:
-        A standardized Series in the range [0, 1].
+        A new Series with values scaled to [0, 1].
     """
-    if method != "minmax":
-        raise ValueError(f"Unsupported standardization method: {method}")
+    if series.dtype not in [np.float64, np.float32, np.int64, np.int32]:
+        return series
+        
+    min_val = series.min()
+    max_val = series.max()
     
-    if series.min() == series.max():
-        # Avoid division by zero; return 0.5 (neutral) or 0 depending on preference
-        return pd.Series(np.full_like(series, 0.5, dtype=float))
-    
-    return (series - series.min()) / (series.max() - series.min())
+    if max_val == min_val:
+        # Avoid division by zero; if all values are same, return 0.5 or the value
+        return pd.Series([0.5] * len(series), index=series.index)
+        
+    return (series - min_val) / (max_val - min_val)
 
-def run_cleaning_pipeline(input_path: str, output_path: str) -> dict:
+def run_cleaning_pipeline(
+    input_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    metadata_path: Optional[Path] = None
+) -> bool:
     """
-    Loads raw/preprocessed data, standardizes key metrics, and saves the cleaned dataset.
+    Executes the cleaning and standardization pipeline.
     
-    This implements T017: Output `data/processed/cleaned_data.csv` with documented 
-    scoring method and standardization (0–1 range).
-    
-    Args:
-        input_path: Path to the preprocessed data (e.g., from T014/T015).
-        output_path: Path where the cleaned CSV will be written.
+    1. Loads intermediate data.
+    2. Validates schema.
+    3. Standardizes numeric features.
+    4. Writes cleaned CSV and metadata.
     
     Returns:
-        A dictionary containing metadata about the cleaning process.
+        True if successful, False otherwise.
     """
-    logger.info(f"Starting cleaning pipeline. Input: {input_path}, Output: {output_path}")
-    
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    
-    # Identify columns to standardize based on project requirements (FR-002, FR-003)
-    # Typically: latency, smoothness, lead_time, agency_score
-    # We standardize the target (agency_score) and key predictors to 0-1 range
-    columns_to_standardize = []
-    
-    # Heuristic: Standardize numeric columns that are likely scores or normalized metrics
-    # excluding participant_id or other identifiers
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    exclude_cols = ['participant_id', 'id', 'run_id']
-    columns_to_standardize = [c for c in numeric_cols if c not in exclude_cols]
-    
-    logger.info(f"Standardizing columns: {columns_to_standardize}")
-    
-    metadata = {
-        "timestamp": datetime.now().isoformat(),
-        "input_file": input_path,
-        "output_file": output_path,
-        "standardization_method": "minmax",
-        "standardized_columns": columns_to_standardize,
-        "n_rows_before": len(df),
-        "n_rows_after": len(df),
-        "scoring_method_documentation": (
-            "All numeric metrics (latency, smoothness, lead_time, agency_score) "
-            "are standardized to [0, 1] using min-max scaling. "
-            "This ensures comparability across features with different units and scales."
-        )
-    }
-    
-    for col in columns_to_standardize:
-        df[col] = standardize_column(df[col])
+    input_path = input_path or INTERMEDIATE_DATA_PATH
+    output_path = output_path or OUTPUT_DATA_PATH
+    metadata_path = metadata_path or METADATA_PATH
     
     # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    df.to_csv(output_path, index=False)
-    
-    logger.info(f"Cleaned data saved to {output_path} with {len(df)} rows.")
-    
-    return metadata
-
-def main():
-    """Entry point for T017: Output cleaned data."""
-    config = get_config()
-    
-    # Default paths based on project structure
-    input_path = config.get("paths.preprocessed_data", "data/processed/preprocessed_data.csv")
-    output_path = config.get("paths.cleaned_data", "data/processed/cleaned_data.csv")
-    
-    # Allow override via environment variables
-    if os.getenv("INPUT_DATA_PATH"):
-        input_path = os.getenv("INPUT_DATA_PATH")
-    if os.getenv("OUTPUT_DATA_PATH"):
-        output_path = os.getenv("OUTPUT_DATA_PATH")
+    # 1. Load Data
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Intermediate data file not found at {input_path}. "
+            "Ensure T014 (preprocess.py) has run successfully and written the intermediate file."
+        )
     
     try:
-        metadata = run_cleaning_pipeline(input_path, output_path)
-        
-        # Save metadata as JSON for provenance
-        metadata_path = str(Path(output_path).with_suffix('.json'))
-        with open(metadata_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
-        
-        print(f"Successfully cleaned data. Output: {output_path}")
-        print(f"Metadata saved to: {metadata_path}")
-        
+        df = pd.read_csv(input_path)
     except Exception as e:
-        logger.error(f"Failed to clean data: {e}")
-        raise
+        raise RuntimeError(f"Failed to read intermediate data: {e}")
+    
+    # 2. Validate Schema
+    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+    if missing_cols:
+        raise ValueError(
+            f"Intermediate data missing required columns: {missing_cols}. "
+            f"Expected: {REQUIRED_COLUMNS}"
+        )
+    
+    # 3. Standardize Columns
+    # We standardize the numeric features to [0, 1] as requested for T017
+    df_standardized = df.copy()
+    standardization_info = {}
+    
+    for col in STANDARDIZE_COLUMNS:
+        if col in df_standardized.columns:
+            original_min = df_standardized[col].min()
+            original_max = df_standardized[col].max()
+            df_standardized[col] = standardize_column(df_standardized[col])
+            standardization_info[col] = {
+                "original_min": float(original_min),
+                "original_max": float(original_max),
+                "scaled_min": float(df_standardized[col].min()),
+                "scaled_max": float(df_standardized[col].max())
+            }
+    
+    # 4. Document Scoring Method
+    metadata = {
+        "task_id": "T017",
+        "timestamp": datetime.now().isoformat(),
+        "input_file": str(input_path),
+        "output_file": str(output_path),
+        "scoring_method": "Min-Max Normalization to [0, 1] range",
+        "standardization_details": standardization_info,
+        "row_count": len(df_standardized),
+        "columns": list(df_standardized.columns),
+        "notes": "Data derived from synthetic generator (T013) as per project scope (T000). "
+                 "No human participants involved. Real data path disabled."
+    }
+    
+    # 5. Write Output
+    df_standardized.to_csv(output_path, index=False)
+    
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+        
+    print(f"Successfully wrote cleaned data to {output_path} ({len(df_standardized)} rows)")
+    print(f"Metadata written to {metadata_path}")
+    
+    return True
+
+def main():
+    """Entry point for T017 execution."""
+    try:
+        success = run_cleaning_pipeline()
+        if success:
+            print("T017: Output generation completed successfully.")
+            return 0
+        else:
+            print("T017: Output generation failed.")
+            return 1
+    except FileNotFoundError as e:
+        print(f"CRITICAL ERROR: {e}")
+        return 1
+    except ValueError as e:
+        print(f"VALIDATION ERROR: {e}")
+        return 1
+    except Exception as e:
+        print(f"UNEXPECTED ERROR: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -42,3 +42,27 @@
   verification_status: mismatch
   verified_against_url: https://networkrepository.com/random-regular.php
   verified_at: '2026-09-04T17:01:28.608761Z'
+- artifact_hash: 5e4c117488a54eea7e07baec892416a12808f02c93a885928689f083081082ae
+  artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/code/README_LINTING.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - astral-sh/ruff-pre-commit: A pre-commit hook for Ruff.\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/astral-sh/ruff-pre-commit
+  verification_status: pending
+  verified_against_url: https://github.com/astral-sh/ruff-pre-commit
+  verified_at: '2026-09-07T21:17:52.498042Z'
+- artifact_hash: 5e4c117488a54eea7e07baec892416a12808f02c93a885928689f083081082ae
+  artifact_path: projects/PROJ-212-exploring-the-impact-of-network-structur/code/README_LINTING.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - psf/black: The uncompromising Python code formatter \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/psf/black
+  verification_status: pending
+  verified_against_url: https://github.com/psf/black
+  verified_at: '2026-09-07T21:17:52.498042Z'

@@ -3,231 +3,287 @@ import logging
 import os
 import sys
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, List, Optional, Callable
 
-from code.config.settings import get_paths, get_config, ensure_directories
-from code.src.inference.load_model import load_model_for_inference
-from code.src.inference.prompt_templates import (
-    get_bug_detection_prompt,
-    SeverityLabel,
-    format_severity_label,
-    create_inference_request,
-)
-from code.src.inference.schema import InferenceResponse, InferenceStatus
-from code.src.utils.timeout_wrapper import check_timeout, enforce_timeout, TimeoutContext
+from code.config.settings import get_config, get_paths, ensure_directories
+from code.src.utils.logger import get_logger, start_runtime_tracking, stop_runtime_tracking, log_runtime_stats
+from code.src.utils.timeout_wrapper import set_global_timeout, check_timeout, TimeoutExceeded, enforce_timeout
 from code.src.utils.memory_watchdog import check_memory_limit, MemoryLimitExceeded
-from code.src.utils.logger import get_logger
+from code.src.inference.load_model import load_model_for_inference
+from code.src.inference.prompt_templates import get_bug_detection_prompt, create_inference_request, format_severity_label
+from code.src.inference.schema import InferenceRequest, InferenceResponse, InferenceStatus
+from code.src.detection.schema import LLMCodeDetectionResult, ConfidenceLevel
 
+# Configure logger
 logger = get_logger(__name__)
 
-def parse_llm_output(raw_output: str, pr_id: str) -> Dict[str, Any]:
+def parse_llm_output(output_text: str) -> Optional[Dict[str, Any]]:
     """
-    Parse the raw LLM output string into a structured detection result.
-    Handles JSON parsing errors and returns a standardized structure.
+    Parse the raw LLM output string into a structured dictionary.
+    Attempts to extract JSON blocks or parse line-by-line structured output.
+    Returns None if parsing fails.
     """
     try:
-        # Expect JSON output from the model
-        data = json.loads(raw_output)
-        
-        # Validate required fields
-        required_fields = ['severity', 'description']
-        for field in required_fields:
-            if field not in data:
-                raise ValueError(f"Missing required field: {field}")
-        
-        # Normalize severity to standard labels
-        raw_severity = data.get('severity', 'minor')
-        severity = format_severity_label(raw_severity)
-        
-        # Extract line information if available, otherwise default to None
-        line_start = data.get('line_start')
-        line_end = data.get('line_end')
-        file_path = data.get('file_path')
-        
-        return {
-            'pr_id': pr_id,
-            'file_path': file_path,
-            'line_start': line_start,
-            'line_end': line_end,
-            'severity': severity,
-            'description': data.get('description', ''),
-            'llm_error_flag': False
-        }
-    except (json.JSONDecodeError, ValueError, TypeError) as e:
-        logger.warning(f"Failed to parse LLM output for PR {pr_id}: {e}")
-        return {
-            'pr_id': pr_id,
-            'file_path': None,
-            'line_start': None,
-            'line_end': None,
-            'severity': None,
-            'description': f"Parse error: {str(e)}",
-            'llm_error_flag': True
-        }
+        # Clean up potential markdown code blocks
+        clean_text = output_text.strip()
+        if clean_text.startswith("```json"):
+            clean_text = clean_text[7:]
+        if clean_text.endswith("```"):
+            clean_text = clean_text[:-3]
+        clean_text = clean_text.strip()
+
+        # Attempt direct JSON parsing
+        return json.loads(clean_text)
+    except json.JSONDecodeError:
+        logger.warning(f"Failed to parse LLM output as JSON: {output_text[:200]}...")
+        return None
 
 def process_single_pr(
     pr_data: Dict[str, Any],
     model: Any,
     tokenizer: Any,
-    timeout_context: Optional[TimeoutContext] = None
-) -> Dict[str, Any]:
+    timeout_seconds: int,
+    memory_limit_gb: float
+) -> InferenceResponse:
     """
     Process a single PR through the LLM for bug detection.
-    Returns a structured detection result.
+    Enforces per-PR timeout and memory limits.
     """
-    pr_id = pr_data.get('pr_id', 'unknown')
-    diff_content = pr_data.get('diff', '')
-    
-    # Check timeout before processing
-    if timeout_context and check_timeout(timeout_context):
-        logger.warning(f"Timeout reached for PR {pr_id}, skipping")
-        return {
-            'pr_id': pr_id,
-            'file_path': None,
-            'line_start': None,
-            'line_end': None,
-            'severity': None,
-            'description': 'Timeout exceeded',
-            'llm_error_flag': True
-        }
-    
-    # Check memory before processing
+    pr_id = pr_data.get("pr_id", "unknown")
+    file_path = pr_data.get("file_path", "unknown")
+    diff_content = pr_data.get("diff", "")
+
+    # Check global timeout first
+    if check_timeout():
+        raise TimeoutExceeded(f"Global timeout exceeded before processing PR {pr_id}")
+
+    # Check memory before starting
     try:
-        check_memory_limit()
-    except MemoryLimitExceeded as e:
-        logger.warning(f"Memory limit exceeded for PR {pr_id}, skipping: {e}")
-        return {
-            'pr_id': pr_id,
-            'file_path': None,
-            'line_start': None,
-            'line_end': None,
-            'severity': None,
-            'description': f'Memory limit exceeded: {str(e)}',
-            'llm_error_flag': True
-        }
-    
-    # Build prompt
-    prompt = get_bug_detection_prompt(diff_content, pr_id)
-    
-    # Run inference
+        check_memory_limit(memory_limit_gb)
+    except MemoryLimitExceeded:
+        logger.error(f"Memory limit exceeded before processing PR {pr_id}")
+        return InferenceResponse(
+            pr_id=pr_id,
+            file_path=file_path,
+            status=InferenceStatus.SKIPPED_MEMORY,
+            error_message="Memory limit exceeded",
+            detections=[]
+        )
+
+    # Construct prompt
+    prompt = get_bug_detection_prompt(diff_content)
+    request = create_inference_request(prompt)
+
+    start_time = time.time()
     try:
-        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=2048)
-        with torch.no_grad():
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=512,
-                temperature=0.7,
-                top_p=0.95,
-                do_sample=True,
-                pad_token_id=tokenizer.eos_token_id
+        # Enforce per-PR timeout using a wrapper or threading
+        # We use a simple threading approach for timeout enforcement
+        result_container = {"output": None, "error": None}
+
+        def run_inference():
+            try:
+                inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+                inputs = {k: v.to(model.device) for k, v in inputs.items()}
+                
+                with torch.no_grad():
+                    outputs = model.generate(
+                        **inputs,
+                        max_new_tokens=256,
+                        temperature=0.7,
+                        do_sample=True,
+                        pad_token_id=tokenizer.eos_token_id
+                    )
+                result_container["output"] = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            except Exception as e:
+                result_container["error"] = str(e)
+
+        thread = threading.Thread(target=run_inference)
+        thread.daemon = True
+        thread.start()
+        thread.join(timeout=timeout_seconds)
+
+        if thread.is_alive():
+            # Timeout occurred
+            logger.warning(f"PR {pr_id} exceeded timeout ({timeout_seconds}s). Skipping.")
+            return InferenceResponse(
+                pr_id=pr_id,
+                file_path=file_path,
+                status=InferenceStatus.TIMEOUT,
+                error_message=f"Inference timeout after {timeout_seconds}s",
+                detections=[]
             )
-        raw_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
+
+        if result_container["error"]:
+            logger.error(f"PR {pr_id} inference error: {result_container['error']}")
+            return InferenceResponse(
+                pr_id=pr_id,
+                file_path=file_path,
+                status=InferenceStatus.ERROR,
+                error_message=result_container["error"],
+                detections=[]
+            )
+
+        if not result_container["output"]:
+            logger.error(f"PR {pr_id} produced no output.")
+            return InferenceResponse(
+                pr_id=pr_id,
+                file_path=file_path,
+                status=InferenceStatus.ERROR,
+                error_message="No output generated",
+                detections=[]
+            )
+
         # Parse output
-        result = parse_llm_output(raw_output, pr_id)
-        return result
-        
+        parsed = parse_llm_output(result_container["output"])
+        if not parsed:
+            logger.warning(f"PR {pr_id} output could not be parsed.")
+            return InferenceResponse(
+                pr_id=pr_id,
+                file_path=file_path,
+                status=InferenceStatus.ERROR,
+                error_message="Output parsing failed",
+                detections=[]
+            )
+
+        # Extract detections
+        detections = []
+        if isinstance(parsed, list):
+            detections = parsed
+        elif isinstance(parsed, dict) and "detections" in parsed:
+            detections = parsed["detections"]
+        else:
+            # Assume single detection if dict
+            detections = [parsed]
+
+        # Validate detections
+        valid_detections = []
+        for det in detections:
+            if not isinstance(det, dict):
+                continue
+            # Ensure required fields
+            if "severity" in det and "line_start" in det and "line_end" in det:
+                valid_detections.append(det)
+            else:
+                logger.debug(f"Invalid detection format in PR {pr_id}: {det}")
+
+        elapsed = time.time() - start_time
+        logger.info(f"PR {pr_id} processed successfully in {elapsed:.2f}s. Found {len(valid_detections)} detections.")
+
+        return InferenceResponse(
+            pr_id=pr_id,
+            file_path=file_path,
+            status=InferenceStatus.SUCCESS,
+            error_message=None,
+            detections=valid_detections,
+            latency_seconds=elapsed
+        )
+
     except Exception as e:
-        logger.error(f"Inference failed for PR {pr_id}: {e}")
-        return {
-            'pr_id': pr_id,
-            'file_path': None,
-            'line_start': None,
-            'line_end': None,
-            'severity': None,
-            'description': f'Inference error: {str(e)}',
-            'llm_error_flag': True
-        }
+        logger.exception(f"Unexpected error processing PR {pr_id}: {e}")
+        return InferenceResponse(
+            pr_id=pr_id,
+            file_path=file_path,
+            status=InferenceStatus.ERROR,
+            error_message=str(e),
+            detections=[]
+        )
 
 def run_batch_inference(
-    prs: List[Dict[str, Any]],
+    pr_list: List[Dict[str, Any]],
     model: Any,
     tokenizer: Any,
-    timeout_seconds: int = 3600
-) -> List[Dict[str, Any]]:
+    per_pr_timeout: int,
+    memory_limit_gb: float
+) -> List[InferenceResponse]:
     """
-    Run batch inference on a list of PRs with timeout and memory monitoring.
+    Run inference on a batch of PRs.
+    Enforces per-PR timeout and memory limits for each item.
     """
     results = []
-    start_time = time.time()
-    
-    logger.info(f"Starting batch inference for {len(prs)} PRs")
-    
-    with TimeoutContext(timeout_seconds) as timeout_ctx:
-        for i, pr in enumerate(prs):
-            pr_id = pr.get('pr_id', f'pr_{i}')
-            logger.info(f"Processing PR {i+1}/{len(prs)}: {pr_id}")
-            
-            result = process_single_pr(pr, model, tokenizer, timeout_ctx)
-            results.append(result)
-            
-            # Log progress
-            elapsed = time.time() - start_time
-            if (i + 1) % 10 == 0:
-                logger.info(f"Processed {i+1} PRs in {elapsed:.2f}s")
-    
+    for i, pr in enumerate(pr_list):
+        logger.info(f"Processing PR {i+1}/{len(pr_list)}: {pr.get('pr_id')}")
+        try:
+            response = process_single_pr(pr, model, tokenizer, per_pr_timeout, memory_limit_gb)
+            results.append(response)
+        except TimeoutExceeded:
+            logger.critical("Global timeout reached. Stopping batch inference.")
+            break
+        except Exception as e:
+            logger.exception(f"Fatal error in batch processing: {e}")
+            break
     return results
 
-def save_results(results: List[Dict[str, Any]], output_path: Path) -> None:
+def save_results(results: List[InferenceResponse], output_path: Path):
     """
-    Save inference results to the specified output path.
-    Creates the directory if it doesn't exist.
+    Save inference results to a JSON file.
     """
     ensure_directories([output_path.parent])
+    data = []
+    for res in results:
+        entry = {
+            "pr_id": res.pr_id,
+            "file_path": res.file_path,
+            "status": res.status.value,
+            "error_message": res.error_message,
+            "detections": res.detections,
+            "latency_seconds": getattr(res, 'latency_seconds', None)
+        }
+        data.append(entry)
     
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2, ensure_ascii=False)
-    
-    logger.info(f"Saved {len(results)} results to {output_path}")
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Results saved to {output_path}")
 
 def main():
     """
-    Main entry point for running LLM inference on PRs and saving results.
+    Main entry point for running inference with timeout enforcement.
     """
     config = get_config()
     paths = get_paths()
     
-    # Load model
-    logger.info("Loading model for inference...")
-    model, tokenizer = load_model_for_inference()
-    logger.info("Model loaded successfully")
+    # Get parameters
+    per_pr_timeout = config.get("inference", {}).get("per_pr_timeout_seconds", 300)
+    memory_limit_gb = config.get("inference", {}).get("memory_limit_gb", 7.0)
+    model_id = config.get("model", {}).get("model_id", "bigcode/starcoder2-3b")
     
-    # Load input data (from split datasets or raw)
-    input_path = paths.get('derived_split_human', paths.get('data_derived'))
-    # For T024, we assume input is already split and available
-    # We'll look for the split dataset or use raw data as fallback
-    input_file = input_path / 'llm_code_split.json'
-    if not input_file.exists():
-        input_file = paths.get('data_raw') / 'pr_data.json'
+    input_path = paths.get("derived_llm_detections_split", paths.get("derived_dir", Path("data/derived"))) / "llm_detections_split.json"
+    output_path = paths.get("derived_dir", Path("data/derived")) / "llm_detections.json"
     
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
+    ensure_directories([input_path.parent, output_path.parent])
+
+    # Load data
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}. Run split_dataset.py first.")
         sys.exit(1)
     
-    with open(input_file, 'r', encoding='utf-8') as f:
-        prs = json.load(f)
+    with open(input_path, "r") as f:
+        pr_data_list = json.load(f)
     
-    logger.info(f"Loaded {len(prs)} PRs from {input_file}")
-    
+    logger.info(f"Loaded {len(pr_data_list)} PRs for inference.")
+
+    # Setup runtime tracking
+    start_runtime_tracking()
+
+    # Load model
+    logger.info(f"Loading model: {model_id}")
+    model, tokenizer = load_model_for_inference(model_id)
+    logger.info("Model loaded successfully.")
+
     # Run inference
-    output_path = paths.get('data_derived') / 'llm_detections.json'
-    
-    results = run_batch_inference(
-        prs, 
-        model, 
-        tokenizer, 
-        timeout_seconds=config.get('max_inference_time_seconds', 3600)
-    )
-    
+    logger.info(f"Starting batch inference with {per_pr_timeout}s timeout per PR.")
+    results = run_batch_inference(pr_data_list, model, tokenizer, per_pr_timeout, memory_limit_gb)
+
     # Save results
     save_results(results, output_path)
-    
-    # Log summary
-    error_count = sum(1 for r in results if r.get('llm_error_flag', False))
-    success_count = len(results) - error_count
-    logger.info(f"Inference complete: {success_count} successful, {error_count} errors")
-    logger.info(f"Output saved to: {output_path}")
+
+    # Log stats
+    stop_runtime_tracking()
+    log_runtime_stats()
+
+    logger.info("Inference pipeline completed.")
 
 if __name__ == "__main__":
     main()

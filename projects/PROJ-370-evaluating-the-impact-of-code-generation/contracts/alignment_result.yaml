@@ -1,0 +1,57 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AlignmentResult
+description: |
+  Schema for the result of aligning LLM detections with human baseline bugs.
+  Includes match status, similarity scores, and overlap metrics.
+type: object
+required:
+  - pr_id
+  - human_bug_id
+  - llm_bug_id
+  - is_aligned
+  - file_path
+properties:
+  pr_id:
+    type: integer
+    description: The Pull Request ID
+  human_bug_id:
+    type: string
+    description: Unique identifier for the human baseline bug (e.g., "pr_id-file-start-end")
+  llm_bug_id:
+    type: string
+    description: Unique identifier for the LLM detection
+  is_aligned:
+    type: boolean
+    description: True if the bugs matched based on strict Jaccard and cosine similarity
+  file_path:
+    type: string
+    description: Path to the file
+  line_start_human:
+    type: integer
+    description: Start line of the human bug
+  line_end_human:
+    type: integer
+    description: End line of the human bug
+  line_start_llm:
+    type: integer
+    description: Start line of the LLM bug
+  line_end_llm:
+    type: integer
+    description: End line of the LLM bug
+  jaccard_index:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: |
+      Jaccard index of line overlap. Must be >= 0.5 for a valid match.
+      Calculated as |Lines_Human ∩ Lines_LLM| / |Lines_Human ∪ Lines_LLM|.
+      STRICT: No line-shift tolerance allowed.
+  cosine_similarity:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Cosine similarity of text embeddings (default threshold 0.85)
+  match_reason:
+    type: string
+    enum: [exact_range, overlap_jaccard_high, no_match]
+    description: Reason for the alignment decision

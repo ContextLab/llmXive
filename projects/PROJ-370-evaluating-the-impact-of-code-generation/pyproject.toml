@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evaluating-the-impact-of-code-generation"
+version = "0.1.0"
+description = "Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance"
+requires-python = ">=3.9"
+dependencies = [
+    "datasets",
+    "transformers",
+    "scikit-learn",
+    "scipy",
+    "pandas",
+    "pyyaml",
+    "pytest",
+    "numpy",
+    "torch",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Same as Black.
+line-length = 100
+target-version = "py39"
+
+# Assume Python 3.9
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Per-file ignores
+per-file-ignores = {}
+
+# Ignore specific rules
+# E501: line too long (handled by black usually, but ruff checks too)
+# W503: line break before binary operator (conflicts with black)
+ignore = ["E501", "W503"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "src", "tests"]
+force-single-line = false
+lines-after-imports = 2

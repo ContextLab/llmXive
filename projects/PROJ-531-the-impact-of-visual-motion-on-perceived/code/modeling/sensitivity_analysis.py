@@ -1,213 +1,209 @@
+"""
+Sensitivity Analysis Module for T023.
+
+Implements a threshold sweep on absolute regression coefficient magnitudes
+to calculate significance rates via bootstrapping.
+
+Output: data/results/sensitivity_analysis.csv
+"""
 import os
+import json
 import pandas as pd
 import numpy as np
-from pathlib import Path
 import statsmodels.api as sm
-import json
-from typing import List, Dict, Any
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional
 import logging
 
-# Import logging config from utils if available, otherwise fallback to basic config
-try:
-    from utils.logging_config import get_logger
-    logger = get_logger("sensitivity_analysis")
-except ImportError:
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger("sensitivity_analysis")
+from utils.logging_config import get_logger
 
-def bootstrap_sensitivity_check(
-    df: pd.DataFrame,
-    feature_cols: List[str],
-    target_col: str,
-    thresholds: List[float],
-    n_bootstraps: int = 1000,
-    random_state: int = 42
-) -> pd.DataFrame:
-    """
-    Perform sensitivity analysis by bootstrapping the regression model
-    and checking significance rates across different coefficient thresholds.
+logger = get_logger(__name__)
 
-    Logic:
-    1. For each bootstrap sample:
-       - Fit OLS model
-       - Extract coefficients and p-values
-    2. For each threshold in thresholds:
-       - Count how many bootstrap samples had |coefficient| > threshold AND p < 0.05
-       - Calculate significance rate (count / n_bootstraps)
-    3. Calculate variance of p-values across bootstraps for each feature.
+# Thresholds to sweep as per T023 spec
+THRESHOLDS = [0.01, 0.05, 0.1]
+BOOTSTRAP_SAMPLES = 1000
+RANDOM_SEED = 42
 
-    Args:
-        df: Cleaned dataframe with features and target.
-        feature_cols: List of feature column names.
-        target_col: Name of the target column (agency_score).
-        thresholds: List of coefficient magnitude thresholds to sweep.
-        n_bootstraps: Number of bootstrap iterations.
-        random_state: Random seed for reproducibility.
-
-    Returns:
-        DataFrame with columns: threshold, significance_rate, p_value_variance
-    """
-    np.random.seed(random_state)
-    n_samples = len(df)
+def load_model_metrics() -> Dict:
+    """Load the model metrics from T026 (or previous run)."""
+    metrics_path = Path("data/results/model_metrics.json")
+    if not metrics_path.exists():
+        logger.error(f"Model metrics file not found at {metrics_path}. "
+                     "Please run modeling tasks (T021, T022) first.")
+        raise FileNotFoundError(f"Missing {metrics_path}")
     
-    # Storage for results
-    p_values_storage = {col: [] for col in feature_cols}
-    significance_counts = {thresh: 0 for thresh in thresholds}
+    with open(metrics_path, 'r') as f:
+        return json.load(f)
 
-    logger.info(f"Starting bootstrap sensitivity analysis with {n_bootstraps} iterations...")
+def load_cleaned_data() -> pd.DataFrame:
+    """Load the cleaned data used for modeling."""
+    data_path = Path("data/processed/cleaned_data.csv")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Cleaned data not found at {data_path}")
+    return pd.read_csv(data_path)
 
-    for i in range(n_bootstraps):
-        # Bootstrap sample (sampling with replacement)
-        indices = np.random.choice(n_samples, size=n_samples, replace=True)
-        boot_df = df.iloc[indices]
+def run_bootstrap_sensitivity(
+    data: pd.DataFrame, 
+    target_col: str, 
+    feature_cols: List[str], 
+    threshold: float, 
+    n_samples: int = BOOTSTRAP_SAMPLES, 
+    seed: int = RANDOM_SEED
+) -> Tuple[float, float]:
+    """
+    Perform bootstrap sensitivity check for a specific coefficient threshold.
+    
+    Logic:
+    1. Resample data with replacement.
+    2. Fit OLS model.
+    3. Check if the absolute coefficient of the primary feature (or all features?)
+       exceeds the threshold AND p-value < 0.05.
+       
+    Note: The spec says "fraction of bootstrap samples where p < 0.05" for a threshold
+    on "absolute regression coefficient magnitude". This implies we check if the 
+    coefficient is significant AND large enough.
+    
+    We will iterate over all features in the model and calculate the rate for each,
+    then average or report the rate for the "top" predictor if specified. 
+    Given the generic description, we will calculate the significance rate 
+    for the *set* of features being tested.
+    
+    To be precise with the output format (single row per threshold), we will 
+    compute the significance rate for the feature with the largest coefficient 
+    in the original full-sample model, or average across features if multiple 
+    are significant.
+    
+    Revised Logic based on standard sensitivity analysis:
+    For each bootstrap sample:
+      - Fit OLS
+      - Check if |coef| > threshold AND p < 0.05 for the target feature(s).
+    """
+    np.random.seed(seed)
+    n_obs = len(data)
+    significance_count = 0
+    p_values = []
 
-        X = sm.add_constant(boot_df[feature_cols])
-        y = boot_df[target_col]
+    # Identify the target features (excluding intercept)
+    # We assume the model in model_metrics.json defines the features used.
+    # If not, we use all numeric columns except target.
+    
+    # Let's use the features defined in the metrics if available, else infer
+    # For robustness, we'll use the columns present in the data minus target
+    # but we need to know which one to check against the threshold.
+    # The prompt implies a general sweep. We will check the *maximum* absolute 
+    # coefficient in the model against the threshold, or check if *any* 
+    # feature meets the criteria.
+    
+    # Let's assume we are checking the "primary" predictor (highest coef in full model).
+    # We will determine this from the full data first.
+    X_full = data[feature_cols]
+    X_full = sm.add_constant(X_full)
+    y_full = data[target_col]
+    model_full = sm.OLS(y_full, X_full).fit()
+    
+    # Find the feature with the largest absolute coefficient (excluding const)
+    coeffs = model_full.params.drop('const')
+    if len(coeffs) == 0:
+        return 0.0, 0.0
+    
+    top_feature = coeffs.abs().idxmax()
+    top_coef_val = coeffs[top_feature]
+    
+    logger.debug(f"Top feature for sensitivity analysis: {top_feature} (coef={top_coef_val:.4f})")
 
+    for _ in range(n_samples):
+        # Bootstrap resample
+        indices = np.random.choice(n_obs, size=n_obs, replace=True)
+        X_boot = data.iloc[indices][feature_cols]
+        X_boot = sm.add_constant(X_boot)
+        y_boot = data.iloc[indices][target_col]
+        
         try:
-            model = sm.OLS(y, X).fit()
-            p_vals = model.pvalues[feature_cols]
-            coeffs = model.params[feature_cols]
-
-            # Store p-values for variance calculation
-            for col in feature_cols:
-                p_values_storage[col].append(p_vals[col])
-
-            # Check significance against thresholds
-            # We check if ANY feature meets the threshold criteria for this bootstrap
-            # Or we can aggregate per feature. The task asks for "significance rate" generally.
-            # Interpretation: Rate at which the model finds significant effects > threshold.
+            model_boot = sm.OLS(y_boot, X_boot).fit()
             
-            for thresh in thresholds:
-                # Check if any feature has |coeff| > thresh AND p < 0.05
-                # This measures robustness of finding *any* effect above threshold
-                found_significant = False
-                for col in feature_cols:
-                    if abs(coeffs[col]) > thresh and p_vals[col] < 0.05:
-                        found_significant = True
-                        break
-                if found_significant:
-                    significance_counts[thresh] += 1
-
-        except Exception as e:
-            logger.warning(f"Bootstrap iteration {i} failed: {e}")
+            # Get coef and p-value for the top feature
+            coef_val = model_boot.params[top_feature]
+            p_val = model_boot.pvalues[top_feature]
+            p_values.append(p_val)
+            
+            # Check condition: |coef| > threshold AND p < 0.05
+            if abs(coef_val) > threshold and p_val < 0.05:
+                significance_count += 1
+        except Exception:
+            # Singular matrix or convergence issue in bootstrap
             continue
 
-    # Calculate results
+    significance_rate = significance_count / n_samples
+    p_value_variance = np.var(p_values) if p_values else 0.0
+    
+    return significance_rate, p_value_variance
+
+def run_sensitivity_analysis() -> pd.DataFrame:
+    """
+    Main entry point for sensitivity analysis.
+    Sweeps thresholds and outputs results to CSV.
+    """
+    logger.info("Starting sensitivity analysis (T023)...")
+    
+    # Load dependencies
+    try:
+        metrics = load_model_metrics()
+        data = load_cleaned_data()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise
+
+    # Determine target and features
+    # We assume the model_metrics.json has a "ols" section with "features"
+    # If not, we infer from data (numeric cols)
+    if "ols" in metrics and "features" in metrics["ols"]:
+        feature_cols = metrics["ols"]["features"]
+    else:
+        # Fallback: infer numeric columns
+        numeric_cols = data.select_dtypes(include=[np.number]).columns.tolist()
+        # Assume last column is target or named 'agency_score'
+        target_col = 'agency_score' if 'agency_score' in numeric_cols else numeric_cols[-1]
+        feature_cols = [c for c in numeric_cols if c != target_col]
+    
+    target_col = 'agency_score' if 'agency_score' in data.columns else data.columns[-1]
+    # Ensure target is in data
+    if target_col not in data.columns:
+        raise ValueError(f"Target column '{target_col}' not found in data.")
+
     results = []
-    for thresh in sorted(thresholds):
-        rate = significance_counts[thresh] / n_bootstraps
+    
+    logger.info(f"Running bootstrap sensitivity check for thresholds: {THRESHOLDS}")
+    
+    for thresh in THRESHOLDS:
+        logger.info(f"Processing threshold: {thresh}")
+        rate, var = run_bootstrap_sensitivity(
+            data=data,
+            target_col=target_col,
+            feature_cols=feature_cols,
+            threshold=thresh
+        )
         results.append({
-            'threshold': thresh,
-            'significance_rate': rate
+            "threshold": thresh,
+            "significance_rate": rate,
+            "p_value_variance": var
         })
     
-    results_df = pd.DataFrame(results)
-
-    # Calculate p-value variance per feature (aggregate across features for a single metric?)
-    # The task asks for 'p_value_variance' in the output.
-    # We will calculate the average variance of p-values across all features for robustness.
-    variances = []
-    for col in feature_cols:
-        if len(p_values_storage[col]) > 1:
-            variances.append(np.var(p_values_storage[col]))
-    
-    if variances:
-        avg_p_value_variance = np.mean(variances)
-    else:
-        avg_p_value_variance = np.nan
-
-    results_df['p_value_variance'] = avg_p_value_variance
-
-    return results_df
-
-def run_sensitivity_analysis(
-    data_path: str,
-    output_path: str,
-    feature_cols: List[str] = None,
-    target_col: str = "agency_score",
-    thresholds: List[float] = None,
-    n_bootstraps: int = 1000
-):
-    """
-    Main entry point to run sensitivity analysis.
-    
-    Reads cleaned data, runs bootstrap sensitivity check, and saves results.
-    """
-    if thresholds is None:
-        thresholds = [0.01, 0.05, 0.1]
-    
-    logger.info(f"Loading data from {data_path}")
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-    
-    df = pd.read_csv(data_path)
-    
-    # Validate columns
-    missing_cols = [c for c in feature_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing feature columns in data: {missing_cols}")
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in data")
-
-    logger.info(f"Running sensitivity analysis on features: {feature_cols}")
-    results_df = bootstrap_sensitivity_check(
-        df=df,
-        feature_cols=feature_cols,
-        target_col=target_col,
-        thresholds=thresholds,
-        n_bootstraps=n_bootstraps
-    )
-
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Saving results to {output_path}")
-    results_df.to_csv(output_path, index=False)
-    logger.info("Sensitivity analysis complete.")
+    df_results = pd.DataFrame(results)
+    return df_results
 
 def main():
-    """
-    CLI entry point for T023.
-    Reads from data/processed/cleaned_data.csv and outputs to data/results/sensitivity_analysis.csv
-    """
-    # Define paths based on project structure
-    project_root = Path(__file__).resolve().parent.parent.parent
-    data_path = project_root / "data" / "processed" / "cleaned_data.csv"
-    output_path = project_root / "data" / "results" / "sensitivity_analysis.csv"
-
-    # Default features based on T014/T017 schema (latency, smoothness, lead_time)
-    feature_cols = ["latency", "smoothness", "lead_time"]
-    
-    # Filter out features that might be missing in the CSV if lead_time is optional
-    # We read the CSV first to check columns if needed, but assume standard schema.
-    # To be safe, we will check existence in the file before running.
+    """Main execution block."""
+    output_dir = Path("data/results")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "sensitivity_analysis.csv"
     
     try:
-        df_check = pd.read_csv(data_path)
-        available_features = [f for f in feature_cols if f in df_check.columns]
-        if not available_features:
-            # Fallback to all numeric columns except target if specific ones missing
-            numeric_cols = df_check.select_dtypes(include=[np.number]).columns.tolist()
-            available_features = [c for c in numeric_cols if c != "agency_score"]
-        
-        if not available_features:
-            raise ValueError("No valid feature columns found for regression.")
-            
-        run_sensitivity_analysis(
-            data_path=str(data_path),
-            output_path=str(output_path),
-            feature_cols=available_features,
-            target_col="agency_score",
-            thresholds=[0.01, 0.05, 0.1],
-            n_bootstraps=1000
-        )
-    except FileNotFoundError:
-        logger.error(f"Required data file not found: {data_path}")
-        raise
+        df = run_sensitivity_analysis()
+        df.to_csv(output_path, index=False)
+        logger.info(f"Sensitivity analysis complete. Output saved to {output_path}")
+        print(f"Success: {output_path} written.")
     except Exception as e:
-        logger.error(f"Error during sensitivity analysis: {e}")
+        logger.error(f"Failed to run sensitivity analysis: {e}")
         raise
 
 if __name__ == "__main__":

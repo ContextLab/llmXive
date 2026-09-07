@@ -1,3 +1,11 @@
+"""
+Logging infrastructure for the llmXive pipeline.
+
+Provides:
+- Structured logging configuration
+- Runtime tracking (start/stop times, duration)
+- Memory and timeout integration hooks
+"""
 import logging
 import os
 import sys
@@ -6,159 +14,245 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-from config.settings import get_paths
+from code.config.settings import get_paths, ensure_directories
 
-# Global runtime tracking state
-_runtime_start: Optional[float] = None
-_runtime_end: Optional[float] = None
-_logger: Optional[logging.Logger] = None
 
-# Standard log format
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+# Global state for runtime tracking
+_pipeline_start_time: Optional[float] = None
+_pipeline_start_datetime: Optional[datetime] = None
+_runtime_logger: Optional[logging.Logger] = None
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
+
+def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Get or create a logger with the specified name.
-    Ensures the logger is configured with appropriate handlers and levels.
+    Get a configured logger instance.
     
     Args:
-        name: The name of the logger.
+        name: Logger name (typically __name__)
+        level: Logging level (default: INFO)
         
     Returns:
-        A configured logging.Logger instance.
+        Configured logger instance
     """
-    global _logger
-    
-    if _logger is None:
-        _logger = setup_pipeline_logging(name)
-    else:
-        # If logger exists but wasn't configured for this name, add handler if needed
-        if not any(h.name == name or h.name == "llmXive" for h in _logger.handlers):
-            _logger = setup_pipeline_logging(name)
-    
-    return logging.getLogger(name) if name != "llmXive" else _logger
-
-def setup_pipeline_logging(name: str = "llmXive", level: int = logging.INFO) -> logging.Logger:
-    """
-    Configure the pipeline logging infrastructure.
-    Creates log directory, file handler, and console handler.
-    
-    Args:
-        name: The name for the logger.
-        level: The logging level (default: INFO).
-        
-    Returns:
-        A configured logging.Logger instance.
-    """
-    paths = get_paths()
-    log_dir = paths["log_dir"]
-    
-    # Ensure log directory exists
-    Path(log_dir).mkdir(parents=True, exist_ok=True)
-    
     logger = logging.getLogger(name)
     logger.setLevel(level)
     
-    # Prevent duplicate handlers if called multiple times
+    # Avoid adding duplicate handlers if logger already configured
     if logger.handlers:
         return logger
     
-    # File handler
-    log_file = Path(log_dir) / "pipeline.log"
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(level)
-    file_handler.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
+    # Ensure log directory exists
+    paths = get_paths()
+    log_dir = Path(paths["logs"])
+    log_dir.mkdir(parents=True, exist_ok=True)
     
-    # Console handler
+    # File handler for pipeline logs
+    file_handler = logging.FileHandler(
+        log_dir / f"{name}.log",
+        mode='a',
+        encoding='utf-8'
+    )
+    file_handler.setLevel(level)
+    
+    # Console handler for immediate feedback
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
-    console_handler.setFormatter(logging.Formatter(LOG_FORMAT, LOG_DATE_FORMAT))
+    
+    # Formatter with timestamp, level, and message
+    formatter = logging.Formatter(
+        fmt='%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
     
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
     
     return logger
 
-def start_runtime_tracking() -> None:
-    """
-    Start tracking the runtime of the pipeline.
-    Records the start time in a global variable.
-    """
-    global _runtime_start
-    _runtime_start = time.time()
-    _runtime_end = None
-    
-    logger = get_logger()
-    logger.info(f"Pipeline runtime tracking started at {datetime.now().isoformat()}")
 
-def stop_runtime_tracking() -> Optional[float]:
+def setup_pipeline_logging(log_level: str = "INFO") -> logging.Logger:
     """
-    Stop tracking the runtime and calculate the duration.
-    
-    Returns:
-        The duration in seconds, or None if tracking was not started.
-    """
-    global _runtime_start, _runtime_end
-    
-    if _runtime_start is None:
-        logger = get_logger()
-        logger.warning("Runtime tracking was not started before stopping.")
-        return None
-    
-    _runtime_end = time.time()
-    duration = _runtime_end - _runtime_start
-    
-    logger = get_logger()
-    logger.info(f"Pipeline runtime tracking stopped. Duration: {duration:.2f} seconds")
-    
-    return duration
-
-def log_runtime_stats(stats: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Log runtime statistics and return a summary dictionary.
+    Configure the main pipeline logging infrastructure.
     
     Args:
-        stats: Optional dictionary of additional statistics to include.
+        log_level: Logging level string (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         
     Returns:
-        A dictionary containing runtime statistics.
+        Main pipeline logger
     """
-    global _runtime_start, _runtime_end
-    
-    logger = get_logger()
-    
-    result = {
-        "tracking_active": _runtime_start is not None,
-        "start_time": datetime.fromtimestamp(_runtime_start).isoformat() if _runtime_start else None,
-        "end_time": datetime.fromtimestamp(_runtime_end).isoformat() if _runtime_end else None,
-        "duration_seconds": (_runtime_end - _runtime_start) if (_runtime_start and _runtime_end) else None
+    level_map = {
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL
     }
     
-    if stats:
-        result.update(stats)
+    level = level_map.get(log_level.upper(), logging.INFO)
     
-    logger.info(f"Runtime stats logged: {result}")
+    # Get paths and ensure directories exist
+    paths = get_paths()
+    ensure_directories()
     
-    return result
+    log_dir = Path(paths["logs"])
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    
+    # Clear existing handlers
+    root_logger.handlers.clear()
+    
+    # File handler for comprehensive pipeline log
+    pipeline_log_file = log_dir / "pipeline.log"
+    file_handler = logging.FileHandler(
+        pipeline_log_file,
+        mode='a',
+        encoding='utf-8'
+    )
+    file_handler.setLevel(level)
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    
+    # Detailed formatter
+    formatter = logging.Formatter(
+        fmt='%(asctime)s | %(levelname)-8s | %(name)s | %(funcName)s:%(lineno)d | %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
+    
+    # Also log to a dedicated runtime file
+    runtime_logger = get_logger("runtime", level)
+    runtime_logger.info("Pipeline logging initialized")
+    
+    return root_logger
+
+
+def start_runtime_tracking() -> Dict[str, Any]:
+    """
+    Start runtime tracking for the pipeline execution.
+    
+    Returns:
+        Dictionary with start time information
+    """
+    global _pipeline_start_time, _pipeline_start_datetime, _runtime_logger
+    
+    _pipeline_start_time = time.time()
+    _pipeline_start_datetime = datetime.now()
+    
+    # Get or create runtime logger
+    if _runtime_logger is None:
+        _runtime_logger = get_logger("runtime")
+    
+    _runtime_logger.info(
+        f"Pipeline started at {_pipeline_start_datetime.isoformat()}"
+    )
+    
+    return {
+        "start_time": _pipeline_start_time,
+        "start_datetime": _pipeline_start_datetime.isoformat(),
+        "status": "started"
+    }
+
+
+def stop_runtime_tracking() -> Dict[str, Any]:
+    """
+    Stop runtime tracking and calculate duration.
+    
+    Returns:
+        Dictionary with end time and duration information
+    """
+    global _pipeline_start_time, _pipeline_start_datetime, _runtime_logger
+    
+    if _pipeline_start_time is None:
+        raise RuntimeError("Runtime tracking was not started. Call start_runtime_tracking() first.")
+    
+    end_time = time.time()
+    end_datetime = datetime.now()
+    duration_seconds = end_time - _pipeline_start_time
+    duration_minutes = duration_seconds / 60.0
+    
+    if _runtime_logger is None:
+        _runtime_logger = get_logger("runtime")
+    
+    _runtime_logger.info(
+        f"Pipeline completed at {end_datetime.isoformat()}"
+    )
+    _runtime_logger.info(f"Total duration: {duration_seconds:.2f} seconds ({duration_minutes:.2f} minutes)")
+    
+    # Reset global state
+    _pipeline_start_time = None
+    _pipeline_start_datetime = None
+    
+    return {
+        "end_time": end_time,
+        "end_datetime": end_datetime.isoformat(),
+        "duration_seconds": duration_seconds,
+        "duration_minutes": duration_minutes,
+        "status": "completed"
+    }
+
+
+def log_runtime_stats(stats: Dict[str, Any]) -> None:
+    """
+    Log runtime statistics to the runtime logger.
+    
+    Args:
+        stats: Dictionary of statistics to log
+    """
+    global _runtime_logger
+    
+    if _runtime_logger is None:
+        _runtime_logger = get_logger("runtime")
+    
+    _runtime_logger.info("Runtime statistics:")
+    for key, value in stats.items():
+        _runtime_logger.info(f"  {key}: {value}")
+
 
 def main() -> None:
     """
-    Main function to demonstrate logging infrastructure and runtime tracking.
-    This function is intended for testing purposes.
+    Main entry point for testing the logger module.
+    Demonstrates logging setup and runtime tracking.
     """
-    logger = setup_pipeline_logging()
-    logger.info("Logger infrastructure initialized.")
+    # Setup pipeline logging
+    logger = setup_pipeline_logging("INFO")
     
-    start_runtime_tracking()
+    logger.info("Starting logger module demonstration")
+    
+    # Start runtime tracking
+    start_info = start_runtime_tracking()
+    logger.info(f"Tracking started: {start_info['start_datetime']}")
     
     # Simulate some work
+    logger.info("Simulating pipeline work...")
     time.sleep(0.5)
+    logger.info("Work simulation complete")
     
-    stop_runtime_tracking()
+    # Log some statistics
+    stats = {
+        "items_processed": 10,
+        "errors_encountered": 0,
+        "memory_usage_mb": 128
+    }
+    log_runtime_stats(stats)
     
-    runtime_stats = log_runtime_stats({"simulated_work": True})
-    print(f"Runtime stats: {runtime_stats}")
+    # Stop runtime tracking
+    end_info = stop_runtime_tracking()
+    logger.info(f"Tracking stopped: {end_info['end_datetime']}")
+    logger.info(f"Duration: {end_info['duration_seconds']:.2f}s")
+    
+    logger.info("Logger module demonstration complete")
+
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,3 @@
-"""
-Tests for the LLM code detection schema.
-"""
 import pytest
 from code.src.detection.schema import (
     LLMCodeDetectionResult,
@@ -9,114 +6,127 @@ from code.src.detection.schema import (
 
 
 def test_llm_detection_result_creation():
-    """Test basic creation of an LLMCodeDetectionResult."""
+    """Test basic creation of LLMCodeDetectionResult."""
     result = LLMCodeDetectionResult(
         pr_id="PR-123",
         file_path="src/main.py",
         line_start=10,
         line_end=25,
-        detected=True,
         confidence=ConfidenceLevel.HIGH,
-        heuristic_name="perplexity_score",
-        heuristic_details={"score": 0.15}
+        confidence_score=0.95,
+        detection_method="heuristic_pattern_match",
+        snippet_preview="def generate_code(): ..."
     )
-
+    
     assert result.pr_id == "PR-123"
     assert result.file_path == "src/main.py"
     assert result.line_start == 10
     assert result.line_end == 25
-    assert result.detected is True
     assert result.confidence == ConfidenceLevel.HIGH
-    assert result.heuristic_name == "perplexity_score"
-    assert result.heuristic_details == {"score": 0.15}
+    assert result.confidence_score == 0.95
+    assert result.detection_method == "heuristic_pattern_match"
+    assert result.is_llm_generated is True
+    assert result.snippet_preview == "def generate_code(): ..."
+    assert isinstance(result.metadata, dict)
 
 
 def test_llm_detection_result_json_roundtrip():
-    """Test that an LLMCodeDetectionResult can be serialized and deserialized."""
+    """Test that LLMCodeDetectionResult can be serialized and deserialized correctly."""
     original = LLMCodeDetectionResult(
         pr_id="PR-456",
-        file_path="tests/test_utils.py",
-        line_start=5,
-        line_end=12,
-        detected=False,
+        file_path="utils/helper.py",
+        line_start=1,
+        line_end=50,
         confidence=ConfidenceLevel.MEDIUM,
-        heuristic_name="ngram_overlap",
-        heuristic_details={"overlap": 0.4},
-        raw_snippet="def hello():\n    pass",
-        metadata={"source": "manual_review"}
+        confidence_score=0.75,
+        detection_method="ml_model_v2",
+        snippet_preview="import os",
+        is_llm_generated=True,
+        metadata={"source": "test_runner", "version": "1.0"}
     )
-
+    
     json_str = original.to_json()
     restored = LLMCodeDetectionResult.from_json(json_str)
-
+    
     assert restored.pr_id == original.pr_id
     assert restored.file_path == original.file_path
     assert restored.line_start == original.line_start
     assert restored.line_end == original.line_end
-    assert restored.detected == original.detected
     assert restored.confidence == original.confidence
-    assert restored.heuristic_name == original.heuristic_name
-    assert restored.heuristic_details == original.heuristic_details
-    assert restored.raw_snippet == original.raw_snippet
+    assert restored.confidence_score == original.confidence_score
+    assert restored.detection_method == original.detection_method
+    assert restored.is_llm_generated == original.is_llm_generated
     assert restored.metadata == original.metadata
 
 
 def test_llm_detection_result_to_dict():
-    """Test the to_dict method."""
+    """Test conversion to dictionary."""
     result = LLMCodeDetectionResult(
         pr_id="PR-789",
-        file_path="config.yaml",
-        line_start=1,
-        line_end=1,
-        detected=True,
+        file_path="data/processor.py",
+        line_start=100,
+        line_end=150,
         confidence=ConfidenceLevel.LOW,
-        heuristic_name="template_match",
-        heuristic_details={"match_id": "tpl-001"}
+        confidence_score=0.35,
+        detection_method="regex_pattern",
+        is_llm_generated=False
     )
-
-    d = result.to_dict()
-
-    assert isinstance(d, dict)
-    assert d["pr_id"] == "PR-789"
-    assert d["detected"] is True
-    assert d["confidence"] == "low"  # Enum value string
-    assert "heuristic_details" in d
+    
+    data = result.to_dict()
+    
+    assert data["pr_id"] == "PR-789"
+    assert data["file_path"] == "data/processor.py"
+    assert data["line_start"] == 100
+    assert data["line_end"] == 150
+    assert data["confidence"] == "low"
+    assert data["confidence_score"] == 0.35
+    assert data["detection_method"] == "regex_pattern"
+    assert data["is_llm_generated"] is False
 
 
 def test_llm_detection_result_from_dict_invalid_confidence():
-    """Test handling of invalid confidence in from_dict (should default or handle gracefully)."""
-    # Note: The implementation expects a valid string for ConfidenceLevel constructor.
-    # If we pass an invalid string, it should raise ValueError.
-    data = {
+    """Test that invalid confidence level raises ValueError."""
+    invalid_data = {
         "pr_id": "PR-999",
-        "file_path": "x.py",
+        "file_path": "test.py",
         "line_start": 1,
-        "line_end": 2,
-        "detected": False,
+        "line_end": 10,
         "confidence": "invalid_level",
-        "heuristic_name": "test",
-        "heuristic_details": {}
+        "confidence_score": 0.5,
+        "detection_method": "test"
     }
-
-    with pytest.raises(ValueError):
-        LLMCodeDetectionResult.from_dict(data)
+    
+    with pytest.raises(ValueError, match="Invalid confidence level"):
+        LLMCodeDetectionResult.from_dict(invalid_data)
 
 
 def test_llm_detection_result_missing_optional_fields():
-    """Test creation with missing optional fields (defaults should apply)."""
-    data = {
-        "pr_id": "PR-000",
-        "file_path": "y.py",
+    """Test that missing optional fields default correctly."""
+    minimal_data = {
+        "pr_id": "PR-MIN",
+        "file_path": "minimal.py",
         "line_start": 1,
         "line_end": 5,
-        "detected": False,
-        "confidence": "uncertain",
-        "heuristic_name": "default_heuristic"
-        # heuristic_details, raw_snippet, metadata are missing
+        "confidence": "high",
+        "confidence_score": 0.9,
+        "detection_method": "test_method"
     }
-
-    result = LLMCodeDetectionResult.from_dict(data)
-
-    assert result.heuristic_details == {}
-    assert result.raw_snippet is None
+    
+    result = LLMCodeDetectionResult.from_dict(minimal_data)
+    
+    assert result.snippet_preview is None
+    assert result.is_llm_generated is True
     assert result.metadata == {}
+    assert result.pr_id == "PR-MIN"
+
+
+def test_llm_detection_result_missing_required_fields():
+    """Test that missing required fields raise ValueError."""
+    incomplete_data = {
+        "pr_id": "PR-NO-END",
+        "file_path": "incomplete.py",
+        # Missing line_end, confidence, etc.
+    }
+    
+    with pytest.raises(ValueError, match="Missing required field"):
+        LLMCodeDetectionResult.from_dict(incomplete_data)

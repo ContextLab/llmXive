@@ -1,3 +1,3 @@
 """
-PROJ-212: Exploring the Impact of Network Structure on Synchronization in Complex Physical Systems
+Initialization file for the PROJ-212 code package.
 """

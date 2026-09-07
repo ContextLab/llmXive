@@ -76,12 +76,12 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `src/extraction/fetch_prs.py` to: (a) load and validate the list of 3-5 target repos from `config/settings.py` (FR-001), (b) fetch PRs using GitHub API, (c) handle missing linked issues (empty list), (d) log unverified issues. Output raw JSON to `data/raw/`.
+- [ ] T012 [US1] Implement `src/extraction/fetch_prs.py` to: (a) load and validate the list of 3-5 target repos from `config/settings.py` (FR-001), (b) fetch PRs using GitHub API, (c) handle missing linked issues (empty list), (d) log unverified issues. Output raw JSON to `data/raw/`.
 - [X] T013 [US1] Implement `src/extraction/preprocess.py` to truncate diffs exceeding context window and log warnings (Edge Case)
-- [~] T014 [US1] Implement `src/extraction/preprocess.py` to extract raw review comments into `data/annotations/raw_comments.json` (NOT ground truth yet)
-- [~] T015 [US1] Implement `src/extraction/preprocess.py` to save raw JSON to `data/raw/` with SHA-256 checksums in `data/raw/checksums.json`
-- [~] T016 [US1] Add validation logic to ensure `linked_issue_ids` are explicitly labeled as "reported" but not ground truth (FR-011)
-- [~] T017 [US1] Implement `src/extraction/preprocess.py` to generate "triangulated ground truth" in `data/derived/human_baseline.json` by: (a) requiring linked issue AND ≥2 independent reviewers (FR-011), (b) EXCLUDING any bug that does not meet strict criteria (NO fallback to "Closed Issue" alone), and (c) flagging excluded bugs. **Output Schema**: JSON list of objects with fields: `pr_id`, `file_path`, `line_start`, `line_end`, `severity`, `is_verified` (bool), `verification_method` (string: "strict_triangulation" or "excluded_unverified").
+- [ ] T014 [US1] Implement `src/extraction/preprocess.py` to extract raw review comments into `data/annotations/raw_comments.json` (NOT ground truth yet)
+- [ ] T015 [US1] Implement `src/extraction/preprocess.py` to save raw JSON to `data/raw/` with SHA-256 checksums in `data/raw/checksums.json`
+- [ ] T016 [US1] Add validation logic to ensure `linked_issue_ids` are explicitly labeled as "reported" but not ground truth (FR-011)
+- [ ] T017 [US1] Implement `src/extraction/preprocess.py` to generate "triangulated ground truth" in `data/derived/human_baseline.json` by: (a) requiring linked issue AND ≥2 independent reviewers (FR-011), (b) EXCLUDING any bug that does not meet strict criteria (NO fallback to "Closed Issue" alone), and (c) flagging excluded bugs. **Output Schema**: JSON list of objects with fields: `pr_id`, `file_path`, `line_start`, `line_end`, `severity`, `is_verified` (bool), `verification_method` (string: "strict_triangulation" or "excluded_unverified").
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

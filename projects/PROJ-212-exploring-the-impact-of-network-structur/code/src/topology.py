@@ -2,6 +2,7 @@ import networkx as nx
 import logging
 from typing import Dict, Any, List, Tuple, Optional, Union
 from data_models import NetworkGraph
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -9,82 +10,83 @@ def compute_metrics(graph: Union[nx.Graph, NetworkGraph]) -> Dict[str, Any]:
     """
     Compute topological metrics for a given network graph.
 
-    Calculates:
-    - Degree distribution (mean, std, min, max)
-    - Clustering coefficient (average)
-    - Average path length (handling disconnected graphs as infinity)
+    Metrics computed:
+    - degree_distribution: List of degrees for all nodes
+    - mean_degree: Average degree of the graph
+    - clustering_coefficient: Global clustering coefficient (transitivity)
+    - average_clustering: Average local clustering coefficient
+    - average_path_length: Average shortest path length (infinity if disconnected)
+    - number_of_nodes: Total number of nodes
+    - number_of_edges: Total number of edges
+    - is_connected: Boolean indicating if the graph is connected
 
     Args:
-        graph: A NetworkX Graph object or a NetworkGraph dataclass containing
-               an nx.Graph instance.
+        graph: A NetworkX graph or NetworkGraph object containing a NetworkX graph.
 
     Returns:
         A dictionary containing the computed metrics.
     """
-    # Unwrap NetworkGraph if necessary
+    # Extract the NetworkX graph if a NetworkGraph object is passed
     if isinstance(graph, NetworkGraph):
-        G = graph.graph
+        nx_graph = graph.graph
     else:
-        G = graph
+        nx_graph = graph
 
-    if not isinstance(G, nx.Graph):
-        raise TypeError(f"Expected networkx.Graph or NetworkGraph, got {type(G)}")
+    # Validate input
+    if not isinstance(nx_graph, nx.Graph):
+        raise TypeError("Input must be a networkx.Graph or a NetworkGraph with a graph attribute")
 
-    if G.number_of_nodes() == 0:
-        logger.warning("Graph is empty. Returning default metrics.")
+    if nx_graph.number_of_nodes() == 0:
+        logger.warning("Graph is empty. Returning default metrics with zeros/infinity.")
         return {
-            "degree_mean": 0.0,
-            "degree_std": 0.0,
-            "degree_min": 0,
-            "degree_max": 0,
+            "degree_distribution": [],
+            "mean_degree": 0.0,
             "clustering_coefficient": 0.0,
+            "average_clustering": 0.0,
             "average_path_length": float('inf'),
-            "num_nodes": 0,
-            "num_edges": 0,
+            "number_of_nodes": 0,
+            "number_of_edges": 0,
             "is_connected": False
         }
 
-    # Degree Distribution
-    degrees = [d for n, d in G.degree()]
-    degree_mean = float(nx.average_degree(G))
-    degree_std = float(np.std(degrees)) if len(degrees) > 0 else 0.0
-    degree_min = min(degrees) if degrees else 0
-    degree_max = max(degrees) if degrees else 0
+    # Check connectivity
+    is_connected = nx.is_connected(nx_graph)
 
-    # Clustering Coefficient
-    clustering_coeff = float(nx.average_clustering(G))
+    # Degree distribution
+    degrees = [d for n, d in nx_graph.degree()]
+    degree_distribution = degrees
 
-    # Average Path Length (handling disconnected graphs)
-    is_connected = nx.is_connected(G)
+    # Mean degree
+    mean_degree = np.mean(degrees) if degrees else 0.0
+
+    # Global clustering coefficient (transitivity)
+    clustering_coefficient = nx.transitivity(nx_graph)
+
+    # Average clustering coefficient
+    average_clustering = nx.average_clustering(nx_graph)
+
+    # Average path length
+    # Handle disconnected graphs: return infinity
     if is_connected:
-        avg_path_len = float(nx.average_shortest_path_length(G))
+        try:
+            average_path_length = nx.average_shortest_path_length(nx_graph)
+        except nx.NetworkXError as e:
+            logger.error(f"Error computing average shortest path length: {e}")
+            average_path_length = float('inf')
     else:
-        # For disconnected graphs, average shortest path is undefined/infinite
-        # We calculate the average over the largest connected component for reference,
-        # but mark the global metric as infinity per spec.
-        logger.warning("Graph is disconnected. Average path length set to infinity.")
-        avg_path_len = float('inf')
+        logger.warning("Graph is disconnected. Setting average path length to infinity.")
+        average_path_length = float('inf')
 
-        # Optional: Log stats for the largest component for debugging
-        if nx.number_connected_components(G) > 0:
-            largest_cc = max(nx.connected_components(G), key=len)
-            subgraph = G.subgraph(largest_cc)
-            if subgraph.number_of_nodes() > 1:
-                try:
-                    lcc_avg_path = float(nx.average_shortest_path_length(subgraph))
-                    logger.info(f"Largest CC ({len(largest_cc)} nodes) avg path: {lcc_avg_path:.4f}")
-                except Exception as e:
-                    logger.warning(f"Could not compute path length for largest CC: {e}")
-
-    return {
-        "degree_mean": degree_mean,
-        "degree_std": degree_std,
-        "degree_min": degree_min,
-        "degree_max": degree_max,
-        "clustering_coefficient": clustering_coeff,
-        "average_path_length": avg_path_len,
-        "num_nodes": G.number_of_nodes(),
-        "num_edges": G.number_of_edges(),
-        "is_connected": is_connected,
-        "num_components": nx.number_connected_components(G)
+    metrics = {
+        "degree_distribution": degree_distribution,
+        "mean_degree": float(mean_degree),
+        "clustering_coefficient": float(clustering_coefficient),
+        "average_clustering": float(average_clustering),
+        "average_path_length": float(average_path_length),
+        "number_of_nodes": nx_graph.number_of_nodes(),
+        "number_of_edges": nx_graph.number_of_edges(),
+        "is_connected": is_connected
     }
+
+    logger.info(f"Computed topology metrics for graph with {metrics['number_of_nodes']} nodes.")
+    return metrics

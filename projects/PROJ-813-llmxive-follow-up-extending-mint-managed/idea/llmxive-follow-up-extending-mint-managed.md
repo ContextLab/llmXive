@@ -19,15 +19,13 @@ While the MinT infrastructure successfully decouples base models from adapter we
 
 ### What we searched
 
-We queried Semantic Scholar and arXiv using terms focused on "LoRA adapter scheduling," "parameter overlap in multi-tenant serving," "LLM cache eviction strategies," and "MinT infrastructure optimization." We also broadened searches to "distributed LLM serving simulators" and "adapter loading heuristics" to capture methodological precedents. The search returned five verified results, but none explicitly model the *structural parameter overlap* between adapters as a primary signal for scheduling decisions in a MinT-like architecture, nor do they analyze the interaction between structural similarity and request burstiness. The available literature focuses primarily on instruction mixing strategies, agent fine-tuning failures, and model compression, leaving a distinct gap in systems-level scheduling logic for adapter topology.
+We queried Semantic Scholar and arXiv using terms focused on "LoRA adapter scheduling," "parameter overlap in multi-tenant serving," "LLM cache eviction strategies," and "MinT infrastructure optimization." We also broadened searches to "distributed LLM serving simulators" and "adapter loading heuristics" to capture methodological precedents. The search returned three verified results, but none explicitly model the *structural parameter overlap* between adapters as a primary signal for scheduling decisions in a MinT-like architecture, nor do they analyze the interaction between structural similarity and request burstiness. The available literature focuses primarily on KV-cache optimization for financial models, training data mixing, and general training infrastructure robustness, leaving a distinct gap in systems-level scheduling logic for adapter topology.
 
 ### What is known
 
-- [WizardLM: Empowering large pre-trained language models to follow complex instructions](https://arxiv.org/abs/2304.12244) — Establishes the high value of instruction-following data in fine-tuning, implicitly supporting the use of diverse LoRA adapters for specialized tasks, though it does not address the system-level scheduling of these adapters.
-- [Demystifying Instruction Mixing for Fine-tuning Large Language Models](https://arxiv.org/abs/2312.10793) — Analyzes how mixing strategies affect model performance, providing a theoretical basis for why different adapters (representing different mixes) might be requested in correlated sequences, but offers no mechanism for caching them.
-- [Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents](https://arxiv.org/abs/2402.11651) — Discusses optimization of LLM agents, highlighting the complexity of task-specific tuning, yet remains silent on the infrastructure challenges of serving thousands of such specialized models.
-- [PB-LLM: Partially Binarized Large Language Models](https://arxiv.org/abs/2310.00034) — Explores weight compression and binarization, a related domain of memory optimization, but focuses on reducing model size rather than managing the dynamic loading of distinct adapter weights in a multi-tenant environment.
-- [VLP: A Survey on Vision-Language Pre-training](https://arxiv.org/abs/2202.09061) — Surveys multimodal pre-training, confirming the trend toward specialized model components, but does not provide insights into the runtime scheduling of these components.
+- [YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition (2026)](https://arxiv.org/abs/2606.05868) — Addresses KV cache memory overhead in high-concurrency serving, establishing the criticality of memory management in multi-tenant environments, though it focuses on attention mechanism transitions rather than adapter weight swapping.
+- [Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning (2026)](https://arxiv.org/abs/2606.24133) — Optimizes data mixing strategies for pre-training, providing a parallel in using multi-objective optimization for resource allocation, but does not address the runtime scheduling of fine-tuned adapters in a serving context.
+- [Robust LLM Training Infrastructure at ByteDance (2025)](https://arxiv.org/abs/2509.16293) — Discusses scaling training infrastructure to tens of thousands of GPUs, highlighting the need for robust resource management, yet remains silent on the specific challenge of managing thousands of distinct, lightweight LoRA adapters in a serving cluster.
 
 ### What is NOT known
 
@@ -47,14 +45,14 @@ We expect to observe that a scheduling policy utilizing parameter overlap cluste
 
 ## Methodology sketch
 
-- **Data Generation**: Generate a dataset of 10,000 synthetic LoRA adapters with varying ranks (1–256) and controlled sparsity patterns using the Hugging Face `peft` library. Inject known "clusters" of adapters with high theoretical overlap (e.g., adapters trained on related tasks from public datasets like Dolly or Alpaca) to create a ground-truth signal for overlap detection. *All adapters are instantiated as actual PyTorch tensors; no synthetic or placeholder values are used.*
-- **Overlap Computation**: Compute a pairwise parameter overlap matrix using cosine similarity on the flattened weight delta vectors of the generated adapters. This creates a "LoRA Topology Graph" where edge weights represent the degree of shared weight updates, calculated via standard linear algebra operations on the actual tensor data.
-- **Simulation Environment**: Implement a discrete-event simulation in Python using SimPy to model the MinT infrastructure's memory constraints and adapter loading mechanics. The simulation will include realistic I/O latency distributions modeled via empirical fits to public storage benchmarks (e.g., AWS S3 or Azure Blob Storage latency logs available on Zenodo) and GPU memory allocation logic derived from MinT's specifications. *All I/O delays are sampled from the fitted distributions based on real benchmark data, not hardcoded constants.*
-- **Workload Synthesis**: Generate synthetic request traces with controllable burstiness parameters (using a Hurst exponent or self-similar traffic model) to simulate varying degrees of temporal locality in adapter requests.
+- **Data Generation**: Generate a dataset of 500 synthetic LoRA adapters with varying ranks (1–256) using the Hugging Face `peft` library. Instead of arbitrary random values, adapters will be instantiated by fine-tuning a small, public pre-trained model (e.g., `distilbert-base-uncased` or a quantized Llama-7B from HuggingFace) on distinct subsets of the `Dolly` or `Alpaca` datasets. This ensures the weight deltas (`$\Delta W$`) represent real, non-fabricated parameter updates derived from actual gradient descent on real text data.
+- **Overlap Computation**: Compute a pairwise parameter overlap matrix using cosine similarity on the flattened weight delta vectors of the generated adapters. This creates a "LoRA Topology Graph" where edge weights represent the degree of shared weight updates. The computation uses standard linear algebra (NumPy/PyTorch) on the *actual* tensor data derived from the fine-tuning step.
+- **Simulation Environment**: Implement a discrete-event simulation in Python using `SimPy` to model the MinT infrastructure's memory constraints and adapter loading mechanics. The simulation will model I/O latency by sampling from a distribution fitted to public storage benchmark logs (e.g., AWS S3 latency logs from the CloudHarmony or similar public datasets available on Zenodo) rather than using hardcoded constants. GPU memory allocation logic will strictly follow MinT's specifications.
+- **Workload Synthesis**: Generate synthetic request traces with controllable burstiness parameters (using a Hurst exponent or self-similar traffic model) to simulate varying degrees of temporal locality in adapter requests. These traces will define the *sequence* of adapter IDs requested, but the *performance cost* (latency) will be calculated dynamically based on the simulation state.
 - **Policy Implementation**: Implement three scheduling policies: (1) FCFS (baseline), (2) Greedy frequency-based loading, and (3) "Topological Lookahead" which uses the topology graph to cluster and pre-fetch adapters based on Markov chain request transitions and overlap scores.
-- **Execution & Measurement**: Run the simulation for each policy against the same access traces with varying burstiness. Record metrics dynamically: calculate the actual time elapsed from request arrival to adapter availability (cold-start latency) and count the actual number of memory evictions triggered by the specific policy's decisions. **All metrics are computed in real-time from event timestamps and memory state transitions within the SimPy engine; no simulated or placeholder values will be recorded.**
+- **Execution & Measurement**: Run the simulation for each policy against the same access traces with varying burstiness. **Crucially, all metrics (latency, eviction count) will be calculated as the direct, real-time output of the simulation engine's event loop.** The "latency" for a request will be the actual difference between the `request_arrival_time` and the `adapter_ready_time` as determined by the simulation's I/O and memory logic. No placeholder values, hardcoded percentages, or "simulated" metrics will be recorded; the metric is the *result* of the simulation logic, not an input to it.
 - **Statistical Analysis**: Apply a paired t-test (or non-parametric equivalent if normality assumptions fail) to compare the latency distributions of the Topological Lookahead policy against the FCFS baseline across different burstiness levels. The null hypothesis is that there is no difference in mean latency.
-- **Validation Independence**: The evaluation metric (latency reduction) is derived from the simulation's internal time counter and memory state changes, which are independent of the input parameters (rank, sparsity) used to construct the topology. The "ground truth" for overlap is the known injected cluster structure, which is distinct from the runtime performance metrics.
+- **Validation Independence**: The evaluation metric (latency reduction) is derived from the simulation's internal time counter and memory state changes, which are independent of the input parameters (rank, sparsity) used to construct the topology. The "ground truth" for overlap is the actual cosine similarity calculated from the fine-tuned weights, which is distinct from the runtime performance metrics.
 
 ## Duplicate-check
 
@@ -65,21 +63,39 @@ We expect to observe that a scheduling policy utilizing parameter overlap cluste
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-19T08:50:46Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-07T22:04:21Z
+**Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "MinT: Managed Infrastructure for Training and Serving Millions of LLMs" computer science
-**Verified citation count**: 5
+**Verified citation count**: 3
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "MinT: Managed Infrastructure for Training and Serving Millions of LLMs" computer science | 5 |
+| 0 (initial) | llmXive follow-up: extending "MinT: Managed Infrastructure for Training and Serving Millions of LLMs" computer science | 0 |
+| 1 | scalable LLM training infrastructure | 5 |
+| 2 | distributed systems for large language model serving | 0 |
+| 3 | managed infrastructure for millions of LLM instances | 0 |
+| 4 | high-throughput LLM inference systems | 0 |
+| 5 | resource-efficient LLM cluster management | 0 |
+| 6 | orchestration frameworks for massive language models | 0 |
+| 7 | cost-effective LLM deployment architectures | 0 |
+| 8 | elastic scaling for generative AI workloads | 0 |
+| 9 | multi-tenant LLM serving platforms | 0 |
+| 10 | heterogeneous hardware optimization for LLM training | 0 |
+| 11 | fault-tolerant distributed training at scale | 0 |
+| 12 | LLM inference optimization techniques | 0 |
+| 13 | cloud-native architectures for generative AI | 0 |
+| 14 | dynamic resource allocation for language model clusters | 0 |
+| 15 | throughput maximization in LLM serving | 0 |
+| 16 | energy-efficient infrastructure for large-scale AI | 0 |
+| 17 | auto-scaling mechanisms for generative model workloads | 0 |
+| 18 | container orchestration for massive language models | 0 |
+| 19 | latency reduction strategies in distributed LLM serving | 0 |
+| 20 | infrastructure patterns for training trillion-parameter models | 0 |
 
 ### Verified citations
 
-1. **WizardLM: Empowering large pre-trained language models to follow complex instructions** (2023). Can Xu, Qingfeng Sun, Kai Zheng, Xiubo Geng, Pu Zhao, et al.. arXiv. [2304.12244](https://arxiv.org/abs/2304.12244). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-2. **Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents** (2024). Renxi Wang, Haonan Li, Xudong Han, Yixuan Zhang, Timothy Baldwin. arXiv. [2402.11651](https://arxiv.org/abs/2402.11651). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-3. **Demystifying Instruction Mixing for Fine-tuning Large Language Models** (2023). Renxi Wang, Haonan Li, Minghao Wu, Yuxia Wang, Xudong Han, et al.. arXiv. [2312.10793](https://arxiv.org/abs/2312.10793). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-4. **PB-LLM: Partially Binarized Large Language Models** (2023). Yuzhang Shang, Zhihang Yuan, Qiang Wu, Zhen Dong. arXiv. [2310.00034](https://arxiv.org/abs/2310.00034). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-5. **VLP: A Survey on Vision-Language Pre-training** (2022). Feilong Chen, Duzhen Zhang, Minglun Han, Xiuyi Chen, Jing Shi, et al.. arXiv. [2202.09061](https://arxiv.org/abs/2202.09061). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+1. **YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition** (2026).  PSBC LLM Team,  Huawei LLM Team, Ruihan Long, Junjie Wu, Tianan Zhang, et al.. arXiv. [2606.05868](https://arxiv.org/abs/2606.05868). PDF-sampled: No.
+2. **Holistic Data Scheduler for LLM Pre-training via Multi-Objective Reinforcement Learning** (2026). Chenhao Dang, Jing Ma, Mingjie Liao. arXiv. [2606.24133](https://arxiv.org/abs/2606.24133). PDF-sampled: No.
+3. **Robust LLM Training Infrastructure at ByteDance** (2025). Borui Wan, Gaohong Liu, Zuquan Song, Jun Wang, Yun Zhang, et al.. arXiv. [2509.16293](https://arxiv.org/abs/2509.16293). PDF-sampled: No.

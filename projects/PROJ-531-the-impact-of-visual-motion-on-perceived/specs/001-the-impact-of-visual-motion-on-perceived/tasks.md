@@ -100,7 +100,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/download_data.py`: Attempt to fetch from OpenML/HuggingFace/OSF; verify instrument validity (DOI/citations) per FR-013. **Output**: `data/raw/download_status.json`. **Error Handling**: Exit with code 1 if no valid dataset found.
+- [X] T012 [US1] Implement `code/download_data.py`: Attempt to fetch from OpenML/HuggingFace/OSF; verify instrument validity (DOI/citations) per FR-013. **Output**: `data/raw/download_status.json`. **Error Handling**: Exit with code 1 if no valid dataset found.
 - [X] T013 [US1] Implement `code/generate_synthetic_data.py`: **Runs in parallel with T012**. Generate synthetic human-avatar interaction data with known ground-truth motion-agency relationships (FR-011) ONLY if T012 returns status "unavailable" OR "invalid". Ensure `user response trigger` is distinct from agency score (FR-012).
 - [ ] T014 [US1] Implement `code/preprocess.py`: Extract motion features (latency, smoothness/jerk, lead_time) and aggregate agency scores (FR-002, FR-003).
 - [ ] T015 [US1] Implement VIF diagnostic logic in `code/preprocess.py`: Flag and exclude features with VIF ≥5 (FR-006); log collinearity issues.
@@ -128,11 +128,11 @@
 
 - [ ] T021 [US2] **Implement Multiple Linear Regression (OLS)**: Read `data/processed/modeling_config.json` from T016. Fit standard Multiple Linear Regression (not Ridge) to predict agency scores from motion features. **Output**: Standard OLS coefficients and p-values (required for FR-005).
 - [ ] T021b [US2] **Implement Ridge Regression (Robustness Check)**: **Depends on T021 completion**. Fit Ridge Regression with k-fold cross-validation for comparison. Output: Ridge coefficients and feature importance.
-- [~] T022 [US2] Implement statistical significance testing with Bonferroni or Benjamini-Hochberg correction for ≥3 features (FR-005).
-- [~] T022b [US2] **Implement Random Forest Model**: Fit a Random Forest model with k-fold cross-validation to predict agency scores. **Output**: Feature importance scores and out-of-sample performance metrics (R², RMSE) as required by FR-004 and US-2 Acceptance Scenario 2.
+- [ ] T022 [US2] Implement statistical significance testing with Bonferroni or Benjamini-Hochberg correction for ≥3 features (FR-005).
+- [ ] T022b [US2] **Implement Random Forest Model**: Fit a Random Forest model with k-fold cross-validation to predict agency scores. **Output**: Feature importance scores and out-of-sample performance metrics (R², RMSE) as required by FR-004 and US-2 Acceptance Scenario 2.
 - [ ] T023 [US2] Implement sensitivity analysis in `code/sensitivity_analysis.py`: **Sweep decision thresholds** (absolute regression coefficient magnitude ∈ {0.01, 0.05, 0.1}). **Logic**: For each threshold, calculate the 'significance rate' (fraction of bootstrap samples where p < 0.05). **Output**: `data/results/sensitivity_analysis.csv` with columns `threshold, significance_rate, p_value_variance`.
-- [~] T024 [US2] Compute and store out-of-sample metrics (R², RMSE) and feature importance maps (FR-004, SC-002).
-- [~] T025 [US2] Ensure all reported associations are framed as correlational (FR-008) in the output metadata.
+- [ ] T024 [US2] Compute and store out-of-sample metrics (R², RMSE) and feature importance maps (FR-004, SC-002).
+- [ ] T025 [US2] Ensure all reported associations are framed as correlational (FR-008) in the output metadata.
 - [ ] T026 [US2] Generate `data/results/model_metrics.json` containing coefficients, p-values (corrected), importance scores, and CV metrics.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -152,12 +152,12 @@
 ### Implementation for User Story 3
 
 - [X] T028 [US3] Implement `code/visualization.py`: Generate scatter plots of each motion feature vs. agency scores (FR-007).
-- [~] T029 [US3] Implement feature importance bar chart generation (FR-007).
-- [~] T030 [US3] Implement partial dependence plot for the top predictor (FR-007).
+- [ ] T029 [US3] Implement feature importance bar chart generation (FR-007).
+- [ ] T030 [US3] Implement partial dependence plot for the top predictor (FR-007).
 - [~] T031 [US3] Implement interpretation logic: Describe direction/magnitude of predictors or frame null results as evidence for other factors (US-3 Scenario 3).
 - [ ] T032 [US3] Save all plots to `data/results/plots/` and generate a summary interpretation in `data/results/interpretation.md`.
 - [X] T033 [US3] **Generate Human Review Protocol**: Create `docs/human_review_protocol.md` including: (1) Survey template for independent reviewers, (2) Recruitment script for finding reviewers, (3) Aggregation logic (Python script) for calculating % rating ≥4/5. **Ethics Note**: Since this project uses synthetic data, explicit IRB approval is not required; however, the protocol MUST include a "Human Subject Ethics Declaration" stating that no real human data is involved and reviewers are assessing code artifacts only. **Note**: CI verifies the protocol exists; actual human ratings are a manual step outside CI.
-- [ ] T033b [US3] **Manual Review Execution Plan**: Document the step-by-step procedure for recruiting multiple independent reviewers, distributing the survey from T033, collecting ratings, and running the aggregation script to verify SC-005 (≥80% rating ≥4/5).
+- [~] T033b [US3] **Manual Review Execution Plan**: Document the step-by-step procedure for recruiting multiple independent reviewers, distributing the survey from T033, collecting ratings, and running the aggregation script to verify SC-005 (≥80% rating ≥4/5).
 
 **Checkpoint**: All user stories should now be independently functional
 

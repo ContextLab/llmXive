@@ -1,11 +1,13 @@
 """
-Timeout wrapper to enforce global 6h runtime limit (FR-013).
+Timeout wrapper to enforce global runtime limits for the pipeline.
 
-This module provides functionality to:
-1. Set a global timeout for the entire pipeline execution
-2. Check if the timeout has been exceeded
-3. Handle timeout events gracefully (log warning, exit with code 143)
-4. Allow skipping remaining PRs when timeout is reached
+This module implements FR-013: Enforce global 6h runtime limit.
+It provides mechanisms to:
+1. Set a global timeout at the start of the pipeline
+2. Check remaining time before processing items
+3. Gracefully skip remaining PRs if the limit is exceeded
+4. Log warnings to logs/timeout.log
+5. Exit with code 143 (SIGTERM) if limit exceeded
 """
 
 import os
@@ -13,72 +15,99 @@ import signal
 import sys
 import time
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Optional, Callable, Any
+from contextlib import contextmanager
 
-# Global timeout configuration
-GLOBAL_TIMEOUT_SECONDS = 6 * 60 * 60  # 6 hours in seconds
-TIMEOUT_LOG_FILE = "logs/timeout.log"
+# Import logger setup from existing module
+from code.src.utils.logger import get_logger, setup_pipeline_logging
+
+# Constants
+DEFAULT_TIMEOUT_HOURS = 6
+EXIT_CODE_TIMEOUT = 143
+LOG_FILENAME = "timeout.log"
 
 # Global state
-_start_time: Optional[float] = None
+_start_time: Optional[datetime] = None
+_timeout_seconds: Optional[float] = None
 _logger: Optional[logging.Logger] = None
-_timeout_handler_installed = False
+_timeout_log_path: Optional[Path] = None
 
 
-def setup_timeout_logging() -> logging.Logger:
+def setup_timeout_logging(logs_dir: Optional[Path] = None) -> logging.Logger:
     """
-    Setup logging for timeout events.
+    Setup dedicated logging for timeout events.
+    
+    Args:
+        logs_dir: Directory for log files. If None, uses default from config.
     
     Returns:
-        logging.Logger: Configured logger for timeout events
+        Configured logger instance
     """
-    global _logger
+    global _logger, _timeout_log_path
     
     if _logger is not None:
         return _logger
     
-    # Ensure logs directory exists
-    logs_dir = "logs"
-    if not os.path.exists(logs_dir):
-        os.makedirs(logs_dir)
+    # Setup general pipeline logging first to ensure logs dir exists
+    setup_pipeline_logging()
     
-    # Create logger
+    # Determine logs directory
+    if logs_dir is None:
+        # Try to get from settings, fallback to default
+        try:
+            from code.config.settings import get_paths
+            paths = get_paths()
+            logs_dir = paths.get("logs", Path("logs"))
+        except Exception:
+            logs_dir = Path("logs")
+    
+    logs_dir = Path(logs_dir)
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    
+    _timeout_log_path = logs_dir / LOG_FILENAME
+    
+    # Create dedicated logger
     _logger = logging.getLogger("timeout")
     _logger.setLevel(logging.WARNING)
     
-    # Remove existing handlers to avoid duplicates
-    _logger.handlers = []
-    
-    # File handler for timeout.log
-    file_handler = logging.FileHandler(TIMEOUT_LOG_FILE)
-    file_handler.setLevel(logging.WARNING)
-    file_format = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    file_handler.setFormatter(file_format)
-    _logger.addHandler(file_handler)
-    
-    # Also log to console at WARNING level
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.WARNING)
-    console_handler.setFormatter(file_format)
-    _logger.addHandler(console_handler)
+    # Prevent duplicate handlers
+    if not _logger.handlers:
+        # File handler for timeout.log
+        fh = logging.FileHandler(_timeout_log_path)
+        fh.setLevel(logging.WARNING)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        fh.setFormatter(formatter)
+        _logger.addHandler(fh)
+        
+        # Also log to console for immediate visibility
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.WARNING)
+        ch.setFormatter(formatter)
+        _logger.addHandler(ch)
     
     return _logger
 
 
-def set_global_timeout() -> None:
+def set_global_timeout(timeout_hours: float = DEFAULT_TIMEOUT_HOURS) -> None:
     """
-    Set the global timeout start time.
+    Set the global timeout for the pipeline run.
     
-    This should be called once at the beginning of the pipeline execution.
+    Args:
+        timeout_hours: Duration in hours before timeout triggers
     """
-    global _start_time
-    _start_time = time.time()
-    logger = setup_timeout_logging()
-    logger.info(f"Global timeout set to {GLOBAL_TIMEOUT_SECONDS} seconds (6 hours)")
-    logger.info(f"Pipeline started at {datetime.now().isoformat()}")
+    global _start_time, _timeout_seconds, _logger
+    
+    _start_time = datetime.now()
+    _timeout_seconds = timeout_hours * 3600
+    _logger = setup_timeout_logging()
+    
+    _logger.info(f"Global timeout set to {timeout_hours} hours ({_timeout_seconds} seconds)")
+    _logger.info(f"Pipeline started at: {_start_time.isoformat()}")
+    _logger.info(f"Expected timeout at: {_start_time + timedelta(seconds=_timeout_seconds)}")
 
 
 def check_timeout() -> bool:
@@ -86,16 +115,42 @@ def check_timeout() -> bool:
     Check if the global timeout has been exceeded.
     
     Returns:
-        bool: True if timeout has been exceeded, False otherwise
+        True if timeout exceeded, False otherwise
     """
-    if _start_time is None:
-        # If timeout wasn't initialized, assume no timeout
+    global _start_time, _timeout_seconds, _logger
+    
+    if _start_time is None or _timeout_seconds is None:
+        # No timeout set, always return False
         return False
     
-    elapsed = time.time() - _start_time
-    if elapsed > GLOBAL_TIMEOUT_SECONDS:
+    elapsed = (datetime.now() - _start_time).total_seconds()
+    
+    if elapsed >= _timeout_seconds:
+        if _logger:
+            _logger.warning(
+                f"TIMEOUT EXCEEDED: Elapsed time {elapsed:.1f}s exceeds limit {_timeout_seconds}s. "
+                f"Skipping remaining PRs."
+            )
         return True
+    
     return False
+
+
+def get_remaining_time_seconds() -> float:
+    """
+    Get remaining time before timeout.
+    
+    Returns:
+        Remaining seconds, or infinity if no timeout set
+    """
+    global _start_time, _timeout_seconds
+    
+    if _start_time is None or _timeout_seconds is None:
+        return float('inf')
+    
+    elapsed = (datetime.now() - _start_time).total_seconds()
+    remaining = _timeout_seconds - elapsed
+    return max(0.0, remaining)
 
 
 def timeout_handler(signum: int, frame: Any) -> None:
@@ -107,51 +162,32 @@ def timeout_handler(signum: int, frame: Any) -> None:
         frame: Current stack frame
     """
     logger = setup_timeout_logging()
-    logger.warning(f"TIMEOUT EXCEEDED: Pipeline execution exceeded {GLOBAL_TIMEOUT_SECONDS} seconds")
-    logger.warning(f"Timeout occurred at {datetime.now().isoformat()}")
-    logger.warning("Gracefully skipping remaining PRs and exiting with code 143")
-    
-    # Log runtime stats before exiting
-    if _start_time:
-        elapsed = time.time() - _start_time
-        logger.warning(f"Total runtime: {elapsed:.2f} seconds ({elapsed/3600:.2f} hours)")
-    
-    # Exit with code 143 (128 + 15, where 15 is SIGTERM)
-    sys.exit(143)
+    logger.warning(
+        f"Received timeout signal ({signum}). "
+        "Exiting with code 143 after logging timeout event."
+    )
+    sys.exit(EXIT_CODE_TIMEOUT)
 
 
-def enforce_timeout() -> None:
+def enforce_timeout(timeout_hours: float = DEFAULT_TIMEOUT_HOURS) -> None:
     """
-    Enforce the global timeout by setting up signal handlers and checking elapsed time.
+    Enforce timeout by setting up signal handlers and checking elapsed time.
     
-    This function:
-    1. Sets up SIGALRM signal handler (Unix only)
-    2. Sets a timer for the global timeout
-    3. Checks if timeout has been exceeded
+    This function should be called at the start of the main pipeline loop.
+    It sets up:
+    1. Global timeout tracking
+    2. Signal handler for SIGALRM (Unix) or periodic checks (Windows)
+    
+    Args:
+        timeout_hours: Duration in hours before timeout
     """
-    global _timeout_handler_installed
+    set_global_timeout(timeout_hours)
     
-    if _timeout_handler_installed:
-        return
-    
-    logger = setup_timeout_logging()
-    
-    # Set up signal handler for Unix systems
+    # Install signal handler for Unix systems
     if hasattr(signal, 'SIGALRM'):
         signal.signal(signal.SIGALRM, timeout_handler)
-        # Set alarm for GLOBAL_TIMEOUT_SECONDS
-        signal.alarm(GLOBAL_TIMEOUT_SECONDS)
-        _timeout_handler_installed = True
-        logger.info("SIGALRM timeout handler installed")
-    else:
-        # For non-Unix systems (Windows), we'll rely on periodic checks
-        logger.warning("SIGALRM not available (Windows), using periodic timeout checks")
-        _timeout_handler_installed = True
-    
-    # Also check elapsed time immediately
-    if check_timeout():
-        logger.warning("Timeout exceeded at startup!")
-        timeout_handler(0, None)
+        # Set alarm for the timeout duration
+        signal.alarm(int(timeout_hours * 3600))
 
 
 class TimeoutContext:
@@ -159,60 +195,121 @@ class TimeoutContext:
     Context manager for timeout-aware operations.
     
     Usage:
-        with TimeoutContext():
-            # Your code here
-            # If timeout is exceeded, this will be skipped
-            process_pr(pr)
+        with TimeoutContext(timeout_hours=6) as ctx:
+            if ctx.is_timed_out():
+                # Skip remaining work
+                break
+            # Process item
     """
     
-    def __enter__(self) -> 'TimeoutContext':
+    def __init__(self, timeout_hours: float = DEFAULT_TIMEOUT_HOURS):
+        self.timeout_hours = timeout_hours
+        self._start: Optional[datetime] = None
+        self._logger: Optional[logging.Logger] = None
+    
+    def __enter__(self):
+        self._start = datetime.now()
+        self._logger = setup_timeout_logging()
         return self
     
-    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> bool:
-        # Don't suppress exceptions
-        return False
-    
-    def is_timeout_reached(self) -> bool:
-        """
-        Check if timeout has been reached within this context.
-        
-        Returns:
-            bool: True if timeout exceeded, False otherwise
-        """
-        if check_timeout():
-            logger = setup_timeout_logging()
-            logger.warning("Timeout reached during operation")
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None and exc_type.__name__ == "TimeoutExceeded":
+            # Clean exit due to timeout
             return True
         return False
-
-
-def main() -> None:
-    """
-    Main function to demonstrate timeout wrapper usage.
     
-    This sets up the global timeout and provides an example of how to use it.
-    """
-    # Set up global timeout
-    set_global_timeout()
-    enforce_timeout()
-    
-    logger = setup_timeout_logging()
-    logger.info("Timeout wrapper initialized")
-    
-    # Example usage
-    example_prs = [f"PR-{i}" for i in range(1, 11)]
-    
-    for pr in example_prs:
-        if check_timeout():
-            logger.warning(f"Timeout exceeded before processing {pr}")
-            logger.warning("Skipping remaining PRs")
-            break
+    def is_timed_out(self) -> bool:
+        """Check if timeout has been exceeded."""
+        if self._start is None:
+            return False
         
-        logger.info(f"Processing {pr}")
-        # Simulate processing
-        time.sleep(0.1)
+        elapsed = (datetime.now() - self._start).total_seconds()
+        timeout_seconds = self.timeout_hours * 3600
+        
+        if elapsed >= timeout_seconds:
+            if self._logger:
+                self._logger.warning(
+                    f"Timeout exceeded in context: {elapsed:.1f}s >= {timeout_seconds}s"
+                )
+            return True
+        return False
     
-    logger.info("Pipeline completed or timed out")
+    def get_remaining_seconds(self) -> float:
+        """Get remaining seconds in this context."""
+        if self._start is None:
+            return float('inf')
+        
+        elapsed = (datetime.now() - self._start).total_seconds()
+        timeout_seconds = self.timeout_hours * 3600
+        return max(0.0, timeout_seconds - elapsed)
+    
+    def check_and_raise(self):
+        """Check timeout and raise exception if exceeded."""
+        if self.is_timed_out():
+            raise TimeoutExceeded("Global timeout limit exceeded")
+
+
+class TimeoutExceeded(Exception):
+    """Exception raised when the global timeout is exceeded."""
+    pass
+
+
+def timeout_decorator(timeout_hours: float = DEFAULT_TIMEOUT_HOURS):
+    """
+    Decorator to enforce timeout on a function.
+    
+    Args:
+        timeout_hours: Maximum duration for the function
+    
+    Returns:
+        Decorated function
+    """
+    def decorator(func: Callable) -> Callable:
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            with TimeoutContext(timeout_hours) as ctx:
+                return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+def main():
+    """
+    Main entry point for testing timeout functionality.
+    
+    This function demonstrates the timeout mechanism by:
+    1. Setting a short timeout (10 seconds for testing)
+    2. Attempting to process a long-running task
+    3. Showing graceful exit on timeout
+    """
+    setup_timeout_logging()
+    logger = logging.getLogger("timeout")
+    
+    # Set a very short timeout for demonstration (10 seconds)
+    set_global_timeout(timeout_hours=10 / 3600)  # 10 seconds
+    
+    logger.info("Starting timeout demonstration...")
+    
+    try:
+        # Simulate work with timeout checking
+        for i in range(100):
+            if check_timeout():
+                logger.warning(f"Timeout reached at iteration {i}. Exiting gracefully.")
+                sys.exit(EXIT_CODE_TIMEOUT)
+            
+            # Simulate work
+            time.sleep(0.5)
+            logger.info(f"Processed iteration {i}")
+        
+        logger.info("Completed all iterations without timeout")
+    
+    except KeyboardInterrupt:
+        logger.info("Interrupted by user")
+        sys.exit(130)
+    
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

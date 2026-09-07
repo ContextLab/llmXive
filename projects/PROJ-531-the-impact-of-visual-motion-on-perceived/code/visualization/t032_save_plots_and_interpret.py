@@ -1,133 +1,125 @@
 """
-T032 Implementation: Save all plots to data/results/plots/ and generate interpretation.md.
+T032: Save all plots to data/results/plots/ and generate summary interpretation.
 
-This script orchestrates the final visualization step:
-1. Ensures the output directory `data/results/plots/` exists.
-2. Imports and calls existing visualization functions from `code/visualization/plots.py`
-   to generate scatter plots, importance bars, and partial dependence plots.
-3. Imports and calls the interpretation logic from `code/interpretation_logic.py`
-   to generate the summary text based on model metrics.
-4. Writes the plots to disk and the interpretation to `data/results/interpretation.md`.
+This script orchestrates the generation of visualization artifacts and the
+creation of a human-readable interpretation of the model results.
 """
 import os
 import json
 from pathlib import Path
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-# Import from existing project modules based on API surface
-# Note: We assume the project root is the working directory.
-# The API surface lists `code/visualization/plots.py` and `code/interpretation_logic.py`.
-
-# Adjust imports to match the project structure implied by API surface
-# The API surface says: `from visualization.plots import ...`
-# and `from interpretation_logic import ...`
-# This suggests the `code` directory is in `sys.path` or we are running from `code`.
-# To be safe and compliant with "stay inside project tree", we use relative imports logic
-# or assume standard execution from root where `code` is a package or in path.
-# Given the API surface `import as: from visualization.plots import ...`,
-# we will assume `code` is added to sys.path or we are running `python code/...`.
-
-# Let's add the parent directory to path to resolve `visualization` and `interpretation_logic`
-# if they are siblings of this script (which is in code/visualization/).
-# Actually, the API surface says `code/visualization/plots.py` exists.
-# So `visualization` is likely a package inside `code`.
-# And `interpretation_logic.py` is directly in `code`.
-
 import sys
-from pathlib import Path
 
-# Add the 'code' directory to sys.path to allow imports like 'visualization' and 'interpretation_logic'
-# This assumes this script is run as `python code/visualization/t032_save_plots_and_interpret.py`
-# or the working directory is the project root.
-current_file = Path(__file__).resolve()
-code_dir = current_file.parent.parent # code/
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Add project root to path to allow relative imports if running as script
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from visualization.plots import generate_importance_plot, generate_scatter_plots, generate_partial_dependence
-from interpretation_logic import load_model_metrics, generate_interpretation
+from visualization.plots import (
+    generate_scatter_plots,
+    generate_importance_plot,
+    generate_partial_dependence
+)
+from interpretation_logic import (
+    load_model_metrics,
+    generate_interpretation
+)
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 def main():
-    logger.info("Starting T032: Saving plots and generating interpretation.")
-    
+    """
+    Main entry point for T032.
+    1. Ensures output directories exist.
+    2. Loads model metrics.
+    3. Generates and saves plots.
+    4. Generates and saves interpretation.md.
+    """
     # Define paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    plots_dir = project_root / "data" / "results" / "plots"
-    metrics_path = project_root / "data" / "results" / "model_metrics.json"
-    interpretation_path = project_root / "data" / "results" / "interpretation.md"
-    
-    # Ensure plots directory exists
+    results_dir = project_root / "data" / "results"
+    plots_dir = results_dir / "plots"
+    metrics_path = results_dir / "model_metrics.json"
+    interpretation_path = results_dir / "interpretation.md"
+
+    # Ensure directories exist
     plots_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Output directory ready: {plots_dir}")
-    
-    # Load model metrics
+    logger.info(f"Ensured output directory exists: {plots_dir}")
+
+    # Check if metrics exist
     if not metrics_path.exists():
-        logger.error(f"Model metrics file not found: {metrics_path}")
-        logger.error("T032 requires model_metrics.json from T026. Cannot proceed.")
-        raise FileNotFoundError(f"Missing required input: {metrics_path}")
-    
+        logger.error(f"Required metrics file not found: {metrics_path}")
+        logger.error("Cannot generate plots or interpretation without model results.")
+        sys.exit(1)
+
+    # Load metrics
+    logger.info(f"Loading model metrics from {metrics_path}")
     metrics = load_model_metrics(metrics_path)
-    logger.info("Model metrics loaded successfully.")
-    
-    # Load cleaned data for plotting (needed by plot generators)
+
+    # Load cleaned data for plotting (needed for scatter/pdp)
+    # We assume the path is relative to the project root as per convention
     cleaned_data_path = project_root / "data" / "processed" / "cleaned_data.csv"
     if not cleaned_data_path.exists():
-        logger.error(f"Cleaned data file not found: {cleaned_data_path}")
-        raise FileNotFoundError(f"Missing required input: {cleaned_data_path}")
-    
+        logger.error(f"Required data file not found: {cleaned_data_path}")
+        sys.exit(1)
+
     import pandas as pd
     df = pd.read_csv(cleaned_data_path)
-    
-    # 1. Generate Scatter Plots (T028)
+
+    # 1. Generate Scatter Plots (Feature vs Agency Score)
     logger.info("Generating scatter plots...")
-    generate_scatter_plots(df, output_dir=plots_dir)
-    logger.info(f"Scatter plots saved to {plots_dir}")
-    
-    # 2. Generate Feature Importance Bar Chart (T029)
+    scatter_paths = generate_scatter_plots(
+        df,
+        target_col="agency_score",
+        feature_cols=["latency", "smoothness", "lead_time"],
+        output_dir=plots_dir
+    )
+    logger.info(f"Saved scatter plots to: {scatter_paths}")
+
+    # 2. Generate Feature Importance Bar Chart
     logger.info("Generating feature importance plot...")
-    # Extract importance from metrics if available, otherwise rely on plot function internals
-    importance_scores = metrics.get("rf_importance", {})
-    if not importance_scores:
-        # Fallback: try to get from ols coefficients if RF not available, though RF is preferred for importance
-        importance_scores = {k: abs(v) for k, v in metrics.get("ols_coefficients", {}).items() if k != "intercept"}
-    
-    generate_importance_plot(importance_scores, output_path=plots_dir / "feature_importance.png")
-    logger.info(f"Feature importance plot saved to {plots_dir / 'feature_importance.png'}")
-    
-    # 3. Generate Partial Dependence Plot for top predictor (T030)
+    importance_path = generate_importance_plot(
+        metrics,
+        output_path=plots_dir / "feature_importance.png"
+    )
+    logger.info(f"Saved importance plot to: {importance_path}")
+
+    # 3. Generate Partial Dependence Plot for top predictor
     logger.info("Generating partial dependence plot...")
-    # Identify top predictor
-    top_feature = None
-    if importance_scores:
-        top_feature = max(importance_scores, key=importance_scores.get)
-    
-    if top_feature:
-        generate_partial_dependence(df, top_feature, output_path=plots_dir / f"partial_dependence_{top_feature}.png")
-        logger.info(f"Partial dependence plot saved to {plots_dir / f'partial_dependence_{top_feature}.png'}")
+    # Determine top predictor from RF importance or OLS absolute coefficients
+    rf_importance = metrics.get("rf_feature_importance", {})
+    ols_coeffs = metrics.get("ols_coefficients", {})
+
+    top_predictor = None
+    if rf_importance:
+        top_predictor = max(rf_importance, key=rf_importance.get)
+    elif ols_coeffs:
+        # Exclude intercept
+        filtered_coeffs = {k: v for k, v in ols_coeffs.items() if k != "intercept"}
+        if filtered_coeffs:
+            top_predictor = max(filtered_coeffs, key=lambda k: abs(filtered_coeffs[k]))
+
+    if top_predictor:
+        pdp_path = generate_partial_dependence(
+            df,
+            model_type="random_forest", # We use RF for PDP as it's non-linear
+            feature=top_predictor,
+            target="agency_score",
+            output_path=plots_dir / f"partial_dependence_{top_predictor}.png"
+        )
+        logger.info(f"Saved PDP plot to: {pdp_path}")
     else:
-        logger.warning("No top feature identified for partial dependence plot.")
-    
-    # 4. Generate Interpretation (T031)
-    logger.info("Generating interpretation text...")
-    interpretation_text = generate_interpretation(metrics)
-    
-    # 5. Save Interpretation to Markdown
+        logger.warning("Could not determine top predictor for PDP.")
+
+    # 4. Generate Interpretation
+    logger.info("Generating interpretation...")
+    interpretation_text = generate_interpretation(metrics, df)
+
+    # Write interpretation to file
     with open(interpretation_path, "w", encoding="utf-8") as f:
-        f.write("# Project Interpretation: Visual Motion and Perceived Agency\n\n")
-        f.write("## Summary\n\n")
         f.write(interpretation_text)
-        f.write("\n\n---\n")
-        f.write(f"*Generated by T032 pipeline on {Path(__file__).name}*")
     
-    logger.info(f"Interpretation saved to {interpretation_path}")
-    
-    # Close all plots to free memory
-    plt.close('all')
-    
+    logger.info(f"Saved interpretation to: {interpretation_path}")
     logger.info("T032 completed successfully.")
 
 if __name__ == "__main__":

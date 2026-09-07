@@ -81,7 +81,7 @@
 
 ### Tests for User Story 2 (MANDATORY)
 
-- [ ] T018 [P] [US2] Unit test for `src/stats.py` VIF calculation and Ridge fallback logic
+- [ ] T018 [P] [US2] Unit test for `src/stats.py` VIF calculation and Ridge fallback logic <!-- ATOMIZE: requested -->
 - [ ] T019 [P] [US2] Unit test for `src/stats.py` handling of small datasets (<10) with warning generation
 
 ### Implementation for User Story 2

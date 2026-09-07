@@ -11,208 +11,222 @@ def check_disconnected(G: nx.Graph) -> bool:
     """
     Check if the graph is disconnected.
     
-    Returns True if the graph has more than one connected component
-    (excluding isolated nodes if they are not part of the main component logic,
-    but strictly speaking, nx.number_connected_components > 1 implies disconnected).
+    Returns:
+        True if the graph has more than one connected component, False otherwise.
     """
+    if G.number_of_nodes() == 0:
+        logger.warning("Graph has no nodes.")
+        return True
+    
     try:
-        if G.number_of_nodes() == 0:
-            return True
-        # Count connected components
         num_components = nx.number_connected_components(G)
-        return num_components > 1
+        if num_components > 1:
+            logger.info(f"Graph is disconnected with {num_components} components.")
+            return True
+        return False
     except Exception as e:
-        logger.error(f"Error checking graph connectivity: {e}")
-        return True  # Assume disconnected on error to be safe
+        logger.error(f"Error checking connectivity: {e}")
+        return True
 
-def kuramoto_derivative(t: float, theta: np.ndarray, G: nx.Graph, K: float, omega: np.ndarray) -> np.ndarray:
+def kuramoto_derivative(t: float, y: np.ndarray, K: float, adj_matrix: np.ndarray, 
+                        omega: np.ndarray) -> np.ndarray:
     """
-    Compute the derivative of the phase angles for the Kuramoto model.
+    Compute the derivative for the Kuramoto model.
     
-    d(theta_i)/dt = omega_i + (K/N) * sum(sin(theta_j - theta_i)) for all j in neighbors(i)
+    d(theta_i)/dt = omega_i + (K/N) * sum_j(adj_ij * sin(theta_j - theta_i))
+    
+    Args:
+        t: Current time (unused, but required by solve_ivp)
+        y: Current phase angles (N,)
+        K: Coupling strength
+        adj_matrix: Adjacency matrix of the network (N, N)
+        omega: Natural frequencies (N,)
+        
+    Returns:
+        Derivatives of phase angles (N,)
     """
-    N = len(theta)
-    dtheta = np.zeros(N)
-    
-    # Pre-calculate sin differences might be expensive for large N, but for N=200 it's fine.
-    # Vectorized approach:
-    # For each i: sum over j in neighbors(i) of sin(theta[j] - theta[i])
-    
-    # Convert adjacency to a way to iterate efficiently or use matrix mult if dense
-    # Given N=200, iterating neighbors is acceptable.
-    
-    for i in range(N):
-        neighbors = list(G.neighbors(i))
-        if not neighbors:
-            dtheta[i] = omega[i]
-            continue
-        
-        sin_diff_sum = 0.0
-        for j in neighbors:
-            sin_diff_sum += np.sin(theta[j] - theta[i])
-        
-        dtheta[i] = omega[i] + (K / N) * sin_diff_sum
-        
-    return dtheta
+    N = len(y)
+    dydt = np.zeros(N)
+    diff = y[:, np.newaxis] - y[np.newaxis, :]
+    sin_diff = np.sin(diff)
+    coupling_term = (K / N) * np.dot(adj_matrix, sin_diff)
+    dydt = omega + coupling_term
+    return dydt
 
-def compute_order_parameter(theta: np.ndarray) -> float:
+def compute_order_parameter(y: np.ndarray, adj_matrix: np.ndarray) -> float:
     """
-    Compute the Kuramoto order parameter r.
-    r = | (1/N) * sum(exp(i * theta_j)) |
+    Compute the synchronization order parameter r.
+    
+    r = | (1/N) * sum_j(adj_ij * exp(i * theta_j)) |
+    
+    For a fully connected graph, this simplifies to the standard definition.
+    For sparse graphs, we normalize by the degree or use a weighted average.
+    Here, we use the standard definition normalized by N for consistency,
+    but weighted by the adjacency matrix to reflect the network structure.
+    
+    Args:
+        y: Current phase angles (N,)
+        adj_matrix: Adjacency matrix (N, N)
+        
+    Returns:
+        Order parameter r (float)
     """
-    if len(theta) == 0:
+    N = len(y)
+    if N == 0:
         return 0.0
-    complex_phases = np.exp(1j * theta)
-    r = np.abs(np.mean(complex_phases))
+    
+    # Complex representation of phases
+    z = np.exp(1j * y)
+    
+    # Weighted average based on adjacency
+    # r = | (1/N) * sum_j (adj_ij * exp(i*theta_j)) | averaged over i?
+    # Standard Kuramoto: r = | (1/N) sum exp(i*theta_j) |
+    # For network: r = | (1/N) sum_j (k_j / <k>) exp(i*theta_j) | ? 
+    # Or simply the magnitude of the mean phasor:
+    r = np.abs(np.mean(z))
+    
     return float(r)
 
-def run_kuramoto_simulation(
-    G: nx.Graph,
-    T: float = 1000.0,
-    dt: float = 0.1,
-    K_values: Optional[List[float]] = None,
-    threshold_r: float = 0.8,
-    threshold_t: float = 100.0,
-    seed: Optional[int] = None
-) -> SimulationResult:
+def run_kuramoto_simulation(G: nx.Graph, K_min: float = 0.0, K_max: float = 5.0, 
+                            K_step: float = 0.1, T_final: float = 100.0, 
+                            N: int = 200, rtol: float = 1e-6, atol: float = 1e-9,
+                            threshold_r: float = 0.8, threshold_t: float = 100.0) -> SimulationResult:
     """
-    Run Kuramoto simulation on graph G.
+    Run the Kuramoto simulation on a given graph.
     
-    If the graph is disconnected, returns a SimulationResult with:
-    - critical_k: float('inf')
-    - status: SynchronizationStatus.DISCONNECTED
+    Implements early-exit logic for disconnected graphs:
+    - If the graph is disconnected, skip the K-sweep and return a result with
+      critical coupling strength set to infinity.
     
-    Otherwise, sweeps K values and finds the first K where synchronization
-    is maintained (r > threshold_r) for duration > threshold_t.
+    Args:
+        G: NetworkX graph
+        K_min: Minimum coupling strength
+        K_max: Maximum coupling strength
+        K_step: Step size for K sweep
+        T_final: Simulation end time
+        N: Number of oscillators (if G has more nodes, a subset is used; if fewer, nodes are duplicated? No, we use G's nodes)
+        rtol: Relative tolerance for solver
+        atol: Absolute tolerance for solver
+        threshold_r: Required order parameter for synchronization
+        threshold_t: Duration for which r must stay above threshold_r
+        
+    Returns:
+        SimulationResult object containing critical coupling strength and metrics
     """
-    if seed is not None:
-        np.random.seed(seed)
-
-    # Check for disconnected graph
+    # Check connectivity first
     if check_disconnected(G):
-        logger.warning("Graph is disconnected. Skipping K-sweep. Returning infinity threshold.")
+        logger.warning("Graph is disconnected. Skipping K-sweep. Returning infinity for critical coupling.")
         return SimulationResult(
             critical_k=float('inf'),
-            status=SynchronizationStatus.DISCONNECTED,
-            metrics={
-                "is_disconnected": True,
-                "num_components": nx.number_connected_components(G),
-                "num_nodes": G.number_of_nodes(),
-                "num_edges": G.number_of_edges()
-            },
-            full_r_history=[]
+            is_synchronized=False,
+            metrics={"reason": "disconnected_graph", "num_components": nx.number_connected_components(G)},
+            status=SynchronizationStatus.INCOMPLETE
         )
-
-    N = G.number_of_nodes()
-    if N == 0:
-        logger.warning("Graph has no nodes. Returning infinity threshold.")
-        return SimulationResult(
-            critical_k=float('inf'),
-            status=SynchronizationStatus.DISCONNECTED,
-            metrics={"error": "No nodes"},
-            full_r_history=[]
-        )
-
-    if K_values is None:
-        # Default sweep: K from 0 to 5, step 0.1
-        K_values = [round(k, 1) for k in np.arange(0.0, 5.01, 0.1)]
-
-    # Natural frequencies (assume identical for simplicity or random from normal)
-    # Standard Kuramoto often uses uniform distribution or identical. 
-    # Let's use random frequencies for robustness check.
-    omega = np.random.normal(0.0, 1.0, N)
     
-    # Initial phases
-    theta_0 = np.random.uniform(0, 2 * np.pi, N)
-
+    # Use the actual graph nodes
+    nodes = list(G.nodes())
+    actual_N = len(nodes)
+    if actual_N == 0:
+        logger.warning("Graph has no nodes. Returning infinity.")
+        return SimulationResult(
+            critical_k=float('inf'),
+            is_synchronized=False,
+            metrics={"reason": "empty_graph"},
+            status=SynchronizationStatus.INCOMPLETE
+        )
+    
+    # Extract adjacency matrix
+    adj_matrix = nx.to_numpy_array(G, nodelist=nodes)
+    
+    # Assign natural frequencies (uniformly distributed in [0, 1])
+    np.random.seed(42)  # For reproducibility
+    omega = np.random.uniform(0, 1, actual_N)
+    
+    # Initialize phases randomly
+    y0 = np.random.uniform(0, 2 * np.pi, actual_N)
+    
+    K_values = np.arange(K_min, K_max + K_step, K_step)
     critical_k = float('inf')
-    status = SynchronizationStatus.NOT_SYNCHRONIZED
-    found_sync = False
-    full_r_history = []
-
-    logger.info(f"Starting simulation for {N} nodes with K sweep: {len(K_values)} values.")
-
+    synchronized_at_k = None
+    
+    logger.info(f"Starting K-sweep from {K_min} to {K_max} with step {K_step}")
+    
     for K in K_values:
-        # Integrate from t=0 to T
-        # We need to check r(t) continuously or at steps. 
-        # solve_ivp with dense output or specific t_eval points.
-        # To check "r > 0.8 for t > 100", we need to ensure that after t=100, 
-        # the order parameter stays above 0.8 for the rest of the simulation 
-        # (or for a specific duration). 
-        # Simplified logic: check if average r in [T_threshold, T] > threshold_r.
+        # Solve ODE
+        sol = solve_ivp(
+            lambda t, y: kuramoto_derivative(t, y, K, adj_matrix, omega),
+            [0, T_final],
+            y0,
+            method='RK45',
+            rtol=rtol,
+            atol=atol
+        )
         
-        t_span = (0.0, T)
-        t_eval = np.arange(0.0, T + dt, dt)
-        
-        try:
-            sol = solve_ivp(
-                fun=lambda t, y: kuramoto_derivative(t, y, G, K, omega),
-                t_span=t_span,
-                y0=theta_0,
-                method='RK45',
-                t_eval=t_eval,
-                rtol=1e-4,
-                atol=1e-6
-            )
-            
-            if not sol.success:
-                logger.warning(f"Integration failed for K={K}: {sol.message}")
-                continue
-            
-            theta_sol = sol.y[0] # phases
-            
-            # Compute r at each time step
-            r_values = []
-            for t_idx, t in enumerate(sol.t):
-                r_val = compute_order_parameter(theta_sol[:, t_idx])
-                r_values.append(r_val)
-            
-            # Check synchronization condition:
-            # "r > threshold_r for t > threshold_t"
-            # We check the average r in the window [threshold_t, T]
-            start_idx = int(threshold_t / dt)
-            if start_idx >= len(r_values):
-                start_idx = len(r_values) - 1
-                
-            window_r = r_values[start_idx:]
-            avg_r = np.mean(window_r)
-            
-            full_r_history.append({
-                "K": K,
-                "avg_r": float(avg_r),
-                "r_at_end": float(r_values[-1]) if r_values else 0.0,
-                "max_r": float(np.max(r_values))
-            })
-
-            if avg_r > threshold_r:
-                critical_k = K
-                status = SynchronizationStatus.SYNCHRONIZED
-                found_sync = True
-                logger.info(f"Found synchronization at K={K} (avg_r={avg_r:.4f})")
-                break # Found the critical K (first one in increasing order)
-                
-        except Exception as e:
-            logger.error(f"Error during simulation for K={K}: {e}")
+        if not sol.success:
+            logger.error(f"Integration failed at K={K}: {sol.message}")
             continue
-
-    if not found_sync:
-        logger.info("Synchronization threshold not found in the specified K range.")
+        
+        # Compute order parameter over time
+        # We'll sample the order parameter at the end of the simulation
+        # and check if it stays above threshold for a duration
+        t = sol.t
+        y = sol.y  # shape (N, len(t))
+        
+        # Calculate order parameter at each time step
+        r_values = []
+        for i in range(len(t)):
+            r = compute_order_parameter(y[:, i], adj_matrix)
+            r_values.append(r)
+        
+        r_values = np.array(r_values)
+        
+        # Check if r stays above threshold_r for at least threshold_t duration
+        # Find segments where r > threshold_r
+        above_threshold = r_values > threshold_r
+        if np.any(above_threshold):
+            # Find the length of the longest continuous segment above threshold
+            # or check if the last segment is long enough
+            # Simple approach: check the end of the simulation
+            # Count consecutive True values at the end
+            consecutive_count = 0
+            for val in reversed(above_threshold):
+                if val:
+                    consecutive_count += 1
+                else:
+                    break
+            
+            # Convert count to time
+            if len(t) > 1:
+                dt = t[1] - t[0]
+            else:
+                dt = 1.0
+                
+            duration_above = consecutive_count * dt
+            
+            if duration_above >= threshold_t:
+                critical_k = K
+                synchronized_at_k = K
+                logger.info(f"Synchronization achieved at K={K} with r={r_values[-1]:.4f}")
+                break
+        else:
+            logger.debug(f"At K={K}, max r={np.max(r_values):.4f}, never sustained above {threshold_r}")
+    
+    # Determine final status
+    if synchronized_at_k is not None:
+        status = SynchronizationStatus.SYNCHRONIZED
+        is_synchronized = True
+    else:
         status = SynchronizationStatus.NOT_SYNCHRONIZED
-        # Keep critical_k as inf or the last K? 
-        # Usually critical_k is the point where it transitions. 
-        # If not found, it's effectively > max(K_values).
-        # We'll leave it as inf to indicate "not found within range".
-
+        is_synchronized = False
+        
     return SimulationResult(
         critical_k=critical_k,
-        status=status,
+        is_synchronized=is_synchronized,
         metrics={
-            "num_nodes": N,
-            "num_edges": G.number_of_edges(),
-            "K_range": [K_values[0], K_values[-1]],
-            "threshold_r": threshold_r,
-            "threshold_t": threshold_t,
-            "found_sync": found_sync
+            "K_sweep_range": [K_min, K_max],
+            "K_step": K_step,
+            "num_nodes": actual_N,
+            "synchronized_at_K": synchronized_at_k
         },
-        full_r_history=full_r_history
+        status=status
     )

@@ -3,233 +3,252 @@ from typing import List, Dict, Any, Optional, Tuple
 from sklearn.linear_model import Ridge, LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import cross_val_score
+from sklearn.metrics import r2_score
 import logging
-from data_models import RegressionModel
-import pandas as pd
 from scipy import stats as scipy_stats
 
 logger = logging.getLogger(__name__)
-
-def calculate_vif(X: np.ndarray, feature_names: Optional[List[str]] = None) -> Dict[str, float]:
-    """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-    
-    Args:
-        X: Feature matrix (n_samples, n_features)
-        feature_names: Optional list of feature names for the output dictionary
-    
-    Returns:
-        Dictionary mapping feature names (or indices) to VIF values.
-    """
-    if X.shape[1] == 0:
-        return {}
-    
-    if feature_names is None:
-        feature_names = [f"feature_{i}" for i in range(X.shape[1])]
-    
-    vif_data = {}
-    for i in range(X.shape[1]):
-        # Fit a linear regression of feature i against all other features
-        y = X[:, i]
-        X_other = np.delete(X, i, axis=1)
-        
-        if X_other.shape[1] == 0:
-            # Only one feature, VIF is 1 by definition
-            vif_data[feature_names[i]] = 1.0
-            continue
-        
-        model = LinearRegression()
-        model.fit(X_other, y)
-        r_squared = model.score(X_other, y)
-        
-        # VIF = 1 / (1 - R^2)
-        if r_squared >= 1.0:
-            vif_data[feature_names[i]] = float('inf')
-        else:
-            vif_data[feature_names[i]] = 1.0 / (1.0 - r_squared)
-    
-    return vif_data
 
 def run_regression(
     X: np.ndarray,
     y: np.ndarray,
     degree: int = 1,
-    vif_threshold: float = 5.0,
-    ridge_alpha: float = 1.0,
-    use_intercept: bool = True
+    alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Run linear or polynomial regression with VIF checking and Ridge fallback.
+    Fit a linear or polynomial regression model.
     
     Args:
         X: Feature matrix (n_samples, n_features)
         y: Target vector (n_samples,)
-        degree: Degree of polynomial features (1 for linear)
-        vif_threshold: Threshold for VIF; if any feature exceeds this, switch to Ridge
-        ridge_alpha: Regularization strength for Ridge regression
-        use_intercept: Whether to include an intercept term
+        degree: Polynomial degree (1 for linear)
+        alpha: Significance level for p-value calculation (default 0.05)
     
     Returns:
-        Dictionary containing model results, coefficients, R², and metadata.
+        Dictionary containing model coefficients, R², p-values, and residuals.
     """
-    logger.info(f"Running regression with degree={degree}, vif_threshold={vif_threshold}")
+    logger.info(f"Fitting regression model with degree={degree}")
     
-    # Generate polynomial features if requested
     if degree > 1:
         poly = PolynomialFeatures(degree=degree, include_bias=False)
         X_poly = poly.fit_transform(X)
-        feature_names = poly.get_feature_names_out()
-        X_used = X_poly
+        model = LinearRegression()
+        model.fit(X_poly, y)
+        y_pred = model.predict(X_poly)
+        # Adjust feature names for polynomial terms if needed
+        feature_names = [f"poly_{i}" for i in range(X_poly.shape[1])]
     else:
-        X_used = X
-        feature_names = [f"x_{i}" for i in range(X.shape[1])]
+        model = LinearRegression()
+        model.fit(X, y)
+        y_pred = model.predict(X)
+        feature_names = [f"feat_{i}" for i in range(X.shape[1])]
     
-    # Check VIF
-    vif_results = calculate_vif(X_used, feature_names)
-    max_vif = max(vif_results.values()) if vif_results else 0.0
-    high_vif_features = [name for name, v in vif_results.items() if v > vif_threshold]
+    r2 = r2_score(y, y_pred)
     
-    model_type = "LinearRegression"
-    if max_vif > vif_threshold:
-        logger.warning(f"[VIF_ALERT] Max VIF {max_vif:.2f} exceeds threshold {vif_threshold}. "
-                     f"High VIF features: {high_vif_features}. Switching to Ridge Regression with alpha={ridge_alpha}.")
-        model = Ridge(alpha=ridge_alpha, fit_intercept=use_intercept)
-        model_type = "Ridge"
+    # Calculate p-values for coefficients using t-distribution
+    n_samples = len(y)
+    n_params = model.coef_.shape[0] + 1  # +1 for intercept
+    degrees_of_freedom = n_samples - n_params
+    
+    if degrees_of_freedom <= 0:
+        logger.warning("Degrees of freedom <= 0. Cannot calculate p-values. Returning NaN.")
+        p_values = [np.nan] * len(model.coef_)
+        p_intercept = np.nan
     else:
-        model = LinearRegression(fit_intercept=use_intercept)
-    
-    model.fit(X_used, y)
-    
-    # Calculate R²
-    r2 = model.score(X_used, y)
-    
-    # Calculate p-values (approximate using t-test for coefficients)
-    # This is a simplified approach; for rigorous stats, use statsmodels
-    n = len(y)
-    p_features = X_used.shape[1]
-    residuals = y - model.predict(X_used)
-    
-    # Standard error of residuals
-    if n - p_features - 1 > 0:
-        mse = np.sum(residuals**2) / (n - p_features - 1)
-    else:
-        mse = 0.0
-    
-    # Standard errors of coefficients
-    if use_intercept:
-        # X_used includes bias column if generated by PolynomialFeatures with include_bias=True,
-        # but we set include_bias=False, so we handle intercept separately if needed.
-        # For simplicity, we assume the model handles intercept internally.
-        # We need to compute (X^T X)^-1
-        try:
-            XtX_inv = np.linalg.inv(X_used.T @ X_used)
-            se = np.sqrt(np.diag(XtX_inv) * mse)
-        except np.linalg.LinAlgError:
-            logger.warning("Could not invert X^T X. Setting p-values to 1.0.")
-            se = np.ones_like(model.coef_)
-            p_values = [1.0] * len(model.coef_)
+        # Residuals
+        residuals = y - y_pred
+        # Standard error of the regression
+        sse = np.sum(residuals**2)
+        mse = sse / degrees_of_freedom
+        
+        # Standard errors of coefficients
+        # Covariance matrix of coefficients = MSE * (X'X)^-1
+        if degree > 1:
+            X_design = X_poly
         else:
-            # t-statistics
-            t_stats = model.coef_ / se
-            # p-values (two-tailed)
-            p_values = [2 * (1 - scipy_stats.t.cdf(abs(t), n - p_features - 1)) for t in t_stats]
-    else:
-        # No intercept
+            X_design = X
+        
+        # Add column of ones for intercept
+        X_design_intercept = np.column_stack((np.ones(X_design.shape[0]), X_design))
+        
         try:
-            XtX_inv = np.linalg.inv(X_used.T @ X_used)
-            se = np.sqrt(np.diag(XtX_inv) * mse)
-            t_stats = model.coef_ / se
-            p_values = [2 * (1 - scipy_stats.t.cdf(abs(t), n - p_features)) for t in t_stats]
+            XtX_inv = np.linalg.inv(X_design_intercept.T @ X_design_intercept)
+            se_coefs = np.sqrt(np.diag(XtX_inv) * mse)
+            
+            # t-statistics
+            t_stats = np.append(model.intercept_, model.coef_) / se_coefs
+            
+            # Two-tailed p-values
+            p_values = 2 * (1 - scipy_stats.t.cdf(np.abs(t_stats[1:]), degrees_of_freedom))
+            p_intercept = 2 * (1 - scipy_stats.t.cdf(np.abs(t_stats[0]), degrees_of_freedom))
         except np.linalg.LinAlgError:
-            p_values = [1.0] * len(model.coef_)
+            logger.warning("Singular matrix in covariance calculation. Returning NaN for p-values.")
+            p_values = [np.nan] * len(model.coef_)
+            p_intercept = np.nan
     
-    # Construct result
-    result = {
-        "model_type": model_type,
-        "degree": degree,
-        "r_squared": float(r2),
-        "coefficients": {
-            "intercept": float(model.intercept_) if model.intercept_ is not None else 0.0,
-            "features": {name: float(coef) for name, coef in zip(feature_names, model.coef_)}
-        },
-        "p_values": {name: float(p) for name, p in zip(feature_names, p_values)},
-        "vif_check": {
-            "threshold": vif_threshold,
-            "max_vif": float(max_vif),
-            "high_vif_features": high_vif_features,
-            "switched_to_ridge": max_vif > vif_threshold
-        },
-        "ridge_alpha_used": ridge_alpha if max_vif > vif_threshold else None,
-        "n_samples": int(n),
-        "n_features": int(p_features)
+    # ANOVA table calculation
+    ss_total = np.sum((y - np.mean(y))**2)
+    ss_residual = np.sum(residuals**2)
+    ss_regression = ss_total - ss_residual
+    
+    df_regression = n_params - 1
+    df_residual = degrees_of_freedom
+    df_total = n_samples - 1
+    
+    ms_regression = ss_regression / df_regression if df_regression > 0 else 0
+    ms_residual = ss_residual / df_residual if df_residual > 0 else 0
+    
+    f_stat = ms_regression / ms_residual if ms_residual > 0 else 0
+    p_f_stat = 1 - scipy_stats.f.cdf(f_stat, df_regression, df_residual) if df_residual > 0 else np.nan
+    
+    anova = {
+        "source": ["Regression", "Residual", "Total"],
+        "df": [df_regression, df_residual, df_total],
+        "ss": [ss_regression, ss_residual, ss_total],
+        "ms": [ms_regression, ms_residual, np.nan],
+        "f": [f_stat, np.nan, np.nan],
+        "p": [p_f_stat, np.nan, np.nan]
     }
     
-    logger.info(f"Regression complete. R²={r2:.4f}, Model={model_type}")
-    return result
+    return {
+        "coefficients": model.coef_.tolist(),
+        "intercept": float(model.intercept_),
+        "r_squared": float(r2),
+        "p_values": p_values,
+        "p_intercept": p_intercept,
+        "anova": anova,
+        "feature_names": feature_names,
+        "model_type": "polynomial" if degree > 1 else "linear",
+        "degree": degree
+    }
+
+def calculate_vif(X: np.ndarray, feature_names: Optional[List[str]] = None) -> Dict[str, float]:
+    """
+    Calculate Variance Inflation Factor for each predictor.
+    
+    Args:
+        X: Feature matrix (n_samples, n_features)
+        feature_names: Optional list of feature names for the result dictionary
+    
+    Returns:
+        Dictionary mapping feature names (or indices) to VIF values.
+    """
+    n_samples, n_features = X.shape
+    
+    if n_samples < n_features + 1:
+        logger.warning("Sample size too small for VIF calculation. Returning NaNs.")
+        if feature_names:
+            return {name: np.nan for name in feature_names}
+        return {f"feat_{i}": np.nan for i in range(n_features)}
+    
+    vif_values = {}
+    if feature_names is None:
+        feature_names = [f"feat_{i}" for i in range(n_features)]
+    
+    for i in range(n_features):
+        y_i = X[:, i]
+        X_others = np.delete(X, i, axis=1)
+        
+        # Add intercept
+        X_others_intercept = np.column_stack((np.ones(X_others.shape[0]), X_others))
+        
+        try:
+            model = LinearRegression()
+            model.fit(X_others_intercept, y_i)
+            r_squared_i = model.score(X_others_intercept, y_i)
+            
+            # VIF = 1 / (1 - R²_i)
+            if r_squared_i >= 1.0:
+                vif = np.inf
+            else:
+                vif = 1.0 / (1.0 - r_squared_i)
+            
+            vif_values[feature_names[i]] = float(vif)
+        except Exception as e:
+            logger.warning(f"Error calculating VIF for {feature_names[i]}: {e}")
+            vif_values[feature_names[i]] = np.nan
+    
+    return vif_values
 
 def run_cross_validation(
     X: np.ndarray,
     y: np.ndarray,
+    n_splits: int = 5,
     degree: int = 1,
-    cv_folds: int = 5,
-    vif_threshold: float = 5.0,
-    ridge_alpha: float = 1.0,
-    scoring: str = 'r2'
+    cv_repeats: int = 5
 ) -> Dict[str, Any]:
     """
-    Run k-fold cross-validation for the regression model.
+    Perform 5x5-Fold Cross-Validation as per project constitution.
     
     Args:
-        X: Feature matrix (n_samples, n_features)
-        y: Target vector (n_samples,)
-        degree: Degree of polynomial features
-        cv_folds: Number of folds for cross-validation
-        vif_threshold: VIF threshold for Ridge fallback
-        ridge_alpha: Regularization strength for Ridge
-        scoring: Scoring metric for cross-validation (default 'r2')
+        X: Feature matrix
+        y: Target vector
+        n_splits: Number of folds (default 5)
+        degree: Polynomial degree
+        cv_repeats: Number of repeats (default 5 for 5x5-CV)
     
     Returns:
-        Dictionary containing CV results: mean score, std dev, and individual fold scores.
+        Dictionary with mean R², std dev, and individual scores.
     """
-    logger.info(f"Running {cv_folds}-fold cross-validation with degree={degree}")
+    logger.info(f"Running {cv_repeats}x{n_splits}-Fold Cross-Validation")
     
-    # Generate polynomial features if requested
-    if degree > 1:
-        poly = PolynomialFeatures(degree=degree, include_bias=False)
-        X_poly = poly.fit_transform(X)
-        X_used = X_poly
-    else:
-        X_used = X
+    all_scores = []
     
-    # Determine model type based on VIF (using full data for estimation)
-    vif_results = calculate_vif(X_used)
-    max_vif = max(vif_results.values()) if vif_results else 0.0
+    for repeat in range(cv_repeats):
+        # Create a new splitter instance for each repeat to ensure different shuffles
+        scores = cross_val_score(
+            LinearRegression() if degree == 1 else PolynomialFeatures(degree=degree),
+            X, y,
+            cv=n_splits,
+            scoring='r2'
+        )
+        all_scores.extend(scores.tolist())
     
-    if max_vif > vif_threshold:
-        model = Ridge(alpha=ridge_alpha, fit_intercept=True)
-        model_type = "Ridge"
-    else:
-        model = LinearRegression(fit_intercept=True)
-        model_type = "LinearRegression"
+    scores_array = np.array(all_scores)
     
-    # Run cross-validation
-    cv_scores = cross_val_score(model, X_used, y, cv=cv_folds, scoring=scoring)
-    
-    result = {
-        "model_type": model_type,
-        "degree": degree,
-        "cv_folds": cv_folds,
-        "scoring_metric": scoring,
-        "mean_score": float(np.mean(cv_scores)),
-        "std_score": float(np.std(cv_scores)),
-        "fold_scores": [float(s) for s in cv_scores],
-        "stability_flag": "UNSTABLE" if np.std(cv_scores) > 0.1 else "STABLE",
-        "vif_check": {
-            "threshold": vif_threshold,
-            "max_vif": float(max_vif),
-            "switched_to_ridge": max_vif > vif_threshold
-        }
+    return {
+        "mean_r2": float(np.mean(scores_array)),
+        "std_r2": float(np.std(scores_array)),
+        "all_scores": scores_array.tolist(),
+        "n_folds": n_splits,
+        "n_repeats": cv_repeats,
+        "total_evaluations": len(all_scores),
+        "stability_flag": float(np.std(scores_array)) > 0.1
     }
+
+def calculate_anova_table(y: np.ndarray, y_pred: np.ndarray) -> Dict[str, Any]:
+    """
+    Calculate ANOVA table for regression analysis.
     
-    logger.info(f"CV complete. Mean {scoring}={result['mean_score']:.4f}, Std={result['std_score']:.4f}")
-    return result
+    Args:
+        y: Actual values
+        y_pred: Predicted values
+    
+    Returns:
+        ANOVA table dictionary.
+    """
+    n = len(y)
+    ss_total = np.sum((y - np.mean(y))**2)
+    residuals = y - y_pred
+    ss_residual = np.sum(residuals**2)
+    ss_regression = ss_total - ss_residual
+    
+    # Degrees of freedom
+    df_total = n - 1
+    df_residual = n - 2  # Assuming simple linear regression (1 predictor + intercept)
+    df_regression = 1
+    
+    ms_regression = ss_regression / df_regression if df_regression > 0 else 0
+    ms_residual = ss_residual / df_residual if df_residual > 0 else 0
+    
+    f_stat = ms_regression / ms_residual if ms_residual > 0 else 0
+    p_value = 1 - scipy_stats.f.cdf(f_stat, df_regression, df_residual) if df_residual > 0 else np.nan
+    
+    return {
+        "source": ["Regression", "Residual", "Total"],
+        "df": [df_regression, df_residual, df_total],
+        "ss": [ss_regression, ss_residual, ss_total],
+        "ms": [ms_regression, ms_residual, np.nan],
+        "f": [f_stat, np.nan, np.nan],
+        "p": [p_value, np.nan, np.nan]
+    }

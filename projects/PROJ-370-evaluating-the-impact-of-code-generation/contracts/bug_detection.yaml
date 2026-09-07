@@ -1,0 +1,53 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: BugDetectionResult
+description: |
+  Schema for bug detection results, whether from human baseline
+  or LLM inference. Contains location, severity, and verification status.
+type: object
+required:
+  - pr_id
+  - file_path
+  - line_start
+  - line_end
+  - severity
+  - description
+properties:
+  pr_id:
+    type: integer
+    description: The Pull Request ID where the bug was detected
+  file_path:
+    type: string
+    description: Path to the file containing the bug
+  line_start:
+    type: integer
+    description: Starting line number of the bug (1-indexed)
+  line_end:
+    type: integer
+    description: Ending line number of the bug (1-indexed)
+  severity:
+    type: string
+    enum: [critical, major, minor, style]
+    description: Severity level of the detected bug
+  description:
+    type: string
+    description: Human-readable description of the bug
+  is_verified:
+    type: boolean
+    description: |
+      True if this bug is part of the triangulated ground truth.
+      False if it was excluded from ground truth (e.g., only 1 reviewer).
+      Used to filter out unverified bugs during metric calculation.
+  verification_method:
+    type: string
+    enum: [strict_triangulation, excluded_unverified]
+    description: Method used to determine verification status
+  source:
+    type: string
+    enum: [human_baseline, llm_inference]
+    description: Origin of the detection
+  llm_error_flag:
+    type: boolean
+    default: false
+    description: |
+      Set to true if the LLM failed to parse or returned an error.
+      These entries are excluded from metric calculations.

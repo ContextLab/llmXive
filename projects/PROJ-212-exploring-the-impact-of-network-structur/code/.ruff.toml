@@ -1,0 +1,29 @@
+# Ruff configuration for PROJ-212
+# Enforces PEP 8 compliance with specific project rules
+
+line-length = 88
+target-version = "py311"
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "B008", # Do not perform function call in argument defaults (common in data loaders)
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"] # Allow unused imports in init files for API exposure
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[lint.isort]
+known-first-party = ["config", "data_models", "loader", "main", "simulation", "stats", "topology", "utils", "validators", "viz", "src"]
+force-sort-within-sections = true
+lines-after-imports = 2

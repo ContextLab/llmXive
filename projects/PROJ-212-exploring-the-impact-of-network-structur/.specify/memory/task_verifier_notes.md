@@ -18,3 +18,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T018** — The required `src/stats.py` file does not exist, so there is no code to test, and consequently no unit test for VIF calculation or Ridge fallback logic can be present or validated. The missing source file must be added (with the VIF and Ridge logic) and a corresponding unit test created to satisfy the task.
 - **T019** — declared artifact(s) missing/empty/invalid: src/stats.py
 - **T020a** — declared artifact(s) missing/empty/invalid: src/stats.py
+- **T020b** — declared artifact(s) missing/empty/invalid: src/stats.py
+- **T020c** — declared artifact(s) missing/empty/invalid: src/stats.py, results/regression_summary.json

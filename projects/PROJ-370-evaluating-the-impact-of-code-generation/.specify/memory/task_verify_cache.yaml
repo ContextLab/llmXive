@@ -40,3 +40,39 @@ T011:
     files, we cannot verify that the required artifacts exist or contain the correct
     structure. The implementer must add the YAML schema files in the `contracts/`
     directory.
+T012:
+  c: false
+  h: 4218944a7ff9a428d7871d360f8a12aaaa1ebe2aedd2ed461372d7dc0fe36ac2
+  r: The required script `src/extraction/fetch_prs.py` does not exist, so none of
+    the specified functionality (loading repos, fetching PRs, handling missing issues,
+    logging, and writing raw JSON) is present. The task cannot be considered completed.
+T014:
+  c: false
+  h: 570723d650da49e5dee27805ba8657f8f665db53a5cbd1a5e9f7f4340b6fc8dc
+  r: "The repository contains `src/extraction/preprocess.py`, but the required output\
+    \ file `data/annotations/raw_comments.json` is absent, and the shown portion of\
+    \ the script does not demonstrate that it writes extracted comments to that path.\
+    \ Without the generated JSON file, the task\u2019s core requirement is unmet."
+T015:
+  c: false
+  h: 8219a28749a0531f0c62501551fed38a1929ac864f1dc8ba8aba903cc0b15c4c
+  r: "The repository contains a `src/extraction/preprocess.py` file, but the shown\
+    \ code does not include any logic that writes raw JSON files to `data/raw/` nor\
+    \ generates a `data/raw/checksums.json`. Moreover, the required `data/raw/checksums.json`\
+    \ file is absent from the project. The task\u2019s core requirement\u2014saving\
+    \ raw JSON with SHA\u2011256 checksums\u2014is therefore not fulfilled."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that validation logic\
+    \ for `linked_issue_ids` was added, nor any evidence that the IDs are checked\
+    \ to be labeled \u201Creported\u201D and not ground\u2011truth. The required implementation\
+    \ artifact is missing."
+T017:
+  c: false
+  h: 6535c27526a0876ceed71f343f60530b7ad5268e4582620966925b8e2e9aa2ba
+  r: "The repository contains a `src/extraction/preprocess.py` file, but its content\
+    \ focuses on comment extraction and does not implement the required triangulation\
+    \ logic or write `data/derived/human_baseline.json`. Moreover, the expected output\
+    \ file `data/derived/human_baseline.json` is absent. The task\u2019s output schema\
+    \ and exclusion/flagging requirements are not met."

@@ -1,32 +1,20 @@
-"""
-Project structure setup script for llmXive research pipeline.
-Creates the required directory hierarchy for data, code, tests, and results.
-"""
 import os
 import sys
 from pathlib import Path
 
-def create_directories(base_path: Path = None) -> None:
+def create_directories(base_path: str = None):
     """
-    Creates the standard project directory structure required by the pipeline.
-    
-    Directories created:
-    - src/ (source code)
-    - data/raw/ (raw fetched data)
-    - data/derived/ (processed/derived data)
-    - data/annotations/ (human annotations)
-    - results/ (final reports and metrics)
-    - tests/ (test suite)
-    - specs/ (feature specifications)
-    
-    Args:
-        base_path: Base directory to create structure in. Defaults to current working directory.
+    Creates the required project directory structure.
+    Paths are relative to the project root.
     """
     if base_path is None:
         base_path = Path.cwd()
-    
-    # Define the required directory structure relative to base_path
-    required_dirs = [
+    else:
+        base_path = Path(base_path)
+
+    # Define the required directories based on tasks.md T001
+    # Using 'code/' prefix as per project constraints and existing API surface
+    dirs_to_create = [
         "src",
         "data/raw",
         "data/derived",
@@ -35,23 +23,27 @@ def create_directories(base_path: Path = None) -> None:
         "tests",
         "specs"
     ]
-    
+
     created_count = 0
-    for dir_name in required_dirs:
-        dir_path = base_path / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+    for dir_name in dirs_to_create:
+        full_path = base_path / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
-    
-    print(f"\nProject structure setup complete. {created_count} new directories created.")
-    print(f"Base path: {base_path}")
+            print(f"Directory already exists: {full_path}")
+
+    return created_count
 
 def main():
-    """Main entry point for the script."""
-    create_directories()
+    """
+    Entry point for the setup script.
+    """
+    print("Starting project directory setup...")
+    created = create_directories()
+    print(f"Setup complete. Created {created} new directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,11 +1,3 @@
-T006:
-  c: false
-  h: 8d3bd273e062999ef2fd113ad06074e69f449e6f27210e0bf1f678af7a2c097d
-  r: "The provided `code/synthetic/generator.py` is truncated and contains a syntax\
-    \ error (`return inte`), with no evidence that it writes FITS files or creates\
-    \ the required `gt_metadata.json`. Moreover, the `data/synthetic/gt_metadata.json`\
-    \ file is missing entirely. Consequently, the task\u2019s required artifacts are\
-    \ not present or functional."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,14 +6,12 @@ T008:
     and setup have not been delivered.
 T015:
   c: false
-  h: 955b6923b3069645f65ddf7dedf3192cb977de44bb81312a4a5e05681359c101
-  r: "The repository lacks the required `data/synthetic/gt_metadata.json` file, so\
-    \ the pipeline cannot load ground\u2011truth metadata. Moreover, the provided\
-    \ `code/main.py` excerpt does not show a `run_us1_pipeline` implementation that\
-    \ performs the specified steps (loading clean image, injecting noise, measuring\
-    \ ellipticity, computing bias, calling `run_noise_regression`, and logging). Both\
-    \ the essential data file and the function are missing, so the task is not genuinely\
-    \ completed."
+  h: bdc18504c10020c0205b114608ad7615995920bc1cd8f9237734ed7d3aa6de0e
+  r: The repository lacks a `gt_metadata.json` file in `data/synthetic/`, so the pipeline
+    cannot load ground truth as required. Moreover, `code/main.py` does not contain
+    a `run_us1_pipeline` function implementing the specified steps (load image, inject
+    noise, measure ellipticity, compute bias, call `run_noise_regression`, and log
+    results). Both essential artifacts are missing, so the task is not genuinely completed.
 T016:
   c: false
   h: 41962b062a20c07f3b98c070657ad6f6c78b6de9337da446eb4fafa2c590c9b5
@@ -31,10 +21,12 @@ T016:
     CSV with the specified schema. The code snippet is truncated, so we cannot verify
     that the regression, Bonferroni correction, and CSV writing are fully implemented.
     The missing output file must be generated for the task to be considered complete.
-T040:
+T022:
   c: false
-  h: 955b6923b3069645f65ddf7dedf3192cb977de44bb81312a4a5e05681359c101
+  h: bdc18504c10020c0205b114608ad7615995920bc1cd8f9237734ed7d3aa6de0e
   r: The repository lacks the required `data/synthetic/gt_metadata.json` file, and
-    the shown portion of `code/main.py` does not contain (or demonstrate) a `run_us2_pipeline`
-    function that loads this metadata before computing asymmetry bias. Both the artifact
-    and the expected code change are absent.
+    the provided `code/main.py` does not contain an implementation of a `run_us2_pipeline`
+    function that performs the specified steps (loading the clean image, injecting
+    saturation, measuring asymmetry, loading ground truth, calling `run_saturation_regression`,
+    computing bias, and logging results). Both essential artifacts are missing, so
+    the task is not genuinely completed.

@@ -1,0 +1,2 @@
+# Results directory for simulation outputs, regression reports, and visualizations.
+# This file ensures the directory exists in git.

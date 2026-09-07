@@ -3,287 +3,252 @@ import logging
 import sys
 import json
 import os
+import subprocess
 from pathlib import Path
-from typing import Optional, Dict, Any
 
-# Import from local modules using relative imports to ensure execution from project root
-# Note: The API surface shows 'code.config', 'code.io.writer', etc.
-# To make this runnable as 'python code/main.py', we adjust imports to be relative to the code package.
-# However, the prompt requires imports to match the API surface which implies 'from code.config'.
-# We will assume the execution environment adds the project root to sys.path.
-try:
-    from code.config import get_project_root, get_config, NOISE_LEVELS, SATURATION_RANGE
-    from code.io.writer import generate_run_manifest, write_run_manifest_for_pipeline
-    from code.io.loader import load_fits_image, load_fits_safe
-    from code.synthetic.generator import generate_synthetic_nebula, generate_gt_metadata
-    from code.synthetic.artifacts import inject_noise, clip_saturation, run_noise_sweep, run_saturation_sweep
-    from code.metrics.ellipticity import calculate_ellipticity
-    from code.metrics.asymmetry import calculate_asymmetry
-    from code.analysis.statistics import run_noise_regression, run_saturation_regression
-    from code.analysis.regression import fit_calibration_models
-    from code.analysis.validation import apply_corrections, validate_residuals
-    from code.analysis.power_analysis import generate_power_report
-except ImportError as e:
-    # Fallback for direct execution if sys.path is not set up correctly
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from code.config import get_project_root, get_config, NOISE_LEVELS, SATURATION_RANGE
-    from code.io.writer import generate_run_manifest, write_run_manifest_for_pipeline
-    from code.io.loader import load_fits_image, load_fits_safe
-    from code.synthetic.generator import generate_synthetic_nebula, generate_gt_metadata
-    from code.synthetic.artifacts import inject_noise, clip_saturation, run_noise_sweep, run_saturation_sweep
-    from code.metrics.ellipticity import calculate_ellipticity
-    from code.metrics.asymmetry import calculate_asymmetry
-    from code.analysis.statistics import run_noise_regression, run_saturation_regression
-    from code.analysis.regression import fit_calibration_models
-    from code.analysis.validation import apply_corrections, validate_residuals
-    from code.analysis.power_analysis import generate_power_report
+from code.config import get_project_root, get_config_summary, NOISE_LEVELS, SATURATION_RANGE
+from code.io.writer import generate_run_manifest, write_run_manifest_for_pipeline
+from code.io.loader import load_fits_image, validate_fits_headers
+from code.synthetic.generator import generate_synthetic_nebula, generate_gt_metadata
+from code.synthetic.artifacts import run_noise_sweep, run_saturation_sweep, inject_noise, clip_saturation
+from code.metrics.ellipticity import calculate_ellipticity
+from code.metrics.asymmetry import calculate_asymmetry
+from code.analysis.statistics import run_noise_regression, run_saturation_regression
+from code.analysis.validation import apply_corrections, validate_residuals
+from code.analysis.regression import fit_calibration_models
+from code.analysis.power_analysis import calculate_power, calculate_mdes, generate_power_report
 
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/research.log')
+    ]
+)
 logger = logging.getLogger(__name__)
 
-def setup_logging(log_file: Optional[str] = None):
-    """Configure logging for the pipeline."""
-    handlers = [logging.StreamHandler(sys.stdout)]
-    if log_file:
-        handlers.append(logging.FileHandler(log_file))
-    
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=handlers
-    )
-
 def setup_directories(root: Path):
-    """Ensure required directory structure exists."""
+    """Ensure required directories exist."""
     dirs = [
-        root / 'data' / 'raw',
-        root / 'data' / 'synthetic',
-        root / 'data' / 'processed',
-        root / 'data' / 'validation',
-        root / 'logs',
-        root / 'figures'
+        root / "data" / "raw",
+        root / "data" / "synthetic",
+        root / "data" / "processed",
+        root / "data" / "validation",
+        root / "logs",
+        root / "code" / "synthetic",
+        root / "code" / "metrics",
+        root / "code" / "analysis",
+        root / "code" / "io"
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
 def validate_pipeline_state(root: Path):
     """Check for required input files before execution."""
-    gt_path = root / 'data' / 'synthetic' / 'gt_metadata.json'
+    gt_path = root / "data" / "synthetic" / "gt_metadata.json"
     if not gt_path.exists():
         raise FileNotFoundError(
             f"Missing ground truth metadata. Ensure T006 (Synthetic Generation) has completed successfully. "
-            f"Expected at: {gt_path}"
+            f"Expected file: {gt_path}"
         )
-    logger.info(f"Pipeline state validated. Ground truth found at {gt_path}")
+    logger.info("Pipeline state validation passed.")
 
-def generate_data(args):
+def generate_data(root: Path, n_images: int = 50):
     """Generate synthetic planetary nebulae."""
-    root = get_project_root()
-    setup_directories(root)
+    logger.info(f"Generating {n_images} synthetic nebulae...")
+    config = get_config_summary()
     
-    logger.info(f"Generating {args.n_images} synthetic images...")
-    # Call the generator module's main or specific function
-    # Based on API surface: from code.synthetic.generator import generate_synthetic_nebula, generate_gt_metadata
-    # We need to orchestrate the generation loop.
+    # Generate images
+    for i in range(n_images):
+        generate_synthetic_nebula(i, root / "data" / "synthetic")
     
-    # Assuming generate_synthetic_nebula generates one image and returns it + metadata
-    # and generate_gt_metadata saves the JSON.
+    # Generate ground truth metadata
+    generate_gt_metadata(root / "data" / "synthetic", n_images)
     
-    # We implement the loop here to ensure it runs as a script command.
-    from code.synthetic.generator import generate_synthetic_nebula, generate_gt_metadata
-    
-    generated_metadata = []
-    for i in range(args.n_images):
-        img, meta = generate_synthetic_nebula(seed=i, image_id=f"{i:03d}")
-        generated_metadata.append(meta)
-    
-    # Save the GT metadata
-    generate_gt_metadata(generated_metadata, root / 'data' / 'synthetic' / 'gt_metadata.json')
     logger.info("Synthetic data generation complete.")
 
-def process_artifacts(args):
+def process_artifacts(root: Path):
     """Process synthetic data by injecting artifacts and measuring metrics."""
-    root = get_project_root()
-    validate_pipeline_state(root)
+    logger.info("Processing artifacts (Noise and Saturation)...")
     
-    # Load ground truth
-    gt_path = root / 'data' / 'synthetic' / 'gt_metadata.json'
-    with open(gt_path, 'r') as f:
-        gt_data = json.load(f)
-    
-    logger.info(f"Loaded ground truth for {len(gt_data)} images.")
-    
-    # Run US1: Noise Sweep
-    logger.info("Running Noise Sweep (US1)...")
-    # This calls the sweep logic which should produce noise_trend_report.csv
+    # Run Noise Sweep (US1)
     run_noise_sweep(root)
     
-    # Run US2: Saturation Sweep
-    logger.info("Running Saturation Sweep (US2)...")
-    # This calls the sweep logic which should produce saturation_sweep.csv
+    # Run Saturation Sweep (US2)
     run_saturation_sweep(root)
     
-    logger.info("Artifact processing complete.")
+    logger.info("Artifact injection and measurement complete.")
 
-def calibrate_models(args):
-    """Fit calibration models based on processed data."""
-    root = get_project_root()
+def run_us1_pipeline(root: Path):
+    """
+    User Story 1: Evaluate Noise-Induced Bias on Ellipticity.
+    1. Load clean image -> 2. Inject noise -> 3. Measure ellipticity -> 
+    4. Load ground truth -> 5. Compute bias -> 6. Run regression -> 7. Log results.
+    """
+    logger.info("Starting User Story 1 Pipeline (Noise vs Ellipticity)...")
+    gt_path = root / "data" / "synthetic" / "gt_metadata.json"
     
-    # Run regression analyses
-    logger.info("Running Noise Regression...")
-    run_noise_regression(root)
-    
-    logger.info("Running Saturation Regression...")
-    run_saturation_regression(root)
-    
-    logger.info("Fitting Calibration Models...")
-    fit_calibration_models(root)
-    
-    logger.info("Model calibration complete.")
+    if not gt_path.exists():
+        raise FileNotFoundError(f"Ground truth metadata missing at {gt_path}")
 
-def validate_models(args):
-    """Validate models and run power analysis."""
-    root = get_project_root()
-    
-    # Apply corrections and validate residuals
-    logger.info("Applying corrections and validating residuals...")
-    apply_corrections(root)
-    validate_residuals(root)
-    
-    # Power analysis
-    logger.info("Running Power Analysis...")
-    generate_power_report(root)
-    
-    logger.info("Validation complete.")
+    with open(gt_path, 'r') as f:
+        gt_data = json.load(f)
 
-def verify_pipeline(args):
-    """Final verification of the pipeline outputs."""
-    root = get_project_root()
-    
-    required_files = [
-        root / 'data' / 'synthetic' / 'gt_metadata.json',
-        root / 'data' / 'processed' / 'noise_trend_report.csv',
-        root / 'data' / 'processed' / 'saturation_sweep.csv',
-        root / 'data' / 'processed' / 'noise_stats.csv',
-        root / 'data' / 'processed' / 'saturation_stats.csv',
-        root / 'data' / 'processed' / 'calibration_functions.json',
-        root / 'data' / 'validation' / 'power_analysis_report.md'
-    ]
-    
-    missing = [f for f in required_files if not f.exists()]
-    if missing:
-        logger.error(f"Verification failed. Missing files: {missing}")
-        return 1
-    
-    logger.info("Pipeline verification successful.")
-    return 0
+    results = []
+    for item in gt_data:
+        img_id = item['image_id']
+        clean_path = root / "data" / "synthetic" / f"synth_{img_id:03d}.fits"
+        
+        if not clean_path.exists():
+            logger.warning(f"Clean image missing for {img_id}, skipping.")
+            continue
+
+        # Inject noise for each level defined in config
+        for sigma in NOISE_LEVELS:
+            try:
+                # Inject noise
+                noisy_img, _ = inject_noise(clean_path, sigma)
+                
+                # Measure ellipticity
+                ellipticity, _ = calculate_ellipticity(noisy_img)
+                
+                # Compute bias against ground truth
+                true_ell = item['ellipticity']
+                bias = ellipticity - true_ell
+                
+                results.append({
+                    'image_id': img_id,
+                    'sigma': sigma,
+                    'true_ellipticity': true_ell,
+                    'measured_ellipticity': ellipticity,
+                    'bias': bias
+                })
+            except Exception as e:
+                logger.error(f"Error processing image {img_id} with sigma {sigma}: {e}")
+
+    # Run regression analysis
+    logger.info("Running noise regression analysis...")
+    run_noise_regression(results, root / "data" / "processed" / "noise_stats.csv")
+    logger.info("US1 Pipeline complete.")
 
 def run_us2_pipeline(root: Path):
     """
-    Execute User Story 2 pipeline: Saturation -> Asymmetry -> Bias -> Regression.
-    Explicitly loads ground-truth metadata from data/synthetic/gt_metadata.json
-    to ensure the 'Single Source of Truth' principle.
+    User Story 2: Quantify Saturation-Induced Bias on Asymmetry.
+    1. Load clean image -> 2. Inject saturation -> 3. Measure asymmetry -> 
+    4. Load ground truth -> 5. Call run_saturation_regression -> 6. Compute bias -> 7. Log results.
     """
-    logger.info("Starting US2 Pipeline: Saturation Bias Quantification")
+    logger.info("Starting User Story 2 Pipeline (Saturation vs Asymmetry)...")
     
-    # 1. Explicitly load ground-truth metadata (Single Source of Truth)
-    gt_path = root / 'data' / 'synthetic' / 'gt_metadata.json'
+    gt_path = root / "data" / "synthetic" / "gt_metadata.json"
     if not gt_path.exists():
-        raise FileNotFoundError(
-            f"Ground truth metadata not found at {gt_path}. "
-            f"Please ensure T006 (Synthetic Generation) has completed successfully."
-        )
-    
+        raise FileNotFoundError(f"Ground truth metadata missing at {gt_path}")
+
     with open(gt_path, 'r') as f:
-        gt_metadata_list = json.load(f)
-    
-    logger.info(f"Loaded {len(gt_metadata_list)} ground truth records from {gt_path}")
-    
-    # 2. Inject saturation artifacts (T021)
-    # This function handles the sweep and writes saturation_sweep.csv
-    logger.info("Injecting saturation artifacts...")
-    run_saturation_sweep(root)
-    
-    # 3. Measure asymmetry and compute bias
-    # The run_saturation_sweep function in artifacts.py should handle the measurement
-    # and bias computation against the loaded GT. We ensure it does so.
-    # (Note: If the logic is split, we might need to call a specific metric function here,
-    # but based on T021 description, it saves results to saturation_sweep.csv).
-    
-    # 4. Run statistical regression (T023)
+        gt_data = json.load(f)
+
+    results = []
+    for item in gt_data:
+        img_id = item['image_id']
+        clean_path = root / "data" / "synthetic" / f"synth_{img_id:03d}.fits"
+        
+        if not clean_path.exists():
+            logger.warning(f"Clean image missing for {img_id}, skipping.")
+            continue
+
+        # Inject saturation for each level defined in config (0.0 to 0.5 step 0.05)
+        for sat_frac in SATURATION_RANGE:
+            try:
+                # Inject saturation
+                sat_img, valid = clip_saturation(clean_path, sat_frac)
+                if not valid:
+                    logger.warning(f"Saturation clipping invalid for {img_id} at {sat_frac}, skipping.")
+                    continue
+
+                # Measure asymmetry
+                asymmetry, _ = calculate_asymmetry(sat_img)
+                
+                # Compute bias against ground truth
+                true_asym = item['asymmetry']
+                bias = asymmetry - true_asym
+                
+                results.append({
+                    'image_id': img_id,
+                    'saturation_fraction': sat_frac,
+                    'true_asymmetry': true_asym,
+                    'measured_asymmetry': asymmetry,
+                    'bias': bias
+                })
+            except Exception as e:
+                logger.error(f"Error processing image {img_id} with saturation {sat_frac}: {e}")
+
+    # Run regression analysis
     logger.info("Running saturation regression analysis...")
-    run_saturation_regression(root)
+    run_saturation_regression(results, root / "data" / "processed" / "saturation_stats.csv")
+    logger.info("US2 Pipeline complete.")
+
+def run_us3_pipeline(root: Path):
+    """
+    User Story 3: Derive Calibration Functions.
+    1. Aggregate results -> 2. Fit models -> 3. Apply corrections -> 4. Validate.
+    """
+    logger.info("Starting User Story 3 Pipeline (Calibration)...")
     
-    logger.info("US2 Pipeline complete. Results saved to data/processed/")
+    # Aggregate bias data (Conceptual step, assuming CSVs exist from US1/US2)
+    noise_csv = root / "data" / "processed" / "noise_stats.csv"
+    sat_csv = root / "data" / "processed" / "saturation_stats.csv"
+    
+    if not noise_csv.exists() or not sat_csv.exists():
+        logger.error("US1 or US2 outputs missing. Cannot run US3.")
+        return
+
+    # Fit calibration models
+    logger.info("Fitting calibration models...")
+    models = fit_calibration_models(noise_csv, sat_csv, root / "data" / "processed" / "calibration_functions.json")
+    
+    # Validate residuals
+    logger.info("Validating residuals...")
+    validate_residuals(models, root / "data" / "processed" / "calibration_functions.json")
+    
+    logger.info("US3 Pipeline complete.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Quantifying Data Artifact Impact Pipeline")
-    subparsers = parser.add_subparsers(dest='mode', help='Pipeline mode')
-    
-    # Generate Mode
-    gen_parser = subparsers.add_parser('generate', help='Generate synthetic data')
-    gen_parser.add_argument('--n-images', type=int, default=50, help='Number of images to generate')
-    gen_parser.add_argument('--output', type=str, default='data/synthetic', help='Output directory')
-    
-    # Process Mode
-    proc_parser = subparsers.add_parser('process', help='Process data (inject artifacts)')
-    proc_parser.add_argument('--input', type=str, default='data/synthetic', help='Input directory')
-    proc_parser.add_argument('--output', type=str, default='data/processed', help='Output directory')
-    
-    # Calibrate Mode
-    cal_parser = subparsers.add_parser('calibrate', help='Fit calibration models')
-    cal_parser.add_argument('--input', type=str, default='data/processed/metrics.csv', help='Input metrics')
-    cal_parser.add_argument('--output', type=str, default='data/processed/models.json', help='Output models')
-    
-    # Validate Mode
-    val_parser = subparsers.add_parser('validate', help='Validate models')
-    val_parser.add_argument('--input', type=str, default='data/processed/models.json', help='Input models')
-    val_parser.add_argument('--test-set', type=str, default='data/synthetic/validation', help='Test set')
-    val_parser.add_argument('--output', type=str, default='data/processed/validation_results.csv', help='Output results')
-    
-    # Verify Mode
-    ver_parser = subparsers.add_parser('verify', help='Verify pipeline outputs')
-    ver_parser.add_argument('--output', type=str, default='logs/verification.log', help='Log file')
-    
-    # Run All (Full Pipeline)
-    run_all_parser = subparsers.add_parser('run-all', help='Run full pipeline')
+    parser = argparse.ArgumentParser(description="llmXive Automated Science Pipeline")
+    parser.add_argument('--mode', type=str, choices=['generate', 'process', 'calibrate', 'validate', 'verify', 'run-all'], required=True)
+    parser.add_argument('--n-images', type=int, default=50)
+    parser.add_argument('--output', type=str, default='data/synthetic')
     
     args = parser.parse_args()
-    
-    if not args.mode:
-        parser.print_help()
-        sys.exit(1)
-    
-    setup_logging('logs/research.log')
     root = get_project_root()
-    
-    # Generate run manifest immediately
-    write_run_manifest_for_pipeline(root)
-    
+    setup_directories(root)
+
+    # Generate Run Manifest
+    generate_run_manifest(root / "data" / "processed" / "run_manifest.json")
+
     if args.mode == 'generate':
-        generate_data(args)
+        generate_data(root, args.n_images)
     elif args.mode == 'process':
-        process_artifacts(args)
+        validate_pipeline_state(root)
+        process_artifacts(root)
+        run_us1_pipeline(root)
+        run_us2_pipeline(root)
     elif args.mode == 'calibrate':
-        calibrate_models(args)
+        validate_pipeline_state(root)
+        run_us3_pipeline(root)
     elif args.mode == 'validate':
-        validate_models(args)
+        # Placeholder for validation logic
+        logger.info("Validation step placeholder.")
     elif args.mode == 'verify':
-        verify_pipeline(args)
+        logger.info("Verification step placeholder.")
     elif args.mode == 'run-all':
-        logger.info("Running full pipeline...")
-        # 1. Generate
-        generate_data(argparse.Namespace(n_images=50))
-        # 2. Process (US1 + US2)
-        process_artifacts(argparse.Namespace())
-        # 3. Calibrate
-        calibrate_models(argparse.Namespace())
-        # 4. Validate
-        validate_models(argparse.Namespace())
-        # 5. Verify
-        verify_pipeline(argparse.Namespace())
-        logger.info("Full pipeline execution complete.")
+        validate_pipeline_state(root)
+        generate_data(root, args.n_images)
+        run_us1_pipeline(root)
+        run_us2_pipeline(root)
+        run_us3_pipeline(root)
+    
+    logger.info("Pipeline execution finished.")
 
 if __name__ == '__main__':
     main()

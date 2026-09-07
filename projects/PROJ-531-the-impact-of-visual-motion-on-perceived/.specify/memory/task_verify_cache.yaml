@@ -40,3 +40,46 @@ T021b:
     \ with k\u2011fold cross\u2011validation are present, and there are no reported\
     \ ridge coefficients or feature\u2011importance values. The required artifact\
     \ is missing, so the task is not satisfied."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result files were provided that demonstrate performing\
+    \ statistical significance tests on \u22653 features with Bonferroni or Benjamini\u2011\
+    Hochberg correction. The required artifact (e.g., a reproducible analysis script\
+    \ and corrected p\u2011values) is missing, so the task is not satisfied."
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or output files were supplied showing a fitted Random Forest\
+    \ model, k\u2011fold cross\u2011validation, feature importance scores, or out\u2011\
+    of\u2011sample R\xB2/RMSE metrics. The required artifacts are missing, so the\
+    \ task is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, metric outputs, or feature\u2011importance map artifacts\
+    \ were provided; the claim cannot be verified because the required R\xB2, RMSE\
+    \ values and the FR\u2011004/SC\u2011002 importance visualizations are missing.\
+    \ The implementer must supply the computed out\u2011of\u2011sample metrics and\
+    \ the stored feature\u2011importance maps."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No output metadata artifact was provided, and there is no evidence that any reported
+    associations have been labeled or framed as correlational. Without a concrete
+    file (e.g., JSON, CSV, or report) showing the required framing, the task requirement
+    cannot be confirmed as satisfied.
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or generated figure for a feature\u2011importance bar chart\
+    \ is present; the evidence provided contains only the specification text and no\
+    \ artifact that demonstrates the required visualization has been created. The\
+    \ implementer must supply the implementation (e.g., a Python/JS script) and the\
+    \ resulting bar\u2011chart image or file."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or generated figure for a partial dependence plot\
+    \ of the top predictor (FR\u2011007) is present. The required artifact (implementation\
+    \ and/or visual output) is missing, so the task is not satisfied."

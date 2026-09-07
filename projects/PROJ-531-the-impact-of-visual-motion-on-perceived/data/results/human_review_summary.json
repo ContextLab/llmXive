@@ -1,0 +1,9 @@
+{
+  "total_reviews": 5,
+  "valid_ratings_count": 5,
+  "passed_count": 5,
+  "threshold": 4.0,
+  "pass_rate": 1.0,
+  "pass": true,
+  "reason": "SC-005 Met"
+}
