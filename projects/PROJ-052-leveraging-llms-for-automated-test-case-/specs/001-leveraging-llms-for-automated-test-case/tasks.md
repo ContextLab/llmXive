@@ -57,13 +57,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 Implement `code/config.py` to load environment variables (sample limits, timeouts, model paths) and enforce a runtime limit.
-- [X] T006 [P] Implement `code/data_loader.py` to fetch Defects4J parquet data from verified HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet` and cache to `data/defects4j_v1.0.parquet`.
-- [X] T006b [P] Implement checksum recording in `code/data_loader.py` to compute SHA-256 hash of `data/defects4j_v1.0.parquet` and store in project state, satisfying Constitution Principle III.
+- [X] T006 [P] Implement `code/data_loader.py` to fetch Defects4J parquet data from verified HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet` and cache to `data/defects4j_v1.0.parquet`. [UNRESOLVED-CLAIM: c_95dddc27 — status=not_enough_info]
+- [X] T006b [P] Implement checksum recording in `code/data_loader.py` to compute SHA-256 hash of `data/defects4j_v1.0.parquet` and store in project state, satisfying Constitution Principle III. [UNRESOLVED-CLAIM: c_37df7fec — status=not_enough_info]
 - [ ] T025 [P] Implement `extract_changed_lines` in `code/data_loader.py` to parse Defects4J commit diffs from the cached parquet file and output `data/changed_lines.json` (a set of line integers per project), which is a prerequisite for T024 and T026.
 - [X] T007 Implement `code/llm_generator.py` skeleton with a compact, CPU-optimized small language model loading logic using `llama-cpp-python`.
 - [X] T007b [P] Implement and verify Q4_K_M quantization format and 7GB RAM constraint logic in `code/llm_generator.py` loading phase to satisfy FR-002.
 - [X] T008 Implement `code/test_executor.py` skeleton with Java LTS subprocess wrappers, JaCoCo instrumentation setup, and timeout logic.
-- [X] T009 Implement `code/analyzer.py` skeleton with imports for `scipy.stats` (Shapiro-Wilk, Wilcoxon, t-test) and power analysis utilities
+- [X] T009 Implement `code/analyzer.py` skeleton with imports for `scipy.stats` (Shapiro-Wilk, Wilcoxon, t-test) and power analysis utilities [UNRESOLVED-CLAIM: c_82084075 — status=not_enough_info]
 - [X] T010 Implement `code/validate_schemas.py` to validate all output artifacts against `contracts/` schemas before analysis proceeds
 - [ ] T011a [P] Implement `main.py` orchestration logic for hard stop when cumulative execution time exceeds a predefined threshold.
 - [ ] T011b [P] Implement `main.py` orchestration logic for hard stop when sample count reaches the configured limit (FR-007).
@@ -81,9 +81,9 @@
 ### Implementation for User Story 1
 
 - [X] T015 [US1] Implement `extract_bug_fix_description` in `code/data_loader.py` to parse Defects4J metadata, format as prompt per FR-001, and return the prompt string.
-- [X] T016 [US1] Implement `generate_test_code` in `code/llm_generator.py` {{claim:c_4bf59045}} (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio).
+- [X] T016 [US1] Implement `generate_test_code` in `code/llm_generator.py` {{claim:c_4bf59045}} (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio). [UNRESOLVED-CLAIM: c_d651a785 — status=not_enough_info]
 - [X] T017 [US1] Implement `validate_syntax` in `code/llm_generator.py` using `javac` to check generated `.java` files for syntax errors.
-- [ ] T018 [US1] Implement error handling for ambiguous inputs: If prompt length < 20 chars, load `data/templates/default_test.java` (class `DefaultBugFixTest`) and return it as a syntactic fallback, acknowledging it may result in low coverage.
+- [X] T018 [US1] Implement error handling for ambiguous inputs: If prompt length < 20 chars, load `data/templates/default_test.java` (class `DefaultBugFixTest`) and return it as a syntactic fallback, acknowledging it may result in low coverage. [UNRESOLVED-CLAIM: c_a949b98f — status=not_enough_info]
 - [ ] T018b [US1] Implement logging and metric tracking in `code/llm_generator.py` to record WARNING for default template usage and count it in SC-005 metrics.
 - [ ] T019 [US1] Implement memory monitoring in `code/llm_generator.py` to ensure no OOM on a limited-core runner with constrained memory.
 
@@ -92,7 +92,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T012 [P] [US1] Unit test in `tests/unit/test_prompting.py::test_format_bug_description_returns_valid_prompt` verifying that a bug description string is formatted into a valid prompt string.
-- [ ] T013 [P] [US1] Unit test in `tests/unit/test_llm_load.py::test_phi_loads_within_7gb_ram` verifying that Phi-2 loading does not exceed 7GB RAM on CPU.
+- [ ] T013 [P] [US1] Unit test in `tests/unit/test_llm_load.py::test_phi_loads_within_7gb_ram` verifying that Phi-2 loading does not exceed 7GB RAM on CPU. [UNRESOLVED-CLAIM: c_a40fa430 — status=not_enough_info]
 - [ ] T014 [P] [US1] Integration test in `tests/integration/test_gen_single.py::test_generate_single_valid_java` verifying that a known bug description produces a syntactically valid Java file.
 
 **STOP**: Verify T012, T013, T014 are defined and failing before proceeding to next phases.
@@ -122,7 +122,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T020 [P] [US2] Unit test in `tests/unit/test_jacoco_parser.py::test_parse_jacoco_xml_returns_coverage` verifying XML parsing returns correct coverage percentages.
-- [ ] T021 [P] [US2] Unit test in `tests/unit/test_timeout_retry.py::test_retry_logic_retries__times` verifying the retry loop executes exactly 3 attempts before failure.
+- [ ] T021 [P] [US2] Unit test in `tests/unit/test_timeout_retry.py::test_retry_logic_retries__times` verifying the retry loop executes exactly 3 attempts before failure. [UNRESOLVED-CLAIM: c_87e15b43 — status=not_enough_info]
 - [ ] T022 [P] [US2] Integration test in `tests/integration/test_exec_coverage.py::test_run_with_jacoco_returns_coverage` verifying a generated test runs and returns coverage data.
 
 **STOP**: Verify T020, T021, T022 are defined and failing before proceeding to next phases.
@@ -142,8 +142,8 @@
 - [ ] T033 [US3] Implement `check_normality` in `code/analyzer.py` using Shapiro-Wilk test on coverage differences.
 - [ ] T034 [US3] Implement `run_statistical_test` in `code/analyzer.py`: if normality holds (p ≥ 0.05 per Spec US-3/FR-008), run paired t-test; else run Wilcoxon signed-rank.
 - [ ] T035 [US3] Implement `calculate_effect_size` in `code/analyzer.py` (Cohen's d or Rank-biserial correlation).
-- [ ] T036 [US3] Implement `run_power_analysis` in `code/analyzer.py` to calculate required N and report achieved power *only* as a descriptive limitation metric, not for validation.
-- [ ] T037a [US3] Implement `calculate_confidence_intervals` in `code/analyzer.py` to Implement calculate_confidence_intervals in code/analyzer.py to compute 95% confidence intervals for the mean ratio, as required by the Plan's 'Statistical Interpretation Note'., as required by the Plan's 'Statistical Interpretation Note'.
+- [ ] T036 [US3] Implement `run_power_analysis` in `code/analyzer.py` to calculate required N and report achieved power *only* as a descriptive limitation metric, not for validation. [UNRESOLVED-CLAIM: c_779a55af — status=not_enough_info]
+- [ ] T037a [US3] Implement `calculate_confidence_intervals` in `code/analyzer.py` to Implement calculate_confidence_intervals in code/analyzer.py to compute 95% confidence intervals for the mean ratio, as required by the Plan's 'Statistical Interpretation Note'., as required by the Plan's 'Statistical Interpretation Note'. [UNRESOLVED-CLAIM: c_d2527bb3 — status=not_enough_info]
 - [ ] T037 [US3] Implement `generate_final_report` in `code/report_generator.py` to output Markdown/JSON with p-value, ratio, test type, hypothesis benchmark (40-60%) comparison (as descriptive), confidence intervals, and conclusion.
 - [ ] T038 [US3] Implement logic to handle small sample sizes: If N < 30, prepend the report with a warning block: "WARNING: Sample size (N={N}) < 30. Results are exploratory.", satisfying FR-010/US-3.
 - [ ] T039 [US3] Integrate `validate_schemas.py` to ensure `data/analysis_results.json` conforms to `contracts/analysis_result.schema.yaml` after T037 generates the artifact.
@@ -266,4 +266,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only free-tier CI with limited cores, constrained RAM, and a 6h max runtime. No GPU, no 8-bit quantization requiring CUDA, no large model training.
+- **Critical Constraint**: All tasks must run on CPU-only free-tier CI with limited cores, constrained RAM, and a 6h max runtime [UNRESOLVED-CLAIM: c_a374d89b — status=not_enough_info] No GPU, no 8-bit quantization requiring CUDA, no large model training.

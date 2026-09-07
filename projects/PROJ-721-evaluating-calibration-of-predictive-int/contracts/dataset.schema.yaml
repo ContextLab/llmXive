@@ -1,19 +1,22 @@
-# Contract schema for M4 dataset structure after extraction
-# Used to validate data integrity before processing
+$schema: http://json-schema.org/draft-07/schema#
+title: M4 Dataset Schema
+description: >
+  Schema for the processed M4 dataset structure used in the calibration evaluation pipeline.
+  Defines the expected format for the time series data and metadata after extraction and loading.
 type: object
 required:
   - metadata
   - series
-  - train
-  - test
 properties:
   metadata:
     type: object
+    description: Global metadata about the dataset version and source.
     required:
       - dataset_name
       - version
       - source_url
-      - checksum_verified
+      - download_date
+      - checksum
     properties:
       dataset_name:
         type: string
@@ -22,61 +25,51 @@ properties:
         type: string
       source_url:
         type: string
-      checksum_verified:
-        type: boolean
-        const: true
+        format: uri
+      download_date:
+        type: string
+        format: date-time
+      checksum:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+      series_count:
+        type: integer
+        minimum: 0
   series:
     type: array
-    description: "List of series metadata (id, frequency, seasonality)"
+    description: List of time series objects.
     items:
       type: object
       required:
         - series_id
         - frequency
         - seasonality
+        - train
+        - test
       properties:
         series_id:
           type: string
+          description: Unique identifier for the series (e.g., "M1", "Hourly_1").
         frequency:
           type: string
-          enum: ["Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Yearly"]
+          description: Frequency of the time series (e.g., "Yearly", "Monthly", "Hourly").
         seasonality:
           type: integer
-          description: "Seasonal period (e.g., 12 for monthly, 4 for quarterly)"
-        train_length:
-          type: integer
-          minimum: 1
-        test_length:
-          type: integer
-          minimum: 1
-  train:
-    type: array
-    description: "Training time series values (flattened or nested)"
-    items:
-      type: object
-      required:
-        - series_id
-        - values
-      properties:
-        series_id:
-          type: string
-        values:
+          description: Seasonal period length.
+        train:
           type: array
+          description: Training data points (floats).
           items:
             type: number
-  test:
-    type: array
-    description: "Test time series values (ground truth for evaluation)"
-    items:
-      type: object
-      required:
-        - series_id
-        - values
-      properties:
-        series_id:
-          type: string
-        values:
+          minItems: 1
+        test:
           type: array
+          description: Test data points (floats).
           items:
             type: number
+          minItems: 1
+        meta:
+          type: object
+          description: Optional additional metadata (e.g., category, region).
+          additionalProperties: true
 additionalProperties: false

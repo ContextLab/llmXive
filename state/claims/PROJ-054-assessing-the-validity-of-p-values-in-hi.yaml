@@ -123,3 +123,60 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T02:08:23Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/methodology.md
+  attempts: 1
+  canonical: false positive rates exceeded 40% in worst-case simulations with rho
+    > 0.5 and p/n > 2
+  claim_id: c_9842d945
+  context: The theory claims a 5% false positive rate; in our worst-case simulations,
+    we observed false positive rates exceeding 40%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_positive_rates_exceeded_40%25_in_worst-case_simulations
+  kind: magnitude
+  raw_text: In our worst-case simulations, we observed false positive rates exceeding
+    40%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:48:19Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/methodology.md
+  attempts: 1
+  canonical: sample covariance matrix becomes singular when p is much greater than
+    n
+  claim_id: c_8eff266f
+  context: When $p \gg n$, the sample covariance matrix becomes singular (non-invertible).
+    The mathematical foundation of the multivariate t-test crumbles.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_covariance_matrix_becomes_singular_when_p_is_much_gre
+  kind: magnitude
+  raw_text: When $p \gg n$, the sample covariance matrix becomes singular (non-invertible).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:49:33Z'
+- artifact_path: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/docs/methodology.md
+  attempts: 1
+  canonical: simulation aborts if covariance matrix condition number exceeds 10^12
+  claim_id: c_b862dcec
+  context: If the condition number of the covariance matrix exceeds $10^{12}$, the
+    simulation aborts with `ERR_HIGH_DIMENSIONAL_INSTABILITY`. This is not a bug;
+    it is a feature.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the condition number of the covariance matrix exceeds $10^{12}$, the
+    simulation aborts with `ERR_HIGH_DIMENSIONAL_INSTABILITY`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:50:12Z'

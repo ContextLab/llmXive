@@ -1,17 +1,3 @@
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.flake8`, or a `black` config) were provided, so the required setup for `ruff`/`flake8`
-    and `black` cannot be confirmed. The task lacks the necessary artifacts.
-T011:
-  c: false
-  h: 5727d989b9e467d2ffcb9857483464a401694ab464d728dec28c82041ae3cd16
-  r: "The `tests/contract/test_coverage_schema.py` file is present but ends abruptly\
-    \ (`def test_required_co` is cut off), making the test syntactically invalid and\
-    \ non\u2011functional. Additionally, the required `results/coverage.csv` file\
-    \ does not exist, so the contract test cannot be exercised. The task\u2019s requirement\
-    \ for a complete, runnable contract test is not met."
 T012:
   c: false
   h: 5d0bfed5a02410e80c1174dcec153ecd937d0d4aa8d5d60043f6a3855c7b51d1
@@ -20,9 +6,8 @@ T012:
     \ this test file, the task\u2019s requirement is not satisfied."
 T013a:
   c: false
-  h: e6deae4ff247c9ffe8a6b592329bd5ef06ddd45b09f7a1b28ab83b50d7c8dd94
-  r: "The required `data/processed/sampling_report.json` file does not exist, and\
-    \ the provided `code/download.py` excerpt shows only download\u2011related utilities\
-    \ with no visible stratified\u2011sampling implementation or code that writes\
-    \ the report. Consequently the task\u2019s deliverable and verification conditions\
-    \ are not satisfied."
+  h: 3ae0313f8531e1e436496c69138bc243b8518646080dc3a63cd35652f9af4c3a
+  r: "The repository lacks the required `data/processed/sampling_report.json` file,\
+    \ and the provided `code/download.py` does not contain any implementation of stratified\
+    \ sampling or generation of the sampling report. Consequently, the task\u2019\
+    s deliverable and verification criteria are not satisfied."

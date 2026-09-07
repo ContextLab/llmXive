@@ -2116,3 +2116,200 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T16:02:54Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: 1000 series processed within 6 hours CPU time
+  claim_id: c_d2334772
+  context: 'Goal: Ingest M4, fit models, generate intervals, compute coverage, and
+    output results for 1000 series within 6h CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline processes 1000 series within 6h CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:24:47Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: 6 hours CPU time limit for 1000 series pipeline
+  claim_id: c_48660d81
+  context: 'Goal: Ingest M4, fit models, generate intervals, compute coverage, and
+    output results for 1000 series within 6h CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline processes 1000 series within 6h CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:24:47Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: sample represents 90% of original distribution
+  claim_id: c_ede638b2
+  context: 'Verification: Calculate the frequency distribution of the selected sample
+    and compare to the full M4 distribution; assert that the sample represents >=90%
+    of the original distribution (SC-005).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_represents_90%25_of_original_distribution
+  kind: magnitude
+  raw_text: The sample must represent at least 90% of the original distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:26:11Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: nominal levels 0.80 and 0.95
+  claim_id: c_b09a28a5
+  context: nominal_levels (list of [0.80, 0.95] as defined in spec FR-003)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The nominal levels for prediction intervals are 0.80 and 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:26:33Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: threshold 0.02
+  claim_id: c_0b0b4a36
+  context: 'threshold (float 0.02, derived from Assumption: Threshold Justification)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for recalibration gating is 0.02.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:27:18Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: sensitivity range 0.005 to 0.15
+  claim_id: c_399a5079
+  context: sensitivity_range (list of floats for sweep, e.g., [0.005, 0.15]).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_range_0.005_to_0.15
+  kind: entity_fact
+  raw_text: The sensitivity range for sweep is defined as a list of floats, e.g.,
+    [0.005, 0.15].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:28:29Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: LightGBM supports 80% nominal intervals
+  claim_id: c_7e82de3b
+  context: Must support generating intervals for 80% (alpha=0.10/0.90) and 95% (alpha=0.025/0.975)
+    nominal levels
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LightGBM must support generating intervals for 80% nominal levels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:28:30Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: LightGBM supports 95% nominal intervals
+  claim_id: c_6386e5ae
+  context: Must support generating intervals for 80% (alpha=0.10/0.90) and 95% (alpha=0.025/0.975)
+    nominal levels
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: LightGBM must support generating intervals for 95% nominal levels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:28:30Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: prediction intervals for horizons 1 to 12
+  claim_id: c_24b24fcc
+  context: Invoke models defined in T005a-d to generate prediction intervals for horizons
+    h=1 to 12 at nominal levels read from config.yaml
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prediction intervals are generated for horizons h=1 to 12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:29:08Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg fdr_bh method used
+  claim_id: c_f5534102
+  context: apply Benjamini-Hochberg (BH) FDR correction using statsmodels.stats.multitest.multipletests
+    with method='fdr_bh'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_fdr_bh_method_used
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg method 'fdr_bh' is used for FDR correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:29:50Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: paired bootstrap test with 10000 resamples
+  claim_id: c_e1725c31
+  context: Implement a paired bootstrap test with 10,000 resamples in code/metrics.py
+    to verify recalibration improvement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap test uses 10,000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:30:53Z'
+- artifact_path: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int/tasks.md
+  attempts: 1
+  canonical: recalibration threshold 2%
+  claim_id: c_b92b504a
+  context: Check if the initial calibration assessment exceeds the 2% (0.02) threshold
+    from config.yaml.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for triggering recalibration is 2%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:30:53Z'

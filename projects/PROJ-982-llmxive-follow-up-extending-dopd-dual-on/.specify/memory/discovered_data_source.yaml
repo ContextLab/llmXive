@@ -1,15 +1,16 @@
 status: none
-intent: Privileged Gridworld MDP environment MiniGrid OpenAI Gym python package dataset
+intent: privileged information reinforcement learning environment python package dataset
 required_fields:
 - full_state
-- privileged_signal
+- privileged_state
 - student_observation
-- student_action
+- teacher_observation
+- action
 - reward
-- next_student_observation
-- teacher_action
-- episode_id
-- timestep
-cache_key: 6a688ea19b4804c24019f0b086941a970ed0be502657e5e76059dbba14b1aece
-searched_at: '2026-09-06T23:20:44.796406+00:00'
+- next_full_state
+- next_privileged_state
+- done
+- seed
+cache_key: 10344eba8973d18848e3d5fc7cf1a1c2a0a886778061004dbae32fc1c381b8de
+searched_at: '2026-09-07T01:40:04.432320+00:00'
 retry_count: 1

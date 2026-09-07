@@ -42,7 +42,7 @@
   verification_status: verified
   verified_against_url: https://www.eclemma.org/jacoco/
   verified_at: '2026-07-01T20:35:11.471753Z'
-- artifact_hash: 5f4f2e1e52a15c296640730b463846b56948d6fb3b7db36a140d6bfe29694b77
+- artifact_hash: 680e6c43d60c57b190987fe436d88e66f45ea265e6e8f1d422bed4e05832493f
   artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://en.wikipedia.org/wiki/Golden_ratio
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Golden_ratio
-  verified_at: '2026-08-12T19:10:59.578955Z'
+  verified_at: '2026-09-07T01:23:29.057809Z'

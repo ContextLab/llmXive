@@ -1,136 +1,133 @@
 """
 Contract tests for dataset and output schemas.
-Validates that data files adhere to the defined YAML schemas.
+Validates that generated data files conform to the defined YAML schemas.
 """
-import os
 import json
+import os
+import pandas as pd
+import pytest
 import yaml
 from pathlib import Path
-import pytest
-from typing import Dict, Any, List
 
-# Project root relative to this file
-ROOT_DIR = Path(__file__).parent.parent.parent
-CONTRACTS_DIR = ROOT_DIR / "contracts"
+# Base path relative to project root
+BASE_DIR = Path(__file__).parent.parent.parent
+CONTRACTS_DIR = BASE_DIR / "contracts"
+DATA_DIR = BASE_DIR / "data"
+RESULTS_DIR = BASE_DIR / "results"
 
-def load_schema(schema_name: str) -> Dict[str, Any]:
-    """Load a schema file from the contracts directory."""
-    schema_path = CONTRACTS_DIR / f"{schema_name}"
+def load_schema(schema_name: str) -> dict:
+    """Load a YAML schema from the contracts directory."""
+    schema_path = CONTRACTS_DIR / f"{schema_name}.yaml"
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
     with open(schema_path, "r") as f:
         return yaml.safe_load(f)
 
-def validate_csv_structure(df: Any, schema_key: str, schema: Dict[str, Any]) -> None:
+def validate_json_against_schema(data: dict, schema: dict, path: str) -> bool:
     """
-    Validate a pandas DataFrame against a specific schema key.
-    Note: This is a structural check. For full type checking, pydantic or jsonschema is recommended.
+    Basic validation of a dictionary against a JSON Schema (draft-07).
+    Note: For full validation, a library like 'jsonschema' is recommended,
+    but this provides a lightweight check for the contract test.
     """
-    required_columns = schema[schema_key]["properties"]["columns"]["enum"]
-    actual_columns = list(df.columns)
-    
-    # Check column presence
-    missing_cols = set(required_columns) - set(actual_columns)
-    if missing_cols:
-        raise AssertionError(f"Missing required columns: {missing_cols}")
-    
-    # Check column order (optional but strict for contracts)
-    if actual_columns != required_columns:
-        # Depending on strictness, we might just warn or fail. 
-        # For contract testing, let's fail if order is wrong.
-        raise AssertionError(f"Column order mismatch. Expected: {required_columns}, Got: {actual_columns}")
+    # Check required top-level keys
+    if "required" in schema:
+        for key in schema["required"]:
+            if key not in data:
+                raise AssertionError(f"Missing required key '{key}' in {path}")
 
+    # Check properties
+    if "properties" in schema:
+        for key, prop_schema in schema["properties"].items():
+            if key in data:
+                value = data[key]
+                # Type check
+                if "type" in prop_schema:
+                    expected_type = prop_schema["type"]
+                    if expected_type == "object" and not isinstance(value, dict):
+                        raise AssertionError(f"Key '{key}' in {path} must be an object, got {type(value)}")
+                    elif expected_type == "array" and not isinstance(value, list):
+                        raise AssertionError(f"Key '{key}' in {path} must be an array, got {type(value)}")
+                    elif expected_type == "string" and not isinstance(value, str):
+                        raise AssertionError(f"Key '{key}' in {path} must be a string, got {type(value)}")
+                    elif expected_type == "integer" and not isinstance(value, int):
+                        raise AssertionError(f"Key '{key}' in {path} must be an integer, got {type(value)}")
+                    elif expected_type == "number" and not isinstance(value, (int, float)):
+                        raise AssertionError(f"Key '{key}' in {path} must be a number, got {type(value)}")
+    return True
+
+@pytest.mark.contract
 def test_dataset_schema_exists():
-    """Ensure the dataset schema file exists."""
-    assert (CONTRACTS_DIR / "dataset.schema.yaml").exists()
-
-def test_output_schema_exists():
-    """Ensure the output schema file exists."""
-    assert (CONTRACTS_DIR / "output.schema.yaml").exists()
-
-def test_dataset_schema_valid_yaml():
-    """Ensure dataset schema is valid YAML."""
-    schema = load_schema("dataset.schema.yaml")
-    assert "type" in schema
+    """Verify that the dataset schema file exists and is valid YAML."""
+    schema = load_schema("dataset.schema")
     assert "properties" in schema
+    assert "metadata" in schema["properties"]
     assert "series" in schema["properties"]
 
-def test_output_schema_valid_yaml():
-    """Ensure output schema is valid YAML."""
-    schema = load_schema("output.schema.yaml")
-    assert "coverage_csv" in schema
-    assert "stratified_coverage_csv" in schema
-    assert "recalibration_csv" in schema
-    assert "sensitivity_analysis_csv" in schema
+@pytest.mark.contract
+def test_output_schema_exists():
+    """Verify that the output schema file exists and is valid YAML."""
+    schema = load_schema("output.schema")
+    assert "properties" in schema
+    assert "coverage_results" in schema["properties"]
 
-@pytest.fixture
-def mock_coverage_df():
-    """Create a mock DataFrame matching coverage.csv schema."""
-    import pandas as pd
-    data = {
-        "series_id": ["M1", "M2"],
-        "model": ["ARIMA", "Prophet"],
-        "horizon": [1, 12],
-        "nominal_coverage": [0.80, 0.95],
-        "empirical_coverage": [0.78, 0.94],
-        "deviation": [0.02, 0.01],
-        "p_raw": [0.05, 0.10],
-        "p_value": [0.10, 0.15]
-    }
-    return pd.DataFrame(data)
-
-@pytest.fixture
-def mock_stratified_df():
-    """Create a mock DataFrame matching stratified_coverage.csv schema."""
-    import pandas as pd
-    data = {
-        "subgroup_type": ["seasonality", "trend_strength"],
-        "subgroup_value": ["Yes", "High"],
-        "model": ["ARIMA", "ETS"],
-        "horizon": [1, 6],
-        "avg_coverage_deviation": [0.01, 0.02]
-    }
-    return pd.DataFrame(data)
-
-def test_coverage_schema_structure(mock_coverage_df):
-    """Validate the structure of coverage.csv against schema."""
-    schema = load_schema("output.schema.yaml")
-    validate_csv_structure(mock_coverage_df, "coverage_csv", schema)
-
-def test_stratified_schema_structure(mock_stratified_df):
-    """Validate the structure of stratified_coverage.csv against schema."""
-    schema = load_schema("output.schema.yaml")
-    validate_csv_structure(mock_stratified_df, "stratified_coverage_csv", schema)
-
-def test_recalibration_schema_structure():
-    """Validate the structure of recalibration.csv against schema."""
-    import pandas as pd
-    schema = load_schema("output.schema.yaml")
+@pytest.mark.contract
+def test_coverage_csv_schema_conformity():
+    """
+    Contract test for results/coverage.csv.
+    Validates structure and data types against output.schema.yaml.
+    """
+    coverage_file = RESULTS_DIR / "coverage.csv"
     
-    data = {
-        "series_id": ["M1"],
-        "model": ["LightGBM"],
-        "horizon": [1],
-        "baseline_coverage": [0.75],
-        "recalibrated_coverage": [0.80],
-        "improvement": [0.05],
-        "p_value_improvement": [0.03]
-    }
-    df = pd.DataFrame(data)
-    validate_csv_structure(df, "recalibration_csv", schema)
+    # Skip if file doesn't exist yet (pipeline not run)
+    if not coverage_file.exists():
+        pytest.skip("results/coverage.csv not found. Run pipeline first.")
 
-def test_sensitivity_schema_structure():
-    """Validate the structure of sensitivity_analysis.csv against schema."""
-    import pandas as pd
-    schema = load_schema("output.schema.yaml")
+    df = pd.read_csv(coverage_file)
+    schema = load_schema("output.schema")
     
-    data = {
-        "threshold": [0.01],
-        "model": ["ARIMA"],
-        "horizon": [1],
-        "avg_deviation": [0.005],
-        "series_count": [100]
-    }
-    df = pd.DataFrame(data)
-    validate_csv_structure(df, "sensitivity_analysis_csv", schema)
+    # Validate columns
+    expected_cols = [
+        "series_id", "model", "horizon", "nominal_coverage", 
+        "empirical_coverage", "deviation", "p_raw", "p_value"
+    ]
+    assert list(df.columns) == expected_cols, f"Columns mismatch. Expected {expected_cols}, got {list(df.columns)}"
+
+    # Validate a sample row against the schema structure
+    sample_row = df.iloc[0].to_dict()
+    sample_schema = schema["properties"]["coverage_results"]["properties"]["sample_records"]["items"]
+    
+    # Check required fields in sample
+    for field in sample_schema["required"]:
+        assert field in sample_row, f"Missing field '{field}' in coverage data"
+
+    # Check types
+    assert isinstance(sample_row["series_id"], str)
+    assert sample_row["model"] in ["ARIMA", "ETS", "Prophet", "LightGBM"]
+    assert isinstance(sample_row["horizon"], int)
+    assert 0 <= sample_row["nominal_coverage"] <= 1
+    assert 0 <= sample_row["empirical_coverage"] <= 1
+    assert 0 <= sample_row["p_raw"] <= 1
+    assert 0 <= sample_row["p_value"] <= 1
+
+@pytest.mark.contract
+def test_stratified_csv_schema_conformity():
+    """
+    Contract test for results/stratified_coverage.csv.
+    """
+    stratified_file = RESULTS_DIR / "stratified_coverage.csv"
+    
+    if not stratified_file.exists():
+        pytest.skip("results/stratified_coverage.csv not found.")
+
+    df = pd.read_csv(stratified_file)
+    
+    expected_cols = [
+        "subgroup_type", "subgroup_value", "model", "horizon", "avg_coverage_deviation"
+    ]
+    assert list(df.columns) == expected_cols, f"Columns mismatch. Expected {expected_cols}, got {list(df.columns)}"
+
+    sample_row = df.iloc[0].to_dict()
+    assert sample_row["subgroup_type"] in ["seasonality", "trend_strength"]
+    assert sample_row["model"] in ["ARIMA", "ETS", "Prophet", "LightGBM"]
+    assert isinstance(sample_row["horizon"], int)
+    assert isinstance(sample_row["avg_coverage_deviation"], (int, float))

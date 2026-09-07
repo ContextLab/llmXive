@@ -5,10 +5,10 @@ import time
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
-from config import get_model_path, get_timeout_inference, ensure_directories
-from data_loader import load_defects4j_data
+# Import shared configuration
+from config import get_model_path, get_timeout_inference, get_output_dir, ensure_directories
 
 # Configure logging
 logging.basicConfig(
@@ -18,32 +18,30 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Global model instance (lazy load)
-_model_instance = None
+_model = None
 
 def load_model():
     """
-    Load the quantized LLM model using llama-cpp-python.
-    Implements CPU-optimized loading with Q4_K_M quantization.
+    Load the CPU-optimized LLM (Phi-2 or similar) using llama-cpp-python.
+    Returns the loaded model instance.
     """
-    global _model_instance
-    if _model_instance is not None:
-        return _model_instance
+    global _model
+    if _model is not None:
+        return _model
 
     model_path = get_model_path()
     if not model_path or not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model not found at {model_path}. "
-                                "Please set MODEL_PATH env var or download the model.")
+        raise FileNotFoundError(f"Model not found at {model_path}. Please set MODEL_PATH env var.")
 
     logger.info(f"Loading model from {model_path}...")
     try:
         from llama_cpp import Llama
-        _model_instance = Llama(
+        # Load with Q4_K_M quantization logic implied by the model file path
+        # and constrained RAM settings from config.
+        _model = Llama(
             model_path=model_path,
             n_ctx=2048,
             n_threads=4,
-            n_batch=512,
-            use_mmap=True,
-            use_mlock=False,
             verbose=False
         )
         logger.info("Model loaded successfully.")
@@ -51,11 +49,11 @@ def load_model():
         logger.error(f"Failed to load model: {e}")
         raise
 
-    return _model_instance
+    return _model
 
 def generate_from_prompt(prompt: str, max_tokens: int = 512) -> str:
     """
-    Generate text from a given prompt using the loaded model.
+    Generate text from a prompt using the loaded model.
     """
     model = load_model()
     try:
@@ -63,8 +61,7 @@ def generate_from_prompt(prompt: str, max_tokens: int = 512) -> str:
             prompt,
             max_tokens=max_tokens,
             temperature=0.7,
-            top_p=0.9,
-            stop=["</test>", "```"],
+            stop=["###", "```"],
             echo=False
         )
         return output['choices'][0]['text'].strip()
@@ -72,182 +69,134 @@ def generate_from_prompt(prompt: str, max_tokens: int = 512) -> str:
         logger.error(f"Generation failed: {e}")
         raise
 
-def generate_test_code(bug_description: str, project_id: str) -> Tuple[str, bool]:
+def generate_test_code(bug_description: str, output_dir: Optional[str] = None) -> Tuple[str, bool]:
     """
-    Generate a JUnit test case string based on the bug description.
+    Generate a JUnit test case from a bug description.
     
     Args:
         bug_description: The natural language description of the bug.
-        project_id: Identifier for the project (used for logging/output naming).
+        output_dir: Directory to write the generated .java file.
         
     Returns:
-        Tuple of (generated_code_string, success_boolean)
-        
-    Note:
-        If the prompt length is < 20 chars, this function falls back to a
-        default template (data/templates/default_test.java) to ensure
-        syntactic validity, acknowledging potential low coverage.
+        A tuple (file_path, success).
+        If the input is ambiguous (len < 20), returns the default template path.
     """
-    # Ensure output directories exist
+    if output_dir is None:
+        output_dir = get_output_dir()
     ensure_directories()
-    output_dir = Path(os.environ.get('OUTPUT_DIR', 'data/generated'))
-    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # T018: Error handling for ambiguous inputs
-    if len(bug_description) < 20:
-        logger.warning(f"Ambiguous input detected for project {project_id}: "
-                       f"Prompt length ({len(bug_description)}) < 20 chars. "
-                       "Falling back to default template.")
-        
-        template_path = Path("code/templates/default_test.java")
+    # 1. Check for ambiguous input
+    if len(bug_description.strip()) < 20:
+        logger.warning(f"Ambiguous input detected (length={len(bug_description)}). Loading default template.")
+        template_path = Path("data/templates/default_test.java")
         if not template_path.exists():
-            raise FileNotFoundError(f"Default template not found at {template_path}. "
-                                    "Cannot fallback for ambiguous input.")
+            raise FileNotFoundError(f"Default template not found at {template_path}")
         
-        with open(template_path, 'r', encoding='utf-8') as f:
-            default_code = f.read()
+        # Read template and return path
+        with open(template_path, 'r') as f:
+            content = f.read()
         
-        # Log metric for SC-005 (template usage count)
-        # In a real system, this would update a persistent counter in state
-        logger.info(f"SC-005 Metric: Default template used for {project_id}")
+        # Write to output directory as a fallback
+        output_file = Path(output_dir) / "DefaultBugFixTest.java"
+        with open(output_file, 'w') as f:
+            f.write(content)
         
-        return default_code, True
+        logger.warning(f"Default template written to {output_file}")
+        return str(output_file), True
 
-    # Construct prompt
-    prompt = f"""
-    You are an expert Java developer. Generate a JUnit 4 test case to verify the fix for the following bug.
-    
-    Bug Description:
-    {bug_description}
-    
-    Requirements:
-    1. The test must be a valid Java class extending a generic Test structure.
-    2. Include at least one @Test annotated method.
-    3. Use standard JUnit assertions (assertEquals, assertTrue, etc.).
-    4. Output ONLY the Java code, no markdown formatting.
-    5. Class name: BugFixTest_{project_id.replace('-', '_')}
-    
-    Java Code:
+    # 2. Construct Prompt
+    # Based on typical LLM prompting for code generation
+    system_prompt = """You are an expert Java developer. Generate a valid JUnit 4 test class to verify the fix for the described bug.
+    The test should be in a class named `BugFixTest`.
+    Include meaningful assertions based on the bug description.
+    Do not include markdown code blocks (```java), just the raw code.
     """
+    user_prompt = f"Bug Description: {bug_description}\n\nGenerate the test class:"
+    full_prompt = f"{system_prompt}\n\n{user_prompt}"
 
+    # 3. Generate Code
     try:
-        generated_code = generate_from_prompt(prompt)
-        
-        # Clean up potential markdown artifacts if the model ignored instructions
-        if generated_code.startswith("```java"):
-            generated_code = generated_code[7:]
-        if generated_code.endswith("```"):
-            generated_code = generated_code[:-3]
-        
-        return generated_code.strip(), True
-        
+        generated_code = generate_from_prompt(full_prompt)
     except Exception as e:
-        logger.error(f"Failed to generate code for {project_id}: {e}")
+        logger.error(f"LLM generation failed for input: {bug_description[:50]}... Error: {e}")
         return "", False
 
-def validate_syntax_java(code_string: str, project_id: str) -> bool:
+    # 4. Clean and Save
+    # Remove potential markdown wrappers if the model added them despite instructions
+    if generated_code.startswith("```java"):
+        generated_code = generated_code[7:]
+    if generated_code.endswith("```"):
+        generated_code = generated_code[:-3]
+    generated_code = generated_code.strip()
+
+    # Create a unique filename based on a hash or timestamp if needed, 
+    # but for simplicity in this task, we assume the caller handles naming or we use a generic one.
+    # However, the task implies returning a file path. Let's create a deterministic name.
+    # In a real pipeline, we might map bug_id to filename. Here we use a temp name.
+    import hashlib
+    safe_name = hashlib.md5(bug_description.encode()).hexdigest()[:8]
+    filename = f"BugFixTest_{safe_name}.java"
+    output_path = Path(output_dir) / filename
+
+    with open(output_path, 'w') as f:
+        f.write(generated_code)
+
+    logger.info(f"Generated test code saved to {output_path}")
+    return str(output_path), True
+
+def validate_syntax_java(file_path: str) -> bool:
     """
-    Validate the generated Java code for syntax errors using javac.
-    
-    Args:
-        code_string: The Java source code to validate.
-        project_id: Identifier for logging.
-        
-    Returns:
-        True if syntax is valid, False otherwise.
+    Validate the syntax of a Java file using `javac`.
+    Returns True if compilation succeeds (no syntax errors), False otherwise.
     """
-    if not code_string:
-        logger.warning(f"No code to validate for {project_id}")
+    if not os.path.exists(file_path):
+        logger.error(f"File not found: {file_path}")
         return False
 
-    # Extract class name if possible, or use a generic name
-    class_name = "GeneratedTest"
-    if "class" in code_string:
-        try:
-            # Simple regex-like extraction
-            start = code_string.find("class") + 6
-            end = code_string.find("{", start)
-            if end > start:
-                class_name = code_string[start:end].strip()
-        except:
-            pass
-
-    # Write to a temporary file
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.java', delete=False) as f:
-        f.write(code_string)
-        temp_path = f.name
-
     try:
-        # Run javac
-        # We use javac from the system PATH. If not available, this will fail.
+        # Run javac with the file
         result = subprocess.run(
-            ['javac', '-version'],
-            capture_output=True,
-            text=True
-        )
-        
-        if result.returncode != 0:
-            logger.error("javac not found in system PATH. Cannot validate syntax.")
-            return False
-
-        compile_result = subprocess.run(
-            ['javac', '-cp', '.', temp_path],
+            ['javac', file_path],
             capture_output=True,
             text=True,
             timeout=10
         )
-
-        if compile_result.returncode == 0:
-            logger.info(f"Syntax validation passed for {project_id}")
+        
+        if result.returncode == 0:
+            logger.debug(f"Syntax validation passed for {file_path}")
             return True
         else:
-            logger.warning(f"Syntax validation failed for {project_id}: {compile_result.stderr}")
+            logger.warning(f"Syntax validation failed for {file_path}:\n{result.stderr}")
             return False
-            
     except subprocess.TimeoutExpired:
-        logger.error(f"Compilation timed out for {project_id}")
+        logger.error(f"Compilation timeout for {file_path}")
         return False
     except FileNotFoundError:
-        logger.error("javac not found. Please ensure JDK is installed and in PATH.")
-        return False
-    finally:
-        # Clean up temp file
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-        # Clean up potential class file
-        class_file = temp_path.replace('.java', '.class')
-        if os.path.exists(class_file):
-            os.remove(class_file)
+        logger.error("javac not found in PATH. Please install Java Development Kit.")
+        raise
 
 def main():
     """
-    Entry point for the LLM generator module.
-    Can be used to test generation on a single sample or as part of a pipeline.
+    Entry point for testing the generator logic directly.
     """
-    import sys
+    # Example usage
+    test_cases = [
+        "Short",  # Should trigger default
+        "This is a very long and detailed bug description that explains exactly what is wrong with the sorting algorithm in the list class when duplicate values are present.", # Should trigger LLM
+    ]
     
-    if len(sys.argv) < 2:
-        print("Usage: python -m code.llm_generator <bug_description>")
-        sys.exit(1)
+    output_dir = get_output_dir()
+    ensure_directories()
 
-    description = sys.argv[1]
-    project_id = "test_run"
-    
-    logger.info(f"Generating test for: {description[:50]}...")
-    
-    code, success = generate_test_code(description, project_id)
-    
-    if success:
-        # Validate syntax
-        if validate_syntax_java(code, project_id):
-            print("SUCCESS: Generated valid Java code.")
-            print(code)
+    for desc in test_cases:
+        print(f"Processing: '{desc}'")
+        path, success = generate_test_code(desc, output_dir)
+        if success:
+            is_valid = validate_syntax_java(path)
+            print(f"  -> Generated: {path}, Valid: {is_valid}")
         else:
-            print("FAILURE: Generated code has syntax errors.")
-            print(code)
-    else:
-        print("FAILURE: Generation failed.")
-        sys.exit(1)
+            print(f"  -> Failed to generate")
+        print("-" * 20)
 
 if __name__ == "__main__":
     main()

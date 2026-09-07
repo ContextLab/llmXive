@@ -1,0 +1,37 @@
+[lint]
+# Select common rules: E (pyflakes), F (pycodestyle), W (warnings), I (isort), N (pep8-naming), UP (pyupgrade)
+select = ["E", "F", "W", "I", "N", "UP", "D"]
+
+# Ignore specific rules that might be too strict for this project initially
+ignore = [
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D203", # 1 blank line required before class docstring (conflicts with D211)
+    "D213", # Multi-line docstring summary should start at the second line (conflicts with D212)
+    "D401", # First line should be in imperative mood (too strict for some docs)
+]
+
+# Allow automatic fixing for most issues
+fixable = ["ALL"]
+unfixable = []
+
+[lint.per-file-ignores]
+# Ignore docstring requirements for test files and scripts that are mostly glue code
+"tests/**" = ["D"]
+"scripts/**" = ["D"]
+
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Line length
+line-length = 88

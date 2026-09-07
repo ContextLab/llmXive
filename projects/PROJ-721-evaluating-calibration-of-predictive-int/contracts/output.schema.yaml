@@ -1,214 +1,63 @@
-# Contract schema for pipeline output files
-# Validates results/coverage.csv, results/stratified_coverage.csv, etc.
+# Schema definition for results/coverage.csv
+# This file defines the contract for the output of the calibration evaluation pipeline.
+# It is used by T011 (Contract Test) to validate the output.
 
-# Schema for results/coverage.csv (Task T019)
-coverage_csv:
-  type: object
-  required:
-    - columns
-    - rows
-  properties:
-    columns:
-      type: array
-      items:
-        type: string
-      enum:
-        - series_id
-        - model
-        - horizon
-        - nominal_coverage
-        - empirical_coverage
-        - deviation
-        - p_raw
-        - p_value
-    rows:
-      type: array
-      items:
-        type: object
-        required:
-          - series_id
-          - model
-          - horizon
-          - nominal_coverage
-          - empirical_coverage
-          - deviation
-          - p_raw
-          - p_value
-        properties:
-          series_id:
-            type: string
-          model:
-            type: string
-            enum: ["ARIMA", "ETS", "Prophet", "LightGBM"]
-          horizon:
-            type: integer
-            minimum: 1
-            maximum: 12
-          nominal_coverage:
-            type: number
-            minimum: 0
-            maximum: 1
-          empirical_coverage:
-            type: number
-            minimum: 0
-            maximum: 1
-          deviation:
-            type: number
-          p_raw:
-            type: number
-            minimum: 0
-            maximum: 1
-          p_value:
-            type: number
-            minimum: 0
-            maximum: 1
-        additionalProperties: false
-  additionalProperties: false
+required_columns:
+  - series_id
+  - model
+  - horizon
+  - nominal_coverage
+  - empirical_coverage
+  - deviation
+  - p_raw
+  - p_value
 
-# Schema for results/stratified_coverage.csv (Task T025)
-stratified_coverage_csv:
-  type: object
-  required:
-    - columns
-    - rows
-  properties:
-    columns:
-      type: array
-      items:
-        type: string
-      enum:
-        - subgroup_type
-        - subgroup_value
-        - model
-        - horizon
-        - avg_coverage_deviation
-    rows:
-      type: array
-      items:
-        type: object
-        required:
-          - subgroup_type
-          - subgroup_value
-          - model
-          - horizon
-          - avg_coverage_deviation
-        properties:
-          subgroup_type:
-            type: string
-            enum: ["seasonality", "trend_strength"]
-          subgroup_value:
-            type: string
-          model:
-            type: string
-            enum: ["ARIMA", "ETS", "Prophet", "LightGBM"]
-          horizon:
-            type: integer
-            minimum: 1
-            maximum: 12
-          avg_coverage_deviation:
-            type: number
-        additionalProperties: false
-  additionalProperties: false
+column_order:
+  - series_id
+  - model
+  - horizon
+  - nominal_coverage
+  - empirical_coverage
+  - deviation
+  - p_raw
+  - p_value
 
-# Schema for results/recalibration.csv (Task T031)
-recalibration_csv:
-  type: object
-  required:
-    - columns
-    - rows
-  properties:
-    columns:
-      type: array
-      items:
-        type: string
-      enum:
-        - series_id
-        - model
-        - horizon
-        - baseline_coverage
-        - recalibrated_coverage
-        - improvement
-        - p_value_improvement
-    rows:
-      type: array
-      items:
-        type: object
-        required:
-          - series_id
-          - model
-          - horizon
-          - baseline_coverage
-          - recalibrated_coverage
-          - improvement
-          - p_value_improvement
-        properties:
-          series_id:
-            type: string
-          model:
-            type: string
-            enum: ["ARIMA", "ETS", "Prophet", "LightGBM"]
-          horizon:
-            type: integer
-            minimum: 1
-            maximum: 12
-          baseline_coverage:
-            type: number
-            minimum: 0
-            maximum: 1
-          recalibrated_coverage:
-            type: number
-            minimum: 0
-            maximum: 1
-          improvement:
-            type: number
-          p_value_improvement:
-            type: number
-            minimum: 0
-            maximum: 1
-        additionalProperties: false
-  additionalProperties: false
+columns:
+  - name: series_id
+    type: str
+    description: Unique identifier for the time series (e.g., M4-1001)
+  - name: model
+    type: str
+    description: Name of the forecasting model used (ARIMA, ETS, Prophet, LightGBM)
+  - name: horizon
+    type: int64
+    description: Forecast horizon step (1-12)
+  - name: nominal_coverage
+    type: float64
+    description: Target coverage level from config.yaml (0.80 or 0.95)
+  - name: empirical_coverage
+    type: float64
+    description: Observed proportion of test points inside the prediction interval
+  - name: deviation
+    type: float64
+    description: Absolute difference between empirical and nominal coverage
+  - name: p_raw
+    type: float64
+    description: Raw p-value from hypothesis test
+  - name: p_value
+    type: float64
+    description: FDR-corrected p-value (Benjamini-Hochberg)
 
-# Schema for results/sensitivity_analysis.csv (Task T018)
-sensitivity_analysis_csv:
-  type: object
-  required:
-    - columns
-    - rows
-  properties:
-    columns:
-      type: array
-      items:
-        type: string
-      enum:
-        - threshold
-        - model
-        - horizon
-        - avg_deviation
-        - series_count
-    rows:
-      type: array
-      items:
-        type: object
-        required:
-          - threshold
-          - model
-          - horizon
-          - avg_deviation
-          - series_count
-        properties:
-          threshold:
-            type: number
-          model:
-            type: string
-            enum: ["ARIMA", "ETS", "Prophet", "LightGBM"]
-          horizon:
-            type: integer
-            minimum: 1
-            maximum: 12
-          avg_deviation:
-            type: number
-          series_count:
-            type: integer
-            minimum: 0
-        additionalProperties: false
-  additionalProperties: false
+constraints:
+  nominal_coverage:
+    - 0.80
+    - 0.95
+  horizon:
+    min: 1
+    max: 12
+  coverage_range:
+    min: 0.0
+    max: 1.0
+  p_value_range:
+    min: 0.0
+    max: 1.0

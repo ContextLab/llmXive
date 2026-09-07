@@ -12,14 +12,6 @@ T003:
     in the provided evidence. Consequently, the requirement to configure ruff/flake8
     and black is not demonstrated. The task needs the actual configuration artifacts
     and evidence that they are active in the project.
-T017:
-  c: false
-  h: 6de6319e1d4c719f8ce75e6cf429c61a49f0712ab3dc31ec06df2f9cd8d20bc2
-  r: The repository lacks `data/sweep/params.csv` (no sweep output) and the required
-    `data/sweep/power_analysis_result.json`. The shown `generate_data.py` does not
-    contain any code that iterates over the full Cartesian product of n, p, rho, and
-    distribution_type to create those rows, nor does it write the CSV. Consequently
-    the core sweep logic and output artifact are missing.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,30 +19,6 @@ T018:
     execution scripts, p\u2011value collections, KS statistics, QQ\u2011plots) were\
     \ supplied; the claim provides only the specification text, so the required artifacts\
     \ are missing."
-T019:
-  c: false
-  h: efa70f6a2222c993e08d454b4d2cdac717d27fe907b51b725d48ee759ff07188
-  r: "The repository lacks the required `data/sweep/params.csv` file, so the generator\
-    \ cannot iterate over any parameters. Moreover, the shown portion of `code/generate_data.py`\
-    \ does not demonstrate setting `np.random.seed` before each matrix, invoking the\
-    \ callback with the proper signature, or raising `ERR_HIGH_DIMENSIONAL_INSTABILITY`\
-    \ when `p/n > 10` or the covariance is near\u2011singular. These core requirements\
-    \ are missing."
-T019b:
-  c: false
-  h: 87301ce52eab6185df278677faabe6b1e6cff14dd9db493956effefc0728aa7f
-  r: The required `data/sweep/seed_map.json` file does not exist, so the core output
-    of the task is missing despite the presence of `master_seed.txt`. The implementer
-    must create the JSON seed map as specified.
-T022:
-  c: false
-  h: 228036db88c19183fcbdd3f756f25acc836ac136e2a98a738f59211a405a5d55
-  r: "The repository lacks the required `data/sweep/seed_map.json` and `data/sweep/params.csv`\
-    \ files, so the pipeline cannot read the seeds and parameters as specified. Moreover,\
-    \ the provided `run_tests.py` does not perform schema validation, does not reference\
-    \ or use T019c for seed\u2011sequence alignment, and the shown code is truncated\
-    \ before completing the output step. These missing pieces mean the task\u2019\
-    s core requirements are not satisfied."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -69,8 +37,17 @@ T032:
     \ required deliverables for User Stories\u202F1\u20113 are missing."
 T043:
   c: false
-  h: b21b0e8b2418ebc355dcadfc1ede39a2839de99db6786bfa42b412eaf7ff0e3d
-  r: "The repository does not contain the required `data/results/embarrassment_log.csv`\
-    \ file, and the shown portion of `code/run_tests.py` ends before any Kolmogorov\u2011\
-    Smirnov calculation or logging of \u201Cembarrassment\u201D runs. No implementation\
-    \ of the detector or CSV output is present. The task therefore remains unfinished."
+  h: 1340864d411bba4e12299da63fd3d953aa8de1cfd7f7ee12418930f77271b1eb
+  r: "The repository lacks the required `data/results/embarrassment_log.csv` file,\
+    \ and the provided `code/run_tests.py` snippet ends abruptly without any implementation\
+    \ of a Kolmogorov\u2011Smirnov deviation check or logic to write the specified\
+    \ CSV report. Consequently, the \u201CTheory Embarrassment\u201D detector is not\
+    \ present."
+T045:
+  c: false
+  h: 7ff4d22da90490ae0d7c0b9f899bdb1cdbc2ee82ab4800101f322367a284acca
+  r: "The required `data/results/sensitivity.csv` file is missing, so the worst\u2011\
+    case KS value cannot be verified as extracted from it. Moreover, `docs/results.md`\
+    \ lacks the mandated \u201CValidity Breakdown\u201D section with false\u2011positive\
+    \ rates for the standard and permutation tests at \u03B1\u202F=\u202F0.05. Both\
+    \ the data artifact and the specified analysis content need to be added."
