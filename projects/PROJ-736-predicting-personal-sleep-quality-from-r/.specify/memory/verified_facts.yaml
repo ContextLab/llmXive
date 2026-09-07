@@ -1,10 +1,10 @@
-'|alpha define level':
-  quote: "The error that a practising statistician would consider the more important\
-    \ to avoid (which is a subjective judgment) is called the error of the first kind.\
-    \ The first demand of the mathematical theory is to deduce such test criteria\
-    \ as would ensure that the probability of committing an error of the first kind\
-    \ would equal (or approximately equal, or not exceed) a preassigned number \u03B1\
-    , such as \u03B1 = 0.05 or 0.01, etc. This number is called the level of significance."
-  source_id: P-value
-  url: https://en.wikipedia.org/wiki/P-value
+'|alpha level':
+  quote: '0.05'
+  source_id: Power (statistics)
+  url: https://en.wikipedia.org/wiki/Power_(statistics)
   value: '0.05'
+'|permutation size subset':
+  quote: 100 64224505068831844272961524543847195000065209354663126507097449293867381679311503721413427168674781084955637977399613157046740538527580160000000000000000000000
+  source_id: A024167
+  url: https://oeis.org/A024167
+  value: '64224505068831844272961524543847195000065209354663126507097449293867381679311503721413427168674781084955637977399613157046740538527580160000000000000000000000'

@@ -1,9 +1,4 @@
-"""
-HCP Data Download Module
-
-Fetches HCP minimally preprocessed CIFTI files and behavioral data.
-Implements SHA256 checksum verification and manifest recording.
-"""
+"""Download HCP data with checksum verification."""
 from __future__ import annotations
 
 import hashlib
@@ -12,48 +7,18 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional
 
 import pandas as pd
-from datasets import load_dataset
 
-# Import local config
 from config import get_paths, ensure_dirs
+from utils.logging import get_logger, log_operation
 
+logger = get_logger("download_hcp")
 
-# ----------------------------------------------------------------------
-# Configuration & Constants
-# ----------------------------------------------------------------------
-
-# HCP 1200 Release - Behavioral Data URL (Verified Real Source)
-# Direct link to the CSV file as hosted by the Human Connectome Project
-BEHAVIORAL_DATA_URL = (
-    "https://raw.githubusercontent.com/HumanConnectome/Data/master/1200/data/behavioral/HCP1200_BehavioralData.csv"
-)
-
-# Expected columns in the behavioral data (based on HCP documentation)
-# We will map these to our internal schema if necessary
-EXPECTED_BEHAVIORAL_COLUMNS = [
-    "Subject", "Sleep_Score", "Age", "Sex", "Race", "Education", 
-    "Handedness", "Fluid_Intelligence", "Cognitive_Composite"
-]
-
-# Checksums for the behavioral file (updated dynamically if source changes, 
-# but for this implementation we calculate on download)
-# Note: In a production environment, these would be hardcoded and verified.
-# For this script, we calculate the hash of the downloaded file.
-
-# CIFTI file pattern (minimally preprocessed, grayordinates 91k)
-# Pattern: sub-120001/MNINonLinear/Results/rfMRI_REST1_LR/rfMRI_REST1_LR_hp2000_clean.dtseries.nii
-CIFTI_PATTERN = "{subject_id}/MNINonLinear/Results/rfMRI_REST1_LR/rfMRI_REST1_LR_hp2000_clean.dtseries.nii"
-
-
-# ----------------------------------------------------------------------
-# Utility Functions
-# ----------------------------------------------------------------------
 
 def compute_sha256(file_path: str) -> str:
-    """Compute SHA256 checksum of a file."""
+    """Compute SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
@@ -62,183 +27,112 @@ def compute_sha256(file_path: str) -> str:
 
 
 def get_file_hash(file_path: str) -> str:
-    """Wrapper for compute_sha256 for API compatibility."""
+    """Get file hash (alias for compute_sha256)."""
     return compute_sha256(file_path)
 
 
 def verify_checksum(file_path: str, expected_hash: str) -> bool:
-    """Verify SHA256 checksum of a file against expected value."""
-    if not os.path.exists(file_path):
-        return False
+    """Verify file checksum."""
     actual_hash = compute_sha256(file_path)
     return actual_hash == expected_hash
 
 
-# ----------------------------------------------------------------------
-# Data Fetching
-# ----------------------------------------------------------------------
-
-def fetch_behavioral_data(output_path: str) -> Tuple[pd.DataFrame, str]:
-    """
-    Fetch HCP behavioral data from the verified source.
-    
-    Args:
-        output_path: Path to save the CSV file.
-        
-    Returns:
-        Tuple of (DataFrame, checksum_string)
-    """
-    print(f"Fetching behavioral data from: {BEHAVIORAL_DATA_URL}")
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    try:
-        # Read directly from URL using pandas
-        df = pd.read_csv(BEHAVIORAL_DATA_URL)
-        
-        # Save to disk
-        df.to_csv(output_path, index=False)
-        
-        # Compute checksum
-        checksum = compute_sha256(output_path)
-        
-        print(f"Behavioral data saved to: {output_path}")
-        print(f"SHA256: {checksum}")
-        print(f"Rows: {len(df)}, Columns: {len(df.columns)}")
-        
-        return df, checksum
-        
-    except Exception as e:
-        print(f"ERROR: Failed to fetch behavioral data: {str(e)}")
-        raise
+def save_manifest(manifest_path: str, files: Dict[str, str]) -> None:
+    """Save manifest of downloaded files with checksums."""
+    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+    with open(manifest_path, 'w') as f:
+        json.dump(files, f, indent=2)
 
 
-def download_cifti_files(subject_ids: List[str], raw_dir: str) -> Dict[str, str]:
-    """
-    Download CIFTI files for specified subjects.
-    
-    Note: This is a placeholder for the actual download logic.
-    In a real implementation, this would use the HCP API or direct downloads.
-    For this task, we focus on the behavioral data and manifest recording.
-    
-    Args:
-        subject_ids: List of subject IDs to download.
-        raw_dir: Directory to store downloaded files.
-        
-    Returns:
-        Dictionary mapping subject_id to file path.
-    """
-    # In a real implementation, this would iterate through subjects and download
-    # For now, we return an empty dict to indicate no CIFTI files were downloaded
-    # (The actual download of 7GB+ CIFTI files is beyond the scope of this single task
-    #  and would require a separate, robust download manager)
-    print("Note: CIFTI file download is skipped for this task. "
-          "Focus is on behavioral data and manifest structure.")
+def load_manifest(manifest_path: str) -> Dict[str, str]:
+    """Load manifest of downloaded files."""
+    if os.path.exists(manifest_path):
+        with open(manifest_path, 'r') as f:
+            return json.load(f)
     return {}
 
 
-# ----------------------------------------------------------------------
-# Manifest Management
-# ----------------------------------------------------------------------
-
-def save_manifest(manifest_data: Dict[str, Any], manifest_path: str) -> None:
-    """Save the data manifest to JSON."""
-    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
-    with open(manifest_path, "w") as f:
-        json.dump(manifest_data, f, indent=2, default=str)
-    print(f"Manifest saved to: {manifest_path}")
-
-
-def load_manifest(manifest_path: str) -> Optional[Dict[str, Any]]:
-    """Load the data manifest from JSON."""
-    if os.path.exists(manifest_path):
-        with open(manifest_path, "r") as f:
-            return json.load(f)
-    return None
+def fetch_behavioral_data_hcp_data() -> pd.DataFrame:
+    """Fetch behavioral data using hcp_data package."""
+    try:
+        from hcp_data import load_behavioral
+        df = load_behavioral()
+        # Ensure required columns exist
+        if 'Sleep_Score' not in df.columns or 'Framewise_Displacement' not in df.columns:
+            raise ValueError("Missing required columns in behavioral data")
+        return df
+    except ImportError:
+        raise RuntimeError("hcp_data package not installed. Install with: pip install hcp_data")
 
 
-# ----------------------------------------------------------------------
-# Main Execution
-# ----------------------------------------------------------------------
+def fetch_behavioral_data_backup() -> pd.DataFrame:
+    """Backup method: load from datasets package."""
+    try:
+        from datasets import load_dataset
+        ds = load_dataset('hcp1200', split='train')
+        df = ds.to_pandas()
+        # Ensure required columns exist
+        if 'Sleep_Score' not in df.columns or 'Framewise_Displacement' not in df.columns:
+            raise ValueError("Missing required columns in behavioral data")
+        return df
+    except Exception as e:
+        raise RuntimeError(f"Failed to load backup dataset: {e}")
 
-def download_hcp_data() -> bool:
-    """
-    Main function to download and verify HCP data.
-    
-    Returns:
-        True if successful, False otherwise.
-    """
+
+def fetch_behavioral_data() -> pd.DataFrame:
+    """Fetch behavioral data with fallback."""
+    logger.log_operation("fetch_behavioral_data", params={"method": "hcp_data"})
+    try:
+        return fetch_behavioral_data_hcp_data()
+    except Exception as e:
+        logger.log_operation("fetch_behavioral_data_fallback", params={"error": str(e)})
+        return fetch_behavioral_data_backup()
+
+
+def download_cifti_files(subject_ids: List[str], output_dir: str) -> Dict[str, str]:
+    """Download CIFTI files for subjects."""
+    files = {}
+    for sid in subject_ids:
+        # Placeholder for actual download logic
+        # In real implementation, this would download from HCP database
+        logger.log_operation("download_cifti", params={"subject": sid, "status": "skipped_demo"})
+    return files
+
+
+def download_hcp_data() -> Dict[str, str]:
+    """Main download function."""
     paths = get_paths()
-    raw_dir = paths["raw_dir"]
-    behavioral_dir = os.path.join(raw_dir, "behavioral")
-    behavioral_file = os.path.join(behavioral_dir, "hcp1200_behavioral_data.csv")
-    manifest_file = os.path.join(raw_dir, "manifest.json")
-    
-    print("=" * 60)
-    print("HCP Data Download & Verification")
-    print("=" * 60)
-    
-    # 1. Fetch Behavioral Data
-    try:
-        df, checksum = fetch_behavioral_data(behavioral_file)
-    except Exception as e:
-        print(f"FAILED: Could not fetch behavioral data: {e}")
-        return False
-    
-    # 2. Create Manifest
-    manifest = {
-        "project": "PROJ-736-predicting-personal-sleep-quality-from-r",
-        "task": "T005",
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "data_sources": {
-            "behavioral": {
-                "url": BEHAVIORAL_DATA_URL,
-                "local_path": behavioral_file,
-                "sha256": checksum,
-                "rows": len(df),
-                "columns": list(df.columns)
-            },
-            "cifti": {
-                "status": "pending",
-                "note": "CIFTI files are not downloaded in this task due to size constraints. "
-                        "They would be downloaded via download_cifti_files() in a full pipeline."
-            }
-        },
-        "verification": {
-            "behavioral_checksum_verified": True,
-            "cifti_checksum_verified": False
-        }
-    }
-    
-    # 3. Save Manifest
-    try:
-        save_manifest(manifest, manifest_file)
-    except Exception as e:
-        print(f"FAILED: Could not save manifest: {e}")
-        return False
-    
-    # 4. Verify Checksum (Self-check)
-    try:
-        if not verify_checksum(behavioral_file, checksum):
-            print("FAILED: Checksum verification failed for behavioral data.")
-            return False
-        print("SUCCESS: All checksums verified.")
-    except Exception as e:
-        print(f"FAILED: Checksum verification error: {e}")
-        return False
-    
-    print("=" * 60)
-    print("HCP Data Download Complete")
-    print("=" * 60)
-    return True
+    ensure_dirs()
+
+    # Fetch behavioral data
+    df = fetch_behavioral_data()
+
+    # Save behavioral data
+    behavioral_output = os.path.join(paths["raw_dir"], "behavioral", "hcp1200_behavioral_data.csv")
+    df.to_csv(behavioral_output, index=False)
+
+    # Compute checksums
+    checksum = compute_sha256(behavioral_output)
+
+    # Save manifest
+    manifest_path = os.path.join(paths["raw_dir"], "manifest.json")
+    save_manifest(manifest_path, {
+        "hcp1200_behavioral_data.csv": checksum
+    })
+
+    logger.log_operation("download_complete", params={"output": behavioral_output, "checksum": checksum})
+    return {"behavioral": behavioral_output, "checksum": checksum}
 
 
-def main():
-    """Entry point for the script."""
-    success = download_hcp_data()
-    sys.exit(0 if success else 1)
+def main() -> int:
+    """Main entry point."""
+    try:
+        download_hcp_data()
+        return 0
+    except Exception as e:
+        logger.log_operation("download_failed", params={"error": str(e)})
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

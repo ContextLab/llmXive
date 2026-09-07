@@ -1195,3 +1195,315 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T12:52:29Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: permutation count is 1000
+  claim_id: c_fbec7d92
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters.
+    MUST: Define PERMUTATION_COUNT=1000...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PERMUTATION_COUNT=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:47:10Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: permutation subset size is 100
+  claim_id: c_bb951678
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters.
+    MUST: Define PERMUTATION_SUBSET_SIZE=100...'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 100 64224505068831844272961524543847195000065209354663126507097449293867381679311503721413427168674781084955637977399613157046740538527580160000000000000000000000
+      source_id: A024167
+      url: https://oeis.org/A024167
+      value: '64224505068831844272961524543847195000065209354663126507097449293867381679311503721413427168674781084955637977399613157046740538527580160000000000000000000000'
+    filled: true
+  kind: numeric
+  raw_text: PERMUTATION_SUBSET_SIZE=100
+  resolved_value: '64224505068831844272961524543847195000065209354663126507097449293867381679311503721413427168674781084955637977399613157046740538527580160000000000000000000000'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T19:47:48Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: sensitivity timeout is 3 hours
+  claim_id: c_15df5d3a
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters.
+    MUST: Define SENSITIVITY_TIMEOUT_HOURS=3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SENSITIVITY_TIMEOUT_HOURS=3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:48:12Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: global timeout is 5 hours
+  claim_id: c_6909a2ce
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters.
+    MUST: Define GLOBAL_TIMEOUT_HOURS=5...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GLOBAL_TIMEOUT_HOURS=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:48:36Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: expected R2 effect size is 0.05
+  claim_id: c_35105e22
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters.
+    MUST: Define EXPECTED_R2_EFFECT_SIZE=0.05...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: EXPECTED_R2_EFFECT_SIZE=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:49:41Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: power threshold is 0.8
+  claim_id: c_a7ececdc
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters.
+    MUST: Define POWER_THRESHOLD=0.8...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: POWER_THRESHOLD=0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:50:16Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: alpha level is 0.05
+  claim_id: c_181a28b8
+  context: 'T002 Implement code/config.py with seeds, paths, and hyperparameters.
+    MUST: Define ALPHA_LEVEL=0.05...'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: ALPHA_LEVEL=0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T19:50:26Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: L1 ratio grid includes 0.1, 0.5, and 0.9
+  claim_id: c_2fb773f5
+  context: 'T002 ... MUST: Define L1_RATIO_GRID as a list of values including low,
+    moderate, and high ratios (e.g., [0.1, 0.5, 0.9])...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: L1_RATIO_GRID includes values 0.1, 0.5, and 0.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:50:45Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: alpha grid is log-spaced from -4 to 0 with 10 points
+  claim_id: c_5500e410
+  context: T002 ... and ALPHA_GRID as log-spaced across multiple orders of magnitude
+    (e.g., np.logspace(-4, 0, 10)).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ALPHA_GRID is log-spaced across multiple orders of magnitude (e.g., np.logspace(-4,
+    0, 10))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:50:56Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: HCP data fetched using hcp_data package
+  claim_id: c_f765056a
+  context: T005 Implement code/data/download_hcp.py to fetch HCP minimally preprocessed
+    CIFTI files and hcp_behavioral_data.csv using the hcp_data package (verified real
+    source).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HCP_data_fetched_using_hcp_data_package
+  kind: entity_fact
+  raw_text: HCP minimally preprocessed CIFTI files and hcp_behavioral_data.csv are
+    fetched using the hcp_data package
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:51:15Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: subjects with framewise displacement greater than 0.3mm are excluded
+  claim_id: c_29e23a10
+  context: T007b ... to identify subjects with valid Sleep Scores and exclude those
+    with >0.3mm framewise displacement (US1 Acceptance 2).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_framewise_displacement_greater_than_0.3mm_are
+  kind: magnitude
+  raw_text: subjects with >0.3mm framewise displacement are excluded
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:51:54Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: 1000 label permutations performed
+  claim_id: c_052844a1
+  context: T022 Implement code/modeling/evaluate.py to perform 1,000 label permutations
+    on the stratified subset (N=100).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1,000 label permutations are performed on the stratified subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:52:28Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: stratified subset size is 100
+  claim_id: c_11d0963c
+  context: 'T022 ... on the stratified subset (N=100). MUST: (1) Load subject IDs
+    from data/processed/perm_subset_ids.txt to ensure the subset size is exactly 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratified subset size is 100 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:52:35Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: RAM usage limit is 6 GB
+  claim_id: c_f147543d
+  context: "T025 ... monitor RAM usage (\u22646 GB) using psutil..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "RAM usage is monitored to be \u22646 GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:52:35Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: power analysis alpha 0.05 power >0.8
+  claim_id: c_23244f59
+  context: "T037a ... with expected effect size R\xB2=0.05 (converted to Cohen's f),\
+    \ alpha level 0.05, and power threshold >0.8..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power analysis uses alpha level 0.05 and power threshold >0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:52:41Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: permutation test on stratified random subset
+  claim_id: c_694f1da2
+  context: T022a ... Check spec.md for FR-006 amendment text ('permutation test will
+    run on a stratified random subset of subjects').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_on_stratified_random_subset
+  kind: entity_fact
+  raw_text: permutation test is run on a stratified random subset of subjects
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:52:48Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: bootstrap resamples on aggregated predictions
+  claim_id: c_89f1320f
+  context: T023 ... to perform bootstrap resamples of aggregated out-of-sample predictions
+    (loaded from data/processed/perm_subset_predictions.npy)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resamples_on_aggregated_predictions
+  kind: entity_fact
+  raw_text: bootstrap resamples are computed for aggregated out-of-sample predictions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:52:55Z'
+- artifact_path: projects/PROJ-736-predicting-personal-sleep-quality-from-r/specs/001-predicting-personal-sleep-quality-from-r/tasks.md
+  attempts: 1
+  canonical: Docker container memory limit is 6 GB
+  claim_id: c_3389df8c
+  context: 'T037c ... MUST: Run inside a Docker container configured with a memory
+    limit (e.g., --memory=6g)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T037c runs inside a Docker container configured with a 6GB memory limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T19:52:57Z'

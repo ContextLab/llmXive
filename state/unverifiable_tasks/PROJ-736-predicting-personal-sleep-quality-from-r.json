@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-736-predicting-personal-sleep-quality-from-r",
+  "tasks": [
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "The repository contains a partially implemented `download_hcp.py` (functions for checksum and behavioral fetching are present), but the script does not include the full CIFTI download logic, does not write the fetched behavioral DataFrame to `data/raw/behavioral/hcp1200_behavioral_data.csv`, and the required `data/raw/manifest.json` file is absent. Consequently the mandatory outputs and checksum recording are missing.",
+      "first_seen": "2026-09-07T19:55:14.590313+00:00",
+      "last_seen": "2026-09-07T19:55:14.590313+00:00"
+    },
+    {
+      "task_key": "T014",
+      "reject_count": 1,
+      "last_reason": "The pipeline script does not check for the required `data/raw/manifest.json` (the file is missing) and therefore fails the mandatory verification step. Additionally, the logging file `data/logs/pipeline_run.json` contains line\u2011separated log entries but does not include the required structured fields such as seeds, hyperparameters, and data hashes in a single JSON object. These missing/incorrect elements prevent the task from being fully satisfied.",
+      "first_seen": "2026-09-07T19:55:17.604935+00:00",
+      "last_seen": "2026-09-07T19:55:17.604935+00:00"
+    },
+    {
+      "task_key": "T037a",
+      "reject_count": 1,
+      "last_reason": "The required file `data/results/power_analysis.json` does not exist, so the power analysis was never written out. Without this JSON output the task\u2019s core deliverable is missing. The implementer must add a script that reads the parameters from `code/config.py`, performs the power calculation using `statsmodels.stats.power.tt_ind_solve_power`, and writes the result to the exact path.",
+      "first_seen": "2026-09-07T19:55:22.230654+00:00",
+      "last_seen": "2026-09-07T19:55:22.230654+00:00"
+    }
+  ],
+  "updated_at": "2026-09-07T19:55:22.230654+00:00"
+}

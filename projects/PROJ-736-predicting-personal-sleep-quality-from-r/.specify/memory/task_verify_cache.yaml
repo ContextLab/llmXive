@@ -1,19 +1,12 @@
-T005:
+T020:
   c: false
-  h: 0ae91988712d348daaf3c69ec4d6081bf4058ec8d31ea2a42cf5f5ccdf1ece76
-  r: "The required output files `data/raw/manifest.json` and `data/raw/behavioral/hcp1200_behavioral_data.csv`\
-    \ are absent, and the provided `download_hcp.py` script (truncated) does not show\
-    \ the implementation of CIFTI downloading, checksum verification, or manifest\
-    \ recording. The task\u2019s core deliverables are therefore not satisfied."
-T014:
-  c: false
-  h: 585cb580d6d67379b42d1918c17b16fdb165b98f15b6b6158a2fe93506f51dec
-  r: "The provided `code/main.py` exists and logs JSON events, and `data/logs/pipeline_run.json`\
-    \ is non\u2011empty, but the script never explicitly invokes a subject\u2011filtering\
-    \ step (required T007b/T040) and the log file shows no entries for seeds or hyperparameters.\
-    \ Moreover, there is no evidence that `.npy` connectivity files are actually written\
-    \ to `data/processed/`. The pipeline therefore does not fully satisfy the orchestration\
-    \ and logging requirements."
+  h: 6490bc0e3faa8f1a30c2ef0aa697de537da747f1f712fcbe1c1fcf3fa86ec6e1
+  r: "The provided `train.py` is truncated and does not show an explicit call to T020a,\
+    \ nor does it contain code that saves `predictions.npy`, `model.pkl`, or a checkpoint\
+    \ file. Moreover, the required output files (`data/processed/predictions.npy`,\
+    \ `data/processed/model.pkl`, `data/processed/train_checkpoint.json`) are absent\
+    \ from the repository. The implementation therefore does not meet the task\u2019\
+    s specifications."
 T022a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,11 +46,3 @@ T033:
     count `<line>` and `<path>` elements, and enforce a minimum of 50 edges is present,
     nor is there any SVG plot file to validate. Consequently, the required artifact
     (the validation code and/or the plot file) is missing, so the task is not satisfied.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only the feature specification and user stories but\
-    \ supplied no CI configuration, test logs, or runtime metrics showing an end\u2011\
-    to\u2011end integration test executed on an `ubuntu-latest` runner, nor any evidence\
-    \ that a multi\u2011hour time limit or GB\u2011RAM constraint was verified. These\
-    \ artifacts are required to satisfy task T037."

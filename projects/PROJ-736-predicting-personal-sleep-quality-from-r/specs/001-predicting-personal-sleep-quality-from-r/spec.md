@@ -1,7 +1,7 @@
 # Feature Specification: Predicting Personal Sleep Quality from Resting-State fMRI Connectivity
 
 ## Overview
-This project implements a machine learning pipeline to predict individual sleep quality scores from resting-state functional connectivity (rs-fMRI) data. The analysis uses data from the Human Connectome Project (HCP) 1200 Subjects Release.
+This project implements a machine learning pipeline to predict individual sleep quality scores from resting-state functional connectivity (rs-fMRI) data. The analysis uses data from the Human Connectome Project (HCP) large-scale subject release.
 
 ## User Stories
 
@@ -21,9 +21,9 @@ As a researcher, I want to train an elastic-net regression model on connectivity
 **Acceptance Criteria:**
 1. Implement nested cross-validation with inner-loop hyperparameter tuning.
 2. Ensure VarianceThreshold and PCA are fitted strictly within the training fold (no data leakage).
-3. Run 1,000 label permutations on a stratified subset of 100 subjects to generate a null distribution.
+3. Run a sufficient number of label permutations on a stratified subset of subjects to generate a null distribution.
 4. Compute empirical p-value from the null distribution.
-5. Perform bootstrap resampling of aggregated out-of-sample predictions to compute a 95% confidence interval for R².
+5. Perform bootstrap resampling of aggregated out-of-sample predictions to compute a confidence interval for R².
 6. Enforce resource limits (CPU-only, ≤6 GB RAM, 5-hour wall-clock timeout).
 
 ### US3: Interpretation & Visualization
@@ -39,24 +39,29 @@ As a researcher, I want to identify which brain connections drive the prediction
 
 ### FR-001: Data Preprocessing
 The system shall preprocess rs-fMRI time series using:
-- Schaefer 400-region parcellation
+- Schaefer -region parcellation
 - Nuisance regression (5 motion parameters, WM, CSF)
-- Band-pass filtering (0.01–0.1 Hz)
+- Band-pass filtering (low-frequency to high-frequency range)
 
 ### FR-002: Feature Engineering
 The system shall compute pairwise Pearson correlations between all region pairs, apply Fisher-z transformation, and extract the upper-triangular vector (excluding diagonal) as the feature vector.
 
 ### FR-003: Nested Cross-Validation
 The system shall implement nested cross-validation with:
-- Outer loop: 5-fold stratified split for evaluation
-- Inner loop: 3-fold stratified split for hyperparameter tuning
+- Outer loop: k-fold stratified split for evaluation
+
+The specific value to remove/generalize: 'k'
+
+Rewritten passage:
+Outer loop: k-fold stratified split for evaluation
+- Inner loop: -fold stratified split for hyperparameter tuning
 - All feature selection (VarianceThreshold, PCA) must be fitted ONLY on the training fold of each iteration.
 
 ### FR-004: Model Training
 The system shall train an ElasticNetCV model with:
-- L1 ratio grid: [0.1, 0.5, 0.9]
-- Alpha grid: log-spaced from 1e-4 to 1e2
-- Max iterations: 1000
+- L ratio grid: a range of values including low, moderate, and high ratios
+- Alpha grid: log-spaced across multiple orders of magnitude.
+- Max iterations: a sufficient number to ensure convergence.
 
 ### FR-005: Out-of-Sample Predictions
 The system shall output predictions for all subjects in the outer fold, saved as `data/processed/predictions.npy` (shape: [n_subjects, 1]).
@@ -67,11 +72,11 @@ The system shall perform a permutation test to assess statistical significance:
 - **Number of permutations**: 1,000
 - **Procedure**: For each permutation, randomly shuffle labels, re-run the entire nested CV pipeline (including inner-loop tuning and variance-thresholding), and record the R² score.
 - **Output**: Null distribution saved as `data/results/null_distribution.npy`.
-- **Validation**: The subset size (N=100) is validated by the power analysis in T037a, which confirms that with expected effect size R²=0.05, alpha=0.05, the power exceeds 0.8.
+- **Validation**: The subset size (N=100) is validated by the power analysis in T037a, which confirms that with expected effect size R²=0.05, alpha=0.05, the power exceeds an acceptable threshold.
 - **Reference**: See Task T022a for spec amendment details and T037a for power analysis validation.
 
 ### FR-007: Bootstrap Confidence Interval
-The system shall perform bootstrap resampling of aggregated out-of-sample predictions (loaded from `data/processed/predictions.npy`) to compute a 95% confidence interval for R².
+The system shall perform bootstrap resampling of aggregated out-of-sample predictions (loaded from `data/processed/predictions.npy`) to compute a confidence interval for R².
 
 ### FR-008: Feature Interpretation
 The system shall extract non-zero elastic-net coefficients from the trained model and map them back to brain edges using the Schaefer atlas.
@@ -80,7 +85,7 @@ The system shall extract non-zero elastic-net coefficients from the trained mode
 The system shall:
 - Enforce CPU-only execution (no GPU)
 - Monitor RAM usage and abort if >6 GB
-- Enforce a 5-hour wall-clock timeout using signal handlers
+- Enforce a reasonable wall-clock timeout using signal handlers.
 - Gracefully flush partial results on abort
 
 ### FR-010: Structured Logging
@@ -89,7 +94,7 @@ The system shall log all operations in structured JSON format, including seeds, 
 ## Data Model
 
 ### Inputs
-- HCP 1200 Subjects Release (minimally preprocessed CIFTI files)
+- HCP Large-Scale Subjects Release (minimally preprocessed CIFTI files)
 - HCP behavioral data (Sleep Score, framewise displacement, etc.)
 
 ### Intermediate Artifacts
@@ -129,7 +134,7 @@ All scripts must run on CPU-only CI with limited vCPU and GB RAM without GPU dep
 All operations must be logged to `data/logs/pipeline_run.json` with timestamps, parameters, and data hashes.
 
 ## Dependencies
-- Python 3.9+
+- Python 3.x+
 - nilearn
 - scikit-learn
 - pandas

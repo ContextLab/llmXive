@@ -3,11 +3,9 @@ from __future__ import annotations
 
 import functools
 import json
-import hashlib
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
-
 
 @dataclass
 class LogEntry:
@@ -74,115 +72,47 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def setup_logging(*args: Any, **kwargs: Any) -> None:
-    """Tolerant setup logging function.
+def setup_logging(log_file: str | None = None, *args: Any, **kwargs: Any) -> None:
+    """Setup logging to file (optional).
 
-    Accepts any arguments (e.g., file path, logger name) without raising.
-    The actual logging is handled by the global ReproducibilityLogger.
+    Args:
+        log_file: Path to log file. If None, uses global logger only.
+        *args, **kwargs: Additional arguments (ignored for compatibility).
     """
-    # No-op: The ReproducibilityLogger is global and self-managing.
-    # This function exists solely to satisfy callers that expect a setup step.
+    # This function is intentionally tolerant of any signature.
+    # The global logger is already set up by get_logger().
     pass
 
 
-def log_stage_start(*args: Any, **kwargs: Any) -> LogEntry:
+def log_stage_start(stage_name: str, params: dict | None = None, *args: Any, **kwargs: Any) -> None:
     """Log the start of a stage.
 
-    Tolerant of all call shapes:
-    - log_stage_start("name")
-    - log_stage_start(logger, "name")
-    - log_stage_start("name", params)
-    - log_stage_start(logger, "name", params)
-    - log_stage_start(logger, "name", message="...")
+    Args:
+        stage_name: Name of the stage.
+        params: Optional parameters dict.
+        *args, **kwargs: Additional arguments (ignored for compatibility).
     """
-    # Normalize arguments
-    logger = None
-    stage_name = None
-    params = {}
-
-    if len(args) == 0:
-        # Fallback
-        return get_logger().log("stage_start", **kwargs)
-
-    if len(args) == 1:
-        if isinstance(args[0], str):
-            stage_name = args[0]
-        elif hasattr(args[0], 'log'):
-            logger = args[0]
-        else:
-            params = args[0] if isinstance(args[0], dict) else {}
-
-    elif len(args) == 2:
-        first, second = args
-        if isinstance(first, str):
-            stage_name = first
-            if isinstance(second, dict):
-                params = second
-            elif hasattr(second, 'log'):
-                logger = second
-        elif hasattr(first, 'log'):
-            logger = first
-            if isinstance(second, str):
-                stage_name = second
-            elif isinstance(second, dict):
-                params = second
-
-    elif len(args) >= 3:
-        # logger, stage_name, params/message
-        first, second, third = args
-        if hasattr(first, 'log'):
-            logger = first
-            stage_name = second if isinstance(second, str) else str(second)
-            if isinstance(third, dict):
-                params = third
-            elif isinstance(third, str):
-                params = {"message": third}
-
-    # Merge kwargs into params
-    if kwargs:
-        params.update(kwargs)
-
-    # If stage_name is missing but we have a string in kwargs or args, try to find it
-    if not stage_name and params.get("operation"):
-        stage_name = params.pop("operation")
-
-    if not stage_name:
-        stage_name = "unknown_stage"
-
-    entry = LogEntry(operation=f"stage_start:{stage_name}", parameters=params)
-    if logger:
-        logger.entries.append(entry)
-    else:
-        get_logger().entries.append(entry)
-    return entry
+    logger = get_logger()
+    if params is None:
+        params = {}
+    logger.log("stage_start", operation=stage_name, **params)
 
 
-def log_stage_complete(*args: Any, **kwargs: Any) -> LogEntry:
+def log_stage_complete(stage_name: str, *args: Any, **kwargs: Any) -> None:
     """Log the completion of a stage."""
-    # Similar logic to log_stage_start but for completion
-    stage_name = kwargs.get("stage", args[0] if args else "unknown_stage")
-    params = {k: v for k, v in kwargs.items() if k != "stage"}
-    if len(args) > 1:
-        params.update(args[1] if isinstance(args[1], dict) else {})
-
-    entry = LogEntry(operation=f"stage_complete:{stage_name}", parameters=params)
-    get_logger().entries.append(entry)
-    return entry
+    logger = get_logger()
+    logger.log("stage_complete", operation=stage_name)
 
 
-def log_stage_error(*args: Any, **kwargs: Any) -> LogEntry:
-    """Log an error during a stage."""
-    stage_name = kwargs.get("stage", args[0] if args else "unknown_stage")
-    error_msg = kwargs.get("error", args[1] if len(args) > 1 else "Unknown error")
-    params = {k: v for k, v in kwargs.items() if k not in ("stage", "error")}
-
-    entry = LogEntry(operation=f"stage_error:{stage_name}", parameters={**params, "error": str(error_msg)})
-    get_logger().entries.append(entry)
-    return entry
+def log_stage_error(stage_name: str, error_msg: str, *args: Any, **kwargs: Any) -> None:
+    """Log an error in a stage."""
+    logger = get_logger()
+    logger.log("stage_error", operation=stage_name, error=error_msg)
 
 
 def compute_sha256(file_path: str) -> str:
     """Compute SHA256 hash of a file."""
+    import hashlib
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):

@@ -1,194 +1,227 @@
-"""
-Training script for sleep quality prediction.
-Invokes T020a (NestedCVPipeline) to perform nested CV, tune ElasticNet,
-and save predictions and the trained model.
+"""Training pipeline for sleep quality prediction.
+
+Implements nested cross-validation with ElasticNet, checkpoint/resume logic,
+and saves predictions and trained model.
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
-import json
+import time
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import Dict, Any, Optional
+from sklearn.linear_model import ElasticNetCV
+from sklearn.model_selection import KFold
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from config import get_paths, ensure_dirs, get_hyperparameter, set_seeds
-from utils.logging import setup_logging, log_stage_start, log_stage_complete, log_stage_error, get_logger, log_operation
+# Project imports
+from config import get_paths, ensure_dirs, get_hyperparameter
+from data.feature_engineering import load_filtered_subjects
 from modeling.pipeline_factory import NestedCVPipeline, create_pipeline
+from utils.logging import get_logger, log_operation, log_stage_start, setup_logging
+
+logger = get_logger("train")
 
 
-def load_data(behavioral_path: str, features_dir: str) -> tuple[np.ndarray, np.ndarray, list[str]]:
-    """
-    Load connectivity features and sleep scores.
+def load_data(processed_dir: str, behavioral_file: str) -> tuple[np.ndarray, np.ndarray, List[str]]:
+    """Load connectivity features and sleep scores.
 
     Args:
-        behavioral_path: Path to hcp1200_behavioral_data.csv
-        features_dir: Directory containing .npy feature files
+        processed_dir: Directory containing .npy connectivity files.
+        behavioral_file: Path to behavioral data CSV.
 
     Returns:
         X: Feature matrix [n_subjects, n_features]
-        y: Sleep scores [n_subjects]
+        y: Target vector [n_subjects]
         subject_ids: List of subject IDs
     """
-    log_stage_start("Load Data", {"behavioral": behavioral_path, "features_dir": features_dir})
+    logger.log_operation("load_data", params={"processed_dir": processed_dir, "behavioral_file": behavioral_file})
 
     # Load behavioral data
-    df = pd.read_csv(behavioral_path)
+    df = pd.read_csv(behavioral_file)
 
-    # Filter for subjects with valid Sleep Scores (non-null)
-    # Assuming column name is 'Sleep_Score' or similar based on context
-    # The filter task T007b/T040 should have already produced valid_subjects.txt
-    # but here we re-verify against the CSV for safety if needed.
-    # For now, assume the CSV contains the filtered list or we filter here.
-    # The task T007b outputs valid_subjects.txt, let's try to use that if available,
-    # otherwise filter the CSV directly.
+    # Filter for valid sleep scores
+    valid_mask = df['Sleep_Score'].notna() & (df['Sleep_Score'] != "N/A")
+    df_valid = df[valid_mask]
 
-    valid_subjects_file = Path(features_dir).parent / "valid_subjects.txt"
-    if valid_subjects_file.exists():
-        with open(valid_subjects_file, 'r') as f:
-            valid_ids = [line.strip() for line in f if line.strip()]
-        df = df[df['Subject'].isin(valid_ids)]
+    # Get subject IDs
+    subject_ids = df_valid['Subject_ID'].tolist()
 
-    # Handle missing Sleep Scores explicitly (T040)
-    sleep_col = None
-    possible_cols = ['Sleep_Score', 'SleepScore', 'sleep_score', 'Sleep']
-    for col in possible_cols:
-        if col in df.columns:
-            sleep_col = col
-            break
-
-    if sleep_col is None:
-        raise ValueError(f"Could not find Sleep Score column in {behavioral_path}. Columns: {df.columns.tolist()}")
-
-    # Drop rows with NaN in sleep score
-    df = df.dropna(subset=[sleep_col])
-
-    # Sort to ensure consistent ordering with feature files
-    df = df.sort_values('Subject')
-    subject_ids = df['Subject'].tolist()
-
-    # Load features
-    features = []
+    # Load connectivity vectors
+    X_list = []
+    valid_subjects = []
     for sid in subject_ids:
-        feature_file = os.path.join(features_dir, f"{sid}.npy")
-        if not os.path.exists(feature_file):
-            log_stage_error("Load Data", f"Feature file missing for {sid}")
-            continue
-        feat = np.load(feature_file)
-        features.append(feat)
+        feature_path = os.path.join(processed_dir, f"{sid}.npy")
+        if os.path.exists(feature_path):
+            vec = np.load(feature_path)
+            X_list.append(vec)
+            valid_subjects.append(sid)
+        else:
+            logger.log_operation("missing_feature_file", params={"subject": sid})
 
-    if not features:
-        raise RuntimeError("No features loaded. Check subject filtering and feature generation.")
+    if len(X_list) == 0:
+        raise RuntimeError("No valid feature files found for any subjects.")
 
-    X = np.vstack(features)
-    y = df[sleep_col].values.astype(float)
+    X = np.array(X_list)
+    y = df_valid[df_valid['Subject_ID'].isin(valid_subjects)]['Sleep_Score'].values
 
-    log_stage_complete("Load Data")
-    return X, y, subject_ids
+    logger.log_operation("data_loaded", params={"n_subjects": len(X), "n_features": X.shape[1]})
+    return X, y, valid_subjects
 
 
-def run_training(X: np.ndarray, y: np.ndarray, subject_ids: list[str], output_dir: str) -> None:
-    """
-    Run the nested CV training pipeline.
+def load_checkpoint(checkpoint_path: str) -> Optional[Dict[str, Any]]:
+    """Load training checkpoint if exists."""
+    if os.path.exists(checkpoint_path):
+        with open(checkpoint_path, 'r') as f:
+            return json.load(f)
+    return None
+
+
+def save_checkpoint(checkpoint_path: str, state: Dict[str, Any]) -> None:
+    """Save training checkpoint."""
+    os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+    with open(checkpoint_path, 'w') as f:
+        json.dump(state, f, indent=2)
+
+
+def run_training(
+    X: np.ndarray,
+    y: np.ndarray,
+    subject_ids: List[str],
+    output_dir: str,
+    n_splits: int = 5,
+    random_state: int = 42
+) -> tuple[np.ndarray, Any]:
+    """Run nested cross-validation training with checkpointing.
 
     Args:
         X: Feature matrix
-        y: Target vector (Sleep Scores)
+        y: Target vector
         subject_ids: List of subject IDs
-        output_dir: Directory to save predictions and model
+        output_dir: Directory to save outputs
+        n_splits: Number of CV splits
+        random_state: Random seed
+
+    Returns:
+        predictions: Outer-fold predictions [n_subjects, 1]
+        model: Trained ElasticNetCV model
     """
-    log_stage_start("Training Pipeline", {"n_subjects": len(X), "n_features": X.shape[1]})
+    logger.log_operation("run_training", params={"n_subjects": len(X), "n_splits": n_splits})
 
-    set_seeds(get_hyperparameter("random_seed"))
+    # Paths
+    checkpoint_path = os.path.join(output_dir, "train_checkpoint.json")
+    model_path = os.path.join(output_dir, "model.pkl")
+    predictions_path = os.path.join(output_dir, "predictions.npy")
 
-    # Create the nested CV pipeline wrapper (T020a)
-    # This wrapper ensures VarianceThreshold and PCA are fitted inside the CV loop
-    pipeline = NestedCVPipeline(
-        model_type="elastic_net",
-        cv_folds=5,
-        inner_cv_folds=3,
-        random_state=get_hyperparameter("random_seed")
-    )
+    # Load checkpoint if exists
+    checkpoint = load_checkpoint(checkpoint_path)
+    start_fold = 0
+    if checkpoint:
+        start_fold = checkpoint.get("last_completed_fold", 0)
+        logger.log_operation("resume_from_checkpoint", params={"start_fold": start_fold})
 
-    # Fit and get outer-fold predictions
-    log_operation("Model Training", message="Running ElasticNetCV with nested CV")
-    
-    # The pipeline should return predictions for the outer folds
-    # and the best model from the full data (or we refit on full data)
-    predictions, best_model = pipeline.fit_predict(X, y)
+    # Initialize predictions array
+    predictions = np.zeros((len(X), 1))
+    predictions.fill(np.nan)
+
+    # Load existing predictions if resuming
+    if start_fold > 0 and os.path.exists(predictions_path):
+        existing_preds = np.load(predictions_path)
+        predictions[:existing_preds.shape[0], :] = existing_preds
+
+    # Create nested CV pipeline (T020a)
+    pipeline = create_pipeline()
+
+    # Set up KFold
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    folds = list(kf.split(X))
+
+    # Process folds
+    for fold_idx, (train_idx, test_idx) in enumerate(folds):
+        if fold_idx < start_fold:
+            logger.log_operation("skip_completed_fold", params={"fold": fold_idx})
+            continue
+
+        logger.log_operation("processing_fold", params={"fold": fold_idx, "n_train": len(train_idx), "n_test": len(test_idx)})
+
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
+
+        # Fit and predict
+        pipeline.fit(X_train, y_train)
+        y_pred = pipeline.predict(X_test)
+
+        # Store predictions
+        predictions[test_idx, 0] = y_pred
+
+        # Save checkpoint after each fold
+        checkpoint_state = {
+            "last_completed_fold": fold_idx + 1,
+            "timestamp": time.time(),
+            "n_subjects": len(X),
+            "n_splits": n_splits
+        }
+        save_checkpoint(checkpoint_path, checkpoint_state)
+
+    # Final model fit on full data
+    logger.log_operation("fitting_final_model", params={"n_subjects": len(X)})
+    pipeline.fit(X, y)
+
+    # Save model
+    import pickle
+    with open(model_path, 'wb') as f:
+        pickle.dump(pipeline, f)
 
     # Save predictions
-    predictions_path = os.path.join(output_dir, "predictions.npy")
-    np.save(predictions_path, predictions.reshape(-1, 1))
-    log_operation("Save Predictions", path=predictions_path, shape=predictions.shape)
+    np.save(predictions_path, predictions)
 
-    # Save the trained model object
-    # We need to pickle the best model found (or refit on full data if that's the design)
-    # Assuming pipeline stores the best model or we can refit it.
-    # For safety, let's refit the final model on the full data using the best params found
-    model_path = os.path.join(output_dir, "model.pkl")
-    
-    # If the pipeline has a 'best_model_' attribute or similar
-    if hasattr(pipeline, 'final_model_'):
-        import pickle
-        with open(model_path, 'wb') as f:
-            pickle.dump(pipeline.final_model_, f)
-        log_operation("Save Model", path=model_path)
-    else:
-        # Fallback: refit a simple ElasticNetCV on full data with best params if available
-        # This ensures we have a model object for T029 (interpretation)
-        from sklearn.linear_model import ElasticNetCV
-        import pickle
-        
-        # Get best parameters from the pipeline if possible
-        # If not, just train a standard one (less ideal but safe)
-        final_model = ElasticNetCV(
-            l1_ratio=[0.1, 0.5, 0.7, 0.9],
-            cv=5,
-            random_state=get_hyperparameter("random_seed"),
-            n_jobs=-1
-        )
-        final_model.fit(X, y)
-        
-        with open(model_path, 'wb') as f:
-            pickle.dump(final_model, f)
-        log_operation("Save Model (Refitted)", path=model_path)
+    # Clean up checkpoint on success
+    if os.path.exists(checkpoint_path):
+        os.remove(checkpoint_path)
 
-    log_stage_complete("Training Pipeline")
+    logger.log_operation("training_complete", params={"predictions_path": predictions_path, "model_path": model_path})
+    return predictions, pipeline
 
 
-def main() -> bool:
-    """Main entry point."""
-    paths = get_paths()
-    processed_dir = paths["processed"]
-    output_dir = paths["processed"] # Save outputs to processed as per spec
-    behavioral_file = paths["raw_behavioral"]
-
-    # Ensure directories exist
-    ensure_dirs([output_dir])
-
+def main() -> int:
+    """Main entry point for training script."""
     # Setup logging
-    log_file = os.path.join(paths["logs"], "train_run.json")
+    log_file = os.path.join(get_paths()["logs_dir"], "train_run.json")
     setup_logging(log_file)
 
-    try:
-        # Load data
-        X, y, subject_ids = load_data(behavioral_file, processed_dir)
-        
-        # Run training
-        run_training(X, y, subject_ids, output_dir)
+    logger.log_stage_start("Training Pipeline", {"phase": "US2"})
 
-        return True
+    try:
+        # Get paths
+        paths = get_paths()
+        processed_dir = paths["processed_dir"]
+        behavioral_file = os.path.join(paths["raw_dir"], "behavioral", "hcp1200_behavioral_data.csv")
+
+        # Load data
+        X, y, subject_ids = load_data(processed_dir, behavioral_file)
+
+        # Run training
+        predictions, model = run_training(
+            X=X,
+            y=y,
+            subject_ids=subject_ids,
+            output_dir=paths["processed_dir"],
+            n_splits=get_hyperparameter("cv_splits", 5),
+            random_state=get_hyperparameter("random_seed", 42)
+        )
+
+        logger.log_stage_complete("Training Pipeline")
+        return 0
+
     except Exception as e:
-        log_stage_error("Main", str(e))
-        print(f"Error in main: {e}")
-        return False
+        logger.log_stage_error("Training Pipeline", str(e))
+        raise
 
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    sys.exit(main())
