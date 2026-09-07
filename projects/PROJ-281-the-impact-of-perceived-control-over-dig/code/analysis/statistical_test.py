@@ -49,7 +49,7 @@ def shapiro_wilk_test(residuals: np.ndarray) -> Tuple[float, float]:
     
     if len(valid_residuals) < 3:
         logger.warning("Not enough data points for Shapiro-Wilk test.")
-        return 0.0, 1.0 # Assume normal if we can't test? Or fail? Spec says check p<0.05.
+        return 0.0, 1.0
     
     stat, p_value = stats.shapiro(valid_residuals)
     logger.info(f"Shapiro-Wilk test: W={stat:.4f}, p={p_value:.4f}")

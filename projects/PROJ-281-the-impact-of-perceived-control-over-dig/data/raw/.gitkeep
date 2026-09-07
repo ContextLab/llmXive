@@ -1,2 +1,2 @@
-# This directory stores raw, immutable datasets downloaded from external sources.
-# Do not modify files in this directory directly.
+# This directory is intentionally kept empty for git tracking.
+# Raw data files will be downloaded here.

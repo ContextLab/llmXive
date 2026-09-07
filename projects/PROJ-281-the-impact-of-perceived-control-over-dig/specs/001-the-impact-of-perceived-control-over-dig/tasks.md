@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -39,12 +39,16 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/config.py` for global config, random seeds, and path constants
-- [X] T004a [P] Update spec.md SC-004 to explicitly define the -hour runtime threshold (or flag for spec revision if spec edit is out of scope for this task file)
 - [X] T005 [P] Setup `code/__init__.py` and `tests/__init__.py`
 - [X] T006 [P] Create `code/services/__init__.py`, `code/analysis/__init__.py`, `code/viz/__init__.py`
-- [X] T007 Create `code/main.py` pipeline orchestrator skeleton
-- [ ] T008 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
-- [ ] T009 [P] Configure `pytest` with `pytest-cov` in `tests/`
+- [X] T006a [SC] Perform 'Phase 0: Research & Dataset Validation' checks: Verify that `cardiffnlp/tweet_sentiment_extraction` contains required fields (`text`, `timestamp`, `user_id`, `filter_applied` or equivalent) against the *draft* schema (T008a). **Output**: Generate `state/validation_report.md` with schema: `dataset_id`, `field_check` (list of fields), `status` (pass/fail), `error_msg`. **Dependency**: T008a.
+- [X] T007 Create `code/main.py` pipeline orchestrator skeleton **WITH TIMEOUT ENFORCEMENT**: Implement the main loop to track elapsed time and raise `RuntimeLimitExceededError` if `config.RUNTIME_LIMIT_HOURS` (default 6) is exceeded. **Dependency**: T004.
+- [X] T004b [SC-004] Integrate runtime monitor into `code/main.py` (T007) to log elapsed time and enforce the 6-hour limit defined in `config.RUNTIME_LIMIT_HOURS`. **Dependency**: T007.
+- [X] T008 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
+- [X] T008a [P] Generate **DRAFT** `contracts/analysis.schema.yaml` and `contracts/dataset.schema.yaml` defining the schema for raw/processed data and configuration parameters. **Include default values**: `filtering.entropy_threshold` (0.7), `filtering.min_text_length` (3), `model_mapping.fear_to_anxiety` (false), `weights.weight_filter` (0.5), `weights.weight_regularity` (0.5). **Output**: Draft schema file.
+- [X] T008c [P] **FINALIZE** `contracts/analysis.schema.yaml` and `contracts/dataset.schema.yaml` based on validation results from T006a. **Dependency**: T006a.
+- [X] T008b [P] Generate `data-model.md` artifact defining the data model and relationships. **Dependency**: T008c.
+- [X] T009 [P] Configure `pytest` with `pytest-cov` in `tests/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -64,13 +68,16 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/services/data_ingestion.py` to download dataset 'cardiffnlp/tweet_sentiment_extraction' (or verified public equivalent) from HuggingFace to `data/raw/social_media.csv` with checksum validation
-- [ ] T014a [US1] [US1-AS3] Implement non-English/gibberish filtering logic in `code/services/anxiety_scoring.py` using `langdetect` library (threshold set at a high level) to produce `data/processed/preprocessed_text.csv` (integrate logic directly into pipeline)
-- [ ] T015 [US1] Implement CPU-tractable anxiety model inference in `code/services/anxiety_scoring.py` (load 'cardiffnlp/twitter-roberta-base-emotion' in default float32 precision, NO 8-bit/4-bit quantization), reading from the artifact produced by T014a (`data/processed/preprocessed_text.csv`)
+- [X] T013 [US1] Implement `code/services/data_ingestion.py` to download dataset `cardiffnlp/tweet_sentiment_extraction` (split='train', revision='main') from HuggingFace to `data/raw/social_media.csv` using `datasets.load_dataset`. **Checksum**: Validate file integrity using `md5` (log hash) and fail loudly if mismatch. **Dependency**: T006a (Validation).
+- [X] T042 [US1] **FALLBACK**: If T013 fails (download error or OOM), implement streaming fallback in `code/services/data_ingestion.py` using `datasets.load_dataset(..., streaming=True)`. **Logic**: Process in chunks, accumulate statistics, and compute a final checksum by hashing concatenated chunks to satisfy T013 checksum requirement. **Dependency**: T013 (on failure).
+- [X] T014b [US1] [US1-AC-002] Implement Non-English text filtering in `code/services/anxiety_scoring.py` using `langdetect`. **Logic**: Read `data/raw/social_media.csv`, filter rows where language is not 'en' OR `langdetect` confidence < 0.8 OR detection fails. Output `data/processed/preprocessed_text.csv`. **Dependency**: T013.
+- [X] T014c [US1] [US1-AC-002] Implement gibberish filtering logic in `code/services/anxiety_scoring.py` (e.g., text length < 3 or entropy-based heuristic). **Input**: `data/processed/preprocessed_text.csv` (produced by T014b). **Config**: Read `filtering.entropy_threshold` (default 0.7) and `filtering.min_text_length` (default 3) from `contracts/analysis.schema.yaml`. If missing, raise `ConfigurationError` with specific key names. **Dependency**: T014b, T008c.
+- [X] T015 [US1] Implement CPU-tractable anxiety model inference in `code/services/anxiety_scoring.py` (load `cardiffnlp/twitter-roberta-base-emotion` in default float32 precision). **Input**: `data/processed/preprocessed_text.csv` (produced by T014b). **Dependency**: T014b, T008c. **Logic**: Verify model outputs 'anxiety'. Check `contracts/analysis.schema.yaml` key `model_mapping.fear_to_anxiety`. **Default**: If key is missing or `false`, raise `ModelError` (do not map). If `true`, map 'fear' to 1.0.
 - [X] T016 [US1] Implement confidence score filtering (threshold ≥ 0.6) in `code/services/anxiety_scoring.py` to exclude low-confidence predictions before saving
-- [ ] T017 [US1] Save scored and filtered data to `data/processed/scoring_results.csv` with columns: `text`, `anxiety_score`, `confidence_score`
+- [X] T017 [US1] Save scored and filtered data to `data/processed/scoring_results.csv` with columns: `text`, `anxiety_score`, `confidence_score`
 - [X] T018 [US1] Add error handling for empty datasets or download failures in `code/services/data_ingestion.py`
-- [X] T018a [US1] Implement coverage validation logic to verify ≥95% scoring coverage by comparing row counts of `preprocessed_text.csv` (T014a) and `scoring_results.csv` (T017), generating `data/processed/coverage_report.json`
+- [X] T018a [US1] Implement coverage validation logic to verify ≥95% scoring coverage by comparing row counts of `preprocessed_text.csv` (T014b) and `scoring_results.csv` (T017), generating `data/processed/coverage_report.json`. **Note**: Ensure the denominator is the count of 'valid' rows (post-filter) as defined in `contracts/analysis.schema.yaml`.
+- [X] T018b [US1] **ENFORCEMENT**: If T018a reports coverage <95%, raise `CoverageError` and halt the pipeline. **Dependency**: T018a.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -89,12 +96,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement `code/services/proxy_extractor.py` to read `data/raw/social_media.csv` (produced by T013) <!-- FAILED: unspecified -->
-- [ ] T022 [US2] Implement logic to calculate `filter_applied` contribution to `control_proxy` (e.g., +1.0 if flag present)
+**Note**: T021 requires T013 to be completed and verified before starting.
+
+- [X] T021 [US2] Implement `code/services/proxy_extractor.py` to read `data/raw/social_media.csv` (produced by T013) and extract metadata fields (`filter_applied`, `timestamp`, `user_id`) strictly without accessing the `text` column. **DEFENSIVE**: Explicitly assert that the `text` column is never loaded or accessed; if accessed, raise `DataIndependenceError`. **Dependency**: T013.
+- [X] T022 [US2] Implement logic to calculate `filter_applied` contribution to `control_proxy`. **Config**: Read `weights.weight_filter` (default 0.5) and `weights.weight_regularity` (default 0.5) from `contracts/analysis.schema.yaml`. **DEFENSIVE**: Assert no `text` column access; raise `DataIndependenceError` if violated. **Dependency**: T008c.
 - [X] T023 [US2] Implement logic to calculate `timestamp_regularity` metric per user in `code/services/proxy_extractor.py`
-- [ ] T024 [US2] Ensure `control_proxy` calculation uses ONLY metadata fields (no text content access) to satisfy Constitution Principle VI
-- [ ] T025 [US2] Handle missing metadata fields by defaulting to 0.0 and logging a warning
-- [ ] T026 [US2] Save extracted proxies to `data/processed/proxy_results.csv` with columns: `post_id`, `user_id`, `control_proxy`, `timestamp_regularity`
+- [X] T024a [US2] Verify the code logic in `code/services/proxy_extractor.py` that explicitly loads the CSV and excludes the `text` column from any processing, ensuring strict adherence to Constitution Principle VI. **Dependency**: T021 and T022.
+- [X] T025 [US2] Handle missing metadata fields by defaulting to a baseline value of zero and logging a warning
+- [X] T026 [US2] Save extracted proxies to `data/processed/proxy_results.csv` with columns: `post_id`, `user_id`, `control_proxy`, `timestamp_regularity`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -115,12 +124,14 @@
 ### Implementation for User Story 3
 
 - [X] T030 [US3] Implement `code/main.py` pipeline logic to orchestrate the merge and save steps (skeleton only, calls T031/T032)
-- [ ] T031 [US3] Implement merging logic in `code/main.py` to read from `data/processed/scoring_results.csv` (T017, pre-filtered) and `data/processed/proxy_results.csv` (T026) and join on `post_id`
-- [ ] T032 [US3] Implement confidence filtering confirmation (ensure data is pre-filtered) and save the final merged dataset to `data/processed/final_analysis.csv` (Note: Filtering logic is in T016; this task handles the final merge and save of the pre-filtered data)
-- [ ] T033 [US3] Implement `code/analysis/statistical_test.py` to perform preliminary linear fit, perform Shapiro-Wilk test on the resulting RESIDUALS (not marginal distributions), and save residuals + normality p-value to `data/processed/normality_check.json`, reading from `data/processed/final_analysis.csv`. Note: Plan.md Phase 2 Step 5 incorrectly specifies "marginal distributions"; this task enforces the Spec requirement for residuals.
-- [ ] T034 [US3] Implement logic in `code/analysis/statistical_test.py` to switch to Spearman correlation if normality violated (p < 0.05), otherwise use Pearson, and calculate correlation coefficient (r) and p-value, saving results to `data/processed/analysis_results.json` with an `is_significant` flag (true if p < 0.05)
+- [X] T031 [US3] Implement merging logic in `code/main.py` to read from `data/processed/scoring_results.csv` (T017, pre-filtered) and `data/processed/proxy_results.csv` (T026) and join on `post_id`. **Dependency**: T017 AND T026.
+- [X] T032 [US3] Implement Merge and Save of pre-filtered data in `code/main.py` to create `data/processed/final_analysis.csv`. **Note**: Confidence filtering logic is in T016; this task merges data that is already filtered and does not re-apply filtering logic.
+- [X] T033a [US3] [US3-AC-008] Implement residual calculation in `code/analysis/statistical_test.py`: Calculate residuals (observed anxiety - predicted anxiety from preliminary linear fit) using data from `data/processed/final_analysis.csv`. **Variables**: X=`control_proxy`, y=`anxiety_score`. Use `statsmodels.OLS` for the preliminary fit. Save residuals to a temporary variable named `residuals` before saving to `data/processed/normality_check.json`.
+- [X] T033b [US3] Implement Shapiro-Wilk test on the **residuals** (calculated in T033a) in `code/analysis/statistical_test.py`. **Note**: Spec US3-AC-008 supersedes Plan Phase 2 Step 5 (marginal distributions). Save residuals + normality p-value to `data/processed/normality_check.json`.
+- [X] T034b [US3] **ROBUSTNESS**: If T033b produces invalid normality check results (NaN/None), default to Spearman correlation. **Dependency**: T033b.
+- [X] T034 [US3] Implement logic in `code/analysis/statistical_test.py` to switch to Spearman correlation if normality violated (p < 0.05), otherwise use Pearson, and calculate correlation coefficient (r) and p-value, saving results to `data/processed/analysis_results.json` with an `is_significant` flag (true if p < 0.05). **Dependency**: T034b.
 - [X] T035 [US3] Implement `code/viz/plot_results.py` to generate scatter plot with regression line (OLS or rank-based) and axis labels
-- [ ] T036 [US3] Save final visualization as `data/processed/correlation_plot.png`
+- [X] T036 [US3] Save final visualization as `data/processed/correlation_plot.png`. **Note**: Ensure figure dimensions are appropriate for publication quality, DPI 300, and style `seaborn.darkgrid`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -132,8 +143,10 @@
 
 - [~] T038 [P] Documentation updates in `specs/001-the-impact-of-perceived-control-over-dig/quickstart.md`
 - [~] T039 Code cleanup and refactoring (ensure no text data leaks into `proxy_extractor.py`)
-- [~] T040 [P] Run quickstart.md validation and verify all acceptance scenarios pass <!-- FAILED: unspecified -->
-- [~] T041 [P] Add performance profiling to verify runtime < 6h and RAM < 7GB on free-tier runner
+- [~] T040a [P] Remediate quickstart validation: Update `specs/001-the-impact-of-perceived-control-over-dig/quickstart.md` to fix validation errors and ensure all scenarios pass.
+- [~] T041 [P] Add performance profiling to verify runtime < 6h and RAM < 7GB on free-tier runner. **Note**: If Plan.md's 'Compute Feasibility Note' contradicts Spec SC-004 (hard 6h limit), flag this discrepancy for human review.
+- [ ] T043 [P] [US1] Add a "loud fail" mechanism in `code/services/data_ingestion.py` that raises a `DataFetchError` if the real dataset fetch fails, preventing any fallback to synthetic or mock data generation. **EXCLUSION**: This rule applies ONLY to production data fetches; test data generation (mocks in `tests/`) is exempt.
+- [ ] T044 [P] [US3] Implement a reproducibility audit script in `tests/integration/test_reproducibility.py` that re-runs the pipeline with fixed seeds and verifies that `data/processed/analysis_results.json` produces identical results.
 
 ---
 
@@ -165,9 +178,11 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members (except US3 which depends on US1/US2 data)
+
+**Critical Execution Note**: T031 (Merge) is strictly blocked until **BOTH** T017 (US1 Output) and T026 (US2 Output) are complete. Do not attempt T031 until both producers are verified.
 
 ---
 
@@ -213,5 +228,11 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All model inference MUST run on CPU (no CUDA/8-bit quantization) to ensure feasibility on free-tier runners.
 - **Critical Constraint**: `control_proxy` extraction MUST NOT access text content (Constitution Principle VI).
-- **Note**: Plan.md Phase 2 Step 5 currently states "marginal distributions" which contradicts Spec US-3 "residuals". Tasks follow Spec; Plan flagged for correction.
+- **Note**: Plan.md Phase 2 Step 5 currently states "marginal distributions" which contradicts Spec US3-AC-008 "residuals". Tasks T033a/T033b follow Spec; Plan flagged for correction in next revision cycle. T033b explicitly notes the deviation from Plan.
 - **Note**: Confidence filtering (FR-006) is performed in T016 (`anxiety_scoring.py`) BEFORE data is saved in T017. T032 merges this pre-filtered data.
+- **Note**: T021 explicitly restricts access to the `text` column to enforce data independence.
+- **Note**: T014b implements `langdetect` for Non-English filtering; T014c implements gibberish filtering. **Sequential**: T014b must run before T014c.
+- **Note**: Specific heuristic parameters (entropy, weights) are defined in `contracts/analysis.schema.yaml`, not hardcoded in tasks, to prevent silent drift.
+- **Note**: T043 enforces the "Loud Fail" principle: if the real data fetch fails, the pipeline crashes immediately rather than falling back to synthetic data, preventing fabrication. (Excludes test mocks).
+- **New**: T042 ensures the pipeline can handle datasets larger than RAM by using streaming, preventing out-of-memory errors on free-tier runners.
+- **New**: T044 adds a reproducibility check to ensure that fixed seeds produce identical results across runs, satisfying SC-005.

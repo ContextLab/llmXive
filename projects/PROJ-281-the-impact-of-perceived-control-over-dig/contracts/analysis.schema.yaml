@@ -1,0 +1,36 @@
+# Contract definitions for analysis parameters
+# This file defines the weights and thresholds used in the control proxy calculation.
+# All values must be read from this file by the proxy_extractor module.
+
+control_proxy_weights:
+  # Weight for the 'filter_applied' boolean field (1 if applied, 0 otherwise)
+  # This value is added to the raw control proxy score.
+  filter_applied: 0.25
+
+  # Weight for timestamp regularity (0.0 to 1.0)
+  # This is a multiplier or additive factor depending on the implementation strategy.
+  # Here we treat it as a direct contribution to the final score.
+  timestamp_regularity: 0.50
+
+text_quality_filters:
+  # Minimum text length to be considered valid
+  min_length: 3
+  # Entropy threshold for gibberish detection
+  entropy_threshold: 2.5
+
+anxiety_model:
+  # Confidence threshold for filtering low-confidence predictions
+  confidence_threshold: 0.6
+  # Label mapping if the model does not output 'anxiety' directly
+  label_mapping:
+    fear: 1.0
+    joy: 0.0
+    sadness: 0.8
+    anger: 0.9
+    surprise: 0.2
+    neutral: 0.1
+    anxiety: 1.0
+
+coverage_validation:
+  # Minimum required coverage percentage (0.0 to 1.0)
+  min_coverage: 0.95

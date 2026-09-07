@@ -1,11 +1,3 @@
-"""
-Proxy Extractor Service
-
-Extracts metadata-based proxies representing "perceived control" from social media posts.
-STRICT CONSTRAINT: This module MUST NOT access or process text content (Constitution Principle VI).
-All calculations rely solely on metadata fields: post_id, user_id, timestamp, filter_applied, etc.
-"""
-
 import json
 import logging
 from pathlib import Path
@@ -15,211 +7,201 @@ import numpy as np
 
 from code.config import CONFIG
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
+def load_analysis_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load analysis configuration parameters from contracts/analysis.schema.yaml."""
+    if config_path is None:
+        config_path = str(CONFIG.PROJECT_ROOT / "contracts" / "analysis.schema.yaml")
+    
+    path = Path(config_path)
+    if not path.exists():
+        logger.warning(f"Configuration file not found at {config_path}. Using defaults.")
+        return {
+            "filter_applied_weight": 0.5,
+            "timestamp_regularity_weight": 0.5,
+            "missing_metadata_default": 0.0
+        }
+    
+    with open(path, 'r') as f:
+        # Simple YAML parser for flat structure or use yaml if available
+        # Assuming simple key: value format for this task
+        config = {}
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                if ':' in line:
+                    key, value = line.split(':', 1)
+                    key = key.strip()
+                    value = value.strip()
+                    try:
+                        config[key] = float(value)
+                    except ValueError:
+                        config[key] = value
+        return config
 
-def calculate_filter_applied_contribution(row: pd.Series) -> float:
-    """
-    Calculate the contribution of filter_applied flag to control_proxy.
+def calculate_filter_applied_contribution(filter_applied: Optional[bool], config: Dict[str, Any]) -> float:
+    """Calculate contribution of filter_applied to control proxy."""
+    weight = config.get("filter_applied_weight", 0.5)
+    default_val = config.get("missing_metadata_default", 0.0)
     
-    Args:
-        row: A DataFrame row containing metadata (specifically 'filter_applied')
+    if filter_applied is None:
+        logger.warning("Missing filter_applied metadata, defaulting to 0.0")
+        return default_val
     
-    Returns:
-        float: +1.0 if filter_applied is True/1, else 0.0
-    """
-    # Explicitly check for the flag in metadata only
-    filter_val = row.get('filter_applied', False)
-    
-    # Handle various boolean representations
-    if filter_val is True or filter_val == 1 or filter_val == 'true':
-        return 1.0
-    return 0.0
+    return float(filter_applied) * weight
 
-
-def calculate_timestamp_regularity(user_timestamps: List[str]) -> float:
-    """
-    Calculate timestamp regularity metric for a user.
-    
-    Measures how regular a user's posting schedule is.
-    Returns a value between 0.0 (irregular) and 1.0 (highly regular).
-    
-    Args:
-        user_timestamps: List of timestamp strings for a single user
-    
-    Returns:
-        float: Regularity score (0.0 to 1.0)
-    """
-    if len(user_timestamps) < 2:
+def calculate_timestamp_regularity(timestamps: List[Any]) -> float:
+    """Calculate timestamp regularity metric for a user's posts."""
+    if not timestamps or len(timestamps) < 2:
         return 0.0
     
     try:
-        # Parse timestamps
-        timestamps = pd.to_datetime(user_timestamps)
-        timestamps = timestamps.sort_values()
+        # Convert to datetime if strings
+        if isinstance(timestamps[0], str):
+            ts = pd.to_datetime(timestamps)
+        else:
+            ts = pd.Series(timestamps)
         
-        # Calculate time differences between consecutive posts
-        diffs = timestamps.diff().dropna()
-        
-        if len(diffs) < 1:
+        # Calculate time differences
+        diffs = ts.diff().dropna().abs()
+        if len(diffs) == 0:
             return 0.0
         
-        # Convert to hours
-        diffs_hours = diffs.dt.total_seconds() / 3600
-        
-        # Calculate coefficient of variation (std/mean)
-        mean_diff = diffs_hours.mean()
-        std_diff = diffs_hours.std()
+        # Regularity: inverse of coefficient of variation of time differences
+        mean_diff = diffs.mean()
+        std_diff = diffs.std()
         
         if mean_diff == 0:
-            return 1.0  # Perfectly regular (all posts at same time)
+            return 1.0  # Perfectly regular if all same time
         
         cv = std_diff / mean_diff
-        
-        # Convert CV to a 0-1 scale (lower CV = higher regularity)
-        # Using exponential decay: regularity = exp(-cv)
-        regularity = np.exp(-cv)
-        
-        return float(np.clip(regularity, 0.0, 1.0))
-        
+        regularity = 1.0 / (1.0 + cv)  # Normalize to [0, 1]
+        return float(regularity)
     except Exception as e:
         logger.warning(f"Error calculating timestamp regularity: {e}")
         return 0.0
 
+def calculate_control_proxy(filter_applied_contribution: float, timestamp_regularity: float, config: Dict[str, Any]) -> float:
+    """Calculate final control proxy score."""
+    timestamp_weight = config.get("timestamp_regularity_weight", 0.5)
+    filter_weight = config.get("filter_applied_weight", 0.5)
+    
+    # Normalize weights to sum to 1 if needed
+    total_weight = filter_weight + timestamp_weight
+    if total_weight > 0:
+        filter_weight = filter_weight / total_weight
+        timestamp_weight = timestamp_weight / total_weight
+    
+    return (filter_applied_contribution * filter_weight) + (timestamp_regularity * timestamp_weight)
 
-def calculate_control_proxy(row: pd.Series, user_regularity: float) -> float:
+def run_proxy_extraction_pipeline(input_path: Optional[str] = None, config_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Calculate the final control_proxy score.
-    
-    Combines filter_applied contribution and timestamp regularity.
-    Formula: control_proxy = (filter_contribution * 0.5) + (regularity * 0.5)
-    
-    Args:
-        row: DataFrame row with metadata
-        user_regularity: Pre-calculated timestamp regularity for the user
-    
-    Returns:
-        float: Control proxy score between 0.0 and 1.0
+    Run the proxy extraction pipeline.
+    Reads metadata from input CSV (excluding text column) and calculates control proxies.
     """
-    filter_contribution = calculate_filter_applied_contribution(row)
+    if input_path is None:
+        input_path = str(CONFIG.RAW_DATA_PATH / "social_media.csv")
     
-    # Weighted average: 50% filter, 50% regularity
-    control_proxy = (filter_contribution * 0.5) + (user_regularity * 0.5)
-    
-    return float(np.clip(control_proxy, 0.0, 1.0))
-
-
-def run_proxy_extraction_pipeline(input_path: Path, output_path: Path) -> Dict[str, Any]:
-    """
-    Main pipeline for proxy extraction.
-    
-    Reads raw social media data, extracts control proxies from metadata only,
-    and saves results to CSV.
-    
-    Args:
-        input_path: Path to input CSV (data/raw/social_media.csv)
-        output_path: Path to output CSV (data/processed/proxy_results.csv)
-    
-    Returns:
-        Dict with pipeline statistics
-    """
-    logger.info(f"Starting proxy extraction pipeline from {input_path}")
-    
-    # Validate input exists
-    if not input_path.exists():
+    input_file = Path(input_path)
+    if not input_file.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    # Load data
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    logger.info(f"Loading data from {input_path}")
+    df = pd.read_csv(input_file)
     
-    # CRITICAL: Verify we are NOT accessing text columns
-    text_cols = ['text', 'tweet', 'content', 'message', 'post_content']
-    for col in text_cols:
-        if col in df.columns:
-            logger.warning(f"WARNING: Text column '{col}' detected but NOT used in proxy calculation")
+    # Ensure required columns exist, handle missing with defaults
+    required_cols = ['post_id', 'user_id']
+    optional_cols = ['filter_applied', 'timestamp']
+    
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Required column '{col}' not found in input data")
+    
+    # Handle optional columns with defaults (T025 implementation)
+    config = load_analysis_config(config_path)
+    default_val = config.get("missing_metadata_default", 0.0)
+    
+    for col in optional_cols:
+        if col not in df.columns:
+            logger.warning(f"Missing optional column '{col}', defaulting all rows to {default_val}")
+            df[col] = default_val
+        else:
+            # Check for null values and log warnings
+            null_count = df[col].isnull().sum()
+            if null_count > 0:
+                logger.warning(f"Column '{col}' has {null_count} missing values, defaulting to {default_val}")
+                df[col] = df[col].fillna(default_val)
+    
+    # Extract only metadata columns (no text access - Constitution Principle VI)
+    metadata_cols = ['post_id', 'user_id'] + [c for c in optional_cols if c in df.columns]
+    df_metadata = df[metadata_cols].copy()
+    
+    # Calculate filter_applied contribution
+    df_metadata['filter_applied_contribution'] = df_metadata['filter_applied'].apply(
+        lambda x: calculate_filter_applied_contribution(x, config)
+    )
     
     # Calculate timestamp regularity per user
-    logger.info("Calculating timestamp regularity per user...")
-    user_regularity = {}
+    def get_user_regularity(group):
+        return calculate_timestamp_regularity(group['timestamp'])
     
-    # Group by user_id and calculate regularity
-    if 'user_id' in df.columns and 'timestamp' in df.columns:
-        for user_id, group in df.groupby('user_id'):
-            timestamps = group['timestamp'].dropna().tolist()
-            if len(timestamps) > 0:
-                user_regularity[user_id] = calculate_timestamp_regularity(timestamps)
-        logger.info(f"Calculated regularity for {len(user_regularity)} unique users")
-    else:
-        logger.warning("Missing 'user_id' or 'timestamp' columns, defaulting regularity to 0.0")
-        user_regularity = {}
+    user_regularity = df_metadata.groupby('user_id').apply(get_user_regularity).reset_index()
+    user_regularity.columns = ['user_id', 'timestamp_regularity']
     
-    # Calculate control_proxy for each row
-    logger.info("Calculating control_proxy for each post...")
-    df['control_proxy'] = df.apply(
+    # Merge back
+    df_metadata = df_metadata.merge(user_regularity, on='user_id', how='left')
+    
+    # Calculate final control proxy
+    df_metadata['control_proxy'] = df_metadata.apply(
         lambda row: calculate_control_proxy(
-            row, 
-            user_regularity.get(row.get('user_id'), 0.0)
+            row['filter_applied_contribution'],
+            row['timestamp_regularity'],
+            config
         ),
         axis=1
     )
     
-    # Prepare output dataframe
-    output_cols = ['post_id', 'user_id', 'control_proxy', 'timestamp_regularity']
+    # Select final output columns
+    result = df_metadata[['post_id', 'user_id', 'control_proxy', 'timestamp_regularity']]
     
-    # Add timestamp_regularity column (user-level value)
-    df['timestamp_regularity'] = df['user_id'].map(
-        lambda uid: user_regularity.get(uid, 0.0)
-    )
-    
-    # Ensure required columns exist
-    for col in output_cols:
-        if col not in df.columns:
-            if col == 'post_id':
-                df['post_id'] = range(len(df))
-            elif col == 'user_id':
-                df['user_id'] = ['unknown'] * len(df)
-            else:
-                df[col] = 0.0
-    
-    # Select and save output
-    result_df = df[output_cols].copy()
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save to CSV
-    result_df.to_csv(output_path, index=False)
-    logger.info(f"Saved proxy results to {output_path}")
-    
-    # Return statistics
-    stats = {
-        'total_rows': len(df),
-        'unique_users': len(user_regularity),
-        'output_rows': len(result_df),
-        'avg_control_proxy': float(result_df['control_proxy'].mean()),
-        'min_control_proxy': float(result_df['control_proxy'].min()),
-        'max_control_proxy': float(result_df['control_proxy'].max()),
-        'output_path': str(output_path)
-    }
-    
-    logger.info(f"Pipeline completed. Stats: {stats}")
-    return stats
+    logger.info(f"Proxy extraction complete. Processed {len(result)} rows.")
+    return result
 
+def run_full_proxy_pipeline(input_path: Optional[str] = None, 
+                            output_path: Optional[str] = None,
+                            config_path: Optional[str] = None) -> str:
+    """
+    Run full proxy extraction pipeline including saving results.
+    Returns path to output file.
+    """
+    if output_path is None:
+        output_path = str(CONFIG.PROCESSED_DATA_PATH / "proxy_results.csv")
+    
+    results_df = run_proxy_extraction_pipeline(input_path, config_path)
+    
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    results_df.to_csv(output_file, index=False)
+    logger.info(f"Proxy results saved to {output_path}")
+    
+    return output_path
 
-def run_full_proxy_pipeline() -> Dict[str, Any]:
-    """
-    Full pipeline entry point using configured paths.
+def main():
+    """CLI entry point for proxy extraction."""
+    import argparse
     
-    Returns:
-        Dict with pipeline statistics
-    """
-    input_path = Path(CONFIG.DATA_RAW_DIR) / 'social_media.csv'
-    output_path = Path(CONFIG.DATA_PROCESSED_DIR) / 'proxy_results.csv'
+    parser = argparse.ArgumentParser(description="Extract control proxies from social media metadata")
+    parser.add_argument("--input", type=str, default=None, help="Input CSV path")
+    parser.add_argument("--output", type=str, default=None, help="Output CSV path")
+    parser.add_argument("--config", type=str, default=None, help="Config YAML path")
     
-    return run_proxy_extraction_pipeline(input_path, output_path)
+    args = parser.parse_args()
+    
+    output = run_full_proxy_pipeline(args.input, args.output, args.config)
+    print(f"Completed. Output: {output}")
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    main()

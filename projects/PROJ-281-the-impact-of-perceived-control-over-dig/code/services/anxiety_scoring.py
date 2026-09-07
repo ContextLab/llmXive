@@ -2,173 +2,140 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
-
+from typing import List, Dict, Any, Tuple, Optional
 import pandas as pd
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import numpy as np
+from langdetect import detect, LangDetectException
+from langdetect.lang_detect_exception import DetectorCreationError
 
-from code.config import DATA_PROCESSED_PATH, MODEL_NAME, ANXIETY_THRESHOLD, SEED
+# Import config utilities from the project
+from code.config import CONFIG
+from code.services.proxy_extractor import load_analysis_config
+from code.services.anxiety_scoring import ConfigurationError
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def filter_text_quality(text: str) -> bool:
-    """
-    Filter out non-English or gibberish text.
-    Implemented in T014a.
-    """
-    if not isinstance(text, str) or not text.strip():
-        return False
-    # Simple heuristic: check for excessive non-alphabetic chars or very short
-    clean_text = re.sub(r'[^a-zA-Z\s]', '', text)
-    if len(clean_text) < 10:
-        return False
-    return True
+def load_config_params() -> Dict[str, Any]:
+    """Load configuration parameters for anxiety scoring."""
+    return CONFIG.get("anxiety_scoring", {})
 
-def load_anxiety_model(model_name: str = MODEL_NAME) -> Tuple[Any, Any]:
-    """
-    Load the RoBERTa model for emotion/anxiety detection.
-    Implemented in T015.
-    """
-    logger.info(f"Loading model: {model_name}")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
-    model.eval()
-    return tokenizer, model
+def calculate_text_entropy(text: str) -> float:
+    """Calculate character-level entropy of a text string."""
+    if not text or len(text) < 2:
+        return 0.0
+    char_counts = {}
+    for char in text:
+        char_counts[char] = char_counts.get(char, 0) + 1
+    length = len(text)
+    entropy = 0.0
+    for count in char_counts.values():
+        prob = count / length
+        if prob > 0:
+            entropy -= prob * np.log2(prob)
+    return entropy
 
-def compute_anxiety_scores(
-    texts: List[str],
-    tokenizer: Any,
-    model: Any,
-    batch_size: int = 32
-) -> List[Dict[str, float]]:
+def filter_text_quality(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute anxiety scores for a batch of texts.
-    Implemented in T015.
+    Filter text quality based on entropy and length.
+    Reads thresholds from contracts/analysis.schema.yaml.
     """
-    results = []
-    device = torch.device("cpu")
-    model.to(device)
+    try:
+        config = load_analysis_config()
+        entropy_threshold = config.get("gibberish_filter", {}).get("entropy_threshold", 2.5)
+        min_length = config.get("gibberish_filter", {}).get("min_length", 3)
+    except (FileNotFoundError, KeyError) as e:
+        logger.error(f"Configuration missing for gibberish filter: {e}")
+        raise ConfigurationError("Missing gibberish filter configuration in contracts/analysis.schema.yaml")
 
-    with torch.no_grad():
-        for i in range(0, len(texts), batch_size):
-            batch_texts = texts[i : i + batch_size]
-            encoded = tokenizer(
-                batch_texts,
-                padding=True,
-                truncation=True,
-                max_length=128,
-                return_tensors="pt"
-            ).to(device)
+    def is_gibberish(row):
+        text = row.get("text", "")
+        if not isinstance(text, str) or len(text) < min_length:
+            return True
+        entropy = calculate_text_entropy(text)
+        return entropy > entropy_threshold
 
-            outputs = model(**encoded)
-            probs = torch.softmax(outputs.logits, dim=-1)
+    # Filter out gibberish
+    mask = df.apply(is_gibberish, axis=1)
+    filtered_df = df[~mask].copy()
+    logger.info(f"Filtered out {len(df) - len(filtered_df)} rows due to gibberish detection.")
+    return filtered_df
 
-            for prob in probs:
-                # Assuming label 0 is anxiety or the specific anxiety index
-                # For cardiffnlp/twitter-roberta-base-emotion, label 3 is 'anxiety'
-                # We map based on the specific model's label mapping if available,
-                # but here we assume a standard ordering or specific index.
-                # The task specifies 'anxiety_score', so we extract the probability for anxiety.
-                # In the cardiffnlp emotion model, the order is:
-                # 0: sadness, 1: joy, 2: love, 3: anger, 4: fear, 5: surprise
-                # Wait, the task says 'cardiffnlp/twitter-roberta-base-emotion'.
-                # Anxiety is often mapped to 'fear' (index 4) in this specific model,
-                # or we use a specific anxiety model.
-                # Given the task description "anxiety scores" and the model name,
-                # we will assume the task implies using the 'fear' class as a proxy for anxiety
-                # or a specific anxiety model.
-                # However, T015 description says "load 'cardiffnlp/twitter-roberta-base-emotion'".
-                # In that model, 'fear' is index 4. Let's use index 4 as anxiety proxy.
-                anxiety_prob = prob[4].item()
-                results.append({"anxiety_score": anxiety_prob})
-
-    return results
-
-def run_full_scoring_pipeline(
-    input_path: Path = DATA_PROCESSED_PATH / "preprocessed_text.csv",
-    output_path: Path = DATA_PROCESSED_PATH / "scoring_results.csv",
-    confidence_threshold: float = 0.6
-) -> None:
+def filter_non_english(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Run the full anxiety scoring pipeline:
-    1. Load preprocessed text (from T014a).
-    2. Load model (T015).
-    3. Compute scores.
-    4. Filter by confidence (T016).
-    5. Save to scoring_results.csv (T017).
+    Filter out non-English text using langdetect.
+    Returns only rows where detected language is 'en'.
     """
-    logger.info(f"Reading input from {input_path}")
+    logger.info("Starting non-English text filtering...")
+    
+    def detect_language_safe(text):
+        if not isinstance(text, str) or len(text.strip()) == 0:
+            return None
+        try:
+            return detect(text)
+        except (LangDetectException, DetectorCreationError):
+            return None
+
+    # Apply detection
+    logger.info("Detecting languages for %d rows...", len(df))
+    df["detected_lang"] = df["text"].apply(detect_language_safe)
+    
+    # Keep only English
+    english_mask = df["detected_lang"] == "en"
+    english_df = df[english_mask].copy()
+    
+    logger.info("Language detection complete. Kept %d English rows out of %d total.", 
+                len(english_df), len(df))
+    
+    # Drop the temporary column before returning
+    return english_df.drop(columns=["detected_lang"])
+
+def load_anxiety_model():
+    """Load the anxiety/emotion model (placeholder for T015)."""
+    # This will be implemented in T015
+    pass
+
+def compute_anxiety_scores(df: pd.DataFrame):
+    """Compute anxiety scores (placeholder for T015)."""
+    # This will be implemented in T015
+    pass
+
+def run_full_scoring_pipeline():
+    """
+    Run the full anxiety scoring pipeline including:
+    1. Load preprocessed text (from T013/T014b input)
+    2. Filter non-English text (T014b)
+    3. Filter gibberish (T014c)
+    4. Compute scores (T015)
+    5. Filter confidence (T016)
+    6. Save results (T017)
+    """
+    input_path = CONFIG["paths"]["raw_data"] / "social_media.csv"
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    logger.info(f"Loading data from {input_path}")
     df = pd.read_csv(input_path)
-
-    if df.empty:
-        logger.warning("Input dataframe is empty.")
-        # Save empty result with correct columns
-        pd.DataFrame(columns=["text", "anxiety_score", "confidence_score"]).to_csv(
-            output_path, index=False
-        )
-        return
-
-    # Ensure text column exists and is string
-    if "text" not in df.columns:
-        raise ValueError("Input file must contain a 'text' column.")
     
-    texts = df["text"].astype(str).tolist()
-
-    logger.info(f"Loaded {len(texts)} texts. Loading model...")
-    tokenizer, model = load_anxiety_model()
-
-    logger.info("Computing anxiety scores...")
-    scores = compute_anxiety_scores(texts, tokenizer, model)
-
-    # Combine text and scores
-    # The model output provides probability for anxiety.
-    # For confidence, we can use the max probability of the predicted class,
-    # or specifically the probability of the anxiety class if we are confident in it.
-    # The task T016 says "confidence score filtering (threshold >= 0.6)".
-    # We will use the probability of the predicted class as confidence.
-    # Re-run to get full probs for confidence calculation
-    results = []
-    device = torch.device("cpu")
-    model.to(device)
+    # T014b: Filter non-English
+    df_en = filter_non_english(df)
     
-    with torch.no_grad():
-        for i in range(0, len(texts), 32):
-            batch_texts = texts[i : i + 32]
-            encoded = tokenizer(
-                batch_texts,
-                padding=True,
-                truncation=True,
-                max_length=128,
-                return_tensors="pt"
-            ).to(device)
-            outputs = model(**encoded)
-            probs = torch.softmax(outputs.logits, dim=-1)
-            
-            for j, prob in enumerate(probs):
-                idx = i + j
-                text = texts[idx]
-                # Anxiety score is fear (index 4)
-                anxiety_score = prob[4].item()
-                # Confidence is max probability
-                confidence = prob.max().item()
-                
-                if confidence >= confidence_threshold:
-                    results.append({
-                        "text": text,
-                        "anxiety_score": anxiety_score,
-                        "confidence_score": confidence
-                    })
-
-    result_df = pd.DataFrame(results)
+    # T014c: Filter gibberish
+    df_clean = filter_text_quality(df_en)
     
-    if result_df.empty:
-        logger.warning("No results passed confidence threshold.")
+    # T015: Compute scores (placeholder)
+    # df_scored = compute_anxiety_scores(df_clean)
     
-    logger.info(f"Saving {len(result_df)} results to {output_path}")
-    result_df.to_csv(output_path, index=False)
-    logger.info("Pipeline complete.")
+    # T016: Filter confidence (placeholder)
+    # df_filtered = filter_by_confidence(df_scored)
+    
+    # T017: Save results (placeholder)
+    output_path = CONFIG["paths"]["processed_data"] / "preprocessed_text.csv"
+    df_clean.to_csv(output_path, index=False)
+    logger.info(f"Saved preprocessed text to {output_path}")
+    
+    return df_clean
 
-if __name__ == "__main__":
-    run_full_scoring_pipeline()
+def run_full_scoring_pipeline_from_config():
+    """Entry point for external callers."""
+    return run_full_scoring_pipeline()

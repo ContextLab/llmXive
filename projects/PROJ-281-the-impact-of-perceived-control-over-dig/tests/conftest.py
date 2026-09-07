@@ -1,18 +1,39 @@
 """
-Pytest configuration and fixtures for the llmXive project.
-
-This file configures pytest-cov and provides shared fixtures.
+Pytest configuration and fixtures.
 """
-import pytest
+import os
 import sys
 from pathlib import Path
 
-# Add project root to path to ensure imports work correctly during tests
-@pytest.fixture(autouse=True)
-def add_project_root_to_path():
-    root = Path(__file__).parent.parent
-    if str(root) not in sys.path:
-        sys.path.insert(0, str(root))
-    yield
-    if str(root) in sys.path:
-        sys.path.remove(str(root))
+# Add the project root to the path so imports work correctly
+# This ensures we import from 'code' package, not local scripts
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+import pytest
+
+@pytest.fixture(scope="session")
+def project_root_path():
+    """Return the project root directory path."""
+    return Path(__file__).parent.parent
+
+@pytest.fixture(scope="session")
+def data_dir(project_root_path):
+    """Return the data directory path."""
+    return project_root_path / "data"
+
+@pytest.fixture(scope="session")
+def raw_data_dir(data_dir):
+    """Return the raw data directory path."""
+    return data_dir / "raw"
+
+@pytest.fixture(scope="session")
+def processed_data_dir(data_dir):
+    """Return the processed data directory path."""
+    return data_dir / "processed"
+
+@pytest.fixture(scope="session")
+def code_dir(project_root_path):
+    """Return the code directory path."""
+    return project_root_path / "code"

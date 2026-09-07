@@ -1,131 +1,73 @@
 """
-Integration test for proxy_saver.py service.
+Integration test for the Proxy Saver pipeline (T026).
 
-Tests the full pipeline from proxy extraction to saving results.
-Verifies T026: data/processed/proxy_results.csv is created with correct format.
+This test verifies that the full pipeline (Extraction + Saving) works
+end-to-end and produces the expected artifact.
 """
-
 import pytest
 import pandas as pd
 from pathlib import Path
 import tempfile
-import os
-import json
+import shutil
+from unittest.mock import patch, MagicMock
 
-from code.services.proxy_saver import run_proxy_saver_pipeline, save_proxy_results
+from code.services.proxy_saver import run_proxy_saver_pipeline
 from code.config import CONFIG
 
 @pytest.fixture
-def mock_proxy_extractor(monkeypatch):
-    """Mock the proxy extractor to return predictable data."""
-    mock_data = [
-        {
-            'post_id': 'test_post_1',
-            'user_id': 'test_user_1',
-            'control_proxy': 0.75,
-            'timestamp_regularity': 0.88
-        },
-        {
-            'post_id': 'test_post_2',
-            'user_id': 'test_user_1',
-            'control_proxy': 0.65,
-            'timestamp_regularity': 0.92
-        },
-        {
-            'post_id': 'test_post_3',
-            'user_id': 'test_user_2',
-            'control_proxy': 0.85,
-            'timestamp_regularity': 0.78
-        }
-    ]
-    
-    def mock_run_proxy_extraction_pipeline():
-        return mock_data
-    
-    monkeypatch.setattr(
-        'code.services.proxy_saver.run_proxy_extraction_pipeline',
-        mock_run_proxy_extraction_pipeline
-    )
+def mock_extracted_data():
+    """Mock data that simulates the output of run_proxy_extraction_pipeline."""
+    return pd.DataFrame({
+        'post_id': [1001, 1002, 1003, 1004, 1005],
+        'user_id': ['user_A', 'user_B', 'user_A', 'user_C', 'user_B'],
+        'control_proxy': [1.2, 0.5, 1.8, 0.0, 0.9],
+        'timestamp_regularity': [0.85, 0.12, 0.91, 0.05, 0.45]
+    })
 
-def test_run_proxy_saver_pipeline_creates_file(mock_proxy_extractor, tmp_path):
-    """Test that the full pipeline creates the output file."""
-    # Override output path
-    test_output_path = tmp_path / "proxy_results.csv"
-    original_path = CONFIG.PROXY_RESULTS_PATH
-    CONFIG.PROXY_RESULTS_PATH = test_output_path
-    
-    try:
-        result_path = run_proxy_saver_pipeline()
-        
-        assert result_path.exists()
-        assert result_path == test_output_path
-    finally:
-        CONFIG.PROXY_RESULTS_PATH = original_path
-
-def test_run_proxy_saver_pipeline_correct_format(mock_proxy_extractor, tmp_path):
-    """Test that the output file has correct format and content."""
-    test_output_path = tmp_path / "proxy_results.csv"
-    original_path = CONFIG.PROXY_RESULTS_PATH
-    CONFIG.PROXY_RESULTS_PATH = test_output_path
-    
-    try:
-        run_proxy_saver_pipeline()
-        
-        df = pd.read_csv(test_output_path)
-        
-        # Check columns
-        expected_columns = ['post_id', 'user_id', 'control_proxy', 'timestamp_regularity']
-        assert list(df.columns) == expected_columns
-        
-        # Check data types
-        assert df['control_proxy'].dtype in ['float64', 'float32']
-        assert df['timestamp_regularity'].dtype in ['float64', 'float32']
-        
-        # Check values
-        assert len(df) == 3
-        assert df.iloc[0]['post_id'] == 'test_post_1'
-        assert df.iloc[0]['control_proxy'] == 0.75
-    finally:
-        CONFIG.PROXY_RESULTS_PATH = original_path
-
-def test_run_proxy_saver_pipeline_integration_with_real_data(tmp_path):
+def test_full_proxy_saver_pipeline(mock_extracted_data, tmp_path):
     """
-    Integration test with real proxy extraction data (if available).
-    This test verifies the end-to-end flow when real data is present.
+    Integration test: Runs the proxy saver pipeline with mocked extraction.
+    
+    Verifies:
+    1. The pipeline executes without error.
+    2. The file `proxy_results.csv` is created in the expected location.
+    3. The content matches the input data.
     """
-    # This test is skipped if raw data is not available
-    raw_data_path = CONFIG.RAW_DATA_PATH
-    if not raw_data_path.exists():
-        pytest.skip("Raw data file not available for integration test")
+    # Create a temporary directory to act as the project root for this test
+    # We patch CONFIG.PROCESSED_DIR to point to this temp dir
+    original_processed_dir = CONFIG.PROCESSED_DIR
     
-    # Override output path
-    test_output_path = tmp_path / "proxy_results.csv"
-    original_path = CONFIG.PROXY_RESULTS_PATH
-    CONFIG.PROXY_RESULTS_PATH = test_output_path
+    # We need to mock the config path or the function to use a temp path
+    # Since CONFIG is a module-level object, we patch the attribute used in the function
+    # The function uses CONFIG.PROCESSED_DIR directly.
     
-    try:
-        # Run the pipeline
-        result_path = run_proxy_saver_pipeline()
-        
-        # Verify output
-        assert result_path.exists()
-        
-        df = pd.read_csv(result_path)
-        
-        # Verify minimum requirements
-        assert len(df) > 0
-        assert 'post_id' in df.columns
-        assert 'user_id' in df.columns
-        assert 'control_proxy' in df.columns
-        assert 'timestamp_regularity' in df.columns
-        
-        # Verify no null values in required columns
-        assert not df['control_proxy'].isnull().any()
-        assert not df['timestamp_regularity'].isnull().any()
-    except Exception as e:
-        # If proxy extraction fails due to missing dependencies, skip
-        if "langdetect" in str(e) or "transformers" in str(e):
-            pytest.skip(f"Dependency not available: {e}")
-        raise
-    finally:
-        CONFIG.PROXY_RESULTS_PATH = original_path
+    temp_processed_dir = tmp_path / "processed"
+    temp_processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Patch the CONFIG.PROCESSED_DIR temporarily
+    with patch.object(CONFIG, 'PROCESSED_DIR', temp_processed_dir):
+        # Also need to mock the extraction function to return our mock data
+        # instead of running the real heavy extraction logic
+        with patch('code.services.proxy_saver.run_proxy_extraction_pipeline', return_value=mock_extracted_data):
+            # Run the pipeline
+            run_proxy_saver_pipeline()
+    
+    # Verify output file exists
+    output_file = temp_processed_dir / "proxy_results.csv"
+    assert output_file.exists(), "proxy_results.csv was not created."
+    
+    # Verify content
+    loaded_df = pd.read_csv(output_file)
+    pd.testing.assert_frame_equal(loaded_df, mock_extracted_data)
+    
+    # Verify columns match T026 spec exactly
+    expected_cols = ['post_id', 'user_id', 'control_proxy', 'timestamp_regularity']
+    assert list(loaded_df.columns) == expected_cols, "Columns do not match T026 specification."
+
+def test_pipeline_handles_extraction_failure():
+    """
+    Integration test: Verifies the pipeline fails loudly if extraction returns None.
+    """
+    with patch('code.services.proxy_saver.run_proxy_extraction_pipeline', return_value=None):
+        with pytest.raises(RuntimeError, match="Proxy extraction failed"):
+            run_proxy_saver_pipeline()

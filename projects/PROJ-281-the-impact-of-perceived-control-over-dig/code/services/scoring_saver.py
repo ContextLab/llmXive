@@ -1,14 +1,11 @@
 """
-Scoring Saver Service for User Story 1.
-
-Responsible for saving the scored and filtered anxiety data to disk.
-This module implements Task T017.
+Scoring Saver Service
+Implements T017: Save scored and filtered data to data/processed/scoring_results.csv
 """
 import logging
 import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
 from code.config import CONFIG
 from code.services.anxiety_scoring import run_full_scoring_pipeline
 
@@ -16,71 +13,85 @@ logger = logging.getLogger(__name__)
 
 
 def save_scoring_results(
-    input_data: pd.DataFrame,
+    data: pd.DataFrame,
     output_path: Optional[Path] = None
 ) -> Path:
     """
-    Save scored and filtered data to CSV.
-    
+    Save the scored and filtered anxiety data to a CSV file.
+
+    This function implements T017 requirements:
+    - Input: DataFrame containing text, anxiety_score, and confidence_score
+    - Output: data/processed/scoring_results.csv with exactly these three columns
+    - Filtering: Assumes data is already filtered by confidence >= 0.6 (T016)
+
     Args:
-        input_data: DataFrame containing 'text', 'anxiety_score', and 'confidence_score'
-        output_path: Optional path to save the file. Defaults to CONFIG.OUTPUT_SCORING_RESULTS.
-        
+        data: DataFrame with at least columns: 'text', 'anxiety_score', 'confidence_score'
+        output_path: Optional path for output. Defaults to CONFIG.OUTPUT_DIR / 'scoring_results.csv'
+
     Returns:
-        Path to the saved file.
-        
+        Path to the saved file
+
     Raises:
-        ValueError: If input data is empty or missing required columns.
-        IOError: If writing to disk fails.
+        ValueError: If required columns are missing from input data
+        FileNotFoundError: If output directory does not exist
     """
     if output_path is None:
-        output_path = CONFIG.OUTPUT_SCORING_RESULTS
-        
-    logger.info(f"Saving scoring results to {output_path}")
-    
-    # Validate input
-    if input_data.empty:
-        raise ValueError("Input data is empty. Cannot save empty results.")
-        
-    required_columns = {'text', 'anxiety_score', 'confidence_score'}
-    if not required_columns.issubset(input_data.columns):
-        missing = required_columns - set(input_data.columns)
-        raise ValueError(f"Input data missing required columns: {missing}")
-        
+        output_path = CONFIG.OUTPUT_DIR / "scoring_results.csv"
+
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Select and order columns exactly as required by T017
-    output_df = input_data[list(required_columns)].copy()
-    
+
+    # Validate required columns
+    required_columns = {'text', 'anxiety_score', 'confidence_score'}
+    if not required_columns.issubset(data.columns):
+        missing = required_columns - set(data.columns)
+        raise ValueError(f"Input data missing required columns: {missing}")
+
+    # Select only the required columns in the specified order
+    output_df = data[list(required_columns)].copy()
+
+    # Ensure no null values in critical columns
+    if output_df['anxiety_score'].isnull().any() or output_df['confidence_score'].isnull().any():
+        null_count = output_df['anxiety_score'].isnull().sum() + output_df['confidence_score'].isnull().sum()
+        logger.warning(f"Found {null_count} null values in score columns. Dropping rows.")
+        output_df = output_df.dropna(subset=['anxiety_score', 'confidence_score'])
+
     # Save to CSV
     output_df.to_csv(output_path, index=False)
     
-    logger.info(f"Successfully saved {len(output_df)} rows to {output_path}")
+    logger.info(
+        f"Saved {len(output_df)} scored records to {output_path} "
+        f"with columns: {list(output_df.columns)}"
+    )
+    
     return output_path
 
 
 def run_scoring_saver_pipeline() -> Path:
     """
     Orchestrates the full scoring save pipeline:
-    1. Runs the anxiety scoring pipeline (T015/T016) to get scored/filtered data.
-    2. Saves the results to the configured output path.
-    
+    1. Runs the full anxiety scoring pipeline (T013-T016) to generate scored data
+    2. Saves the results to data/processed/scoring_results.csv (T017)
+
+    This function ensures that T017 is executed after T016 filtering is applied.
+
     Returns:
-        Path to the saved scoring results file.
+        Path to the saved scoring_results.csv file
     """
     logger.info("Starting scoring saver pipeline (T017)")
-    
-    # Run the upstream scoring pipeline to get the processed data
-    # This ensures we are using the data that has already been filtered by confidence (T016)
+
+    # Run the full scoring pipeline to get processed data
+    # This includes: ingestion -> filtering -> scoring -> confidence filtering
     scored_data = run_full_scoring_pipeline()
-    
+
     if scored_data is None or scored_data.empty:
-        logger.error("Upstream scoring pipeline returned no data. Aborting save.")
-        raise RuntimeError("Scoring pipeline produced no results to save.")
-        
+        logger.error("No scored data available to save. Pipeline may have failed or filtered everything.")
+        raise RuntimeError("No scored data available to save")
+
+    logger.info(f"Received {len(scored_data)} records from scoring pipeline")
+
     # Save the results
     output_path = save_scoring_results(scored_data)
-    
-    logger.info("Scoring saver pipeline completed successfully.")
+
+    logger.info("Scoring saver pipeline completed successfully")
     return output_path

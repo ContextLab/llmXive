@@ -96,7 +96,7 @@ requirements.txt
 ### Phase 1: Data Model & Contracts
 - **Goal**: Define the schema for raw and processed data.
 - **FR-003 Mapping**: Define `control_proxy` calculation logic in the data model.
-- **FR-006 Mapping**: Define `confidence_score` field and exclusion logic (threshold 0.6).
+- **FR-006 Mapping**: Define `confidence_score` field and exclusion logic (threshold).
 - **Output**: `contracts/dataset.schema.yaml` and `contracts/analysis.schema.yaml`.
 
 ### Phase 2: Implementation (Orchestrated by Implementer Agent)

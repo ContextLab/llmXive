@@ -1,10 +1,7 @@
 """
-Service module for saving proxy extraction results.
-
+Module to save extracted control proxies to disk.
 Implements T026: Save extracted proxies to data/processed/proxy_results.csv
-with columns: post_id, user_id, control_proxy, timestamp_regularity
 """
-
 import logging
 import pandas as pd
 from pathlib import Path
@@ -15,87 +12,69 @@ from code.services.proxy_extractor import run_proxy_extraction_pipeline
 
 logger = logging.getLogger(__name__)
 
-def save_proxy_results(
-    proxy_data: List[Dict[str, Any]],
-    output_path: Optional[Path] = None
-) -> Path:
+def save_proxy_results(proxy_data: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Save extracted proxy data to a CSV file.
-    
+    Saves the extracted proxy data to a CSV file.
+
     Args:
-        proxy_data: List of dictionaries containing proxy extraction results
-                   with keys: post_id, user_id, control_proxy, timestamp_regularity
-        output_path: Optional custom output path. Defaults to CONFIG.PROXY_RESULTS_PATH
+        proxy_data: List of dictionaries containing proxy metrics.
+        output_path: Path where the CSV file will be saved.
+    """
+    if not proxy_data:
+        logger.warning("No proxy data provided to save. Creating empty CSV with headers.")
+        df = pd.DataFrame(columns=['post_id', 'user_id', 'control_proxy', 'timestamp_regularity'])
+        df.to_csv(output_path, index=False)
+        return
+
+    df = pd.DataFrame(proxy_data)
+
+    # Ensure expected columns exist and are in the correct order
+    expected_cols = ['post_id', 'user_id', 'control_proxy', 'timestamp_regularity']
+    
+    # Check for missing columns (shouldn't happen if extractor is correct, but safety first)
+    for col in expected_cols:
+        if col not in df.columns:
+            logger.error(f"Missing expected column in proxy data: {col}")
+            raise ValueError(f"Missing expected column in proxy data: {col}")
+
+    # Reorder columns to match specification exactly
+    df = df[expected_cols]
+
+    # Save to CSV
+    df.to_csv(output_path, index=False)
+    logger.info(f"Successfully saved {len(df)} proxy records to {output_path}")
+
+def run_proxy_saver_pipeline() -> Path:
+    """
+    Orchestrates the extraction and saving of proxy results.
+    1. Runs the extraction pipeline to get data.
+    2. Saves the data to the configured output path.
     
     Returns:
-        Path to the saved CSV file
-    
-    Raises:
-        ValueError: If proxy_data is empty or None
-        IOError: If the file cannot be written
+        Path to the saved CSV file.
     """
-    if output_path is None:
-        output_path = CONFIG.PROXY_RESULTS_PATH
+    logger.info("Starting proxy saver pipeline...")
     
-    if not proxy_data:
-        raise ValueError("Cannot save empty proxy data. Ensure proxy extraction ran successfully.")
+    # Extract data
+    proxy_data = run_proxy_extraction_pipeline()
+    
+    # Define output path
+    output_path = CONFIG.PROCESSED_DIR / "proxy_results.csv"
     
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Convert to DataFrame and save
-    df = pd.DataFrame(proxy_data)
+    # Save data
+    save_proxy_results(proxy_data, output_path)
     
-    # Validate required columns exist
-    required_columns = ['post_id', 'user_id', 'control_proxy', 'timestamp_regularity']
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    if missing_columns:
-        raise ValueError(f"Missing required columns in proxy data: {missing_columns}")
-    
-    # Ensure column order matches specification
-    df = df[required_columns]
-    
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(df)} proxy records to {output_path}")
-    
-    return output_path
-
-def run_proxy_saver_pipeline() -> Path:
-    """
-    Run the full proxy extraction and saving pipeline.
-    
-    This function orchestrates:
-    1. Running proxy extraction on raw data (from T021)
-    2. Saving results to data/processed/proxy_results.csv (T026)
-    
-    Returns:
-        Path to the saved proxy_results.csv file
-    """
-    logger.info("Starting proxy extraction and saving pipeline")
-    
-    # Run proxy extraction
-    proxy_data = run_proxy_extraction_pipeline()
-    
-    # Save results
-    output_path = save_proxy_results(proxy_data)
-    
-    logger.info(f"Proxy extraction pipeline complete. Output: {output_path}")
+    logger.info("Proxy saver pipeline completed successfully.")
     return output_path
 
 def main():
-    """Command-line entry point for proxy saver."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    try:
-        output_path = run_proxy_saver_pipeline()
-        print(f"Successfully saved proxy results to: {output_path}")
-    except Exception as e:
-        logger.error(f"Proxy saver pipeline failed: {e}")
-        raise
+    """Entry point for running the proxy saver pipeline directly."""
+    logging.basicConfig(level=logging.INFO)
+    output_file = run_proxy_saver_pipeline()
+    print(f"Proxy results saved to: {output_file}")
 
 if __name__ == "__main__":
     main()
