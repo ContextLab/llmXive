@@ -1,41 +1,34 @@
-# Schema definition for the Resting-State fMRI Global Signal dataset
-# This file defines the required columns and types for the processed data.
-# The ingestion pipeline will validate against this schema before proceeding.
 version: "1.0"
-description: "Schema for HCP fMRI and MWQ joined dataset"
+description: Schema for the processed fMRI/MWQ dataset used in User Story 1.
 required_columns:
-  - name: global_signal
-    type: numeric
-    description: "Voxel-wise mean time series (global signal) per run"
-  - name: global_signal_sd
-    type: numeric
-    description: "Standard deviation of the global signal per run, averaged across runs"
-  - name: subject_id
-    type: string
-    description: "Unique subject identifier"
-  - name: mwq_score
-    type: numeric
-    description: "Mind-Wandering Questionnaire total score"
-  - name: age
-    type: numeric
-    description: "Subject age in years"
-  - name: sex
-    type: string
-    description: "Subject sex (M/F)"
-  - name: fd
-    type: numeric
-    description: "Mean Framewise Displacement (motion metric)"
-  - name: dvars
-    type: numeric
-    description: "Mean DVARS (temporal derivative of fMRI signal)"
-
+  - Subject_ID
+  - Global_Signal_SD
+  - MWQ_Score
+  - Age
+  - Sex
+  - Mean_FD
+  - Mean_DVARS
+column_types:
+  Subject_ID: string
+  Global_Signal_SD: float
+  MWQ_Score: float
+  Age: integer
+  Sex: string
+  Mean_FD: float
+  Mean_DVARS: float
 constraints:
-  global_signal_sd:
+  - column: Subject_ID
+    unique: true
+    nullable: false
+  - column: Global_Signal_SD
     min: 0
-  fd:
+    nullable: false
+  - column: MWQ_Score
     min: 0
-  dvars:
+    nullable: false
+  - column: Mean_FD
     min: 0
-  age:
-    min: 18
-    max: 100
+    nullable: false
+  - column: Mean_DVARS
+    min: 0
+    nullable: false

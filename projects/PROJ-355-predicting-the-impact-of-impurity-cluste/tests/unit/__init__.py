@@ -1,1 +1,1 @@
-"""Unit tests for the impurity clustering segregation project."""
+"""Unit tests package for the impurity clustering project."""

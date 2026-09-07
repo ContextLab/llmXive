@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-11T09:44:05Z",
+  "fetched_at": "2026-09-07T06:38:33Z",
   "field": "biology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Identifying stimulus-driven neural activity patterns in multi-patient \"",
       "target_n": 5
     },
-    "duration_seconds": 43.857,
-    "ended_at": "2026-07-11T09:44:05Z",
-    "expansion": null,
+    "duration_seconds": 87.41,
+    "ended_at": "2026-09-07T06:38:33Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "stimulus-evoked neural activity patterns"
+        ],
+        [
+          2,
+          "multi-patient neural response decoding"
+        ],
+        [
+          3,
+          "cross-subject neural activity generalization"
+        ],
+        [
+          4,
+          "evoked potential patterns in clinical populations"
+        ],
+        [
+          5,
+          "neural stimulus-response mapping across patients"
+        ],
+        [
+          6,
+          "population-level neural coding of stimuli"
+        ],
+        [
+          7,
+          "inter-subject neural variability in stimulus processing"
+        ],
+        [
+          8,
+          "shared neural representations of sensory stimuli"
+        ],
+        [
+          9,
+          "multi-patient EEG/MEG stimulus analysis"
+        ],
+        [
+          10,
+          "neural pattern recognition in heterogeneous patient cohorts"
+        ],
+        [
+          11,
+          "stimulus-driven brain activity classification"
+        ],
+        [
+          12,
+          "cross-patient neural signature identification"
+        ],
+        [
+          13,
+          "generalizable neural correlates of sensory input"
+        ],
+        [
+          14,
+          "multi-center neural activity pattern analysis"
+        ],
+        [
+          15,
+          "neural decoding of external stimuli in clinical settings"
+        ],
+        [
+          16,
+          "stimulus-locked neural dynamics across subjects"
+        ],
+        [
+          17,
+          "heterogeneous neural responses to controlled stimuli"
+        ],
+        [
+          18,
+          "cross-validation of neural activity patterns in patients"
+        ],
+        [
+          19,
+          "neural biomarkers of stimulus processing in disorders"
+        ],
+        [
+          20,
+          "unified neural models for multi-patient stimulus response"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Identifying stimulus-driven neural activity patterns in multi-patient \" biology": 0,
+        "stimulus-evoked neural activity patterns": 4
+      },
+      "total_queries_issued": 1
+    },
     "extracted_queries": [
-      "evoked response potential stimulus locking neural decoding",
-      "intracranial EEG ECoG multi-patient neural ensembles",
-      "population coding stimulus selectivity receptive field mapping",
-      "single-trial classification neural signal decoding accuracy",
-      "sensory encoding models neural population dynamics"
+      "stimulus-evoked population coding neural dynamics",
+      "multi-patient intracranial EEG ECoG seizure",
+      "neural manifold dimensionality reduction cortical activity",
+      "stimulus-response decoding accuracy cross-subject generalization",
+      "encoding models sensory cortex feature selectivity"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -31,31 +120,41 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2509.25453"
+        "2202.01933"
       ]
     },
     "per_query_hit_count": {
-      "evoked response potential stimulus locking neural decoding": 3,
-      "intracranial EEG ECoG multi-patient neural ensembles": 3,
+      "encoding models sensory cortex feature selectivity": 3,
       "llmXive follow-up: extending \"Identifying stimulus-driven neural activity patterns in multi-patient \" biology": 3,
-      "population coding stimulus selectivity receptive field mapping": 3,
-      "sensory encoding models neural population dynamics": 3,
-      "single-trial classification neural signal decoding accuracy": 3
+      "multi-patient intracranial EEG ECoG seizure": 3,
+      "neural manifold dimensionality reduction cortical activity": 3,
+      "stimulus-evoked population coding neural dynamics": 3,
+      "stimulus-response decoding accuracy cross-subject generalization": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
+      "rejected_count": 3,
       "rejections": [
         {
-          "primary_pointer": "2407.09950",
-          "rationale": "The paper focuses on engineering a machine learning classifier for emotion recognition using EEG signals, which is an application of signal processing rather than a study of the biological mechanism of \"stimulus-driven neural activity patterns\" or the specific multi-patient clinical context implied by the user's question. While both involve EEG, the paper does not measure the underlying neural mechanism, establish an empirical baseline for stimulus-driven patterns, or serve as a foundational ref",
-          "title": "PSO Fuzzy XGBoost Classifier Boosted with Neural Gas Features on EEG Signals in Emotion Recognition"
+          "primary_pointer": "1804.05994",
+          "rationale": "The paper focuses on Electrical Impedance Tomography (EIT) hardware configurations and electrode patterns for imaging peripheral nerves, which is a distinct engineering methodology and physical domain from the user's question regarding \"stimulus-driven neural activity patterns\" in the context of LLM-based biological analysis (implied by \"llmXive\"). While both involve \"neural activity,\" the paper does not measure the same biological pathway, algorithmic property, or causal mechanism the user is i",
+          "title": "Drive and measurement electrode patterns for electrode impedance tomography (EIT) imaging of neural activity in peripheral nerve"
+        },
+        {
+          "primary_pointer": "1811.03426",
+          "rationale": "The paper focuses on tourist movement patterns in social networks, which is an entirely different domain (tourism data mining) from the user's question regarding neural activity patterns in biological multi-patient studies. This falls under the rejection rule for \"off-domain entirely\" and \"distinct construct sharing only homonym keywords\" (where \"activity patterns\" refers to human behavior rather than biological neural signals).",
+          "title": "A Study of Tourist Sequential Activity Patterns through Location Based Social Network (LBSN)"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper focuses on a mathematical framework for improving artificial neural networks (DANNs) using polynomial chaos theory, which is a computational method distinct from the biological \"stimulus-driven neural activity patterns\" in human patients that the user is investigating. While both involve the word \"neural,\" the paper addresses algorithmic signal processing in AI models rather than the empirical biological mechanisms or clinical populations specified in the user's question, falling under",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-11T09:43:21Z",
+    "started_at": "2026-09-07T06:37:06Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"identifying stimulus-driven neural activity patterns in multi-patient \" biology",
       "raw": "llmXive follow-up: extending \"Identifying stimulus-driven neural activity patterns in multi-patient \" biology"
@@ -75,7 +174,7 @@
           "primary_pointer": "1103.1833"
         },
         "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='From Physics to Biology by Extending Criticality and Symmetry Breakings')",
-        "failed_at": "2026-07-11T09:43:52Z",
+        "failed_at": "2026-09-07T06:37:50Z",
         "reason": "query_irrelevant"
       },
       {
@@ -96,7 +195,7 @@
           "primary_pointer": "1607.06358"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
-        "failed_at": "2026-07-11T09:43:52Z",
+        "failed_at": "2026-09-07T06:37:50Z",
         "reason": "query_irrelevant"
       },
       {
@@ -112,167 +211,7 @@
           "primary_pointer": "1112.3867"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='The use of information theory in evolutionary biology')",
-        "failed_at": "2026-07-11T09:43:52Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In order to interact intelligently with objects in the world, animals must first transform neural population responses into estimates of the dynamic, unknown stimuli which caused them. The Bayesian solution to this problem is known as a Bayes filter, which applies Bayes' rule to combine population responses with the predictions of an internal model. In this paper we present a method for learning to approximate a Bayes filter when the stimulus dynamics are unknown. To do this we use the inferential properties of probabilistic population codes to compute Bayes' rule, and train a neural network to compute approximate predictions by the method of maximum likelihood. In particular, we perform stochastic gradient descent on the negative log-likelihood with a novel approximation of the gradient. We demonstrate our methods on a finite-state, a linear, and a nonlinear filtering problem, and show how the hidden layer of the neural network develops tuning curves which are consistent with findings in experimental neuroscience.",
-          "claimed_authors": [
-            "Sacha Sokoloski"
-          ],
-          "claimed_title": "Implementing a Bayes Filter in a Neural Circuit: The Case of Unknown Stimulus Dynamics",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1512.07839"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Implementing a Bayes Filter in a Neural Circuit: The Case of Unknown Stimulus Dynamics')",
-        "failed_at": "2026-07-11T09:43:52Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We present a method for the analysis of electroencephalograms (EEG).\n  In particular, small signals due to stimulation, so called evoked potentials, have to be detected in the background EEG. This is achieved by using a denoising implementation based on the wavelet decomposition. One recording of visual evoked potentials, and recordings of auditory evoked potentials from 4 subjects corresponding to different age groups are analyzed. We find higher variability in older individuals. Moreover, since the evoked potentials are identified at the single stimulus level (without need of ensemble averaging), this will allow the calculation of better resolved averages. Since the method is parameter free (i.e. it does not need to be adapted to the particular characteristics of each recording), implementations in clinical settings are imaginable.",
-          "claimed_authors": [
-            "R. Quian Quiroga"
-          ],
-          "claimed_title": "Obtaining single stimulus evoked potentials with Wavelet Denoising",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2000,
-          "primary_pointer": "nlin/0006027"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Obtaining single stimulus evoked potentials with Wavelet Denoising')",
-        "failed_at": "2026-07-11T09:43:52Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Classification of electroencephalogram (EEG) and electrocorticogram (ECoG) signals obtained during motor imagery (MI) has substantial application potential, including for communication assistance and rehabilitation support for patients with motor impairments. These signals remain inherently susceptible to physiological artifacts (e.g., eye blinking, swallowing), which pose persistent challenges. Although Transformer-based approaches for classifying EEG and ECoG signals have been widely adopted, they often struggle to capture fine-grained dependencies within them. To overcome these limitations, we propose Cortical-SSM, a novel architecture that extends deep state space models to capture integrated dependencies of EEG and ECoG signals across temporal, spatial, and frequency domains. We validated our method across three benchmarks: 1) two large-scale public MI EEG datasets containing more than 50 subjects, and 2) a clinical MI ECoG dataset recorded from a patient with amyotrophic lateral sclerosis. Our method outperformed baseline methods on the three benchmarks. Furthermore, visual explanations derived from our model indicate that it effectively captures neurophysiologically relevant regions of both EEG and ECoG signals.",
-          "claimed_authors": [
-            "Shuntaro Suzuki",
-            "Shunya Nagashima",
-            "Masayuki Hirata",
-            "Komei Sugiura"
-          ],
-          "claimed_title": "Cortical-SSM: A Deep State Space Model for EEG and ECoG Motor Imagery Decoding",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.15371"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Cortical-SSM: A Deep State Space Model for EEG and ECoG Motor Imagery Decoding')",
-        "failed_at": "2026-07-11T09:43:53Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Time-domain simulation of wave phenomena on a finite computational domain often requires a fictitious outer boundary. An important practical issue is the specification of appropriate boundary conditions on this boundary, often conditions of complete transparency. Attention to this issue has been paid elsewhere, and here we consider a different, although related, issue: far-field signal recovery. Namely, from smooth data recorded on the outer boundary we wish to recover the far-field signal which would reach arbitrarily large distances. These signals encode information about interior scatterers and often correspond to actual measurements. This article expresses far-field signal recovery in terms of time-domain convolutions, each between a solution multipole moment recorded at the boundary and a sum-of-exponentials kernel. Each exponential corresponds to a pole term in the Laplace transform of the kernel, a finite sum of simple poles. Greengard, Hagstrom, and Jiang have derived the large-$\\ell$ (spherical-harmonic index) asymptotic expansion for the pole residues, and their analysis shows that, when expressed in terms of the exact sum-of-exponentials, large-$\\ell$ signal recovery is plagued by cancellation errors. Nevertheless, through an alternative integral representation of the kernel and its subsequent approximation by a {\\em smaller} number of exponential terms (kernel compression), we are able to alleviate these errors and achieve accurate signal recovery. We empirically examine scaling relations between the parameters which determine a compressed kernel, and perform numerical tests of signal \"teleportation\" from one radial value $r_1$ to another $r_2$, including the case $r_2=\\infty$. We conclude with a brief discussion on application to other hyperbolic equations posed on non-flat geometries where waves undergo backscatter.",
-          "claimed_authors": [
-            "Scott E. Field",
-            "Stephen R. Lau"
-          ],
-          "claimed_title": "Fast evaluation of far-field signals for time-domain wave propagation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2014,
-          "primary_pointer": "1409.5893"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Fast evaluation of far-field signals for time-domain wave propagation')",
-        "failed_at": "2026-07-11T09:43:54Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The P300 event-related potential (ERP), evoked in scalp-recorded electroencephalography (EEG) by external stimuli, has proven to be a reliable response for controlling a BCI. The P300 component of an event related potential is thus widely used in brain-computer interfaces to translate the subjects' intent by mere thoughts into commands to control artificial devices. The main challenge in the classification of P300 trials in electroencephalographic (EEG) data is the low signal-to-noise ratio (SNR) of the P300 response. To overcome the low SNR of individual trials, it is common practice to average together many consecutive trials, which effectively diminishes the random noise. Unfortunately, when more repeated trials are required for applications such as the P300 speller, the communication rate is greatly reduced. This has resulted in a need for better methods to improve single-trial classification accuracy of P300 response. In this work, we use Principal Component Analysis (PCA) as a preprocessing method and use Linear Discriminant Analysis (LDA)and neural networks for classification. The results show that a combination of PCA with these methods provided as high as 13\\% accuracy gain for single-trial classification while using only 3 to 4 principal components.",
-          "claimed_authors": [
-            "Nand Sharma"
-          ],
-          "claimed_title": "Single-trial P300 Classification using PCA with LDA, QDA and Neural Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1712.01977"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Single-trial P300 Classification using PCA with LDA, QDA and Neural Networks')",
-        "failed_at": "2026-07-11T09:43:54Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Background: In cognitive neuroscience the potential of Deep Neural Networks (DNNs) for solving complex classification tasks is yet to be fully exploited. The most limiting factor is that DNNs as notorious 'black boxes' do not provide insight into neurophysiological phenomena underlying a decision. Layer-wise Relevance Propagation (LRP) has been introduced as a novel method to explain individual network decisions. New Method: We propose the application of DNNs with LRP for the first time for EEG data analysis. Through LRP the single-trial DNN decisions are transformed into heatmaps indicating each data point's relevance for the outcome of the decision. Results: DNN achieves classification accuracies comparable to those of CSP-LDA. In subjects with low performance subject-to-subject transfer of trained DNNs can improve the results. The single-trial LRP heatmaps reveal neurophysiologically plausible patterns, resembling CSP-derived scalp maps. Critically, while CSP patterns represent class-wise aggregated information, LRP heatmaps pinpoint neural patterns to single time points in single trials. Comparison with Existing Method(s): We compare the classification performance of DNNs to that of linear CSP-LDA on two data sets related to motor-imaginery BCI. Conclusion: We have demonstrated that DNN is a powerful non-linear tool for EEG analysis. With LRP a new quality of high-resolution assessment of neural activity can be reached. LRP is a potential remedy for the lack of interpretability of DNNs that has limited their utility in neuroscientific applications. The extreme specificity of the LRP-derived heatmaps opens up new avenues for investigating neural activity underlying complex perception or decision-related processes.",
-          "claimed_authors": [
-            "Irene Sturm",
-            "Sebastian Bach",
-            "Wojciech Samek",
-            "Klaus-Robert Müller"
-          ],
-          "claimed_title": "Interpretable Deep Neural Networks for Single-Trial EEG Classification",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1604.08201"
-        },
-        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Interpretable Deep Neural Networks for Single-Trial EEG Classification')",
-        "failed_at": "2026-07-11T09:43:54Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "A new deep learning-based electroencephalography (EEG) signal analysis framework is proposed. While deep neural networks, specifically convolutional neural networks (CNNs), have gained remarkable attention recently, they still suffer from high dimensionality of the training data. Two-dimensional input images of CNNs are more vulnerable to be redundant versus one-dimensional input time-series of conventional neural networks. In this study, we propose a new dimensionality reduction framework for reducing the dimension of CNN inputs based on the tensor decomposition of the time-frequency representation of EEG signals. The proposed tensor decomposition-based dimensionality reduction algorithm transforms a large set of slices of the input tensor to a concise set of slices which are called super-slices. Employing super-slices not only handles the artifacts and redundancies of the EEG data but also reduces the dimension of the CNNs training inputs. We also consider different time-frequency representation methods for EEG image generation and provide a comprehensive comparison among them. We test our proposed framework on HCB-MIT data and as results show our approach outperforms other previous studies.",
-          "claimed_authors": [
-            "Mojtaba Taherisadr",
-            "Mohsen Joneidi",
-            "Nazanin Rahnavard"
-          ],
-          "claimed_title": "EEG Signal Dimensionality Reduction and Classification using Tensor Decomposition and Deep Convolutional Neural Networks",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1908.10432"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='EEG Signal Dimensionality Reduction and Classification using Tensor Decomposition and Deep Convolutional Neural Networks')",
-        "failed_at": "2026-07-11T09:43:54Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Performance of a sensory-neural network developed for diagnosing of diseases is described. Information about patient's condition is provided by answers to the questionnaire. Questions correspond to sensors generating signals when patients acknowledge symptoms. These signals excite neurons in which characteristics of the diseases are represented by synaptic weights associated with indicators of symptoms. The disease corresponding to the most excited neuron is proposed as the result of diagnosing. Its reliability is estimated by the likelihood defined by the ratio of excitation of the most excited neuron and the complete neural network.",
-          "claimed_authors": [
-            "Igor Grabec",
-            "Eva Švegl",
-            "Mihael Sok"
-          ],
-          "claimed_title": "Development of a sensory-neural network for medical diagnosing",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1807.02477"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Development of a sensory-neural network for medical diagnosing')",
-        "failed_at": "2026-07-11T09:43:54Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This survey presents the most relevant neural network models of autism spectrum disorder and schizophrenia, from the first connectionist models to recent deep network architectures. We analyzed and compared the most representative symptoms with its neural model counterpart, detailing the alteration introduced in the network that generates each of the symptoms, and identifying their strengths and weaknesses. We additionally cross-compared Bayesian and free-energy approaches, as they are widely applied to modeling psychiatric disorders and share basic mechanisms with neural networks. Models of schizophrenia mainly focused on hallucinations and delusional thoughts using neural dysconnections or inhibitory imbalance as the predominating alteration. Models of autism rather focused on perceptual difficulties, mainly excessive attention to environment details, implemented as excessive inhibitory connections or increased sensory precision. We found an excessive tight view of the psychopathologies around one specific and simplified effect, usually constrained to the technical idiosyncrasy of the used network architecture. Recent theories and evidence on sensorimotor integration and body perception combined with modern neural network architectures could offer a broader and novel spectrum to approach these psychopathologies. This review emphasizes the power of artificial neural networks for modeling some symptoms of neurological disorders but also calls for further developing these techniques in the field of computational psychiatry.",
-          "claimed_authors": [
-            "Pablo Lanillos",
-            "Daniel Oliva",
-            "Anja Philippsen",
-            "Yuichi Yamashita",
-            "Yukie Nagai",
-            "Gordon Cheng"
-          ],
-          "claimed_title": "A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1906.10015"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='A Review on Neural Network Models of Schizophrenia and Autism Spectrum Disorder')",
-        "failed_at": "2026-07-11T09:43:54Z",
+        "failed_at": "2026-09-07T06:37:50Z",
         "reason": "query_irrelevant"
       },
       {
@@ -294,7 +233,221 @@
           "primary_pointer": "2110.06573"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='A Parametric and Feasibility Study for Data Sampling of the Dynamic Mode Decomposition--Range, Resolution, and Universal Convergence States')",
-        "failed_at": "2026-07-11T09:43:54Z",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we study the significance of ecological interactions and separation of birth and death dynamics in stochastic heterogeneous populations via general birth-death processes. Interactions can manifest through the birth dynamics, the death dynamics, or some combination of the two. The underlying microscopic mechanisms are important but often implicit in population-level data. We propose an inference method for disambiguating the types of interaction and the birth and death processes from population size time series data of a stochastic $n$-type heterogeneous population. The interspecies interactions considered can be competitive, antagonistic, or mutualistic. We show that different pairs of birth and death rates with the same net growth rate result in different time series statistics. Then, the inference method is validated in the example of a birth-death process inspired by the two-type Lotka-Volterra interaction dynamics. Utilizing stochastic fluctuations enables us to estimate additional parameters in this stochastic Lotka-Volterra model, which are not identifiable in a deterministic model.",
+          "claimed_authors": [
+            "Erin Beckman",
+            "Heyrim Cho",
+            "Linh Huynh"
+          ],
+          "claimed_title": "Inferring birth versus death dynamics for ecological interactions in stochastic heterogeneous populations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.09041"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Inferring birth versus death dynamics for ecological interactions in stochastic heterogeneous populations')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electroencephalogram (EEG) is an important diagnostic test that physicians use to record brain activity and detect seizures by monitoring the signals. There have been several attempts to detect seizures and abnormalities in EEG signals with modern deep learning models to reduce the clinical burden. However, they cannot be fairly compared against each other as they were tested in distinct experimental settings. Also, some of them are not trained in real-time seizure detection tasks, making it hard for on-device applications. Therefore in this work, for the first time, we extensively compare multiple state-of-the-art models and signal feature extractors in a real-time seizure detection framework suitable for real-world application, using various evaluation metrics including a new one we propose to evaluate more practical aspects of seizure detection models. Our code is available at https://github.com/AITRICS/EEG_real_time_seizure_detection.",
+          "claimed_authors": [
+            "Kwanhyung Lee",
+            "Hyewon Jeong",
+            "Seyun Kim",
+            "Donghwa Yang",
+            "Hoon-Chul Kang",
+            "Edward Choi"
+          ],
+          "claimed_title": "Real-Time Seizure Detection using EEG: A Comprehensive Comparison of Recent Approaches under a Realistic Setting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.08780"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Real-Time Seizure Detection using EEG: A Comprehensive Comparison of Recent Approaches under a Realistic Setting')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An epileptic seizure is a transient event of abnormal excessive neuronal discharge in the brain. This unwanted event can be obstructed by detection of electrical changes in the brain that happen before the seizure takes place. The automatic detection of seizures is necessary since the visual screening of EEG recordings is a time consuming task and requires experts to improve the diagnosis. Four linear least squares-based preprocessing models are proposed to extract key features of an EEG signal in order to detect seizures. The first two models are newly developed. The original signal (EEG) is approximated by a sinusoidal curve. Its amplitude is formed by a polynomial function and compared with the pre developed spline function.Different statistical measures namely classification accuracy, true positive and negative rates, false positive and negative rates and precision are utilized to assess the performance of the proposed models. These metrics are derived from confusion matrices obtained from classifiers. Different classifiers are used over the original dataset and the set of extracted features. The proposed models significantly reduce the dimension of the classification problem and the computational time while the classification accuracy is improved in most cases. The first and third models are promising feature extraction methods. Logistic, LazyIB1, LazyIB5 and J48 are the best classifiers. Their true positive and negative rates are $1$ while false positive and negative rates are zero and the corresponding precision values are $1$. Numerical results suggest that these models are robust and efficient for detecting epileptic seizure.",
+          "claimed_authors": [
+            "Z. Roshan Zamir"
+          ],
+          "claimed_title": "Detection of epileptic seizure in EEG signals using linear least squares preprocessing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1604.08500"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Detection of epileptic seizure in EEG signals using linear least squares preprocessing')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this era of data deluge, many signal processing and machine learning tasks are faced with high-dimensional datasets, including images, videos, as well as time series generated from social, commercial and brain network interactions. Their efficient processing calls for dimensionality reduction techniques capable of properly compressing the data while preserving task-related characteristics, going beyond pairwise data correlations. The present paper puts forth a nonlinear dimensionality reduction framework that accounts for data lying on known graphs. The novel framework encompasses most of the existing dimensionality reduction methods, but it is also capable of capturing and preserving possibly nonlinear correlations that are ignored by linear methods. Furthermore, it can take into account information from multiple graphs. The proposed algorithms were tested on synthetic as well as real datasets to corroborate their effectiveness.",
+          "claimed_authors": [
+            "Yanning Shen",
+            "Panagiotis A. Traganitis",
+            "Georgios B. Giannakis"
+          ],
+          "claimed_title": "Nonlinear Dimensionality Reduction on Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.09390"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Nonlinear Dimensionality Reduction on Graphs')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks are widely used in various domains. However, the nature of computations at each layer of the deep networks is far from being well understood. Increasing the interpretability of deep neural networks is thus important. Here, we construct a mean-field framework to understand how compact representations are developed across layers, not only in deterministic deep networks with random weights but also in generative deep networks where an unsupervised learning is carried out. Our theory shows that the deep computation implements a dimensionality reduction while maintaining a finite level of weak correlations between neurons for possible feature extraction. Mechanisms of dimensionality reduction and decorrelation are unified in the same framework. This work may pave the way for understanding how a sensory hierarchy works.",
+          "claimed_authors": [
+            "Haiping Huang"
+          ],
+          "claimed_title": "Mechanisms of dimensionality reduction and decorrelation in deep neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.01467"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Mechanisms of dimensionality reduction and decorrelation in deep neural networks')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This is a tutorial and survey paper on various methods for Sufficient Dimension Reduction (SDR). We cover these methods with both statistical high-dimensional regression perspective and machine learning approach for dimensionality reduction. We start with introducing inverse regression methods including Sliced Inverse Regression (SIR), Sliced Average Variance Estimation (SAVE), contour regression, directional regression, Principal Fitted Components (PFC), Likelihood Acquired Direction (LAD), and graphical regression. Then, we introduce forward regression methods including Principal Hessian Directions (pHd), Minimum Average Variance Estimation (MAVE), Conditional Variance Estimation (CVE), and deep SDR methods. Finally, we explain Kernel Dimension Reduction (KDR) both for supervised and unsupervised learning. We also show that supervised KDR and supervised PCA are equivalent.",
+          "claimed_authors": [
+            "Benyamin Ghojogh",
+            "Ali Ghodsi",
+            "Fakhri Karray",
+            "Mark Crowley"
+          ],
+          "claimed_title": "Sufficient Dimension Reduction for High-Dimensional Regression and Low-Dimensional Embedding: Tutorial and Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.09620"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Sufficient Dimension Reduction for High-Dimensional Regression and Low-Dimensional Embedding: Tutorial and Survey')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deciphering visual content from functional Magnetic Resonance Imaging (fMRI) helps illuminate the human vision system. However, the scarcity of fMRI data and noise hamper brain decoding model performance. Previous approaches primarily employ subject-specific models, sensitive to training sample size. In this paper, we explore a straightforward but overlooked solution to address data scarcity. We propose shallow subject-specific adapters to map cross-subject fMRI data into unified representations. Subsequently, a shared deeper decoding model decodes cross-subject features into the target feature space. During training, we leverage both visual and textual supervision for multi-modal brain decoding. Our model integrates a high-level perception decoding pipeline and a pixel-wise reconstruction pipeline guided by high-level perceptions, simulating bottom-up and top-down processes in neuroscience. Empirical experiments demonstrate robust neural representation learning across subjects for both pipelines. Moreover, merging high-level and low-level information improves both low-level and high-level reconstruction metrics. Additionally, we successfully transfer learned general knowledge to new subjects by training new adapters with limited training data. Compared to previous state-of-the-art methods, notably pre-training-based methods (Mind-Vis and fMRI-PTE), our approach achieves comparable or superior results across diverse tasks, showing promise as an alternative method for cross-subject fMRI data pre-training. Our code and pre-trained weights will be publicly released at https://github.com/YulongBonjour/See_Through_Their_Minds.",
+          "claimed_authors": [
+            "Yulong Liu",
+            "Yongqiang Ma",
+            "Guibo Zhu",
+            "Haodong Jing",
+            "Nanning Zheng"
+          ],
+          "claimed_title": "See Through Their Minds: Learning Transferable Neural Representation from Cross-Subject fMRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.06361"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='See Through Their Minds: Learning Transferable Neural Representation from Cross-Subject fMRI')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of generalizable electroencephalography (EEG) decoding models is essential for robust brain-computer interfaces (BCI) and objective neural biomarkers in mental health. Conventional approaches have been hindered by poor cross-subject and cross-task generalization, owing to high inter-subject variability and non-stationary neural signals. We address this challenge with a zero-shot cross-subject decoding framework on the large-scale Healthy Brain Network dataset, benchmarking a convolutional neural network baseline, a hybrid LSTM, and a Transformer-based foundation model. To adapt the Transformer for regression while averting catastrophic forgetting, we propose a novel progressive unfreezing strategy. The baseline yielded an nRMSE of 0.9991, whereas our fine-tuned Transformer achieved 0.9799 on unseen subjects. This work advances scalable, calibration-free EEG decoding for computational psychiatry and behavioral prediction.",
+          "claimed_authors": [
+            "Baimam Boukar Jean Jacques",
+            "Brandone Fonya",
+            "Nchofon Tagha Ghogomu",
+            "Pauline Nyaboe",
+            "Kipngeno Koech"
+          ],
+          "claimed_title": "Zero-Shot Neural Priors for Generalizable Cross-Subject and Cross-Task EEG Decoding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.23706"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Zero-Shot Neural Priors for Generalizable Cross-Subject and Cross-Task EEG Decoding')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inter-subject variability between individuals poses a challenge in inter-subject brain signal analysis problems. A new algorithm for subject-selection based on clustering covariance matrices on a Riemannian manifold is proposed. After unsupervised selection of the subsets of relevant subjects, data in a cluster is mapped to a tangent space at the mean point of covariance matrices in that cluster and an SVM classifier on labeled data from relevant subjects is trained. Experiment on an EEG seizure database shows that the proposed method increases the accuracy over state-of-the-art from 86.83% to 89.84% and specificity from 87.38% to 89.64% while reducing the false positive rate/hour from 0.8/hour to 0.77/hour.",
+          "claimed_authors": [
+            "Samaneh Nasiri Ghosheh Bolagh",
+            "Gari. D. Clifford"
+          ],
+          "claimed_title": "Subject Selection on a Riemannian Manifold for Unsupervised Cross-subject Seizure Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1712.00465"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Subject Selection on a Riemannian Manifold for Unsupervised Cross-subject Seizure Detection')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a differential geometric model of hypercolumns in the primary visual cortex V1 that combines features of the symplectic model of the primary visual cortex by A. Sarti, G. Citti and J. Petitot and of the spherical model of hypercolumns by P. Bressloff and J. Cowan. The model is based on classical results in Conformal Geometry.",
+          "claimed_authors": [
+            "D. V. Alekseevsky",
+            "A. Spiro"
+          ],
+          "claimed_title": "Conformal models for hypercolumns in the primary visual cortex V1",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.20184"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Conformal models for hypercolumns in the primary visual cortex V1')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Our brains encode many features of the sensory world into memories: we can sing along with songs we have heard before, interpret spoken and written language composed of words we have learned, and recognize faces and objects. Where are these memories stored? Each area of the cerebral cortex has a huge number of local, recurrent, excitatory-excitatory synapses, as many as 500 million per cubic millimeter. Here I review evidence that cortical recurrent connectivity in sensory cortex is a substrate for sensory memories. Evidence suggests that the local recurrent network encodes the structure of natural sensory input, and that it does so via active filtering, transforming network inputs to boost or select those associated with natural sensation. This is a form of predictive processing, in which the cortical recurrent network selectively amplifies some input patterns and attenuates others, and a form of memory.",
+          "claimed_authors": [
+            "Mark H. Histed"
+          ],
+          "claimed_title": "Active filtering: a predictive function of recurrent circuits of sensory cortex",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.10521"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Active filtering: a predictive function of recurrent circuits of sensory cortex')",
+        "failed_at": "2026-09-07T06:37:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neuroscience research has produced many theories and computational neural models of sensory nervous systems. Notwithstanding many different perspectives towards developing intelligent machines, artificial intelligence has ultimately been influenced by neuroscience. Therefore, this paper provides an introduction to biologically inspired machine intelligence by exploring the basic principles of sensation and perception as well as the structure and behavior of biological sensory nervous systems like the neocortex. Concepts like spike timing, synaptic plasticity, inhibition, neural structure, and neural behavior are applied to a new model, Simple Cortex (SC). A software implementation of SC has been built and demonstrates fast observation, learning, and prediction of spatio-temporal sensory-motor patterns and sequences. Finally, this paper suggests future areas of improvement and growth for Simple Cortex and other related machine intelligence models.",
+          "claimed_authors": [
+            "David Di Giorgio"
+          ],
+          "claimed_title": "Simple Cortex: A Model of Cells in the Sensory Nervous System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.01347"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Identifying stimulus-driven neural activity patter', candidate_title='Simple Cortex: A Model of Cells in the Sensory Nervous System')",
+        "failed_at": "2026-09-07T06:37:51Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -323,7 +476,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T09:43:52Z"
+          "verified_at": "2026-09-07T06:37:50Z"
         }
       },
       {
@@ -342,67 +495,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2202.01933",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2043,
           "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T09:43:52Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Funda Yildirim",
-            "Joana Carvalho",
-            "Frans W. Cornelissen"
-          ],
-          "title": "A second-order orientation-contrast stimulus for population-receptive-field-based retinotopic mapping",
-          "venue": "arXiv",
-          "year": 2017
-        },
-        "primary_pointer": "1707.03046",
-        "summary": "Visual field or retinotopic mapping is one of the most frequently used paradigms in fMRI. It uses activity evoked by position-varying high luminance contrast visual patterns presented throughout the visual field for determining the spatial organization of cortical visual areas. While the advantage of using high luminance contrast is that it tends to drive a wide range of neural populations - thus resulting in high signal-to-noise BOLD responses - this may also be a limitation, especially for approaches that attempt to squeeze more information out of the BOLD response, such as population receptive field (pRF) mapping. In that case, more selective stimulation of a subset of neurons - despite reduced signals - could result in better characterization of pRF properties. Here, we used a second-order stimulus based on local differences in orientation texture - to which we refer as orientation contrast - to perform retinotopic mapping. Participants in our experiment viewed arrays of Gabor patches composed of a foreground (a bar) and a background. These could only be distinguished on the basis of a difference in patch orientation. In our analyses, we compare the pRF properties obtained using this new orientation contrast-based retinotopy (OCR) to those obtained using classic luminance contrast-based retinotopy (LCR). Specifically, in higher order cortical visual areas such as LO, our novel approach resulted in non-trivial reductions in estimated population receptive field size of around 30%. We discuss how OCR - by limiting receptive field scatter and reducing BOLD displacement - may result in more accurate pRF localization as well. We conclude that using our approach, it is possible to selectively target particular neuronal populations, opening the way to use pRF modeling to dissect the response properties of more clearly-defined neuronal populations in different visual areas.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1707.03046",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-11T09:43:53Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Vasilii Tiselko",
-            "Alexander Gorsky",
-            "Yuri Dabaghian"
-          ],
-          "title": "Neural Receptive Fields, Stimulus Space Embedding and Effective Geometry of Scale-Free Networks",
-          "venue": "arXiv",
-          "year": 2025
-        },
-        "primary_pointer": "2509.25453",
-        "summary": "Understanding how receptive fields emerge and organize within brain networks and how neural dynamics couple with stimuli space is fundamental to neuroscience. Models often rely on fine-tuning connectivity to match empirical data, which may limit biological plausibility. Here we propose a physiologically grounded alternative where receptive fields and population-level attractor dynamics arise naturally from the effective hyperbolic geometry of scale-free networks. By associating stimulus space with the boundary of a hyperbolic embedding, we simulate neural dynamics using rate-based and spiking models, revealing localized activity patterns that reflect stimulus space structure without synaptic fine-tuning. The resulting receptive fields follow experimentally observed statistics and properties, and their sizes depends on neuron's connectivity degree. The model generalizes across stimuli dimensionalities and various modalities, such as orientation and place selectivity. Experimental analyses of hippocampal place fields recorded on a linear track support these findings. This framework offers a novel organizing principle linking network structure, stimulus space encoding, and neural dynamics, providing insights into receptive field formation across diverse brain areas.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2509.25453",
-          "http_status": 200,
-          "pdf_sample_score": 0.2575,
-          "query_relevance_score": 0.4167,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-11T09:43:53Z"
+          "verified_at": "2026-09-07T06:37:51Z"
         }
       }
     ]

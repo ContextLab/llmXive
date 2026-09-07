@@ -105,7 +105,7 @@
 - [ ] T022 [US2] [Requires: T021] Implement empirical p-value calculation: proportion of null MAEs <= observed MAE (standard convention, SC-002). (FR-005)
 - [X] T023 [US2] [Requires: T016] Implement Reduced Model (Y ~ FD + DVARS + Age + Sex) to isolate GSA effect (Plan Phase 2 Step 3). Output: `data/results/delta_r2.json` containing Delta R². Verification: Verify file exists and contains valid JSON with numeric Delta R². (Plan Methodology)
 - [X] T024 [US2] [Requires: T016] Implement collinearity diagnostics (VIF, GSA-FD correlation) in `code/diagnostics.py`. Input: `data/processed/cleaned_data.csv`. Output: `data/results/diagnostics.json` with VIF values per predictor. Flag if VIF > 5 (log warning). (Plan Phase 1 Step 3)
-- [ ] T025 [US2] [Requires: T020, T021, T022] Generate `data/results/model_report.json` containing mean out-of-fold MAE, Pearson r, R², p-value, and null distribution stats
+- [X] T025 [US2] [Requires: T020, T021, T022] Generate `data/results/model_report.json` containing mean out-of-fold MAE, Pearson r, R², p-value, and null distribution stats
 - [X] T026 [P] [US2] Unit test: Verify nested CV logic and alpha tuning on synthetic data in `tests/test_modeling.py`
 - [X] T027 [P] [US2] Unit test: Verify null model performance is near zero on permuted data in `tests/test_modeling.py`
 
@@ -122,11 +122,11 @@
 ### Implementation for User Story 3
 
 - [X] T028 [US3] [Requires: T016, T019] Implement sensitivity analysis in `code/robustness.py` to sweep alpha over a range of small to large values and report MAE variation (FR-006)
-- [ ] T029 [US3] [Requires: T016, T019] Implement alternative metric analysis in `code/robustness.py` using global-signal variance instead of SD and report Pearson r (FR-007)
+- [X] T029 [US3] [Requires: T016, T019] Implement alternative metric analysis in `code/robustness.py` using global-signal variance instead of SD and report Pearson r (FR-007)
 - [ ] T030 [US3] [Requires: T016, T019] Implement partial correlation analysis controlling for mean FD to verify independence of GSA effect. Verification: Assert p < 0.05 (SC-005). (FR-003, SC-005)
-- [ ] T031 [US3] [Requires: T028, T029, T030] Generate `data/results/robustness_report.json` containing alpha sweep results, variance metric correlation, and partial correlation stats
-- [ ] T032 [P] [US3] Unit test: Verify alpha sweep results match expected MAE variations in `tests/test_robustness.py`
-- [ ] T033 [P] [US3] Unit test: Verify variance metric correlation is within ±0.05 of primary SD result in `tests/test_robustness.py`
+- [X] T031 [US3] [Requires: T028, T029, T030] Generate `data/results/robustness_report.json` containing alpha sweep results, variance metric correlation, and partial correlation stats
+- [X] T032 [P] [US3] Unit test: Verify alpha sweep results match expected MAE variations in `tests/test_robustness.py`
+- [X] T033 [P] [US3] Unit test: Verify variance metric correlation is within ±0.05 of primary SD result in `tests/test_robustness.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,7 +136,7 @@
 
 **Purpose**: Aggregate results and verify success criteria.
 
-- [ ] T034a [P] Aggregate all results into `data/results/final_report.json` (Primary, Null, Robustness). (SC-001 to SC-005)
+- [X] T034a [P] Aggregate all results into `data/results/final_report.json` (Primary, Null, Robustness). (SC-001 to SC-005)
 - [ ] T034b [P] [Requires: T034a] Verify success criteria status in `final_report.json`: assert p-value < 0.05, correlation stability, etc. (SC-001 to SC-005)
 - [ ] T035 [P] [Requires: T034a] Generate visualizations: `data/results/null_dist.png`, `data/results/alpha_sweep.png`, `data/results/corr_matrix.png` using `matplotlib`.
 - [ ] T036 [P] Run end-to-end integration test on full pipeline with sample data subset

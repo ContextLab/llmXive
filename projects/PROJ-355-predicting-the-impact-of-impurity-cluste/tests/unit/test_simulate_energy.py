@@ -1,104 +1,108 @@
 """
-Unit tests for the simulation engine (T016b).
+Unit tests for the segregation energy simulation engine.
 """
-import os
+
 import pytest
 import numpy as np
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-from pymatgen.core import Structure, Lattice, Element
+from pymatgen.core import Structure, Lattice
 
-# Import the module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from code.data.simulate_energy import (
-    apply_structural_perturbation,
     get_simulation_config,
+    apply_structural_perturbation,
     calculate_segregation_energy,
-    RANDOM_SEED
+    run_simulation
 )
+from code.config import get_project_root
 
 @pytest.fixture
 def sample_structure():
-    """Create a simple BCC Fe structure for testing."""
-    lattice = Lattice.cubic(2.87)
+    """Create a simple FCC Fe structure for testing."""
+    lattice = Lattice.cubic(2.86) # Fe lattice constant approx
     coords = [
         [0, 0, 0],
-        [0.5, 0.5, 0.5]
+        [0.5, 0.5, 0],
+        [0.5, 0, 0.5],
+        [0, 0.5, 0.5]
     ]
-    species = [Element("Fe"), Element("Fe")]
-    struct = Structure(lattice, species, coords)
-    return struct
+    species = ["Fe"] * 4
+    return Structure(lattice, species, coords)
+
+def test_get_simulation_config():
+    """Test that config retrieval works."""
+    config = get_simulation_config()
+    assert "perturbation_magnitude" in config
+    assert "random_seed" in config
+    assert isinstance(config["perturbation_magnitude"], float)
+    assert isinstance(config["random_seed"], int)
 
 def test_apply_structural_perturbation_deterministic(sample_structure):
     """Test that perturbation is deterministic with a fixed seed."""
+    mag = 0.01
     seed = 42
-    mag = 0.05
     
-    # Run twice
-    struct1 = apply_structural_perturbation(sample_structure, mag, seed)
-    struct2 = apply_structural_perturbation(sample_structure, mag, seed)
+    # Apply twice
+    p1 = apply_structural_perturbation(sample_structure, mag, seed)
+    p2 = apply_structural_perturbation(sample_structure, mag, seed)
     
     # Check coordinates are identical
-    coords1 = struct1.cart_coords
-    coords2 = struct2.cart_coords
+    coords1 = p1.cartesian_coords
+    coords2 = p2.cartesian_coords
+    assert np.allclose(coords1, coords2), "Perturbation should be deterministic with fixed seed"
     
-    assert np.allclose(coords1, coords2), "Perturbation should be deterministic with same seed"
+    # Check that coordinates changed from original
+    orig_coords = sample_structure.cartesian_coords
+    assert not np.allclose(coords1, orig_coords), "Coordinates should be perturbed"
 
-def test_apply_structural_perturbation_magnitude(sample_structure):
-    """Test that perturbation magnitude is within bounds."""
-    seed = 42
-    mag = 0.05
+def test_apply_structural_perturbation_randomness(sample_structure):
+    """Test that different seeds produce different results."""
+    mag = 0.01
+    p1 = apply_structural_perturbation(sample_structure, mag, seed=42)
+    p2 = apply_structural_perturbation(sample_structure, mag, seed=123)
     
-    perturbed = apply_structural_perturbation(sample_structure, mag, seed)
-    
-    orig_coords = sample_structure.cart_coords
-    new_coords = perturbed.cart_coords
-    
-    diffs = np.linalg.norm(new_coords - orig_coords, axis=1)
-    
-    # Check that displacements are within [0, mag] (actually up to sqrt(3)*mag for vector sum, 
-    # but individual components are bounded by mag)
-    # The max displacement for a uniform cube of side 2*mag is sqrt(3)*mag
-    max_possible = np.sqrt(3) * mag
-    
-    assert np.all(diffs <= max_possible * 1.001), "Displacement exceeds expected magnitude"
-    assert np.all(diffs >= 0), "Displacement cannot be negative"
+    assert not np.allclose(p1.cartesian_coords, p2.cartesian_coords), "Different seeds should yield different perturbations"
 
-def test_get_simulation_config():
-    """Test that config returns expected keys."""
-    config = get_simulation_config()
-    assert "potential_file" in config
-    assert "perturbation_magnitude" in config
-    assert "random_seed" in config
-    assert "project_root" in config
-    assert config["random_seed"] == RANDOM_SEED
+def test_calculate_segregation_energy(sample_structure):
+    """Test energy calculation with EMT."""
+    # Create a perturbed structure
+    perturbed = apply_structural_perturbation(sample_structure, 0.01, 42)
+    ref_energy = -10.0 # Arbitrary reference
+    
+    seg_energy = calculate_segregation_energy(perturbed, ref_energy)
+    
+    assert isinstance(seg_energy, float)
+    # EMT energy for 4 Fe atoms is typically small negative
+    # E_seg = E_total - ref
+    # We just check it runs and returns a number
+    assert np.isfinite(seg_energy)
 
-@patch('code.data.simulate_energy.AseAtomsAdaptor')
-@patch('code.data.simulate_energy.EAM')
-def test_calculate_segregation_energy_mock(mock_eam, mock_adaptor, sample_structure, tmp_path):
-    """Test energy calculation with mocked ASE components."""
-    # Create a fake potential file
-    pot_file = tmp_path / "fake.eam.fs"
-    pot_file.write_text("fake potential")
+def test_run_simulation_empty_input(tmp_path):
+    """Test run_simulation with empty input list."""
+    output_path = tmp_path / "test_empty.csv"
+    run_simulation([], output_path)
     
-    # Mock the adapter
-    mock_atoms = MagicMock()
-    mock_atoms.get_potential_energy.return_value = -10.5
-    mock_adaptor.return_value.get_atoms.return_value = mock_atoms
-    
-    # Mock the calculator
-    mock_calc = MagicMock()
-    mock_eam.return_value = mock_calc
-    mock_atoms.set_calculator = MagicMock()
-    
-    energy = calculate_segregation_energy(sample_structure, str(pot_file))
-    
-    assert energy == -10.5
-    mock_atoms.set_calculator.assert_called_once()
-    mock_atoms.get_potential_energy.assert_called_once()
+    assert output_path.exists()
+    df = pd.read_csv(output_path)
+    assert len(df) == 0
+    assert list(df.columns) == ['bulk_config_id', 'impurity_species', 'segregation_energy', 'calculation_status']
 
-def test_potential_file_not_found(sample_structure, tmp_path):
-    """Test that FileNotFoundError is raised if potential is missing."""
-    with pytest.raises(FileNotFoundError):
-        calculate_segregation_energy(sample_structure, "/nonexistent/path.eam.fs")
+def test_run_simulation_success(tmp_path, sample_structure):
+    """Test run_simulation with valid data."""
+    import pandas as pd
+    
+    data = [{
+        'structure': sample_structure,
+        'bulk_config_id': 'test_001',
+        'impurity_species': 'Cr',
+        'reference_energy': 0.0
+    }]
+    
+    output_path = tmp_path / "test_success.csv"
+    run_simulation(data, output_path)
+    
+    assert output_path.exists()
+    df = pd.read_csv(output_path)
+    assert len(df) == 1
+    assert df.iloc[0]['bulk_config_id'] == 'test_001'
+    assert df.iloc[0]['calculation_status'] == 'SUCCESS'
+    assert np.isfinite(df.iloc[0]['segregation_energy'])

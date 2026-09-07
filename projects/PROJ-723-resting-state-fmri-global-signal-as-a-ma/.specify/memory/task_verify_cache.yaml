@@ -1,39 +1,3 @@
-T010:
-  c: false
-  h: ab439e4a53b64bff8095c5e0be7938a4e4ec38b50b646bcd2950690bce9c422f
-  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, and\
-    \ `code/ingestion.py` contains no logic that reads a schema or aborts with \u201C\
-    FATAL: Dataset Mismatch\u201D when required columns are absent. The task\u2019\
-    s core requirement\u2014schema\u2011based verification and fatal exit\u2014is\
-    \ therefore not satisfied."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log files implementing the subject\u2011validation logic\
-    \ are present; the evidence consists only of the task description and project\
-    \ spec. The required artifact\u2014a piece of software that joins fMRI and MWQ\
-    \ data, excludes unmatched subjects, and records exclusion counts\u2014is missing."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, configuration, or log file was provided that implements the\
-    \ per\u2011subject mean FD >\u202F0.5\u202Fmm exclusion or records the exclusion\
-    \ counts (FR\u2011008). Without such artifacts, the requirement cannot be verified\
-    \ as satisfied."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test file was presented that adds a zero\u2011variance (`global_signal_sd\
-    \ == 0`) exclusion check and logs a warning. The provided project description\
-    \ and user stories do not contain the required implementation artifact, so the\
-    \ task is not satisfied."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided materials contain only the project specification and user stories;\
-    \ there is no code, script, function, or output that computes the empirical p\u2011\
-    value as the proportion of null MAEs \u2264 the observed MAE. Consequently, the\
-    \ required artifact is missing."
 T024:
   c: false
   h: 1b5f1d0948df6b7c84af4970b59981403700e9652715d788eb683a0f367ba2b6
@@ -42,3 +6,17 @@ T024:
     \ or VIF\u2011threshold warnings). Moreover, the required input file `data/processed/cleaned_data.csv`\
     \ and the expected output `data/results/diagnostics.json` are absent. The task\u2019\
     s deliverables are therefore not present."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, data file, or result showing a partial correlation analysis\
+    \ controlling for mean FD is provided, nor any evidence that a p\u2011value\u202F\
+    <\u202F0.05 was obtained. The required artifact is missing."
+T034b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `final_report.json` file or any excerpt showing the asserted success criteria\
+    \ (p\u2011value <\u202F0.05, correlation stability, SC\u2011001\u2026SC\u2011\
+    005) is present. Without the actual JSON content we cannot confirm that the required\
+    \ checks were performed. The implementer must provide a non\u2011empty `final_report.json`\
+    \ containing the specified success\u2011criteria fields and their values."

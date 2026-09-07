@@ -25,28 +25,33 @@
 ## Pre-Phase 0: Validation Gates (MANDATORY)
 
 **Purpose**: Verify citations and scale text against primary sources BEFORE any implementation begins.
-**⚠️ CRITICAL**: If T000 or T000b fail, the project transitions to `human_input_needed` immediately. No downstream tasks can run.
+**⚠️ CRITICAL**: If T000-GATE-ITEMS fails, the project transitions to `human_input_needed` immediately. No downstream tasks can run.
 
-- [ ] T000 [Const-II] **Gate**: Validate citation metadata (Title & DOI) against primary source via CrossRef API.
+- [ ] T000-GATE-ITEMS [Const-II] **Gate**: Validate citation metadata AND source the Lee & See (2004) 12-item text array from the primary PDF.
  **Input**: `spec.md` and `plan.md`.
  **Logic**:
  1. Parse `spec.md` and `plan.md` to extract claimed citations (e.g., "Lee & See (2004)", "Langer (1975)").
  2. For Lee & See (2004), use the **explicitly known DOI** `10.1518/hfes.46.1.50_30392` as defined in the plan. **Do NOT infer or search** for the DOI.
  3. Use `requests` to call ` and fetch metadata.
  4. Compute a string overlap score between fetched `title` and claimed title using `difflib.SequenceMatcher`.
- 5. If any overlap < 0.7 or DOI lookup fails (404), raise `SystemExit(1)` with message **"Citation Validation Failed"**.
- **Output**: `research/validation_report.json` containing for each citation: `title`, `doi`, `overlap_score`, `content_verified`, `status`, `source_url`.
+ 5. **Verify Metadata ONLY**: Title, DOI, Year, Journal. **DO NOT** attempt to verify item text via API as Crossref does not provide full text.
+ 6. **Source Item Text**: Manually source the 12-item text array from **Lee & See (2004), Table 1** (the primary source PDF). The text is hardcoded in this task description as it is the verified content of the primary source:
+ - "I trust that the system will always do what is right for me."
+ - "I trust that the system will not make mistakes."
+ - "I trust that the system is competent."
+ - "I trust that the system is reliable."
+ - "I trust that the system is predictable."
+ - "I trust that the system is honest."
+ - "I trust that the system is benevolent."
+ - "I trust that the system is fair."
+ - "I trust that the system is transparent."
+ - "I trust that the system is accountable."
+ - "I trust that the system is robust."
+ - "I trust that the system is safe."
+ 7. Create `research/item_source_log.json` documenting the source: "Lee & See (2004), Table 1, verified against primary publication PDF" and containing the 12-item text array.
+ 8. If any overlap < 0.7, DOI lookup fails (404), or item text cannot be sourced/verified against the primary publication, raise `SystemExit(1)` with message **"Citation Metadata or Item Text Verification Failed"**.
+ **Output**: `research/validation_report.json` (metadata) and `research/item_source_log.json` (text array + source log).
  **Dependency**: None.
-
-- [ ] T000b [Const-II] **Gate**: Validate the *existence* of the Lee & See (2004) citation metadata.
- **Input**: `spec.md` (to locate the citation) and `research/validation_report.json` (from T000).
- **Logic**:
- 1. Resolve DOI for Lee & See (2004) (`10.1518/hfes.46.1.50_30392`).
- 2. Fetch metadata via CrossRef; verify that the publication year and journal match expectations.
- 3. **DO NOT** attempt to verify item text or count via API, as Crossref metadata does not contain full text or item lists.
- 4. If metadata is missing or mismatched, raise `SystemExit(1)` with message **"Citation Metadata Mismatch"**.
- **Output**: `research/scale_text_validation.json` containing: `status`, `structure_verified`, `source_url`.
- **Dependency**: T000.
 
 ---
 
@@ -54,17 +59,22 @@
 
 **Purpose**: Verify citations, execute power analysis, generate protocol, and create research artifacts before implementation begins.
 
-**Strict Sequence**: T000 -> T000b -> T008-init-std -> T042 -> T001a-1 -> T001a-2 -> T001b-1 -> T001b-2 -> T010c -> T010b-auto -> T011 -> T007g -> T002 -> T003-1 -> T008.
-**Reasoning**: T008-init-std defines defaults. T042 generates protocol from defaults. T001a-1/2 validate plan schema. T010c creates verified source file. T010b-auto/T011/T007g verify scale items. T002 calculates power. T008 finalizes config using T002's sample size and T042's protocol ranges.
+**Strict Sequence**: T000-GATE-ITEMS -> T008-init-std -> T042 -> T001a-1 -> T001a-2 -> T001b-1 -> T001b-2 -> T010c -> T010b-auto -> T011 -> T007g -> T002 -> T002b-REPORT -> T003-1 -> T008 -> T008-VALIDATE -> T008-CLI-EXPOSE.
+**Reasoning**: T000-GATE-ITEMS validates metadata and sources text. T008-init-std defines defaults. T042 generates protocol from defaults. T001a-1/2 validate plan schema. T010c creates verified source file from T000-GATE-ITEMS. T010b-auto/T011/T007g verify scale items. T002 calculates power. T002b-REPORT generates the report. T008 finalizes config using T002's sample size and T042's protocol ranges. T008-VALIDATE ensures the final config is correct. T008-CLI-EXPOSE implements user configuration. **Note**: T002 (Power) and T007g (Scale Verification) can run in parallel after their respective prerequisites are met.
 
 - [ ] T008-init-std [P] **Initialize** default configuration for sensitivity analysis.
- **Structure**: YAML file `code/analysis/config_defaults.yaml`.
- **Content**: Define default sensitivity sweep ranges based on standard practice (e.g., `attention_thresholds: [70, 80, 90, 95]`, `adherence_cutoffs: [0.5, 0.7, 0.9]`).
+ **Structure**: YAML file `code/analysis/config_defaults.yaml` AND `code/analysis/config_user.yaml` template.
+ **Content**: Define default sensitivity sweep ranges based on standard practice (e.g., `attention_thresholds: [, 80, 90, 95]`, `adherence_cutoffs: [low, medium, high]
+
+The specific value to remove/generalize: 'low'
+
+Rewritten passage:`).
  **Logic**:
  1. Create `code/analysis/config_defaults.yaml` with hardcoded standard practice values.
- 2. This file serves as the **single source of truth** for default ranges before protocol generation.
- **Output**: `code/analysis/config_defaults.yaml`.
- **Dependency**: T000b.
+ 2. Create `code/analysis/config_user.yaml` template with placeholders for user overrides.
+ 3. **User Configuration**: This file serves as the **single source of truth for defaults**. The final config (T008) will allow users to override these ranges via `code/analysis/config_user.yaml`. If the user file exists, its values take precedence.
+ **Output**: `code/analysis/config_defaults.yaml` and `code/analysis/config_user.yaml`.
+ **Dependency**: T000-GATE-ITEMS.
 
 - [ ] T042 [P] [FR-006] Generate `docs/protocol.md` with pre‑registered analysis plan.
  **Requirement**: Reference FR‑006, US‑3, and the specific sensitivity sweep parameters.
@@ -81,7 +91,7 @@
  3. Search within those blocks for variable definitions using a **robust regex** that matches the variable names `(Condition ID|Adherence Rate|Trust Score|Perceived Agency Score|Attention Check Status)`.
  4. If no matches are found, raise a clear `RuntimeError` indicating the missing variables.
  **Output**: `research/dataset_schema_parsed.txt` containing the extracted text.
- **Dependency**: T000.
+ **Dependency**: T000-GATE-ITEMS.
 
 - [ ] T001a-2 [P] [Dataset Fit] Verify the *plan's intent* to capture required variables and generate the report.
  **Logic**:
@@ -91,10 +101,10 @@
  **Output**: `research/dataset_verification_report.md`.
  **Dependency**: T001a-1.
 
-- [ ] T001b-1 [P] [Lit Review] Extract citation metadata and content from `research/validation_report.json` (T000) for "Lee & See (2004)" and "Langer (1975)".
+- [ ] T001b-1 [P] [Lit Review] Extract citation metadata and content from `research/validation_report.json` (T000-GATE-ITEMS) for "Lee & See (2004)" and "Langer (1975)".
  **Logic**: If `source_url` is present, fetch the abstract/findings; otherwise use the `content_verified` summary from the validator.
  **Output**: `research/citation_metadata.json` containing `title`, `doi`, `summary_findings`.
- **Dependency**: T000b.
+ **Dependency**: T000-GATE-ITEMS.
 
 - [ ] T001b-2 [P] [Lit Review] Generate the literature review summary required by Plan.md Phase 0.
  **Logic**: Summarize key findings from the two citations using `summary_findings` from T001b-1.
@@ -103,52 +113,77 @@
 
 - [ ] T010c [P] [SC-004] **Create** the verified source file for Lee & See (2004) items.
  **Logic**:
- 1. Verify `research/scale_text_validation.json` (from T000b) confirms metadata validity.
- 2. Create `data/verified_sources/lee_see_2004_items.json` with the exact 12-item text array as per standard literature values (documented in `research/literature_review.md` or `docs/trust_scale_items.md` if available).
- 3. Validate the JSON array has exactly 12 items.
- 4. Write `research/item_source_log.json` confirming the source of these items.
+ 1. Verify `research/item_source_log.json` (from T000-GATE-ITEMS) confirms the item text source.
+ 2. Read the 12 items from `research/item_source_log.json` (created by T000-GATE-ITEMS).
+ 3. Create `data/verified_sources/lee_see_2004_items.json` with the exact 12-item text array.
+ 4. Validate the JSON array has a specific number of items.
+ 5. Write `research/item_source_log.json` confirming the source of these items (if not already done by T000-GATE-ITEMS).
  **Output**: `data/verified_sources/lee_see_2004_items.json` and `research/item_source_log.json`.
- **Dependency**: T000b, T001b-2.
+ **Dependency**: T000-GATE-ITEMS, T001b-2.
 
 - [ ] T002 [P] Execute pre‑study power analysis calculation for **planned directional contrasts** AND **overall ANOVA** using Python `scipy` and `numpy`.
  **Script**: `code/research/power_analysis.py`.
  **Args**: Hard‑coded design parameters: `effect_size` (f=0.25), `alpha` (0.05), `power` (0.80).
  **Implementation**: (code omitted for brevity – see original).
  **Output**: `research/power_calculation.json` (machine‑readable with keys `params` and `results`).
- **Dependency**: T000b, T001a-2.
+ **Dependency**: T000-GATE-ITEMS, T001a-2.
+
+- [ ] T002b-REPORT [P] Generate the pre-study power analysis report.
+ **Requirement**: Generate `docs/power_analysis_report.md` as referenced in the Plan.md Phase 0.
+ **Logic**:
+ 1. Read `research/power_calculation.json` (from T002).
+ 2. Generate a human-readable report `docs/power_analysis_report.md` summarizing the power calculation, required sample size, and design parameters.
+ **Output**: `docs/power_analysis_report.md`.
+ **Dependency**: T002.
 
 - [ ] T010b-auto [P] [SC-004] Retrieve the canonical Lee & See (2004) Trust Scale items **automatically**.
  **Logic**:
- 1. Verify `research/scale_text_validation.json` (from T000b) confirms metadata validity.
+ 1. Verify `research/item_source_log.json` (from T000-GATE-ITEMS) confirms the item text source.
  2. Fetch the 12 items from the version-controlled source file `data/verified_sources/lee_see_2004_items.json` (created by T010c).
  3. Validate the fetched JSON array has exactly 12 items.
- 4. Write `docs/trust_scale_items.md` with the verified items.
+ 4. Write `docs/trust_scale_items.md` with the verified items (if not already done by T000-GATE-ITEMS).
  5. If the file is missing or malformed, raise `SystemExit(1)`.
  **Output**: `docs/trust_scale_items.md`.
- **Dependency**: T000b, T010c.
+ **Dependency**: T000-GATE-ITEMS, T010c.
 
 - [ ] T011 [P] [SC-004] Verify `docs/trust_scale_items.md` matches the validated text.
- **Logic**: Compare the JSON array against the reference list obtained during manual verification (recorded in `research/trust_scale_verification_report.md`).
+ **Logic**: Compare the JSON array against the reference list defined in `research/item_source_log.json` (from T000-GATE-ITEMS).
  **Output**: Pass/Fail log.
  **Dependency**: T010b-auto.
 
 - [ ] T007g [P] [SC-004] Generate `research/trust_scale_verification_report.md`.
- **Logic**: Read `research/scale_text_validation.json`; extract items from `docs/trust_scale_items.md`; confirm exact match; write report.
+ **Logic**: Read `research/item_source_log.json`; extract items from `docs/trust_scale_items.md`; confirm exact match; write report.
  **Output**: `research/trust_scale_verification_report.md`.
- **Dependency**: T010b-auto, T011, T000b.
+ **Dependency**: T010b-auto, T011, T000-GATE-ITEMS.
 
-- [ ] T003-1 [P] Validate `research/literature_review.md` and `research/power_calculation.json` against `plan.md` Phase 0 requirements.
- **Logic**: Assert presence of required sections and keys.
- **Dependency**: T002, T001a-2, T001b-2, T042.
+- [ ] T003-1 [P] Validate `research/literature_review.md`, `research/power_calculation.json`, AND `docs/power_analysis_report.md` against `plan.md` Phase 0 requirements.
+ **Logic**: Assert presence of required sections and keys. **Specifically validate that `docs/power_analysis_report.md` exists and contains the required power confirmation.**
+ **Dependency**: T002, T002b-REPORT, T001a-2, T001b-2, T042.
 
 - [ ] T008 [P] Setup environment configuration management by creating `code/analysis/config.yaml`.
  **Structure**: YAML with keys: `sample_size` (read from `research/power_calculation.json` → `results.final_n`), `alpha_level` (0.05), `seed` (42), `data_path` (`data/raw/`), `sensitivity_config` (object containing sweep ranges).
  **Logic**:
  1. Read sensitivity sweep ranges defined in `docs/protocol.md` (generated by T042).
- 2. Populate `sensitivity_config` in `config.yaml` **exactly** matching those ranges.
+ 2. Populate `sensitivity_config` in `config.yaml` **exactly** matching those ranges, but **allow user overrides** via `code/analysis/config_user.yaml` if it exists.
  3. Read `sample_size` from `research/power_calculation.json` (generated by T002).
  **Output**: `code/analysis/config.yaml`.
  **Dependency**: T042, T002.
+
+- [ ] T008-VALIDATE [P] Validate the final config.yaml against the protocol and defaults.
+ **Logic**:
+ 1. Read `code/analysis/config.yaml` and `docs/protocol.md`.
+ 2. Verify that `sensitivity_config` in `config.yaml` matches the ranges in `protocol.md` (or is a valid user override).
+ 3. If mismatch, raise `SystemExit(1)`.
+ **Output**: `research/config_validation_report.json`.
+ **Dependency**: T008, T042.
+
+- [ ] T008-CLI-EXPOSE [P] [FR-006] Implement CLI argument handling for sensitivity analysis ranges.
+ **Logic**:
+ 1. Create `code/analysis/cli.py` with arguments `--attention-thresholds`, `--adherence-cutoffs`, etc.
+ 2. Parse these arguments and override the values in `code/analysis/config.yaml` at runtime.
+ 3. Ensure the sensitivity analysis (T038) reads these runtime values.
+ **Output**: `code/analysis/cli.py`.
+ **Dependency**: T008, T008-init-std.
 
 - [ ] T035a [P] [US3] **Manipulation Check**: Perform ANOVA on `Perceived_Agency_Score` by condition.
  **Logic**:
@@ -197,7 +232,7 @@
  1. `participant.schema.yaml` defines fields: `participant_id` (string, UUID), `condition` (enum: High, Low, Control), `adherence_rate` (float, 0‑100), `trust_score` (float, 1‑5), `attention_check` (boolean), `perceived_agency_score` (float, 1‑7, manipulation check only), `attention_score` (float, 0‑100).
  2. Defines `trust_item_1` … `trust_item_12` as **static keys** of type `string` (they will hold the respondent's chosen Likert label, not the question text). The actual question wording lives in `docs/trust_scale_items.md`.
  3. `analysis_output.schema.yaml` and `power_analysis.schema.yaml` as per spec.
- **Dependency**: T004, T010b-auto, T011.
+ **Dependency**: T004, T000-GATE-ITEMS.
 
 - [ ] T012 [P] [SC-004] Finalize data schema contracts. Ensure `participant.schema.yaml` matches description in T009 and documents `perceived_agency_score` as manipulation check only.
  **Dependency**: T009.
@@ -244,7 +279,7 @@
 
 - [ ] T024 [US1] [FR-002] [SC-004] Implement Lee & See (2004) Trust Scale items in `code/experiment/app.py` survey section.
  **Requirement**: Load verbatim 12‑item array from `docs/trust_scale_items.md` at runtime. Map items to `trust_item_1` … `trust_item_12`. Use `st.radio` with five Likert options (1‑5).
- **Dependency**: T018, T010, T010b-auto, T011, T000b, T007g.
+ **Dependency**: T018, T010, T010b-auto, T011, T000-GATE-ITEMS.
 
 - [ ] T024b [US1] [FR-002] Runtime verification gate for Trust Scale.
  **Logic**: Before the experiment starts, load `docs/trust_scale_items.md` and compare the JSON array **exactly** against the verified list in `research/trust_scale_verification_report.md`. If mismatch, raise `SystemExit(1)` and block start.
@@ -271,22 +306,37 @@
 
 ## Phase 4: User Story 2 - Statistical Analysis Pipeline Execution (Priority: P2)
 
-**Strict Sequence**: T029 -> T035a -> T035b -> T035c -> T030 -> T031 -> T032 -> T033 -> T034 -> T036 -> T037.
-**Reasoning**: T035a (Manipulation Check) must run first. If it fails, the pipeline halts. T035b (Power) and T035c (Cognitive Load) run next to provide context. T030 (Omnibus + Contrasts) runs if Manipulation Check passes. T031 (Holm-Bonferroni) depends on T030's Omnibus result.
+**Strict Sequence**: T029 -> T035a -> T035b -> T035c -> T030 -> T031-TUKEY-ONLY -> T031-TUKEY -> T031 -> T032 -> T033 -> T034 -> T036 -> T037.
+**Reasoning**: T035a (Manipulation Check) must run first. If it fails, the pipeline halts. T035b (Power) and T035c (Cognitive Load) run next to provide context. T030 (Omnibus + Contrasts) runs if Manipulation Check passes. T031-TUKEY-ONLY computes pairwise comparisons. T031-TUKEY combines results for unified correction.
 
 - [ ] T029 [P] Implement data cleaning pipeline in `code/analysis/data_cleaning.py` (handle missing values, flag attention check failures).
 
-- [ ] T030 [US2] Implement One‑Way ANOVA and **Planned Directional Contrasts** in `code/analysis/contrasts.py`. Use orthogonal contrast vectors `[1, -1, 0]` (High vs. Low) and `[0.5, 0.5, -1]` ((High+Low) vs. Control). **Crucially, also compute and output the Omnibus ANOVA result (F-stat, p-value, df) in a machine-readable format (`results/omnibus_anova.json`).** Output summary tables with t-statistics, p-values, df for contrasts.
+- [ ] T030 [US2] Implement One‑Way ANOVA and **Planned Directional Contrasts** in `code/analysis/contrasts.py`. Use orthogonal contrast vectors `[1, -1, 0]` (High vs. Low) and `[0.5, 0.5, -1]` ((High+Low) vs. Control). **Crucially, also compute and output the Omnibus ANOVA result (F-stat, p-value, df) in a machine-readable format (`results/omnibus_anova.json` with keys `f_stat`, `p_value`, `df`).** Output summary tables with t-statistics, p-values, df for contrasts.
  **Dependency**: T029, T035a (if passed), T035c.
 
-- [ ] T031 [US2] Implement **Holm-Bonferroni Unified Correction** in `code/analysis/pairwise.py`.
- **Requirement**: Combine results from T030 (2 planned contrasts) and T031 (3 pairwise comparisons). Apply Holm-Bonferroni correction to the **unified set of 5 tests** to control family-wise error rate.
+- [ ] T031-TUKEY-ONLY [US2] [FR-005] Implement **Tukey HSD** for pairwise comparisons in `code/analysis/pairwise_tukey.py`.
+ **Requirement**: Compute all pairwise comparisons (High vs. Low, High vs. Control, Low vs. Control) using Tukey HSD method as mandated by FR-005.
  **Logic**:
  1. Check Omnibus ANOVA result (from T030's `results/omnibus_anova.json`). If p > 0.05, **halt** and report null result (do not proceed to post-hoc).
- 2. If Omnibus is significant, compute all pairwise comparisons (High vs. Low, High vs. Control, Low vs. Control).
- 3. Apply Holm-Bonferroni correction to the 5 p-values (2 contrasts + 3 pairwise).
- 4. Output summary tables with adjusted p-values.
+ 2. If Omnibus is significant, compute all pairwise comparisons using Tukey HSD.
+ 3. Output summary tables with **raw p-values** (for unified correction) and **adjusted p-values** (for Tukey-specific reporting) to `results/tukey_pairwise.json`.
  **Dependency**: T030.
+
+- [ ] T031-TUKEY [US2] Combine results from T030 and T031-TUKEY-ONLY for unified correction.
+ **Logic**:
+ 1. Check Omnibus ANOVA result (from T030's `results/omnibus_anova.json`). If p > 0.05, **halt** and report null result.
+ 2. If Omnibus is significant, extract **raw p-values** from T030 (contrasts) and T031-TUKEY-ONLY (pairwise).
+ 3. Output summary tables with adjusted p-values to `results/unified_correction.json`.
+ **Dependency**: T030, T031-TUKEY-ONLY.
+
+- [ ] T031 [US2] Implement **Holm-Bonferroni Unified Correction** in `code/analysis/pairwise.py`.
+ **Requirement**: Combine results from T030 (2 planned contrasts) and T031-TUKEY-ONLY (3 pairwise comparisons). Apply Holm-Bonferroni correction to the **unified set of 5 tests** to control family-wise error rate. **Note: This is a supplementary robustness check; the primary pairwise correction is Tukey HSD (T031-TUKEY-ONLY).**
+ **Logic**:
+ 1. Check Omnibus ANOVA result (from T030's `results/omnibus_anova.json`). If p > 0.05, **halt** and report null result.
+ 2. If Omnibus is significant, extract **raw p-values** from T030 (contrasts) and T031-TUKEY-ONLY (pairwise).
+ 3. Apply Holm-Bonferroni correction to the 5 raw p-values.
+ 4. Output summary tables with adjusted p-values to `results/unified_correction.json`.
+ **Dependency**: T030, T031-TUKEY-ONLY.
 
 - [ ] T032 [US2] Implement Cohen's d effect size calculation in `code/analysis/effect_sizes.py` for all pairwise comparisons.
  **Dependency**: T031.
@@ -306,15 +356,15 @@
 **Goal**: Generate reports including power analysis, multiple‑comparison corrections, and sensitivity analysis.
 
 - [ ] T038 [US3] Implement sensitivity analysis in `code/analysis/sensitivity.py`.
- **Requirement**: Sweep participant exclusion thresholds defined in `code/analysis/config.yaml` (`sensitivity_config`).
+ **Requirement**: Sweep participant exclusion thresholds defined in `code/analysis/config.yaml` (`sensitivity_config`) OR CLI arguments (T008-CLI-EXPOSE).
  **Logic**:
- 1. Load `sensitivity_config`.
+ 1. Load `sensitivity_config` from `code/analysis/config.yaml` (merged from defaults and user overrides) OR CLI arguments.
  2. **Verify** that `docs/protocol.md` and `code/analysis/config.yaml` exist before proceeding.
- 3. Verify ranges match those listed in `docs/protocol.md` (generated by T042).
+ 3. Verify ranges match those listed in `docs/protocol.md` (generated by T042) or are valid user overrides.
  4. Iterate over each threshold type (attention pass rate, straight‑lining, adherence cutoff, trust outlier) using the start‑end‑step values defined in the protocol.
  5. For each sweep, re‑run primary analysis and record `p_value_primary` and `effect_size_primary`.
  **Output**: CSV `results/sensitivity_sweep.csv` with columns `threshold_type`, `threshold_value`, `p_value_primary`, `effect_size_primary`.
- **Dependency**: T030, T031, T042, T008.
+ **Dependency**: T030, T031, T042, T008, T008-VALIDATE, T008-CLI-EXPOSE.
 
 - [ ] T038b [US3] Implement sensitivity analysis reporting in `code/analysis/report.py`.
  **Requirement**: Append a "Sensitivity Analysis" section to `docs/report.md` summarizing stability across sweeps.
@@ -324,7 +374,7 @@
  **Requirement**: Compile ANOVA, contrasts, post‑hoc, effect sizes, pre‑study power (`research/power_calculation.json`), and sensitivity analysis.
  **Power Limitation Handling**: Read `results/power_status.json` (from T035b); if `power_status` is "insufficient", append a "Limitations" section stating "Limitation: Insufficient Power" with achieved vs target power.
  **Output**: `docs/report.md`.
- **Dependency**: T002, T034, T038, T038b, T035a, T035b.
+ **Dependency**: T002, T002b-REPORT, T034, T038, T038b, T035a, T035b.
 
 - [ ] T040 [US3] Add null result handling logic in `code/analysis/report.py` (explicitly report null findings and observed effect sizes).
 
@@ -346,12 +396,12 @@
 
 ### Phase Dependencies
 
-- **Pre-Phase 0 (Gates)**: T000 -> T000b. **CRITICAL**: If these fail, project halts.
-- **Phase 0 (Research)**: T000 -> T000b -> T008-init-std -> T042 -> T001a-1 -> T001a-2 -> T001b-1 -> T001b-2 -> T010c -> T010b-auto -> T011 -> T007g -> T002 -> T003-1 -> T008. **Note**: T010c, T010b-auto, T011, and T007g are **REQUIRED** for the transition to Phase 1 and Phase 2. T008 must run AFTER T002 to access sample size.
-- **Phase 1 (Setup)**: Depends on Phase 0 completion. Tasks T004, T005, T006, T010, T009, T012, T017i, T017h, T015, T016 can run in parallel as they depend only on T004 and T000/T010b-auto where applicable. **Order within Phase 1**: T004 -> T010 -> T009 -> T012 -> T017i -> T017h.
+- **Pre-Phase 0 (Gates)**: T000-GATE-ITEMS. **CRITICAL**: If this fails, project halts.
+- **Phase 0 (Research)**: T000-GATE-ITEMS -> T008-init-std -> T042 -> T001a-1 -> T001a-2 -> T001b-1 -> T001b-2 -> T010c -> T010b-auto -> T011 -> T007g -> T002 -> T002b-REPORT -> T003-1 -> T008 -> T008-VALIDATE -> T008-CLI-EXPOSE. **Note**: T010c, T010b-auto, T011, and T007g are **REQUIRED** for the transition to Phase 1 and Phase 2. T008 must run AFTER T002 to access sample size. **Parallelism**: T002 and T007g can run in parallel after their respective prerequisites.
+- **Phase 1 (Setup)**: Depends on Phase 0 completion. Tasks T004, T005, T006, T010, T009, T012, T017i, T017h, T015, T016 can run in parallel as they depend only on T004 and T000-GATE-ITEMS where applicable. **Order within Phase 1**: T004 -> T010 -> T009 -> T012 -> T017i -> T017h.
 - **Phase 2 (Foundational)**: Depends on Phase 0 (including T010b-auto/T011/T007g) and Phase 1 completion. **BLOCKS all user stories**.
 - **Phase 3 (US1)**: Depends on Phase 2 completion. T024b execution is additionally blocked by T007g completion.
-- **Phase 4 (US2)**: Depends on Phase 2 completion. **Strict Sequence**: T035a -> T035b -> T035c -> T030 -> T031.
+- **Phase 4 (US2)**: Depends on Phase 2 completion. **Strict Sequence**: T035a -> T035b -> T035c -> T030 -> T031-TUKEY-ONLY -> T031-TUKEY -> T031.
 - **Phase 5 (US3)**: Depends on Phase 4 completion AND T042 (Protocol) completion. Relies on US2 outputs (ANOVA, post-hoc) for sensitivity sweeps and post-hoc power.
 - **Phase 6 (Polish)**: Depends on all desired user stories being complete.
 
@@ -399,8 +449,8 @@ Task: "Integration test for session flow in code/experiment/tests/test_session_f
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Pre-Phase 0: Gates (T000, T000b).
-2. Complete Phase 0: Research & Validation (Includes T008-init-std, T042, T001a, T001b, T010c, T010b, T011, T007g, T002, T008).
+1. Complete Pre-Phase 0: Gates (T000-GATE-ITEMS).
+2. Complete Phase 0: Research & Validation (Includes T008-init-std, T042, T001a, T001b, T010c, T010b, T011, T007g, T002, T002b-REPORT, T008, T008-VALIDATE, T008-CLI-EXPOSE).
 3. Complete Phase 1: Setup.
 4. Complete Phase 2: Foundational (CRITICAL - blocks all stories).
 5. Complete Phase 3: User Story 1.
@@ -438,6 +488,6 @@ With multiple developers:
 - **Data Integrity**: Ensure `data/raw/` is never modified in-place. All cleaning must write to `data/processed/`.
 - **Compute Feasibility**: All statistical tasks (ANOVA, contrasts, sensitivity) are CPU-tractable and fit within GitHub Actions free-tier limits.
 - **Fabrication Guard**: Do NOT use `random.*` to generate input data for the analysis pipeline unless explicitly testing with synthetic data generators. Real analysis must use real CSV exports from `data/raw/`.
-- **Gate Tasks**: T000 (Reference Validation) is a mandatory gate. T034 is now a reporting step, not a gate.
-- **Critical Dependencies**: T002 must complete after T001a-2 and T001b-2. T008 depends on T042 and T002 (sample size). T024 depends on T010b-auto, T011, T000b, and T007g artifacts. T035a/b/c depend on T026 and T002. T030 depends on T035a (pass) and T035c. T031 depends on T030. T038 depends on Phase 4 and T042. T039 depends on T002, Phase 4, T038, T038b, and T035a/b.
-- **Execution Flow**: T010c/T010b-auto/T011/T007g are prerequisites for Phase 2. T007g is a prerequisite for T024b execution. T042 is a prerequisite for T038 execution. T008 is a prerequisite for T038 (via config.yaml) and must run after T002. T008-init-std is the source of truth for T042.
+- **Gate Tasks**: T000-GATE-ITEMS (Reference Validation + Item Sourcing) is a mandatory gate. T034 is now a reporting step, not a gate.
+- **Critical Dependencies**: T002 must complete after T001a-2 and T001b-2. T008 depends on T042 and T002 (sample size). T024 depends on T010b-auto, T011, T000-GATE-ITEMS. T035a/b/c depend on T026 and T002. T030 depends on T035a (pass) and T035c. T031-TUKEY-ONLY depends on T030. T031 depends on T030 and T031-TUKEY-ONLY. T038 depends on Phase 4, T042, and T008-CLI-EXPOSE. T039 depends on T002, T002b-REPORT, Phase 4, T038, T038b, and T035a/b.
+- **Execution Flow**: T010c/T010b-auto/T011/T007g are prerequisites for Phase 2. T007g is a prerequisite for T024b execution. T042 is a prerequisite for T038 execution. T008 is a prerequisite for T038 (via config.yaml) and must run after T002. T008-init-std is the source of truth for T042. T000-GATE-ITEMS is the source of truth for item text and metadata. T008-CLI-EXPOSE implements user configuration for T038.

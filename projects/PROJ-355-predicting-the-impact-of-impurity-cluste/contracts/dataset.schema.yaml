@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Bulk Configuration Dataset Schema
-description: Schema for validating bulk configurations downloaded from MP/OQMD before GB construction.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Bulk Configuration Dataset Schema"
+description: "Schema for validating bulk configuration data before GB construction"
 type: object
 required:
   - bulk_config_id
@@ -10,22 +10,18 @@ required:
 properties:
   bulk_config_id:
     type: string
-    description: Unique identifier for the bulk configuration (e.g., MP-ID).
-    pattern: "^[A-Za-z0-9_-]+$"
+    description: "Unique identifier for the bulk configuration"
+    pattern: "^[a-zA-Z0-9_-]+$"
   impurity_species:
-    type: array
-    items:
-      type: string
-    description: List of impurity species inserted (e.g., ['Cr', 'C']).
-    minItems: 1
+    type: string
+    description: "Chemical symbol of the impurity species"
+    pattern: "^[A-Z][a-z]?$"
   segregation_energy:
     type: number
-    description: Calculated segregation energy in eV.
-    minimum: -100
-    maximum: 100
+    description: "Calculated segregation energy in eV"
   clustering_descriptors:
     type: object
-    description: Object containing clustering descriptor values.
+    description: "Object containing clustering descriptor values"
     required:
       - rdf_peak
       - pair_corr
@@ -33,11 +29,11 @@ properties:
     properties:
       rdf_peak:
         type: number
-        description: Radial distribution function peak value.
+        description: "Radial distribution function peak value"
       pair_corr:
         type: number
-        description: Pair correlation statistic.
+        description: "Pair correlation statistic"
       voronoi_count:
         type: integer
-        description: Voronoi-based neighbor count in interface region.
+        description: "Voronoi neighbor count in interface region"
 additionalProperties: false

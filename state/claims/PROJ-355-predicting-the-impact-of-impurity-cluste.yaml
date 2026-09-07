@@ -1648,22 +1648,6 @@
   status: verified
   updated_at: '2026-07-11T21:29:17Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 5
-  canonical: pymatgen version 2024.1.1 specified in plan
-  claim_id: c_7eba6bc8
-  context: 'T002 Create requirements.txt with pinned versions: The plan specifies
-    using pymatgen version 2024.1.1.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T21:29:18Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: NIST EAM potential for Fe-Cr from NIST repository specified
   claim_id: c_1802bd1f
@@ -1882,24 +1866,6 @@
   source_type: external
   status: verified
   updated_at: '2026-08-05T07:29:10Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 1
-  canonical: VIF threshold 10 cited from arXiv 2005.02245
-  claim_id: c_2b04fa48
-  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
-    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
-    \ joint relationships."
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-  kind: numeric
-  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-05T07:29:27Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 0
   canonical: Manual k-fold CV logic with statsmodels OLS
@@ -2152,25 +2118,6 @@
   source_type: external
   status: verified
   updated_at: '2026-08-05T07:35:59Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 4
-  canonical: VIF threshold 10 for collinearity detection
-  claim_id: c_4bcdbfcb
-  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
-    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
-    \ joint relationships."
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-    status: not_found
-  kind: numeric
-  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-05T07:36:00Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: VIF threshold 10 cited 2005.02245
@@ -2442,22 +2389,6 @@
   status: verified
   updated_at: '2026-08-09T15:23:39Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 4
-  canonical: pymatgen version 2024.1.1
-  claim_id: c_75b43b49
-  context: 'Create requirements.txt with pinned versions: The plan specifies using
-    pymatgen version 2024.1.1.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T15:23:40Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: VIF threshold 10 for collinearity detection
   claim_id: c_c2db74fb
@@ -2585,22 +2516,6 @@
   status: not_enough_info
   updated_at: '2026-08-09T15:25:50Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 15
-  canonical: pymatgen version 2024.1.1 specified in plan
-  claim_id: c_275f8c18
-  context: 'Create requirements.txt with pinned versions: The plan specifies using
-    pymatgen version 2024.1.1.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-09T15:26:31Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 6
   canonical: NIST EAM potential for Fe-Cr from NIST repository specified
   claim_id: c_96a7584b
@@ -2653,3 +2568,254 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T15:27:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited from arXiv 2604.10702
+  claim_id: c_0a7ab587
+  context: 'T023 Implement code/modeling/train.py with Linear Regression as the primary
+    model... Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T06:39:49Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 6
+  canonical: pymatgen version 2024.1.1 specified in plan
+  claim_id: c_7eba6bc8
+  context: 'T002 Create requirements.txt with pinned versions: The plan specifies
+    using pymatgen version 2024.1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:40:16Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection cited from arXiv 2005.02245
+  claim_id: c_be3412f0
+  context: "T018 Implement code/data/descriptor_filter.py to compute VIF (Variance\
+    \ Inflation Factor) on descriptors. Action: Detect collinearity (VIF \u2265 10\
+    \ (2005.02245, https://arxiv.org/abs/2005.02245)) and generate a descriptive report."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:40:19Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: NIST EAM potential for Fe-Cr specified from NIST repository
+  claim_id: c_19f511fe
+  context: 'T016a Define the ''structurally perturbed representation'' logic and ''specific
+    NIST EAM potential'' parameters in code/data/simulate_energy.py constants: Potential:
+    The document specifies using a specific NIST EAM potential for Fe-Cr from the
+    NIST repository.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_for_Fe-Cr_specified_from_NIST_repository
+  kind: entity_fact
+  raw_text: The document specifies using a specific NIST EAM potential for Fe-Cr from
+    the NIST repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:40:37Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Tasks restricted to CPU-only GitHub Actions runner without GPU or deep
+    learning
+  claim_id: c_f3e1214a
+  context: 'Constraint: All tasks must run on a CPU-only GitHub Actions runner with
+    limited CPU and memory resources.; no GPU, no 8-bit/4-bit models, no deep learning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must run on a CPU-only GitHub Actions runner with limited CPU
+    and memory resources; no GPU, no 8-bit/4-bit models, no deep learning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:41:12Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited from 2604.10702
+  claim_id: c_06ce636a
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T06:41:45Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 5
+  canonical: pymatgen version 2024.1.1
+  claim_id: c_75b43b49
+  context: 'Create requirements.txt with pinned versions: The plan specifies using
+    pymatgen version 2024.1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:41:46Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis implementation
+  claim_id: c_0d7f47db
+  context: "Implement code/modeling/evaluate.py with sensitivity analysis {{claim:c_a2ce6442}};\
+    \ report RMSE variance and R\xB2 stability; output format: JSON with keys [threshold,\
+    \ rmse_variance, r2_stability] [FR-006]"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_implementation
+  kind: entity_fact
+  raw_text: Implement code/modeling/evaluate.py with sensitivity analysis {{claim:c_a2ce6442}}
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:42:38Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited as arxiv 2604.10702
+  claim_id: c_567e852e
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T06:43:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 6
+  canonical: VIF threshold 10 for collinearity detection
+  claim_id: c_4bcdbfcb
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
+    \ joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:43:25Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: CV split logic cited from arXiv 2604.10702
+  claim_id: c_0245a979
+  context: 'Implement a manual k-fold CV loop... Logic: {{claim:c_5c5df125}} (2604.10702,
+    https://arxiv.org/abs/2604.10702). For each fold: Train statsmodels.api.OLS with
+    cov_type=''HC3'' on 4 folds, predict on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T06:44:57Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection cited from arXiv 2005.02245
+  claim_id: c_021bf511
+  context: "Implement code/data/descriptor_filter.py to compute VIF... Detect collinearity\
+    \ (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245)) and generate\
+    \ a descriptive report"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:44:58Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 18
+  canonical: pymatgen version 2024.1.1 specified in plan
+  claim_id: c_275f8c18
+  context: 'Create requirements.txt with pinned versions: The plan specifies using
+    pymatgen version 2024.1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:47:07Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: VIF threshold 10 cited from arXiv 2005.02245
+  claim_id: c_2b04fa48
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
+    \ joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:47:13Z'

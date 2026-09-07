@@ -71,7 +71,7 @@ The system MUST compute correlation coefficients, perform causality tests with a
 - **FR-002**: System MUST align timestamps to daily intervals, perform stationarity testing (ADF), apply differencing if non-stationary (p ≥ 0.05), and then normalize to z-scores (See US-2)
 - **FR-003**: System MUST compute Pearson and Spearman correlation coefficients between negative news volume and anxiety indicators with p-value output (See US-3)
 - **FR-004**: System MUST perform Granger causality tests at varying lags to capture anticipatory dynamics, framing results as associational predictive relationships rather than causal effects. The wider lag window (up to 14 days) is justified by the hypothesis that anticipatory anxiety may build over weeks. (See US-3)
-- **FR-005**: System MUST conduct a sensitivity analysis sweeping the lag window ∈ {, 2, 3, 7, 14} days and report how the significance rate (p < 0.05) varies across these thresholds (See US-3)
+- **FR-005**: System MUST conduct a sensitivity analysis sweeping the lag window ∈ {short, medium, and long} days and report how the significance rate (p < 0.05) varies across these thresholds (See US-3)
 - **FR-006**: System MUST execute the entire analysis pipeline on a CPU-only environment without GPU/CUDA dependencies and within ≤ 6 hours (See US-3)
 
 ### Key Entities

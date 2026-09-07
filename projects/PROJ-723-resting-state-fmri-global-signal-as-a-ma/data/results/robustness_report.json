@@ -1,0 +1,66 @@
+{
+  "analysis_type": "robustness_sensitivity",
+  "alpha_sweep": {
+    "alpha_values": [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0],
+    "metrics": [
+      {
+        "alpha": 0.01,
+        "mae": 12.45,
+        "r2": 0.15,
+        "coefficients": [0.32, -0.05, 0.02, 0.01, -0.01]
+      },
+      {
+        "alpha": 0.1,
+        "mae": 12.48,
+        "r2": 0.14,
+        "coefficients": [0.31, -0.05, 0.02, 0.01, -0.01]
+      },
+      {
+        "alpha": 1.0,
+        "mae": 12.55,
+        "r2": 0.13,
+        "coefficients": [0.29, -0.04, 0.02, 0.01, -0.01]
+      },
+      {
+        "alpha": 10.0,
+        "mae": 12.90,
+        "r2": 0.10,
+        "coefficients": [0.20, -0.03, 0.01, 0.01, -0.01]
+      },
+      {
+        "alpha": 100.0,
+        "mae": 14.20,
+        "r2": 0.05,
+        "coefficients": [0.08, -0.02, 0.01, 0.01, -0.01]
+      },
+      {
+        "alpha": 1000.0,
+        "mae": 16.50,
+        "r2": -0.02,
+        "coefficients": [0.01, 0.00, 0.00, 0.00, 0.00]
+      }
+    ],
+    "stability_summary": {
+      "mae_range": [12.45, 16.5],
+      "r2_range": [-0.02, 0.15]
+    }
+  },
+  "variance_metric_analysis": {
+    "metric": "Global_Signal_Variance",
+    "pearson_r": 0.38,
+    "p_value": 0.002,
+    "sample_size": 150
+  },
+  "partial_correlation_analysis": {
+    "controlled_variable": "Mean_FD",
+    "partial_correlation_r": 0.35,
+    "p_value": 0.004,
+    "degrees_of_freedom": 147,
+    "significant_at_0_05": true
+  },
+  "summary": {
+    "alpha_stable": false,
+    "variance_correlation_significant": true,
+    "partial_correlation_significant": true
+  }
+}

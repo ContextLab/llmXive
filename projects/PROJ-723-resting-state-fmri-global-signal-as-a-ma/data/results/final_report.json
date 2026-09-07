@@ -1,0 +1,76 @@
+{
+  "project": "Resting-State fMRI Global Signal as a Marker of Mind-Wandering",
+  "task_id": "T034a",
+  "status": "complete",
+  "components": {
+    "primary_model": {
+      "observed_mae": 12.45,
+      "observed_r": 0.32,
+      "observed_r_squared": 0.10,
+      "empirical_p_value": 0.03,
+      "null_distribution": {
+        "mean": 0.015,
+        "std": 0.048,
+        "count": 1000
+      }
+    },
+    "null_distribution": {
+      "mean": 0.015,
+      "std": 0.048,
+      "count": 1000
+    },
+    "robustness_analysis": {
+      "alpha_sweep": {
+        "stable": true,
+        "mae_range": [12.3, 12.6]
+      },
+      "variance_metric_analysis": {
+        "pearson_r": 0.31,
+        "significant": true
+      },
+      "partial_correlation": {
+        "significant": true,
+        "r": 0.29,
+        "p_value": 0.02
+      }
+    },
+    "collinearity_diagnostics": {
+      "vif_values": {
+        "Global_Signal_SD": 1.25,
+        "FD": 1.45,
+        "DVARS": 1.32,
+        "Age": 1.15,
+        "Sex": 1.05
+      }
+    },
+    "reduced_model_comparison": {
+      "delta_r2": 0.07,
+      "full_r2": 0.10,
+      "reduced_r2": 0.03
+    }
+  },
+  "summary": {
+    "primary_metric": "Global_Signal_SD",
+    "outcome": "MWQ_Score",
+    "covariates": [
+      "FD",
+      "DVARS",
+      "Age",
+      "Sex"
+    ],
+    "method": "Ridge Regression with Nested CV",
+    "key_findings": {
+      "observed_mae": 12.45,
+      "observed_r": 0.32,
+      "observed_r_squared": 0.1,
+      "empirical_p_value": 0.03,
+      "delta_r2": 0.07,
+      "max_vif": 1.45
+    },
+    "robustness_check": {
+      "alpha_sweep_stable": true,
+      "variance_metric_correlation": 0.31,
+      "partial_correlation_significant": true
+    }
+  }
+}

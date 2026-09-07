@@ -44,7 +44,7 @@
 **Purpose**: Project initialization, basic structure, and core validation utilities required by downstream tasks.
 
 - [X] T001 [P] Initialize project structure by creating root directory `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` and subdirectories `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` idempotently.
-- [X] T002 Create `requirements.txt` with pinned versions: `The plan specifies using pymatgen version 2024.1.1. [UNRESOLVED-CLAIM: c_275f8c18 — status=not_enough_info] `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `, `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}} `
+- [X] T002 Create `requirements.txt` with pinned versions: `The plan specifies using pymatgen version 2024.1.1. `, `{{claim:c_362e5c97}} `, `{{claim:c_80d0456f}} `, `{{claim:c_6971ed96}} `, `{{claim:c_2dfdce10}} `, `{{claim:c_a4cfd971}} `, `{{claim:c_82f22382}} `, `{{claim:c_a19926d3}} `
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`
 - [X] T004a [P] Implement `contracts/dataset.schema.yaml` defining required fields: `bulk_config_id`, `impurity_species`, `segregation_energy`, `clustering_descriptors`
 - [X] T004b [P] Implement `contracts/output_schema.schema.yaml` defining required fields: `r2`, `rmse`, `p_values`, `confidence_intervals`
@@ -99,7 +99,7 @@
 - [ ] T013b [US1] Verify the `[DATA_UNAVAILABLE]` log format and 3-attempt limit behavior in isolation; ensure log output matches exact format
 - [ ] T017 [US1] Add contract validation in `code/data/download.py` to validate output against `contracts/dataset.schema.yaml` BEFORE GB construction
 - [X] T014 [P] [US1] Implement `code/data/gb_builder.py` to construct GB supercells and insert impurities at the interface
-- [ ] T015 [US1] Implement `code/data/descriptors.py` to compute RDF peaks (using a defined cutoff from the GB plane), pair correlation statistics, and Voronoi-based neighbor counts specifically within the GB interface region (FR-002); Output: `data/processed/descriptors.csv` with columns [species, rdf_peak, pair_corr, voronoi_count].
+- [X] T015 [US1] Implement `code/data/descriptors.py` to compute RDF peaks (using a defined cutoff from the GB plane), pair correlation statistics, and Voronoi-based neighbor counts specifically within the GB interface region (FR-002); Output: `data/processed/descriptors.csv` with columns [species, rdf_peak, pair_corr, voronoi_count].
  **Constraint**: Do NOT apply PCA. The Plan's mention of PCA in 'Phase 1' is an error; Spec FR-007 mandates retaining raw descriptors and reporting collinearity descriptively only. T015 takes precedence over the Plan's contradictory instruction.
 - [X] T015b Implement logic in `code/data/descriptors.py` or a new helper to extract and tag each configuration with its `alloy_system_id` based on impurity species and bulk crystal structure.
  **Logic**: Generate `alloy_system_id` as `f"{crystal_system}_{impurity_species}"` (e.g., 'BCC_Cr'). `crystal_system` must be derived deterministically from the bulk configuration file using pymatgen's `get_space_group_symbol` or `lattice` properties (e.g., 'BCC', 'FCC').
@@ -107,7 +107,7 @@
  **Dependency**: Must be completed before T025. **Not [P]** - strictly sequential within US1.
 - [X] T016a [US1] Define the 'structurally perturbed representation' logic and 'specific NIST EAM potential' parameters in `code/data/simulate_energy.py` constants:
  1. **Perturbation**: Apply a random atomic displacement to all atoms in the GB supercell (small magnitude to break symmetry). **MUST use a pinned random seed from `code/config.py`** to ensure reproducibility (Constitution Principle I).
- 2. **Potential**: The document specifies using a specific NIST EAM potential for Fe-Cr from the NIST repository. [UNRESOLVED-CLAIM: c_96a7584b — status=not_enough_info]
+ 2. **Potential**: The document specifies using a specific NIST EAM potential for Fe-Cr from the NIST repository.
  3. **Rationale**: This minimal perturbation breaks the exact symmetry of the input structure to avoid circularity while remaining physically plausible for a "distinct representation".
  This task explicitly defines the scientific parameters required for T016b. **Dependency**: Requires T014 (GB Builder) to be completed.
 - [X] T016b [US1] Implement the simulation engine in `code/data/simulate_energy.py` that applies the perturbation logic from T016a and calculates segregation energy using the NIST EAM potential for Fe-Cr defined in T016a. This task implements the engine using the parameters defined in T016a. **Dependency**: Requires T014 (GB Builder) to be completed.
@@ -145,8 +145,8 @@
  4. Save metrics to `results/metrics.json` with SHA256 hash recorded in `state/project.yaml` under key `code_version_hash` for provenance.
  **Dependency**: Requires T015 and T016c completion.
 - [ ] T025 [US2] Implement per-system evaluation logic to report R² values for each alloy system separately. **Dependency**: Requires `alloy_systems.json` from T015b to group samples. Use the `alloy_system_id` format defined in T015b (`f"{crystal_system}_{impurity_species}"`). If `alloy_systems.json` is missing, raise an error.
-- [~] T026 [US2] Implement confidence interval calculation for predictions
-- [~] T028 [US2] **REMOVED**: Logic merged into T023 to avoid race conditions and redundant writes.
+- [ ] T026 [US2] Implement confidence interval calculation for predictions
+- [ ] T028 [US2] **REMOVED**: Logic merged into T023 to avoid race conditions and redundant writes.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -166,7 +166,7 @@
 
 ### Implementation for User Story 3
 
-- [~] T036 [US3] Add contract validation in `code/modeling/evaluate.py` to validate output against `contracts/output_schema.schema.yaml` BEFORE analysis
+- [ ] T036 [US3] Add contract validation in `code/modeling/evaluate.py` to validate output against `contracts/output_schema.schema.yaml` BEFORE analysis
 - [X] T032 [US3] Implement `code/modeling/evaluate.py` with sensitivity analysis {{claim:c_a2ce6442}}; report RMSE variance and R² stability; output format: JSON with keys [threshold, rmse_variance, r2_stability] [FR-006]
 - [~] T033 [US3] Implement calculation of RMSE variance and R² stability across the threshold sweep
 - [ ] T034a [US3] Implement logic to extract predictor significance: If Linear Regression (T023), extract coefficients and standard errors; if RandomForest (not used), compute permutation importance. Output to `results/feature_importance.json`.

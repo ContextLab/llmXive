@@ -1,125 +1,116 @@
 import pytest
+import pandas as pd
 import numpy as np
 from pathlib import Path
-import sys
+import tempfile
 import os
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Import the function under test
+from ingestion import check_zero_variance_subjects, generate_cleaned_data
 
-from ingestion import (
-    compute_global_signal_mean_time_series,
-    compute_global_signal_sd_per_run,
-    compute_subject_average_global_signal_sd,
-    check_zero_variance_subjects
-)
+class TestZeroVarianceCheck:
+    """
+    Unit tests for T015: Zero-variance check implementation.
+    """
 
-class TestZeroVarianceExclusion:
-    """Tests for the zero-variance check functionality (T015)."""
+    def test_no_zero_variance_subjects(self):
+        """
+        Test that subjects with non-zero Global_Signal_SD are kept.
+        """
+        data = {
+            "Subject_ID": ["sub-01", "sub-02", "sub-03"],
+            "Global_Signal_SD": [0.5, 0.8, 1.2],
+            "MWQ_Score": [10, 15, 20]
+        }
+        df = pd.DataFrame(data)
+        
+        result = check_zero_variance_subjects(df, column="Global_Signal_SD")
+        
+        # All subjects should be kept
+        assert len(result) == 3
+        assert list(result["Subject_ID"]) == ["sub-01", "sub-02", "sub-03"]
 
-    def test_exclude_zero_variance_subjects(self):
-        """Test that subjects with global_signal_sd == 0 are excluded."""
-        data = [
-            {"subject_id": "sub-01", "global_signal_sd": 0.001, "mwq_score": 10},
-            {"subject_id": "sub-02", "global_signal_sd": 0.0, "mwq_score": 15},
-            {"subject_id": "sub-03", "global_signal_sd": 0.002, "mwq_score": 8},
-            {"subject_id": "sub-04", "global_signal_sd": 0.0, "mwq_score": 12},
-            {"subject_id": "sub-05", "global_signal_sd": 0.003, "mwq_score": 20},
-        ]
+    def test_with_zero_variance_subjects(self):
+        """
+        Test that subjects with Global_Signal_SD == 0 are excluded.
+        """
+        data = {
+            "Subject_ID": ["sub-01", "sub-02", "sub-03", "sub-04"],
+            "Global_Signal_SD": [0.5, 0.0, 1.2, 0.0],
+            "MWQ_Score": [10, 15, 20, 25]
+        }
+        df = pd.DataFrame(data)
+        
+        result = check_zero_variance_subjects(df, column="Global_Signal_SD")
+        
+        # Only sub-01 and sub-03 should remain
+        assert len(result) == 2
+        assert list(result["Subject_ID"]) == ["sub-01", "sub-03"]
+        assert all(result["Global_Signal_SD"] > 0)
 
-        filtered_data = check_zero_variance_subjects(data, log=False)
+    def test_column_not_found(self):
+        """
+        Test that a ValueError is raised if the column does not exist.
+        """
+        data = {
+            "Subject_ID": ["sub-01"],
+            "Wrong_Column": [0.5]
+        }
+        df = pd.DataFrame(data)
+        
+        with pytest.raises(ValueError) as excinfo:
+            check_zero_variance_subjects(df, column="Global_Signal_SD")
+        
+        assert "Column 'Global_Signal_SD' not found" in str(excinfo.value)
 
-        assert len(filtered_data) == 3
-        excluded_ids = [s["subject_id"] for s in filtered_data]
-        assert "sub-01" in excluded_ids
-        assert "sub-02" not in excluded_ids
-        assert "sub-03" in excluded_ids
-        assert "sub-04" not in excluded_ids
-        assert "sub-05" in excluded_ids
+    def test_all_zero_variance(self):
+        """
+        Test that all subjects are excluded if all have zero variance.
+        """
+        data = {
+            "Subject_ID": ["sub-01", "sub-02"],
+            "Global_Signal_SD": [0.0, 0.0],
+            "MWQ_Score": [10, 15]
+        }
+        df = pd.DataFrame(data)
+        
+        result = check_zero_variance_subjects(df, column="Global_Signal_SD")
+        
+        # All subjects should be excluded
+        assert len(result) == 0
+        assert list(result.columns) == ["Subject_ID", "Global_Signal_SD", "MWQ_Score"]
 
-    def test_all_zero_variance_excluded(self):
-        """Test that all subjects are excluded when all have zero variance."""
-        data = [
-            {"subject_id": "sub-01", "global_signal_sd": 0.0},
-            {"subject_id": "sub-02", "global_signal_sd": 0.0},
-        ]
-
-        filtered_data = check_zero_variance_subjects(data, log=False)
-
-        assert len(filtered_data) == 0
-
-    def test_no_zero_variance(self):
-        """Test that no subjects are excluded when none have zero variance."""
-        data = [
-            {"subject_id": "sub-01", "global_signal_sd": 0.001},
-            {"subject_id": "sub-02", "global_signal_sd": 0.002},
-            {"subject_id": "sub-03", "global_signal_sd": 0.003},
-        ]
-
-        filtered_data = check_zero_variance_subjects(data, log=False)
-
-        assert len(filtered_data) == 3
-
-    def test_empty_data(self):
-        """Test that empty data returns empty list."""
-        data = []
-        filtered_data = check_zero_variance_subjects(data, log=False)
-        assert len(filtered_data) == 0
-
-    def test_missing_global_signal_sd_key(self):
-        """Test that subjects missing global_signal_sd are excluded (default 0.0)."""
-        data = [
-            {"subject_id": "sub-01", "global_signal_sd": 0.001},
-            {"subject_id": "sub-02"},  # Missing key
-            {"subject_id": "sub-03", "global_signal_sd": 0.002},
-        ]
-
-        filtered_data = check_zero_variance_subjects(data, log=False)
-
-        assert len(filtered_data) == 2
-        excluded_ids = [s["subject_id"] for s in filtered_data]
-        assert "sub-02" not in excluded_ids
-
-    def test_logging_on_zero_variance(self, caplog):
-        """Test that warnings are logged for excluded subjects."""
-        import logging
-        data = [
-            {"subject_id": "sub-01", "global_signal_sd": 0.0},
-            {"subject_id": "sub-02", "global_signal_sd": 0.001},
-        ]
-
-        with caplog.at_level(logging.WARNING):
-            check_zero_variance_subjects(data, log=True)
-
-        assert any("global_signal_sd is zero" in record.message for record in caplog.records)
-        assert any("sub-01" in record.message for record in caplog.records)
-
-class TestGlobalSignalComputation:
-    """Tests for global signal computation functions."""
-
-    def test_compute_global_signal_sd_per_run(self):
-        """Test SD calculation for a single run."""
-        # Create a simple time series with known SD
-        time_series = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        expected_sd = np.std(time_series)
-        result = compute_global_signal_sd_per_run(time_series)
-        assert np.isclose(result, expected_sd)
-
-    def test_compute_global_signal_sd_per_run_empty(self):
-        """Test SD calculation for empty array."""
-        time_series = np.array([])
-        result = compute_global_signal_sd_per_run(time_series)
-        assert result == 0.0
-
-    def test_compute_subject_average_global_signal_sd(self):
-        """Test averaging SD across runs."""
-        run_sds = [0.1, 0.2, 0.3]
-        expected_avg = 0.2
-        result = compute_subject_average_global_signal_sd(run_sds)
-        assert np.isclose(result, expected_avg)
-
-    def test_compute_subject_average_global_signal_sd_empty(self):
-        """Test averaging SD with empty list."""
-        run_sds = []
-        result = compute_subject_average_global_signal_sd(run_sds)
-        assert result == 0.0
+    def test_integration_with_csv_io(self):
+        """
+        Test the full pipeline: write CSV, run check, read back.
+        This verifies that the function works with real file I/O.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.csv"
+            output_path = Path(tmpdir) / "output.csv"
+            
+            # Create input data with some zero-variance subjects
+            data = {
+                "Subject_ID": ["sub-01", "sub-02", "sub-03", "sub-04"],
+                "Global_Signal_SD": [0.5, 0.0, 1.2, 0.0],
+                "MWQ_Score": [10, 15, 20, 25],
+                "Age": [25, 30, 22, 28],
+                "Sex": ["M", "F", "M", "F"]
+            }
+            df_input = pd.DataFrame(data)
+            df_input.to_csv(input_path, index=False)
+            
+            # Run the pipeline
+            from utils import read_csv, write_csv
+            from ingestion import check_zero_variance_subjects
+            
+            df_loaded = read_csv(input_path)
+            df_cleaned = check_zero_variance_subjects(df_loaded, column="Global_Signal_SD")
+            write_csv(df_cleaned, output_path)
+            
+            # Verify output
+            df_output = read_csv(output_path)
+            
+            assert len(df_output) == 2
+            assert set(df_output["Subject_ID"]) == {"sub-01", "sub-03"}
+            assert all(df_output["Global_Signal_SD"] > 0)

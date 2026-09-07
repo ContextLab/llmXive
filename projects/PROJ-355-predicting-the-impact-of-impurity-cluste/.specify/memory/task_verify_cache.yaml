@@ -1,28 +1,9 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/raw/`, `data/processed/`, or `results/` directories\
-    \ (or accompanying `.gitkeep` files) was provided; without these artifacts the\
-    \ task\u2019s requirement is not satisfied."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `tests/unit/` or `tests/integration/` directories (or any test files) are
-    present in the repository, so the required scaffolding does not exist. The implementer
-    must add these folders and populate them with appropriate placeholder test modules.
 T012:
   c: false
   h: 32227fcff35eb97d077095f3e9479443a481175fa01af3ba6ed43431ff5e5b31
   r: "The required integration test file `tests/integration/test_data_pipeline.py`\
     \ is missing from the repository, so the artifact does not exist and the task\u2019\
     s requirement is not satisfied."
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., test script, log output, or verification report) was provided\
-    \ showing that the `[DATA_UNAVAILABLE]` log format and the 3\u2011attempt limit\
-    \ behavior were examined and that the log output matches the exact required format.\
-    \ Consequently the task\u2019s requirement is not satisfied."
 T015:
   c: false
   h: d8556775af170044f3c4ce52c21a8aab2f04ff56800d79bf3d7ed7cb19981974
@@ -32,27 +13,19 @@ T015:
     \ the CSV artifact, the task\u2019s core requirement is unmet."
 T016c:
   c: false
-  h: d85649edcd60be21689c7456ea643eac966413c1163a989c29d541c76e3ce43f
-  r: The provided `simulate_energy.py` does not contain a `run_simulation` function
-    (the shown excerpt ends before any such definition) and the required output file
-    `data/processed/segregation_energies.csv` is absent. Both the runner implementation
-    and the generated CSV are missing, so the task is not satisfied.
-T017:
-  c: false
-  h: c6fbf71ccaf573723df41a70c447dd8e25cad2d32689fce7931e591ff5470aa3
-  r: The repository lacks the required `contracts/dataset.schema.yaml` file, so the
-    validation cannot actually be performed. Moreover, the provided `download.py`
-    snippet is truncated and does not show the validation being invoked before GB
-    construction. Without the schema file and a complete implementation, the task
-    is not satisfied.
+  h: 63c77d26f0de08f56ce012a3530872a526d211e577c29a985a5a4c04873483a9
+  r: The provided `code/data/simulate_energy.py` file does not show a `run_simulation`
+    function, and the required output `data/processed/segregation_energies.csv` is
+    absent. Both the runner implementation and the generated CSV are missing, so the
+    task is not fulfilled.
 T018:
   c: false
-  h: 018797a4485787b2b1b323c68060fd665ff34f1fa469b88384a23f14f45d3a2d
-  r: "The repository contains `code/data/descriptor_filter.py`, which defines VIF\
-    \ computation and a `generate_report` function, but the required output file `data/processed/collinearity_report.md`\
-    \ does not exist. Moreover, the script lacks a runnable entry point that actually\
-    \ creates the markdown report, so the task\u2019s core deliverable\u2014a descriptive\
-    \ collinearity report\u2014is missing."
+  h: 2217459be35e415a8158fcace86a29d32015073449ba374948e6127ef6acae27
+  r: "The repository contains a partially\u2011implemented `code/data/descriptor_filter.py`\
+    \ (the VIF loop is truncated and no function writes a markdown report), and the\
+    \ required `data/processed/collinearity_report.md` file does not exist. Consequently\
+    \ the task\u2019s core deliverable\u2014a generated VIF report\u2014has not been\
+    \ produced."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -60,6 +33,14 @@ T025:
     \ was provided, nor is there any `alloy_systems.json` or evidence that the required\
     \ R\xB2 reporting per alloy system was added. The implementer\u2019s claim lacks\
     \ the necessary artifact to satisfy the task."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation implementing confidence\u2011interval\
+    \ calculation for model predictions was provided. Without an artifact that actually\
+    \ computes and outputs confidence intervals, the requirement of User Story\u202F\
+    2 is not satisfied. The next implementer must add the missing implementation (e.g.,\
+    \ a function or script that generates prediction intervals and stores them)."
 T027:
   c: false
   h: 28b8fb9c959acee214ba3f747bd617e753f6be9b68ec23723110f934e8ca9c8b
@@ -67,3 +48,19 @@ T027:
     \ `code/modeling/train.py` does not perform validation against that schema (it\
     \ only does a custom column check and never calls `validate_schema`). Consequently\
     \ the contract\u2011validation step before training is not implemented."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, data files, or results are present that demonstrate a working\
+    \ data pipeline, descriptor computation, or segregation energy generation as required\
+    \ by User Story\u202F1 (and subsequent stories). The task lacks any tangible artifact\
+    \ proving the functionality, so the requirement is not satisfied."
+T036:
+  c: false
+  h: cc25d7bdc2bf11f970483c2ffa63216f4ab6a57b6ee09e50fb3b73b0f19e7924
+  r: "The repository lacks the required `contracts/output_schema.schema.yaml` file,\
+    \ so the validation cannot actually be performed. Moreover, while `evaluate.py`\
+    \ defines validation functions, the provided excerpt does not show them being\
+    \ invoked before any analysis steps. Both the missing schema and the absence of\
+    \ evidence that validation runs pre\u2011analysis mean the task is not genuinely\
+    \ completed."
