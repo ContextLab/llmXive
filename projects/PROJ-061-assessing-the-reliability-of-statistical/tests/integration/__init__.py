@@ -1,3 +1,1 @@
-"""
-Integration tests for the statistical power reliability project.
-"""
+# Integration tests package

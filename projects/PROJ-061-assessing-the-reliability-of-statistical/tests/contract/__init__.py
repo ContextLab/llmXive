@@ -1,3 +1,1 @@
-"""
-Contract tests for the statistical power reliability project.
-"""
+# Contract tests package

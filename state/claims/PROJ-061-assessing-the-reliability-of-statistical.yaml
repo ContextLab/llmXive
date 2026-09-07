@@ -2431,3 +2431,262 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T16:38:45Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 0
+  canonical: Full pipeline run on 10 diverse datasets with continuous, count, and
+    binary outcomes
+  claim_id: c_ba61b3d9
+  context: Run full pipeline on 10 diverse datasets (from T004a list) covering continuous,
+    count, binary outcomes.
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Run full pipeline on 10 diverse datasets covering continuous, count, binary
+    outcomes.
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T21:38:57Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Dataset sample size must be greater than or equal to 30
+  claim_id: c_c7da87b8
+  context: 1. Fetch a candidate pool of datasets from OpenML. 2. Verify sample size
+    N >= 30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sample_size_must_be_greater_than_or_equal_to_30
+  kind: magnitude
+  raw_text: Verify sample size N >= 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:39:55Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap validity threshold default value is 0.1
+  claim_id: c_017da33b
+  context: The threshold MUST be a configurable parameter VALIDITY_THRESHOLD in code/config.py
+    with a default value of 0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value of VALIDITY_THRESHOLD in code/config.py is 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:40:34Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic ground truth data generated using Normal distribution
+  claim_id: c_66cfc448
+  context: '**Distribution**: Use Normal distribution. **Effect Size**: Use Cohen''s
+    d formula matching FR-002.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_ground_truth_data_generated_using_Normal_distribut
+  kind: entity_fact
+  raw_text: Use Normal distribution for generating synthetic ground truth data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:41:47Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Synthetic test recovery rate must match true power within 5 percent
+  claim_id: c_4effc86b
+  context: run bootstrap, verify recovery rate matches true power within 5% (FR-008).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify recovery rate matches true power within 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:41:48Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Recovery test allows maximum of 3 retries with parameter adjustments
+  claim_id: c_d5a79607
+  context: retry with seeds [SEED + 1, SEED + 2, SEED + 3] AND adjust sample size/effect
+    size parameters up to 3 times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The recovery test allows up to 3 retries with adjusted parameters before
+    failing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:42:16Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap iterations set to 1000
+  claim_id: c_d2d922ee
+  context: hyperparameters (including BOOTSTRAP_ITERATIONS=1000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set BOOTSTRAP_ITERATIONS=1000 in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:43:12Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap simulation enforces minimum 1000 iterations
+  claim_id: c_efef97e2
+  context: '**Constraint**: Set BOOTSTRAP_ITERATIONS=1000 in code/config.py and enforce
+    minimum 1000 iterations in code.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce minimum 1000 iterations in code for bootstrap simulation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:43:59Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Effect size heterogeneity mixing ratio default is 0.2
+  claim_id: c_8cac4262
+  context: 'Effect size heterogeneity via mixing two sub-populations with configurable
+    parameters (default: mixing_ratio=0.2, separation=1.5 standard deviations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default mixing ratio for effect size heterogeneity is 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:44:24Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Effect size heterogeneity separation default is 1.5 standard deviations
+  claim_id: c_12fba410
+  context: 'Effect size heterogeneity via mixing two sub-populations with configurable
+    parameters (default: mixing_ratio=0.2, separation=1.5 standard deviations).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default separation for effect size heterogeneity is 1.5 standard deviations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:44:59Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime constraint is 6 hours on CPU-only hardware
+  claim_id: c_75b223d5
+  context: ensure the pipeline meets the 6-hour runtime constraint on CPU-only hardware.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must meet a 6-hour runtime constraint on CPU-only hardware.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:45:28Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Scaled-down dry-run on representative dataset subset for runtime profiling
+  claim_id: c_59448c0d
+  context: Run a scaled-down dry-run on a representative subset of datasets (covering
+    different outcome types and sizes) using a set of bootstrap iterations per condition.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scaled-down_dry-run_on_representative_dataset_subset_for_run
+  kind: entity_fact
+  raw_text: Run a scaled-down dry-run on a representative subset of datasets to profile
+    runtime.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:46:27Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Total runtime estimate formula uses micro-benchmark extrapolation
+  claim_id: c_f5540a58
+  context: '**Extrapolation Formula**: Total Runtime Estimate = (Sum of micro-benchmark
+    runtimes) * (1000 / micro_iterations) * (Total Datasets / Subset Datasets).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Runtime Estimate formula: (Sum of micro-benchmark runtimes) * (1000
+    / micro_iterations) * (Total Datasets / Subset Datasets).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:47:07Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Measure total runtime for all datasets times 3 violations times 1000
+    iterations
+  claim_id: c_d96171a1
+  context: "measure and record the actual total runtime for all datasets \xD7 3 violations\
+    \ \xD7 1000 iterations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Measure actual total runtime for all datasets \xD7 3 violations \xD7\
+    \ 1000 iterations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:47:50Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Total runtime measured across 1000 iterations for 3 violations on all
+    datasets
+  claim_id: c_805ddc85
+  context: "measure and record the actual total runtime for all datasets \xD7 3 violations\
+    \ \xD7 1000 iterations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Measure and record the actual total runtime for all datasets \xD7 3 violations\
+    \ \xD7 1000 iterations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T21:48:13Z'

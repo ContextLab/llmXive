@@ -23,20 +23,88 @@ VIOLATION_SWEEP_CONFIG: Dict[str, List[float]] = {
 }
 
 # Dataset Configuration: Specific list of 10 diverse public datasets
-# Continuous (3): iris, wine, wine_quality_red
-# Count (3): concrete, airfoil, yacht
-# Binary (4): breast_cancer, heart_disease, pima, ionosphere
+# Selected via T004a script: 3 continuous, 3 count, 4 binary
 DATASET_LIST: List[Dict[str, Any]] = [
-    {"id": "iris", "source": "openml", "outcome_type": "continuous", "url": "https://data.openml.org/datasets/1"},
-    {"id": "wine", "source": "openml", "outcome_type": "continuous", "url": "https://data.openml.org/datasets/13"},
-    {"id": "wine_quality_red", "source": "openml", "outcome_type": "continuous", "url": "https://data.openml.org/datasets/28"},
-    {"id": "concrete", "source": "openml", "outcome_type": "count", "url": "https://data.openml.org/datasets/125"},
-    {"id": "airfoil", "source": "openml", "outcome_type": "count", "url": "https://data.openml.org/datasets/154"},
-    {"id": "yacht", "source": "openml", "outcome_type": "count", "url": "https://data.openml.org/datasets/184"},
-    {"id": "breast_cancer", "source": "openml", "outcome_type": "binary", "url": "https://data.openml.org/datasets/53"},
-    {"id": "heart_disease", "source": "openml", "outcome_type": "binary", "url": "https://data.openml.org/datasets/141"},
-    {"id": "pima", "source": "openml", "outcome_type": "binary", "url": "https://data.openml.org/datasets/150"},
-    {"id": "ionosphere", "source": "openml", "outcome_type": "binary", "url": "https://data.openml.org/datasets/146"}
+    {
+        "id": "28",
+        "name": "wine_quality_red",
+        "source": "openml",
+        "outcome_type": "continuous",
+        "n_samples": 1599,
+        "url": "https://data.openml.org/datasets/28"
+    },
+    {
+        "id": "154",
+        "name": "airfoil",
+        "source": "openml",
+        "outcome_type": "continuous",
+        "n_samples": 506,
+        "url": "https://data.openml.org/datasets/154"
+    },
+    {
+        "id": "184",
+        "name": "yacht",
+        "source": "openml",
+        "outcome_type": "continuous",
+        "n_samples": 308,
+        "url": "https://data.openml.org/datasets/184"
+    },
+    {
+        "id": "125",
+        "name": "concrete",
+        "source": "openml",
+        "outcome_type": "count",
+        "n_samples": 1030,
+        "url": "https://data.openml.org/datasets/125"
+    },
+    {
+        "id": "148",
+        "name": "kc1",
+        "source": "openml",
+        "outcome_type": "count",
+        "n_samples": 4989,
+        "url": "https://data.openml.org/datasets/148"
+    },
+    {
+        "id": "149",
+        "name": "kc2",
+        "source": "openml",
+        "outcome_type": "count",
+        "n_samples": 522,
+        "url": "https://data.openml.org/datasets/149"
+    },
+    {
+        "id": "53",
+        "name": "breast_cancer",
+        "source": "openml",
+        "outcome_type": "binary",
+        "n_samples": 683,
+        "url": "https://data.openml.org/datasets/53"
+    },
+    {
+        "id": "141",
+        "name": "heart_disease",
+        "source": "openml",
+        "outcome_type": "binary",
+        "n_samples": 303,
+        "url": "https://data.openml.org/datasets/141"
+    },
+    {
+        "id": "150",
+        "name": "pima",
+        "source": "openml",
+        "outcome_type": "binary",
+        "n_samples": 768,
+        "url": "https://data.openml.org/datasets/150"
+    },
+    {
+        "id": "146",
+        "name": "ionosphere",
+        "source": "openml",
+        "outcome_type": "binary",
+        "n_samples": 351,
+        "url": "https://data.openml.org/datasets/146"
+    }
 ]
 
 def ensure_directories() -> None:

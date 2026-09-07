@@ -1,3 +1,1 @@
-"""
-Unit tests for the statistical power reliability project.
-"""
+# Unit tests package
