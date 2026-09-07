@@ -1,66 +1,59 @@
 """
-Script to create required project directories.
-This script ensures the existence of all necessary folders for the llmXive pipeline.
+Script to create standard project directories and ensure .gitkeep files exist.
+This ensures version control persistence for empty directories.
 """
 import os
 import sys
 from pathlib import Path
 
-def create_directory(path_str: str) -> bool:
-    """
-    Create a directory if it does not exist.
-    
-    Args:
-        path_str: The path to the directory to create.
-        
-    Returns:
-        True if the directory was created or already exists, False otherwise.
-    """
-    path = Path(path_str)
+# Define the required directory structure relative to the project root
+# Assuming this script runs from the 'code' directory or we resolve relative to script location
+REQUIRED_DIRS = [
+    "scripts",
+    "data/raw",
+    "data/processed",
+    "data/splits",
+    "models",
+    "tests",
+    "reports",
+    "utils"
+]
+
+GITKEEP_CONTENT = "# Placeholder to ensure directory exists in git\n"
+
+def create_directory(base_path: Path, dir_name: str) -> bool:
+    """Create a directory and its .gitkeep file if it doesn't exist."""
+    full_path = base_path / dir_name
     try:
-        path.mkdir(parents=True, exist_ok=True)
+        full_path.mkdir(parents=True, exist_ok=True)
+        gitkeep_path = full_path / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.write_text(GITKEEP_CONTENT)
+            print(f"Created: {full_path} with .gitkeep")
+        else:
+            print(f"Exists: {full_path} (with .gitkeep)")
         return True
-    except OSError as e:
-        print(f"Error creating directory {path}: {e}", file=sys.stderr)
+    except Exception as e:
+        print(f"Error creating {full_path}: {e}", file=sys.stderr)
         return False
 
 def main():
-    """
-    Main function to create all required directories for the project.
-    """
-    # Define all required directories relative to the project root (code/)
-    required_dirs = [
-        "scripts/",
-        "data/raw/",
-        "data/processed/",
-        "data/splits/",
-        "models/",
-        "tests/",
-        "logs/",
-        "data/results/",
-        "figures/"
-    ]
+    # Determine the base path: usually the directory containing this script's parent (project root 'code')
+    # If run as 'python code/scripts/create_directories.py', __file__ is code/scripts/...
+    script_path = Path(__file__).resolve()
+    base_path = script_path.parent  # This is 'code'
 
-    # Get the base directory (assuming this script is in code/scripts/)
-    base_dir = Path(__file__).resolve().parent.parent
-    
-    print(f"Creating directories relative to: {base_dir}")
-    
-    all_success = True
-    for dir_path in required_dirs:
-        full_path = base_dir / dir_path
-        if create_directory(str(full_path)):
-            print(f"Created/Verified: {full_path}")
-        else:
-            print(f"Failed: {full_path}")
-            all_success = False
+    print(f"Creating directories under: {base_path}")
+    success = True
+    for dir_name in REQUIRED_DIRS:
+        if not create_directory(base_path, dir_name):
+            success = False
 
-    if all_success:
-        print("\nAll required directories are ready.")
-        return 0
+    if success:
+        print("\nAll required directories and .gitkeep files are ready.")
     else:
         print("\nSome directories failed to create.", file=sys.stderr)
-        return 1
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

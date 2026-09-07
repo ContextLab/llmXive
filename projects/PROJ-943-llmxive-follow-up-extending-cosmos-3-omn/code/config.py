@@ -1,188 +1,182 @@
-"""
-Environment configuration management for llmXive pipeline.
-
-Handles:
-- Global random seeds for reproducibility (numpy, torch, random)
-- Path resolution for project directories (data, models, logs, etc.)
-- Environment variable overrides for paths and settings
-"""
-
 import os
 import random
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Base project root (assumed to be the directory containing this file's parent 'code')
-# Since this file is at code/config.py, the root is code/../..
-# However, based on task T001-T006, the project structure puts 'code' at the root of the repo for the scripts.
-# Let's assume the repo root is the parent of 'code'.
-# If the script is run from within 'code', we adjust.
-# Standard convention: PROJECT_ROOT = Path(__file__).resolve().parents[1]
-# But tasks T001-T006 imply 'code' is the top level directory for artifacts.
-# Let's define the root as the directory containing 'config.py' itself if 'code' is the root,
-# or the parent if 'code' is a subdirectory.
-# Given T001a creates `code/scripts/`, `code` is the project root for the artifacts.
-# We will set PROJECT_ROOT to the directory containing this file.
+# Project Root Configuration
+# Assumes the script is run from the repository root or `code/` directory.
+# We determine the base path dynamically to ensure portability.
+_BASE_DIR = Path(__file__).resolve().parent.parent
+if not (_BASE_DIR / "code").exists():
+    # Fallback if __file__ is inside code/ directly
+    _BASE_DIR = _BASE_DIR.parent
 
-_SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = _SCRIPT_DIR
+# Default configuration values
+_DEFAULT_CONFIG = {
+    "seed": 42,
+    "device": "auto",  # "auto", "cpu", "cuda"
+    "data": {
+        "raw_dir": "code/data/raw",
+        "processed_dir": "code/data/processed",
+        "splits_dir": "code/data/splits",
+        "schema_dir": "code/data/schema",
+    },
+    "models": {
+        "output_dir": "code/models",
+        "checkpoint_dir": "code/models/checkpoints",
+    },
+    "logs": {
+        "output_dir": "code/logs",
+        "memory_log": "memory_profile.log",
+    },
+    "training": {
+        "batch_size": 32,
+        "max_epochs": 10,
+        "learning_rate": 1e-5,
+        "max_memory_gb": 7,
+    },
+}
 
-# Directory Paths
-DIR_RAW_DATA = PROJECT_ROOT / "data" / "raw"
-DIR_PROCESSED_DATA = PROJECT_ROOT / "data" / "processed"
-DIR_SPLITS = PROJECT_ROOT / "data" / "splits"
-DIR_MODELS = PROJECT_ROOT / "models"
-DIR_LOGS = PROJECT_ROOT / "logs"
-DIR_RESULTS = PROJECT_ROOT / "data" / "results"
-DIR_FIGURES = PROJECT_ROOT / "figures"
-DIR_CONFIGS = PROJECT_ROOT / "configs"
-
-# Ensure directories exist
-def _ensure_dirs() -> None:
-    """Create all required project directories if they do not exist."""
-    dirs = [
-        DIR_RAW_DATA,
-        DIR_PROCESSED_DATA,
-        DIR_SPLITS,
-        DIR_MODELS,
-        DIR_LOGS,
-        DIR_RESULTS,
-        DIR_FIGURES,
-        DIR_CONFIGS
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-
-# Initialize directories immediately on import
-_ensure_dirs()
-
-# Default Configuration
-DEFAULT_SEED = 42
-DEFAULT_DEVICE = "cpu"
-DEFAULT_LOG_LEVEL = "INFO"
-
-# Environment Variable Keys
-ENV_SEED = "LLMXIVE_SEED"
-ENV_DEVICE = "LLMXIVE_DEVICE"
-ENV_LOG_LEVEL = "LLMXIVE_LOG_LEVEL"
-ENV_DATA_ROOT = "LLMXIVE_DATA_ROOT"
-ENV_MODEL_ROOT = "LLMXIVE_MODEL_ROOT"
+# Global config state (mutable for set_config)
+_config_state: Dict[str, Any] = {}
 
 def get_config() -> Dict[str, Any]:
     """
-    Load configuration from environment variables or defaults.
-    Returns a dictionary of configuration values.
+    Returns the current configuration dictionary.
+    Loads defaults if not yet initialized.
     """
-    seed = int(os.getenv(ENV_SEED, DEFAULT_SEED))
-    device = os.getenv(ENV_DEVICE, DEFAULT_DEVICE)
-    log_level = os.getenv(ENV_LOG_LEVEL, DEFAULT_LOG_LEVEL)
+    if not _config_state:
+        _config_state.update(_DEFAULT_CONFIG)
+    return _config_state
 
-    # Allow overriding specific paths via env vars
-    data_root = os.getenv(ENV_DATA_ROOT, str(PROJECT_ROOT))
-    model_root = os.getenv(ENV_MODEL_ROOT, str(PROJECT_ROOT))
-
-    # Re-evaluate paths if overridden
-    base_path = Path(data_root) if not data_root.startswith('/') else Path(data_root)
-    # If the env var points to the repo root, we need to adjust relative to code/
-    # If the env var points to the code/ directory, we use it directly.
-    # For simplicity, we assume env vars override the base PROJECT_ROOT.
-    # If ENV_DATA_ROOT is set, we assume it's the new root for data.
-    if ENV_DATA_ROOT in os.environ:
-        DIR_RAW_DATA = Path(data_root) / "data" / "raw"
-        DIR_PROCESSED_DATA = Path(data_root) / "data" / "processed"
-        DIR_SPLITS = Path(data_root) / "data" / "splits"
-        DIR_RESULTS = Path(data_root) / "data" / "results"
-        # Re-ensure dirs if root changed
-        for d in [DIR_RAW_DATA, DIR_PROCESSED_DATA, DIR_SPLITS, DIR_RESULTS]:
-            d.mkdir(parents=True, exist_ok=True)
-
-    if ENV_MODEL_ROOT in os.environ:
-        DIR_MODELS = Path(model_root) / "models"
-        DIR_MODELS.mkdir(parents=True, exist_ok=True)
-
-    return {
-        "seed": seed,
-        "device": device,
-        "log_level": log_level,
-        "paths": {
-            "raw_data": DIR_RAW_DATA,
-            "processed_data": DIR_PROCESSED_DATA,
-            "splits": DIR_SPLITS,
-            "models": DIR_MODELS,
-            "logs": DIR_LOGS,
-            "results": DIR_RESULTS,
-            "figures": DIR_FIGURES,
-            "configs": DIR_CONFIGS
-        }
-    }
+def set_config(overrides: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Updates the global configuration with provided overrides.
+    """
+    if overrides:
+        def _deep_update(d: Dict, u: Dict) -> Dict:
+            for k, v in u.items():
+                if isinstance(v, dict) and k in d and isinstance(d[k], dict):
+                    _deep_update(d[k], v)
+                else:
+                    d[k] = v
+            return d
+        _deep_update(_config_state, overrides)
+    return _config_state
 
 def set_seed(seed: Optional[int] = None) -> None:
     """
-    Set global random seeds for reproducibility.
-    Uses the seed from get_config() if none provided.
+    Sets the random seed for reproducibility across libraries.
+    Uses the seed from config if none provided.
     """
-    if seed is None:
-        config = get_config()
-        seed = config["seed"]
-
-    random.seed(seed)
+    cfg = get_config()
+    effective_seed = seed if seed is not None else cfg.get("seed", 42)
+    
+    random.seed(effective_seed)
+    os.environ['PYTHONHASHSEED'] = str(effective_seed)
+    
+    # Attempt to set seeds for numpy and torch if available
     try:
         import numpy as np
-        np.random.seed(seed)
+        np.random.seed(effective_seed)
     except ImportError:
         pass
-
+    
     try:
         import torch
-        torch.manual_seed(seed)
+        torch.manual_seed(effective_seed)
         if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
+            torch.cuda.manual_seed_all(effective_seed)
     except ImportError:
         pass
 
-    try:
-        import tensorflow as tf
-        tf.random.set_seed(seed)
-    except ImportError:
-        pass
-
-def get_path(key: str) -> Path:
+def get_path(key: str, *subpaths: str) -> Path:
     """
-    Get a specific path from the configuration.
+    Resolves a configuration path key to an absolute Path object.
+    
     Args:
-        key: One of 'raw_data', 'processed_data', 'splits', 'models', 'logs', 'results', 'figures', 'configs'
+        key: The top-level key in config (e.g., 'data', 'models', 'logs').
+        *subpaths: Additional path components to append.
+    
     Returns:
-        Path object
+        Absolute Path object.
+    
+    Raises:
+        KeyError: If the key is not found in the configuration.
     """
-    config = get_config()
-    return config["paths"][key]
+    cfg = get_config()
+    
+    # Navigate to the specific directory path
+    if key not in cfg:
+        raise KeyError(f"Configuration key '{key}' not found.")
+    
+    base_path_str = cfg[key]
+    
+    # If the config value is a dict (like 'data'), look for the specific sub-key
+    # or assume the key itself maps to a string if it's a direct path.
+    # Based on _DEFAULT_CONFIG, 'data' is a dict, so we need the actual dir name.
+    # However, the caller usually knows the specific sub-key (e.g., 'raw_dir').
+    # To make this flexible, we check if the key maps to a dict.
+    
+    if isinstance(base_path_str, dict):
+        # If the key is a dict, the caller likely passed the sub-key in *subpaths
+        # or we need to handle a specific pattern.
+        # Let's assume the standard usage: get_path('data', 'raw_dir')
+        # But the prompt implies get_path('data') might return the base?
+        # Let's implement a robust lookup:
+        # If key is 'data', we expect the first subpath to be 'raw_dir', 'processed_dir', etc.
+        if not subpaths:
+            raise ValueError(f"Key '{key}' is a dictionary. Please specify a sub-key (e.g., 'raw_dir').")
+        dir_name = subpaths[0]
+        if dir_name not in base_path_str:
+            raise KeyError(f"Sub-key '{dir_name}' not found in config key '{key}'.")
+        path_str = base_path_str[dir_name]
+        remaining = subpaths[1:]
+    else:
+        # Direct string path
+        path_str = str(base_path_str)
+        remaining = subpaths
+    
+    # Construct the full path relative to project root
+    full_path = _BASE_DIR / path_str / Path(*remaining)
+    
+    return full_path
 
 def get_device() -> str:
-    """Get the configured device (cpu, cuda, etc)."""
-    return get_config()["device"]
+    """
+    Determines the compute device based on configuration and hardware availability.
+    
+    Returns:
+        "cuda" if available and configured, otherwise "cpu".
+    """
+    cfg = get_config()
+    device_setting = cfg.get("device", "auto")
+    
+    if device_setting == "cpu":
+        return "cpu"
+    
+    if device_setting == "cuda":
+        try:
+            import torch
+            if torch.cuda.is_available():
+                return "cuda"
+            else:
+                # Log warning if forced cuda but not available
+                import logging
+                logging.warning("CUDA requested but not available, falling back to CPU.")
+                return "cpu"
+        except ImportError:
+            return "cpu"
+    
+    # Default auto behavior
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return "cuda"
+    except ImportError:
+        pass
+    
+    return "cpu"
 
-# Initialize seed on module load to ensure reproducibility for any immediate calls
-# Note: In a real script, set_seed() is usually called explicitly at the start of main()
-# but doing it here ensures the environment is prepared.
-# We will NOT call set_seed() here to avoid side-effects on import if the user wants to set it later.
-# Instead, we provide the function.
-
-# Export public API
-__all__ = [
-    "get_config",
-    "set_seed",
-    "get_path",
-    "get_device",
-    "PROJECT_ROOT",
-    "DIR_RAW_DATA",
-    "DIR_PROCESSED_DATA",
-    "DIR_SPLITS",
-    "DIR_MODELS",
-    "DIR_LOGS",
-    "DIR_RESULTS",
-    "DIR_FIGURES",
-    "DIR_CONFIGS"
-]
+# Initialize config on import to ensure consistency
+_config_state.update(_DEFAULT_CONFIG)

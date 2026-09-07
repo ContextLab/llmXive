@@ -42,9 +42,29 @@ def fetch_and_filter_dataset():
         logger.error(f"Failed to load dataset '{DATASET_NAME}': {e}")
         raise RuntimeError(f"Real data fetch failed: {e}")
 
+    # 1) Verify streaming capability by attempting to read the first record
+    first_sample = None
+    try:
+        iterator = iter(dataset)
+        first_sample = next(iterator)
+        logger.info("Successfully verified streaming: first record retrieved.")
+    except StopIteration:
+        logger.error("Dataset is empty or streaming iterator failed immediately.")
+        raise RuntimeError("Streaming verification failed: no records found.")
+    except Exception as e:
+        logger.error(f"Streaming verification failed during first read: {e}")
+        raise RuntimeError(f"Streaming verification failed: {e}")
+
     count = 0
     start_time = time.time()
     
+    # Process the first sample we already fetched, then continue
+    if "actions" in first_sample and first_sample["actions"] is not None:
+        yield first_sample
+        count += 1
+        logger.debug(f"First sample has 'actions' field. Count: {count}")
+
+    # Continue with the rest of the iterator
     for batch_idx, sample in enumerate(dataset):
         # Memory check every 1000 samples
         if batch_idx % 1000 == 0 and batch_idx > 0:
@@ -120,9 +140,9 @@ def main():
         logger.info("Initializing optimized streaming pipeline...")
         samples = fetch_and_filter_dataset()
         save_to_jsonl(samples, OUTPUT_FILE)
-        logger.info("Task T010 completed successfully: data saved to bridge_samples.jsonl")
+        logger.info("Task T009 completed successfully: data saved to bridge_samples.jsonl")
     except Exception as e:
-        logger.error(f"Task T010 failed: {e}")
+        logger.error(f"Task T009 failed: {e}")
         # Re-raise to ensure the execution stage sees the failure
         raise
     finally:

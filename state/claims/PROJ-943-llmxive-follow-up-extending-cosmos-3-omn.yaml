@@ -178,3 +178,164 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T02:12:50Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: Initial project design referenced Cosmos 3 as primary data source
+  claim_id: c_ae142e48
+  context: 'The initial project design referenced Cosmos 3: Omnimodal World Models
+    for Physical AI as the primary data source. Cosmos 3 represents a large-scale,
+    multimodal dataset intended for training world models capable of reasoning about
+    physics, language, and actions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The initial project design referenced Cosmos 3: Omnimodal World Models
+    for Physical AI as the primary data source.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T18:52:01Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: Full Cosmos 3 dataset not publicly accessible via standard programmatic
+    interface
+  claim_id: c_98f28b37
+  context: 'However, during the feasibility analysis phase (Phase 2), it was determined
+    that: 1. Availability: The full Cosmos 3 dataset is not yet publicly accessible
+    via a standard, programmatic interface (e.g., Hugging Face datasets) suitable
+    for streaming in a constrained environment.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full Cosmos 3 dataset is not yet publicly accessible via a standard,
+    programmatic interface (e.g., Hugging Face datasets) suitable for streaming in
+    a constrained environment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T18:52:45Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: Project pivoted to Bridge Data hosted on Hugging Face
+  claim_id: c_6e7330b4
+  context: 'Consequently, the project has pivoted to the Bridge Data (bridge-to-worlds/bridge-data)
+    hosted on Hugging Face. This pivot was driven by: Immediate Availability: The
+    dataset is publicly available and supports streaming=True for memory-efficient
+    processing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_pivoted_to_Bridge_Data_hosted_on_Hugging_Face
+  kind: entity_fact
+  raw_text: The project has pivoted to the Bridge Data (bridge-to-worlds/bridge-data)
+    hosted on Hugging Face.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T18:53:24Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: Transformation pipeline computes L2 norm of first 3 dimensions of actions
+    vector
+  claim_id: c_c8ef6dc3
+  context: 'The Transformation Logic: 1. L2 Norm Calculation: Compute the L2 norm
+    of the first 3 dimensions of the actions vector.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The symbolic transformation pipeline computes the L2 norm of the first
+    3 dimensions of the actions vector.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T18:53:43Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: Transformation pipeline applies norm threshold greater than 0.5
+  claim_id: c_8732e0eb
+  context: 'Composite Rule Application: Threshold: norm > 0.5 Composite Condition:
+    (norm > 0.5) AND ("Safety Constraint" in text_description)'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The symbolic transformation pipeline applies a threshold where the norm
+    must be greater than 0.5.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T18:53:43Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: DistilBERT model trained to predict symbolic label
+  claim_id: c_b2d67086
+  context: To test the hypothesis, we train a DistilBERT model (CPU-compatible) to
+    predict the symbolic label (constraint_violated vs constraint_satisfied) derived
+    from the transformation pipeline.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DistilBERT_model_trained_to_predict_symbolic_label
+  kind: entity_fact
+  raw_text: A DistilBERT model is trained to predict the symbolic label derived from
+    the transformation pipeline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T18:54:03Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: 'Training constraint: 6 hours on CPU with less than 7 GB RAM'
+  claim_id: c_ee4ec45f
+  context: 'Constraint: Training must complete within 6 hours on CPU with < 7 GB RAM.'
+  evidence:
+    candidates:
+    - - CPU with less than
+      - 7.0
+    - - Training constraint
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Training_constraint:_6_hours_on_CPU_with_less_than_7_GB_RAM
+  kind: magnitude
+  raw_text: The training constraint requires completion within 6 hours on CPU with
+    less than 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-07T18:54:42Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: Bootstrap CI uses 1000 iterations on Generalization Gap
+  claim_id: c_2d07d41f
+  context: 'Confidence Interval: Bootstrap CI (1000 iterations) on the Generalization
+    Gap (AUC_symbolic - AUC_physical).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance test uses a Bootstrap CI with 1000 iterations
+    on the Generalization Gap.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T18:55:00Z'

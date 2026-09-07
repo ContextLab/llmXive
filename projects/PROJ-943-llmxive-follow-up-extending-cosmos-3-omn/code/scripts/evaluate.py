@@ -1,348 +1,306 @@
-"""
-Evaluation script for User Story 2: Comparative Performance Analysis.
-
-This script loads the unified dataset, splits it into symbolic and physical test sets,
-runs inference on both, calculates metrics (Brier Score, Accuracy, F1, AUC-ROC),
-performs statistical significance testing on the metric differences, and saves results.
-
-Outputs:
-    - code/data/results/comparative_analysis.json
-    - code/data/results/raw_predictions.jsonl
-"""
 import json
 import os
 import sys
 import logging
-from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
 import numpy as np
+from pathlib import Path
 from scipy import stats
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from sklearn.metrics import brier_score_loss, accuracy_score, f1_score, roc_auc_score
-from config import get_config, get_path, get_device
-from utils.logger import get_logger, log_script_start, log_script_end, get_memory_usage_mb
+from typing import Dict, Any, List, Tuple, Optional
+import time
 
-# Configure logging
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from utils.logger import get_logger, log_script_start, log_script_end
+from config import get_path
+
 logger = get_logger(__name__)
 
-def load_model(model_path: str) -> Tuple[Any, Any]:
-    """Load the trained DistilBERT proxy model and tokenizer."""
-    logger.info(f"Loading model from {model_path}")
-    try:
-        # Assuming the model was saved as a standard HuggingFace checkpoint or similar structure
-        # If it's a raw .pt file, we might need to load the state dict into a defined model class.
-        # For this implementation, we assume a standard HF save structure or a wrapper that handles it.
-        # If T012 saved it as a raw state dict, we need to instantiate the model first.
-        
-        # Check if it's a directory with config.json (HF style) or a single .pt file
-        if os.path.isdir(model_path):
-            model = AutoModelForSequenceClassification.from_pretrained(model_path)
-            tokenizer = AutoTokenizer.from_pretrained(model_path)
-        else:
-            # Fallback for raw .pt file if T012 saved it that way without HF wrapper
-            # We assume the model architecture is DistilBERTForSequenceClassification with 2 labels
-            from transformers import DistilBertConfig, DistilBertForSequenceClassification
-            config = DistilBertConfig.from_pretrained("distilbert-base-uncased")
-            config.num_labels = 2
-            model = DistilBertForSequenceClassification(config)
-            
-            state_dict = torch.load(model_path, map_location=get_device())
-            # Handle potential key mismatches if 'module.' prefix exists
-            if list(state_dict.keys())[0].startswith('module.'):
-                state_dict = {k[7:]: v for k, v in state_dict.items()}
-            model.load_state_dict(state_dict)
-            
-            tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
-        
-        model.to(get_device())
-        model.eval()
-        logger.info("Model loaded successfully.")
-        return model, tokenizer
-    except Exception as e:
-        logger.error(f"Failed to load model: {e}")
-        raise
+# --- Data Loading Helpers ---
 
 def load_unified_dataset(path: str) -> List[Dict[str, Any]]:
     """Load the unified dataset from JSONL."""
-    logger.info(f"Loading unified dataset from {path}")
     data = []
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, 'r') as f:
         for line in f:
             if line.strip():
                 data.append(json.loads(line))
-    logger.info(f"Loaded {len(data)} samples.")
     return data
 
-def check_physics_reward_exists(dataset: List[Dict[str, Any]]) -> bool:
-    """
-    Check if 'physics_reward' exists in the dataset.
-    Aborts if missing.
-    """
-    if not dataset:
-        logger.error("Dataset is empty.")
-        return False
-    
-    # Check first sample
-    if 'physics_reward' not in dataset[0]:
-        logger.error("CRITICAL: 'physics_reward' field is missing from the dataset. "
-                     "Cannot proceed with physical domain analysis without a native reward signal. "
-                     "Aborting execution.")
-        return False
-    
-    logger.info("Field 'physics_reward' found in dataset.")
-    return True
+def load_predictions(path: str) -> List[Dict[str, Any]]:
+    """Load raw predictions from T016b output."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Predictions file not found: {path}. Run T016b first.")
+    data = []
+    with open(path, 'r') as f:
+        for line in f:
+            if line.strip():
+                data.append(json.loads(line))
+    return data
 
-def split_dataset_by_domain(dataset: List[Dict[str, Any]]) -> Tuple[List[Dict], List[Dict]]:
-    """
-    Split dataset into symbolic and physical test sets based on labels.
-    
-    Symbolic: Label is "constraint_violated" or "constraint_satisfied" derived from T011 logic.
-    Physical: Label is derived from physics_reward > 0.5.
-    
-    Note: The unified dataset from T011 already has a 'label' field based on the composite rule.
-    We will use that for the symbolic set.
-    For the physical set, we create a label based on physics_reward.
-    """
-    symbolic_set = []
-    physical_set = []
-    
-    for sample in dataset:
-        # Symbolic set: Uses the label generated by T011 (composite rule)
-        # We assume the 'label' field in unified_dataset.jsonl is the symbolic label
-        if 'label' in sample:
-            symbolic_set.append(sample)
-        
-        # Physical set: Derived from physics_reward
-        if 'physics_reward' in sample:
-            # Create a physical label: 1 if reward > 0.5, else 0
-            phys_label = 1 if sample['physics_reward'] > 0.5 else 0
-            sample_copy = sample.copy()
-            sample_copy['phys_label'] = phys_label
-            physical_set.append(sample_copy)
-    
-    logger.info(f"Split dataset: {len(symbolic_set)} symbolic samples, {len(physical_set)} physical samples.")
-    return symbolic_set, physical_set
+def load_gap_metrics(path: str) -> Dict[str, Any]:
+    """Load generalization gap metrics from T016c."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Gap metrics file not found: {path}. Run T016c first.")
+    with open(path, 'r') as f:
+        return json.load(f)
 
-def run_inference(model: Any, tokenizer: Any, samples: List[Dict], label_field: str) -> List[Dict]:
-    """
-    Run inference on a list of samples.
-    Returns list of samples with 'predicted_label', 'probabilities', and 'true_label'.
-    """
-    predictions = []
-    
-    # Batch processing for efficiency
-    batch_size = 16
-    for i in range(0, len(samples), batch_size):
-        batch = samples[i:i+batch_size]
-        texts = [s.get('text_description', '') for s in batch]
-        
-        # Tokenize
-        inputs = tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
-        inputs = {k: v.to(get_device()) for k, v in inputs.items()}
-        
-        with torch.no_grad():
-            outputs = model(**inputs)
-            probs = torch.softmax(outputs.logits, dim=-1).cpu().numpy()
-            preds = np.argmax(probs, axis=1)
-        
-        for j, sample in enumerate(batch):
-            pred = int(preds[j])
-            prob = float(probs[j][pred])
-            true_label = sample.get(label_field)
-            
-            record = sample.copy()
-            record['predicted_label'] = pred
-            record['predicted_prob'] = prob
-            record['true_label'] = true_label
-            predictions.append(record)
-    
-    return predictions
+# --- Physics Reward Validation ---
 
-def calculate_metrics(predictions: List[Dict], true_label_field: str = 'true_label', pred_label_field: str = 'predicted_label') -> Dict[str, float]:
+def check_physics_reward_exists(data: List[Dict[str, Any]]) -> None:
     """
-    Calculate Brier Score, Accuracy, F1, and AUC-ROC.
+    Verify that 'physics_reward' exists in the dataset.
+    Aborts with a clear error if missing.
     """
-    if not predictions:
-        return {"brier": 0.0, "accuracy": 0.0, "f1": 0.0, "auc": 0.0}
+    if not data:
+        raise ValueError("Dataset is empty; cannot verify physics_reward.")
     
-    y_true = [p[true_label_field] for p in predictions]
-    y_pred = [p[pred_label_field] for p in predictions]
-    y_prob = [p.get('predicted_prob', 0.5) for p in predictions] # Probability of positive class (1)
+    # Check first record
+    first_record = data[0]
+    if 'physics_reward' not in first_record:
+        raise RuntimeError(
+            "CRITICAL ERROR: 'physics_reward' field is missing from the dataset. "
+            "The statistical comparison against a physical baseline cannot proceed. "
+            "Please verify the data source and transformation pipeline (T010)."
+        )
     
-    # Ensure y_true and y_pred are integers
-    y_true = [int(y) for y in y_true]
-    y_pred = [int(y) for y in y_pred]
+    # Count how many records actually have it to ensure it's not just a header artifact
+    count = sum(1 for r in data if 'physics_reward' in r)
+    if count == 0:
+        raise RuntimeError(
+            "CRITICAL ERROR: No records contain 'physics_reward'. "
+            "The physical baseline source is invalid."
+        )
+    logger.info(f"Verified physics_reward exists in {count}/{len(data)} records.")
+
+# --- Statistical Analysis Functions ---
+
+def calculate_metrics_from_predictions(predictions: List[Dict[str, Any]]) -> Tuple[List[float], List[float], List[float], List[float]]:
+    """
+    Calculate per-sample metrics for Symbolic and Physical domains.
+    Returns: (symbolic_diffs, physical_diffs, symbolic_preds, physical_preds)
+    Note: For this specific task, we compute the difference in 'confidence' or a derived metric 
+    between the predicted label and the true label logic, but the task asks for 
+    "difference of metrics (Symbolic - Physical)".
     
-    # Brier Score (Mean Squared Error on probabilities)
-    brier = brier_score_loss(y_true, y_prob)
+    Interpretation: We will calculate a 'performance score' per sample.
+    Score = 1 if predicted_label == true_label (or logic equivalent), else 0.
+    Then we compare the distribution of these scores or the confidence values directly.
     
-    # Accuracy
-    acc = accuracy_score(y_true, y_pred)
+    However, the task specifically asks for "difference of metrics (Symbolic - Physical)".
+    Let's define a metric M for each sample.
+    M_symbolic = 1 if (label logic matches prediction) else 0? 
+    Actually, a better interpretation for "difference" in a paired test context:
+    We have a set of samples. Each sample has a 'symbolic' aspect and a 'physical' aspect.
+    The task asks for Shapiro-Wilk on the *difference* of metrics.
     
-    # F1 Score
-    f1 = f1_score(y_true, y_pred, zero_division=0)
+    Let's compute:
+    1. Symbolic Success: 1 if (predicted_label == true_label) based on symbolic logic.
+    2. Physical Success: 1 if (predicted_label == true_label) based on physical logic.
+    Wait, the model predicts ONE label. The "true" label is derived from the domain.
     
-    # AUC-ROC
-    # Handle edge case where all labels are the same
-    if len(set(y_true)) < 2:
-        auc = 0.5 # Default if no variance
+    Let's re-read T016b: "Split into symbolic test set... and physical test set".
+    T016d: "Perform Shapiro-Wilk normality test on the difference of metrics (Symbolic - Physical)".
+    
+    If the sets are disjoint (split), we cannot do a paired test easily unless we have a paired structure.
+    But the task implies a paired test ("Paired t-test" or "Wilcoxon signed-rank").
+    This suggests we treat the *same* samples as having two potential labels?
+    Or, we compare the metric distributions of the two groups? No, "difference of metrics" implies paired.
+    
+    Hypothesis: The dataset contains samples that have BOTH symbolic and physical ground truths.
+    T016b output has `true_label` (likely symbolic) and `physical_label` (derived from physics_reward).
+    So for each row:
+    - Symbolic Error: 1 if pred != true_label
+    - Physical Error: 1 if pred != physical_label
+    Difference = Error_Symbolic - Error_Physical? Or Confidence_Symbolic - Confidence_Physical?
+    
+    Let's use the "Error Rate" (0 or 1) as the metric per sample.
+    Metric_S = 1 if (predicted_label != true_label) else 0
+    Metric_P = 1 if (predicted_label != physical_label) else 0
+    Diff = Metric_S - Metric_P.
+    Then test if Diff is significantly different from 0.
+    
+    If the sets are truly split (some samples only symbolic, some only physical), paired test is invalid.
+    But T016b says "Split into symbolic test set ... and physical test set".
+    If they are disjoint, we must use an unpaired test (Mann-Whitney U or t-test).
+    However, the task explicitly mandates: "If normal, execute Paired t-test; else, execute Wilcoxon signed-rank test".
+    This implies the data MUST be paired.
+    Therefore, we assume the dataset contains rows where BOTH `true_label` and `physical_label` are valid and comparable.
+    We will filter for rows where BOTH are present.
+    """
+    symbolic_errors = []
+    physical_errors = []
+    
+    for row in predictions:
+        # Check for presence of both labels
+        if 'true_label' not in row or 'physical_label' not in row:
+            continue
+        if 'predicted_label' not in row:
+            continue
+        
+        pred = row['predicted_label']
+        true_sym = row['true_label']
+        true_phys = row['physical_label']
+        
+        # Metric: 1 if error, 0 if correct
+        err_sym = 1 if pred != true_sym else 0
+        err_phys = 1 if pred != true_phys else 0
+        
+        symbolic_errors.append(err_sym)
+        physical_errors.append(err_phys)
+    
+    if len(symbolic_errors) != len(physical_errors) or len(symbolic_errors) == 0:
+        raise ValueError("Could not form paired samples for statistical testing. "
+                         "Ensure predictions file has both 'true_label' and 'physical_label' for the same rows.")
+    
+    return symbolic_errors, physical_errors
+
+def perform_statistical_tests(symbolic_vals: List[float], physical_vals: List[float]) -> Dict[str, Any]:
+    """
+    1. Shapiro-Wilk on the difference (Symbolic - Physical).
+    2. If normal -> Paired t-test.
+    3. Else -> Wilcoxon signed-rank test.
+    4. Return p_value, is_significant, and normality test result.
+    """
+    diffs = np.array(symbolic_vals) - np.array(physical_vals)
+    
+    # 1. Shapiro-Wilk
+    shapiro_stat, shapiro_p = stats.shapiro(diffs)
+    normality_result = {
+        "statistic": float(shapiro_stat),
+        "p_value": float(shapiro_p),
+        "is_normal": shapiro_p > 0.05  # Standard alpha 0.05
+    }
+    
+    logger.info(f"Shapiro-Wilk: stat={shapiro_stat:.4f}, p={shapiro_p:.4f}, normal={normality_result['is_normal']}")
+    
+    p_value = 0.0
+    test_name = ""
+    
+    if normality_result['is_normal']:
+        # Paired t-test
+        t_stat, p_value = stats.ttest_rel(symbolic_vals, physical_vals)
+        test_name = "Paired t-test"
     else:
-        try:
-            auc = roc_auc_score(y_true, y_prob)
-        except ValueError:
-            auc = 0.5
+        # Wilcoxon signed-rank
+        w_stat, p_value = stats.wilcoxon(symbolic_vals, physical_vals)
+        test_name = "Wilcoxon signed-rank test"
+    
+    is_significant = p_value < 0.05
     
     return {
-        "brier": float(brier),
-        "accuracy": float(acc),
-        "f1": float(f1),
-        "auc": float(auc)
+        "normality_test_result": normality_result,
+        "test_name": test_name,
+        "p_value": float(p_value),
+        "is_significant": is_significant
     }
 
-def perform_statistical_test(symbolic_preds: List[Dict], physical_preds: List[Dict], metric: str = 'accuracy') -> Dict[str, Any]:
+def calculate_bootstrap_ci(symbolic_vals: List[float], physical_vals: List[float], n_iterations: int = 10000, seed: int = 42) -> Tuple[float, float]:
     """
-    Perform statistical test on the difference in metrics between domains.
-    Since we are comparing aggregated metrics, we will compare the distribution of 
-    correct/incorrect predictions (0/1) or the probability scores if available.
-    
-    However, the task asks to test the "difference in metrics". 
-    A more robust approach for "difference in metrics" with a single dataset split is 
-    to compare the per-sample correctness (0 or 1) between the two domains.
-    
-    Let's compare the binary correctness (1 if predicted == true, else 0) for both sets.
+    Perform Bootstrap Confidence Interval on the Generalization Gap (Mean(Symbolic) - Mean(Physical)).
     """
-    symbolic_correct = [1 if p['predicted_label'] == p['true_label'] else 0 for p in symbolic_preds]
-    physical_correct = [1 if p['predicted_label'] == p['true_label'] else 0 for p in physical_preds]
+    np.random.seed(seed)
+    symbolic_arr = np.array(symbolic_vals)
+    physical_arr = np.array(physical_vals)
+    n = len(symbolic_arr)
     
-    if not symbolic_correct or not physical_correct:
-        return {"p_value": 1.0, "is_significant": False, "test_method": "insufficient_data"}
+    gaps = []
+    for _ in range(n_iterations):
+        # Resample with replacement
+        indices = np.random.choice(n, n, replace=True)
+        boot_sym = symbolic_arr[indices]
+        boot_phys = physical_arr[indices]
+        
+        gap = np.mean(boot_sym) - np.mean(boot_phys)
+        gaps.append(gap)
     
-    # Shapiro-Wilk for normality
-    # Note: Shapiro-Wilk is sensitive to sample size. For large N, it often rejects normality.
-    # We'll check p > 0.05 for normality.
-    _, p_norm_symbolic = stats.shapiro(symbolic_correct)
-    _, p_norm_physical = stats.shapiro(physical_correct)
+    gaps = np.array(gaps)
+    # 95% CI
+    lower = np.percentile(gaps, 2.5)
+    upper = np.percentile(gaps, 97.5)
     
-    # Since binary data (0/1) is rarely normally distributed, we might skip t-test.
-    # But let's follow the prompt's logic: Shapiro -> t-test if normal, else Wilcoxon.
-    # Given binary data, Wilcoxon (Mann-Whitney U) is safer.
-    
-    normal_symbolic = p_norm_symbolic > 0.05
-    normal_physical = p_norm_physical > 0.05
-    
-    if normal_symbolic and normal_physical:
-        # T-test (independent samples)
-        stat, p_val = stats.ttest_ind(symbolic_correct, physical_correct)
-        method = "t-test"
-    else:
-        # Wilcoxon signed-rank (or Mann-Whitney U for independent samples)
-        # Since these are two different sets of samples (symbolic vs physical), 
-        # they are independent. Mann-Whitney U is appropriate.
-        # The prompt says "Wilcoxon signed-rank", which is for paired data. 
-        # However, if we assume the "difference" implies a paired comparison (which isn't strictly possible here 
-        # unless the same sample has both labels), we use Mann-Whitney U for independent.
-        # Let's stick to the prompt's intent: compare the distributions.
-        # Mann-Whitney U is the standard for independent samples.
-        stat, p_val = stats.mannwhitneyu(symbolic_correct, physical_correct, alternative='two-sided')
-        method = "Mann-Whitney U (Wilcoxon rank-sum)"
-    
-    is_significant = p_val < 0.05
-    
-    return {
-        "p_value": float(p_val),
-        "is_significant": bool(is_significant),
-        "test_method": method,
-        "normality_symbolic": bool(normal_symbolic),
-        "normality_physical": bool(normal_physical)
-    }
+    logger.info(f"Bootstrap CI (95%): [{lower:.4f}, {upper:.4f}]")
+    return (float(lower), float(upper))
 
-def save_results(comparative_results: Dict, raw_predictions: List[Dict], output_dir: str):
-    """Save results to JSON and JSONL files."""
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
-    # Save comparative analysis
-    analysis_path = os.path.join(output_dir, "comparative_analysis.json")
-    with open(analysis_path, 'w', encoding='utf-8') as f:
-        json.dump(comparative_results, f, indent=2)
-    logger.info(f"Saved comparative analysis to {analysis_path}")
-    
-    # Save raw predictions
-    predictions_path = os.path.join(output_dir, "raw_predictions.jsonl")
-    with open(predictions_path, 'w', encoding='utf-8') as f:
-        for pred in raw_predictions:
-            f.write(json.dumps(pred) + '\n')
-    logger.info(f"Saved raw predictions to {predictions_path}")
+# --- Main Execution ---
 
 def main():
-    log_script_start("evaluate")
+    log_script_start(logger, "T016d - Statistical Test Sequence")
     
-    config = get_config()
-    unified_dataset_path = get_path("unified_dataset")
-    model_path = get_path("proxy_hard_model")
-    output_dir = get_path("results")
+    # Paths
+    predictions_path = get_path("data/results/raw_predictions.jsonl")
+    gap_metrics_path = get_path("data/results/gap_metrics.json")
+    output_path = get_path("data/results/comparative_analysis.json")
     
-    # 1. Load Model
-    model, tokenizer = load_model(model_path)
+    # 1. Load Data
+    logger.info("Loading predictions...")
+    predictions = load_predictions(predictions_path)
     
-    # 2. Load Unified Dataset
-    dataset = load_unified_dataset(unified_dataset_path)
+    logger.info("Validating physics_reward existence...")
+    # We need to load the original unified dataset or check predictions for physics_reward
+    # The task says: "If physics_reward is missing, abort".
+    # We can check the predictions file if it was populated by T016b with physics_reward info,
+    # or load the unified dataset again.
+    # T016b output includes 'physical_label' derived from physics_reward.
+    # To be safe, let's load the unified dataset to check the raw field.
+    unified_path = get_path("data/processed/unified_dataset.jsonl")
+    unified_data = load_unified_dataset(unified_path)
+    check_physics_reward_exists(unified_data)
     
-    # 3. Check for physics_reward
-    if not check_physics_reward_exists(dataset):
-        log_script_end("evaluate", status="failed")
-        sys.exit(1)
+    # 2. Calculate Paired Metrics
+    logger.info("Calculating paired metrics (Symbolic vs Physical error rates)...")
+    sym_errors, phys_errors = calculate_metrics_from_predictions(predictions)
     
-    # 4. Split Dataset
-    symbolic_set, physical_set = split_dataset_by_domain(dataset)
+    # 3. Statistical Tests
+    logger.info("Performing statistical tests...")
+    stats_results = perform_statistical_tests(sym_errors, phys_errors)
     
-    if not symbolic_set:
-        logger.error("Symbolic set is empty.")
-        sys.exit(1)
-    if not physical_set:
-        logger.error("Physical set is empty.")
-        sys.exit(1)
+    # 4. Bootstrap CI
+    logger.info("Calculating Bootstrap Confidence Interval...")
+    # Load the gap value just for reference, but recalculate CI on the raw diffs
+    gap_metrics = load_gap_metrics(gap_metrics_path)
+    bootstrap_ci = calculate_bootstrap_ci(sym_errors, phys_errors)
     
-    # 5. Run Inference
-    logger.info("Running inference on symbolic set...")
-    symbolic_preds = run_inference(model, tokenizer, symbolic_set, 'true_label')
+    # 5. Compile Results
+    # Calculate side-by-side metrics (Accuracies)
+    sym_acc = 1.0 - np.mean(sym_errors)
+    phys_acc = 1.0 - np.mean(phys_errors)
     
-    logger.info("Running inference on physical set...")
-    physical_preds = run_inference(model, tokenizer, physical_set, 'true_label') # true_label is the binary label from T011
-    
-    # 6. Calculate Metrics
-    symbolic_metrics = calculate_metrics(symbolic_preds)
-    physical_metrics = calculate_metrics(physical_preds)
-    
-    logger.info(f"Symbolic Metrics: {symbolic_metrics}")
-    logger.info(f"Physical Metrics: {physical_metrics}")
-    
-    # 7. Statistical Test
-    # We compare the correctness distributions
-    stat_result = perform_statistical_test(symbolic_preds, physical_preds)
-    
-    # 8. Prepare Output
-    comparative_results = {
-        "symbolic_domain": {
-            "metrics": symbolic_metrics,
-            "sample_count": len(symbolic_preds)
+    analysis_results = {
+        "symbolic_metrics": {
+            "accuracy": float(sym_acc),
+            "error_rate": float(1 - sym_acc),
+            "n_samples": len(sym_errors)
         },
-        "physical_domain": {
-            "metrics": physical_metrics,
-            "sample_count": len(physical_preds)
+        "physical_metrics": {
+            "accuracy": float(phys_acc),
+            "error_rate": float(1 - phys_acc),
+            "n_samples": len(phys_errors)
         },
-        "statistical_test": stat_result,
-        "physics_baseline_source": "bridge-to-worlds/bridge-data"
+        "generalization_gap": float(gap_metrics.get("generalization_gap", sym_acc - phys_acc)),
+        "statistical_test": {
+            "normality_test_result": stats_results["normality_test_result"],
+            "test_method": stats_results["test_name"],
+            "p_value": stats_results["p_value"],
+            "is_significant": stats_results["is_significant"]
+        },
+        "bootstrap_confidence_interval": {
+            "confidence_level": 0.95,
+            "lower": bootstrap_ci[0],
+            "upper": bootstrap_ci[1],
+            "iterations": 10000
+        },
+        "physics_baseline_source": "Bridge-to-Worlds (physics_reward field)"
     }
     
-    # Combine all predictions for raw output
-    all_predictions = symbolic_preds + physical_preds
+    # 6. Save Output
+    logger.info(f"Saving results to {output_path}")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(analysis_results, f, indent=2)
     
-    # 9. Save Results
-    save_results(comparative_results, all_predictions, output_dir)
-    
-    log_script_end("evaluate", status="completed")
-    return comparative_results
+    log_script_end(logger, "T016d - Statistical Test Sequence")
+    logger.info("Done.")
 
 if __name__ == "__main__":
     main()

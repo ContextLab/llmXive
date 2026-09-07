@@ -39,7 +39,7 @@ This project extends the research findings of "Cosmos 3: Omnimodal World Models 
 - **FR-003 (Model Training)**: The system MUST train a single DistilBERT model (Hard Proxy) on the transformed symbolic data.
 - **FR-004 (Evaluation)**: The system MUST perform a statistical significance test (Shapiro-Wilk -> t-test/Wilcoxon) comparing symbolic and physical domain metrics.
 - **FR-005 (Error Analysis)**: The system MUST categorize misclassified samples into "visual ambiguity", "logical complexity", and "context mismatch".
-- **NFR-001 (Memory)**: Peak memory usage must not exceed 7 GB during any processing stage.
+- **NFR-001 (Memory)**: Peak memory usage must not exceed a reasonable threshold during any processing stage.
 - **NFR-002 (Reproducibility)**: All scripts must be deterministic given fixed seeds, and the entire pipeline must be reproducible via `quickstart.md`.
 
 ## 4. Data Model

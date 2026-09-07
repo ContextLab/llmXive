@@ -6,6 +6,7 @@ import logging
 import os
 import time
 import tracemalloc
+import psutil
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
@@ -45,9 +46,10 @@ def get_logger(name: str = "llmXive") -> logging.Logger:
 
 
 def get_memory_usage_mb() -> float:
-    """Get current memory usage in MB."""
-    current, peak = tracemalloc.get_traced_memory()
-    return current / (1024 * 1024)
+    """Get current memory usage in MB using psutil for accuracy."""
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 * 1024)
 
 
 def log_memory_usage(msg: str = ""):
@@ -63,21 +65,40 @@ def log_memory_usage(msg: str = ""):
 def track_execution_time(task_name: str = "Task"):
     """Context manager to track execution time of a block."""
     start_time = time.time()
-    tracemalloc.start()
+    # Start tracemalloc for detailed allocation tracking if not already running
+    if not tracemalloc.is_tracing():
+        tracemalloc.start()
+    
     log_memory_usage(f"Start of {task_name}")
     try:
         yield
     finally:
         end_time = time.time()
         duration = end_time - start_time
+        
+        # Get memory stats
         current, peak = tracemalloc.get_traced_memory()
+        mem_mb_current = current / (1024 * 1024)
+        mem_mb_peak = peak / (1024 * 1024)
+        
+        # Also get process memory via psutil for cross-check
+        process_mem = get_memory_usage_mb()
+        
+        logger.info(
+            f"{task_name} completed in {duration:.2f} seconds. "
+            f"Peak tracemalloc: {mem_mb_peak:.2f} MB, "
+            f"Current psutil: {process_mem:.2f} MB"
+        )
+        
+        # Stop tracemalloc if we started it here (simple heuristic: if it was running before, we leave it; otherwise stop)
+        # For safety in this context manager, we stop it here as the task is done
         tracemalloc.stop()
-        logger.info(f"{task_name} completed in {duration:.2f} seconds. Peak memory: {peak / (1024 * 1024):.2f} MB")
 
 
 def start_tracing():
     """Start tracing memory allocations."""
-    tracemalloc.start()
+    if not tracemalloc.is_tracing():
+        tracemalloc.start()
 
 
 def stop_tracing():

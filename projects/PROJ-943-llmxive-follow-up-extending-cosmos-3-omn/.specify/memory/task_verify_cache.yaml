@@ -1,10 +1,17 @@
-T002a:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The required `code/.flake8` file is not present in the provided evidence; there
-    is no artifact showing its existence or contents, so the linting configuration
-    cannot be verified. The task remains undone until the file is created and contains
-    a valid Flake8 configuration.
+  r: "No directory structure or `.gitkeep` files were presented as evidence; without\
+    \ a listing or screenshots of the required folders (`code/scripts`, `code/data/raw`,\
+    \ `code/data/processed`, `code/data/splits`, `code/models`, `code/tests`, `code/reports`,\
+    \ `code/utils`) containing non\u2011empty `.gitkeep` files, we cannot confirm\
+    \ the task was completed. The implementer must provide the actual folder hierarchy\
+    \ and the placeholder files."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/.gitignore` file was presented, and no content was shown in the evidence.
+    The required artifact is missing, so the task is not satisfied.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,23 +19,35 @@ T004:
     and lists `data/`, `models/`, `__pycache__/`, and `*.pyc`, the requirement cannot
     be confirmed. The implementer must add the `.gitignore` file containing those
     exclusion patterns.
-T010:
-  c: true
-  h: a11c4da24bc7ab361c8f891a91356ad78adc788bed0b7d09444d566354d4bb1c
-  r: "The `code/scripts/download.py` file exists, is non\u2011empty, and contains\
-    \ code that loads the `bridge-to-worlds/bridge-data` dataset with `streaming=True`,\
-    \ filters for samples with an `actions` field, raises a `RuntimeError` on load\
-    \ failure, and defines the correct output path (`code/data/raw/bridge_samples.jsonl`).\
-    \ The missing `bridge_samples.jsonl` file is a runtime product, not a required\
-    \ artifact for the implementation task."
-T011:
+T009:
   c: false
-  h: 80277d11dd2bcfaa5f036c3adc2831d1f62340e41302528059923515411f26d2
-  r: "The required `code/data/schema/action_schema.json` file is absent, so the script\
-    \ cannot load the rule definition. Additionally, the expected output `code/data/processed/unified_dataset.jsonl`\
-    \ does not exist, and the provided `transform.py` snippet is incomplete (truncated\
-    \ before any data loading, rule application, or saving logic). These missing artifacts\
-    \ mean the task\u2019s requirements are not met."
+  h: 73bf15f8a504d56257a019d8d2677b18a0db0725d40171f288813fea36b6f168
+  r: "The provided `code/scripts/download.py` is present but the shown code is truncated\
+    \ and never writes any records to `code/data/raw/bridge_samples.jsonl`. Moreover,\
+    \ the expected output file `bridge_samples.jsonl` does not exist on disk. The\
+    \ task\u2019s core requirement\u2014to save the filtered streaming data to that\
+    \ JSONL file\u2014is therefore unmet."
+T010:
+  c: false
+  h: 3b7daa33626a3bda7d19380fbe41fa2fa22f82634943427b49353a6277a0a15e
+  r: "The `transform.py` script is incomplete (truncated before the processing loop\
+    \ and file\u2011write logic) and the required output file `code/data/processed/unified_dataset.jsonl`\
+    \ does not exist, so the task\u2019s verification condition (file exists with\
+    \ >0 rows) is not met."
+T011a:
+  c: false
+  h: c2427754eed129ed27952b93ae5e9808dd800c28ec83d0d2a0d1b659da0d7157
+  r: "The provided `train.py` is incomplete (truncated) and never creates or writes\
+    \ to `code/logs/memory_profile.log` (the file is missing). Consequently the required\
+    \ memory\u2011monitoring behavior and the full training implementation are not\
+    \ demonstrably present, so the task is not satisfied."
+T011b:
+  c: false
+  h: 9587dd016ee0001735a3b95a5b3354cad36ae6fca85a12dbfff8c8e9dca12af5
+  r: The required files `code/models/proxy_hard/model.pt` and `code/logs/memory_profile.log`
+    are both reported as missing, so the verification task has not been satisfied.
+    The implementer must ensure these artifacts are created and present after T011a
+    runs.
 T012:
   c: false
   h: b2a1f059bf932a9e436f88fc963a93e37c9d93f1a9cf0cd0462ebc914c1276c7
@@ -36,6 +55,39 @@ T012:
     \ loop, memory\u2011monitoring logic, or code that saves the model to `code/models/proxy_hard/model.pt`.\
     \ Moreover, the expected output files (`model.pt` and `memory_profile.log`) are\
     \ absent from the repository."
+T016b:
+  c: false
+  h: f73c1b8d638b7fa9223c5720ec1856f7674a5e43494971dbc6bf493dd211ead5
+  r: The repository lacks the required `code/data/results/raw_predictions.jsonl` file,
+    and the shown `evaluate.py` script is incomplete (truncated) and does not demonstrate
+    the full loading, splitting, inference, metric calculations, or writing of the
+    detailed prediction records demanded by the task. The implementer must generate
+    the predictions file and ensure the script fully implements all specified steps.
+T016c:
+  c: false
+  h: aa112ca99420277bd496078816c36a051f034b582811e1fcb7d34decf817d820
+  r: The repository lacks the required `code/data/results/raw_predictions.jsonl` and
+    the resulting `gap_metrics.json` files, and the shown portion of `evaluate.py`
+    does not contain the logic to compute `AUC_Symbolic`, `AUC_Physics`, calculate
+    their difference, or write the `generalization_gap` to `gap_metrics.json`. These
+    essential artifacts and functionality are missing.
+T016d:
+  c: false
+  h: efac4bdfdf1455d092ed66dc3854bd544575a4b0ebc5efad9e911f61aee83e63
+  r: "The provided `evaluate.py` stops after a partially\u2011implemented `calculate_metrics_from_predictions`\
+    \ function and never shows the Shapiro\u2011Wilk test, conditional t\u2011test/Wilcoxon,\
+    \ bootstrap confidence interval, or writing of `comparative_analysis.json`. Moreover,\
+    \ the required output file `code/data/results/comparative_analysis.json` does\
+    \ not exist. The task\u2019s statistical analysis and result\u2011generation steps\
+    \ are therefore missing."
+T016e:
+  c: false
+  h: 2d509fd33a19d9a8101e7238c110be98dec789629eeb54ab37271ff4e0e59914
+  r: "The `extract_errors.py` script is truncated (the `save_misclassified` function\
+    \ ends with an incomplete `for` loop) and therefore cannot write the misclassified\
+    \ samples. Moreover, the required input file `code/data/results/raw_predictions.jsonl`\
+    \ and the expected output file `code/data/processed/misclassified_samples.jsonl`\
+    \ are both missing. The task\u2019s core functionality is not present."
 T017:
   c: false
   h: 6fc855219413f0edb98ec9994b1336bba132134640b022610174e3f821a2833d
@@ -47,17 +99,16 @@ T017:
     be completed to include all specified steps and generate the required result files.
 T018:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or test file was provided that adds the required validation
-    for the `physics_reward` field in the Bridge Data, nor any evidence (e.g., error
-    messages, unit tests) showing that the pipeline aborts with a clear error when
-    the field is missing. The implementer must supply the actual implementation (e.g.,
-    a Python module or function) and demonstration that it correctly detects the absence
-    of `physics_reward` and raises the specified error.
-T019:
+  h: 47d47d59d7c39e5ed6c927cc65ed31b8e7cf855cd5c238a816a3b9b40acb740a
+  r: "The script `code/scripts/analyze_errors.py` exists, but the required input file\
+    \ `code/data/processed/misclassified_samples.jsonl` is missing, and the categorization\
+    \ heuristics use \u201CLogical Complexity\u201D instead of the specified \u201C\
+    Action Noise\u201D failure mode. The artifact therefore does not fully meet the\
+    \ task requirements."
+T023:
   c: false
-  h: 1668175acd05ff6cc649640549a5c7221f8fed095907786bba891b612665b557
-  r: "The `extract_errors.py` script is truncated (the `main()` function is incomplete)\
-    \ and the required input file `code/data/results/raw_predictions.jsonl` as well\
-    \ as the expected output `code/data/processed/misclassified_samples.jsonl` are\
-    \ absent, so the task\u2019s functional requirement is not met."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md` file
+    is present in the provided evidence, so the required justification and schema
+    adaptation notes are missing. The task cannot be considered completed until the
+    specified markdown file is created/modified with the requested content.

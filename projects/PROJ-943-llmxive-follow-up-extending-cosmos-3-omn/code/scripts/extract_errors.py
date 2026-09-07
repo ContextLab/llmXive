@@ -14,16 +14,19 @@ logger = get_logger(__name__)
 
 INPUT_PATH = Path("code/data/results/raw_predictions.jsonl")
 OUTPUT_PATH = Path("code/data/processed/misclassified_samples.jsonl")
-MAX_MEMORY_MB = 7000  # 7 GB limit for safety, though this script is lightweight
+MAX_MEMORY_MB = 7000  # 7 GB limit for safety
 
 def load_predictions(input_path: Path) -> List[Dict[str, Any]]:
     """
     Load predictions from a JSONL file.
     Expects each line to be a JSON object containing 'true_label' and 'predicted_label'.
+    Preserves all intermediate features (norm_value, keyword_match, model confidence, etc.).
     """
     if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}. "
-                                "Ensure T017 (evaluate.py) has run successfully.")
+        raise FileNotFoundError(
+            f"Input file not found: {input_path}. "
+            "Ensure T016b (evaluate.py) has run successfully to generate raw_predictions.jsonl."
+        )
     
     predictions = []
     logger.info(f"Loading predictions from {input_path}")
@@ -37,7 +40,7 @@ def load_predictions(input_path: Path) -> List[Dict[str, Any]]:
                 predictions.append(record)
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse JSON on line {line_num}: {e}")
-                raise
+                raise ValueError(f"Invalid JSON in input file at line {line_num}: {e}")
     
     logger.info(f"Loaded {len(predictions)} prediction records.")
     return predictions
@@ -46,6 +49,7 @@ def extract_misclassified(predictions: List[Dict[str, Any]]) -> List[Dict[str, A
     """
     Filter the list of predictions to keep only those where 
     predicted_label != true_label.
+    Preserves all original fields including intermediate features.
     """
     misclassified = []
     for record in predictions:
