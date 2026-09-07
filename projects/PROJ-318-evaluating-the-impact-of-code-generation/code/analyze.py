@@ -1,294 +1,334 @@
 import json
 import logging
 import sys
+import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-from docstring_parser import parse as parse_docstring
-from scipy import stats
-import re
+from sentence_transformers import SentenceTransformer
+import numpy as np
 
-# Import from local utils as per project structure
-try:
-    from utils.coverage import CoverageException, parse_docstring_parameters
-except ImportError:
-    from code.utils.coverage import CoverageException, parse_docstring_parameters
+from config import set_global_seed, SEED
+from utils.exceptions import StatsException, CoverageException
 
-try:
-    from utils.stats import StatsException, run_wilcoxon_test
-except ImportError:
-    from code.utils.stats import StatsException, run_wilcoxon_test
+def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
+        if log_file:
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+            logger.addHandler(file_handler)
+    return logger
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/analysis.log')
-    ]
-)
-logger = logging.getLogger(__name__)
-
-def calculate_parameter_coverage_score(human_docstring: Optional[str], ast_params: List[str]) -> float:
-    """
-    Calculate parameter coverage score for a single method.
-    
-    Score = (matched params / total AST params)
-    
-    Handles complex type hints by treating them as unmatched but non-crashing.
-    """
+def calculate_parameter_coverage_score(ast_params: List[str], docstring_text: Optional[str]) -> float:
     if not ast_params:
-        return 1.0  # No parameters to document is a perfect score
-    
-    if not human_docstring or human_docstring.strip() == "":
         return 0.0
-    
+    if not docstring_text or not docstring_text.strip():
+        return 0.0
     try:
-        parsed = parse_docstring(human_docstring)
-        doc_params = [p.arg_name for p in (parsed.params or []) if p.arg_name]
-        
-        matched = 0
-        for ast_param in ast_params:
-            # Clean AST parameter name (remove type hints for comparison)
-            clean_ast_param = ast_param.split(':')[0].split('=')[0].strip()
-            clean_ast_param = clean_ast_param.split('[')[0]  # Handle List[...], Dict[...], etc.
-            
-            # Check if this parameter exists in docstring
-            if clean_ast_param in doc_params:
-                matched += 1
-        
+        from docstring_parser import parse
+        parsed = parse(docstring_text)
+        params_in_docstring = {p.arg_name for p in parsed.params if p.arg_name}
+        if not params_in_docstring:
+            return 0.0
+        matched = len(params_in_docstring.intersection(set(ast_params)))
         return matched / len(ast_params)
-        
     except Exception as e:
-        logger.warning(f"Error parsing docstring for coverage calculation: {e}")
-        return 0.0
+        raise CoverageException(f"Failed to parse docstring: {e}")
 
-def calculate_semantic_similarity_batch(human_docstrings: List[str], llm_docstrings: List[str]) -> List[float]:
-    """
-    Calculate semantic similarity between human and LLM docstrings.
+def process_results_for_coverage(input_file: Path, output_file: Path) -> None:
+    logger = logging.getLogger(__name__)
+    logger.info(f"Processing {input_file} for coverage scores...")
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_file}")
     
-    Uses sentence-transformers for embedding-based similarity.
-    Returns a list of similarity scores (0-1).
-    """
-    try:
-        from sentence_transformers import SentenceTransformer
-        model = SentenceTransformer('all-MiniLM-L6-v2')
-        
-        # Combine all docstrings for batch embedding
-        all_docstrings = human_docstrings + llm_docstrings
-        
-        # Generate embeddings
-        embeddings = model.encode(all_docstrings, show_progress_bar=False)
-        
-        # Split back into human and LLM embeddings
-        human_embeddings = embeddings[:len(human_docstrings)]
-        llm_embeddings = embeddings[len(human_docstrings):]
-        
-        # Calculate cosine similarity for each pair
-        similarities = []
-        for h_emb, l_emb in zip(human_embeddings, llm_embeddings):
-            # Cosine similarity
-            similarity = float(sum(a * b for a, b in zip(h_emb, l_emb)) / 
-                             (sum(a * a for a in h_emb) ** 0.5 * sum(b * b for b in l_emb) ** 0.5))
-            similarities.append(similarity)
-        
-        return similarities
-        
-    except ImportError:
-        logger.warning("sentence-transformers not available, returning 0.0 for all similarities")
-        return [0.0] * len(human_docstrings)
-    except Exception as e:
-        logger.error(f"Error calculating semantic similarity: {e}")
-        return [0.0] * len(human_docstrings)
-
-def process_results_for_coverage(input_file: Path) -> List[Dict[str, Any]]:
-    """
-    Load results and calculate parameter coverage scores.
-    Handles complex type hints gracefully.
-    """
-    logger.info(f"Processing results from {input_file}")
-    
-    with open(input_file, 'r') as f:
+    with open(input_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    results_with_scores = []
-    
-    for item in data:
-        human_docstring = item.get('human_docstring')
-        ast_params = item.get('ast_params', [])
-        
-        # Calculate coverage score
-        coverage_score = calculate_parameter_coverage_score(human_docstring, ast_params)
-        
-        # Create updated record
-        updated_item = item.copy()
-        updated_item['coverage_score'] = coverage_score
-        updated_item['ast_param_count'] = len(ast_params)
-        updated_item['matched_param_count'] = int(coverage_score * len(ast_params)) if ast_params else 0
-        
-        results_with_scores.append(updated_item)
-    
-    logger.info(f"Processed {len(results_with_scores)} records")
-    return results_with_scores
+    if not data:
+        logger.warning("Input file is empty.")
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump([], f, indent=2)
+        return
 
-def add_semantic_similarity_to_data(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Add semantic similarity scores to the data.
-    """
-    human_docstrings = [item.get('human_docstring', '') for item in data]
-    llm_docstrings = [item.get('generated_docstring', '') for item in data]
-    
-    similarities = calculate_semantic_similarity_batch(human_docstrings, llm_docstrings)
-    
-    for item, sim in zip(data, similarities):
-        item['semantic_similarity'] = sim
-    
-    return data
+    for record in data:
+        ast_params = record.get('ast_params', [])
+        human_docstring = record.get('human_docstring')
+        # Calculate coverage based on human docstring as ground truth reference for parameters
+        # Note: The task description says "Human vs LLM coverage scores" for stats, 
+        # but for T033/T034 we calculate coverage for the record's docstring context.
+        # T033 calculates coverage for human_docstring. T034 calculates similarity.
+        # We assume 'human_docstring' is the ground truth for coverage calculation here.
+        try:
+            score = calculate_parameter_coverage_score(ast_params, human_docstring)
+            record['coverage_score'] = score
+        except CoverageException as e:
+            logger.warning(f"Coverage calculation failed for record: {e}")
+            record['coverage_score'] = 0.0
+            record['parse_error'] = True
 
-def run_wilcoxon_analysis(data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Saved coverage results to {output_file}")
+
+def calculate_semantic_similarity_batch(records: List[Dict[str, Any]], model: SentenceTransformer, batch_size: int = 16) -> List[float]:
     """
-    Perform Wilcoxon signed-rank test on human vs LLM coverage scores.
+    Calculate semantic similarity between human_docstring and generated_docstring.
+    Returns a list of similarity scores.
     """
+    logger = logging.getLogger(__name__)
+    similarities = []
+    
+    # Prepare pairs
+    pairs = []
+    indices = []
+    for i, record in enumerate(records):
+        human = record.get('human_docstring')
+        generated = record.get('generated_docstring')
+        
+        # Handle cases where one or both are missing/null
+        if not human or not generated:
+            # If either is missing, similarity is 0.0
+            similarities.append(0.0)
+            continue
+        
+        # Clean strings
+        human_clean = str(human).strip()
+        generated_clean = str(generated).strip()
+        
+        if not human_clean or not generated_clean:
+            similarities.append(0.0)
+            continue
+        
+        pairs.append((human_clean, generated_clean))
+        indices.append(i)
+    
+    if not pairs:
+        return similarities
+    
+    # Process in batches
+    for i in range(0, len(pairs), batch_size):
+        batch = pairs[i:i+batch_size]
+        batch_humans = [p[0] for p in batch]
+        batch_generated = [p[1] for p in batch]
+        
+        try:
+            embeddings_humans = model.encode(batch_humans, convert_to_numpy=True, show_progress_bar=False)
+            embeddings_generated = model.encode(batch_generated, convert_to_numpy=True, show_progress_bar=False)
+            
+            # Cosine similarity
+            cos_sim = np.dot(embeddings_humans, embeddings_generated.T)
+            # Since we want pairwise, take diagonal
+            batch_similarities = np.diag(cos_sim).tolist()
+            
+            for idx, sim in zip(indices[i:i+len(batch)], batch_similarities):
+                similarities.insert(idx, sim)
+                
+        except Exception as e:
+            logger.error(f"Error during embedding calculation: {e}")
+            # Fill with 0.0 for failed batch
+            for idx in indices[i:i+len(batch)]:
+                similarities.insert(idx, 0.0)
+    
+    # Sort by index to ensure order matches input records
+    # The above logic with insert at index works if we process in order, 
+    # but if we skipped some, the indices list handles the mapping.
+    # Actually, the logic above: similarities is built by appending 0.0 for missing, 
+    # then inserting for processed. This might be fragile if indices are not contiguous.
+    # Let's rebuild safely:
+    
+    final_similarities = [0.0] * len(records)
+    for i, record in enumerate(records):
+        if 'similarity_temp' in record:
+            final_similarities[i] = record.pop('similarity_temp')
+        elif i < len(similarities):
+            # This logic is getting complex with inserts. Let's restart the batch logic cleanly.
+            pass
+    
+    # Cleaner approach:
+    final_similarities = []
+    for record in records:
+        human = record.get('human_docstring')
+        generated = record.get('generated_docstring')
+        
+        if not human or not generated:
+            final_similarities.append(0.0)
+            continue
+        
+        human_clean = str(human).strip()
+        generated_clean = str(generated).strip()
+        
+        if not human_clean or not generated_clean:
+            final_similarities.append(0.0)
+            continue
+        
+        try:
+            emb_h = model.encode(human_clean, convert_to_numpy=True)
+            emb_g = model.encode(generated_clean, convert_to_numpy=True)
+            sim = np.dot(emb_h, emb_g) / (np.linalg.norm(emb_h) * np.linalg.norm(emb_g) + 1e-9)
+            final_similarities.append(float(sim))
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"Similarity calc failed: {e}")
+            final_similarities.append(0.0)
+    
+    return final_similarities
+
+def add_semantic_similarity_to_data(input_file: Path, output_file: Path) -> None:
+    """
+    Reads input file, calculates semantic similarity for each record,
+    and writes to output file with 'semantic_similarity' field.
+    """
+    logger = setup_logging()
+    logger.info(f"Starting semantic similarity calculation for {input_file}")
+    
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+    
+    with open(input_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    if not data:
+        logger.warning("Input file is empty.")
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump([], f, indent=2)
+        return
+
+    logger.info("Loading sentence-transformer model (all-MiniLM-L6-v2)...")
+    # Using a smaller, faster model as per task description (all-MiniLM-L6-v2)
+    # Note: Task description says "all-MiniLM-L-v2" which is likely a typo for "all-MiniLM-L6-v2"
+    try:
+        model = SentenceTransformer('all-MiniLM-L6-v2')
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        raise
+
+    logger.info("Calculating similarities...")
+    similarities = calculate_semantic_similarity_batch(data, model)
+    
+    for record, sim in zip(data, similarities):
+        record['semantic_similarity'] = sim
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+    
+    logger.info(f"Saved results with similarity scores to {output_file}")
+
+def run_wilcoxon_analysis(input_file: Path, output_file: Path) -> None:
+    """
+    Performs Wilcoxon signed-rank test on Human vs LLM coverage scores.
+    """
+    logger = setup_logging()
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+    
+    with open(input_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
     human_scores = []
     llm_scores = []
     
-    for item in data:
-        # Extract human coverage score (from docstring quality assessment)
-        # Assuming human_docstring is complete, we treat it as 1.0 coverage if present
-        human_docstring = item.get('human_docstring')
-        human_score = 1.0 if human_docstring and human_docstring.strip() else 0.0
-        human_scores.append(human_score)
+    for record in data:
+        # Assuming T033 added 'coverage_score' based on human docstring
+        # We need LLM coverage score. The task T035 says "Human vs LLM coverage scores".
+        # In T033, we calculated coverage for human_docstring.
+        # We assume the 'generated_docstring' exists and we need to calculate its coverage too?
+        # Or perhaps the 'coverage_score' in results_with_scores.json is for human, 
+        # and we need to calculate for generated to compare?
+        # The task T033 description: "Calculate Parameter Coverage Scores... using docstring_parser to parse docstring text and matching against ast_params".
+        # It doesn't specify which docstring. But T035 says "Human vs LLM".
+        # Let's assume the file has 'coverage_score' (Human) and we need to compute 'llm_coverage_score'.
         
-        # Extract LLM coverage score
-        llm_score = item.get('coverage_score', 0.0)
-        llm_scores.append(llm_score)
+        ast_params = record.get('ast_params', [])
+        human_doc = record.get('human_docstring')
+        generated_doc = record.get('generated_docstring')
+        
+        h_score = calculate_parameter_coverage_score(ast_params, human_doc)
+        l_score = calculate_parameter_coverage_score(ast_params, generated_doc)
+        
+        human_scores.append(h_score)
+        llm_scores.append(l_score)
     
-    if len(human_scores) < 3:
-        logger.warning("Insufficient data for Wilcoxon test (need at least 3 pairs)")
-        return {
-            'statistic': None,
-            'pvalue': None,
-            'sample_size': len(human_scores),
-            'warning': 'Insufficient data for Wilcoxon test'
-        }
-    
+    if len(human_scores) < 2:
+        logger.warning("Not enough data for Wilcoxon test.")
+        with open(output_file, 'w') as f:
+            json.dump({"error": "Insufficient data"}, f)
+        return
+
     try:
+        from scipy import stats
         statistic, pvalue = stats.wilcoxon(human_scores, llm_scores)
         
         result = {
-            'statistic': float(statistic),
-            'pvalue': float(pvalue),
-            'sample_size': len(human_scores),
-            'significant': pvalue < 0.05
+            "test": "Wilcoxon signed-rank",
+            "statistic": float(statistic),
+            "p_value": float(pvalue),
+            "n_pairs": len(human_scores),
+            "significant": pvalue < 0.05
         }
         
-        if len(human_scores) < 30:
-            result['warning'] = 'Sample size < 30, results should be interpreted with caution'
-        
-        return result
-        
+        with open(output_file, 'w') as f:
+            json.dump(result, f, indent=2)
+        logger.info(f"Wilcoxon test complete. P-value: {pvalue}")
     except Exception as e:
         logger.error(f"Wilcoxon test failed: {e}")
-        return {
-            'statistic': None,
-            'pvalue': None,
-            'sample_size': len(human_scores),
-            'error': str(e)
-        }
+        raise
 
-def generate_final_report(data: List[Dict[str, Any]], wilcoxon_result: Dict[str, Any]) -> Dict[str, Any]:
+def generate_final_report(input_file: Path, output_file: Path) -> None:
     """
-    Generate a comprehensive final report.
+    Generates a final report from the stats analysis.
     """
-    total_methods = len(data)
+    logger = setup_logging()
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_file}")
     
-    # Calculate coverage statistics
-    coverage_scores = [item.get('coverage_score', 0.0) for item in data]
-    avg_coverage = sum(coverage_scores) / len(coverage_scores) if coverage_scores else 0.0
-    
-    # Calculate semantic similarity statistics
-    similarity_scores = [item.get('semantic_similarity', 0.0) for item in data]
-    avg_similarity = sum(similarity_scores) / len(similarity_scores) if similarity_scores else 0.0
-    
-    # Count methods with perfect coverage
-    perfect_coverage_count = sum(1 for score in coverage_scores if score == 1.0)
+    with open(input_file, 'r') as f:
+        stats_result = json.load(f)
     
     report = {
-        'total_methods_analyzed': total_methods,
-        'average_parameter_coverage': avg_coverage,
-        'average_semantic_similarity': avg_similarity,
-        'methods_with_perfect_coverage': perfect_coverage_count,
-        'perfect_coverage_rate': perfect_coverage_count / total_methods if total_methods > 0 else 0.0,
-        'wilcoxon_test_results': wilcoxon_result,
-        'analysis_timestamp': str(Path.cwd())  # Placeholder for actual timestamp
+        "project": "PROJ-318-evaluating-the-impact-of-code-generation",
+        "analysis": stats_result
     }
     
-    return report
+    with open(output_file, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Final report generated at {output_file}")
 
 def main():
-    """
-    Main entry point for analysis pipeline.
-    """
-    import argparse
+    set_global_seed(SEED)
+    logger = setup_logging()
     
-    parser = argparse.ArgumentParser(description='Analyze docstring coverage and similarity')
-    parser.add_argument('--input', type=str, default='data/processed/results.json',
-                      help='Input file path')
-    parser.add_argument('--output-scores', type=str, default='data/processed/results_with_scores.json',
-                      help='Output file with coverage scores')
-    parser.add_argument('--report', type=str, default='data/processed/final_report.json',
-                      help='Output file for final report')
-    parser.add_argument('--no-similarity', action='store_true',
-                      help='Skip semantic similarity calculation')
-    
-    args = parser.parse_args()
-    
-    input_path = Path(args.input)
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
+    if len(sys.argv) < 3:
+        logger.error("Usage: python analyze.py --step=<step> --input=<file> --output=<file>")
         sys.exit(1)
     
-    # Process results for coverage
-    data_with_scores = process_results_for_coverage(input_path)
+    args = {}
+    for arg in sys.argv[1:]:
+        if '=' in arg:
+            key, val = arg.split('=', 1)
+            args[key.strip('-')] = val
     
-    # Save intermediate results
-    with open(args.output_scores, 'w') as f:
-        json.dump(data_with_scores, f, indent=2)
-    logger.info(f"Saved results with scores to {args.output_scores}")
+    step = args.get('step')
+    input_file = Path(args.get('input', 'data/processed/results_with_coverage.json'))
+    output_file = Path(args.get('output'))
     
-    # Add semantic similarity if not skipped
-    if not args.no_similarity:
-        data_with_scores = add_semantic_similarity_to_data(data_with_scores)
-        # Update the file with similarity scores
-        with open(args.output_scores, 'w') as f:
-            json.dump(data_with_scores, f, indent=2)
-        logger.info(f"Added semantic similarity to {args.output_scores}")
+    if not output_file:
+        logger.error("Output file is required.")
+        sys.exit(1)
     
-    # Run Wilcoxon analysis
-    wilcoxon_result = run_wilcoxon_analysis(data_with_scores)
-    logger.info(f"Wilcoxon test completed: {wilcoxon_result}")
-    
-    # Generate final report
-    final_report = generate_final_report(data_with_scores, wilcoxon_result)
-    
-    with open(args.report, 'w') as f:
-        json.dump(final_report, f, indent=2)
-    logger.info(f"Final report saved to {args.report}")
-    
-    # Print summary
-    print("\n=== Analysis Summary ===")
-    print(f"Total methods analyzed: {final_report['total_methods_analyzed']}")
-    print(f"Average parameter coverage: {final_report['average_parameter_coverage']:.4f}")
-    print(f"Average semantic similarity: {final_report['average_semantic_similarity']:.4f}")
-    print(f"Methods with perfect coverage: {final_report['methods_with_perfect_coverage']}")
-    
-    if wilcoxon_result.get('pvalue') is not None:
-        print(f"Wilcoxon p-value: {wilcoxon_result['pvalue']:.6f}")
-        print(f"Statistically significant (p < 0.05): {wilcoxon_result['significant']}")
-    
-    if wilcoxon_result.get('warning'):
-        print(f"Warning: {wilcoxon_result['warning']}")
-    
-    print("========================\n")
+    if step == 'coverage':
+        process_results_for_coverage(input_file, output_file)
+    elif step == 'similarity':
+        add_semantic_similarity_to_data(input_file, output_file)
+    elif step == 'stats':
+        run_wilcoxon_analysis(input_file, output_file)
+    elif step == 'report':
+        generate_final_report(input_file, output_file)
+    else:
+        logger.error(f"Unknown step: {step}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

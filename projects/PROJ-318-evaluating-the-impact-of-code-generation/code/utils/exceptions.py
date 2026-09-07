@@ -1,53 +1,51 @@
-"""Custom exceptions for the llmXive pipeline."""
-
-class GenerationException(Exception):
-    """Exception raised for docstring generation errors."""
-    pass
-
-class CoverageException(Exception):
-    """Exception raised for coverage calculation errors."""
-    pass
-
-class StatsException(Exception):
-    """Exception raised for statistical analysis errors."""
-    pass
-
-class ModelLoadException(Exception):
-    """Exception raised for model loading errors."""
-    pass
-
-class ModelDeviationException(Exception):
-    """Exception raised for model devicization errors."""
-    pass
-
-class ASTParsingException(Exception):
-    """Exception raised for AST parsing errors."""
-    pass
-
-class FileWalkerException(Exception):
-    """Exception raised for file walking errors."""
-    pass
-
-class GitCloneException(Exception):
-    """Exception raised for Git cloning errors."""
-    pass
-
 class RepoFetcherException(Exception):
-    """Exception raised for repository fetching errors."""
+    """Exception raised when fetching repository list fails."""
     pass
 
 class RepoLoaderException(Exception):
-    """Exception raised for repository loading errors."""
+    """Exception raised when loading repository list fails."""
+    pass
+
+class GenerationException(Exception):
+    """Exception raised during docstring generation."""
+    pass
+
+class CoverageException(Exception):
+    """Exception raised during coverage calculation."""
+    pass
+
+class StatsException(Exception):
+    """Exception raised during statistical analysis."""
+    pass
+
+class ModelLoadException(Exception):
+    """Exception raised during model loading."""
+    pass
+
+class ModelDeviationException(Exception):
+    """Exception raised when model deviates from expected configuration."""
+    pass
+
+class ASTParsingException(Exception):
+    """Exception raised during AST parsing."""
+    pass
+
+class FileWalkerException(Exception):
+    """Exception raised during file walking."""
+    pass
+
+class GitCloneException(Exception):
+    """Exception raised during Git cloning."""
     pass
 
 class SerializationException(Exception):
-    """Exception raised for serialization errors."""
+    """Exception raised during serialization/deserialization."""
     pass
 
 class ConfigException(Exception):
-    """Exception raised for configuration errors."""
+    """Exception raised during configuration loading."""
     pass
 
 class MemoryLimitException(Exception):
-    """Exception raised when RAM usage exceeds the configured limit."""
+    """Exception raised when memory limit is exceeded."""
     pass

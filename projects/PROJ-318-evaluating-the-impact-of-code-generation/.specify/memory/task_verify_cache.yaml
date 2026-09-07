@@ -1,22 +1,17 @@
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No configuration files, scripts, or documentation were presented that define\
-    \ environment variables for model paths or implement rate\u2011limit retry logic.\
-    \ The claim lacks any tangible artifact, so the requirement is not satisfied."
-T010:
-  c: false
-  h: 0d87e8f295bb10a20a5cfb90ccc3d3ffbd86c227739f236457878a79083b2f30
-  r: "The required output files `data/raw/frozen_repo_list.json` and `data/raw/repo_list.json`\
-    \ do not exist, and the provided `code/utils/repo_fetcher.py` is incomplete (truncated\
-    \ and lacks the logic to fetch, sort, write the JSON, and copy the frozen list).\
-    \ Consequently the task\u2019s specifications are not satisfied."
 T011c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No unit test or script was provided in `code/utils/` that triggers the 4\u2011\
     bit quantization failure and checks fallback to 8\u2011bit or full\u2011precision\
     \ loading. The required artifact is missing entirely, so the task is not satisfied."
+T018:
+  c: false
+  h: 5471d6f3eb7de39b14d39980d9c75ad47861740b43de79dffbfa7bca741f6f81
+  r: "The repository list file `data/raw/frozen_repo_list.json` is missing, so the\
+    \ script cannot iterate over the required 20 repos, and the provided `extract.py`\
+    \ does not contain logic that writes the output JSON and asserts the row count\
+    \ \u2264\u202F1,000 nor any evidence of an updated `Plan.md`. These essential\
+    \ pieces are absent, so the task is not fully satisfied."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,22 +25,14 @@ T030:
   r: "The required file `tests/unit/test_stats.py` is missing from the repository,\
     \ so no unit test for semantic similarity calculation exists. Without this artifact,\
     \ the task\u2019s deliverable is not present."
-T033:
-  c: false
-  h: 8f4b0c747b94d6841bf1b6d2401510ab95a5ae49218ec91790e8e88b93bf9826
-  r: "The required `data/processed/results.json` does not exist, and `data/processed/results_with_scores.json`\
-    \ was never created. Moreover, the shown portion of `code/analyze.py` only defines\
-    \ helper functions (e.g., `calculate_parameter_coverage_score`) and does not contain\
-    \ any code that loads `results.json`, computes the coverage scores, and writes\
-    \ the new JSON file. The task\u2019s core requirement is therefore unmet."
 T034:
   c: false
-  h: 9dcb7ea764c608695c700b15117360da934abaae7d38cf903e7a9371eb828610
-  r: The required `data/processed/results_with_scores.json` file does not exist, so
-    there is no input for the semantic similarity calculation. Moreover, the provided
-    `code/analyze.py` snippet only defines helper functions and does not contain code
-    that reads the JSON, computes similarity scores, and appends the results back
-    to the file. Both the input artifact and the full processing script are missing.
+  h: f03d9700a072b713f6c4b7750140bdac90d78b537f479da8f5c73f15522c50e3
+  r: "The required input file `data/processed/results_with_coverage.json` does not\
+    \ exist, and the expected output `data/processed/results_with_scores.json` is\
+    \ also missing. Moreover, the provided `code/analyze.py` only contains a coverage\u2011\
+    score routine and does not implement the semantic\u2011similarity calculation\
+    \ or the `--step=similarity` CLI entry. The task therefore remains unfinished."
 T035:
   c: false
   h: 9dcb7ea764c608695c700b15117360da934abaae7d38cf903e7a9371eb828610
@@ -55,14 +42,6 @@ T035:
     \ module; the script\u2019s main logic and the Wilcoxon test implementation are\
     \ not present in the provided excerpt. Without the data file and a concrete implementation/execution\
     \ of the test, the task is not fulfilled."
-T036:
-  c: false
-  h: 9dcb7ea764c608695c700b15117360da934abaae7d38cf903e7a9371eb828610
-  r: "The required input file `data/processed/results_with_scores.json` does not exist,\
-    \ and the provided `code/analyze.py` snippet shows no code that reads this file,\
-    \ counts method\u2011pair totals, logs a warning when the count is below 30, or\
-    \ invokes the Wilcoxon test. Consequently the task\u2019s core requirement is\
-    \ not satisfied."
 T037:
   c: false
   h: aad8a6692295766966571d3efa2fa078d5fb1e47bb02feb7ae014a238477df4a

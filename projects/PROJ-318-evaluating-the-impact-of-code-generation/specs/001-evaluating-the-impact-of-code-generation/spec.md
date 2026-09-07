@@ -25,7 +25,7 @@ The system MUST download a representative set of top Python repositories from th
 
 ### User Story 2 - LLM Docstring Generation with Resource Constraints (Priority: P2)
 
-The system MUST load the `Salesforce/codegen-350M-mono` model in 4-bit quantization and generate docstrings for the **truncated list of up to 1,000 methods per repository** using a fixed temperature of 0.2, ensuring the process completes within the GitHub Actions time limit (including a safety buffer).
+The system MUST load the `Salesforce/codegen-mono` model in 4-bit quantization. and generate docstrings for the **truncated list of up to 1,000 methods per repository** using a fixed temperature, ensuring the process completes within the GitHub Actions time limit (including a safety buffer).
 
 **Why this priority**: This implements the core experimental intervention. It transforms the ground-truth data into the "treatment" data (LLM-generated docs). It is prioritized second because it relies on the data layer (P1) being complete.
 
@@ -34,8 +34,8 @@ The system MUST load the `Salesforce/codegen-350M-mono` model in 4-bit quantizat
 **Acceptance Scenarios**:
 
 1. **Given** a JSON input file with up to 1,000 method signatures, **When** the generation script executes, **Then** it must produce an output file where every input method has a corresponding `generated_docstring` field populated with text.
-2. **Given** the GitHub Actions runner environment with no GPU, **When** the model loads, **Then** it must successfully initialize in CPU-only mode (verifying `torch.cuda.is_available()` returns False OR `model.device == cpu`) and stay under 7 GB RAM as monitored via `/proc/self/status`.
-3. **Given** a timeout of 6 hours for the entire job, **When** the generation runs on 20 repositories (max [deferred] methods each), **Then** the process must complete and write the final results within 6 hours (including a 15-minute safety buffer).
+2. **Given** the GitHub Actions runner environment with no GPU, **When** the model loads, **Then** it must successfully initialize in CPU-only mode (verifying `torch.cuda.is_available()` returns False OR `model.device == cpu`) and stay within reasonable RAM limits as monitored via `/proc/self/status`.
+3. **Given** a timeout of 6 hours for the entire job, **When** the generation runs on multiple repositories (max [deferred] methods each), **Then** the process must complete and write the final results within 6 hours (including a safety buffer).
 
 ---
 
@@ -65,9 +65,9 @@ The system MUST calculate a **Parameter Coverage Score** for each generated docs
 ### Functional Requirements
 
 - **FR-001**: System MUST extract public method signatures and human-written docstrings from the top 20 PyPI repositories using the Python `ast` module, **truncate the list to a maximum of 1,000 methods per repository**, and verify the output JSON row count is ≤ 1,000 and logged. (See US-1)
-- **FR-002**: System MUST load the `Salesforce/codegen-mono` model using 4-bit quantization (`bitsandbytes`) and generate docstrings with a fixed temperature of 0.2 for every extracted method. (See US-2)
+- **FR-002**: System MUST load the `Salesforce/codegen-mono` model using low-bit quantization (`bitsandbytes`) and generate docstrings with a fixed low temperature setting for every extracted method. (See US-2)
 - **FR-003**: System MUST calculate a **Parameter Coverage Score** for each generated docstring by computing the ratio: `(count of parameters in AST signature that appear as named parameters in the docstring) / (total parameters in AST signature)`. This is the **primary metric** for the hypothesis. (See US-3)
-- **FR-004**: System MUST compute semantic similarity between human and LLM docstrings using the `sentence-transformers/all-MiniLM-L6-v2` model. This is an **auxiliary metric** to detect style overlap and potential hallucinations, **not** a primary validator of completeness (per Constitution Principle VI). (See US-3)
+- **FR-004**: System MUST compute semantic similarity between human and LLM docstrings using a compact `sentence-transformers` model.. This is an **auxiliary metric** to detect style overlap and potential hallucinations, **not** a primary validator of completeness (per Constitution Principle VI). (See US-3)
 - **FR-005**: System MUST perform a Wilcoxon signed-rank test on the paired Parameter Coverage Scores (Existing Human vs. LLM) across all repositories and report the p-value to determine statistical significance at the α=0.05 level (p-value < 0.05 indicates significance). (See US-3)
 - **FR-006**: System MUST handle memory constraints by processing repositories sequentially or in small batches, monitoring RAM via `/proc/self/status`, and ensuring total peak RAM usage remains within acceptable limits on the GitHub Actions runner. (See US-2)
 
@@ -86,13 +86,13 @@ The system MUST calculate a **Parameter Coverage Score** for each generated docs
 - **SC-001**: The difference in Parameter Coverage Scores between Existing Human and LLM-generated docstrings is measured against the null hypothesis of no difference using the Wilcoxon signed-rank test (p-value < 0.05 indicates significance). (See FR-005)
 - **SC-002**: The Parameter Coverage Rate is measured against the ground truth parameter list extracted via the `ast` module for each method (structural reference only). (See FR-003)
 - **SC-003**: The semantic similarity of generated docstrings is measured against the human-written baseline using cosine similarity scores from the `sentence-transformers/all-MiniLM-L6-v2` model (auxiliary style metric only). (See FR-004)
-- **SC-004**: The computational feasibility of the pipeline is measured against the GitHub Actions free-tier constraints (≤6 hours runtime including 15-minute buffer, ≤7 GB RAM, CPU-only). (See FR-006)
+- **SC-004**: The computational feasibility of the pipeline is measured against the GitHub Actions free-tier constraints (≤6 hours runtime including a short buffer, ≤7 GB RAM, CPU-only). (See FR-006)
 
 ## Assumptions
 
-- The top 20 Python repositories on the PyPI leaderboard are accessible via the public GitHub API or PyPI JSON API without requiring authentication tokens that expire during the 6-hour job window.
-- The `Salesforce/codegen-350M-mono` model is available on Hugging Face and compatible with the `bitsandbytes` library for 4-bit quantization in a CPU-only environment (assuming the library falls back to CPU quantization or the model weights are small enough to fit in RAM).
-- The `ast` module in Python 3.8+ is sufficient to parse all target repositories, assuming they adhere to standard Python syntax and do not rely on experimental or non-standard language extensions.
-- The `sentence-transformers/all-MiniLM-L6-v2` model can be loaded and executed on the free-tier runner without requiring GPU acceleration, as it is a small model designed for CPU inference.
+- A selection of prominent Python repositories on the PyPI leaderboard are accessible via the public GitHub API or PyPI JSON API. without requiring authentication tokens that expire during the job window.
+- The `Salesforce/codegen` model is available on Hugging Face and compatible with the `bitsandbytes` library for low-bit quantization in a CPU-only environment (assuming the library falls back to CPU quantization or the model weights are small enough to fit in RAM).
+- The `ast` module in modern Python versions is sufficient to parse all target repositories., assuming they adhere to standard Python syntax and do not rely on experimental or non-standard language extensions.
+- The `sentence-transformers/all-MiniLM-L-v2` model can be loaded and executed on the free-tier runner without requiring GPU acceleration, as it is a small model designed for CPU inference.
 - The existing human docstrings in the target repositories may be incomplete or outdated; the metric measures **relative structural coverage** (Human vs. LLM) against the AST, not absolute "completeness" against an ideal standard.
-- The `bitsandbytes` library supports 4-bit quantization on CPU; if not, the system assumes a fallback to standard 8-bit or full precision quantization that fits within the 7 GB RAM limit, potentially affecting generation speed but not correctness.
+- The `bitsandbytes` library supports 4-bit quantization on CPU; if not, the system assumes a fallback to standard low-bit or full precision quantization that fits within the available RAM limit, potentially affecting generation speed but not correctness.

@@ -3379,3 +3379,293 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T05:08:37Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: frozen repository list must contain exactly 20 items
+  claim_id: c_fbe1a5fe
+  context: Task T010 requires creating a frozen repo list from PyPI or HuggingFace,
+    sorting by star count, and failing if the count is not exactly 20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST enforce that the final list contains a predetermined number
+    of items. If the API/mirror fails to return exactly 20 valid repos, the script
+    MUST raise an exception and fail loudly.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:37:36Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: maximum 1000 methods per repository
+  claim_id: c_7dc7d3be
+  context: Phase 3 Goal states the extraction process truncates the list to a maximum
+    of 1,000 methods per repository, fixed sample per Spec FR-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: truncate the list to a maximum of 1,000 methods per repository
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:38:00Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: output JSON row count less than or equal to 1000
+  claim_id: c_c384f450
+  context: Independent Test for User Story 1 requires verifying the output JSON contains
+    correct signatures and a row count less than or equal to 1,000.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_JSON_row_count_less_than_or_equal_to_1000
+  kind: magnitude
+  raw_text: verify output JSON row count <= 1,000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:38:21Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: load Salesforce/codegen-350M-mono model in 4-bit quantization
+  claim_id: c_08830dc7
+  context: Phase 4 Goal specifies loading the Salesforce/codegen-350M-mono model in
+    4-bit quantization with strict fallback logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load the Salesforce/codegen-350M-mono model in 4-bit quantization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:38:34Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: run generation on a subset of 50 methods
+  claim_id: c_513b95f8
+  context: Independent Test for User Story 2 requires running generation on a subset
+    of 50 methods.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run generation on a subset of 50 methods.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:39:06Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: memory stays under 7 GB RAM
+  claim_id: c_d22e83f6
+  context: Independent Test for User Story 2 requires verifying memory stays under
+    7 GB RAM as monitored via /proc/self/status.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: memory stays under 7 GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:39:43Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: abort if RAM exceeds 7 GB
+  claim_id: c_c9dd758a
+  context: Task T025 requires integrating memory monitoring to abort if RAM usage
+    exceeds 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate memory monitoring to abort if RAM > 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:39:44Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: total row count less than or equal to 20000
+  claim_id: c_3207a4c7
+  context: Task T026 requires verifying the final aggregated file structure and total
+    row count is less than or equal to 20,000.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_row_count_less_than_or_equal_to_20000
+  kind: magnitude
+  raw_text: verify the final file structure and total row count <= 20,000 (20 repos
+    * [deferred] methods)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:39:56Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: log warning if total method pairs less than 30
+  claim_id: c_57cf2c19
+  context: Task T035 requires implementing a Wilcoxon signed-rank test that logs a
+    warning if the total number of method pairs is less than 30.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_total_method_pairs_less_than_30
+  kind: magnitude
+  raw_text: Include logic to log a warning if total method pairs < 30 AND proceed
+    with the calculation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:40:59Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: frozen repository list must contain exactly 20 items from PyPI/HuggingFace
+  claim_id: c_376b129e
+  context: 'Phase 2, Task T010: Create/freeze data/raw/frozen_repo_list.json'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST enforce that the final list contains a predetermined number
+    of items. If the API/mirror fails to return exactly 20 valid repos, the script
+    MUST raise an exception and fail loudly.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:51:18Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: model quantization configuration must be re-verified before generation
+  claim_id: c_69c4f352
+  context: 'Phase 4, Task T024: Implement docstring generation loop'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_quantization_configuration_must_be_re-verified_before
+  kind: entity_fact
+  raw_text: The generation loop MUST explicitly re-verify the quantization configuration
+    before generation to prevent drift.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:51:42Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: independent test runs generation on 50 methods
+  claim_id: c_6db23ae2
+  context: Phase 4, User Story 2 Goal section
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Independent Test for User Story 2 requires running generation on a
+    subset of 50 methods.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:52:22Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: memory limit for generation is 7 GB RAM
+  claim_id: c_6aed3724
+  context: Phase 4, User Story 2 Goal section
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory must stay under 7 GB RAM as monitored via /proc/self/status.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:52:43Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: process aborts if RAM exceeds 7 GB
+  claim_id: c_6fc2c95e
+  context: 'Phase 4, Task T025: Integrate memory monitoring'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation must abort if RAM > 7 GB, logging a specific RAM_LIMIT_EXCEEDED
+    entry to logs/monitor.log.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:52:44Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: total row count must be less than or equal to 20000
+  claim_id: c_ee0fa325
+  context: 'Phase 4, Task T026: Aggregate and Consolidate'
+  evidence:
+    entailment_evidence: Total row count must be less than or equal to 20000
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Total_row_count_must_be_less_than_or_equal_to_20000
+  kind: magnitude
+  raw_text: The final file structure must have a total row count <= 20,000 (20 repos
+    * [deferred] methods).
+  resolved_value: total row count must be less than or equal to 20000
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T11:52:46Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Wilcoxon p-value must be less than 0.05 for synthetic test
+  claim_id: c_55f85e98
+  context: Phase 5, User Story 3 Goal section
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_p-value_must_be_less_than_0.05_for_synthetic_test
+  kind: magnitude
+  raw_text: The Independent Test for User Story 3 requires a synthetic dataset to
+    verify Wilcoxon p-value < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:53:43Z'
+- artifact_path: projects/PROJ-318-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test warns if method pairs are less than 30
+  claim_id: c_bea35066
+  context: 'Phase 5, Task T035: Implement Wilcoxon signed-rank test'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_test_warns_if_method_pairs_are_less_than_30
+  kind: magnitude
+  raw_text: The Wilcoxon signed-rank test must include logic to log a warning if total
+    method pairs < 30 AND proceed with the calculation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:54:45Z'

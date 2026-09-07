@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-codegen-impact"
+name = "llmxive-evaluation"
 version = "0.1.0"
 description = "Evaluating the impact of code generation models on code documentation completeness"
 readme = "README.md"
@@ -20,16 +20,13 @@ dependencies = [
     "pytest==7.4.0"
 ]
 
-[project.optional-dependencies]
-dev = [
-    "black==23.11.0",
-    "flake8==6.1.0",
-    "isort==5.12.0"
-]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*", "tests*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -48,5 +45,9 @@ exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code"]
-known_third_party = ["transformers", "torch", "bitsandbytes", "sentence_transformers", "docstring_parser", "scipy", "requests", "yaml", "pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
