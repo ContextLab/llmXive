@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Logical Dataset Record"
+description: "Schema for GSM8K-derived pseudo-code dataset records."
+type: object
+required:
+  - id
+  - steps
+  - dependency_graph
+  - pseudo_code
+  - original_question
+  - original_answer
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the example."
+  steps:
+    type: array
+    description: "List of logical deduction steps extracted from the original problem."
+    items:
+      type: object
+      required:
+        - step_id
+        - content
+        - dependencies
+      properties:
+        step_id:
+          type: string
+        content:
+          type: string
+        dependencies:
+          type: array
+          items:
+            type: string
+  dependency_graph:
+    type: object
+    description: "Adjacency list representation of the dependency graph."
+    additionalProperties:
+      type: array
+      items:
+        type: string
+  pseudo_code:
+    type: string
+    description: "The full pseudo-code representation of the problem."
+  original_question:
+    type: string
+    description: "The original GSM8K question text."
+  original_answer:
+    type: string
+    description: "The original GSM8K answer text."
+additionalProperties: false

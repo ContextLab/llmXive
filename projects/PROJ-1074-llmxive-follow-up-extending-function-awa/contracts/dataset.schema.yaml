@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Synthetic Logical Dataset
+description: Schema for the synthetic logical dataset converted from GSM8K.
+type: object
+required:
+  - id
+  - steps
+properties:
+  id:
+    type: string
+    description: Unique identifier for the dataset example.
+  steps:
+    type: array
+    description: List of pseudo-code steps representing the logical deduction.
+    items:
+      type: object
+      required:
+        - step_id
+        - code
+        - dependencies
+      properties:
+        step_id:
+          type: string
+          description: Unique identifier for the step (e.g., "step_1").
+        code:
+          type: string
+          description: The pseudo-code block for this step (e.g., "def step_1(): return ...").
+        dependencies:
+          type: array
+          description: List of step_ids this step depends on.
+          items:
+            type: string
+        metadata:
+          type: object
+          description: Optional metadata about the step.
+          additionalProperties: true
+additionalProperties: true

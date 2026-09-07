@@ -1,0 +1,260 @@
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: transformers version 4.36.0
+  claim_id: c_ca8c58d9
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions
+    (transformers==4.36.0, datasets==2.14.0...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.36.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:28:07Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0
+  claim_id: c_56bb4446
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions
+    (transformers==4.36.0, datasets==2.14.0...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.14.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:42:46Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0
+  claim_id: c_f706f040
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions
+    (..., scikit-learn==1.3.0, ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:55:08Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: torch version 2.1.0+cpu
+  claim_id: c_a2856940
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions
+    (..., torch==2.1.0+cpu, ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.1.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:58:52Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: networkx version 3.2.1
+  claim_id: c_529699f4
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions
+    (..., networkx==3.2.1, ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: networkx==3.2.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:59:02Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_12ee59f8
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions
+    (..., pytest==7.4.0, ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:59:15Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.0
+  claim_id: c_462dbe56
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions
+    (..., scipy==1.11.0, ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy==1.11.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:59:29Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: psutil version 5.9.0
+  claim_id: c_6483ade4
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions
+    (..., psutil==5.9.0, ...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: psutil==5.9.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:59:36Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_8d9704c5
+  context: 'Initialize Python 3.11 project: Create requirements.txt with pinned versions
+    (..., pyyaml==6.0.1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:59:43Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: TinyLlama-110M model has 150M or fewer parameters
+  claim_id: c_89a727e8
+  context: "Implement code/training/train_fim.py to load TinyLlama-110M (\u2264150M\
+    \ params) in float32 on CPU"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TinyLlama-110M_model_has_150M_or_fewer_parameters
+  kind: entity_fact
+  raw_text: "TinyLlama-110M (\u2264150M params)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T02:59:51Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: minimum depth of dependency graphs is 3
+  claim_id: c_8a51d795
+  context: "Run depth-distribution validator... to verify min depth 3, max 10, and\
+    \ \u226520% depth \u22657"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: min depth 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T03:03:35Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: maximum depth of dependency graphs is 10
+  claim_id: c_b7eb44a1
+  context: "Run depth-distribution validator... to verify min depth 3, max 10, and\
+    \ \u226520% depth \u22657"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max depth 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T03:06:30Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: at least 20% of dependency graphs have depth 7 or greater
+  claim_id: c_7696e292
+  context: "Run depth-distribution validator... to verify min depth 3, max 10, and\
+    \ \u226520% depth \u22657"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_20%25_of_dependency_graphs_have_depth_7_or_greater
+  kind: magnitude
+  raw_text: "20% depth \u22657"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T03:06:45Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: peak memory usage must be less than or equal to 7 GB
+  claim_id: c_0388c4dd
+  context: "ensure peak \u2264 7 GB"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_must_be_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: "peak \u2264 7 GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T03:07:00Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: total token count must match target within 1% tolerance
+  claim_id: c_39af9cf3
+  context: verifying the output format... and ensuring the total token count matches
+    the target within 1% tolerance
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1% tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T03:07:00Z'
+- artifact_path: projects/PROJ-1074-llmxive-follow-up-extending-function-awa/specs/001-llmxive-follow-up-extending-function-awa/tasks.md
+  attempts: 1
+  canonical: training subset must finish within 30 minutes
+  claim_id: c_6a449b24
+  context: finishes within 30 minutes for the subset
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 30 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T03:07:16Z'

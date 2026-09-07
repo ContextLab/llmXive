@@ -1,0 +1,52 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: FIM Masking Map
+description: Schema for the masking map generated during Function-Aware FIM training.
+type: object
+required:
+  - batch_id
+  - examples
+properties:
+  batch_id:
+    type: integer
+    description: Identifier for the batch this map belongs to.
+  examples:
+    type: array
+    description: List of masking configurations for each example in the batch.
+    items:
+      type: object
+      required:
+        - example_id
+        - masks
+      properties:
+        example_id:
+          type: string
+          description: Reference to the dataset example ID.
+        masks:
+          type: array
+          description: List of mask spans for this example.
+          items:
+            type: object
+            required:
+              - start_token
+              - end_token
+              - mask_type
+              - step_id
+            properties:
+              start_token:
+                type: integer
+                description: Start index of the token span to mask.
+              end_token:
+                type: integer
+                description: End index (exclusive) of the token span to mask.
+              mask_type:
+                type: string
+                description: Type of mask (e.g., "body", "arguments", "signature").
+                enum:
+                  - body
+                  - arguments
+                  - signature
+                  - full_function
+              step_id:
+                type: string
+                description: The step_id associated with this masked region.
+additionalProperties: true

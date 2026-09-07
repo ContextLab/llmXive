@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `mkdir -p code/data code/training code/evaluation code/utils code/tests data/raw/gsm8k data/raw/logiqa data/processed data/artifacts/results contracts/ docs/`
-- [ ] T002 Initialize Python 3.11 project: Create `requirements.txt` with pinned versions (`transformers==4.36.0`, `datasets==2.14.0`, `scikit-learn==1.3.0`, `torch==2.1.0+cpu`, `networkx==3.2.1`, `pytest==7.4.0`, `scipy==1.11.0`, `psutil==5.9.0`, `pyyaml==6.0.1`) and run `pip install -r requirements.txt`
+- [X] T002 Initialize Python 3.11 project: Create `requirements.txt` with pinned versions (`transformers==4.36.0 [UNRESOLVED-CLAIM: c_ca8c58d9 — status=not_enough_info]`, `datasets==2.14.0 [UNRESOLVED-CLAIM: c_56bb4446 — status=not_enough_info]`, `scikit-learn==1.3.0 [UNRESOLVED-CLAIM: c_f706f040 — status=not_enough_info]`, `torch==2.1.0+cpu [UNRESOLVED-CLAIM: c_a2856940 — status=not_enough_info]`, `networkx==3.2.1 [UNRESOLVED-CLAIM: c_529699f4 — status=not_enough_info]`, `pytest==7.4.0 [UNRESOLVED-CLAIM: c_12ee59f8 — status=not_enough_info]`, `scipy==1.11.0 [UNRESOLVED-CLAIM: c_462dbe56 — status=not_enough_info]`, `psutil==5.9.0 [UNRESOLVED-CLAIM: c_6483ade4 — status=not_enough_info]`, `pyyaml==6.0.1 [UNRESOLVED-CLAIM: c_8d9704c5 — status=not_enough_info]`) and run `pip install -r requirements.txt`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `.black` config files
 
 ---
@@ -56,12 +56,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup `data/raw/gsm8k` and `data/raw/logiqa` directory structure
-- [ ] T005 Implement `code/utils/common.py` with shared logging and error handling infrastructure
-- [ ] T006 Create base configuration management: Create `code/config/settings.yaml` with keys `dataset_paths` (gsm8k, logiqa) and `model_hyperparameters` (model_name, batch_size, max_length)
+- [X] T005 Implement `code/utils/common.py` with shared logging and error handling infrastructure
+- [X] T006 Create base configuration management: Create `code/config/settings.yaml` with keys `dataset_paths` (gsm8k, logiqa) and `model_hyperparameters` (model_name, batch_size, max_length)
 - [ ] T007 Setup `contracts/` directory with schema files: Create `dataset.schema.yaml` (root type `object`, required fields `id`, `steps`), `masking_map.schema.yaml`, `evaluation_results.schema.yaml`
-- [ ] T008 Implement `code/data/download_gsm8k.py` to fetch GSM8K via `datasets.load_dataset("gsm8k", "main")` with no synthetic fallback
-- [ ] T009 Implement `code/data/download_logiqa.py` to fetch LogiQA via `datasets.load_dataset("logiqa")` with no synthetic fallback
-- [ ] T010 Implement `code/data/validate_dependencies.py` to perform topological sort and cycle detection on dependency graphs
+- [X] T008 Implement `code/data/download_gsm8k.py` to fetch GSM8K via `datasets.load_dataset("gsm8k", "main")` with no synthetic fallback
+- [X] T009 Implement `code/data/download_logiqa.py` to fetch LogiQA via `datasets.load_dataset("logiqa")` with no synthetic fallback
+- [X] T010 Implement `code/data/validate_dependencies.py` to perform topological sort and cycle detection on dependency graphs
 - [ ] T027 [P] [US2] Generate Baseline Model: Load base TinyLlama model (no mid-training) and save as `pytorch_model.bin` and `config.json` to `data/artifacts/baseline_model/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -72,13 +72,13 @@
 
 **Goal**: Convert GSM8K math dataset into pseudo-code `def step_N():` blocks with acyclic dependency graphs, ensuring strict domain separation from LogiQA.
 
-**Independent Test**: The dataset construction pipeline can be tested by running it on a small subset of GSM8K, verifying the output format (valid pseudo-code with dependency graphs), and ensuring the total token count matches the target within 1% tolerance.
+**Independent Test**: The dataset construction pipeline can be tested by running it on a small subset of GSM8K, verifying the output format (valid pseudo-code with dependency graphs), and ensuring the total token count matches the target within 1% tolerance [UNRESOLVED-CLAIM: c_39af9cf3 — status=not_enough_info].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T011 [P] [US1] Contract test: Add `code/tests/test_data_conversion.py::test_dataset_schema_validates_jsonl` to verify `dataset.schema.yaml` against generated JSONL
-- [ ] T012 [P] [US1] Integration test: Add `code/tests/test_data_conversion.py::test_cycle_detection_excludes_cyclic_graphs` to verify topological sort failure handling
-- [ ] T013 [P] [US1] Integration test: Add `code/tests/test_data_conversion.py::test_no_overlap_between_gsm8k_and_logiqa` to verify zero overlap detection
+- [X] T012 [P] [US1] Integration test: Add `code/tests/test_data_conversion.py::test_cycle_detection_excludes_cyclic_graphs` to verify topological sort failure handling
+- [X] T013 [P] [US1] Integration test: Add `code/tests/test_data_conversion.py::test_no_overlap_between_gsm8k_and_logiqa` to verify zero overlap detection
 
 ### Implementation for User Story 1
 
@@ -92,7 +92,7 @@
 - [ ] T018b [US1] Execute overlap gate: Run `code/data/check_overlap.py`; generate `data/artifacts/overlap_report.json`; **exit with code 1 if overlap > 0**
 - [ ] T020a [US1] Calculate and report the **rate of successful dependency graph construction**: Run validation script; write `data/artifacts/graph_construction_stats.json` with `successful_graphs / total_examples`; fail if rate < 1.0
 - [ ] T020b [US1] Verify zero overlap and no answer key exposure: Run `code/data/verify_leakage.py` on `data/processed/synthetic_logical_dataset.jsonl`; generate `data/artifacts/leakage_verification_report.json` with `leakage_detected: false`; fail if leakage detected
-- [ ] T020 [US1] Run depth-distribution validator on `data/processed/synthetic_logical_dataset.jsonl` to verify min depth 3, max 10, and ≥20% depth ≥7; fail with `VAR-001` if mismatch
+- [ ] T020 [US1] Run depth-distribution validator on `data/processed/synthetic_logical_dataset.jsonl` to verify min depth 3 [UNRESOLVED-CLAIM: c_8a51d795 — status=not_enough_info], max 10, and ≥20% depth ≥7 [UNRESOLVED-CLAIM: c_7696e292 — status=not_enough_info]; fail with `VAR-001` if mismatch
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,7 +102,7 @@
 
 **Goal**: Perform a single epoch of Function-Aware FIM mid-training on TinyLlama-110M using the synthetic dataset on CPU, generating `masking_map.json`.
 
-**Independent Test**: The training script can be tested by running a single epoch on a subset of the data and verifying that the process completes without OOM errors, does not attempt to load CUDA, generates a `masking_map.json` artifact, and finishes within 30 minutes for the subset.
+**Independent Test**: The training script can be tested by running a single epoch on a subset of the data and verifying that the process completes without OOM errors, does not attempt to load CUDA, generates a `masking_map.json` artifact, and finishes within 30 minutes [UNRESOLVED-CLAIM: c_6a449b24 — status=not_enough_info] for the subset.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -112,12 +112,12 @@
 ### Implementation for User Story 2
 
 - [ ] T023 [US2] Implement `code/training/masking_utils.py` to map function bodies/arguments to token spans based on the logical dependency graph (not random positions)
-- [ ] T024 [US2] Implement `code/training/train_fim.py` to load TinyLlama-110M (≤150M params) in float32 on CPU; generate `data/processed/masking_map_batch_{batch_id}.json` for each batch
+- [ ] T024 [US2] Implement `code/training/train_fim.py` to load TinyLlama-110M (≤150M params) [UNRESOLVED-CLAIM: c_89a727e8 — status=not_enough_info] in float32 on CPU; generate `data/processed/masking_map_batch_{batch_id}.json` for each batch
 - [ ] T025 [US2] Integrate custom FIM masking logic in `train_fim.py` to target missing steps (signature + body) using `masking_utils.py`
 - [ ] T026 [P] [US2] Implement `code/training/train_nl_control.py` to train a Natural Language Control model on the same data formatted as plain text
 - [ ] T028 [US2] Implement `code/training/convergence_checker.py` to monitor loss and ensure the model learns the signal before evaluation
 - [ ] T029 [US2] Verify masking map generation: Run `code/training/verify_masking.py` to confirm `data/processed/masking_map_batch_{batch_id}.json` artifacts match expected token spans
-- [ ] T031 [US2] Verify memory usage peak: Run `code/training/profile_memory.py` using `psutil`; write `data/artifacts/memory_profile.json` with `peak_rss_mb`; ensure peak ≤ 7 GB
+- [ ] T031 [US2] Verify memory usage peak: Run `code/training/profile_memory.py` using `psutil`; write `data/artifacts/memory_profile.json` with `peak_rss_mb`; ensure peak ≤ 7 GB [UNRESOLVED-CLAIM: c_0388c4dd — status=not_enough_info]
 
 **Note**: Time constraints (FR-006) are enforced at the CI/Runner level (GitHub Actions timeout), not within the script.
 
@@ -169,8 +169,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -237,9 +237,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
