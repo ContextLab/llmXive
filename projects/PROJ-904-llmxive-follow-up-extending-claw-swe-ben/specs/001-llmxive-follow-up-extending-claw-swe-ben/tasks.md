@@ -61,7 +61,7 @@
 - [ ] T006b Create entity schemas (YAML files) for Task Instance, Context Configuration, Execution Result in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-context-fidelity-scaling-tradeoff/contracts/`
 - [X] T007 Setup environment variable management for model paths and HF token in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/config.py`
 - [X] T008a [P] [US1, US2, US3] **Define** the schema validation logic and aggregation schema in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/merge_results.py`. **Constraint**: This task must ONLY define the logic and schema; it must NOT execute the merge until Phase 5 (T008b). This ensures format compatibility (FR-005) before data generation tasks (T016, T023, T027) run.
-- [ ] T008b [US3] **Execute** `merge_results.py` to aggregate all JSONL files (`baseline_run.jsonl`, `hf_run_1b.jsonl`, `hf_run_7b.jsonl`) into a single `data/results.csv` (Single Source of Truth) (FR-005). **Constraint**: This task must run AFTER all data generation tasks (T016, T023, T027) are complete. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T008b [US3] **Execute** `merge_results.py` to aggregate all JSONL files (`baseline_run.jsonl`, `hf_run_1b.jsonl`, `hf_run_7b.jsonl`) into a single `data/results.csv` (Single Source of Truth) (FR-005). **Constraint**: This task must run AFTER all data generation tasks (T016, T023, T027) are complete.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,10 +87,10 @@
 - [X] T013 [US1] Implement static analysis logic in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/loader.py` to calculate "relevant file history" lines: 1) Parse Python imports to build a dependency graph using `networkx`, 2) Perform BFS/DFS traversal from the issue target files, 3) Filter for instances where the The total lines in the traversed graph exceed a significant threshold. (FR-001).
 - [X] T014 [US1] Implement "first-N-lines" naive truncation strategy in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` (FR-002).
 - [X] T015 [US1] Implement `ModelRunner` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/models/runner.py` to load a parameter-scaled model (e.g., Llama-3) with Q4_K_M quantization on CPU (FR-002).
-- [ ] T016 [US1] Implement `run_baseline.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` to execute the filtered dataset with the 1B model and naive strategy. **Constraint**: Enforce -minute runtime budget per instance via `batch_executor.py`. Output `data/intermediate/baseline_run.jsonl` (US-1).
+- [ ] T016 [US1] Implement `run_baseline.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` to execute the filtered dataset with the 1B model and naive strategy. **Constraint**: Enforce 60-minute runtime budget per instance via `batch_executor.py`. Output `data/intermediate/baseline_run.jsonl` (US-1).
 - [ ] T016b [P] [US1] Implement `batch_executor.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` with logic to enforce: 1) A hard timeout per instance, and 2) A hard total wall-clock duration limit of ≤72 hours for the full experiment (FR-007).
 - [ ] T017 [US1] Implement `failure_classifier.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/analysis/` to detect "missing context" vs "reasoning error" via sandbox log parsing (FR-008).
-- [ ] T017b [US1] Apply `failure_classifier.py` to the baseline results (`data/intermediate/baseline_run.jsonl`) to annotate failure modes for US1 results. <!-- ATOMIZE: requested -->
+- [ ] T017b [US1] Apply `failure_classifier.py` to the baseline results (`data/intermediate/baseline_run.jsonl`) to annotate failure modes for US1 results.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,7 +118,7 @@
 - [X] T022 [P] [US2] Implement rule-based semantic summarization module in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/data/context_processors.py` as defined in FR-003 (rule-based extraction of relevant code blocks/paragraphs).
 - [ ] T023 [US2] Implement `run_high_fidelity.py` in `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/` to execute the 1B model against all three high-fidelity strategies. **Constraint**: Enforce 60-minute runtime budget per instance and use parallel batching. Output `data/intermediate/hf_run_1b.jsonl` (US-2).
 - [ ] T024 [US2] Implement fallback logic in `context_processors.py` to revert to naive truncation if a high-fidelity strategy returns zero snippets, logging the event to `data/audit_logs/fallbacks.jsonl` (Edge Case Handling).
-- [ ] T017c [US2] Apply `failure_classifier.py` to the high-fidelity results (`data/intermediate/hf_run_1b.jsonl`) to annotate failure modes for US2 results. <!-- FAILED: unspecified -->
+- [ ] T017c [US2] Apply `failure_classifier.py` to the high-fidelity results (`data/intermediate/hf_run_1b.jsonl`) to annotate failure modes for US2 results.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
