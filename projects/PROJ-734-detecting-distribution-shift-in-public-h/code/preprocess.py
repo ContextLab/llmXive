@@ -13,7 +13,7 @@ from logging_setup import setup_logging
 
 logger = logging.getLogger(__name__)
 
-def load_ili_data(filepath: str) -> pd.DataFrame:
+def load_ili_data(filepath: str) -> Tuple[pd.DataFrame, str, str]:
     """
     Load the raw ILI CSV data.
     Expects columns: 'week', 'ili' (or similar numeric column for ILI rate).
@@ -86,14 +86,21 @@ def standardize(df: pd.DataFrame, ili_col: str) -> Tuple[pd.DataFrame, float, fl
     """
     Standardize the ILI column (Z-score normalization).
     Returns the standardized DataFrame and the mean/std used.
+    
+    CRITICAL: Handles the "Constant Series" edge case as per T041.
+    If the standard deviation of the log-transformed ILI data is zero,
+    a ValueError is raised to prevent invalid MMD computation.
     """
     df = df.copy()
     mean_val = df[ili_col].mean()
     std_val = df[ili_col].std()
     
     if std_val == 0:
-        logger.warning("Standard deviation is zero. Cannot standardize. Returning raw log-transformed data.")
-        return df, mean_val, std_val
+        # T041 Implementation: Explicitly handle constant series
+        # This prevents NaN p-values in the MMD detector which cannot handle zero variance windows
+        error_msg = "Zero variance detected in window; cannot compute MMD"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
     
     df[ili_col] = (df[ili_col] - mean_val) / std_val
     logger.info(f"Standardized ILI data (mean={mean_val:.4f}, std={std_val:.4f}).")
@@ -132,6 +139,7 @@ def preprocess_pipeline(input_path: str, output_path: str, config_path: Optional
     df = log_transform(df, ili_col)
     
     # 4. Standardize
+    # This step may raise ValueError if the entire series is constant (T041)
     df, mean_val, std_val = standardize(df, ili_col)
     
     # 5. Save
@@ -158,6 +166,12 @@ def main():
     
     try:
         preprocess_pipeline(input_path, output_path)
+    except ValueError as e:
+        # T041: Catch the constant series error and log it before re-raising or exiting
+        if "Zero variance detected" in str(e):
+            logger.critical(f"Pipeline halted due to constant series: {e}")
+            raise
+        raise
     except Exception as e:
         logger.error(f"Preprocessing failed: {e}", exc_info=True)
         raise

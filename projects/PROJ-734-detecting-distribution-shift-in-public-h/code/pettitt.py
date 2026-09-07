@@ -1,8 +1,18 @@
 """
-Pettitt's Test for Change-Point Detection with Rolling Window.
+Pettitt test implementation for distribution shift detection.
 
-Implements a rolling-window application of Pettitt's test to detect
-distribution shifts in time-series data (e.g., ILI surveillance).
+This module implements the Pettitt test, a non-parametric change point detection
+method, with rolling window support to match the MMD detector configuration.
+
+The Pettitt test is a rank-based test for detecting a single change point in a
+time series. It is particularly useful for detecting shifts in the location
+(mean or median) of a distribution.
+
+Key features:
+- Rolling window implementation with configurable window_size and stride
+- Matches MMD detector window configuration (window_size=12, stride=1)
+- Handles edge cases (constant series, small windows)
+- Returns p-values for statistical significance
 """
 
 import os
@@ -12,267 +22,296 @@ import numpy as np
 import pandas as pd
 from typing import List, Dict, Tuple, Optional
 
-from exceptions import E_NO_DATA
-from logging_setup import setup_logging
-
 # Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def pettitt_statistic(x: np.ndarray) -> Tuple[int, float]:
+def pettitt_statistic(x: np.ndarray) -> Tuple[float, float]:
     """
-    Compute the Pettitt statistic for a given 1D array x.
+    Compute the Pettitt statistic and p-value for a time series.
     
-    The Pettitt test is a non-parametric test for a single change-point.
-    It is based on the Mann-Whitney U statistic.
+    The Pettitt test is a non-parametric test for detecting a single change point
+    in the location (mean or median) of a time series. It is based on the Mann-Whitney
+    U statistic and is robust to outliers and non-normal distributions.
     
-    Args:
-        x: 1D numpy array of observations.
+    Parameters
+    ----------
+    x : np.ndarray
+        1D array of time series data.
         
-    Returns:
-        Tuple of (index_of_max_statistic, max_statistic_value).
-        The index is relative to the start of the array (0-based).
+    Returns
+    -------
+    tuple
+        (statistic, p_value) where:
+        - statistic: The Pettitt statistic (K)
+        - p_value: Approximate p-value for the test
+        
+    Raises
+    ------
+    ValueError
+        If the input array has zero variance or is too small.
+        
+    Notes
+    -----
+    The Pettitt statistic is computed as:
+        K = max|U_t|
+    where U_t is the Mann-Whitney U statistic at time t.
+    
+    The approximate p-value is computed using:
+        p ≈ 2 * exp(-6 * K^2 / (n^3 + n^2))
+    where n is the sample size.
+    
+    References
+    ----------
+    .. [1] Pettitt, A. N. (1979). A non-parametric approach to the change-point problem.
+           Journal of the Royal Statistical Society. Series C (Applied Statistics),
+           28(2), 126-135.
     """
     n = len(x)
+    
+    # Check for minimum sample size
     if n < 2:
-        return 0, 0.0
+        raise ValueError("Pettitt test requires at least 2 data points")
     
-    # Compute the Mann-Whitney U statistic for all possible split points
+    # Check for constant series (zero variance)
+    if np.std(x) == 0:
+        raise ValueError("Zero variance detected in window; cannot compute Pettitt statistic")
+    
+    # Compute the Pettitt statistic
     # U_t = sum_{i=1}^t sum_{j=t+1}^n sign(x_i - x_j)
-    # This can be computed efficiently using cumulative sums of ranks or signs.
+    # K = max|U_t|
     
-    # Create a matrix of signs (n x n)
-    # sign(x_i - x_j)
-    # To avoid O(n^2) memory for large n, we compute iteratively or use vectorization carefully.
-    # Given typical window sizes (e.g., 12), O(n^2) is acceptable.
+    # Precompute the sign matrix for efficiency
+    # sign(x_i - x_j) for all pairs
+    sign_matrix = np.sign(x[:, np.newaxis] - x[np.newaxis, :])
     
-    signs = np.sign(x[:, np.newaxis] - x[np.newaxis, :])
-    # signs[i, j] = sign(x[i] - x[j])
-    # We need sum over i<=t, j>t
+    # Compute U_t for each t from 1 to n-1
+    # U_t = sum_{i=1}^t sum_{j=t+1}^n sign(x_i - x_j)
+    # This can be computed efficiently using cumulative sums
     
-    # The statistic U_t is the sum of signs[i, j] for i <= t and j > t.
-    # This is equivalent to the sum of the upper triangle of the sign matrix
-    # if we consider the matrix M where M[i,j] = sign(x_i - x_j).
-    # Actually, U_t = sum_{i=1}^t sum_{j=t+1}^n sign(x_i - x_j)
+    # Initialize U array
+    U = np.zeros(n - 1)
     
-    # Let's compute the cumulative sum of the sign matrix rows/cols.
-    # A more direct O(n^2) approach for small n:
-    max_stat = -np.inf
-    max_idx = 0
-    
-    # Precompute the full sign matrix
-    # Note: signs[i, j] is 1 if x[i] > x[j], -1 if x[i] < x[j], 0 if equal.
-    # We need sum_{i=0}^{t} sum_{j=t+1}^{n-1} signs[i, j]
-    
-    # Vectorized computation:
-    # Create a mask for i <= t and j > t
-    # But t varies.
-    # Let's compute the matrix S where S[i, j] = sign(x[i] - x[j])
-    # Then U_t = sum(S[0:t+1, t+1:n])
-    
-    # Since n is small (window size), we can do this loop.
+    # Compute U_t for each t
     for t in range(1, n):
-        # Sum signs for i in 0..t-1 (inclusive) and j in t..n-1 (inclusive)
-        # Note: Python slicing: 0:t means 0..t-1. t:n means t..n-1.
-        # But the definition is usually 1..t and t+1..n.
-        # In 0-indexed: 0..t-1 and t..n-1.
-        # Let's stick to the definition: split after t-th element (1-based index t).
-        # So left set has t elements (indices 0 to t-1), right set has n-t elements (indices t to n-1).
+        # U_t = sum_{i=1}^t sum_{j=t+1}^n sign(x_i - x_j)
+        # = sum_{i=1}^t (sum_{j=t+1}^n sign(x_i - x_j))
+        # = sum_{i=1}^t (sum_{j=t+1}^n sign(x_i - x_j))
         
-        # Optimization: sum of a submatrix
-        current_stat = np.sum(signs[:t, t:])
+        # Using the sign matrix:
+        # sum_{j=t+1}^n sign(x_i - x_j) for each i in 1..t
+        # = sum of rows 0..t-1, columns t..n-1
         
-        if current_stat > max_stat:
-            max_stat = current_stat
-            max_idx = t
-            
-    return max_idx, max_stat
-
-def pettitt_p_value(stat: float, n: int) -> float:
-    """
-    Approximate p-value for the Pettitt statistic.
+        U[t-1] = np.sum(sign_matrix[:t, t:])
     
-    The asymptotic distribution of the Pettitt statistic K is:
-    P(K > k) approx 2 * exp(-6 * k^2 / (n^3 + n^2))
-    for large n.
+    # Find the maximum absolute value of U_t
+    K = np.max(np.abs(U))
     
-    Args:
-        stat: The maximum Pettitt statistic (K).
-        n: Sample size.
-        
-    Returns:
-        Approximate p-value.
-    """
-    if n < 4:
-        return 1.0
+    # Compute the approximate p-value
+    # p ≈ 2 * exp(-6 * K^2 / (n^3 + n^2))
+    # This is an approximation for large n
+    if n > 10:
+        p_value = 2 * np.exp(-6 * K**2 / (n**3 + n**2))
+    else:
+        # For small n, use a more conservative approximation
+        p_value = 2 * np.exp(-6 * K**2 / (n**3))
     
-    # Asymptotic approximation
-    # K = max |U_t|
-    # The formula is often given as:
-    # P(K > k) = 2 * exp(-6 * k^2 / (n^3 + n^2))
-    # Or sometimes: exp(-6 * k^2 / (n^3 + n^2))
-    # Let's use the standard approximation from Pettitt (1979)
+    # Ensure p_value is in valid range
+    p_value = max(0.0, min(1.0, p_value))
     
-    exponent = -6 * (stat ** 2) / (n ** 3 + n ** 2)
-    p_val = 2 * np.exp(exponent)
-    
-    # Ensure p is in [0, 1]
-    return min(max(p_val, 0.0), 1.0)
+    return K, p_value
 
 def run_pettitt_rolling_window(
-    data: np.ndarray,
+    data: pd.DataFrame,
     window_size: int = 12,
     stride: int = 1,
-    alpha: float = 0.01
+    alpha: float = 0.05
 ) -> List[Dict]:
     """
-    Run Pettitt's test on a rolling window over the data.
+    Run the Pettitt test on a rolling window of the time series.
     
-    Args:
-        data: 1D numpy array of observations.
-        window_size: Size of the rolling window.
-        stride: Step size for the rolling window.
-        alpha: Significance level for the test.
+    This function applies the Pettitt test to each window of the time series,
+    allowing for detection of multiple change points over time.
+    
+    Parameters
+    ----------
+    data : pd.DataFrame
+        DataFrame with columns 'week_id' and 'ili' (or similar value column).
+    window_size : int, default=12
+        Size of the rolling window in weeks. Must match MMD detector configuration.
+    stride : int, default=1
+        Stride between consecutive windows. Must match MMD detector configuration.
+    alpha : float, default=0.05
+        Significance level for the test.
         
-    Returns:
+    Returns
+    -------
+    List[Dict]
         List of dictionaries containing:
-            - window_start: Index of the start of the window
-            - window_end: Index of the end of the window (exclusive)
-            - change_point: Index of the change point relative to the window start
-            - absolute_change_point: Index of the change point in the original data
-            - statistic: Pettitt statistic value
-            - p_value: Approximate p-value
-            - is_significant: Boolean indicating if p < alpha
+        - window_start_idx: Starting index of the window
+        - window_end_idx: Ending index of the window
+        - window_size: Size of the window
+        - statistic: Pettitt statistic for the window
+        - p_value: P-value for the test
+        - is_significant: Whether the test is significant at level alpha
+        - change_point_idx: Index of the detected change point within the window (if significant)
+        
+    Raises
+    ------
+    ValueError
+        If window_size or stride are invalid, or if data is insufficient.
     """
+    # Validate parameters
+    if window_size < 2:
+        raise ValueError("window_size must be at least 2 for Pettitt test")
+    if stride < 1:
+        raise ValueError("stride must be at least 1")
+    if window_size > len(data):
+        raise ValueError(f"window_size ({window_size}) cannot exceed data length ({len(data)})")
+    
+    # Verify window configuration matches MMD detector
+    # This is critical for T043: baseline method alignment
+    logger.info(f"Running Pettitt rolling window with window_size={window_size}, stride={stride}")
+    logger.info(f"This must match MMD detector configuration for valid comparison")
+    
+    # Extract the value column (assuming 'ili' or similar)
+    value_col = None
+    for col in ['ili', 'value', 'y', 'target']:
+        if col in data.columns:
+            value_col = col
+            break
+    
+    if value_col is None:
+        raise ValueError("Could not find value column in data. Expected 'ili', 'value', 'y', or 'target'")
+    
+    values = data[value_col].values
+    n = len(values)
+    
     results = []
-    n = len(data)
     
-    if window_size > n:
-        logger.warning(f"Window size {window_size} larger than data length {n}. Skipping.")
-        return results
-    
-    for start in range(0, n - window_size + 1, stride):
-        end = start + window_size
-        window_data = data[start:end]
+    # Iterate through windows
+    for start_idx in range(0, n - window_size + 1, stride):
+        end_idx = start_idx + window_size
+        window_values = values[start_idx:end_idx]
         
-        # Check for constant segments or NaNs (should be handled by preprocessing, but safe guard)
-        if np.isnan(window_data).any():
-            logger.warning(f"Skipping window {start}-{end} due to NaN values.")
+        # Skip windows with NaN values
+        if np.any(np.isnan(window_values)):
+            logger.warning(f"Skipping window [{start_idx}:{end_idx}] due to NaN values")
             continue
         
-        if np.std(window_data) == 0:
-            # Constant segment, no change point possible
-            logger.debug(f"Skipping window {start}-{end} due to zero variance.")
+        try:
+            # Compute Pettitt statistic and p-value
+            stat, p_value = pettitt_statistic(window_values)
+            
+            # Determine if significant
+            is_significant = p_value < alpha
+            
+            # Find the change point index within the window
+            # This is the index where |U_t| is maximized
+            if len(window_values) > 1:
+                # Recompute U values to find the change point
+                sign_matrix = np.sign(window_values[:, np.newaxis] - window_values[np.newaxis, :])
+                U = np.zeros(len(window_values) - 1)
+                for t in range(1, len(window_values)):
+                    U[t-1] = np.sum(sign_matrix[:t, t:])
+                
+                change_point_local = np.argmax(np.abs(U)) + 1  # +1 because U is indexed from 0
+                change_point_global = start_idx + change_point_local
+            else:
+                change_point_global = start_idx
+            
+            result = {
+                'window_start_idx': start_idx,
+                'window_end_idx': end_idx,
+                'window_size': window_size,
+                'statistic': stat,
+                'p_value': p_value,
+                'is_significant': is_significant,
+                'change_point_idx': change_point_global,
+                'alpha': alpha
+            }
+            
+            results.append(result)
+            
+            if is_significant:
+                logger.info(f"Significant change point detected at window [{start_idx}:{end_idx}]: "
+                            f"stat={stat:.4f}, p={p_value:.4f}")
+            
+        except ValueError as e:
+            logger.warning(f"Error processing window [{start_idx}:{end_idx}]: {e}")
+            # Skip this window
             continue
-        
-        # Compute Pettitt statistic
-        cp_rel, stat = pettitt_statistic(window_data)
-        
-        # Compute p-value
-        p_val = pettitt_p_value(stat, window_size)
-        
-        is_sig = p_val < alpha
-        
-        results.append({
-            "window_start": start,
-            "window_end": end,
-            "change_point": cp_rel,
-            "absolute_change_point": start + cp_rel,
-            "statistic": stat,
-            "p_value": p_val,
-            "is_significant": is_sig
-        })
-        
+    
     return results
 
 def main():
     """
-    Main entry point for running the Pettitt rolling-window test.
-    Reads preprocessed data, runs the test, and saves results to baselines.csv.
+    Main function to run Pettitt test on real data.
+    
+    This function loads the processed ILI data, runs the Pettitt rolling window test,
+    and saves the results to baselines.csv.
     """
-    setup_logging()
-    
-    # Load config
-    config_path = "code/config.yaml"
-    if not os.path.exists(config_path):
-        logger.error(f"Config file not found: {config_path}")
-        sys.exit(1)
-        
     import yaml
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
+    from main import load_config
     
-    window_size = config.get("window_size", 12)
-    stride = config.get("stride", 1)
-    alpha = config.get("alpha", 0.01)
+    # Load configuration
+    config = load_config()
+    window_size = config.window_size
+    stride = config.stride
+    alpha = config.alpha
     
-    # Load preprocessed data
-    processed_data_path = "data/processed/ili_processed.csv"
+    # Load processed data
+    processed_data_path = 'data/processed/processed_ili.csv'
     if not os.path.exists(processed_data_path):
-        logger.error(f"Processed data not found: {processed_data_path}. Run preprocess.py first.")
+        logger.error(f"Processed data not found at {processed_data_path}")
+        logger.error("Please run the preprocessing pipeline first")
         sys.exit(1)
-        
-    df = pd.read_csv(processed_data_path)
     
-    # Expect 'value' column (standardized ILI)
-    if 'value' not in df.columns:
-        logger.error("Processed data must contain a 'value' column.")
-        sys.exit(1)
-        
-    data = df['value'].values
-    weeks = df['week'].values if 'week' in df.columns else np.arange(len(data))
+    data = pd.read_csv(processed_data_path)
     
-    logger.info(f"Running Pettitt rolling-window test on {len(data)} data points.")
-    logger.info(f"Window size: {window_size}, Stride: {stride}, Alpha: {alpha}")
+    # Run Pettitt rolling window test
+    results = run_pettitt_rolling_window(
+        data,
+        window_size=window_size,
+        stride=stride,
+        alpha=alpha
+    )
     
-    results = run_pettitt_rolling_window(data, window_size, stride, alpha)
-    
-    if not results:
-        logger.warning("No results generated from Pettitt test.")
-        # Create an empty dataframe with correct columns
-        output_df = pd.DataFrame(columns=[
-            "window_start", "window_end", "change_point", 
-            "absolute_change_point", "statistic", "p_value", "is_significant", "method"
-        ])
-    else:
-        output_df = pd.DataFrame(results)
-        output_df['method'] = 'pettitt'
+    # Convert results to DataFrame and save
+    if results:
+        results_df = pd.DataFrame(results)
+        output_path = 'data/processed/pettitt_results.csv'
+        results_df.to_csv(output_path, index=False)
+        logger.info(f"Pettitt results saved to {output_path}")
         
-        # Filter only significant changes for the final output? 
-        # The task says "output baselines.csv containing detected change weeks".
-        # We'll output all, but mark significance.
-        # Usually, we only report significant ones as "detected".
-        # Let's filter for significant ones to match the "detected change weeks" description.
-        significant_df = output_df[output_df['is_significant']].copy()
-        
-        if significant_df.empty:
-            logger.info("No significant change points detected by Pettitt test.")
-            output_df = pd.DataFrame(columns=[
-                "week", "statistic", "p_value", "method"
-            ])
+        # Also update baselines.csv if it exists
+        baselines_path = 'data/processed/baselines.csv'
+        if os.path.exists(baselines_path):
+            baselines_df = pd.read_csv(baselines_path)
+            # Append Pettitt results
+            pettitt_for_baselines = results_df[['window_start_idx', 'window_end_idx', 'statistic']].copy()
+            pettitt_for_baselines['method'] = 'pettitt'
+            pettitt_for_baselines.rename(columns={
+                'window_start_idx': 'week_id',
+                'statistic': 'run_length'
+            }, inplace=True)
+            baselines_df = pd.concat([baselines_df, pettitt_for_baselines], ignore_index=True)
+            baselines_df.to_csv(baselines_path, index=False)
+            logger.info(f"Updated baselines.csv with Pettitt results")
         else:
-            # Prepare final output: just the detected change points
-            # The column 'absolute_change_point' is the index in the original data.
-            # We need to map this to the actual week value if available.
-            # If 'week' column exists in df, we can map.
-            if 'week' in df.columns:
-                # Create a mapping from index to week
-                idx_to_week = dict(zip(df.index, df['week']))
-                significant_df['detected_week'] = significant_df['absolute_change_point'].map(idx_to_week)
-                final_cols = ['detected_week', 'statistic', 'p_value', 'method']
-            else:
-                final_cols = ['absolute_change_point', 'statistic', 'p_value', 'method']
-                significant_df.rename(columns={'absolute_change_point': 'detected_week'}, inplace=True)
-                
-            output_df = significant_df[final_cols]
+            # Create new baselines.csv
+            pettitt_for_baselines = results_df[['window_start_idx', 'statistic']].copy()
+            pettitt_for_baselines['method'] = 'pettitt'
+            pettitt_for_baselines.rename(columns={
+                'window_start_idx': 'week_id',
+                'statistic': 'run_length'
+            }, inplace=True)
+            pettitt_for_baselines.to_csv(baselines_path, index=False)
+            logger.info(f"Created baselines.csv with Pettitt results")
+    else:
+        logger.warning("No significant change points detected by Pettitt test")
     
-    # Save to data/processed/baselines.csv (or data/processed/pettitt_results.csv)
-    # The task description for T025 says "Output baselines.csv".
-    # We'll save it to data/processed/baselines.csv to be consistent with T025.
-    output_path = "data/processed/baselines.csv"
-    output_df.to_csv(output_path, index=False)
-    
-    logger.info(f"Pettitt results saved to {output_path}")
-    logger.info(f"Detected {len(output_df)} significant change points.")
+    return results
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

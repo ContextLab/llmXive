@@ -18,7 +18,7 @@ This feature implements a reproducible pipeline to detect distributional shifts 
 **Project Type**: Data analysis pipeline / CLI tool  
 **Performance Goals**: Complete full pipeline (download, preprocess, MMD, baselines, sensitivity, report) within 30 minutes on 2 CPU cores, <7 GB RAM.  
 **Constraints**: No GPU/CUDA; permutation count auto-reduced if time threshold exceeded; strict Bonferroni correction; ground truth sourced from independent data (real data required for final run).  
-**Scale/Scope**: A multi-year weekly ILI dataset comprising a substantial volume of observations.; sensitivity grid multiple configurations (2 bandwidths x 3 windows x 3 tolerances).
+**Scale/Scope**: A multi-year weekly ILI dataset comprising a substantial volume of observations.; sensitivity grid multiple configurations (several bandwidths x 3 windows x 3 tolerances).
 
 > Empirical specifics (exact dataset size, measured performance) are deferred to research/implementation.
 
