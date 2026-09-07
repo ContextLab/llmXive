@@ -1,3 +1,30 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or `__init__.py` files were presented; the claim that `data/`,
+    `models/`, `experiments/`, `analysis/`, `tests/`, and `utils/` exist with five
+    `__init__.py` files cannot be verified from the provided artifacts. The required
+    filesystem evidence is missing.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any `__init__.py` files being added in the `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/`
+    directory hierarchy is provided; the claim lacks the required artifact listing
+    or file contents. The task cannot be considered done until the missing `__init__.py`
+    files are actually created and shown.
+T003:
+  c: false
+  h: a1026803e84fd499a62e9720d54ec9762bac4046a7fe9c97d5655fcb27c74221
+  r: The required file `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/requirements.txt`
+    does not exist, so the specified dependencies are not initialized at the correct
+    location. The existing `code/requirements.txt` is irrelevant to the task.
+T005:
+  c: false
+  h: ae8779cd785f17b42c34e78d43b46ddcb9a70b419612fe66651a3a9c506fb4c1
+  r: "The provided `logger.py` stops mid\u2011implementation (file\u2011handler code\
+    \ is truncated) and does not contain a `log_error()` function at all. Moreover,\
+    \ the required unit test `tests/unit/test_logger.py` is absent, so the verification\
+    \ command cannot run. The task\u2019s required artifacts are missing or incomplete."
 T016b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,13 +32,6 @@ T016b:
     \ and thus there is no evidence of implemented per\u2011instance hard timeout\
     \ or a total wall\u2011clock limit of \u226472\u202Fhours. The required artifact\
     \ is missing."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `failure_classifier.py` file (or its contents) was provided for inspection,\
-    \ so we cannot verify that a script detecting \u201Cmissing context\u201D vs \u201C\
-    reasoning error\u201D via sandbox log parsing was actually implemented. The required\
-    \ artifact is missing."
 T017b:
   c: false
   h: 91066ef87c5be85a521911d3343c2bff94672bfa0fd790a96ec894b3679676ff
@@ -32,11 +52,3 @@ T029:
     \ and there is no code snippet or description showing a GLM with a binomial link\
     \ that tests the interaction between \u201Ccontext strategy\u201D and \u201Cmodel\
     \ size\u201D. The required artifact is missing, so the task is not satisfied."
-T030#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `glm_analyzer.py` is provided, nor any code, tests,\
-    \ or output showing the required pairwise comparison calculations (difference\
-    \ in Pass@1 rates between 1B and 7B models per strategy and detection of \u2265\
-    5% margins with p\u202F<\u202F0.05). The implementer must supply the updated file\
-    \ (or excerpts) and demonstrate that it performs the specified analysis."

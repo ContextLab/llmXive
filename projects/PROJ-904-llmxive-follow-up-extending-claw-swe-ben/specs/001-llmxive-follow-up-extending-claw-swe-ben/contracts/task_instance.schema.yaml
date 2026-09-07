@@ -1,68 +1,67 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: TaskInstance
-description: >
-  Schema for a specific task instance derived from the Claw-SWE-Bench dataset.
-  Represents a single software engineering issue to be resolved by an LLM.
+description: >-
+  Schema for a task instance derived from the Claw-SWE-Bench dataset.
+  Represents a specific software engineering task (issue + patch + context).
 type: object
 required:
-  - issue_id
-  - repo_state
-  - tests
+  - instance_id
+  - problem_statement
+  - repo
+  - version
+  - base_commit
+  - patch
+  - test_patch
+  - relevant_files
+  - total_lines
+  - status
+  - created_at
 properties:
-  issue_id:
+  instance_id:
     type: string
-    description: Unique identifier for the issue (e.g., "sphinx-doc__sphinx-12345").
-    pattern: "^[a-z0-9-_]+__([a-z0-9-_]+)-[0-9]+$"
-  repo_state:
-    type: object
-    description: Snapshot of the repository state relevant to this task.
-    required:
-      - files
-      - base_commit
-    properties:
-      base_commit:
-        type: string
-        description: The SHA of the base commit for this task.
-        minLength: 40
-        maxLength: 40
-      files:
-        type: array
-        description: List of file paths and their content (or path to content) included in the context.
-        items:
-          type: object
-          required:
-            - path
-          properties:
-            path:
-              type: string
-              description: Relative path of the file in the repository.
-            content_hash:
-              type: string
-              description: Optional SHA256 hash of the file content for integrity verification.
-  tests:
-    type: object
-    description: The test suite associated with this issue.
-    required:
-      - test_patch
-      - patch
-    properties:
-      test_patch:
-        type: string
-        description: The git patch containing the test modifications.
-      patch:
-        type: string
-        description: The proposed solution patch (if available in the dataset ground truth).
-      pass_regex:
-        type: string
-        description: Regex pattern to identify a passing test run in logs.
-        default: "PASSED|OK"
+    description: Unique identifier for the task instance (e.g., 'swe-bench-12345')
+    pattern: '^swe-bench-[0-9]+$'
+  problem_statement:
+    type: string
+    description: The natural language description of the issue to be resolved.
+  repo:
+    type: string
+    description: The repository name (e.g., 'pallets/flask')
+  version:
+    type: string
+    description: The version of the repository at the time of the issue.
+  base_commit:
+    type: string
+    description: The SHA of the base commit before the issue was introduced.
+    pattern: '^[a-f0-9]{40}$'
+  patch:
+    type: string
+    description: The ground-truth patch that resolves the issue.
+  test_patch:
+    type: string
+    description: The test patch used to verify the solution.
+  relevant_files:
+    type: array
+    description: List of file paths relevant to the issue (derived from import graph traversal).
+    items:
+      type: string
+  total_lines:
+    type: integer
+    description: Total number of lines in the traversed import graph.
+    minimum: 0
+  status:
+    type: string
+    description: Current status of the task instance.
+    enum:
+      - pending
+      - processing
+      - completed
+      - failed
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the instance was created/loaded.
   metadata:
     type: object
-    description: Additional metadata derived during filtering (e.g., complexity).
-    properties:
-      complexity_score:
-        type: integer
-        description: Calculated complexity metric (e.g., lines of code in dependency graph).
-      relevant_file_count:
-        type: integer
-        description: Number of files identified as relevant to the issue.
+    description: Optional additional metadata (e.g., graph traversal depth, import count).
+    additionalProperties: true

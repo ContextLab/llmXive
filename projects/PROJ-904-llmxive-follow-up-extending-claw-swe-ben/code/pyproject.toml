@@ -1,34 +1,51 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up"
+name = "llmxive-follow-up-extending-claw-swe-ben"
 version = "0.1.0"
 description = "Context Fidelity vs. Model Scaling Trade-offs Research"
+readme = "README.md"
 requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Research Team", email = "research@llmxive.org"}
+]
+keywords = ["llm", "scaling", "context-fidelity", "swe-bench", "research"]
 dependencies = [
-    "transformers",
-    "datasets",
-    "scikit-learn",
-    "statsmodels",
-    "networkx",
-    "pytest",
-    "huggingface_hub",
-    "ruff",
-    "black",
+    "transformers>=4.40.0",
+    "datasets>=2.18.0",
+    "scikit-learn>=1.4.0",
+    "statsmodels>=0.14.0",
+    "networkx>=3.2",
+    "pytest>=7.4.0",
+    "huggingface_hub>=0.22.0",
+    "pandas>=2.2.0",
+    "pyarrow>=15.0.0",
+    "torch>=2.2.0",
+    "accelerate>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.3.0",
+    "black>=24.3.0",
+    "mypy>=1.9.0",
+    "pre-commit>=3.7.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
+include = ["code*"]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-  \.git
+    \.git
   | \.hg
   | \.mypy_cache
   | \.tox
@@ -41,21 +58,24 @@ extend-exclude = '''
 '''
 
 [tool.ruff]
-# Same as .ruff.toml but kept here for tooling compatibility
-line-length = 100
+# Same as .ruff.toml, but inline for pyproject convenience if needed
+line-length = 88
 target-version = "py311"
-extend-exclude = [
-    ".git",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "build",
-    "dist",
-]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["code/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = true

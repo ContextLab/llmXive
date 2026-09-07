@@ -1,8 +1,3 @@
-"""
-Configuration module for llmXive research pipeline.
-Implements Constitution Principle I: Deterministic Reproducibility.
-"""
-
 import os
 import random
 import numpy as np
@@ -11,340 +6,199 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 from enum import Enum
 
-# ============================================================================
-# Constitution Principle I: Hardcoded Random Seeds
-# ============================================================================
-# All stochastic processes must be seeded with this fixed value to ensure
-# that experiments are exactly reproducible given the same code and data.
-# Changing this value invalidates previous results and requires a full
-# re-run of the experiment suite.
-# ============================================================================
+# Constitution Principle I: Reproducibility via Hardcoded Seeds
+# These seeds are global constants used to ensure deterministic behavior
+# across all experiments, regardless of hardware or library version (to the extent possible).
+GLOBAL_SEED = 42
+TORCH_SEED = 42
+NUMPY_SEED = 42
+PYTHON_SEED = 42
 
-RANDOM_SEED = 42
-
-# Environment Variable Keys
-HF_TOKEN_ENV = "HF_TOKEN"
-MODEL_PATH_ENV = "MODEL_PATH"
-DATA_DIR_ENV = "DATA_DIR"
-OUTPUT_DIR_ENV = "OUTPUT_DIR"
-LOG_LEVEL_ENV = "LOG_LEVEL"
-
-# Default Paths (relative to project root)
-DEFAULT_DATA_DIR = "data"
-DEFAULT_OUTPUT_DIR = "data/intermediate"
-DEFAULT_LOG_LEVEL = "INFO"
-
-# Model Configuration Defaults
-DEFAULT_MODEL_NAME = "meta-llama/Llama-3.1-8B-Instruct"
-DEFAULT_QUANTIZATION = "Q4_K_M"
-DEFAULT_MAX_TOKENS = 2048
-DEFAULT_TEMPERATURE = 0.0  # Deterministic by default for reproducibility
-DEFAULT_TOP_P = 1.0
-
-# Experiment Budgets (in seconds)
-INSTANCE_TIMEOUT = 3600  # 60 minutes per instance
-TOTAL_WALL_CLOCK_LIMIT = 259200  # 72 hours total
-
-# Analysis Thresholds
-CONTEXT_LENGTH_THRESHOLD = 500  # Lines for "high complexity" filtering
-PASS_THRESHOLD = 0.05  # P-value threshold for significance
-MIN_PASS_DIFF = 0.05  # Minimum 5% difference for meaningful comparison
-
-# Logging Configuration
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-
-# ============================================================================
-# Data Models (Constitution Principle III: Data Integrity)
-# ============================================================================
-# These classes define the schema for Task Instances, Context Configurations,
-# and Execution Results. They serve as the single source of truth for data
-# structures used throughout the pipeline.
-# ============================================================================
-
-class FailureType(Enum):
-    """Classification of execution failure modes."""
-    MISSING_CONTEXT = "missing_context"
-    REASONING_ERROR = "reasoning_error"
-    TIMEOUT = "timeout"
-    MEMORY_OOM = "memory_oom"
-    SYNTAX_ERROR = "syntax_error"
-    UNKNOWN = "unknown"
-
-
-class StrategyType(Enum):
-    """Types of context processing strategies."""
-    BASELINE_NAIVE = "baseline_naive"
-    TF_IDF = "tfidf"
-    DIFF_AWARE = "diff_aware"
-    SEMANTIC_SUMMARY = "semantic_summary"
-
-
-@dataclass
-class TaskInstance:
+def set_global_seeds(seed: int = GLOBAL_SEED) -> None:
     """
-    Represents a single task instance from the Claw-SWE-Bench dataset.
-    Encapsulates the problem statement, repository context, and metadata.
-    """
-    instance_id: str
-    problem_statement: str
-    repo: str
-    base_commit: str
-    relevant_files: List[str]
-    imports_graph: Optional[Dict[str, List[str]]] = None
-    total_lines: int = 0
-    complexity_score: float = 0.0
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            "instance_id": self.instance_id,
-            "problem_statement": self.problem_statement,
-            "repo": self.repo,
-            "base_commit": self.base_commit,
-            "relevant_files": self.relevant_files,
-            "imports_graph": self.imports_graph,
-            "total_lines": self.total_lines,
-            "complexity_score": self.complexity_score
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TaskInstance":
-        """Reconstruct from dictionary."""
-        return cls(
-            instance_id=data["instance_id"],
-            problem_statement=data["problem_statement"],
-            repo=data["repo"],
-            base_commit=data["base_commit"],
-            relevant_files=data["relevant_files"],
-            imports_graph=data.get("imports_graph"),
-            total_lines=data.get("total_lines", 0),
-            complexity_score=data.get("complexity_score", 0.0)
-        )
-
-
-@dataclass
-class ContextConfiguration:
-    """
-    Configuration for how context is processed and fed to the model.
-    Defines the strategy and parameters used for context compression.
-    """
-    strategy: StrategyType
-    max_tokens: int = DEFAULT_MAX_TOKENS
-    temperature: float = DEFAULT_TEMPERATURE
-    top_p: float = DEFAULT_TOP_P
-    truncation_method: str = "first_n"  # Options: "first_n", "last_n", "random"
-    retrieval_k: int = 10  # Number of snippets to retrieve for TF-IDF/Diff
-    summary_length: int = 500  # Target length for semantic summarization
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            "strategy": self.strategy.value,
-            "max_tokens": self.max_tokens,
-            "temperature": self.temperature,
-            "top_p": self.top_p,
-            "truncation_method": self.truncation_method,
-            "retrieval_k": self.retrieval_k,
-            "summary_length": self.summary_length
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ContextConfiguration":
-        """Reconstruct from dictionary."""
-        strategy_str = data.get("strategy", "baseline_naive")
-        try:
-            strategy = StrategyType(strategy_str)
-        except ValueError:
-            strategy = StrategyType.BASELINE_NAIVE
-
-        return cls(
-            strategy=strategy,
-            max_tokens=data.get("max_tokens", DEFAULT_MAX_TOKENS),
-            temperature=data.get("temperature", DEFAULT_TEMPERATURE),
-            top_p=data.get("top_p", DEFAULT_TOP_P),
-            truncation_method=data.get("truncation_method", "first_n"),
-            retrieval_k=data.get("retrieval_k", 10),
-            summary_length=data.get("summary_length", 500)
-        )
-
-
-@dataclass
-class ExecutionResult:
-    """
-    Represents the outcome of executing a model on a specific task instance
-    with a specific context configuration.
-    """
-    instance_id: str
-    config: ContextConfiguration
-    success: bool
-    pass_fail: bool  # Did the solution pass the tests?
-    output_text: str
-    error_message: Optional[str] = None
-    failure_type: Optional[FailureType] = None
-    tokens_used: int = 0
-    execution_time_seconds: float = 0.0
-    context_lines_used: int = 0
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            "instance_id": self.instance_id,
-            "config": self.config.to_dict(),
-            "success": self.success,
-            "pass_fail": self.pass_fail,
-            "output_text": self.output_text,
-            "error_message": self.error_message,
-            "failure_type": self.failure_type.value if self.failure_type else None,
-            "tokens_used": self.tokens_used,
-            "execution_time_seconds": self.execution_time_seconds,
-            "context_lines_used": self.context_lines_used,
-            "metadata": self.metadata
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ExecutionResult":
-        """Reconstruct from dictionary."""
-        config = ContextConfiguration.from_dict(data["config"])
-        failure_type = None
-        if data.get("failure_type"):
-            try:
-                failure_type = FailureType(data["failure_type"])
-            except ValueError:
-                failure_type = FailureType.UNKNOWN
-
-        return cls(
-            instance_id=data["instance_id"],
-            config=config,
-            success=data["success"],
-            pass_fail=data["pass_fail"],
-            output_text=data["output_text"],
-            error_message=data.get("error_message"),
-            failure_type=failure_type,
-            tokens_used=data.get("tokens_used", 0),
-            execution_time_seconds=data.get("execution_time_seconds", 0.0),
-            context_lines_used=data.get("context_lines_used", 0),
-            metadata=data.get("metadata", {})
-        )
-
-
-# ============================================================================
-# Existing Functions (Preserved)
-# ============================================================================
-
-def set_global_seeds(seed: int = RANDOM_SEED) -> None:
-    """
-    Set random seeds for all major stochastic libraries to ensure reproducibility.
-    This function MUST be called at the entry point of any experiment script.
-
+    Set random seeds for Python, NumPy, and PyTorch to ensure reproducibility.
+    This function must be called at the very beginning of any experiment script.
+    
     Args:
-        seed: The random seed value (defaults to RANDOM_SEED constant).
+        seed: The integer seed to use for all random number generators.
     """
-    # Python built-in random
     random.seed(seed)
-
-    # NumPy
     np.random.seed(seed)
-
-    # PyTorch
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-        # Ensure deterministic behavior in CUDA operations
-        # Note: This may reduce performance but is required for reproducibility
+        torch.cuda.manual_seed_all(seed)  # For multi-GPU
+        # Ensure deterministic behavior in CuDNN
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
+    
+    # Log the seed being used for audit purposes
+    import logging
+    logging.getLogger(__name__).info(f"Global seeds set to: {seed}")
 
-    # Hugging Face datasets and transformers
-    try:
-        import datasets
-        datasets.set_seed(seed)
-    except ImportError:
-        pass
-
-    try:
-        import transformers
-        # Transformers often use torch/numpy internally, but explicit setting helps
-        transformers.set_seed(seed)
-    except ImportError:
-        pass
-
-
-def get_env_var(name: str, default: str | None = None) -> str | None:
+# Environment Variable Management
+def get_env_var(key: str, default: Optional[str] = None) -> str:
     """
-    Retrieve an environment variable with an optional default.
-
+    Retrieve an environment variable, raising an error if missing and no default provided.
+    
     Args:
-        name: The environment variable name.
-        default: Default value if the variable is not set.
-
+        key: The environment variable name.
+        default: Optional default value if the variable is not set.
+        
     Returns:
-        The value of the environment variable or the default.
+        The value of the environment variable.
+        
+    Raises:
+        ValueError: If the variable is missing and no default is provided.
     """
-    return os.getenv(name, default)
-
+    value = os.getenv(key, default)
+    if value is None:
+        raise ValueError(f"Environment variable '{key}' is not set and no default provided.")
+    return value
 
 def get_hf_token() -> str:
     """
     Retrieve the Hugging Face token from environment variables.
-
+    
+    This token is required for accessing gated models (e.g., Llama-3) on Hugging Face Hub.
+    The token must be set in the environment before running any model loading scripts.
+    
     Returns:
-        The HF token string.
-
+        The Hugging Face access token.
+        
     Raises:
-        RuntimeError: If the token is not set in the environment.
+        ValueError: If HF_TOKEN is not set in the environment.
     """
-    token = get_env_var(HF_TOKEN_ENV)
-    if not token:
-        raise RuntimeError(
-            f"Environment variable '{HF_TOKEN_ENV}' is not set. "
-            "Please set it to your Hugging Face access token."
-        )
-    return token
+    return get_env_var("HF_TOKEN")
 
-
-def get_model_path() -> str:
+def get_model_path(model_name: str) -> str:
     """
-    Retrieve the model path from environment variables or use default.
-
+    Construct the full path to a model, either from environment or default location.
+    
+    This function checks for specific environment variables for known models first,
+    then falls back to a standard cache directory structure.
+    
+    Args:
+        model_name: The name of the model (e.g., 'meta-llama/Llama-3-1B').
+        
     Returns:
-        The path to the model.
+        The path string.
+        
+    Example:
+        If MODEL_PATH_META_LLAMA_Llama-3-1B is set, returns that value.
+        Otherwise, returns DATA_DIR/models/Llama-3-1B.
     """
-    path = get_env_var(MODEL_PATH_ENV)
-    return path if path else DEFAULT_MODEL_NAME
-
+    base_dir = get_data_dir()
+    # Check if model is cached in a specific env var first
+    # Sanitize model name for env var usage (replace / with _)
+    env_key_suffix = model_name.replace('/', '_').upper()
+    env_key = f"MODEL_PATH_{env_key_suffix}"
+    
+    if os.getenv(env_key):
+        return os.getenv(env_key)
+    
+    # Default fallback to local cache structure
+    # Extract just the model identifier (last part of the path)
+    model_identifier = model_name.split("/")[-1]
+    return os.path.join(base_dir, "models", model_identifier)
 
 def get_data_dir() -> str:
     """
-    Retrieve the data directory from environment variables or use default.
-
+    Get the root data directory from environment or default.
+    
     Returns:
         The path to the data directory.
     """
-    path = get_env_var(DATA_DIR_ENV)
-    return path if path else DEFAULT_DATA_DIR
-
+    return get_env_var("DATA_DIR", default="data")
 
 def get_output_dir() -> str:
     """
-    Retrieve the output directory from environment variables or use default.
-
+    Get the root output directory from environment or default.
+    
     Returns:
         The path to the output directory.
     """
-    path = get_env_var(OUTPUT_DIR_ENV)
-    return path if path else DEFAULT_OUTPUT_DIR
+    return get_env_var("OUTPUT_DIR", default="data/results")
 
-
-def get_log_level() -> str:
+def get_log_level() -> int:
     """
-    Retrieve the log level from environment variables or use default.
-
+    Get the logging level from environment, defaulting to INFO.
+    
     Returns:
-        The log level string.
+        An integer logging level (e.g., logging.INFO, logging.DEBUG).
     """
-    level = get_env_var(LOG_LEVEL_ENV, DEFAULT_LOG_LEVEL)
-    return level.upper()
+    level_str = get_env_var("LOG_LEVEL", default="INFO")
+    levels = {
+        "DEBUG": logging.DEBUG,
+        "INFO": logging.INFO,
+        "WARNING": logging.WARNING,
+        "ERROR": logging.ERROR,
+        "CRITICAL": logging.CRITICAL
+    }
+    return levels.get(level_str, logging.INFO)
+
+# Data Models (Constitution Principle III: Schema Enforcement)
+class FailureType(Enum):
+    MISSING_CONTEXT = "missing_context"
+    REASONING_ERROR = "reasoning_error"
+    TIMEOUT = "timeout"
+    MEMORY_ERROR = "memory_error"
+    OTHER = "other"
+
+class StrategyType(Enum):
+    BASELINE = "baseline"
+    TF_IDF = "tfidf"
+    DIFF_AWARE = "diff_aware"
+    SEMANTIC_SUMMARY = "semantic_summary"
+
+@dataclass
+class TaskInstance:
+    """
+    Represents a single task instance from the dataset.
+    Corresponds to the task_instance.schema.yaml.
+    """
+    instance_id: str
+    problem_statement: str
+    repo: str
+    version: str
+    base_commit: str
+    patch: str
+    test_patch: str
+    # Calculated fields
+    relevant_lines_count: int = 0
+    import_graph_nodes: int = 0
+    import_graph_edges: int = 0
+
+@dataclass
+class ContextConfiguration:
+    """
+    Configuration for how context is processed and injected.
+    Corresponds to the context_config.schema.yaml.
+    """
+    strategy: StrategyType
+    max_tokens: int
+    truncation_strategy: str = "first_n"  # first_n, last_n, smart_truncate
+    include_imports: bool = True
+    include_docstrings: bool = True
+    # Strategy-specific params
+    tfidf_k: int = 10  # Top-K snippets for TF-IDF
+    diff_window_size: int = 50  # Lines around diff for Diff-Aware
+    semantic_threshold: float = 0.65  # Similarity threshold for summarization
+
+@dataclass
+class ExecutionResult:
+    """
+    Result of running a model against a task instance.
+    Corresponds to the execution_result.schema.yaml.
+    """
+    instance_id: str
+    strategy: StrategyType
+    model_size: str  # e.g., "1B", "7B"
+    success: bool
+    output_patch: Optional[str] = None
+    log_output: Optional[str] = None
+    execution_time_seconds: float = 0.0
+    tokens_generated: int = 0
+    failure_type: Optional[FailureType] = None
+    failure_reason: Optional[str] = None
+    seed_used: int = GLOBAL_SEED

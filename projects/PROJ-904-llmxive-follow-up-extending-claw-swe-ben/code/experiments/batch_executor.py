@@ -1,268 +1,244 @@
 """
-Batch Executor for llmXive experiments.
-
-Enforces:
-1. Hard timeout per instance (FR-007).
-2. Hard total wall-clock duration limit of <= 72 hours for the full experiment (FR-007).
+Batch execution infrastructure for running LLM experiments with timeout and error handling.
 """
-
 import os
 import sys
 import logging
 import time
 import signal
 import json
-from datetime import datetime, timedelta
-from typing import Callable, Any, Tuple, Optional, List, Dict
-from dataclasses import dataclass, field
-from enum import Enum
-from pathlib import Path
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FuturesTimeoutError
+from typing import Callable, List, Dict, Any, Optional, TypeVar, Generic
+from functools import wraps
+from contextlib import contextmanager
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    PROJECT_ROOT = Path(__file__).resolve().parent.parent
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Project imports
+from models.task_instance import TaskInstance
+from models.context_config import ContextConfiguration
+from models.execution_result import ExecutionResult, ExecutionStatus
+from utils.logger import setup_logger, log_error
 
-from config import get_output_dir, get_log_level
+logger = setup_logger(__name__)
 
-# Configure logging
-logging.basicConfig(
-    level=get_log_level(),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+# Type variables for generic decorator
+F = TypeVar('F', bound=Callable)
 
-# Constants
-MAX_WALL_CLOCK_HOURS = 72
-MAX_WALL_CLOCK_SECONDS = MAX_WALL_CLOCK_HOURS * 3600
+class TimeoutGuard:
+    """
+    A decorator that enforces a hard timeout on function execution.
+    If the function exceeds the timeout, it raises a TimeoutError.
+    
+    This implementation uses threading to monitor execution time,
+    making it compatible with multi-threaded environments.
+    """
+    def __init__(self, timeout_seconds: int):
+        if timeout_seconds <= 0:
+            raise ValueError("Timeout must be a positive integer")
+        self.timeout_seconds = timeout_seconds
+        self.logger = setup_logger(__name__)
 
-class ExecutionStatus(str, Enum):
-    SUCCESS = "success"
-    TIMEOUT = "timeout"
-    ERROR = "error"
-    SKIPPED = "skipped"
+    def __call__(self, func: F) -> F:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            result_container = {'value': None, 'exception': None, 'done': False}
+            
+            def target():
+                try:
+                    result_container['value'] = func(*args, **kwargs)
+                except Exception as e:
+                    result_container['exception'] = e
+                finally:
+                    result_container['done'] = True
 
-@dataclass
-class BatchExecutionResult:
-    instance_id: str
-    status: ExecutionStatus
-    start_time: float
-    end_time: float
-    duration: float
-    error_message: Optional[str] = None
-    result_data: Optional[Dict[str, Any]] = None
+            thread = threading.Thread(target=target)
+            thread.daemon = True
+            thread.start()
+            
+            thread.join(timeout=self.timeout_seconds)
+            
+            if not result_container['done']:
+                # Thread is still running, raise timeout
+                self.logger.warning(
+                    f"Function {func.__name__} exceeded timeout of {self.timeout_seconds}s. "
+                    f"Raising TimeoutError."
+                )
+                raise TimeoutError(
+                    f"Execution of {func.__name__} exceeded the limit of {self.timeout_seconds} seconds."
+                )
+            
+            if result_container['exception']:
+                raise result_container['exception']
+            
+            return result_container['value']
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "instance_id": self.instance_id,
-            "status": self.status.value,
-            "start_time": self.start_time,
-            "end_time": self.end_time,
-            "duration": self.duration,
-            "error_message": self.error_message,
-            "result_data": self.result_data
-        }
+        return wrapper  # type: ignore
+
 
 class BatchExecutor:
     """
-    Manages execution of a batch of tasks with hard timeouts and global budget limits.
+    Manages the execution of multiple task instances with configurable parallelism
+    and per-instance timeout constraints.
     """
-
     def __init__(
-        self,
-        instance_timeout_seconds: int = 3600,
-        output_dir: Optional[Path] = None
+        self, 
+        max_workers: int = 4, 
+        instance_timeout_seconds: int = 300,
+        total_wall_clock_seconds: Optional[int] = None
     ):
+        self.max_workers = max_workers
+        self.instance_timeout_seconds = instance_timeout_seconds
+        self.total_wall_clock_seconds = total_wall_clock_seconds
+        self.executor: Optional[ThreadPoolExecutor] = None
+        self.logger = setup_logger(__name__)
+        
+        if self.total_wall_clock_seconds:
+            self.logger.info(
+                f"BatchExecutor initialized with total wall-clock limit: "
+                f"{self.total_wall_clock_seconds}s"
+            )
+
+    def submit(
+        self, 
+        task: TaskInstance, 
+        execution_func: Callable[[TaskInstance, ContextConfiguration], ExecutionResult],
+        config: Optional[ContextConfiguration] = None
+    ) -> ExecutionResult:
         """
+        Submits a single task for execution with timeout enforcement.
+        
         Args:
-            instance_timeout_seconds: Max time allowed for a single instance execution.
-            output_dir: Directory to write execution logs/results.
-        """
-        self.instance_timeout = instance_timeout_seconds
-        self.start_time_global: Optional[float] = None
-        self.output_dir = output_dir or get_output_dir()
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        self.results_log_path = self.output_dir / "batch_execution_log.jsonl"
-
-        logger.info(f"BatchExecutor initialized. Instance timeout: {self.instance_timeout}s, Max wall-clock: {MAX_WALL_CLOCK_HOURS}h")
-
-    def _check_global_budget(self) -> bool:
-        """
-        Checks if the total wall-clock time has exceeded the limit.
-        Returns True if execution should continue, False if budget exhausted.
-        """
-        if self.start_time_global is None:
-            return True
-
-        elapsed = time.time() - self.start_time_global
-        if elapsed > MAX_WALL_CLOCK_SECONDS:
-            logger.error(f"Global wall-clock budget exhausted. Elapsed: {elapsed:.2f}s / {MAX_WALL_CLOCK_SECONDS}s")
-            return False
-        return True
-
-    def _run_with_timeout(
-        self,
-        func: Callable,
-        instance_id: str,
-        *args,
-        **kwargs
-    ) -> BatchExecutionResult:
-        """
-        Executes a function with a hard timeout per instance.
-        Uses signal.SIGALRM for Unix-based timeout enforcement.
-        """
-        start_time = time.time()
-        result_data = None
-        error_message = None
-        status = ExecutionStatus.ERROR
-
-        # Define the handler for the alarm signal
-        def timeout_handler(signum, frame):
-            raise TimeoutError(f"Instance {instance_id} exceeded timeout of {self.instance_timeout}s")
-
-        # Set the alarm
-        old_handler = signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(self.instance_timeout)
-
-        try:
-            # Attempt to run the function
-            result_data = func(*args, **kwargs)
-            status = ExecutionStatus.SUCCESS
-        except TimeoutError as e:
-            error_message = str(e)
-            status = ExecutionStatus.TIMEOUT
-            logger.warning(error_message)
-        except Exception as e:
-            error_message = str(e)
-            status = ExecutionStatus.ERROR
-            logger.error(f"Instance {instance_id} failed with error: {error_message}", exc_info=True)
-        finally:
-            # Cancel the alarm and restore old handler
-            signal.alarm(0)
-            signal.signal(signal.SIGALRM, old_handler)
-
-        end_time = time.time()
-        duration = end_time - start_time
-
-        return BatchExecutionResult(
-            instance_id=instance_id,
-            status=status,
-            start_time=start_time,
-            end_time=end_time,
-            duration=duration,
-            error_message=error_message,
-            result_data=result_data
-        )
-
-    def execute_batch(
-        self,
-        instances: List[Dict[str, Any]],
-        process_func: Callable[[Dict[str, Any]], Any],
-        resume: bool = False
-    ) -> List[BatchExecutionResult]:
-        """
-        Executes a list of instances using process_func.
-        Enforces per-instance timeout and global wall-clock limit.
-
-        Args:
-            instances: List of instance dictionaries.
-            process_func: Function to execute for each instance.
-            resume: If True, skips instances already present in the results log.
-
+            task: The task instance to execute.
+            execution_func: The function to run the task.
+            config: Optional context configuration. Defaults to None.
+        
         Returns:
-            List of BatchExecutionResult objects.
+            ExecutionResult containing status, output, and metadata.
         """
-        self.start_time_global = time.time()
+        if config is None:
+            config = ContextConfiguration(strategy_type="baseline")
+
+        start_time = time.time()
+        
+        try:
+            # Wrap the execution function with TimeoutGuard
+            guarded_func = TimeoutGuard(self.instance_timeout_seconds)(execution_func)
+            result = guarded_func(task, config)
+            
+            # Ensure result has duration
+            if not hasattr(result, 'duration_seconds'):
+                result.duration_seconds = time.time() - start_time
+                
+            return result
+
+        except TimeoutError as e:
+            self.logger.error(f"Task {task.task_id} timed out: {str(e)}")
+            return ExecutionResult(
+                task_id=task.task_id,
+                status=ExecutionStatus.TIMEOUT,
+                error_message=str(e),
+                duration_seconds=time.time() - start_time
+            )
+        except Exception as e:
+            self.logger.error(f"Task {task.task_id} failed with exception: {str(e)}", exc_info=True)
+            return ExecutionResult(
+                task_id=task.task_id,
+                status=ExecutionStatus.FAILED,
+                error_message=str(e),
+                duration_seconds=time.time() - start_time
+            )
+
+    def submit_batch(
+        self, 
+        tasks: List[TaskInstance], 
+        execution_func: Callable[[TaskInstance, ContextConfiguration], ExecutionResult],
+        config: Optional[ContextConfiguration] = None
+    ) -> List[ExecutionResult]:
+        """
+        Submits a batch of tasks for parallel execution.
+        
+        Args:
+            tasks: List of task instances.
+            execution_func: The function to run each task.
+            config: Optional context configuration.
+        
+        Returns:
+            List of ExecutionResults.
+        """
+        if config is None:
+            config = ContextConfiguration(strategy_type="baseline")
+
+        if self.total_wall_clock_seconds:
+            wall_start = time.time()
+
         results = []
-        processed_ids = set()
+        
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            future_to_task = {
+                executor.submit(self.submit, task, execution_func, config): task 
+                for task in tasks
+            }
 
-        # Load existing results if resuming
-        if resume and self.results_log_path.exists():
-            with open(self.results_log_path, 'r') as f:
-                for line in f:
-                    try:
-                        data = json.loads(line)
-                        if data.get("status") == ExecutionStatus.SUCCESS.value:
-                            processed_ids.add(data.get("instance_id"))
-                    except json.JSONDecodeError:
-                        continue
-            logger.info(f"Resuming from log. Skipping {len(processed_ids)} already processed instances.")
+            for future in as_completed(future_to_task):
+                task = future_to_task[future]
+                try:
+                    result = future.result()
+                    results.append(result)
+                    
+                    if self.total_wall_clock_seconds:
+                        elapsed = time.time() - wall_start
+                        if elapsed > self.total_wall_clock_seconds:
+                            self.logger.critical(
+                                f"Total wall-clock time {elapsed:.2f}s exceeded limit. "
+                                f"Cancelling remaining tasks."
+                            )
+                            executor.shutdown(wait=False)
+                            break
+                except Exception as e:
+                    self.logger.error(f"Unexpected error processing task {task.task_id}: {e}")
+                    results.append(ExecutionResult(
+                        task_id=task.task_id,
+                        status=ExecutionStatus.FAILED,
+                        error_message=f"Unexpected batch error: {str(e)}"
+                    ))
 
-        for idx, instance in enumerate(instances):
-            instance_id = instance.get("instance_id", f"instance_{idx}")
-
-            # Check global budget before starting
-            if not self._check_global_budget():
-                logger.error("Stopping batch execution due to global budget limit.")
-                break
-
-            # Skip if already processed (resume mode)
-            if resume and instance_id in processed_ids:
-                logger.info(f"Skipping already processed instance: {instance_id}")
-                results.append(BatchExecutionResult(
-                    instance_id=instance_id,
-                    status=ExecutionStatus.SKIPPED,
-                    start_time=time.time(),
-                    end_time=time.time(),
-                    duration=0.0
-                ))
-                continue
-
-            logger.info(f"Starting execution for instance {instance_id} ({idx+1}/{len(instances)})")
-            result = self._run_with_timeout(process_func, instance_id, instance)
-            results.append(result)
-
-            # Write result immediately to log for robustness
-            with open(self.results_log_path, 'a') as f:
-                f.write(json.dumps(result.to_dict()) + "\n")
-
-            if result.status == ExecutionStatus.TIMEOUT:
-                # Optional: Break on first timeout or continue?
-                # Based on FR-007, we enforce limits. Usually we continue to next instance
-                # unless the budget is strictly for successful completions.
-                # We continue but log heavily.
-                pass
-
-        elapsed_total = time.time() - self.start_time_global
-        logger.info(f"Batch execution finished. Total time: {elapsed_total:.2f}s. Processed: {len(results)}.")
         return results
+
+    def shutdown(self, wait: bool = True):
+        """Shuts down the executor."""
+        if self.executor:
+            self.executor.shutdown(wait=wait)
+            self.logger.info("BatchExecutor shutdown complete.")
 
 def main():
     """
-    Example entry point for testing the BatchExecutor.
-    In a real scenario, this would be called by run_baseline.py or run_high_fidelity.py.
+    Main entry point for testing the batch executor.
     """
-    # Mock data for demonstration
-    mock_instances = [
-        {"instance_id": "test_1", "data": "sample_1"},
-        {"instance_id": "test_2", "data": "sample_2"},
-        {"instance_id": "test_3", "data": "sample_3"},
+    logging.basicConfig(level=logging.INFO)
+    
+    # Create a mock execution function
+    def mock_run(task: TaskInstance, config: ContextConfiguration) -> ExecutionResult:
+        time.sleep(1)
+        return ExecutionResult(
+            task_id=task.task_id,
+            status=ExecutionStatus.COMPLETED,
+            output=f"Processed {task.task_id}"
+        )
+
+    executor = BatchExecutor(max_workers=2, instance_timeout_seconds=5)
+    
+    tasks = [
+        TaskInstance(task_id=f"test_{i}", problem_statement=f"Problem {i}")
+        for i in range(3)
     ]
 
-    def mock_process(instance):
-        """Simulates processing an instance."""
-        # Simulate work
-        time.sleep(0.5)
-        return {"processed": True, "input": instance}
-
-    # Create executor with short timeout for testing
-    executor = BatchExecutor(instance_timeout_seconds=5)
-
-    # Execute
-    results = executor.execute_batch(mock_instances, mock_process)
-
-    # Print summary
-    success_count = sum(1 for r in results if r.status == ExecutionStatus.SUCCESS)
-    timeout_count = sum(1 for r in results if r.status == ExecutionStatus.TIMEOUT)
-    error_count = sum(1 for r in results if r.status == ExecutionStatus.ERROR)
-
-    print(f"Execution Summary:")
-    print(f"  Total: {len(results)}")
-    print(f"  Success: {success_count}")
-    print(f"  Timeout: {timeout_count}")
-    print(f"  Error: {error_count}")
-
-    return results
+    logger.info("Starting batch execution...")
+    results = executor.submit_batch(tasks, mock_run)
+    
+    for r in results:
+        logger.info(f"Task {r.task_id}: {r.status} ({r.duration_seconds:.2f}s)")
+        
+    executor.shutdown()
 
 if __name__ == "__main__":
     main()

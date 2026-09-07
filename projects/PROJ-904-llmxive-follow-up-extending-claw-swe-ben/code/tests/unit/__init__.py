@@ -1,4 +1,1 @@
-"""
-Unit tests package.
-"""
-pass
+"""Unit tests."""

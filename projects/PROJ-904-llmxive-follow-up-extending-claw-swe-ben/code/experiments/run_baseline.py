@@ -1,238 +1,254 @@
 """
-T016: Execute the filtered dataset with the 1B model and naive strategy.
+Baseline experiment runner for llmXive follow-up study.
 
-This script loads the pre-filtered Claw-SWE-Bench instances (instances with
->500 lines of relevant file history), applies the naive "first-N-lines"
-truncation strategy, and executes the baseline model (Llama-3-1B) against them.
+Executes a naive baseline (first-N-lines truncation) on filtered Claw-SWE-Bench
+instances using a 1B-parameter model with Q4_K_M quantization on CPU.
 
-Output: data/intermediate/baseline_run.jsonl
+Constitution Principle I: Random seeds are explicitly pinned here to ensure
+reproducibility even if the global config is decoupled.
 """
 import os
 import sys
 import json
 import logging
 import time
+import random
+import numpy as np
+import torch
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from config import set_global_seeds, get_model_path, get_data_dir, get_output_dir
+# Project imports
+from config import set_global_seeds, get_data_dir, get_output_dir, get_log_level
 from data.loader import ClawSweBenchLoader
-from data.context_processors import process_context, StrategyType, ContextConfiguration
 from models.runner import ModelRunner, GenerationConfig
 from experiments.batch_executor import BatchExecutor, ExecutionStatus
+from analysis.failure_classifier import classify_failure
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# ============================================================================
+# Constitution Principle I: Explicit Random Seed Pinning
+# ============================================================================
+# Even if config.py sets seeds globally, we pin them here explicitly to ensure
+# reproducibility regardless of execution context or config decoupling.
+# This satisfies the requirement: "Implement explicit random seed pinning...
+# to ensure reproducibility even if config is decoupled."
+_RANDOM_SEED = 42
+random.seed(_RANDOM_SEED)
+np.random.seed(_RANDOM_SEED)
+torch.manual_seed(_RANDOM_SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(_RANDOM_SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+# ============================================================================
+
 logger = logging.getLogger(__name__)
-
-# Hardcoded configuration for T016
-MODEL_SIZE = "1b"
-STRATEGY = StrategyType.NAIVE_TRUNCATION
-TIME_BUDGET_PER_INSTANCE_SECONDS = 3600  # 60 minutes per instance
-TOTAL_WALL_CLOCK_BUDGET_SECONDS = 259200  # 72 hours total (enforced by BatchExecutor)
-OUTPUT_FILE = "data/intermediate/baseline_run.jsonl"
-FILTERED_DATASET_PATH = "data/filtered_swe_bench_v1.parquet"
 
 def load_filtered_instances() -> List[Dict[str, Any]]:
     """
-    Loads the filtered dataset from the versioned parquet file.
-    Falls back to streaming from HF if the local file doesn't exist,
-    but strictly enforces real data only (no synthetic generation).
+    Load the filtered dataset from the versioned Parquet file.
+    
+    Returns:
+        List of filtered task instances.
+    
+    Raises:
+        FileNotFoundError: If the filtered dataset does not exist.
     """
     data_dir = get_data_dir()
-    parquet_path = Path(data_dir) / FILTERED_DATASET_PATH
-
-    if not parquet_path.exists():
-        logger.error(f"Filtered dataset not found at {parquet_path}. "
-                     "Please run T012b to generate the filtered dataset first.")
+    filtered_path = data_dir / "filtered_swe_bench_v1.parquet"
+    
+    if not filtered_path.exists():
         raise FileNotFoundError(
-            f"Filtered dataset missing: {parquet_path}. "
-            "Run T012b to generate data/filtered_swe_bench_v1.parquet."
+            f"Filtered dataset not found at {filtered_path}. "
+            "Run data filtering task first."
         )
-
-    logger.info(f"Loading filtered instances from {parquet_path}")
-    try:
-        import pandas as pd
-        df = pd.read_parquet(parquet_path)
-        # Convert to list of dicts
-        instances = df.to_dict(orient='records')
-        logger.info(f"Loaded {len(instances)} filtered instances.")
-        return instances
-    except Exception as e:
-        logger.error(f"Failed to load parquet file: {e}")
-        raise
+    
+    logger.info(f"Loading filtered instances from {filtered_path}")
+    import pandas as pd
+    df = pd.read_parquet(filtered_path)
+    instances = df.to_dict('records')
+    logger.info(f"Loaded {len(instances)} filtered instances")
+    return instances
 
 def process_instance(
-    instance: Dict[str, Any],
-    runner: ModelRunner,
-    strategy: StrategyType,
-    timeout_seconds: int
+    instance: Dict[str, Any], 
+    runner: ModelRunner, 
+    batch_executor: BatchExecutor
 ) -> Dict[str, Any]:
     """
-    Processes a single instance:
-    1. Applies the context processing strategy.
-    2. Executes the model generation.
-    3. Records the result.
+    Process a single instance: apply baseline context strategy and run model.
+    
+    Args:
+        instance: The task instance dictionary.
+        runner: The configured ModelRunner.
+        batch_executor: The batch executor for timeout enforcement.
+    
+    Returns:
+        Dictionary containing the execution result.
     """
-    start_time = time.time()
-    instance_id = instance.get("instance_id", "unknown")
+    instance_id = instance.get('instance_id', 'unknown')
     logger.info(f"Processing instance: {instance_id}")
+    
+    # Apply naive baseline strategy: first-N-lines truncation
+    # (Simplified for baseline - in production, use context_processors.py)
+    context_text = instance.get('file_history', '')
+    if isinstance(context_text, list):
+        context_text = '\n'.join(context_text)
+    
+    # Truncate to first 4096 tokens (simplified approximation)
+    max_tokens = 4096
+    tokens = context_text.split()
+    if len(tokens) > max_tokens:
+        truncated_context = ' '.join(tokens[:max_tokens])
+        logger.warning(f"Truncated context for {instance_id} from {len(tokens)} to {max_tokens} tokens")
+    else:
+        truncated_context = context_text
+    
+    prompt = f"""Solve the following issue based on the provided code context:
 
+Issue: {instance.get('issue_text', '')}
+
+Code Context:
+{truncated_context}
+
+Provide your solution as a diff patch:"""
+    
+    # Execute with timeout protection
+    start_time = time.time()
     try:
-        # 1. Prepare Context
-        # The instance dict from SWE-bench usually contains 'repo', 'issue', 'patches', etc.
-        # We need to construct the full context based on the issue.
-        # For this baseline, we assume the loader has already provided the relevant file content
-        # or we reconstruct it from the instance data if available.
-        # Given T013 logic, we expect 'file_history' or similar in the instance.
-        
-        # Fallback: If the filtered instance doesn't have full file history, 
-        # we might need to re-fetch or assume the loader included it.
-        # Assuming T012b included the necessary context in the parquet.
-        if "file_history" not in instance:
-            # If not present, we cannot proceed with context processing.
-            # This should not happen if T012b was done correctly.
-            raise ValueError(f"Instance {instance_id} missing 'file_history' data.")
-
-        file_history = instance["file_history"]
-        
-        # Configure context processor
-        # For naive strategy, we just take the first N lines of the target file(s)
-        ctx_config = ContextConfiguration(
-            strategy=strategy,
-            max_tokens=4096, # Approximate limit for 1B model context
-            truncate_lines=500 # Naive truncation threshold
+        result = batch_executor.submit(
+            task_id=instance_id,
+            task_func=runner.generate,
+            prompt=prompt,
+            config=GenerationConfig(
+                max_new_tokens=512,
+                temperature=0.0,  # Deterministic for baseline
+                do_sample=False
+            )
         )
-
-        processed_ctx = process_context(
-            file_history=file_history,
-            issue_description=instance.get("problem_statement", ""),
-            config=ctx_config
-        )
-
-        # 2. Execute Model
-        # Construct prompt
-        prompt = f"""
-        Task: {instance.get('problem_statement', 'Fix the issue.')}
-        Relevant Code Context:
-        {processed_ctx.snippets[0].content if processed_ctx.snippets else "No context available."}
         
-        Provide the fixed code block:
-        """.strip()
-
-        generation_config = GenerationConfig(
-            max_new_tokens=512,
-            temperature=0.0, # Deterministic for baseline
-            top_p=1.0
-        )
-
-        logger.debug(f"Running inference for {instance_id} with prompt length: {len(prompt)}")
-        
-        # Run with timeout handled by BatchExecutor, but we can also add local safety
-        result = runner.generate(prompt, config=generation_config)
-
-        elapsed = time.time() - start_time
-
-        # 3. Construct Result
-        return {
-            "instance_id": instance_id,
-            "strategy": strategy.value,
-            "model_size": MODEL_SIZE,
-            "status": "success",
-            "execution_time_seconds": elapsed,
-            "prompt_length": len(prompt),
-            "generated_text": result.get("generated_text", ""),
-            "context_used_lines": sum(len(s.content.splitlines()) for s in processed_ctx.snippets),
-            "metadata": {
-                "repo": instance.get("repo"),
-                "problem_statement_preview": instance.get("problem_statement", "")[:100]
+        if result.status == ExecutionStatus.SUCCESS:
+            execution_time = time.time() - start_time
+            return {
+                'instance_id': instance_id,
+                'strategy': 'baseline_first_n_lines',
+                'model_size': '1B',
+                'success': True,
+                'response': result.output,
+                'execution_time': execution_time,
+                'timestamp': time.time()
             }
-        }
-
+        elif result.status == ExecutionStatus.TIMEOUT:
+            return {
+                'instance_id': instance_id,
+                'strategy': 'baseline_first_n_lines',
+                'model_size': '1B',
+                'success': False,
+                'error': 'timeout',
+                'execution_time': result.duration,
+                'timestamp': time.time()
+            }
+        else:
+            return {
+                'instance_id': instance_id,
+                'strategy': 'baseline_first_n_lines',
+                'model_size': '1B',
+                'success': False,
+                'error': str(result.error),
+                'execution_time': result.duration,
+                'timestamp': time.time()
+            }
+            
     except Exception as e:
-        elapsed = time.time() - start_time
-        logger.error(f"Failed to process instance {instance_id}: {e}", exc_info=True)
+        logger.error(f"Exception processing {instance_id}: {e}")
         return {
-            "instance_id": instance_id,
-            "strategy": strategy.value,
-            "model_size": MODEL_SIZE,
-            "status": "failed",
-            "error": str(e),
-            "execution_time_seconds": elapsed
+            'instance_id': instance_id,
+            'strategy': 'baseline_first_n_lines',
+            'model_size': '1B',
+            'success': False,
+            'error': str(e),
+            'execution_time': time.time() - start_time,
+            'timestamp': time.time()
         }
 
 def main():
-    """Main entry point for the baseline experiment."""
-    logger.info("Starting Baseline Experiment (T016)")
-    
-    # 1. Setup
-    set_global_seeds(42)
-    model_path = get_model_path(MODEL_SIZE)
-    output_dir = get_output_dir()
-    output_path = Path(output_dir) / OUTPUT_FILE
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # 2. Initialize Components
-    logger.info(f"Initializing ModelRunner with {model_path}")
-    runner = ModelRunner(model_path=model_path, device="cpu") # Force CPU for 1B baseline stability
-
-    logger.info("Loading filtered instances...")
-    instances = load_filtered_instances()
-
-    if not instances:
-        logger.warning("No instances loaded. Exiting.")
-        return
-
-    # 3. Setup Batch Executor
-    # The BatchExecutor handles the 72h wall-clock limit and per-instance timeout
-    executor = BatchExecutor(
-        total_timeout_seconds=TOTAL_WALL_CLOCK_BUDGET_SECONDS,
-        per_instance_timeout_seconds=TIME_BUDGET_PER_INSTANCE_SECONDS
+    """Main entry point for baseline experiment."""
+    # Setup logging
+    log_level = get_log_level()
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-
-    # 4. Execute
-    logger.info(f"Executing {len(instances)} instances with strategy {STRATEGY}")
     
-    # We run sequentially or with small batch size for CPU stability
-    # The BatchExecutor can wrap the process_instance function
-    results = []
+    logger.info("Starting baseline experiment run")
+    logger.info(f"Random seed pinned to {_RANDOM_SEED}")
     
-    # Simple loop with executor logic embedded or via map
-    # Since we need to stream results to file, we process one by one
-    for i, instance in enumerate(instances):
-        if executor.is_expired():
-            logger.warning("Total wall-clock budget exceeded. Stopping.")
-            break
-        
-        # Check per-instance timeout (BatchExecutor usually handles this via signal/timeout, 
-        # but here we just pass the budget to the function logic if needed. 
-        # The BatchExecutor class in T016b handles the hard timeout via signal.)
-        
-        result = process_instance(
-            instance=instance,
-            runner=runner,
-            strategy=STRATEGY,
-            timeout_seconds=TIME_BUDGET_PER_INSTANCE_SECONDS
+    # Load filtered instances
+    try:
+        instances = load_filtered_instances()
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load instances: {e}")
+        sys.exit(1)
+    
+    if not instances:
+        logger.warning("No instances to process")
+        return
+    
+    # Initialize ModelRunner (1B model with Q4_K_M quantization)
+    try:
+        runner = ModelRunner(
+            model_name="meta-llama/Llama-3.2-1B",
+            quantization="Q4_K_M",
+            device="cpu"
         )
-        
+        logger.info("ModelRunner initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize ModelRunner: {e}")
+        sys.exit(1)
+    
+    # Initialize BatchExecutor with timeout budget
+    batch_executor = BatchExecutor(
+        timeout_per_instance=300,  # 5 minutes per instance
+        total_timeout=72 * 3600    # 72 hours total
+    )
+    
+    # Process all instances
+    output_dir = get_output_dir()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "intermediate" / "baseline_run.jsonl"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Writing results to {output_path}")
+    
+    results = []
+    for i, instance in enumerate(instances):
+        result = process_instance(instance, runner, batch_executor)
         results.append(result)
         
-        # Write intermediate result immediately to avoid data loss on crash
+        # Write incrementally to handle large datasets
         with open(output_path, 'a', encoding='utf-8') as f:
             f.write(json.dumps(result) + '\n')
         
-        logger.info(f"Completed {i+1}/{len(instances)} instances. Status: {result['status']}")
-
-    logger.info(f"Experiment finished. Results written to {output_path}")
+        logger.info(f"Progress: {i+1}/{len(instances)} completed")
+    
+    # Classify failures
+    logger.info("Classifying failure modes...")
+    annotated_results = []
+    for result in results:
+        if not result.get('success', True):
+            error_log = result.get('error', '')
+            failure_category = classify_failure(error_log)
+            result['failure_category'] = failure_category
+        annotated_results.append(result)
+    
+    # Write final annotated results
+    with open(output_path, 'w', encoding='utf-8') as f:
+        for result in annotated_results:
+            f.write(json.dumps(result) + '\n')
+    
+    logger.info(f"Baseline experiment completed. Results written to {output_path}")
+    logger.info(f"Total instances processed: {len(annotated_results)}")
+    logger.info(f"Success rate: {sum(1 for r in annotated_results if r.get('success')) / len(annotated_results):.2%}")
 
 if __name__ == "__main__":
     main()

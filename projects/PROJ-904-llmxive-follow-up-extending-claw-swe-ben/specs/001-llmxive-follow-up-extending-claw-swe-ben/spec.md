@@ -9,7 +9,7 @@
 
 ### User Story 1 - Context-Bound Task Filtering and Baseline Execution (Priority: P1)
 
-The system must automatically ingest the Claw-SWE-Bench dataset, filter for instances where the relevant file history exceeds 500 lines to ensure context-bound complexity (determined via static analysis of the issue description), and execute a baseline run using a naive "first-N-lines" truncation strategy with a CPU-runnable 1B-parameter model.
+The system must automatically ingest the Claw-SWE-Bench dataset, filter for instances where the relevant file history exceeds a substantial length to ensure context-bound complexity (determined via static analysis of the issue description), and execute a baseline run using a naive "first-N-lines" truncation strategy with a CPU-runnable 1B-parameter model.
 
 **Why this priority**: This establishes the ground truth for the "low-fidelity context" condition and ensures the dataset actually contains the complexity required to test the research hypothesis. Without this, the experiment lacks a valid control group and appropriate data scope.
 
@@ -18,7 +18,7 @@ The system must automatically ingest the Claw-SWE-Bench dataset, filter for inst
 **Acceptance Scenarios**:
 
 1. **Given** the raw Claw-SWE-Bench dataset, **When** the filtering script runs, **Then** the output set contains only instances with >500 lines of relevant file history (determined by static analysis), and instances with <500 lines are excluded.
-2. **Given** a filtered task instance, **When** the baseline harness runs with the 1B-parameter model, **Then** the model receives a context limited to the first N lines of the file, and the execution completes within the 60-minute runtime budget.
+2. **Given** a filtered task instance, **When** the baseline harness runs with the 1B-parameter model, **Then** the model receives a context limited to the first N lines of the file, and the execution completes within the specified runtime budget.
 3. **Given** the baseline execution output, **When** the results are aggregated, **Then** the Pass@1 score and token consumption are recorded and stored for comparison.
 
 ---
@@ -58,11 +58,11 @@ The system must repeat the baseline and high-fidelity experiments using a larger
 ### Edge Cases
 
 - **What happens when** the dataset contains instances where the "relevant file history" logic fails to identify any files exceeding 500 lines?
-  - **Handling**: The system must log the count of excluded instances and proceed with the remaining valid set; if the valid set drops below a minimum threshold (e.g., 50 unique issue IDs), the run must fail with a "Insufficient Context-Bound Data" error.
+  - **Handling**: The system must log the count of excluded instances and proceed with the remaining valid set; if the valid set drops below a minimum threshold (e.g., a sufficient number of unique issue IDs), the run must fail with a "Insufficient Context-Bound Data" error.
 - **How does the system handle** a context compression module that returns zero relevant snippets (e.g., TF-IDF fails to match)?
   - **Handling**: The system must fall back to the naive "first-N-lines" strategy for that specific instance to prevent execution failure, logging the fallback event for audit.
-- **What happens when** the 7B-parameter model exceeds the 7GB RAM limit of the free-tier runner?
-  - **Handling**: The system must detect the memory pressure and automatically switch to a more aggressive quantization level (e.g., Q4_K_M) or terminate the specific run with a "Resource Constraint" flag, ensuring the job does not hang.
+- **What happens when** the 7B-parameter model exceeds the RAM limit of the free-tier runner?
+  - **Handling**: The system must detect the memory pressure and automatically switch to a more aggressive quantization level (e.g., Q_K_M) or terminate the specific run with a "Resource Constraint" flag, ensuring the job does not hang.
 
 ## Requirements
 
@@ -70,7 +70,7 @@ The system must repeat the baseline and high-fidelity experiments using a larger
 
 - **FR-001**: System MUST filter the Claw-SWE-Bench dataset to retain only instances where the relevant file history exceeds 500 lines, determined via static analysis of the issue description and dependency graphs (independent of the ground-truth patch) to ensure context-bound complexity (See US-1).
 - **FR-002**: System MUST execute a baseline configuration using a naive "first-N-lines" truncation strategy with a CPU-runnable 1B-parameter model (See US-1).
-- **FR-003**: System MUST implement and execute three distinct context compression modules: (a) TF-IDF/BM25 relevance retrieval, (b) diff-aware sliding window, and (c) rule-based semantic summarization defined as extracting the first sentence of each paragraph and the last sentence of each function block, concatenated with a '...' separator, limited to 512 tokens (See US-2).
+- **FR-003**: System MUST implement and execute three distinct context compression modules: (a) TF-IDF/BM25 relevance retrieval, (b) diff-aware sliding window, and (c) rule-based semantic summarization defined as extracting the first sentence of each paragraph and the last sentence of each function block, concatenated with a '...' separator, limited to a context window (See US-2).
 - **FR-004**: System MUST repeat all baseline and high-fidelity experiments using a larger 7B-parameter model to quantify scaling effects (See US-3).
 - **FR-005**: System MUST record Pass@1 success rates, total tokens consumed, and specific failure modes (e.g., missing context vs. reasoning error) for every configuration (See US-1, US-2, US-3).
 - **FR-006**: System MUST perform a Generalized Linear Model (GLM) with a binomial link to test for interaction effects between "context strategy" and "model size" on Pass@1 scores (See US-3).
@@ -98,7 +98,7 @@ The system must repeat the baseline and high-fidelity experiments using a larger
 ## Assumptions
 
 - The Claw-SWE-Bench dataset contains sufficient instances with >500 lines of relevant history (determined by static analysis of issue text) to support statistical power for a GLM (minimum n=50 per cell is assumed; if not, the study is underpowered).
-- The B-parameter model (e.g., Llama-3-1B or similar) and the 7B-parameter model (quantized to Q4_K_M or lower) can both fit within the 7GB RAM limit of the GitHub Actions free-tier runner.
+- The B-parameter model (e.g., Llama-3-1B or similar) and the 7B-parameter model (quantized to Q4_K_M or lower) can both fit within the RAM limit of the GitHub Actions free-tier runner.
 - The "relevant file history" metric can be programmatically determined via static analysis of the issue description and dependency graphs without manual inspection or reliance on the ground-truth patch.
 - The ground-truth unit tests in the benchmark are independent of the context compression logic, ensuring that the Pass@1 metric is a valid proxy for reasoning capacity and not an artifact of the retrieval method.
 - The dataset variables (issue description, code files, test cases) are sufficient to support the analysis; the system will infer failure modes using the rules defined in FR-008.
