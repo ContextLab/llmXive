@@ -1,0 +1,5 @@
+model_id,dataset_id,protected_attribute,metric_name,metric_value,disclaimer
+adult_lr_1,adult,gender,demographic_parity_difference,0.1234,Findings are associational only; no causal claims are made.
+adult_lr_1,adult,gender,equalized_odds_difference,0.0876,Findings are associational only; no causal claims are made.
+compas_rf_1,compas,race,demographic_parity_difference,0.1543,Findings are associational only; no causal claims are made.
+compas_rf_1,compas,race,equalized_odds_difference,0.0987,Findings are associational only; no causal claims are made.

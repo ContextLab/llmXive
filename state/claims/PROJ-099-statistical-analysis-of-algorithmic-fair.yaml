@@ -178,3 +178,196 @@
   source_type: external
   status: verified
   updated_at: '2026-09-04T04:23:06Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: sample to 100000 rows per dataset
+  claim_id: c_a89ef570
+  context: "Goal: Download multiple public datasets containing binary protected attributes\
+    \ and outcomes, preprocess to extract fairness\u2011relevant features, ensure\
+    \ all required variables present, sample to \u2264100k rows"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sample to \u2264100k rows per dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:48:44Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: size constraints 100000 rows and 500 MB
+  claim_id: c_d38c81fb
+  context: "Independent Test: Can be fully tested by verifying that all target datasets\
+    \ are downloaded, contain required columns, and are within size constraints (\u2264\
+    100k rows, <500 MB each), delivering a validated dataset repository"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Size constraints are \u2264100k rows and <500 MB each."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:48:44Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: train logistic regression random forest and gradient boosting models
+  claim_id: c_b392ffc2
+  context: "Perform stratified train/test split (random_state=42). Train Logistic\
+    \ Regression, Random Forest, and Gradient Boosting models (CPU\u2011only) using\
+    \ scikit-learn."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_logistic_regression_random_forest_and_gradient_boostin
+  kind: entity_fact
+  raw_text: Train Logistic Regression, Random Forest, and Gradient Boosting models.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:49:51Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: apply stratified balancing when class imbalance ratio exceeds 10 to 1
+  claim_id: c_ebbb3b18
+  context: "In `04_fairness_metrics.py`, compute the six required metrics for each\
+    \ model, applying stratified balancing when class\u2011imbalance ratio > 10:1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply stratified balancing when class\u2011imbalance ratio > 10:1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:50:37Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: compute all pairwise pearson and spearman correlations among six fairness
+    metrics
+  claim_id: c_e2e3a95b
+  context: Implement `05_correlation_analysis.py` to compute **ALL** pairwise Pearson
+    and Spearman correlations among the six fairness metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_all_pairwise_pearson_and_spearman_correlations_among
+  kind: entity_fact
+  raw_text: Compute ALL pairwise Pearson and Spearman correlations among the six fairness
+    metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:51:07Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: exclude demographic parity difference versus disparate impact ratio pair
+  claim_id: c_1733d362
+  context: EXCLUDE the DP-difference vs DI-ratio pair due to theoretical circularity
+    as per the plan.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_demographic_parity_difference_versus_disparate_impac
+  kind: entity_fact
+  raw_text: Exclude the DP-difference vs DI-ratio pair due to theoretical circularity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:51:33Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: apply benjamini hochberg FDR correction alpha 0.05
+  claim_id: c_4116dc1a
+  context: "Apply Benjamini\u2011Hochberg FDR correction (\u03B1 = 0.05) to all correlation\
+    \ tests; store q\u2011values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Benjamini\u2011Hochberg FDR correction with \u03B1 = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:51:58Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: exclude predictors with VIF greater than 5
+  claim_id: c_6242c071
+  context: Apply VIF diagnostics; exclude predictors with VIF > 5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_predictors_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: Exclude predictors with VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:52:41Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: document n 15 observation limitation
+  claim_id: c_0044d505
+  context: Document n=15 observation limitation. Reference T006c for the architectural
+    decision documentation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Document n=15 observation limitation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:54:06Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: detectable effect size given n 15 alpha 0.05
+  claim_id: c_82b432dd
+  context: "Draft a Power\u2011Analysis section in `research.md` documenting detectable\
+    \ effect size given n = 15, \u03B1 = 0.05, referencing Wikipedia: Power (statistics)\
+    \ (https://en.wikipedia.org/wiki/Power_(statistics)), and include the calculation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Detectable effect size given n = 15, \u03B1 = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:54:49Z'
+- artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
+  attempts: 1
+  canonical: whitelist dataset download domains archive ics uci edu raw githubusercontent
+    com datasets load_dataset
+  claim_id: c_f9064768
+  context: "Whitelist dataset download domains (`archive.ics.uci.edu`, `raw.githubusercontent.com`,\
+    \ `datasets.load_dataset`) and add HTTP\u2011200 status checks before download."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Whitelist_dataset_download_domains_archive_ics_uci_edu_raw_g
+  kind: entity_fact
+  raw_text: 'Whitelist dataset download domains: archive.ics.uci.edu, raw.githubusercontent.com,
+    datasets.load_dataset.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T11:55:52Z'

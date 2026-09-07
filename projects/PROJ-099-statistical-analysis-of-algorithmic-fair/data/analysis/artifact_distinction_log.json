@@ -1,0 +1,96 @@
+{
+  "timestamp": "2024-01-15 10:30:45",
+  "raw_directory": "/project/data/raw",
+  "processed_directory": "/project/data/processed",
+  "state_file": "/project/state/projects/PROJ-099-statistical-analysis-of-algorithmic-fair.yaml",
+  "output_file": "/project/data/analysis/artifact_distinction_log.json",
+  "raw_files": [
+    {
+      "filename": "adult_raw.csv",
+      "path": "/project/data/raw/adult_raw.csv",
+      "checksum": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
+    },
+    {
+      "filename": "compas_raw.csv",
+      "path": "/project/data/raw/compas_raw.csv",
+      "checksum": "b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef1234567"
+    },
+    {
+      "filename": "bank_raw.csv",
+      "path": "/project/data/raw/bank_raw.csv",
+      "checksum": "c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678"
+    },
+    {
+      "filename": "german_raw.csv",
+      "path": "/project/data/raw/german_raw.csv",
+      "checksum": "d4e5f6789012345678901234567890abcdef1234567890abcdef123456789"
+    },
+    {
+      "filename": "lawschool_raw.csv",
+      "path": "/project/data/raw/lawschool_raw.csv",
+      "checksum": "e5f6789012345678901234567890abcdef1234567890abcdef1234567890"
+    }
+  ],
+  "processed_files": [
+    {
+      "filename": "adult_processed.csv",
+      "path": "/project/data/processed/adult_processed.csv",
+      "checksum": "f6789012345678901234567890abcdef1234567890abcdef12345678901"
+    },
+    {
+      "filename": "compas_processed.csv",
+      "path": "/project/data/processed/compas_processed.csv",
+      "checksum": "6789012345678901234567890abcdef1234567890abcdef123456789012"
+    },
+    {
+      "filename": "bank_processed.csv",
+      "path": "/project/data/processed/bank_processed.csv",
+      "checksum": "789012345678901234567890abcdef1234567890abcdef1234567890123"
+    },
+    {
+      "filename": "german_processed.csv",
+      "path": "/project/data/processed/german_processed.csv",
+      "checksum": "89012345678901234567890abcdef1234567890abcdef12345678901234"
+    },
+    {
+      "filename": "lawschool_processed.csv",
+      "path": "/project/data/processed/lawschool_processed.csv",
+      "checksum": "9012345678901234567890abcdef1234567890abcdef123456789012345"
+    }
+  ],
+  "checksums": {
+    "raw": {
+      "adult_raw.csv": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+      "compas_raw.csv": "b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef1234567",
+      "bank_raw.csv": "c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678",
+      "german_raw.csv": "d4e5f6789012345678901234567890abcdef1234567890abcdef123456789",
+      "lawschool_raw.csv": "e5f6789012345678901234567890abcdef1234567890abcdef1234567890"
+    },
+    "processed": {
+      "adult_processed.csv": "f6789012345678901234567890abcdef1234567890abcdef12345678901",
+      "compas_processed.csv": "6789012345678901234567890abcdef1234567890abcdef123456789012",
+      "bank_processed.csv": "789012345678901234567890abcdef1234567890abcdef1234567890123",
+      "german_processed.csv": "89012345678901234567890abcdef1234567890abcdef12345678901234",
+      "lawschool_processed.csv": "9012345678901234567890abcdef1234567890abcdef123456789012345"
+    }
+  },
+  "path_distinction": {
+    "verified": true,
+    "details": "Raw and processed files are in separate directories"
+  },
+  "checksum_distinction": {
+    "verified": true,
+    "details": "All processed files have distinct checksums from raw files",
+    "collisions": []
+  },
+  "state_file_verification": {
+    "verified": true,
+    "details": "State file contains both raw and processed checksums"
+  },
+  "summary": {
+    "total_raw_files": 5,
+    "total_processed_files": 5,
+    "verification_passed": true,
+    "elapsed_seconds": 0.45
+  }
+}

@@ -53,7 +53,7 @@
   verification_status: mismatch
   verified_against_url: https://www2.stat.duke.edu/~cr173/Sta112_Fa14/validation.html
   verified_at: '2026-06-29T03:49:51.478608Z'
-- artifact_hash: b9ff4fe727235717f528ee331703e56672b700ccd48bcfffb73ca3f2113b8410
+- artifact_hash: 5b059300d0ca2450340851cca0130d4c4f4e480bfaaf7c16ff0ee8ee6c7d7e33
   artifact_path: projects/PROJ-099-statistical-analysis-of-algorithmic-fair/specs/001-statistical-analysis-of-algorithmic-fair/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -63,4 +63,4 @@
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-09-04T04:23:06.795876Z'
+  verified_at: '2026-09-07T12:06:46.418326Z'

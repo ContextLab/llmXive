@@ -1,175 +1,121 @@
-"""
-Logging utilities for the statistical analysis of algorithmic fairness pipeline.
-
-This module provides functions for managing exclusion logs and other project logging
-requirements. All logging follows the FR-008 disclaimer requirement where applicable.
-
-Exclusion Log Format (logs/exclusion.log):
-CSV with columns: timestamp, dataset_id, missing_variable_name, reason
-
-This logging infrastructure supports traceability as required by FR-004.
-"""
 import csv
 import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 import logging
+import sys
 
-# Constants
-EXCLUSION_LOG_PATH = Path("logs/exclusion.log")
-CSV_HEADER = ["timestamp", "dataset_id", "missing_variable_name", "reason"]
+# FR-008 Disclaimer Constant
+FR008_DISCLAIMER = "Findings are associational only; no causal claims are made."
 
-# FR-008 Disclaimer
-FR008_DISCLAIMER = (
-    "Findings are associational only; no causal claims are made."
-)
-
-def init_exclusion_log() -> None:
+def init_exclusion_log(log_path: str = "logs/exclusion.log") -> None:
     """
-    Initialize the exclusion log file with CSV header.
-    
-    Creates the logs directory if it doesn't exist and writes the CSV header
-    to the exclusion log file. This function is idempotent - calling it multiple
-    times will not duplicate the header.
-    
-    Returns:
-        None
-    
-    Side Effects:
-        Creates logs/exclusion.log if it doesn't exist with CSV header.
+    Initialize the exclusion log file with a CSV header if it does not exist.
+    Header: timestamp,dataset_id,missing_variable_name,reason
     """
-    # Ensure logs directory exists
-    EXCLUSION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    log_dir = Path(log_path).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
     
-    # Only write header if file doesn't exist
-    if not EXCLUSION_LOG_PATH.exists():
-        with open(EXCLUSION_LOG_PATH, 'w', newline='') as f:
+    if not os.path.exists(log_path):
+        with open(log_path, 'w', newline='') as f:
             writer = csv.writer(f)
-            writer.writerow(CSV_HEADER)
-    
-    # Configure logging for the exclusion log
-    logging.basicConfig(
-        filename=str(EXCLUSION_LOG_PATH),
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+            writer.writerow(['timestamp', 'dataset_id', 'missing_variable_name', 'reason'])
 
-def log_exclusion(
-    dataset_id: str,
-    missing_variable_name: str,
-    reason: str
-) -> None:
+def log_exclusion(dataset_id: str, missing_variable_name: str, reason: str, log_path: str = "logs/exclusion.log") -> None:
     """
-    Log an exclusion entry to the exclusion log file.
-    
-    Records when a dataset is excluded from analysis due to missing required
-    variables. This supports traceability requirements (FR-004) and enables
-    reproducibility of the analysis pipeline.
-    
-    Args:
-        dataset_id: Unique identifier for the dataset being excluded.
-        missing_variable_name: Name of the missing variable that caused exclusion.
-        reason: Detailed explanation of why the variable is missing or why
-               the dataset is being excluded.
-    
-    Returns:
-        None
-    
-    Side Effects:
-        Appends a row to logs/exclusion.log with timestamp and exclusion details.
-    
-    Note:
-        All exclusion logs are associational in nature per FR-008:
-        {FR008_DISCLAIMER}
+    Log an exclusion event to the CSV log file.
     """
-    # Ensure log file is initialized
-    init_exclusion_log()
-    
-    # Generate timestamp
     timestamp = datetime.now().isoformat()
-    
-    # Append to CSV
-    with open(EXCLUSION_LOG_PATH, 'a', newline='') as f:
+    with open(log_path, 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow([timestamp, dataset_id, missing_variable_name, reason])
 
-def log_warning(
-    message: str,
-    dataset_id: Optional[str] = None,
-    variable_name: Optional[str] = None
-) -> None:
+def log_warning(message: str, log_path: str = "logs/warning.log") -> None:
     """
-    Log a warning message to the exclusion log.
-    
-    Provides a flexible logging interface for warnings that may not result
-    in dataset exclusion but should be recorded for audit purposes.
-    
-    Args:
-        message: Warning message to log.
-        dataset_id: Optional dataset identifier for context.
-        variable_name: Optional variable name for context.
-    
-    Returns:
-        None
-    
-    Side Effects:
-        Appends a warning entry to logs/exclusion.log.
+    Log a warning message to a separate warning log file.
+    Includes FR-008 disclaimer if applicable.
     """
-    init_exclusion_log()
+    log_dir = Path(log_path).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
     
     timestamp = datetime.now().isoformat()
-    dataset_id = dataset_id or "N/A"
-    variable_name = variable_name or "N/A"
+    full_message = f"[{timestamp}] {message}"
     
-    with open(EXCLUSION_LOG_PATH, 'a', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([timestamp, dataset_id, variable_name, f"WARNING: {message}"])
+    with open(log_path, 'a') as f:
+        f.write(full_message + "\n")
+    
+    # Also print to stderr for visibility
+    print(full_message, file=sys.stderr)
 
-def read_exclusion_log() -> list:
+def log_disclaimer(message: str = None) -> None:
     """
-    Read all entries from the exclusion log file.
-    
-    Returns:
-        List of dictionaries, where each dictionary represents a row in the
-        exclusion log with keys matching the CSV header columns.
-    
-    Raises:
-        FileNotFoundError: If the exclusion log file doesn't exist.
+    Log the FR-008 disclaimer. If a specific message is provided, it is logged
+    alongside the disclaimer. This function ensures the disclaimer appears in
+    console output and logs.
     """
-    if not EXCLUSION_LOG_PATH.exists():
+    disclaimer_line = f"DISCLAIMER: {FR008_DISCLAIMER}"
+    
+    if message:
+        full_line = f"{message} {disclaimer_line}"
+    else:
+        full_line = disclaimer_line
+    
+    # Print to stdout
+    print(full_line)
+    
+    # Log to a dedicated disclaimer log if it exists or create it
+    log_path = "logs/disclaimer.log"
+    log_dir = Path(log_path).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    timestamp = datetime.now().isoformat()
+    with open(log_path, 'a') as f:
+        f.write(f"[{timestamp}] {full_line}\n")
+
+def read_exclusion_log(log_path: str = "logs/exclusion.log") -> list:
+    """
+    Read the exclusion log and return a list of dictionaries.
+    """
+    if not os.path.exists(log_path):
         return []
     
-    entries = []
-    with open(EXCLUSION_LOG_PATH, 'r', newline='') as f:
+    rows = []
+    with open(log_path, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            entries.append(row)
-    
-    return entries
+            rows.append(row)
+    return rows
 
-def get_exclusion_count() -> int:
+def get_exclusion_count(log_path: str = "logs/exclusion.log") -> int:
     """
-    Get the total number of exclusion entries in the log.
-    
-    Returns:
-        Integer count of exclusion entries (excluding header row).
+    Get the total number of exclusions logged.
     """
-    return len(read_exclusion_log())
+    return len(read_exclusion_log(log_path))
 
-def clear_exclusion_log() -> None:
+def clear_exclusion_log(log_path: str = "logs/exclusion.log") -> None:
     """
-    Clear all entries from the exclusion log (keeps header).
-    
-    Useful for testing or resetting the log between pipeline runs.
-    
-    Returns:
-        None
-    
-    Side Effects:
-        Truncates logs/exclusion.log to contain only the CSV header.
+    Clear the exclusion log (truncate file).
     """
-    with open(EXCLUSION_LOG_PATH, 'w', newline='') as f:
+    with open(log_path, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(CSV_HEADER)
+        writer.writerow(['timestamp', 'dataset_id', 'missing_variable_name', 'reason'])
+
+def setup_logging_for_pipeline() -> logging.Logger:
+    """
+    Configure a logger for the pipeline that includes the FR-008 disclaimer
+    in its format or initialization messages.
+    """
+    logger = logging.getLogger('fairness_pipeline')
+    logger.setLevel(logging.INFO)
+    
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        
+        # Log disclaimer on setup
+        logger.info(FR008_DISCLAIMER)
+        
+    return logger

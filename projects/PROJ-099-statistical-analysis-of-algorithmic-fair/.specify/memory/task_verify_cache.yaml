@@ -1,14 +1,62 @@
-T019b:
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No script, test, or configuration file was presented that computes and compares
-    checksums of the files in `data/raw/` before and after preprocessing, nor any
-    mechanism that aborts the pipeline on mismatch. Consequently the required verification
-    artifact is missing.
-T025:
+  r: No `01_data_acquisition.py` script, no `state/projects/...yaml` file, and no
+    evidence of dataset download, checksum verification, or use of `random_state=42`
+    is present. The required artifacts are missing, so the task is not satisfied.
+T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `03_model_training.py` file or its contents were provided; without the script\
-    \ we cannot verify that model training, baseline model creation, or any of the\
-    \ required functionality (training 3\u20115 models per dataset, saving predictions,\
-    \ etc.) has been implemented. The task therefore remains unfinished."
+  r: No `02_preprocessing.py` script or any related dataset download/preprocessing
+    artifacts were provided; without the actual code and outputs, the required functionality
+    cannot be verified. The implementer must supply the script and evidence that it
+    downloads, validates, samples, and logs datasets as specified.
+T017a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No YAML file in `state/projects/\u2026` containing SHA\u2011256 checksums of\
+    \ the processed datasets was provided; thus the required artifact is missing.\
+    \ The implementer must create and populate that file with distinct checksum entries\
+    \ for the processed data."
+T017b:
+  c: false
+  h: 4d1d5a421adbd7b2fdd10aa8e469a2f4ad85c9bda1f4e0840d22a0c67c5f55ad
+  r: "The required `scripts/verify_artifact_distinction.py` file does not exist, so\
+    \ the task\u2019s core artifact was never created. Although `data/analysis/artifact_distinction_log.json`\
+    \ is present, the missing script means the verification step cannot be run as\
+    \ specified. The next implementer must add the script that performs the distinct\u2011\
+    artifact check and writes the JSON log."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact was provided that demonstrates the FR\u2011008 disclaimer has been\
+    \ inserted into console output, log files, or any generated Markdown/research\
+    \ paper drafts. Without code changes, sample logs, or example reports showing\
+    \ the required disclaimer, the task cannot be considered fulfilled."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `04_fairness_metrics.py` file was provided, nor any code showing\
+    \ the six fairness metrics being computed or the conditional stratified\u2011\
+    balancing logic for class\u2011imbalance ratios >\u202F10:1. The required artifact\
+    \ is missing, so the task is not satisfied."
+T027:
+  c: false
+  h: b66e0e9d34badd1bb1fff423d12c1785b5ec2693ecce5b57484706db7462e888
+  r: "The required `data/analysis/metrics.csv` file does not exist, so no metrics\
+    \ with the specified columns and traceability fields are stored. The task\u2019\
+    s core output is missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `utils/metrics.py` file with docstrings containing LaTeX formulas\
+    \ and citations to Appendix\u202FA was presented; the required documentation artifact\
+    \ is missing."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., updated report templates, console output logs, Markdown files,\
+    \ or draft documents) was provided that demonstrates the FR\u2011008 disclaimer\
+    \ has been inserted into metric report headers, console messages, and generated\
+    \ Markdown/research paper drafts. Without such evidence, the requirement cannot\
+    \ be verified as met."
