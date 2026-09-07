@@ -1,11 +1,12 @@
 status: none
-intent: "download clean chaotic Lorenz and R\xF6ssler attractor trajectories dataset\
-  \ python package dataset"
+intent: "download Lorenz and R\xF6ssler attractor trajectories dataset python package\
+  \ dataset"
 required_fields:
+- system
 - time
 - x
 - y
 - z
-cache_key: fe462f6cdc5a0349101d792ac62d2498d30e7eedae5272363e4c3e6caf0879a1
-searched_at: '2026-08-24T15:32:37.933335+00:00'
+cache_key: aeae3e09e3b283255abdca1e4dcb8323d0384bbb0ba49918f9a003e0acf3b0e0
+searched_at: '2026-09-07T18:25:45.317860+00:00'
 retry_count: 1

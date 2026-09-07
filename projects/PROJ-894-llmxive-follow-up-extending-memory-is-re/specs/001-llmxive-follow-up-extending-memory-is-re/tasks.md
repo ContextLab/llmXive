@@ -84,7 +84,7 @@ description: "Task list template for feature implementation"
 - [X] T017 [P] **Implement Lazy Traversal**: Implement the "Lazy" traversal heuristic in `code/strategies/lazy.py`.
 - [X] T018 [P] **Implement Greedy Traversal**: Implement the "Greedy" traversal heuristic in `code/strategies/greedy.py`.
 - [ ] T019a [P] **Lazy Execution Runner**: Implement execution runner for Lazy strategy using `code/run_lazy.py`, logging results to `data/processed/lazy_results.csv`. **Dependency**: T017, T012a, T070.
-- [ ] T019b [P] **Greedy Execution Runner**: Implement execution runner for Greedy strategy using `code/run_greedy.py`, logging results to `data/processed/greedy_results.csv`. **Dependency**: T018, T012a, T070.
+- [ ] T019b [P] **Greedy Execution Runner**: Implement execution runner for Greedy strategy using `code/run_greedy.py`, logging results to `data/processed/greedy_results.csv`. **Dependency**: T018, T012a, T070. <!-- FAILED: unspecified -->
 - [ ] T011c [P] **Generate Noisy Graph Dataset**: Create `code/scripts/generate_noisy_graphs.py` to implement function `generate_noisy_graphs()` which reads clean graphs, applies `inject_noise` (T083), and outputs `data/processed/graphs/graph_noise_42.json`. **Dependency**: T083, T011a-1b-serialize. <!-- FAILED: unspecified -->
 
 ---
@@ -94,12 +94,12 @@ description: "Task list template for feature implementation"
 **Goal**: Perform statistical hypothesis testing and threshold analysis.
 
 - [ ] T024a [P] **Statistical Analysis (Clean)**: Implement `code/stats.py::run_ttest_clean()` which performs paired t-test/Wilcoxon on accuracy distributions of heuristics vs baseline (clean data) and outputs `data/processed/stats_clean.json`. **Dependency**: T013, T019a, T019b. <!-- FAILED: unspecified -->
-- [~] T024b [P] **Statistical Analysis (Noisy)**: Implement `code/stats.py::run_ttest_noisy()` which performs paired t-test/Wilcoxon on accuracy distributions of heuristics vs baseline (noisy data) and outputs `data/processed/stats_noisy.json`. **Dependency**: T013b, T019a, T019b.
+- [ ] T024b [P] **Statistical Analysis (Noisy)**: Implement `code/stats.py::run_ttest_noisy()` which performs paired t-test/Wilcoxon on accuracy distributions of heuristics vs baseline (noisy data) and outputs `data/processed/stats_noisy.json`. **Dependency**: T013b, T019a, T019b.
 - [X] T025 [P] **Point-Biserial Correlation**: Implement `code/stats.py::calc_point_biserial()` to calculate the Point-Biserial correlation coefficient between `nodes_visited` and reasoning success rate across all tasks. **Dependency**: T013, T019a, T019b.
-- [ ] T094 [P] **Implement Robust Binning Algorithm**: Implement `code/stats.py::bin_tasks_by_nodes(tasks_df, min_bin_size=3)` which sorts tasks by `nodes_visited`, creates bins ensuring `n >= 3` tasks per bin, and returns the list of bins. **Dependency**: T024a, T024b.
-- [ ] T027 [P] **Threshold & Inflection Analysis**: Implement `code/stats.py::find_inflection_point()` which calls `bin_tasks_by_nodes` (T094), checks the p-value from T024a/T024b. **Constraint**: If p-value >= 0.05, report "No inflection point detected" and suppress the value. If p < 0.05, identify the first bin with mean accuracy < 95% of baseline. **Dependency**: T024a, T024b, T094.
-- [ ] T095 [P] **Implement Power Analysis**: Add a function in `code/stats.py` to perform a post-hoc power analysis on the accuracy distributions. **Dependency**: T024a, T024b.
-- [ ] T096 [P] **Validate Statistical Test Selection Logic**: Implement logic in `code/stats.py` to automatically check for normality (Shapiro-Wilk) and select between paired t-test and Wilcoxon signed-rank test accordingly. **Dependency**: T024a.
+- [X] T094 [P] **Implement Robust Binning Algorithm**: Implement `code/stats.py::bin_tasks_by_nodes(tasks_df, min_bin_size=3)` which sorts tasks by `nodes_visited`, creates bins ensuring `n >= 3` tasks per bin, and returns the list of bins. **Dependency**: T024a, T024b.
+- [X] T027 [P] **Threshold & Inflection Analysis**: Implement `code/stats.py::find_inflection_point()` which calls `bin_tasks_by_nodes` (T094), checks the p-value from T024a/T024b. **Constraint**: If p-value >= 0.05, report "No inflection point detected" and suppress the value. If p < 0.05, identify the first bin with mean accuracy < 95% of baseline. **Dependency**: T024a, T024b, T094.
+- [X] T095 [P] **Implement Power Analysis**: Add a function in `code/stats.py` to perform a post-hoc power analysis on the accuracy distributions. **Dependency**: T024a, T024b.
+- [X] T096 [P] **Validate Statistical Test Selection Logic**: Implement logic in `code/stats.py` to automatically check for normality (Shapiro-Wilk) and select between paired t-test and Wilcoxon signed-rank test accordingly. **Dependency**: T024a.
 - [ ] T097 [P] **Generate Statistical Report**: Create `code/scripts/generate_stats_report.py` to aggregate all statistical outputs into a single JSON report. **Dependency**: T094, T095, T096, T027.
 
 ---
