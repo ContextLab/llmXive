@@ -1,0 +1,446 @@
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO-tiny inference latency less than or equal to 150ms per frame on
+    CPU
+  claim_id: c_043fcf58
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU. No raw pixel data in output."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/YOLO-tiny_inference_latency_less_than_or_equal_to_150ms_per
+  kind: magnitude
+  raw_text: "Processing time \u2264 150ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:26:47Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Full dataset transformation completion within 4 hours
+  claim_id: c_e9d58380
+  context: Unit test for YOLO-tiny inference latency (must be < 150ms) and 4-hour
+    full dataset completion in projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_performance.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4-hour full dataset completion
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:27:05Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Model fine-tuning convergence with at least 15% loss decrease within
+    4 hours on CPU
+  claim_id: c_f5c0b42b
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch). Model accepts symbolic JSON input\
+    \ without crashing."
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 15.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Model_fine-tuning_convergence_with_at_least_15%25_loss_decreas
+  kind: magnitude
+  raw_text: "Fine-tuning converges (loss decrease \u226515%) within 4 hours on CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-07T15:27:34Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuning convergence requires a loss decrease of at least 15% within
+    4 hours on CPU
+  claim_id: c_05c331c1
+  context: 'Phase 4: User Story 2 - Model Re-distillation on Symbolic States (Priority:
+    P2) Goal: Fine-tune a compact LLM (Phi-3-mini) on the Symbolic-Guava dataset to
+    reason over symbolic states.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fine-tuning_convergence_requires_a_loss_decrease_of_at_least
+  kind: magnitude
+  raw_text: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:29:21Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Symbolic pipeline processing time less than or equal to 150ms per frame
+    on CPU
+  claim_id: c_624df750
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Symbolic_pipeline_processing_time_less_than_or_equal_to_150m
+  kind: magnitude
+  raw_text: "Processing time \u2264 150ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:31:27Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO-tiny inference full dataset completion within 4 hours
+  claim_id: c_18338c04
+  context: Unit test for YOLO-tiny inference latency (must be < 150ms) and 4-hour
+    full dataset completion in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_performance.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4-hour full dataset completion in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_performance.py`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:34:17Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: LLM fine-tuning loss decrease greater than or equal to 15 percent within
+    4 hours on CPU
+  claim_id: c_c2a20b91
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch). Model accepts symbolic JSON input\
+    \ without crashing."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LLM_fine-tuning_loss_decrease_greater_than_or_equal_to_15_pe
+  kind: magnitude
+  raw_text: "Fine-tuning converges (loss decrease \u226515%) within 4 hours on CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:34:20Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Training monitoring target loss decrease of 15 percent in 4 hours
+  claim_id: c_ecbd9fdc
+  context: "Implement training monitoring to track loss decrease (target: \u226515%\
+    \ in 4h), logging to `data/artifacts/training_metrics.json` with keys: epoch,\
+    \ loss, timestamp"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "target: \u226515% in 4h"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:34:20Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: GPU escape hatch triggered if CPU training time exceeds 4 hours
+  claim_id: c_8154e523
+  context: 'Implement GPU escape hatch logic: if CPU training time > 4h, trigger script
+    `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/trigger_gpu_run.sh`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if CPU training time > 4h, trigger script `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/trigger_gpu_run.sh`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:34:20Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Latency-induced failures defined as greater than 150ms
+  claim_id: c_f7537041
+  context: Implement logic to flag 'latency-induced failures' (>150ms) in `TaskOutcome`
+    records
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency-induced_failures_defined_as_greater_than_150ms
+  kind: magnitude
+  raw_text: flag 'latency-induced failures' (>150ms)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:34:54Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO-tiny inference latency is less than or equal to 150ms per frame
+    on CPU
+  claim_id: c_6b320f73
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU. No raw pixel data in output."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/YOLO-tiny_inference_latency_is_less_than_or_equal_to_150ms_p
+  kind: magnitude
+  raw_text: "Processing time \u2264 150ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:43:44Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Phi-3-mini fine-tuning achieves at least 15% loss decrease within 4 hours
+    on CPU
+  claim_id: c_12e33d8e
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch). Model accepts symbolic JSON input\
+    \ without crashing."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Phi-3-mini_fine-tuning_achieves_at_least_15%25_loss_decrease_w
+  kind: magnitude
+  raw_text: "Fine-tuning converges (loss decrease \u226515%) within 4 hours on CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:43:46Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation Test uses 10000 iterations
+  claim_id: c_3714212c
+  context: 'Statistical Robustness: T036 uses exactly 10,000 permutations as per FR-005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10,000 permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:44:07Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Ratio of semantic failures to total failures excluding perception and
+    latency failures is at least 40%
+  claim_id: c_0635ebf9
+  context: "Implement logic to calculate the ratio of semantic failures to total failures\
+    \ excluding perception and latency failures, and verify the \u226540% threshold\
+    \ (SC-004), writing result to data/artifacts/sc004_verification.json"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ratio_of_semantic_failures_to_total_failures_excluding_perce
+  kind: magnitude
+  raw_text: "verify the \u226540% threshold"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:44:33Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO-tiny inference latency less than or equal to 150 milliseconds per
+    frame on CPU
+  claim_id: c_44fae47a
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU. No raw pixel data in output."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/YOLO-tiny_inference_latency_less_than_or_equal_to_150_millis
+  kind: magnitude
+  raw_text: "Processing time \u2264 150ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:45:21Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 2
+  canonical: Full dataset transformation completes within 4 hours
+  claim_id: c_88d57be7
+  context: Unit test for YOLO-tiny inference latency (must be < 150ms) and 4-hour
+    full dataset completion in projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_performance.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4-hour full dataset completion
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:45:21Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Model fine-tuning converges with loss decrease greater than or equal
+    to 15 percent within 4 hours on CPU
+  claim_id: c_167dff7d
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch). Model accepts symbolic JSON input\
+    \ without crashing."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_fine-tuning_converges_with_loss_decrease_greater_than
+  kind: magnitude
+  raw_text: "Fine-tuning converges (loss decrease \u226515%) within 4 hours on CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:45:24Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: processing time 150ms per frame on cpu
+  claim_id: c_c476c9de
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Processing_time_150ms_per_frame_on_cpu
+  kind: entity_fact
+  raw_text: "Processing time \u2264 150ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:54:44Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: yolo-tiny inference latency less than 150ms and 4-hour full dataset completion
+  claim_id: c_3aaf9a91
+  context: '- [X] T012 [P] [US1] Unit test for YOLO-tiny inference latency (must be
+    < 150ms) and 4-hour full dataset completion in `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_performance.py`'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Yolo-tiny_inference_latency_less_than_150ms_and_4-hour_full
+  kind: magnitude
+  raw_text: Unit test for YOLO-tiny inference latency (must be < 150ms) and 4-hour
+    full dataset completion
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:55:59Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: fine-tuning convergence loss decrease 15 percent within 4 hours on cpu
+  claim_id: c_be78eb5e
+  context: "**Independent Test**: Fine-tuning converges (loss decrease \u226515%)\
+    \ within 4 hours on CPU (or triggers GPU escape hatch). Model accepts symbolic\
+    \ JSON input without crashing."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fine-tuning converges (loss decrease \u226515%) within 4 hours on CPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:55:59Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: track loss decrease target 15 percent in 4 hours
+  claim_id: c_7f258fbe
+  context: "- [X] T024 [US2] Implement training monitoring to track loss decrease\
+    \ (target: \u226515% in 4h), logging to `data/artifacts/training_metrics.json`\
+    \ with keys: epoch, loss, timestamp"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement training monitoring to track loss decrease (target: \u2265\
+    15% in 4h)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:56:00Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: cpu training time greater than 4 hours trigger gpu escape hatch
+  claim_id: c_b7ed7727
+  context: '- [X] T026 [US2] Implement GPU escape hatch logic: if CPU training time
+    > 4h, trigger script `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/models/trigger_gpu_run.sh`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cpu_training_time_greater_than_4_hours_trigger_gpu_escape_ha
+  kind: magnitude
+  raw_text: if CPU training time > 4h, trigger script
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:56:57Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: categorize failures into geometric semantic perception and latency
+  claim_id: c_99e9627a
+  context: '- [ ] T033 [US3] Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/failure_categorizer.py`
+    to categorize failures (geometric, semantic, perception, latency) using `PerceptionLog`
+    (FR-006, FR-007)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/code/analysis/failure_categorizer.py`
+    to categorize failures (geometric, semantic, perception, latency)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:57:14Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: flag latency-induced failures greater than 150ms
+  claim_id: c_f700c0c2
+  context: '- [ ] T034 [US3] Implement logic to flag ''latency-induced failures''
+    (>150ms) in `TaskOutcome` records'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_latency-induced_failures_greater_than_150ms
+  kind: magnitude
+  raw_text: flag 'latency-induced failures' (>150ms)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:57:15Z'

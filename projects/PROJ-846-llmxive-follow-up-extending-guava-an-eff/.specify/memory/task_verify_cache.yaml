@@ -1,0 +1,72 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml` with Black\
+    \ settings, `ruff.toml` or `.ruff.toml`, or a pre\u2011commit hook) are present\
+    \ in the indicated project directory, nor any evidence that ruff/black have been\
+    \ set up. The required artifact is missing."
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory or `.gitkeep` file was presented in the provided evidence; without
+    seeing the `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/raw/`
+    folder containing a `.gitkeep` file, the requirement is not satisfied.
+T004b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/processed/`
+    or a `.gitkeep` file within it was provided; the claim cannot be verified. The
+    implementer must add the actual folder and placeholder file to satisfy the task.
+T004c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory `projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/data/artifacts/`\
+    \ or a `.gitkeep` file inside it was provided; the claim cannot be verified. The\
+    \ implementer must add the folder and include a non\u2011empty `.gitkeep` file."
+T005:
+  c: false
+  h: 417d6ce9dc50b5ea44b84483201ffc75b4ea478e43adc5901f0cc3330c4c5a19
+  r: "The repository contains `code/utils/state_manager.py`, but the file is truncated\
+    \ and never writes to `state/projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff.yaml`.\
+    \ Moreover, the required YAML state file is absent from the `state/projects` directory.\
+    \ The task\u2019s core requirement\u2014to update that YAML with content hashes\u2014\
+    has not been fulfilled."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, configuration files, or documentation defining\
+    \ a `DatasetUnavailableError` exception or the surrounding error\u2011handling\
+    \ infrastructure. Since the required artifact is missing entirely, the task is\
+    \ not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or dataset files were provided to demonstrate the symbolic\
+    \ perception pipeline, the transformed \u201CSymbolic\u2011Guava\u201D JSON outputs,\
+    \ or any performance measurements (e.g., \u2264150\u202Fms per frame, full\u2011\
+    set runtime \u22644\u202Fh). Consequently the required artifact\u2014an end\u2011\
+    to\u2011end CPU\u2011only transformation pipeline and its validated output\u2014\
+    is missing."
+T013:
+  c: false
+  h: ff01cafd07fc3af53105bf05952fc0b0ef7f394001f55e83294fefaf9c321b0d
+  r: "The repository contains a partially\u2011implemented `download_guava.py` (the\
+    \ file ends abruptly and never writes any files or creates `checksums.json`).\
+    \ Moreover, the required `data/raw/guava/checksums.json` does not exist. The task\u2019\
+    s core outputs\u2014downloading the raw dataset and generating the checksum manifest\u2014\
+    are therefore missing."
+T016:
+  c: false
+  h: 5b1626f898e3613c3bf31fff57d9da169e0e1dc11ba3915e40376711ee8d5ee5
+  r: The `log_perception_ground_truth` function is truncated before it appends the
+    new entry and saves the log, and the required output file `data/artifacts/perception_log.json`
+    does not exist on disk. The implementation does not yet generate the continuous
+    perception log as specified.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a modified `transform_symbolic.py` file or any code implementing
+    handling of empty frames (empty object list or `"scene_empty"` flag) was provided.
+    Without the actual script or a description of the added logic, we cannot confirm
+    the requirement was met. The implementer must supply the updated file (or a diff)
+    showing the new handling logic.

@@ -4,7 +4,7 @@
 
 ## Summary
 
-This feature implements a research pipeline to test the "seeing-to-doing gap" hypothesis: whether replacing high-fidelity visual encoders with lightweight, symbolic perception modules preserves long-horizon task success in embodied manipulation. The approach involves: (1) ingesting Guava visual trajectories, (2) transforming them into a "Symbolic-Guava" dataset using a CPU-only OpenCV + ONNX YOLO-tiny perception module, (3) fine-tuning a 1.5B parameter LLM (Phi-3-mini) on these symbolic states, and (4) evaluating performance against an **Oracle-Symbolic** baseline via a Permutation Test. 
+This feature implements a research pipeline to test the "seeing-to-doing gap" hypothesis: whether replacing high-fidelity visual encoders with lightweight, symbolic perception modules preserves long-horizon task success in embodied manipulation. The approach involves: (1) ingesting Guava visual trajectories, (2) transforming them into a "Symbolic-Guava" dataset using a CPU-only OpenCV + ONNX YOLO-tiny perception module, (3) fine-tuning a large-scale LLM (Phi-3-mini) on these symbolic states, and (4) evaluating performance against an **Oracle-Symbolic** baseline via a Permutation Test. 
 
 **Critical Methodological Shift**: To isolate the "reasoning" capability from "perception" noise, the baseline is **not** the original visual Guava agent. Instead, we compare the Symbolic-Guava LLM against an **Oracle-Symbolic** agent (which uses the same symbolic inputs but has access to ground-truth action sequences or a perfect policy). This ensures that any performance drop is attributed to the LLM's reasoning limitations, not the inherent superiority of visual encoders.
 
@@ -101,7 +101,7 @@ projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **GPU Escape Hatch** | Fine-tuning a 1.5B LLM on CPU may exceed 4h. | A purely CPU run risks timeout; the spec allows a scaled-down GPU run if CPU fails, ensuring feasibility without sacrificing the "seeing-to-doing" hypothesis test. |
+| **GPU Escape Hatch** | Fine-tuning a medium-scale LLM on CPU may exceed 4h. | A purely CPU run risks timeout; the spec allows a scaled-down GPU run if CPU fails, ensuring feasibility without sacrificing the "seeing-to-doing" hypothesis test. |
 | **Permutation Test** | Non-parametric comparison needed for small sample (N=50). | Standard t-tests assume normality which may not hold for binary success rates; Permutation Test is robust and explicitly required by FR-005. |
 | **Oracle-Symbolic Baseline** | Comparing to a visual baseline conflates perception and reasoning. | A visual baseline (Baseline-Guava) would make the test tautological (visual > symbolic by definition). The Oracle-Symbolic baseline isolates the reasoning gap. |
 
@@ -118,7 +118,7 @@ projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/
 
 ### Phase 2: Evaluation & Analysis
 1. **Run Symbolic**: Evaluate LLM on a set of held-out tasks.
-2. **Run Oracle**: Evaluate Oracle-Symbolic (perfect policy) on same 50 tasks.
+2. **Run Oracle**: Evaluate Oracle-Symbolic (perfect policy) on a representative set of tasks.
 3. **Statistical Test**: Permutation Test (iterations) comparing Symbolic vs. Oracle success rates.
 4. **Failure Analysis**: Categorize failures (geometric, semantic, perception, latency).
 

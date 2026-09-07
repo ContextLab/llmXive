@@ -1,0 +1,11 @@
+opencv-python
+onnxruntime
+datasets
+transformers
+torch
+scikit-learn
+pandas
+numpy
+pytest
+pydantic
+pyyaml

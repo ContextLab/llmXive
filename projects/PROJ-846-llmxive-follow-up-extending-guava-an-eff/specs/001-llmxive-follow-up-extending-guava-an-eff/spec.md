@@ -41,7 +41,7 @@ The research team MUST be able to fine-tune a 1.5B parameter open-source LLM (e.
 
 ### User Story 3 - Evaluation & Statistical Comparison (Priority: P3)
 
-The research team MUST be able to execute the Symbolic-Guava agent on a held-out set of 50 long-horizon tasks from the original Guava dataset (held-out split), measure the task success rate and step efficiency, and perform a statistical comparison (Permutation Test) against the Baseline-Guava agent.
+The research team MUST be able to execute the Symbolic-Guava agent on a held-out set of long-horizon tasks from the original Guava dataset (held-out split), measure the task success rate and step efficiency, and perform a statistical comparison (Permutation Test) against the Baseline-Guava agent.
 
 **Why this priority**: This delivers the final answer to the research question: "Does symbolic perception suffice?" It provides the quantitative evidence needed to validate or refute the hypothesis.
 
@@ -96,7 +96,7 @@ The research team MUST be able to execute the Symbolic-Guava agent on a held-out
 ## Assumptions
 
 - The original Guava dataset (<2,000 trajectories) is publicly available and contains sufficient visual data to train a YOLO-tiny model for object detection in the simulated environment.
-- The 1.5B parameter open-source LLM (e.g., Phi-3-mini) can be fine-tuned and run for inference on a standard CPU-only GitHub Actions runner (2 cores, ~7 GB RAM) within the 4-hour limit without requiring GPU acceleration.
+- A lightweight open-source LLM (e.g., Phi-3-mini) can be fine-tuned and run for inference on a standard CPU-only GitHub Actions runner (2 cores, ~7 GB RAM) within the 4-hour limit without requiring GPU acceleration.
 - The simulated environment (e.g., Franka) used for evaluation is compatible with CPU-only execution and provides a deterministic physics engine for measuring task success.
 - The symbolic representation (bounding boxes + color histograms) is sufficient to describe the state of tasks involving geometric primitives (stacking, opening drawers) but may lack the fidelity required for texture-based tasks.
 - The YOLO-tiny model, when quantized and run via ONNX Runtime on CPU, achieves inference speeds sufficient to process the trajectory frames within the 150ms time constraint.

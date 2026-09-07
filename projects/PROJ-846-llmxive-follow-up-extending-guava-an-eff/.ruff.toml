@@ -1,0 +1,4 @@
+# Extend the main pyproject.toml configuration if specific overrides are needed per directory,
+# but for now, we rely on the pyproject.toml. This file exists to ensure ruff
+# can be explicitly pointed to this project root if needed via `ruff check --config .ruff.toml`.
+extend = "pyproject.toml"
