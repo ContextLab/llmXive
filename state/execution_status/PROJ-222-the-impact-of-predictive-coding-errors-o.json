@@ -1,22 +1,21 @@
 {
   "project_id": "PROJ-222-the-impact-of-predictive-coding-errors-o",
   "ok": false,
-  "reason": "3 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/standardized.csv",
+  "reason": "3 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/analysis.py (rc=1); 3 declared deliverable(s) absent: data/processed/exclusion_log.json; data/processed/markov_state.json; data/processed/standardized.csv",
   "artifacts": [
-    "data/processed/exclusion_log.json",
     "figures/forest_plot_surprisal.png",
     "figures/residual_diagnostics.png"
   ],
   "failures": [
-    "python code/download.py -> rc=1\n    port Dataset\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/.venv/lib/python3.11/site-packages/datasets/arrow_dataset.py\", line 67, in <module>\n    from .arrow_writer import ArrowWriter, OptimizedTypedSequence\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/.venv/lib/python3.11/site-packages/datasets/arrow_writer.py\", line 27, in <module>\n    from .features import Features, Image, Value\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-2",
-    "python code/preprocess.py -> rc=1\n    runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/data/processed/exclusion_log.json\n2026-08-31 10:23:33,490 - ERROR - Preprocessing pipeline failed: No datasets were successfully processed.\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/preprocess.py\", line 338, in main\n    run_preprocessing_pipeline(dataset_ids, output_path)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/co",
-    "python code/analysis.py -> rc=1\n    2026-08-31 10:23:35,079 - INFO - Loading data from /home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/data/processed/standardized.csv\n2026-08-31 10:23:35,079 - ERROR - Analysis failed: Preprocessed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/data/processed/standardized.csv\n/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/.venv/lib/python3.11/site-packages/outdated/utils.py:14: OutdatedPackageWarning: Th"
+    "python code/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/download.py\", line 283, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/download.py\", line 275, in main\n    success = run_download_pipeline()\n              ^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/download.py\", line 178, in run_download_pipeline\n    dat",
+    "python code/preprocess.py -> rc=1\n    ERROR:__main__:Preprocessing pipeline failed: unsupported operand type(s) for /: 'str' and 'str'",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/analysis.py\", line 365, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-222-the-impact-of-predictive-coding-errors-o/code/analysis.py\", line 352, in main\n    input_path = str(get_processed_dir() / \"standardized.csv\")\n                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~\nTypeError: unsupported operand type(s) for /: 'str' and 'str'"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-31T10:23:38Z"
+  "updated_at": "2026-09-07T08:37:59Z"
 }

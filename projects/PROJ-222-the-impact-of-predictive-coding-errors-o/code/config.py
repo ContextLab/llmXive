@@ -3,42 +3,45 @@ from pathlib import Path
 import random
 import numpy as np
 
-# Project root
+# Project root directory
 PROJECT_ROOT = Path(__file__).parent.parent
 
-# Directories
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-FIGURES_DIR = PROJECT_ROOT / "figures"
-ANALYSIS_DIR = PROJECT_ROOT / "analysis"
-
-# Configuration
-MAX_TRIALS = 5000
-BOOTSTRAP_N_JOBS = 2
-RANDOM_SEED = 42
-
 def get_config():
-    """Return the configuration dictionary."""
+    """
+    Get the configuration dictionary for the project.
+    """
     return {
-        "data_dir": str(DATA_DIR),
-        "processed_dir": str(PROCESSED_DIR),
-        "figures_dir": str(FIGURES_DIR),
-        "analysis_dir": str(ANALYSIS_DIR),
-        "max_trials": MAX_TRIALS,
-        "bootstrap_n_jobs": BOOTSTRAP_N_JOBS,
-        "random_seed": RANDOM_SEED
+        "random_seed": 42,
+        "max_trials": 5000,
+        "laplace_alpha": 1.0,
+        "bootstrap_n_jobs": 2,
+        "power_target": 0.8,
+        "chunk_size": 10000
     }
 
-def get_data_dir() -> str:
-    """Return the data directory path."""
-    return str(DATA_DIR)
+def get_data_dir() -> Path:
+    """
+    Get the data directory path.
+    """
+    return PROJECT_ROOT / "data"
 
-def get_processed_dir() -> str:
-    """Return the processed directory path."""
-    return str(PROCESSED_DIR)
+def get_processed_dir() -> Path:
+    """
+    Get the processed data directory path.
+    """
+    return get_data_dir() / "processed"
 
-def set_seed(seed: int = RANDOM_SEED):
-    """Set random seeds for reproducibility."""
+def get_figures_dir() -> Path:
+    """
+    Get the figures directory path.
+    """
+    return PROJECT_ROOT / "figures"
+
+def set_seed(seed: int = 42):
+    """
+    Set random seeds for reproducibility.
+    """
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    if hasattr(os, 'environ'):
+        os.environ['PYTHONHASHSEED'] = str(seed)

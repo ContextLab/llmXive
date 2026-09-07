@@ -1,72 +1,136 @@
 """
-T017b: Removed - Logic merged into T016a.
+Task T017b: Markov State Validation
 
-This task was marked for removal in the task list because its functionality
-(computing the transition matrix and saving Markov artifacts) was consolidated
-into T016a (code/preprocess.py -> compute_transition_matrix).
-
-This script exists solely to satisfy the task execution pipeline by importing
-the logic from T016a and ensuring the artifacts are available, or by acting
-as a no-op if the artifacts were already produced by T016a.
-
-Since T016a writes `data/processed/markov_state.json`, this script verifies
-its existence and exits successfully.
+Verifies that `data/processed/markov_state.json` exists, contains `order == 1`,
+and writes a confirmation entry to `analysis/verification_log.json`.
 """
+import json
+import logging
 import sys
 import os
 import json
 import logging
 from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Configure logging
+# Import config utilities from the project's config module
+from config import get_data_dir, get_processed_dir
+
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def main():
+def get_verification_log_path() -> Path:
+    """Return the path to the verification log."""
+    data_dir = get_data_dir()
+    analysis_dir = data_dir.parent / "analysis"
+    analysis_dir.mkdir(parents=True, exist_ok=True)
+    return analysis_dir / "verification_log.json"
+
+def load_verification_log() -> Dict[str, Any]:
+    """Load existing verification log or return an empty dict."""
+    path = get_verification_log_path()
+    if path.exists():
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {}
+
+def save_verification_log(log_data: Dict[str, Any]) -> None:
+    """Save the verification log to disk."""
+    path = get_verification_log_path()
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(log_data, f, indent=2)
+    logger.info(f"Verification log saved to {path}")
+
+def validate_markov_state() -> bool:
     """
-    T017b Implementation: Verify Markov artifacts exist (produced by T016a).
+    Validate the markov_state.json file.
     
-    Since the logic was merged into T016a, this task simply verifies that
-    the output file `data/processed/markov_state.json` exists.
+    Checks:
+    1. File exists at data/processed/markov_state.json
+    2. File contains 'order' key with value 1
+    
+    Returns:
+        bool: True if validation passes, False otherwise.
     """
-    # Define the expected path relative to project root
-    # Assuming the script runs from project root or we use absolute paths from config
-    project_root = Path(__file__).parent.parent
-    markov_artifact_path = project_root / "data" / "processed" / "markov_state.json"
-
-    logger.info(f"Checking for Markov artifacts at: {markov_artifact_path}")
-
-    if not markov_artifact_path.exists():
-        logger.error(f"CRITICAL: Required artifact {markov_artifact_path} not found.")
-        logger.error("T016a (compute_transition_matrix) must be run successfully before T017b.")
-        sys.exit(1)
-
+    processed_dir = get_processed_dir()
+    markov_state_path = processed_dir / "markov_state.json"
+    
+    logger.info(f"Checking for markov_state.json at: {markov_state_path}")
+    
+    if not markov_state_path.exists():
+        logger.error(f"markov_state.json not found at {markov_state_path}")
+        return False
+    
     try:
-        with open(markov_artifact_path, 'r') as f:
+        with open(markov_state_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        
-        # Basic validation that it looks like a Markov state
-        assert 'transition_matrix' in data, "Missing 'transition_matrix' key"
-        assert 'alphabet' in data, "Missing 'alphabet' key"
-        assert 'order' in data, "Missing 'order' key"
-        
-        logger.info(f"Successfully verified Markov artifacts.")
-        logger.info(f"  - Order: {data['order']}")
-        logger.info(f"  - Alphabet size: {len(data['alphabet'])}")
-        logger.info(f"  - Matrix keys count: {len(data['transition_matrix'])}")
-        
-        logger.info("T017b completed successfully (Logic merged into T016a).")
-        sys.exit(0)
-        
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse Markov artifacts: {e}")
+        logger.error(f"Failed to parse markov_state.json: {e}")
+        return False
+    
+    if 'order' not in data:
+        logger.error("markov_state.json does not contain 'order' key")
+        return False
+    
+    if data['order'] != 1:
+        logger.error(f"Expected order=1, found order={data['order']}")
+        return False
+    
+    logger.info("markov_state.json validation passed: order == 1")
+    return True
+
+def run() -> bool:
+    """
+    Execute the T017b validation workflow.
+    
+    Returns:
+        bool: True if validation passed and log updated, False otherwise.
+    """
+    logger.info("Starting T017b: Markov State Validation")
+    
+    is_valid = validate_markov_state()
+    
+    # Load existing log
+    log_data = load_verification_log()
+    
+    # Create or update the entry for T017b
+    log_entry = {
+        "task_id": "T017b",
+        "description": "Markov State Validation",
+        "timestamp": None, # Will be set by caller if needed, or left for external tooling
+        "status": "passed" if is_valid else "failed",
+        "details": {
+            "file_exists": True if (get_processed_dir() / "markov_state.json").exists() else False,
+            "order_value": None,
+            "order_is_one": False
+        }
+    }
+    
+    if is_valid:
+        log_entry["details"]["order_value"] = 1
+        log_entry["details"]["order_is_one"] = True
+        logger.info("Validation successful. Updating verification log.")
+    else:
+        logger.warning("Validation failed. Updating verification log with failure details.")
+    
+    log_data["T017b"] = log_entry
+    save_verification_log(log_data)
+    
+    return is_valid
+
+def main() -> None:
+    """Main entry point for the script."""
+    success = run()
+    if not success:
+        logger.error("T017b validation failed.")
         sys.exit(1)
-    except AssertionError as e:
-        logger.error(f"Invalid Markov artifacts structure: {e}")
-        sys.exit(1)
+    else:
+        logger.info("T017b validation completed successfully.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
