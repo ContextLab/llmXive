@@ -5,245 +5,202 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Set
 from collections import deque
 
-# Import token counter from utils if available, otherwise handle gracefully
-try:
-    from utils.token_counter import count_tokens_cl100k_base
-except ImportError:
-    # Fallback if running as script without package context
-    count_tokens_cl100k_base = None
+from utils.token_counter import count_tokens_cl100k_base
 
 
 class CompressedContextEngine:
-    """
-    Executes workflows using compressed context (BFS/DFS truncation).
-    
-    Handles edge case: compression depth=0 (no context passed).
-    """
-    
-    def __init__(self, workflow_graph: Dict[str, Any], compression_depth: int = 1):
-        """
-        Initialize the engine.
-        
+    """Engine for executing workflows with compressed context using BFS/DFS."""
+
+    def __init__(self, traversal_depth: int = 2):
+        """Initialize the engine with a traversal depth.
+
         Args:
-            workflow_graph: The full workflow DAG.
-            compression_depth: The depth limit for context extraction (BFS/DFS).
-                               If 0, no context is passed.
+            traversal_depth: Maximum depth for BFS/DFS traversal.
         """
-        self.workflow_graph = workflow_graph
-        self.compression_depth = compression_depth
-        self.nodes = workflow_graph.get("nodes", [])
-        self.edges = workflow_graph.get("edges", [])
-        self.root_node = workflow_graph.get("root_node_id")
-        
-        # Pre-compute graph structure for traversal
-        self.adjacency_list = self._build_adjacency_list()
-        self.node_map = {n["id"]: n for n in self.nodes}
-    
-    def _build_adjacency_list(self) -> Dict[str, List[str]]:
-        """Build adjacency list from edges."""
-        adj = {n["id"]: [] for n in self.nodes}
-        for edge in self.edges:
-            src = edge.get("source")
-            tgt = edge.get("target")
-            if src in adj and tgt in adj:
-                adj[src].append(tgt)
-        return adj
-    
-    def extract_compressed_context(self) -> Tuple[Dict[str, Any], int, bool]:
-        """
-        Extract a compressed subgraph based on traversal depth.
-        
+        self.traversal_depth = traversal_depth
+
+    def _traverse_bfs(
+        self, graph: Dict[str, Any], start_node: str, max_depth: int
+    ) -> Set[str]:
+        """Perform BFS traversal up to max_depth.
+
+        Args:
+            graph: Workflow graph.
+            start_node: Starting node ID.
+            max_depth: Maximum traversal depth.
+
         Returns:
-            Tuple of (compressed_graph, token_count, is_valid)
-            
-        Special handling for depth=0:
-            - Returns an empty graph structure
-            - Sets is_valid=False to indicate no context was passed
-            - token_count is 0
+            Set of reachable node IDs.
         """
-        # Handle depth=0 edge case: No context passed
-        if self.compression_depth == 0:
-            empty_graph = {
-                "nodes": [],
-                "edges": [],
-                "root_node_id": self.root_node,
-                "compression_metadata": {
-                    "method": "truncation",
-                    "depth": 0,
-                    "reason": "No context passed (depth=0)",
-                    "original_node_count": len(self.nodes),
-                    "original_edge_count": len(self.edges)
-                }
-            }
-            token_count = 0
-            return empty_graph, token_count, False
-        
-        # Normal case: Perform BFS traversal
-        if not self.root_node or self.root_node not in self.node_map:
-            # Invalid graph, return empty
-            return {
-                "nodes": [],
-                "edges": [],
-                "root_node_id": self.root_node,
-                "compression_metadata": {
-                    "method": "truncation",
-                    "depth": self.compression_depth,
-                    "reason": "Invalid root node"
-                }
-            }, 0, False
-        
-        # BFS to find nodes within depth limit
-        visited_nodes: Set[str] = set()
-        visited_edges: List[Dict[str, Any]] = []
-        queue = deque([(self.root_node, 0)])  # (node_id, current_depth)
-        
+        visited = set()
+        queue = deque([(start_node, 0)])
+
         while queue:
-            current_node, current_depth = queue.popleft()
-            
-            if current_node in visited_nodes:
+            node_id, depth = queue.popleft()
+            if depth > max_depth:
                 continue
-            
-            visited_nodes.add(current_node)
-            
-            if current_depth > self.compression_depth:
+            if node_id in visited:
                 continue
-            
-            # Add edges from this node
-            for neighbor in self.adjacency_list.get(current_node, []):
-                if neighbor in visited_nodes:
-                    continue
-                
-                # Add edge if neighbor is within depth limit
-                if current_depth + 1 <= self.compression_depth:
-                    edge_data = next(
-                        (e for e in self.edges if e["source"] == current_node and e["target"] == neighbor),
-                        None
-                    )
-                    if edge_data:
-                        visited_edges.append(edge_data)
-                        queue.append((neighbor, current_depth + 1))
-        
-        # Build compressed graph
-        compressed_nodes = [self.node_map[nid] for nid in visited_nodes if nid in self.node_map]
-        
-        compressed_graph = {
-            "nodes": compressed_nodes,
-            "edges": visited_edges,
-            "root_node_id": self.root_node,
-            "compression_metadata": {
-                "method": "bfs_truncation",
-                "depth": self.compression_depth,
-                "original_node_count": len(self.nodes),
-                "original_edge_count": len(self.edges),
-                "compressed_node_count": len(compressed_nodes),
-                "compressed_edge_count": len(visited_edges),
-                "truncation_ratio": len(compressed_nodes) / len(self.nodes) if self.nodes else 0
-            }
-        }
-        
-        # Calculate token count
-        if count_tokens_cl100k_base:
-            # Convert graph to string representation for token counting
-            graph_str = json.dumps(compressed_graph)
-            token_count = count_tokens_cl100k_base(graph_str)
-        else:
-            # Fallback: estimate by character count (crude approximation)
-            graph_str = json.dumps(compressed_graph)
-            token_count = len(graph_str) // 4  # Rough estimate
-        
-        return compressed_graph, token_count, True
-    
-    def execute(self, policy_engine) -> Dict[str, Any]:
-        """
-        Execute the workflow with compressed context against a policy engine.
-        
+
+            visited.add(node_id)
+            node = graph.get("nodes", {}).get(node_id, {})
+            edges = node.get("edges", [])
+
+            for edge in edges:
+                neighbor = edge.get("target")
+                if neighbor and neighbor not in visited:
+                    queue.append((neighbor, depth + 1))
+
+        return visited
+
+    def _traverse_dfs(
+        self, graph: Dict[str, Any], start_node: str, max_depth: int
+    ) -> Set[str]:
+        """Perform DFS traversal up to max_depth.
+
         Args:
-            policy_engine: An engine that validates policy compliance.
-        
+            graph: Workflow graph.
+            start_node: Starting node ID.
+            max_depth: Maximum traversal depth.
+
+        Returns:
+            Set of reachable node IDs.
+        """
+        visited = set()
+        stack = [(start_node, 0)]
+
+        while stack:
+            node_id, depth = stack.pop()
+            if depth > max_depth:
+                continue
+            if node_id in visited:
+                continue
+
+            visited.add(node_id)
+            node = graph.get("nodes", {}).get(node_id, {})
+            edges = node.get("edges", [])
+
+            for edge in reversed(edges):
+                neighbor = edge.get("target")
+                if neighbor and neighbor not in visited:
+                    stack.append((neighbor, depth + 1))
+
+        return visited
+
+    def execute(
+        self, workflow: Dict[str, Any], traversal_method: str = "bfs"
+    ) -> Dict[str, Any]:
+        """Execute a workflow with compressed context.
+
+        Args:
+            workflow: The workflow to execute.
+            traversal_method: 'bfs' or 'dfs'.
+
         Returns:
             Execution log dictionary.
         """
-        compressed_graph, token_count, is_valid_context = self.extract_compressed_context()
-        
-        execution_log = {
-            "workflow_id": self.workflow_graph.get("id", "unknown"),
-            "compression_depth": self.compression_depth,
-            "original_node_count": len(self.nodes),
-            "compressed_node_count": len(compressed_graph.get("nodes", [])),
-            "token_count": token_count,
-            "is_valid_context": is_valid_context,
-            "status": "error" if not is_valid_context else "completed",
-            "violations": [],
-            "execution_steps": [],
-            "metadata": {
-                "compression_method": "bfs_truncation",
-                "timestamp": "auto_generated"
+        nodes = workflow.get("nodes", {})
+        edges = workflow.get("edges", [])
+        metadata = workflow.get("metadata", {})
+
+        # Handle edge cases
+        if len(nodes) <= 1 or metadata.get("depth", 0) == 0:
+            return {
+                "workflow_id": workflow.get("id", "unknown"),
+                "compression_depth": self.traversal_depth,
+                "token_count": 0,
+                "context_reduction_pct": "[deferred]",
+                "is_valid": True,
+                "status": "edge_case",
+                "policy_violations": [],
+                "violation_details": [],
             }
-        }
-        
-        # If depth=0, return early with error status
-        if not is_valid_context:
-            execution_log["error_message"] = "No context passed (compression depth=0). Cannot execute workflow."
-            execution_log["violations"].append({
-                "type": "context_missing",
-                "message": "Compression depth=0 resulted in no policy context. Execution aborted.",
-                "severity": "critical"
-            })
-            return execution_log
-        
-        # Execute with compressed context
-        if policy_engine:
-            result = policy_engine.validate(compressed_graph)
-            execution_log["violations"] = result.get("violations", [])
-            execution_log["execution_steps"] = result.get("steps", [])
-            execution_log["status"] = "completed" if not result.get("violations") else "completed_with_violations"
-        
-        return execution_log
 
+        # Determine start node (usually the first or root)
+        start_node = list(nodes.keys())[0]
 
-def main():
-    """
-    Main entry point for testing the CompressedContextEngine.
-    """
-    # Example usage
-    sample_workflow = {
-        "id": "test-workflow-001",
-        "root_node_id": "node_1",
-        "nodes": [
-            {"id": "node_1", "type": "start", "policy": "allow"},
-            {"id": "node_2", "type": "process", "policy": "restricted"},
-            {"id": "node_3", "type": "end", "policy": "allow"}
-        ],
-        "edges": [
-            {"source": "node_1", "target": "node_2"},
-            {"source": "node_2", "target": "node_3"}
+        # Perform traversal
+        if traversal_method == "bfs":
+            reachable_nodes = self._traverse_bfs(workflow, start_node, self.traversal_depth)
+        else:
+            reachable_nodes = self._traverse_dfs(workflow, start_node, self.traversal_depth)
+
+        # Identify truncated nodes
+        all_nodes = set(nodes.keys())
+        truncated_nodes = all_nodes - reachable_nodes
+
+        # Build subgraph
+        subgraph_nodes = {k: v for k, v in nodes.items() if k in reachable_nodes}
+        subgraph_edges = [
+            e for e in edges if e.get("source") in reachable_nodes
         ]
-    }
-    
-    print("Testing CompressedContextEngine with depth=0...")
-    engine = CompressedContextEngine(sample_workflow, compression_depth=0)
-    graph, tokens, valid = engine.extract_compressed_context()
-    
-    print(f"  Compressed graph nodes: {len(graph['nodes'])}")
-    print(f"  Token count: {tokens}")
-    print(f"  Is valid context: {valid}")
-    print(f"  Status: {'error' if not valid else 'ok'}")
-    
-    if not valid:
-        print("  ✓ Correctly handled depth=0 case: No context passed")
-    
-    print("\nTesting CompressedContextEngine with depth=1...")
-    engine_depth1 = CompressedContextEngine(sample_workflow, compression_depth=1)
-    graph1, tokens1, valid1 = engine_depth1.extract_compressed_context()
-    
-    print(f"  Compressed graph nodes: {len(graph1['nodes'])}")
-    print(f"  Token count: {tokens1}")
-    print(f"  Is valid context: {valid1}")
-    
-    if valid1:
-        print("  ✓ Normal depth=1 case works correctly")
-    
-    print("\nAll tests passed.")
+
+        # Calculate token count
+        subgraph_json = json.dumps({"nodes": subgraph_nodes, "edges": subgraph_edges})
+        token_count = count_tokens_cl100k_base(subgraph_json)
+
+        # Calculate context reduction percentage
+        total_tokens = count_tokens_cl100k_base(json.dumps(workflow))
+        if total_tokens > 0:
+            reduction_pct = round((1 - token_count / total_tokens) * 100, 2)
+        else:
+            reduction_pct = 0.0
+
+        # Check for policy violations due to truncation
+        violations = []
+        violation_details = []
+
+        for node_id in truncated_nodes:
+            node = nodes.get(node_id, {})
+            rules = node.get("constraints", [])
+            for rule in rules:
+                rule_id = rule.get("id", "unknown")
+                violations.append(f"Policy violation: {rule_id}")
+                violation_details.append({
+                    "node_id": node_id,
+                    "rule_id": rule_id,
+                    "reason": f"Node truncated at depth {self.traversal_depth}"
+                })
+
+        is_valid = len(violations) == 0
+
+        return {
+            "workflow_id": workflow.get("id", "unknown"),
+            "compression_depth": self.traversal_depth,
+            "token_count": token_count,
+            "context_reduction_pct": reduction_pct,
+            "is_valid": is_valid,
+            "status": "normal" if not is_valid else "valid",
+            "policy_violations": violations,
+            "violation_details": violation_details,
+            "depth": metadata.get("depth", 0),
+            "complexity": metadata.get("complexity", 0),
+        }
+
+
+def main() -> None:
+    """Main entry point for compressed context engine."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Compressed Context Engine")
+    parser.add_argument("--workflow", type=str, required=True, help="Workflow JSON file")
+    parser.add_argument("--depth", type=int, default=2, help="Traversal depth")
+    parser.add_argument("--method", type=str, default="bfs", choices=["bfs", "dfs"])
+    parser.add_argument("--output", type=str, required=True, help="Output log file")
+
+    args = parser.parse_args()
+
+    with open(args.workflow, "r") as f:
+        workflow = json.load(f)
+
+    engine = CompressedContextEngine(traversal_depth=args.depth)
+    log = engine.execute(workflow, traversal_method=args.method)
+
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    with open(args.output, "w") as f:
+        json.dump(log, f, indent=2)
+
+    print(f"Execution log saved to {args.output}")
 
 
 if __name__ == "__main__":

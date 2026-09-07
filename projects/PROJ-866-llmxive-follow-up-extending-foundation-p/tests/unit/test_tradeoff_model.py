@@ -1,36 +1,50 @@
 import pytest
 import numpy as np
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
 from analysis.tradeoff_model import logistic_function, fit_tradeoff_curve
 
+
 def test_logistic_function():
-    """
-    T027: Unit test for regression calculation with known synthetic data.
-    Verifies the logistic function behaves as expected.
-    """
-    # Test with known parameters
-    x = np.array([0, 1, 2, 3, 4, 5])
-    params = np.array([1.0, -0.5, 2.0])  # amplitude, slope, offset
-    
-    result = logistic_function(x, params)
-    
-    # Check that result is within expected bounds
-    assert np.all(result >= 0), "Logistic function output should be non-negative"
-    assert np.all(result <= params[0]), "Logistic function output should not exceed amplitude"
+    """Test the logistic function with known parameters."""
+    x = np.array([0, 10, 20, 30, 40, 50])
+    L, k, x0 = 1.0, 0.1, 25.0
+
+    result = logistic_function(x, L, k, x0)
+
+    # Check bounds
+    assert all(0 <= r <= 1 for r in result)
+
+    # Check midpoint
+    mid_idx = np.argmin(np.abs(x - x0))
+    assert abs(result[mid_idx] - 0.5) < 0.1
+
+    print("Logistic function test passed.")
+
 
 def test_fit_tradeoff_curve():
-    """
-    Test that the curve fitting function runs without error on synthetic data.
-    """
-    # Generate synthetic data with known pattern
-    np.random.seed(42)
-    x = np.linspace(0, 10, 50)
-    y = 1 / (1 + np.exp(-(x - 5))) + np.random.normal(0, 0.1, 50)
-    
-    initial_params = [1.0, -0.5, 2.0]
-    
-    # This should not raise an exception
-    try:
-        fitted_params, _ = fit_tradeoff_curve(x, y, initial_params)
-        assert len(fitted_params) == 3, "Fitted parameters should have 3 elements"
-    except Exception as e:
-        pytest.fail(f"fit_tradeoff_curve failed with: {e}")
+    """Test curve fitting with synthetic data."""
+    # Create synthetic logs
+    logs = []
+    for pct in [10, 20, 30, 40, 50]:
+        for _ in range(5):
+            logs.append({
+                "context_reduction_pct": pct,
+                "policy_violations": [f"violation_{i}" for i in range(np.random.randint(0, 2))],
+                "depth": 5,
+            })
+
+    reduction_pcts, error_rates, fitted = fit_tradeoff_curve(logs)
+
+    assert len(reduction_pcts) == len(error_rates)
+    assert len(error_rates) == len(fitted)
+
+    print("Curve fitting test passed.")
+
+
+if __name__ == "__main__":
+    test_logistic_function()
+    test_fit_tradeoff_curve()

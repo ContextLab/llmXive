@@ -1,35 +1,49 @@
 import pytest
 import json
-from pathlib import Path
 import yaml
+import sys
+import os
 
-@pytest.fixture
-def workflow_schema():
-    schema_path = Path(__file__).parent.parent.parent / "contracts" / "workflow.schema.yaml"
-    if not schema_path.exists():
-        pytest.skip("Workflow schema not found")
-    with open(schema_path, 'r') as f:
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+
+def load_schema(schema_path: str) -> dict:
+    """Load a JSON schema from a YAML file."""
+    with open(schema_path, "r") as f:
         return yaml.safe_load(f)
 
-def test_workflow_json_structure(workflow_schema):
-    """
-    T011: Contract test for workflow JSON output.
-    Validates that generated workflows conform to the schema structure.
-    """
-    # Load a sample workflow if available, or generate one
-    workflows_dir = Path(__file__).parent.parent.parent / "data" / "raw"
-    if workflows_dir.exists():
-        workflow_files = list(workflows_dir.glob("workflow_*.json"))
-        if workflow_files:
-            with open(workflow_files[0], 'r') as f:
-                workflow = json.load(f)
-            # Basic structural checks based on common schema expectations
-            assert "id" in workflow, "Workflow must have an 'id'"
-            assert "nodes" in workflow, "Workflow must have 'nodes'"
-            assert "edges" in workflow, "Workflow must have 'edges'"
-            assert "depth" in workflow, "Workflow must have 'depth'"
-            assert isinstance(workflow["nodes"], list), "Nodes must be a list"
-            assert isinstance(workflow["edges"], list), "Edges must be a list"
-            return
-    
-    pytest.skip("No workflow files found to validate against schema")
+
+def validate_workflow(workflow: dict, schema: dict) -> bool:
+    """Basic validation of workflow against schema."""
+    # Check required fields
+    for field in schema.get("required", []):
+        if field not in workflow:
+            return False
+
+    # Check nodes structure
+    if "nodes" in workflow:
+        for node in workflow["nodes"]:
+            for req in schema["properties"]["nodes"]["items"].get("required", []):
+                if req not in node:
+                    return False
+
+    return True
+
+
+def test_workflow_schema():
+    """Test that generated workflows conform to the schema."""
+    schema = load_schema("contracts/workflow.schema.yaml")
+
+    # Generate a test workflow
+    from generators.synthetic_workflow import SyntheticWorkflowGenerator
+    generator = SyntheticWorkflowGenerator(seed=42)
+    workflows = generator.generate_workflows(10)
+
+    for w in workflows:
+        assert validate_workflow(w, schema), f"Workflow {w['id']} does not conform to schema"
+
+    print("All workflow schema tests passed.")
+
+
+if __name__ == "__main__":
+    test_workflow_schema()

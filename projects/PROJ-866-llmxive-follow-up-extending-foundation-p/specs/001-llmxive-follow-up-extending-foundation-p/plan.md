@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project implements a deterministic simulation to quantify the trade-off between context compression (via graph-traversal limits) and policy-violation error rates in multi-agent workflows. The system generates 500 synthetic workflows with varying depths and complexities, executes them under "Full Context" and "Compressed Context" (BFS/DFS truncated) regimes, and performs **logistic regression on individual workflow observations** (using actual token reduction % as the predictor) to identify the "safe operating zone" where efficiency gains do not exceed a 1% error threshold. The entire pipeline runs on CPU-only infrastructure, simulating token usage via `tiktoken` and validating against an independent Oracle Policy Engine.
+This project implements a deterministic simulation to quantify the trade-off between context compression (via graph-traversal limits) and policy-violation error rates in multi-agent workflows. The system generates a set of synthetic workflows with varying depths and complexities., executes them under "Full Context" and "Compressed Context" (BFS/DFS truncated) regimes, and performs **logistic regression on individual workflow observations** (using actual token reduction % as the predictor) to identify the "safe operating zone" where efficiency gains do not exceed a 1% error threshold. The entire pipeline runs on CPU-only infrastructure, simulating token usage via `tiktoken` and validating against an independent Oracle Policy Engine.
 
 ## Technical Context
 
@@ -16,7 +16,7 @@ This project implements a deterministic simulation to quantify the trade-off bet
 **Project Type**: Computational research simulation / CLI tool.  
 **Performance Goals**: Complete 500 workflow generations + executions + analysis in < 6 hours on free-tier runner.  
 **Constraints**: No GPU; no large model inference; memory usage < 7GB; deterministic reproducibility.  
-**Scale/Scope**: 500 synthetic workflows; 5 compression levels; 1 Oracle Engine.
+**Scale/Scope**: A substantial set of synthetic workflows; compression levels; Oracle Engine.
 
 > Empirical specifics (exact token counts, error rates) are deferred to `research.md` and implementation.
 
@@ -86,7 +86,7 @@ projects/PROJ-866-llmxive-follow-up-extending-foundation-p/
 - **Goal**: Validate dataset strategy (synthetic generation logic) and statistical methods.
 - **Tasks**:
   - Confirm `networkx` can generate a sufficient number of unique DAGs with depth -20 and 1-10 constraints.
-  - Verify `tiktoken` `cl100k_base` tokenization speed and memory footprint on CPU.
+  - Verify `tiktoken` `clk_base` tokenization speed and memory footprint on CPU.
   - Select regression model (Logistic Regression on individual observations) for error rate vs. reduction %.
   - Define multiple-comparison correction method (Bonferroni) for secondary robustness checks.
 - **Output**: `research.md`.
@@ -143,7 +143,7 @@ projects/PROJ-866-llmxive-follow-up-extending-foundation-p/
 - **Dataset Fit**: No external dataset used; synthetic data generation logic is validated in Phase 0 to ensure it contains all required variables (depth, complexity, constraints).
 - **Statistical Rigor**:
   - **Multiple Comparisons**: Bonferroni correction applied as a secondary robustness check for pairwise depth comparisons.
-  - **Power**: 500 individual observations used for regression (not 5 aggregated points) to ensure sufficient power.
+  - **Power**: A substantial number of individual observations will be used for regression. (not 5 aggregated points) to ensure sufficient power.
   - **Causal/Associational**: Clarified that 'compression depth' is randomized, but 'token reduction %' is observational (confounded by graph topology). The model includes 'graph depth' and 'complexity' as covariates to control for confounding.
   - **Collinearity**: Depth and complexity generated independently; included as covariates.
 - **Oracle Independence**: The Oracle is a distinct rule-based validator. The 'Full Context' engine is a simulator that approximates the Oracle. Errors are measured as deviations from the Oracle, ensuring the baseline is non-trivial and not tautological.

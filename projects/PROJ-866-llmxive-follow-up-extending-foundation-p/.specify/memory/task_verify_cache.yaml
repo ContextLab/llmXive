@@ -1,11 +1,18 @@
-T009:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the three required directories (`data/raw/`, `data/processed/`,\
-    \ `data/results/`) actually exist in the repository; the response contains only\
-    \ the task description and no file\u2011system listing or screenshots confirming\
-    \ their creation. The implementer must add the directories (or show proof they\
-    \ are present) to satisfy the task."
+  r: No evidence of the required directory hierarchy (`code/`, `data/`, `data/raw/`,
+    `data/processed/`, `data/results/`, `tests/`, `state/`, `state/projects/`, `contracts/`)
+    was provided; the implementer did not supply any artifact confirming these folders
+    exist. The task remains unfinished until the specified directories are created
+    and shown.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `.gitkeep` files in any `data/` subdirectories was provided; the
+    claim lacks the required artifact confirming that the directories are being tracked
+    by git. The implementer must add a `.gitkeep` (or equivalent placeholder) to each
+    `data/` subdirectory and show the file listings as proof.
 T010:
   c: false
   h: 38464c114ffeabd89bb900edcdce88ebb719d2b174dca0f2052bbf03bebdeee2
@@ -18,53 +25,41 @@ T015:
   r: No `main.py` file or any code skeleton is present in the provided evidence, and
     there is no indication that a script generating and saving raw workflows to `data/raw/`
     exists. The required orchestrator artifact is missing.
-T016:
+T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code artifact (e.g., a modified `full_context.py` file) or execution\u2011\
-    log example was provided showing the new handling for single\u2011node graphs\
-    \ with `depth=0`, nor evidence that `context_reduction_pct` is set to the string\
-    \ `'[deferred]'` and `status` to `'edge_case'`. The required implementation and\
-    \ its verification are missing."
-T017:
+  r: "The implementer provided only high\u2011level user story specifications for\
+    \ workflow generation and compression; there is no artifact (code, data, or analysis)\
+    \ that applies a Bonferroni correction to regression p\u2011values as required\
+    \ by task T030. The necessary implementation and results are missing."
+T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test, or documentation for a filter that detects and excludes\
-    \ \u201Cinvalid workflows\u201D is present; the claim cannot be verified against\
-    \ any artifact. The required implementation artifact is missing."
-T018:
+  r: "No code, data files, scripts, or analysis results were provided; therefore we\
+    \ cannot verify that synthetic workflows were generated, compressed\u2011context\
+    \ execution was performed, or threshold analysis was completed as required. The\
+    \ task lacks the necessary artifacts to confirm it meets the specification."
+T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `state/projects/PROJ-866-...yaml` file containing checksums
-    for the workflows in `data/raw/` was provided; the response contains only the
-    task description and no actual artifact or its contents. The required registry
-    update is therefore not demonstrated.
-T023:
+  r: "No updated `main.py` file or code snippet is provided, so we cannot confirm\
+    \ that the pipeline orchestration (Generate \u2192 Full Exec \u2192 Compressed\
+    \ Exec \u2192 Analyze) has been implemented. The required artifact is missing."
+T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `main.py` file or any code implementing batch execution across multiple compression
-    levels was provided; the only evidence is the feature specification text, which
-    does not demonstrate that the required logic exists or is functional. The implementer
-    must add the actual `main.py` implementation (or show the relevant code) that
-    runs a large number of workflows for various compression settings.
-T024:
+  r: "No `state/projects/...yaml` file containing artifact hashes and an `updated_at`\
+    \ timestamp was presented. The required YAML artifact is missing, so the task\u2019\
+    s deliverable has not been provided."
+T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, logs, or documentation were provided showing that the system actually\
-    \ records a specific \u201Cpolicy\u2011violation\u201D entry when a truncation\
-    \ cuts off required nodes such as data\u2011sovereignty rules. The required artifact\
-    \ (implementation and/or example log output) is missing."
-T025:
+  r: No updated `quickstart.md` file was presented, and there is no evidence that
+    it now includes the command to generate 500 workflows nor the subsequent analysis
+    steps required by the task. The required documentation artifact is missing.
+T037a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files or code were presented that create or store processed execution logs
-    in `data/processed/`, nor any evidence that those logs contain the required fields
-    (compression level, token count, violation flags). The artifact required by the
-    task is missing.
-T026:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation showing that the system now handles a compression\
-    \ depth of\u202F0 without error is present; the only evidence is the task description,\
-    \ which does not include any implementation artifact. The required logic and its\
-    \ verification are missing."
+  r: No evidence of a `ruff check --fix` run, no linting report, and no modified files
+    in the `code/` directory are provided; thus the required code cleanup artifact
+    is missing.
