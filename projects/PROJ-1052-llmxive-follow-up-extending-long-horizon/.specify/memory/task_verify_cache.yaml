@@ -1,0 +1,14 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other evidence was provided showing that the required
+    folders (`data/raw`, `data/processed`, `code`, `code/utils`, `code/tests`, `results`,
+    `artifacts`, `specs/001-reward-fidelity-error-recovery/contracts`) actually exist
+    in `projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/`. Without a concrete
+    `ls` output or similar proof, the task requirement is not satisfied.
+T010:
+  c: false
+  h: 2e1f728ec3f607ba2049a0184dcb0ba3604ee789642cfcc22a2b2776d5f397dd
+  r: The required file `code/tests/test_agent_runner.py` does not exist, so the contract
+    test `test_execution_log_schema_validates_task_id_field` is absent. No test code
+    is present to satisfy the task.

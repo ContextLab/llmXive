@@ -1,0 +1,220 @@
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Project requirements include datasets 2.14.0, llama-cpp-python 0.2.0,
+    scikit-learn 1.3.0, scipy 1.11.0, pandas 2.0.0, pyyaml 6.0.1, pytest 7.4.0, and
+    statsmodels 0.14.0
+  claim_id: c_dcfc1c34
+  context: 'T002 Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: datasets==2.14.0, llama-cpp-python==0.2.0, scikit-learn==1.3.0, scipy==1.11.0,
+    pandas==2.0.0, pyyaml==6.0.1, pytest==7.4.0, statsmodels==0.14.0.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with requirements.txt containing pinned
+    versions: datasets==2.14.0, llama-cpp-python==0.2.0, scikit-learn==1.3.0, scipy==1.11.0,
+    pandas==2.0.0, pyyaml==6.0.1, pytest==7.4.0, statsmodels==0.14.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T23:36:57Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Task selection logic filters error-prone tasks from the benchmark suite
+  claim_id: c_a7b55a9d
+  context: T012a [US1] Implement task selection logic in code/download.py to filter
+    the error-prone tasks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Task_selection_logic_filters_error-prone_tasks_from_the_benc
+  kind: entity_fact
+  raw_text: Implement task selection logic in code/download.py to filter the error-prone
+    tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T23:37:31Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Cosine similarity of sentence embeddings used as proxy for attention-weighted
+    overlap
+  claim_id: c_75387552
+  context: 'T006 Implement code/utils/state_diff.py for FR-007: Recovery segment identification
+    using cosine similarity of sentence embeddings (proxy for attention-weighted overlap)
+    to avoid circularity per Plan constraints.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cosine_similarity_of_sentence_embeddings_used_as_proxy_for_a
+  kind: entity_fact
+  raw_text: Use cosine similarity of sentence embeddings as a proxy for attention-weighted
+    overlap to avoid circularity per Plan constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T23:38:21Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Recovery segments identified as contributing greater than 5% to state
+    change
+  claim_id: c_bf2a3940
+  context: T014 [US1] Implement recovery segment tagging logic in code/utils/state_diff.py
+    using cosine similarity of sentence embeddings (proxy for attention-weighted overlap)
+    to identify segments contributing >5% to state change (FR-007).
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Recovery_segments_identified_as_contributing_greater_than_5%25
+  kind: magnitude
+  raw_text: Identify segments contributing greater than 5% to state change.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-07T23:38:53Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Agent runner uses Llama-3-8B with fallback to Qwen-1.5-1.8B for CPU-only
+    quantization
+  claim_id: c_312a86f6
+  context: 'T008 Implement code/agent_runner.py: Lightweight agent wrapper (llama-cpp-python)
+    with CPU-only low-bit quantization fallback (Llama-3-8B -> Qwen-1.5-1.8B).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Llama-3-8B with fallback to Qwen-1.5-1.8B for CPU-only low-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T23:39:29Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Dataset used is lmz/agentbench from Hugging Face
+  claim_id: c_514f643a
+  context: T004 Implement code/download.py to fetch the lmz/agentbench dataset (AgentBench)
+    via datasets.load_dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_used_is_lmz/agentbench_from_Hugging_Face
+  kind: entity_fact
+  raw_text: Use lmz/agentbench dataset via Hugging Face.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T23:39:58Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Long-Horizon-Terminal-Bench substituted with AgentBench
+  claim_id: c_c4941574
+  context: T004a Implement code/download.py validation logic... Document the substitution
+    of 'Long-Horizon-Terminal-Bench' with 'AgentBench' in the log.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Long-Horizon-Terminal-Bench_substituted_with_AgentBench
+  kind: entity_fact
+  raw_text: Substitute Long-Horizon-Terminal-Bench with AgentBench in the log.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T23:40:25Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Statistical power calculated using statsmodels.stats.power.tt_solve_power
+  claim_id: c_f093cb4f
+  context: 'T029 [US3] Implement fallback Cochran-Armitage trend test logic: First,
+    calculate statistical power using statsmodels.stats.power.tt_solve_power (runtime
+    check).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_calculated_using_statsmodels.stats.power.t
+  kind: entity_fact
+  raw_text: Calculate statistical power using statsmodels.stats.power.tt_solve_power.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T23:40:57Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Cochran-Armitage test used if statistical power is less than 0.8
+  claim_id: c_696d9763
+  context: 'T029 [US3] Implement fallback Cochran-Armitage trend test logic: First,
+    calculate statistical power using statsmodels.stats.power.tt_solve_power (runtime
+    check). If power < 0.8, switch to Cochran-Armitage.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cochran-Armitage_test_used_if_statistical_power_is_less_than
+  kind: magnitude
+  raw_text: Switch to Cochran-Armitage trend test if statistical power is less than
+    0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T23:41:21Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Inflection point detected using scipy.optimize.curve_fit and numpy.gradient
+  claim_id: c_89b9a4e0
+  context: T027 [US3] Implement inflection point detection logic using scipy.optimize.curve_fit
+    (logistic function) and numpy.gradient to find max curvature.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inflection_point_detected_using_scipy.optimize.curve_fit_and
+  kind: entity_fact
+  raw_text: Use scipy.optimize.curve_fit and numpy.gradient to find max curvature
+    for inflection point detection.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T23:42:36Z'
+- artifact_path: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction uses Bonferroni or Benjamini-Hochberg
+  claim_id: c_087ddd37
+  context: T028 [US3] Implement multiple-comparison correction (Bonferroni or Benjamini-Hochberg)
+    for p-values per FR-006
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple-comparison_correction_uses_Bonferroni_or_Benjamini-
+  kind: entity_fact
+  raw_text: Use Bonferroni or Benjamini-Hochberg for multiple-comparison correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T23:43:03Z'

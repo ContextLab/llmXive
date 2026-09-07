@@ -1,0 +1,69 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Execution Log Schema
+description: >
+  Schema for logging agent execution results, including reward fidelity levels,
+  recovery segment identification, and success metrics. Used for US1 (Baseline)
+  and US2 (Pruning/Fidelity Manipulation) outputs.
+type: object
+required:
+  - task_id
+  - timestamp
+  - fidelity_level
+  - success
+  - recovery_segment_id
+  - total_tokens
+  - discarded_segments
+properties:
+  task_id:
+    type: string
+    description: Unique identifier for the benchmark task (e.g., 'os-1', 'web-2').
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the execution.
+  fidelity_level:
+    type: string
+    enum:
+      - dense
+      - binary
+      - three-bin
+      - random-prune
+    description: The reward fidelity level used for this execution.
+  success:
+    type: boolean
+    description: Whether the agent successfully completed the task.
+  recovery_segment_id:
+    type: string
+    description: >
+      Identifier for the specific context segment identified as critical for
+      error recovery. If no recovery was needed or possible, this may be null
+      or a sentinel value (e.g., 'none').
+  total_tokens:
+    type: integer
+    minimum: 0
+    description: Total number of tokens consumed in the context window.
+  discarded_segments:
+    type: array
+    items:
+      type: string
+    description: List of segment IDs that were pruned/discarded during execution.
+  model_used:
+    type: string
+    description: The specific model identifier used (e.g., 'Llama-3-8B-Q4', 'Qwen-1.5-1.8B').
+  latency_ms:
+    type: number
+    minimum: 0
+    description: Total execution latency in milliseconds.
+  error_type:
+    type: string
+    enum:
+      - none
+      - state_mismatch
+      - terminal_failure
+      - timeout
+      - unrecoverable
+    description: Classification of the error encountered, if any.
+  notes:
+    type: string
+    description: Optional free-text notes about the execution.
+additionalProperties: false

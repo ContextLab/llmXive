@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-14T03:09:09.211187Z'
-current_stage: flesh_out_complete
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-1052-llmxive-follow-up-extending-long-horizon
-last_run_id: ffa96157-f4f7-4c69-9f1c-1a2dbb9bd0d0
+last_run_id: bcec1cb5-545c-41b1-8729-46b9a96dcc77
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-1052-llmxive-follow-up-extending-long-horizon/specs/001-llmxive-follow-up-extending-long-horizon
 title: 'llmXive follow-up: extending "Long-Horizon-Terminal-Bench: Testing the Limits
   of Agents on Long-Hori"'
-updated_at: '2026-08-03T16:29:24.580127Z'
+updated_at: '2026-09-07T23:43:11.180373Z'

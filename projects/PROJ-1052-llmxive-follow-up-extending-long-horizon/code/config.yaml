@@ -1,0 +1,42 @@
+# llmXive Follow-up Configuration
+# Environment and logging settings for the automated science pipeline
+
+project:
+  name: "llmXive-follow-up-extending-long-horizon"
+  version: "0.1.0"
+  root_dir: "."
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  dataset_name: "lmz/agentbench"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/run.log"
+  # Custom fields to be captured in structured logs
+  custom_fields:
+    - "reward_fidelity_level"
+    - "recovery_segment_id"
+    - "task_id"
+    - "model_name"
+
+execution:
+  # Default reward fidelity for baseline runs
+  default_fidelity: "dense"
+  # Quantization settings for CPU-only execution
+  quantization:
+    bits: 4
+    type: "q4_k_m"
+  # Model fallback chain
+  model_chain:
+    - "Llama-3-8B"
+    - "Qwen-1.5-1.8B"
+
+analysis:
+  statistical_tests:
+    - "logistic_regression"
+    - "cochran_armitage"
+  correction_method: "bonferroni"
+  power_threshold: 0.8

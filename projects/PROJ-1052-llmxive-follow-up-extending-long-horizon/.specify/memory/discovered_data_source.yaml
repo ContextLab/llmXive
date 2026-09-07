@@ -1,0 +1,16 @@
+status: none
+intent: Long-Horizon-Terminal-Bench dataset download pip install python package dataset
+required_fields:
+- task_id
+- task_name
+- instruction_text
+- initial_state
+- goal_state
+- context_history
+- error_prone_flag
+- recovery_segment
+- dense_reward_spec
+- metadata_timestamp
+cache_key: 815e1b7d79340174b68d6339f4bee2ecb49ba65e38ba4de13162d063c63d14de
+searched_at: '2026-09-07T23:16:12.591795+00:00'
+retry_count: 1
