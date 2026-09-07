@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-331-investigating-the-influence-of-network-m
-last_run_id: 3f5171cc-36da-46d5-aa91-426213402642
+last_run_id: 38b2b40c-f531-4a38-b102-d5b8b46266fc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m
 title: Investigating the Influence of Network Motifs on Resting-State Functional Connectivity
-updated_at: '2026-09-06T23:58:46.326295Z'
+updated_at: '2026-09-07T11:03:21.210316Z'

@@ -135,6 +135,73 @@ def report_insufficient_variance(motif_id):
     logging.info(f"Report generated for insufficient variance motif: {motif_id}")
     return entry
 
+def calculate_effect_size_confidence_interval(r, n, alpha=0.05):
+    """
+    Compute the confidence interval for the Pearson correlation coefficient using Fisher's z-transformation.
+    
+    Fisher's z-transformation stabilizes the variance of the correlation coefficient,
+    allowing for the construction of a confidence interval.
+    
+    Formula:
+    z = 0.5 * ln((1 + r) / (1 - r))
+    SE_z = 1 / sqrt(n - 3)
+    z_lower = z - z_crit * SE_z
+    z_upper = z + z_crit * SE_z
+    r_lower = (exp(2 * z_lower) - 1) / (exp(2 * z_lower) + 1)
+    r_upper = (exp(2 * z_upper) - 1) / (exp(2 * z_upper) + 1)
+    
+    Args:
+        r: Pearson correlation coefficient (-1 to 1)
+        n: Sample size (number of subjects)
+        alpha: Significance level (default 0.05 for 95% CI)
+    
+    Returns:
+        dict with 'lower_bound', 'upper_bound', 'z_score', and 'se_z'
+    """
+    if not -1 < r < 1:
+        raise ValueError("Correlation coefficient r must be strictly between -1 and 1")
+    if n <= 3:
+        raise ValueError("Sample size n must be greater than 3 for Fisher's z-transformation")
+    
+    # Fisher's z-transformation
+    z = 0.5 * np.log((1 + r) / (1 - r))
+    
+    # Standard error of z
+    se_z = 1.0 / np.sqrt(n - 3)
+    
+    # Critical z-value for the given alpha (two-tailed)
+    # Using scipy.stats if available, otherwise approximate with numpy
+    try:
+        from scipy.stats import norm
+        z_crit = norm.ppf(1 - alpha / 2)
+    except ImportError:
+        # Approximation for 95% CI (alpha=0.05)
+        if alpha == 0.05:
+            z_crit = 1.96
+        else:
+            # Fallback approximation
+            z_crit = 1.96
+    
+    # Confidence interval in z-space
+    z_lower = z - z_crit * se_z
+    z_upper = z + z_crit * se_z
+    
+    # Transform back to r-space
+    r_lower = (np.exp(2 * z_lower) - 1) / (np.exp(2 * z_lower) + 1)
+    r_upper = (np.exp(2 * z_upper) - 1) / (np.exp(2 * z_upper) + 1)
+    
+    result = {
+        'lower_bound': float(r_lower),
+        'upper_bound': float(r_upper),
+        'z_score': float(z),
+        'se_z': float(se_z),
+        'confidence_level': 1 - alpha,
+        'correlation': float(r),
+        'sample_size': int(n)
+    }
+    
+    return result
+
 def main():
     """Main execution function for stats module."""
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -153,6 +220,15 @@ def main():
             if result.get("zero_variance"):
                 entry = report_insufficient_variance("example_motif")
                 logging.info(f"Insufficient variance report: {entry}")
+            
+            # Example of calculating effect size confidence interval
+            # This would typically be done for significant correlations found in T030b
+            if 'r' in metrics.columns and 'n' in metrics.columns:
+                for idx, row in metrics.iterrows():
+                    r = row['r']
+                    n = row['n']
+                    ci = calculate_effect_size_confidence_interval(r, n)
+                    logging.info(f"CI for r={r}, n={n}: [{ci['lower_bound']:.3f}, {ci['upper_bound']:.3f}]")
         else:
             logging.warning("subject_metrics.csv not found. Skipping analysis.")
     except Exception as e:

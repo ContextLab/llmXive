@@ -108,7 +108,7 @@ tests/
     *   *Motif Counting*: 3-node motifs on a -node graph (max a large number of triplets) are trivial for `networkx` or custom C-optimized Python loops. The 300s timeout is a safe upper bound; expected time is <10s/subject.
     *   *Permutation*: A sufficient number of permutations of 50 data points is negligible (<1s).
 *   **Memory**: Adequate RAM capacity is sufficient.. We process subjects sequentially (or in small batches of varying sizes) to keep memory footprint low. We do not load all raw NIfTI files simultaneously.
-*   **Disk**: GB is sufficient. **Critical Adjustment**: HCP raw data is large (multi-GB per subject). We cannot store 50 full HCP raw datasets.
+*   **Disk**: GB is sufficient. **Critical Adjustment**: HCP raw data is large (multi-GB per subject). We cannot store a large number of full HCP raw datasets.
     *   *Solution*: The pipeline will **stream** raw data: download a subject's files, process them immediately to extract the -node matrix, save the derived `.npy` matrix to `data/processed/`, and **delete the raw files** for that subject before moving to the next. Only the derived `.npy` matrices (100x100 floats = 80KB each) and metadata will be retained in `data/processed/`. This keeps disk usage well within acceptable limits.
     *   *Constitution Alignment*: While raw data cannot be retained in CI due to size, the *derived* structural matrices (the actual data used for analysis) are stored unchanged in `data/processed/` and checksummed, satisfying Structural Data Integrity for the analyzed data.
 
@@ -140,8 +140,8 @@ tests/
 ### Phase 2: Implementation (Code Generation)
 *   **Goal**: Generate `code/` scripts.
 *   **Tasks**:
-    *   **T014c (Data Download & Parcellation)**: Download diffusion data, apply Schaefer-100, binarize using **median graph density threshold**, and save `data/processed/canonical_binary_adj.npy`. Log status to `data/processed/structural_connectome_metadata.json` (schema: `structural_connectome.schema.yaml`). **Logic for SC-001**: Parse this JSON, count 'complete' vs 'skipped' statuses, calculate success rate, and write to `results.json` and `pipeline.log`.
-    *   **T015 (Functional Processing)**: Compute Pearson correlation of rs-fMRI time-series for 100 nodes, calculate global efficiency, and write `data/processed/rsfc.npy` and `data/processed/global_efficiency.json`.
+    *   **T014c (Data Download & Parcellation)**: Download diffusion data, apply Schaefer, binarize using **median graph density threshold**, and save `data/processed/canonical_binary_adj.npy`. Log status to `data/processed/structural_connectome_metadata.json` (schema: `structural_connectome.schema.yaml`). **Logic for SC-001**: Parse this JSON, count 'complete' vs 'skipped' statuses, calculate success rate, and write to `results.json` and `pipeline.log`.
+    *   **T015 (Functional Processing)**: Compute Pearson correlation of rs-fMRI time-series for multiple nodes, calculate global efficiency, and write `data/processed/rsfc.npy` and `data/processed/global_efficiency.json`.
     *   **T017 (Logging)**: Ensure `data/logs/pipeline.log` is created and updated with all processing steps, warnings, and errors.
     *   **T025c_loop (Threshold Sensitivity)**: Iterate over a range of `z` thresholds spanning low to high significance levels.. For each, save output to `data/processed/sensitivity_z<value>.json`.
     *   **T026 (Motif Aggregation)**: Enumerate 3-node motifs, generate null models, compute z-scores, aggregate median z-scores, and write `data/processed/motif_profiles.json`.

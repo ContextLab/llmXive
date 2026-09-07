@@ -113,3 +113,114 @@
   source_type: external
   status: verified
   updated_at: '2026-09-03T21:46:42Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/README.md
+  attempts: 1
+  canonical: 13 possible directed 3-node subgraphs in structural connectomes
+  claim_id: c_baa7972e
+  context: 'Motif Quantification: Enumerates all 13 possible directed 3-node subgraphs
+    (motifs) in each structural connectome.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enumerates all 13 possible directed 3-node subgraphs (motifs) in each
+    structural connectome.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T10:09:59Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/README.md
+  attempts: 1
+  canonical: 14 GB disk space required for full cohort
+  claim_id: c_c25673fe
+  context: 'Prerequisites: Sufficient disk space (~14 GB for the full cohort)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sufficient disk space (~14 GB for the full cohort)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T10:10:28Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/README.md
+  attempts: 1
+  canonical: 7 GB RAM required for processing
+  claim_id: c_5801be0e
+  context: 'Prerequisites: Sufficient memory (~7 GB RAM for processing)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sufficient memory (~7 GB RAM for processing)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T10:11:19Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/README.md
+  attempts: 1
+  canonical: 1000 permutations used for empirical p-values
+  claim_id: c_293ec2fb
+  context: "Permutation Tests: Empirical p-values for significant motifs (\u22651000\
+    \ permutations)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Empirical p-values for significant motifs (\u22651000 permutations)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T10:11:19Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/README.md
+  attempts: 1
+  canonical: Power analysis estimates effect size for 50 subjects
+  claim_id: c_940af3ae
+  context: 'Power Analysis: Estimates minimum detectable effect size given N=50 subjects
+    and Bonferroni-adjusted alpha.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimates minimum detectable effect size given N=50 subjects and Bonferroni-adjusted
+    alpha
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T10:11:53Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/quickstart.md
+  attempts: 1
+  canonical: 13 directed network motifs
+  claim_id: c_019999a7
+  context: '| Motif Profiles | `data/processed/motif_profiles.json` | Z-scores for
+    13 directed motifs |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Z-scores for 13 directed motifs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T10:19:51Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/docs/quickstart.md
+  attempts: 1
+  canonical: 13 directed 3-node motifs
+  claim_id: c_29c96fc7
+  context: '- `motif_profiles.json`: Z-scores for all 13 directed 3-node motifs'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'motif_profiles.json: Z-scores for all 13 directed 3-node motifs'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T10:20:52Z'

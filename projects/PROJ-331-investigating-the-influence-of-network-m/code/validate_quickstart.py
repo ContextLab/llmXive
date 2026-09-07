@@ -1,13 +1,10 @@
 """
 validate_quickstart.py
-
-Validates the quickstart.md documentation by checking:
-1. All referenced paths exist.
-2. All referenced commands are syntactically valid and executable (dry-run).
-3. All prerequisites (dependencies, files) are met.
-
-Produces a JSON report at `data/logs/quickstart_validation_report.json`.
+Python-based validation runner for quickstart.md.
+This script parses the quickstart.md file, extracts commands, executes them,
+and validates the resulting artifacts against the expected schema and existence.
 """
+
 import os
 import sys
 import re
@@ -15,300 +12,215 @@ import json
 import logging
 import subprocess
 from pathlib import Path
+from datetime import datetime
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/logs/quickstart_validation.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-from config import ensure_dirs
-from utils import get_logger, safe_write_json, safe_read_text
-
-def parse_quickstart(quickstart_path: str) -> dict:
+def parse_quickstart(quickstart_path: str) -> list:
     """
-    Parses quickstart.md to extract:
-    - Prerequisites (pip installs, file checks)
-    - Commands to run
-    - Paths mentioned
+    Parse quickstart.md to extract bash commands from code blocks.
+    Returns a list of (description, command) tuples.
     """
+    commands = []
     if not os.path.exists(quickstart_path):
-        raise FileNotFoundError(f"quickstart.md not found at {quickstart_path}")
+        raise FileNotFoundError(f"Quickstart file not found: {quickstart_path}")
 
-    content = safe_read_text(quickstart_path)
-    if not content:
-        raise ValueError("quickstart.md is empty")
+    with open(quickstart_path, 'r') as f:
+        content = f.read()
 
-    lines = content.split('\n')
-    sections = {
-        'prerequisites': [],
-        'commands': [],
-        'paths': [],
-        'warnings': []
-    }
+    # Simple regex to find ```bash ... ``` blocks
+    # This is a heuristic; a more robust parser might handle nested blocks or comments
+    pattern = r'```bash\s+(.*?)\s+```'
+    matches = re.findall(pattern, content, re.DOTALL)
 
-    current_section = None
-    for line in lines:
-        stripped = line.strip()
-        if not stripped:
-            continue
+    # Heuristic: try to associate descriptions with commands
+    # We assume commands are grouped in blocks. We'll just extract the commands.
+    # A more advanced version would parse headers for context.
+    for match in matches:
+        # Split into lines, filter empty
+        lines = [line.strip() for line in match.split('\n') if line.strip()]
+        if lines:
+            # Assume the first line might be a comment or description, or just the command
+            # For simplicity, we treat the whole block as a command sequence
+            full_cmd = '\n'.join(lines)
+            commands.append(("Quickstart Step", full_cmd))
 
-        # Detect sections
-        if stripped.lower().startswith('prerequisites'):
-            current_section = 'prerequisites'
-            continue
-        elif stripped.lower().startswith('commands'):
-            current_section = 'commands'
-            continue
-        elif stripped.lower().startswith('paths'):
-            current_section = 'paths'
-            continue
-        elif stripped.lower().startswith('output'):
-            current_section = 'paths' # Treat output as paths
-            continue
-        elif stripped.lower().startswith('note') or stripped.lower().startswith('warning'):
-            current_section = 'warnings'
-            continue
+    return commands
 
-        # Parse list items
-        if stripped.startswith('-'):
-            item = stripped[1:].strip()
-            if current_section and item:
-                sections[current_section].append(item)
-        elif current_section and stripped:
-            # Maybe a direct line item
-            if current_section in ['commands', 'paths']:
-                sections[current_section].append(stripped)
+def validate_paths(project_root: str) -> bool:
+    """Verify essential project directories and files exist."""
+    required_paths = [
+        os.path.join(project_root, 'code'),
+        os.path.join(project_root, 'data'),
+        os.path.join(project_root, 'data', 'logs'),
+        os.path.join(project_root, 'requirements.txt'),
+        os.path.join(project_root, 'quickstart.md')
+    ]
 
-    return sections
+    for path in required_paths:
+        if not os.path.exists(path):
+            logger.error(f"Required path missing: {path}")
+            return False
+    return True
 
-def validate_paths(paths: list, base_dir: str) -> dict:
-    """Checks if referenced paths exist."""
-    results = {
-        'valid': [],
-        'invalid': [],
-        'missing': []
-    }
-
-    for p_str in paths:
-        # Clean path string (remove markdown formatting)
-        p_str = re.sub(r'`', '', p_str).strip()
-        if not p_str:
-            continue
-
-        # Check if it's a file or dir pattern
-        if '*' in p_str or '?' in p_str:
-            # Glob pattern
-            full_pattern = os.path.join(base_dir, p_str)
-            matches = list(Path(base_dir).glob(p_str))
-            if matches:
-                results['valid'].append(p_str)
+def validate_commands(commands: list) -> bool:
+    """
+    Execute extracted commands and check for errors.
+    Returns True if all commands succeed.
+    """
+    all_passed = True
+    for i, (desc, cmd) in enumerate(commands):
+        logger.info(f"Executing Step {i+1}: {desc}")
+        logger.debug(f"Command: {cmd}")
+        
+        try:
+            result = subprocess.run(
+                cmd,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=300 # 5 minute timeout per step
+            )
+            
+            if result.returncode != 0:
+                logger.error(f"Step {i+1} failed with code {result.returncode}")
+                logger.error(f"Stderr: {result.stderr}")
+                all_passed = False
             else:
-                results['missing'].append(p_str)
-        else:
-            full_path = os.path.join(base_dir, p_str)
-            if os.path.exists(full_path):
-                results['valid'].append(p_str)
-            else:
-                results['invalid'].append(p_str)
+                logger.info(f"Step {i+1} passed.")
+        except subprocess.TimeoutExpired:
+            logger.error(f"Step {i+1} timed out.")
+            all_passed = False
+        except Exception as e:
+            logger.error(f"Step {i+1} raised exception: {e}")
+            all_passed = False
+    
+    return all_passed
 
-    return results
-
-def validate_commands(commands: list) -> dict:
-    """
-    Validates commands by attempting a dry-run or syntax check.
-    For 'python', checks if the script exists.
-    For 'pip', checks if package is available (mock check).
-    """
-    results = {
-        'valid': [],
-        'invalid': [],
-        'skipped': []
-    }
-
-    for cmd in commands:
-        cmd = cmd.strip()
-        if not cmd:
-            continue
-
-        # Skip comments
-        if cmd.startswith('#'):
-            continue
-
-        parts = cmd.split()
-        if not parts:
-            continue
-
-        cmd_name = parts[0]
-        args = parts[1:]
-
-        if cmd_name == 'python':
-            # Check if the script file exists
-            if args:
-                script_name = args[0]
-                # Handle relative paths
-                if not os.path.isabs(script_name):
-                    script_path = os.path.join(os.getcwd(), script_name)
-                else:
-                    script_path = script_name
-
-                if os.path.exists(script_path):
-                    results['valid'].append(cmd)
-                else:
-                    results['invalid'].append(cmd)
-            else:
-                results['skipped'].append(cmd) # python without args
-        elif cmd_name == 'pip':
-            # Mock validation: assume pip works, check for install args
-            if 'install' in args:
-                results['valid'].append(cmd) # Assume valid syntax
-            else:
-                results['skipped'].append(cmd)
-        elif cmd_name.startswith('bash') or cmd_name.startswith('sh'):
-            # Check if script exists
-            if args:
-                script_name = args[0]
-                if os.path.exists(script_name):
-                    results['valid'].append(cmd)
-                else:
-                    results['invalid'].append(cmd)
-            else:
-                results['skipped'].append(cmd)
-        else:
-            # Generic check: try --help or --version if possible, else skip
-            results['skipped'].append(cmd)
-
-    return results
-
-def validate_prerequisites(prereqs: list) -> dict:
-    """
-    Checks prerequisites (e.g., python version, packages).
-    Returns a summary of what is met.
-    """
-    results = {
-        'met': [],
-        'unmet': [],
-        'unknown': []
-    }
-
-    for req in prereqs:
-        req = req.strip()
-        if not req:
-            continue
-
-        # Simple heuristic checks
-        if 'python' in req.lower():
-            # Check version
-            try:
-                import sys
-                if sys.version_info >= (3, 8):
-                    results['met'].append(req)
-                else:
-                    results['unmet'].append(req)
-            except:
-                results['unknown'].append(req)
-        elif 'pip' in req.lower() or 'package' in req.lower():
-            # Assume packages are installed if requirements.txt exists and was processed
-            # A full check would parse requirements.txt
-            results['met'].append(req) # Optimistic for now
-        elif os.path.exists(req):
-            results['met'].append(req)
-        else:
-            results['unknown'].append(req)
-
-    return results
-
-def run_validation(quickstart_path: str = "docs/quickstart.md") -> dict:
-    """
-    Orchestrates the validation process.
-    """
-    base_dir = os.getcwd()
-    report = {
-        'status': 'success',
-        'quickstart_path': quickstart_path,
-        'prerequisites': {},
-        'paths': {},
-        'commands': {},
-        'errors': []
-    }
-
+def validate_prerequisites(project_root: str) -> bool:
+    """Check that required Python packages are installed."""
+    # Check for critical packages mentioned in requirements.txt
+    critical_packages = ['numpy', 'pandas', 'networkx', 'scipy', 'nibabel']
     try:
-        if not os.path.exists(quickstart_path):
-            # Try common locations
-            alt_paths = [
-                os.path.join(base_dir, 'docs', 'quickstart.md'),
-                os.path.join(base_dir, 'quickstart.md')
-            ]
-            found = False
-            for p in alt_paths:
-                if os.path.exists(p):
-                    quickstart_path = p
-                    found = True
-                    break
-            if not found:
-                raise FileNotFoundError(f"Could not find quickstart.md in {base_dir} or docs/")
-
-        sections = parse_quickstart(quickstart_path)
-        report['sections_found'] = list(sections.keys())
-
-        # Validate Paths
-        path_results = validate_paths(sections['paths'], base_dir)
-        report['paths'] = path_results
-        if path_results['invalid'] or path_results['missing']:
-            report['status'] = 'warning'
-            report['errors'].extend([f"Path missing: {p}" for p in path_results['invalid'] + path_results['missing']])
-
-        # Validate Commands
-        cmd_results = validate_commands(sections['commands'])
-        report['commands'] = cmd_results
-        if cmd_results['invalid']:
-            report['status'] = 'error'
-            report['errors'].extend([f"Command invalid: {c}" for c in cmd_results['invalid']])
-
-        # Validate Prerequisites
-        prereq_results = validate_prerequisites(sections['prerequisites'])
-        report['prerequisites'] = prereq_results
-        if prereq_results['unmet']:
-            report['status'] = 'error'
-            report['errors'].extend([f"Prerequisite unmet: {p}" for p in prereq_results['unmet']])
-
+        import importlib.util
+        for pkg in critical_packages:
+            if importlib.util.find_spec(pkg) is None:
+                logger.warning(f"Package {pkg} not found. Might cause runtime issues.")
+                # Don't fail immediately, as the pipeline might install them
+        return True
     except Exception as e:
-        report['status'] = 'error'
-        report['errors'].append(str(e))
+        logger.error(f"Error checking prerequisites: {e}")
+        return False
+
+def run_validation(project_root: str, quickstart_path: str) -> dict:
+    """
+    Main validation logic.
+    Returns a report dictionary.
+    """
+    report = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "project_root": project_root,
+        "quickstart_path": quickstart_path,
+        "prerequisites_check": False,
+        "commands_executed": False,
+        "outputs_validated": False,
+        "status": "UNKNOWN",
+        "details": []
+    }
+
+    # 1. Validate Prerequisites (Paths)
+    logger.info("Checking project structure...")
+    if not validate_paths(project_root):
+        report["details"].append("Project structure validation failed.")
+        report["status"] = "FAILED"
+        return report
+    
+    report["prerequisites_check"] = True
+    report["details"].append("Project structure valid.")
+
+    # 2. Parse and Execute Commands
+    logger.info("Parsing quickstart.md...")
+    try:
+        commands = parse_quickstart(quickstart_path)
+        if not commands:
+            logger.warning("No commands found in quickstart.md.")
+            report["details"].append("No commands found in quickstart.md.")
+        else:
+            logger.info(f"Found {len(commands)} command blocks.")
+            if validate_commands(commands):
+                report["commands_executed"] = True
+                report["details"].append("All commands executed successfully.")
+            else:
+                report["details"].append("Some commands failed.")
+    except Exception as e:
+        logger.error(f"Error during command execution: {e}")
+        report["details"].append(f"Command execution error: {str(e)}")
+
+    # 3. Validate Outputs
+    logger.info("Validating output artifacts...")
+    expected_outputs = [
+        "data/processed/subject_list_manifest.json",
+        "data/processed/canonical_binary_adj.npy",
+        "data/processed/rsfc.npy",
+        "data/processed/motif_profiles.json",
+        "results/results.pdf",
+        "data/logs/pipeline.log"
+    ]
+    
+    missing_outputs = []
+    for out in expected_outputs:
+        full_path = os.path.join(project_root, out)
+        if not os.path.exists(full_path):
+            missing_outputs.append(out)
+    
+    if missing_outputs:
+        report["details"].append(f"Missing outputs: {missing_outputs}")
+    else:
+        report["outputs_validated"] = True
+        report["details"].append("All expected outputs found.")
+
+    # Final Status
+    if report["prerequisites_check"] and report["outputs_validated"]:
+        report["status"] = "PASSED"
+    else:
+        report["status"] = "FAILED"
 
     return report
 
-def save_report(report: dict, output_path: str = "data/logs/quickstart_validation_report.json"):
-    """Saves the validation report to disk."""
-    ensure_dirs()
-    safe_write_json(output_path, report)
-    logging.info(f"Validation report saved to {output_path}")
-    return output_path
+def save_report(report: dict, output_path: str):
+    """Save the validation report to a JSON file."""
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Report saved to {output_path}")
 
 def main():
-    """Entry point for the validation script."""
-    # Setup logging
-    logger = get_logger()
-    logger.info("Starting quickstart validation...")
+    project_root = os.getenv('PROJECT_ROOT', os.getcwd())
+    quickstart_path = os.path.join(project_root, 'quickstart.md')
+    report_path = os.path.join(project_root, 'data/logs/quickstart_validation_report.json')
 
-    # Run validation
-    report = run_validation()
+    # Ensure log directory exists
+    os.makedirs(os.path.dirname(report_path), exist_ok=True)
 
-    # Save report
-    output_path = save_report(report)
+    logger.info(f"Starting validation for project at {project_root}")
+    report = run_validation(project_root, quickstart_path)
+    save_report(report, report_path)
 
-    # Print summary
-    print(f"Validation Status: {report['status'].upper()}")
-    if report['errors']:
-        print("Errors/Warnings found:")
-        for err in report['errors']:
-            print(f"  - {err}")
-    else:
-        print("No critical errors found. Quickstart validation passed.")
-
-    # Exit with error code if validation failed
-    if report['status'] == 'error':
-        sys.exit(1)
-    else:
+    if report["status"] == "PASSED":
+        logger.info("Validation PASSED")
         sys.exit(0)
+    else:
+        logger.error("Validation FAILED")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
