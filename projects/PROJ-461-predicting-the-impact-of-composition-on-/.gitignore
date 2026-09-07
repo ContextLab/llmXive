@@ -1,20 +1,46 @@
-# Data artifacts (exclude raw and processed data)
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Project specific directories for artifacts
 data/*.csv
 data/*.json
 data/*.pkl
+data/*.npy
+data/*.npz
+data/*.h5
 data/*.parquet
-data/*.txt
-data/*.log
+data/*.feather
+data/*.arrow
+data/*.tsv
+data/*.xlsx
+data/*.xls
 
-# Model artifacts
 models/*.pkl
 models/*.joblib
-models/*.onnx
 models/*.h5
+models/*.onnx
 models/*.pt
 models/*.pth
 
-# Reports and figures
 reports/*.png
 reports/*.jpg
 reports/*.jpeg
@@ -22,36 +48,36 @@ reports/*.pdf
 reports/*.html
 reports/*.svg
 reports/*.json
+# Allow metrics.json as per spec
 !reports/metrics.json
 
-# Logs
-logs/
-*.log
+logs/*.log
+# Allow specific logs if needed, but generally exclude
+!logs/validate_run.log
+!logs/kickback.log
 
-# Python cache
-__pycache__/
-*.py[cod]
-$py.class
-
-# Virtual environments
-venv/
-.venv/
-env/
-.env/
-
-# IDE and editor files
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.bak
+# Environment
+.env
+.env.local
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints

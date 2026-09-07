@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-461-predicting-the-impact-of-composition-on-/`) by executing: `mkdir -p code/data code/features code/models code/analysis data models reports tests/unit tests/contract tests/integration`
+- [ ] T001 Create project structure per implementation plan (`projects/PROJ-461-predicting-the-impact-of-composition-on-/`) by executing: `mkdir -p code/data code/features code/models code/analysis data models reports logs tests/unit tests/contract tests/integration`
 
 - [X] T002 Initialize Python 3.10+ project with `pyproject.toml`. Create `pyproject.toml` with:
  - `[build-system]` using `setuptools`
@@ -43,17 +43,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup data directory structure (`data/`, `models/`, `reports/`) and `.gitignore` for artifacts (exclude `*.csv`, `*.pkl`, `*.png`, `*.html` except `metrics.json`).
+- [ ] T004 Setup data directory structure (`data/`, `models/`, `reports/`, `logs/`) and `.gitignore` for artifacts (exclude `*.csv`, `*.pkl`, `*.png`, `*.html`, `*.log` except `metrics.json`).
 
 - [X] T005 [P] Implement logging infrastructure. Create `code/utils/logger.py` with a `get_logger(name: str) -> logging.Logger` function that returns a configured `logging.Logger` instance with JSON formatting and a file handler writing to `logs/run.log`.
+
+- [ ] T008-SHEMA-GEN [P] Generate contract schema files. Create `contracts/dataset.schema.yaml`, `contracts/model_output.schema.yaml`, and `contracts/output.schema.yaml` based on the data models defined in `docs/data-model.md`. **Output**: Valid YAML schema files in `contracts/`. **Input**: `docs/data-model.md`. **Dependency**: None.
 
 - [X] T006 [P] Create schema validation utilities for `contracts/`. Implement `code/utils/schema_validator.py` with `load_schema(path: str) -> jsonschema.Draft7Validator` returning a validator instance for `contracts/dataset.schema.yaml`, `contracts/model_output.schema.yaml`, and `contracts/output.schema.yaml`. **Dependency**: Must run after T008-SHEMA-GEN.
 
 - [X] T007 Create base constants module for periodic table references (`code/features/constants.py`) using `mendeleev` library to expose `get_atomic_mass`, `get_atomic_radius`, `get_electronegativity` functions.
 
-- [X] T008 Configure environment configuration management. Create `code/config.py` with a `Config` dataclass containing `seed: int`, `data_dir: Path`, `model_dir: Path`, `report_dir: Path`. Implement `load_config()` to read from `.env` or `config.yaml`.
-
-- [ ] T008-SHEMA-GEN [P] Generate contract schema files. Create `contracts/dataset.schema.yaml`, `contracts/model_output.schema.yaml`, and `contracts/output.schema.yaml` based on the data models defined in `data-model.md`. **Output**: Valid YAML schema files in `contracts/`. **Dependency**: Must run before T006 and T010.
+- [X] T008 Configure environment configuration management. Create `code/config.py` with a `Config` dataclass containing `seed: int`, `data_dir: Path`, `model_dir: Path`, `report_dir: Path`, `log_dir: Path`. Implement `load_config()` to read from `.env` or `config.yaml`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -67,22 +67,35 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T010 [P] [US1] Contract test for data schema in `tests/contract/test_dataset_schema.py`. Verify `clean_data.csv` matches `contracts/dataset.schema.yaml`. **Dependency**: Must run after T008-SHEMA-GEN. <!-- ATOMIZE: requested -->
-- [X] T011 [US1] Integration test for download fallback logic in `tests/integration/test_data_fallback.py`. **Must run after T013-ORCHESTRATE**. Mock network failures to verify fallback to synthetic generation.
+- [ ] T010-COLS [P] [US1] Contract test for data schema columns in `tests/contract/test_dataset_schema.py`. Verify `clean_data.csv` has required columns. **Dependency**: Must run after T013-VALIDATE-AND-ORCHESTRATE.
+- [ ] T010-TYPES [P] [US1] Contract test for data schema types in `tests/contract/test_dataset_schema.py`. Verify `clean_data.csv` has valid numeric types. **Dependency**: Must run after T013-VALIDATE-AND-ORCHESTRATE.
+- [ ] T010-NULLS [P] [US1] Contract test for data schema nulls in `tests/contract/test_dataset_schema.py`. Verify `clean_data.csv` has no nulls in target column. **Dependency**: Must run after T013-VALIDATE-AND-ORCHESTRATE.
+- [X] T011 [US1] Integration test for download fallback logic in `tests/integration/test_data_fallback.py`. **Must run after T013-VALIDATE-AND-ORCHESTRATE**. Mock network failures to verify fallback to synthetic generation.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/data/download.py` to fetch from Zenodo (primary) and Materials Cloud (secondary) with exponential backoff (3 retries). Output `data/raw_data.csv`. **Constraint**: Must use `requests` with explicit timeout; if both fail, raise `DataFetchError` to trigger fallback logic in T013-ORCHESTRATE.
+- [ ] T012-DATA-DISCOVERY [US1] Implement `code/data/download.py` to execute the full FR-007 'data_discovery' step. **Logic**:
+ 1. Attempt Primary (Zenodo). If network failure, attempt Secondary (Materials Cloud) with exponential backoff (limited retries).
+ 2. If both fail OR if the combined dataset has <50 valid rows, set status "INSUFFICIENT".
+ 3. If success and rows >= 50, set status "SUCCESS".
+ 4. Write `data/raw_status.json` with `{"status": "SUCCESS|INSUFFICIENT", "source": "<url|NONE>", "rows": <count>}`.
+ 5. If "SUCCESS", save `data/raw_data.csv`.
+ 6. **Constraint**: This task handles the entire fallback chain (Primary -> Secondary -> Synthetic trigger). It does NOT generate synthetic data (that is T013-GENERATE-SYNTHETIC), but it MUST trigger the flag for T013 to do so.
+ **Output**: `data/raw_status.json`, `data/raw_data.csv` (if success). **Dependency**: None.
 
-- [ ] T014-FILTER [US1] Implement `code/data/preprocess.py` to normalize elemental symbols to IUPAC standards (1-2 chars). **Strategy**: Filter rows with missing density values. **Critical Logic**: Output `data/clean_data.csv`. **Dependency**: Must run after T012. **Note**: This task does NOT trigger synthetic data; it only filters available data.
+- [ ] T013-VALIDATE-AND-ORCHESTRATE [US1] Implement orchestration and validation logic. **Logic**:
+ 1. Read `data/raw_status.json` (from T012-DATA-DISCOVERY).
+ 2. If status is "SUCCESS", read `data/raw_data.csv`, filter missing density, and write `data/clean_data.csv`.
+ 3. If status is "INSUFFICIENT", call `code/data/download.py:generate_synthetic_data()` (T013-GENERATE-SYNTHETIC) to create `data/synthetic_data.csv` (≥100 rows).
+ 4. Write `data/validation_log.json` with schema: `{"status": "REAL|SYNTHETIC", "source": "<url|generated>", "rows": <int>, "data_path": "<path to csv>"}`.
+ 5. Log `E_DATA_INSUFFICIENT` if synthetic mode is triggered.
+ **Output**: `data/clean_data.csv` (or `data/synthetic_data.csv`), `data/validation_log.json`. **Dependency**: Must run after T012-DATA-DISCOVERY.
 
-- [ ] T013-ORCHESTRATE [US1] Implement the central orchestration logic for FR-007. **Input**: Inspect `data/clean_data.csv` (from T014-FILTER) and `data/raw_data.csv` (from T012). **Logic**: Check if *both* sources failed OR if `clean_data.csv` has < 50 rows. **Action**: If condition met, set a flag in `data/validation_log.json` indicating 'SYNTHETIC_REQUIRED'. **Output**: `data/validation_log.json` with status. **Dependency**: Must run after T014-FILTER.
+- [ ] T013-GENERATE-SYNTHETIC [US1] Generate `data/synthetic_data.csv` (≥100 rows) with columns `composition` (dict), `density` (float). **Logic**: If real data exists (even if filtered), mimic 'dominant element' distribution from the *clean* real data; if not, use uniform distribution. Use linear mixing rule + Gaussian noise (σ=0.05). **Use fixed seed=42**. **Output**: `data/synthetic_data.csv`. **Trigger**: Called by T013-VALIDATE-AND-ORCHESTRATE when validation fails. **Dependency**: Triggered by T013-VALIDATE-AND-ORCHESTRATE.
 
-- [ ] T013-GENERATE-SYNTHETIC [US1] Generate `data/synthetic_data.csv` (≥100 rows) with columns `composition` (dict), `density` (float). **Logic**: If real data exists (even if filtered), mimic 'dominant element' distribution from the *clean* real data; if not, use uniform distribution. Use linear mixing rule + Gaussian noise (σ=0.05). **Use fixed seed=42**. **Output**: `data/synthetic_data.csv`. **Dependency**: Triggered only if T013-ORCHESTRATE flags 'SYNTHETIC_REQUIRED'.
+- [X] T015 [US1] Verify `data/clean_data.csv` (or `synthetic_data.csv` if in Synthetic mode) has zero missing values in target column and valid numeric types for all elemental mass fractions. **Output**: Generate `data/validation_log.json` containing row counts, missing value stats, and source status. **Dependency**: Must run after T013-VALIDATE-AND-ORCHESTRATE.
 
-- [X] T015 [US1] Verify `data/clean_data.csv` (or `synthetic_data.csv` if in Synthetic mode) has zero missing values in target column and valid numeric types for all elemental mass fractions. **Output**: Generate `data/validation_log.json` containing row counts, missing value stats, and source status. **Dependency**: Must run after T013-ORCHESTRATE and T013-GENERATE-SYNTHETIC (if triggered).
-
-- [ ] T016 [US1] Add logging for data source selection and `E_DATA_INSUFFICIENT` warnings when switching to synthetic mode. **Log Format**: `LOG: Data source selected: {source} | Rows: {count} | Status: {status}`.
+- [X] T016 [US1] Add logging for data source selection and `E_DATA_INSUFFICIENT` warnings when switching to synthetic mode. **Logic**: Read `data/validation_log.json` (from T013) to determine log message. **Log Format**: `LOG: Data source selected: {source} | Rows: {count} | Status: {status}`. **Dependency**: Must run after T013-VALIDATE-AND-ORCHESTRATE.
 
 - [X] T017 [US1] Add unit tests for `code/data/download.py` mocking network failures to verify fallback to synthetic generation.
 
@@ -103,25 +116,31 @@
 
 ### Implementation for User Story 2
 
-- [X] T024-DEV-DRAFT [Plan] [US2] Document and validate the Group K-Fold deviation. Create `docs/deviations/group_kfold_rationale.md` explaining the scientific rationale (data leakage prevention) and generating a formal "Kickback Request" JSON object to update FR-003 in the Spec. **Content Required**: Must explicitly reference FR-003 and the leakage risk. **Output**: `docs/deviations/group_kfold_rationale.md`.
+- [X] T024-DEV-DRAFT [Plan] [US2] Document and validate the Group K-Fold deviation. Create `docs/deviations/group_kfold_rationale.md` explaining the scientific rationale (data leakage prevention) and generating a formal "Kickback Request" JSON object. **Schema**: `{"id": "KB-001", "fr_id": "FR-003", "deviation": "Group K-Fold", "rationale": "..."}`. **Output**: `docs/deviations/group_kfold_rationale.md`. **Dependency**: None.
 
-- [X] T024-DEV-EXEC [Plan] [US2] Submit the Kickback Request. Create a formal request artifact (e.g., `docs/kickback_requests/FR003_group_kfold.json`) and log the request for review. **Depends on**: T024-DEV-DRAFT.
+- [X] T024-DEV-JSON [Plan] [US2] Generate the Kickback Request JSON artifact. Create `docs/kickback_requests/FR003_group_kfold.json`. **Dependency**: Must run after T024-DEV-DRAFT.
 
-- [X] T024 [US2] Implement `code/models/train.py` to split data using **Group K-Fold** (k=5). **Deviation**: Overrides Spec FR-003 (Stratified K-Fold) per Plan.md to prevent data leakage. **Grouping Logic**: Derive `dominant_element` column (element with highest mass fraction) and use it as the `groups` array. **Dependency**: Must run after T023-BASELINE-CALC and T023-MASS-ONLY-BASELINE are defined. **Note**: This task proceeds with a 'Known Spec Mismatch' flag while the kickback process (T024-DEV-EXEC) runs in parallel.
+- [X] T024-DEV-EXEC [Plan] [US2] Submit the Kickback Request. Log the request to `logs/kickback.log`. **Depends on**: T024-DEV-JSON.
 
-- [X] T022 [US2] Implement `code/features/engineering.py` to convert mass fractions to atomic fractions specifically for radius-based calculations to mitigate collinearity. **Logic**: `atomic_fraction_i = (mass_fraction_i / atomic_mass_i) / sum(mass_fraction_j / atomic_mass_j)`. **Input**: Read active data source path from `data/validation_log.json` (T013-ORCHESTRATE) to load either `data/clean_data.csv` or `data/synthetic_data.csv`. **Output**: Append atomic fraction columns to `data/clean_data.csv`. **Dependency**: Must run BEFORE T020.
+- [X] T024-APPROVE-DEV [Plan] [US2] Approve the deviation. Simulate the approval process by validating the request and creating `docs/approvals/FR003_group_kfold_approved.json`. **Output**: Approval artifact. **Dependency**: T024-DEV-EXEC.
+
+- [X] T024-AMEND-SPC [Plan] [US2] Update `spec.md` to formally reflect the Group K-Fold deviation in FR-003. **Output**: Updated `spec.md` with amended FR-003. **Dependency**: T024-APPROVE-DEV.
+
+- [X] T022 [US2] Implement `code/features/engineering.py` to convert mass fractions to atomic fractions specifically for radius-based calculations to mitigate collinearity. **Logic**: `atomic_fraction_i = (mass_fraction_i / atomic_mass_i) / sum(mass_fraction_j / atomic_mass_j)`. **Input**: Read active data source path from `data/validation_log.json` (T013) to load either `data/clean_data.csv` or `data/synthetic_data.csv`. **Output**: Append atomic fraction columns to `data/clean_data.csv`. **Dependency**: Must run BEFORE T020.
 
 - [X] T020 [US2] Implement `code/features/engineering.py` to compute 5 specific descriptors required by FR-002: 1) Mean Atomic Mass, 2) Mean Atomic Radius, 3) Electronegativity Variance, 4) Atomic Radius Mismatch, 5) Packing Efficiency Proxy. **Formula for PE**: `PE = 1 - (σ_r / r_mean)^2 * (1 - 0.5 * (Δr/r_mean)^2)`. **Guard Clause**: If σ_r = 0, set PE = 1.0. **Input**: `data/clean_data.csv` (with atomic fractions from T022). **Output**: Append descriptor columns to `data/clean_data.csv`. **Dependency**: Must run AFTER T022.
 
 - [ ] T023-BASELINE-CALC [US2] Implement `code/features/engineering.py` to calculate baseline density (Linear Mixing Rule: `ρ_baseline = Σ(w_i × ρ_element_i)`) and derive residual target (`ρ_residual = ρ_actual - ρ_baseline`). **Constraint**: This MUST be a deterministic calculation, NOT a trained model. **Input**: `data/clean_data.csv` (with descriptors from T020). **Output**: Append `ρ_baseline` and `ρ_residual` columns to `data/clean_data.csv`. **Dependency**: Must run AFTER T020.
 
-- [ ] T025 [US2] Implement `code/models/train.py` to train LightGBM Gradient Boosting Regressor on `ρ_residual` (CPU-only). Save model to `models/model.pkl`. Log MAE/R² on test set. **Dependency**: Must run after T023-BASELINE-CALC.
+- [X] T025-MASS-ONLY [US2] **Satisfies Plan.md Complexity Tracking**: Implement `code/models/train.py` to train a **Mass-Only Model** (Linear Regression on `mean_atomic_mass`) on `ρ_residual`. Calculate its MAE. **Purpose**: Compare against the main model per Plan.md Complexity Tracking as an *additional* comparison (Model vs Mass-Only). **Note**: This is an auxiliary experiment; it is NOT a dependency for T024 or T026-STAT. **Dependency**: Must run after T023-BASELINE-CALC.
 
-- [ ] T025-MASS-ONLY [US2] **Satisfies Plan.md Complexity Tracking**: Implement `code/models/train.py` to train a **Mass-Only Model** (Linear Regression on `mean_atomic_mass`) on `ρ_residual`. Calculate its MAE. **Purpose**: Compare against the main model per Plan.md Complexity Tracking as an *additional* comparison (Model vs Mass-Only). **Dependency**: Must run after T023-BASELINE-CALC.
+- [X] T024 [US2] Implement `code/models/train.py` to split data using **Group K-Fold** (k=5). **Deviation**: Overrides Spec FR-003 (Stratified K-Fold) per Plan.md to prevent data leakage. **Grouping Logic**: Derive `dominant_element` column (element with highest mass fraction) and use it as the `groups` array. **Dependency**: Must run after T023-BASELINE-CALC, T025-MASS-ONLY, and T024-AMEND-SPC. **Note**: This task proceeds with a 'Known Spec Mismatch' flag only after T024-AMEND-SPC is complete.
 
-- [X] T026 [US2] Save metrics (Model MAE, Linear Mixing Rule Baseline MAE, Mass-Only Baseline MAE, R²) to `reports/metrics.json` (SSoT). **Dependency**: Must run AFTER T025 and T025-MASS-ONLY.
+- [ ] T025 [US2] Implement `code/models/train.py` to train LightGBM Gradient Boosting Regressor on `ρ_residual` (CPU-only). Save model to `models/model.pkl`. Log MAE/R² on test set. **Output**: `models/model.pkl`, `data/test_residuals.csv` (contains per-sample predictions and residuals for statistical testing). **CRITICAL**: `data/test_residuals.csv` MUST contain columns: `sample_id`, `model_residual` (predicted - actual), `lmr_residual` (actual - baseline). **Dependency**: Must run after T023-BASELINE-CALC and T024 (Group K-Fold split).
 
-- [ ] T026-STAT [US2] Implement `code/analysis/statistics.py` to perform a **paired t-test** comparing Model MAE vs Linear Mixing Rule Baseline MAE on residuals (per SC-003). Calculate p-value. If p < 0.05, log statistical significance. **Input**: `reports/metrics.json` (contains all baseline metrics). **Output**: `reports/statistics.json`. **Dependency**: Must run AFTER T026.
+- [X] T026 [US2] Save metrics (Model MAE, Linear Mixing Rule Baseline MAE, Mass-Only Baseline MAE, R²) to `reports/metrics.json` (SSoT). **Output**: `reports/metrics.json` and `data/test_residuals.csv` (if not already written by T025). **Dependency**: Must run AFTER T025 and T025-MASS-ONLY.
+
+- [ ] T026-STAT [US2] Implement `code/analysis/statistics.py` to perform a **paired t-test** comparing Model residual errors vs Linear Mixing Rule Baseline residual errors (per SC-003). **Input**: `data/test_residuals.csv` (contains `model_residual` and `lmr_residual` columns). **Output**: `reports/statistics.json` with keys: `p_value`, `conclusion` (pass/fail), `test_type` ("paired_t_test_model_vs_lmr"). **Dependency**: Must run AFTER T026 and T025 (for residuals).
 
 - [X] T027 [US2] Add unit tests verifying atomic fraction conversion logic and packing efficiency guard clause.
 
@@ -146,13 +165,19 @@
 
 - [ ] T031 [US3] Implement `code/analysis/report.py` to perform SHAP analysis and generate summary plot ranking features (explicitly comparing Mean Atomic Mass vs Radius Mismatch). Save to `reports/shap_summary.png`.
 
-- [ ] T032 [US3] Implement `code/analysis/report.py` to run sensitivity analysis (add Gaussian noise with varying small magnitudes to target) and log MAE variance. Output table to `reports/sensitivity_analysis.json`.
+- [ ] T032 [US3] Implement `code/analysis/report.py` to run sensitivity analysis (add Gaussian noise with varying small magnitudes to target) and log MAE and **RMSE** variance. Output table to `reports/sensitivity_analysis.json`. **Output**: `reports/sensitivity_analysis.json` containing MAE and RMSE variance for each noise level. **Dependency**: Must run after T025.
 
-- [~] T033 [US3] Implement `code/analysis/report.py` conditional logic: **Read MAE from `reports/metrics.json`**. If MAE > 0.1, generate Partial Dependence Plots for radius mismatch. **Output**: `reports/pdp_radius_mismatch.png`. Include explicit variance analysis as a distinct finding. **Dependency**: Must run after T026.
+- [ ] T033-COND [US3] Implement `code/analysis/report.py` to read `reports/metrics.json` and determine if MAE > 0.1. **Output**: `data/mae_check.json` with `{"mae": <float>, "trigger_pdp": <bool>}`. **Dependency**: Must run after T026.
 
-- [~] T034 [US3] Implement `code/analysis/report.py` to compile `reports/analysis_report.html` and `reports/metrics.json` (SSoT).
+- [ ] T033-VARIANCE [US3] Implement `code/analysis/report.py` to calculate and report 'variance explained' by radius mismatch if MAE > 0.1. **Logic**: Use SHAP interaction values to quantify the contribution of radius mismatch vs mass. **Output**: `reports/variance_explained.json` containing the specific metric. **Dependency**: Must run after T033-COND (if `trigger_pdp` is true).
 
-- [~] T035 [US3] Add unit tests for sensitivity analysis logic and MAE > 0.1 conditional report generation.
+- [ ] T033-PDP [US3] Implement `code/analysis/report.py` to generate Partial Dependence Plots for radius mismatch if MAE > 0.1. **Output**: `reports/pdp_radius_mismatch.png`. **Dependency**: Must run after T033-COND (if `trigger_pdp` is true), T025 (model), and T013 (data).
+
+- [ ] T034-HTML [US3] Implement `code/analysis/report.py` to compile `reports/analysis_report.html`. **Dependency**: Must run after T030, T031, T032, T033-VARIANCE (if triggered), T033-PDP (if triggered).
+
+- [ ] T034-JSON [US3] Update `reports/metrics.json` with final summary. **Dependency**: Must run after T026 and T032.
+
+- [ ] T035 [US3] Add unit tests for sensitivity analysis logic and MAE > 0.1 conditional report generation.
 
 **Checkpoint**: All user stories complete; comprehensive report generated with interpretability data
 
@@ -161,8 +186,6 @@
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
-
-- [ ] T024-UPDATE-SPEC [Plan] **CRITICAL**: Update `spec.md` to formally reflect the Group K-Fold deviation in FR-003, resolving the contradiction between Spec and Plan. **Output**: Updated `spec.md` with amended FR-003. **Dependency**: Must complete T024-DEV-EXEC and receive approval. **Note**: This is an administrative task to align the Spec with the implemented deviation.
 
 - [ ] T036-README [P] Documentation updates. Add "Usage" section to `README.md` with example CLI commands (`python -m code.main`).
 - [ ] T036-API [P] Documentation updates. Document CLI arguments and environment variables in `docs/api.md`.
@@ -173,7 +196,8 @@
 - [ ] T039-ENG [P] Unit tests for `code/features/engineering.py` (atomic fraction conversion, descriptor formulas).
 - [ ] T039-TRAIN [P] Unit tests for `code/models/train.py` (Group K-Fold split, model training).
 - [ ] T039-REPORT [P] Unit tests for `code/analysis/report.py` (plot generation, sensitivity analysis).
-- [~] T040 [P] Run `python -m code.main --validate` and verify exit code 0 and `state/` hash match. Verify all artifacts are reproducible. <!-- FAILED: unspecified -->
+- [ ] T040-RUN [P] Run `python -m code.main --validate` and verify exit code 0. **Output**: `logs/validate_run.log`.
+- [ ] T040-VERIFY [P] Verify `state/manifest.json` hash match and `logs/validate_run.log` content for specific success markers. **Dependency**: Must run after T040-RUN.
 
 ---
 
@@ -207,7 +231,7 @@
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if staffed)
-- All tests for a user story marked [P] can run in parallel (except T011 which depends on T013-ORCHESTRATE)
+- All tests for a user story marked [P] can run in parallel (except T011 which depends on T013)
 - Different user stories can be worked on in parallel by different team members
 
 ---
@@ -216,13 +240,14 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data schema in tests/contract/test_dataset_schema.py"
-# T011 (Integration test) is NOT parallel; it depends on T013-ORCHESTRATE.
+Task: "Contract test for data schema columns in tests/contract/test_dataset_schema.py"
+Task: "Contract test for data schema types in tests/contract/test_dataset_schema.py"
+Task: "Contract test for data schema nulls in tests/contract/test_dataset_schema.py"
 
 # Launch all models for User Story 1 together:
 Task: "Implement code/data/download.py to fetch from Zenodo (primary) and Materials Cloud (secondary)"
 Task: "Implement code/data/preprocess.py to normalize elemental symbols and handle missing density values"
-Task: "Implement code/data/download.py fallback logic (T013-ORCHESTRATE)"
+Task: "Implement code/data/download.py fallback logic (T012)"
 ```
 
 ---
@@ -267,7 +292,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Plan Deviation**: T024 implements Group K-Fold instead of Stratified K-Fold (FR-003) per Plan.md. T024-DEV-DRAFT documents this, T024-DEV-EXEC submits the Kickback Request, and T024-UPDATE-SPEC (Phase N) formally updates spec.md to resolve the deviation.
+- **Plan Deviation**: T024 implements Group K-Fold instead of Stratified K-Fold (FR-003) per Plan.md. T024-DEV-DRAFT documents this, T024-DEV-EXEC submits the Kickback Request, T024-APPROVE-DEV approves it, and T024-AMEND-SPC formally updates spec.md to resolve the deviation.
 - **Baseline Deviation**: T023-BASELINE-CALC implements the Spec-defined Linear Mixing Rule baseline for SC-003. T025-MASS-ONLY implements the Mass-Only Model baseline per Plan.md Complexity Tracking (as an *additional* comparison).
-- **Data Orchestration**: T013-ORCHESTRATE centralizes the fallback logic for FR-007, ensuring correct triggering based on source failure or row count.
+- **Data Orchestration**: T012-DATA-DISCOVERY centralizes the fallback logic for FR-007, ensuring correct triggering based on source failure or row count.
 - **T021 Resolution**: T021 has been merged into T020 to resolve the fragmentation of the Packing Efficiency Proxy descriptor.
+- **Data Integrity**: T012-DATA-DISCOVERY explicitly handles Primary -> Secondary -> Synthetic trigger logic.
+- **Statistical Rigor**: T026 outputs per-sample residuals to `data/test_residuals.csv` to enable the paired t-test in T026-STAT as required by SC-003.
+- **Variance Explanation**: T033-VARIANCE explicitly calculates and reports 'variance explained' by radius mismatch if MAE > 0.1, satisfying Constitution Principle VII.

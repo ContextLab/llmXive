@@ -11,7 +11,7 @@ ignore = []
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude a few files/directories from linting.
+# Exclude a few problematic directories.
 exclude = [
     ".bzr",
     ".direnv",
@@ -36,7 +36,6 @@ exclude = [
     "venv",
 ]
 
-# Per-rule configuration
+# Per-rule configuration.
 [lint.per-file-ignores]
-# Ignore imported but unused in __init__.py files
-"__init__.py" = ["F401"]
+"tests/*" = ["S101"]

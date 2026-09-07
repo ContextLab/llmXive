@@ -1,36 +1,43 @@
-"""
-Script to setup data directory structure for the project.
-Creates data/, models/, and reports/ directories if they don't exist.
-"""
 import os
 from pathlib import Path
 
 def setup_directories():
-    """Create the required directory structure."""
-    base_dir = Path(__file__).parent.parent
-    
+    """
+    Create the required directory structure for the project artifacts.
+    This includes data/, models/, reports/, and logs/ at the root,
+    and subdirectories under code/ if they don't exist.
+    """
+    # Define directories relative to project root
+    root = Path(__file__).resolve().parent.parent
     directories = [
-        base_dir / "data",
-        base_dir / "models",
-        base_dir / "reports",
-        base_dir / "logs",
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "data" / "external",
-        base_dir / "docs",
-        base_dir / "docs" / "deviations",
-        base_dir / "docs" / "kickback_requests",
+        root / "data",
+        root / "models",
+        root / "reports",
+        root / "logs",
+        root / "code" / "data",
+        root / "code" / "features",
+        root / "code" / "models",
+        root / "code" / "analysis",
+        root / "tests" / "unit",
+        root / "tests" / "contract",
+        root / "tests" / "integration",
     ]
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
-    
-    print("\nDirectory structure setup complete.")
+
+    created = []
+    for dir_path in directories:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
+        # Ensure .gitkeep exists to prevent empty directory removal
+        gitkeep = dir_path / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
+
+    return created
 
 def main():
-    """Main entry point."""
-    setup_directories()
+    created_dirs = setup_directories()
+    print(f"Created directories: {created_dirs}")
 
 if __name__ == "__main__":
     main()

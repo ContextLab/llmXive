@@ -1,69 +1,48 @@
-"""
-Setup script to create the project directory structure.
-Executes the creation of required directories for the metallic glass density prediction project.
-"""
 import os
-from pathlib import Path
 import logging
-
-# Import logger from existing utility
+from pathlib import Path
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def setup_directories() -> None:
+def setup_directories():
     """
-    Create the project directory structure as defined in the implementation plan.
-    Directories created:
-    - code/data, code/features, code/models, code/analysis
-    - data, models, reports
-    - tests/unit, tests/contract, tests/integration
+    Create the project directory structure as per the implementation plan.
+    Creates code/data, code/features, code/models, code/analysis, data, models,
+    reports, logs, tests/unit, tests/contract, tests/integration.
     """
-    # Determine project root: parent of code/
-    project_root = Path(__file__).resolve().parent.parent
+    base_path = Path(__file__).parent.parent
     
     directories = [
-        "code/data",
-        "code/features",
-        "code/models",
-        "code/analysis",
-        "data",
-        "models",
-        "reports",
-        "tests/unit",
-        "tests/contract",
-        "tests/integration",
-        "logs",
-        "docs",
-        "contracts",
-        "state"
+        base_path / "code" / "data",
+        base_path / "code" / "features",
+        base_path / "code" / "models",
+        base_path / "code" / "analysis",
+        base_path / "data",
+        base_path / "models",
+        base_path / "reports",
+        base_path / "logs",
+        base_path / "tests" / "unit",
+        base_path / "tests" / "contract",
+        base_path / "tests" / "integration",
     ]
 
     created_count = 0
     for dir_path in directories:
-        full_path = project_root / dir_path
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
             created_count += 1
-        except PermissionError:
-            logger.error(f"Permission denied creating directory: {full_path}")
-        except OSError as e:
-            logger.error(f"Error creating directory {full_path}: {e}")
+        else:
+            logger.debug(f"Directory already exists: {dir_path}")
 
-    logger.info(f"Project structure setup complete. Created {created_count} directories.")
+    logger.info(f"Project structure setup complete. Created {created_count} new directories.")
+    return True
 
-def main() -> int:
-    """
-    Main entry point for the setup script.
-    Returns 0 on success, 1 on failure.
-    """
-    try:
-        setup_directories()
-        return 0
-    except Exception as e:
-        logger.error(f"Setup failed: {e}")
-        return 1
+def main():
+    """Entry point for the setup script."""
+    setup_directories()
+    return 0
 
 if __name__ == "__main__":
     exit(main())
