@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExecutionLog"
+description: "Schema for aggregated execution results of a trajectory (baseline, recall, or control)."
+type: "object"
+required:
+  - "trajectory_id"
+  - "condition"
+  - "success_rate"
+  - "latency_avg"
+  - "memory_peak"
+  - "step_count"
+properties:
+  trajectory_id:
+    type: "string"
+    description: "UUID of the trajectory."
+  condition:
+    type: "string"
+    enum: ["baseline", "recall", "noise", "shuffled"]
+    description: "Experimental condition."
+  success_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Success rate of the agent for this condition."
+  latency_avg:
+    type: "number"
+    description: "Average inference latency for this condition (seconds)."
+  memory_peak:
+    type: "number"
+    description: "Peak memory usage for this condition (MB)."
+  step_count:
+    type: "integer"
+    description: "Total number of steps executed."
+  latency_overhead_percent:
+    type: "number"
+    description: "Calculated overhead: ((recall - baseline) / baseline) * 100."
+  success_rate_improvement:
+    type: "number"
+    description: "Calculated improvement: recall - baseline."

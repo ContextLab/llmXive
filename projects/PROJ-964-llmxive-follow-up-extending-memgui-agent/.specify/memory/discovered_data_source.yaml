@@ -1,0 +1,16 @@
+status: none
+intent: MemGUI-3K dataset HuggingFace datasets download python package dataset
+required_fields:
+- trajectory_id
+- step_index
+- app_name
+- screen_id
+- action_type
+- action_parameters
+- depends_on_step_id
+- required_information
+- is_final_step
+- plausibility_rating
+cache_key: 849a163c2f4bfe0cadf9eba16b222c54b6a2a44f545461ec697a15bb13636783
+searched_at: '2026-09-07T16:19:04.843570+00:00'
+retry_count: 1
