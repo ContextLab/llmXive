@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-02T11:32:18Z",
+  "fetched_at": "2026-09-07T08:24:10Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,105 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretrain\"",
       "target_n": 5
     },
-    "duration_seconds": 42.659,
-    "ended_at": "2026-08-02T11:32:18Z",
+    "duration_seconds": 89.049,
+    "ended_at": "2026-09-07T08:24:10Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "Unified egocentric human-robotic data for vision-language-action pretraining"
+          "egocentric vision robotic pretraining"
         ],
         [
           2,
-          "Cross-modal pretraining with human and robot egocentric videos"
+          "unified human-robot data for vision-language-action models"
         ],
         [
           3,
-          "VLA models trained on combined human and robotic embodied data"
+          "VLA pretraining with egocentric video"
         ],
         [
           4,
-          "Egocentric video datasets for vision-language-action models"
+          "cross-embodiment imitation learning datasets"
         ],
         [
           5,
-          "Sim-to-real transfer using unified human-robot pretraining"
+          "human-robot alignment in vision-language-action models"
         ],
         [
           6,
-          "Embodied AI pretraining with mixed human and robot observations"
+          "egocentric human data for robot policy learning"
         ],
         [
           7,
-          "Vision-language-action foundation models for robotics"
+          "multimodal pretraining for embodied agents"
         ],
         [
           8,
-          "Human-robot joint learning for embodied task planning"
+          "sim-to-real transfer with egocentric observations"
         ],
         [
           9,
-          "Egocentric perception in vision-language-action frameworks"
+          "large language models for robotic manipulation from human video"
         ],
         [
           10,
-          "Multimodal pretraining for generalizable robotic policies"
+          "vision-language-action model data augmentation"
         ],
         [
           11,
-          "Data augmentation for VLA models using human egocentric footage"
+          "joint training on human and robot manipulation data"
         ],
         [
           12,
-          "Transfer learning from human egocentric data to robotic control"
+          "egocentric perception for general-purpose robots"
         ],
         [
           13,
-          "Unified representation learning for human and robot interaction"
+          "cross-domain representation learning for robotics"
         ],
         [
           14,
-          "Egocentric vision-language pretraining for robotic manipulation"
+          "scaling VLA models with heterogeneous human-robot data"
         ],
         [
           15,
-          "Cross-domain pretraining strategies for embodied AI"
+          "human demonstration data for robotic foundation models"
         ],
         [
           16,
-          "Human-in-the-loop data synthesis for VLA training"
+          "embodied AI pretraining strategies"
         ],
         [
           17,
-          "Robotic policy learning from human egocentric demonstrations"
+          "multimodal fusion for egocentric robotics"
         ],
         [
           18,
-          "Multimodal alignment in human-robot shared latent spaces"
+          "learning robot policies from first-person human video"
         ],
         [
           19,
-          "Large-scale embodied data collection for vision-language-action"
+          "unified representation learning for human and robotic agents"
         ],
         [
           20,
-          "Generalization of robotic policies via human data pretraining"
+          "dataset unification for vision-language-action tasks"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "Cross-modal pretraining with human and robot egocentric videos": 1,
-        "Unified egocentric human-robotic data for vision-language-action pretraining": 4,
-        "llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretrain\" computer science": 0
+        "egocentric vision robotic pretraining": 4,
+        "llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretrain\" computer science": 0,
+        "unified human-robot data for vision-language-action models": 2
       },
       "total_queries_issued": 2
     },
     "extracted_queries": [
-      "egocentric vision robotic manipulation dataset unification",
-      "VLA pretraining embodied AI imitation learning",
-      "human-robot data alignment cross-modal representation",
-      "action tokenization visual language model downstream tasks",
-      "sim-to-real transfer policy generalization embodied agents"
+      "embodied foundation model robot imitation learning",
+      "Ego4D ALFRED Bridge dataset robotic manipulation",
+      "visuomotor policy unifying human robotic data",
+      "VLA pretraining performance benchmark downstream task",
+      "cross-modal representation alignment teleoperation embodiment"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -116,36 +116,30 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2604.27621"
+        "2107.13411"
       ]
     },
     "per_query_hit_count": {
-      "VLA pretraining embodied AI imitation learning": 3,
-      "action tokenization visual language model downstream tasks": 3,
-      "egocentric vision robotic manipulation dataset unification": 3,
-      "human-robot data alignment cross-modal representation": 3,
+      "Ego4D ALFRED Bridge dataset robotic manipulation": 3,
+      "VLA pretraining performance benchmark downstream task": 3,
+      "cross-modal representation alignment teleoperation embodiment": 3,
+      "embodied foundation model robot imitation learning": 3,
       "llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretrain\" computer science": 3,
-      "sim-to-real transfer policy generalization embodied agents": 3
+      "visuomotor policy unifying human robotic data": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
-      "rejections": [
-        {
-          "primary_pointer": "2510.21391",
-          "rationale": "The paper focuses on remote sensing data augmentation for computer vision tasks, which is an off-domain application compared to the user's question regarding unifying egocentric human and robotic data for Vision-Language-Action (VLA) pretraining. While both involve \"unified\" frameworks and \"data augmentation,\" the specific mechanisms (geographic-spatial layouts vs. egocentric/robotic interaction), domains (satellite imagery vs. embodied AI), and target models (vision-only vs. VLA) are distinct, ",
-          "title": "TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation"
-        }
-      ]
+      "rejected_count": 0,
+      "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-02T11:31:35Z",
+    "started_at": "2026-09-07T08:22:41Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
       "raw": "llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretrain\" computer science"
@@ -164,7 +158,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -183,7 +177,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -201,47 +195,69 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Egocentric vision aims to capture and analyse the world from the first-person perspective. We explore the possibilities for egocentric wearable devices to improve and enhance industrial use cases w.r.t. data collection, annotation, labelling and downstream applications. This would contribute to easier data collection and allow users to provide additional context. We envision that this approach could serve as a supplement to the traditional industrial Machine Vision workflow. Code, Dataset and related resources will be available at: https://github.com/Vivek9Chavan/EgoVis24",
+          "claimed_abstract": "Existing on-policy imitation learning algorithms, such as DAgger, assume access to a fixed supervisor. However, there are many settings where the supervisor may evolve during policy learning, such as a human performing a novel task or an improving algorithmic controller. We formalize imitation learning from a \"converging supervisor\" and provide sublinear static and dynamic regret guarantees against the best policy in hindsight with labels from the converged supervisor, even when labels during learning are only from intermediate supervisors. We then show that this framework is closely connected to a class of reinforcement learning (RL) algorithms known as dual policy iteration (DPI), which alternate between training a reactive learner with imitation learning and a model-based supervisor with data from the learner. Experiments suggest that when this framework is applied with the state-of-the-art deep model-based RL algorithm PETS as an improving supervisor, it outperforms deep RL baselines on continuous control tasks and provides up to an 80-fold speedup in policy evaluation.",
           "claimed_authors": [
-            "Vivek Chavan",
-            "Oliver Heimann",
-            "Jörg Krüger"
+            "Ashwin Balakrishna",
+            "Brijen Thananjeyan",
+            "Jonathan Lee",
+            "Felix Li",
+            "Arsh Zahed",
+            "Joseph E. Gonzalez",
+            "Ken Goldberg"
           ],
-          "claimed_title": "On the Application of Egocentric Computer Vision to Industrial Scenarios",
+          "claimed_title": "On-Policy Robot Imitation Learning from a Converging Supervisor",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2406.07738"
+          "claimed_year": 2019,
+          "primary_pointer": "1907.03423"
         },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='On the Application of Egocentric Computer Vision to Industrial Scenarios')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='On-Policy Robot Imitation Learning from a Converging Supervisor')",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Robotic manipulation, a key frontier in robotics and embodied AI, requires precise motor control and multimodal understanding, yet traditional rule-based methods fail to scale or generalize in unstructured, novel environments. In recent years, Vision-Language-Action (VLA) models, built upon Large Vision-Language Models (VLMs) pretrained on vast image-text datasets, have emerged as a transformative paradigm. This survey provides the first systematic, taxonomy-oriented review of large VLM-based VLA models for robotic manipulation. We begin by clearly defining large VLM-based VLA models and delineating two principal architectural paradigms: (1) monolithic models, encompassing single-system and dual-system designs with differing levels of integration; and (2) hierarchical models, which explicitly decouple planning from execution via interpretable intermediate representations. Building on this foundation, we present an in-depth examination of large VLM-based VLA models: (1) integration with advanced domains, including reinforcement learning, training-free optimization, learning from human videos, and world model integration; (2) synthesis of distinctive characteristics, consolidating architectural traits, operational strengths, and the datasets and benchmarks that support their development; (3) identification of promising directions, including memory mechanisms, 4D perception, efficient adaptation, multi-agent cooperation, and other emerging capabilities. This survey consolidates recent advances to resolve inconsistencies in existing taxonomies, mitigate research fragmentation, and fill a critical gap through the systematic integration of studies at the intersection of large VLMs and robotic manipulation. We provide a regularly updated project page to document ongoing progress: https://github.com/JiuTian-VL/Large-VLM-based-VLA-for-Robotic-Manipulation",
+          "claimed_abstract": "Recently, model-free reinforcement learning algorithms have been shown to solve challenging problems by learning from extensive interaction with the environment. A significant issue with transferring this success to the robotics domain is that interaction with the real world is costly, but training on limited experience is prone to overfitting. We present a method for learning to navigate, to a fixed goal and in a known environment, on a mobile robot. The robot leverages an interactive world model built from a single traversal of the environment, a pre-trained visual feature encoder, and stochastic environmental augmentation, to demonstrate successful zero-shot transfer under real-world environmental variations without fine-tuning.",
           "claimed_authors": [
-            "Rui Shao",
-            "Wei Li",
-            "Lingsen Zhang",
-            "Renshan Zhang",
-            "Zhiyang Liu",
-            "Ran Chen",
-            "Liqiang Nie"
+            "Jake Bruce",
+            "Niko Suenderhauf",
+            "Piotr Mirowski",
+            "Raia Hadsell",
+            "Michael Milford"
           ],
-          "claimed_title": "Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey",
+          "claimed_title": "One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.13073"
+          "claimed_year": 2017,
+          "primary_pointer": "1711.10137"
         },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Large VLM-based Vision-Language-Action Models for Robotic Manipulation: A Survey')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay')",
+        "failed_at": "2026-09-07T08:23:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In order for a robot to be a generalist that can perform a wide range of jobs, it must be able to acquire a wide variety of skills quickly and efficiently in complex unstructured environments. High-capacity models such as deep neural networks can enable a robot to represent complex skills, but learning each skill from scratch then becomes infeasible. In this work, we present a meta-imitation learning method that enables a robot to learn how to learn more efficiently, allowing it to acquire new skills from just a single demonstration. Unlike prior methods for one-shot imitation, our method can scale to raw pixel inputs and requires data from significantly fewer prior tasks for effective learning of new skills. Our experiments on both simulated and real robot platforms demonstrate the ability to learn new tasks, end-to-end, from a single visual demonstration.",
+          "claimed_authors": [
+            "Chelsea Finn",
+            "Tianhe Yu",
+            "Tianhao Zhang",
+            "Pieter Abbeel",
+            "Sergey Levine"
+          ],
+          "claimed_title": "One-Shot Visual Imitation Learning via Meta-Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.04905"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='One-Shot Visual Imitation Learning via Meta-Learning')",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       },
       {
@@ -262,256 +278,262 @@
           "primary_pointer": "1911.01557"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Benchmarking Simulated Robotic Manipulation through a Real World Dataset')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Embodied Artificial Intelligence (Embodied AI) is crucial for achieving Artificial General Intelligence (AGI) and serves as a foundation for various applications (e.g., intelligent mechatronics systems, smart manufacturing) that bridge cyberspace and the physical world. Recently, the emergence of Multi-modal Large Models (MLMs) and World Models (WMs) have attracted significant attention due to their remarkable perception, interaction, and reasoning capabilities, making them a promising architecture for embodied agents. In this survey, we give a comprehensive exploration of the latest advancements in Embodied AI. Our analysis firstly navigates through the forefront of representative works of embodied robots and simulators, to fully understand the research focuses and their limitations. Then, we analyze four main research targets: 1) embodied perception, 2) embodied interaction, 3) embodied agent, and 4) sim-to-real adaptation, covering state-of-the-art methods, essential paradigms, and comprehensive datasets. Additionally, we explore the complexities of MLMs in virtual and real embodied agents, highlighting their significance in facilitating interactions in digital and physical environments. Finally, we summarize the challenges and limitations of embodied AI and discuss potential future directions. We hope this survey will serve as a foundational reference for the research community. The associated project can be found at https://github.com/HCPLab-SYSU/Embodied_AI_Paper_List.",
+          "claimed_abstract": "In this report, we present our champion solutions to five tracks at Ego4D challenge. We leverage our developed InternVideo, a video foundation model, for five Ego4D tasks, including Moment Queries, Natural Language Queries, Future Hand Prediction, State Change Object Detection, and Short-term Object Interaction Anticipation. InternVideo-Ego4D is an effective paradigm to adapt the strong foundation model to the downstream ego-centric video understanding tasks with simple head designs. In these five tasks, the performance of InternVideo-Ego4D comprehensively surpasses the baseline methods and the champions of CVPR2022, demonstrating the powerful representation ability of InternVideo as a video foundation model. Our code will be released at https://github.com/OpenGVLab/ego4d-eccv2022-solutions",
           "claimed_authors": [
-            "Yang Liu",
-            "Weixing Chen",
-            "Yongjie Bai",
-            "Xiaodan Liang",
-            "Guanbin Li",
-            "Wen Gao",
-            "Liang Lin"
+            "Guo Chen",
+            "Sen Xing",
+            "Zhe Chen",
+            "Yi Wang",
+            "Kunchang Li",
+            "Yizhuo Li",
+            "Yi Liu",
+            "Jiahao Wang",
+            "Yin-Dong Zheng",
+            "Bingkun Huang",
+            "Zhiyu Zhao",
+            "Junting Pan",
+            "Yifei Huang",
+            "Zun Wang",
+            "Jiashuo Yu",
+            "Yinan He",
+            "Hongjie Zhang",
+            "Tong Lu",
+            "Yali Wang",
+            "Limin Wang",
+            "Yu Qiao"
           ],
-          "claimed_title": "Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI",
+          "claimed_title": "InternVideo-Ego4D: A Pack of Champion Solutions to Ego4D Challenges",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.09529"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='InternVideo-Ego4D: A Pack of Champion Solutions to Ego4D Challenges')",
+        "failed_at": "2026-09-07T08:23:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2407.06886"
+          "primary_pointer": "2405.19595"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In this paper, we describe our winning approach to solving the Lane Following Challenge at the AI Driving Olympics Competition through imitation learning on a mixed set of simulation and real-world data. AI Driving Olympics is a two-stage competition: at stage one, algorithms compete in a simulated environment with the best ones advancing to a real-world final. One of the main problems that participants encounter during the competition is that algorithms trained for the best performance in simulated environments do not hold up in a real-world environment and vice versa. Classic control algorithms also do not translate well between tasks since most of them have to be tuned to specific driving conditions such as lighting, road type, camera position, etc. To overcome this problem, we employed the imitation learning algorithm and trained it on a dataset collected from sources both from simulation and real-world, forcing our model to perform equally well in all environments.",
+          "claimed_abstract": "Digital rights increasingly exist in law but remain difficult to exercise through the information systems that mediate them. Using disciplined conceptual synthesis and problematization, this critical-conceptual IS paper explains the gap through the interaction of legal heterogeneity, conflicting organizational and commercial incentives, fragmented architectures, and asymmetrical control over rights-relevant acts. It then theorizes a human-compatible rights layer: a governed sociotechnical capability for standardized, machine-readable, bidirectional, and jurisdictionally plural communication of requests, consent, refusal, withdrawal, objection, records, and support. Comparing California-style opt-out signals, the EU's mixed lawful-basis regime, and P3P, DNT, GPC, and ADPC, the paper derives seven normative requirements, develops rights by architecture as a bounded emancipatory policy argument, and treats a proposed GDPR provision on automated and machine-readable privacy management as a policy case for moving from banner-based compliance toward rights-supporting digital infrastructure.",
           "claimed_authors": [
-            "Mikita Sazanovich",
-            "Konstantin Chaika",
-            "Kirill Krinkin",
-            "Aleksei Shpilman"
+            "Soheil Human"
           ],
-          "claimed_title": "Imitation Learning Approach for AI Driving Olympics Trained on Real-world and Simulation Data Simultaneously",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2007.03514"
-        },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Imitation Learning Approach for AI Driving Olympics Trained on Real-world and Simulation Data Simultaneously')",
-        "failed_at": "2026-08-02T11:32:02Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Omnidirectional vision, using 360-degree vision to understand the environment, has become increasingly critical across domains like robotics, industrial inspection, and environmental monitoring. Compared to traditional pinhole vision, omnidirectional vision provides holistic environmental awareness, significantly enhancing the completeness of scene perception and the reliability of decision-making. However, foundational research in this area has historically lagged behind traditional pinhole vision. This talk presents an emerging trend in the embodied AI era: the rapid development of omnidirectional vision, driven by growing industrial demand and academic interest. We highlight recent breakthroughs in omnidirectional generation, omnidirectional perception, omnidirectional understanding, and related datasets. Drawing on insights from both academia and industry, we propose an ideal panoramic system architecture in the embodied AI era, PANORAMA, which consists of four key subsystems. Moreover, we offer in-depth opinions related to emerging trends and cross-community impacts at the intersection of panoramic vision and embodied AI, along with the future roadmap and open challenges. This overview synthesizes state-of-the-art advancements and outlines challenges and opportunities for future research in building robust, general-purpose omnidirectional AI systems in the embodied AI era.",
-          "claimed_authors": [
-            "Xu Zheng",
-            "Chenfei Liao",
-            "Ziqiao Weng",
-            "Kaiyu Lei",
-            "Zihao Dongfang",
-            "Haocong He",
-            "Yuanhuiyi Lyu",
-            "Lutao Jiang",
-            "Lu Qi",
-            "Li Chen",
-            "Danda Pani Paudel",
-            "Kailun Yang",
-            "Linfeng Zhang",
-            "Luc Van Gool",
-            "Xuming Hu"
-          ],
-          "claimed_title": "PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2509.12989"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era')",
-        "failed_at": "2026-08-02T11:32:02Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Human-robot collaboration in surgery represents a significant area of research, driven by the increasing capability of autonomous robotic systems to assist surgeons in complex procedures. This systematic review examines the advancements and persistent challenges in the development of autonomous surgical robotic assistants (ASARs), focusing specifically on scenarios where robots provide meaningful and active support to human surgeons. Adhering to the PRISMA guidelines, a comprehensive literature search was conducted across the IEEE Xplore, Scopus, and Web of Science databases, resulting in the selection of 32 studies for detailed analysis. Two primary collaborative setups were identified: teleoperation-based assistance and direct hands-on interaction. The findings reveal a growing research emphasis on ASARs, with predominant applications currently in endoscope guidance, alongside emerging progress in autonomous tool manipulation. Several key challenges hinder wider adoption, including the alignment of robotic actions with human surgeon preferences, the necessity for procedural awareness within autonomous systems, the establishment of seamless human-robot information exchange, and the complexities of skill acquisition in shared workspaces. This review synthesizes current trends, identifies critical limitations, and outlines future research directions essential to improve the reliability, safety, and effectiveness of human-robot collaboration in surgical environments.",
-          "claimed_authors": [
-            "Jacinto Colan",
-            "Ana Davila",
-            "Yutaro Yamada",
-            "Yasuhisa Hasegawa"
-          ],
-          "claimed_title": "Human-Robot collaboration in surgery: Advances and challenges towards autonomous surgical assistants",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2507.11460"
-        },
-        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Human-Robot collaboration in surgery: Advances and challenges towards autonomous surgical assistants')",
-        "failed_at": "2026-08-02T11:32:02Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Human-robot teaming offers great potential because of the opportunities to combine strengths of heterogeneous agents. However, one of the critical challenges in realizing an effective human-robot team is efficient information exchange - both from the human to the robot as well as from the robot to the human. In this work, we present and analyze an augmented reality-enabled, gesture-based system that supports intuitive human-robot teaming through improved information exchange. Our proposed system requires no external instrumentation aside from human-wearable devices and shows promise of real-world applicability for service-oriented missions. Additionally, we present preliminary results from a pilot study with human participants, and highlight lessons learned and open research questions that may help direct future development, fielding, and experimentation of autonomous HRI systems.",
-          "claimed_authors": [
-            "Jason M. Gregory",
-            "Christopher Reardon",
-            "Kevin Lee",
-            "Geoffrey White",
-            "Ki Ng",
-            "Caitlyn Sims"
-          ],
-          "claimed_title": "Enabling Intuitive Human-Robot Teaming Using Augmented Reality and Gesture Control",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1909.06415"
-        },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Enabling Intuitive Human-Robot Teaming Using Augmented Reality and Gesture Control')",
-        "failed_at": "2026-08-02T11:32:02Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Human demonstrations are important in a range of robotics applications, and are created with a variety of input methods. However, the design space for these input methods has not been extensively studied. In this paper, focusing on demonstrations of hand-scale object manipulation tasks to robot arms with two-finger grippers, we identify distinct usage paradigms in robotics that utilize human-to-robot demonstrations, extract abstract features that form a design space for input methods, and characterize existing input methods as well as a novel input method that we introduce, the instrumented tongs. We detail the design specifications for our method and present a user study that compares it against three common input methods: free-hand manipulation, kinesthetic guidance, and teleoperation. Study results show that instrumented tongs provide high quality demonstrations and a positive experience for the demonstrator while offering good correspondence to the target robot.",
-          "claimed_authors": [
-            "Pragathi Praveena",
-            "Guru Subramani",
-            "Bilge Mutlu",
-            "Michael Gleicher"
-          ],
-          "claimed_title": "Characterizing Input Methods for Human-to-robot Demonstrations",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1902.00084"
-        },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Characterizing Input Methods for Human-to-robot Demonstrations')",
-        "failed_at": "2026-08-02T11:32:02Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent language models have shown impressive multilingual performance, even when not explicitly trained for it. Despite this, there are concerns about the quality of their outputs across different languages. In this paper, we show how disparity in the treatment of different languages arises at the tokenization stage, well before a model is even invoked. The same text translated into different languages can have drastically different tokenization lengths, with differences up to 15 times in some cases. These disparities persist even for tokenizers that are intentionally trained for multilingual support. Character-level and byte-level models also exhibit over 4 times the difference in the encoding length for some language pairs. This induces unfair treatment for some language communities in regard to the cost of accessing commercial language services, the processing time and latency, as well as the amount of content that can be provided as context to the models. Therefore, we make the case that we should train future language models using multilingually fair subword tokenizers.",
-          "claimed_authors": [
-            "Aleksandar Petrov",
-            "Emanuele La Malfa",
-            "Philip H. S. Torr",
-            "Adel Bibi"
-          ],
-          "claimed_title": "Language Model Tokenizers Introduce Unfairness Between Languages",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2305.15425"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Language Model Tokenizers Introduce Unfairness Between Languages')",
-        "failed_at": "2026-08-02T11:32:02Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Subword tokenization has become the prevailing standard in the field of natural language processing (NLP) over recent years, primarily due to the widespread utilization of pre-trained language models. This shift began with Byte-Pair Encoding (BPE) and was later followed by the adoption of SentencePiece and WordPiece. While subword tokenization consistently outperforms character and word-level tokenization, the precise factors contributing to its success remain unclear. Key aspects such as the optimal segmentation granularity for diverse tasks and languages, the influence of data sources on tokenizers, and the role of morphological information in Indo-European languages remain insufficiently explored. This is particularly pertinent for biomedical terminology, characterized by specific rules governing morpheme combinations. Despite the agglutinative nature of biomedical terminology, existing language models do not explicitly incorporate this knowledge, leading to inconsistent tokenization strategies for common terms. In this paper, we seek to delve into the complexities of subword tokenization in French biomedical domain across a variety of NLP tasks and pinpoint areas where further enhancements can be made. We analyze classical tokenization algorithms, including BPE and SentencePiece, and introduce an original tokenization strategy that integrates morpheme-enriched word segmentation into existing tokenization methods.",
-          "claimed_authors": [
-            "Yanis Labrak",
-            "Adrien Bazoge",
-            "Beatrice Daille",
-            "Mickael Rouvier",
-            "Richard Dufour"
-          ],
-          "claimed_title": "How Important Is Tokenization in French Medical Masked Language Models?",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.15010"
-        },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='How Important Is Tokenization in French Medical Masked Language Models?')",
-        "failed_at": "2026-08-02T11:32:02Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "While tokenization is a key step in language modeling, with effects on model training and performance, it remains unclear how to effectively evaluate tokenizer quality. One proposed dimension of tokenizer quality is the extent to which tokenizers preserve linguistically meaningful subwords, aligning token boundaries with morphological boundaries within a word. We expand MorphScore (Arnett & Bergen, 2025), which previously covered 22 languages, to support a total of 70 languages. The updated MorphScore offers more flexibility in evaluation and addresses some of the limitations of the original version. We then correlate our alignment scores with downstream task performance for five pre-trained languages models on seven tasks, with at least one task in each of the languages in our sample. We find that morphological alignment does not explain very much variance in model performance, suggesting that morphological alignment alone does not measure dimensions of tokenization quality relevant to model performance.",
-          "claimed_authors": [
-            "Catherine Arnett",
-            "Marisa Hudspeth",
-            "Brendan O'Connor"
-          ],
-          "claimed_title": "Evaluating Morphological Alignment of Tokenizers in 70 Languages",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2507.06378"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Evaluating Morphological Alignment of Tokenizers in 70 Languages')",
-        "failed_at": "2026-08-02T11:32:02Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Bridging the sim-to-real gap is a core challenge in deploying learned manipulation policies. Sim-to-real learning is attractive because it can replace expensive real robot demonstrations with scalable synthetic data, yet world-action models have not previously been shown to transfer from simulation to real robotic manipulation. We study whether a world-action model can be trained from synthetic priors and deployed zero-shot in the real world. To this end, we build upon Cosmos Policy, a video diffusion model adapted for visuomotor control. We construct simulation environments with extensive domain randomization and generate demonstrations using the AnyTask motion planning pipeline. We evaluate our approach across object lifting, drawer opening, and pick-and-place tasks using ${\\sim}800$ synthetic demonstrations per task and no real demonstrations. When deployed zero-shot on a Franka Robot, our policy attains a 35\\% average success rate. To our knowledge, this represents the first successful sim-to-real transfer of a world-action model for robotic manipulation.",
-          "claimed_authors": [
-            "Zixing Wang",
-            "Kausik Sivakumar",
-            "Jinghuan Shang",
-            "Yafei Hu",
-            "Zhaoming Xie",
-            "Ran Gong",
-            "Xiaohan Zhang",
-            "Karl Schmeckpeper"
-          ],
-          "claimed_title": "Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors",
+          "claimed_title": "Rights by Architecture: A Human-Compatible Sociotechnical Layer for Digital Protection Across Regulatory Regimes",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2606.31101"
+          "primary_pointer": "2609.02455"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Efficient Sim-to-Real Transfer of World-Action Models from Synthetic Priors')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Rights by Architecture: A Human-Compatible Sociotechnical Layer for Digital Protection Across Regulatory Regimes')",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Current vision-based robotics simulation benchmarks have significantly advanced robotic manipulation research. However, robotics is fundamentally a real-world problem, and evaluation for real-world applications has lagged behind in evaluating generalist policies. In this paper, we discuss challenges and desiderata in designing benchmarks for generalist robotic manipulation policies for the goal of sim-to-real policy transfer. We propose 1) utilizing high visual-fidelity simulation for improved sim-to-real transfer, 2) evaluating policies by systematically increasing task complexity and scenario perturbation to assess robustness, and 3) quantifying performance alignment between real-world performance and its simulation counterparts.",
+          "claimed_abstract": "In this paper we explore using self-supervised correspondence for improving the generalization performance and sample efficiency of visuomotor policy learning. Prior work has primarily used approaches such as autoencoding, pose-based losses, and end-to-end policy optimization in order to train the visual portion of visuomotor policies. We instead propose an approach using self-supervised dense visual correspondence training, and show this enables visuomotor policy learning with surprisingly high generalization performance with modest amounts of data: using imitation learning, we demonstrate extensive hardware validation on challenging manipulation tasks with as few as 50 demonstrations. Our learned policies can generalize across classes of objects, react to deformable object configurations, and manipulate textureless symmetrical objects in a variety of backgrounds, all with closed-loop, real-time vision-based policies. Simulated imitation learning experiments suggest that correspondence training offers sample complexity and generalization benefits compared to autoencoding and end-to-end training.",
           "claimed_authors": [
-            "Xuning Yang",
-            "Clemens Eppner",
-            "Jonathan Tremblay",
-            "Dieter Fox",
-            "Stan Birchfield",
-            "Fabio Ramos"
+            "Peter Florence",
+            "Lucas Manuelli",
+            "Russ Tedrake"
           ],
-          "claimed_title": "Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective",
+          "claimed_title": "Self-Supervised Correspondence in Visuomotor Policy Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.11117"
+          "claimed_year": 2019,
+          "primary_pointer": "1909.06933"
         },
-        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Robot Policy Evaluation for Sim-to-Real Transfer: A Benchmarking Perspective')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Self-Supervised Correspondence in Visuomotor Policy Learning')",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "This chapter addresses the critical challenge of simulation-to-reality (sim-to-real) transfer for deep reinforcement learning (DRL) in bipedal locomotion. After contextualizing the problem within various control architectures, we dissect the ``curse of simulation'' by analyzing the primary sources of sim-to-real gap: robot dynamics, contact modeling, state estimation, and numerical solvers. Building on this diagnosis, we structure the solutions around two complementary philosophies. The first is to shrink the gap through model-centric strategies that systematically improve the simulator's physical fidelity. The second is to harden the policy, a complementary approach that uses in-simulation robustness training and post-deployment adaptation to make the policy inherently resilient to model inaccuracies. The chapter concludes by synthesizing these philosophies into a strategic framework, providing a clear roadmap for developing and evaluating robust sim-to-real solutions.",
+          "claimed_abstract": "VLA models are trained to predict robot actions from visual and language observations. This is a natural choice, but it creates a mismatch: VLMs encode rich, high-level representations of scenes and goals, while robot actions are low-level signals with limited task structure. We ask whether changing what the policy is trained to predict, rather than how it is architecturally designed, can yield better and more efficiently trained policies. We propose UVT (Unified Visuomotor Target), a unified latent prediction target that jointly encodes motor control and visual scene transition information, requiring no architectural changes and no additional data. Applied to two representative VLA systems across simulation benchmarks and real bimanual manipulation tasks, UVT improves training efficiency, final task performance, and policy robustness, with particularly strong gains under limited training budgets and challenging environmental conditions. Rollout videos and additional qualitative results are available at our project webpage: https://unified-visuomotor-targets.github.io/",
           "claimed_authors": [
-            "Lingfan Bao",
-            "Tianhu Peng",
-            "Chengxu Zhou"
+            "Zhenyang Feng",
+            "Unnat Jain"
           ],
-          "claimed_title": "Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion",
+          "claimed_title": "Unified Visuomotor Targets: Supervising VLAs Beyond Physical Actions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.03563"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Unified Visuomotor Targets: Supervising VLAs Beyond Physical Actions')",
+        "failed_at": "2026-09-07T08:23:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
+          "claimed_authors": [
+            "Berivan Isik",
+            "Natalia Ponomareva",
+            "Hussein Hazimeh",
+            "Dimitris Paparas",
+            "Sergei Vassilvitskii",
+            "Sanmi Koyejo"
+          ],
+          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.04177"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
+        "failed_at": "2026-09-07T08:23:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+          "claimed_authors": [
+            "Dorsaf Sebai",
+            "Abderrazak Jemai",
+            "Imed Bennour"
+          ],
+          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1154"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
+        "failed_at": "2026-09-07T08:23:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As large-scale training regimes have gained popularity, the use of pretrained models for downstream tasks has become common practice in machine learning. While pretraining has been shown to enhance the performance of models in practice, the transfer of robustness properties from pretraining to downstream tasks remains poorly understood. In this study, we demonstrate that the robustness of a linear predictor on downstream tasks can be constrained by the robustness of its underlying representation, regardless of the protocol used for pretraining. We prove (i) a bound on the loss that holds independent of any downstream task, as well as (ii) a criterion for robust classification in particular. We validate our theoretical results in practical applications, show how our results can be used for calibrating expectations of downstream robustness, and when our results are useful for optimal transfer learning. Taken together, our results offer an initial step towards characterizing the requirements of the representation function for reliable post-adaptation performance.",
+          "claimed_authors": [
+            "Laura Fee Nern",
+            "Harsh Raj",
+            "Maurice Georgi",
+            "Yash Sharma"
+          ],
+          "claimed_title": "On Transfer of Adversarial Robustness from Pretraining to Downstream Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.03835"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='On Transfer of Adversarial Robustness from Pretraining to Downstream Tasks')",
+        "failed_at": "2026-09-07T08:23:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper addresses the challenges of learning representations for recipes and food images in the cross-modal retrieval problem. As the relationship between a recipe and its cooked dish is cause-and-effect, treating a recipe as a text source describing the visual appearance of a dish for learning representation, as the existing approaches, will create bias misleading image-and-recipe similarity judgment. Specifically, a food image may not equally capture every detail in a recipe, due to factors such as the cooking process, dish presentation, and image-capturing conditions. The current representation learning tends to capture dominant visual-text alignment while overlooking subtle variations that determine retrieval relevance. In this paper, we model such bias in cross-modal representation learning using causal theory. The causal view of this problem suggests ingredients as one of the confounder sources and a simple backdoor adjustment can alleviate the bias. By causal intervention, we reformulate the conventional model for food-to-recipe retrieval with an additional term to remove the potential bias in similarity judgment. Based on this theory-informed formulation, we empirically prove the oracle performance of retrieval on the Recipe1M dataset to be MedR=1 across the testing data sizes of 1K, 10K, and even 50K. We also propose a plug-and-play neural module, which is essentially a multi-label ingredient classifier for debiasing. New state-of-the-art search performances are reported on the Recipe1M dataset.",
+          "claimed_authors": [
+            "Qing Wang",
+            "Chong-Wah Ngo",
+            "Ee-Peng Lim"
+          ],
+          "claimed_title": "Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2511.06465"
+          "primary_pointer": "2511.15201"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion')",
-        "failed_at": "2026-08-02T11:32:02Z",
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Towards Unbiased Cross-Modal Representation Learning for Food Image-to-Recipe Retrieval')",
+        "failed_at": "2026-09-07T08:23:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
+          "claimed_authors": [
+            "Zhiyuan Ma",
+            "Jianjun Li",
+            "Guohui Li",
+            "Kaiyan Huang"
+          ],
+          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
+        "failed_at": "2026-09-07T08:23:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-supervised learning has emerged as a powerful paradigm for learning visual representations without manual annotations, yet most methods still operate on a single modality and therefore miss the complementary structure available from heterogeneous sensors. We present Le MuMo JEPA, a self-supervised framework that learns unified representations from RGB images and aligned companion modalities. In our driving experiments, the second modality is camera-aligned LiDAR depth; we also evaluate RGB-thermal training and transfer on the Teledyne FLIR ADAS benchmark. Our approach extends LeJEPA to the multi-modal setting by learning fusion tokens that act as a latent bottleneck between modality-specific patch stems inside a shared transformer. Our default model employs a pruned fusion strategy: after an initial cross-modal attention layer, modality-specific tokens are dropped, forcing cross-modal information into the shared fusion-token grid as an efficient latent bottleneck before Sketched Isotropic Gaussian Regularization (SIGReg) is applied to the joint multimodal CLS embedding. On Waymo, Le MuMo JEPA gives the strongest performance-efficiency trade-off on downstream patch probes among the from-scratch multimodal baselines, improving CenterNet detection and dense depth while remaining competitive on segmentation. Under from-scratch training on nuScenes, Le MuMo JEPA remains the strongest model, and it also gives the best FLIR results, especially after Waymo-initialized fine-tuning. It also retains the best overall accuracy-efficiency balance in our study at substantially lower compute, memory, and estimated training time.",
+          "claimed_authors": [
+            "Ciem Cornelissen",
+            "Sam Leroux",
+            "Pieter Simoens"
+          ],
+          "claimed_title": "Le MuMo JEPA: Multi-Modal Self-Supervised Representation Learning with Learnable Fusion Tokens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.24327"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ACE-Ego-0: Unifying Egocentric Human and Robotic D', candidate_title='Le MuMo JEPA: Multi-Modal Self-Supervised Representation Learning with Learnable Fusion Tokens')",
+        "failed_at": "2026-09-07T08:23:20Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -519,36 +541,55 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Hao Li",
-            "Ganlong Zhao",
-            "Yufei Liu",
-            "Haotian Hou",
-            "Guoquan Ye",
-            "Tongyan Fang",
-            "Chunxiao Liu",
-            "Siyuan Huang",
-            "Jianbo Liu",
-            "Xiaogang Wang",
-            "Hongsheng Li"
+            "Vivek Chavan",
+            "Oliver Heimann",
+            "Jörg Krüger"
           ],
-          "title": "ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretraining",
+          "title": "On the Application of Egocentric Computer Vision to Industrial Scenarios",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2024
         },
-        "primary_pointer": "2606.17200",
-        "summary": "Vision-Language-Action (VLA) models benefit from large-scale and diverse embodied data, yet scaling robot trajectory collection is costly and labor-intensive. Recent advances show that large-scale egocentric human videos provide complementary real-world supervision in pretraining. However, joint training on human and robot data remains challenging due to divergences in action spaces, embodiment structures, temporal dynamics, and supervision quality. We introduce ACE-EGO-0, a unified VLA pretraining framework jointly leveraging heterogeneous data sources. To extract large-scale pretraining supervision from egocentric human videos, we build a scalable egocentric video-to-action pipeline that converts raw human videos into robot-format pseudo-action trajectories. To make these labels comparable with robot demonstrations, ACE-EGO-0 uses a unified action representation based on camera-space actions, morphology conditioning, and time-aligned action chunking. To robustly leverage noisy pseudo-action supervision from egocentric human videos, we formulate a reliability-aware training objective with a human auxiliary loss that concentrates supervision on reliable signals. We instantiate ACE-EGO-0 on 4.53K hours of robot and simulation data, together with 1.48K hours of pseudo-action-labeled egocentric human data. Experiments show that incorporating large-scale human supervision under reliability-aware weighting consistently improves both unified joint pretraining and supervised fine-tuning. ACE-EGO-0 achieves state-of-the-art performance on RoboCasa GR1 TableTop and RoboTwin 2.0, while demonstrating strong transfer to real-world bimanual manipulation.",
+        "primary_pointer": "2406.07738",
+        "summary": "Egocentric vision aims to capture and analyse the world from the first-person perspective. We explore the possibilities for egocentric wearable devices to improve and enhance industrial use cases w.r.t. data collection, annotation, labelling and downstream applications. This would contribute to easier data collection and allow users to provide additional context. We envision that this approach could serve as a supplement to the traditional industrial Machine Vision workflow. Code, Dataset and related resources will be available at: https://github.com/Vivek9Chavan/EgoVis24",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.17200",
+          "final_url": "https://arxiv.org/abs/2406.07738",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 1.0,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T11:32:07Z"
+          "verified_at": "2026-09-07T08:23:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tobias Dorszewski",
+            "Søren A. Fuglsang",
+            "Jens Hjortkjær"
+          ],
+          "title": "Identification of Conversation Partners from Egocentric Video",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.08089",
+        "summary": "Communicating in noisy, multi-talker environments is challenging, especially for people with hearing impairments. Egocentric video data can potentially be used to identify a user's conversation partners, which could be used to inform selective acoustic amplification of relevant speakers. Recent introduction of datasets and tasks in computer vision enable progress towards analyzing social interactions from an egocentric perspective. Building on this, we focus on the task of identifying conversation partners from egocentric video and describe a suitable dataset. Our dataset comprises 69 hours of egocentric video of diverse multi-conversation scenarios where each individual was assigned one or more conversation partners, providing the labels for our computer vision task. This dataset enables the development and assessment of algorithms for identifying conversation partners and evaluating related approaches. Here, we describe the dataset alongside initial baseline results of this ongoing work, aiming to contribute to the exciting advancements in egocentric video analysis for social settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.08089",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-07T08:23:25Z"
         }
       },
       {
@@ -571,84 +612,94 @@
           "final_url": "https://arxiv.org/abs/2305.11365",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.5556,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T11:32:07Z"
+          "verified_at": "2026-09-07T08:23:26Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Qixiu Li",
-            "Yu Deng",
-            "Yaobo Liang",
-            "Lin Luo",
-            "Lei Zhou",
-            "Chengtang Yao",
-            "Lingqi Zeng",
-            "Zhiyuan Feng",
-            "Huizhi Liang",
-            "Sicheng Xu",
-            "Yizhong Zhang",
-            "Xi Chen",
-            "Hao Chen",
-            "Lily Sun",
-            "Dong Chen",
-            "Jiaolong Yang",
-            "Baining Guo"
+            "Ivan Rodin",
+            "Antonino Furnari",
+            "Dimitrios Mavroedis",
+            "Giovanni Maria Farinella"
           ],
-          "title": "Scalable Vision-Language-Action Model Pretraining for Robotic Manipulation with Real-Life Human Activity Videos",
+          "title": "Predicting the Future from First Person (Egocentric) Vision: A Survey",
           "venue": "arXiv",
-          "year": 2025
+          "year": 2021
         },
-        "primary_pointer": "2510.21571",
-        "summary": "This paper presents a novel approach for pretraining robotic manipulation Vision-Language-Action (VLA) models using a large corpus of unscripted real-life video recordings of human hand activities. Treating human hand as dexterous robot end-effector, we show that \"in-the-wild\" egocentric human videos without any annotations can be transformed into data formats fully aligned with existing robotic V-L-A training data in terms of task granularity and labels. This is achieved by the development of a fully-automated holistic human activity analysis approach for arbitrary human hand videos. This approach can generate atomic-level hand activity segments and their language descriptions, each accompanied with framewise 3D hand motion and camera motion. We process a large volume of egocentric videos and create a hand-VLA training dataset containing 1M episodes and 26M frames. This training data covers a wide range of objects and concepts, dexterous manipulation tasks, and environment variations in real life, vastly exceeding the coverage of existing robot data. We design a dexterous hand VLA model architecture and pretrain the model on this dataset. The model exhibits strong zero-shot capabilities on completely unseen real-world observations. Additionally, fine-tuning it on a small amount of real robot action data significantly improves task success rates and generalization to novel objects in real robotic experiments. We also demonstrate the appealing scaling behavior of the model's task performance with respect to pretraining data scale. We believe this work lays a solid foundation for scalable VLA pretraining, advancing robots toward truly generalizable embodied intelligence.",
+        "primary_pointer": "2107.13411",
+        "summary": "Egocentric videos can bring a lot of information about how humans perceive the world and interact with the environment, which can be beneficial for the analysis of human behaviour. The research in egocentric video analysis is developing rapidly thanks to the increasing availability of wearable devices and the opportunities offered by new large-scale egocentric datasets. As computer vision techniques continue to develop at an increasing pace, the tasks related to the prediction of future are starting to evolve from the need of understanding the present. Predicting future human activities, trajectories and interactions with objects is crucial in applications such as human-robot interaction, assistive wearable technologies for both industrial and daily living scenarios, entertainment and virtual or augmented reality. This survey summarises the evolution of studies in the context of future prediction from egocentric vision making an overview of applications, devices, existing problems, commonly used datasets, models and input modalities. Our analysis highlights that methods for future prediction from egocentric vision can have a significant impact in a range of applications and that further research efforts should be devoted to the standardisation of tasks and the proposal of datasets considering real-world scenarios such as the ones with an industrial vocation.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2510.21571",
+          "final_url": "https://arxiv.org/abs/2107.13411",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.8889,
+          "pdf_sample_score": 0.2747,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T11:32:08Z"
+          "verified_at": "2026-09-07T08:23:26Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Junyi Ma",
-            "Erhang Zhang",
-            "Haoran Yang",
-            "Ditao Li",
-            "Chenyang Xu",
-            "Guangming Wang",
-            "Hesheng Wang"
+            "Darshan Nagendra Prasad",
+            "Lars Ullrich",
+            "Knut Graichen"
           ],
-          "title": "Robot Learning from Human Videos: A Survey",
+          "title": "Inference-Time Attention Steering for Vision-Language-Action Driving Models",
           "venue": "arXiv",
           "year": 2026
         },
-        "primary_pointer": "2604.27621",
-        "summary": "A critical bottleneck hindering further advancement in embodied AI and robotics is the challenge of scaling robot data. To address this, the field of learning robot manipulation skills from human video data has attracted rapidly growing attention in recent years, driven by the abundance of human activity videos and advances in computer vision. This line of research promises to enable robots to acquire skills passively from the vast and readily available resource of human demonstrations, substantially favoring scalable learning for generalist robotic systems. Therefore, we present this survey to provide a comprehensive and up-to-date review of human-video-based learning techniques in robotics, focusing on both human-robot skill transfer and data foundations. We first review the policy learning foundations in robotics, and then describe the fundamental interfaces to incorporate human videos. Subsequently, we introduce a hierarchical taxonomy of transferring human videos to robot skills, covering task-, observation-, and action-oriented pathways, along with a cross-family analysis of their couplings with different data configurations and learning paradigms. In addition, we investigate the data foundations including widely-used human video datasets and video generation schemes, and provide large-scale statistical trends in dataset development and utilization. Ultimately, we emphasize the challenges and limitations intrinsic to this field, and delineate potential avenues for future research. The paper list of our survey is available at https://github.com/IRMVLab/awesome-robot-learning-from-human-videos.",
+        "primary_pointer": "2608.17095",
+        "summary": "Vision-language-action (VLA) driving models couple a reasoning stage with a diffusion-based trajectory decoder, but do not give a direct way to redirect attention toward safety-critical actors at inference time without retraining. We studied a bounded additive pre-softmax attention bias on the visual tokens of detector localized traffic actors on Alpamayo-R1's Qwen3-VL backbone. It is applied as a fail open forward pre-hook with no weight changes. On 50 lane-change scenarios from the Physical AI World Model Synthetic dataset. The trajectory decoder shows a monotonic dose response in the bias magnitude, separate from a paired zero bias control at every tested magnitude. It reaches $\\approx 17$\\,cm mean displacement with lateral shifts up to $\\sim 140$\\ cm at the clamp. A layer ablation places the action-relevant signal in late layers, where the effect increases with the number of hooked layers (2.0cm for the first 8 layers; 67.6cm for all 36). A per call injection audit explains why the Chain-of-Causation text never changes. The mask based bias never reaches the reasoning pathway in this serving stack, so the invariance is verified exposure, not robustness. Steered trajectories tend to shift toward the attended actor, suggesting the bias governs where the model looks rather than encoding a target behavior.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2604.27621",
+          "final_url": "https://arxiv.org/abs/2608.17095",
           "http_status": 200,
-          "pdf_sample_score": 0.2842,
-          "query_relevance_score": 0.5714,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-02T11:32:12Z"
+          "verified_at": "2026-09-07T08:23:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Younes Lakhnati",
+            "Max Pascher",
+            "Jens Gerken"
+          ],
+          "title": "Exploring Large Language Models to Facilitate Variable Autonomy for Human-Robot Teaming",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2312.07214",
+        "summary": "In a rapidly evolving digital landscape autonomous tools and robots are becoming commonplace. Recognizing the significance of this development, this paper explores the integration of Large Language Models (LLMs) like Generative pre-trained transformer (GPT) into human-robot teaming environments to facilitate variable autonomy through the means of verbal human-robot communication. In this paper, we introduce a novel framework for such a GPT-powered multi-robot testbed environment, based on a Unity Virtual Reality (VR) setting. This system allows users to interact with robot agents through natural language, each powered by individual GPT cores. By means of OpenAI's function calling, we bridge the gap between unstructured natural language input and structure robot actions. A user study with 12 participants explores the effectiveness of GPT-4 and, more importantly, user strategies when being given the opportunity to converse in natural language within a multi-robot environment. Our findings suggest that users may have preconceived expectations on how to converse with robots and seldom try to explore the actual language and cognitive capabilities of their robot collaborators. Still, those users who did explore where able to benefit from a much more natural flow of communication and human-like back-and-forth. We provide a set of lessons learned for future research and technical implementations of similar systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2312.07214",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-07T08:23:46Z"
         }
       }
     ]

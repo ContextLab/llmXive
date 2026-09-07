@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.07738",
+  "judged_at": "2026-09-07T08:23:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
+  "rationale": "This paper satisfies criterion (b) by measuring the independent variable of \"egocentric human data\" (specifically from wearable devices) within the domain of computer vision and industrial applications, which is a core component of the user's question regarding the unification of egocentric human and robotic data. Additionally, it aligns with criterion (e) as it studies the canonical empirical population (egocentric vision datasets) relevant to the user's focus on VLA pretraining data sources.",
+  "relevant": true
+}

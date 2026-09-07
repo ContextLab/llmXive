@@ -1,34 +1,26 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+**Verdict**: pass
 
-**Verdict**: concern
-
-The question asks about an "information-theoretic limit" and specific "visual conditions," which are substantive scientific inquiries. However, the framing is heavily influenced by the implementation constraint of "CPU-only" and the specific goal of creating a "lightweight pre-filter," which risks narrowing the scope to a system engineering problem rather than a fundamental understanding of visual information. The core phenomenon (static vs. dynamic information content in egocentric video) is valid, but the current phrasing ties the scientific question too tightly to the efficiency constraint.
+The question asks about the intrinsic predictive power of static visual features versus dynamic context for action reliability in egocentric video, which is a substantive question about the information content of visual data. While the motivation mentions CPU constraints, the core inquiry ("To what extent...") is about the data properties themselves, not the performance of a specific algorithm under a specific hardware budget.
 
 ### Circularity check
-
 **Verdict**: pass
 
-The predictor consists of static visual features (entropy, hand visibility, lighting) derived from individual frames, while the predicted variable is the "pseudo-action reliability score" derived from the ACE-Ego-0 pipeline which utilizes full temporal sequences and dynamic heuristics. These are distinct data sources: one is a snapshot of visual state, and the other is a metric of temporal consistency and action quality. The relationship is not mechanically guaranteed by construction.
+The predictor variables (static features like entropy, hand visibility, lighting) are derived from individual frames, while the target variable (pseudo-action reliability) is a label derived from the ACE-Ego-0 pipeline that likely incorporates temporal dynamics. Although both relate to the same video segments, the static features do not mathematically contain the temporal reliability signal by construction; the project explicitly aims to measure how much of that signal is *missing* from the static view.
 
 ### Triviality check
-
 **Verdict**: pass
 
-A positive result (static cues explain most variance) would be significant for democratizing dataset curation and challenging the necessity of heavy temporal modeling for reliability estimation. A null result (static cues fail, dynamics are essential) would be equally informative, establishing a lower bound on the complexity required for reliable human action understanding in egocentric settings. Neither outcome is predetermined by current domain knowledge.
+Both outcomes are informative: if static features explain most variance, it validates a cheap filtering strategy for large-scale data curation; if they explain little, it confirms that dynamic context is strictly necessary for reliability estimation, saving the community from pursuing inefficient static-only pipelines. The specific threshold (e.g., >60%) is an empirical unknown in the literature.
 
 ### Question-narrowing check
+**Verdict**: pass
 
-**Verdict**: concern
-
-While the question names a domain relationship (static vs. dynamic information), it is heavily qualified by "under which specific visual conditions" in the context of "CPU-only" feasibility. The question risks becoming "Can we build a CPU filter?" rather than "What is the theoretical limit of static visual information?" The current phrasing conflates the scientific limit with the engineering constraint of the proposed filter.
+The question names a specific domain relationship (the information-theoretic limit of static cues vs. temporal context for reliability) rather than a constraint on implementation. It asks "at what temporal window length does dynamic context provide... information," which is a scientific inquiry into the nature of the data, not a benchmark for a specific model architecture.
 
 ### Overall verdict
+**Verdict**: validated
 
-**Verdict**: validator_revise
-
-[REVISED]
-What is the intrinsic information-theoretic limit of static visual cues in predicting human action reliability in egocentric video, and at what point does temporal context provide strictly non-redundant information that static features cannot capture?
-[/REVISED]
-The reframing removes the explicit "CPU-only" and "pre-filter" constraints from the research question itself, allowing the investigation to focus on the fundamental information-theoretic limits of static versus dynamic cues. The efficiency and CPU constraints can remain as the *motivation* and *methodological approach* for the specific experiment, but the core scientific question should stand independently of the hardware constraints to ensure the findings have broader theoretical value.
+All checks pass as the research question targets a genuine gap in understanding the information content of egocentric video for reliability estimation. The focus on static vs. dynamic information is a valid scientific inquiry independent of the proposed CPU-only methodology, and the potential outcomes would significantly impact dataset curation strategies regardless of the result.

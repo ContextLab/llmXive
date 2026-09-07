@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2107.13411",
+  "judged_at": "2026-09-07T08:23:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (e) as it provides a canonical survey of the specific empirical population (egocentric vision data) and the core mechanism (predicting future human activities/trajectories) that the user's question targets for VLA pretraining. Although it is a survey rather than a specific pretraining study, it establishes the foundational landscape of \"egocentric human data\" and \"future prediction\" which are the essential components of the user's proposed extension.",
+  "relevant": true
+}
