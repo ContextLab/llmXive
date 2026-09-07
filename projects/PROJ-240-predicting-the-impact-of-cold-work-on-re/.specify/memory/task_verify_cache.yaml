@@ -1,10 +1,19 @@
-T018:
+T007:
   c: false
-  h: 08f6a74cc1f11a108c890104b9fafa2fc0dfd57e9d7d9484dbf7caf0b8c0d5d1
-  r: The `code/engineer.py` script correctly implements the interaction calculations
-    and checks for the temperature column, but the required output file `data/processed/engineered_features.csv`
-    does not exist, so the primary artifact is missing. The pipeline must be run (or
-    the file added) to produce the engineered features CSV.
+  h: 2c8e336483b35fc6acfd1483222c518709db71e0b4b0cf20e322e85ff35a6648
+  r: The repository contains a partially shown `code/generate_synthetic.py`, but the
+    script does not produce the required `data/raw/synthetic_baseline.csv` nor the
+    accompanying `.sha256` checksum file (both are missing). Consequently the deterministic
+    data generation, file output, and checksum steps mandated by the task are not
+    fulfilled.
+T012:
+  c: false
+  h: 484b87d94c49ea47a879dbfa6375db98dd532b6f268c4465dc78424c6cdf3e25
+  r: The required raw file `data/raw/synthetic_baseline.csv` does not exist, and the
+    expected output files `data/processed/validated.csv` and `artifacts/reports/validation_log.json`
+    are also missing. Moreover, `code/ingest.py` only defines helper functions and
+    lacks any orchestration logic that loads the specified CSV and writes the required
+    outputs.
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,3 +21,11 @@ T029:
     \ added to detect a pure\u2011aluminum dataset (zero variance in composition),\
     \ emit a warning, and skip the interaction\u2011feature\u2011importance step.\
     \ The required artifact (implementation and verification) is missing."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided information contains only the task description and project specifications;
+    no file listings or contents are shown. There is no evidence that a file named
+    `synthetic_baseline.csv.sha256` actually exists in the repository, so the requirement
+    cannot be verified. The implementer must supply the checksum file (or a directory
+    listing confirming its presence).

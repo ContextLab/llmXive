@@ -1,15 +1,16 @@
 status: none
-intent: NIST and HuggingFace alloy annealing dataset with Mg Si Cu Mn cold work python
-  package dataset
+intent: NIST recrystallization kinetics dataset Mg Si Cu Mn alloy python package dataset
 required_fields:
 - cold_work_percent
-- mg_wt_percent
-- si_wt_percent
-- cu_wt_percent
-- mn_wt_percent
+- Mg_weight_percent
+- Si_weight_percent
+- Cu_weight_percent
+- Mn_weight_percent
 - annealing_temperature_K
 - time_to_peak_softening
-- interaction_feature
-cache_key: 165a304e449ff75847c67533554ead47436a0bad2f48e49a4b45b1597d92c0cb
-searched_at: '2026-07-30T14:06:20.216221+00:00'
+- interaction_feature_1
+- interaction_feature_2
+- normalized_composition_vector
+cache_key: b7c540280454a9f0fc06a7753cc93eb9775cffaa89bfd55ffd67274e54546950
+searched_at: '2026-09-07T03:40:20.516432+00:00'
 retry_count: 1
