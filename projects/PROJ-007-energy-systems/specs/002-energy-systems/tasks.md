@@ -128,6 +128,9 @@
 - [ ] T051 [P] Implement report generator logic to enforce strict structural separation: create distinct functions for causal vs. descriptive sections; ensure scaling results are generated separately and excluded from the causal claims block in the final report
 - [ ] T038 [P] Create `tests/unit/test_scaling.py` to verify power-law regression logic and exponent calculation
 - [ ] T039 [P] Add a section to the final report (via `main.py` or a dedicated reporter) that presents the scaling law findings separately from the causal inference results, with clear disclaimers
+- [ ] T060 [P] Implement `src/scaling/inequity_gap.py` to calculate the "scaling gap": the difference between observed energy consumption in low-income tracts and the consumption predicted by the universal scaling law (beta), explicitly framing this as a descriptive metric of deviation, not a causal treatment effect
+- [ ] T061 [P] Create `tests/unit/test_inequity_gap.py` to verify the calculation of the scaling gap and ensure it is mathematically distinct from the causal ATT estimate
+- [ ] T062 [P] Update `src/scaling/scaling.py` to generate a visualization (log-log plot) showing the universal scaling line vs. the low-income community data points, with the gap highlighted, ensuring the visual clearly distinguishes between the "law" and the "deviation"
 
 **Checkpoint**: Scaling law analysis is complete and integrated, addressing reviewer concerns without compromising causal rigor.
 
@@ -142,6 +145,7 @@
 - [ ] T043 [P] Run `quickstart.md` validation to ensure all steps execute successfully
 - [ ] T044 [P] Security hardening: Integrate PII scanner script into CI pipeline; verify CI job fails if PII is detected in `data/processed/`
 - [ ] T045 [P] Final report generation: Create a comprehensive report that includes causal inference results, sensitivity analysis, and the descriptive scaling law findings, with clear separation of methodologies
+- [ ] T063 [P] Update `README.md` and `docs/architecture.md` to explicitly document the separation between the causal inference pipeline (US1-3) and the descriptive scaling law pipeline (Phase 6), citing the Geoffrey West review as the rationale for this architectural separation
 
 ---
 
@@ -241,3 +245,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Crucial**: The scaling law module (Phase 6) is strictly descriptive and must not be conflated with the causal inference results in the final report. The module explicitly avoids framing scaling gaps as causal 'inequity signals'.
 - **Critical**: If PSM fails and longitudinal data is missing, the system must halt with a clear error message rather than attempting an impossible DiD calculation.
+- **Reviewer Response (Geoffrey West)**: The new tasks in Phase 6 (T060, T061, T062, T063) specifically address the critique that "a theory without a scaling law is just a story." They implement the "find the exponent" directive by calculating the scaling gap as a descriptive metric, strictly separated from the causal ATT estimate.
