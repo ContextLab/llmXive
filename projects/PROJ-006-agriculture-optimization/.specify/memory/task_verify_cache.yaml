@@ -1,3 +1,28 @@
+T002b:
+  c: false
+  h: fb66edaaedf092bcade25c7c032e8682d82acf3a112f5aab2da883b3cf7fff13
+  r: "The repository contains a `state_manager.py` but the implementation is truncated\
+    \ and does not demonstrate updating `state/projects/PROJ-006-agriculture-optimization.yaml`\
+    \ with hashes for files in `data/raw/*` or `data/processed/*`. Moreover, the required\
+    \ dummy file `data/raw/dummy.txt` is absent, and the YAML file still shows an\
+    \ empty `artifact_hashes` section, indicating the update mechanism was never exercised.\
+    \ The task\u2019s verification step is therefore missing."
+T010a:
+  c: false
+  h: bda6656e4ad51f329fb6089ebe187fb2b7d072e78997f63a6006ab15d6252c5b
+  r: "The orchestrator script `src/cli/run_pipeline.py` is truncated and does not\
+    \ contain the required argument parsing, citation\u2011validation gate, or full\
+    \ execution flow, and it ends with a syntax error. Moreover, the required modules\
+    \ `src/data/generators/structural_validation_generator.py` and `src/data/processing/feature_engineering.py`\
+    \ are missing entirely, so the script cannot invoke the necessary generators or\
+    \ feature\u2011engineering steps. The task\u2019s core requirements are therefore\
+    \ not satisfied."
+T010b:
+  c: false
+  h: d0ac360ade6477a67a6fa86c9cdab46e48c5b59726b1fc70516137cb0a6f1c5b
+  r: The required `.github/workflows/ci.yml` file is missing, so the CI workflow has
+    not been created or configured as specified. Without this file, the verification
+    step cannot be performed.
 T022:
   c: false
   h: 9ca1aab9656f857a0364d7f7065c6b06e6029c5f11092a7d48ac177ee4165670

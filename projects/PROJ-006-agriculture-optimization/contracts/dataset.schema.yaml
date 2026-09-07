@@ -1,8 +1,59 @@
-# Dataset Schema for Climate-Smart Agriculture Analysis
-# Generated for PROJ-006-agriculture-optimization
-# Validates against T010 synthetic generator and T015 survey collector output
-
 type: object
+properties:
+  household_id:
+    type: integer
+    description: Unique identifier for the household
+  latitude:
+    type: number
+    format: float
+    description: Latitude coordinate of the household
+  longitude:
+    type: number
+    format: float
+    description: Longitude coordinate of the household
+  land_size:
+    type: number
+    format: float
+    description: Size of land owned or cultivated by the household (hectares)
+  education_level:
+    type: integer
+    description: Education level of the household head (ordinal scale)
+  finance_access:
+    type: boolean
+    description: Whether the household has access to financial services
+  practice_mixed_farming:
+    type: boolean
+    description: Whether the household practices mixed farming
+  practice_terracing:
+    type: boolean
+    description: Whether the household practices terracing
+  practice_conservation_tillage:
+    type: boolean
+    description: Whether the household practices conservation tillage
+  practice_agroforestry:
+    type: boolean
+    description: Whether the household practices agroforestry
+  extension_visits:
+    type: integer
+    description: Number of agricultural extension visits received
+  hlias:
+    type: integer
+    description: Household Livelihood Asset Index Score (raw)
+  CSA_Index:
+    type: number
+    format: float
+    description: Composite Climate-Smart Agriculture adoption index
+  Stability_Score:
+    type: number
+    format: float
+    description: Yield stability score derived from NDVI time-series
+  HFIAS:
+    type: number
+    format: float
+    description: Household Food Insecurity Access Scale score
+  village_id:
+    type: string
+    description: Derived village identifier based on spatial grid
 required:
   - household_id
   - latitude
@@ -20,74 +71,3 @@ required:
   - Stability_Score
   - HFIAS
   - village_id
-
-properties:
-  household_id:
-    type: integer
-    description: Unique identifier for the household
-
-  latitude:
-    type: number
-    format: float
-    description: Latitude coordinate (WGS84)
-
-  longitude:
-    type: number
-    format: float
-    description: Longitude coordinate (WGS84)
-
-  land_size:
-    type: number
-    format: float
-    description: Land size in hectares (continuous variable)
-
-  education_level:
-    type: integer
-    description: Education level (ordinal integer, e.g., 0-16 years)
-
-  finance_access:
-    type: boolean
-    description: Binary indicator for financial access
-
-  practice_mixed_farming:
-    type: boolean
-    description: Binary indicator for mixed farming practice
-
-  practice_terracing:
-    type: boolean
-    description: Binary indicator for terracing practice
-
-  practice_conservation_tillage:
-    type: boolean
-    description: Binary indicator for conservation tillage practice
-
-  practice_agroforestry:
-    type: boolean
-    description: Binary indicator for agroforestry practice
-
-  extension_visits:
-    type: integer
-    description: Number of extension service visits
-
-  hlias:
-    type: integer
-    description: Household Food Insecurity Access Scale (raw count)
-
-  CSA_Index:
-    type: number
-    format: float
-    description: Composite Climate-Smart Agriculture Index (0.0 - 4.0)
-
-  Stability_Score:
-    type: number
-    format: float
-    description: Yield stability score (inverse of NDVI CV)
-
-  HFIAS:
-    type: number
-    format: float
-    description: Household Food Insecurity Access Scale (continuous score)
-
-  village_id:
-    type: string
-    description: Derived village identifier based on spatial grid

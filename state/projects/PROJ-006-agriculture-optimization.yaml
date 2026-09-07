@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:25.118444Z'
-current_stage: analyzed
+current_stage: planned
 failed_stage: null
 field: agriculture
 human_escalation_reason: null
 id: PROJ-006-agriculture-optimization
-last_run_id: 1779751f-702b-4964-be7f-96ec76f14c59
+last_run_id: d983445b-b2fc-436e-bd5d-3761c37c9a9c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization
 title: Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security
-updated_at: '2026-09-06T19:57:54.508274Z'
+updated_at: '2026-09-07T08:05:50.888502Z'

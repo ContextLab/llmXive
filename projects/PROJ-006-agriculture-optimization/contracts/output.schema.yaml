@@ -1,111 +1,170 @@
-# Regression Output Schema for PROJ-006
-# Defines the structure of data produced by src/analysis/run_regression.py
-# Used for validation against pydantic/jsonschema and CI checks.
-
+version: "1.0"
+description: "Schema for regression analysis output artifacts"
 type: object
 required:
-  - model_1_stability
-  - model_2_food_security
-  - vif_scores
   - metadata
+  - models
+  - diagnostics
+  - sensitivity
 properties:
-  model_1_stability:
-    type: object
-    description: Regression results for Stability_Score ~ CSA_Index + controls
-    required:
-      - coefficients
-      - p_values
-      - standard_errors
-      - model_type
-    properties:
-      coefficients:
-        type: object
-        description: Mapping of feature name to coefficient value
-        additionalProperties:
-          type: number
-      p_values:
-        type: object
-        description: Bonferroni-corrected p-values
-        additionalProperties:
-          type: number
-      standard_errors:
-        type: object
-        description: Standard errors (Huber-White or Cluster-Robust)
-        additionalProperties:
-          type: number
-      model_type:
-        type: string
-        enum: ["clustered", "aggregated_robust"]
-        description: Type of standard error correction applied
-      adj_r_squared:
-        type: number
-        description: Adjusted R-squared value
-      collinearity_warning:
-        type: boolean
-        description: True if any VIF > 5 detected
-
-  model_2_food_security:
-    type: object
-    description: Regression results for HFIAS ~ CSA_Index + controls
-    required:
-      - coefficients
-      - p_values
-      - standard_errors
-      - model_type
-    properties:
-      coefficients:
-        type: object
-        additionalProperties:
-          type: number
-      p_values:
-        type: object
-        additionalProperties:
-          type: number
-      standard_errors:
-        type: object
-        additionalProperties:
-          type: number
-      model_type:
-        type: string
-        enum: ["clustered", "aggregated_robust"]
-      adj_r_squared:
-        type: number
-      collinearity_warning:
-        type: boolean
-
-  vif_scores:
-    type: object
-    description: Variance Inflation Factor for all predictors
-    additionalProperties:
-      type: number
-    description: Key is feature name, value is VIF score.
-    # Note: VIFs are calculated on the design matrix including all predictors.
-
   metadata:
     type: object
     required:
-      - generated_at
-      - n_observations
-      - n_predictors
-      - alpha_threshold
-      - bonferroni_adjusted_alpha
+      - timestamp
+      - dataset_version
+      - model_selection_method
+      - bonferroni_alpha
     properties:
-      generated_at:
+      timestamp:
         type: string
         format: date-time
-      n_observations:
-        type: integer
-        minimum: 1
-      n_predictors:
-        type: integer
-        minimum: 1
-      alpha_threshold:
-        type: number
-        description: Original significance level (e.g., 0.05)
-      bonferroni_adjusted_alpha:
-        type: number
-        description: Corrected significance level (alpha / num_tests)
-      cluster_variable:
+        description: "ISO 8601 timestamp of analysis execution"
+      dataset_version:
         type: string
-        nullable: true
-        description: Name of variable used for clustering (e.g., 'village_id'), null if aggregated.
+        description: "Hash or version identifier of the input dataset"
+      model_selection_method:
+        type: string
+        enum: ["aggregated", "clustered"]
+        description: "Method used for standard error calculation"
+      bonferroni_alpha:
+        type: number
+        description: "Adjusted alpha threshold (0.05 / num_tests)"
+      total_tests:
+        type: integer
+        description: "Number of hypothesis tests performed"
+  models:
+    type: object
+    required:
+      - model_1_stability
+      - model_2_food_security
+    properties:
+      model_1_stability:
+        type: object
+        description: "Results for Yield Stability model (Stability_Score ~ ...)"
+        required:
+          - coefficients
+          - p_values
+          - std_errors
+          - r_squared
+          - adj_r_squared
+        properties:
+          coefficients:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Regression coefficients (beta)"
+          p_values:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Raw p-values"
+          bonferroni_p_values:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Bonferroni-adjusted p-values"
+          std_errors:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Robust standard errors (HC3 or Cluster-Robust)"
+          r_squared:
+            type: number
+            description: "Coefficient of determination"
+          adj_r_squared:
+            type: number
+            description: "Adjusted R-squared"
+          f_statistic:
+            type: number
+            description: "F-statistic for overall model significance"
+          f_p_value:
+            type: number
+            description: "P-value for F-statistic"
+      model_2_food_security:
+        type: object
+        description: "Results for Food Security model (HFIAS ~ ...)"
+        required:
+          - coefficients
+          - p_values
+          - std_errors
+          - r_squared
+          - adj_r_squared
+        properties:
+          coefficients:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Regression coefficients (beta)"
+          p_values:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Raw p-values"
+          bonferroni_p_values:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Bonferroni-adjusted p-values"
+          std_errors:
+            type: object
+            additionalProperties:
+              type: number
+            description: "Robust standard errors (HC3 or Cluster-Robust)"
+          r_squared:
+            type: number
+            description: "Coefficient of determination"
+          adj_r_squared:
+            type: number
+            description: "Adjusted R-squared"
+          f_statistic:
+            type: number
+            description: "F-statistic for overall model significance"
+          f_p_value:
+            type: number
+            description: "P-value for F-statistic"
+  diagnostics:
+    type: object
+    required:
+      - vif_scores
+      - collinearity_warnings
+    properties:
+      vif_scores:
+        type: object
+        description: "Variance Inflation Factor for each predictor across models"
+        properties:
+          model_1_stability:
+            type: object
+            additionalProperties:
+              type: number
+            description: "VIF scores for Model 1 predictors"
+          model_2_food_security:
+            type: object
+            additionalProperties:
+              type: number
+            description: "VIF scores for Model 2 predictors"
+      collinearity_warnings:
+        type: array
+        items:
+          type: string
+        description: "List of warnings regarding high VIF (> 5)"
+      heteroskedasticity_test:
+        type: object
+        properties:
+          stat:
+            type: number
+          p_value:
+            type: number
+          description:
+            type: string
+  sensitivity:
+    type: array
+    items:
+      type: object
+      required:
+        - threshold
+        - model
+        - coefficient_csa_index
+        - p_value
+        - std_err
+    description: "Results of sensitivity analysis across cloud cover thresholds"
+additionalProperties: false

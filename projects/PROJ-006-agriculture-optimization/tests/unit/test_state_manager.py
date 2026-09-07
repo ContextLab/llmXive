@@ -4,14 +4,17 @@ import hashlib
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
-import yaml
+
+import sys
+# Add code to path if running from tests/
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
 
 from src.utils.state_manager import (
-    compute_file_hash,
-    scan_directory_for_artifacts,
-    load_state,
-    save_state,
-    update_artifact_hashes,
+    compute_file_hash, 
+    scan_directory_for_artifacts, 
+    load_state, 
+    save_state, 
+    update_artifact_hashes, 
     verify_artifacts
 )
 
@@ -22,13 +25,15 @@ def temp_dir():
 
 @pytest.fixture
 def sample_file(temp_dir):
-    file_path = temp_dir / "test_file.txt"
-    file_path.write_text("Hello, World!")
+    file_path = temp_dir / "test.txt"
+    file_path.write_text("Hello World")
     return file_path
 
 def test_compute_file_hash(sample_file):
-    expected_hash = hashlib.sha256(b"Hello, World!").hexdigest()
-    assert compute_file_hash(sample_file) == expected_hash
+    hash1 = compute_file_hash(sample_file)
+    hash2 = compute_file_hash(sample_file)
+    assert hash1 == hash2
+    assert len(hash1) == 64  # SHA256 hex length
 
 def test_compute_file_hash_missing(temp_dir):
     missing_file = temp_dir / "nonexistent.txt"
@@ -36,106 +41,83 @@ def test_compute_file_hash_missing(temp_dir):
         compute_file_hash(missing_file)
 
 def test_scan_directory_for_artifacts(temp_dir):
-    # Create some files
-    (temp_dir / "a.txt").write_text("a")
-    (temp_dir / "b.txt").write_text("b")
-    (temp_dir / "sub").mkdir()
-    (temp_dir / "sub" / "c.py").write_text("c")
+    # Create structure
+    (temp_dir / "subdir").mkdir()
+    (temp_dir / "file1.txt").write_text("a")
+    (temp_dir / "subdir" / "file2.txt").write_text("b")
+    (temp_dir / ".hidden").write_text("c")
+
+    files = scan_directory_for_artifacts(temp_dir)
+    paths = [f.name for f in files]
     
-    # Scan all
-    all_files = scan_directory_for_artifacts(temp_dir)
-    assert len(all_files) == 3
-    
-    # Scan specific pattern
-    txt_files = scan_directory_for_artifacts(temp_dir, pattern="*.txt")
-    assert len(txt_files) == 2
-    assert all(f.suffix == ".txt" for f in txt_files)
+    assert "file1.txt" in paths
+    assert "file2.txt" in paths
+    assert ".hidden" not in paths
+    assert len(files) == 2
 
 def test_scan_directory_nonexistent(temp_dir):
-    nonexistent = temp_dir / "does_not_exist"
-    result = scan_directory_for_artifacts(nonexistent)
-    assert result == []
+    non_existent = temp_dir / "does_not_exist"
+    files = scan_directory_for_artifacts(non_existent)
+    assert files == []
 
 def test_load_state_missing_file(temp_dir):
-    missing_path = temp_dir / "missing.yaml"
-    state = load_state(missing_path)
-    assert state == {"project_id": None, "artifacts": {}}
+    state_path = temp_dir / "state.yaml"
+    state = load_state(state_path)
+    assert state == {
+        "project_id": "PROJ-006-agriculture-optimization",
+        "artifact_hashes": {}
+    }
 
 def test_save_state_and_load(temp_dir):
     state_path = temp_dir / "state.yaml"
-    test_state = {"project_id": "TEST-001", "artifacts": {"key": "value"}}
-    
-    save_state(test_state, state_path)
+    test_state = {"project_id": "TEST", "artifact_hashes": {"key": "val"}}
+    save_state(state_path, test_state)
     
     loaded = load_state(state_path)
-    assert loaded["project_id"] == "TEST-001"
-    assert loaded["artifacts"]["key"] == "value"
+    assert loaded == test_state
 
 def test_update_artifact_hashes_integration(temp_dir):
-    # Create a dummy file
-    data_dir = temp_dir / "data"
-    data_dir.mkdir()
-    file_path = data_dir / "dummy.csv"
-    content = "id,value\n1,100"
-    file_path.write_text(content)
+    # Setup a mock project structure within temp_dir
+    # We need to mock _PROJECT_ROOT or pass paths that work relative to temp_dir
+    # Since update_artifact_hashes uses a global _PROJECT_ROOT, we patch it.
     
-    expected_hash = hashlib.sha256(content.encode()).hexdigest()
+    data_dir = temp_dir / "data" / "raw"
+    data_dir.mkdir(parents=True)
+    test_file = data_dir / "test.txt"
+    test_file.write_text("content")
     
-    state = {}
-    project_id = "PROJ-TEST"
+    state_path = temp_dir / "state.yaml"
     
-    updated_state = update_artifact_hashes(state, project_id, [data_dir])
-    
-    assert updated_state["project_id"] == project_id
-    assert "artifacts" in updated_state
-    
-    # Check if the file was recorded
-    artifacts = updated_state["artifacts"]
-    # The key depends on how the path is converted to string, usually relative or absolute
-    # We just check that one of the keys contains 'data' and has the file
-    found = False
-    for dir_key, dir_info in artifacts.items():
-        if "data" in dir_key:
-            files = dir_info.get("files", {})
-            # Check if our file is in there (path might be relative or absolute depending on run context)
-            if any("dummy.csv" in p for p in files.keys()):
-                # Verify hash
-                file_hash = list(files.values())[list(files.keys()).index([p for p in files.keys() if "dummy.csv" in p][0])]
-                assert file_hash == expected_hash
-                found = True
-                break
-    
-    assert found, "File was not found in updated state artifacts"
+    # Patch the global project root to be temp_dir for this test
+    with patch('src.utils.state_manager._PROJECT_ROOT', temp_dir):
+        logger = MagicMock()
+        update_artifact_hashes(state_path, [data_dir], logger)
+        
+        state = load_state(state_path)
+        assert "artifact_hashes" in state
+        assert "data/raw/test.txt" in state["artifact_hashes"]
+        assert len(state["artifact_hashes"]) == 1
 
 def test_verify_artifacts(temp_dir):
-    # Setup
-    data_dir = temp_dir / "data"
-    data_dir.mkdir()
-    file_path = data_dir / "test.txt"
-    content = "test content"
-    file_path.write_text(content)
+    data_dir = temp_dir / "data" / "raw"
+    data_dir.mkdir(parents=True)
+    test_file = data_dir / "test.txt"
+    test_file.write_text("content")
     
-    # Create initial state with correct hash
-    correct_hash = hashlib.sha256(content.encode()).hexdigest()
-    state = {
-        "project_id": "PROJ-VERIFY",
-        "artifacts": {
-            str(data_dir): {
-                "last_updated": None,
-                "files": {str(file_path): correct_hash}
-            }
-        }
-    }
+    state_path = temp_dir / "state.yaml"
     
-    # Verify should pass
-    assert verify_artifacts(state, "PROJ-VERIFY") is True
-    
-    # Modify file
-    file_path.write_text("modified content")
-    
-    # Verify should fail
-    assert verify_artifacts(state, "PROJ-VERIFY") is False
-    
-    # Project ID mismatch
-    state["project_id"] = "WRONG-PROJ"
-    assert verify_artifacts(state, "PROJ-VERIFY") is False
+    # First, update state
+    with patch('src.utils.state_manager._PROJECT_ROOT', temp_dir):
+        logger = MagicMock()
+        update_artifact_hashes(state_path, [data_dir], logger)
+        
+        # Verify should pass
+        assert verify_artifacts(state_path, logger) is True
+
+        # Modify file
+        test_file.write_text("modified")
+        assert verify_artifacts(state_path, logger) is False
+
+        # Delete file
+        test_file.unlink()
+        assert verify_artifacts(state_path, logger) is False

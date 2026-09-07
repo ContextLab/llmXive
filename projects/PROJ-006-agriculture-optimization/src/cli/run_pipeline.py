@@ -1,205 +1,183 @@
 """
-CLI Orchestrator for the Climate-Smart Agriculture Optimization Pipeline.
+CLI Orchestrator for the Agriculture Optimization Pipeline.
 
-This script manages the execution of the research pipeline, including:
-- Citation validation at startup
-- Real data verification
-- Synthetic data generation (fallback for CI/local testing)
-- Stage-based execution (ingest, analysis, full)
+This script manages the execution flow, including:
+1. Citation validation gate.
+2. Data availability checks and synthetic fallback (CI mode).
+3. Stage-based execution (ingest, analysis, full).
 """
-
 import argparse
 import logging
 import os
 import sys
-import shutil
-import subprocess
 from pathlib import Path
 
-# Add project root to path for imports
+# Add project root to path if running as script
 project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.utils.io_helpers import setup_logging, write_json_strict
-from src.data.generators.synthetic_generator import main as generate_synthetic_main
 from src.cli.validate_citations import main as validate_citations_main
+from src.data.generators.structural_validation_generator import main as generate_synthetic_main
+from src.data.processing.feature_engineering import main as feature_engineering_main
+from src.data.processing.spatial_join import main as spatial_join_main
+from src.data.processing.final_assembly import main as final_assembly_main
+from src.analysis.run_regression import main as regression_main
+from src.analysis.sensitivity_check import main as sensitivity_main
+from src.services.report_generator import main as report_main
+from src.utils.io_helpers import setup_logging, FatalError
 
-# Configure logging
-logger = setup_logging("run_pipeline")
-
-def check_and_generate_synthetic_data(force: bool = False) -> bool:
+def check_and_generate_synthetic_data(logger: logging.Logger) -> bool:
     """
-    Check for real data in data/raw/. If missing:
-    - If CI=true: Automatically invoke synthetic generator.
-    - If CI=false: Log warning and proceed with synthetic data for local testing.
-
+    Checks for real data in data/raw/. If missing and CI=true,
+    invokes the structural validation generator.
     Returns True if synthetic data was generated or real data exists.
-    Returns False if real data is missing and CI=true but generation failed.
     """
-    raw_data_dir = project_root / "data" / "raw"
-    real_data_exists = raw_data_dir.exists() and any(raw_data_dir.iterdir())
+    data_raw_path = project_root / "data" / "raw"
+    if not data_raw_path.exists():
+        data_raw_path.mkdir(parents=True, exist_ok=True)
 
-    if real_data_exists:
-        logger.info("Real data found in data/raw/. Proceeding with real data.")
+    # Check for any CSV or Parquet files in data/raw
+    has_real_data = any(data_raw_path.glob("*.csv")) or any(data_raw_path.glob("*.parquet"))
+
+    if has_real_data:
+        logger.info("Real data detected in data/raw/. Proceeding with real data.")
         return True
 
-    logger.warning("Real data missing in data/raw/.")
     ci_mode = os.environ.get("CI", "false").lower() == "true"
 
-    if ci_mode or force:
-        logger.info("Invoking synthetic generator for CI/local testing fallback.")
+    if ci_mode:
+        logger.warning("No real data found and CI=true. Invoking structural validation generator.")
         try:
-            # Invoke the synthetic generator directly
+            # Generate synthetic data for structural validation
             generate_synthetic_main()
-            logger.info("Synthetic data generation completed successfully.")
+            logger.info("Structural validation data generated successfully.")
             return True
         except Exception as e:
             logger.error(f"Failed to generate synthetic data: {e}")
-            if ci_mode:
-                logger.critical("CI mode requires data. Aborting.")
-                return False
+            raise FatalError("Synthetic data generation failed in CI mode.")
     else:
-        logger.warning("Local mode detected. Proceeding with synthetic data for testing.")
+        logger.warning("No real data found. Proceeding with synthetic data for local testing.")
         try:
             generate_synthetic_main()
-            logger.info("Synthetic data generated for local testing.")
+            logger.info("Structural validation data generated for local testing.")
             return True
         except Exception as e:
-            logger.error(f"Failed to generate synthetic data in local mode: {e}")
+            logger.error(f"Failed to generate synthetic data: {e}")
+            # In local mode, we might want to fail or proceed with partial data
+            # For now, we fail to ensure data integrity
+            raise FatalError("Synthetic data generation failed in local mode.")
 
-    return False
-
-def run_pipeline_stage_ingest() -> int:
+def run_pipeline_stage_ingest(logger: logging.Logger) -> None:
     """
-    Execute the data ingestion stage.
-    - Validate citations
-    - Check/generate data
-    - Run collectors and spatial join
+    Executes the ingestion pipeline:
+    1. Spatial Join
+    2. Feature Engineering
+    3. Final Assembly (includes linkage validation logic)
     """
-    logger.info("Starting Ingestion Stage.")
+    logger.info("Starting Ingestion Stage...")
 
-    # Step 1: Validate Citations
-    logger.info("Validating citations...")
+    # Run Spatial Join
+    logger.info("Running Spatial Join...")
+    spatial_join_main()
+
+    # Run Feature Engineering
+    logger.info("Running Feature Engineering...")
+    feature_engineering_main()
+
+    # Run Final Assembly (handles linkage validation and aggregation)
+    logger.info("Running Final Assembly...")
+    final_assembly_main()
+
+    logger.info("Ingestion Stage completed.")
+
+def run_pipeline_stage_analysis(logger: logging.Logger) -> None:
+    """
+    Executes the analysis pipeline:
+    1. Regression
+    2. Sensitivity Check
+    3. Report Generation
+    """
+    logger.info("Starting Analysis Stage...")
+
+    # Run Regression
+    logger.info("Running Regression...")
+    regression_main()
+
+    # Run Sensitivity Check
+    logger.info("Running Sensitivity Check...")
+    sensitivity_main()
+
+    # Run Report Generation
+    logger.info("Generating Report...")
+    report_main()
+
+    logger.info("Analysis Stage completed.")
+
+def run_pipeline_stage_full(logger: logging.Logger) -> None:
+    """
+    Executes the full pipeline: Ingest -> Analysis.
+    """
+    logger.info("Starting Full Pipeline...")
+    run_pipeline_stage_ingest(logger)
+    run_pipeline_stage_analysis(logger)
+    logger.info("Full Pipeline completed.")
+
+def main():
+    parser = argparse.ArgumentParser(description="Agriculture Optimization Pipeline Orchestrator")
+    parser.add_argument(
+        "--stage",
+        choices=["ingest", "analysis", "full", "dry-run"],
+        default="dry-run",
+        help="Pipeline stage to execute. Default: dry-run (checks only)."
+    )
+    parser.add_argument(
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default="INFO",
+        help="Logging level."
+    )
+
+    args = parser.parse_args()
+
+    # Setup logging
+    logger = setup_logging("run_pipeline", level=args.log_level)
+
+    # CRITICAL GATE: Validate Citations
+    logger.info("Running Citation Validation Gate...")
     try:
+        # The validate_citations script expects to be run as a module or script
+        # We invoke its main logic directly
         validate_citations_main()
         logger.info("Citation validation passed.")
     except SystemExit as e:
         if e.code != 0:
-            logger.critical("Citation validation failed. Aborting pipeline.")
-            return 1
-        logger.info("Citation validation passed.")
+            logger.error("Citation validation failed. Aborting pipeline.")
+            sys.exit(1)
+        # If it exits with 0, we continue
+    except Exception as e:
+        logger.error(f"Citation validation encountered an error: {e}")
+        sys.exit(1)
 
-    # Step 2: Check Data
-    if not check_and_generate_synthetic_data():
-        logger.critical("Data check failed. Aborting.")
-        return 1
-
-    # Step 3: Run Collectors and Processing
-    # Note: In a full implementation, this would call survey_collector, remote_sensing_collector, etc.
-    # For this task, we ensure the flow is correct and synthetic data is ready.
-    # The actual processing logic is in other modules (T015-T018b).
-    # We simulate the flow by ensuring the output file exists if synthetic was used.
-    
-    processed_dir = project_root / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # If we are in synthetic mode, we might need to ensure the analysis dataset exists
-    # based on the synthetic generator output.
-    # The synthetic generator creates a CSV. We assume it creates 'data/raw/synthetic_survey.csv'
-    # and the pipeline processes it.
-    
-    # Placeholder for actual ingestion logic calls:
-    # from src.data.collectors.survey_collector import main as collect_survey
-    # from src.data.processing.spatial_join import main as run_spatial_join
-    # run_spatial_join() 
-    
-    # Since T015-T018 are marked complete in the prompt's completed list but may not be fully
-    # functional in this specific context, we ensure the pipeline structure is valid.
-    # The critical path for T010a is the orchestration and synthetic fallback.
-    
-    logger.info("Ingestion stage logic executed.")
-    return 0
-
-def run_pipeline_stage_analysis() -> int:
-    """
-    Execute the analysis stage.
-    - Run regression models
-    - Run sensitivity checks
-    """
-    logger.info("Starting Analysis Stage.")
-    
-    # Placeholder for actual analysis logic calls:
-    # from src.analysis.run_regression import main as run_regression
-    # from src.analysis.sensitivity_check import main as run_sensitivity
-    # run_regression()
-    # run_sensitivity()
-    
-    logger.info("Analysis stage logic executed.")
-    return 0
-
-def run_pipeline_stage_full() -> int:
-    """
-    Execute the full pipeline (Ingest + Analysis).
-    """
-    logger.info("Starting Full Pipeline.")
-    
-    if run_pipeline_stage_ingest() != 0:
-        return 1
-    
-    if run_pipeline_stage_analysis() != 0:
-        return 1
-        
-    logger.info("Full pipeline completed successfully.")
-    return 0
-
-def main():
-    parser = argparse.ArgumentParser(description="CLI Orchestrator for Agriculture Optimization Pipeline")
-    parser.add_argument("--stage", 
-                        choices=["ingest", "analysis", "full"], 
-                        default="full",
-                        help="Pipeline stage to execute")
-    parser.add_argument("--dry-run", 
-                        action="store_true", 
-                        help="Perform a dry run (check structure, validate citations, but do not process data)")
-    parser.add_argument("--use-synthetic", 
-                        action="store_true", 
-                        help="Force synthetic data generation even if real data exists (for testing)")
-    
-    args = parser.parse_args()
-
-    # Setup logging level
-    log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
-    # Ensure valid log level
-    if log_level not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
-        log_level = "INFO"
-    logger.setLevel(log_level)
-
-    logger.info(f"Pipeline Orchestrator started. Stage: {args.stage}, Dry Run: {args.dry_run}")
-
-    if args.dry_run:
-        logger.info("Dry run mode: Validating citations and structure only.")
-        try:
-            validate_citations_main()
-            logger.info("Citation validation passed in dry-run mode.")
-        except SystemExit as e:
-            if e.code != 0:
-                logger.critical("Citation validation failed. Dry-run aborted.")
-                sys.exit(1)
+    if args.stage == "dry-run":
+        logger.info("Dry run mode: Checking environment and data availability...")
+        # Check data availability
+        check_and_generate_synthetic_data(logger)
         logger.info("Dry run completed successfully.")
-        sys.exit(0)
+        return
 
-    # Execute the requested stage
+    # Check data availability before running real stages
+    check_and_generate_synthetic_data(logger)
+
     if args.stage == "ingest":
-        exit_code = run_pipeline_stage_ingest()
+        run_pipeline_stage_ingest(logger)
     elif args.stage == "analysis":
-        exit_code = run_pipeline_stage_analysis()
+        run_pipeline_stage_analysis(logger)
     elif args.stage == "full":
-        exit_code = run_pipeline_stage_full()
+        run_pipeline_stage_full(logger)
     else:
         logger.error(f"Unknown stage: {args.stage}")
-        exit_code = 1
-
-    sys.exit(exit_code)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

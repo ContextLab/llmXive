@@ -2,24 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-*.egg
-*.egg-info/
-dist/
-build/
-develop-eggs/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-venv/
-ENV/
-env/
-.venv/
-.env/
 
 # C extensions
 *.so
@@ -36,11 +18,15 @@ lib/
 lib64/
 parts/
 sdist/
-venv/
-ENV/
-env/
-.env/
-.venv/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
 
 # Installer logs
 pip-log.txt
@@ -50,11 +36,10 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 .coverage.*
-.cache
+cache/
 nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
 .hypothesis/
 .pytest_cache/
 
@@ -68,9 +53,10 @@ coverage.xml
 env/
 venv/
 ENV/
-.env.local
+env.bak/
+venv.bak/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
@@ -85,35 +71,29 @@ ENV/
 
 # mypy
 .mypy_cache/
-.dmypy.json
-dmypy.json
 
-# Pyre type checker
-.pyre/
+# Data and logs
+data/raw/*.csv
+data/raw/*.parquet
+data/raw/*.zip
+data/raw/*.tar.gz
+data/processed/*.csv
+data/processed/*.parquet
+data/processed/*.json
+data/logs/*.log
+data/logs/*.json
+reports/*.pdf
+reports/*.png
+reports/*.csv
+reports/*.json
 
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
 Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
 
 # Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/logs/*
-!data/logs/.gitkeep
-reports/*
-!reports/.gitkeep
-state/projects/*
-!state/projects/.gitkeep
-contracts/*
-!contracts/.gitkeep
-docs/*
-!docs/.gitkeep
-tests/__pycache__/
-src/__pycache__/
-scripts/__pycache__/
+state/
+contracts/*.yaml
+specs/
+docs/
+research.md
