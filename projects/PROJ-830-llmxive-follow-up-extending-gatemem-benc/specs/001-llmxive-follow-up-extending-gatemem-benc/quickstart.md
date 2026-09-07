@@ -1,133 +1,132 @@
 # llmXive Follow-up: Extending GateMem Benchmark
+## Quickstart Guide
 
-This guide provides step-by-step instructions to set up the environment, fetch the real dataset, and run the initial evaluation for the GateMem benchmark extension.
+This guide provides step-by-step instructions for setting up the environment, fetching the real dataset, and running the initial evaluation for the GateMem benchmark extension.
 
-## Prerequisites
-
-- Python 3.9+
-- pip
-- Git
+---
 
 ## 1. Environment Setup
 
-Create a virtual environment and install dependencies:
+### Prerequisites
+- Python 3.9+
+- pip package manager
+- Git (for cloning the repository)
 
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
+### Installation Steps
 
-Ensure the following packages are installed (as per `requirements.txt`):
-- `datasets`
-- `transformers`
-- `scikit-learn`
-- `statsmodels`
-- `pandas`
-- `pyyaml`
-- `pytest`
-- `huggingface_hub`
+1. **Clone the repository** (if not already done):
+ ```bash
+ git clone <repository-url>
+ cd <project-root>
+ ```
 
-## 2. Dataset Download
+2. **Create a virtual environment** (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-This project uses the **GateMem** dataset from HuggingFace. The data loader (`code/utils/data_loader.py`) is configured to stream the dataset to handle memory constraints.
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-The dataset ID is `gatekeeper/gatemem` with configuration `default` and split `test`. [UNRESOLVED-CLAIM: c_634067af — status=not_enough_info]
+ *Note: `requirements.txt` includes `datasets`, `transformers`, `scikit-learn`, `statsmodels`, `pandas`, `pyyaml`, `pytest`, and `huggingface_hub`.*
 
-### Manual Fetch (Optional)
+---
 
-If you wish to verify the dataset availability before running the full pipeline:
+## 2. Dataset Download & Verification
+
+This project uses the **GateMem** dataset from HuggingFace. The data loader is configured to **stream** the dataset to handle memory constraints and **strictly forbids** synthetic fallbacks.
+
+### Automatic Fetching
+The data loading pipeline (`code/utils/data_loader.py`) automatically fetches the dataset when run.
+
+- **Source**: HuggingFace ID `gatekeeper/gatemem`
+- **Configuration**: `default`
+- **Split**: `test`
+- **Mode**: Streaming (`streaming=True`)
+
+### Manual Verification (Optional)
+To verify the dataset exists and is accessible before running the full pipeline:
 
 ```python
 from code.utils.data_loader import fetch_dataset
 
-# This will stream the data and compute a checksum
-# It will raise ConnectionError if the fetch fails (no synthetic fallback)
 try:
- data = fetch_dataset()
- print(f"Successfully loaded {len(data)} episodes")
+ dataset = fetch_dataset()
+ print(f"Dataset loaded successfully. Number of episodes: {len(dataset)}")
 except ConnectionError as e:
  print(f"Critical: Real Data Fetch Failed - {e}")
- sys.exit(1)
+ exit(1)
 ```
 
-The dataset will be cached by the `datasets` library, and a checksum will be stored in `state/artifact_hashes.yaml`.
+**Important**: If the network is unavailable or the dataset ID is incorrect, the script will raise a `ConnectionError` and exit with code 1. No synthetic data will be generated.
+
+---
 
 ## 3. Running the First Evaluation
 
-The pipeline is designed to run on CPU-only environments for reproducibility.
+The evaluation pipeline compares the **Gatekeeper** method against **Baseline** configurations (Retrieval-only and Long-Context).
 
 ### Run Access Control Evaluation (User Story 1)
 
-This executes the Gatekeeper and Baseline pipelines on the "medical" and "office" domains to measure unauthorized information leakage.
+Execute the pipeline for the "medical" and "office" domains to verify Access Control scores:
 
 ```bash
-python code/cli/run_evaluation.py --domains medical,office --stage us1
+python code/cli/run_evaluation.py --domains medical,office --phase us1
 ```
 
-**Expected Output:**
-- Results written to `data/processed/gatekeeper_results.json`
-- Results written to `data/processed/baseline_retrieval_results.json`
-- Results written to `data/processed/baseline_longcontext_results.json`
-- Access Control metrics calculated and saved to `data/processed/access_control_results.json`
+**Expected Output**:
+- `data/processed/gatekeeper_results.json`
+- `data/processed/baseline_retrieval_results.json`
+- `data/processed/baseline_longcontext_results.json`
+- `data/processed/access_control_results.json`
 
-### Run Utility & Forgetting Evaluation (User Story 2)
+### Run Full Benchmark (All User Stories)
 
-To evaluate task success and forgetting compliance:
+To run the complete suite (Access Control, Utility, Forgetting, and Profiling):
 
 ```bash
-python code/cli/run_evaluation.py --domains education,household --stage us2
+python code/cli/run_evaluation.py --domains medical,office,education,household --phase all
 ```
 
-**Expected Output:**
-- Unified metrics in `data/processed/unified_metrics.json`
-- Statistical comparison results in `data/processed/statistical_results.json`
+---
 
-### Run Profiling (User Story 3)
+## 4. Verification & Testing
 
-To measure latency and RAM usage:
+Run the contract and unit tests to ensure the setup is correct:
 
 ```bash
-python code/cli/run_evaluation.py --domains medical --stage us3
-```
+# Run all tests
+pytest tests/ -v
 
-**Expected Output:**
-- Performance comparison in `data/processed/performance_results.json`
-
-## 4. Verification
-
-Run the contract tests to ensure outputs match the required schemas:
-
-```bash
-pytest tests/contract/ -v
-```
-
-Run the unit tests for documentation and core logic:
-
-```bash
+# Specifically test the quickstart documentation
 pytest tests/unit/test_docs.py::test_quickstart_exists -v
-pytest tests/unit/test_data_loader.py::test_fetch_streaming -v
-pytest tests/unit/test_metrics.py::test_access_control_calculation -v
 ```
+
+---
 
 ## 5. Troubleshooting
 
-### Data Fetch Failed
-If you see `Critical: Real Data Fetch Failed`, ensure you have an active internet connection and the HuggingFace dataset `gatekeeper/gatemem` is accessible. The system does **not** support synthetic fallbacks.
+### "ConnectionError: Real Data Fetch Failed"
+- Ensure you have an active internet connection.
+- Verify the HuggingFace dataset ID `gatekeeper/gatemem` is correct and accessible.
+- Check if you need to log in to HuggingFace (`huggingface-cli login`) if the dataset is gated.
 
-### Memory Errors
-The pipeline uses streaming (`streaming=True`) by default. If you encounter memory issues, ensure no other heavy processes are running. The `state/artifact_hashes.yaml` file indicates the checksum of the downloaded data.
+### "ModuleNotFoundError: No module named 'code'"
+- Ensure you are running the script from the project root directory.
+- Add the project root to `PYTHONPATH`: `export PYTHONPATH="${PYTHONPATH}:$(pwd)"`
 
-### Model Loading Errors
-The classifier uses `facebook/distilbert-base-uncased` in CPU mode. [UNRESOLVED-CLAIM: c_f754392b — status=not_enough_info] If the model fails to load, check your cache directory or retry the fetch. The system implements a single retry mechanism before exiting.
+### Memory Issues
+- The dataset is configured to stream. If you encounter OOM errors, ensure no other heavy processes are running.
+- Check `data/processed/` for intermediate files; ensure sufficient disk space.
 
-## 6. Project Structure
+---
 
-- `code/`: Source code for the pipeline
-- `data/`: Raw and processed data artifacts
-- `tests/`: Unit, contract, and integration tests
-- `specs/`: Design documents and this quickstart guide
-- `state/`: Runtime state (checksums, logs)
-- `templates/`: Prompt templates used in evaluation
+## 6. Next Steps
 
-For more details, refer to the `tasks.md` file for the full task list and dependencies.
+After successfully running the initial evaluation:
+1. Review `data/results/final_benchmark_report.md` (generated after Phase 3-5).
+2. Analyze failure cases in `data/samples/failure_cases.json`.
+3. Consult `specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md` for detailed user stories and implementation plans.

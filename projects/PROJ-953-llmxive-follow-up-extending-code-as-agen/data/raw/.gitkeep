@@ -1,1 +1,2 @@
-# This file is intentionally kept empty to preserve the directory structure.
+# This directory stores raw dataset downloads (e.g., SWE-bench, AgentBench).
+# Do not commit actual data files; add them to .gitignore.

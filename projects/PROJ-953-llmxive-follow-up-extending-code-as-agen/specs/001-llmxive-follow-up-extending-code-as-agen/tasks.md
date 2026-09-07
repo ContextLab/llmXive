@@ -86,9 +86,9 @@
 - [X] T020 [US2] Implement `tree-sitter` parsing logic in `code/scripts/extract_features.py` to generate dependency graphs
 - [X] T021 [US2] Implement metric calculation in `code/scripts/extract_features.py` using `tree-sitter` to calculate `dependency_depth`, `cyclomatic_complexity`, and `semantic_complexity_score`. If semantic nodes are missing, calculate `dependency_depth`, `cyclomatic_complexity`, and `lines_of_code` as the fallback set. Serialize dependency graphs to `data/graphs/{task_id}.json`.
 - [ ] T022 [US2] Implement fallback logic for "semantic_complexity" (use simplified set: `dependency_depth`, `cyclomatic_complexity`, `lines_of_code` if specific nodes missing)
-- [~] T023 [US2] Serialize dependency graphs to `data/graphs/{task_id}.json` for traceability
+- [ ] T023 [US2] Serialize dependency graphs to `data/graphs/{task_id}.json` for traceability
 - [X] T024 [US2] Generate `data/processed/features.csv` merging `ground_truth.csv` with calculated metrics
-- [~] T025 [US2] Add validation to ensure no missing metric values in `features.csv`
+- [ ] T025 [US2] Add validation to ensure no missing metric values in `features.csv`
 
 **Checkpoint**: Feature dataset is generated with all structural metrics.
 
@@ -102,13 +102,13 @@
 
 ### Tests for User Story 3
 
-- [ ] T026 [P] [US3] Unit test for model training with fixed random seed in `tests/unit/test_model_training.py`
-- [ ] T027 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_threshold_sweep.py`
+- [X] T026 [P] [US3] Unit test for model training with fixed random seed in `tests/unit/test_model_training.py`
+- [X] T027 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_threshold_sweep.py`
 
 ### Implementation for User Story 3
 
 - [ ] T028 [P] [US3] Implement `scripts/train_model.py` to load `features.csv` and split into train/validation sets (pin random seeds for reproducibility)
-- [ ] T029 [US3] Implement Logistic Regression and Random Forest training (CPU-only, no CUDA) in `code/scripts/train_model.py` (pin random seeds)
+- [X] T029 [US3] Implement Logistic Regression and Random Forest training (CPU-only, no CUDA) in `code/scripts/train_model.py` (pin random seeds)
 - [ ] T031 [US3] Perform sensitivity analysis sweep over the specific set of thresholds {0.01, 0.05, 0.1} as mandated by FR-005. Calculate FNR for each threshold and output `data/processed/threshold_sweep.json` containing the FNR for each threshold and the minimum achievable FNR if the target is not met. Explicitly check if FNR ≤ 0.1% and flag the model as "unsafe" if it fails.
 - [ ] T030 [US3] Identify the optimal threshold from the sweep results generated in T031 and generate `models/decision_boundary.pkl` with model weights and identified thresholds.
 - [ ] T032 [US3] Implement logic to flag model as "unsafe for static-only classification" if FNR constraint cannot be met.

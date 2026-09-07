@@ -3,165 +3,153 @@ import csv
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
-# Import from baseline_runner as per API surface
 from scripts.baseline_runner import ExecutionResult, run_baseline_task
+from scripts.ingest import load_swe_bench, load_agent_bench, parse_swe_bench, parse_agent_bench, merge_datasets
 
-def load_baseline_results(results_dir: str) -> Dict[str, ExecutionResult]:
-    """
-    Load execution results from the baseline runner output directory.
-    Expects JSON files named {task_id}.json containing execution outcomes.
-    """
+def load_baseline_results(baseline_dir: str) -> Dict[str, ExecutionResult]:
+    """Load baseline execution results from JSON files."""
     results = {}
-    results_path = Path(results_dir)
-    if not results_path.exists():
-        # If no results exist, return empty dict (will be handled downstream)
+    baseline_path = Path(baseline_dir)
+    if not baseline_path.exists():
         return results
-
-    for json_file in results_path.glob("*.json"):
-        try:
-            with open(json_file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                task_id = json_file.stem
-                # Map JSON fields to ExecutionResult attributes
-                # Expected JSON structure: {"status": "Pass"|"Fail"|"Timeout", "duration": float, "error": str}
-                status = data.get("status", "Unknown")
-                duration = data.get("duration", 0.0)
-                error_msg = data.get("error", "")
-                
-                results[task_id] = ExecutionResult(
-                    task_id=task_id,
-                    status=status,
-                    duration=duration,
-                    error=error_msg
-                )
-        except (json.JSONDecodeError, KeyError) as e:
-            # Log warning but continue processing other files
-            print(f"Warning: Could not parse {json_file}: {e}")
-            continue
     
+    for json_file in baseline_path.glob("*.json"):
+        try:
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+                task_id = data.get('task_id')
+                if task_id:
+                    # Reconstruct ExecutionResult or raw dict if class not fully serialized
+                    results[task_id] = ExecutionResult(
+                        outcome=data.get('outcome', 'Unknown'),
+                        duration=data.get('duration', 0.0),
+                        error_message=data.get('error_message')
+                    )
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"Warning: Could not parse {json_file}: {e}")
     return results
 
-def load_ingested_tasks(csv_path: str) -> List[Dict[str, Any]]:
-    """
-    Load the merged dataset from the ingestion step.
-    Expects CSV with columns: task_id, code_diff, original_code, source_dataset
-    """
+def load_ingested_tasks(ingested_file: str) -> List[Dict[str, Any]]:
+    """Load tasks from the ingested CSV."""
     tasks = []
-    csv_file = Path(csv_path)
-    if not csv_file.exists():
-        raise FileNotFoundError(f"Ingested tasks CSV not found: {csv_path}")
-
-    with open(csv_file, 'r', encoding='utf-8') as f:
+    if not os.path.exists(ingested_file):
+        raise FileNotFoundError(f"Ingested tasks file not found: {ingested_file}")
+    
+    with open(ingested_file, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             tasks.append(row)
-    
     return tasks
 
-def process_unparseable_tasks(tasks: List[Dict[str, Any]], unparseable_marker: str = "Unparseable") -> List[Dict[str, Any]]:
+def process_unparseable_tasks(tasks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Ensure tasks flagged as unparseable (from T016) are retained with correct status.
-    This function validates that 'Unparseable' tasks have a specific outcome marker.
+    Identify tasks that are unparseable (e.g., syntax errors in code_diff or original_code).
+    This function simulates a check that would happen during ingestion or extraction.
+    In a real pipeline, this might be flagged by tree-sitter or a syntax checker.
+    For this step, we assume 'unparseable' status is already set or detectable via simple heuristics.
+    
+    Returns a list of tasks with 'status' updated to 'Unparseable' if detected.
     """
-    processed = []
+    # In the context of T016, we need to ensure tasks that failed parsing are flagged.
+    # Since T010/T011 are marked complete but might not have fully implemented the flagging,
+    # we implement the logic here to ensure the ground truth reflects it.
+    # We look for a 'parse_status' or similar field, or check if code_diff is empty/malformed.
+    
+    unparseable_count = 0
     for task in tasks:
-        # If the task was already marked as unparseable in the ingestion/processing step,
-        # ensure it gets a specific outcome if not already set by baseline runner
-        if task.get("status") == "Unparseable" or task.get("code_diff") == "":
-            task["dynamic_execution_outcome"] = "Unparseable"
-        processed.append(task)
-    return processed
+        # Check for existing unparseable flag or heuristic
+        if task.get('parse_status') == 'unparseable' or task.get('status') == 'Unparseable':
+            task['status'] = 'Unparseable'
+            task['dynamic_execution_outcome'] = 'Unparseable'
+            unparseable_count += 1
+        elif not task.get('code_diff') or task.get('code_diff', '').strip() == '':
+            # If code_diff is missing, we can't execute, mark as Unparseable for safety
+            task['status'] = 'Unparseable'
+            task['dynamic_execution_outcome'] = 'Unparseable'
+            unparseable_count += 1
+        
+        # If it's not unparseable, ensure it has a baseline outcome
+        if task.get('status') != 'Unparseable':
+            # Placeholder: In a real run, this would be populated by baseline_runner
+            # For T016 implementation, we ensure the structure exists.
+            if 'dynamic_execution_outcome' not in task:
+                task['dynamic_execution_outcome'] = 'Pending'
+                
+    print(f"Processed {unparseable_count} unparseable tasks.")
+    return tasks
 
-def generate_ground_truth(
-    ingested_tasks_path: str,
-    baseline_results_path: str,
-    output_path: str,
-    unparseable_marker: str = "Unparseable"
-) -> None:
+def generate_ground_truth(tasks: List[Dict[str, Any]], baseline_results: Dict[str, ExecutionResult]) -> List[Dict[str, Any]]:
     """
-    Generate the final ground truth CSV by merging ingested tasks with baseline execution results.
-    
-    Columns: task_id, code_diff, dynamic_execution_outcome
-    - Loads tasks from ingested_tasks_path (CSV)
-    - Loads execution results from baseline_results_path (JSON files)
-    - Merges data, handling cases where baseline results are missing or tasks are unparseable.
-    - Writes to output_path.
+    Merge ingested tasks with baseline execution results.
+    Explicitly handle 'Unparseable' tasks by retaining them with a specific status.
     """
-    # Load data
-    tasks = load_ingested_tasks(ingested_tasks_path)
-    baseline_results = load_baseline_results(baseline_results_path)
+    ground_truth = []
     
-    # Process unparseable tasks first
-    tasks = process_unparseable_tasks(tasks, unparseable_marker)
-    
-    # Prepare output rows
-    output_rows = []
     for task in tasks:
-        task_id = task.get("task_id")
-        code_diff = task.get("code_diff", "")
+        task_id = task.get('task_id')
+        outcome = task.get('dynamic_execution_outcome', 'Unknown')
         
-        # Determine outcome
-        if task.get("dynamic_execution_outcome") == "Unparseable":
-            outcome = "Unparseable"
-        elif task_id in baseline_results:
-            # Use the status from the baseline runner result
-            result = baseline_results[task_id]
-            outcome = result.status
+        # If marked unparseable, keep as is (T016 requirement)
+        if task.get('status') == 'Unparseable':
+            # Ensure outcome is explicitly 'Unparseable'
+            if outcome != 'Unparseable':
+                task['dynamic_execution_outcome'] = 'Unparseable'
+            ground_truth.append(task)
+            continue
+        
+        # If not unparseable, try to get outcome from baseline results
+        if task_id in baseline_results:
+            exec_result = baseline_results[task_id]
+            task['dynamic_execution_outcome'] = exec_result.outcome
         else:
-            # If no baseline result exists, mark as "Missing_Baseline"
-            # This should ideally not happen if T012/T013 ran successfully for all tasks
-            outcome = "Missing_Baseline"
+            # If no baseline result found, mark as 'Unknown' or 'Skipped'
+            # T016 requires specific handling, but if not unparseable, it should be executed.
+            # If execution didn't happen, it's a pipeline error, but we record it.
+            task['dynamic_execution_outcome'] = 'Unknown'
         
-        output_rows.append({
-            "task_id": task_id,
-            "code_diff": code_diff,
-            "dynamic_execution_outcome": outcome
-        })
-    
-    # Ensure output directory exists
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write to CSV
-    with open(output_file, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = ["task_id", "code_diff", "dynamic_execution_outcome"]
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(output_rows)
-    
-    print(f"Ground truth generated: {output_path}")
-    print(f"Total tasks processed: {len(output_rows)}")
-    outcome_counts = {}
-    for row in output_rows:
-        outcome = row["dynamic_execution_outcome"]
-        outcome_counts[outcome] = outcome_counts.get(outcome, 0) + 1
-    print(f"Outcome distribution: {outcome_counts}")
+        ground_truth.append(task)
+        
+    return ground_truth
 
 def main():
-    """
-    Entry point for generating ground truth.
-    Reads from default paths or environment variables.
-    """
-    # Default paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent.parent
-    ingested_csv = project_root / "data" / "processed" / "ingested_tasks.csv"
-    baseline_results_dir = project_root / "data" / "processed" / "baseline_results"
-    output_csv = project_root / "data" / "processed" / "ground_truth.csv"
+    """Main entry point for generating ground truth CSV."""
+    # Paths
+    ingested_path = Path("data/processed/ingested_tasks.csv")
+    baseline_dir = Path("data/processed/baseline_results")
+    output_path = Path("data/processed/ground_truth.csv")
     
-    # Allow override via environment variables
-    ingested_csv = Path(os.getenv("INGESTED_TASKS_PATH", ingested_csv))
-    baseline_results_dir = Path(os.getenv("BASELINE_RESULTS_DIR", baseline_results_dir))
-    output_csv = Path(os.getenv("GROUND_TRUTH_PATH", output_csv))
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    if not ingested_csv.exists():
-        raise FileNotFoundError(f"Ingested tasks file not found: {ingested_csv}")
+    # Load data
+    print(f"Loading ingested tasks from {ingested_path}...")
+    try:
+        tasks = load_ingested_tasks(str(ingested_path))
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        return
     
-    generate_ground_truth(
-        ingested_tasks_path=str(ingested_csv),
-        baseline_results_path=str(baseline_results_dir),
-        output_path=str(output_csv)
-    )
+    print(f"Loading baseline results from {baseline_dir}...")
+    baseline_results = load_baseline_results(str(baseline_dir))
+    
+    # Process unparseable tasks (T016)
+    print("Processing unparseable tasks...")
+    tasks = process_unparseable_tasks(tasks)
+    
+    # Generate ground truth
+    print("Generating ground truth...")
+    ground_truth = generate_ground_truth(tasks, baseline_results)
+    
+    # Write to CSV
+    if ground_truth:
+        fieldnames = list(ground_truth[0].keys())
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(ground_truth)
+        print(f"Ground truth written to {output_path}")
+    else:
+        print("No ground truth data to write.")
 
 if __name__ == "__main__":
     main()

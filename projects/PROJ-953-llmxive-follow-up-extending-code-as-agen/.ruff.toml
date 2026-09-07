@@ -1,17 +1,48 @@
+# Ruff configuration for llmXive project
+# Aligns with black formatting and project standards
+
 [lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line-too-long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in scripts)
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
+select = ["E", "F", "I", "W"]
+
+# Ignore specific rules if necessary
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific files/directories
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "data",
+    "models",
+    "docs",
+    "build",
+    "dist"
 ]
 
+# Line length for linting (must match black)
+line-length = 88
+
+[lint.per-file-ignores]
+# Ignore specific rules for test files if needed
+"tests/**/*.py" = ["E501"]
+
 [lint.isort]
+# Configuration for import sorting to match black
 known-first-party = ["scripts"]
-force-sort-within-sections = true
+force-single-line = false
+force-sort-within-sections = false
+order-by-type = true
+relative-imports-order = "closest-to-furthest"
+
+[format]
+# Black-compatible formatting settings
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

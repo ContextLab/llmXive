@@ -1,31 +1,21 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Pick-a-Pic Dataset Schema
-description: Schema for the raw Pick-a-Pic dataset columns required for analysis.
+description: >
+  Schema for the raw Pick-a-Pic dataset used in the llmXive project.
+  Validates the presence of required columns: human_rating, caption, image_id.
 type: object
 required:
-  - caption
-  - human_rating
-  - image_id
+  - columns
 properties:
-  caption:
-    type: string
-    description: The text caption associated with the image.
-    minLength: 1
-  human_rating:
-    type: number
-    description: Human preference rating score.
-    minimum: 0.0
-    maximum: 1.0
-  image_id:
-    type: string
-    description: Unique identifier for the image.
-  prompt:
-    type: string
-    description: The original prompt used to generate the image (optional).
-  negative_prompt:
-    type: string
-    description: Negative prompt used (optional).
-  model_id:
-    type: string
-    description: Model identifier used for generation (optional).
+  columns:
+    type: array
+    items:
+      type: string
+    contains:
+      const: human_rating
+    contains:
+      const: caption
+    contains:
+      const: image_id
 additionalProperties: true
+errorMessage: "Missing required dataset or column: pick-a-pic/human_rating"

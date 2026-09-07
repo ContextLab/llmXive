@@ -455,3 +455,390 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-25T11:18:20Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Use Benjamini-Hochberg correction to control FDR <= 0.05
+  claim_id: c_100fe4ee
+  context: 'Requirement: Use **Benjamini-Hochberg** correction to control FDR $\le
+    0.05 (1706.08250, https://arxiv.org/abs/1706.08250)$, as mandated by FR-006.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Use Benjamini-Hochberg correction to control FDR \u2264 0.05 (1706.08250,\
+    \ https://arxiv.org/abs/1706.08250)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:53:33Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Permutation-based significance test involves 1000 shuffles
+  claim_id: c_4b39c57c
+  context: 'Requirement: This must be a specific ''permutation-based significance
+    test'' involving N=1,000 shuffles to generate a null distribution, followed by
+    p-value calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a specific 'permutation-based significance test' involving N=1,000
+    shuffles to generate a null distribution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:54:09Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Fixed iteration count of 1000 for label permutation test
+  claim_id: c_8ea38539
+  context: 'Requirement: Enforce a fixed iteration count of N=1,000 by default with
+    pinned seeds to ensure reproducibility (FR-006).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a fixed iteration count of N=1,000 by default with pinned seeds
+    to ensure reproducibility
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:55:07Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Significance threshold sweep over 0.01, 0.05, 0.1
+  claim_id: c_d87504b4
+  context: 3) Perform a **significance threshold sweep** (alpha) over {0.01, 0.05,
+    0.1} as required by FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a significance threshold sweep (alpha) over {0.01, 0.05, 0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:55:32Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Noise injection standard deviations range from 0.0 to 0.5
+  claim_id: c_9230d27b
+  context: 'Requirement: Explicitly define `std_devs = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]`
+    for the noise injection range.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly define std_devs = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5] for the noise
+    injection range
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:55:52Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Flag construct validity risk if correlation < 0.3
+  claim_id: c_6f306531
+  context: 'Requirement: Use a **stratified [deferred] split** for the held-out subset.
+    If correlation coefficient is < 0.3, log a warning and flag construct validity
+    risk in the final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation coefficient is < 0.3, log a warning and flag construct
+    validity risk
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:55:52Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: 5-second timeout wrapper per caption
+  claim_id: c_8e2923bf
+  context: '**Requirement**: Implement a **5-second timeout wrapper** per caption;
+    if calculation exceeds 5 seconds, **flag the caption for manual review** (do NOT
+    exclude the sample automatically) to preserve data inclusion criteria.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a 5-second timeout wrapper per caption
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:56:07Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Use Benjamini-Hochberg correction to control FDR <= 0.05
+  claim_id: c_10bcdc7d
+  context: "Requirement: This must be a specific 'permutation-based significance test'\
+    \ involving N=1,000 shuffles to generate a null distribution, followed by p-value\
+    \ calculation. Requirement: Use Benjamini-Hochberg correction to control FDR \u2264\
+    \ 0.05 (1706.08250, https://arxiv.org/abs/1706.08250), as mandated by FR-006."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: "Use Benjamini-Hochberg correction to control FDR \u2264 0.05 (1706.08250,\
+    \ https://arxiv.org/abs/1706.08250)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:56:51Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Define noise injection range std_devs as [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+  claim_id: c_d39b506d
+  context: 'Requirement: Explicitly define `std_devs = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]`
+    for the noise injection range.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly define std_devs = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5] for the noise
+    injection range
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:56:51Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Perform significance threshold sweep over alpha values 0.01, 0.05, 0.1
+  claim_id: c_05256473
+  context: 3) Perform a **significance threshold sweep** (alpha) over {0.01, 0.05,
+    0.1} as required by FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a significance threshold sweep (alpha) over {0.01, 0.05, 0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:56:51Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Use fixed iteration count of 1000 for label permutation test
+  claim_id: c_c15aac57
+  context: 'Requirement: Enforce a fixed iteration count of N=1,000 by default with
+    pinned seeds to ensure reproducibility (FR-006).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed iteration count of N=1,000 for label permutation test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:57:59Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Implement 5-second timeout wrapper per caption for BERT inference
+  claim_id: c_51aab537
+  context: 'Requirement: Implement a **5-second timeout wrapper** per caption; if
+    calculation exceeds 5 seconds, **flag the caption for manual review** (do NOT
+    exclude the sample automatically) to preserve data inclusion criteria.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a 5-second timeout wrapper per caption for BERT inference
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:58:16Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Log warning and flag construct validity risk if correlation coefficient
+    < 0.3
+  claim_id: c_04d37a4f
+  context: If correlation coefficient is < 0.3, log a warning and flag construct validity
+    risk in the final report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation coefficient is < 0.3, log a warning and flag construct
+    validity risk
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:58:16Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Use pick-a-pic dataset for human preference data
+  claim_id: c_5b4a109f
+  context: "Goal: Calculate the target variable $Y = | \text{CLIP\_Score} - \text{Human\_\
+    Rating} |$ from human preference data."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_pick-a-pic_dataset_for_human_preference_data
+  kind: entity_fact
+  raw_text: Use 'pick-a-pic' dataset for human preference data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:58:44Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Exclude row from training matrix if BERT inference fails
+  claim_id: c_14baae87
+  context: 'Requirement: Explicitly implement FR-012 logic: If BERT inference fails
+    (e.g., model loading error), catch exception, log `caption_id` with reason ''BERT_FAILURE'',
+    and **exclude the row** from the training matrix.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_row_from_training_matrix_if_BERT_inference_fails
+  kind: entity_fact
+  raw_text: If BERT inference fails, exclude the row from the training matrix
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:59:07Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: 'Raise ValueError with ''Target not learnable: zero variance detected''
+    if target variance is 0'
+  claim_id: c_db8a0462
+  context: '3) If variance is 0, **raise a `ValueError` with the exact message "Target
+    not learnable: zero variance detected"** and halt execution (FR-010).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If variance of target variable is 0, raise ValueError with message ''Target
+    not learnable: zero variance detected'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T12:59:36Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: "Benjamini-Hochberg correction controls FDR \u2264 0.05"
+  claim_id: c_b6268f9b
+  context: "Requirement: This must be a specific 'permutation-based significance test'\
+    \ involving N=1,000 shuffles to generate a null distribution, followed by p-value\
+    \ calculation. Requirement: Use Benjamini-Hochberg correction to control FDR \u2264\
+    \ 0.05 (1706.08250, https://arxiv.org/abs/1706.08250), as mandated by FR-006."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Use Benjamini-Hochberg correction to control FDR \u2264 0.05 (1706.08250,\
+    \ https://arxiv.org/abs/1706.08250)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T13:02:36Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: BERT inference timeout set to 5 seconds per caption
+  claim_id: c_95337376
+  context: 'Requirement: Implement a 5-second timeout wrapper per caption; if calculation
+    exceeds 5 seconds, flag the caption for manual review (do NOT exclude the sample
+    automatically) to preserve data inclusion criteria.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a 5-second timeout wrapper per caption for BERT inference
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T13:02:36Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Permutation significance test uses 1,000 shuffles
+  claim_id: c_9ad27a68
+  context: 'Requirement: This must be a specific ''permutation-based significance
+    test'' involving N=1,000 shuffles to generate a null distribution, followed by
+    p-value calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use N=1,000 shuffles to generate a null distribution for permutation-based
+    significance tests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T13:03:17Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Significance threshold sweep uses alpha levels 0.01, 0.05, and 0.1
+  claim_id: c_0194a277
+  context: 3) Perform a significance threshold sweep (alpha) over {0.01, 0.05, 0.1}
+    as required by FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a significance threshold sweep over alpha levels {0.01, 0.05,
+    0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T13:03:40Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Noise injection standard deviations are 0.0, 0.1, 0.2, 0.3, 0.4, 0.5
+  claim_id: c_12964d5f
+  context: 'Requirement: Explicitly define std_devs = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+    for the noise injection range.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define std_devs = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5] for noise injection range
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T13:03:58Z'
+- artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
+  attempts: 1
+  canonical: Construct validity risk flagged if correlation < 0.3
+  claim_id: c_74f1252e
+  context: 'Requirement: Use a stratified [deferred] split for the held-out subset.
+    If correlation coefficient is < 0.3, log a warning and flag construct validity
+    risk in the final report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log a warning and flag construct validity risk if correlation coefficient
+    is < 0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T13:03:58Z'

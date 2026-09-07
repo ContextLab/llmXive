@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.14982",
+  "judged_at": "2026-09-07T12:52:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"evalverse: pipeline-aware and expert-calibrated benchmarking for profe\" computer science",
+  "rationale": "The paper focuses on benchmarking LLMs for Arabic NLP and speech tasks, which is a distinct domain and specific application from the user's question regarding \"EvalVerse,\" a pipeline-aware and expert-calibrated benchmarking framework for professional evaluation. While both involve LLM benchmarking, the candidate paper does not address the specific mechanism (pipeline-awareness, expert calibration), the specific framework (EvalVerse), or the professional evaluation context implied by the user's q",
+  "relevant": false
+}

@@ -1,6 +1,9 @@
 """
-Gatekeeper Rules Engine
+Gatekeeper Rules Engine.
+
 Implements regex-based rule engine for role validation and deletion log checking.
+Provides functions to parse role definitions, parse deletion logs, and check
+access policies based on roles and deletion status.
 """
 import re
 import json
@@ -11,255 +14,315 @@ from dataclasses import dataclass, field
 
 from code.logging_config import setup_logging
 
-# Initialize logger
 logger = setup_logging(__name__)
+
+# --- Data Classes ---
 
 @dataclass
 class DeletionLog:
-    """Represents a deletion log entry."""
+    """Represents a single deletion log entry."""
     target_id: str
-    deleted_at: str
-    reason: Optional[str] = None
-    status: str = "pending"  # pending, completed, failed
-
-    def is_expired(self, current_time: Optional[datetime] = None) -> bool:
-        """Check if the deletion request has been processed."""
-        if self.status == "completed":
-            return True
-        if self.status == "failed":
-            return False
-        # If pending, check against a timeout (e.g., 24 hours)
-        if current_time is None:
-            current_time = datetime.now()
-        try:
-            deleted_at = datetime.fromisoformat(self.deleted_at)
-            return (current_time - deleted_at).total_seconds() > 86400
-        except ValueError:
-            logger.warning(f"Invalid deletion timestamp format: {self.deleted_at}")
-            return False
+    timestamp: datetime
+    status: str  # e.g., 'success', 'failed', 'pending'
+    requester_id: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class RoleDefinition:
-    """Represents a role definition with access permissions."""
+    """Represents a role definition with associated permissions."""
     role_name: str
     allowed_domains: Set[str] = field(default_factory=set)
     allowed_actions: Set[str] = field(default_factory=set)
-    restricted_keywords: Set[str] = field(default_factory=set)
+    priority: int = 0  # Higher priority overrides lower
+    is_default: bool = False
 
-def parse_deletion_log(log_entry: str) -> Optional[DeletionLog]:
-    """
-    Parse a deletion log entry string into a DeletionLog object.
-    Expected format: "target_id|deleted_at|reason|status"
-    Handles malformed entries by logging and returning None.
-    """
-    try:
-        parts = log_entry.strip().split("|")
-        if len(parts) < 2:
-            logger.warning(f"Malformed deletion log entry: {log_entry}")
-            return None
+# --- Regex Patterns ---
 
-        target_id = parts[0]
-        deleted_at = parts[1]
-        reason = parts[2] if len(parts) > 2 else None
-        status = parts[3] if len(parts) > 3 else "pending"
+# Pattern to extract role from a string like "role: admin" or "role: user"
+ROLE_PATTERN = re.compile(r"role:\s*(\w+)", re.IGNORECASE)
 
-        return DeletionLog(
-            target_id=target_id,
-            deleted_at=deleted_at,
-            reason=reason,
-            status=status
-        )
-    except Exception as e:
-        logger.error(f"Error parsing deletion log: {e}")
-        return None
+# Pattern to extract target ID and status from deletion log
+# Expected format: "target_id: <id>, status: <status>, timestamp: <iso_timestamp>"
+DELETION_LOG_PATTERN = re.compile(
+    r"target_id:\s*(\S+)[,\s]+status:\s*(\w+)[,\s]+timestamp:\s*(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)"
+)
 
-def parse_role_definitions(role_json: str) -> List[RoleDefinition]:
+# --- Parsing Functions ---
+
+def parse_role_definitions(role_data: List[Dict[str, Any]]) -> List[RoleDefinition]:
     """
-    Parse role definitions from a JSON string.
+    Parse a list of role dictionaries into RoleDefinition objects.
+    
+    Args:
+        role_data: List of dictionaries containing role info.
+        
+    Returns:
+        List of RoleDefinition objects.
     """
-    try:
-        data = json.loads(role_json)
-        roles = []
-        for r in data:
+    roles = []
+    for item in role_data:
+        try:
             role = RoleDefinition(
-                role_name=r.get("role_name", "unknown"),
-                allowed_domains=set(r.get("allowed_domains", [])),
-                allowed_actions=set(r.get("allowed_actions", [])),
-                restricted_keywords=set(r.get("restricted_keywords", []))
+                role_name=item.get("role_name", "unknown"),
+                allowed_domains=set(item.get("allowed_domains", [])),
+                allowed_actions=set(item.get("allowed_actions", [])),
+                priority=int(item.get("priority", 0)),
+                is_default=bool(item.get("is_default", False))
             )
             roles.append(role)
-        return roles
-    except json.JSONDecodeError as e:
-        logger.error(f"Error parsing role definitions: {e}")
-        return []
+        except Exception as e:
+            logger.warning(f"Failed to parse role definition {item}: {e}")
+    return roles
 
-def is_target_deleted(
-    target_id: str,
-    deletion_logs: List[DeletionLog],
-    current_time: Optional[datetime] = None
-) -> bool:
+def parse_deletion_log(log_line: str) -> Optional[DeletionLog]:
     """
-    Check if a target has been deleted based on deletion logs.
-    Returns True if the target is marked as deleted or expired.
+    Parse a single line of deletion log text into a DeletionLog object.
+    
+    Args:
+        log_line: A string representing a log entry.
+        
+    Returns:
+        DeletionLog object if successful, None otherwise.
     """
-    for log in deletion_logs:
-        if log.target_id == target_id:
-            if log.status == "completed":
-                return True
-            if log.is_expired(current_time):
-                return True
-    return False
-
-def is_target_deleted_secure(
-    target_id: str,
-    deletion_logs: List[DeletionLog],
-    current_time: Optional[datetime] = None
-) -> Tuple[bool, str]:
-    """
-    Secure check for deletion status. Returns (is_deleted, reason).
-    """
-    for log in deletion_logs:
-        if log.target_id == target_id:
-            if log.status == "completed":
-                return True, "deletion_completed"
-            if log.is_expired(current_time):
-                return True, "deletion_expired"
-    return False, "target_exists"
-
-def is_role_authorized(
-    role_name: str,
-    domain: str,
-    action: str,
-    role_definitions: List[RoleDefinition]
-) -> bool:
-    """
-    Check if a role is authorized for a specific domain and action.
-    """
-    for role in role_definitions:
-        if role.role_name == role_name:
-            if domain in role.allowed_domains and action in role.allowed_actions:
-                return True
-    return False
-
-def check_access_policy(
-    target_id: str,
-    role_name: str,
-    domain: str,
-    action: str,
-    deletion_logs: List[DeletionLog],
-    role_definitions: List[RoleDefinition],
-    current_time: Optional[datetime] = None
-) -> Tuple[bool, str]:
-    """
-    Comprehensive access policy check.
-    Returns (is_allowed, reason).
-    Priority: Deletion > Role Authorization.
-    """
-    # Check deletion status first
-    is_deleted, del_reason = is_target_deleted_secure(
-        target_id, deletion_logs, current_time
-    )
-    if is_deleted:
-        return False, f"target_deleted: {del_reason}"
-
-    # Check role authorization
-    if is_role_authorized(role_name, domain, action, role_definitions):
-        return True, "authorized"
-    else:
-        return False, "unauthorized_role"
-
-def load_deletion_logs(file_path: str) -> List[DeletionLog]:
-    """
-    Load deletion logs from a file.
-    Expected format: JSON array of log entries or newline-delimited strings.
-    """
-    logs = []
+    match = DELETION_LOG_PATTERN.search(log_line)
+    if not match:
+        logger.debug(f"Malformed deletion log entry: {log_line}")
+        return None
+    
     try:
-        with open(file_path, 'r') as f:
-            content = f.read().strip()
-            if content.startswith('['):
-                # JSON format
-                data = json.loads(content)
-                for entry in data:
-                    if isinstance(entry, str):
-                        parsed = parse_deletion_log(entry)
-                        if parsed:
-                            logs.append(parsed)
-                    elif isinstance(entry, dict):
-                        logs.append(DeletionLog(**entry))
-            else:
-                # Newline-delimited format
-                for line in content.split('\n'):
-                    if line.strip():
-                        parsed = parse_deletion_log(line)
-                        if parsed:
-                            logs.append(parsed)
-    except FileNotFoundError:
-        logger.warning(f"Deletion log file not found: {file_path}")
-    except Exception as e:
-        logger.error(f"Error loading deletion logs: {e}")
-    return logs
+        target_id = match.group(1)
+        status = match.group(2)
+        timestamp_str = match.group(3)
+        
+        # Parse timestamp
+        if timestamp_str.endswith('Z'):
+            timestamp_str = timestamp_str[:-1] + '+00:00'
+        timestamp = datetime.fromisoformat(timestamp_str)
+        
+        return DeletionLog(
+            target_id=target_id,
+            timestamp=timestamp,
+            status=status.lower(),
+            metadata={"raw_line": log_line}
+        )
+    except ValueError as e:
+        logger.warning(f"Error parsing deletion log timestamp or format: {e}")
+        return None
 
 def load_role_definitions(file_path: str) -> List[RoleDefinition]:
     """
     Load role definitions from a JSON file.
+    
+    Args:
+        file_path: Path to the JSON file containing role definitions.
+        
+    Returns:
+        List of RoleDefinition objects.
     """
     try:
-        with open(file_path, 'r') as f:
-            content = f.read()
-            return parse_role_definitions(content)
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return parse_role_definitions(data)
     except FileNotFoundError:
-        logger.warning(f"Role definitions file not found: {file_path}")
+        logger.error(f"Role definition file not found: {file_path}")
+        return []
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in role definition file {file_path}: {e}")
+        return []
+
+def load_deletion_logs(file_path: str) -> List[DeletionLog]:
+    """
+    Load deletion logs from a text file (one entry per line).
+    
+    Args:
+        file_path: Path to the log file.
+        
+    Returns:
+        List of DeletionLog objects.
+    """
+    logs = []
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                parsed = parse_deletion_log(line)
+                if parsed:
+                    logs.append(parsed)
+                else:
+                    # Log anomaly but continue processing
+                    logger.warning(f"Malformed deletion log entry at line {line_num}: {line[:50]}...")
+    except FileNotFoundError:
+        logger.error(f"Deletion log file not found: {file_path}")
     except Exception as e:
-        logger.error(f"Error loading role definitions: {e}")
-    return []
+        logger.error(f"Error reading deletion log file {file_path}: {e}")
+    return logs
+
+# --- Validation & Authorization Functions ---
+
+def is_target_deleted(target_id: str, deletion_logs: List[DeletionLog]) -> bool:
+    """
+    Check if a specific target ID has a successful deletion log.
+    
+    Args:
+        target_id: The ID of the target to check.
+        deletion_logs: List of deletion log entries.
+        
+    Returns:
+        True if a successful deletion is found, False otherwise.
+    """
+    for log in deletion_logs:
+        if log.target_id == target_id and log.status == 'success':
+            return True
+    return False
+
+def is_target_deleted_secure(target_id: str, deletion_logs: List[DeletionLog], current_time: datetime) -> bool:
+    """
+    Check if a target is deleted AND the deletion is recent enough (within a policy window).
+    For this implementation, we assume a policy window of 24 hours.
+    
+    Args:
+        target_id: The ID of the target.
+        deletion_logs: List of deletion logs.
+        current_time: The current time for comparison.
+        
+    Returns:
+        True if deleted recently, False otherwise.
+    """
+    policy_window_hours = 24
+    for log in deletion_logs:
+        if log.target_id == target_id and log.status == 'success':
+            time_diff = current_time - log.timestamp
+            if time_diff.total_seconds() <= policy_window_hours * 3600:
+                return True
+    return False
+
+def is_role_authorized(role_name: str, target_domain: str, action: str, roles: List[RoleDefinition]) -> bool:
+    """
+    Check if a role is authorized for a specific domain and action.
+    
+    Args:
+        role_name: The name of the role to check.
+        target_domain: The domain of the target data.
+        action: The action being requested (e.g., 'read', 'write').
+        roles: List of available role definitions.
+        
+    Returns:
+        True if authorized, False otherwise.
+    """
+    # Find the role definition
+    matching_roles = [r for r in roles if r.role_name.lower() == role_name.lower()]
+    if not matching_roles:
+        # Check for default role
+        default_roles = [r for r in roles if r.is_default]
+        if default_roles:
+            matching_roles = default_roles
+        else:
+            logger.warning(f"Role '{role_name}' not found and no default role defined.")
+            return False
+    
+    # Sort by priority (highest first)
+    matching_roles.sort(key=lambda x: x.priority, reverse=True)
+    selected_role = matching_roles[0]
+    
+    # Check permissions
+    if target_domain and target_domain not in selected_role.allowed_domains:
+        return False
+    if action and action not in selected_role.allowed_actions:
+        return False
+        
+    return True
+
+def extract_role_from_context(context: str) -> Optional[str]:
+    """
+    Extract the role name from a context string using regex.
+    
+    Args:
+        context: The context string to search.
+        
+    Returns:
+        The role name if found, None otherwise.
+    """
+    match = ROLE_PATTERN.search(context)
+    if match:
+        return match.group(1).lower()
+    return None
+
+# --- Main Policy Check ---
+
+def check_access_policy(
+    target_id: str,
+    context: str,
+    target_domain: str,
+    action: str,
+    deletion_logs: List[DeletionLog],
+    roles: List[RoleDefinition],
+    current_time: Optional[datetime] = None
+) -> Tuple[bool, str]:
+    """
+    Comprehensive access policy check.
+    
+    Priority:
+    1. If target is deleted (securely), DENY.
+    2. If role is not authorized, DENY.
+    3. Otherwise, ALLOW.
+    
+    Args:
+        target_id: ID of the target data.
+        context: Context string potentially containing role info.
+        target_domain: Domain of the target.
+        action: Action requested.
+        deletion_logs: List of deletion logs.
+        roles: List of role definitions.
+        current_time: Current time (defaults to now).
+        
+    Returns:
+        Tuple of (is_allowed: bool, reason: str)
+    """
+    if current_time is None:
+        current_time = datetime.now()
+    
+    # 1. Check Deletion Status (Secure)
+    if is_target_deleted_secure(target_id, deletion_logs, current_time):
+        return False, "Target data has been securely deleted."
+    
+    # 2. Extract and Validate Role
+    role_name = extract_role_from_context(context)
+    if not role_name:
+        return False, "No valid role found in context."
+    
+    if not is_role_authorized(role_name, target_domain, action, roles):
+        return False, f"Role '{role_name}' is not authorized for domain '{target_domain}' and action '{action}'."
+    
+    return True, "Access granted."
 
 def main():
     """
-    Main entry point for testing the rules engine.
+    Main function to demonstrate the rules engine.
     """
     # Example usage
-    deletion_logs = [
-        DeletionLog(target_id="mem_001", deleted_at="2023-10-01T00:00:00", status="completed"),
-        DeletionLog(target_id="mem_002", deleted_at="2023-10-02T00:00:00", status="pending")
+    sample_roles = [
+        {"role_name": "admin", "allowed_domains": ["medical", "office"], "allowed_actions": ["read", "write"], "priority": 10},
+        {"role_name": "user", "allowed_domains": ["office"], "allowed_actions": ["read"], "priority": 5},
+        {"role_name": "default", "allowed_domains": [], "allowed_actions": [], "is_default": True}
     ]
-
-    role_defs = [
-        RoleDefinition(
-            role_name="doctor",
-            allowed_domains={"medical"},
-            allowed_actions={"read", "write"}
-        ),
-        RoleDefinition(
-            role_name="admin",
-            allowed_domains={"medical", "office"},
-            allowed_actions={"read", "write", "delete"}
-        )
-    ]
-
-    # Test access policy
-    current_time = datetime(2023, 10, 3)
+    roles = parse_role_definitions(sample_roles)
+    
+    sample_log_line = "target_id: mem_123, status: success, timestamp: 2023-10-27T10:00:00Z"
+    deletion_log = parse_deletion_log(sample_log_line)
+    deletion_logs = [deletion_log] if deletion_log else []
+    
+    # Test access
     allowed, reason = check_access_policy(
-        target_id="mem_001",
-        role_name="doctor",
-        domain="medical",
+        target_id="mem_123",
+        context="role: user",
+        target_domain="office",
         action="read",
         deletion_logs=deletion_logs,
-        role_definitions=role_defs,
-        current_time=current_time
+        roles=roles
     )
-    logger.info(f"Access check for mem_001: allowed={allowed}, reason={reason}")
-
-    allowed, reason = check_access_policy(
-        target_id="mem_002",
-        role_name="doctor",
-        domain="medical",
-        action="read",
-        deletion_logs=deletion_logs,
-        role_definitions=role_defs,
-        current_time=current_time
-    )
-    logger.info(f"Access check for mem_002: allowed={allowed}, reason={reason}")
+    print(f"Access Allowed: {allowed}, Reason: {reason}")
 
 if __name__ == "__main__":
     main()

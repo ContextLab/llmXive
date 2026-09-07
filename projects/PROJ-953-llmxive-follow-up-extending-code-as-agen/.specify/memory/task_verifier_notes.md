@@ -11,3 +11,7 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T016** — No code, CSV, or configuration changes were provided that show tasks are flagged as “Unparseable,” retained in the ground‑truth CSV with a status field, or that T015, T019, and T020 skip the tree‑sitter step for those rows. The required implementation artifacts are missing.
 - **T019** — declared artifact(s) missing/empty/invalid: scripts/extract_features.py
 - **T022** — No code, script, or documentation implementing the fallback logic for “semantic_complexity” is provided; the artifact is missing entirely, so the requirement cannot be verified as satisfied.
+- **T023** — No evidence of any JSON files under `data/graphs/` was provided; the claim that dependency graphs are serialized to `data/graphs/{task_id}.json` cannot be verified. The required artifact (the serialized graph files) is missing.
+- **T025** — No artifact (e.g., updated script, test, or modified `features.csv` with validation logic) was provided, and there is no evidence of code that checks for missing metric values. Without a concrete implementation or proof that the CSV now contains no missing entries, the task requirement is not satisfied.
+- **T028** — declared artifact(s) missing/empty/invalid: scripts/train_model.py
+- **T031** — declared artifact(s) missing/empty/invalid: data/processed/threshold_sweep.json

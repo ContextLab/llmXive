@@ -1,33 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the requested directory hierarchy (`projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/`
-    with the specified subfolders) is present; the implementer did not provide any
-    file or folder listing to confirm the structure exists. The required artifact
-    is missing.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I could find no evidence that the required directories (`data/raw`, `data/processed`,\
-    \ `code`, `code/tests`, `code/utils`, `code/models`, `docs`) actually exist in\
-    \ the repository; no file\u2011tree or screenshots were provided. The task\u2019\
-    s deliverable is the creation of this folder structure, and without concrete proof\
-    \ of those directories being present, the requirement is not satisfied."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The repository provides no visible linting or formatting configuration files
-    (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings, or CI scripts
-    invoking these tools). Without such artifacts, the requirement to configure ruff/flake8
-    and Black is not satisfied. The next implementer should add the appropriate configuration
-    files and ensure they are integrated into the development workflow.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No contracts were found under `specs/001-llmxive-follow-up-extending-lens-rethink/contracts/`,
-    and there is no definition of a `DataSchemaError` with the required message. The
-    implementer did not provide the required schema files (dataset, feature_vector,
-    deviation_target, significance_results) nor the error message implementation.
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,6 +5,13 @@ T012:
     s `try/except` blocks generating synthetic data were removed, nor any demonstration\
     \ that fetch errors now raise explicit exceptions. Without such artifacts, we\
     \ cannot confirm the loader fails loudly as required."
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or log files were supplied that demonstrate `compute_linguistic_uncertainty_proxy`
+    was run against the Constitution Enforcement (T043/T045) checks and that results
+    were recorded. The required validation artifact and its output are missing, so
+    the task is not satisfied.
 T033:
   c: false
   h: 354e078bcc6f427efa472bbcda701c5207cb69a2b41a258cf4d24799f51856f1

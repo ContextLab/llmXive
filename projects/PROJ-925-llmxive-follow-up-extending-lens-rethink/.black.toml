@@ -1,3 +1,6 @@
+# Black configuration for llmXive follow-up project
+# Ensures consistent code formatting
+
 [tool.black]
 line-length = 88
 target-version = ['py311']

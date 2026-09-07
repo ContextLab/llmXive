@@ -1,25 +1,28 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-harness"
+name = "llmxive"
 version = "0.1.0"
-description = "LLM-Xive automated science pipeline for code analysis"
+description = "Automated science pipeline for code-as-agent research"
 requires-python = ">=3.11"
 dependencies = [
-    "datasets>=2.14.0",
-    "tree-sitter>=0.20.0",
-    "scikit-learn>=1.3.0",
-    "pandas>=2.0.0",
-    "networkx>=3.1.0",
-    "radon>=6.0.0",
-    "pytest>=7.4.0",
-    "jsonschema>=4.19.0",
-    "pyyaml>=6.0.0",
+    "datasets",
+    "tree-sitter",
+    "scikit-learn",
+    "pandas",
+    "networkx",
+    "radon",
+    "pytest",
+    "jsonschema",
+    "pyyaml",
+    "black",
+    "ruff"
 ]
 
 [tool.black]
+# Black formatting configuration
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
@@ -34,28 +37,40 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | data
+  | models
 )/
 '''
 
 [tool.ruff]
+# Ruff linting configuration (mirrors .ruff.toml for single-file config option)
 line-length = 88
 target-version = "py311"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "data",
+    "models"
 ]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["scripts"]
+force-single-line = false
+order-by-type = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"

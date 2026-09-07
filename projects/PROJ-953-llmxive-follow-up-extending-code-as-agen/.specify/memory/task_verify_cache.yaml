@@ -38,3 +38,16 @@ T022:
   r: "No code, script, or documentation implementing the fallback logic for \u201C\
     semantic_complexity\u201D is provided; the artifact is missing entirely, so the\
     \ requirement cannot be verified as satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any JSON files under `data/graphs/` was provided; the claim that
+    dependency graphs are serialized to `data/graphs/{task_id}.json` cannot be verified.
+    The required artifact (the serialized graph files) is missing.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., updated script, test, or modified `features.csv` with validation
+    logic) was provided, and there is no evidence of code that checks for missing
+    metric values. Without a concrete implementation or proof that the CSV now contains
+    no missing entries, the task requirement is not satisfied.

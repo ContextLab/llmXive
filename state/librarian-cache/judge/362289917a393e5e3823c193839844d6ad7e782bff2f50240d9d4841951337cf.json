@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2501.05032",
+  "judged_at": "2026-09-07T12:52:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"evalverse: pipeline-aware and expert-calibrated benchmarking for profe\" computer science",
+  "rationale": "The paper discusses general techniques for making LLMs more human-like (fine-tuning, psychological principles) but does not address the specific \"EvalVerse\" benchmarking pipeline, the \"llmXive\" follow-up context, or the expert-calibrated evaluation methodology central to the user's question. It fails to meet any inclusion criteria (a-f) as it lacks the specific mechanism, domain variables, or foundational methodology related to the user's specific benchmarking framework.",
+  "relevant": false
+}

@@ -1,4 +1,4 @@
-- artifact_hash: a49835e29d7149dce1ab61937ace3e358daeb029fc4ce78756927d797913da8c
+- artifact_hash: 84eb5810e3b25b9242d3f25a9d126d0a01a849fe326c5633f639a00ee5fb63a7
   artifact_path: projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/specs/001-llmxive-follow-up-extending-lens-rethink/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -9,4 +9,4 @@
   value: https://arxiv.org/abs/1706.08250
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1706.08250
-  verified_at: '2026-08-25T11:20:46.713008Z'
+  verified_at: '2026-09-07T13:02:21.724944Z'

@@ -1,35 +1,51 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: Structural Metric Schema
-description: Schema for validating structural metric data artifacts
+description: Schema for validating structural metrics extracted from code artifacts.
 type: object
 required:
   - task_id
-  - metrics
+  - dependency_depth
+  - cyclomatic_complexity
+  - lines_of_code
 properties:
   task_id:
     type: string
-    description: Unique identifier for the task
-  metrics:
-    type: object
-    required:
-      - dependency_depth
-      - cyclomatic_complexity
-      - lines_of_code
-    properties:
-      dependency_depth:
-        type: number
-        description: Maximum depth of the dependency graph
-      cyclomatic_complexity:
-        type: integer
-        description: Cyclomatic complexity of the code
-      semantic_complexity_score:
-        type: number
-        description: Semantic complexity score (optional, may be null if fallback used)
-        nullable: true
-      lines_of_code:
-        type: integer
-        description: Number of lines of code (fallback metric)
-      fallback_used:
-        type: boolean
-        description: Indicates if fallback metrics were used instead of semantic analysis
+    description: Unique identifier for the task associated with these metrics.
+    pattern: "^T\\d{3}$"
+  dependency_depth:
+    type: integer
+    minimum: 0
+    description: Maximum depth of the dependency graph.
+  cyclomatic_complexity:
+    type: integer
+    minimum: 1
+    description: Cyclomatic complexity of the code (McCabe).
+  semantic_complexity_score:
+    type: number
+    minimum: 0
+    description: Semantic complexity score derived from AST node analysis.
+    # This field is optional; if missing, fallback metrics are used.
+    # Fallback metrics (lines_of_code) are always present.
+    # Note: In the schema definition, this is optional to allow for cases
+    # where semantic analysis fails and only fallback metrics are available.
+    nullable: true
+  lines_of_code:
+    type: integer
+    minimum: 0
+    description: Total lines of code (fallback metric).
+    # This is a required fallback metric when semantic_complexity_score is unavailable.
+  graph_file_path:
+    type: string
+    description: Path to the serialized dependency graph JSON file.
+    pattern: "^data/graphs/.*\\.json$"
+  parsing_status:
+    type: string
+    enum:
+      - success
+      - partial
+      - failed
+    description: Status of the parsing process.
+  fallback_used:
+    type: boolean
+    description: True if fallback metrics were used instead of semantic analysis.
 additionalProperties: false

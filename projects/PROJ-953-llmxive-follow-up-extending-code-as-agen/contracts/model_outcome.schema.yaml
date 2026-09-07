@@ -1,55 +1,60 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: Model Outcome Schema
-description: Schema for validating model outcome data artifacts
+description: Schema for validating model training outcomes and threshold analysis results.
 type: object
 required:
-  - model_id
-  - outcome_type
-  - results
+  - model_type
+  - thresholds
+  - false_negative_rates
+  - minimum_achievable_fnr
+  - unsafe_flag
+  - correlation_coefficient
+  - timestamp
 properties:
-  model_id:
+  model_type:
     type: string
-    description: Unique identifier for the model
-  outcome_type:
+    enum:
+      - logistic_regression
+      - random_forest
+    description: Type of model trained.
+  thresholds:
+    type: array
+    description: List of thresholds evaluated.
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+  false_negative_rates:
+    type: object
+    description: Mapping of thresholds to their corresponding FNR values.
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  minimum_achievable_fnr:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: The lowest FNR achieved across all evaluated thresholds.
+  unsafe_flag:
+    type: boolean
+    description: True if the model fails to meet the FNR ≤ 0.1% safety constraint.
+  correlation_coefficient:
+    type: number
+    description: Correlation coefficient between structural features and execution necessity.
+  timestamp:
     type: string
-    description: Type of outcome (e.g., "prediction", "threshold_analysis")
-  results:
-    type: object
-    description: The model outcome results
-    properties:
-      accuracy:
-        type: number
-        minimum: 0
-        maximum: 1
-      precision:
-        type: number
-        minimum: 0
-        maximum: 1
-      recall:
-        type: number
-        minimum: 0
-        maximum: 1
-      f1_score:
-        type: number
-        minimum: 0
-        maximum: 1
-      false_negative_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-      threshold:
-        type: number
-      is_safe:
-        type: boolean
-  metadata:
-    type: object
-    description: Optional metadata
-    properties:
-      trained_at:
-        type: string
-        format: date-time
-      dataset_version:
-        type: string
-      hyperparameters:
-        type: object
-additionalProperties: true
+    format: date-time
+    description: ISO 8601 timestamp of model evaluation.
+  model_file_path:
+    type: string
+    description: Path to the saved model pickle file.
+    pattern: "^models/.*\\.pkl$"
+  decision_boundary_path:
+    type: string
+    description: Path to the decision boundary configuration.
+    pattern: "^models/decision_boundary\\.pkl$"
+  safety_statement:
+    type: string
+    description: Explicit statement framing results as associational (FR-006).
+additionalProperties: false
