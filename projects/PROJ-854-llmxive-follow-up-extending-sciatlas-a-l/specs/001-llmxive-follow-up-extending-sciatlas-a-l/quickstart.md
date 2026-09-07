@@ -1,140 +1,158 @@
 # Quickstart Guide: Interdisciplinary Bridging Coefficient Analysis
 
-This guide walks you through the setup and execution of the bridging coefficient analysis pipeline. The pipeline ingests OpenAlex data, computes topological metrics (Louvain clustering, bridging coefficients), derives outcome variables (citations, novelty scores), and performs statistical validation.
+This guide provides instructions for setting up, running, and validating the complete analysis pipeline for computing bridging coefficients, novelty scores, and statistical correlations using OpenAlex data.
 
 ## Prerequisites
 
 ### System Requirements
 - **Python**: 3.11 or higher
-- **Memory**: Minimum 7GB RAM (for batched embedding processing)
-- **Disk**: At least 5GB free space for data and artifacts
-- **CPU**: Multi-core processor recommended for parallel processing
+- **Memory**: Minimum 8GB RAM (16GB recommended for full graph processing)
+- **Disk**: 10GB free space for datasets and artifacts
+- **CPU**: Multi-core processor (parallel processing enabled)
 
 ### Dependencies
-Install the required Python packages:
+Install all required packages using pip:
 
 ```bash
 pip install -r requirements.txt
 ```
 
 The `requirements.txt` includes:
-- `pyalex` - OpenAlex API client
-- `networkx` - Graph analysis
-- `scikit-learn` - K-means clustering, embeddings
-- `sentence-transformers` - Title embeddings
-- `pandas`, `numpy` - Data manipulation
-- `scipy` - Statistical tests
-- `pyarrow` - Parquet file support
-- `ruff`, `black` - Code linting and formatting
-- `pytest` - Testing framework
+- `networkx`: Graph construction and manipulation
+- `scikit-learn`: Clustering (KMeans) and metrics
+- `sentence-transformers`: Embedding generation (all-MiniLM-L6-v2)
+- `pandas`, `numpy`: Data manipulation
+- `scipy`: Statistical tests
+- `pyalex`: OpenAlex API client
+- `memory-profiler`: Memory usage tracking
+- `pytest`, `ruff`, `black`: Testing, linting, and formatting
+- `pyarrow`: Parquet file support
 
-### Project Setup
-1. Clone the repository and navigate to the project directory.
-2. Ensure the project structure is created (run `python code/scripts/setup_project.py` if needed):
+### Environment Setup
+1. Clone the repository
+2. Create a virtual environment (recommended):
  ```bash
- mkdir -p code/src/{models,services,cli,lib}
- mkdir -p code/tests/{contract,integration,unit}
- mkdir -p code/data/{raw,processed}
- mkdir -p code/artifacts/{results,plots}
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-3. Configure linting and formatting (see `pyproject.toml`):
+3. Install dependencies:
  ```bash
- pip install ruff black
+ pip install -r requirements.txt
+ ```
+4. Verify OpenAlex connectivity:
+ ```bash
+ python -m pytest tests/unit/test_data_source.py -v
  ```
 
 ## Running the Pipeline
 
-The pipeline consists of four main stages. Execute them in order:
+The pipeline is executed in sequential stages. Each stage produces artifacts required by subsequent stages.
 
-### Stage 1: Data Ingestion and Graph Construction
-Fetch a degree-stratified sample from OpenAlex and build the graph:
-
+### Step 1: Project Initialization
+(Run only if starting fresh)
 ```bash
-python code/scripts/ingest_and_build_graph.py
+python code/scripts/setup_project.py
 ```
+This creates the directory structure: `src/`, `tests/`, `data/`, `artifacts/`.
 
-**Output**: `code/data/processed/subgraph_with_clusters.parquet`
-- Contains nodes with `bridging_coefficient`, `primary_cluster`, and citation counts.
-
-### Stage 2: Embedding and Novelty Calculation
-Generate title embeddings and compute novelty scores:
-
+### Step 2: Data Ingestion and Graph Construction
+Fetches OpenAlex data, performs degree-stratified sampling, and builds the subgraph.
 ```bash
-python code/scripts/generate_embeddings_and_novelty.py
+python code/scripts/ingest_pipeline.py
 ```
+**Output**: `data/processed/subgraph_with_clusters.parquet`
+**Time**: ~10-30 minutes depending on sample size
+**Memory**: Peak ~6-7GB
 
-**Output**: `code/data/processed/final_analysis_dataset.parquet`
-- Includes `topic_cluster` assignments and `novelty_score` for each node.
-
-### Stage 3: Statistical Analysis
-Perform correlation, regression, and binned analysis:
-
+### Step 3: Embedding Generation and Novelty Calculation
+Generates sentence embeddings, performs KMeans clustering, and computes novelty scores.
 ```bash
-python code/scripts/save_statistical_metrics.py --correction-method fdr_bh
+python code/scripts/embeddings_pipeline.py
 ```
+**Output**: `data/processed/novelty_scores.parquet`, `data/logs/excluded_nodes.csv`
+**Time**: ~5-15 minutes
+**Memory**: Peak ~4-5GB (batch processing enabled)
 
-**Outputs**:
-- `code/artifacts/results/statistical_metrics.json` - Coefficients and p-values
-- `code/artifacts/results/analysis_report.md` - Human-readable report
+### Step 4: Final Dataset Assembly
+Merges graph data with novelty scores and temporal lags.
+```bash
+python code/scripts/save_final_dataset.py
+```
+**Output**: `data/processed/final_analysis_dataset.parquet`
 
-### Stage 4: Generate Final Report
-Compile all results into a comprehensive report:
+### Step 5: Statistical Analysis
+Computes correlations, regression, and binned analysis with multiple-comparison correction.
+```bash
+python code/scripts/save_statistical_metrics.py --correction-method bh
+```
+**Options**:
+- `--correction-method`: `bonferroni` or `bh` (Benjamini-Hochberg, default)
+**Output**: `artifacts/results/statistical_metrics.json`, `artifacts/results/corrected_pvalues.json`
 
+### Step 6: Report Generation
+Generates the final analysis report with associational labeling.
 ```bash
 python code/scripts/generate_analysis_report.py
 ```
+**Output**: `artifacts/results/analysis_report.md`
 
-## Verification and Testing
-
-Run the test suite to validate the pipeline:
-
+### Step 7: Validation
+Runs the full pipeline validation and generates a reproducibility report.
 ```bash
-pytest code/tests/ -v
+python code/scripts/run_validation.py
+```
+**Output**: `artifacts/validation_report.md`
+
+## Testing
+
+Run the full test suite to verify correctness:
+```bash
+pytest tests/ -v --cov=src --cov-report=term-missing
 ```
 
-Key tests:
-- `tests/contract/test_node_schema.py` - Validates node data structure
-- `tests/integration/test_ingest_pipeline.py` - Tests end-to-end ingestion
-- `tests/unit/test_graph_utils.py` - Verifies bridging coefficient calculations
-- `tests/unit/test_novelty_calculation.py` - Checks novelty score computation
+Run specific test categories:
+- **Unit tests**: `pytest tests/unit/ -v`
+- **Integration tests**: `pytest tests/integration/ -v`
+- **Contract tests**: `pytest tests/contract/ -v`
+- **Benchmarks**: `pytest tests/bench/ -v`
 
-## Output Files
+## Output Artifacts
 
-| File | Description |
-|------|-------------|
-| `data/processed/subgraph_with_clusters.parquet` | Graph with Louvain clusters and bridging coefficients |
-| `data/processed/final_analysis_dataset.parquet` | Final dataset with novelty scores and topic clusters |
-| `artifacts/results/statistical_metrics.json` | Statistical analysis results (coefficients, p-values) |
-| `artifacts/results/analysis_report.md` | Comprehensive analysis report |
-| `artifacts/validation_report.md` | Pipeline execution log and artifact hashes |
+The pipeline produces the following key artifacts:
 
-## Configuration
-
-Edit `code/src/lib/config.py` to modify:
-- Random seeds for reproducibility
-- Data and artifact paths
-- Sampling parameters for OpenAlex
-- Clustering hyperparameters (e.g., number of k-means clusters)
+| Artifact | Location | Description |
+|----------|----------|-------------|
+| Subgraph with Clusters | `data/processed/subgraph_with_clusters.parquet` | Graph with `primary_cluster` and `bridging_coefficient` |
+| Final Analysis Dataset | `data/processed/final_analysis_dataset.parquet` | Merged dataset with novelty scores and temporal lags |
+| Statistical Metrics | `artifacts/results/statistical_metrics.json` | Correlation coefficients, p-values, regression results |
+| Corrected P-values | `artifacts/results/corrected_pvalues.json` | Multiple-comparison corrected p-values |
+| Analysis Report | `artifacts/results/analysis_report.md` | Human-readable report with "associational" label |
+| Validation Report | `artifacts/validation_report.md` | Pipeline reproducibility verification |
+| Memory Profile | `artifacts/results/memory_profile.log` | Peak RAM usage per stage |
 
 ## Troubleshooting
 
 ### Memory Errors
-If you encounter memory issues:
-- Reduce the sample size in `config.py`
-- Ensure batch processing is enabled in `embeddings.py`
-- Close other applications to free RAM
+If you encounter `MemoryError`:
+1. Reduce the sample size in `src/services/ingest.py` (adjust `target_size`)
+2. Ensure batch processing is enabled in `src/services/embeddings.py`
+3. Close other applications to free RAM
 
-### API Rate Limits
-OpenAlex may rate-limit requests. Implement exponential backoff in `ingest.py` if needed.
+### OpenAlex Connectivity
+If tests fail to reach OpenAlex:
+```bash
+python -c "import pyalex; print(pyalex.config)"
+```
+Ensure you have internet access and no firewall restrictions.
 
 ### Missing Dependencies
-If imports fail, verify `requirements.txt` is installed:
+If import errors occur:
 ```bash
-pip install -r requirements.txt --upgrade
+pip install -r requirements.txt --force-reinstall
 ```
 
-## Next Steps
+## Notes
 
-- Explore the `artifacts/results/` directory for detailed findings
-- Review `analysis_report.md` for interpretive insights
-- Extend the pipeline with additional analysis modules as needed
+- **Spec Drift**: The original spec references "PubGraph", but the implementation uses "OpenAlex" via `pyalex`.
+- **Reproducibility**: All random seeds are pinned (42) in `tests/conftest.py` and `src/lib/config.py`.
+- **Associational Findings**: All statistical results are explicitly labeled as "associational" (not causal) in the final report.

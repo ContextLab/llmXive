@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T07:07:13.530812Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-854-llmxive-follow-up-extending-sciatlas-a-l
-last_run_id: 19c50c1a-a1e2-4c24-8a6c-d89a64da5cbc
+last_run_id: 1355bf2a-ab9f-42bd-b642-531fd3ea2ce4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l
 title: 'llmXive follow-up: extending "SciAtlas: A Large-Scale Knowledge Graph for
   Automated Scientific Resea"'
-updated_at: '2026-09-04T09:49:53.028207Z'
+updated_at: '2026-09-07T17:13:46.335348Z'
