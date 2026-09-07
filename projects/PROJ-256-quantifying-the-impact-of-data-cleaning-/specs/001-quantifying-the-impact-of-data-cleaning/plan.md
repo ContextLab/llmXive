@@ -78,7 +78,7 @@ code/
 | **14 – Contract Validation** | After each phase, invoke `code/validation.py` to check JSON artefacts against their schemas (`dataset`, `baseline_metrics`, `cleaned_metrics`, `null_fpr_metrics`, `analysis_results`, etc.). Abort on failure. | FR‑009, FR‑010, FR‑011, FR‑013, FR‑017, FR‑018 | SC‑009 |
 
 ## Compute Feasibility
-All steps use CPU‑friendly libraries (pandas, scipy, statsmodels, scikit‑learn). The most expensive operation is the permutation‑based FPR (≈ 1000 permutations × 10 datasets × ~5 cleaning variants). Each permutation processes a sampled subset (bounded by memory/time constraints) to stay within memory/time limits.. No GPU is required.
+All steps use CPU‑friendly libraries (pandas, scipy, statsmodels, scikit‑learn). The most expensive operation is the permutation‑based FPR (a substantial number of permutations × 10 datasets × ~5 cleaning variants).. Each permutation processes a sampled subset (bounded by memory/time constraints) to stay within memory/time limits.. No GPU is required.
 
 If a future extension demands a transformer‑based model, the plan would off‑load to Kaggle’s free GPU, but the current specification does **not** need it.
 

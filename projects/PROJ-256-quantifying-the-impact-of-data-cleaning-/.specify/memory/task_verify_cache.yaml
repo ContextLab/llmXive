@@ -40,3 +40,28 @@ T1223:
     \ that raises on download errors, logs checksum verification results, and explicitly\
     \ avoids mock\u2011data fallbacks, satisfying the task\u2019s requirements (the\
     \ alternative shell script is not needed)."
+T1227:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides only the task description and specification; there are
+    no actual pipeline outputs (e.g., `baseline_metrics.json`, `cleaned_metrics.json`,
+    `sensitivity_metrics.json`) nor validation logs to confirm they were generated,
+    conform to schemas, or contain the required fields such as `p_value_delta` and
+    `direction`. Without these artifacts, the claim that the full pipeline was executed
+    and verified cannot be substantiated.
+T1228:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `power_analysis.txt` file or its contents were provided, and there is no\
+    \ evidence that a WilcoxonPower calculation was performed, the effect size, \u03B1\
+    , and power criteria were applied, or a minimum dataset count was derived. The\
+    \ required artifact is missing, so the task is not satisfied."
+T1229:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No concrete artifact (e.g., a validation report, script output, or `T1229a`\
+    \ log) is provided to demonstrate that the final dataset collection was checked\
+    \ and that each size\u2011bin (n\u202F<\u202F50, 50\u2011200, >200) contains at\
+    \ least one dataset. Without such evidence the requirement that the pipeline halt\
+    \ on an empty bin cannot be verified. The implementer must supply the actual validation\
+    \ results or code confirming the bins are populated."

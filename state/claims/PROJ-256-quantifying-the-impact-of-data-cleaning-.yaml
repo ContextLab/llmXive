@@ -3158,3 +3158,449 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T15:53:35Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: 5 total datasets attempted
+  claim_id: c_cbbcd6d8
+  context: 'Total datasets attempted: 5 Datasets excluded: 3 Final sample size: 2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total datasets attempted: 5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:25:44Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: 3 datasets excluded
+  claim_id: c_e5855f0e
+  context: 'Total datasets attempted: 5 Datasets excluded: 3 Final sample size: 2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Datasets excluded: 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:26:27Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: Final sample size of 2
+  claim_id: c_7230225e
+  context: 'Total datasets attempted: 5 Datasets excluded: 3 Final sample size: 2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Final sample size: 2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:27:27Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: dataset_a excluded due to more than 80% missing outcome variable
+  claim_id: c_2f790eb1
+  context: '1. **dataset_a**: Excluded due to >80% missing outcome variable.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_a_excluded_due_to_more_than_80%25_missing_outcome_vari
+  kind: magnitude
+  raw_text: 'dataset_a: Excluded due to >80% missing outcome variable.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:28:15Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: dataset_b excluded due to sample size less than 30
+  claim_id: c_d05acc28
+  context: '2. **dataset_b**: Excluded due to insufficient sample size (n < 30).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_b_excluded_due_to_sample_size_less_than_30
+  kind: magnitude
+  raw_text: 'dataset_b: Excluded due to insufficient sample size (n < 30).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:30:32Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: 10299 rows in uci_har
+  claim_id: c_1aadf737
+  context: '### uci_har - Rows: 10,299 - Columns: 562'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Rows: 10,299'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:31:17Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: 562 columns in uci_har
+  claim_id: c_7857ead8
+  context: '### uci_har - Rows: 10,299 - Columns: 562'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Columns: 562'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:31:59Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: 0% missingness in uci_har
+  claim_id: c_e77ec23e
+  context: '### uci_har - Outcome: activity (categorical) - Missingness: 0%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Missingness: 0%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:31:59Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: 11182 rows in uci_shopper
+  claim_id: c_ce4478f3
+  context: '### uci_shopper - Rows: 11,182 - Columns: 12'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Rows: 11,182'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:32:00Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: 12 columns in uci_shopper
+  claim_id: c_24d652e1
+  context: '### uci_shopper - Rows: 11,182 - Columns: 12'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Columns: 12'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:32:00Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/data/processed/data_quality_report.md
+  attempts: 1
+  canonical: Approximately 2% missingness in uci_shopper
+  claim_id: c_8d17b71f
+  context: '### uci_shopper - Outcome: conversion (binary) - Missingness: ~2%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Missingness: ~2%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:32:01Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: false positive rate less than or equal to 0.05 and effect size tolerance
+    plus-minus 0.1
+  claim_id: c_9bc0dfe5
+  context: "T006e generates synthetic benchmark datasets and verifies that the false\
+    \ positive rate does not exceed 0.05 and the effect size error is within \xB1\
+    0.1."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_positive_rate_less_than_or_equal_to_0.05_and_effect_si
+  kind: magnitude
+  raw_text: "FPR \u2264 0.05 and effect\u2011size tolerance \xB10.1"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:34:33Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: family-wise error rate less than or equal to 0.05
+  claim_id: c_a4f983df
+  context: "T007a applies Holm\u2011Bonferroni correction across cleaning\u2011variant\
+    \ p-values and verification T007b asserts that the FWER is \u2264 0.05."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: "FWER \u2264 0.05"
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T04:35:08Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: precision of at least three decimal places in null_fpr_metrics.json
+  claim_id: c_17305949
+  context: "T074b verifies that the permutation\u2011based FPR estimation file null_fpr_metrics.json\
+    \ has precision of at least three decimal places."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Precision_of_at_least_three_decimal_places_in_null_fpr_metri
+  kind: magnitude
+  raw_text: "precision \u22653 decimal in null_fpr_metrics.json"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:35:40Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: statistical power greater than or equal to 0.8
+  claim_id: c_e4020ca4
+  context: T1228 performs an a priori power analysis requiring power of at least 0.8
+    for medium effect size.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_greater_than_or_equal_to_0.8
+  kind: magnitude
+  raw_text: "power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:36:30Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "false positive rate \u2264 0.05"
+  claim_id: c_1327b25a
+  context: "Generate synthetic benchmark datasets (null effect and d = 0.5), run the\
+    \ full pipeline, and record FPR and effect\u2011size recovery. Verification: T006f\
+    \ asserts FPR \u2264 0.05 and effect\u2011size tolerance \xB10.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T006f asserts FPR \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:38:43Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "effect size tolerance \xB10.1"
+  claim_id: c_1289b949
+  context: "Generate synthetic benchmark datasets (null effect and d = 0.5), run the\
+    \ full pipeline, and record FPR and effect\u2011size recovery. Verification: T006f\
+    \ asserts FPR \u2264 0.05 and effect\u2011size tolerance \xB10.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T006f asserts effect\u2011size tolerance \xB10.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:39:21Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: FPR less than or equal to 0.05
+  claim_id: c_c5155248
+  context: "Generate synthetic benchmark datasets ... record FPR and effect\u2011\
+    size recovery. Verification: T006f asserts FPR \u2264 0.05."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FPR_less_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: "Verification: T006f asserts FPR \u2264 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:42:45Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: effect size tolerance plus or minus 0.1
+  claim_id: c_6ab04019
+  context: "Generate synthetic benchmark datasets ... record FPR and effect\u2011\
+    size recovery. Verification: T006f asserts effect\u2011size tolerance \xB10.1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verification: T006f asserts effect\u2011size tolerance \xB10.1"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:43:12Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: power greater than or equal to 0.8
+  claim_id: c_cef695f6
+  context: "Perform A Priori Power Analysis ... power\u22650.8. Determine the minimum\
+    \ total number of datasets required."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: magnitude
+  raw_text: "Power analysis requires power \u2265 0.8"
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T04:43:50Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "false positive rate \u2264 0.05"
+  claim_id: c_e6ea020b
+  context: "T006f asserts FPR \u2264 0.05 and effect\u2011size tolerance \xB10.1 after\
+    \ running synthetic benchmark datasets."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: '0.009'
+      source_id: '1809.03910'
+      url: https://arxiv.org/abs/1809.03910
+      value: '0.009'
+    filled: true
+  kind: magnitude
+  raw_text: The false positive rate (FPR) is less than or equal to 0.05.
+  resolved_value: '0.009'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T04:46:52Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "effect size tolerance within \xB10.1"
+  claim_id: c_c99c7bfb
+  context: "T006f asserts FPR \u2264 0.05 and effect\u2011size tolerance \xB10.1 after\
+    \ running synthetic benchmark datasets."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Effect\u2011size recovery is within a tolerance of \xB10.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:48:00Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: paired Wilcoxon test yields p < 0.05
+  claim_id: c_94957334
+  context: T006h checks that the test yields p < 0.05.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/paired_Wilcoxon_test_yields_p_%3C_0.05
+  kind: magnitude
+  raw_text: "The paired Wilcoxon test on p_value_delta across datasets yields a p\u2011\
+    value less than 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:49:18Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: download public datasets from UCI/OpenML for baseline analysis
+  claim_id: c_bae6a7ae
+  context: "Phase 2: User Story 1 - Dataset Acquisition and Baseline Analysis aims\
+    \ to download public datasets from UCI/OpenML and run baseline statistical analyses\
+    \ (t\u2011tests, linear regressions) on raw, uncleaned data to establish reference\
+    \ metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Download public datasets from UCI/OpenML and run baseline statistical\
+    \ analyses (t\u2011tests, linear regressions) on raw, uncleaned data to establish\
+    \ reference metrics (p\u2011values, 95\u202F% CI, effect sizes)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:50:08Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  attempts: 1
+  canonical: "apply Holm\u2013Bonferroni correction to cleaning-variant p-values"
+  claim_id: c_bff9f4cd
+  context: "Phase 4, task T007a [US3] specifies applying Holm\u2011Bonferroni correction\
+    \ across all cleaning\u2011variant p\u2011values and storing the adjusted p\u2011\
+    values in cleaned_metrics.json (source: Wikipedia)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Holm%E2%80%93Bonferroni_correction_to_cleaning-variant_p-value
+  kind: entity_fact
+  raw_text: "Apply Holm\u2011Bonferroni correction across all cleaning\u2011variant\
+    \ p\u2011values; store adjusted p\u2011values in cleaned_metrics.json"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:50:57Z'

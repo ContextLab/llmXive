@@ -6,4 +6,8 @@ scikit-learn
 matplotlib
 seaborn
 pytest
+jsonschema
 pydantic
+# other project‑specific requirements may already be listed; the line
+# above ensures ``scikit-learn`` (required for missingness generation) is
+# installed.

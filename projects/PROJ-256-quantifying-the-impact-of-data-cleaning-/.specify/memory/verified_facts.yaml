@@ -1,5 +1,5 @@
-869|5198f869 claim:
-  quote: 'P123: Elsevier'
-  source_id: Q15753935
-  url: https://www.wikidata.org/wiki/Q15753935
-  value: Elsevier
+'|false less positive rate than':
+  quote: '0.009'
+  source_id: '1809.03910'
+  url: https://arxiv.org/abs/1809.03910
+  value: '0.009'

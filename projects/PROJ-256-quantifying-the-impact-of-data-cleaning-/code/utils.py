@@ -1,124 +1,136 @@
 """
 Utility functions for the project.
 
-This module provides common helper functions such as random seed pinning,
-logging setup, and file checksum calculation. Existing functions are
-preserved; new functionality is added in a backward‑compatible way.
+This module provides:
+- `setup_logging`: flexible logger initializer that accepts various argument
+  signatures.
+- `pin_random_seed`: deterministic seeding of Python's `random`, NumPy's RNG,
+  and the built‑in `hash` seed.
+- `compute_file_checksum`: compute SHA256 checksum of a file.
+- `pin_random_seed` and `setup_logging` are imported by many scripts; they
+  must be tolerant to different call patterns.
 """
-import hashlib
+
 import logging
-import os
 import random
-import sys
-import time
-from typing import Any
+import os
+import hashlib
+from typing import Any, Optional
 
-# ----------------------------------------------------------------------
-# Existing utilities (preserved from the original repository)
-# ----------------------------------------------------------------------
-def compute_file_checksum(filepath: str) -> str:
+__all__ = [
+    "setup_logging",
+    "pin_random_seed",
+    "compute_file_checksum",
+]
+
+
+def pin_random_seed(seed: int = 42) -> None:
     """
-    Compute the SHA‑256 checksum of a file.
+    Seed the random number generators used throughout the project.
 
     Parameters
     ----------
-    filepath: str
-        Path to the file whose checksum should be computed.
-
-    Returns
-    -------
-    str
-        Hexadecimal representation of the SHA‑256 checksum.
+    seed : int, optional
+        The seed value to use. Defaults to 42.
     """
-    sha256 = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for block in iter(lambda: f.read(65536), b""):
-            sha256.update(block)
-    return sha256.hexdigest()
+    random.seed(seed)
+    # NumPy's RNG
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except Exception:
+        # NumPy may not be installed at import time; ignore if unavailable.
+        pass
+    # Ensure hash randomisation is disabled for reproducibility
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
 
-def setup_logging(
-    name: str = "llmXive",
-    log_level: str = "INFO",
-    *,
-    fmt: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-) -> logging.Logger:
+def _configure_logger(name: str, level: str) -> logging.Logger:
     """
-    Initialise a logger that can be called with a variety of signatures.
+    Internal helper to configure a logger with the given name and level.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging._nameToLevel.get(level.upper(), logging.INFO))
+    if not logger.handlers:
+        # Add a simple console handler if none exist.
+        ch = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+    return logger
 
-    The function is deliberately permissive: callers may supply the logger
-    name and/or the log level positionally or as keywords, and any unknown
-    arguments are ignored so that existing call sites continue to work.
+
+def setup_logging(*args: Any, **kwargs: Any) -> logging.Logger:
+    """
+    Initialise and return a logger.
+
+    This function is deliberately permissive: it accepts the various
+    calling conventions observed across the codebase, such as:
+
+    - ``setup_logging()``                     → INFO level, default name.
+    - ``setup_logging("INFO")``               → INFO level, default name.
+    - ``setup_logging(log_level="DEBUG")``    → DEBUG level, default name.
+    - ``setup_logging(name="my_logger")``     → INFO level, custom name.
+    - ``setup_logging("my_logger", "WARNING")`` → WARNING level, custom name.
+    - Mixed positional/keyword forms.
 
     Parameters
     ----------
-    name : str, optional
-        Logger name. Defaults to ``"llmXive"``.
-    log_level : str, optional
-        Logging level name (e.g., ``"INFO"``, ``"DEBUG"``). Defaults to ``"INFO"``.
-    fmt : str, optional
-        Logging format string.
+    *args : Any
+        Positional arguments – interpreted as ``name`` and/or ``log_level``.
+    **kwargs : Any
+        Keyword arguments – ``name`` and ``log_level`` are recognised.
 
     Returns
     -------
     logging.Logger
         Configured logger instance.
     """
-    # Compatibility shim – accept a variety of positional/keyword orders
-    # without raising TypeError.
-    if isinstance(name, int):
-        # If the first positional argument is actually a log level, swap.
-        name, log_level = "llmXive", name
-    if isinstance(log_level, str) and log_level.upper() in logging._nameToLevel:
-        level = logging._nameToLevel[log_level.upper()]
-    else:
-        level = logging.INFO
+    name: Optional[str] = None
+    level: str = "INFO"
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+    # Positional handling
+    if len(args) == 1:
+        # Could be name or level – guess by looking for known level strings
+        if isinstance(args[0], str) and args[0].upper() in logging._nameToLevel:
+            level = args[0]
+        else:
+            name = str(args[0])
+    elif len(args) >= 2:
+        name = str(args[0])
+        level = str(args[1])
 
-    # Avoid adding multiple handlers if setup_logging is called repeatedly.
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter(fmt))
-        logger.addHandler(handler)
+    # Keyword handling (overwrites positional if provided)
+    if "name" in kwargs:
+        name = str(kwargs["name"])
+    if "log_level" in kwargs:
+        level = str(kwargs["log_level"])
 
-    return logger
+    # Default logger name when none supplied
+    if not name:
+        name = "project_logger"
 
-# ----------------------------------------------------------------------
-# New utility: pin_random_seed
-# ----------------------------------------------------------------------
-def pin_random_seed(seed: int = 42) -> None:
+    return _configure_logger(name, level)
+
+
+def compute_file_checksum(filepath: str) -> str:
     """
-    Pin the random seed for reproducibility across the standard library,
-    ``random`` and ``numpy`` random generators.
-
-    The function is deliberately tolerant of being called with no arguments
-    (default seed ``42``) or with a non‑integer seed – in the latter case it
-    will attempt to coerce the value to ``int`` and fall back to ``42`` if that
-    fails.
+    Compute the SHA256 checksum of a file.
 
     Parameters
     ----------
-    seed : int, optional
-        Desired seed value. Defaults to ``42``.
+    filepath : str
+        Path to the file.
+
+    Returns
+    -------
+    str
+        Hexadecimal SHA256 digest.
     """
-    try:
-        seed_int = int(seed)
-    except Exception:
-        seed_int = 42
-
-    random.seed(seed_int)
-    # NumPy may not be installed in all minimal environments; guard against ImportError.
-    try:
-        import numpy as np
-        np.random.seed(seed_int)
-    except Exception:
-        pass
-
-# The module's public interface
-__all__ = [
-    "compute_file_checksum",
-    "setup_logging",
-    "pin_random_seed",
-]
+    sha256 = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()

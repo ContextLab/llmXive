@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+env.bak/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# macOS folder attributes
+.DS_Store
+
+# Temporary task scripts and debug artefacts
+t*.py
+scratch*.py
+debug*.py
+*.pyc
+
+# Logs
+*.log
+
+# Data files (ignored by default; override in specific pipelines if needed)
+data/**/*.csv
+data/**/*.tsv
+data/**/*.json
+
+# Output figures and reports
+output/**/*.png
+output/**/*.pdf
+output/**/*.md
+
+# Other temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# End of .gitignore

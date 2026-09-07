@@ -1,3 +1,6 @@
+"""
+Reporting and metrics aggregation.
+"""
 import json
 import logging
 import os
@@ -14,125 +17,111 @@ def load_json_file(filepath: str) -> Dict[str, Any]:
 
 def save_json_file(data: Dict[str, Any], filepath: str) -> None:
     """Save data to a JSON file."""
-    Path(filepath).parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, 'w') as f:
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
         json.dump(data, f, indent=2)
 
-def load_baseline_metrics(filepath: str = None) -> Dict[str, Any]:
-    """Load baseline metrics from the default or specified path."""
-    from config import get_config
-    config = get_config()
-    if filepath is None:
-        filepath = config.get("PROCESSED_DATA_PATH") + "/baseline_metrics.json"
+def load_baseline_metrics(filepath: str = "data/processed/baseline_metrics.json") -> Dict[str, Any]:
+    """Load baseline metrics."""
+    if not Path(filepath).exists():
+        return {}
     return load_json_file(filepath)
 
-def load_cleaned_metrics(filepath: str = None) -> Dict[str, Any]:
-    """Load cleaned metrics from the default or specified path."""
-    from config import get_config
-    config = get_config()
-    if filepath is None:
-        filepath = config.get("PROCESSED_DATA_PATH") + "/cleaned_metrics.json"
+def load_cleaned_metrics(filepath: str = "data/processed/cleaned_metrics.json") -> Dict[str, Any]:
+    """Load cleaned metrics."""
+    if not Path(filepath).exists():
+        return {}
     return load_json_file(filepath)
 
-def load_null_fpr_metrics(filepath: str = None) -> Dict[str, Any]:
-    """Load null FPR metrics from the default or specified path."""
-    from config import get_config
-    config = get_config()
-    if filepath is None:
-        filepath = config.get("PROCESSED_DATA_PATH") + "/null_fpr_metrics.json"
+def load_null_fpr_metrics(filepath: str = "data/processed/null_fpr_metrics.json") -> Dict[str, Any]:
+    """Load null FPR metrics."""
+    if not Path(filepath).exists():
+        return {}
     return load_json_file(filepath)
 
-def calculate_absolute_diff(baseline: float, cleaned: float) -> float:
+def calculate_absolute_diff(val1: float, val2: float) -> float:
     """Calculate absolute difference."""
-    return abs(cleaned - baseline)
+    return abs(val1 - val2)
 
-def calculate_relative_diff(baseline: float, cleaned: float) -> float:
+def calculate_relative_diff(val1: float, val2: float) -> float:
     """Calculate relative difference."""
-    if baseline == 0:
-        return float('inf') if cleaned != 0 else 0
-    return (cleaned - baseline) / baseline
+    if val1 == 0:
+        return 0.0
+    return (val2 - val1) / abs(val1)
 
-def calculate_inconsistency_rate(baseline_results: Dict, cleaned_results: Dict, threshold: float = 0.05) -> float:
-    """
-    Calculate the proportion of datasets where significance status changes.
-    """
-    inconsistencies = 0
-    total = 0
-    
-    for dataset, baseline_data in baseline_results.items():
-        if dataset in cleaned_results:
-            for predictor, baseline_metric in baseline_data.items():
-                if predictor in cleaned_results[dataset]:
-                    total += 1
-                    b_sig = baseline_metric.get("t_test", {}).get("p_value", 1) < threshold
-                    c_sig = cleaned_results[dataset][predictor].get("t_test", {}).get("p_value", 1) < threshold
-                    if b_sig != c_sig:
-                        inconsistencies += 1
-    
-    return inconsistencies / total if total > 0 else 0
+def calculate_inconsistency_rate(results: List[Dict[str, Any]]) -> float:
+    """Calculate inconsistency rate across results."""
+    if not results:
+        return 0.0
+    significant_count = sum(1 for r in results if r.get("p_value", 1) < 0.05)
+    return significant_count / len(results)
 
-def calculate_fpr(null_metrics: Dict[str, Any]) -> float:
-    """Calculate False Positive Rate from null metrics."""
-    significant_count = 0
-    total_count = 0
-    
-    for dataset, data in null_metrics.items():
-        if isinstance(data, dict):
-            for metric in data.values():
-                if isinstance(metric, dict):
-                    p_val = metric.get("t_test", {}).get("p_value", 1)
-                    if p_val < 0.05:
-                        significant_count += 1
-                    total_count += 1
-    
-    return significant_count / total_count if total_count > 0 else 0
+def calculate_fpr(p_values: List[float], alpha: float = 0.05) -> float:
+    """Calculate False Positive Rate."""
+    if not p_values:
+        return 0.0
+    significant_count = sum(1 for p in p_values if p < alpha)
+    return significant_count / len(p_values)
 
-def generate_comparison_report(baseline_metrics: Dict, cleaned_metrics: Dict) -> Dict[str, Any]:
+def generate_comparison_report(baseline: Dict[str, Any], cleaned: Dict[str, Any]) -> Dict[str, Any]:
     """Generate a comparison report between baseline and cleaned metrics."""
     report = {
-        "absolute_diffs": {},
-        "relative_diffs": {},
-        "inconsistency_rate": calculate_inconsistency_rate(baseline_metrics, cleaned_metrics)
+        "datasets": {},
+        "summary": {
+            "total_datasets": 0,
+            "significant_changes": 0
+        }
     }
     
-    for dataset, baseline_data in baseline_metrics.items():
-        if dataset in cleaned_metrics:
-            report["absolute_diffs"][dataset] = {}
-            report["relative_diffs"][dataset] = {}
+    for dataset_name, baseline_metrics in baseline.items():
+        if dataset_name not in cleaned:
+            continue
+        
+        report["datasets"][dataset_name] = {
+            "baseline": baseline_metrics,
+            "cleaning_variants": {}
+        }
+        
+        for strategy, cleaned_metrics in cleaned[dataset_name].items():
+            b_p = baseline_metrics.get("p_value", np.nan)
+            c_p = cleaned_metrics.get("p_value", np.nan)
             
-            for predictor, baseline_metric in baseline_data.items():
-                if predictor in cleaned_metrics[dataset]:
-                    b_p = baseline_metric.get("t_test", {}).get("p_value", 1)
-                    c_p = cleaned_metrics[dataset][predictor].get("t_test", {}).get("p_value", 1)
-                    
-                    report["absolute_diffs"][dataset][predictor] = calculate_absolute_diff(b_p, c_p)
-                    report["relative_diffs"][dataset][predictor] = calculate_relative_diff(b_p, c_p)
+            diff = calculate_absolute_diff(b_p, c_p)
+            rel_diff = calculate_relative_diff(b_p, c_p)
+            
+            report["datasets"][dataset_name]["cleaning_variants"][strategy] = {
+                "baseline_p_value": b_p,
+                "cleaned_p_value": c_p,
+                "absolute_diff": diff,
+                "relative_diff": rel_diff,
+                "effect_size_change": calculate_absolute_diff(
+                    baseline_metrics.get("effect_size", 0),
+                    cleaned_metrics.get("effect_size", 0)
+                )
+            }
+            
+            if abs(diff) > 0.05: # Arbitrary threshold for "significant change"
+                report["summary"]["significant_changes"] += 1
+        
+        report["summary"]["total_datasets"] += 1
     
     return report
 
 def generate_fpr_report(null_metrics: Dict[str, Any]) -> Dict[str, Any]:
-    """Generate FPR report."""
-    return {
-        "fpr": calculate_fpr(null_metrics),
-        "threshold": 0.05
+    """Generate FPR report from null metrics."""
+    report = {
+        "datasets": {},
+        "overall_fpr": 0.0
     }
-
-def main():
-    """
-    Entry point for reporting module.
-    """
-    logging.basicConfig(level=logging.INFO)
     
-    # Load metrics
-    try:
-        baseline = load_baseline_metrics()
-        cleaned = load_cleaned_metrics()
-        
-        report = generate_comparison_report(baseline, cleaned)
-        save_json_file(report, "output/reports/comparison_report.json")
-        logger.info("Comparison report generated.")
-    except FileNotFoundError as e:
-        logger.error(f"Metrics file not found: {e}")
-
-if __name__ == "__main__":
-    main()
+    all_fprs = []
+    for dataset_name, metrics in null_metrics.items():
+        fpr = metrics.get("fpr", 0.0)
+        report["datasets"][dataset_name] = {"fpr": fpr}
+        all_fprs.append(fpr)
+    
+    if all_fprs:
+        report["overall_fpr"] = np.mean(all_fprs)
+    
+    return report
