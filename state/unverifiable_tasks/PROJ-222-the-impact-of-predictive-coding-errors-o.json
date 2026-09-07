@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-222-the-impact-of-predictive-coding-errors-o",
+  "tasks": [
+    {
+      "task_key": "T014a",
+      "reject_count": 1,
+      "last_reason": "The implementer only noted that the filtering logic was removed and moved to another task, but no download or preprocessing scripts, CSV outputs, logs, or README documentation are present. Consequently, the mandatory artifacts for User Story\u202f1 (data acquisition, preprocessing, surprisal calculation, and \u2265100 valid rows) are missing.",
+      "first_seen": "2026-09-07T08:15:45.212800+00:00",
+      "last_seen": "2026-09-07T08:15:45.212800+00:00"
+    },
+    {
+      "task_key": "T014b",
+      "reject_count": 1,
+      "last_reason": "No data download or preprocessing scripts, no generated CSV files, and no exclusion\u2011logging implementation are present. The required artifacts for User Story\u202f1 (scripts, processed CSV with required columns, README logging) are missing, so the task\u2019s core requirement is not satisfied.",
+      "first_seen": "2026-09-07T08:15:45.213774+00:00",
+      "last_seen": "2026-09-07T08:15:45.213774+00:00"
+    }
+  ],
+  "updated_at": "2026-09-07T08:15:45.213774+00:00"
+}

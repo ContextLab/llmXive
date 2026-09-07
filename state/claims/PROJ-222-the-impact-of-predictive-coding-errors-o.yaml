@@ -827,3 +827,277 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-31T23:50:12Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Pipeline halts with exit code 1 if zero valid datasets found after filtering
+  claim_id: c_7aa735f7
+  context: 'Phase 0: Data Discovery & Validation. Logic: 6. CRITICAL BLOCKER: If 0
+    valid datasets found after filtering: a. Write data/blocked_status.json with reason.
+    b. HALT execution by calling sys.exit(1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If 0 valid datasets are found after filtering, the pipeline writes data/blocked_status.json
+    with reason and halts execution by calling sys.exit(1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:02:56Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Default max_rows set to 5000 if pilot fails
+  claim_id: c_aa31f25b
+  context: 'Task T015: Logic 3. Fallback: If pilot fails or is inconclusive, default
+    max_rows = 5000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline defaults max_rows to 5000 if the pilot budget check fails
+    or is inconclusive.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:03:40Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Surprisal calculation uses Laplace smoothing alpha=1.0
+  claim_id: c_8ae02486
+  context: 'Task T016b: Logic 4. For each trial, compute surprisal using the aggregated
+    transition_counts (with Laplace smoothing alpha=1.0) and the current history.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Surprisal computation uses Laplace smoothing with alpha=1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:04:28Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Transition matrix order is 1
+  claim_id: c_76a7f799
+  context: 'Task T016a: Output: Save data/processed/markov_state.json with keys transition_matrix,
+    alphabet, order (int=1). Validation: Assert state[''order''] == 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The transition matrix is computed with an order of 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:05:18Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Critical warning logged if convergence rate < 90%
+  claim_id: c_3da76132
+  context: 'Task T021b: Logic 4. Verification: If rate < 0.90, log a critical warning:
+    ''Convergence rate < 90% (SC-002 violation)'' and write analysis/convergence_report.json
+    with the rate and failure details.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_warning_logged_if_convergence_rate_%3C_90%25
+  kind: magnitude
+  raw_text: The analysis script logs a critical warning if the global convergence
+    rate is less than 90%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:06:12Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied if num_hypotheses > 1
+  claim_id: c_689c44be
+  context: 'Task T023: Logic 2. Guard: If num_hypotheses > 1, apply Benjamini-Hochberg
+    (default) or Bonferroni if num_hypotheses < 5.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_if_num_hypotheses_%3E_1
+  kind: magnitude
+  raw_text: Benjamini-Hochberg correction is applied if the number of distinct primary
+    hypothesis tests is greater than 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:07:11Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied if num_hypotheses < 5
+  claim_id: c_56b431b8
+  context: 'Task T023: Logic 2. Guard: If num_hypotheses > 1, apply Benjamini-Hochberg
+    (default) or Bonferroni if num_hypotheses < 5.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_if_num_hypotheses_%3C_5
+  kind: magnitude
+  raw_text: Bonferroni correction is applied if the number of distinct primary hypothesis
+    tests is less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:07:38Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Cohen's d calculated using standardized beta coefficient
+  claim_id: c_6f21c9c9
+  context: 'Task T024: Logic: Calculate Cohen''s d using the standardized beta coefficient
+    from the LMM output (coef / SE * sqrt(N_eff)).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_d_calculated_using_standardized_beta_coefficient
+  kind: entity_fact
+  raw_text: Effect size is calculated as Cohen's d using the standardized beta coefficient
+    (coef / SE * sqrt(N_eff)).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:10:21Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: MDE calculated for power 0.80
+  claim_id: c_e9d46f49
+  context: 'Task T025: Implement sensitivity analysis to calculate Minimum Detectable
+    Effect (MDE) for power=0.80 using pingouin.power_ttest.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis calculates the Minimum Detectable Effect (MDE) for
+    a power of 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:11:13Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: mde_limitation_flag set to True if |coef| < mde_value
+  claim_id: c_c6e783f9
+  context: 'Task T025: Logic 3. Limitation Check: If |coef_surprisal| < mde_value,
+    set mde_limitation_flag = True and log text: ''Limitation: Observed effect smaller
+    than MDE''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/mde_limitation_flag_set_to_True_if_%7Ccoef%7C_%3C_mde_value
+  kind: magnitude
+  raw_text: If the absolute value of the surprisal coefficient is less than the MDE
+    value, the mde_limitation_flag is set to True.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:12:10Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test replaces LMM if Shapiro-Wilk p < 0.05
+  claim_id: c_dc91eeef
+  context: 'Task T026: Logic 3. If p < 0.05 (non-normal), replace the LMM primary
+    result with the Wilcoxon signed-rank test (scipy.stats.wilcoxon) for that dataset.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If the Shapiro-Wilk test on LMM residuals yields a p-value less than 0.05,
+    the primary result is replaced with the Wilcoxon signed-rank test.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T08:12:10Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling n_jobs capped at 2
+  claim_id: c_b1450eac
+  context: 'Task T028: Implement bootstrap resampling in code/analysis.py using joblib.Parallel(n_jobs=2)
+    (hard cap).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling is configured with a hard cap of n_jobs=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:13:06Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Plots saved at >= 300 DPI
+  claim_id: c_3883fee4
+  context: "Task T032: Ensure all plots are saved at \u2265300 DPI in figures/ directory."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Plots_saved_at_%3E=_300_DPI
+  kind: magnitude
+  raw_text: All generated plots must be saved at a resolution of at least 300 DPI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:14:16Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time < 6 hours
+  claim_id: c_e6218075
+  context: 'Task T034: Create tests/integration/test_runtime.py to verify full pipeline
+    execution time < 6h (SC-004).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_execution_time_%3C_6_hours
+  kind: magnitude
+  raw_text: The full pipeline execution time must be verified to be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:15:03Z'
+- artifact_path: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o/tasks.md
+  attempts: 1
+  canonical: User Story 1 output must have >= 100 valid rows
+  claim_id: c_b8b01dad
+  context: "Independent Test for User Story 1: ...verifying that output CSV files\
+    \ contain the required columns ... with \u2265100 valid rows."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/User_Story_1_output_must_have_%3E=_100_valid_rows
+  kind: magnitude
+  raw_text: The independent test for User Story 1 verifies that output CSV files contain
+    at least 100 valid rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T08:15:45Z'

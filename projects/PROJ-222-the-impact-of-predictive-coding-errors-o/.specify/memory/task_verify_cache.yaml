@@ -20,21 +20,30 @@ T013:
   r: "The task entry itself states \u201CRemoved: Logic merged into T012b,\u201D indicating\
     \ no deliverable artifacts are required. Since the specification explicitly marks\
     \ the task as removed, the absence of code, data, or figures satisfies the requirement."
-T014a:
+T016a:
+  c: false
+  h: 530f861e293f238172d24d79f0f1a88e68ef7554974e740657c8c4d74e41532f
+  r: The repository lacks the required input `data/processed/streamed_temp.csv` and
+    the expected output `data/processed/markov_state.json`. Moreover, the provided
+    excerpt of `code/preprocess.py` does not show a `compute_transition_matrix` implementation,
+    so we cannot verify that the function meets the specified logic. The missing files
+    and unclear implementation must be added/fixed.
+T016b:
+  c: false
+  h: e497dd89c18a6e1044fe71090d912c797ef17c4dd4ce068fba9addbddf19f563
+  r: The `code/preprocess.py` file is present but the `compute_surprisal` function
+    is truncated and does not contain a complete implementation. Moreover, the required
+    data files (`data/processed/streamed_temp.csv`, `data/processed/markov_state.json`,
+    and the output `data/processed/standardized.csv`) are missing, so the function
+    cannot be executed or verified. The task therefore remains unfinished.
+T017b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer only noted that the filtering logic was removed and moved to\
-    \ another task, but no download or preprocessing scripts, CSV outputs, logs, or\
-    \ README documentation are present. Consequently, the mandatory artifacts for\
-    \ User Story\u202F1 (data acquisition, preprocessing, surprisal calculation, and\
-    \ \u2265100 valid rows) are missing."
-T014b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No data download or preprocessing scripts, no generated CSV files, and no exclusion\u2011\
-    logging implementation are present. The required artifacts for User Story\u202F\
-    1 (scripts, processed CSV with required columns, README logging) are missing,\
-    \ so the task\u2019s core requirement is not satisfied."
+  r: "No code, scripts, or data files were provided for the required data acquisition/preprocessing\
+    \ pipeline or statistical analysis; the task was marked \u201CRemoved\u201D with\
+    \ logic supposedly merged into T016a, but without access to T016a\u2019s artifacts\
+    \ we cannot confirm that the required CSV outputs, surprisal calculations, or\
+    \ model results exist. The necessary artifacts are missing."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,6 +51,13 @@ T018:
     \ columns, and no statistical analysis code or output (effect sizes, confidence\
     \ intervals, MDE) are present. The task\u2019s mandatory user stories are unfulfilled,\
     \ so the required artifacts are missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The required artifact `analysis/results.json` containing the `adjusted_pvalues`\
+    \ list and `fwer_control_status` is absent, and there is no code implementing\
+    \ the Bonferroni/Benjamini\u2011Hochberg correction logic or the synthetic verification\
+    \ step. Consequently the task\u2019s deliverables have not been provided."
 T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -49,6 +65,19 @@ T023b:
     \ logic is present, and there is no `analysis/results.json` file (or entry) containing\
     \ a `fwer_control_status` boolean. The required artifact is missing, so the task\
     \ is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis/results.json` file containing an `effect_sizes` entry is present,\
+    \ and there is no code or output showing Cohen\u2019s\u202Fd (with confidence\
+    \ interval) computed via pingouin from the LMM standardized beta. The required\
+    \ artifact is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `analysis/results.json` file (or any other output) containing the logged `mde_value`
+    and `mde_limitation_flag` was provided, nor any script that calls `pingouin.power_ttest`
+    to compute the MDE. The required artifact is missing, so the task is not satisfied.
 T025b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
