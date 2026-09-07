@@ -1,81 +1,62 @@
 # Quickstart: Testing the Equivalence Principle with Satellite Laser Ranging
 
 ## Prerequisites
-
 *   Python 3.11+
-*   Git
-*   Access to a Linux environment (recommended for SLR data processing).
-*   **Note**: A verified source for LAGEOS/Etalon SLR data and composition metadata is currently **missing** from the project's verified dataset block. The pipeline will **fail** with a `DataUnavailableError` until a verified URL is added to the `# Verified datasets` block.
+*   `pip`
+*   Access to a GitHub Actions runner (or local environment with similar constraints)
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  Clone the repository and navigate to the project directory.
+2.  Install dependencies:
     ```bash
-    git clone <repo-url>
-    cd <project-dir>
+    pip install -r requirements.txt
     ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-## Data Setup
-
-1.  **Verify Data Availability**:
-    *   Check the `# Verified datasets` block in `research.md`. If no valid URL exists for LAGEOS/Etalon SLR data, the pipeline cannot run.
-    *   If a verified URL is available, run:
-        ```bash
-        python code/data/ingestion.py --satellites LAGEOS-1,LAGEOS-2,ETALON-1,ETALON-2,STARLETTE
-        ```
-    *   **Manual Data**: If you have manually downloaded data from a verified source (e.g., a verified HuggingFace mirror), place it in `data/raw/`. Ensure filenames match the pattern `slr_{satellite_id}_*.parquet`.
-
-2.  **Verify Data**:
-    *   Check that `data/raw/` contains files with ≥ 500 points per satellite.
-    *   Run the checksum validation:
-        ```bash
-        python code/utils/validate_data.py --dir data/raw
-        ```
+    *(Note: `requirements.txt` will pin `numpy`, `scipy`, `pandas`, `astropy`, `huggingface_hub`, `pyyaml`, `pytest`)*
 
 ## Running the Pipeline
 
-Execute the full analysis pipeline:
+The main entry point is `src/cli/main.py`.
 
+### Step 1: Data Ingestion
+The script will attempt to load data from the verified Hugging Face dataset. If satellites are missing, it will fall back to the verified ILRS archive.
 ```bash
-python code/main.py
+python -m src.cli.main --stage ingestion
 ```
+*   **Output**: `data/processed/cleaned_slr_data.csv`
+*   **Note**: If the verified dataset lacks required satellites, the script will log a warning and proceed with available data, flagging the result as "Incomplete".
 
-This will:
-1.  Ingest and preprocess data.
-2.  Perform **joint** orbit determination for satellite pairs.
-3.  Calculate the Eötvös parameter ($\\eta$) and confidence intervals.
-4.  Run sensitivity analysis with multiple geopotential models.
-5.  Generate a diagnostic report in `data/results/report.html`.
+### Step 2: Orbit Determination & Estimation
+Run the joint estimation with shared error terms.
+```bash
+python -m src.cli.main --stage estimation
+```
+*   **Output**: In-memory `OrbitSolution` objects (logged to console and saved to `data/processed/orbit_solutions.json`).
+
+### Step 3: Validation & Sensitivity Analysis
+Run the F-test, geopotential/systematic sweep, simulation validation, and benchmark comparison.
+```bash
+python -m src.cli.main --stage validation
+```
+*   **Output**: `data/processed/eotvos_result.json`, diagnostic plots.
+
+### Step 4: Full Run
+Execute the entire pipeline end-to-end.
+```bash
+python -m src.cli.main --stage full
+```
 
 ## Verification
 
-1.  **Check Outputs**:
-    *   `data/results/eotvos_results.csv`: Contains the final $\\eta$ estimates.
-    *   `data/results/orbit_solutions/`: Contains JSON files for each satellite pair's joint fit.
-    *   `data/results/report.html`: Visual summary of the analysis.
-
-2.  **Run Tests**:
-    ```bash
-    pytest code/tests/ -v
-    ```
-
-3.  **Reproducibility**:
-    *   Ensure `random_seed` in `config.py` is pinned.
-    *   Re-run the pipeline; outputs should match exactly (within floating-point tolerance).
+To verify the pipeline:
+1.  Run `pytest tests/` to ensure unit and integration tests pass.
+2.  Check `state/projects/PROJ-752-testing-the-equivalence-principle-with-s.yaml` for artifact checksums.
+3.  Verify that `data/processed/cleaned_slr_data.csv` has no NaN values in the `range` column.
+4.  Verify that `data/processed/eotvos_result.json` contains the `chi2_improvement`, `simulation_validation`, and `consistency_check` fields.
 
 ## Troubleshooting
 
-*   **"DataUnavailableError"**: The pipeline found no verified source for the required satellites in the `# Verified datasets` block. You must add a verified URL to proceed.
-*   **"Convergence failed"**: Check `data/results/orbit_solutions/` for the `converged` flag. If false, the solver may have hit the iteration limit. Adjust tolerance in `config.py`.
-*   **"Memory Error"**: Reduce the data subset size in `config.py` or run on a machine with more RAM.
+*   **HTTP 403 / 404 Errors**: The ingestion script implements exponential backoff. If the verified dataset URL becomes unreachable, the script will fail gracefully with a clear error message.
+*   **Memory Errors**: If the dataset is too large, the script will automatically switch to streaming mode or sample the data. Check logs for "Memory limit exceeded" warnings.
+*   **Missing Satellites**: If the log reports "Insufficient Data" for a specific satellite, the differential analysis will proceed only for available pairs, and the final report will be flagged as "Incomplete".
+*   **Underpowered**: If N < 10,000 per satellite, the report will be flagged as "Underpowered".

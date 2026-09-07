@@ -38,7 +38,7 @@ The researcher must be able to run two separate weighted least-squares orbit det
 
 1. **Given** a converged orbit solution for both satellites, **When** the composition-dependent term is calculated from the difference in non-gravitational accelerations, **Then** the system outputs the post-fit residual RMS for both the null model ($a_c=0$) and the alternative model, allowing the researcher to calculate the improvement.
 2. **Given** two satellites of different composition, **When** the differential acceleration is calculated, **Then** the system outputs the Eötvös parameter $\eta$ with a 95% confidence interval derived from the covariance matrix.
-3. **Given** a model that fails to converge after 100 iterations, **When** the solver retries with a relaxed tolerance, **Then** the system logs the failure and outputs the best-fit parameters found so far rather than crashing.
+3. **Given** a model that fails to converge after a predetermined maximum number of iterations, **When** the solver retries with a relaxed tolerance, **Then** the system logs the failure and outputs the best-fit parameters found so far rather than crashing.
 
 ---
 

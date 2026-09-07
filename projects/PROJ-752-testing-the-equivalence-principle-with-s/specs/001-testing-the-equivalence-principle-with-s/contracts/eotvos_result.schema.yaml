@@ -1,94 +1,88 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "EotvosResult"
-description: "Schema for the final Eötvös parameter test outcome."
+title: "Eötvös Parameter Result"
 type: "object"
 properties:
-  satellite_pair:
-    type: "array"
-    description: "Pair of satellites tested."
-    items:
-      type: "string"
-      enum:
-        - "LAGEOS-1"
-        - "LAGEOS-2"
-        - "ETALON-1"
-        - "ETALON-2"
-        - "STARLETTE"
-    minItems: 2
-    maxItems: 2
-  differential_acceleration:
-    type: "number"
-    description: "Differential acceleration $a_c$ in m/s²."
   eta:
     type: "number"
-    description: "Eötvös parameter."
-  eta_lower_ci:
+    description: "Eötvös parameter"
+  eta_std:
     type: "number"
-    description: "Lower bound of 95% confidence interval."
-  eta_upper_ci:
-    type: "number"
-    description: "Upper bound of 95% confidence interval."
+    description: "Standard error of eta"
+  confidence_interval_95:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval [lower, upper]"
   p_value:
     type: "number"
-    description: "P-value from the statistical test (Likelihood Ratio Test)."
-  z_score:
+    description: "p-value from F-test (Holm-Bonferroni corrected)"
+  chi2_improvement:
     type: "number"
-    description: "Z-score ($\\eta / SE_\\eta$)."
-  geopotential_model:
-    type: "string"
-    description: "Geopotential model used (e.g., GGM05C)."
-    enum:
-      - "GGM05C"
-      - "EGM2008"
-      - "GOCO06s"
-  sensitivity_data:
+    description: "Difference in chi-squared between null and alternative models (chi2_null - chi2_alt)"
+  sensitivity_sweep:
     type: "array"
-    description: "Z-scores for alternative geopotential models."
     items:
       type: "object"
       properties:
-        model:
+        geopotential_model:
           type: "string"
         z_score:
           type: "number"
       required:
-        - model
-        - z_score
-  adjusted_p_value:
-    type: "number"
-    description: "P-value after multiple-comparison correction (Bonferroni, Holm-Bonferroni, or Benjamini-Hochberg)."
-  status:
-    type: "string"
-    description: "Status of the result."
-    enum:
-      - "Significant"
-      - "Unreliable"
-      - "Constrained"
+        - "geopotential_model"
+        - "z_score"
+  systematic_error_sweep:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        model_type:
+          type: "string"
+        z_score:
+          type: "number"
+      required:
+        - "model_type"
+        - "z_score"
   benchmark_comparison:
     type: "object"
-    description: "Comparison against state-of-the-art benchmarks (e.g., Müller et al., MICROSCOPE)."
     properties:
-      reference_source:
+      target_precision:
         type: "string"
-      reference_value:
+      achieved_precision:
+        type: "string"
+      meets_target:
+        type: "boolean"
+      source_citation:
+        type: "string"
+  simulation_validation:
+    type: "object"
+    properties:
+      injected_eta:
         type: "number"
-      actual_ci_width:
+      estimated_eta:
         type: "number"
-    required:
-      - reference_source
-      - reference_value
-      - actual_ci_width
+      within_2_sigma:
+        type: "boolean"
+  consistency_check:
+    type: "object"
+    properties:
+      joint_estimate:
+        type: "number"
+      separate_difference:
+        type: "number"
+      within_2_sigma:
+        type: "boolean"
 required:
-  - satellite_pair
-  - differential_acceleration
-  - eta
-  - eta_lower_ci
-  - eta_upper_ci
-  - p_value
-  - z_score
-  - geopotential_model
-  - sensitivity_data
-  - adjusted_p_value
-  - status
-  - benchmark_comparison
+  - "eta"
+  - "eta_std"
+  - "confidence_interval_95"
+  - "p_value"
+  - "chi2_improvement"
+  - "sensitivity_sweep"
+  - "systematic_error_sweep"
+  - "benchmark_comparison"
+  - "simulation_validation"
+  - "consistency_check"
 additionalProperties: false

@@ -44,14 +44,14 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan: `mkdir -p code/data code/models code/analysis code/utils code/tests contracts data/raw data/processed data/results docs`
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (copy list from plan.md Technical Context)
+- [X] T002 Initialize a Python project with pinned dependencies in `requirements.txt` (copy list from plan.md Technical Context)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -60,8 +60,31 @@
 - [X] T006 [P] Create `contracts/orbit_solution.schema.yaml` defining the fit results schema
 - [ ] T007 [P] Create `contracts/eotvos_result.schema.yaml` defining the final metric schema
 - [ ] T008 Implement `utils/logging.py` for standardized error handling and progress logging
-- [ ] T009 Implement `data/ingestion.py` skeleton with `DataUnavailableError` check (trigger if `config.verified_dataset_urls` is empty). **Note**: The verified ILRS URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are hardcoded as pre-requisites in this task (e.g., `) to satisfy the 'Verified Accuracy' gate before implementation.
+- [ ] T009 [US1] **Initialize and implement gate/fetch logic in `data/ingestion.py`**. **Requirement**: 
+    1. Initialize `data/ingestion.py` file.
+    2. Implement `validate_config()` to read `config.paths.verified_datasets` and ensure `data/verified_datasets.yaml` exists. Raise `DataUnavailableError` if missing.
+    3. Implement `fetch_satellite_data(satellite_id: str)` with exponential backoff retry (attempts).
+    4. **Do NOT** implement parsing or aggregation logic here.
 - [X] T010 Setup `pytest` framework: create `tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`
+- [ ] T024a [P] [US2] **Interface Definition**: Define the interface for `JointLeastSquaresSolver` in `models/estimator.py`. This interface must accept residuals from both satellites and return a joint solution object with a shared composition-dependent parameter ($a_c$). **Note**: This task defines the signature only; implementation follows in T024b.
+- [ ] T048.1 [Spec] **Generate Spec Amendment Artifact**: Create `specs/001-testing-the-equivalence-principle-with-s/spec_amendment_FR-003.md`. **Content Template**: 
+    1. Header: "Spec Amendment FR-003: Joint vs Separate Fits"
+    2. Section "FR-003 Supersession": Explicitly state FR-003 is superseded by "Joint Weighted Least-Squares Estimation".
+    3. Section "Rationale": Explain collinearity and numerical instability of separate fits.
+    4. Section "Consistency Check": Define the 2-sigma validation requirement.
+    **Requirement**: This artifact must exist before T024b3 can proceed.
+- [ ] T048.0 [P] [Research] **Populate Benchmark Config**: Create or update `config.yaml` to include `benchmark_values: { etvos_limit: <float> }`. **Requirement**: 
+    1. Research current state-of-the-art benchmarks for Eötvös parameter precision (e.g., Müller et al.).
+    2. Populate `etvos_limit` in `config.yaml` under `benchmark_values`.
+    3. **Verify** `etvos_limit` exists in `config.yaml` and is a positive float before marking complete.
+    **Note**: This task must complete before T049 runs.
+- [ ] T048.0b [Research] **Research and Populate Eötvös Benchmark Value**. **Requirement**: 
+    1. Conduct research to identify the current state-of-the-art benchmark for the Eötvös parameter ($\eta$) precision from peer-reviewed literature (e.g., Müller et al., 2010; Schlamminger et al., 2008).
+    2. Create or update `config.yaml` to include the specific numerical value under `benchmark_values.etvos_limit`.
+    3. Add a comment in `config.yaml` citing the specific source (author, year, value) for this limit.
+    4. **Verify** that `config.yaml` contains a valid float for `etvos_limit` and that the source citation is present.
+    **Dependency**: Must complete before T049 runs.
+    **Note**: This task explicitly resolves the missing data requirement for SC-002 verification.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,13 +106,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `data/ingestion.py` function `fetch_single_satellite(satellite_id: str, url: str) -> pd.DataFrame` to fetch data from ILRS (using `requests` with exponential backoff) for a single satellite ID.
-- [ ] T014.1 [US1] Implement `data/ingestion.py` function `fetch_all_satellites(satellite_ids: list[str]) -> pd.DataFrame` to orchestrate the loop over all relevant satellites (LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette) and aggregate results into a single DataFrame.
-- [ ] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T014b [US1] **Add `parse_slr_file` function to `data/ingestion.py`**. **Requirement**: Implement `parse_slr_file(raw_content: bytes) -> list[NormalPoint]`. Parse raw SLR files into `NormalPoint` objects. **Dependency**: Requires T009 (file initialization).
+- [ ] T014c [US1] **Add `aggregate_satellites` function to `data/ingestion.py`**. **Requirement**: Implement `aggregate_satellites(satellite_ids: list[str]) -> pd.DataFrame`. Orchestrate the loop over all relevant satellites, fetch (using T009's fetch logic), parse (using T014b), and aggregate results. **Dependency**: Requires T009 and T014b.
 - [ ] T016 [US1] Implement `data/preprocessing.py` to filter residuals > 2cm and handle sparse satellites
 - [ ] T017 [US1] Implement time-alignment logic in `data/preprocessing.py` to merge multi-satellite datasets
 - [ ] T018 [US1] Add error handling for 403 errors and "Insufficient Data" (<500 points) warnings
-- [ ] T019 [US1] Write output to `data/processed/cleaned_slr_data.csv` with checksum verification; record checksum in `data/processed/.checksums.json` in JSON format `{ "file": "cleaned_slr_data.csv", "sha256": "..." }` and ensure raw data is preserved unchanged
+- [ ] T019 [US1] Write output to `data/processed/cleaned_slr_data.csv` with checksum verification; record checksum in `state/projects/PROJ-752-testing-the-equivalence-principle-with-s.yaml` under the `artifact_hashes` map (as per Constitution Principle III). Ensure raw data is preserved unchanged. **Requirement**: Verify `cleaned_slr_data.csv` exists and is non-empty before checksumming.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,16 +125,23 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test for dynamical model components (geopotential, drag, SRP) in `tests/test_dynamics.py`
-- [X] T021 [US2] Unit test for **joint** least-squares solver convergence in `tests/test_estimator.py` (TDD-first: depends on interface definition in T024)
-- [X] T022 [US2] Unit test for $\eta$ calculation and covariance propagation in `tests/test_eotvos.py` (TDD-first: depends on interface definition in T024)
+- [X] T020 [P] [US2] Unit test for dynamical model components (geopotential, drag, SRP) in `tests/test_dynamics.py`. **Dependency**: Requires T023 (Implementation).
+- [ ] T021 [US2] Unit test for **joint** least-squares solver convergence in `tests/test_estimator.py`. **Dependency**: Requires T024a (Interface) and T024b3 (Implementation).
+- [ ] T022 [US2] Unit test for $\eta$ calculation and covariance propagation in `tests/test_eotvos.py`. **Dependency**: Requires T024a (Interface) and T024b3 (Implementation).
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `models/dynamics.py` with GGM05C geopotential, Jacchia drag, and SRP models; input: state vector, output: acceleration vector (ITRS coordinates, using `astropy.coordinates`)
-- [ ] T024 [US2] Implement `models/estimator.py` for **joint** weighted least-squares fitting (stack residuals of both satellites into single vector, estimate shared $a_c$); output: joint solution object
-- [ ] T025 [US2] Implement function `extract_joint_parameters(solution: OrbitSolution) -> dict` to **extract** differential acceleration $a_c$ and local gravity $g$ **directly from the joint solution vector** and joint covariance matrix, returning a dictionary with keys `{'ac': float, 'g': float, 'covariance': np.array}`.
-- [ ] T026 [US2] Implement `analysis/eotvos.py` to compute $\eta = |a_c| / g$ and 95% CI from the joint covariance matrix
+- [ ] T023 [US2] Implement `models/dynamics.py` with GGM geopotential, Jacchia drag, and SRP models; input: state vector, output: acceleration vector (ITRS coordinates, using `astropy.coordinates`)
+- [ ] T024b1 [US2] Implement `models/estimator.py` function `stack_residuals(residuals_sat1: np.array, residuals_sat2: np.array) -> np.array`. **Requirement**: Stack residuals of both satellites into a single vector.
+- [ ] T024b2 [US2] Implement `models/estimator.py` function `estimate_parameters(stacked_residuals: np.array, model_params: dict) -> OrbitSolution`. **Requirement**: Implement the parameter estimation loop for the joint solver.
+- [ ] T024b3 [US2] Implement `models/estimator.py` class `JointLeastSquaresSolver`. **Requirement**: Integrate T024b1 and T024b2 into the solver class. **Dependency**: Requires T048.1 (Spec Amendment Artifact) to be present.
+- [ ] T025 [US2] Implement function `extract_joint_parameters(solution: OrbitSolution) -> dict` to **extract** the differential acceleration $a_c$ and local gravity $g$ **directly from the joint solution vector** and joint covariance matrix. **Requirement**: 
+    1. Extract position vector `r` from `solution.state` (OrbitSolution object).
+    2. Calculate `g = GM / |r|^2` using `r` from the joint solution state.
+    3. Extract `ac` and `covariance` from the joint solution.
+    4. Return dictionary `{'ac': float, 'g': float, 'covariance': np.array}`.
+    **Note**: This extracts the *differential* parameter directly as defined in `spec_amendment_FR-003.md`.
+- [ ] T026 [US2] Implement `analysis/eotvos.py` to compute $\eta = |a_c| / g$ and 95% CI. **Dependency**: Must consume the output dictionary of T025. **Note**: The calculation uses the `ac` and `g` values extracted by T025 and propagates the joint covariance matrix.
 - [ ] T027 [US2] Implement fallback logic for non-convergence (relax tolerance, log warning, output best-fit) as authorized by plan robustness requirements
 - [ ] T028 [US2] Save `OrbitSolution` and `EotvosResult` to `data/results/orbit_solutions.json` and `data/results/eotvos_metrics.json`
 
@@ -130,16 +159,30 @@
 
 - [X] T029 [P] [US3] Unit test for F-test and BIC calculation logic in `tests/test_validation.py`
 - [X] T030 [P] [US3] Unit test for Bonferroni/Holm-Bonferroni correction logic in `tests/test_validation.py`
-- [X] T031 [P] [US3] Integration test: Verify sensitivity sweep across 3 geopotential models in `tests/test_sensitivity.py`
+- [X] T031 [P] [US3] Integration test: Verify sensitivity sweep across multiple geopotential models in `tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Implement `analysis/validation.py` for F-test and BIC model comparison (Null vs Alternative)
-- [ ] T033 [US3] Implement `analysis/validation.py` to sweep GGM, EGM, and GOCO geopotential models. and record **Z-scores and p-values**
+- [ ] T032 [P] [US3] Implement `analysis/validation.py` for F-test and BIC model comparison (Null vs Alternative). **Requirement**: 
+    1. Calculate $\chi^2$ for Null model ($\chi^2_{null}$) and Alternative model ($\chi^2_{alt}$).
+    2. Calculate F-statistic and p-value.
+    3. **Output**: Return a `ValidationResult` object containing `chi2_null`, `chi2_alt`, `F_statistic`, `p_value`, and `BIC`.
+- [ ] T033a [US3] Implement `analysis/validation.py` function `iterate_geopotential_models(models: list[str]) -> Iterator[str]`. **Requirement**: Implement the iteration logic over GGM05C, EGM2008, and GOCO06s.
+- [ ] T033b [US3] Implement `analysis/validation.py` function `run_sensitivity_per_model(model: str, data: pd.DataFrame) -> EotvosResult`. **Requirement**: Run the estimator per model and collect results.
+- [ ] T033c [US3] Implement `analysis/validation.py` function `aggregate_sensitivity_results(results: list[EotvosResult]) -> SensitivityReport`. **Requirement**: Aggregate and report the sensitivity sweep results.
 - [ ] T034 [US3] Implement `analysis/validation.py` function `apply_correction(p_values: list[float], method: str) -> list[float]` to support Bonferroni, Holm-Bonferroni, and Benjamini-Hochberg methods, returning corrected p-values.
 - [ ] T035 [US3] Implement logic to flag "Unreliable" if Z-score variation > 20% across models
 - [ ] T036 [US3] Generate sensitivity plot and save to `data/results/sensitivity_analysis.png`
-- [ ] T037 [US3] Implement `analysis/report.py` to generate diagnostic report (chi2, eta limit, **p-value**, residuals CSV)
+- [ ] T037 [US3] Implement `analysis/report.py` to generate diagnostic report. **Requirement**: 
+    1. Consume `ValidationResult` from T032.
+    2. **Explicitly calculate** $\Delta \chi^2 = \chi^2_{null} - \chi^2_{alt}$.
+    3. Include $\Delta \chi^2$, F-statistic, p-value, and $\eta$ limit in the report.
+    4. Output residuals CSV.
+- [ ] T049 [US3] **Validate SC-002**: Implement logic in `analysis/report.py` to retrieve "current state-of-the-art benchmarks" for the Eötvös parameter precision from `config.paths.benchmark_values.etvos_limit`. **Requirement**: 
+    1. Compare the calculated 95% CI width (from T026) against `etvos_limit`.
+    2. Report the result in the final diagnostic report, fulfilling SC-002 validation.
+    3. If `etvos_limit` is missing from config, fail loudly with `ERROR: Benchmark 'etvos_limit' not found in config. Research phase (Task T048.0b) must populate this value before running validation.`.
+    **Dependency**: Must depend on T048.0b completion.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,8 +196,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T038 [P] [US4] Implement `main.py` entry point with CLI arguments, runtime monitoring (check time periodically), and exit code behavior on timeout
-- [ ] T039 [US4] Implement memory profiling hooks in `main.py` to warn if RAM > 6GB
+- [ ] T038 [P] [US4] Implement `main.py` entry point with CLI arguments, runtime monitoring, and memory profiling. **Requirement**: Use `psutil.Process().memory_info().rss` to monitor RAM. Log a warning if RAM > 6GB AND **exit with code 1** if the limit is exceeded to prevent runner hangs. Error message must be: `CRITICAL: Memory limit (6GB) exceeded. Current RSS: {rss_mb}MB`. **Constraint**: Verify CPU-only execution (no GPU imports).
 - [ ] T040 [US4] Create `tests/test_feasibility.py` to run pipeline on 1-year subset and assert time < 6h
 - [ ] T041 [US4] Document performance benchmarks and resource usage in `docs/performance.md`
 
@@ -185,6 +227,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Spec Amendment (Phase 2)**: Must be completed early to unblock T024/T025 logic.
 
 ### User Story Dependencies
 
@@ -220,7 +263,7 @@ Task: "Unit test for URL validation and backoff retry logic in tests/test_ingest
 Task: "Unit test for quality filtering (>2cm residual exclusion) in tests/test_preprocessing.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement data/ingestion.py to fetch data from ILRS"
+Task: "Implement data/ingestion.py to fetch and aggregate SLR data for all target satellites"
 Task: "Implement data/preprocessing.py to filter residuals > 2cm"
 ```
 
@@ -268,7 +311,16 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: Ensure all data download tasks use verified, reachable URLs (ILRS/UCI) and never synthesize fake data.
 - **CRITICAL**: All models must run on CPU-only (limited core count and memory) without GPU dependencies.
-- **CRITICAL**: T024 depends on T017/T019 (data cleaning) - do not mark as [P] relative to Phase 3.
-- **CRITICAL**: T021/T022 depend on T024 interface definition - do not mark as [P] relative to Phase 4 implementation.
-- **CRITICAL**: T024 and T025 must implement **joint** estimation, not separate fits, to align with the plan's methodology and the updated spec.md (FR-003, FR-004).
-- **CRITICAL**: Spec.md has been updated to reflect the 'joint' methodology; no tasks exist to modify the spec.
+- **CRITICAL**: T024b depends on T048.1 (Spec Amendment) - do not mark as [P] relative to Phase 2.
+- **CRITICAL**: T021/T022 depend on T024a (Interface) AND T024b3 (Implementation) - do not mark as [P] relative to Phase 4 implementation.
+- **CRITICAL**: T024a and T024b must implement **joint** estimation, not separate fits, to align with the plan's methodology and the updated spec.md (FR-003, FR-004) via the amendment artifact.
+- **CRITICAL**: Spec.md has been updated to reflect the 'joint' methodology via T048.1 (generated artifact); no tasks exist to modify the spec text directly.
+- **CRITICAL**: T019 MUST write to `state/projects/...yaml` not local JSON files.
+- **CRITICAL**: T038 MUST implement a hard exit on memory limit exceeded using `psutil` RSS.
+- **CRITICAL**: T009 MUST NOT hardcode URLs; it must enforce the blocking gate by reading `data/verified_datasets.yaml`.
+- **CRITICAL**: T009 initializes `data/ingestion.py`; T014b and T014c add specific functions to it. Do not overwrite T009's gate logic.
+- **CRITICAL**: T032 must output `chi2_null`, `chi2_alt`, and `F_statistic` for T037 to calculate $\Delta \chi^2$.
+- **CRITICAL**: T048.0b must populate `config.yaml` under `benchmark_values.etvos_limit` with a cited source. T049 reads from `config.paths.benchmark_values.etvos_limit`.
+- **CRITICAL**: T025 must extract `r` from `OrbitSolution.state` to calculate `g = GM/r^2`.
+- **CRITICAL**: T049 depends on T048.0b. If T048.0b is not complete, T049 will fail.
+- **CRITICAL**: T048.0b is a mandatory research task to resolve SC-002 verification block.

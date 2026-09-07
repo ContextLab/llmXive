@@ -1,0 +1,13 @@
+status: none
+intent: ILRS Satellite Laser Ranging normal point series python package dataset
+required_fields:
+- timestamp
+- satellite
+- range
+- range_residual
+- quality_flag
+- station
+- uncertainty
+cache_key: 6514ab1ec3e17bdb5bce227fab6276775add4c3164c13c8dee48a6f06052e4e8
+searched_at: '2026-09-07T00:34:23.351495+00:00'
+retry_count: 1

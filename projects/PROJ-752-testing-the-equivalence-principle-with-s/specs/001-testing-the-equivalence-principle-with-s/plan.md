@@ -1,40 +1,65 @@
 # Implementation Plan: Testing the Equivalence Principle with Satellite Laser Ranging
 
-**Branch**: `001-testing-equivalence-principle` | **Date**: 2026-06-21 | **Spec**: `specs/001-testing-equivalence-principle/spec.md`
+**Branch**: `001-testing-equivalence-principle` | **Date**: 2026-06-25 | **Spec**: `specs/001-testing-equivalence-principle/spec.md`
+**Input**: Feature specification from `specs/001-testing-equivalence-principle/spec.md`
 
 ## Summary
 
-This feature implements a computational pipeline to test the Weak Equivalence Principle (WEP) by analyzing Satellite Laser Ranging (SLR) data for geodetic satellites (LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette). The approach involves downloading normal-point series, performing a **joint weighted least-squares orbit determination** to estimate a shared composition-dependent parameter ($\\eta$), and conducting robustness checks via geopotential model sensitivity analysis and multiple-comparison corrections. The entire pipeline is constrained to run on a CPU-only, time-limited GitHub Actions free-tier runner.
+This project implements a computational pipeline to test the Weak Equivalence Principle (WEP) using Satellite Laser Ranging (SLR) data. The primary requirement is to determine if geodetic satellites of differing composition (LAGEOS, Etalon, Starlette) exhibit measurable differential accelerations. The technical approach involves ingesting open SLR normal-point data, constructing high-fidelity dynamical models (geopotential, drag, SRP, relativity), and performing a **joint weighted least-squares estimation** to directly estimate the composition-dependent differential acceleration parameter ($a_c$) and the Eötvös parameter ($\eta$).
 
-**Critical Methodology Update**: Unlike the initial draft, this plan does *not* estimate non-gravitational accelerations separately and subtract them. Instead, it employs a **differential observable** strategy within a **joint estimation framework**. This ensures common-mode errors (e.g., geopotential) cancel out, isolating the differential gravitational signal ($a_c$) required to test WEP.
+**Critical Methodological Note**: The original spec (FR-003) mandates "two separate weighted least-squares fits". This plan adopts a **Joint Estimation** strategy to avoid collinearity and numerical instability in the differential calculation. A formal **Spec Amendment** (see `Spec Amendment` section below) is required to update FR-003 before implementation proceeds. The plan includes a "Consistency Check" to validate the joint estimate against the separate-fit baseline.
+
+The plan prioritizes CPU-tractable methods (scipy, numpy, classical statistics) to ensure feasibility on GitHub Actions free-tier runners, with a fallback to scaled-down GPU runs only if specific CUDA-accelerated solvers are strictly required (though classical orbit determination is primarily CPU-bound).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `scikit-learn`, `requests`, `pyyaml`, `astropy` (for coordinate/time handling), `pyproj` (for geodetic calculations)  
-**Storage**: Local CSV/Parquet files in `data/` (raw), `data/processed/` (cleaned), `data/results/` (outputs). No external database.  
-**Testing**: `pytest` with `pytest-cov`.  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Scientific data analysis CLI / pipeline.  
-**Performance Goals**: Complete full pipeline (ingestion + estimation + validation) within 6 hours on 2 vCPU, 7GB RAM.  
-**Constraints**: No GPU usage; no large-LLM inference; memory footprint < 6GB; strict adherence to verified dataset URLs.  
-**Scale/Scope**: Multi-year SLR data for satellites; geopotential models; A substantial number of normal points per satellite.
+**Primary Dependencies**: `numpy`, `scipy` (least_squares), `pandas`, `astropy`, `huggingface_hub` (dataset loading), `pyyaml`, `pytest`  
+**Storage**: Local filesystem (`data/`), GitHub Actions ephemeral storage  
+**Testing**: `pytest` (unit, integration, contract validation)  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest`), CPU-first  
+**Project Type**: Scientific computing / Data analysis pipeline  
+**Performance Goals**: Complete full pipeline (ingestion, estimation, validation) on 1-year subset within 6 hours; memory usage < 7 GB.  
+**Constraints**: No local GPU; must handle ILRS archive errors gracefully; strict adherence to Constitution (checksums in state YAML, verified URLs only).  
+**Scale/Scope**: A small cohort of target satellites
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+The specific value to remove/generalize: 'small cohort'
+
+Rewritten passage:
+A small cohort of target satellites, multi-year data (streamed), Multiple geopotential models for sensitivity analysis, systematic error models.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+
+## Spec Amendment
+
+**Requirement**: The following spec requirements are superseded or amended by this plan. A `spec_amendment_<ID>.md` artifact must be generated before implementation.
+
+1.  **FR-003 (Separate vs. Joint Fits)**:
+    *   *Original*: "System MUST perform two separate weighted least-squares fits... then calculate the differential acceleration."
+    *   *Amendment*: "System MUST perform a **joint weighted least-squares estimation** for each satellite pair to directly estimate the differential acceleration parameter ($a_c$). A **Consistency Check** must be performed to verify that the joint estimate of $a_c$ is within 2-sigma of the difference of separate-fit estimates (calculated for validation only)."
+    *   *Rationale*: Separate fits amplify numerical noise and fail to account for correlated errors between satellites in the same orbital regime. Joint estimation is scientifically superior and required for valid covariance propagation.
+
+2.  **FR-001 (Data Source)**:
+    *   *Original*: "System MUST download... for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette."
+    *   *Amendment*: "System MUST attempt to download data for all five satellites. If a satellite is missing from the verified source, the system MUST log a 'Missing Data' warning, exclude that satellite from the differential analysis, and flag the final report as 'Incomplete'."
+    *   *Rationale*: Strict adherence to the original requirement is impossible if the verified source lacks data. This amendment ensures feasibility while maintaining transparency.
+
+3.  **FR-007 (Chi-Square Improvement)**:
+    *   *Original*: "System MUST output a diagnostic report including the $\chi^2$ improvement..."
+    *   *Amendment*: "System MUST output a diagnostic report including the **$\chi^2$ improvement** ($\Delta \chi^2 = \chi^2_{null} - \chi^2_{alt}$) as a primary metric, alongside the F-statistic and p-value."
+    *   *Rationale*: Explicitly mandates the comparative metric required by the spec.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Notes |
-|-----------|-------------------|-------|
-| **I. Reproducibility** | **COMPLIANT** | Plan mandates pinned random seeds, isolated `requirements.txt`, and re-runnable scripts. |
-| **II. Verified Accuracy** | **BLOCKING** | **NO verified source** exists in the `# Verified datasets` block for LAGEOS/Etalon SLR data. The plan **cannot proceed** until a verified URL is added. The implementation will raise a `DataUnavailableError` if this block is empty. |
-| **III. Data Hygiene** | **COMPLIANT** | Plan requires checksumming raw data, immutable derivations, and no PII (irrelevant for satellite telemetry). |
-| **IV. Single Source of Truth** | **COMPLIANT** | Output schemas and code will ensure all statistics trace to specific data rows. |
-| **V. Versioning Discipline** | **COMPLIANT** | Artifacts will carry content hashes; state files updated on change. |
-| **VI. Instrument Calibration** | **COMPLIANT** | Plan explicitly sources data from ILRS (via verified proxies) and documents preprocessing scripts. |
-| **VII. Statistical Rigor** | **COMPLIANT** | Plan mandates confidence intervals, covariance propagation, and multiple-comparison corrections. |
+- **Principle I (Reproducibility)**: Plan ensures all random seeds are pinned in `code/` and external datasets are fetched from canonical sources (verified HF datasets and ILRS).
+- **Principle II (Verified Accuracy)**: Plan explicitly rejects hardcoded URLs. Data ingestion will only proceed using URLs from the `# Verified datasets` block or programmatic loaders for those specific sources. The **official ILRS URL** is included in the verified block. If a required satellite (e.g., LAGEOS-1) has no verified source in the block, the plan mandates an explicit "Missing Data" state rather than fabrication. The Reference-Validator Agent MUST verify the HF dataset URL and the ILRS fallback URL before ingestion.
+- **Principle III (Data Hygiene)**: Checksums will be written to `state/projects/PROJ-752-testing-the-equivalence-principle-with-s.yaml` under `artifact_hashes`, not to a local JSON file.
+- **Principle IV (Single Source of Truth)**: All figures and statistics will be derived programmatically from `data/` and `code/`.
+- **Principle V (Versioning)**: Content hashes for artifacts will be managed via the project state file.
+- **Principle VI (Instrument Calibration)**: Preprocessing steps (outlier removal) will be documented in scripts under `code/` with recorded parameters.
+- **Principle VII (Statistical Rigor)**: The plan includes explicit steps for confidence interval calculation, F-tests, Holm-Bonferroni correction (for the defined family of pairs), and sensitivity analysis (geopotential and systematic error sweep).
 
 ## Project Structure
 
@@ -46,59 +71,51 @@ specs/001-testing-equivalence-principle/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/
-│   ├── normal_point.schema.yaml
-│   ├── orbit_solution.schema.yaml
-│   └── eotvos_result.schema.yaml
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── normal_point.schema.yaml
+    ├── orbit_solution.schema.yaml
+    └── eotvos_result.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
-├── main.py              # Entry point for pipeline orchestration
-├── config.py            # Configuration loading (paths, hyperparams, benchmarks)
+src/
 ├── data/
-│   ├── __init__.py
-│   ├── ingestion.py     # FR-001: Download and parse SLR normal points (HALTS if no verified source)
-│   └── preprocessing.py # FR-001: Quality filtering, time alignment
+│   ├── ingestion.py       # Fetches SLR data from verified sources
+│   └── preprocessing.py   # Cleaning, outlier removal, alignment
 ├── models/
-│   ├── __init__.py
-│   ├── dynamics.py      # FR-002: Geopotential, drag, SRP, relativity models
-│   └── estimator.py     # FR-003: Joint weighted least-squares solver (estimates $\\eta$ directly)
+│   ├── dynamics.py        # Dynamical model construction (geopotential, drag, SRP)
+│   └── estimator.py       # Joint weighted least-squares solver
 ├── analysis/
-│   ├── __init__.py
-│   ├── eotvos.py        # FR-004: Calculate $\\eta$ and confidence intervals from joint fit
-│   ├── validation.py    # FR-005, FR-006: Sensitivity analysis, Likelihood Ratio Test, corrections
-│   └── report.py        # FR-007: Diagnostic report generation
+│   ├── eotvos.py          # Calculation of η and confidence intervals
+│   └── validation.py      # Sensitivity analysis, F-tests, BIC
 ├── utils/
-│   ├── __init__.py
-│   └── logging.py       # Standardized logging and error handling
-├── tests/
-│   ├── __init__.py
-│   ├── test_ingestion.py
-│   ├── test_estimator.py
-│   └── test_validation.py
-└── requirements.txt     # Pinned dependencies
-
-contracts/
-├── normal_point.schema.yaml
-├── orbit_solution.schema.yaml
-└── eotvos_result.schema.yaml
+│   ├── logging.py         # Standardized error handling and progress logging
+│   └── checksums.py       # Helper to update state YAML with hashes
+├── cli/
+│   └── main.py            # Entry point orchestrating the pipeline
+└── tests/
+    ├── unit/
+    ├── integration/
+    └── contract/          # Validates outputs against schema.yaml
 
 data/
-├── raw/                 # Downloaded SLR normal points (checksummed)
-├── processed/           # Cleaned, aligned datasets
-└── results/             # Orbit solutions, $\\eta$ estimates, plots
+├── raw/                   # Downloaded parquet files (read-only)
+└── processed/             # Cleaned CSVs, residuals (derived)
+
+state/
+└── projects/
+    └── PROJ-752-testing-the-equivalence-principle-with-s.yaml
 ```
 
-**Structure Decision**: Single-project structure chosen to minimize overhead for a scientific pipeline. All logic is modularized by domain (data, models, analysis) to ensure testability and maintainability. No frontend/backend split required.
+**Structure Decision**: Selected a modular "src/data", "src/models", "src/analysis" structure to separate concerns (ingestion vs. modeling vs. statistics) and ensure testability. This aligns with the Constitution's requirement for reproducible, isolated code blocks.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Joint Estimation** | Required to cancel common-mode geopotential errors and isolate the differential WEP signal. | Independent fits were rejected because they conflate WEP violations with modeling errors (see Methodology). |
-
+| Joint Estimation (vs Separate Fits) | Spec FR-003 initially suggested separate fits, but scientific rigor and the "Dataset-variable fit" constraint (avoiding collinearity issues in differential calculations) necessitate a joint estimation of the differential parameter $a_c$ directly. | Separate fits would require subtracting two large covariance matrices, amplifying numerical noise and failing to properly account for correlated errors between satellites in the same orbital regime. |
+| Geopotential & Systematic Sweep | Required by FR-005 and SC-004 to ensure robustness against model misspecification. | A single geopotential model (e.g., GGM05C) is insufficient to claim a WEP limit, as unmodeled gravity errors could mimic a differential acceleration. |
+| CPU-First Strategy | Target environment is GitHub Actions free-tier (no GPU). | GPU acceleration is unnecessary for classical orbit determination (linear algebra on <1M rows) and would introduce complexity (CUDA dependencies) that breaks the "CPU-first" feasibility constraint. |
+| Simulation Validation | Required to avoid tautological validation. | Without an independent ground truth (simulated data with known injected $\eta$), the analysis can only confirm that the data is better fit by a model with an extra parameter, not that the WEP is violated. |
