@@ -1,181 +1,157 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: MetaAnalysisResult
-description: Schema for the output of the meta-analysis pipeline, including pooled effects, confidence intervals, heterogeneity, and bias metrics.
+title: Meta-Analysis Result Schema
+description: Schema for pooled effect, confidence intervals, heterogeneity, and bias metrics from the meta-analysis pipeline.
 type: object
 required:
-  - synthesis_mode
-  - timestamp
-  - meta_analysis
+  - pooled_effect_size
+  - confidence_interval
+  - heterogeneity_metrics
+  - bias_assessment
+  - model_type
+  - n_studies
 properties:
-  synthesis_mode:
+  pooled_effect_size:
+    type: object
+    description: The pooled correlation coefficient (r) and its Fisher's z transformed value.
+    required:
+      - r
+      - z
+    properties:
+      r:
+        type: number
+        description: The pooled correlation coefficient (back-transformed from z).
+      z:
+        type: number
+        description: The pooled Fisher's z transformed value.
+      se:
+        type: number
+        description: Standard error of the pooled z.
+      ci_lower_z:
+        type: number
+        description: Lower bound of the confidence interval in z-space.
+      ci_upper_z:
+        type: number
+        description: Upper bound of the confidence interval in z-space.
+
+  confidence_interval:
+    type: object
+    description: The confidence interval for the pooled effect in r-space.
+    required:
+      - level
+      - lower
+      - upper
+    properties:
+      level:
+        type: number
+        description: Confidence level (e.g., 0.95).
+      lower:
+        type: number
+        description: Lower bound of the CI in r-space.
+      upper:
+        type: number
+        description: Upper bound of the CI in r-space.
+
+  heterogeneity_metrics:
+    type: object
+    description: Metrics quantifying heterogeneity across studies.
+    required:
+      - i_squared
+      - tau_squared
+      - q_statistic
+      - q_p_value
+    properties:
+      i_squared:
+        type: number
+        description: I² statistic (percentage of total variation due to heterogeneity).
+      tau_squared:
+        type: number
+        description: Between-study variance (Tau²).
+      q_statistic:
+        type: number
+        description: Cochran's Q statistic.
+      q_p_value:
+        type: number
+        description: P-value for Cochran's Q test.
+      interpretation:
+        type: string
+        description: Qualitative interpretation of heterogeneity (e.g., "Low", "Moderate", "High").
+
+  bias_assessment:
+    type: object
+    description: Results from publication bias tests (e.g., Egger's regression).
+    required:
+      - egger_test
+    properties:
+      egger_test:
+        type: object
+        description: Egger's regression test results.
+        properties:
+          intercept:
+            type: number
+            description: Intercept of the Egger's regression.
+          p_value:
+            type: number
+            description: P-value for the intercept (significance of asymmetry).
+          t_statistic:
+            type: number
+            description: T-statistic for the intercept.
+          skipped:
+            type: boolean
+            description: Whether the test was skipped (e.g., N < 10).
+          reason:
+            type: string
+            description: Reason for skipping if applicable.
+
+  model_type:
     type: string
-    description: Mode of synthesis used ('quantitative' or 'narrative').
+    description: Type of meta-analysis model used.
     enum:
-      - quantitative
-      - narrative
-    default: quantitative
+      - fixed_effects
+      - random_effects
+
+  n_studies:
+    type: integer
+    description: Number of studies included in the analysis.
+
+  n_valid_pairs:
+    type: integer
+    description: Number of studies with valid (r, n) pairs.
+
+  k_tracts:
+    type: integer
+    description: Number of distinct tracts analyzed (for correction context).
+
+  correction_applied:
+    type: object
+    description: Details on multiple comparisons correction if applied.
+    properties:
+      bonferroni_applied:
+        type: boolean
+      alpha_adjusted:
+        type: number
+      p_adjusted:
+        type: array
+        items:
+          type: number
+        description: List of adjusted p-values.
+
+  hartung_knapp_adjusted:
+    type: boolean
+    description: Whether Hartung-Knapp adjustment was applied.
+
+  meta_status:
+    type: string
+    description: Status of the meta-analysis execution.
+    enum:
+      - completed
+      - skipped
+      - failed
+
+  skip_reason:
+    type: string
+    description: Reason for skipping if meta_status is 'skipped'.
 
   timestamp:
     type: string
     format: date-time
     description: ISO 8601 timestamp of when the analysis was run.
-
-  study_count:
-    type: integer
-    description: Total number of studies included in the analysis (N).
-    minimum: 0
-
-  tract_count:
-    type: integer
-    description: Number of unique tracts identified (k).
-    minimum: 0
-    nullable: true
-
-  meta_analysis:
-    type: object
-    description: Results of the meta-analysis. Null if synthesis_mode is 'narrative' or if N < 10.
-    nullable: true
-    properties:
-      model_type:
-        type: string
-        description: Type of model used ('random_effects' or 'fixed_effects_fallback').
-        enum:
-          - random_effects
-          - fixed_effects_fallback
-        default: random_effects
-
-      reliability:
-        type: string
-        description: Reliability flag, especially for fallback models.
-        enum:
-          - reliable
-          - unreliable
-        default: reliable
-
-      pooled_effect:
-        type: object
-        description: The pooled effect size (weighted mean r) and its confidence interval.
-        required:
-          - weighted_mean_r
-          - ci_lower
-          - ci_upper
-        properties:
-          weighted_mean_r:
-            type: number
-            description: The weighted mean correlation coefficient (r).
-            minimum: -1
-            maximum: 1
-
-          ci_lower:
-            type: number
-            description: Lower bound of the 95% confidence interval.
-
-          ci_upper:
-            type: number
-            description: Upper bound of the 95% confidence interval.
-
-          ci_level:
-            type: number
-            description: Confidence level (e.g., 0.95).
-            default: 0.95
-
-      heterogeneity:
-        type: object
-        description: Heterogeneity statistics.
-        required:
-          - i_squared
-        properties:
-          i_squared:
-            type: number
-            description: I-squared statistic representing the percentage of variation across studies due to heterogeneity rather than chance.
-            minimum: 0
-            maximum: 100
-            multipleOf: 0.01
-
-          q_statistic:
-            type: number
-            description: Cochran's Q statistic.
-            nullable: true
-
-          df:
-            type: integer
-            description: Degrees of freedom for the Q statistic.
-            nullable: true
-
-          p_value_q:
-            type: number
-            description: P-value for the Q statistic.
-            nullable: true
-
-      bias:
-        type: object
-        description: Publication bias assessment results.
-        required:
-          - egger_skipped_reason
-        properties:
-          egger_skipped_reason:
-            type: string
-            description: Reason if Egger's test was skipped (e.g., N < 10).
-            nullable: true
-
-          egger_intercept:
-            type: number
-            description: Intercept from Egger's linear regression.
-            nullable: true
-
-          egger_p_value:
-            type: number
-            description: P-value from Egger's linear regression.
-            nullable: true
-
-      correction:
-        type: object
-        description: Multiple comparison correction details.
-        nullable: true
-        properties:
-          method:
-            type: string
-            description: Correction method used (e.g., 'bonferroni').
-            enum:
-              - bonferroni
-              - none
-            default: none
-
-          adjusted_threshold:
-            type: number
-            description: Adjusted significance threshold.
-            nullable: true
-
-          limitations_note:
-            type: string
-            description: Note regarding the conservatism of the correction method.
-
-  narrative_summary:
-    type: object
-    description: Summary of narrative themes if synthesis_mode is 'narrative'.
-    nullable: true
-    properties:
-      themes:
-        type: array
-        description: List of identified themes and their counts.
-        items:
-          type: object
-          properties:
-            theme_name:
-              type: string
-            count:
-              type: integer
-
-      overview_text:
-        type: string
-        description: Textual overview of the findings.
-
-      limitations_text:
-        type: string
-        description: Textual description of limitations.
-
-  errors:
-    type: array
-    description: List of errors or warnings encountered during processing.
-    items:
-      type: string

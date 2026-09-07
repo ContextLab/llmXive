@@ -38,12 +38,20 @@ def should_generate_narrative(gate_result: Optional[Dict], meta_status: Optional
     Returns True if:
       - gate_result['status'] == 'narrative_required' (from T057)
       - meta_status['status'] == 'skipped' (from T014)
+      - gate_result is missing or malformed (default to narrative mode per spec)
     """
     # Check Gatekeeper result (T057)
     if gate_result:
         if gate_result.get("status") == "narrative_required":
             logging.info("Gatekeeper indicates narrative mode required.")
             return True
+        # If gate_result exists but status is not narrative_required, check meta_status
+        if gate_result.get("status") == "quantitative_ok":
+            logging.info("Gatekeeper indicates quantitative mode. Checking meta_status.")
+    else:
+        # CRITICAL: If gate_result.json is missing or malformed, default to "narrative" mode
+        logging.warning("Gate result file missing or malformed. Defaulting to narrative mode.")
+        return True
     
     # Check Meta-Analysis status (T014)
     if meta_status:

@@ -1,6 +1,7 @@
 """
 Forest Plot Generator (Task T024).
 Generates a forest plot from meta-analysis results.
+Ensures memory safety and handles gate logic gracefully.
 """
 import json
 import logging
@@ -30,6 +31,7 @@ META_STATUS_PATH = "data/derived/meta_status.json"
 GATE_PATH = "data/derived/gate_result.json"
 
 def load_json(path: str) -> Optional[Dict[str, Any]]:
+    """Load a JSON file from the project root."""
     full_path = get_project_root() / path
     if not full_path.exists():
         logger.warning(f"File not found: {full_path}")
@@ -44,6 +46,7 @@ def load_json(path: str) -> Optional[Dict[str, Any]]:
 def generate_forest_plot(results: Dict[str, Any]) -> None:
     """
     Generate a forest plot from the meta-analysis results.
+    Writes the plot to data/derived/forest_plot.png.
     """
     # Memory check before plotting
     check_memory_usage(threshold_mb=500)

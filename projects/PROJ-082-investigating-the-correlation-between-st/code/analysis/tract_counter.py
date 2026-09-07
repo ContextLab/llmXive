@@ -4,7 +4,7 @@ Tract Counter (Task T008c).
 Reads extracted_studies.csv and counts distinct tracts.
 Output: data/derived/tract_count.json
 
-Constraint: If input missing, write {"k": 0} and log a warning.
+Constraint: If input missing or empty, write {"k": 0}.
 """
 import csv
 import json
@@ -86,7 +86,7 @@ def run_tract_counter() -> int:
     Main execution logic for the tract counter.
     
     Reads the extracted studies, counts unique tracts, and writes the result.
-    If the input file is missing, writes {"k": 0} and logs a warning.
+    If the input file is missing or empty, writes {"k": 0} and logs a warning.
     
     Returns:
         Exit code (0 for success).

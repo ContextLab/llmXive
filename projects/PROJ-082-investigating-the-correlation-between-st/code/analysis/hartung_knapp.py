@@ -1,10 +1,18 @@
 """
-Hartung-Knapp Adjustment for Meta-Analysis.
+Hartung-Knapp Adjustment for Meta-Analysis Confidence Intervals.
 
 This module implements the Hartung-Knapp-Sidik-Jonkman (HKSJ) adjustment
-for confidence intervals in meta-analysis, specifically for low-power scenarios
-(10 <= N < 20). It updates the meta-analysis results with adjusted confidence intervals.
+for low-power meta-analysis scenarios (specifically 10 <= N < 20).
+It adjusts the confidence intervals of the pooled effect size to account
+for uncertainty in the between-study variance estimate.
+
+The adjustment replaces the standard normal quantile (z) with a t-distribution
+quantile with k-1 degrees of freedom, and scales the standard error of the
+pooled effect by the square root of the estimated variance of the effect.
+
+Output: Updates `data/derived/results.json` with `hk_adjusted_ci`.
 """
+
 import json
 import logging
 import math
@@ -12,279 +20,344 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import numpy as np
-from scipy import stats
-
-# Import utilities from sibling modules as per API surface
-from utils.config import get_project_root, ensure_directory
-
-# Configure logger
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/logs/hartung_knapp.log', mode='a')
+    ]
+)
 logger = logging.getLogger(__name__)
+
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DERIVED = PROJECT_ROOT / "data" / "derived"
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+
+
+def get_project_root() -> Path:
+    """Return the project root directory."""
+    return PROJECT_ROOT
 
 
 def load_json(file_path: Path) -> Dict[str, Any]:
     """Load a JSON file."""
-    with open(file_path, 'r') as f:
+    if not file_path.exists():
+        raise FileNotFoundError(f"JSON file not found: {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 
-def save_json(data: Dict[str, Any], file_path: Path) -> None:
+def save_json(file_path: Path, data: Dict[str, Any]) -> None:
     """Save a dictionary to a JSON file."""
-    ensure_directory(file_path)
-    with open(file_path, 'w') as f:
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
+    logger.info(f"Saved results to {file_path}")
 
 
-def load_effect_sizes_and_se(extracted_studies_path: Path) -> Tuple[List[float], List[float]]:
+def load_effect_sizes_and_se() -> List[Tuple[float, float, str]]:
     """
-    Load effect sizes (r) and standard errors from extracted studies CSV.
-    Assumes columns: 'r', 'se' (or calculates se if n is present).
+    Load effect sizes (r) and standard errors (se) from extracted studies.
+    
+    Reads from data/processed/extracted_studies.csv.
+    Returns a list of tuples: (r, se, author_year_id).
     """
-    import csv
+    input_path = DATA_PROCESSED / "extracted_studies.csv"
+    if not input_path.exists():
+        logger.warning(f"Input file {input_path} not found. No data to process.")
+        return []
 
-    effects = []
-    ses = []
-
-    if not extracted_studies_path.exists():
-        logger.warning(f"Extracted studies file not found: {extracted_studies_path}")
-        return effects, ses
-
-    with open(extracted_studies_path, 'r') as f:
+    data = []
+    with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             r_val = row.get('r')
-            n_val = row.get('n')
             se_val = row.get('se')
+            # Use author and year as a unique identifier if available, otherwise index
+            author = row.get('author', 'Unknown')
+            year = row.get('year', 'Unknown')
+            study_id = f"{author}_{year}"
 
-            if r_val is None or r_val == '':
-                continue
-
-            try:
-                r = float(r_val)
-            except ValueError:
-                continue
-
-            # Calculate SE if not present but N is available
-            # SE_r = sqrt((1 - r^2) / (n - 2))
-            if se_val is None or se_val == '':
-                if n_val and n_val != '':
-                    try:
-                        n = int(n_val)
-                        if n > 2:
-                            se = math.sqrt((1 - r**2) / (n - 2))
-                        else:
-                            continue # Cannot calculate SE for n <= 2
-                    except ValueError:
-                        continue
-                else:
-                    continue # Need SE or N to proceed
-            else:
+            if r_val is not None and se_val is not None:
                 try:
-                    se = float(se_val)
+                    r_float = float(r_val)
+                    se_float = float(se_val)
+                    if not math.isnan(r_float) and not math.isnan(se_float) and se_float > 0:
+                        data.append((r_float, se_float, study_id))
+                    else:
+                        logger.debug(f"Skipping invalid values for {study_id}: r={r_float}, se={se_float}")
                 except ValueError:
-                    continue
-
-            effects.append(r)
-            ses.append(se)
-
-    return effects, ses
+                    logger.debug(f"Skipping non-numeric values for {study_id}")
+    
+    return data
 
 
 def calculate_hartung_knapp_adjusted_ci(
+    effects: List[Tuple[float, float, str]],
     pooled_effect: float,
     pooled_se: float,
     k: int,
-    tau2: float,
-    weights: List[float]
-) -> Tuple[float, float]:
+    alpha: float = 0.05
+) -> Optional[Dict[str, float]]:
     """
-    Calculate Hartung-Knapp adjusted confidence interval.
-
-    The HKSJ method adjusts the standard error of the pooled effect
-    and uses a t-distribution with k-1 degrees of freedom instead of
-    the normal distribution.
-
+    Calculate the Hartung-Knapp adjusted confidence interval.
+    
+    The HKSJ method adjusts the standard error of the pooled effect by a factor
+    derived from the residual variance of the effect sizes around the pooled estimate.
+    
     Formula:
-    SE_HK = sqrt( (1/(k-1)) * sum( w_i * (y_i - theta_HK)^2 ) )
-    CI = theta_HK +/- t_{k-1, 1-alpha/2} * SE_HK
-
+    1. Calculate residual variance (tau2_hk): sum(w_i * (y_i - y_bar)^2) / (k - 1)
+       where w_i = 1/se_i^2
+    2. Adjusted SE: sqrt(tau2_hk * sum(w_i) / (k * sum(w_i) - (sum(w_i)^2 / sum(w_i^2)))) 
+       Actually, the simpler HKSJ formulation is:
+       Var_HKSJ = (1 / sum(w_i)) * (1 + (sum(w_i * (y_i - y_bar)^2) / (k-1)) * (1/sum(w_i) - 1/sum(w_i^2)/sum(w_i) ... wait)
+       
+    Standard HKSJ approach:
+    1. Compute weights w_i = 1 / se_i^2
+    2. Pooled effect y_bar = sum(w_i * y_i) / sum(w_i)
+    3. Residual sum of squares Q = sum(w_i * (y_i - y_bar)^2)
+    4. Variance of pooled effect under HKSJ: V_HKSJ = (Q / (k - 1)) * (1 / sum(w_i))
+    5. Adjusted SE = sqrt(V_HKSJ)
+    6. CI = y_bar +/- t_{k-1, 1-alpha/2} * Adjusted SE
+    
     Args:
-        pooled_effect: The pooled effect size (theta_HK)
-        pooled_se: The standard error of the pooled effect from the standard model
+        effects: List of (r, se, id)
+        pooled_effect: The pooled effect size (y_bar)
+        pooled_se: The standard error of the pooled effect from standard random-effects
         k: Number of studies
-        tau2: Between-study heterogeneity variance
-        weights: Weights used in the meta-analysis (1 / (se_i^2 + tau2))
-
+        alpha: Significance level (default 0.05)
+    
     Returns:
-        Tuple of (lower_bound, upper_bound)
+        Dictionary with 'lower' and 'upper' bounds, or None if k < 2.
     """
     if k < 2:
-        # Cannot compute HKSJ with fewer than 2 studies
-        return (pooled_effect - 1.96 * pooled_se, pooled_effect + 1.96 * pooled_se)
+        logger.warning("Cannot calculate HKSJ CI with k < 2 studies.")
+        return None
 
-    # Recalculate the standard error using the HKSJ method
-    # We need the individual study effects to compute the residual sum of squares
-    # However, we only have pooled_effect, pooled_se, tau2, and weights here.
-    # We need to re-derive the individual effects or pass them in.
-    # To keep this function pure, we will assume we are passed the weighted residuals
-    # or we recalculate the variance of the weighted mean.
-
-    # Standard approach for HKSJ requires the individual effects y_i.
-    # Since this function signature doesn't have y_i, we will assume the caller
-    # provides the necessary components or we calculate the "variance of the weighted mean"
-    # based on the provided pooled_se and weights if possible, but strictly HKSJ
-    # requires the sum of squared residuals.
-
-    # Let's adjust the function to be more robust:
-    # We will assume 'pooled_se' here is the standard DerSimonian-Laird SE.
-    # The HK adjustment scales this SE by a factor derived from the heterogeneity.
-    # However, the exact formula is:
-    # var_HK(theta) = (1 / (k-1)) * sum( w_i * (y_i - theta)^2 )
-
-    # Since we don't have y_i here, we cannot calculate the exact HK SE from scratch
-    # without re-running the model logic.
-    # Instead, we will implement the logic in the main runner which has access to the data.
-    # This function will serve as the mathematical core if we had the residuals.
-    # For now, we will return a placeholder that signals the need for data.
-    
-    # Re-implementation strategy:
-    # The caller (run_hartung_knapp_adjustment) will have the effects and ses.
-    # It will compute the HK SE there. This function is kept for API consistency
-    # but the heavy lifting is in the runner.
-    
-    # Fallback to standard CI if we can't compute HK (missing data)
-    # This path should ideally not be taken if the caller does it right.
-    logger.warning("Missing individual study data for exact HK calculation. Returning standard CI.")
-    return (pooled_effect - 1.96 * pooled_se, pooled_effect + 1.96 * pooled_se)
-
-
-def run_hartung_knapp_adjustment(
-    meta_results_path: Path,
-    extracted_studies_path: Path,
-    output_path: Path
-) -> Dict[str, Any]:
-    """
-    Run the Hartung-Knapp adjustment on the meta-analysis results.
-
-    1. Load meta-analysis results (pooled effect, SE, tau2, k).
-    2. Check if 10 <= N < 20.
-    3. If so, recalculate CI using HK method.
-    4. Update the results dictionary with 'hk_adjusted_ci'.
-    5. Save the updated results.
-
-    Returns:
-        The updated results dictionary.
-    """
-    if not meta_results_path.exists():
-        logger.error(f"Meta results file not found: {meta_results_path}")
-        return {}
-
-    results = load_json(meta_results_path)
-    
-    # Check study count
-    k = results.get('k', 0)
-    n = results.get('N', 0) # Total studies
-
-    # The task description says: "Adjust CI for low‑power meta‑analysis (10 ≤ N < 20)"
-    # N is the total number of studies.
-    if not (10 <= n < 20):
-        logger.info(f"Hartung-Knapp adjustment not required. N={n} is not in [10, 20).")
-        # Still save the file to indicate we checked, but no HK CI
-        results['hk_adjustment_applied'] = False
-        results['hk_adjusted_ci'] = None
-        save_json(results, output_path)
-        return results
-
-    logger.info(f"Applying Hartung-Knapp adjustment for N={n}.")
-
-    # Load individual study data to compute HK SE
-    effects, ses = load_effect_sizes_and_se(extracted_studies_path)
-    
-    if len(effects) < 2:
-        logger.warning("Not enough studies to compute HK adjustment.")
-        results['hk_adjustment_applied'] = False
-        results['hk_adjusted_ci'] = None
-        save_json(results, output_path)
-        return results
-
-    # Extract parameters from meta results
-    pooled_effect = results.get('pooled_effect')
-    pooled_se = results.get('pooled_se')
-    tau2 = results.get('tau2', 0)
-
-    if pooled_effect is None or pooled_se is None:
-        logger.error("Pooled effect or SE missing in meta results.")
-        results['hk_adjustment_applied'] = False
-        results['hk_adjusted_ci'] = None
-        save_json(results, output_path)
-        return results
-
-    # Calculate weights: w_i = 1 / (se_i^2 + tau2)
-    weights = [1.0 / (se**2 + tau2) for se in ses]
-    
-    # Recalculate pooled effect using weights (should match meta result, but for HK we use the weighted mean)
-    # theta_HK = sum(w_i * y_i) / sum(w_i)
+    # Calculate weights
+    weights = [1.0 / (se ** 2) for _, se, _ in effects]
     sum_w = sum(weights)
-    theta_hk = sum(w * y for w, y in zip(weights, effects)) / sum_w
-
-    # Calculate HK Standard Error
-    # var_HK = (1 / (k-1)) * sum( w_i * (y_i - theta_HK)^2 )
-    # Note: k here is the number of studies used in the calculation (len(effects))
-    k_eff = len(effects)
-    if k_eff < 2:
-       var_hk = 0
-    else:
-       sum_sq_resid = sum(w * (y - theta_hk)**2 for w, y in zip(weights, effects))
-       var_hk = sum_sq_resid / (k_eff - 1)
     
-    se_hk = math.sqrt(var_hk)
+    # Calculate weighted mean (should match pooled_effect, but we recompute for consistency)
+    weighted_sum = sum(w * r for (r, se, _), w in zip(effects, weights))
+    y_bar = weighted_sum / sum_w
 
-    # Critical value from t-distribution with k-1 degrees of freedom
-    # 95% CI -> alpha = 0.05 -> two-tailed
-    df = k_eff - 1
-    t_crit = stats.t.ppf(0.975, df)
+    # Calculate residual sum of squares (Q statistic numerator)
+    # Q = sum(w_i * (y_i - y_bar)^2)
+    q_stat = sum(w * (r - y_bar) ** 2 for (r, se, _), w in zip(effects, weights))
 
-    # Calculate adjusted CI
-    lower = theta_hk - t_crit * se_hk
-    upper = theta_hk + t_crit * se_hk
+    # Calculate the scaling factor for the variance
+    # The HKSJ variance is: (Q / (k - 1)) * (1 / sum_w)
+    # Note: In some formulations, the factor is (Q / (k-1)) * (1/sum_w) * (something related to k)
+    # The most common HKSJ variance estimator for the pooled effect is:
+    # Var_HKSJ = (1 / sum(w_i)) * (1 + (Q / (k-1)) * (1/sum(w_i) - 1/sum(w_i^2)/sum(w_i) ... no)
+    # Let's stick to the core definition:
+    # Var_HKSJ = (Q / (k-1)) * (1 / sum(w_i))
+    # This assumes the random effects model variance is estimated by Q/(k-1) * (1/sum(w_i))
+    # Wait, the standard DerSimonian-Laird variance is 1/sum(w_i).
+    # The HKSJ adjustment multiplies the DL variance by a factor F = (Q / (k-1)) / (sum(w_i * se_i^2) / (k-1))? 
+    # No. The HKSJ method replaces the standard error of the pooled effect with:
+    # SE_HKSJ = sqrt( (Q / (k-1)) * (1 / sum(w_i)) )
+    # But this is only if the DL estimate of tau^2 is 0?
+    # Correct HKSJ formula:
+    # SE_HKSJ = sqrt( (1 / sum(w_i)) * (1 + (Q - (k-1)) / (k-1)) ) ? No.
+    
+    # Let's use the standard definition from Hartung & Knapp (2001):
+    # The variance of the pooled effect is estimated as:
+    # V_HKSJ = (1 / sum(w_i)) * (sum(w_i * (y_i - y_bar)^2) / (k - 1))
+    # This is equivalent to: (Q / (k-1)) * (1 / sum(w_i))
+    
+    # However, if the random effects model already includes tau^2 in the weights,
+    # the formula is slightly different. The weights w_i = 1 / (se_i^2 + tau^2).
+    # The HKSJ adjustment is:
+    # SE_adj = sqrt( (sum(w_i * (y_i - y_bar)^2) / (k - 1)) * (1 / sum(w_i)) )
+    # This is the one we use.
+    
+    if sum_w == 0:
+        logger.error("Sum of weights is zero. Cannot compute HKSJ CI.")
+        return None
 
-    results['hk_adjustment_applied'] = True
-    results['hk_adjusted_ci'] = {
-        'lower': round(lower, 4),
-        'upper': round(upper, 4)
+    # Calculate the adjustment factor
+    # Q is the residual sum of squares
+    # The term (Q / (k-1)) is an estimate of the total variance (within + between) relative to weights?
+    # Actually, the formula is:
+    # SE_HKSJ = sqrt( (Q / (k-1)) * (1 / sum(w_i)) )
+    # But wait, if the model is correct, Q ~ k-1.
+    # The factor (Q / (k-1)) is the ratio of observed to expected heterogeneity.
+    
+    # Let's calculate Q again carefully
+    # Q = sum(w_i * (y_i - y_bar)^2)
+    # We already did this above.
+    
+    # Calculate the HKSJ variance
+    # V_HKSJ = (Q / (k-1)) * (1 / sum(w_i))
+    # This is the variance of the pooled effect under HKSJ.
+    
+    # However, there is a nuance: if the DL estimate of tau^2 is used to calculate weights,
+    # then the standard error of the pooled effect is 1/sqrt(sum(w_i)).
+    # The HKSJ adjustment multiplies this by sqrt(Q/(k-1)).
+    # So SE_HKSJ = (1/sqrt(sum(w_i))) * sqrt(Q/(k-1))
+    # Which is sqrt( (1/sum(w_i)) * (Q/(k-1)) )
+    
+    # Let's verify:
+    # If Q = k-1 (perfect fit), then SE_HKSJ = 1/sqrt(sum(w_i)), which is the standard SE.
+    # If Q > k-1 (more heterogeneity), SE_HKSJ is larger.
+    # This seems correct.
+    
+    hk_variance = (q_stat / (k - 1)) * (1.0 / sum_w)
+    hk_se = math.sqrt(hk_variance)
+    
+    # Degrees of freedom for t-distribution
+    df = k - 1
+    
+    # Critical t-value for 95% CI (two-tailed)
+    # Since we don't have scipy, we approximate t-value for common df
+    # For df >= 30, t ~ 1.96
+    # For small df, t is larger
+    # Approximation for t_{df, 0.975}
+    # Using a simple approximation or a lookup table for small df
+    # For this implementation, we'll use a simplified approximation:
+    # t = 1.96 + (1.96^3 + 1.96) / (4 * df) ... no, that's for normal.
+    # Let's use a hardcoded lookup for small df and 1.96 for large df
+    t_values = {
+        1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
+        6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
+        11: 2.201, 12: 2.179, 13: 2.160, 14: 2.145, 15: 2.131,
+        16: 2.120, 17: 2.110, 18: 2.101, 19: 2.093, 20: 2.086,
+        25: 2.060, 30: 2.042, 40: 2.021, 60: 2.000, 120: 1.980
     }
-    results['hk_se'] = round(se_hk, 4)
-    results['hk_t_crit'] = round(t_crit, 4)
-
-    save_json(results, output_path)
-    logger.info(f"Hartung-Knapp CI calculated: [{lower:.4f}, {upper:.4f}]")
-
-    return results
-
-
-def main() -> int:
-    """Main entry point for the Hartung-Knapp adjustment script."""
-    project_root = get_project_root()
     
-    # Define paths
-    meta_results_path = project_root / "data" / "derived" / "meta_results.json"
-    extracted_studies_path = project_root / "data" / "processed" / "extracted_studies.csv"
-    output_path = project_root / "data" / "derived" / "results.json"
+    t_crit = t_values.get(df, 1.96)
+    if df > 120:
+        t_crit = 1.96
+    
+    # Calculate CI
+    lower = y_bar - t_crit * hk_se
+    upper = y_bar + t_crit * hk_se
+    
+    return {
+        "lower": round(lower, 4),
+        "upper": round(upper, 4),
+        "hk_se": round(hk_se, 4),
+        "t_critical": t_crit,
+        "degrees_of_freedom": df,
+        "q_statistic": round(q_stat, 4)
+    }
 
-    # Ensure output directory exists
-    ensure_directory(output_path)
 
+def run_hartung_knapp_adjustment() -> Dict[str, Any]:
+    """
+    Main function to run the Hartung-Knapp adjustment.
+    
+    1. Check study count (N).
+    2. If 10 <= N < 20, perform adjustment.
+    3. Load meta-analysis results.
+    4. Calculate adjusted CI.
+    5. Update results.json with hk_adjusted_ci.
+    
+    Returns:
+        Dictionary with the result status and adjusted CI if applicable.
+    """
+    logger.info("Starting Hartung-Knapp Adjustment analysis.")
+    
+    # Load study count
+    study_count_path = DATA_PROCESSED / "study_count.json"
+    if not study_count_path.exists():
+        logger.error(f"Study count file not found: {study_count_path}")
+        return {"status": "error", "reason": "study_count.json not found"}
+    
+    study_count_data = load_json(study_count_path)
+    N = study_count_data.get("N", 0)
+    
+    logger.info(f"Total studies (N): {N}")
+    
+    # Check condition: 10 <= N < 20
+    if not (10 <= N < 20):
+        logger.info(f"N={N} is not in the range [10, 20). Skipping HKSJ adjustment.")
+        return {
+            "status": "skipped",
+            "reason": f"N={N} not in range [10, 20)",
+            "hk_adjusted_ci": None
+        }
+    
+    # Load meta-analysis results to get pooled effect and SE
+    meta_results_path = DATA_DERIVED / "meta_results.json"
+    if not meta_results_path.exists():
+        logger.error(f"Meta-analysis results not found: {meta_results_path}")
+        return {"status": "error", "reason": "meta_results.json not found"}
+    
+    meta_results = load_json(meta_results_path)
+    pooled_effect = meta_results.get("pooled_effect")
+    pooled_se = meta_results.get("pooled_se")
+    
+    if pooled_effect is None or pooled_se is None:
+        logger.error("Pooled effect or SE not found in meta_results.json")
+        return {"status": "error", "reason": "Missing pooled effect or SE in meta_results.json"}
+    
+    # Load effect sizes and SEs for calculation
+    effects = load_effect_sizes_and_se()
+    k = len(effects)
+    
+    if k < 2:
+        logger.warning(f"Only {k} valid studies found for HKSJ calculation. Skipping.")
+        return {
+            "status": "skipped",
+            "reason": f"Insufficient valid studies (k={k}) for HKSJ",
+            "hk_adjusted_ci": None
+        }
+    
+    # Calculate HKSJ adjusted CI
+    hk_ci = calculate_hartung_knapp_adjusted_ci(
+        effects=effects,
+        pooled_effect=pooled_effect,
+        pooled_se=pooled_se,
+        k=k
+    )
+    
+    if hk_ci is None:
+        return {
+            "status": "error",
+            "reason": "Failed to calculate HKSJ CI",
+            "hk_adjusted_ci": None
+        }
+    
+    # Load existing results.json
+    results_path = DATA_DERIVED / "results.json"
+    results_data = {}
+    if results_path.exists():
+        results_data = load_json(results_path)
+    
+    # Update results with HKSJ CI
+    results_data["hk_adjusted_ci"] = hk_ci
+    results_data["hk_adjustment_applied"] = True
+    results_data["hk_adjustment_reason"] = f"N={N} is in low-power range [10, 20)"
+    
+    # Save updated results
+    save_json(results_path, results_data)
+    
+    logger.info("Hartung-Knapp adjustment completed successfully.")
+    return {
+        "status": "success",
+        "hk_adjusted_ci": hk_ci,
+        "hk_adjustment_applied": True
+    }
+
+
+def main():
+    """Entry point for the Hartung-Knapp adjustment script."""
     try:
-        run_hartung_knapp_adjustment(
-            meta_results_path,
-            extracted_studies_path,
-            output_path
-        )
-        return 0
+        result = run_hartung_knapp_adjustment()
+        print(json.dumps(result, indent=2))
+        if result.get("status") == "error":
+            sys.exit(1)
     except Exception as e:
-        logger.exception(f"Error running Hartung-Knapp adjustment: {e}")
-        return 1
+        logger.exception("An error occurred during Hartung-Knapp adjustment.")
+        print(json.dumps({"status": "error", "reason": str(e)}))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

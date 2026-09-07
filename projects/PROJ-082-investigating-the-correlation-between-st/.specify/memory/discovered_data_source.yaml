@@ -1,19 +1,15 @@
 status: none
-intent: Human Connectome Project diffusion MRI music preference Gold-MSI OpenNeuro
+intent: Human Connectome Project and UK Biobank diffusion MRI music preference dataset
   python package dataset
 required_fields:
-- study_id
-- author
-- year
+- subject_id
 - tract_name
-- diffusion_metric
-- correlation_coefficient_r
-- t_value
-- f_statistic
-- sample_size_n
+- fa_value
+- md_value
 - music_preference_score
-- preference_instrument
-- measurement_method
-cache_key: 89cc6f9a09bdf67c2e304105b7a5d87757baa721bbbc2c0935588b3c6b34a4d9
-searched_at: '2026-09-02T00:26:39.881876+00:00'
+- sample_size
+- age
+- sex
+cache_key: 7d0c0ff539081df632c11779e8d8877b31209d1538d4820ea9dd8ff82a6da150
+searched_at: '2026-09-07T03:21:58.537738+00:00'
 retry_count: 1

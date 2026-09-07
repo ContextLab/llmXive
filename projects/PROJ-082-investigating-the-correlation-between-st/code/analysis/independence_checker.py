@@ -1,11 +1,9 @@
 """
-Independence Checker Module for PROJ-082.
+Independence Checker Module
 
-This module scans the extracted studies CSV for multiple tracts reported
-from the same study (same author/year pair). It logs warnings for potential
-non-independence and writes a status report to data/derived/independence_status.json.
+Scans extracted_studies.csv for multiple tracts from the same study (same author/year).
+Logs warnings for potential non-independence and writes independence_status.json.
 """
-
 import csv
 import json
 import logging
@@ -13,224 +11,183 @@ import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
 
-# Import shared utilities from existing API surface
-from utils.config import get_project_root, ensure_directory
-
-# Configure logger
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/logs/independence_checker.log')
+    ]
+)
 logger = logging.getLogger(__name__)
 
-def get_input_path() -> Path:
+
+def get_input_path():
     """Return the path to the extracted studies CSV."""
-    root = get_project_root()
-    return root / "data" / "processed" / "extracted_studies.csv"
+    return Path('data/processed/extracted_studies.csv')
 
-def get_output_path() -> Path:
-    """Return the path to the independence status JSON output."""
-    root = get_project_root()
-    return root / "data" / "derived" / "independence_status.json"
 
-def ensure_directory(path: Path) -> None:
-    """Ensure the directory for the given path exists."""
-    path.parent.mkdir(parents=True, exist_ok=True)
+def get_output_path():
+    """Return the path to the independence status JSON."""
+    return Path('data/derived/independence_status.json')
 
-def load_extracted_studies(input_path: Path) -> List[Dict[str, Any]]:
+
+def ensure_directory(file_path):
+    """Ensure the directory for a file path exists."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def load_extracted_studies(input_path):
     """
     Load the extracted studies CSV file.
 
     Args:
-        input_path: Path to the CSV file.
+        input_path (Path): Path to the CSV file.
 
     Returns:
-        List of dictionaries representing each row.
+        List[Dict]: List of study records.
 
     Raises:
         FileNotFoundError: If the input file does not exist.
-        Exception: If the file is malformed.
+        ValueError: If the file is empty or has no data rows.
     """
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
     studies = []
-    try:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                studies.append(row)
-    except Exception as e:
-        logger.error(f"Error reading CSV file {input_path}: {e}")
-        raise
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            studies.append(row)
 
+    if not studies:
+        logger.warning("Input file is empty or contains no data rows.")
+        # Return empty list to allow downstream logic to handle N=0 gracefully
+        return []
+
+    logger.info(f"Loaded {len(studies)} studies from {input_path}")
     return studies
 
-def check_independence(studies: List[Dict[str, Any]]) -> Tuple[bool, List[Dict[str, Any]]]:
-    """
-    Check for potential non-independence in the study list.
 
-    Non-independence is flagged if multiple rows share the same (author, year)
-    but report different tracts. This implies the same study contributed multiple
-    effect sizes, violating the independence assumption of standard meta-analysis.
+def check_independence(studies):
+    """
+    Check for multiple tracts from the same study (author/year).
 
     Args:
-        studies: List of study dictionaries.
+        studies (List[Dict]): List of study records.
 
     Returns:
-        A tuple (assumed_independent, warnings).
-        - assumed_independent: True if no duplicates found, False otherwise.
-        - warnings: List of warning dictionaries with details.
+        Tuple[bool, List[Dict]]: (independence_assumed, warnings)
     """
-    # Group by (author, year)
+    # Group studies by (author, year)
     study_groups = defaultdict(list)
-    for idx, study in enumerate(studies):
-        # Handle potential missing keys gracefully
-        author = study.get('author', 'Unknown').strip()
-        year = study.get('year', 'Unknown').strip()
-        tract = study.get('tract', 'Unknown').strip()
-
-        # Normalize year to string for consistent grouping
-        key = (author, str(year))
-        study_groups[key].append({
-            'index': idx,
-            'tract': tract,
-            'author': author,
-            'year': year
-        })
+    for study in studies:
+        author = study.get('author', '').strip()
+        year = study.get('year', '').strip()
+        tract = study.get('tract', '').strip()
+        # Create a unique key for the study
+        study_key = (author, year)
+        study_groups[study_key].append(tract)
 
     warnings = []
-    has_duplicates = False
+    non_independent_groups = []
 
-    for key, rows in study_groups.items():
-        if len(rows) > 1:
-            has_duplicates = True
-            tracts = [r['tract'] for r in rows]
-            unique_tracts = set(tracts)
+    for (author, year), tracts in study_groups.items():
+        if len(tracts) > 1:
+            # Multiple tracts from the same study detected
+            non_independent_groups.append({
+                'author': author,
+                'year': year,
+                'tract_count': len(tracts),
+                'tracts': tracts
+            })
+            warning_msg = f"Non-independence detected: Study '{author} ({year})' has {len(tracts)} tracts: {tracts}"
+            warnings.append(warning_msg)
+            logger.warning(warning_msg)
 
-            if len(unique_tracts) > 1:
-                # Multiple distinct tracts from same study -> Non-independence
-                warnings.append({
-                    'author': key[0],
-                    'year': key[1],
-                    'count': len(rows),
-                    'tracts': unique_tracts,
-                    'message': f"Study {key[0]} ({key[1]}) reports {len(rows)} effect sizes for {len(unique_tracts)} distinct tracts: {', '.join(unique_tracts)}. This violates the independence assumption."
-                })
-            else:
-                # Same tract reported multiple times (e.g., different regions or just duplicates)
-                # Still a potential issue for weighting, but less severe than different tracts.
-                # We log it as a warning for review.
-                warnings.append({
-                    'author': key[0],
-                    'year': key[1],
-                    'count': len(rows),
-                    'tracts': unique_tracts,
-                    'message': f"Study {key[0]} ({key[1]}) reports {len(rows)} effect sizes for the same tract: {unique_tracts.pop()}. Check for data entry duplication."
-                })
+    if non_independent_groups:
+        logger.warning(f"Found {len(non_independent_groups)} study(ies) with multiple tracts. Independence assumption may be violated.")
+        independence_assumed = False
+    else:
+        logger.info("No non-independence detected. All studies have unique (author, year) pairs.")
+        independence_assumed = True
 
-    return not has_duplicates, warnings
+    return independence_assumed, warnings, non_independent_groups
 
-def save_independence_status(output_path: Path, assumed_independent: bool, warnings: List[Dict[str, Any]]) -> None:
+
+def save_independence_status(output_path, independence_assumed, warnings, non_independent_groups):
     """
-    Save the independence check results to a JSON file.
+    Save the independence status to a JSON file.
 
     Args:
-        output_path: Path to the output JSON file.
-        assumed_independent: Boolean flag indicating if independence is assumed.
-        warnings: List of warning details.
+        output_path (Path): Path to the output JSON file.
+        independence_assumed (bool): Whether independence is assumed.
+        warnings (List[str]): List of warning messages.
+        non_independent_groups (List[Dict]): Details of non-independent groups.
     """
     ensure_directory(output_path)
 
     result = {
-        'independence_assumed': assumed_independent,
-        'total_studies_checked': len(warnings) if warnings else 0, # This logic is slightly off, better to pass total count or count from input
-        'warnings_count': len(warnings),
-        'warnings': warnings,
-        'generated_at': datetime.utcnow().isoformat() + "Z"
-    }
-
-    # Correct the total_studies_checked logic if we want total rows checked,
-    # but the task asks for status based on warnings. Let's include a count of warnings.
-    # Actually, let's just report the warnings and the boolean flag.
-    # We can add 'total_studies' if we pass it, but for now we focus on the warnings.
-    
-    # Re-structure to be more useful:
-    final_result = {
-        'independence_assumed': assumed_independent,
+        'independence_assumed': independence_assumed,
+        'timestamp': datetime.now().isoformat(),
         'warning_count': len(warnings),
         'warnings': warnings,
-        'generated_at': datetime.utcnow().isoformat() + "Z"
+        'non_independent_studies': non_independent_groups
     }
 
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(final_result, f, indent=2)
+        json.dump(result, f, indent=2)
 
     logger.info(f"Independence status saved to {output_path}")
 
-def run_independence_checker() -> Dict[str, Any]:
+
+def run_independence_checker():
     """
-    Main entry point for the independence checking logic.
+    Main function to run the independence checker.
 
     Returns:
-        Dictionary with the status and results.
+        int: Exit code (0 for success, 1 for error).
     """
-    input_path = get_input_path()
-    output_path = get_output_path()
-
-    logger.info(f"Starting independence check on {input_path}")
-
     try:
+        input_path = get_input_path()
+        output_path = get_output_path()
+
+        logger.info("Starting independence check...")
+
+        # Load studies
         studies = load_extracted_studies(input_path)
-        logger.info(f"Loaded {len(studies)} studies from {input_path}")
 
         if not studies:
-            logger.warning("No studies found in input file. Assuming independence trivially.")
-            save_independence_status(output_path, True, [])
-            return {'independence_assumed': True, 'warnings': []}
+            # No studies to check - assume independence (trivially true)
+            logger.info("No studies found. Independence assumed (trivially true).")
+            save_independence_status(output_path, True, [], [])
+            return 0
 
-        assumed_independent, warnings = check_independence(studies)
+        # Check independence
+        independence_assumed, warnings, non_independent_groups = check_independence(studies)
 
-        save_independence_status(output_path, assumed_independent, warnings)
+        # Save results
+        save_independence_status(output_path, independence_assumed, warnings, non_independent_groups)
 
-        return {
-            'independence_assumed': assumed_independent,
-            'warnings_count': len(warnings),
-            'output_path': str(output_path)
-        }
+        logger.info("Independence check completed.")
+        return 0
 
     except FileNotFoundError as e:
-        logger.error(f"Failed to run independence check: {e}")
-        # If input is missing, we cannot assume independence.
-        # We write a status indicating failure or missing data.
-        ensure_directory(output_path)
-        error_result = {
-            'independence_assumed': False,
-            'error': str(e),
-            'warnings': [],
-            'generated_at': datetime.utcnow().isoformat() + "Z"
-        }
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(error_result, f, indent=2)
-        raise
-
-def main() -> int:
-    """Command-line entry point."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    try:
-        result = run_independence_checker()
-        if result['independence_assumed']:
-            logger.info("Independence assumption holds.")
-            return 0
-        else:
-            logger.warning(f"Independence assumption VIOLATED. {result['warnings_count']} warnings found.")
-            return 0  # Return 0 to allow pipeline to continue, but log the warning
+        logger.error(f"File not found: {e}")
+        return 1
     except Exception as e:
-        logger.critical(f"Independence checker failed: {e}")
+        logger.error(f"Unexpected error during independence check: {e}", exc_info=True)
         return 1
 
-if __name__ == "__main__":
-    sys.exit(main())
+
+def main():
+    """Entry point for the independence checker script."""
+    exit_code = run_independence_checker()
+    sys.exit(exit_code)
+
+
+if __name__ == '__main__':
+    main()

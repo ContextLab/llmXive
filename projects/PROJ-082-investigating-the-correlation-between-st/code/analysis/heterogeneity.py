@@ -1,236 +1,323 @@
 """
-Heterogeneity Analysis Module (Task T018)
-
-Calculates I² (I-squared) statistic from meta-analysis results.
-Reads meta_results.json and writes heterogeneity_results.json.
+Heterogeneity analysis module for meta-analysis.
+Calculates I-squared (I²) statistic to quantify heterogeneity across studies.
 """
+
 import json
 import math
 import sys
+import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-# --- Utility Functions (Shared with other analysis modules) ---
+from utils.config import get_project_root
 
-def get_project_root() -> Path:
-    """Returns the project root directory (parent of 'code')."""
-    return Path(__file__).resolve().parent.parent.parent
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 
 def load_json(file_path: Path) -> Dict[str, Any]:
-    """Loads a JSON file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Input file not found: {file_path}")
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    """Load JSON file."""
+    try:
+        with open(file_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decode error for {file_path}: {e}")
+        raise
 
-def save_json(file_path: Path, data: Dict[str, Any]) -> None:
-    """Saves data to a JSON file."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
 
-def load_effect_sizes_and_se(meta_results: Dict[str, Any]) -> Tuple[List[float], List[float]]:
+def save_json(data: Dict[str, Any], file_path: Path) -> None:
+    """Save data to JSON file."""
+    try:
+        with open(file_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        logger.info(f"Results saved to {file_path}")
+    except Exception as e:
+        logger.error(f"Failed to save results to {file_path}: {e}")
+        raise
+
+
+def load_effect_sizes_and_se(meta_results_path: Path) -> Tuple[List[float], List[float]]:
     """
-    Extracts effect sizes (r) and standard errors (se) from meta_results.json.
-    Handles both 'individual_studies' and 'studies' keys.
-    """
-    studies = meta_results.get('individual_studies') or meta_results.get('studies')
+    Load effect sizes (r) and standard errors from meta-analysis results.
     
-    if not studies:
-        # If no individual studies are listed, we cannot calculate I2 properly
-        # This might happen if the meta-analysis was skipped or failed early.
-        # Return empty lists to signal this condition.
-        return [], []
-    
-    r_values = []
-    se_values = []
-    
-    for study in studies:
-        r = study.get('r')
-        se = study.get('se')
+    Args:
+        meta_results_path: Path to meta_results.json
         
-        # Handle cases where se might be derived or missing
-        if r is not None and se is not None:
-            r_values.append(float(r))
-            se_values.append(float(se))
-        elif r is not None and 'variance' in study:
-            # Derive SE from variance if available
-            var = study['variance']
-            if var > 0:
-                r_values.append(float(r))
-                se_values.append(math.sqrt(float(var)))
-            else:
-                # Invalid variance, skip or handle as error
-                pass
+    Returns:
+        Tuple of (effect_sizes, standard_errors)
+    """
+    data = load_json(meta_results_path)
     
-    return r_values, se_values
+    # Extract effect sizes and SEs from the studies list
+    if 'studies' not in data:
+        logger.error("Meta results file does not contain 'studies' key")
+        raise ValueError("Meta results file missing 'studies' key")
+    
+    effect_sizes = []
+    standard_errors = []
+    
+    for study in data['studies']:
+        if 'r' in study and 'se' in study:
+            effect_sizes.append(float(study['r']))
+            standard_errors.append(float(study['se']))
+        else:
+            logger.warning(f"Skipping study without r or se: {study}")
+    
+    if len(effect_sizes) == 0:
+        logger.error("No valid effect sizes found in meta results")
+        raise ValueError("No valid effect sizes found")
+        
+    return effect_sizes, standard_errors
 
-def load_study_count_from_json(file_path: Path) -> int:
-    """Loads the study count N from study_count.json."""
-    data = load_json(file_path)
+
+def load_study_count_from_json(count_path: Path) -> int:
+    """Load study count from study_count.json."""
+    data = load_json(count_path)
     return int(data.get('N', 0))
 
-# --- Core Calculation Logic ---
 
-def calculate_i_squared(q_statistic: float, k: int) -> float:
+def calculate_i_squared(effect_sizes: List[float], standard_errors: List[float]) -> float:
     """
-    Calculates I² statistic given Q and k.
-    I² = max(0, (Q - df) / Q) * 100
-    where df = k - 1
+    Calculate I-squared (I²) heterogeneity statistic.
+    
+    I² = 100% * (Q - df) / Q
+    where Q is Cochran's Q statistic and df = k - 1
+    
+    Args:
+        effect_sizes: List of effect sizes (r values)
+        standard_errors: List of standard errors
+        
+    Returns:
+        I-squared value as a percentage (0-100)
     """
+    k = len(effect_sizes)
+    
     if k < 2:
+        logger.warning("Less than 2 studies. Cannot calculate I². Returning 0.")
         return 0.0
     
+    # Calculate weighted mean effect size
+    weights = [1.0 / (se ** 2) for se in standard_errors]
+    weighted_sum = sum(w * r for w, r in zip(weights, effect_sizes))
+    weight_sum = sum(weights)
+    
+    if weight_sum == 0:
+        logger.error("Sum of weights is zero. Cannot calculate I².")
+        raise ValueError("Sum of weights is zero")
+    
+    mean_effect = weighted_sum / weight_sum
+    
+    # Calculate Cochran's Q
+    q_statistic = sum(w * ((r - mean_effect) ** 2) for w, r in zip(weights, effect_sizes))
+    
+    # Degrees of freedom
     df = k - 1
-    if q_statistic <= df:
-        return 0.0
     
-    i_squared = ((q_statistic - df) / q_statistic) * 100.0
-    return max(0.0, i_squared)
+    # Calculate I²
+    if q_statistic <= df:
+        # No heterogeneity detected
+        i_squared = 0.0
+    else:
+        i_squared = 100.0 * (q_statistic - df) / q_statistic
+    
+    # Ensure I² is within [0, 100]
+    i_squared = max(0.0, min(100.0, i_squared))
+    
+    return i_squared
+
 
 def get_heterogeneity_interpretation(i_squared: float) -> str:
     """
-    Returns a qualitative interpretation of the I² value.
-    Based on standard Cochrane guidelines.
+    Interpret I-squared value according to standard guidelines.
+    
+    Guidelines (Higgins et al., 2003):
+    - 0-25%: Low heterogeneity
+    - 25-50%: Moderate heterogeneity
+    - 50-75%: Substantial heterogeneity
+    - 75-100%: Considerable heterogeneity
+    
+    Args:
+        i_squared: I-squared value (0-100)
+        
+    Returns:
+        Interpretation string
     """
-    if i_squared < 25:
+    if i_squared <= 25.0:
         return "Low heterogeneity"
-    elif i_squared < 50:
+    elif i_squared <= 50.0:
         return "Moderate heterogeneity"
-    elif i_squared < 75:
+    elif i_squared <= 75.0:
         return "Substantial heterogeneity"
     else:
         return "Considerable heterogeneity"
 
-def update_output_json(base_results: Dict[str, Any], i_squared: float, 
-                       q_statistic: float, df: int, p_value: Optional[float],
-                       interpretation: str) -> Dict[str, Any]:
-    """
-    Updates the base meta-analysis results with heterogeneity metrics.
-    Ensures I² is formatted to exactly two decimal places.
-    """
-    result = base_results.copy()
-    
-    # Format I² to exactly two decimal places as a float
-    # JSON serialization will handle the float, but we ensure precision here.
-    result['heterogeneity'] = {
-        'i_squared': round(i_squared, 2),
-        'q_statistic': round(q_statistic, 4),
-        'df': df,
-        'p_value': round(p_value, 4) if p_value is not None else None,
-        'interpretation': interpretation
-    }
-    
-    return result
 
-# --- Main Execution Logic ---
+def update_output_json(output_path: Path, data: Dict[str, Any]) -> None:
+    """Update output JSON file with new data."""
+    try:
+        if output_path.exists():
+          existing = load_json(output_path)
+          existing.update(data)
+          data = existing
+    except FileNotFoundError:
+        pass  # File doesn't exist yet, use new data
+        
+    save_json(data, output_path)
 
-def run_heterogeneity_analysis(meta_results_path: Path, study_count_path: Path, 
-                               output_path: Path) -> Dict[str, Any]:
+
+def run_heterogeneity_analysis(
+    gate_result_path: Path,
+    meta_results_path: Path,
+    output_path: Path,
+    study_count_path: Optional[Path] = None
+) -> Dict[str, Any]:
     """
-    Main function to run heterogeneity analysis.
-    1. Loads meta_results.json.
-    2. Extracts effect sizes and SEs.
-    3. Calculates Q statistic (Cochran's Q).
-    4. Calculates I².
-    5. Writes results to heterogeneity_results.json.
+    Run heterogeneity analysis.
+    
+    Args:
+        gate_result_path: Path to gate_result.json
+        meta_results_path: Path to meta_results.json
+        output_path: Path to write heterogeneity_results.json
+        study_count_path: Optional path to study_count.json for N value
+        
+    Returns:
+        Dictionary containing heterogeneity results
     """
-    # Load inputs
-    meta_results = load_json(meta_results_path)
-    study_count_data = load_json(study_count_path)
-    n_studies = study_count_data.get('N', 0)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Extract effect sizes and SEs
-    r_values, se_values = load_effect_sizes_and_se(meta_results)
-    k = len(r_values)
+    # Check gate result
+    try:
+        gate_result = load_json(gate_result_path)
+        status = gate_result.get('status', '')
+        
+        if status == 'narrative_required':
+            logger.info("Skipping heterogeneity analysis: Narrative mode active")
+            result = {
+                "skipped": True,
+                "reason": "Narrative mode active",
+                "status": "skipped"
+            }
+            save_json(result, output_path)
+            return result
+            
+    except FileNotFoundError:
+        logger.warning(f"Gate result file not found: {gate_result_path}. "
+                     "Proceeding with heterogeneity analysis.")
+    except Exception as e:
+        logger.warning(f"Error reading gate result: {e}. Proceeding with analysis.")
     
-    # Handle edge cases
-    if k < 2:
-        # Cannot calculate heterogeneity with < 2 studies
+    # Check meta results
+    if not meta_results_path.exists():
+        logger.error(f"Meta results file not found: {meta_results_path}")
         result = {
-            'status': 'skipped',
-            'reason': f'Insufficient studies for heterogeneity analysis (k={k}). Requires k >= 2.',
-            'i_squared': None,
-            'q_statistic': None,
-            'df': None,
-            'p_value': None,
-            'interpretation': None
+            "skipped": True,
+            "reason": "Meta results file not found",
+            "status": "skipped"
         }
-        save_json(output_path, result)
+        save_json(result, output_path)
         return result
     
-    # Calculate Q Statistic (Cochran's Q)
-    # Q = sum(w_i * (theta_i - theta_bar)^2)
-    # where w_i = 1 / se_i^2
-    # theta_bar = sum(w_i * theta_i) / sum(w_i)
-    
-    weights = [1.0 / (se * se) for se in se_values]
-    sum_w = sum(weights)
-    weighted_sum = sum(w * r for w, r in zip(weights, r_values))
-    theta_bar = weighted_sum / sum_w
-    
-    q_statistic = sum(w * ((r - theta_bar) ** 2) for w, r in zip(weights, r_values))
-    
-    # Calculate I²
-    df = k - 1
-    i_squared = calculate_i_squared(q_statistic, k)
-    interpretation = get_heterogeneity_interpretation(i_squared)
-    
-    # Calculate p-value for Q (Chi-squared distribution)
     try:
-        from scipy.stats import chi2
-        p_value = 1.0 - chi2.cdf(q_statistic, df)
-    except ImportError:
-        # Fallback if scipy is not available (though it should be per requirements)
-        p_value = None
-    
-    # Prepare output
-    # We update the base meta_results to include heterogeneity info, 
-    # or create a standalone heterogeneity result.
-    # The task asks to write to heterogeneity_results.json.
-    # We will include the core metrics and the interpretation.
-    
-    output_data = {
-        'status': 'completed',
-        'k': k,
-        'i_squared': round(i_squared, 2),
-        'q_statistic': round(q_statistic, 4),
-        'df': df,
-        'p_value': round(p_value, 4) if p_value is not None else None,
-        'interpretation': interpretation,
-        'source': 'meta_results.json'
-    }
-    
-    save_json(output_path, output_data)
-    return output_data
+        # Load effect sizes and standard errors
+        effect_sizes, standard_errors = load_effect_sizes_and_se(meta_results_path)
+        
+        # Get study count if available
+        n_studies = len(effect_sizes)
+        if study_count_path and study_count_path.exists():
+            try:
+                n_studies = load_study_count_from_json(study_count_path)
+            except Exception as e:
+                logger.warning(f"Could not load study count: {e}")
+        
+        # Calculate I²
+        i_squared = calculate_i_squared(effect_sizes, standard_errors)
+        interpretation = get_heterogeneity_interpretation(i_squared)
+        
+        # Calculate Q statistic and p-value (approximate)
+        weights = [1.0 / (se ** 2) for se in standard_errors]
+        weighted_sum = sum(w * r for w, r in zip(weights, effect_sizes))
+        weight_sum = sum(weights)
+        mean_effect = weighted_sum / weight_sum
+        q_statistic = sum(w * ((r - mean_effect) ** 2) for w, r in zip(weights, effect_sizes))
+        df = len(effect_sizes) - 1
+        
+        # Approximate p-value for Q statistic using chi-square distribution
+        # Using scipy if available, otherwise just report Q
+        try:
+            from scipy.stats import chi2
+            p_value = 1 - chi2.cdf(q_statistic, df)
+        except ImportError:
+            logger.warning("scipy not available. Skipping p-value calculation.")
+            p_value = None
+        
+        result = {
+            "skipped": False,
+            "status": "completed",
+            "n_studies": n_studies,
+            "i_squared": round(i_squared, 2),
+            "i_squared_interpretation": interpretation,
+            "q_statistic": round(q_statistic, 4) if q_statistic else None,
+            "degrees_of_freedom": df,
+            "p_value": round(p_value, 4) if p_value is not None else None,
+            "heterogeneity_level": "low" if i_squared <= 25 else 
+                                  "moderate" if i_squared <= 50 else 
+                                  "substantial" if i_squared <= 75 else "considerable"
+        }
+        
+        logger.info(f"I² = {i_squared:.2f}% ({interpretation})")
+        logger.info(f"Q = {q_statistic:.4f}, df = {df}")
+        if p_value:
+            logger.info(f"p-value = {p_value:.4f}")
+            
+        save_json(result, output_path)
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error during heterogeneity analysis: {e}")
+        result = {
+            "skipped": True,
+            "reason": f"Analysis error: {str(e)}",
+            "status": "error"
+        }
+        save_json(result, output_path)
+        return result
+
 
 def main():
-    """Entry point for the heterogeneity analysis script."""
+    """Main entry point for heterogeneity analysis."""
     project_root = get_project_root()
     
-    # Define paths relative to project root
-    meta_results_path = project_root / 'data' / 'derived' / 'meta_results.json'
-    study_count_path = project_root / 'data' / 'processed' / 'study_count.json'
-    output_path = project_root / 'data' / 'derived' / 'heterogeneity_results.json'
+    gate_result_path = project_root / "data" / "derived" / "gate_result.json"
+    meta_results_path = project_root / "data" / "derived" / "meta_results.json"
+    study_count_path = project_root / "data" / "processed" / "study_count.json"
+    output_path = project_root / "data" / "derived" / "heterogeneity_results.json"
     
-    # Check if inputs exist
-    if not meta_results_path.exists():
-        print(f"Error: {meta_results_path} not found. Run meta_analysis.py first.")
-        sys.exit(1)
+    logger.info("Starting heterogeneity analysis...")
+    logger.info(f"Gate result: {gate_result_path}")
+    logger.info(f"Meta results: {meta_results_path}")
+    logger.info(f"Output: {output_path}")
     
-    if not study_count_path.exists():
-        print(f"Error: {study_count_path} not found. Run study_counter.py first.")
-        sys.exit(1)
+    result = run_heterogeneity_analysis(
+        gate_result_path=gate_result_path,
+        meta_results_path=meta_results_path,
+        output_path=output_path,
+        study_count_path=study_count_path
+    )
     
-    try:
-        result = run_heterogeneity_analysis(meta_results_path, study_count_path, output_path)
-        print(f"Heterogeneity analysis complete. Results saved to {output_path}")
-        print(f"I² = {result.get('i_squared')}, Q = {result.get('q_statistic')}")
-    except Exception as e:
-        print(f"Error during heterogeneity analysis: {e}")
-        sys.exit(1)
+    logger.info("Heterogeneity analysis completed.")
+    return result
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
