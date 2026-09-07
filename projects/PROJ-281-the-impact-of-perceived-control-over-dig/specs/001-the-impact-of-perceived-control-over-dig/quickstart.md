@@ -1,155 +1,153 @@
 # Quickstart Guide: The Impact of Perceived Control Over Digital Environments on Anxiety
 
-## Overview
-This project analyzes the correlation between perceived control over digital environments and anxiety levels, using social media data.
+## Project Overview
+
+This research project investigates the correlation between perceived control over digital environments and anxiety levels, using social media data as a proxy for both variables.
 
 ## Prerequisites
+
 - Python 3.10+
-- pip
-- ~7GB RAM available
-- ~6 hours maximum runtime
-- Network access to HuggingFace Hub (for dataset/model download)
+- pip (Python package manager)
+- At least 7GB available RAM
+- 6 hours of continuous runtime capacity (for full dataset processing)
 
 ## Installation
 
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd llmXive-the-impact-of-perceived-control-over-dig
+cd llmXive-proj-281
 ```
 
-2. Create a virtual environment and activate it:
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Running the Pipeline
+3. Verify installation:
+```bash
+python -c "import code; print('Installation successful')"
+```
 
-### Full Pipeline with Performance Profiling
-To run the entire analysis pipeline with performance monitoring (runtime and memory):
+## Quick Start
+
+### Run the Full Pipeline
+
+Execute the entire research pipeline from data ingestion to final visualization:
 
 ```bash
-python code/profiling.py
+python code/main.py
 ```
 
 This will:
-1. Download and preprocess the dataset (T013, T014b, T014c)
-2. Score anxiety levels (T015, T016)
-3. Extract control proxies (T021-T025)
-4. Merge and validate data (T031, T032)
-5. Perform statistical analysis (T033a-T034)
-6. Generate visualizations (T035, T036)
-7. Validate runtime < 6h and RAM < 7GB (T004b, T041)
+1. Download the social media dataset (CardiffNLP tweet sentiment extraction)
+2. Preprocess and filter text data
+3. Calculate anxiety scores using NLP models
+4. Extract control proxies from metadata
+5. Perform statistical correlation analysis
+6. Generate visualization
 
-Output will be saved to `data/processed/`.
+**Expected Runtime**: ~4-6 hours on standard hardware
+**Memory Usage**: ~3-5 GB peak
 
-**Note**: Ensure `data/raw/` and `data/processed/` directories exist (created by T008).
+### Run Individual Stages
 
-### Individual Stages
-You can also run individual stages by importing and calling the specific functions in `code/main.py`:
+For debugging or incremental processing:
 
-```python
-from code.main import run_pipeline
-run_pipeline()
+```bash
+# Stage 1: Data Ingestion
+python code/services/data_ingestion.py
+
+# Stage 2: Preprocessing & Scoring
+python code/services/anxiety_scoring.py
+
+# Stage 3: Proxy Extraction
+python code/services/proxy_extractor.py
+
+# Stage 4: Statistical Analysis
+python code/analysis/statistical_test.py
+
+# Stage 5: Visualization
+python code/viz/plot_results.py
 ```
 
-Or run specific stage functions:
-```python
-from code.main import stage_01_data_ingestion, stage_02_preprocessing, stage_03_anxiety_scoring
-stage_01_data_ingestion()
-stage_02_preprocessing()
-stage_03_anxiety_scoring()
+### Performance Profiling
+
+To verify runtime and memory constraints:
+
+```bash
+# Full profiling run
+python code/profiling.py
+
+# Check only Plan/Spec discrepancy
+python code/profiling.py --check-only
+
+# Custom output path
+python code/profiling.py --output data/processed/custom_report.json
 ```
+
+The profiling script will:
+- Measure actual runtime and memory usage
+- Validate against SC-004 limits (6h runtime, 7GB RAM)
+- Check for discrepancies between Plan.md and Spec SC-004
+- Generate a detailed JSON report at `data/processed/profiling_report.json`
 
 ## Output Files
-The pipeline generates the following artifacts in `data/processed/`:
-- `preprocessed_text.csv`: Filtered text data (T014b, T014c)
-- `scoring_results.csv`: Anxiety scores with confidence filtering (T017)
-- `proxy_results.csv`: Control proxy metrics (T026)
-- `final_analysis.csv`: Merged dataset for analysis (T032)
-- `normality_check.json`: Shapiro-Wilk test results on residuals (T033b)
-- `analysis_results.json`: Correlation results with significance flag (T034)
-- `coverage_report.json`: Validation of scoring coverage ≥95% (T018a)
-- `correlation_plot.png`: Scatter plot with regression line (T036)
-- `performance_report.json`: Runtime and memory metrics (T041)
 
-## Performance Constraints
-- **Runtime**: Must complete within 6 hours (SC-004, enforced by T004b)
-- **Memory**: Must not exceed 7GB RAM (enforced by T041)
-- **Coverage**: Anxiety scoring coverage ≥95% (validated by T018a)
-- **Confidence**: Minimum confidence score ≥0.6 (T016)
+After successful execution, you'll find:
 
-## Testing
+- `data/raw/social_media.csv` - Raw dataset download
+- `data/processed/preprocessed_text.csv` - Filtered text data
+- `data/processed/scoring_results.csv` - Anxiety scores
+- `data/processed/proxy_results.csv` - Control proxies
+- `data/processed/final_analysis.csv` - Merged analysis dataset
+- `data/processed/analysis_results.json` - Statistical test results
+- `data/processed/correlation_plot.png` - Visualization
+- `data/processed/profiling_report.json` - Performance metrics
+
+## Validation & Testing
+
 Run the test suite:
+
 ```bash
 pytest tests/ -v --cov=code
 ```
 
-Run specific test categories:
-```bash
-# Unit tests
-pytest tests/unit/ -v
-
-# Integration tests
-pytest tests/integration/ -v
-
-# Coverage validation tests
-pytest tests/integration/test_ingestion_validation.py -v
-pytest tests/integration/test_proxy_validation.py -v
-pytest tests/integration/test_synthetic_correlation.py -v
-```
+Key integration tests:
+- `tests/integration/test_profiling.py` - Performance validation
+- `tests/integration/test_synthetic_correlation.py` - Statistical analysis
+- `tests/integration/test_reproducibility.py` - Result reproducibility
 
 ## Troubleshooting
-- **Memory Error**: Ensure no other heavy applications are running. The pipeline is designed for ≤7GB RAM.
-- **Dataset Download Failed**: Check internet connection and HuggingFace access. The dataset `cardiffnlp/tweet_sentiment_extraction` is required.
-- **Model Loading Error**: Verify `transformers` and `torch` are installed correctly. The model `cardiffnlp/twitter-roberta-base-emotion` is loaded in float32 precision.
-- **Missing Input Files**: Ensure `data/raw/social_media.csv` exists before running downstream stages. Run T013 first.
-- **Language Detection Errors**: `langdetect` library must be installed (included in `requirements.txt`).
-- **Configuration Errors**: Verify `contracts/analysis.schema.yaml` contains required parameters for entropy thresholds and weighting formulas.
 
-## Directory Structure
-```
-.
-├── code/
-│ ├── analysis/
-│ ├── services/
-│ ├── viz/
-│ ├── config.py
-│ ├── main.py
-│ └── profiling.py
-├── data/
-│ ├── raw/
-│ │ └── social_media.csv (generated by T013)
-│ └── processed/
-│ ├── preprocessed_text.csv
-│ ├── scoring_results.csv
-│ ├── proxy_results.csv
-│ ├── final_analysis.csv
-│ ├── normality_check.json
-│ ├── analysis_results.json
-│ ├── coverage_report.json
-│ ├── correlation_plot.png
-│ └── performance_report.json
-├── specs/
-│ └── 001-the-impact-of-perceived-control-over-dig/
-│ └── quickstart.md
-├── tests/
-│ ├── unit/
-│ └── integration/
-└── requirements.txt
-```
+### Runtime Limit Exceeded
+If the pipeline exceeds 6 hours:
+- Check system resources
+- Consider processing in smaller chunks
+- Review `config.RUNTIME_LIMIT_HOURS` if you need to adjust (not recommended)
 
-## Validation Checklist
-Before considering the pipeline complete, verify:
-- [ ] `data/processed/coverage_report.json` exists and shows ≥95% coverage
-- [ ] `data/processed/analysis_results.json` contains `is_significant` flag
-- [ ] `data/processed/correlation_plot.png` is generated (6x6 inches, 300 DPI)
-- [ ] `data/processed/performance_report.json` confirms runtime < 6h and RAM < 7GB
-- [ ] All unit and integration tests pass
-- [ ] No text content leaked into `proxy_results.csv` (Constitution Principle VI)
+### Memory Issues
+If you encounter memory errors:
+- Ensure you have at least 7GB available RAM
+- The pipeline uses streaming for large datasets (T042)
+- Close other applications to free memory
+
+### Data Fetch Failures
+The pipeline will fail loudly if the real dataset cannot be fetched (T043):
+- Check internet connection
+- Verify HuggingFace access
+- No synthetic fallback is provided to prevent data fabrication
+
+## Next Steps
+
+1. Review the research findings in `data/processed/analysis_results.json`
+2. Examine the correlation plot in `data/processed/correlation_plot.png`
+3. Read the full methodology in `specs/001-the-impact-of-perceived-control-over-dig/spec.md`
+4. Contribute to ongoing research by forking and extending the pipeline
+
+## Support
+
+For issues or questions:
+- Check the `specs/` directory for detailed documentation
+- Review the `contracts/` directory for data schemas
+- Examine the `tests/` directory for usage examples

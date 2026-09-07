@@ -16,6 +16,10 @@ DATASET_NAME = "cardiffnlp/tweet_sentiment_extraction"
 EXPECTED_COLUMNS = ["text", "id", "label"]
 CHECKSUM_FILE = DATA_RAW_DIR / "social_media.csv.checksum"
 
+class DataFetchError(Exception):
+    """Raised when a real data fetch fails, preventing fallback to synthetic data."""
+    pass
+
 def _calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
@@ -28,7 +32,7 @@ def download_and_validate_dataset() -> Optional[Path]:
     """
     Downloads the dataset from HuggingFace to data/raw/social_media.csv.
     Validates the download and returns the path if successful.
-    Returns None if the download fails or the dataset is empty.
+    Raises DataFetchError if the download fails or the dataset is empty.
     """
     output_path = DATA_RAW_DIR / "social_media.csv"
     
@@ -43,7 +47,7 @@ def download_and_validate_dataset() -> Optional[Path]:
         
         if dataset is None or len(dataset) == 0:
             logger.error("Downloaded dataset is empty.")
-            return None
+            raise DataFetchError("Downloaded dataset is empty.")
 
         # Convert to DataFrame
         df = dataset.to_pandas()
@@ -52,17 +56,17 @@ def download_and_validate_dataset() -> Optional[Path]:
         missing_cols = set(EXPECTED_COLUMNS) - set(df.columns)
         if missing_cols:
             logger.error(f"Missing expected columns in dataset: {missing_cols}")
-            return None
+            raise DataFetchError(f"Missing expected columns: {missing_cols}")
 
         # Ensure 'text' column exists and is not empty
         if 'text' not in df.columns:
             logger.error("Dataset does not contain 'text' column.")
-            return None
+            raise DataFetchError("Dataset does not contain 'text' column.")
         
         # Check for empty dataframe after loading
         if df.empty:
             logger.error("Dataset is empty after conversion to DataFrame.")
-            return None
+            raise DataFetchError("Dataset is empty after conversion to DataFrame.")
 
         # Save to CSV
         df.to_csv(output_path, index=False)
@@ -76,9 +80,12 @@ def download_and_validate_dataset() -> Optional[Path]:
         logger.info(f"Checksum calculated and saved: {checksum}")
         return output_path
 
+    except DataFetchError:
+        # Re-raise our specific error immediately
+        raise
     except Exception as e:
         logger.error(f"Failed to download or process dataset: {e}", exc_info=True)
-        return None
+        raise DataFetchError(f"Real data fetch failed: {e}")
 
 def validate_existing_dataset() -> Optional[Path]:
     """

@@ -141,12 +141,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T038 [P] Documentation updates in `specs/001-the-impact-of-perceived-control-over-dig/quickstart.md`
-- [~] T039 Code cleanup and refactoring (ensure no text data leaks into `proxy_extractor.py`)
-- [~] T040a [P] Remediate quickstart validation: Update `specs/001-the-impact-of-perceived-control-over-dig/quickstart.md` to fix validation errors and ensure all scenarios pass.
-- [~] T041 [P] Add performance profiling to verify runtime < 6h and RAM < 7GB on free-tier runner. **Note**: If Plan.md's 'Compute Feasibility Note' contradicts Spec SC-004 (hard 6h limit), flag this discrepancy for human review.
-- [ ] T043 [P] [US1] Add a "loud fail" mechanism in `code/services/data_ingestion.py` that raises a `DataFetchError` if the real dataset fetch fails, preventing any fallback to synthetic or mock data generation. **EXCLUSION**: This rule applies ONLY to production data fetches; test data generation (mocks in `tests/`) is exempt.
-- [ ] T044 [P] [US3] Implement a reproducibility audit script in `tests/integration/test_reproducibility.py` that re-runs the pipeline with fixed seeds and verifies that `data/processed/analysis_results.json` produces identical results.
+- [ ] T038 [P] Documentation updates in `specs/001-the-impact-of-perceived-control-over-dig/quickstart.md`
+- [ ] T039 Code cleanup and refactoring (ensure no text data leaks into `proxy_extractor.py`)
+- [ ] T040a [P] Remediate quickstart validation: Update `specs/001-the-impact-of-perceived-control-over-dig/quickstart.md` to fix validation errors and ensure all scenarios pass.
+- [ ] T041 [P] Add performance profiling to verify runtime < 6h and RAM < 7GB on free-tier runner. **Note**: If Plan.md's 'Compute Feasibility Note' contradicts Spec SC-004 (hard 6h limit), flag this discrepancy for human review.
+- [X] T043 [P] [US1] Add a "loud fail" mechanism in `code/services/data_ingestion.py` that raises a `DataFetchError` if the real dataset fetch fails, preventing any fallback to synthetic or mock data generation. **EXCLUSION**: This rule applies ONLY to production data fetches; test data generation (mocks in `tests/`) is exempt.
+- [X] T044 [P] [US3] Implement a reproducibility audit script in `tests/integration/test_reproducibility.py` that re-runs the pipeline with fixed seeds and verifies that `data/processed/analysis_results.json` produces identical results.
+- [ ] T045 [P] [US3] **FIX PLAN DISCREPANCY**: Update `plan.md` Phase 2 Step 5 to explicitly state that normality checks are performed on **residuals** (per Spec US3-AC-008), not marginal distributions, to align the plan with the implemented code in T033a/T033b.
+- [ ] T046 [P] [US1] **ADD DATASET SOURCE DOCUMENTATION**: Create `specs/001-the-impact-of-perceived-control-over-dig/data-sources.md` documenting the exact HuggingFace dataset ID, split, revision, and field definitions used, including a direct link to the dataset card and a citation for the `cardiffnlp` collection.
+- [ ] T047 [P] [US2] **ENFORCE TEXT-INDEPENDENCE IN TESTS**: Add a negative test case in `tests/unit/test_proxy_extractor.py` that attempts to pass a text column to the proxy extractor and asserts that a `DataIndependenceError` is raised, ensuring the "no text access" rule is actively tested.
 
 ---
 
@@ -228,7 +231,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All model inference MUST run on CPU (no CUDA/8-bit quantization) to ensure feasibility on free-tier runners.
 - **Critical Constraint**: `control_proxy` extraction MUST NOT access text content (Constitution Principle VI).
-- **Note**: Plan.md Phase 2 Step 5 currently states "marginal distributions" which contradicts Spec US3-AC-008 "residuals". Tasks T033a/T033b follow Spec; Plan flagged for correction in next revision cycle. T033b explicitly notes the deviation from Plan.
+- **Note**: Plan.md Phase 2 Step 5 currently states "marginal distributions" which contradicts Spec US3-AC-008 "residuals". Tasks T033a/T033b follow Spec; Plan flagged for correction in next revision cycle (T045).
 - **Note**: Confidence filtering (FR-006) is performed in T016 (`anxiety_scoring.py`) BEFORE data is saved in T017. T032 merges this pre-filtered data.
 - **Note**: T021 explicitly restricts access to the `text` column to enforce data independence.
 - **Note**: T014b implements `langdetect` for Non-English filtering; T014c implements gibberish filtering. **Sequential**: T014b must run before T014c.
@@ -236,3 +239,6 @@ With multiple developers:
 - **Note**: T043 enforces the "Loud Fail" principle: if the real data fetch fails, the pipeline crashes immediately rather than falling back to synthetic data, preventing fabrication. (Excludes test mocks).
 - **New**: T042 ensures the pipeline can handle datasets larger than RAM by using streaming, preventing out-of-memory errors on free-tier runners.
 - **New**: T044 adds a reproducibility check to ensure that fixed seeds produce identical results across runs, satisfying SC-005.
+- **New**: T045 addresses the discrepancy between the Plan's description of normality checks and the Spec's requirement for residual-based checks.
+- **New**: T046 ensures the dataset source is explicitly documented with citations as required by Principle II.
+- **New**: T047 adds a specific negative test to enforce the "no text access" constraint in the proxy extractor.
