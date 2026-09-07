@@ -41,3 +41,42 @@ T025:
     \ (e.g., a function/class, saved model file, or pipeline step) the requirement\
     \ of providing a working mean\u2011predictor baseline is not satisfied. The next\
     \ implementer must add the actual implementation and ensure it is accessible."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, model files, training logs, or analysis results were provided; the implementer
+    did not supply the secondary Random Forest/Gradient Boosting models trained without
+    Volume and Surface Area descriptors, nor any evidence (e.g., performance metrics,
+    feature importance plots) demonstrating the control analysis. These artifacts
+    are required to satisfy the task.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the task description and specifications; there are no\
+    \ actual evaluation results, scripts, or output files showing R\xB2, MAE, or RMSE\
+    \ for the models on the test set. Consequently, the required artifacts are missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No paired\u2011t\u2011test results, tables, or figures are present showing the\
+    \ statistical comparison of the Random Forest and Gradient Boosting models against\
+    \ the baseline. The required artifact (evidence of the t\u2011tests with p\u2011\
+    values, test statistics, and interpretation) is missing."
+T036:
+  c: false
+  h: ef61876e269d9d02f56755cb9be5150c5ff6dfbd916f169c98be59efb758130b
+  r: "The required `results/interaction_benchmark.log` file is absent, so no evidence\
+    \ of the benchmark evaluation or logging is present. The task\u2019s core deliverable\
+    \ is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `state/projects/PROJ-238.../artifact_hashes` file (or any file containing
+    final result checksums) was provided; the implementer supplied no evidence that
+    the checksum list was created or updated. The required artifact is missing.
+T038:
+  c: false
+  h: 1e5913fa4a49c57f9625664dc530c0a33ec6466de912adc734dbb6045a40af9c
+  r: The required artifact `results/metrics.json` does not exist, so there is no file
+    to check for required fields or the Bonferroni flag. The task cannot be considered
+    satisfied until the JSON file is present and contains the specified content.

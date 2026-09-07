@@ -2357,26 +2357,6 @@
   status: not_enough_info
   updated_at: '2026-07-26T01:59:57Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
-  attempts: 2
-  canonical: method involves fMRI with Cyberball paradigm
-  claim_id: c_a1ceba87
-  context: The research question concerns social exclusion effects in virtual environments.
-    The method involves functional magnetic resonance imaging (fMRI) with a Cyberball
-    paradigm.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Method_involves_fMRI_with_Cyberball_paradigm
-  kind: entity_fact
-  raw_text: The method involves functional magnetic resonance imaging (fMRI) with
-    a Cyberball paradigm.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T01:59:59Z'
-- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
   canonical: pipeline supports Within-Subjects and Between-Subjects designs using
     ds000208
@@ -2434,22 +2414,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T02:04:03Z'
-- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
-  attempts: 2
-  canonical: sensitivity sweep alpha values 0.01 0.05 0.1
-  claim_id: c_23800bbf
-  context: "Implement sensitivity_sweep(df, alpha_set={0.01, 0.05, 0.1}) in code/analysis.py\
-    \ (FR-006) to sweep \u03B1 and report result consistency."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The sensitivity sweep iterates over alpha values of 0.01, 0.05, and 0.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T02:04:04Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
   canonical: effect size confidence intervals output when N < 30 and convergence error
@@ -2598,27 +2562,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T02:07:41Z'
-- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
-  attempts: 1
-  canonical: mutually exclusive conditions trigger Between-Subjects design
-  claim_id: c_caac6f2f
-  context: If the conditions are mutually exclusive (no shared Participant IDs across
-    conditions) within the single file, the system MUST switch to a Between-Subjects
-    design (One-Way ANOVA) rather than halting, as per FR-007.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Mutually_exclusive_conditions_trigger_Between-Subjects_desig
-  kind: entity_fact
-  raw_text: If the conditions are mutually exclusive (no shared Participant IDs across
-    conditions) within the single file, the system MUST switch to a Between-Subjects
-    design (One-Way ANOVA).
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-26T02:12:24Z'
 - artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
   attempts: 1
   canonical: Composite Dataset and Separate-Streams strategies involving ds003392
@@ -3313,3 +3256,169 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T18:59:36Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 2
+  canonical: mutually exclusive conditions trigger Between-Subjects design
+  claim_id: c_caac6f2f
+  context: If the conditions are mutually exclusive (no shared Participant IDs across
+    conditions) within the single file, the system MUST switch to a Between-Subjects
+    design (One-Way ANOVA) rather than halting, as per FR-007.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mutually_exclusive_conditions_trigger_Between-Subjects_desig
+  kind: entity_fact
+  raw_text: If the conditions are mutually exclusive (no shared Participant IDs across
+    conditions) within the single file, the system MUST switch to a Between-Subjects
+    design (One-Way ANOVA).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:00:31Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 3
+  canonical: method involves fMRI with Cyberball paradigm
+  claim_id: c_a1ceba87
+  context: The research question concerns social exclusion effects in virtual environments.
+    The method involves functional magnetic resonance imaging (fMRI) with a Cyberball
+    paradigm.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_involves_fMRI_with_Cyberball_paradigm
+  kind: entity_fact
+  raw_text: The method involves functional magnetic resonance imaging (fMRI) with
+    a Cyberball paradigm.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:01:44Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: pipeline supports Within-Subjects and Between-Subjects using ds000208
+  claim_id: c_f1338b5e
+  context: At this point, User Story 1 should be fully functional and testable independently.
+    The pipeline must support both Within-Subjects and Between-Subjects designs using
+    ds000208.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_supports_Within-Subjects_and_Between-Subjects_using
+  kind: entity_fact
+  raw_text: The pipeline must support both Within-Subjects and Between-Subjects designs
+    using ds000208.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:02:32Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: system halts if estimated size exceeds 7 GB
+  claim_id: c_ad557c59
+  context: Halt execution with exit code 1 only if the estimated size > 7 GB (referencing
+    config.MAX_RAM_GB=7 and config module).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system halts with exit code 1 if the estimated dataset size exceeds
+    7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:03:11Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: memory usage stays less than or equal to 7 GB
+  claim_id: c_d920c470
+  context: "Independent Test: Run preprocessing on sample subset; verify output CSV\
+    \ structure, memory logs \u2264 7 GB, and correct IQR outlier flagging."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_stays_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: Memory usage must stay less than or equal to 7 GB during preprocessing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:04:02Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 3
+  canonical: sensitivity sweep alpha values 0.01 0.05 0.1
+  claim_id: c_23800bbf
+  context: "Implement sensitivity_sweep(df, alpha_set={0.01, 0.05, 0.1}) in code/analysis.py\
+    \ (FR-006) to sweep \u03B1 and report result consistency."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep iterates over alpha values of 0.01, 0.05, and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:04:41Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: catch convergence errors when N less than 30
+  claim_id: c_413a63a5
+  context: Add try/except block to catch convergence errors when N < 30 and output
+    effect size confidence intervals.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Catch_convergence_errors_when_N_less_than_30
+  kind: magnitude
+  raw_text: The system adds a try/except block to catch convergence errors when N
+    < 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:06:17Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: CI runtime verification asserts execution time less than 6 hours
+  claim_id: c_474415bd
+  context: Runs the full pipeline on the target GitHub Actions runner (simulated via
+    a dedicated CI job) and asserts that total execution time is < 6 hours.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_runtime_verification_asserts_execution_time_less_than_6_h
+  kind: magnitude
+  raw_text: The CI runtime verification asserts that total execution time is less
+    than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:06:54Z'
+- artifact_path: projects/PROJ-258-the-effect-of-simulated-social-rejection/specs/001-the-effect-of-simulated-social-rejection/tasks.md
+  attempts: 1
+  canonical: benchmark generates metrics for N=500
+  claim_id: c_51e3a377
+  context: Implement code/benchmark.py to generate data/processed/performance_log.json
+    with runtime metrics for N=500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark generates performance metrics for N=500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T04:07:31Z'

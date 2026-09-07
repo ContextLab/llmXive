@@ -97,7 +97,7 @@
 
 **Goal**: Convert reactants to features (RDKit), apply dimensionality reduction, and train XGBoost on CPU within 30 mins.
 
-**Independent Test**: Can be fully tested by running the training script ona sample of reaction records and verifying that the model outputs a prediction file with a Spearman correlation coefficient > 0.5 and that the (2408.08592 [UNRESOLVED-CLAIM: c_180c3af6 — status=not_enough_info], https://arxiv.org/abs/2408.08592 [UNRESOLVED-CLAIM: c_180c3af6 — status=not_enough_info]).
+**Independent Test**: Can be fully tested by running the training script ona sample of reaction records and verifying that the model outputs a prediction file with a Spearman correlation coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 

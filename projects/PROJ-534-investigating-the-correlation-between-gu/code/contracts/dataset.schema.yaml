@@ -1,83 +1,156 @@
-# Dataset Schema for Gut Microbiome & Cognitive Flexibility Study
-# Defines the structure of participant and microbiome profile data
-
 $schema: http://json-schema.org/draft-07/schema#
-title: GutMicrobiomeCognitiveFlexibilityDataset
-description: Schema for the gut microbiome and cognitive flexibility study dataset
+title: Gut Microbiome and Cognitive Flexibility Dataset Schema
+description: |
+  Schema defining the structure of the merged cohort dataset containing
+  Participant demographics, lifestyle factors, and MicrobiomeProfile metrics.
+  Used for validation in T007 and T010.
 
 definitions:
   Participant:
     type: object
+    description: Demographic and lifestyle attributes of the study participant.
     required:
       - participant_id
       - age
       - sex
-      - BMI
+      - bmi
+      - fiber_intake
+      - antibiotic_history
     properties:
       participant_id:
         type: string
-        description: Unique identifier for the participant
+        description: Unique identifier for the participant.
+        minLength: 1
       age:
         type: integer
+        description: Age of the participant in years.
         minimum: 0
-        description: Age of the participant in years
       sex:
         type: string
-        enum: ["M", "F", "Other"]
-        description: Biological sex of the participant
-      BMI:
+        description: Biological sex of the participant.
+        enum:
+          - Male
+          - Female
+          - Other
+      bmi:
         type: number
-        minimum: 0
-        description: Body Mass Index
-      fiber:
+        description: Body Mass Index.
+        minimum: 0.0
+        maximum: 100.0
+      fiber_intake:
         type: number
-        minimum: 0
-        description: Daily fiber intake in grams
-      antibiotics:
-        type: integer
-        minimum: 0
-        description: Number of antibiotic courses in the last year
+        description: Daily fiber intake in grams.
+        minimum: 0.0
+      antibiotic_history:
+        type: string
+        description: Antibiotic usage in the last 6 months.
+        enum:
+          - None
+          - Short-term
+          - Long-term
+      socioeconomic_status:
+        type: string
+        description: Socioeconomic status category.
+        enum:
+          - Low
+          - Medium
+          - High
+        nullable: true
 
   MicrobiomeProfile:
     type: object
+    description: Alpha diversity metrics derived from 16S rRNA sequencing.
     required:
       - participant_id
-      - shannon_diversity
-      - simpson_diversity
-      - chao1
+      - shannon_index
+      - simpson_index
+      - chao1_index
     properties:
       participant_id:
         type: string
-        description: Unique identifier for the participant (foreign key to Participant)
-      shannon_diversity:
+        description: Unique identifier matching the Participant entity.
+        minLength: 1
+      shannon_index:
         type: number
-        minimum: 0
-        description: Shannon diversity index
-      simpson_diversity:
+        description: Shannon diversity index (H').
+        minimum: 0.0
+      simpson_index:
         type: number
-        minimum: 0
-        description: Simpson diversity index
-      chao1:
+        description: Simpson diversity index (1-D).
+        minimum: 0.0
+      chao1_index:
         type: number
-        minimum: 0
-        description: Chao1 richness estimator
+        description: Chao1 richness estimator.
+        minimum: 0.0
+      dominant_phylum:
+        type: string
+        description: Most abundant phylum in the sample.
+        nullable: true
 
-  CognitiveProfile:
+  CognitiveScore:
     type: object
+    description: Cognitive flexibility assessment scores.
     required:
       - participant_id
-      - cognitive_score
+      - cognitive_flexibility_score
     properties:
       participant_id:
         type: string
-        description: Unique identifier for the participant (foreign key to Participant)
-      cognitive_score:
+        description: Unique identifier matching the Participant entity.
+        minLength: 1
+      cognitive_flexibility_score:
         type: number
-        minimum: 0
-        maximum: 100
-        description: Cognitive flexibility score (0-100 scale)
+        description: Normalized score from cognitive flexibility tasks.
+        minimum: 0.0
+        maximum: 100.0
+
+  FilteredCohortRecord:
+    type: object
+    description: |
+      A single row in the final filtered dataset (data/processed/filtered_cohort.csv).
+      This is the union of Participant, MicrobiomeProfile, and CognitiveScore
+      after filtering for age >= 65 and non-null metrics.
+    required:
+      - participant_id
+      - age
+      - sex
+      - bmi
+      - fiber_intake
+      - antibiotic_history
+      - shannon_index
+      - simpson_index
+      - chao1_index
+      - cognitive_flexibility_score
+    properties:
+      participant_id:
+        type: string
+      age:
+        type: integer
+      sex:
+        type: string
+      bmi:
+        type: number
+      fiber_intake:
+        type: number
+      antibiotic_history:
+        type: string
+      socioeconomic_status:
+        type: string
+        nullable: true
+      shannon_index:
+        type: number
+      simpson_index:
+        type: number
+      chao1_index:
+        type: number
+      dominant_phylum:
+        type: string
+        nullable: true
+      cognitive_flexibility_score:
+        type: number
 
 oneOf:
   - $ref: "#/definitions/Participant"
   - $ref: "#/definitions/MicrobiomeProfile"
-  - $ref: "#/definitions/CognitiveProfile"
+  - $ref: "#/definitions/CognitiveScore"
+  - $ref: "#/definitions/FilteredCohortRecord"

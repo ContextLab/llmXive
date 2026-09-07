@@ -1,67 +1,203 @@
-# Analysis Output Schema for Gut Microbiome & Cognitive Flexibility Study
-# Defines the structure of analysis results
-
 $schema: http://json-schema.org/draft-07/schema#
 title: AnalysisResult
-description: Schema for the analysis results (correlation, regression, etc.)
-
+description: >
+  Schema for the output of correlation and regression analyses.
+  Defines the structure of data produced by T023 (correlation results)
+  and aggregated in T032 (statistical results).
 type: object
 required:
+  - analysis_id
   - analysis_type
-  - correlation_coefficient
-  - p_value
-  - adjusted_p_value
-  - confidence_interval
+  - timestamp
+  - metrics
+  - correlation_results
+  - regression_results
 properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for this analysis run.
   analysis_type:
     type: string
-    description: Type of analysis performed (e.g., "correlation", "regression", "permanova")
-  metric_name:
+    enum:
+      - correlation
+      - regression
+      - permanova
+      - combined
+    description: Type of analysis performed.
+  timestamp:
     type: string
-    description: Name of the diversity metric or variable analyzed
-  outcome_variable:
-    type: string
-    description: Name of the outcome variable (e.g., "cognitive_score")
-  correlation_coefficient:
-    type: number
-    description: Correlation coefficient (Pearson or Spearman)
-  p_value:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: Raw p-value
-  adjusted_p_value:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: Benjamini-Hochberg adjusted p-value
-  confidence_interval:
+    format: date-time
+    description: ISO 8601 timestamp of when the analysis was executed.
+  parameters:
     type: object
-    required:
-      - lower
-      - upper
+    description: Configuration parameters used for this analysis.
     properties:
-      lower:
+      alpha:
         type: number
-        description: Lower bound of the confidence interval
-      upper:
-        type: number
-        description: Upper bound of the confidence interval
-  sample_size:
-    type: integer
-    minimum: 1
-    description: Number of samples used in the analysis
-  method_details:
-    type: object
-    description: Additional details about the analysis method
-    properties:
-      test_statistic:
-        type: number
-      degrees_of_freedom:
-        type: integer
-      model_formula:
+        description: Significance level (default 0.05).
+      fdr_method:
         type: string
+        description: Method used for False Discovery Rate correction (e.g., 'benjamini-hochberg').
       covariates:
         type: array
         items:
           type: string
+        description: List of covariates included in the model.
+      diversity_metrics:
+        type: array
+        items:
+          type: string
+        description: List of diversity metrics calculated (e.g., 'Shannon', 'Simpson').
+  metrics:
+    type: object
+    description: Summary statistics of the dataset used.
+    properties:
+      n_participants:
+        type: integer
+        description: Number of participants in the final cohort.
+      mean_age:
+        type: number
+      mean_shannon:
+        type: number
+      mean_cognitive_score:
+        type: number
+      missing_covariates:
+        type: integer
+        description: Number of participants excluded due to missing covariates.
+  correlation_results:
+    type: array
+    description: List of correlation results between diversity metrics and cognitive scores.
+    items:
+      type: object
+      required:
+        - metric_name
+        - correlation_coefficient
+        - p_value
+        - adjusted_p_value
+        - confidence_interval
+        - correlation_type
+      properties:
+        metric_name:
+          type: string
+          description: Name of the diversity metric (e.g., 'Shannon').
+        correlation_coefficient:
+          type: number
+          description: Pearson or Spearman correlation coefficient.
+        p_value:
+          type: number
+          description: Raw p-value of the correlation test.
+        adjusted_p_value:
+          type: number
+          description: FDR-corrected p-value.
+        confidence_interval:
+          type: object
+          properties:
+            lower:
+              type: number
+            upper:
+              type: number
+          description: 95% Confidence Interval for the correlation coefficient.
+        correlation_type:
+          type: string
+          enum:
+            - Pearson
+            - Spearman
+          description: Type of correlation test performed.
+        normality_test:
+          type: object
+          description: Results of normality check used to decide correlation type.
+          properties:
+            test_name:
+              type: string
+            statistic:
+              type: number
+            p_value:
+              type: number
+            passed:
+              type: boolean
+  regression_results:
+    type: array
+    description: List of linear regression results (Cognitive ~ Diversity + Covariates).
+    items:
+      type: object
+      required:
+        - metric_name
+        - coefficient
+        - std_error
+        - t_statistic
+        - p_value
+        - adjusted_p_value
+        - confidence_interval
+        - r_squared
+      properties:
+        metric_name:
+          type: string
+          description: Diversity metric used as the predictor.
+        coefficient:
+          type: number
+          description: Regression coefficient for the diversity metric.
+        std_error:
+          type: number
+          description: Standard error of the coefficient.
+        t_statistic:
+          type: number
+          description: T-statistic for the coefficient.
+        p_value:
+          type: number
+          description: Raw p-value for the coefficient.
+        adjusted_p_value:
+          type: number
+          description: FDR-corrected p-value.
+        confidence_interval:
+          type: object
+          properties:
+            lower:
+              type: number
+            upper:
+              type: number
+          description: 95% Confidence Interval for the coefficient.
+        r_squared:
+          type: number
+          description: R-squared value of the full model.
+        f_statistic:
+          type: number
+          description: F-statistic of the model.
+        p_value_model:
+          type: number
+          description: P-value of the overall model.
+  permanova_results:
+    type: object
+    description: Results of PERMANOVA test for beta diversity (optional).
+    properties:
+      metric_name:
+        type: string
+        description: Beta diversity metric (e.g., 'Bray-Curtis').
+      pseudo_f:
+        type: number
+        description: Pseudo-F statistic.
+      p_value:
+        type: number
+        description: P-value from permutation test.
+      r_squared:
+        type: number
+        description: R-squared (effect size).
+        description: Number of permutations performed.
+  power_analysis:
+    type: object
+    description: Power analysis results based on observed effect sizes.
+    properties:
+      observed_effect_size:
+        type: number
+        description: Cohen's d or similar effect size observed.
+      current_n:
+        type: integer
+        description: Current sample size.
+      power_current:
+        type: number
+        description: Calculated power with current sample size.
+      required_n_80:
+        type: integer
+        description: Sample size required to achieve 80% power.
+      alpha:
+        type: number
+        description: Significance level used.

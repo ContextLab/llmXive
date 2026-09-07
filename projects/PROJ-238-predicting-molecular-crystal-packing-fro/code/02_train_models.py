@@ -3,207 +3,165 @@ import sys
 import logging
 import json
 import hashlib
+import pickle
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
-
-import pandas as pd
+from typing import Dict, Any, Tuple, Optional
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
-from sklearn.model_selection import train_test_split
 
-from config import get_config, log_event
-from utils.metrics import paired_t_test, bonferroni_correct
+# Import from local utils/config if available, otherwise setup basic logging
+try:
+    from code.config import setup_logging, get_config
+    logger = setup_logging("training_pipeline")
+    config = get_config()
+except ImportError:
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(__name__)
+    config = None
 
-# Ensure code directory is in path for relative imports if run directly
-if 'code' not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent))
-
-def setup_logger(name: str) -> logging.Logger:
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    return logger
-
-def load_split_data(data_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Load train, val, and test datasets."""
-    train_path = Path(data_path) / "train.csv"
-    val_path = Path(data_path) / "val.csv"
-    test_path = Path(data_path) / "test.csv"
+def load_split_data(data_dir: str = "data/processed") -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Load the pre-split train, val, and test datasets."""
+    train_path = Path(data_dir) / "train.csv"
+    val_path = Path(data_dir) / "val.csv"
+    test_path = Path(data_dir) / "test.csv"
 
     if not all(p.exists() for p in [train_path, val_path, test_path]):
-        raise FileNotFoundError(f"Split data files not found in {data_path}")
+        raise FileNotFoundError(f"Split data files not found in {data_dir}. Ensure T017 tasks are complete.")
 
     train_df = pd.read_csv(train_path)
     val_df = pd.read_csv(val_path)
     test_df = pd.read_csv(test_path)
 
+    logger.info(f"Loaded data: Train={len(train_df)}, Val={len(val_df)}, Test={len(test_df)}")
     return train_df, val_df, test_df
 
-def validate_columns(df: pd.DataFrame, required_cols: List[str]) -> bool:
-    missing = [c for c in required_cols if c not in df.columns]
+def validate_columns(df: pd.DataFrame, required_cols: list) -> bool:
+    """Ensure all required columns are present."""
+    missing = set(required_cols) - set(df.columns)
     if missing:
         raise ValueError(f"Missing required columns: {missing}")
     return True
 
-def validate_ids_unique_and_non_overlapping(train_df: pd.DataFrame, val_df: pd.DataFrame, test_df: pd.DataFrame) -> bool:
-    train_ids = set(train_df['id'])
-    val_ids = set(val_df['id'])
-    test_ids = set(test_df['id'])
+def validate_ids_unique_and_non_overlapping(train: pd.DataFrame, val: pd.DataFrame, test: pd.DataFrame) -> None:
+    """Ensure IDs are unique within and across splits."""
+    all_ids = np.concatenate([train['id'].values, val['id'].values, test['id'].values])
+    if len(all_ids) != len(set(all_ids)):
+        raise ValueError("Duplicate IDs found across splits.")
 
-    if len(train_ids) != len(train_df):
-        raise ValueError("Duplicate IDs in train set")
-    if len(val_ids) != len(val_df):
-        raise ValueError("Duplicate IDs in val set")
-    if len(test_ids) != len(test_df):
-        raise ValueError("Duplicate IDs in test set")
-
-    if train_ids & val_ids:
-        raise ValueError("Overlapping IDs between train and val")
-    if train_ids & test_ids:
-        raise ValueError("Overlapping IDs between train and test")
-    if val_ids & test_ids:
-        raise ValueError("Overlapping IDs between val and test")
-
-    return True
-
-def validate_target_distribution(df: pd.DataFrame, target_col: str) -> bool:
+def validate_target_distribution(df: pd.DataFrame, target_col: str = "packing_coefficient") -> None:
+    """Basic sanity check on target distribution."""
     if df[target_col].isnull().any():
-        raise ValueError(f"Target column {target_col} contains null values")
-    return True
+        raise ValueError(f"Target column '{target_col}' contains null values.")
 
 def train_random_forest(X_train: np.ndarray, y_train: np.ndarray, random_state: int = 42) -> RandomForestRegressor:
-    model = RandomForestRegressor(random_state=random_state, n_jobs=-1)
+    """Train a Random Forest regressor with default hyperparameters."""
+    logger.info("Training Random Forest...")
+    model = RandomForestRegressor(random_state=random_state)
     model.fit(X_train, y_train)
     return model
 
 def train_gradient_boosting(X_train: np.ndarray, y_train: np.ndarray, random_state: int = 42) -> GradientBoostingRegressor:
+    """Train a Gradient Boosting regressor with default hyperparameters."""
+    logger.info("Training Gradient Boosting...")
     model = GradientBoostingRegressor(random_state=random_state)
     model.fit(X_train, y_train)
     return model
 
 def train_mean_baseline(y_train: np.ndarray) -> float:
-    return float(np.mean(y_train))
+    """
+    Train Mean Predictor baseline.
+    Returns the mean of the training set target values.
+    """
+    logger.info("Computing Mean Baseline (training set mean)...")
+    mean_val = float(np.mean(y_train))
+    return mean_val
 
-def evaluate_model(model, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+def evaluate_model(model: Any, X_test: np.ndarray, y_test: np.ndarray, model_name: str) -> Dict[str, float]:
+    """Evaluate a model and return R2, MAE, RMSE."""
     y_pred = model.predict(X_test)
     r2 = r2_score(y_test, y_pred)
     mae = mean_absolute_error(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    rmse = mean_squared_error(y_test, y_pred, squared=False)
+    logger.info(f"{model_name} - R2: {r2:.4f}, MAE: {mae:.4f}, RMSE: {rmse:.4f}")
     return {"r2": r2, "mae": mae, "rmse": rmse}
 
 def evaluate_baseline(mean_val: float, y_test: np.ndarray) -> Dict[str, float]:
+    """Evaluate the mean baseline predictor."""
     y_pred = np.full_like(y_test, mean_val, dtype=float)
     r2 = r2_score(y_test, y_pred)
     mae = mean_absolute_error(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    rmse = mean_squared_error(y_test, y_pred, squared=False)
+    logger.info(f"Mean Baseline - R2: {r2:.4f}, MAE: {mae:.4f}, RMSE: {rmse:.4f}")
     return {"r2": r2, "mae": mae, "rmse": rmse}
 
+def save_model(model: Any, path: Path, model_name: str) -> None:
+    """Save model to disk."""
+    with open(path, 'wb') as f:
+        pickle.dump(model, f)
+    logger.info(f"Saved {model_name} to {path}")
+
+def save_metrics(metrics: Dict[str, Any], path: Path) -> None:
+    """Save metrics to JSON."""
+    with open(path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    logger.info(f"Saved metrics to {path}")
+
 def main():
-    logger = setup_logger("train_models")
-    config = get_config()
-    
-    data_path = Path(config.get("DATA_PATH", "data/processed"))
-    results_path = Path("results")
-    results_path.mkdir(exist_ok=True)
+    """Main execution pipeline for training and baseline."""
+    # Configuration
+    data_dir = "data/processed"
+    output_dir = Path("results")
+    output_dir.mkdir(exist_ok=True)
 
-    logger.info(f"Loading data from {data_path}")
-    train_df, val_df, test_df = load_split_data(str(data_path))
+    # 1. Load Data
+    try:
+        train_df, val_df, test_df = load_split_data(data_dir)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
 
-    feature_cols = ["Volume", "SurfaceArea", "Dipole", "HBD", "HBA", "PSA"]
+    # 2. Validate
+    feature_cols = [col for col in train_df.columns if col not in ['id', 'packing_coefficient']]
     target_col = "packing_coefficient"
 
-    # Validation
-    for name, df in [("train", train_df), ("val", val_df), ("test", test_df)]:
-        validate_columns(df, feature_cols + [target_col])
+    for name, df in [("Train", train_df), ("Val", val_df), ("Test", test_df)]:
+        validate_columns(df, ['id', target_col] + feature_cols)
         validate_target_distribution(df, target_col)
+
     validate_ids_unique_and_non_overlapping(train_df, val_df, test_df)
 
-    logger.info("Split data validated.")
-
+    # 3. Prepare Arrays
     X_train = train_df[feature_cols].values
     y_train = train_df[target_col].values
     X_test = test_df[feature_cols].values
     y_test = test_df[target_col].values
 
-    # Train Models
-    logger.info("Training Random Forest...")
+    # 4. Train Models
     rf_model = train_random_forest(X_train, y_train)
-    
-    logger.info("Training Gradient Boosting...")
     gb_model = train_gradient_boosting(X_train, y_train)
+    mean_baseline_value = train_mean_baseline(y_train)
+
+    # 5. Evaluate Models
+    rf_metrics = evaluate_model(rf_model, X_test, y_test, "RandomForest")
+    gb_metrics = evaluate_model(gb_model, X_test, y_test, "GradientBoosting")
+    baseline_metrics = evaluate_baseline(mean_baseline_value, y_test)
+
+    # 6. Save Artifacts
+    save_model(rf_model, output_dir / "rf_model.pkl", "RandomForest")
+    save_model(gb_model, output_dir / "gb_model.pkl", "GradientBoosting")
+    # Save baseline as a simple value file or pickled float if needed, but here we store in metrics
     
-    logger.info("Training Mean Baseline...")
-    mean_baseline_val = train_mean_baseline(y_train)
-
-    # Evaluate Models (Task T027)
-    logger.info("Evaluating models on test set...")
-    rf_metrics = evaluate_model(rf_model, X_test, y_test)
-    gb_metrics = evaluate_model(gb_model, X_test, y_test)
-    baseline_metrics = evaluate_baseline(mean_baseline_val, y_test)
-
-    logger.info(f"RF Metrics: {rf_metrics}")
-    logger.info(f"GB Metrics: {gb_metrics}")
-    logger.info(f"Baseline Metrics: {baseline_metrics}")
-
-    # T028 & T029: Statistical tests and saving metrics
-    # Bonferroni correction for 2 models (RF, GB)
-    alpha = 0.05
-    n_models = 2
-    alpha_corrected = alpha / n_models
-
-    # Paired t-tests: predictions vs baseline predictions
-    rf_pred = rf_model.predict(X_test)
-    gb_pred = gb_model.predict(X_test)
-    baseline_pred = np.full_like(y_test, mean_baseline_val, dtype=float)
-
-    t_stat_rf, p_val_rf = paired_t_test(rf_pred, baseline_pred)
-    t_stat_gb, p_val_gb = paired_t_test(gb_pred, baseline_pred)
-
-    # Bonferroni correction applied to p-values
-    p_val_rf_corrected = min(p_val_rf * n_models, 1.0)
-    p_val_gb_corrected = min(p_val_gb * n_models, 1.0)
-
-    sig_rf = p_val_rf_corrected < alpha_corrected
-    sig_gb = p_val_gb_corrected < alpha_corrected
-
-    metrics_summary = {
-        "models": {
-            "random_forest": {
-                "metrics": rf_metrics,
-                "p_value_raw": p_val_rf,
-                "p_value_corrected": p_val_rf_corrected,
-                "significant_vs_baseline": sig_rf
-            },
-            "gradient_boosting": {
-                "metrics": gb_metrics,
-                "p_value_raw": p_val_gb,
-                "p_value_corrected": p_val_gb_corrected,
-                "significant_vs_baseline": sig_gb
-            },
-            "mean_baseline": {
-                "metrics": baseline_metrics
-            }
-        },
-        "statistical_test": {
-            "method": "paired_t_test",
-            "alpha": alpha,
-            "n_models": n_models,
-            "alpha_corrected": alpha_corrected,
-            "bonferroni_correction": True
-        }
+    all_metrics = {
+        "RandomForest": rf_metrics,
+        "GradientBoosting": gb_metrics,
+        "MeanBaseline": baseline_metrics,
+        "mean_baseline_value": mean_baseline_value
     }
-
-    output_file = results_path / "metrics.json"
-    with open(output_file, 'w') as f:
-        json.dump(metrics_summary, f, indent=2)
-
-    logger.info(f"Metrics saved to {output_file}")
-    log_event("T027_complete", {"file": str(output_file)})
+    
+    save_metrics(all_metrics, output_dir / "training_metrics.json")
+    logger.info("Training pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

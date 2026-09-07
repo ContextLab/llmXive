@@ -1,65 +1,83 @@
 # Configuration for Molecular Reactivity Prediction Pipeline
-# This file contains all hyperparameters, paths, and reaction templates.
+# Project: PROJ-442-predicting-molecular-reactivity-using-ma
 
-# Paths
-paths:
-  raw_data_dir: "data/raw"
-  processed_data_dir: "data/processed"
-  model_dir: "data/models"
-  logs_dir: "logs"
-  state_file: "state/projects/PROJ-442-predicting-molecular-reactivity-using-ma.yaml"
+# Logging configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: logs/pipeline.log
 
-# Training Configuration
-training:
-  max_runtime_seconds: 1800  # 30 minutes limit (FR-003)
-  random_state: 42
-  n_splits: 5  # For Cross-Validation
-  target_normalization: "zscore"
+# Data paths
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  models_dir: data/models
+  input_file: uspto_mit_subset.jsonl.gz
+  output_filtered: filtered_reactions.csv
+  output_features: feature_matrix.parquet
 
-# Feature Extraction Configuration
-features:
-  k_best: 100
-  scoring_function: "f_regression"
-  min_variance_threshold: 0.0
-
-# Reaction Templates for Classification (US1)
-# These SMARTS patterns are used to classify reactions into SN1, SN2, and Diels-Alder.
-# The patterns are defined as reaction SMARTS (Reactant >> Product) to ensure
-# deterministic matching against the USPTO dataset.
+# Reaction templates for classification (SMARTS patterns)
+# These define the structural transformations for SN1, SN2, and Diels-Alder reactions
 reaction_templates:
   SN1:
-    # SN1: Unimolecular nucleophilic substitution.
-    # Characterized by the formation of a carbocation intermediate.
-    # Pattern: A leaving group departs from a carbon, creating a positive charge on the carbon.
-    # Example logic: [C:1]([O:2])>>[C:1]+[O:2]- implies the bond breaks and charge separates.
-    # Note: This is a simplified representation for template matching.
-    pattern: "[C:1]([O:2])>>[C:1]+[O:2]-"
-    description: "Unimolecular nucleophilic substitution (SN1)"
+    # SN1: Heterolytic cleavage of C-LG bond forming a carbocation intermediate
+    # Pattern: C-O bond breaking where O leaves as anion, C becomes cationic center
+    # Example: R-OH -> R+ + OH- (simplified representation)
+    pattern: "[C:1]([O:2])>>[C:1+]([O:2-])"
+    description: "SN1 reaction: C-O bond heterolysis forming carbocation"
 
   SN2:
-    # SN2: Bimolecular nucleophilic substitution.
-    # Characterized by backside attack and simultaneous bond breaking/making.
-    # Pattern: Nucleophile attacks carbon while leaving group departs.
-    # Example logic: [C:1]([O:2])>>[C:1]=[O:2] is a placeholder for the specific transformation
-    # often involving inversion, but for matching we look for the specific bond changes.
-    # The prompt suggested: [C:1]([O:2])>>[C:1]=[O:2] with backside attack logic.
-    # We interpret this as a specific transformation signature.
-    pattern: "[C:1]([O:2])>>[C:1]=[O:2]"
-    description: "Bimolecular nucleophilic substitution (SN2)"
+    # SN2: Concerted backside attack with inversion of configuration
+    # Pattern: Nucleophile attacks C while LG leaves, transition state
+    # Simplified: Nu-C-LG -> Nu-C + LG (with stereochemical inversion implied)
+    pattern: "[N,O,F,Cl,Br,I:1][C:2][C,Cl,Br,I:3]>>[N,O,F,Cl,Br,I:1][C:2][C,Cl,Br,I:3]"
+    description: "SN2 reaction: Concerted nucleophilic substitution"
 
-  DielsAlder:
-    # Diels-Alder: Cycloaddition between a diene and a dienophile.
-    # Characterized by the formation of a cyclohexene ring.
-    # Pattern: Two double bonds in a diene react with a double bond in a dienophile.
-    # Example logic: [C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1
+  Diels-Alder:
+    # Diels-Alder: [4+2] cycloaddition between diene and dienophile
+    # Pattern: Two double bonds (diene) reacting with one double bond (dienophile)
+    # to form a six-membered ring
     pattern: "[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1"
-    description: "Diels-Alder cycloaddition"
+    description: "Diels-Alder reaction: [4+2] cycloaddition forming cyclohexene"
 
-# Logging Configuration
-logging:
-  level: "INFO"
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+# Model training parameters
+model:
+  algorithm: xgboost
+  max_depth: 6
+  learning_rate: 0.1
+  n_estimators: 100
+  objective: reg:squarederror
+  subsample: 0.8
+  colsample_bytree: 0.8
+  n_jobs: -1
 
-# Data Filtering Thresholds
+# Feature extraction settings
+features:
+  molecular_descriptors:
+    - molecular_weight
+    - num_atoms
+    - num_bonds
+    - num_rings
+    - topological_polar_surface_area
+    - logp
+    - num_h_acceptors
+    - num_h_donors
+  fingerprint_type: morgan
+  fingerprint_radius: 2
+  fingerprint_length: 2048
+
+# Dimensionality reduction
+dimensionality_reduction:
+  variance_threshold: 0.01
+  select_k_best: 100
+  scoring_function: f_regression
+
+# Validation settings
+validation:
+  n_folds: 5
+  loso_scaffold: true
+  max_runtime_seconds: 1800
+
+# Class filtering thresholds
 filtering:
-  min_samples_per_class: 1000  # FR-006: Remove classes with < 1000 samples
+  min_samples_per_class: 1000

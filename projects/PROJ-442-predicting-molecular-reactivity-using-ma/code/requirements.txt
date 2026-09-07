@@ -4,6 +4,5 @@ pandas
 scikit-learn
 pyarrow
 requests
-flake8
-black
-isort
+pyyaml
+pytest

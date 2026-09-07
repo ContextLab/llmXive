@@ -78,7 +78,7 @@
 ### Implementation for User Story 1
 
 - [X] T015a [US1] **Pre-Load Size Estimation**: Implement `estimate_dataset_size_from_api(url)` in `code/ingest.py`. **Fetches metadata (size, file count) directly from the OpenNeuro API for the PRIMARY candidate dataset BEFORE download.** **API Endpoint**: ` Name or service not known)"))]. **JSON Path**: `.files.size` (sum of all files). **Response Structure**: Expect JSON object `{ files: [{ size: int },...] }`. **Error Handling**: If API returns 404 or 500, log a warning "API Unreachable, proceeding to local check" and **DO NOT halt**. If API returns valid JSON, sum `files[].size`. **Halt execution with exit code 1 only if the estimated size > 7 GB** (referencing `config.MAX_RAM_GB=7` and `config` module). **MUST run BEFORE T012.**
-- [X] T012 [US1] Implement `code/ingest.py` with `download_dataset(url)` function. **MUST verify the dataset contains the Cyberball task** by checking for BIDS filenames `task-cyb*` or JSON metadata keys `task: cyb`. Use a verified URL from the OpenNeuro repository for the Cyberball dataset. The research question concerns social exclusion effects in virtual environments. The method involves functional magnetic resonance imaging (fMRI) with a Cyberball paradigm. References: (). **Logic**:
+- [X] T012 [US1] Implement `code/ingest.py` with `download_dataset(url)` function. **MUST verify the dataset contains the Cyberball task** by checking for BIDS filenames `task-cyb*` or JSON metadata keys `task: cyb`. Use a verified URL from the OpenNeuro repository for the Cyberball dataset. The research question concerns social exclusion effects in virtual environments. The method involves functional magnetic resonance imaging (fMRI) with a Cyberball paradigm. [UNRESOLVED-CLAIM: c_a1ceba87 — status=not_enough_info] References: (). **Logic**:
  1. Download the **Single-Cohort candidate** (ds000208).
  2. Generate `data/raw/dataset_manifest.json` with schema {url, status, checksum, source_file_count, openneuro_id} for the downloaded file.
  3. **Do NOT set `design_type` here.** Defer to T013b.
@@ -106,7 +106,7 @@
 - [X] T040 [US1] **Explicit Data Source Citation**: Implement `write_data_citation(metadata)` in `code/ingest.py` to generate `data/raw/CITATION.md`. **Logic**: Read `data/processed/metadata.json` to determine `design_type` and `used_datasets`. **Dynamically cite ONLY the datasets listed in `used_datasets`** (one dataset for Within-Subjects or Between-Subjects). Include DOIs, access dates, and licenses for each. **This file MUST be referenced in the final report's Methods section.** **Dependency**: Must run after T019 and T013b.
 - [X] T041 [US1] **Fail-Loudly Guard**: Review `code/ingest.py` to ensure **NO** `try/except` blocks catch `requests.exceptions.RequestException` or `FileNotFoundError` to fallback to synthetic data. **If a download fails, the script MUST raise an unhandled exception and exit with code 1.** **Dependency**: Must run after T012. (Note: Logic for T013 halt is integrated into T013).
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. The pipeline must support both Within-Subjects and Between-Subjects designs using ds000208.
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. The pipeline must support both Within-Subjects and Between-Subjects designs using ds000208. [UNRESOLVED-CLAIM: c_f1338b5e — status=not_enough_info]
 
 ---
 

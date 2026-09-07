@@ -137,10 +137,10 @@
 - [ ] T023 [US2] Train Random Forest regressor with default hyperparameters and `random_state=42`.
 - [ ] T024 [US2] Train Gradient Boosting regressor with default hyperparameters and `random_state=42`.
 - [ ] T025 [US2] Implement Mean Predictor baseline (predicts the training‑set mean of `packing_coefficient`).
-- [~] T026 [US2] Implement Control Analysis: train secondary RF/GB models **excluding** Volume and Surface Area descriptors to probe the contribution of interaction‑related features.
+- [ ] T026 [US2] Implement Control Analysis: train secondary RF/GB models **excluding** Volume and Surface Area descriptors to probe the contribution of interaction‑related features.
  **Deliverable**: Save results to `results/control_analysis_metrics.json`.
-- [~] T027 [US2] Evaluate all models on the test set; compute R², MAE, RMSE.
-- [~] T028 [US2] Perform paired t‑tests of each primary model (RF, GB) against the baseline.
+- [ ] T027 [US2] Evaluate all models on the test set; compute R², MAE, RMSE.
+- [ ] T028 [US2] Perform paired t‑tests of each primary model (RF, GB) against the baseline.
  **Statistical correction**: Calculate `alpha_corrected = 0.05 / 2` (N_models = 2, excluding control analysis) and apply Bonferroni correction.
  **Output**: Write corrected p‑values, `alpha_corrected`, and a flag indicating significance to `results/metrics.json`.
 - [ ] T029 [US2] Save a consolidated metrics summary (R², MAE, RMSE, corrected p‑values, significance flags) to `results/metrics.json`.
@@ -172,7 +172,7 @@
  **Verification**: All rows have non‑null `interaction_type`.
 - [ ] T035.3 [US3] Generate `results/interaction_classification.md` reporting overall classification accuracy and 95 % confidence intervals obtained via bootstrapping (≥ 1 000 resamples).
  **Verification**: Report includes accuracy, CI, and number of resamples.
-- [~] T036 [US3] (Optional) Evaluate interaction‑type prediction against any available external benchmark (if present) and log results to `results/interaction_benchmark.log`.
+- [ ] T036 [US3] (Optional) Evaluate interaction‑type prediction against any available external benchmark (if present) and log results to `results/interaction_benchmark.log`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -182,8 +182,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T037 [P] Update `state/projects/PROJ-238.../artifact_hashes` with final result checksums
-- [~] T038 Verify `results/metrics.json` contains all required fields and the Bonferroni flag
+- [ ] T037 [P] Update `state/projects/PROJ-238.../artifact_hashes` with final result checksums
+- [ ] T038 Verify `results/metrics.json` contains all required fields and the Bonferroni flag
 - [~] T039 [P] Generate `quickstart.md` and `contracts/` schemas from data model
 - [X] T040 [P] Execute full pipeline validation: Run `code/01_ingest_and_descriptors.py`, `code/02_train_models.py`, and `code/03_evaluate_and_report.py` in a CI environment. <!-- ATOMIZE: requested -->
  **Verification**: All exit codes are 0 and artifacts are generated in `data/` and `results/`.

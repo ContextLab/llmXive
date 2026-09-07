@@ -512,25 +512,6 @@
   status: verified
   updated_at: '2026-07-19T12:36:52Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 8
-  canonical: USPTO-MIT subset available at Zenodo record 3969375
-  claim_id: c_25c15d06
-  context: Implement src/data/ingestion.py to The USPTO-MIT subset is available at
-    https://zenodo.org/record/3969375 and parse raw data
-  evidence:
-    ok: false
-    reason: cited source contradicts the claim (The passages reference Zenodo record
-      3969376, which contradicts the claim's specified record 3969375.)
-    status: contradicted
-  kind: numeric
-  raw_text: The USPTO-MIT subset is available at https://zenodo.org/record/3969375
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-19T12:39:39Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
   canonical: arXiv paper 2408.08592
   claim_id: c_180c3af6
@@ -546,3 +527,57 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-19T12:39:39Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: USPTO-MIT subset available at zenodo.org/record/3969375
+  claim_id: c_f174ba73
+  context: Implement src/data/ingestion.py to The USPTO-MIT subset is available at
+    https://zenodo.org/record/3969375 and parse raw data
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: The USPTO-MIT subset is available at https://zenodo.org/record/3969375
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T03:28:36Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Model outputs prediction file with Spearman correlation coefficient greater
+    than 0.5 per arxiv.org/abs/2408.08592
+  claim_id: c_96f97844
+  context: verifying that the model outputs a prediction file with a Spearman correlation
+    coefficient > 0.5 and that the (2408.08592, https://arxiv.org/abs/2408.08592).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_outputs_prediction_file_with_Spearman_correlation_coef
+  kind: magnitude
+  raw_text: (2408.08592, https://arxiv.org/abs/2408.08592)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T03:28:42Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 11
+  canonical: USPTO-MIT subset available at Zenodo record 3969375
+  claim_id: c_25c15d06
+  context: Implement src/data/ingestion.py to The USPTO-MIT subset is available at
+    https://zenodo.org/record/3969375 and parse raw data
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: The USPTO-MIT subset is available at https://zenodo.org/record/3969375
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T03:37:39Z'

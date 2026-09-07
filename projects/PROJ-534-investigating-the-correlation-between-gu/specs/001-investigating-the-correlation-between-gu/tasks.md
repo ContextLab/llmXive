@@ -85,7 +85,7 @@
 - [ ] T012 [US1] Implement `src/data/ingestion.py` to load synthetic data and merge on participant ID
 - [ ] T013 [US1] Implement `src/data/filtering.py` to filter for age >= 65, non-null Shannon/Cognitive scores, and required covariates (age, sex, BMI, fiber, antibiotics)
 - [ ] T014 [US1] Add logic in `src/data/filtering.py` to handle zero-variance datasets by flagging and skipping correlation (Edge Case)
-- [ ] T015 [US1] Add logic in `src/data/filtering.py` to handle missing covariates via listwise deletion (default) or mean imputation, with the choice explicitly logged to `logs/filtering.log`
+- [ ] T015 [US1] Add logic in `src/data/filtering.py` to handle missing covariates via listwise deletion (default) or mean imputation, with the choice explicitly logged to `logs/filtering.log` <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,9 +100,9 @@
 ### Tests for User Story 2
 
 - [ ] T016 [P] [US2] Unit test for Shannon/Simpson/Chao1 calculation in `tests/unit/test_diversity.py`
-- [~] T017 [P] [US2] Unit test for Pearson/Spearman auto-switch logic (skewness/Shapiro-Wilk) and logging of the switch in `tests/unit/test_correlation.py`
-- [~] T018 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`
-- [ ] T027 [P] [US2] Contract test validating `data/results/correlation_results.json` against `contracts/analysis_output.schema.yaml` in `tests/contract/test_schemas.py`
+- [ ] T017 [P] [US2] Unit test for Pearson/Spearman auto-switch logic (skewness/Shapiro-Wilk) and logging of the switch in `tests/unit/test_correlation.py`
+- [ ] T018 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`
+- [ ] T027 [P] [US2] Contract test validating `data/results/correlation_results.json` against `contracts/analysis_output.schema.yaml` in `tests/contract/test_schemas.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 2
 

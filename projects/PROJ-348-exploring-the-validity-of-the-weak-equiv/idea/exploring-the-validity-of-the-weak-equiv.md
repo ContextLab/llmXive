@@ -9,35 +9,46 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-Does the differential acceleration of inner planets relative to a non-self-gravitating test mass, derived from high-precision ranging residuals after subtracting a GR-only ephemeris with fixed solar oblateness, scale linearly with their gravitational binding energy fractions?
+Does the gravitational binding energy fraction of Solar System planets correlate with the amplitude of specific time-dependent orbital perturbations in high-precision planetary ranging residuals, after controlling for standard General Relativity and solar oblateness?
 
 ## Motivation
 
-While Lunar Laser Ranging (LLR) provides stringent constraints on the Strong Equivalence Principle (SEP) for the Earth-Moon system, the planetary regime offers a distinct laboratory where the gravitational binding energy fraction ($\Omega$) varies significantly across bodies like Mercury and Mars. Many scalar-tensor theories predict that SEP violations (the Nordtvedt effect) scale with $\Omega$, yet current planetary tests are often limited by degeneracies with solar oblateness ($J_2$) and incomplete force models. A rigorous re-analysis of planetary ephemerides, explicitly modeling these degeneracies and testing for a correlation between orbital residuals and $\Omega$, can either tighten constraints on alternative gravity theories or reveal a breakdown of the SEP at planetary scales that LLR cannot detect.
+While Lunar Laser Ranging (LLR) provides the most stringent constraints on the Strong Equivalence Principle (SEP) for the Earth-Moon system, the planetary regime offers a distinct laboratory where the gravitational binding energy fraction ($\Omega$) varies by orders of magnitude (e.g., Mercury vs. Mars). Many alternative gravity theories (e.g., scalar-tensor theories) predict that SEP violations manifest as a "Nordtvedt effect"—a polarization of orbits proportional to $\Omega$. Current planetary tests are often limited by degeneracies with solar oblateness ($J_2$) and asteroid belt modeling. A rigorous analysis of publicly available planetary ranging residuals, explicitly testing for a correlation between the magnitude of unmodeled periodic perturbations and $\Omega$, can either tighten constraints on the Nordtvedt parameter $\eta$ or reveal a breakdown of the SEP at planetary scales that LLR cannot detect.
 
-## Related work
+## Literature gap analysis
 
-- [Bayesian test of Brans-Dicke theories with planetary ephemerides: Investigating the strong equivalence principle (2023)](https://arxiv.org/abs/2310.00719) — Establishes a Bayesian framework to constrain Brans-Dicke parameters using planetary ephemerides, directly addressing the parameter space for SEP violations in the solar system.
-- [Lunar Laser Ranging Science (2004)](https://arxiv.org/abs/gr-qc/0411095) — Provides the benchmark limits on WEP/SEP violations from the Earth-Moon system, highlighting the need for complementary tests in the planetary regime with different $\Omega$ values.
-- [Theoretical Aspects of the Equivalence Principle (2012)](https://arxiv.org/abs/1202.6311) — Reviews the theoretical basis for SEP violations, clarifying that the Nordtvedt effect manifests as a polarization of orbits dependent on binding energy, not just a static precession shift.
-- [The Eötvös Paradox: The Enduring Significance of Eötvös' Most Famous Paper (2019)](https://arxiv.org/abs/1901.11163) — Contextualizes the historical evolution of equivalence principle tests, underscoring the transition from laboratory torsion balances to astronomical observations of self-gravitating bodies.
+### What we searched
+We queried Semantic Scholar and arXiv using the following terms: "planetary ephemerides strong equivalence principle," "Nordtvedt effect planetary ranging," "Brans-Dicke planetary constraints," and "gravitational binding energy solar system tests." The search targeted recent Bayesian analyses of ephemerides (2020–2024) and foundational reviews of equivalence principle tests. The literature block returned five results, of which two are directly on-topic regarding planetary constraints, while others provide theoretical context or focus on Lunar Laser Ranging.
+
+### What is known
+- [Bayesian test of Brans-Dicke theories with planetary ephemerides: Investigating the strong equivalence principle (2023)](https://arxiv.org/abs/2310.00719) — Establishes a modern Bayesian framework for constraining the Nordtvedt parameter $\eta$ using planetary ephemerides, demonstrating that current data allows for tight constraints but highlights the sensitivity to force model assumptions.
+- [Lunar Laser Ranging Science (2004)](https://arxiv.org/abs/gr-qc/0411095) — Provides the benchmark limits on SEP violations from the Earth-Moon system, confirming that $\eta \approx 0$ to high precision, but noting that the Earth-Moon system has a much smaller $\Omega$ than Mercury, leaving the high-$\Omega$ regime less constrained.
+
+### What is NOT known
+There is no published work that explicitly isolates the *time-dependent polarization signal* predicted by the Nordtvedt effect in the *residuals* of a standard GR-only fit for multiple planets simultaneously and correlates this specific residual amplitude directly with $\Omega$ using public ranging data. Most existing studies treat $\eta$ as a single parameter in a global fit; few analyze the specific *residual structure* (amplitude and phase) of individual planets as a proxy for $\Omega$-dependent violations in a way that separates it from modeling noise.
+
+### Why this gap matters
+Filling this gap is critical because alternative gravity theories predict that the violation signal scales with $\Omega$. If the signal is hidden in the residuals of standard fits, a targeted analysis could either improve constraints on $\eta$ by an order of magnitude or identify a systematic error in current ephemeris models that mimics a SEP violation. This would directly impact our understanding of whether gravity is purely geometric or mediated by scalar fields.
+
+### How this project addresses the gap
+This project addresses the gap by constructing a dedicated pipeline that: (1) generates a high-fidelity GR-only ephemeris baseline using public data; (2) computes the specific time-dependent residuals (range and range-rate) for Mercury, Venus, Earth, and Mars; (3) extracts the amplitude of the predicted Nordtvedt polarization mode from these residuals; and (4) performs a regression of these amplitudes against the planets' gravitational binding energy fractions ($\Omega$). This approach isolates the $\Omega$-dependent signal from general modeling noise.
 
 ## Expected results
 
-We expect to either (1) find no statistically significant correlation between differential acceleration residuals and gravitational binding energy fractions, thereby tightening the upper bound on the PPN parameter $\eta$ (Nordtvedt parameter) by an order of magnitude compared to simple 4-body fits, or (2) detect a residual pattern consistent with a non-zero $\eta$ that scales with $\Omega$, which would constitute evidence for a breakdown of the Strong Equivalence Principle. The key measurement is the slope of the residual-vs-$\Omega$ regression, where a slope indistinguishable from zero confirms GR, while a non-zero slope indicates a violation.
+We expect to either (1) find no statistically significant correlation between the extracted polarization amplitudes and the gravitational binding energy fractions, thereby tightening the upper bound on the Nordtvedt parameter $\eta$ consistent with General Relativity, or (2) detect a residual pattern where the amplitude scales linearly with $\Omega$, which would constitute evidence for a breakdown of the Strong Equivalence Principle. The key measurement is the slope of the amplitude-vs-$\Omega$ regression, where a slope indistinguishable from zero confirms GR, while a non-zero slope indicates a violation.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download high-precision ephemeris data (positions and velocities) for Mercury, Venus, Earth, and Mars (1950–2025) from the JPL Horizons system using `astroquery`, ensuring a daily sampling rate to capture secular trends.
-- **Binding Energy Compilation**: Retrieve planetary gravitational binding energy fractions ($\Omega$) from peer-reviewed interior structure models (e.g., *Seager et al.*, *Nimmo et al.*) rather than bulk NASA Fact Sheets to minimize systematic errors from core/mantle uncertainties.
-- **Force Model Implementation**: Construct a high-fidelity N-body integrator using `scipy.integrate.odeint` (adhering to Constitution Principle VII) that includes Newtonian $N$-body perturbations, standard GR corrections (Schwarzschild, Lense-Thirring), solar quadrupole moment ($J_2$), and major asteroid perturbations (using the 300 largest asteroids from the JPL Small-Body Database).
-- **Baseline Simulation**: Generate a "GR-only" trajectory for each planet by setting the Nordtvedt parameter $\eta = 0$ and solar $J_2$ to its best-fit value, ensuring the model reproduces known secular precession rates within observational uncertainties.
-- **Residual Calculation**: Compute the difference between the JPL Horizons observational data and the GR-only simulation, focusing on the time-series of orbital range and range-rate residuals to capture the time-dependent polarization signature of the Nordtvedt effect.
-- **Parameter Regression**: Perform a linear regression where the dependent variable is the root-mean-square (RMS) of the orbital residuals for each planet and the independent variable is the planet's gravitational binding energy fraction ($\Omega$), controlling for semi-major axis and mass.
-- **Independent Validation**: Validate the residuals against the INPOP19a ephemeris (IMCCE) to ensure detected signals are not artifacts of the JPL modeling pipeline; this target is independent as it uses a separate dataset and force model.
-- **Significance Assessment**: Conduct a Monte Carlo simulation (10,000 iterations) resampling the observational uncertainties to generate a null distribution for the regression slope, calculating the p-value to determine if the correlation is statistically significant ($p < 0.05$).
-- **Constraint Derivation**: If the null hypothesis cannot be rejected, derive an upper bound on the Nordtvedt parameter $\eta$ based on the 95% confidence interval of the regression slope; if a correlation is found, estimate the magnitude of the violation.
-- **Reproducibility**: Archive all code, data processing scripts, and random seeds in a public repository, ensuring the full pipeline is reproducible on standard CPU hardware within the 6-hour GHA limit.
+- **Data Acquisition**: Download high-precision planetary ranging residuals (range and range-rate) for Mercury, Venus, Earth, and Mars (1960–2025) from the JPL Horizons system using `astroquery`, specifically extracting the "residuals" field relative to the DE440 ephemeris to ensure the baseline is a standard GR model.
+- **Binding Energy Compilation**: Retrieve gravitational binding energy fractions ($\Omega$) for each planet from a single, canonical peer-reviewed source (e.g., *Nimmo et al., 2004* or *Seager et al., 2015* Table 2) to ensure consistency, rather than calculating from bulk density which introduces model uncertainty.
+- **Signal Extraction**: Implement a Fourier analysis or a specific template-fitting algorithm on the time-series residuals to isolate the frequency component corresponding to the predicted Nordtvedt polarization (typically a long-period term related to the synodic period of the planet and the Sun). This step extracts the "signal amplitude" rather than using raw RMS.
+- **Baseline Validation**: Verify that the extracted signal amplitudes for the standard GR baseline (DE440) are consistent with zero within the noise floor of the data, ensuring the residuals are dominated by measurement noise and unmodeled non-gravitational effects (e.g., solar radiation pressure) rather than a built-in SEP violation.
+- **Regression Analysis**: Perform a weighted linear regression where the dependent variable is the extracted signal amplitude (with uncertainty derived from the template fit) and the independent variable is the planet's gravitational binding energy fraction ($\Omega$), controlling for the planet's distance from the Sun to account for signal strength scaling.
+- **Independent Validation**: Validate the methodology by injecting a synthetic Nordtvedt signal (with a known non-zero $\eta$) into a subset of the raw ranging data, re-running the ephemeris fit and residual extraction, and confirming that the pipeline correctly recovers the injected amplitude. This validation target (injected signal) is independent of the natural data and the $\Omega$ values.
+- **Null Distribution Generation**: Conduct a Monte Carlo simulation (1,000 iterations, sufficient for 7GB RAM constraint) where the residuals are randomized (phase-shuffled) to destroy any physical correlation while preserving the noise spectrum, generating a null distribution for the regression slope.
+- **Significance Assessment**: Calculate the p-value of the observed regression slope against the null distribution; if $p < 0.05$, reject the null hypothesis of no correlation; otherwise, derive the 95% confidence interval upper bound on $\eta$.
+- **Constraint Derivation**: Convert the regression slope and its uncertainty into an upper bound on the Nordtvedt parameter $\eta$, explicitly stating the scaling factor used to relate amplitude to $\eta$ based on the theoretical model.
+- **Reproducibility**: Archive all code, data processing scripts, and random seeds in a public repository, ensuring the full pipeline (data download, signal extraction, regression, and simulation) executes on a standard 2-core CPU within 6 hours by optimizing the signal extraction to use vectorized operations.
 
 ## Duplicate-check
 
@@ -48,7 +59,7 @@ We expect to either (1) find no statistically significant correlation between di
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-03T22:10:48Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-07T04:08:24Z
 **Outcome**: success_after_expansion
 **Original term**: Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data physics
 **Verified citation count**: 5
@@ -57,7 +68,27 @@ We expect to either (1) find no statistically significant correlation between di
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data physics | 5 |
+| 0 (initial) | Exploring the Validity of the Weak Equivalence Principle with Publicly Available Planetary Orbital Data physics | 0 |
+| 1 | experimental tests of the weak equivalence principle using planetary ephemerides | 4 |
+| 2 | constraints on the universality of free fall from solar system dynamics | 0 |
+| 3 | Nordtvedt effect analysis with planetary orbital data | 0 |
+| 4 | gravitational redshift and equivalence principle tests in the solar system | 0 |
+| 5 | differential acceleration of planetary bodies in the Sun's gravitational field | 0 |
+| 6 | post-Newtonian parameter beta and gamma constraints from orbital mechanics | 0 |
+| 7 | lunar laser ranging and planetary ephemeris tests of general relativity | 0 |
+| 8 | violation of the equivalence principle in alternative gravity theories | 0 |
+| 9 | precision tracking of planetary orbits for fundamental physics tests | 0 |
+| 10 | Eötvös experiments using astronomical observations | 0 |
+| 11 | solar system tests of metric theories of gravity | 0 |
+| 12 | equivalence principle constraints from asteroid and comet trajectories | 0 |
+| 13 | relativistic effects in planetary motion and equivalence principle validity | 0 |
+| 14 | analysis of planetary perihelion precession for equivalence principle violations | 0 |
+| 15 | gravitational binding energy and the strong equivalence principle in planetary systems | 0 |
+| 16 | solar system constraints on scalar-tensor gravity theories | 0 |
+| 17 | testing the inverse square law and equivalence principle with spacecraft telemetry | 0 |
+| 18 | public domain planetary orbital data for fundamental physics verification | 0 |
+| 19 | equivalence principle tests using the motion of inner and outer planets | 0 |
+| 20 | gravitational constant variation and equivalence principle in the solar system | 0 |
 
 ### Verified citations
 

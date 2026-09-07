@@ -1,128 +1,107 @@
-# Dataset Schema for Gut Microbiome and Cognitive Flexibility Study
-# Defines the structure for Participant and MicrobiomeProfile entities
-# Used for data validation and contract testing
+participant:
+  type: object
+  required:
+    - participant_id
+    - age
+    - sex
+    - bmi
+  properties:
+    participant_id:
+      type: string
+      description: Unique identifier for the participant
+    age:
+      type: integer
+      minimum: 0
+      description: Age in years
+    sex:
+      type: string
+      enum: ["M", "F"]
+      description: Biological sex
+    bmi:
+      type: number
+      minimum: 0
+      description: Body Mass Index
 
-$schema: http://json-schema.org/draft-07/schema#
-title: GutMicrobiomeCognitiveDataset
-description: Schema for the merged cohort dataset containing participant demographics,
-  microbiome profiles, and cognitive scores.
+lifestyle:
+  type: object
+  required:
+    - fiber_intake
+    - antibiotics_use
+  properties:
+    fiber_intake:
+      type: number
+      minimum: 0
+      description: Daily fiber intake in grams
+    antibiotics_use:
+      type: boolean
+      description: Whether participant used antibiotics in the last 6 months
 
-entities:
-  Participant:
-    description: Demographic and clinical characteristics of study participants.
-    type: object
-    required:
-      - participant_id
-      - age
-      - sex
-      - bmi
-    properties:
-      participant_id:
-        type: string
-        description: Unique identifier for the participant.
-        pattern: "^P[0-9]{4}$"
-      age:
-        type: integer
-        description: Age of the participant in years.
-        minimum: 0
-        maximum: 120
-      sex:
-        type: string
-        description: Biological sex of the participant.
-        enum:
-          - "M"
-          - "F"
-      bmi:
-        type: number
-        description: Body Mass Index.
-        minimum: 10.0
-        maximum: 80.0
-      fiber_intake:
-        type: number
-        description: Daily fiber intake in grams.
-        minimum: 0.0
-      antibiotic_use:
-        type: boolean
-        description: Whether the participant has used antibiotics in the last 6 months.
-      cognitive_score:
-        type: number
-        description: Composite score for cognitive flexibility (e.g., from N-back or task-switching).
-        minimum: 0.0
-        maximum: 100.0
+microbiome:
+  type: object
+  required:
+    - shannon_diversity
+    - simpson_diversity
+    - chao1
+  properties:
+    shannon_diversity:
+      type: number
+      description: Shannon diversity index
+    simpson_diversity:
+      type: number
+      description: Simpson diversity index
+    chao1:
+      type: number
+      description: Chao1 richness estimator
 
-  MicrobiomeProfile:
-    description: Microbiome composition and diversity metrics for a participant.
-    type: object
-    required:
-      - participant_id
-      - shannon_index
-      - simpson_index
-      - chao1_index
-    properties:
-      participant_id:
-        type: string
-        description: Unique identifier matching the Participant entity.
-        pattern: "^P[0-9]{4}$"
-      shannon_index:
-        type: number
-        description: Shannon diversity index (alpha diversity).
-        minimum: 0.0
-      simpson_index:
-        type: number
-        description: Simpson diversity index (alpha diversity).
-        minimum: 0.0
-        maximum: 1.0
-      chao1_index:
-        type: number
-        description: Chao1 estimator of species richness (alpha diversity).
-        minimum: 0.0
-      bray_curtis:
-        type: number
-        description: Bray-Curtis dissimilarity (beta diversity) relative to reference.
-        minimum: 0.0
-        maximum: 1.0
-      unweighted_unifrac:
-        type: number
-        description: Unweighted UniFrac distance (beta diversity).
-        minimum: 0.0
-        maximum: 1.0
-      weighted_unifrac:
-        type: number
-        description: Weighted UniFrac distance (beta diversity).
-        minimum: 0.0
-        maximum: 1.0
+cognitive:
+  type: object
+  required:
+    - cognitive_score
+  properties:
+    cognitive_score:
+      type: number
+      description: Cognitive flexibility score
 
-validation_rules:
-  - rule: age_cohort_filter
-    description: Participants must be age >= 65 for the primary analysis cohort.
-    condition: "Participant.age >= 65"
-  - rule: required_covariates
-    description: Required covariates for regression must be non-null.
-    fields:
-      - Participant.age
-      - Participant.sex
-      - Participant.bmi
-      - Participant.fiber_intake
-      - Participant.antibiotic_use
-  - rule: metric_validity
-    description: Diversity metrics must be non-negative.
-    condition: "MicrobiomeProfile.shannon_index >= 0 AND MicrobiomeProfile.simpson_index >= 0 AND MicrobiomeProfile.chao1_index >= 0"
-
-file_format:
-  type: csv
-  delimiter: ","
-  encoding: "utf-8"
-  columns:
+filtered_cohort:
+  type: object
+  allOf:
+    - $ref: '#/participant'
+    - $ref: '#/lifestyle'
+    - $ref: '#/microbiome'
+    - $ref: '#/cognitive'
+  required:
     - participant_id
     - age
     - sex
     - bmi
     - fiber_intake
-    - antibiotic_use
+    - antibiotics_use
+    - shannon_diversity
+    - simpson_diversity
+    - chao1
     - cognitive_score
-    - shannon_index
-    - simpson_index
-    - chao1_index
-    - bray_curtis
-    - unweighted_unifrac
-    - weighted_unifrac
+  properties:
+    participant_id:
+      type: string
+    age:
+      type: integer
+      minimum: 65
+    sex:
+      type: string
+      enum: ["M", "F"]
+    bmi:
+      type: number
+      minimum: 0
+    fiber_intake:
+      type: number
+      minimum: 0
+    antibiotics_use:
+      type: boolean
+    shannon_diversity:
+      type: number
+    simpson_diversity:
+      type: number
+    chao1:
+      type: number
+    cognitive_score:
+      type: number

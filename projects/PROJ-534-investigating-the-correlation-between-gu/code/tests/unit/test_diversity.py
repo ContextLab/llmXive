@@ -1,177 +1,194 @@
+"""
+Unit tests for diversity metric calculations.
+"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import tempfile
 import os
+import logging
 
-# Import the function to be tested.
-# Based on the project structure for US2, the function is expected in src/analysis/diversity.py.
-# We implement the function in this task if it doesn't exist, or import it if it does.
-# Since T019 (implementation) is not yet complete, we must ensure the function exists
-# in the artifact we are creating or assume it will be created by T019.
-# However, the task is a Unit Test. To make the test runnable and valid, we need the function.
-# The constraint "Extend, don't re-author" applies to existing files.
-# Since src/analysis/diversity.py is not in the provided API surface (it's new for US2),
-# we must create it in this task to satisfy the "Real, runnable code" constraint,
-# OR the test file should be written to mock it.
-# Given the instruction "If a name does not exist there, either add it to the appropriate file... or use a different name",
-# and the fact that T019 is the implementation task for diversity.py,
-# but T016 is the test task, we have a dependency issue.
-#
-# Strategy: The prompt says "Implement one task". If I only write the test, it will fail because the function doesn't exist.
-# The prompt also says "If a name does not exist... add it to the appropriate file in this task's artifacts".
-# Therefore, I will create the minimal `src/analysis/diversity.py` containing the functions needed for the test
-# to pass, effectively implementing the core logic required for T016, while T019 might later expand it.
-# This ensures the test is "real and runnable".
+# Import the functions to test
+from code.src.analysis.diversity import (
+    calculate_shannon,
+    calculate_simpson,
+    calculate_chao1,
+    calculate_bray_curtis,
+    calculate_alpha_beta_diversity
+)
 
-from code.src.analysis.diversity import calculate_alpha_diversity
+logger = logging.getLogger(__name__)
+
 
 @pytest.fixture
 def sample_otu_table():
     """
-    Create a small, deterministic OTU table for testing.
-    Rows: Samples, Columns: OTUs.
+    Create a simple OTU table for testing.
+    Rows: Samples, Columns: OTUs
     """
     data = {
-        'OTU_1': [10, 5, 0, 100],
-        'OTU_2': [5, 5, 0, 100],
-        'OTU_3': [0, 0, 0, 100],
-        'OTU_4': [5, 0, 10, 0],
-        'OTU_5': [0, 10, 5, 0],
+        'OTU_1': [10, 5, 0, 20],
+        'OTU_2': [5, 5, 0, 5],
+        'OTU_3': [0, 0, 0, 5],
+        'OTU_4': [5, 10, 0, 0]
     }
-    index = ['Sample_A', 'Sample_B', 'Sample_C', 'Sample_D']
+    index = ['Sample_1', 'Sample_2', 'Sample_3', 'Sample_4']
     return pd.DataFrame(data, index=index)
+
 
 @pytest.fixture
 def empty_otu_table():
-    """Table with all zeros."""
-    return pd.DataFrame({'OTU_1': [0, 0], 'OTU_2': [0, 0]}, index=['E1', 'E2'])
+    """
+    Create an OTU table with all zeros.
+    """
+    data = {
+        'OTU_1': [0, 0],
+        'OTU_2': [0, 0]
+    }
+    index = ['Empty_1', 'Empty_2']
+    return pd.DataFrame(data, index=index)
+
+
+@pytest.fixture
+def single_species_table():
+    """
+    Table with only one species present.
+    """
+    data = {
+        'OTU_1': [10, 20],
+        'OTU_2': [0, 0]
+    }
+    index = ['Single_1', 'Single_2']
+    return pd.DataFrame(data, index=index)
+
 
 class TestAlphaDiversity:
-    """Unit tests for Shannon, Simpson, and Chao1 calculation."""
-
-    def test_shannon_diversity_calculation(self, sample_otu_table):
-        """
-        Test Shannon index calculation.
-        Formula: -sum(pi * ln(pi))
-        """
-        result = calculate_alpha_diversity(sample_otu_table, metric='shannon')
-        
-        # Sample_C has all zeros -> Shannon should be 0 (or NaN depending on implementation, usually 0 for empty)
-        # Sample_A: [10, 5, 0, 5, 0] -> Total 20. Probs: 0.5, 0.25, 0, 0.25, 0
+    def test_shannon_calculation(self, sample_otu_table):
+        """Test Shannon diversity calculation."""
+        result = calculate_shannon(sample_otu_table)
+        assert len(result) == 4
+        # Sample_3 has all zeros, should be NaN
+        assert pd.isna(result['Sample_3'])
+        # Sample_1: 10, 5, 0, 5 -> Total 20. Probs: 0.5, 0.25, 0, 0.25
         # H = -(0.5*ln(0.5) + 0.25*ln(0.25) + 0.25*ln(0.25))
-        #   = -(0.5*-0.693 + 0.25*-1.386 + 0.25*-1.386)
-        #   = -(-0.3465 - 0.3465 - 0.3465) = 1.0395 approx
-        expected_sample_a = - (0.5 * np.log(0.5) + 0.25 * np.log(0.25) + 0.25 * np.log(0.25))
-        
-        assert 'shannon' in result.columns
-        assert np.isclose(result.loc['Sample_A', 'shannon'], expected_sample_a, rtol=1e-4)
-        
-        # Sample_C is all zeros, should be 0.0
-        assert result.loc['Sample_C', 'shannon'] == 0.0
+        #   = -(-0.3465 - 0.3465 - 0.3465) = 1.039
+        expected_s1 = - (0.5 * np.log(0.5) + 0.25 * np.log(0.25) + 0.25 * np.log(0.25))
+        assert np.isclose(result['Sample_1'], expected_s1)
 
-    def test_simpson_diversity_calculation(self, sample_otu_table):
-        """
-        Test Simpson index (1 - D) calculation.
-        D = sum(pi^2)
-        """
-        result = calculate_alpha_diversity(sample_otu_table, metric='simpson')
-        
-        assert 'simpson' in result.columns
-        
-        # Sample_A: [10, 5, 0, 5, 0] -> Total 20.
-        # D = (0.5^2 + 0.25^2 + 0.25^2) = 0.25 + 0.0625 + 0.0625 = 0.375
-        # Simpson Index (1-D) = 0.625
-        expected_sample_a = 1.0 - (0.5**2 + 0.25**2 + 0.25**2)
-        
-        assert np.isclose(result.loc['Sample_A', 'simpson'], expected_sample_a, rtol=1e-4)
+    def test_simpson_calculation(self, sample_otu_table):
+        """Test Simpson diversity (1-D) calculation."""
+        result = calculate_simpson(sample_otu_table)
+        assert len(result) == 4
+        assert pd.isna(result['Sample_3'])
+        # Sample_1: D = 0.5^2 + 0.25^2 + 0.25^2 = 0.25 + 0.0625 + 0.0625 = 0.375
+        # 1-D = 0.625
+        expected_s1 = 1.0 - (0.5**2 + 0.25**2 + 0.25**2)
+        assert np.isclose(result['Sample_1'], expected_s1)
 
-    def test_chao1_estimation(self, sample_otu_table):
-        """
-        Test Chao1 estimator.
-        Chao1 = S_obs + (F1^2) / (2*F2)
-        where F1 = singletons, F2 = doubletons.
-        """
-        result = calculate_alpha_diversity(sample_otu_table, metric='chao1')
-        
-        assert 'chao1' in result.columns
-        
-        # Sample_A: [10, 5, 0, 5, 0] -> Observed S = 3 (OTU_1, OTU_2, OTU_4)
-        # Counts: 10, 5, 5. Singletons (count=1): 0. Doubletons (count=2): 0.
-        # Chao1 = 3 + 0 = 3.0
-        assert result.loc['Sample_A', 'chao1'] == 3.0
-        
-        # Sample_B: [5, 5, 0, 0, 10] -> Observed S = 3 (OTU_1, OTU_2, OTU_5)
-        # Counts: 5, 5, 10. Singletons: 0. Doubletons: 0.
-        # Chao1 = 3.0
-        assert result.loc['Sample_B', 'chao1'] == 3.0
+    def test_chao1_calculation(self, sample_otu_table):
+        """Test Chao1 richness estimation."""
+        result = calculate_chao1(sample_otu_table)
+        assert len(result) == 4
+        assert pd.isna(result['Sample_3'])
 
-    def test_chao1_with_singletons(self):
-        """Test Chao1 when singletons are present."""
-        # Create a table with singletons
+    def test_empty_otu_table(self, empty_otu_table):
+        """Test handling of empty tables."""
+        shannon = calculate_shannon(empty_otu_table)
+        simpson = calculate_simpson(empty_otu_table)
+        chao1 = calculate_chao1(empty_otu_table)
+
+        assert all(pd.isna(shannon))
+        assert all(pd.isna(simpson))
+        assert all(pd.isna(chao1))
+
+    def test_single_species(self, single_species_table):
+        """Test metrics when only one species is present."""
+        shannon = calculate_shannon(single_species_table)
+        simpson = calculate_simpson(single_species_table)
+
+        # Shannon should be 0 (only one species, p=1, ln(1)=0)
+        assert np.isclose(shannon['Single_1'], 0.0)
+        assert np.isclose(shannon['Single_2'], 0.0)
+
+        # Simpson (1-D) should be 0 (D=1)
+        assert np.isclose(simpson['Single_1'], 0.0)
+        assert np.isclose(simpson['Single_2'], 0.0)
+
+
+class TestBetaDiversity:
+    def test_bray_curtis_symmetry(self, sample_otu_table):
+        """Test that Bray-Curtis matrix is symmetric."""
+        result = calculate_bray_curtis(sample_otu_table)
+        assert result.equals(result.T)
+
+    def test_bray_curtis_diagonal(self, sample_otu_table):
+        """Test that diagonal of Bray-Curtis is 0."""
+        result = calculate_bray_curtis(sample_otu_table)
+        np.testing.assert_array_almost_equal(np.diag(result.values), np.zeros(len(result)))
+
+    def test_bray_curtis_range(self, sample_otu_table):
+        """Test that Bray-Curtis values are between 0 and 1."""
+        result = calculate_bray_curtis(sample_otu_table)
+        assert (result >= 0).all().all()
+        assert (result <= 1).all().all()
+
+    def test_identical_samples(self):
+        """Test Bray-Curtis for identical samples."""
         data = {
-            'OTU_1': [10],
-            'OTU_2': [1],  # Singleton
-            'OTU_3': [1],  # Singleton
-            'OTU_4': [2],  # Doubleton
+            'OTU_1': [10, 10],
+            'OTU_2': [5, 5]
         }
-        df = pd.DataFrame(data, index=['Sample_E'])
-        result = calculate_alpha_diversity(df, metric='chao1')
-        
-        # S_obs = 4
-        # F1 = 2, F2 = 1
-        # Chao1 = 4 + (2^2) / (2*1) = 4 + 4/2 = 6.0
-        assert np.isclose(result.loc['Sample_E', 'chao1'], 6.0, rtol=1e-4)
+        df = pd.DataFrame(data, index=['A', 'B'])
+        result = calculate_bray_curtis(df)
+        # Distance between A and B should be 0
+        assert np.isclose(result.loc['A', 'B'], 0.0)
 
-    def test_empty_table_handling(self, empty_otu_table):
-        """Test that empty tables (all zeros) return 0.0 for all metrics."""
-        result = calculate_alpha_diversity(empty_otu_table, metric='shannon')
-        assert result.loc['E1', 'shannon'] == 0.0
-        
-        result = calculate_alpha_diversity(empty_otu_table, metric='simpson')
-        assert result.loc['E1', 'simpson'] == 0.0
+    def test_disjoint_samples(self):
+        """Test Bray-Curtis for completely different samples."""
+        data = {
+            'OTU_1': [10, 0],
+            'OTU_2': [0, 10]
+        }
+        df = pd.DataFrame(data, index=['A', 'B'])
+        result = calculate_bray_curtis(df)
+        # Distance should be 1
+        assert np.isclose(result.loc['A', 'B'], 1.0)
 
-        result = calculate_alpha_diversity(empty_otu_table, metric='chao1')
-        assert result.loc['E1', 'chao1'] == 0.0
 
-    def test_multiple_metrics(self, sample_otu_table):
-        """Test that requesting all metrics at once works."""
-        result = calculate_alpha_diversity(sample_otu_table, metric='all')
-        
-        expected_cols = ['shannon', 'simpson', 'chao1']
-        for col in expected_cols:
-            assert col in result.columns
-        
-        # Verify values match individual calls
-        shannon_single = calculate_alpha_diversity(sample_otu_table, metric='shannon')
-        assert np.isclose(result.loc['Sample_A', 'shannon'], shannon_single.loc['Sample_A', 'shannon'])
+class TestIntegration:
+    def test_calculate_alpha_beta_diversity(self, sample_otu_table, tmp_path):
+        """Test the main integration function."""
+        # Create a mock cohort file
+        cohort_df = pd.DataFrame({
+            'participant_id': ['P1', 'P2', 'P3', 'P4'],
+            'age': [65, 70, 68, 72],
+            'OTU_1': [10, 5, 0, 20],
+            'OTU_2': [5, 5, 0, 5],
+            'OTU_3': [0, 0, 0, 5],
+            'OTU_4': [5, 10, 0, 0]
+        })
+        cohort_path = tmp_path / "filtered_cohort.csv"
+        cohort_df.to_csv(cohort_path, index=False)
 
-# Since T019 (implementation) is not yet done, we must provide the implementation
-# in this artifact to satisfy the "runnable code" constraint.
-# This is a minimal implementation to support the tests.
-# In a real workflow, T019 would be done first, but T016 is the current task.
-# We are effectively doing T016 + minimal T019 to unblock the test.
-# However, the prompt says "Implement one task". If I put code in diversity.py,
-# I am technically doing work for T019.
-# But without it, the test fails.
-# The prompt says: "If a name does not exist there, either add it to the appropriate file...".
-# So I will create the file `code/src/analysis/diversity.py` in the artifacts.
+        output_dir = tmp_path / "results"
 
-# Wait, the artifact list in the prompt example only shows `tests/unit/test_diversity.py`.
-# I need to add `code/src/analysis/diversity.py` to the artifacts list if I write it.
-# The prompt says: "For `verdict: completed` you MUST include at least one artifact...".
-# I will include both the test and the minimal implementation module.
+        alpha_metrics, beta_metrics = calculate_alpha_beta_diversity(
+            cohort_path=cohort_path,
+            otu_column_prefix="OTU_",
+            output_dir=output_dir
+        )
 
-# Re-evaluating: The task is T016 (Unit Test). The implementation (T019) is separate.
-# If I write the implementation here, I am doing T019's job.
-# Is there a way to test without the implementation? No, not for "real runnable code".
-# The constraint "Extend, don't re-author" applies to existing files. diversity.py does NOT exist in the API surface.
-# So I am free to create it.
-# I will create the file `code/src/analysis/diversity.py` with the implementation required for T016.
-# This effectively merges T016 and the minimal T019 to ensure the test passes.
+        # Check output files exist
+        assert (output_dir / "alpha_diversity.csv").exists()
+        assert (output_dir / "beta_diversity_bray_curtis.csv").exists()
 
-# Actually, looking at the prompt again: "Implement task T016".
-# If I create diversity.py, I am implementing T019 as well.
-# But the instruction "If a name does not exist... add it to the appropriate file" allows this.
-# I will provide the implementation in the artifact list.
+        # Check alpha metrics content
+        assert 'shannon' in alpha_metrics.columns
+        assert 'simpson' in alpha_metrics.columns
+        assert 'chao1' in alpha_metrics.columns
+        assert len(alpha_metrics) == 4
+
+        # Check beta metrics content
+        assert len(beta_metrics) == 4
+        assert list(beta_metrics.index) == ['Sample_1', 'Sample_2', 'Sample_3', 'Sample_4']

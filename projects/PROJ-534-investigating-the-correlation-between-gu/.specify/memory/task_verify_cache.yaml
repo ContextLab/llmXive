@@ -21,10 +21,12 @@ T006:
     \ and its test structure is not satisfied."
 T010:
   c: false
-  h: 9d815303fb1a416dfe3b4cbdef8c49adf90c54d8626934fa340d999e6693fa5e
-  r: "The required artifacts (`data/processed/filtered_cohort.csv`, `contracts/dataset.schema.yaml`,\
-    \ and the test file `tests/contract/test_schemas.py`) are all missing, so no contract\
-    \ test can be run or validated. The task\u2019s core deliverable is absent."
+  h: 445afb464340912f449bf29d29ce5b5f908f3e970157e01cd84828048ae5027c
+  r: "The required `data/processed/filtered_cohort.csv` file does not exist, and the\
+    \ referenced schema file `contracts/dataset.schema.yaml` (or `schema.yaml`) is\
+    \ also missing, so the contract test cannot actually validate anything. The test\
+    \ script is present but without the data and schema it cannot be executed, meaning\
+    \ the task\u2019s core requirement is unmet."
 T015:
   c: false
   h: cc1428c13f076ffb3ba9bfe9c25430769a8a5ee4f96c5c232e454cd0b9891d37
@@ -38,3 +40,22 @@ T016:
     so no unit tests for Shannon, Simpson, or Chao1 calculations are present. The
     task cannot be considered fulfilled until this file is created with appropriate
     test cases.
+T017:
+  c: false
+  h: c33b9160893b55d9c5caaaa3bfe4ade5c1b722926da2f83d2b009fe67926f296
+  r: "The required artifact `tests/unit/test_correlation.py` does not exist, so no\
+    \ unit test code is present to verify the Pearson/Spearman auto\u2011switch logic\
+    \ or its logging. The task therefore remains unfulfilled."
+T018:
+  c: false
+  h: c33b9160893b55d9c5caaaa3bfe4ade5c1b722926da2f83d2b009fe67926f296
+  r: "The required artifact `tests/unit/test_correlation.py` does not exist on disk,\
+    \ so no unit test for the Benjamini\u2011Hochberg correction was provided. The\
+    \ task remains undone."
+T027:
+  c: false
+  h: b8ef52a2c5a87c3c844e6135fdee0e6e7622054134367ae9786c5f1b8eb655cc
+  r: The required output file `data/results/correlation_results.json` does not exist,
+    and the schema file `contracts/analysis_output.schema.yaml` (or `schema.yaml`)
+    is also missing, so the contract test cannot actually validate anything. The present
+    test script is incomplete (truncated) and cannot run against the absent artifacts.
