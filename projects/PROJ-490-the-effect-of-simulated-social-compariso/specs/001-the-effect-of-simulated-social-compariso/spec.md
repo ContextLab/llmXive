@@ -34,7 +34,7 @@ As a researcher, I need to preprocess the identified (validated) datasets and fi
 
 1. **Given** a validated dataset with ≥100 participants (real or synthetic), **When** the analysis pipeline processes missing values using Multiple Imputation by Chained Equations (MICE) for missingness < 20%, **Then** at least 95% of records have complete data after preprocessing, and rows with > 20% missingness in key variables are excluded and reported.
 2. **Given** the preprocessed data, **When** the linear regression model is fitted using 'avatar_condition' (normalized to 0/1 if binary, or continuous if continuous) and 'comparison_tendency', **Then** all model assumptions are validated (normality of residuals via Shapiro-Wilk p > 0.05, homoscedasticity via Breusch-Pagan p > 0.05, VIF < 5) and results are produced.
-3. **Given** the regression results, **When** the interaction effect is tested, **Then** the effect size estimate with 95% confidence interval is generated, and the interpretation is framed as 'Empirical Association' for real data or 'Simulated Causal Effect' for synthetic data.
+3. **Given** the regression results, **When** the interaction effect is tested, **Then** the effect size estimate with A confidence interval will be constructed to estimate the precision of the effect size. is generated, and the interpretation is framed as 'Empirical Association' for real data or 'Simulated Causal Effect' for synthetic data.
 
 ---
 
@@ -71,7 +71,7 @@ As a researcher, I need to conduct sensitivity analyses including bootstrap resa
 - **FR-004**: System MUST validate model assumptions using Shapiro-Wilk test (p > 0.05) for normality of residuals, Breusch-Pagan test (p > 0.05) for homoscedasticity, and VIF < 5 for multicollinearity (See US-2)
 - **FR-005**: System MUST execute bootstrap resampling with a sufficient number of iterations to estimate stability of the interaction effect (See US-3)
 - **FR-006**: System MUST apply family-wise error correction (Bonferroni or Holm-Bonferroni) when multiple hypothesis tests are performed (See US-3)
-- **FR-007**: System MUST conduct two distinct sensitivity analyses: (1) Test stability of significance across p-value thresholds {0.05, 0.10} and report if the conclusion (significant vs. non-significant) changes; (2) Test parameter recovery stability across imputation fraction limits {0.05, 0.10, 0.15, 0.20} and report the Bias (|beta_hat - beta_true|) for synthetic data or coefficient variance for real data (See US-3)
+- **FR-007**: System MUST conduct two distinct sensitivity analyses: (1) Test stability of significance across p-value thresholds (standard significance levels) and report if the conclusion (significant vs. non-significant) changes; (2) Test parameter recovery stability across imputation fraction limits {, 0.10, 0.15, 0.20} and report the Bias (|beta_hat - beta_true|) for synthetic data or coefficient variance for real data (See US-3)
 - **FR-008**: System MUST document all code and data versions in a GitHub repository with requirements.txt for reproducibility (See US-1)
 - **FR-009**: System MUST verify that the dataset contains ALL required variables (avatar exposure condition, pre/post self-esteem, social comparison tendency) before analysis proceeds; if missing, the system MUST trigger synthetic data generation (See US-1)
 - **FR-010**: System MUST frame all findings as ASSOCIATIONAL rather than causal when the design is observational (secondary analysis without randomization), or as 'simulated causal effect' when using synthetic data (See US-2)
@@ -95,13 +95,13 @@ As a researcher, I need to conduct sensitivity analyses including bootstrap resa
 - **SC-001**: Dataset discovery success is measured against the requirement of identifying at least one dataset with N ≥ 100 participants containing RSES, INCOM, and pre/post scores, OR successful initialization of synthetic generation (See US-1)
 - **SC-002**: Analysis pipeline execution time is measured against a predefined CPU-only compute constraint on GitHub Actions free-tier runner, as established by the platform's resource limits. (See US-2)
 - **SC-003**: Model validity is measured against assumption validation criteria (Shapiro-Wilk p > 0.05, Breusch-Pagan p > 0.05, VIF < 5) (See US-2)
-- **SC-004**: Result stability is measured against bootstrap resampling confidence intervals from 1,000 iterations where the CI width variance is < 0.01 (See US-3)
+- **SC-004**: Result stability is measured against bootstrap resampling confidence intervals from A sufficient number of iterations will be performed to ensure convergence. where the CI width variance is < 0.01 (See US-3)
 - **SC-005**: Methodological validity is measured against Parameter Recovery for synthetic data (Bias = |beta_hat - beta_true| < 0.05) OR Confidence Interval Width for real data (CI width < 0.2). Post-hoc power analysis is explicitly excluded from this assessment. (See US-2, US-3)
 
 ## Assumptions
 
 - Public datasets containing RSES, INCOM, and longitudinal self-esteem data may not exist; if none are found, the system MUST proceed with FR-011 to generate a synthetic dataset with known ground-truth parameters, explicitly labeling the results as "Pipeline Validation Only" and NOT as an answer to the real-world research question.
-- The analysis runs on CPU-only hardware (GitHub Actions free-tier: multiple CPU cores, ~7 GB RAM, ~14 GB disk, ≤6 h per job) without GPU/CUDA accelerators.
+- The analysis runs on CPU-only hardware (GitHub Actions free-tier: multiple CPU cores, ~7 GB RAM, A significant disk storage capacity is required., ≤6 h per job) without GPU/CUDA accelerators.
 - RSES and INCOM are validated instruments with citable validation literature (no new citations will be fabricated).
 - The research design is observational (secondary analysis) OR simulated (synthetic data); findings from real data are framed as associational, while synthetic data findings are framed as 'simulated causal effects' based on ground truth, with no claim of external validity for the latter.
 - If key variables have > 20% missingness, rows are excluded (FR-013); if key variables are missing entirely, synthetic data is generated (FR-011).

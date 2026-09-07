@@ -17,7 +17,7 @@ This project implements a statistical analysis pipeline to investigate the effec
 **Project Type**: computational-research-pipeline  
 **Performance Goals**: Complete end-to-end analysis (including A sufficient number of bootstrap iterations) within ≤6 hours on 2 CPU cores, ~7 GB RAM.  
 **Constraints**: NO GPU/CUDA; NO heavy deep learning; synthetic data only if real data lacks required variables (RSES, INCOM, pre/post); strict framing of results as "Pipeline Validation" for synthetic data.  
-**Scale/Scope**: N ≥ 100 participants; single ANCOVA model; 1,000 bootstrap iterations.
+**Scale/Scope**: N ≥ 100 participants; single ANCOVA model; A sufficient number of bootstrap iterations.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -65,7 +65,7 @@ projects/PROJ-490-the-effect-of-simulated-social-compariso/
 │   │   └── config.py          # Seed management
 │   ├── analysis/
 │   │   ├── regression.py      # Model fitting (ANCOVA), assumption checks (visual + stat)
-│   │   ├── bootstrap.py       # 1,000 iterations stability
+│   │   ├── bootstrap.py       # A sufficient number of iterations stability
 │   │   └── sensitivity.py     # Threshold sweeps, parameter recovery, MNAR sensitivity
 │   └── utils/
 │       ├── logger.py

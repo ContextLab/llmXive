@@ -76,11 +76,11 @@
 ### Implementation for User Story 1
 
 - [X] T008 [P] [US1] Implement dataset discovery script in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` to query HuggingFace, OpenML, and OSF for RSES/INCOM/PrePost variables.
-- [X] T009 [US1] Implement IRB/Consent verification logic in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` (DEPENDS ON T008 output): Verify metadata for IRB approval by checking HuggingFace/OSF metadata fields for 'license' containing 'IRB' or specific consent tags. If missing, log specific missing fields (e.g., 'license', 'consent_form_url'), record the dataset source as blocked, and trigger synthetic fallback (Constitution Principle VI, FR-011, FR-014).
-- [X] T010 [US1] Implement synthetic data generator in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` with N ≥ 100, interaction β = 0.2, and "Pipeline Validation Only" labeling (FR-011).
-- [ ] T011 [US1] Implement fallback logic: if real data not found, trigger synthetic generation and set `data_source_type` flag (FR-009).
-- [X] T012 [US1] Create `data/raw` loader that saves downloaded CSVs or synthetic outputs and writes checksums to `state/projects/PROJ-490-the-effect-of-simulated-social-compariso.yaml` under `artifact_hashes` (Constitution Principle III, V).
-- [ ] T013 [US1] Add validation to ensure `data/raw` contains ALL required variables (avatar_condition, pre_self_esteem, post_self_esteem, comparison_tendency) before proceeding (FR-009).
+- [X] T009 [US1] Implement IRB/Consent verification logic in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` (DEPENDS ON T008 output): Verify metadata for IRB approval by checking HuggingFace/OSF metadata fields for 'license' containing 'IRB' or specific consent tags. If missing, **immediately raise a BlockingException** to halt the pipeline and prevent downstream analysis (Constitution Principle VI, FR-011, FR-014). Log specific missing fields (e.g., 'license', 'consent_form_url') to `logs/irb_check.log` before raising. Also check metadata for presence of ALL required variables. **This task acts as a Hard Gate: if it raises, no downstream tasks (T010-T030) can execute.**
+- [X] T010 [P] [US1] Implement synthetic data generator in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` with N ≥ 100, interaction β = 0.2, and "Pipeline Validation Only" labeling (FR-011).
+- [X] T011 [US1] Implement fallback logic: DEPENDS ON T009, T010, T013. If real data not found or blocked (via T009) OR if required variables are missing in file (via T013), trigger synthetic generation (call T010), set `data_source_type=synthetic` in `state/projects/PROJ-490-the-effect-of-simulated-social-compariso.yaml`, and generate `data/raw/synthetic_seed.json` (FR-009).
+- [X] T012 [P] [US1] Create `data/raw` loader that saves downloaded CSVs or synthetic outputs and writes checksums to `state/projects/PROJ-490-the-effect-of-simulated-social-compariso.yaml` under `artifact_hashes` (Constitution Principle III, V).
+- [X] T013 [US1] Add validation to ensure `data/raw` contains ALL required variables (avatar_condition, pre_self_esteem, post_self_esteem, comparison_tendency) before proceeding (FR-009). Write validation status and missing fields to `data/processed/validation_report.json`. **DEPENDS ON T012** (Loader must run first to populate data).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data path selected and validated).
 
@@ -99,13 +99,13 @@
 
 ### Implementation for User Story 2
 
-- [X] T016 [US2] Implement missing data handling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py` using `miceforest` (primary) for < 20% missingness; fallback to `sklearn.impute.IterativeImputer` if `miceforest` unavailable; exclude rows with > 20% (FR-002, FR-013).
-- [X] T017 [US2] Implement variable normalization (avatar_condition to 0/1 if binary) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py`. Note: Do NOT calculate change scores; ANCOVA uses pre_self_esteem as covariate.
+- [X] T017 [US2] Implement variable normalization (avatar_condition to 0/1 if binary) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py` AND compute change scores (post_self_esteem - pre_self_esteem) for descriptive purposes. **Note**: While Spec FR-003 defines the outcome as `self-esteem_change`, the Plan.md mandates an ANCOVA approach (outcome: post_self_esteem, covariate: pre_self_esteem) to avoid mathematical coupling. This task implements the ANCOVA-compliant normalization and **explicitly documents this deviation from FR-003 in the code comments and report** for traceability. **DEPENDS ON T013** (Validation must pass first).
+- [X] T016 [US2] Implement missing data handling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py` using `miceforest` (primary) for < 20% missingness; fallback to `sklearn.impute.IterativeImputer` if `miceforest` unavailable; exclude rows with > 20% (FR-002, FR-013). **DEPENDS ON T017** (Normalization must occur before imputation to ensure valid data types for MICE).
 - [X] T018 [US2] Implement ANCOVA regression model in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/regression.py` (outcome: post_self_esteem, covariate: pre_self_esteem, predictors: avatar_condition, comparison_tendency, interaction).
 - [X] T019 [US2] Implement assumption validation in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/regression.py`: Shapiro-Wilk (normality), Breusch-Pagan (homoscedasticity), VIF (collinearity) (FR-004).
-- [ ] T020 [US2] Implement dynamic interpretation logic: "Empirical Association" for real data vs "Simulated Causal Effect" for synthetic data (FR-010).
-- [ ] T021 [US2] Export regression coefficients to CSV and diagnostics (p-values, VIF, CI) to JSON in `data/processed/` (FR-008).
-- [ ] T022 [US2] Handle collinearity (VIF ≥ 5) by flagging and framing results descriptively without claiming independent effects (Assumptions).
+- [X] T020 [US2] Implement dynamic interpretation logic: "Empirical Association" for real data vs "Simulated Causal Effect" for synthetic data. DEPENDS ON T019. Append interpretation string to `data/processed/final_report.json` (FR-010).
+- [X] T021 [US2] Export regression coefficients to `data/processed/regression_coefficients.csv` and diagnostics (p-values, VIF, CI) to `data/processed/model_diagnostics.json` (FR-008).
+- [X] T022 [US2] Handle collinearity (VIF ≥ 5) by flagging and framing results descriptively without claiming independent effects. Update `data/processed/model_diagnostics.json` with `collinearity_warning` key (Assumptions).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (data loaded, model fitted, assumptions checked).
 
@@ -124,12 +124,12 @@
 
 ### Implementation for User Story 3
 
-- [X] T025 [US3] Implement bootstrap resampling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/bootstrap.py` with a sufficient number of iterations to estimate interaction effect stability (FR-005).
-- [ ] T026 [US3] Calculate CI width variance from bootstrap results; flag if variance ≥ 0.01 (SC-004).
+- [X] T025 [US3] Implement bootstrap resampling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/bootstrap.py` with **at least 1,000 iterations** OR **until CI width variance < 0.01** is achieved (FR-005). This ensures a concrete stopping criterion for executability.
+- [X] T026 [US3] Calculate CI width variance from bootstrap results; **raise an exception if CI width variance >= 0.01** (SC-004). DEPENDS ON T025. Write `ci_width_variance` to `data/processed/final_report.json` only if the check passes. **This enforces the success criterion.**
 - [X] T027 [US3] Implement parameter recovery analysis in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` for synthetic data: compare estimated coefficients to ground truth (FR-011, SC-005).
-- [X] T028 [US3] Implement threshold sensitivity sweep in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` for p-value thresholds representing conventional significance levels and imputation limits {low, moderate, high, very high} (FR-007).
-- [X] T029 [US3] Apply family-wise error correction (Bonferroni/Holm) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` (FR-006): Apply correction to the set of tests generated by sensitivity sweeps (thresholds + imputation limits) and model assumption tests (Shapiro, Breusch-Pagan, VIF) if any are significant.
-- [ ] T030 [US3] Generate final report JSON containing: data path used, model results, bootstrap stability, parameter recovery (if synthetic), and sensitivity findings (FR-012).
+- [X] T028 [US3] Implement threshold sensitivity sweep in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` for p-value thresholds (conventional significance levels) and imputation limits **{0.05, 0.10, 0.15, 0.20}** (FR-007). **Explicitly uses the mandated threshold set.**
+- [X] T029 [US3] Apply family-wise error correction (Bonferroni/Holm) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` (FR-006): Apply correction **only** to the set of tests generated by sensitivity sweeps (thresholds + imputation limits) and the primary interaction effect hypothesis test. **Do NOT apply correction to model assumption tests (Shapiro, Breusch-Pagan, VIF)** as these are diagnostic checks, not research hypotheses.
+- [X] T030 [US3] Generate final report JSON containing: data path used, model results, bootstrap stability, parameter recovery (if synthetic), and sensitivity findings (FR-012). Write to `data/processed/final_report.json` with keys: `data_source_type`, `model_coefficients`, `bootstrap_ci_variance`, `parameter_recovery_bias` (if synthetic), `sensitivity_results`.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -140,11 +140,11 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T031 [P] Documentation updates in `docs/analysis_plan.md` and `README.md`
-- [ ] T032a [P] Run `flake8` on `code/` and fix all errors/warnings (errors required)
-- [ ] T032b [P] Run `black` on `code/` and `tests/` and fix all formatting violations
-- [ ] T033 [P] Run `pytest` on all unit and contract tests in `tests/`
-- [ ] T034 Verify reproducibility by running `main.py` twice with fixed seeds and comparing output hashes
-- [ ] T035 Run quickstart.md validation if available
+- [X] T032a [P] Run `flake8` on `code/` and fix all errors (zero errors remaining)
+- [X] T032b [P] Run `black` on `code/` and `tests/` and fix all formatting violations. DEPENDS ON T032a.
+- [X] T033 [P] Run `pytest` on all unit and contract tests in `tests/`
+- [X] T034 Verify reproducibility by running `main.py` twice with fixed seeds and comparing output hashes. Writes the hash comparison results to `state/reproducibility_check.yaml` (Constitution Principle III, V).
+- [X] T035 Run quickstart.md validation if available
 
 ---
 
