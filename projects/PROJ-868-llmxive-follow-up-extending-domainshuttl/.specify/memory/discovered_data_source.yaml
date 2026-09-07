@@ -1,12 +1,11 @@
 status: none
-intent: WebVid-10M dataset python package download DomainShuttle encoder python package
+intent: download WebVid-10M curated subset with DomainShuttle encoder python package
   dataset
 required_fields:
-- video_id
 - subject_id
-- video_url
-- captions
-- frame_paths
-cache_key: ba838fdb0503632a820dbfe99bd8b2d7b83a52c9b731c74cfa0ff1ba83e46c2c
-searched_at: '2026-09-01T06:59:14.648766+00:00'
+- video_id
+- visual_complexity_score
+- intrinsic_subject_feature_embedding
+cache_key: 8895b9e5f7a76af0ca5f0ab0bd70d90de0b83cafbff6ff9dee691ccb5d02501c
+searched_at: '2026-09-07T09:29:24.668960+00:00'
 retry_count: 1

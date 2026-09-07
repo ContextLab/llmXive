@@ -167,11 +167,24 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T043 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T044 Code cleanup and refactoring in `code/`
-- [ ] T047 [P] Additional unit tests in `tests/unit/`
-- [ ] T048 Run quickstart.md validation
-- [ ] T049 Verify reproducibility by re-running pipeline with pinned seeds and comparing checksums
+- [X] T043 [P] Documentation updates in `README.md` and `docs/`
+- [X] T044 Code cleanup and refactoring in `code/`
+- [X] T047 [P] Additional unit tests in `tests/unit/`
+- [X] T048 Run quickstart.md validation
+- [X] T049 Verify reproducibility by re-running pipeline with pinned seeds and comparing checksums
+
+---
+
+## Phase N+1: Revision & Analysis Resolution
+
+**Purpose**: Address specific findings from the `/speckit.analyze` report regarding data integrity and task ordering.
+
+- [ ] T061 [US1] **Data Integrity Fix**: Refactor `code/data/downloader.py` to remove any `try/except` blocks that catch download failures and fall back to synthetic data generation. Replace with a hard `raise` or `sys.exit()` on failure to ensure the pipeline fails loudly if real data cannot be fetched, preventing silent fabrication (Constitution Principle III, Analysis Finding: Synthetic Fallback).
+- [ ] T062 [US1] **Data Source Verification**: Update `code/data/pipeline.py` to explicitly list the 10 target OpenML dataset IDs in `code/config.py` and verify that the downloaded data matches these IDs exactly. If the number of valid datasets is < 10, the script must abort immediately with a clear error message listing which IDs failed (Analysis Finding: Ambiguous Dataset Selection).
+- [ ] T063 [US2] **Task Ordering Correction**: Ensure `code/analysis/metrics.py` (T028) is strictly scheduled to run **after** `code/data/simulators.py` (T019) completes for the entire batch. Add a dependency check in `code/main.py` that verifies `data/processed/simulation_results.csv` is fully populated before invoking the metrics calculation module (Analysis Finding: Verify-before-Compute Race Condition).
+- [ ] T064 [US2] **Ground Truth Validation**: Add a sanity check in `code/analysis/metrics.py` (T029) that asserts the number of non-zero coefficients in `true_coefficients` is greater than zero before calculating the power denominator. If zero, log a warning and skip the calculation for that specific simulation to avoid division by zero or invalid metrics (Analysis Finding: Edge Case Handling).
+- [ ] T065 [US3] **Statistical Unit Verification**: Update `code/analysis/comparators.py` (T037) to include a pre-flight check that counts the rows in `data/processed/simulation_results.csv` and asserts the count matches the expected total (10 datasets * 4 SNR * 3 Sparsity * 3 Methods * `simulations_per_condition`). If the count is lower, abort with an error indicating data loss (Analysis Finding: Aggregated Data Risk).
+- [ ] T066 [Polish] **Documentation Update**: Update `README.md` to explicitly state the "Fail Hard" policy for data downloads and the specific OpenML IDs used, ensuring reproducibility and transparency regarding the data source (Constitution Principle I).
 
 ---
 
@@ -185,6 +198,7 @@ Examples of foundational tasks (adjust based on your project):
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase N+1)**: Must be executed after `/speckit.analyze` findings are reviewed; tasks here address specific gaps identified in the analysis report.
 
 ### User Story Dependencies
 
@@ -266,3 +280,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical Revision Note**: Tasks T061-T066 are mandatory to address `/speckit.analyze` findings regarding data integrity, task ordering, and statistical validity. Do not proceed to execution until these are complete.
