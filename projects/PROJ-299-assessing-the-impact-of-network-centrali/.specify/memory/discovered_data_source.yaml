@@ -1,13 +1,13 @@
 status: none
-intent: ADNI resting-state fMRI dataset AAL atlas Yeo 7-network python package dataset
+intent: download ADNI resting state fMRI dataset with AAL atlas python package dataset
 required_fields:
 - participant_id
 - session_id
-- roi_label
-- degree_centrality
-- betweenness_centrality
-- closeness_centrality
-- network
-cache_key: bfcb88af85dae934ebae4b769ec7c5a5ca4c5704fbc27f145bed1e6ac6da335b
-searched_at: '2026-08-14T18:40:46.683527+00:00'
+- rs_fmri_nifti_path
+- aals_roi_label
+- time_series_matrix
+- motion_parameters
+- acquisition_date
+cache_key: ae18206667db2c412a81b19db67dd0edef22baef756ec642014b169f9a01ef3e
+searched_at: '2026-09-07T15:21:01.361294+00:00'
 retry_count: 1

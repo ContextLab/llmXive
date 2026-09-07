@@ -1,11 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The response contains only the task description and project specifications; it
-    does not include any actual directory tree, created folders, or `.gitkeep` files
-    for `data/raw/landsat`, `data/processed`, or `data/ecotourism`. Without these
-    artifacts, the requirement of establishing the data directory structure is not
-    satisfied.
 T011:
   c: false
   h: f84b42433044067770ce704081c01625d8115d91d35b6f20472542fd1ede078e

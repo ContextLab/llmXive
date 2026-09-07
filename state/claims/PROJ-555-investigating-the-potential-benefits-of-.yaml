@@ -1247,22 +1247,6 @@
   status: not_enough_info
   updated_at: '2026-08-22T18:33:33Z'
 - artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
-  attempts: 2
-  canonical: study period from 2000 to 2023
-  claim_id: c_b2b12376
-  context: Ingest, clean, and align Landsat satellite imagery time series with ecotourism
-    site metadata for the defined study period (2000-2023).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: study period (2000-2023)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-22T18:33:48Z'
-- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
   attempts: 1
   canonical: monthly resolution
   claim_id: c_deed1335
@@ -1419,3 +1403,362 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T18:37:41Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat missions ceased operation in 2011
+  claim_id: c_41a01d47
+  context: 'Note: Implements {{claim:c_27787ee5}} (2506.18321, https://arxiv.org/abs/2506.18321)
+    only (Landsat ceased operation in 2011.). Requires T044 to update spec.md FR-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat missions ceased operation in 2011.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:34:28Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat missions ceased operation in 2011
+  claim_id: c_8bedf63c
+  context: Task T044 notes that the spec reference to Landsat 5/8/9 contradicts operational
+    reality, stating that Landsat missions ceased operation in 2011.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat missions ceased operation in 2011.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:34:58Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat ceased operation in 2011
+  claim_id: c_1b3d16d4
+  context: Task T013 note states that Landsat ceased operation in 2011, implying only
+    specific datasets or simulations can be used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat ceased operation in 2011.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:35:31Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: peak RAM less than 7GB
+  claim_id: c_b3e08035
+  context: Task T007 requires implementing a memory-safe chunking utility to ensure
+    peak RAM <7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_less_than_7GB
+  kind: magnitude
+  raw_text: Peak RAM must be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:35:52Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: peak memory usage less than or equal to 7GB
+  claim_id: c_986319c1
+  context: "Task T041 requires verifying peak memory usage \u22647GB during full pipeline\
+    \ run."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_or_equal_to_7GB
+  kind: magnitude
+  raw_text: Peak memory usage must be less than or equal to 7GB during full pipeline
+    run.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:36:18Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: deforestation defined as NDVI drop 0.30 sustained 2 years
+  claim_id: c_1feadcc7
+  context: "User Story 2 goal and Task T023 define deforestation events as an NDVI\
+    \ drop \u22650.30 sustained over 2 years."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deforestation_defined_as_NDVI_drop_0.30_sustained_2_years
+  kind: entity_fact
+  raw_text: Deforestation is defined as an NDVI drop of 0.30 or greater sustained
+    over 2 years.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:36:46Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: "non-linear asymptotic model fit R\xB2 greater than or equal to 0.95"
+  claim_id: c_062601ca
+  context: "User Story 2 independent test and Task T025 require verifying model fit\
+    \ with R\xB2 \u2265 0.95."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Non-linear_asymptotic_model_fit_R%C2%B2_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: "Non-linear asymptotic model fit must have an R\xB2 of 0.95 or greater."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:37:35Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: sites with more than 50% data gaps excluded
+  claim_id: c_0b4bddbf
+  context: Task T017 specifies excluding sites with >50% data gaps from the analysis.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sites_with_more_than_50%25_data_gaps_excluded
+  kind: magnitude
+  raw_text: Sites with more than 50% data gaps are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:38:05Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: recovery period less than 5 years flagged as incomplete
+  claim_id: c_27153b99
+  context: Task T027 handles cases where the recovery period is less than 5 years
+    by flagging them.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recovery_period_less_than_5_years_flagged_as_incomplete
+  kind: magnitude
+  raw_text: Recovery period less than 5 years is flagged as incomplete recovery.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:38:36Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: study period 2000 to 2023
+  claim_id: c_3cbab16f
+  context: User Story 1 goal specifies aligning Landsat satellite imagery time series
+    for the defined study period (2000-2023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study period for Landsat satellite imagery is 2000 to 2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:38:56Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: system targets 30 paired sites
+  claim_id: c_5eaf9b69
+  context: Task T013 describes downloading Landsat data for 30 paired sites, and T045
+    updates the spec to replace '[deferred]' with the explicit number '30'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system targets 30 paired sites for analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:39:33Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: CHIRPS and MODIS data fetched for early 21st century
+  claim_id: c_5d86b3e4
+  context: Task T009 describes fetching CHIRPS precipitation and MODIS temperature
+    data for a multi-decadal period spanning the early 21st century.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CHIRPS_and_MODIS_data_fetched_for_early_21st_century
+  kind: entity_fact
+  raw_text: CHIRPS precipitation and MODIS temperature data are fetched for a multi-decadal
+    period spanning the early 21st century.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:40:19Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: Landsat missions ceased operation in 2011
+  claim_id: c_fb1120fc
+  context: 'Note: Implements {{claim:c_27787ee5}} (2506.18321, https://arxiv.org/abs/2506.18321)
+    only (Landsat ceased operation in 2011.).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Landsat ceased operation in 2011.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:45:49Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: peak RAM usage less than 7GB
+  claim_id: c_260b5553
+  context: Implement memory-safe chunking utility in code/utils/chunking.py to ensure
+    peak RAM <7GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_7GB
+  kind: magnitude
+  raw_text: peak RAM <7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:46:14Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: NDVI drop greater than or equal to 0.30
+  claim_id: c_ec41db80
+  context: "Deforestation event detection logic (NDVI drop \u22650.30, sustained \u2265\
+    2 years)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NDVI_drop_greater_than_or_equal_to_0.30
+  kind: magnitude
+  raw_text: "NDVI drop \u22650.30"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:46:40Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: deforestation sustained for 2 years or more
+  claim_id: c_6a421788
+  context: "Deforestation event detection logic (NDVI drop \u22650.30, sustained \u2265\
+    2 years)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sustained \u22652 years"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:46:40Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: recovery period less than 5 years
+  claim_id: c_124901f5
+  context: Handle 'incomplete recovery' cases (recovery period <5 years) - flag and
+    exclude from primary slope analysis
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recovery_period_less_than_5_years
+  kind: magnitude
+  raw_text: recovery period <5 years
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:47:04Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: exclude sites with more than 50% data gaps
+  claim_id: c_8fe7930e
+  context: "Pair sites logic (same biome, similar initial NDVI drop \xB110%); exclude\
+    \ sites with >50% data gaps"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_sites_with_more_than_50%25_data_gaps
+  kind: magnitude
+  raw_text: exclude sites with >50% data gaps
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:47:30Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: 30 paired sites
+  claim_id: c_79ee5bac
+  context: Download Landsat Level-2 data via USGS API for 30 paired sites using chunked
+    streaming
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 30 paired sites
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:47:50Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 1
+  canonical: initial NDVI drop plus or minus 10 percent
+  claim_id: c_67eab23e
+  context: "Pair sites logic (same biome, similar initial NDVI drop \xB110%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "initial NDVI drop \xB110%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:47:51Z'
+- artifact_path: projects/PROJ-555-investigating-the-potential-benefits-of-/specs/001-investigating-the-potential-benefits-of/tasks.md
+  attempts: 3
+  canonical: study period from 2000 to 2023
+  claim_id: c_b2b12376
+  context: Ingest, clean, and align Landsat satellite imagery time series with ecotourism
+    site metadata for the defined study period (2000-2023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: study period (2000-2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T15:48:08Z'

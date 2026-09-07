@@ -4,13 +4,13 @@
   "reason": "1 command(s) failed: python code/main.py (rc=1); 5 declared deliverable(s) absent: data/analysis/centrality_metrics.csv; data/analysis/diagnostics.json; data/analysis/qc_log.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    p\": \"2026-08-14T18:39:02.625382\", \"level\": \"INFO\", \"logger\": \"us1\", \"message\": \"Starting User Story 1 Pipeline\", \"module\": \"main_us1\", \"function\": \"run_us1_pipeline\", \"line\": 31}\n{\"timestamp\": \"2026-08-14T18:39:02.625444\", \"level\": \"INFO\", \"logger\": \"us1\", \"message\": \"Step 1: Downloading ADNI data...\", \"module\": \"main_us1\", \"function\": \"run_us1_pipeline\", \"line\": 36}\n{\"timestamp\": \"2026-08-14T18:39:02.625512\", \"level\": \"INFO\", \"logger\": \"downloader\", \"message\": \"Starting ADNI Downloader\", \"module\": \"adni_downloader\", \"function\": \"run_downloader\", \"line\": 83}\n{\"t"
+    "python code/main.py -> rc=1\n    p\": \"2026-09-07T15:19:38.750583\", \"level\": \"INFO\", \"logger\": \"us1\", \"message\": \"Starting User Story 1 Pipeline\", \"module\": \"main_us1\", \"function\": \"run_us1_pipeline\", \"line\": 31}\n{\"timestamp\": \"2026-09-07T15:19:38.750623\", \"level\": \"INFO\", \"logger\": \"us1\", \"message\": \"Step 1: Downloading ADNI data...\", \"module\": \"main_us1\", \"function\": \"run_us1_pipeline\", \"line\": 36}\n{\"timestamp\": \"2026-09-07T15:19:38.750673\", \"level\": \"INFO\", \"logger\": \"downloader\", \"message\": \"Starting ADNI Downloader\", \"module\": \"adni_downloader\", \"function\": \"run_downloader\", \"line\": 83}\n{\"t"
   ],
-  "fix_rounds": 5,
+  "fix_rounds": 6,
   "model_tier": 0,
-  "total_attempts": 5,
+  "total_attempts": 6,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-08-14T18:39:04Z"
+  "updated_at": "2026-09-07T15:19:40Z"
 }

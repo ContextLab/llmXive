@@ -7,7 +7,7 @@ pandas
 pyyaml
 pydantic
 requests
-chirps
-pyarrow
-geopandas
-shapely
+pytest
+numpy
+scipy
+tables

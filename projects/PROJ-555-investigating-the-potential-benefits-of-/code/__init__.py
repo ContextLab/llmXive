@@ -1,3 +1,1 @@
-"""
-llmXive ecotourism regeneration pipeline.
-"""
+# llmXive ecotourism regeneration package

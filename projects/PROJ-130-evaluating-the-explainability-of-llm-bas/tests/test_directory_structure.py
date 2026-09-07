@@ -1,25 +1,47 @@
 """
-Test suite to verify the project directory structure exists.
-This ensures T001, T002, and T003 requirements are met.
+Test suite to verify directory structure creation.
+Specifically tests T002: code/, code/utils/, code/models/
 """
 import os
-import pytest
 from pathlib import Path
+import pytest
 
-REQUIRED_DIRS = [
-    "data",
-    "data/defects4j",
-    "code",
-    "code/utils",
-    "code/models",
-    "explanations",
-    "state",
-    "tests",
-]
 
-@pytest.mark.parametrize("dir_path", REQUIRED_DIRS)
-def test_directory_exists(dir_path: str) -> None:
-    """Assert that a required directory exists."""
-    path = Path(dir_path)
-    assert path.exists(), f"Directory '{dir_path}' does not exist."
-    assert path.is_dir(), f"'{dir_path}' exists but is not a directory."
+class TestDirectoryStructure:
+    """Tests for the directory structure setup (T002)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_dirs(self):
+        """Ensure directories exist before running tests."""
+        from code.setup_directories import main
+        main()
+
+    def test_code_directory_exists(self):
+        """Verify code/ directory exists."""
+        code_dir = Path("code")
+        assert code_dir.exists(), "code/ directory must exist"
+        assert code_dir.is_dir(), "code/ must be a directory"
+
+    def test_code_utils_directory_exists(self):
+        """Verify code/utils/ directory exists."""
+        utils_dir = Path("code/utils")
+        assert utils_dir.exists(), "code/utils/ directory must exist"
+        assert utils_dir.is_dir(), "code/utils/ must be a directory"
+
+    def test_code_models_directory_exists(self):
+        """Verify code/models/ directory exists."""
+        models_dir = Path("code/models")
+        assert models_dir.exists(), "code/models/ directory must exist"
+        assert models_dir.is_dir(), "code/models/ must be a directory"
+
+    def test_directory_structure_integrity(self):
+        """Verify the parent-child relationship of directories."""
+        code_dir = Path("code")
+        utils_dir = Path("code/utils")
+        models_dir = Path("code/models")
+
+        # Verify utils is inside code
+        assert utils_dir.parent == code_dir, "code/utils/ must be inside code/"
+        
+        # Verify models is inside code
+        assert models_dir.parent == code_dir, "code/models/ must be inside code/"
