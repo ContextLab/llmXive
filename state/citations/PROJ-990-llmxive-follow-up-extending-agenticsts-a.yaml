@@ -1,4 +1,4 @@
-- artifact_hash: 37bd9b611d272d8f736f36920366e9289008e66b6bcbfd7324ec751f2be66dcc
+- artifact_hash: 5a7a004cf1012f1ea057e3ab89c35b1645a0716737df6aad2f9b0dca0d4fe2b0
   artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,15 @@
   value: https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
-  verified_at: '2026-09-05T11:10:55.385078Z'
+  verified_at: '2026-09-07T01:02:45.352841Z'
+- artifact_hash: 5a7a004cf1012f1ea057e3ab89c35b1645a0716737df6aad2f9b0dca0d4fe2b0
+  artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json
+  verified_at: '2026-09-07T01:02:45.352841Z'

@@ -1,10 +1,17 @@
+"""
+Entropy calculation module for AgenticSTS trajectories.
+
+This module calculates Shannon entropy of legal move distributions extracted
+from trajectory logs. It handles edge cases (NaN, Infinity) by logging warnings
+and returning sentinel values as specified in T006b.
+"""
 import numpy as np
 import pandas as pd
 import logging
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Union
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 
 # Configure logging
@@ -12,192 +19,229 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/processed/edge_case_warnings.log', mode='a')
+        logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-INPUT_FILE = Path("data/processed/metrics_with_moves.csv")
-OUTPUT_FILE = Path("data/processed/entropy_metrics.csv")
-LOG_FILE = Path("data/processed/edge_case_warnings.log")
-SENTINEL_VALUE = -1.0  # Sentinel for NaN/Inf to trigger fallback
+# Paths
+PROJECT_ROOT = Path(__file__).parent.parent
+INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "metrics_with_moves.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "entropy_metrics.csv"
+WARNING_LOG_PATH = PROJECT_ROOT / "data" / "processed" / "edge_case_warnings.log"
 
 def setup_logging():
-    """Ensure log directory exists and logger is configured."""
-    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    """Setup logging configuration for entropy calculations."""
+    logger.setLevel(logging.INFO)
+    # Ensure warning log directory exists
+    WARNING_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 def calculate_shannon_entropy(probabilities: np.ndarray) -> float:
     """
     Calculate Shannon entropy of a probability distribution.
-    
+
     Args:
         probabilities: Array of probabilities (must sum to 1).
-        
+
     Returns:
-        Shannon entropy in bits. Returns -1.0 if distribution is invalid (NaN/Inf).
+        Shannon entropy value in bits. Returns float('nan') if invalid.
     """
     # Filter out zero probabilities to avoid log(0)
     p = probabilities[probabilities > 0]
-    
     if len(p) == 0:
-        # No moves available? This is an edge case.
-        logger.warning("Empty probability distribution encountered.")
-        return SENTINEL_VALUE
-
+        return float('nan')
+    
     try:
         entropy = -np.sum(p * np.log2(p))
-        
         # Check for NaN or Infinity
         if np.isnan(entropy) or np.isinf(entropy):
-            logger.warning(f"Calculated entropy is NaN or Infinity: {entropy}. Returning sentinel.")
-            return SENTINEL_VALUE
-        
+            return float('nan')
         return float(entropy)
     except Exception as e:
-        logger.error(f"Error calculating entropy: {e}")
-        return SENTINEL_VALUE
+        logger.warning(f"Entropy calculation failed: {e}")
+        return float('nan')
 
 def extract_move_distribution(row: pd.Series) -> np.ndarray:
     """
-    Extract move distribution from a row.
-    
-    Expected columns: 'legal_moves' (list of moves) and 'move_counts' (list of counts).
-    If 'move_counts' is missing, assume uniform distribution.
-    
+    Extract legal move distribution from a trajectory row.
+
     Args:
-        row: A row from the metrics dataframe.
-        
+        row: DataFrame row containing move distribution data.
+
     Returns:
-        Normalized probability distribution.
+        Array of probabilities for each legal move.
     """
-    legal_moves = row.get('legal_moves')
-    move_counts = row.get('move_counts')
+    # Expected columns based on T006a output: move_distribution or similar
+    # The input CSV from T006a should have a column with move probabilities
+    # If the column is JSON string, parse it; if it's a list/array, use directly
+    if 'move_distribution' in row.index:
+        dist = row['move_distribution']
+        if isinstance(dist, str):
+            try:
+                dist = json.loads(dist)
+            except json.JSONDecodeError:
+                logger.warning(f"Failed to parse move_distribution for trajectory {row.get('trajectory_id', 'unknown')}")
+                return np.array([])
+        elif isinstance(dist, (list, tuple)):
+            dist = list(dist)
+        else:
+            # Try to convert to list if it's a numpy array or similar
+            dist = list(dist) if hasattr(dist, '__iter__') else []
+        
+        if len(dist) == 0:
+            return np.array([])
+        
+        # Normalize to ensure it's a valid probability distribution
+        total = sum(dist)
+        if total > 0:
+            return np.array([p / total for p in dist])
+        else:
+            return np.array([1.0 / len(dist)] * len(dist)) if len(dist) > 0 else np.array([])
     
-    if not legal_moves:
-        logger.warning(f"No legal moves found in row {row.get('trajectory_id', 'unknown')}.")
-        return np.array([])
+    # Fallback: if no move_distribution column, try to reconstruct from move counts
+    # This assumes columns like move_0, move_1, etc. exist
+    move_cols = [col for col in row.index if str(col).startswith('move_')]
+    if move_cols:
+        counts = [row[col] for col in move_cols]
+        total = sum(counts)
+        if total > 0:
+            return np.array([c / total for c in counts])
+        else:
+            return np.array([1.0 / len(counts)] * len(counts))
     
-    if move_counts is None or len(move_counts) == 0:
-        # Assume uniform distribution if counts are missing
-        n = len(legal_moves)
-        return np.ones(n) / n
-    
-    # Convert to numpy array and normalize
-    counts = np.array(move_counts, dtype=float)
-    total = np.sum(counts)
-    
-    if total == 0:
-        logger.warning(f"Zero total counts for trajectory {row.get('trajectory_id', 'unknown')}.")
-        return np.ones(len(counts)) / len(counts)
-    
-    return counts / total
+    logger.warning(f"No move distribution found for trajectory {row.get('trajectory_id', 'unknown')}")
+    return np.array([])
 
 def calculate_entropy_for_trajectory(row: pd.Series) -> float:
     """
-    Calculate entropy for a single trajectory row.
-    
+    Calculate entropy for a single trajectory's move distribution.
+
     Args:
-        row: A row from the metrics dataframe.
-        
+        row: DataFrame row with move distribution data.
+
     Returns:
-        Entropy value or SENTINEL_VALUE if invalid.
+        Shannon entropy value, or float('nan') if invalid.
     """
     distribution = extract_move_distribution(row)
-    
     if len(distribution) == 0:
-        return SENTINEL_VALUE
-        
-    return calculate_shannon_entropy(distribution)
+        return float('nan')
+    
+    entropy = calculate_shannon_entropy(distribution)
+    return entropy
 
 def process_trajectories(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Process the dataframe to calculate entropy for each trajectory.
-    
+    Process all trajectories and calculate entropy metrics.
+
     Args:
-        df: Input dataframe with trajectory metrics.
-        
+        df: DataFrame with trajectory data including move distributions.
+
     Returns:
-        Dataframe with added 'entropy' column.
+        DataFrame with added entropy column.
     """
-    logger.info(f"Processing {len(df)} trajectories for entropy calculation.")
+    logger.info(f"Processing {len(df)} trajectories for entropy calculation...")
     
-    entropies = []
+    entropy_values = []
+    nan_count = 0
+    inf_count = 0
+    
     for idx, row in df.iterrows():
-        entropy_val = calculate_entropy_for_trajectory(row)
-        entropies.append(entropy_val)
+        entropy = calculate_entropy_for_trajectory(row)
+        entropy_values.append(entropy)
         
-        # Log specific edge cases
-        if entropy_val == SENTINEL_VALUE:
-            logger.warning(
-                f"Trajectory {row.get('trajectory_id', 'unknown')} produced invalid entropy. "
-                f"Triggering all-layers fallback in downstream tasks."
-            )
+        # Log edge cases
+        if np.isnan(entropy):
+            nan_count += 1
+            warning_msg = f"NaN entropy for trajectory {row.get('trajectory_id', 'unknown')} at turn {row.get('turn', 'unknown')}"
+            logger.warning(warning_msg)
+            write_warning_log(warning_msg)
+        elif np.isinf(entropy):
+            inf_count += 1
+            warning_msg = f"Inf entropy for trajectory {row.get('trajectory_id', 'unknown')} at turn {row.get('turn', 'unknown')}"
+            logger.warning(warning_msg)
+            write_warning_log(warning_msg)
     
-    df['entropy'] = entropies
+    # Add entropy column to DataFrame
+    df['entropy'] = entropy_values
+    
+    logger.info(f"Entropy calculation complete. NaN cases: {nan_count}, Inf cases: {inf_count}")
     return df
 
+def write_warning_log(message: str):
+    """
+    Write a warning message to the edge case warnings log.
+
+    Args:
+        message: Warning message to log.
+    """
+    try:
+        with open(WARNING_LOG_PATH, 'a') as f:
+            timestamp = datetime.now().isoformat()
+            f.write(f"{timestamp} - WARNING - {message}\n")
+    except Exception as e:
+        logger.error(f"Failed to write to warning log: {e}")
+
+def load_input_data() -> pd.DataFrame:
+    """
+    Load input data from the metrics CSV.
+
+    Returns:
+        DataFrame with trajectory metrics.
+    
+    Raises:
+        FileNotFoundError: If input file doesn't exist.
+    """
+    if not INPUT_PATH.exists():
+        raise FileNotFoundError(
+            f"Input file not found: {INPUT_PATH}. "
+            "Ensure T006a has been executed successfully to generate metrics_with_moves.csv."
+        )
+    
+    logger.info(f"Loading input data from {INPUT_PATH}")
+    df = pd.read_csv(INPUT_PATH)
+    logger.info(f"Loaded {len(df)} rows from input file")
+    return df
+
+def save_output_data(df: pd.DataFrame):
+    """
+    Save processed data with entropy calculations to output file.
+
+    Args:
+        df: DataFrame with entropy column added.
+    """
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(OUTPUT_PATH, index=False)
+    logger.info(f"Saved entropy metrics to {OUTPUT_PATH}")
+
 def main():
-    """Main entry point for the entropy calculation task."""
+    """
+    Main entry point for entropy calculation task.
+    
+    Reads metrics_with_moves.csv, calculates Shannon entropy for each trajectory's
+    move distribution, handles edge cases (NaN/Inf), and writes entropy_metrics.csv.
+    """
     setup_logging()
     
-    # Check if input file exists
-    if not INPUT_FILE.exists():
-        logger.error(f"Input file {INPUT_FILE} does not exist. Skipping entropy calculation.")
-        # Create an empty output file to indicate the task was skipped
-        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(OUTPUT_FILE, 'w') as f:
-            f.write("trajectory_id,entropy,valid\n")
-        return
-
     try:
-        # Load the metrics data
-        logger.info(f"Loading metrics from {INPUT_FILE}")
-        df = pd.read_csv(INPUT_FILE)
+        # Load input data
+        df = load_input_data()
         
-        if df.empty:
-            logger.warning("Input dataframe is empty. No data to process.")
-            OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-            with open(OUTPUT_FILE, 'w') as f:
-                f.write("trajectory_id,entropy,valid\n")
-            return
+        # Process trajectories and calculate entropy
+        df_with_entropy = process_trajectories(df)
         
-        # Validate required columns
-        required_cols = ['trajectory_id']
-        if 'legal_moves' not in df.columns and 'move_counts' not in df.columns:
-            logger.warning("Missing 'legal_moves' or 'move_counts' columns. Assuming uniform distribution for all.")
-            # Add dummy columns if missing
-            if 'legal_moves' not in df.columns:
-                df['legal_moves'] = [['move_a', 'move_b']] * len(df)
-            if 'move_counts' not in df.columns:
-                df['move_counts'] = [[1, 1]] * len(df)
-
-        # Calculate entropy
-        df = process_trajectories(df)
+        # Save output
+        save_output_data(df_with_entropy)
         
-        # Add validity flag
-        df['valid'] = df['entropy'] != SENTINEL_VALUE
+        logger.info("Entropy calculation task completed successfully.")
+        return 0
         
-        # Select output columns
-        output_cols = ['trajectory_id', 'entropy', 'valid']
-        # Include other relevant columns if they exist
-        for col in ['turn', 'win', 'loss', 'initial_state_hash']:
-            if col in df.columns:
-                output_cols.append(col)
-        
-        output_df = df[output_cols]
-        
-        # Save to CSV
-        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-        output_df.to_csv(OUTPUT_FILE, index=False)
-        
-        logger.info(f"Entropy calculation complete. Output saved to {OUTPUT_FILE}")
-        logger.info(f"Total trajectories: {len(output_df)}, Valid: {output_df['valid'].sum()}, Invalid: {(~output_df['valid']).sum()}")
-        
+    except FileNotFoundError as e:
+        logger.error(f"Input data error: {e}")
+        # Re-raise to fail loudly as per constraints
+        raise
     except Exception as e:
-        logger.critical(f"Failed to process trajectories: {e}", exc_info=True)
+        logger.error(f"Unexpected error during entropy calculation: {e}")
         raise
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

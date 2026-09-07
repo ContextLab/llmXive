@@ -3711,3 +3711,291 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T10:42:04Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Validation set must contain at least 20 trajectories
+  claim_id: c_73522ab2
+  context: 'Sub-Phase 2C: Data Splitting & Ablation, Task T014a Edge Cases'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_set_must_contain_at_least_20_trajectories
+  kind: magnitude
+  raw_text: Ensure validation set has at least 20 trajectories; otherwise raise ValueError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:52:12Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Log critical warning if utility_delta variance is less than 1e-6
+  claim_id: c_1d148bec
+  context: 'Sub-Phase 2C: Data Splitting & Ablation, Task T014a Edge Cases'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_critical_warning_if_utility_delta_variance_is_less_than
+  kind: magnitude
+  raw_text: If variance of utility_delta in training set < 1e-6, log a CRITICAL warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:53:07Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Set proxy valid to false if Pearson correlation is less than 0.7
+  claim_id: c_801c3ab5
+  context: 'Sub-Phase 2D: Proxy Validation & Model Training, Task T014-impl Gate'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Set_proxy_valid_to_false_if_Pearson_correlation_is_less_than
+  kind: magnitude
+  raw_text: If correlation < 0.7, set proxy_valid:false and set USE_HEURISTIC=true
+    in data/processed/config_state.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:53:25Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Prepend Current Objective layer if context is less than 256 tokens
+  claim_id: c_3a63bb35
+  context: 'Phase 3: User Story 1 & 2, Task T015a Minimum Context Floor Logic'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Prepend_Current_Objective_layer_if_context_is_less_than_256
+  kind: magnitude
+  raw_text: If calculated context < MIN_CONTEXT (256 tokens), prepend the 'Current
+    Objective' layer.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:54:01Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Log token pruning events to pruning_logs.jsonl with specific schema
+  claim_id: c_fc965dad
+  context: 'Phase 3: User Story 1 & 2, Task T015c Enforce Maximum Token Budget'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_token_pruning_events_to_pruning_logs.jsonl_with_specific
+  kind: entity_fact
+  raw_text: Log each pruning event to data/processed/pruning_logs.jsonl with schema
+    including trajectory_id, initial_tokens, selected_layers, final_tokens, layers_pruned,
+    and pruning_reason.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:54:18Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Mark token consistency as passed if standard deviation is less than 10%
+    of mean savings
+  claim_id: c_a53b3bb8
+  context: 'Phase 3: User Story 1 & 2, Task T023 Token Reduction Consistency Check'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mark_token_consistency_as_passed_if_standard_deviation_is_le
+  kind: magnitude
+  raw_text: Write data/processed/token_consistency_report.json with passed:true if
+    std_dev < 0.10 * mean_savings.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:54:34Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Mark consistency check as failed if valid pairs are less than 30
+  claim_id: c_dc7456d8
+  context: 'Phase 3: User Story 1 & 2, Task T023 Token Reduction Consistency Check'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mark_consistency_check_as_failed_if_valid_pairs_are_less_tha
+  kind: magnitude
+  raw_text: If n < 30 (valid pairs), log warning and set passed:false due to insufficient
+    sample size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:55:30Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction by multiplying p-values by number of tests
+  claim_id: c_9561a618
+  context: 'Phase 4: User Story 3, Task T025-impl Implementation of Statistical Tests
+    Logic'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_by_multiplying_p-values_by_numbe
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction to all p-values (multiply by number of tests).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:55:58Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Use Fisher's Exact Test or Z-test for unpaired outcomes based on sample
+    size greater than 30
+  claim_id: c_0bb7e3ab
+  context: 'Phase 4: User Story 3, Task T025-impl Implementation of Statistical Tests
+    Logic'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_Fisher's_Exact_Test_or_Z-test_for_unpaired_outcomes_base
+  kind: magnitude
+  raw_text: Run Fisher's Exact Test (or Z-test if n > 30) for both outcomes in unpaired
+    case.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:57:02Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Run permutation test with 10,000 permutations for token usage if sample
+    size is greater than 30
+  claim_id: c_c5413faa
+  context: 'Phase 4: User Story 3, Task T025-impl Implementation of Statistical Tests
+    Logic'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_permutation_test_with_10,000_permutations_for_token_usag
+  kind: magnitude
+  raw_text: Run Permutation test (10,000 permutations) for token usage if n > 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:57:58Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Flag divergence report if state hash difference percentage exceeds 10%
+  claim_id: c_dc698dcc
+  context: 'Phase 5: Performance & Validation, Task T050 Divergence Check'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag if percentage of trajectories where final state hash differs is >
+    10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:57:59Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Perform power analysis with alpha 0.05, power 0.8, and effect size 0.2
+  claim_id: c_4841213c
+  context: 'Phase 5: Performance & Validation, Task T044 Power Analysis'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis (alpha=0.05, power=0.8, effect size=0.2) on the
+    sample size used.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:58:44Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Include warning in power analysis if sample size is less than 300
+  claim_id: c_3c0f28c6
+  context: 'Phase 5: Performance & Validation, Task T044 Power Analysis'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Include_warning_in_power_analysis_if_sample_size_is_less_tha
+  kind: magnitude
+  raw_text: Include warning if n < 300 in power analysis report.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T00:59:40Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Ensure peak RSS is less than 7 GB when streaming a 1 GB file
+  claim_id: c_944f91ff
+  context: 'Phase 5: Performance & Validation, Task T039 Memory Usage Verification'
+  evidence:
+    candidates:
+    - - Ensure peak RSS is less than
+      - 7.0
+    - - GB when streaming a
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Ensure_peak_RSS_is_less_than_7_GB_when_streaming_a_1_GB_file
+  kind: magnitude
+  raw_text: Stream a 1 GB file and ensure peak RSS < 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-07T01:00:35Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Log suggestion to enable streaming if runtime exceeds 6 hours
+  claim_id: c_20dcc60d
+  context: 'Phase 5: Performance & Validation, Task T031c Runtime Monitoring'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total runtime > 6 h, log suggestion to enable streaming or batch reduction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:00:36Z'
+- artifact_path: projects/PROJ-990-llmxive-follow-up-extending-agenticsts-a/specs/001-llmxive-follow-up-extending-agenticsts-a/tasks.md
+  attempts: 1
+  canonical: Insert specific warning about statistical power marginality when n is
+    less than 300 in report template
+  claim_id: c_3dbe4e4c
+  context: 'Phase 7: Final Review & Documentation, Task T057a Generate Statistical
+    Report Template'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Insert_specific_warning_about_statistical_power_marginality
+  kind: magnitude
+  raw_text: 'The {{sample_limitation}} placeholder must be filled with the exact warning:
+    ''Statistical power marginal (n<300); results should be interpreted with caution.'''
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T01:02:44Z'

@@ -1,35 +1,23 @@
 T005b:
   c: false
-  h: fe794f12aa759ecf5075de562eeb6bc7b3b8ff8fd86bd874a52fdb89ddceb4f5
-  r: "The required output file `data/raw/agenticsts_trajectories.jsonl` is absent,\
-    \ so the ingestion step was not performed and the checksum validation cannot be\
-    \ satisfied. The manifest exists, but without the JSONL data the task\u2019s core\
-    \ requirement is unmet."
-T006a:
+  h: 32bb3c97f53a3d7eda061d8cdad287a38f9aacd8d034e4df0da6a974eed6a44e
+  r: "The required output file `data/raw/agenticsts_trajectories.jsonl` is missing,\
+    \ and no evidence of checksum verification or error handling is provided. The\
+    \ task\u2019s core artifact does not exist, so the ingestion step is not fulfilled."
+T008#1:
   c: false
-  h: 2d24bf4270fa3df522ae0c47abb3932e505fee651fc49d73cb52996ecbf9c337
-  r: "The repository contains a `code/parser.py` file, but the required schema file\
-    \ `contracts/trajectory.schema.yaml` is missing, causing validation to fail, and\
-    \ the expected output `data/processed/metrics_with_moves.csv` was not generated.\
-    \ Both essential artifacts are absent, so the task\u2019s requirements are not\
-    \ satisfied."
-T006b:
+  h: a038dda50c7bd920cfff998f51cbaba8ae659adf0eddb8221b76a8bd51abeef2
+  r: The required baseline data file `data/processed/baseline_win_rates_train.json`
+    does not exist, and the expected output file `data/processed/ablation_labels_train.json`
+    is also missing. Without these artifacts, the ablation label generation cannot
+    have been performed.
+T008#2:
   c: false
-  h: 20c66dc494c9733722a75753e2efb9551d838bf335a2c237bcf48d1b73082958
-  r: "The repository contains a `code/entropy.py` file, but it is truncated and does\
-    \ not show any logic that reads `data/processed/metrics_with_moves.csv`, checks\
-    \ for its existence, or writes `data/processed/entropy_metrics.csv`. Moreover,\
-    \ the required log file and output CSV are absent, and there is no visible implementation\
-    \ of the skip\u2011condition or the sentinel\u2011value fallback. The task\u2019\
-    s core functionality is therefore not demonstrably present."
-T008:
-  c: false
-  h: c237137148238e83c7c645fcc48a3c69c3a5fd4b69d66b8b622d8831bcc86b1a
-  r: "The required input files (`data/raw/agenticsts_trajectories.jsonl`, `data/processed/train_set.csv`,\
-    \ `data/processed/config_state.json`, and the schema file) are missing, and the\
-    \ expected output `data/processed/ablation_labels_train.json` does not exist.\
-    \ Without these artifacts the ablation study cannot be run, so the task\u2019\
-    s requirement is not satisfied."
+  h: faa826ccaedf834df1ac65689da80f36bc3283df2ed4f3d43f3ff85862027cee
+  r: "The required input artifacts `data/processed/train_set.csv` and `data/processed/baseline_win_rates_train.json`\
+    \ are absent, and the expected output `data/processed/ablation_labels_train.json`\
+    \ was not generated. Without these files the script cannot be run nor produce\
+    \ the ground\u2011truth labels."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -48,6 +36,13 @@ T014a:
     \ log and config update) is not demonstrated. The missing files must be provided\
     \ and the script must generate the specified outputs for the task to be considered\
     \ complete."
+T019:
+  c: false
+  h: 2670e60399db6dc98a56654862429c5cddc267a31e6a594ad370021cf6d2cbef
+  r: "The required output file `data/processed/simulation_logs_static.json` is absent,\
+    \ and `code/main.py` is truncated and lacks any handling for a `--mode static`\
+    \ run that would generate that file. Consequently the static all\u2011layers baseline\
+    \ has not been executed as specified."
 T055:
   c: false
   h: 00c0b44413860687f2a3c3da719c74f938f19d46ad3f1c036a638806b0df7b8b

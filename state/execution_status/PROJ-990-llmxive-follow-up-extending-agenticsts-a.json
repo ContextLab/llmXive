@@ -1,18 +1,16 @@
 {
   "project_id": "PROJ-990-llmxive-follow-up-extending-agenticsts-a",
   "ok": false,
-  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/t005a_no_data_warning.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026pipeline bootstrapped on synthetic data.\" 3. Ensure the log arti\u2026\u201d; code/t005a_no_data_warning.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026pipeline bootstrapped on synthetic data.\"                  # Con\u2026\u201d; 1 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/processed/metrics_with_moves.csv: header only, ZERO data rows \u2014 the analysis produced no rows; every produced artifact is gitignored (data/processed/metrics_with_moves.csv) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/main.py (rc=1); 12 declared deliverable(s) absent: data/processed/ablation_labels_train.json; data/processed/baseline_comparison.csv; data/processed/divergence_report.json",
-  "artifacts": [
-    "data/processed/metrics_with_moves.csv"
-  ],
+  "reason": "21 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/generate_mock_trajectories.py: self-declared fabricated metric \u2014 \u201c\u2026# Layer utility (mock value)             layer_utility =\u2026\u201d; code/generate_mock_trajectories.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026DE is not set to 'true'. Mock data generation is restricted\u2026\u201d; code/generate_mock_trajectories.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026active. Proceeding with mock data generation.\")     return\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 25 declared deliverable(s) absent: data/processed/ablation_labels_holdout.json; data/processed/ablation_labels_train.json; data/processed/agg_stats.json",
+  "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    2026-07-31 08:04:37,755 - INFO - Starting FULL pipeline execution.\n2026-07-31 08:04:37,755 - INFO - Phase 1: Parsing raw trajectories\n2026-07-31 08:04:37,756 - WARNING - No JSON/JSONL files found in data/raw.\n2026-07-31 08:04:37,756 - WARNING - Skipping T006: No valid data in data/raw/. T006a should have run first.\n2026-07-31 08:04:37,757 - ERROR - Pipeline failed with error: Parser phase failed"
+    "python code/main.py -> rc=1\n    2026-09-07 00:14:32,962 - INFO - Starting FULL pipeline execution.\n2026-09-07 00:14:32,962 - INFO - Running stage: code/t005c_fetch_manifest.py\n2026-09-07 00:14:33,012 - INFO - Fetching manifest from: https://huggingface.co/datasets/agenticsts/trajectories/raw/main/manifest.json\n2026-09-07 00:14:33,012 - INFO - Target path: data/raw/manifest.json\n2026-09-07 00:14:33,090 - ERROR - HTTP Error 401 while fetching manifest: Unauthorized\n2026-09-07 00:14:33,090 - CRITICAL - T005c failed: Manifest fetch failed (HTTP 401); pipeline cannot proceed.\n2026-09-07 00:14:33,09"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-07-31T08:04:39Z"
+  "updated_at": "2026-09-07T00:14:35Z"
 }

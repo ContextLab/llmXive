@@ -3,4 +3,7 @@ numpy
 scikit-learn
 pytest
 pyyaml
-urllib3
+ijson
+datasets
+scipy
+huggingface_hub

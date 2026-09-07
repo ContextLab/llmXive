@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-990-llmxive-follow-up-extending-agenticsts-a",
+  "tasks": [
+    {
+      "task_key": "T006a",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required `contracts/trajectory.schema.yaml` file, so the parser cannot perform schema validation, and the expected output `data/processed/metrics_with_moves.csv` is not present. Both essential artifacts are missing, so the task is not genuinely completed.",
+      "first_seen": "2026-09-07T01:02:47.188104+00:00",
+      "last_seen": "2026-09-07T01:02:47.188104+00:00"
+    },
+    {
+      "task_key": "T006b",
+      "reject_count": 1,
+      "last_reason": "The repository lacks the required data files (`metrics_with_moves.csv`, `entropy_metrics.csv`, and the warning log), and the provided `code/entropy.py` is truncated and does not show reading the input, writing the output, or logging warnings to the specified file. Consequently the task\u2019s functional and edge\u2011case requirements are not satisfied.",
+      "first_seen": "2026-09-07T01:02:47.189511+00:00",
+      "last_seen": "2026-09-07T01:02:47.189511+00:00"
+    },
+    {
+      "task_key": "T008",
+      "reject_count": 1,
+      "last_reason": "The required input file `data/processed/train_set.csv` does not exist, and the expected output `data/processed/baseline_win_rates_train.json` is also missing. Without these artifacts, the baseline win\u2011rate generation cannot have been performed. The implementer must provide the training\u2011set CSV and the resulting JSON file containing per\u2011trajectory win rates.",
+      "first_seen": "2026-09-07T01:02:47.190696+00:00",
+      "last_seen": "2026-09-07T01:02:47.190696+00:00"
+    }
+  ],
+  "updated_at": "2026-09-07T01:02:47.190696+00:00"
+}
