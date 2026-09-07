@@ -10,6 +10,13 @@ try:
 except ImportError:
     TORCH_AVAILABLE = False
 
+# Try to import numpy, but don't fail if it's not installed (it's a dependency)
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
+
 PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 CODE_DIR: Final[Path] = PROJECT_ROOT / "code"
 DATA_DIR: Final[Path] = PROJECT_ROOT / "data"
@@ -20,6 +27,12 @@ LOG_DIR: Final[Path] = PROJECT_ROOT / "data" / "logs"
 TESTS_DIR: Final[Path] = PROJECT_ROOT / "tests"
 
 RANDOM_SEED: Final[int] = 42
+
+# Filter criteria for data ingestion (US1)
+FILTER_CRITERIA: Final[dict] = {
+    "crystal_structure": "FCC",
+    "diffusion_mode": "self"
+}
 
 def ensure_directories():
     """Create all required directories if they do not exist."""
@@ -32,7 +45,7 @@ def set_global_seed(seed: int = RANDOM_SEED) -> None:
     Enforce a global random seed for reproducibility.
     Sets seeds for:
       - Python's built-in `random` module
-      - `numpy`
+      - `numpy` (if available)
       - `torch` (if available)
     
     Logs the seed to `data/logs/execution_log.txt` in the format:
@@ -41,9 +54,9 @@ def set_global_seed(seed: int = RANDOM_SEED) -> None:
     # Set Python random seed
     random.seed(seed)
     
-    # Set numpy seed
-    import numpy as np
-    np.random.seed(seed)
+    # Set numpy seed if available
+    if NUMPY_AVAILABLE:
+        np.random.seed(seed)
     
     # Set torch seed if available
     if TORCH_AVAILABLE:
@@ -60,4 +73,7 @@ def set_global_seed(seed: int = RANDOM_SEED) -> None:
 
 # Execute seed setting immediately upon import to ensure reproducibility
 # for any subsequent code execution in this pipeline.
-set_global_seed(RANDOM_SEED)
+# Only call if numpy is available to avoid circular import issues during setup
+# where numpy might not be installed yet but config is imported.
+if NUMPY_AVAILABLE:
+    set_global_seed(RANDOM_SEED)

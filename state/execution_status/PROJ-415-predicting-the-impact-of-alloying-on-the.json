@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-415-predicting-the-impact-of-alloying-on-the",
+  "ok": false,
+  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/models/training.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026g Error: Cannot train on synthetic data. \"             \"Real dat\u2026\u201d; code/models/training.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026g Error: Cannot train on synthetic data. \"             \"Real dat\u2026\u201d; code/models/training.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026g Error: Cannot train on synthetic data. \"             \"Real dat\u2026\u201d; 2 command(s) failed: python code/data/acquisition.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/curated/filtered.csv; data/raw/fetched_diffusion.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/data/acquisition.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-415-predicting-the-impact-of-alloying-on-the/code/data/acquisition.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-415-predicting-the-impact-of-alloying-on-the/code/main.py\", line 13, in <module>\n    from config import ensure_directories, set_global_seed\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-415-predicting-the-impact-of-alloying-on-the/code/config.py\", line 63, in <module>\n    set_global_seed(RANDOM_SEED)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-415-predicting-the-impact-of-alloying-on-the/code/config.py\", line 45, in set_global_seed\n    import numpy as"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-07T16:31:02Z"
+}

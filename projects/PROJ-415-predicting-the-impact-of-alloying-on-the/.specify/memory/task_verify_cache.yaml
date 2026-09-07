@@ -27,3 +27,10 @@ T040:
     did not include any validation results for `quickstart.md` nor any checksums of
     artifacts. No evidence of running the validation or producing checksum documentation
     is present.
+T072:
+  c: true
+  h: bad652766a42a233ebcd754a30180d16ee970dc1aebbacac306a8b22336e97a9
+  r: "The `code/models/training.py` file contains the `verify_data_provenance()` function\
+    \ that loads `data/curated/data_provenance.json` and raises an error unless `source_type`\
+    \ equals `\"real\"`, satisfying the requested validation check. The missing JSON\
+    \ file is not part of the task\u2019s deliverable."

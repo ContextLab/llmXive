@@ -1,7 +1,3 @@
-"""
-Model training module for diffusion activation energy prediction.
-Implements Random Forest, Gradient Boosting, and Linear Regression models.
-"""
 import json
 import logging
 import pickle
@@ -10,410 +6,348 @@ import sys
 import os
 import time
 from pathlib import Path
-from typing import Dict, Any, Tuple, Optional
+from typing import Tuple, Dict, Any, Optional
 
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from joblib import dump
 
 # Import project utilities
-from config import MODELS_DIR, DATA_DIR, PROJECT_ROOT
+from config import RANDOM_SEED, MODELS_DIR, DATA_DIR
 from utils.logging import get_logger
 
-# Initialize logger
 logger = get_logger(__name__)
 
-# Timeout configuration
-TRAINING_TIMEOUT_SECONDS = 1800  # 30 minutes
-
+# Timeout handling for GridSearch
 class TimeoutError(Exception):
-    """Custom timeout exception."""
     pass
 
 def timeout_handler(signum, frame):
-    """Signal handler for timeout."""
-    raise TimeoutError("Training timeout exceeded")
+    raise TimeoutError("Model training timed out")
 
 class TimeoutContext:
-    """Context manager for timeout handling."""
     def __init__(self, seconds: int):
         self.seconds = seconds
-        self.old_handler = None
 
     def __enter__(self):
-        # Only set signal handler on Unix systems
         if hasattr(signal, 'SIGALRM'):
-            self.old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+            signal.signal(signal.SIGALRM, timeout_handler)
             signal.alarm(self.seconds)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if hasattr(signal, 'SIGALRM'):
             signal.alarm(0)
-            if self.old_handler:
-                signal.signal(signal.SIGALRM, self.old_handler)
 
-def verify_data_provenance(data_path: Path) -> None:
+def verify_data_provenance() -> bool:
     """
-    Verify that the input data is NOT a synthetic/mock dataset.
+    T072 Implementation: Validate that data_curated/filtered.csv is derived from real data.
     
-    Checks for the existence of data_provenance.json and validates
-    that the source is a real URL or package, not 'mock' or 'synthetic'.
-    
-    Args:
-        data_path: Path to the curated data file (data/curated/filtered.csv)
-        
-    Raises:
-        SystemExit: If data is synthetic/mock or provenance is missing
+    Checks `data/curated/data_provenance.json` for `source_type == 'real'`.
+    Raises SystemExit if missing, invalid, or synthetic.
     """
-    provenance_path = data_path.parent / "data_provenance.json"
+    provenance_path = DATA_DIR / "curated" / "data_provenance.json"
     
     if not provenance_path.exists():
-        logger.error(f"Data provenance file not found: {provenance_path}")
+        logger.error("Provenance file not found: %s", provenance_path)
         raise SystemExit(
-            "Training Error: Cannot train on synthetic data. "
-            "Real data source required. Missing data_provenance.json."
+            "Training Error: Data provenance file missing. "
+            "Cannot verify data source type. Aborting training."
         )
-    
+
     try:
         with open(provenance_path, 'r') as f:
             provenance = json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in data_provenance.json: {e}")
-        raise SystemExit(
-            "Training Error: Cannot train on synthetic data. "
-            "Real data source required. Corrupted data_provenance.json."
-        )
-    
-    source_type = provenance.get('source_type', '').lower()
-    source_url = provenance.get('source_url', '').lower()
-    
-    # Check for synthetic/mock indicators
-    if source_type in ['mock', 'synthetic', 'generated']:
-        logger.error(f"Data source type is synthetic: {source_type}")
-        raise SystemExit(
-            "Training Error: Cannot train on synthetic data. "
-            "Real data source required. Detected source_type: " + source_type
-        )
-    
-    if 'mock' in source_url or 'synthetic' in source_url:
-        logger.error(f"Data source URL indicates synthetic data: {source_url}")
-        raise SystemExit(
-            "Training Error: Cannot train on synthetic data. "
-            "Real data source required. Detected source_url: " + source_url
-        )
-    
-    # Verify we have a real URL or package source
-    if not source_url or not source_url.startswith(('http://', 'https://', 'pkg://')):
-        # If no URL but we have other indicators of real data (like a package name), it might be okay
-        # But if completely missing, we should be cautious
-        if not provenance.get('source_package'):
-            logger.warning(f"Data provenance missing clear real source indicator: {provenance}")
-            # We'll allow it to proceed if no explicit mock/synthetic flag, but log warning
-            logger.info("Proceeding with training - no explicit synthetic flag found in provenance")
-        else:
-            logger.info(f"Proceeding with training - source package: {provenance.get('source_package')}")
-    else:
-        logger.info(f"Verified real data source: {source_url}")
+    except json.JSONDecodeError:
+        raise SystemExit("Training Error: Invalid JSON in data_provenance.json")
 
-def prepare_features_target(data_path: Path) -> Tuple[np.ndarray, np.ndarray]:
+    source_type = provenance.get("source_type")
+    source_url = provenance.get("source_url", "unknown")
+
+    if source_type != "real":
+        logger.error("Invalid source type: %s", source_type)
+        raise SystemExit(
+            f"Training Error: Cannot train on synthetic data. "
+            f"Real data source required. Detected source_type: {source_type} "
+            f"from URL: {source_url}"
+        )
+
+    logger.info("Data provenance verified: source_type='real'")
+    return True
+
+def prepare_features_target(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, list]:
     """
-    Prepare features and target from curated data.
-    
-    Args:
-        data_path: Path to the curated CSV file
-        
-    Returns:
-        Tuple of (features, target) arrays
+    Prepare feature matrix X and target vector y from the curated dataframe.
+    Expects columns: ['size_mismatch', 'electronegativity_diff', 'valence_e_diff']
+    Target: 'activation_energy'
     """
-    df = pd.read_csv(data_path)
+    feature_cols = ['size_mismatch', 'electronegativity_diff', 'valence_e_diff']
     
-    # Define feature columns based on the project's descriptor computation
-    # Expected columns: size_mismatch, electronegativity_diff, etc.
-    feature_columns = ['size_mismatch']
-    
-    # Check if all expected columns exist
-    missing_cols = [col for col in feature_columns if col not in df.columns]
+    # Ensure all required columns exist
+    missing_cols = [c for c in feature_cols if c not in df.columns]
     if missing_cols:
-        logger.error(f"Missing required feature columns: {missing_cols}")
         raise ValueError(f"Missing required feature columns: {missing_cols}")
     
-    X = df[feature_columns].values
+    if 'activation_energy' not in df.columns:
+        raise ValueError("Missing target column: activation_energy")
+
+    X = df[feature_cols].values
     y = df['activation_energy'].values
     
-    logger.info(f"Prepared features: {X.shape}, target: {y.shape}")
-    return X, y
+    return X, y, feature_cols
 
-def train_random_forest(X_train: np.ndarray, y_train: np.ndarray, 
-                        X_test: np.ndarray, y_test: np.ndarray) -> Tuple[Any, Dict[str, float]]:
+def save_model_and_metrics(model: Any, metrics: Dict[str, float], model_name: str):
+    """Save trained model and metrics to disk."""
+    model_path = MODELS_DIR / f"{model_name}.pkl"
+    metrics_path = MODELS_DIR / f"{model_name}_metrics.json"
+
+    with open(model_path, 'wb') as f:
+        pickle.dump(model, f, protocol=pickle.HIGHEST_PROTOCOL)
+    
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    logger.info("Saved %s to %s", model_name, model_path)
+    logger.info("Saved metrics to %s", metrics_path)
+
+def train_model_with_gridsearch(
+    X_train: np.ndarray, 
+    y_train: np.ndarray, 
+    model_class: Any, 
+    param_grid: Dict, 
+    model_name: str,
+    timeout_seconds: int = 300
+) -> Tuple[Any, Dict[str, float]]:
     """
-    Train Random Forest model with GridSearchCV.
-    
-    Args:
-        X_train: Training features
-        y_train: Training targets
-        X_test: Test features
-        y_test: Test targets
-        
-    Returns:
-        Tuple of (best_model, metrics_dict)
+    Train a model using GridSearchCV with a timeout guard.
+    Returns the best model and its best parameters/score.
     """
-    logger.info("Starting Random Forest training with GridSearchCV...")
+    logger.info("Starting GridSearchCV for %s...", model_name)
     
-    param_grid = {
-        'max_depth': [3, 5, 7, 10],
-        'n_estimators': [50, 100, 150, 200]
-    }
-    
-    rf = RandomForestRegressor(random_state=42, n_jobs=-1)
+    # Initialize GridSearch
+    gs = GridSearchCV(
+        estimator=model_class(), 
+        param_grid=param_grid, 
+        cv=5, 
+        n_jobs=-1, 
+        scoring='r2',
+        verbose=1
+    )
     
     try:
-        with TimeoutContext(TRAINING_TIMEOUT_SECONDS):
-            grid_search = GridSearchCV(
-                rf, param_grid, cv=5, scoring='r2', n_jobs=-1, verbose=1
-            )
-            grid_search.fit(X_train, y_train)
+        with TimeoutContext(timeout_seconds):
+            gs.fit(X_train, y_train)
     except TimeoutError:
-        logger.error("Random Forest GridSearch timed out")
-        raise SystemExit("Training Timeout: GridSearch exceeded 30min limit")
+        raise SystemExit(f"Training Timeout: GridSearch for {model_name} exceeded {timeout_seconds}s")
     except MemoryError:
-        logger.error("Random Forest GridSearch ran out of memory")
-        raise SystemExit("Memory Error: GridSearch exceeds resource limits")
+        raise SystemExit(f"Memory Error: GridSearch for {model_name} exceeds resource limits")
+
+    best_model = gs.best_estimator_
+    best_score = gs.best_score_
+    best_params = gs.best_params_
     
-    best_model = grid_search.best_estimator_
-    
-    # Calculate metrics
-    y_pred = best_model.predict(X_test)
     metrics = {
-        'r2': float(r2_score(y_test, y_pred)),
-        'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred))),
-        'mae': float(mean_absolute_error(y_test, y_pred)),
-        'best_params': grid_search.best_params_,
-        'best_score': float(grid_search.best_score_)
+        "best_r2": float(best_score),
+        "best_params": best_params,
+        "model_type": model_name
     }
     
-    logger.info(f"Random Forest training complete. R²: {metrics['r2']:.4f}")
+    logger.info("Best %s R²: %.4f", model_name, best_score)
+    logger.info("Best params: %s", best_params)
+    
     return best_model, metrics
 
-def train_gradient_boosting(X_train: np.ndarray, y_train: np.ndarray,
-                            X_test: np.ndarray, y_test: np.ndarray) -> Tuple[Any, Dict[str, float]]:
-    """
-    Train Gradient Boosting model with GridSearchCV.
-    
-    Args:
-        X_train: Training features
-        y_train: Training targets
-        X_test: Test features
-        y_test: Test targets
-        
-    Returns:
-        Tuple of (best_model, metrics_dict)
-    """
-    logger.info("Starting Gradient Boosting training with GridSearchCV...")
+def train_random_forest(X: np.ndarray, y: np.ndarray) -> Tuple[Any, Dict[str, float]]:
+    """Train Random Forest with GridSearch."""
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=RANDOM_SEED
+    )
     
     param_grid = {
-        'max_depth': [3, 5, 7, 10],
-        'n_estimators': [50, 100, 150, 200],
-        'learning_rate': [0.05, 0.1, 0.2]
+        'max_depth': [3, 5, 10],
+        'n_estimators': [50, 100, 200]
     }
     
-    gb = GradientBoostingRegressor(random_state=42)
+    model, metrics = train_model_with_gridsearch(
+        X_train, y_train, RandomForestRegressor, param_grid, "rf", timeout_seconds=300
+    )
     
-    try:
-        with TimeoutContext(TRAINING_TIMEOUT_SECONDS):
-            grid_search = GridSearchCV(
-                gb, param_grid, cv=5, scoring='r2', n_jobs=-1, verbose=1
-            )
-            grid_search.fit(X_train, y_train)
-    except TimeoutError:
-        logger.error("Gradient Boosting GridSearch timed out")
-        raise SystemExit("Training Timeout: GridSearch exceeded 30min limit")
-    except MemoryError:
-        logger.error("Gradient Boosting GridSearch ran out of memory")
-        raise SystemExit("Memory Error: GridSearch exceeds resource limits")
+    # Evaluate on test set
+    y_pred = model.predict(X_test)
+    metrics['test_r2'] = float(r2_score(y_test, y_pred))
+    metrics['test_rmse'] = float(np.sqrt(mean_squared_error(y_test, y_pred)))
+    metrics['test_mae'] = float(mean_absolute_error(y_test, y_pred))
     
-    best_model = grid_search.best_estimator_
-    
-    # Calculate metrics
-    y_pred = best_model.predict(X_test)
-    metrics = {
-        'r2': float(r2_score(y_test, y_pred)),
-        'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred))),
-        'mae': float(mean_absolute_error(y_test, y_pred)),
-        'best_params': grid_search.best_params_,
-        'best_score': float(grid_search.best_score_)
-    }
-    
-    logger.info(f"Gradient Boosting training complete. R²: {metrics['r2']:.4f}")
-    return best_model, metrics
+    return model, metrics
 
-def train_linear_regression(X_train: np.ndarray, y_train: np.ndarray,
-                            X_test: np.ndarray, y_test: np.ndarray) -> Tuple[Any, Dict[str, float]]:
-    """
-    Train Linear Regression model and extract coefficients.
+def train_gradient_boosting(X: np.ndarray, y: np.ndarray) -> Tuple[Any, Dict[str, float]]:
+    """Train Gradient Boosting with GridSearch."""
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=RANDOM_SEED
+    )
     
-    Args:
-        X_train: Training features
-        y_train: Training targets
-        X_test: Test features
-        y_test: Test targets
-        
-    Returns:
-        Tuple of (model, metrics_dict)
-    """
-    logger.info("Training Linear Regression model...")
+    param_grid = {
+        'max_depth': [3, 5, 10],
+        'n_estimators': [50, 100, 200]
+    }
+    
+    model, metrics = train_model_with_gridsearch(
+        X_train, y_train, GradientBoostingRegressor, param_grid, "gb", timeout_seconds=300
+    )
+    
+    # Evaluate on test set
+    y_pred = model.predict(X_test)
+    metrics['test_r2'] = float(r2_score(y_test, y_pred))
+    metrics['test_rmse'] = float(np.sqrt(mean_squared_error(y_test, y_pred)))
+    metrics['test_mae'] = float(mean_absolute_error(y_test, y_pred))
+    
+    return model, metrics
+
+def train_linear_regression(X: np.ndarray, y: np.ndarray) -> Tuple[Any, Dict[str, float]]:
+    """Train Linear Regression and extract coefficient/p-value for size_mismatch."""
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=RANDOM_SEED
+    )
     
     model = LinearRegression()
     model.fit(X_train, y_train)
     
-    # Calculate metrics
     y_pred = model.predict(X_test)
-    metrics = {
-        'r2': float(r2_score(y_test, y_pred)),
-        'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred))),
-        'mae': float(mean_absolute_error(y_test, y_pred)),
-        'coef': float(model.coef_[0]),
-        'intercept': float(model.intercept_)
-    }
+    r2 = float(r2_score(y_test, y_pred))
     
-    # Calculate p-value using t-test (simplified approach)
-    from scipy import stats
+    # Extract coefficient for 'size_mismatch' (assumed index 0 based on prepare_features_target)
+    coef_size_mismatch = float(model.coef_[0])
+    
+    # Calculate p-value manually (t-test on coefficient)
+    # Residuals
     residuals = y_test - y_pred
     n = len(y_test)
     p = X_train.shape[1]
     
-    # Standard error of the coefficient
-    se_coef = np.sqrt(np.sum(residuals**2) / (n - p - 1)) / np.sqrt(np.sum((X_train - np.mean(X_train, axis=0))**2))
-    t_stat = model.coef_[0] / se_coef[0]
-    p_value = 2 * (1 - stats.t.cdf(np.abs(t_stat), n - p - 1))
+    # Standard error of coefficients
+    # Cov = sigma^2 * (X'X)^-1
+    # sigma^2 = RSS / (n - p - 1)
+    rss = np.sum(residuals**2)
+    dof = n - p - 1
+    if dof <= 0:
+        logger.warning("Degrees of freedom <= 0. Cannot compute p-value.")
+        p_value = 1.0
+    else:
+        sigma_sq = rss / dof
+        X_train_p = np.c_[np.ones(X_train.shape[0]), X_train] # Add intercept
+        try:
+            XtX_inv = np.linalg.inv(X_train_p.T @ X_train_p)
+            se_coef = np.sqrt(sigma_sq * XtX_inv[1, 1]) # Index 1 corresponds to first feature
+            t_stat = coef_size_mismatch / se_coef if se_coef != 0 else 0
+            # Two-tailed p-value approximation using scipy if available, else manual
+            # Since we want to avoid heavy deps, we approximate or use a simple check
+            # For strict compliance without scipy import in this specific block if not present:
+            # We will assume scipy is available as per standard sklearn stack or use a fallback
+            try:
+                from scipy import stats
+                p_value = float(2 * (1 - stats.t.cdf(abs(t_stat), dof)))
+            except ImportError:
+                logger.warning("scipy not found. Using rough p-value approximation.")
+                p_value = 0.05 if abs(t_stat) > 1.96 else 0.10
+        except np.linalg.LinAlgError:
+            logger.warning("Singular matrix. Cannot compute p-value.")
+            p_value = 1.0
     
-    metrics['p_value'] = float(p_value)
+    metrics = {
+        "r2": r2,
+        "coef_size_mismatch": coef_size_mismatch,
+        "p_value": p_value
+    }
     
-    logger.info(f"Linear Regression training complete. R²: {metrics['r2']:.4f}, p-value: {metrics['p_value']:.4f}")
     return model, metrics
 
-def save_model_and_metrics(model: Any, metrics: Dict[str, Any], 
-                           model_name: str, metrics_file: str) -> None:
-    """
-    Save trained model and metrics to disk.
-    
-    Args:
-        model: Trained sklearn model
-        metrics: Dictionary of metrics
-        model_name: Name of the model for file naming
-        metrics_file: Path to save metrics JSON
-    """
-    model_path = MODELS_DIR / f"final_{model_name}.pkl"
-    
-    # Save model
-    with open(model_path, 'wb') as f:
-        pickle.dump(model, f, protocol=5)
-    
-    # Save metrics
-    with open(metrics_file, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    
-    logger.info(f"Saved {model_name} model to {model_path}")
-    logger.info(f"Saved {model_name} metrics to {metrics_file}")
+def aggregate_metrics(rf_metrics: Dict, gb_metrics: Dict, mean_r2: float) -> Dict[str, Any]:
+    """Aggregate all training metrics into a single dictionary."""
+    return {
+        "rf_r2": rf_metrics.get("test_r2"),
+        "rf_rmse": rf_metrics.get("test_rmse"),
+        "rf_mae": rf_metrics.get("test_mae"),
+        "gb_r2": gb_metrics.get("test_r2"),
+        "gb_rmse": gb_metrics.get("test_rmse"),
+        "gb_mae": gb_metrics.get("test_mae"),
+        "mean_r2": mean_r2,
+        "rf_delta": rf_metrics.get("test_r2", 0) - mean_r2,
+        "gb_delta": gb_metrics.get("test_r2", 0) - mean_r2
+    }
 
-def main() -> None:
+def main():
     """
-    Main training pipeline entry point.
-    
-    1. Verifies input data is not synthetic (T068 requirement)
-    2. Loads and prepares data
-    3. Trains RF, GB, and Linear models
-    4. Saves artifacts
+    Main entry point for training pipeline.
+    1. Verify data provenance (T072 requirement).
+    2. Load curated data.
+    3. Train models.
+    4. Save artifacts.
     """
     logger.info("Starting model training pipeline...")
     
-    # T068: Verify data is not synthetic before training
-    curated_data_path = DATA_DIR / "curated" / "filtered.csv"
-    logger.info(f"Verifying data provenance for: {curated_data_path}")
-    verify_data_provenance(curated_data_path)
+    # T072: Verify data is real before proceeding
+    verify_data_provenance()
     
-    # Prepare features and target
-    X, y = prepare_features_target(curated_data_path)
+    # Load data
+    curated_path = DATA_DIR / "curated" / "filtered.csv"
+    if not curated_path.exists():
+        raise SystemExit(f"Curated data file not found: {curated_path}")
     
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
+    df = pd.read_csv(curated_path)
+    logger.info("Loaded %d rows from %s", len(df), curated_path)
     
-    logger.info(f"Data split: Train={X_train.shape[0]}, Test={X_test.shape[0]}")
+    # Prepare features
+    X, y, feature_cols = prepare_features_target(df)
+    logger.info("Features: %s", feature_cols)
     
-    # Train models
-    # Random Forest
-    rf_model, rf_metrics = train_random_forest(X_train, y_train, X_test, y_test)
-    save_model_and_metrics(rf_model, rf_metrics, 'rf', MODELS_DIR / 'rf_metrics.json')
+    # Train Mean Predictor Baseline
+    mean_val = np.mean(y)
+    mean_r2 = 0.0 # R^2 of mean predictor is 0 by definition on test set if mean is from train? 
+    # Actually, R^2 = 1 - (SS_res / SS_tot). If pred = mean(y_train), then on test:
+    # SS_res = sum((y_test - mean_train)^2)
+    # SS_tot = sum((y_test - mean_test)^2)
+    # We'll calculate it properly if needed, but standard baseline R^2 is often 0.
+    # Let's compute it on the test split for consistency.
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=RANDOM_SEED)
+    y_pred_mean = np.full_like(y_test, np.mean(y_train))
+    ss_res = np.sum((y_test - y_pred_mean)**2)
+    ss_tot = np.sum((y_test - np.mean(y_test))**2)
+    mean_r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
     
-    # Gradient Boosting
-    gb_model, gb_metrics = train_gradient_boosting(X_train, y_train, X_test, y_test)
-    save_model_and_metrics(gb_model, gb_metrics, 'gb', MODELS_DIR / 'gb_metrics.json')
+    # Train RF
+    rf_model, rf_metrics = train_random_forest(X, y)
+    save_model_and_metrics(rf_model, rf_metrics, "final_rf")
     
-    # Linear Regression
-    lr_model, lr_metrics = train_linear_regression(X_train, y_train, X_test, y_test)
+    # Train GB
+    gb_model, gb_metrics = train_gradient_boosting(X, y)
+    save_model_and_metrics(gb_model, gb_metrics, "final_gb")
     
-    # Save linear coefficients separately
-    linear_coef_path = MODELS_DIR / 'linear_coef.json'
-    with open(linear_coef_path, 'w') as f:
+    # Train Linear
+    lr_model, lr_metrics = train_linear_regression(X, y)
+    linear_path = MODELS_DIR / "linear_coef.json"
+    with open(linear_path, 'w') as f:
         json.dump({
-            'coef': lr_metrics['coef'],
-            'intercept': lr_metrics['intercept'],
-            'p_value': lr_metrics['p_value']
+            "coef_size_mismatch": lr_metrics["coef_size_mismatch"],
+            "p_value": lr_metrics["p_value"],
+            "r2": lr_metrics["r2"]
         }, f, indent=2)
+    logger.info("Saved linear coefficients to %s", linear_path)
     
-    logger.info(f"Saved linear coefficients to {linear_coef_path}")
+    # Aggregate
+    final_metrics = aggregate_metrics(rf_metrics, gb_metrics, mean_r2)
+    final_metrics["linear_coef"] = lr_metrics["coef_size_mismatch"]
+    final_metrics["linear_p_value"] = lr_metrics["p_value"]
     
-    # Aggregate all metrics
-    aggregate_metrics(rf_metrics, gb_metrics, lr_metrics)
-    
-    logger.info("Model training pipeline complete.")
-
-def aggregate_metrics(rf_metrics: Dict[str, Any], gb_metrics: Dict[str, Any], 
-                     lr_metrics: Dict[str, Any]) -> None:
-    """
-    Aggregate all training metrics into a single file.
-    
-    Args:
-        rf_metrics: Random Forest metrics
-        gb_metrics: Gradient Boosting metrics
-        lr_metrics: Linear Regression metrics
-    """
-    # Load mean predictor metrics if they exist
-    mean_metrics_path = MODELS_DIR / 'mean_metrics.json'
-    mean_r2 = 0.0
-    if mean_metrics_path.exists():
-        with open(mean_metrics_path, 'r') as f:
-            mean_data = json.load(f)
-            mean_r2 = mean_data.get('r2', 0.0)
-    
-    # Calculate deltas
-    rf_delta = rf_metrics['r2'] - mean_r2
-    gb_delta = gb_metrics['r2'] - mean_r2
-    
-    aggregated = {
-        'rf_r2': rf_metrics['r2'],
-        'rf_rmse': rf_metrics['rmse'],
-        'rf_mae': rf_metrics['mae'],
-        'rf_delta': rf_delta,
-        'gb_r2': gb_metrics['r2'],
-        'gb_rmse': gb_metrics['rmse'],
-        'gb_mae': gb_metrics['mae'],
-        'gb_delta': gb_delta,
-        'mean_r2': mean_r2,
-        'linear_coef': lr_metrics['coef'],
-        'linear_p_value': lr_metrics['p_value']
-    }
-    
-    metrics_path = MODELS_DIR / 'metrics.json'
+    metrics_path = MODELS_DIR / "metrics.json"
     with open(metrics_path, 'w') as f:
-        json.dump(aggregated, f, indent=2)
+        json.dump(final_metrics, f, indent=2)
+    logger.info("Aggregated metrics saved to %s", metrics_path)
     
-    logger.info(f"Aggregated metrics saved to {metrics_path}")
+    logger.info("Training pipeline completed successfully.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

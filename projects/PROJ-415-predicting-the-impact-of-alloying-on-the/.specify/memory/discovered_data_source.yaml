@@ -1,0 +1,15 @@
+status: none
+intent: download NIST SRD 168 diffusion dataset and Materials Project diffusion data
+  python package dataset
+required_fields:
+- material_id
+- composition
+- crystal_structure
+- diffusion_mode
+- activation_energy_eV_per_atom
+- solute_concentration_at_percent
+- temperature_K
+- diffusion_coefficient
+cache_key: 4a1cfccef9c03f1eebd4021c751174d77bf2ef79ee011d84cc32c951e13c00fd
+searched_at: '2026-09-07T16:32:20.144739+00:00'
+retry_count: 1

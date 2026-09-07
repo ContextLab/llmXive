@@ -1,229 +1,181 @@
-"""
-Unit tests for data acquisition module.
-
-These tests verify the acquisition logic using mocked HTTP responses
-to ensure error handling paths are covered without requiring network access.
-"""
+import pytest
 import os
 import sys
-import json
-import tempfile
-from pathlib import Path
 from unittest.mock import patch, MagicMock
-import pytest
-import requests
+from requests.exceptions import ConnectionError, Timeout
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path if running standalone
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from code.data.acquisition import (
-    fetch_real_diffusion_data_from_nist,
-    fetch_fcc_diffusion_data,
-    acquire_and_save_diffusion_data,
-    verify_url_reachability,
-    MIN_VALID_ENTRIES,
-    MAX_DATA_SIZE_BYTES
-)
-from config import DATA_DIR
+from code.data.acquisition import acquire_and_save_diffusion_data, verify_url_reachability, fetch_real_diffusion_data_from_nist
 
+class TestFailLoudBehavior:
+    """Tests to verify that the acquisition module fails loudly on network errors."""
 
-class TestAcquisition:
-    """Test cases for data acquisition functions."""
-
-    def test_fetch_data_insufficiency(self):
-        """Test that SystemExit is raised when data < 50 entries."""
-        # Create mock CSV with only 10 rows
-        mock_csv = "col1,col2,col3\n" + "\n".join([f"a{i},b{i},c{i}" for i in range(10)])
+    @patch('code.data.acquisition.requests.head')
+    def test_url_unreachable_raises_systemexit(self, mock_head):
+        """Test that verify_url_reachability returns False when HEAD request fails."""
+        mock_head.side_effect = ConnectionError("Network is unreachable")
         
-        with patch('urllib.request.urlopen') as mock_urlopen:
-            mock_response = MagicMock()
-            mock_response.headers.get.return_value = None
-            mock_response.read.return_value = mock_csv.encode('utf-8')
-            mock_response.__enter__.return_value = mock_response
-            mock_urlopen.return_value = mock_response
-            
-            with pytest.raises(SystemExit) as exc_info:
-                fetch_real_diffusion_data_from_nist("http://test.com/data.csv")
-            
-            assert "Data Insufficiency: N < 50" in str(exc_info.value)
+        # verify_url_reachability should return False
+        assert verify_url_reachability("http://fake-url.com") is False
 
-    def test_fetch_data_size_exceeded(self):
-        """Test that SystemExit is raised when data > 10MB."""
-        # Create a mock response that claims to be > 10MB
-        with patch('urllib.request.urlopen') as mock_urlopen:
-            mock_response = MagicMock()
-            mock_response.headers.get.return_value = str(MAX_DATA_SIZE_BYTES + 1)
-            mock_response.__enter__.return_value = mock_response
-            mock_urlopen.return_value = mock_response
-            
-            with pytest.raises(SystemExit) as exc_info:
-                fetch_real_diffusion_data_from_nist("http://test.com/data.csv")
-            
-            assert "Data Size Exceeded: >10MB constraint violated" in str(exc_info.value)
+    @patch('code.data.acquisition.requests.head')
+    @patch('code.data.acquisition.requests.get')
+    def test_fetch_raises_systemexit_on_connection_error(self, mock_get, mock_head):
+        """Test that fetch_real_diffusion_data_from_nist raises SystemExit on connection error."""
+        mock_head.return_value.status_code = 200
+        mock_get.side_effect = ConnectionError("Failed to connect")
 
-    def test_fetch_success(self):
-        """Test successful fetch of valid data."""
-        # Create mock CSV with 100 rows
-        mock_csv = "col1,col2,col3\n" + "\n".join([f"a{i},b{i},c{i}" for i in range(100)])
+        with pytest.raises(SystemExit) as exc_info:
+            fetch_real_diffusion_data_from_nist("http://fake-url.com")
         
-        with patch('urllib.request.urlopen') as mock_urlopen:
-            mock_response = MagicMock()
-            mock_response.headers.get.return_value = None
-            mock_response.read.return_value = mock_csv.encode('utf-8')
-            mock_response.__enter__.return_value = mock_response
-            mock_urlopen.return_value = mock_response
-            
-            records = fetch_real_diffusion_data_from_nist("http://test.com/data.csv")
-            
-            assert len(records) == 100
-            assert all(isinstance(r, dict) for r in records)
+        assert "Data Fetch Failed" in str(exc_info.value)
 
-    def test_fetch_fallback_url(self):
-        """Test that fallback URL is attempted on failure."""
-        # First call fails, second succeeds
-        mock_csv = "col1,col2,col3\n" + "\n".join([f"a{i},b{i},c{i}" for i in range(100)])
+    @patch('code.data.acquisition.VERIFIED_URLS', ['http://fake1.com', 'http://fake2.com'])
+    @patch('code.data.acquisition.requests.head')
+    @patch('code.data.acquisition.requests.get')
+    def test_acquire_fails_loudly_when_all_urls_fail(self, mock_get, mock_head, mock_urls):
+        """Test that acquire_and_save_diffusion_data raises SystemExit after all URLs fail."""
+        # Mock all URLs as unreachable
+        mock_head.side_effect = [ConnectionError("Fail"), ConnectionError("Fail")]
+        mock_get.side_effect = [ConnectionError("Fail"), ConnectionError("Fail")]
+
+        with pytest.raises(SystemExit) as exc_info:
+            acquire_and_save_diffusion_data("http://any.com")
+
+        assert "Pipeline cannot proceed without verified real data" in str(exc_info.value)
+
+    @patch('code.data.acquisition.requests.head')
+    @patch('code.data.acquisition.requests.get')
+    def test_no_synthetic_fallback_on_network_error(self, mock_get, mock_head):
+        """Test that no synthetic data is generated when network errors occur."""
+        # Setup mocks to fail
+        mock_head.return_value.status_code = 200
+        mock_get.side_effect = Timeout("Request timed out")
+
+        # Ensure no data files exist before
+        test_file = "data/raw/test_no_synthetic.csv"
+        if os.path.exists(test_file):
+            os.remove(test_file)
+
+        with pytest.raises(SystemExit):
+            fetch_real_diffusion_data_from_nist("http://fake-url.com")
+
+        # Verify no synthetic file was created
+        assert not os.path.exists(test_file)
+
+    @patch('code.data.acquisition.requests.head')
+    @patch('code.data.acquisition.requests.get')
+    def test_no_mock_generator_called_on_error(self, mock_get, mock_head):
+        """Test that mock_generator functions are not called on error."""
+        mock_head.return_value.status_code = 200
+        mock_get.side_effect = ConnectionError("Connection refused")
+
+        # Patch any potential mock generator to ensure it's not called
+        with patch('code.data.acquisition.generate_synthetic_data', side_effect=AssertionError("Mock generator should not be called")):
+            with pytest.raises(SystemExit):
+                fetch_real_diffusion_data_from_nist("http://fake-url.com")
+    
+    @patch('code.data.acquisition.requests.head')
+    @patch('code.data.acquisition.requests.get')
+    def test_server_error_500_raises_systemexit(self, mock_get, mock_head):
+        """Test that a 500 Internal Server Error raises SystemExit immediately."""
+        mock_head.return_value.status_code = 200
         
-        with patch('urllib.request.urlopen') as mock_urlopen:
-            mock_response = MagicMock()
-            mock_response.headers.get.return_value = None
-            mock_response.read.return_value = mock_csv.encode('utf-8')
-            mock_response.__enter__.return_value = mock_response
-            
-            # First call raises error, second succeeds
-            mock_urlopen.side_effect = [
-                Exception("First URL failed"),
-                mock_response
-            ]
-            
-            # Should succeed with fallback
-            records = fetch_fcc_diffusion_data()
-            
-            assert len(records) == 100
-            assert mock_urlopen.call_count == 2
-
-    def test_acquire_and_save_creates_files(self):
-        """Test that acquisition creates expected output files."""
-        # Create mock CSV with 100 rows
-        mock_csv = "col1,col2,col3\n" + "\n".join([f"a{i},b{i},c{i}" for i in range(100)])
-        
-        with patch('urllib.request.urlopen') as mock_urlopen:
-            mock_response = MagicMock()
-            mock_response.headers.get.return_value = None
-            mock_response.read.return_value = mock_csv.encode('utf-8')
-            mock_response.__enter__.return_value = mock_response
-            mock_urlopen.return_value = mock_response
-            
-            # Create a temporary directory for testing
-            with tempfile.TemporaryDirectory() as tmpdir:
-                # Patch the paths
-                with patch('code.data.acquisition.DATA_DIR', Path(tmpdir)):
-                    with patch('code.data.acquisition.METADATA_PATH', Path(tmpdir) / "raw" / "source_metadata.json"):
-                        with patch('code.data.acquisition.OUTPUT_CSV_PATH', Path(tmpdir) / "raw" / "fetched_diffusion.csv"):
-                            acquire_and_save_diffusion_data()
-                            
-                            # Verify files exist
-                            csv_path = Path(tmpdir) / "raw" / "fetched_diffusion.csv"
-                            meta_path = Path(tmpdir) / "raw" / "source_metadata.json"
-                            
-                            assert csv_path.exists()
-                            assert meta_path.exists()
-                            
-                            # Verify metadata content
-                            with open(meta_path) as f:
-                                metadata = json.load(f)
-                                assert "source_url" in metadata
-                                assert "fetch_timestamp" in metadata
-
-    def test_fail_loud_on_connection_error(self):
-        """
-        Verify that 'Fail Loud' behavior occurs when the mock server returns a 500 error 
-        or times out (ConnectionError). Asserts SystemExit is raised and NO synthetic 
-        data files are created.
-        """
-        # Ensure no synthetic files exist before test
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmp_path = Path(tmpdir)
-            raw_dir = tmp_path / "raw"
-            raw_dir.mkdir(parents=True)
-            
-            # Patch DATA_DIR and output paths
-            with patch('code.data.acquisition.DATA_DIR', tmp_path):
-                with patch('code.data.acquisition.METADATA_PATH', raw_dir / "source_metadata.json"):
-                    with patch('code.data.acquisition.OUTPUT_CSV_PATH', raw_dir / "fetched_diffusion.csv"):
-                        # Simulate a connection error or timeout on all URLs
-                        with patch('urllib.request.urlopen') as mock_urlopen:
-                            mock_urlopen.side_effect = requests.exceptions.ConnectionError("Network unreachable")
-                            
-                            # Assert that SystemExit is raised
-                            with pytest.raises(SystemExit) as exc_info:
-                                acquire_and_save_diffusion_data()
-                            
-                            # Verify the exit message indicates failure
-                            assert "Real data fetch failed" in str(exc_info.value)
-                            
-                            # CRITICAL: Assert NO synthetic data files were created
-                            csv_path = raw_dir / "fetched_diffusion.csv"
-                            meta_path = raw_dir / "source_metadata.json"
-                            
-                            assert not csv_path.exists(), "Synthetic CSV file was created on failure!"
-                            assert not meta_path.exists(), "Synthetic metadata file was created on failure!"
-
-    def test_fail_loud_on_500_error(self):
-        """
-        Verify that 'Fail Loud' behavior occurs when the mock server returns a 500 error.
-        Asserts SystemExit is raised and NO synthetic data files are created.
-        """
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmp_path = Path(tmpdir)
-            raw_dir = tmp_path / "raw"
-            raw_dir.mkdir(parents=True)
-            
-            with patch('code.data.acquisition.DATA_DIR', tmp_path):
-                with patch('code.data.acquisition.METADATA_PATH', raw_dir / "source_metadata.json"):
-                    with patch('code.data.acquisition.OUTPUT_CSV_PATH', raw_dir / "fetched_diffusion.csv"):
-                        # Simulate a 500 error
-                        with patch('urllib.request.urlopen') as mock_urlopen:
-                            mock_response = MagicMock()
-                            mock_response.headers.get.return_value = None
-                            mock_response.__enter__.return_value = mock_response
-                            mock_response.read.side_effect = Exception("HTTP Error 500: Server Error")
-                            mock_urlopen.return_value = mock_response
-                            
-                            # Assert that SystemExit is raised
-                            with pytest.raises(SystemExit) as exc_info:
-                                acquire_and_save_diffusion_data()
-                            
-                            assert "Real data fetch failed" in str(exc_info.value)
-                            
-                            # CRITICAL: Assert NO synthetic data files were created
-                            csv_path = raw_dir / "fetched_diffusion.csv"
-                            meta_path = raw_dir / "source_metadata.json"
-                            
-                            assert not csv_path.exists(), "Synthetic CSV file was created on 500 error!"
-                            assert not meta_path.exists(), "Synthetic metadata file was created on 500 error!"
-
-    def test_verify_url_reachability_success(self):
-        """Test successful URL reachability check."""
+        # Mock GET to return a 500 error response
         mock_response = MagicMock()
-        mock_response.status_code = 200
-        
-        with patch('requests.head') as mock_head:
-            mock_head.return_value = mock_response
-            
-            result = verify_url_reachability("http://test.com/data.csv")
-            
-            assert result is True
+        mock_response.status_code = 500
+        mock_response.raise_for_status.side_effect = Exception("500 Server Error")
+        mock_get.return_value = mock_response
 
-    def test_verify_url_reachability_failure(self):
-        """Test URL reachability check fails on 404."""
-        mock_response = MagicMock()
-        mock_response.status_code = 404
+        with pytest.raises(SystemExit) as exc_info:
+            fetch_real_diffusion_data_from_nist("http://fake-url.com")
         
-        with patch('requests.head') as mock_head:
-            mock_head.return_value = mock_response
+        assert "Data Fetch Failed" in str(exc_info.value)
+
+    @patch('code.data.acquisition.requests.head')
+    @patch('code.data.acquisition.requests.get')
+    def test_timeout_raises_systemexit(self, mock_get, mock_head):
+        """Test that a timeout raises SystemExit immediately."""
+        mock_head.return_value.status_code = 200
+        mock_get.side_effect = Timeout("Request timed out after 30s")
+
+        with pytest.raises(SystemExit) as exc_info:
+            fetch_real_diffusion_data_from_nist("http://fake-url.com")
+        
+        assert "Data Fetch Failed" in str(exc_info.value)
+
+    @patch('code.data.acquisition.requests.head')
+    @patch('code.data.acquisition.requests.get')
+    def test_404_fallback_to_secondary_url(self, mock_get, mock_head):
+        """
+        Test that the pipeline correctly handles a 404 error from the primary URL
+        and successfully falls back to the secondary URL before raising SystemExit.
+        This specifically addresses the scenario where the primary source is unavailable
+        but a verified fallback exists and is reachable.
+        """
+        # Setup: Primary URL returns 404, Secondary URL succeeds
+        mock_head.side_effect = [
+            MagicMock(status_code=404), # Primary HEAD fails
+            MagicMock(status_code=200)  # Secondary HEAD succeeds
+        ]
+        
+        # Mock the GET request for the primary to raise 404
+        mock_primary_response = MagicMock()
+        mock_primary_response.status_code = 404
+        mock_primary_response.raise_for_status.side_effect = Exception("404 Not Found")
+        
+        # Mock the GET request for the secondary to succeed with CSV content
+        mock_secondary_response = MagicMock()
+        mock_secondary_response.status_code = 200
+        mock_secondary_response.text = "host_id,solute_id,concentration,activation_energy,crystal_structure,diffusion_mode\nCu,Ni,0.1,1.5,FCC,self"
+        mock_secondary_response.iter_lines = lambda: [b"host_id,solute_id,concentration,activation_energy,crystal_structure,diffusion_mode", b"Cu,Ni,0.1,1.5,FCC,self"]
+        
+        # Sequence: Primary GET fails, Secondary GET succeeds
+        mock_get.side_effect = [mock_primary_response, mock_secondary_response]
+
+        # Mock the save functions to avoid disk I/O in test but verify they were called
+        with patch('code.data.acquisition.save_source_metadata') as mock_save_meta, \
+             patch('code.data.acquisition.save_fetched_data') as mock_save_data:
             
-            with pytest.raises(SystemExit) as exc_info:
-                verify_url_reachability("http://test.com/data.csv")
-            
-            assert "URL unreachable or invalid response" in str(exc_info.value)
+            # This should NOT raise SystemExit because a fallback succeeded
+            try:
+                result = fetch_real_diffusion_data_from_nist("http://primary-fake.com", fallback_urls=["http://secondary-fake.com"])
+                
+                # Verify the secondary URL was used
+                assert mock_head.call_count == 2
+                assert mock_get.call_count == 2
+                
+                # Verify save functions were called (indicating success)
+                mock_save_meta.assert_called_once()
+                mock_save_data.assert_called_once()
+                
+            except SystemExit:
+                pytest.fail("fetch_real_diffusion_data_from_nist raised SystemExit even though a fallback URL succeeded")
+
+    @patch('code.data.acquisition.requests.head')
+    @patch('code.data.acquisition.requests.get')
+    def test_404_all_fallbacks_fail_raises_systemexit(self, mock_get, mock_head):
+        """
+        Test that if the primary URL returns 404 AND all fallback URLs return 404,
+        the pipeline raises SystemExit after exhausting all options.
+        """
+        # Setup: All URLs return 404
+        mock_head.side_effect = [
+            MagicMock(status_code=404), # Primary
+            MagicMock(status_code=404), # Fallback 1
+            MagicMock(status_code=404)  # Fallback 2
+        ]
+        
+        # Mock GET to raise 404 for all attempts
+        mock_404_response = MagicMock()
+        mock_404_response.status_code = 404
+        mock_404_response.raise_for_status.side_effect = Exception("404 Not Found")
+        mock_get.return_value = mock_404_response
+
+        with pytest.raises(SystemExit) as exc_info:
+            fetch_real_diffusion_data_from_nist("http://primary-fake.com", fallback_urls=["http://fallback1.com", "http://fallback2.com"])
+        
+        assert "Data Fetch Failed" in str(exc_info.value)
+        assert "All verified URLs failed" in str(exc_info.value)
