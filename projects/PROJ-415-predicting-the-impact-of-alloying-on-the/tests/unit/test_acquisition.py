@@ -11,6 +11,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
+import requests
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -20,6 +21,7 @@ from code.data.acquisition import (
     fetch_real_diffusion_data_from_nist,
     fetch_fcc_diffusion_data,
     acquire_and_save_diffusion_data,
+    verify_url_reachability,
     MIN_VALID_ENTRIES,
     MAX_DATA_SIZE_BYTES
 )
@@ -132,3 +134,96 @@ class TestAcquisition:
                                 metadata = json.load(f)
                                 assert "source_url" in metadata
                                 assert "fetch_timestamp" in metadata
+
+    def test_fail_loud_on_connection_error(self):
+        """
+        Verify that 'Fail Loud' behavior occurs when the mock server returns a 500 error 
+        or times out (ConnectionError). Asserts SystemExit is raised and NO synthetic 
+        data files are created.
+        """
+        # Ensure no synthetic files exist before test
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            raw_dir = tmp_path / "raw"
+            raw_dir.mkdir(parents=True)
+            
+            # Patch DATA_DIR and output paths
+            with patch('code.data.acquisition.DATA_DIR', tmp_path):
+                with patch('code.data.acquisition.METADATA_PATH', raw_dir / "source_metadata.json"):
+                    with patch('code.data.acquisition.OUTPUT_CSV_PATH', raw_dir / "fetched_diffusion.csv"):
+                        # Simulate a connection error or timeout on all URLs
+                        with patch('urllib.request.urlopen') as mock_urlopen:
+                            mock_urlopen.side_effect = requests.exceptions.ConnectionError("Network unreachable")
+                            
+                            # Assert that SystemExit is raised
+                            with pytest.raises(SystemExit) as exc_info:
+                                acquire_and_save_diffusion_data()
+                            
+                            # Verify the exit message indicates failure
+                            assert "Real data fetch failed" in str(exc_info.value)
+                            
+                            # CRITICAL: Assert NO synthetic data files were created
+                            csv_path = raw_dir / "fetched_diffusion.csv"
+                            meta_path = raw_dir / "source_metadata.json"
+                            
+                            assert not csv_path.exists(), "Synthetic CSV file was created on failure!"
+                            assert not meta_path.exists(), "Synthetic metadata file was created on failure!"
+
+    def test_fail_loud_on_500_error(self):
+        """
+        Verify that 'Fail Loud' behavior occurs when the mock server returns a 500 error.
+        Asserts SystemExit is raised and NO synthetic data files are created.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            raw_dir = tmp_path / "raw"
+            raw_dir.mkdir(parents=True)
+            
+            with patch('code.data.acquisition.DATA_DIR', tmp_path):
+                with patch('code.data.acquisition.METADATA_PATH', raw_dir / "source_metadata.json"):
+                    with patch('code.data.acquisition.OUTPUT_CSV_PATH', raw_dir / "fetched_diffusion.csv"):
+                        # Simulate a 500 error
+                        with patch('urllib.request.urlopen') as mock_urlopen:
+                            mock_response = MagicMock()
+                            mock_response.headers.get.return_value = None
+                            mock_response.__enter__.return_value = mock_response
+                            mock_response.read.side_effect = Exception("HTTP Error 500: Server Error")
+                            mock_urlopen.return_value = mock_response
+                            
+                            # Assert that SystemExit is raised
+                            with pytest.raises(SystemExit) as exc_info:
+                                acquire_and_save_diffusion_data()
+                            
+                            assert "Real data fetch failed" in str(exc_info.value)
+                            
+                            # CRITICAL: Assert NO synthetic data files were created
+                            csv_path = raw_dir / "fetched_diffusion.csv"
+                            meta_path = raw_dir / "source_metadata.json"
+                            
+                            assert not csv_path.exists(), "Synthetic CSV file was created on 500 error!"
+                            assert not meta_path.exists(), "Synthetic metadata file was created on 500 error!"
+
+    def test_verify_url_reachability_success(self):
+        """Test successful URL reachability check."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        
+        with patch('requests.head') as mock_head:
+            mock_head.return_value = mock_response
+            
+            result = verify_url_reachability("http://test.com/data.csv")
+            
+            assert result is True
+
+    def test_verify_url_reachability_failure(self):
+        """Test URL reachability check fails on 404."""
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        
+        with patch('requests.head') as mock_head:
+            mock_head.return_value = mock_response
+            
+            with pytest.raises(SystemExit) as exc_info:
+                verify_url_reachability("http://test.com/data.csv")
+            
+            assert "URL unreachable or invalid response" in str(exc_info.value)

@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: DiffusionRecord
-description: Schema for a single diffusion measurement record in FCC metals.
-type: object
+title: "DiffusionRecord"
+description: "Schema for diffusion data records in FCC metals."
+type: "object"
 required:
   - host_id
   - solute_id
@@ -11,28 +11,30 @@ required:
   - diffusion_mode
 properties:
   host_id:
-    type: string
-    description: Chemical symbol of the host metal (e.g., 'Al', 'Cu').
+    type: "string"
+    description: "Identifier for the host metal (e.g., element symbol)."
   solute_id:
-    type: string
-    description: Chemical symbol of the solute element.
+    type: "string"
+    description: "Identifier for the solute metal (e.g., element symbol)."
   concentration:
-    type: number
-    description: Solute concentration in atomic percent (at.%).
+    type: "number"
+    description: "Solute concentration in atomic percent."
+    minimum: 0
   activation_energy:
-    type: number
-    description: Diffusion activation energy in eV/atom.
+    type: "number"
+    description: "Activation energy for diffusion in eV/atom."
+    minimum: 0
   crystal_structure:
-    type: string
-    description: Crystal structure of the host lattice.
+    type: "string"
+    description: "Crystal structure of the alloy."
     enum:
-      - FCC
-      - BCC
-      - HCP
+      - "FCC"
+      - "BCC"
+      - "HCP"
   diffusion_mode:
-    type: string
-    description: Mode of diffusion (e.g., self, impurity).
+    type: "string"
+    description: "Mode of diffusion (self or solute)."
     enum:
-      - self
-      - impurity
+      - "self"
+      - "solute"
 additionalProperties: false
