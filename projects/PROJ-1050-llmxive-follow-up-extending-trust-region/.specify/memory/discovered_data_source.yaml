@@ -1,0 +1,13 @@
+status: none
+intent: gym logical deduction environment python package synthetic reasoning MDP dataset
+required_fields:
+- state_representation
+- action_space
+- ground_truth_path
+- max_depth
+- reward_structure
+- terminal_state
+- inference_rule_names
+cache_key: 5efbd966fee94ec51af3c00a923d4de8efd4dfd57df0af11193ff67ffdc22a97
+searched_at: '2026-09-07T19:13:14.349131+00:00'
+retry_count: 1

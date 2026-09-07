@@ -1,0 +1,36 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the directory `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/`\
+    \ actually exists or contains the required project\u2011structure files (e.g.,\
+    \ README, src/, data/, tests/). Without concrete artifacts, the claim cannot be\
+    \ verified. The implementer must supply the directory listing or the actual files\
+    \ showing the completed structure."
+T002:
+  c: false
+  h: f8ce6397812587fed616fd2116ebd3e44cdc1168495e3c7a9521ef92912f6ab3
+  r: The required file `projects/PROJ-1050-llmxive-follow-up-extending-trust-region/code/requirements.txt`
+    does not exist, so the specified dependencies are not initialized at the correct
+    project path. The existing `code/requirements.txt` is irrelevant to the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,\
+    \ `pyproject.toml` with Black settings, or associated CI/pre\u2011commit hooks)\
+    \ are present in the indicated project directory, nor any evidence that ruff/flake8\
+    \ and Black have been set up. The required artifacts are missing, so the task\
+    \ is not satisfied."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `__init__.py` files in the listed directories (`code/env`,\
+    \ `code/student`, `code/experiments`, `code/analysis`) is provided; without the\
+    \ actual files present, the task cannot be considered fulfilled. The implementer\
+    \ must add non\u2011empty `__init__.py` files to each of those four directories."
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/utils/` directory or an `__init__.py` file was provided;
+    without these artifacts the claim that the required utility package structure
+    exists cannot be confirmed. The implementer must add the directory and the initialization
+    file to satisfy task T004a.

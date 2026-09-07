@@ -1,0 +1,560 @@
+{
+  "fetched_at": "2026-09-07T19:09:14Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Trust Region Policy Distillation\"",
+      "target_n": 5
+    },
+    "duration_seconds": 59.28,
+    "ended_at": "2026-09-07T19:09:14Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Trust Region Policy Optimization for large language models"
+        ],
+        [
+          2,
+          "policy distillation techniques for LLMs"
+        ],
+        [
+          3,
+          "KL-divergence constrained language model fine-tuning"
+        ],
+        [
+          4,
+          "proximal policy optimization for generative models"
+        ],
+        [
+          5,
+          "conservative policy iteration in reinforcement learning from human feedback"
+        ],
+        [
+          6,
+          "reward-constrained language model alignment"
+        ],
+        [
+          7,
+          "iterative policy refinement with trust region constraints"
+        ],
+        [
+          8,
+          "soft policy improvement for transformer networks"
+        ],
+        [
+          9,
+          "constrained maximum likelihood estimation for LLMs"
+        ],
+        [
+          10,
+          "stable policy gradient methods for natural language generation"
+        ],
+        [
+          11,
+          "distribution matching in language model distillation"
+        ],
+        [
+          12,
+          "bounded update steps for neural language model training"
+        ],
+        [
+          13,
+          "alignment via policy regularization in LLMs"
+        ],
+        [
+          14,
+          "iterative distillation with safety constraints"
+        ],
+        [
+          15,
+          "trust region methods for generative AI"
+        ],
+        [
+          16,
+          "fine-tuning LLMs with divergence penalties"
+        ],
+        [
+          17,
+          "reinforcement learning with trust region constraints for text generation"
+        ],
+        [
+          18,
+          "policy smoothing techniques for large language models"
+        ],
+        [
+          19,
+          "constrained optimization in language model pre-training"
+        ],
+        [
+          20,
+          "efficient policy transfer for transformer-based agents"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Trust Region Policy Optimization for large language models": 5,
+        "llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "model distillation knowledge transfer compression",
+      "TRPO PPO policy distillation reinforcement learning",
+      "trust region optimization KL divergence constraint",
+      "teacher student model distillation performance metrics",
+      "policy transfer imitation learning regularization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2106.06828"
+      ]
+    },
+    "per_query_hit_count": {
+      "TRPO PPO policy distillation reinforcement learning": 3,
+      "llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science": 3,
+      "model distillation knowledge transfer compression": 3,
+      "policy transfer imitation learning regularization": 3,
+      "teacher student model distillation performance metrics": 3,
+      "trust region optimization KL divergence constraint": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper discusses general techniques for making LLMs more human-like (fine-tuning, psychological principles) but does not address the specific mechanism of \"Trust Region Policy Distillation\" or the \"llmXive\" follow-up context, failing to meet the criteria for same-mechanism evidence, foundational methodology, or domain-specific variable measurement. It is a broad overview of human-like AI rather than a canonical reference for the specific distillation algorithm the user is investigating.",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from \"Trust Region Policy Distillation\" (a specific reinforcement learning algorithm for model compression). It does not measure the same mechanism, variables, or domain as the user's question, nor does it serve as a foundational reference for the distillation technique itself.",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
+        },
+        {
+          "primary_pointer": "2405.11357",
+          "rationale": "The paper investigates a specific architectural limitation of LLMs regarding character-level understanding, which is a distinct construct from the user's question about \"Trust Region Policy Distillation\" (a specific reinforcement learning-based distillation algorithm). There is no overlap in mechanism, variables, or domain, and the paper does not serve as a foundational reference or empirical baseline for the specific distillation method mentioned.",
+          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-07T19:08:15Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"trust region policy distillation\" computer science",
+      "raw": "llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-09-07T19:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-09-07T19:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
+          "claimed_authors": [
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
+          ],
+          "claimed_title": "Triplet Loss for Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08116"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Triplet Loss for Knowledge Distillation')",
+        "failed_at": "2026-09-07T19:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The model reduction problem that eases the computation costs and latency of complex deep learning architectures has received an increasing number of investigations owing to its importance in model deployment. One promising method is knowledge distillation (KD), which creates a fast-to-execute student model to mimic a large teacher network. In this paper, we propose a method, called KDFM (Knowledge Distillation with Feature Maps), which improves the effectiveness of KD by learning the feature maps from the teacher network. Two major techniques used in KDFM are shared classifier and generative adversarial network. Experimental results show that KDFM can use a four layers CNN to mimic DenseNet-40 and use MobileNet to mimic DenseNet-100. Both student networks have less than 1\\% accuracy loss comparing to their teacher models for CIFAR-100 datasets. The student networks are 2-6 times faster than their teacher models for inference, and the model size of MobileNet is less than half of DenseNet-100's.",
+          "claimed_authors": [
+            "Wei-Chun Chen",
+            "Chia-Che Chang",
+            "Chien-Yu Lu",
+            "Che-Rung Lee"
+          ],
+          "claimed_title": "Knowledge Distillation with Feature Maps for Image Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.00660"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Knowledge Distillation with Feature Maps for Image Classification')",
+        "failed_at": "2026-09-07T19:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+          "claimed_authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "claimed_title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.13567"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='DistillLens: Symmetric Knowledge Distillation Through Logit Lens')",
+        "failed_at": "2026-09-07T19:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We focus on the problem of teaching a robot to solve tasks presented sequentially, i.e., in a continual learning scenario. The robot should be able to solve all tasks it has encountered, without forgetting past tasks. We provide preliminary work on applying Reinforcement Learning to such setting, on 2D navigation tasks for a 3 wheel omni-directional robot. Our approach takes advantage of state representation learning and policy distillation. Policies are trained using learned features as input, rather than raw observations, allowing better sample efficiency. Policy distillation is used to combine multiple policies into a single one that solves all encountered tasks.",
+          "claimed_authors": [
+            "René Traoré",
+            "Hugo Caselles-Dupré",
+            "Timothée Lesort",
+            "Te Sun",
+            "Natalia Díaz-Rodríguez",
+            "David Filliat"
+          ],
+          "claimed_title": "Continual Reinforcement Learning deployed in Real-life using Policy Distillation and Sim2Real Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.04452"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Continual Reinforcement Learning deployed in Real-life using Policy Distillation and Sim2Real Transfer')",
+        "failed_at": "2026-09-07T19:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning (RL) research has demonstrated success in both physical and simulated domains; however, the predominant methodology remains rooted in simulations. The predominance of simulations makes translating research to physical reality uncertain for both algorithms and researchers. We propose a physical platform that is designed to simplify the transition. In this paper, we present the Open Ant: a physical variant of the commonly used Gymnasium Ant environment, along with a simulation. We demonstrate that competent walking policies can be learned from scratch in approximately one hour directly from the physical robot's experience for two substantially different RL algorithms: SARSA($λ$) and Soft Actor-Critic (SAC). Separately, we show policies that were learned in simulation transfer to reality. We also examine how well the platform supports a nimble experimental ecosystem. Specifically, we observe the speed with which new users from diverse backgrounds achieve their first success with the platform, and how easily the platform can be repaired and updated when hardware issues arise. Both the hardware design and software are available as open-source on GitHub for ease of customization. In summary, we advocate for the use of the Open Ant for RL researchers who frequently use simulated environments, so they can more easily include robot experiments in their evaluations.",
+          "claimed_authors": [
+            "Elena Sorina Lupu",
+            "Patrick Spieler",
+            "Khurram Javed",
+            "Kris De Asis",
+            "John D. Martin",
+            "Martha Steenstrup",
+            "Joseph Modayil"
+          ],
+          "claimed_title": "The Open Ant: A Robot Platform for Reinforcement Learning Research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.18488"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
+        "failed_at": "2026-09-07T19:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-09-07T19:08:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Kullback-Leibler (KL) divergence is a fundamental concept in information theory that quantifies the discrepancy between two probability distributions. In the context of Variational Autoencoders (VAEs), it serves as a central regularization term, imposing structure on the latent space and thereby enabling the model to exhibit generative capabilities. In this work, we present a detailed derivation of the closed-form expression for the KL divergence between Gaussian distributions, a case of particular importance in practical VAE implementations. Starting from the general definition for continuous random variables, we derive the expression for the univariate case and extend it to the multivariate setting under the assumption of diagonal covariance. Finally, we discuss the interpretation of each term in the resulting expression and its impact on the training dynamics of the model.",
+          "claimed_authors": [
+            "Andrés Muñoz",
+            "Rodrigo Ramele"
+          ],
+          "claimed_title": "KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.11744"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective')",
+        "failed_at": "2026-09-07T19:08:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a novel adaptive eigenvalue filtering strategy to stabilize and accelerate the optimization of Neo-Hookean energy and its variants under the Projected Newton framework. For the first time, we show that Newton's method, Projected Newton with eigenvalue clamping and Projected Newton with absolute eigenvalue filtering can be unified using ideas from the generalized trust region method. Based on the trust-region fit, our model adaptively chooses the correct eigenvalue filtering strategy to apply during the optimization. Our method is simple but effective, requiring only two lines of code change in the existing Projected Newton framework. We validate our model outperforms stand-alone variants across a number of experiments on quasistatic simulation of deformable solids over a large dataset.",
+          "claimed_authors": [
+            "Honglin Chen",
+            "Hsueh-Ti Derek Liu",
+            "Alec Jacobson",
+            "David I. W. Levin",
+            "Changxi Zheng"
+          ],
+          "claimed_title": "Trust-Region Eigenvalue Filtering for Projected Newton",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.10102"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Trust-Region Eigenvalue Filtering for Projected Newton')",
+        "failed_at": "2026-09-07T19:08:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Model agents achieve strong performance on multi-step reasoning and tool-use tasks, but their impressive capabilities typically rely on extremely large backbones. Existing distillation approaches train smaller students to imitate full teacher trajectories, yet reasoning and knowledge gaps between the teacher and student can cause compounding errors. We propose SCoRe, a student-centered framework in which the student generates training trajectories and the teacher corrects only the earliest error, producing training data matched to the student's abilities and exposing specific weaknesses. The student is first fine-tuned on corrected trajectories. Subsequently, short-horizon reinforcement learning starts from the verified prefix preceding the earliest error, with target rewards assigned at that step. This design enables the student to solve problems through unconstrained RL exploration rather than teacher imitation, while the short-horizon setup improves training stability. On 12 challenging benchmarks, a 7B-parameter student distilled with SCoRe closes the agentic performance gap with a 72B-parameter teacher.",
+          "claimed_authors": [
+            "Yuanjie Lyu",
+            "Chengyu Wang",
+            "Jun Huang",
+            "Tong Xu"
+          ],
+          "claimed_title": "Student-Centered Distillation Narrows the Agentic Gap Between Small and Large LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.14257"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Student-Centered Distillation Narrows the Agentic Gap Between Small and Large LLMs')",
+        "failed_at": "2026-09-07T19:08:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate how teacher-student capacity relationships modulate knowledge distillation (KD) effectiveness in ResNet-based image classification on CIFAR-10. Across four teacher-student pairs (R50->R18, R34->R18, R50->R34, and R101->R34) we compare Logit-KD and Feature-KD under a strict evaluation protocol: hyperparameters and checkpoints are selected on a held-out validation split, selected configurations are re-run with five seeds, and the test set is used exclusively for final reporting. Beyond accuracy, we measure distillation fidelity directly via teacher-student agreement and KL divergence. We report four findings. First, the student-capacity pattern survives the corrected protocol at reduced magnitude: the only statistically significant gains occur for R34 students under Feature-KD (+0.19 and +0.21 pp, p<0.05), in two pairs whose teachers differ two-fold in parameters but not in accuracy, localizing the moderating variable on the student side, while no KD gain for R18 students is distinguishable from zero. Second, Feature-KD matches or outperforms Logit-KD in all four pairs, and its students land closer to the teacher's output distribution (KL at T=1) than Logit-KD students despite never observing teacher logits. Third, top-1 teacher-student agreement is flat across all pairs, decoupling fidelity from accuracy gains. Fourth, architecture dominates KD: correcting the ResNet stem for 32x32 inputs is worth +5.5 to +7.2 pp, more than 25x the largest KD gain. We also retract an attribution made in v1: a controlled re-run shows the reported gradient-clipping bug had no measurable effect, and v1's larger gains are explained by test-set selection. Code and results: github.com/umutonuryasar/kd-capacity-gap (tag v2.0).",
+          "claimed_authors": [
+            "Umut Onur Yasar"
+          ],
+          "claimed_title": "Student Capacity Moderates Knowledge Distillation Effectiveness: A Systematic Study Across ResNet Teacher-Student Pairs on CIFAR-10",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.31191"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Student Capacity Moderates Knowledge Distillation Effectiveness: A Systematic Study Across ResNet Teacher-Student Pairs on CIFAR-10')",
+        "failed_at": "2026-09-07T19:08:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Purpose: The teacher role in the classroom can explain important aspects of the student's school experience. The teacher-student relationship, a central dimension of social capital, influences students' engagement, and the teaching style plays an important role in student outcomes. But there is scarce literature that links teaching styles to teacher-student relationship. This article aims to: 1) analyze whether there is a relationship between teaching styles and the type of relationship perceived by students; 2) test whether this relationship is equally strong for any teaching style; and 3) determine the extent to which students' perceptions vary according to their profile. Design/methodology/approach: A structural equation model with four latent variables is estimated: two for the teacher-student relationship (emotional vs. educational) and two for the teaching styles (directive vs. participative), with information for 21126 sixth-grade primary-students in 2019 in Spain. Findings: Teacher-student relationships and teaching styles are interconnected. The participative style implies a better relationship. The perceptions of the teacher are heterogeneous, depending on gender (girls perceive clearer than boys) and with the educational background (children from lower educational background perceive both types of teaching styles more clearly). Originality/value: The analysis is based on the point of view of the addressee of the teacher's work, i.e. the student. It provides a model that can be replicated in any other education system. The latent variables, based on a periodically administered questionnaire, could be estimated with data from diagnostic assessments in other countries, which in turn would allow the formulation of context-specific educational policy proposals that take into account student feedback.",
+          "claimed_authors": [
+            "Maria-Eugenia Cardenal",
+            "Octavio-David Diaz-Santana",
+            "Sara-Maria Gonzalez-Betancor"
+          ],
+          "claimed_title": "Teacher-student relationship and teaching styles in primary education. A model of analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.06562"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Teacher-student relationship and teaching styles in primary education. A model of analysis')",
+        "failed_at": "2026-09-07T19:08:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-09-07T19:08:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Imitation Learning uses the demonstrations of an expert to uncover the optimal policy and it is suitable for real-world robotics tasks as well. In this case, however, the training of the agent is carried out in a simulation environment due to safety, economic and time constraints. Later, the agent is applied in the real-life domain using sim-to-real methods. In this paper, we apply Imitation Learning methods that solve a robotics task in a simulated environment and use transfer learning to apply these solutions in the real-world environment. Our task is set in the Duckietown environment, where the robotic agent has to follow the right lane based on the input images of a single forward-facing camera. We present three Imitation Learning and two sim-to-real methods capable of achieving this task. A detailed comparison is provided on these techniques to highlight their advantages and disadvantages.",
+          "claimed_authors": [
+            "Zoltán Lőrincz",
+            "Márton Szemenyei",
+            "Róbert Moni"
+          ],
+          "claimed_title": "Imitation Learning for Generalizable Self-driving Policy with Sim-to-real Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.10797"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='Imitation Learning for Generalizable Self-driving Policy with Sim-to-real Transfer')",
+        "failed_at": "2026-09-07T19:08:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing on-policy imitation learning algorithms, such as DAgger, assume access to a fixed supervisor. However, there are many settings where the supervisor may evolve during policy learning, such as a human performing a novel task or an improving algorithmic controller. We formalize imitation learning from a \"converging supervisor\" and provide sublinear static and dynamic regret guarantees against the best policy in hindsight with labels from the converged supervisor, even when labels during learning are only from intermediate supervisors. We then show that this framework is closely connected to a class of reinforcement learning (RL) algorithms known as dual policy iteration (DPI), which alternate between training a reactive learner with imitation learning and a model-based supervisor with data from the learner. Experiments suggest that when this framework is applied with the state-of-the-art deep model-based RL algorithm PETS as an improving supervisor, it outperforms deep RL baselines on continuous control tasks and provides up to an 80-fold speedup in policy evaluation.",
+          "claimed_authors": [
+            "Ashwin Balakrishna",
+            "Brijen Thananjeyan",
+            "Jonathan Lee",
+            "Felix Li",
+            "Arsh Zahed",
+            "Joseph E. Gonzalez",
+            "Ken Goldberg"
+          ],
+          "claimed_title": "On-Policy Robot Imitation Learning from a Converging Supervisor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.03423"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region Policy Distillation\" computer science', candidate_title='On-Policy Robot Imitation Learning from a Converging Supervisor')",
+        "failed_at": "2026-09-07T19:08:55Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhengpeng Xie",
+            "Li Lyna Zhang",
+            "Zeke Xie",
+            "Mao Yang"
+          ],
+          "title": "Trust Region Policy Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.04751",
+        "summary": "Big goals are hard to achieve all at once; breaking them into small steps is wiser. We present Trust Region Policy Distillation (TOP-D), which transforms the notoriously unstable, high-variance On-Policy Distillation (OPD) into a stable training paradigm by dynamically constructing a proximal teacher. Theoretically, we establish a rigorous framework demonstrating that TOP-D inherently controls gradient variance. By providing a formal global convergence analysis alongside a monotonic improvement bound, we mathematically formalize the reliability and stability of the overall training dynamics. Empirically, TOP-D dramatically enhances training stability, sample efficiency, and final performance on mathematical reasoning tasks. More importantly, TOP-D introduces zero additional computational overhead, positioning itself as a promising alternative to the well-established OPD paradigm.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.04751",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-07T19:08:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ying Wen",
+            "Hui Chen",
+            "Yaodong Yang",
+            "Zheng Tian",
+            "Minne Li",
+            "Xu Chen",
+            "Jun Wang"
+          ],
+          "title": "A Game-Theoretic Approach to Multi-Agent Trust Region Optimization",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2106.06828",
+        "summary": "Trust region methods are widely applied in single-agent reinforcement learning problems due to their monotonic performance-improvement guarantee at every iteration. Nonetheless, when applied in multi-agent settings, the guarantee of trust region methods no longer holds because an agent's payoff is also affected by other agents' adaptive behaviors. To tackle this problem, we conduct a game-theoretical analysis in the policy space, and propose a multi-agent trust region learning method (MATRL), which enables trust region optimization for multi-agent learning. Specifically, MATRL finds a stable improvement direction that is guided by the solution concept of Nash equilibrium at the meta-game level. We derive the monotonic improvement guarantee in multi-agent settings and empirically show the local convergence of MATRL to stable fixed points in the two-player rotational differential game. To test our method, we evaluate MATRL in both discrete and continuous multiplayer general-sum games including checker and switch grid worlds, multi-agent MuJoCo, and Atari games. Results suggest that MATRL significantly outperforms strong multi-agent reinforcement learning baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2106.06828",
+          "http_status": 200,
+          "pdf_sample_score": 0.2368,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-07T19:08:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ben Rahman"
+          ],
+          "title": "PPO-BR: Dual-Signal Entropy-Reward Adaptation for Trust Region Policy Optimization",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.17714",
+        "summary": "Despite Proximal Policy Optimization (PPO) dominating policy gradient methods -- from robotic control to game AI -- its static trust region forces a brittle trade-off: aggressive clipping stifles early exploration, while late-stage updates destabilize convergence. PPO-BR establishes a new paradigm in adaptive RL by fusing exploration and convergence signals into a single bounded trust region -- a theoretically grounded innovation that outperforms five SOTA baselines with less than 2% overhead. This work bridges a critical gap in phase-aware learning, enabling real-world deployment in safety-critical systems like robotic surgery within a single adaptive mechanism. PPO-BR achieves 29.1% faster convergence by combining: (1) entropy-driven expansion (epsilon up) for exploration in high-uncertainty states, and (2) reward-guided contraction (epsilon down) for convergence stability. On six diverse benchmarks (MuJoCo, Atari, sparse-reward), PPO-BR achieves 29.1% faster convergence (p < 0.001), 2.3x lower reward variance than PPO, and less than 1.8% runtime overhead with only five lines of code change. PPO-BR's simplicity and theoretical guarantees make it ready-to-deploy in safety-critical domains -- from surgical robotics to autonomous drones. In contrast to recent methods such as Group Relative Policy Optimization (GRPO), PPO-BR offers a unified entropy-reward mechanism applicable to both language models and general reinforcement learning environments.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.17714",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-07T19:09:01Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"trust region policy distillation\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

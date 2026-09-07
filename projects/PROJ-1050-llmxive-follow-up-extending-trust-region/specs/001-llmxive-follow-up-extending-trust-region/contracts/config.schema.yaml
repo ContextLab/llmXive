@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Configuration Schema"
+description: "Schema for the experimental configuration metadata."
+type: "object"
+required:
+  - config_id
+  - alpha
+  - student_horizon
+  - num_episodes
+  - seed
+properties:
+  config_id:
+    type: "string"
+    description: "Unique identifier for the configuration."
+  alpha:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Interpolation coefficient."
+  student_horizon:
+    type: "integer"
+    minimum: 1
+    description: "Student cognitive horizon limit."
+  num_episodes:
+    type: "integer"
+    minimum: 1
+    description: "Target number of episodes to generate."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of creation."
+additionalProperties: false
