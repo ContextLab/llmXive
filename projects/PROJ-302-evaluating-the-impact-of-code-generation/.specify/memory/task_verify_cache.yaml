@@ -1,65 +1,56 @@
-T018:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., modified script, added try/except around radon calls, log
-    output, or updated dataset generation code) was presented to demonstrate that
-    radon failures are now caught, logged, and excluded. Without such evidence the
-    requirement is not satisfied.
-T019:
+  r: "No evidence was provided that the required directories (`code`, `data/tests`,\
+    \ `docs`, `data/raw`, `data/processed`) actually exist on disk; the claim is unsubstantiated.\
+    \ The implementer must create the directories and show a listing (e.g., `ls -R`\
+    \ output) confirming they are present and non\u2011empty where appropriate."
+T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No validation code, test results, or report showing that generated snippets\
-    \ from T014b are checked for syntactic correctness and achieve a \u226595\u202F\
-    % success rate is present. The required artifact (e.g., a script or log/report\
-    \ demonstrating the validation and success\u2011rate metric) is missing."
+  h: 56e32c036cb77551798260d9e620e6bec0799fbcad7d4369efac866abb619716
+  r: The repository contains a `pyproject.toml` with Black and Ruff settings, but
+    the required separate `.ruff.toml` file is missing, so the task of creating both
+    configuration files is not fully satisfied.
+T014b:
+  c: false
+  h: 395e729580155dbb895f57fb0b8c4d8fbe33a70c688add21a3c3049b51cdf018
+  r: "The repository contains `code/data_acquisition/prompt_generator.py`, but the\
+    \ script never creates the required `data/processed/prompt_cohort.parquet` or\
+    \ `generation_failure_log.json` files (both are missing). Moreover, the visible\
+    \ code does not show loading a quantized CodeLlama\u20117B model on CUDA or handling\
+    \ auto\u2011offload, so the core generation logic and output generation are not\
+    \ demonstrated. The task\u2019s primary deliverable is therefore not satisfied."
+T017b:
+  c: false
+  h: 12b7aa18080d71d40d5c7180df33fd9adf72e8ebc80293cf840902254e952c55
+  r: "The provided `semantic_similarity.py` loads a MiniLM model, not CodeBERT, and\
+    \ therefore does not meet the \u201Cusing CodeBERT embeddings\u201D requirement.\
+    \ Moreover, the required output file `data/processed/diagnostic_scores.parquet`\
+    \ is absent, so the script does not produce the diagnostic scores artifact."
 T020:
   c: false
-  h: 68ceeefc6ca4c87c8cc83992ded01b284f65eb259dfe34fcfe833464951a33b1
-  r: The required artifact `tests/contract/test_matching.py` does not exist in the
-    repository, so the contract test for the matching algorithm balance check is missing.
-    The task cannot be considered completed until this file is created with appropriate
-    test content.
-T022:
-  c: false
-  h: 93f231f539dc0cb3e4cf0fc3edd8c0c095226415fe333087e8576a8bb7063236
-  r: "The `code/analysis/matching.py` file exists, but the required dependency `data/processed/diagnostic_scores.parquet`\
-    \ is missing, so the implementation cannot document the exclusion of semantic\
-    \ similarity scores as specified. Additionally, without this file the module cannot\
-    \ fully satisfy the FR\u2011004 requirement."
-T023b:
-  c: false
-  h: 47e586ccbc0ef52001cc83102243f51252accf1528bd7f40a251da6b5d3ae302
-  r: "The provided `matching.py` defines constants for retries and a failure report\
-    \ path but contains no logic that performs up\u2011to\u2011three retries, checks\
-    \ the SMD against the 0.1 threshold, writes `data/processed/matching_failure_report.json`\
-    \ with the SMD values and retry count, or halts the analysis. Moreover, the required\
-    \ `matching_failure_report.json` file does not exist on disk. The task\u2019s\
-    \ failure\u2011handling requirement is therefore unmet."
-T026:
-  c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or test output was provided that shows the implementation of\
-    \ the \u201Cstatistically significant\u201D flagging logic (i.e., checking p\u202F\
-    <\u202F0.05) described in User Story\u202F2. Without an artifact containing the\
-    \ added logic and evidence that it runs correctly, the requirement is not satisfied.\
-    \ The next implementer must supply the relevant source file(s) and a demonstration\
-    \ (e.g., unit test or example run) confirming the flag is set only when p\u202F\
-    <\u202F0.05."
+  r: "No code, script, or documentation was provided showing that the system now flags\
+    \ a result as \u201Cstatistically significant\u201D only when the p\u2011value\
+    \ is below 0.05. The required artifact (e.g., a function/module that performs\
+    \ the p\u2011value check and sets the flag) is missing, so the task is not satisfied."
 T030:
   c: false
-  h: 0b10b3c2b800e61bbd05f0512a2a8b503e5292cacb1baf2f300e2f64b2c62953
+  h: 8daa73f08fed1f1dc593548870e509628dcb3a35a636c37277439c31734df5a9
   r: "The required output file `data/processed/sensitivity_summary.json` does not\
     \ exist, and the provided `code/analysis/sensitivity.py` is incomplete (truncated)\
-    \ and lacks the logic to compute the 80% consistency check and write the JSON\
-    \ flag. The task\u2019s core functionality and output are missing."
-T032:
+    \ with no visible logic that computes the proportion of subsets with p\u202F<\u202F\
+    0.05 or writes a JSON containing a \u201Cconsistent\u201D boolean flag. The task\u2019\
+    s core requirement is therefore unmet."
+T033a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No PDF or HTML report was supplied, and there are no files containing the required\
-    \ p\u2011value, effect size, or visualizations. The implementer provided no tangible\
-    \ artifact to verify that a report generation feature was built. The missing deliverable\
-    \ is a generated report (PDF/HTML) that includes the statistical results and accompanying\
-    \ figures."
+  h: f2f5935f51b468112c42e99b42d5b03eb10aaf3f803cd0c256d55578872d39cb
+  r: "The `cohort_analyzer.py` file is present but the shown source is truncated and\
+    \ does not contain a complete implementation (e.g., the `segment_cohorts` function\
+    \ is cut off and there is no code that writes `cohort_segments.parquet`). Moreover,\
+    \ the required output file `data/processed/cohort_segments.parquet` is absent.\
+    \ The task\u2019s core deliverable \u2013 a generated Parquet file with the three\
+    \ cohort segments \u2013 is therefore not provided."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

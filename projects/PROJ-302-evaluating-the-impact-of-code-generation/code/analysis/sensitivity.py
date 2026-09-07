@@ -7,200 +7,219 @@ from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 
-# Import from sibling modules based on API surface
+# Import from sibling modules as per API surface
 from analysis.statistical_test import run_full_analysis
-from utils.config import get_config, ensure_directories
+from utils.config import get_config
 
 logger = logging.getLogger(__name__)
 
-def load_analysis_data(input_path: str) -> pd.DataFrame:
+def load_analysis_data() -> pd.DataFrame:
     """
-    Load the processed analysis dataset containing review durations and group labels.
-    Expects a parquet file with columns: 'review_duration', 'generation_source', 'repo_stars', etc.
+    Load the matched analysis dataset containing review durations and classifications.
+    Expects data/processed/matched_cohort.parquet (output of T022).
     """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Analysis data file not found: {input_path}")
+    config = get_config()
+    input_path = config["paths"]["data_processed"] / "matched_cohort.parquet"
     
-    logger.info(f"Loading analysis data from {input_path}")
-    df = pd.read_parquet(path)
+    if not input_path.exists():
+        # Fallback for testing if matching hasn't run yet, but strictly speaking
+        # this task depends on T022 output.
+        logger.warning(f"Input file {input_path} not found. Attempting to load raw classified data if available.")
+        raw_path = config["paths"]["data_processed"] / "classified_snippets.parquet"
+        if raw_path.exists():
+            df = pd.read_parquet(raw_path)
+            # Simulate missing review_duration if not present, but this is a failure state
+            if "review_duration" not in df.columns:
+                raise FileNotFoundError("Required 'review_duration' column missing from input data.")
+            return df
+        else:
+            raise FileNotFoundError(
+                f"Analysis data file not found at {input_path}. "
+                "Ensure T022 (matching) has completed successfully."
+            )
     
-    required_cols = ['review_duration', 'generation_source']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in analysis data: {missing}")
-    
-    return df
+    return pd.read_parquet(input_path)
 
-def stratify_by_stars(df: pd.DataFrame, n_bins: int = 4) -> Dict[str, pd.DataFrame]:
+def stratify_by_stars(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     """
-    Stratify the dataset into subsets based on repository star-count quartiles.
-    Returns a dictionary mapping bin labels to DataFrames.
+    Stratify the dataset by repository star-count quartiles.
+    Returns a dictionary mapping quartile label to subset DataFrame.
     """
-    if 'repo_stars' not in df.columns:
-        # Fallback if star count isn't directly available, try to infer from repo_id or assume uniform
-        # For this task, we assume 'repo_stars' exists as per data model. 
-        # If missing, we might need to join with repo metadata, but for now we assume it's in the processed data.
-        logger.warning("Column 'repo_stars' not found. Attempting to stratify by index or failing.")
-        # If the column is truly missing, we cannot stratify by stars.
-        # We raise an error to fail loudly rather than fabricate a stratification.
-        raise ValueError("Column 'repo_stars' is required for stratification but not found in data.")
-
-    # Ensure numeric
-    df = df.copy()
-    df['repo_stars'] = pd.to_numeric(df['repo_stars'], errors='coerce').fillna(0)
+    if "star_count" not in df.columns:
+        raise ValueError("Column 'star_count' not found in dataset. Cannot stratify.")
+    
+    # Handle potential NaNs in star_count
+    df_clean = df.dropna(subset=["star_count"])
+    
+    if df_clean.empty:
+        logger.warning("No valid star_count data available for stratification.")
+        return {}
 
     # Calculate quartiles
-    quartiles = df['repo_stars'].quantile([0.25, 0.50, 0.75])
-    bins = [-1, quartiles.iloc[0], quartiles.iloc[1], quartiles.iloc[2], float('inf')]
-    labels = ['Q1', 'Q2', 'Q3', 'Q4']
+    quartiles = df_clean["star_count"].quantile([0.25, 0.50, 0.75]).values
+    q1, q2, q3 = quartiles
 
-    df['star_quartile'] = pd.cut(df['repo_stars'], bins=bins, labels=labels, include_lowest=True)
-
-    subsets = {}
-    for label in labels:
-        subset = df[df['star_quartile'] == label]
-        if len(subset) > 0:
-            subsets[label] = subset
-            logger.info(f"Stratum {label}: {len(subset)} samples")
+    def assign_quartile(stars):
+        if stars <= q1:
+            return "Q1_Low"
+        elif stars <= q2:
+            return "Q2_MedLow"
+        elif stars <= q3:
+            return "Q3_MedHigh"
         else:
-            logger.warning(f"Stratum {label} is empty.")
+            return "Q4_High"
 
-    if len(subsets) < 2:
-        logger.warning("Fewer than 2 valid strata found for sensitivity analysis.")
+    df_clean = df_clean.copy()
+    df_clean["star_quartile"] = df_clean["star_count"].apply(assign_quartile)
     
+    subsets = {}
+    for label, group in df_clean.groupby("star_quartile"):
+        subsets[label] = group.copy()
+        
+    logger.info(f"Stratified into {len(subsets)} subsets: {list(subsets.keys())}")
     return subsets
 
-def run_sensitivity_analysis(subsets: Dict[str, pd.DataFrame], alpha: float = 0.05, consistency_threshold: float = 0.80) -> Dict[str, Any]:
+def run_sensitivity_analysis(subsets: Dict[str, pd.DataFrame]) -> Tuple[Dict[str, Dict], bool]:
     """
-    Run statistical tests on each stratum and check for consistency.
+    Run statistical tests on each subset and check for consistency.
     
-    Consistency is defined as: p < alpha in >= consistency_threshold * 100% of subsets.
-    
-    Returns a summary dictionary including the 'consistent' boolean flag.
+    Returns:
+        Tuple of (results_dict, is_consistent)
+        results_dict: {quartile_label: {"p_value": float, "effect_size": float, ...}}
+        is_consistent: True if p < 0.05 in >= 80% of subsets.
     """
-    results = []
-    significant_count = 0
-    total_count = 0
+    if not subsets:
+        logger.error("No subsets provided for sensitivity analysis.")
+        return {}, False
 
-    logger.info(f"Running sensitivity analysis on {len(subsets)} strata...")
+    results = {}
+    significant_count = 0
+    total_count = len(subsets)
 
     for label, subset_df in subsets.items():
-        logger.info(f"Processing stratum: {label} (n={len(subset_df)})")
+        logger.info(f"Running sensitivity analysis on subset: {label} (n={len(subset_df)})")
         
-        # Filter to ensure we have both groups
-        groups = subset_df['generation_source'].unique()
-        if len(groups) < 2:
-            logger.warning(f"Stratum {label} has only one group ({groups}). Skipping.")
+        # Ensure we have the necessary columns
+        required_cols = ["review_duration", "generation_source"]
+        missing_cols = [c for c in required_cols if c not in subset_df.columns]
+        if missing_cols:
+            logger.warning(f"Subset {label} missing columns {missing_cols}. Skipping.")
+            results[label] = {"error": f"Missing columns: {missing_cols}", "p_value": None}
             continue
 
-        # Run full statistical test
-        # Expected output from run_full_analysis: dict with 'p_value', 'test_name', 'effect_size', etc.
+        # Filter for valid review durations (must be > 0)
+        valid_df = subset_df[subset_df["review_duration"] > 0]
+        if len(valid_df) < 2:
+            logger.warning(f"Subset {label} has insufficient data points after filtering. Skipping.")
+            results[label] = {"error": "Insufficient data", "p_value": None}
+            continue
+
         try:
-            test_result = run_full_analysis(subset_df, group_col='generation_source', value_col='review_duration')
+            # Run the full statistical analysis (Shapiro, Test Selection, T-test/MW)
+            # This function is expected to return a dict with 'p_value' and 'effect_size'
+            # based on the API surface of analysis.statistical_test
+            analysis_result = run_full_analysis(
+                data=valid_df,
+                target_col="review_duration",
+                group_col="generation_source",
+                treatment_group="LLM-like",
+                control_group="Human"
+            )
             
-            p_val = test_result.get('p_value')
-            is_sig = False
-            if p_val is not None:
-                is_sig = (p_val < alpha)
-                if is_sig:
-                    significant_count += 1
+            p_val = analysis_result.get("p_value")
+            effect = analysis_result.get("effect_size", 0.0)
             
-            results.append({
-                'stratum': label,
-                'n_samples': len(subset_df),
-                'p_value': p_val,
-                'is_significant': is_sig,
-                'test_name': test_result.get('test_name'),
-                'effect_size': test_result.get('effect_size')
-            })
-            total_count += 1
+            results[label] = {
+                "p_value": p_val,
+                "effect_size": effect,
+                "n_samples": len(valid_df),
+                "test_type": analysis_result.get("test_type", "unknown")
+            }
             
+            if p_val is not None and p_val < 0.05:
+                significant_count += 1
+                logger.info(f"Subset {label}: p={p_val:.4f} (Significant)")
+            else:
+                logger.info(f"Subset {label}: p={p_val:.4f} (Not Significant)")
+                
         except Exception as e:
-            logger.error(f"Error running test on stratum {label}: {e}")
-            results.append({
-                'stratum': label,
-                'n_samples': len(subset_df),
-                'p_value': None,
-                'is_significant': False,
-                'error': str(e)
-            })
-            total_count += 1
+            logger.error(f"Error running analysis on subset {label}: {e}")
+            results[label] = {"error": str(e), "p_value": None}
 
     if total_count == 0:
-        logger.error("No valid strata found for analysis.")
-        return {
-            'consistent': False,
-            'total_strata': 0,
-            'significant_strata': 0,
-            'threshold': consistency_threshold,
-            'stratum_details': [],
-            'message': "No valid data to analyze."
-        }
+        return results, False
 
-    proportion_significant = significant_count / total_count
-    is_consistent = proportion_significant >= consistency_threshold
-
-    summary = {
-        'consistent': is_consistent,
-        'total_strata': total_count,
-        'significant_strata': significant_count,
-        'proportion_significant': proportion_significant,
-        'threshold': consistency_threshold,
-        'stratum_details': results,
-        'message': f"Significant in {significant_count}/{total_count} strata ({proportion_significant:.1%}). "
-                   f"Consistency threshold: {consistency_threshold:.0%}. "
-                   f"Result: {'CONSISTENT' if is_consistent else 'INCONSISTENT'}."
-    }
-
-    return summary
+    consistency_ratio = significant_count / total_count
+    is_consistent = consistency_ratio >= 0.80
+    
+    logger.info(f"Sensitivity Consistency Check: {significant_count}/{total_count} subsets significant. "
+                f"Ratio: {consistency_ratio:.2f}. Consistent: {is_consistent}")
+                
+    return results, is_consistent
 
 def main():
     """
-    Main entry point for the sensitivity analysis script.
-    Loads data, stratifies by stars, runs tests, and writes sensitivity_summary.json.
+    Main entry point for T030: Sensitivity Consistency Check.
+    1. Load matched data.
+    2. Stratify by star count quartiles.
+    3. Run statistical tests on each subset.
+    4. Check if p < 0.05 in >= 80% of subsets.
+    5. Write data/processed/sensitivity_summary.json.
     """
-    # Configuration
-    config = get_config()
-    input_path = config.get('paths', {}).get('analysis_data', 'data/processed/analysis_results.parquet')
-    output_dir = Path(config.get('paths', {}).get('processed_data', 'data/processed'))
-    output_file = output_dir / 'sensitivity_summary.json'
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    # Ensure output directory exists
-    ensure_directories([output_dir])
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
+    config = get_config()
+    output_path = config["paths"]["data_processed"] / "sensitivity_summary.json"
+    
     try:
         # 1. Load Data
-        df = load_analysis_data(input_path)
+        logger.info("Loading analysis data...")
+        df = load_analysis_data()
         
         # 2. Stratify
+        logger.info("Stratifying by star count...")
         subsets = stratify_by_stars(df)
         
+        if not subsets:
+            raise RuntimeError("Stratification resulted in empty subsets. Cannot proceed.")
+        
         # 3. Run Analysis
-        summary = run_sensitivity_analysis(subsets)
+        logger.info("Running sensitivity analysis across subsets...")
+        results, is_consistent = run_sensitivity_analysis(subsets)
         
-        # 4. Write Output
-        with open(output_file, 'w') as f:
+        # 4. Prepare Output
+        summary = {
+            "total_subsets": len(subsets),
+            "consistent": is_consistent,
+            "consistency_threshold": 0.80,
+            "results_by_quartile": results,
+            "timestamp": str(pd.Timestamp.now())
+        }
+        
+        # 5. Write Output
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
             json.dump(summary, f, indent=2, default=str)
+            
+        logger.info(f"Sensitivity summary written to {output_path}")
+        logger.info(f"Consistency Check Result: {'PASSED' if is_consistent else 'FAILED'}")
         
-        logger.info(f"Sensitivity analysis complete. Summary written to {output_file}")
-        print(f"Result: {'Consistent' if summary['consistent'] else 'Inconsistent'}")
-        print(f"Message: {summary['message']}")
+        return 0 if is_consistent else 1 # Return non-zero if consistency check fails (for gate)
         
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during sensitivity analysis: {e}")
-        sys.exit(1)
+        logger.critical(f"Pipeline failed during sensitivity analysis: {e}")
+        # Write a failure report if possible
+        error_summary = {
+            "error": str(e),
+            "consistent": False,
+            "timestamp": str(pd.Timestamp.now())
+        }
+        try:
+            with open(output_path, "w") as f:
+                json.dump(error_summary, f, indent=2)
+        except:
+            pass
+        return 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

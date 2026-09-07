@@ -1,33 +1,26 @@
-"""
-Semantic Similarity Feature Extraction Module.
-
-This module computes semantic similarity scores for code snippets using CodeBERT embeddings.
-These scores are generated for DIAGNOSTIC PURPOSES ONLY and are explicitly EXCLUDED from
-matching covariates in the propensity score matching phase to avoid collider bias.
-
-Output: data/processed/diagnostic_scores.parquet
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
 import pandas as pd
 import numpy as np
-from tqdm import tqdm
 
-# Hugging Face dependencies
+# Attempt to import torch and transformers.
+# If not installed, the script will fail loudly as per constraints (no synthetic fallback).
 try:
-    from transformers import AutoTokenizer, AutoModel
     import torch
+    from transformers import AutoTokenizer, AutoModel
+    from sentence_transformers import SentenceTransformer
+    HAS_TRANSFORMERS = True
 except ImportError:
-    raise ImportError(
-        "Missing required dependencies for semantic similarity. "
-        "Please install: pip install transformers torch"
+    HAS_TRANSFORMERS = False
+    logging.warning(
+        "transformers/sentence-transformers not found. "
+        "Semantic similarity extraction requires these packages. "
+        "Please install them via requirements.txt."
     )
 
-# Project imports
 from utils.config import get_config, ensure_directories
 
 # Configure logging
@@ -38,316 +31,220 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-MODEL_NAME = "microsoft/codebert-base"
-MAX_SEQ_LENGTH = 512
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"  # Lightweight, CPU-friendly, real semantic embeddings
+MAX_BATCH_SIZE = 32
+OUTPUT_FILE = "data/processed/diagnostic_scores.parquet"
 
 def load_model_and_tokenizer() -> Tuple[Any, Any]:
     """
-    Load the CodeBERT model and tokenizer.
-
-    Returns:
-        Tuple: (model, tokenizer)
+    Loads the pre-trained sentence transformer model and tokenizer.
+    Returns a tuple of (model, tokenizer).
     """
-    logger.info(f"Loading {MODEL_NAME} model and tokenizer on {DEVICE}...")
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-    model = AutoModel.from_pretrained(MODEL_NAME)
-    model.to(DEVICE)
-    model.eval()
-    logger.info("Model loaded successfully.")
+    if not HAS_TRANSFORMERS:
+        raise ImportError(
+            "Required libraries 'transformers' and 'sentence-transformers' are missing. "
+            "Cannot load model. Install dependencies to proceed."
+        )
+
+    logger.info(f"Loading model: {MODEL_NAME}")
+    # Using SentenceTransformer for ease of use and robust pooling
+    model = SentenceTransformer(MODEL_NAME)
+    tokenizer = model.tokenizer  # Access tokenizer from the wrapper if needed, or use model.encode directly
+
+    # Move to CUDA if available, else CPU
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+    logger.info(f"Model loaded on device: {device}")
     return model, tokenizer
 
 def get_embeddings_batch(
-    snippets: List[str],
-    tokenizer: Any,
     model: Any,
-    batch_size: int = 8
+    texts: List[str],
+    batch_size: int = MAX_BATCH_SIZE
 ) -> np.ndarray:
     """
-    Compute embeddings for a batch of code snippets.
-
-    Args:
-        snippets: List of code snippet strings.
-        tokenizer: HuggingFace tokenizer.
-        model: HuggingFace model.
-        batch_size: Batch size for processing.
-
-    Returns:
-        np.ndarray: Array of embeddings (shape: [num_snippets, embedding_dim]).
+    Computes embeddings for a batch of texts.
+    Returns a numpy array of shape (num_texts, embedding_dim).
     """
-    embeddings = []
-    num_batches = (len(snippets) + batch_size - 1) // batch_size
+    if not HAS_TRANSFORMERS:
+        raise ImportError("Model loading failed; cannot compute embeddings.")
 
-    logger.info(f"Processing {len(snippets)} snippets in {num_batches} batches...")
+    # sentence-transformers handles batching internally efficiently
+    embeddings = model.encode(
+        texts,
+        batch_size=batch_size,
+        show_progress_bar=True,
+        convert_to_numpy=True,
+        device=model.device if hasattr(model, 'device') else "cpu"
+    )
+    return embeddings
 
-    with torch.no_grad():
-        for i in tqdm(range(0, len(snippets), batch_size), desc="Embedding"):
-            batch = snippets[i : i + batch_size]
-            inputs = tokenizer(
-                batch,
-                padding=True,
-                truncation=True,
-                max_length=MAX_SEQ_LENGTH,
-                return_tensors="pt"
-            )
-            inputs = {k: v.to(DEVICE) for k, v in inputs.items()}
-
-            outputs = model(**inputs)
-            # Use last_hidden_state, take mean over sequence dimension (pooling)
-            # Shape: [batch_size, seq_len, hidden_size] -> [batch_size, hidden_size]
-            batch_embeddings = outputs.last_hidden_state.mean(dim=1).cpu().numpy()
-            embeddings.append(batch_embeddings)
-
-    return np.vstack(embeddings)
-
-def calculate_similarity(
-    embedding_matrix: np.ndarray,
-    source_indices: List[int],
-    target_indices: List[int]
-) -> np.ndarray:
+def calculate_similarity(embedding_a: np.ndarray, embedding_b: np.ndarray) -> float:
     """
-    Calculate cosine similarity between pairs of embeddings.
-
-    Args:
-        embedding_matrix: Array of shape [N, D].
-        source_indices: Indices of source snippets.
-        target_indices: Indices of target snippets.
-
-    Returns:
-        np.ndarray: Array of similarity scores.
+    Calculates cosine similarity between two 1D embedding vectors.
     """
-    if len(source_indices) != len(target_indices):
-        raise ValueError("Source and target indices must have the same length.")
+    if embedding_a.shape != embedding_b.shape:
+        raise ValueError("Embeddings must have the same shape.")
 
-    source_vecs = embedding_matrix[source_indices]
-    target_vecs = embedding_matrix[target_indices]
+    norm_a = np.linalg.norm(embedding_a)
+    norm_b = np.linalg.norm(embedding_b)
 
-    # Normalize vectors
-    source_norms = np.linalg.norm(source_vecs, axis=1, keepdims=True)
-    target_norms = np.linalg.norm(target_vecs, axis=1, keepdims=True)
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
 
-    source_normalized = source_vecs / (source_norms + 1e-8)
-    target_normalized = target_vecs / (target_norms + 1e-8)
-
-    # Cosine similarity
-    similarities = np.sum(source_normalized * target_normalized, axis=1)
-    return similarities
+    return float(np.dot(embedding_a, embedding_b) / (norm_a * norm_b))
 
 def extract_semantic_similarity_scores(
-    df: pd.DataFrame
+    df: pd.DataFrame,
+    text_column: str = "code_snippet",
+    reference_text: Optional[str] = None
 ) -> pd.DataFrame:
     """
-    Compute semantic similarity scores for pairs in the dataframe.
-
-    Expected columns in df: 'snippet_id', 'code_content', 'pair_id' (optional).
-    If 'pair_id' exists, we compute similarity within pairs.
-    If not, we compute similarity between consecutive snippets (or all vs all if small).
-    For this task, we assume the dataframe contains pairs of (Human, LLM) snippets
-    derived from the same PR or context, identified by a grouping key or sequential pairing.
-
-    Strategy:
-    1. Load CodeBERT model.
-    2. Generate embeddings for all 'code_content'.
-    3. Compute cosine similarity. If the dataframe has a 'pair_id' or 'group_id',
-       compute similarity within groups. Otherwise, default to comparing adjacent rows
-       if the data is pre-ordered, or just return NaN if pairing is ambiguous.
-       Based on typical pipeline outputs from T014b/T012, we expect a 'pr_id' or 'snippet_group'
-       to pair Human vs Generated.
-
-    Returns:
-        pd.DataFrame: Original dataframe with added 'semantic_similarity_score' column.
+    Computes semantic similarity scores for the dataset.
+    
+    Strategy per Task T017b:
+    - These scores are for a Secondary Diagnostic Report ONLY.
+    - They are EXCLUDED from matching covariates.
+    - We compute similarity of each snippet to a "canonical" reference if provided,
+      or compute pairwise similarity within the batch if no reference is given.
+    
+    For this diagnostic, we will compute the mean embedding of the "Human" class
+    (if available in the dataframe) as a reference, and score all snippets against it.
+    If no class labels exist, we simply return the embeddings themselves as a diagnostic
+    feature (e.g., mean magnitude) or a placeholder column indicating "uncomputed".
+    
+    However, the task specifically asks for "similarity scores".
+    Let's assume the dataframe has a 'classification' column (from T014) with values 'Human'/'LLM-like'.
+    We will calculate the centroid of the 'Human' class and compute cosine similarity
+    of every snippet to that centroid.
     """
-    if 'code_content' not in df.columns:
-        raise ValueError("Input dataframe must contain 'code_content' column.")
+    if not HAS_TRANSFORMERS:
+        raise ImportError("Cannot extract scores: missing transformers libraries.")
 
-    # Filter out empty content
-    valid_mask = df['code_content'].astype(str).str.strip().astype(bool)
-    if not valid_mask.all():
-        logger.warning(f"Found { (~valid_mask).sum() } empty/NaN snippets. Skipping them for embedding.")
-    
-    valid_df = df[valid_mask].copy()
-    
-    if len(valid_df) == 0:
-        logger.warning("No valid snippets found to compute embeddings.")
-        df['semantic_similarity_score'] = np.nan
+    if text_column not in df.columns:
+        raise KeyError(f"Text column '{text_column}' not found in dataframe.")
+
+    # Filter out empty or NaN snippets
+    valid_indices = df[text_column].notna() & (df[text_column] != "")
+    df_valid = df[valid_indices].copy()
+
+    if len(df_valid) == 0:
+        logger.warning("No valid text snippets found in dataset.")
+        df["semantic_similarity_score"] = np.nan
         return df
 
-    model, tokenizer = load_model_and_tokenizer()
+    logger.info(f"Processing {len(df_valid)} snippets for semantic similarity...")
     
-    snippets = valid_df['code_content'].tolist()
-    embeddings = get_embeddings_batch(snippets, tokenizer, model)
+    # Load model
+    model, _ = load_model_and_tokenizer()
 
-    # Determine pairing strategy
-    if 'group_id' in valid_df.columns:
-        # Group by group_id and compute similarity within group (e.g., Human vs LLM)
-        # Assuming each group has exactly 2 items (Human, LLM)
-        valid_df = valid_df.copy()
-        valid_df['embedding_idx'] = range(len(valid_df))
-        
-        scores = []
-        groups = valid_df.groupby('group_id')
-        
-        for group_id, group_df in groups:
-            if len(group_df) < 2:
-                # Cannot compute similarity with < 2 items
-                scores.extend([np.nan] * len(group_df))
-                continue
-            
-            # Take first two items in the group (assuming sorted or consistent order)
-            # If more than 2, we might need specific logic, but for this task we assume pairs
-            idx1, idx2 = group_df['embedding_idx'].iloc[0], group_df['embedding_idx'].iloc[1]
-            sim = calculate_similarity(embeddings, [idx1], [idx2])[0]
-            
-            # Assign score to all rows in this group (or just the pair)
-            # We'll assign the score to the row that represents the 'generated' or 'target'
-            # For simplicity, we assign the score to the second item, and NaN to the first
-            # But the requirement is "for every code snippet". Let's assign the pair score to both?
-            # Or better: The score represents the relationship. Let's assign the score to the 'generated' snippet
-            # if we can identify it. If not, we assign to the second row.
-            
-            # Simpler approach: Just assign the computed score to the second row of the pair, 
-            # and NaN to the first, or duplicate. 
-            # Given the diagnostic nature, let's assign the similarity to the 'generated' snippet.
-            # If we don't have a label, we'll just assign to the second row.
-            
-            row_indices = group_df.index.tolist()
-            for idx in row_indices:
-                scores.append(np.nan) # Initialize
-            
-            # Actually, let's just fill the second one
-            scores_dict = {idx: np.nan for idx in row_indices}
-            scores_dict[row_indices[1]] = sim
-            
-            for idx, score in scores_dict.items():
-                # We need to map back to the global dataframe index later
-                # This is getting complex. Let's simplify:
-                # Just compute similarity between row i and row i+1 if no groups, 
-                # or if groups, between the two in the group.
-                pass
+    # Get embeddings for all valid snippets
+    texts = df_valid[text_column].tolist()
+    embeddings = get_embeddings_batch(model, texts)
 
-        # Re-implementation for clarity:
-        # Create a series for scores, initialized to NaN
-        score_series = pd.Series(np.nan, index=df.index)
-        
-        for group_id, group_df in groups:
-            if len(group_df) < 2:
-                continue
-            
-            group_indices = group_df.index.tolist()
-            # Compute similarity between first and second
-            idx1 = group_indices[0]
-            idx2 = group_indices[1]
-            
-            # Find positions in the valid_df list
-            # valid_df is a subset of df, but we need to map back to embeddings
-            # valid_df['embedding_idx'] maps valid_df rows to embeddings list
-            # But we need to map df index to embedding index
-            pass
-
-        # Let's do a simpler mapping:
-        # 1. Create a map from df index to embedding index for valid rows
-        idx_map = {idx: i for i, idx in enumerate(valid_df.index)}
-        
-        score_series = pd.Series(np.nan, index=df.index)
-        
-        for group_id, group_df in groups:
-            if len(group_df) < 2:
-                continue
-            
-            group_indices = group_df.index.tolist()
-            if group_indices[0] not in idx_map or group_indices[1] not in idx_map:
-                continue
-                
-            pos1 = idx_map[group_indices[0]]
-            pos2 = idx_map[group_indices[1]]
-            
-            sim = calculate_similarity(embeddings, [pos1], [pos2])[0]
-            
-            # Assign to the second item (assuming it's the generated one or the one we care about)
-            # Or assign to both? The task says "for every code snippet".
-            # Let's assign the score to the second one in the pair, as the 'diagnostic' for that snippet.
-            score_series[group_indices[1]] = sim
-            # Also assign to the first? Usually similarity is symmetric.
-            score_series[group_indices[0]] = sim
-
-        df['semantic_similarity_score'] = score_series
-
-    elif len(valid_df) >= 2:
-        # Fallback: Compute similarity between consecutive snippets if no group_id
-        # This is a heuristic.
-        logger.warning("No 'group_id' found. Computing similarity between consecutive snippets as fallback.")
-        score_series = pd.Series(np.nan, index=df.index)
-        idx_map = {idx: i for i, idx in enumerate(valid_df.index)}
-        
-        # Iterate through valid_df rows and compute sim with next
-        for i in range(len(valid_df) - 1):
-            idx1 = valid_df.index[i]
-            idx2 = valid_df.index[i+1]
-            
-            if idx1 in idx_map and idx2 in idx_map:
-                pos1 = idx_map[idx1]
-                pos2 = idx_map[idx2]
-                sim = calculate_similarity(embeddings, [pos1], [pos2])[0]
-                score_series[idx1] = sim
-                score_series[idx2] = sim
-        
-        df['semantic_similarity_score'] = score_series
+    # Determine reference strategy
+    if "classification" in df_valid.columns:
+        # Use Human class centroid as reference
+        human_mask = df_valid["classification"] == "Human"
+        if human_mask.sum() > 0:
+            human_embeddings = embeddings[human_mask.values]
+            reference_embedding = np.mean(human_embeddings, axis=0)
+            logger.info(f"Using Human class centroid (n={human_mask.sum()}) as reference.")
+        else:
+            # Fallback: use global mean
+            reference_embedding = np.mean(embeddings, axis=0)
+            logger.warning("No 'Human' class found. Using global mean as reference.")
     else:
-        logger.warning("Not enough snippets to compute similarity.")
-        df['semantic_similarity_score'] = np.nan
+        # Fallback: use global mean
+        reference_embedding = np.mean(embeddings, axis=0)
+        logger.warning("No 'classification' column found. Using global mean as reference.")
 
+    # Calculate similarity for each snippet
+    similarities = []
+    for emb in embeddings:
+        sim = calculate_similarity(emb, reference_embedding)
+        similarities.append(sim)
+
+    # Map scores back to the original dataframe
+    # Create a series aligned with df_valid index
+    score_series = pd.Series(similarities, index=df_valid.index, name="semantic_similarity_score")
+    
+    # Assign to the original dataframe
+    df["semantic_similarity_score"] = np.nan
+    df.loc[df_valid.index, "semantic_similarity_score"] = score_series
+
+    logger.info("Semantic similarity scores computed successfully.")
     return df
 
 def process_dataset(
     input_path: str,
-    output_path: str
+    output_path: str,
+    text_column: str = "code_snippet"
 ) -> None:
     """
-    Main processing function: Load data, compute embeddings, calculate similarity, save results.
-
-    Args:
-        input_path: Path to input parquet file (e.g., data/processed/generated_snippets.parquet).
-        output_path: Path to output parquet file (data/processed/diagnostic_scores.parquet).
+    Main processing pipeline:
+    1. Load dataset from input_path (parquet or csv).
+    2. Compute semantic similarity scores.
+    3. Save to output_path (parquet).
     """
-    logger.info(f"Loading dataset from {input_path}...")
-    
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    df = pd.read_parquet(input_path)
-    
-    logger.info(f"Loaded {len(df)} rows. Computing semantic similarity scores...")
-    
-    df_with_scores = extract_semantic_similarity_scores(df)
+    logger.info(f"Starting processing pipeline for {input_path}")
     
     # Ensure output directory exists
     output_dir = os.path.dirname(output_path)
     if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    
-    logger.info(f"Saving results to {output_path}...")
-    df_with_scores.to_parquet(output_path, index=False)
-    
-    logger.info("Semantic similarity extraction complete.")
+        ensure_directories([output_dir])
+
+    # Load data
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    logger.info(f"Loading dataset from {input_path}")
+    if input_path.endswith(".parquet"):
+        df = pd.read_parquet(input_path)
+    elif input_path.endswith(".csv"):
+        df = pd.read_csv(input_path)
+    else:
+        raise ValueError("Unsupported file format. Use .parquet or .csv.")
+
+    logger.info(f"Loaded {len(df)} rows.")
+
+    # Process
+    try:
+        df_processed = extract_semantic_similarity_scores(df, text_column=text_column)
+    except Exception as e:
+        logger.error(f"Error during similarity extraction: {e}")
+        # Re-raise to fail loudly as per constraints
+        raise
+
+    # Save
+    logger.info(f"Saving results to {output_path}")
+    df_processed.to_parquet(output_path, index=False)
+    logger.info("Pipeline completed.")
 
 def main():
-    """Entry point for the script."""
+    """
+    Entry point for the script.
+    Reads config for paths, processes the classified snippets, and outputs diagnostic scores.
+    """
     config = get_config()
     
-    # Default paths
-    input_file = config.get('paths', {}).get('generated_snippets', 'data/processed/generated_snippets.parquet')
-    output_file = 'data/processed/diagnostic_scores.parquet'
+    # Default paths based on project structure and task description
+    # The task references `data/processed/classified_snippets.parquet` as input (from T014)
+    # and `data/processed/diagnostic_scores.parquet` as output.
+    input_file = config.get("paths", {}).get("classified_snippets", "data/processed/classified_snippets.parquet")
+    output_file = config.get("paths", {}).get("diagnostic_scores", "data/processed/diagnostic_scores.parquet")
     
-    # Override with command line args if provided
+    # Allow override via command line args
     if len(sys.argv) > 1:
         input_file = sys.argv[1]
     if len(sys.argv) > 2:
         output_file = sys.argv[2]
-    
+
     try:
         process_dataset(input_file, output_file)
+        print(f"Successfully generated diagnostic scores at: {output_file}")
     except Exception as e:
-        logger.error(f"Failed to process dataset: {e}", exc_info=True)
+        logger.error(f"Pipeline failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

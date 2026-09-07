@@ -1,77 +1,79 @@
-"""
-Directory Setup Script for llmXive Project.
-
-This script creates the core directory structure required for the project,
-including code/, data/, tests/, and docs/ along with their subdirectories.
-"""
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
+import logging
 
-def create_directories():
-    """Create all required project directories."""
-    # Define the base project root (current directory)
-    project_root = Path(".")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def create_directories(base_path: Optional[Path] = None) -> bool:
+    """
+    Create the core directory structure required for the project.
     
-    # Define the directory structure to create
+    Directories to create:
+    - code/
+    - data/tests/
+    - docs/
+    - data/raw/
+    - data/processed/
+    
+    Args:
+        base_path: The base directory for the project. Defaults to current working directory.
+        
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
+    """
+    if base_path is None:
+        base_path = Path.cwd()
+    
+    # Define the directory structure relative to base_path
     directories = [
-        # Core directories
         "code",
-        "data",
-        "tests",
+        "data/tests",
         "docs",
-        
-        # Data subdirectories
         "data/raw",
-        "data/processed",
-        
-        # Code subdirectories
-        "code/data_acquisition",
-        "code/feature_extraction",
-        "code/analysis",
-        "code/utils",
-        
-        # Test subdirectories
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        
-        # Docs subdirectories (optional but good practice)
-        "docs/api",
-        "docs/design",
+        "data/processed"
     ]
     
-    created_count = 0
-    existing_count = 0
-    
+    success = True
     for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
+        full_path = base_path / dir_path
+        try:
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-            existing_count += 1
+            logger.info(f"Created directory: {full_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            success = False
     
-    print(f"\nDirectory creation complete.")
-    print(f"Created: {created_count} directories")
-    print(f"Already existing: {existing_count} directories")
-    
-    return created_count, existing_count
+    return success
 
 def main():
-    """Main entry point for the directory setup script."""
-    print("Starting directory setup for llmXive project...")
-    print("=" * 50)
+    """
+    Entry point for the directory setup script.
+    Creates the required directory structure in the current working directory.
+    """
+    logger.info("Starting directory setup...")
+    base_path = Path.cwd()
+    logger.info(f"Base path: {base_path}")
     
-    try:
-        created, existing = create_directories()
-        print("=" * 50)
-        print("Setup completed successfully!")
+    if create_directories(base_path):
+        logger.info("Directory setup completed successfully.")
+        # Verify creation by listing
+        logger.info("Verifying directory structure:")
+        for item in sorted(base_path.iterdir()):
+            if item.is_dir():
+                logger.info(f"  - {item.name}/")
+                # List subdirectories if any
+                for sub_item in sorted(item.iterdir()):
+                    if sub_item.is_dir():
+                        logger.info(f"      - {item.name}/{sub_item.name}/")
         return 0
-    except Exception as e:
-        print(f"Error during directory creation: {e}")
+    else:
+        logger.error("Directory setup failed.")
         return 1
 
 if __name__ == "__main__":

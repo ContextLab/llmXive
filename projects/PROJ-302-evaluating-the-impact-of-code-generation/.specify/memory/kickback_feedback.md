@@ -4,13 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of the required core directories (`code/`, `data/`, `tests/`, `docs/`) being present was provided; the implementer supplied no artifact list or screenshots showing these folders. The task remains undone until those directories exist in the project repository.
-- `T001b` (rejected 1x): No evidence of the required `data/raw/` and `data/processed/` directories (or any files within them) is provided; without tangible artifacts the claim that the subdirectories were created cannot be verified. The implementer must add the actual directories (and optionally placeholder files) to the repository.
-- `T001d` (rejected 1x): No directory structure was presented in the evidence; there is no listing or contents showing that the required subfolders (`code/data_acquisition/`, `code/feature_extraction/`, `code/analysis/`, `code/utils/`) actually exist. The implementer’s claim cannot be verified without these artifacts.
-- `T003` (rejected 1x): No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`) or scripts setting up ruff linting and black formatting are present in the provided evidence, so the required artifact for task T003 is missing.
-- `T014b` (rejected 1x): The repository contains `code/data_acquisition/synthetic_generator.py`, but the required output file `data/processed/generated_snippets.parquet` is missing, and the shown script is truncated before any logic that writes the Parquet file or fully creates the amendment markdown. Without the generated dataset, the mandatory generation requirement is not satisfied.
-- `T017b` (rejected 1x): The `semantic_similarity.py` file exists but is incomplete (truncated) and there is no `data/processed/diagnostic_scores.parquet` output file. The required artifact (the diagnostic scores Parquet file) is missing, so the task is not fully satisfied.
-- `T022b` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/deviation_report.md
+- `T018` (rejected 1x): No artifact (e.g., modified script, added try/except around radon calls, log output, or updated dataset generation code) was presented to demonstrate that radon failures are now caught, logged, and excluded. Without such evidence the requirement is not satisfied.
+- `T019` (rejected 1x): The `syntax_validator.py` script exists, but the required output file `data/processed/syntax_validation_report.json` is not present, indicating the validation report was never written. The task’s core deliverable—a JSON report confirming ≥95% syntax validity or reporting generation failure—is missing.
+- `T022` (rejected 1x): The `code/analysis/matching.py` file exists and implements propensity‑score matching using the specified covariates, but the required data artifact `data/processed/classified_snippets.parquet` is missing, so the module cannot be executed as intended. The missing parquet file must be provided for the task to be complete.
+- `T023b` (rejected 1x): The required `data/processed/matching_failure_report.json` file does not exist, and the provided `code/analysis/matching.py` snippet shows no implementation of retry logic, SMD‑threshold checking, or report generation as specified. The task’s core requirement is therefore unmet.
+- `T032` (rejected 1x): No PDF or HTML report was supplied, and there are no files containing the required p‑value, effect size, or visualizations. The implementer provided no tangible artifact to verify that a report generation feature was built. The missing deliverable is a generated report (PDF/HTML) that includes the statistical results and accompanying figures.
 
 ## Required change
 

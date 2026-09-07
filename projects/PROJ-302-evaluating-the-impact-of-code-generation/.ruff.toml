@@ -1,23 +1,74 @@
+# Ruff configuration for llmXive project
+# Extends default rules with project-specific settings
+
 [lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # Pyflakes
     "I",  # isort
+    "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
     "UP", # pyupgrade
+    "N",  # pep8-naming
+    "SIM",# flake8-simplify
+    "ARG",# flake8-unused-arguments
+    "PTH",# flake8-use-pathlib
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in testing)
+    "ARG001", # Unused function arguments (allowed in abstract base classes/interfaces)
+]
+
+# Allow autofix for all enabled rules (if possible)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few directories from linting
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data", # Exclude data directory
+    "docs", # Exclude docs directory
+]
+
+# Same as the maximum line length in black
+line-length = 88
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Ignore specific rules in test files
+"tests/*" = [
+    "S101", # Use of assert detected (allowed in tests)
+    "ARG001", # Unused arguments in test fixtures
+]
+# Ignore specific rules in generated data scripts if any
+"code/data_acquisition/*" = [
+    "C901", # Function is too complex (sometimes necessary for scraping logic)
 ]
 
 [lint.isort]
-known-first-party = ["code"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+known-first-party = ["analysis", "data_acquisition", "feature_extraction", "utils"]
+force-to-top = ["os", "sys", "logging", "pathlib", "typing"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]

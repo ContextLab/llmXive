@@ -33,12 +33,17 @@ SENSITIVITY_SUMMARY_PATH = DATA_PROCESSED_DIR / "sensitivity_summary.json"
 DEVIATION_REPORT_PATH = DATA_PROCESSED_DIR / "deviation_report.md"
 MATCHING_FAILURE_REPORT_PATH = DATA_PROCESSED_DIR / "matching_failure_report.json"
 SPEC_AMENDMENT_REQUEST_PATH = _PROJECT_ROOT / "spec_amendment_request.md"
+RUNTIME_REPORT_PATH = DATA_PROCESSED_DIR / "runtime_report.json"
 
 # Checksums file
 CHECKSUMS_PATH = DATA_DIR / "checksums.yaml"
 
 # --- Random Seeds ---
 DEFAULT_SEED = 42
+
+# --- Performance Constraints ---
+# Maximum allowed runtime in seconds (6 hours)
+MAX_RUNTIME_SECONDS = 6 * 60 * 60
 
 def set_global_seed(seed: Optional[int] = None) -> int:
     """
@@ -98,10 +103,14 @@ CONFIG: Dict[str, Any] = {
         "deviation_report": str(DEVIATION_REPORT_PATH),
         "matching_failure_report": str(MATCHING_FAILURE_REPORT_PATH),
         "spec_amendment_request": str(SPEC_AMENDMENT_REQUEST_PATH),
+        "runtime_report": str(RUNTIME_REPORT_PATH),
         "checksums": str(CHECKSUMS_PATH),
     },
     "seeds": {
         "default": DEFAULT_SEED,
+    },
+    "constraints": {
+        "max_runtime_seconds": MAX_RUNTIME_SECONDS,
     },
     "api": {
         "github_token_available": GITHUB_TOKEN is not None,
