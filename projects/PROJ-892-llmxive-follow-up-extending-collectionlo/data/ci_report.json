@@ -1,11 +1,5 @@
 {
-  "start_time": "2026-09-06T08:31:09.621660",
-  "end_time": "2026-09-06T08:31:09.721732",
-  "duration_seconds": 0.100072,
-  "status": "completed",
-  "pipeline_version": "1.0.0",
-  "environment": {
-    "python_version": "3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0]",
-    "platform": "linux"
-  }
+  "start_time": 1788817794.9388325,
+  "end_time": 1788817795.2080338,
+  "duration": 0.26920127868652344
 }

@@ -1,12 +1,24 @@
-status: none
-intent: pip install coco dataset with captions and ImageNet validation for LPIPS python
-  package dataset
+status: verified
+kind: pypi_package
+ref: pycocotools
+access_python: "import os, urllib.request, zipfile, tempfile\nfrom pycocotools.coco\
+  \ import COCO\n\nurl = \"http://images.cocodataset.org/annotations/annotations_trainval2017.zip\"\
+  \ntmp_dir = tempfile.mkdtemp()\nzip_path = os.path.join(tmp_dir, \"coco_ann.zip\"\
+  )\nurllib.request.urlretrieve(url, zip_path)\n\ntarget = \"annotations/captions_val2017.json\"\
+  \njson_path = os.path.join(tmp_dir, \"captions_val2017.json\")\nwith zipfile.ZipFile(zip_path,\
+  \ \"r\") as z:\n    with z.open(target) as src, open(json_path, \"wb\") as dst:\n\
+  \        dst.write(src.read())\n\ncoco = COCO(json_path)\nann_ids = coco.getAnnIds()\n\
+  print(f\"RECORDS={len(ann_ids)}\")\nsample_ann = coco.loadAnns(ann_ids[:1])[0]\n\
+  print(\"FIELDS=\" + \",\".join(sample_ann.keys()))"
+record_count: 25014
+sample_fields:
+- image_id
+- id
+- caption
+field_coverage: 1.0
 required_fields:
 - image_id
-- file_name
+- image_path
 - caption
-- image_url
-- split
-cache_key: e0c57ea164e075d2eb1b60c684602471f1560042505c183ec3b11a5493db1ade
-searched_at: '2026-09-06T08:31:55.231154+00:00'
-retry_count: 1
+intent: download MS COCO 2017 validation images and captions dataset python package
+cache_key: 9848adaa60f21cb05f71d94963aeee759169508c2aaa6ac52200a818b7291770

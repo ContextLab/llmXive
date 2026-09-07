@@ -1,22 +1,19 @@
 {
   "project_id": "PROJ-892-llmxive-follow-up-extending-collectionlo",
   "ok": false,
-  "reason": "5 command(s) failed: python code/main.py --phase prepare (rc=1); python code/main.py --phase generate --level FP16 (rc=1); python code/main.py --phase generate --level INT8 (rc=1); 4 declared deliverable(s) absent: data/analysis_results.json; data/references/other_effect_refs.json; data/results.csv",
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/statistical_analysis.py: self-declared fabricated metric \u2014 \u201c\u2026ambi     # For now, we return mock results     return {         \"poster\u2026\u201d; 2 command(s) failed: python code/main.py --phase prepare (rc=1); python code/main.py --phase analyze (rc=1); 4 declared deliverable(s) absent: data/analysis_results.json; data/references/other_effect_refs.json; data/results.csv",
   "artifacts": [
     "data/ci_report.json"
   ],
   "failures": [
-    "python code/main.py --phase prepare -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner",
-    "python code/main.py --phase generate --level FP16 -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File",
-    "python code/main.py --phase generate --level INT8 -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File",
-    "python code/main.py --phase generate --level INT4 -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File",
-    "python code/main.py --phase analyze -> rc=1\n    16_adapter_and_base_model() missing 2 required positional arguments: 'adapter_path' and 'base_model_path'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 303, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 280, in main\n    baseline_results = run_baseline_generation_loop()\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner"
+    "python code/main.py --phase prepare -> rc=1\n    line 210, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 174, in main\n    run_baseline_generation_loop()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 128, in run_baseline_generation_loop\n    results = run_fp16_generation(prompts, seeds, config)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-u",
+    "python code/main.py --phase analyze -> rc=1\n    v\n2026-09-07 21:49:55,208 - ERROR - Pipeline failed: Results file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/data/results.csv\n2026-09-07 21:49:55,208 - INFO - CI timing recorded: 0.27s\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line 210, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-892-llmxive-follow-up-extending-collectionlo/code/main.py\", line"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
-  "failure_class": "execution_bug",
+  "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-06T08:31:16Z"
+  "updated_at": "2026-09-07T21:50:00Z"
 }
