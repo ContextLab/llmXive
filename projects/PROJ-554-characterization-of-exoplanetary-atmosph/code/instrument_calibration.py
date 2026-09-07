@@ -1,14 +1,3 @@
-"""
-Instrument-Specific Calibration Validation (T050).
-
-Per Marie Curie's demand for "what is the instrument?", this module:
-1. Parses metadata.csv to group results by instrument (HST, Spitzer, etc.).
-2. Bins planets by equilibrium temperature.
-3. Calculates mean and standard deviation of retrieved water abundances per instrument/temperature bin.
-4. Detects systematic biases (instrument-specific offsets) and flags them.
-5. Generates a comprehensive markdown report: results/instrument_calibration_report.md.
-"""
-
 import json
 import logging
 import os
@@ -16,51 +5,60 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
 import numpy as np
-from utils import setup_logging, PipelineError
+
 from config import get_config
+from utils import setup_logging
 
 logger = logging.getLogger(__name__)
 
-def load_metadata(filepath: Path) -> pd.DataFrame:
-    """Load metadata CSV."""
-    if not filepath.exists():
-        raise PipelineError(f"Metadata file not found: {filepath}")
-    df = pd.read_csv(filepath)
+def load_metadata(metadata_path: str) -> pd.DataFrame:
+    """Load the processed metadata CSV."""
+    path = Path(metadata_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Metadata file not found: {path}")
+    logger.info(f"Loading metadata from {path}")
+    df = pd.read_csv(path)
+    # Ensure necessary columns exist
     required_cols = ['planet_name', 'temperature', 'instrument']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise PipelineError(f"Missing required columns in metadata: {missing}")
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column in metadata: {col}")
     return df
 
-def load_retrieval_results(filepath: Path) -> pd.DataFrame:
-    """Load retrieval results CSV."""
-    if not filepath.exists():
-        raise PipelineError(f"Retrieval results file not found: {filepath}")
-    df = pd.read_csv(filepath)
+def load_retrieval_results(retrieval_path: str) -> pd.DataFrame:
+    """Load the retrieval results CSV."""
+    path = Path(retrieval_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Retrieval results file not found: {path}")
+    logger.info(f"Loading retrieval results from {path}")
+    df = pd.read_csv(path)
     required_cols = ['planet_name', 'water_mixing_ratio', 'is_upper_limit']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise PipelineError(f"Missing required columns in retrieval results: {missing}")
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column in retrieval results: {col}")
     return df
 
-def bin_temperature(temp: float, bin_width: float = 200.0) -> float:
-    """Bin equilibrium temperature to the nearest bin_width."""
-    if pd.isna(temp):
-        return np.nan
-    return round(temp / bin_width) * bin_width
+def bin_temperature(temperatures: pd.Series, bins: List[float] = None) -> pd.Series:
+    """
+    Bin equilibrium temperatures into discrete categories for comparison.
+    Default bins: <1000K (Super-Earth range), 1000-1500K, 1500-2000K, >2000K (Hot Jupiter range).
+    """
+    if bins is None:
+        bins = [0, 1000, 1500, 2000, float('inf')]
+    labels = ['<1000K', '1000-1500K', '1500-2000K', '>2000K']
+    return pd.cut(temperatures, bins=bins, labels=labels, include_lowest=True)
 
 def analyze_instrument_bias(
     metadata_df: pd.DataFrame,
-    retrieval_df: pd.DataFrame
-) -> Dict[str, Any]:
+    retrieval_df: pd.DataFrame,
+    temp_bins: List[float] = None
+) -> Tuple[Dict[str, Any], List[str]]:
     """
-    Group by instrument and temperature bins, calculate stats, and detect biases.
-
-    Returns a dictionary with:
-    - instrument_bias_analysis: list of bin stats
-    - systematic_error_flags: list of flagged instruments
+    Analyze systematic biases by instrument.
+    Groups planets by instrument and temperature bin, then calculates mean/std of water abundance.
+    Flags instruments with high variance or significant mean shifts compared to the global median.
     """
-    # Merge data
+    # Merge data on planet_name
     merged = pd.merge(
         metadata_df[['planet_name', 'temperature', 'instrument']],
         retrieval_df[['planet_name', 'water_mixing_ratio', 'is_upper_limit']],
@@ -69,195 +67,164 @@ def analyze_instrument_bias(
     )
 
     if merged.empty:
-        raise PipelineError("No matching data found between metadata and retrieval results.")
+        logger.warning("No matching planets found between metadata and retrieval results.")
+        return {}, ["No data available for analysis"]
 
-    # Create temperature bins
-    merged['temp_bin'] = merged['temperature'].apply(bin_temperature)
+    # Filter out upper limits for bias analysis of detected values?
+    # The task asks for "retrieved water abundances". Upper limits are censored.
+    # We will analyze the detected values (is_upper_limit == False) for mean/std.
+    # We will also report counts of upper limits per instrument as a secondary metric.
+    detected = merged[merged['is_upper_limit'] == False].copy()
+    censored = merged[merged['is_upper_limit'] == True].copy()
 
-    # Filter out upper limits for bias calculation (we want measured values)
-    # Note: We could include upper limits with special handling, but for bias detection
-    # of the instrument's central tendency, measured values are more direct.
-    measured = merged[merged['is_upper_limit'] == False].copy()
+    if detected.empty:
+        logger.warning("No detected water abundances found to analyze for bias.")
+        return {}, ["No detected values available for bias analysis"]
 
-    if measured.empty:
-        logger.warning("No non-upper-limit measurements found for bias analysis.")
-        return {
-            'instrument_bias_analysis': [],
-            'systematic_error_flags': [],
-            'note': 'No measured (non-upper-limit) data available for bias analysis.'
+    detected['temp_bin'] = bin_temperature(detected['temperature'], temp_bins)
+
+    instrument_bias_analysis = {}
+    systematic_error_flags = []
+
+    # Calculate global median for comparison
+    global_median = detected['water_mixing_ratio'].median()
+    logger.info(f"Global median water mixing ratio: {global_median:.4f}")
+
+    # Group by instrument
+    for instrument, group in detected.groupby('instrument'):
+        instrument_stats = {
+            'count': int(len(group)),
+            'mean_water_abundance': float(group['water_mixing_ratio'].mean()),
+            'std_water_abundance': float(group['water_mixing_ratio'].std()),
+            'median_water_abundance': float(group['water_mixing_ratio'].median()),
+            'temp_bin_breakdown': {}
         }
 
-    # Group by instrument and temperature bin
-    groups = measured.groupby(['instrument', 'temp_bin'])
+        # Breakdown by temperature bin
+        for temp_bin, bin_group in group.groupby('temp_bin'):
+            instrument_stats['temp_bin_breakdown'][temp_bin] = {
+                'count': int(len(bin_group)),
+                'mean': float(bin_group['water_mixing_ratio'].mean()) if not bin_group.empty else None,
+                'std': float(bin_group['water_mixing_ratio'].std()) if len(bin_group) > 1 else None
+            }
 
-    analysis_results = []
-    instrument_stats = {}
+        # Check for systematic bias relative to global median
+        # Using a simple threshold: if mean deviates > 0.5 dex from global median
+        deviation = abs(instrument_stats['mean_water_abundance'] - global_median)
+        if deviation > 0.5:
+            flag_msg = f"Instrument {instrument} shows significant bias (deviation: {deviation:.2f} dex from global median)"
+            systematic_error_flags.append(flag_msg)
+            logger.warning(flag_msg)
 
-    for (instrument, temp_bin), group in groups:
-        if len(group) < 2:
-            # Need at least 2 points to calculate meaningful std dev
-            continue
+        # Check for high variance (std > 1.0 dex)
+        if instrument_stats['std_water_abundance'] > 1.0:
+            flag_msg = f"Instrument {instrument} shows high variance in retrieved abundances (std: {instrument_stats['std_water_abundance']:.2f} dex)"
+            systematic_error_flags.append(flag_msg)
+            logger.warning(flag_msg)
 
-        mean_val = group['water_mixing_ratio'].mean()
-        std_val = group['water_mixing_ratio'].std()
-        count = len(group)
-        median_val = group['water_mixing_ratio'].median()
-        min_val = group['water_mixing_ratio'].min()
-        max_val = group['water_mixing_ratio'].max()
+        # Add censored count info
+        censored_count = len(censored[censored['instrument'] == instrument])
+        instrument_stats['upper_limit_count'] = censored_count
 
-        entry = {
-            'instrument': instrument,
-            'temperature_bin_center': float(temp_bin),
-            'count': int(count),
-            'mean_log10_water_mixing_ratio': float(mean_val),
-            'std_log10_water_mixing_ratio': float(std_val),
-            'median_log10_water_mixing_ratio': float(median_val),
-            'min_log10_water_mixing_ratio': float(min_val),
-            'max_log10_water_mixing_ratio': float(max_val)
-        }
-        analysis_results.append(entry)
+        instrument_bias_analysis[instrument] = instrument_stats
 
-        # Aggregate per instrument for global bias check
-        if instrument not in instrument_stats:
-            instrument_stats[instrument] = []
-        instrument_stats[instrument].append(entry['mean_log10_water_mixing_ratio'])
+    return instrument_bias_analysis, systematic_error_flags
 
-    # Detect systematic biases:
-    # If an instrument's mean values in a specific temperature range deviate significantly
-    # from the global mean for that range, flag it.
-    systematic_flags = []
-    global_means = {}
+def generate_report_md(
+    analysis_results: Dict[str, Any],
+    flags: List[str],
+    output_path: str
+) -> None:
+    """Generate the Markdown report for instrument calibration validation."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Calculate global mean per temp bin (across all instruments)
-    global_grouped = measured.groupby('temp_bin')['water_mixing_ratio'].mean()
+    lines = [
+        "# Instrument-Specific Calibration Validation Report",
+        "",
+        "This report addresses the requirement to identify systematic instrument biases",
+        "by analyzing retrieved water abundances grouped by instrument and equilibrium temperature.",
+        "",
+        "## Summary",
+        "",
+        f"**Instruments Analyzed:** {len(analysis_results)}",
+        f"**Systematic Error Flags:** {len(flags)}",
+        "",
+    ]
 
-    for entry in analysis_results:
-        instrument = entry['instrument']
-        temp_bin = entry['temperature_bin_center']
-        mean_val = entry['mean_log10_water_mixing_ratio']
+    if flags:
+        lines.append("### Systematic Error Flags")
+        lines.append("")
+        for flag in flags:
+            lines.append(f"- {flag}")
+        lines.append("")
 
-        if temp_bin in global_grouped:
-            global_mean = global_grouped[temp_bin]
-            deviation = abs(mean_val - global_mean)
-            # Threshold: if deviation > 0.5 dex (factor of ~3), flag as potential bias
-            # This is a heuristic based on typical exoplanet atmosphere uncertainties
-            if deviation > 0.5:
-                flag_entry = {
-                    'instrument': instrument,
-                    'temperature_bin': float(temp_bin),
-                    'instrument_mean': float(mean_val),
-                    'global_mean': float(global_mean),
-                    'deviation_dex': float(deviation),
-                    'reason': f"Instrument {instrument} shows {deviation:.2f} dex deviation from global mean at T~{temp_bin}K"
-                }
-                systematic_flags.append(flag_entry)
-
-    return {
-        'instrument_bias_analysis': analysis_results,
-        'systematic_error_flags': systematic_flags
-    }
-
-def generate_report_md(analysis_data: Dict[str, Any], output_path: Path) -> None:
-    """Generate the markdown report."""
-    lines = []
-    lines.append("# Instrument-Specific Calibration Validation Report")
-    lines.append("")
-    lines.append("## Overview")
-    lines.append("This report addresses the requirement for instrument-specific calibration validation.")
-    lines.append("It analyzes retrieved water abundances grouped by instrument and equilibrium temperature bins")
-    lines.append("to detect systematic biases or calibration offsets.")
-    lines.append("")
-
-    # Summary
-    analysis_list = analysis_data.get('instrument_bias_analysis', [])
-    flags_list = analysis_data.get('systematic_error_flags', [])
-
-    lines.append(f"### Summary")
-    lines.append(f"- **Total Instrument-Temperature Bins Analyzed**: {len(analysis_list)}")
-    lines.append(f"- **Systematic Bias Flags Raised**: {len(flags_list)}")
-    if 'note' in analysis_data:
-        lines.append(f"- **Note**: {analysis_data['note']}")
-    lines.append("")
-
-    # Instrument Breakdown
     lines.append("## Instrument Breakdown")
     lines.append("")
-    lines.append("| Instrument | Temp Bin (K) | Count | Mean Log10(H2O) | Std Dev | Min | Max |")
-    lines.append("| :--- | :---: | :---: | :---: | :---: | :---: | :---: |")
 
-    for entry in sorted(analysis_list, key=lambda x: (x['instrument'], x['temperature_bin_center'])):
-        lines.append(
-            f"| {entry['instrument']} | {entry['temperature_bin_center']:.0f} | "
-            f"{entry['count']} | {entry['mean_log10_water_mixing_ratio']:.3f} | "
-            f"{entry['std_log10_water_mixing_ratio']:.3f} | "
-            f"{entry['min_log10_water_mixing_ratio']:.3f} | "
-            f"{entry['max_log10_water_mixing_ratio']:.3f} |"
-        )
-    lines.append("")
-
-    # Systematic Errors
-    lines.append("## Systematic Error Flags")
-    lines.append("")
-    if not flags_list:
-        lines.append("No significant systematic biases were detected at the >0.5 dex threshold.")
-    else:
-        lines.append("The following instruments show significant deviations from the global mean in specific temperature bins:")
+    for instrument, stats in analysis_results.items():
+        lines.append(f"### {instrument}")
         lines.append("")
-        for flag in flags_list:
-            lines.append(f"- **{flag['instrument']}** at T~{flag['temperature_bin']:.0f}K:")
-            lines.append(f"  - Instrument Mean: {flag['instrument_mean']:.3f}")
-            lines.append(f"  - Global Mean: {flag['global_mean']:.3f}")
-            lines.append(f"  - Deviation: {flag['deviation_dex']:.3f} dex")
-            lines.append(f"  - Reason: {flag['reason']}")
-            lines.append("")
+        lines.append(f"- **Total Detections:** {stats['count']}")
+        lines.append(f"- **Upper Limits:** {stats['upper_limit_count']}")
+        lines.append(f"- **Mean Water Abundance:** {stats['mean_water_abundance']:.4f}")
+        lines.append(f"- **Std Deviation:** {stats['std_water_abundance']:.4f}")
+        lines.append(f"- **Median Water Abundance:** {stats['median_water_abundance']:.4f}")
+        lines.append("")
+        lines.append("#### Temperature Bin Breakdown")
+        lines.append("")
+        lines.append("| Temp Bin | Count | Mean | Std |")
+        lines.append("| :--- | :--- | :--- | :--- |")
 
-    # Conclusion
-    lines.append("## Conclusion")
-    lines.append("This analysis provides evidence for (or against) instrument-specific calibration biases.")
-    lines.append("Significant deviations suggest that data from specific instruments may require")
-    lines.append("additional calibration correction before being combined in a global analysis.")
-    lines.append("")
+        for temp_bin, bin_stats in stats['temp_bin_breakdown'].items():
+            mean_val = f"{bin_stats['mean']:.4f}" if bin_stats['mean'] is not None else "N/A"
+            std_val = f"{bin_stats['std']:.4f}" if bin_stats['std'] is not None else "N/A"
+            lines.append(f"| {temp_bin} | {bin_stats['count']} | {mean_val} | {std_val} |")
+        lines.append("")
 
-    content = "\n".join(lines)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(content)
-    logger.info(f"Report generated: {output_path}")
+    # Write to file
+    with open(path, 'w') as f:
+        f.write('\n'.join(lines))
+
+    logger.info(f"Report written to {path}")
 
 def main():
-    """Main entry point."""
+    """Main entry point for the instrument calibration validation task."""
     config = get_config()
-    base_path = Path(config['project_root'])
-    metadata_path = base_path / 'data' / 'processed' / 'metadata.csv'
-    retrieval_path = base_path / 'data' / 'processed' / 'retrieval_results.csv'
-    output_path = base_path / 'results' / 'instrument_calibration_report.md'
-
     setup_logging()
-    logger.info("Starting Instrument Calibration Validation (T050)")
+
+    # Define paths based on project structure
+    # T012 deliverable: data/processed/metadata.csv
+    # T020 deliverable: data/processed/retrieval_results.csv
+    metadata_path = Path(config['data_dir']) / 'processed' / 'metadata.csv'
+    retrieval_path = Path(config['data_dir']) / 'processed' / 'retrieval_results.csv'
+    output_path = Path(config['results_dir']) / 'instrument_calibration_report.md'
+
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Required metadata file missing: {metadata_path}. "
+                                "Ensure T012 (save_metadata_csv) has been run.")
+    if not retrieval_path.exists():
+        raise FileNotFoundError(f"Required retrieval results file missing: {retrieval_path}. "
+                                "Ensure T020 (save_retrieval_results) has been run.")
 
     try:
-        logger.info(f"Loading metadata from {metadata_path}")
-        metadata_df = load_metadata(metadata_path)
-        logger.info(f"Loaded {len(metadata_df)} rows from metadata")
+        logger.info("Starting Instrument Calibration Validation (T050)...")
 
-        logger.info(f"Loading retrieval results from {retrieval_path}")
-        retrieval_df = load_retrieval_results(retrieval_path)
-        logger.info(f"Loaded {len(retrieval_df)} rows from retrieval results")
+        # Load data
+        metadata_df = load_metadata(str(metadata_path))
+        retrieval_df = load_retrieval_results(str(retrieval_path))
 
-        logger.info("Analyzing instrument bias...")
-        analysis_data = analyze_instrument_bias(metadata_df, retrieval_df)
+        # Analyze bias
+        analysis_results, flags = analyze_instrument_bias(metadata_df, retrieval_df)
 
-        logger.info(f"Generating report at {output_path}")
-        generate_report_md(analysis_data, output_path)
+        # Generate report
+        generate_report_md(analysis_results, flags, str(output_path))
 
         logger.info("Instrument Calibration Validation completed successfully.")
-        return 0
 
-    except PipelineError as e:
-        logger.error(f"Pipeline error: {e}")
-        return 1
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
-        return 1
+        logger.error(f"Failed to complete Instrument Calibration Validation: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

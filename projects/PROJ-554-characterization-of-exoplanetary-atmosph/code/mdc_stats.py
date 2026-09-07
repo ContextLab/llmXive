@@ -1,10 +1,11 @@
 """
-Module to compute and output Minimum Detectable Concentration (MDC) statistics.
+Module to compute and save Minimum Detectable Concentration (MDC) statistics.
 
-This task (T030c) aggregates the MDC values derived during the retrieval phase (T019)
-and computes summary statistics (mean, median, std, percentiles) for the dataset.
-It addresses the requirement to quantify the sensitivity of the analysis.
+This module aggregates MDC values derived from retrieval results to determine
+the global sensitivity floor of the study, addressing reviewer concerns about
+detection limits and evidentiary standards.
 """
+
 import json
 import logging
 from pathlib import Path
@@ -13,138 +14,178 @@ from typing import Dict, Any, Optional, List
 import pandas as pd
 import numpy as np
 
+# Import from existing project modules
 from config import get_config
-from utils import setup_logging
 
 # Configure logging
-logger = setup_logging("mdc_stats")
+logger = logging.getLogger(__name__)
 
-def load_retrieval_results(config: Dict[str, Any]) -> pd.DataFrame:
+def load_retrieval_results(input_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Load the retrieval results CSV containing MDC values.
+    Load retrieval results from CSV file.
     
     Args:
-        config: Configuration dictionary containing paths.
+        input_path: Path to retrieval results CSV. If None, uses config default.
         
     Returns:
-        DataFrame with retrieval results.
+        DataFrame containing retrieval results with MDC columns.
         
     Raises:
-        FileNotFoundError: If the retrieval results file does not exist.
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
     """
-    results_path = Path(config["paths"]["data_processed"]) / "retrieval_results.csv"
+    config = get_config()
+    if input_path is None:
+        input_path = str(config.processed_dir / "retrieval_results.csv")
+        
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Retrieval results file not found: {input_path}")
+        
+    df = pd.read_csv(path)
     
-    if not results_path.exists():
-        raise FileNotFoundError(
-            f"Retrieval results file not found at {results_path}. "
-            "Please ensure T020 has been completed successfully."
-        )
-    
-    df = pd.read_csv(results_path)
-    
-    required_cols = ["water_mixing_ratio", "is_upper_limit", "min_detectable_concentration"]
-    missing_cols = [c for c in required_cols if c not in df.columns]
+    required_cols = ["min_detectable_concentration", "is_upper_limit"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        raise ValueError(
-            f"Missing required columns in retrieval results: {missing_cols}"
-        )
-    
+        raise ValueError(f"Missing required columns in retrieval results: {missing_cols}")
+        
+    logger.info(f"Loaded {len(df)} retrieval results from {input_path}")
     return df
 
 def compute_mdc_statistics(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Compute summary statistics for the Minimum Detectable Concentration (MDC).
+    Compute aggregate statistics for Minimum Detectable Concentration (MDC).
     
-    Calculates mean, median, standard deviation, and percentiles (10th, 50th, 90th)
-    for the MDC values. Also counts the number of detections vs upper limits.
+    This function calculates global sensitivity metrics addressing reviewer
+    demands for detection limit definitions (Marie Curie, Rosalind Franklin).
     
     Args:
-        df: DataFrame containing retrieval results with 'min_detectable_concentration'.
+        df: DataFrame with 'min_detectable_concentration' and 'is_upper_limit' columns.
         
     Returns:
-        Dictionary containing computed statistics.
+        Dictionary containing MDC statistics.
     """
-    mdc_series = df["min_detectable_concentration"]
-    
-    # Filter out NaN or infinite values if any
-    valid_mdc = mdc_series.dropna()
-    valid_mdc = valid_mdc[np.isfinite(valid_mdc)]
-    
-    if len(valid_mdc) == 0:
-        logger.warning("No valid MDC values found in the dataset.")
-        stats = {
+    if df.empty:
+        logger.warning("Empty DataFrame provided for MDC statistics computation")
+        return {
             "count": 0,
-            "mean": None,
-            "median": None,
-            "std": None,
-            "percentile_10": None,
-            "percentile_50": None,
-            "percentile_90": None,
-            "min": None,
-            "max": None
+            "global_95th_percentile_mdc": None,
+            "global_median_mdc": None,
+            "global_min_mdc": None,
+            "global_max_mdc": None,
+            "upper_limit_count": 0,
+            "detection_count": 0,
+            "sample_coverage": "N/A (no data)"
         }
+    
+    mdc_values = df["min_detectable_concentration"].dropna()
+    
+    if mdc_values.empty:
+        logger.warning("No valid MDC values found in dataset")
+        return {
+            "count": len(df),
+            "global_95th_percentile_mdc": None,
+            "global_median_mdc": None,
+            "global_min_mdc": None,
+            "global_max_mdc": None,
+            "upper_limit_count": int(df["is_upper_limit"].sum()),
+            "detection_count": int(len(df) - df["is_upper_limit"].sum()),
+            "sample_coverage": "N/A (no MDC values)"
+        }
+    
+    # Calculate statistics
+    count = len(mdc_values)
+    median_mdc = float(mdc_values.median())
+    min_mdc = float(mdc_values.min())
+    max_mdc = float(mdc_values.max())
+    p95_mdc = float(mdc_values.quantile(0.95))
+    
+    # Count upper limits vs detections
+    upper_limit_count = int(df["is_upper_limit"].sum())
+    detection_count = int(len(df) - upper_limit_count)
+    
+    # Determine sample coverage description
+    if count > 0:
+        coverage_pct = (detection_count / count) * 100
+        sample_coverage = f"{coverage_pct:.1f}% detections ({detection_count}/{count})"
     else:
-        stats = {
-            "count": int(len(valid_mdc)),
-            "mean": float(np.mean(valid_mdc)),
-            "median": float(np.median(valid_mdc)),
-            "std": float(np.std(valid_mdc)),
-            "percentile_10": float(np.percentile(valid_mdc, 10)),
-            "percentile_50": float(np.percentile(valid_mdc, 50)),
-            "percentile_90": float(np.percentile(valid_mdc, 90)),
-            "min": float(np.min(valid_mdc)),
-            "max": float(np.max(valid_mdc))
-        }
+        sample_coverage = "0% detections (0/0)"
     
-    # Count breakdown
-    total = len(df)
-    upper_limits = int(df["is_upper_limit"].sum())
-    detections = total - upper_limits
+    stats = {
+        "count": count,
+        "global_95th_percentile_mdc": p95_mdc,
+        "global_median_mdc": median_mdc,
+        "global_min_mdc": min_mdc,
+        "global_max_mdc": max_mdc,
+        "upper_limit_count": upper_limit_count,
+        "detection_count": detection_count,
+        "sample_coverage": sample_coverage,
+        "units": "mixing_ratio_log10"
+    }
     
-    stats["total_spectra"] = total
-    stats["upper_limits_count"] = upper_limits
-    stats["detections_count"] = detections
-    
-    logger.info(f"Computed MDC statistics for {stats['count']} valid entries.")
-    
+    logger.info(f"Computed MDC statistics: median={median_mdc:.4f}, 95th_pctl={p95_mdc:.4f}")
     return stats
 
-def save_mdc_stats(stats: Dict[str, Any], output_path: Path) -> None:
+def save_mdc_stats(stats: Dict[str, Any], output_path: Optional[str] = None) -> str:
     """
-    Save the MDC statistics to a JSON file.
+    Save MDC statistics to JSON file.
     
     Args:
-        stats: Dictionary of statistics to save.
-        output_path: Path to the output JSON file.
+        stats: Dictionary of MDC statistics.
+        output_path: Path for output JSON. If None, uses config default.
+        
+    Returns:
+        Path to saved file.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(stats, f, indent=2)
-    
-    logger.info(f"MDC statistics saved to {output_path}")
-
-def main() -> None:
-    """Main entry point for T030c."""
     config = get_config()
-    output_path = Path(config["paths"]["data_processed"]) / "mdc_stats.json"
+    if output_path is None:
+        output_path = str(config.processed_dir / "mdc_stats.json")
+        
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info("Starting MDC statistics computation (T030c)...")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=2)
+        
+    logger.info(f"Saved MDC statistics to {output_path}")
+    return output_path
+
+def main() -> int:
+    """
+    Main entry point for MDC statistics computation.
     
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
     try:
-        df = load_retrieval_results(config)
+        # Load configuration
+        config = get_config()
+        logger.info("Starting MDC statistics computation")
+        
+        # Load retrieval results
+        input_path = config.processed_dir / "retrieval_results.csv"
+        df = load_retrieval_results(str(input_path))
+        
+        # Compute statistics
         stats = compute_mdc_statistics(df)
-        save_mdc_stats(stats, output_path)
-        logger.info("T030c completed successfully.")
+        
+        # Save results
+        output_path = config.processed_dir / "mdc_stats.json"
+        save_mdc_stats(stats, str(output_path))
+        
+        logger.info("MDC statistics computation completed successfully")
+        return 0
+        
     except FileNotFoundError as e:
-        logger.error(f"Data dependency missing: {e}")
-        raise
+        logger.error(f"File not found: {e}")
+        return 1
     except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        raise
+        logger.error(f"Value error: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error during MDC statistics computation: {e}")
-        raise
+        logger.error(f"Unexpected error during MDC statistics computation: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

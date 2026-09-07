@@ -4,11 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T012` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/metadata.csv
-- `T013a` (rejected 1x): The repository lacks a `count_unique_planets` implementation in `code/download.py` (the shown file ends before any such function) and the required output file `data/processed/count_report.json` does not exist. Both the core function and its deliverable are missing.
-- `T020` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/retrieval_results.csv
-- `T030a` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/correlation_stats.json
-- `T031` (rejected 1x): The repository lacks the required `results/power_analysis.json` and `results/quality_report.md` files, and the `code/analysis.py` does not contain a completed `calculate_statistical_power` implementation (the function is absent/truncated). These missing artifacts mean the task’s deliverables are not satisfied.
+- `T025c` (rejected 1x): The repository lacks a `bootstrap_kendall_tau` implementation in `code/analysis.py` (the file ends before such a function appears) and the required output files `data/processed/bootstrap_ci.json` and `data/processed/water_mixing_ratio_samples.npy` are not present. Consequently the task’s deliverables are missing.
+- `T027` (rejected 1x): The required output file `data/processed/regression_results.json` does not exist, and the provided `code/analysis.py` excerpt shows no implementation of the `fit_tobit_model` function (the file is truncated before any such logic). Both the artifact and the core functionality are missing.
+- `T045` (rejected 1x): declared artifact(s) missing/empty/invalid: results/spectral_resolution_report.md
 
 ## Required change
 

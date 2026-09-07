@@ -1,3 +1,4 @@
+# Existing dependencies
 petitRADTRANS
 astropy
 statsmodels
@@ -11,4 +12,7 @@ synphot
 scikit-survival
 scikit-learn
 matplotlib
-seaborn
+pytest
+pyyaml
+# New dependencies for T047 (if any specific ones needed beyond base)
+# (pandas, numpy, matplotlib are already covered above)

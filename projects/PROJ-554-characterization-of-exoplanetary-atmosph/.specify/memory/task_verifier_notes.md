@@ -2,13 +2,12 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T012** — declared artifact(s) missing/empty/invalid: data/processed/metadata.csv
-- **T013a** — The repository lacks a `count_unique_planets` implementation in `code/download.py` (the shown file ends before any such function) and the required output file `data/processed/count_report.json` does not exist. Both the core function and its deliverable are missing.
-- **T020** — declared artifact(s) missing/empty/invalid: data/processed/retrieval_results.csv
-- **T025c** — declared artifact(s) missing/empty/invalid: data/processed/bootstrap_ci.json
-- **T027** — declared artifact(s) missing/empty/invalid: data/processed/regression_results.json
-- **T030a** — declared artifact(s) missing/empty/invalid: data/processed/correlation_stats.json
-- **T030d** — The required artifact `data/processed/analysis_results.json` does not exist in the repository, so no aggregated statistics have been provided. The implementer must create this JSON file containing the compiled analysis results.
-- **T031** — The repository lacks the required `results/power_analysis.json` and `results/quality_report.md` files, and the `code/analysis.py` does not contain a completed `calculate_statistical_power` implementation (the function is absent/truncated). These missing artifacts mean the task’s deliverables are not satisfied.
+- **T012** — The required output file `data/processed/metadata.csv` does not exist, and the provided `code/download.py` snippet shows no implementation of a `save_metadata_csv` function that would generate such a CSV. Consequently, the task’s deliverable is missing.
+- **T020** — The repository lacks the required `data/processed/retrieval_results.csv` file, and the provided `code/retrieval.py` excerpt does not show an implementation of `save_retrieval_results`. Consequently the function is not confirmed to exist or to produce the specified CSV with the required columns. The task therefore remains unfinished.
+- **T026** — The repository lacks a `calculate_ci_width_variable` implementation in `code/analysis.py` (the file excerpt ends before any such function) and the required output file `results/robustness_report_variable.json` does not exist. Both the core function and its JSON report are missing.
+- **T026b** — The repository lacks `results/robustness_report_tau.json`, and a search of `code/analysis.py` shows no implementation of a `calculate_ci_width_tau` function (the file is truncated before any such definition). Both required artifacts are missing, so the task is not fulfilled.
+- **T030a** — The repository lacks the required `data/processed/correlation_stats.json` file, and the provided `code/analysis.py` excerpt does not show an implementation of a `save_correlation_stats` function. Both the artifact and the core function are missing, so the task is not satisfied.
+- **T030b** — The repository lacks the required `data/processed/regression_stats.json` file, and the provided `code/analysis.py` excerpt does not contain an implementation of `save_regression_stats`. Both the deliverable file and the core function are missing, so the task is not satisfied.
+- **T030c** — The required output file `data/processed/mdc_stats.json` does not exist, and the provided `code/analysis.py` excerpt shows no implementation of a `save_mdc_stats` function. Both the artifact and the expected function are missing, so the task is not fulfilled.
 - **T045** — declared artifact(s) missing/empty/invalid: results/spectral_resolution_report.md
-- **T050** — declared artifact(s) missing/empty/invalid: results/instrument_calibration_report.md
+- **T047** — declared artifact(s) missing/empty/invalid: results/noise_stability_report.md

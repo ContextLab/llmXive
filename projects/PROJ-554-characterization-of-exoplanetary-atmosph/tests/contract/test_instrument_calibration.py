@@ -1,17 +1,9 @@
-"""
-Contract test for Instrument Calibration Validation (T050).
-Verifies the structure and content of the instrument_calibration_report.md.
-"""
-
-import os
-import tempfile
-from pathlib import Path
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
-from unittest.mock import patch, MagicMock
+from pathlib import Path
+import json
 
-# Import the module to test
 from instrument_calibration import (
     load_metadata,
     load_retrieval_results,
@@ -19,122 +11,80 @@ from instrument_calibration import (
     analyze_instrument_bias,
     generate_report_md
 )
-from utils import PipelineError
-
-@pytest.fixture
-def temp_metadata_csv():
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        f.write("planet_name,temperature,instrument\n")
-        f.write("WASP-43b,1500,HST\n")
-        f.write("WASP-43b,1500,HST\n") # Duplicate for stats
-        f.write("HD 209458b,1400,Spitzer\n")
-        f.write("HD 209458b,1400,Spitzer\n")
-        f.write("Kepler-10b,2500,HST\n")
-        f.write("Kepler-10b,2500,HST\n")
-        f.write("Gl 12b,800,Spitzer\n")
-        f.write("Gl 12b,800,Spitzer\n")
-        path = f.name
-    yield path
-    os.unlink(path)
-
-@pytest.fixture
-def temp_retrieval_csv():
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        f.write("planet_name,water_mixing_ratio,is_upper_limit\n")
-        f.write("WASP-43b,-4.0,False\n")
-        f.write("WASP-43b,-4.2,False\n")
-        f.write("HD 209458b,-3.5,False\n")
-        f.write("HD 209458b,-3.6,False\n")
-        f.write("Kepler-10b,-5.0,False\n")
-        f.write("Kepler-10b,-5.1,False\n")
-        f.write("Gl 12b,-6.0,False\n")
-        f.write("Gl 12b,-6.1,False\n")
-        path = f.name
-    yield path
-    os.unlink(path)
-
-@pytest.fixture
-def temp_output_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
 
 def test_bin_temperature():
-    assert bin_temperature(1500.0) == 1400.0 # 1500/200 = 7.5 -> 7*200 = 1400
-    assert bin_temperature(1600.0) == 1600.0
-    assert bin_temperature(800.0) == 800.0
-    assert np.isnan(bin_temperature(np.nan))
+    """Test temperature binning logic."""
+    temps = pd.Series([500, 1200, 1700, 2500])
+    bins = bin_temperature(temps)
+    expected_labels = ['<1000K', '1000-1500K', '1500-2000K', '>2000K']
+    assert list(bins) == expected_labels
 
-def test_load_metadata_valid(temp_metadata_csv):
-    df = load_metadata(Path(temp_metadata_csv))
-    assert 'planet_name' in df.columns
-    assert 'temperature' in df.columns
-    assert 'instrument' in df.columns
-    assert len(df) == 8
+def test_analyze_instrument_bias_basic():
+    """Test basic bias analysis with synthetic data."""
+    # Create mock metadata
+    metadata_df = pd.DataFrame({
+        'planet_name': ['p1', 'p2', 'p3', 'p4'],
+        'temperature': [800, 1200, 1800, 2200],
+        'instrument': ['HST', 'HST', 'Spitzer', 'Spitzer']
+    })
 
-def test_load_metadata_missing_file():
-    with pytest.raises(PipelineError):
-        load_metadata(Path("nonexistent.csv"))
+    # Create mock retrieval results
+    # p1, p2, p3, p4 have water mixing ratios
+    retrieval_df = pd.DataFrame({
+        'planet_name': ['p1', 'p2', 'p3', 'p4'],
+        'water_mixing_ratio': [-4.0, -4.1, -3.0, -3.1], # HST ~ -4, Spitzer ~ -3
+        'is_upper_limit': [False, False, False, False]
+    })
 
-def test_load_retrieval_results_valid(temp_retrieval_csv):
-    df = load_retrieval_results(Path(temp_retrieval_csv))
-    assert 'planet_name' in df.columns
-    assert 'water_mixing_ratio' in df.columns
-    assert 'is_upper_limit' in df.columns
+    analysis, flags = analyze_instrument_bias(metadata_df, retrieval_df)
 
-def test_analyze_instrument_bias(temp_metadata_csv, temp_retrieval_csv):
-    metadata_df = load_metadata(Path(temp_metadata_csv))
-    retrieval_df = load_retrieval_results(Path(temp_retrieval_csv))
+    assert 'HST' in analysis
+    assert 'Spitzer' in analysis
+    assert analysis['HST']['count'] == 2
+    assert analysis['Spitzer']['count'] == 2
 
-    result = analyze_instrument_bias(metadata_df, retrieval_df)
+    # Check for bias flag (difference between -4 and -3 is 1.0 dex, > 0.5 threshold)
+    assert len(flags) > 0
+    assert any("HST" in f or "Spitzer" in f for f in flags)
 
-    assert 'instrument_bias_analysis' in result
-    assert 'systematic_error_flags' in result
+def test_analyze_instrument_bias_with_upper_limits():
+    """Test that upper limits are counted but not used for mean/std calculation."""
+    metadata_df = pd.DataFrame({
+        'planet_name': ['p1', 'p2'],
+        'temperature': [1000, 1000],
+        'instrument': ['HST', 'HST']
+    })
 
-    analysis = result['instrument_bias_analysis']
-    assert len(analysis) > 0
+    retrieval_df = pd.DataFrame({
+        'planet_name': ['p1', 'p2'],
+        'water_mixing_ratio': [-4.0, -99.0], # -99 is a placeholder for upper limit
+        'is_upper_limit': [False, True]
+    })
 
-    # Check structure of first entry
-    entry = analysis[0]
-    assert 'instrument' in entry
-    assert 'temperature_bin_center' in entry
-    assert 'count' in entry
-    assert 'mean_log10_water_mixing_ratio' in entry
-    assert 'std_log10_water_mixing_ratio' in entry
+    analysis, flags = analyze_instrument_bias(metadata_df, retrieval_df)
 
-def test_generate_report_md(temp_metadata_csv, temp_retrieval_csv, temp_output_dir):
-    metadata_df = load_metadata(Path(temp_metadata_csv))
-    retrieval_df = load_retrieval_results(Path(temp_retrieval_csv))
-    analysis_data = analyze_instrument_bias(metadata_df, retrieval_df)
+    assert analysis['HST']['count'] == 1 # Only detected
+    assert analysis['HST']['upper_limit_count'] == 1
 
-    output_path = temp_output_dir / "report.md"
-    generate_report_md(analysis_data, output_path)
+def test_generate_report_md_creates_file(tmp_path):
+    """Test that report generation creates a valid markdown file."""
+    output_file = tmp_path / "test_report.md"
+    analysis = {
+        'HST': {
+            'count': 2,
+            'mean_water_abundance': -4.0,
+            'std_water_abundance': 0.1,
+            'median_water_abundance': -4.0,
+            'temp_bin_breakdown': {'1000-1500K': {'count': 2, 'mean': -4.0, 'std': 0.1}},
+            'upper_limit_count': 0
+        }
+    }
+    flags = ['Instrument HST shows high variance']
 
-    assert output_path.exists()
-    content = output_path.read_text()
+    generate_report_md(analysis, flags, str(output_file))
 
+    assert output_file.exists()
+    content = output_file.read_text()
     assert "Instrument-Specific Calibration Validation Report" in content
-    assert "Instrument Breakdown" in content
+    assert "HST" in content
     assert "Systematic Error Flags" in content
-    assert "Conclusion" in content
-    assert "HST" in content or "Spitzer" in content # Check for instrument names
-
-def test_analyze_bias_with_upper_limits(temp_metadata_csv, temp_retrieval_csv):
-    # Modify retrieval data to include upper limits
-    df = pd.read_csv(temp_retrieval_csv)
-    df.loc[0, 'is_upper_limit'] = True
-    df.to_csv(temp_retrieval_csv, index=False)
-
-    metadata_df = load_metadata(Path(temp_metadata_csv))
-    retrieval_df = load_retrieval_results(Path(temp_retrieval_csv))
-
-    result = analyze_instrument_bias(metadata_df, retrieval_df)
-    # Should still work, just excluding the upper limit row
-    assert 'instrument_bias_analysis' in result
-
-def test_empty_merge():
-    # Create dataframes with no matching planet names
-    meta = pd.DataFrame({"planet_name": ["A"], "temperature": [1000], "instrument": ["HST"]})
-    ret = pd.DataFrame({"planet_name": ["B"], "water_mixing_ratio": [-4.0], "is_upper_limit": [False]})
-
-    with pytest.raises(PipelineError):
-        analyze_instrument_bias(meta, ret)

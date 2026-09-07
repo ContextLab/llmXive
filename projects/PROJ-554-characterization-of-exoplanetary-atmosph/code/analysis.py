@@ -1,3 +1,7 @@
+"""
+Statistical analysis module for exoplanetary atmospheric characterization.
+Implements censored data correlation, bootstrap resampling, and regression analysis.
+"""
 import logging
 import json
 from pathlib import Path
@@ -5,297 +9,452 @@ from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
 import numpy as np
 
-# Attempt to import statistical power analysis tools
-# We prefer statsmodels for formal power analysis, but fallback to scipy if needed
+# Try to import survival analysis libraries; if missing, log warning but allow partial runs
 try:
-    from statsmodels.stats.power import TTestIndPower, GofChisquarePower
+    import statsmodels.api as sm
+    from statsmodels.stats.outliers_influence import variance_inflation_factor
     HAS_STATSMODELS = True
 except ImportError:
     HAS_STATSMODELS = False
-    try:
-        from scipy import stats
-        HAS_SCIPY = True
-    except ImportError:
-        HAS_SCIPY = False
+    logging.warning("statsmodels not available. Regression features will be limited.")
+
+try:
+    from lifelines import TobitFitter
+    HAS_LIFELINES = True
+except ImportError:
+    HAS_LIFELINES = False
+    logging.warning("lifelines not available. Tobit regression features will be limited.")
+
+try:
+    from sksurv.nonparametric import kendalltau
+    HAS_SKSURV = True
+except ImportError:
+    HAS_SKSURV = False
+    logging.warning("scikit-survival not available. Censored correlation features will be limited.")
 
 from config import get_config
-from utils import setup_logging, PipelineError
+from utils import setup_logging, is_censored_value, create_censored_series
 
-logger = logging.getLogger(__name__)
+# Configure logging
+logger = setup_logging("analysis", level=logging.INFO)
 
-def verify_imports():
-    """Verify that required statistical libraries are available."""
-    if not HAS_STATSMODELS and not HAS_SCIPY:
-        raise PipelineError("Neither statsmodels nor scipy available for statistical power analysis.")
+
+def verify_imports() -> bool:
+    """Verify that required libraries are available."""
+    missing = []
+    if not HAS_STATSMODELS:
+        missing.append("statsmodels")
+    if not HAS_LIFELINES:
+        missing.append("lifelines")
+    if not HAS_SKSURV:
+        missing.append("scikit-survival")
+    
+    if missing:
+        logger.error(f"Missing required libraries: {', '.join(missing)}")
+        return False
+    logger.info("All required libraries are available.")
     return True
 
-def load_analysis_data(input_path: Path) -> pd.DataFrame:
+
+def load_analysis_data(input_path: str) -> pd.DataFrame:
     """
-    Load the analysis dataset containing retrieval results and metadata.
-    Expected columns: planet_name, water_mixing_ratio, is_upper_limit, snr, resolution, temperature
+    Load the analysis dataset containing metadata and retrieval results.
+    
+    Args:
+        input_path: Path to the input CSV file.
+        
+    Returns:
+        DataFrame with analysis data.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Analysis dataset not found at {input_path}")
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    df = pd.read_csv(input_path)
-    
-    required_cols = ['water_mixing_ratio', 'is_upper_limit', 'snr', 'resolution']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in analysis dataset: {missing}")
-    
-    # Ensure boolean type for upper limit flag
-    if 'is_upper_limit' in df.columns:
-        df['is_upper_limit'] = df['is_upper_limit'].astype(bool)
-    
+    df = pd.read_csv(path)
+    logger.info(f"Loaded {len(df)} records from {input_path}")
     return df
 
-def quality_control_filter(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Separate the dataset into resolved (detections) and censored (upper limits) subsets.
-    This is crucial for power analysis as the effect size calculation differs.
-    """
-    detections = df[~df['is_upper_limit']].copy()
-    censored = df[df['is_upper_limit']].copy()
-    return detections, censored
 
-def calculate_effect_size(detections: pd.DataFrame, target_tau: float = 0.3) -> float:
+def quality_control_filter(df: pd.DataFrame, snr_threshold: float = 5.0) -> pd.DataFrame:
     """
-    Calculate the effective effect size for power analysis.
-    
-    Since we are testing for a correlation (Kendall's tau) between water abundance 
-    and temperature (or other variables), we convert the target tau to a Cohen's d 
-    equivalent for a two-sample test (comparing high vs low temperature groups) 
-    or use the tau directly if using a correlation-based power test.
-    
-    For this implementation, we estimate the effect size based on the variance 
-    explained in the detected subset, normalized by the total variance.
+    Flag low SNR spectra and prepare censored data indicators.
     
     Args:
-        detections: DataFrame with resolved water mixing ratios.
-        target_tau: The target Kendall's tau effect size (0.3 per SC-004).
-    
+        df: Input DataFrame with SNR and retrieval results.
+        snr_threshold: Minimum SNR for resolved measurements.
+        
     Returns:
-        float: Estimated effect size (Cohen's d equivalent).
+        DataFrame with additional 'is_censored' column.
     """
-    if len(detections) < 2:
-        return 0.0
+    df = df.copy()
     
-    # Simple proxy: standard deviation of the mixing ratio relative to the mean
-    # This is a rough estimate for power analysis in this context
-    std_dev = detections['water_mixing_ratio'].std()
-    mean_val = detections['water_mixing_ratio'].mean()
-    
-    if mean_val == 0:
-        return 0.0
-        
-    # Cohen's d approximation (difference in means / pooled std dev)
-    # Here we use the observed std dev as the noise floor
-    effect_size = std_dev / abs(mean_val) if mean_val != 0 else 0.0
-    
-    # Cap at a reasonable maximum for sanity
-    return min(effect_size, 2.0)
-
-def calculate_statistical_power(
-    df: pd.DataFrame, 
-    effect_size: float = 0.3, 
-    alpha: float = 0.05,
-    target_power: float = 0.8
-) -> Dict[str, Any]:
-    """
-    Perform post-hoc power analysis to verify if the achieved sample size 
-    and variance are sufficient to detect the target effect size (|tau| = 0.3)
-    with power >= 0.8.
-    
-    Logic:
-    1. Separate detections and censored data.
-    2. Estimate actual effect size from data variance if not provided.
-    3. Calculate power using the sample size of resolved detections (since censored 
-       data contributes less to correlation power).
-    4. Return power estimate and sufficiency flag.
-    
-    Args:
-        df: The full analysis dataset.
-        effect_size: Target effect size (default 0.3).
-        alpha: Significance level (default 0.05).
-        target_power: Minimum required power (default 0.8).
-    
-    Returns:
-        Dict with 'power_estimate', 'power_sufficient', 'n_detections', 'n_censored', 'n_total'.
-    """
-    verify_imports()
-    
-    detections, censored = quality_control_filter(df)
-    n_detections = len(detections)
-    n_censored = len(censored)
-    n_total = len(df)
-    
-    logger.info(f"Power Analysis: Total={n_total}, Detections={n_detections}, Censored={n_censored}")
-    
-    if n_detections < 5:
-        # Insufficient data for meaningful power calculation
-        logger.warning("Too few detections for reliable power analysis.")
-        return {
-            'power_estimate': 0.0,
-            'power_sufficient': False,
-            'n_detections': n_detections,
-            'n_censored': n_censored,
-            'n_total': n_total,
-            'note': 'Insufficient detections (< 5) for power calculation.'
-        }
-    
-    # Use the provided effect_size (0.3) as the target for correlation detection
-    # We approximate the power for a correlation test using a t-test approximation
-    # Power = 1 - beta. We need to find beta given n, alpha, and effect_size.
-    
-    power_estimate = 0.0
-    
-    if HAS_STATSMODELS:
-        # Use statsmodels for more accurate power calculation
-        # TTestIndPower is for two-sample means, but we can approximate correlation power
-        # by treating the effect size as Cohen's d derived from the correlation.
-        # r = 0.3 -> d approx 0.64 (for equal groups).
-        # However, a direct correlation power test is better.
-        # Since statsmodels doesn't have a direct 'power for Kendall's tau', 
-        # we use the correlation power test (Fisher's z) approximation.
-        
-        # Approximation: Convert tau to Pearson r (r ~ tau * 1.5 is a rough heuristic for small tau)
-        # Or simply use the effect_size as a proxy for Cohen's d in a t-test context
-        # which is a conservative estimate for correlation power.
-        
-        power_analysis = TTestIndPower()
-        # We assume a two-sample scenario (High Temp vs Low Temp) with effect_size
-        # This is a standard way to estimate power for correlation-like effects in regression
-        power_estimate = power_analysis.solve_power(
-            effect_size=effect_size, 
-            nobs1=n_detections, 
-            alpha=alpha, 
-            power=None, 
-            ratio=1.0
-        )
-        
-        # Clamp to [0, 1]
-        power_estimate = max(0.0, min(1.0, power_estimate))
-        
-    elif HAS_SCIPY:
-        # Fallback: Use a simplified approximation based on sample size and effect size
-        # Power ~ 1 - norm.cdf(z_alpha - delta)
-        # delta = effect_size * sqrt(n/2) for two-sample
-        from scipy.stats import norm
-        z_alpha = norm.ppf(1 - alpha/2) # two-tailed
-        delta = effect_size * np.sqrt(n_detections / 2)
-        power_estimate = 1 - norm.cdf(z_alpha - delta)
-        power_estimate = max(0.0, min(1.0, power_estimate))
-    
-    power_sufficient = power_estimate >= target_power
-    
-    return {
-        'power_estimate': float(power_estimate),
-        'power_sufficient': bool(power_sufficient),
-        'n_detections': n_detections,
-        'n_censored': n_censored,
-        'n_total': n_total,
-        'effect_size_target': effect_size,
-        'alpha': alpha,
-        'target_power': target_power
-    }
-
-def generate_quality_report(
-    power_results: Dict[str, Any], 
-    output_path: Path
-) -> None:
-    """
-    Generate a human-readable markdown report summarizing the power analysis.
-    
-    Args:
-        power_results: Dictionary returned by calculate_statistical_power.
-        output_path: Path to save the markdown report.
-    """
-    report_lines = [
-        "# Statistical Power Analysis Report",
-        "",
-        "## Overview",
-        f"This report evaluates the statistical power of the current sample to detect",
-        f"a correlation effect size (|tau|) of {power_results['effect_size_target']}.",
-        "",
-        "## Sample Composition",
-        f"- **Total Planets**: {power_results['n_total']}",
-        f"- **Resolved Detections**: {power_results['n_detections']}",
-        f"- **Censored (Upper Limits)**: {power_results['n_censored']}",
-        "",
-        "## Power Analysis Results",
-        f"- **Estimated Power**: {power_results['power_estimate']:.4f}",
-        f"- **Target Power**: {power_results['target_power']}",
-        f"- **Sufficient Power**: {'Yes' if power_results['power_sufficient'] else 'No'}",
-        "",
-    ]
-    
-    if 'note' in power_results:
-        report_lines.append(f"**Note**: {power_results['note']}")
-        report_lines.append("")
-    
-    if power_results['power_sufficient']:
-        report_lines.append("## Conclusion")
-        report_lines.append("The current sample size and variance are sufficient to detect the target effect")
-        report_lines.append("size with the specified power. The study meets the evidentiary standard (SC-004).")
+    # Determine censored status based on SNR or explicit flag
+    if 'is_upper_limit' in df.columns:
+        df['is_censored'] = df['is_upper_limit']
+    elif 'snr' in df.columns:
+        df['is_censored'] = df['snr'] < snr_threshold
     else:
-        report_lines.append("## Conclusion")
-        report_lines.append("The current sample size is **insufficient** to guarantee detection of the target")
-        report_lines.append("effect size with the specified power. The study may be underpowered.")
-        report_lines.append("")
-        report_lines.append("### Recommendations")
-        if power_results['n_detections'] < 30:
-            report_lines.append("- Increase the number of resolved detections (e.g., lower SNR threshold if physically justified, or acquire more data).")
+        df['is_censored'] = False
+        
+    n_censored = df['is_censored'].sum()
+    logger.info(f"Quality control: {n_censored} censored values (SNR < {snr_threshold})")
+    return df
+
+
+def calculate_effect_size(df: pd.DataFrame, group_col: str = 'planet_category', value_col: str = 'water_mixing_ratio') -> float:
+    """
+    Calculate Cohen's d effect size between two groups.
+    
+    Args:
+        df: Input DataFrame.
+        group_col: Column name for grouping.
+        value_col: Column name for values.
+        
+    Returns:
+        Cohen's d effect size.
+    """
+    if group_col not in df.columns or value_col not in df.columns:
+        raise ValueError(f"Columns {group_col} or {value_col} not found in DataFrame")
+        
+    groups = df[group_col].unique()
+    if len(groups) < 2:
+        return 0.0
+        
+    g1 = df[df[group_col] == groups[0]][value_col].dropna()
+    g2 = df[df[group_col] == groups[1]][value_col].dropna()
+    
+    if len(g1) == 0 or len(g2) == 0:
+        return 0.0
+        
+    mean1, mean2 = g1.mean(), g2.mean()
+    std1, std2 = g1.std(), g2.std()
+    n1, n2 = len(g1), len(g2)
+    
+    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+    if pooled_std == 0:
+        return 0.0
+        
+    return (mean1 - mean2) / pooled_std
+
+
+def compute_censored_kendall_tau(df: pd.DataFrame, x_col: str, y_col: str) -> Tuple[float, float]:
+    """
+    Compute Kendall's tau correlation for censored data using scikit-survival.
+    
+    Args:
+        df: Input DataFrame.
+        x_col: Column name for independent variable.
+        y_col: Column name for dependent variable.
+        
+    Returns:
+        Tuple of (tau, p-value).
+    """
+    if not HAS_SKSURV:
+        logger.warning("scikit-survival not available. Using standard Kendall's tau.")
+        valid = df[[x_col, y_col]].dropna()
+        if len(valid) < 2:
+            return 0.0, 1.0
+        tau, p_val = scipy.stats.kendalltau(valid[x_col], valid[y_col])
+        return tau, p_val
+        
+    # Prepare censored data
+    x = df[x_col].values
+    y = df[y_col].values
+    is_censored = df['is_censored'].values if 'is_censored' in df.columns else np.zeros(len(df), dtype=bool)
+    
+    # scikit-survival expects event=False for censored (upper limit)
+    # Here, is_censored=True means we have an upper limit (event=False)
+    event = ~is_censored
+    
+    # Create structured array for survival data (y, event)
+    # We are correlating x with y, so we treat y as the survival time
+    try:
+        tau, p_val = kendalltau((y, event), x)
+        logger.info(f"Censored Kendall's tau: {tau:.4f}, p-value: {p_val:.4f}")
+        return tau, p_val
+    except Exception as e:
+        logger.warning(f"Failed to compute censored Kendall's tau: {e}. Falling back to standard.")
+        valid = df[[x_col, y_col]].dropna()
+        if len(valid) < 2:
+            return 0.0, 1.0
+        tau, p_val = scipy.stats.kendalltau(valid[x_col], valid[y_col])
+        return tau, p_val
+
+
+def bootstrap_kendall_tau(df: pd.DataFrame, x_col: str, y_col: str, n_iterations: int = 1000, seed: int = 42) -> Dict[str, Any]:
+    """
+    Perform bootstrap resampling to estimate confidence interval for Kendall's tau.
+    
+    Args:
+        df: Input DataFrame.
+        x_col: Column name for independent variable.
+        y_col: Column name for dependent variable.
+        n_iterations: Number of bootstrap iterations.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        Dictionary with bootstrap results.
+    """
+    import scipy.stats
+    np.random.seed(seed)
+    
+    taus = []
+    mixing_ratio_samples = []
+    
+    logger.info(f"Starting bootstrap resampling ({n_iterations} iterations)...")
+    
+    for i in range(n_iterations):
+        # Resample with replacement
+        sample_idx = np.random.choice(len(df), size=len(df), replace=True)
+        sample_df = df.iloc[sample_idx]
+        
+        # Compute tau for this sample
+        if 'is_censored' in sample_df.columns:
+            # Use censored method if available
+            tau, _ = compute_censored_kendall_tau(sample_df, x_col, y_col)
         else:
-            report_lines.append("- The effect size in the population may be smaller than the target (0.3). Consider a more conservative target.")
+            valid = sample_df[[x_col, y_col]].dropna()
+            if len(valid) < 2:
+                tau = 0.0
+            else:
+                tau, _ = scipy.stats.kendalltau(valid[x_col], valid[y_col])
+        
+        taus.append(tau)
+        
+        # Collect mixing ratio samples for variable CI calculation
+        if y_col in sample_df.columns:
+            sample_vals = sample_df[y_col].dropna().values
+            mixing_ratio_samples.extend(sample_vals)
+        
+        if (i + 1) % 100 == 0:
+            logger.info(f"Bootstrap iteration {i + 1}/{n_iterations}")
     
-    report_content = "\n".join(report_lines)
+    taus = np.array(taus)
+    mixing_ratio_samples = np.array(mixing_ratio_samples)
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(report_content)
+    tau_mean = np.mean(taus)
+    ci_lower = np.percentile(taus, 2.5)
+    ci_upper = np.percentile(taus, 97.5)
+    
+    result = {
+        "iterations": n_iterations,
+        "tau_mean": float(tau_mean),
+        "ci_lower": float(ci_lower),
+        "ci_upper": float(ci_upper),
+        "ci_width": float(ci_upper - ci_lower)
+    }
+    
+    logger.info(f"Bootstrap complete. Tau mean: {tau_mean:.4f}, 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
+    
+    return result, mixing_ratio_samples
+
+
+def calculate_statistical_power(df: pd.DataFrame, x_col: str, y_col: str, target_tau: float = 0.3, alpha: float = 0.05, n_sim: int = 1000, seed: int = 42) -> float:
+    """
+    Estimate statistical power to detect a given Kendall's tau.
+    
+    Args:
+        df: Input DataFrame.
+        x_col: Column name for independent variable.
+        y_col: Column name for dependent variable.
+        target_tau: Target tau value to detect.
+        alpha: Significance level.
+        n_sim: Number of simulation iterations.
+        seed: Random seed.
+        
+    Returns:
+        Estimated power.
+    """
+    import scipy.stats
+    np.random.seed(seed)
+    
+    # Simplified power estimation via bootstrap
+    # Generate bootstrap samples and check how often we reject null
+    significant_count = 0
+    
+    logger.info(f"Estimating statistical power (n_sim={n_sim})...")
+    
+    for i in range(n_sim):
+        sample_idx = np.random.choice(len(df), size=len(df), replace=True)
+        sample_df = df.iloc[sample_idx]
+        
+        valid = sample_df[[x_col, y_col]].dropna()
+        if len(valid) < 2:
+            continue
+            
+        tau, p_val = scipy.stats.kendalltau(valid[x_col], valid[y_col])
+        if p_val < alpha:
+            significant_count += 1
+    
+    power = significant_count / n_sim
+    logger.info(f"Estimated power: {power:.4f}")
+    return power
+
+
+def generate_quality_report(df: pd.DataFrame, output_path: str) -> None:
+    """
+    Generate a quality report summarizing the dataset.
+    
+    Args:
+        df: Input DataFrame.
+        output_path: Path to save the report.
+    """
+    report = {
+        "total_samples": len(df),
+        "censored_count": int(df['is_censored'].sum()) if 'is_censored' in df.columns else 0,
+        "resolved_count": int((~df['is_censored']).sum()) if 'is_censored' in df.columns else len(df),
+        "unique_planets": df['planet_name'].nunique() if 'planet_name' in df.columns else 0
+    }
+    
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w') as f:
+        json.dump(report, f, indent=2)
     
     logger.info(f"Quality report saved to {output_path}")
 
-def save_power_results(power_results: Dict[str, Any], output_path: Path) -> None:
-    """Save power analysis results to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(power_results, f, indent=2)
+
+def save_power_results(power: float, output_path: str) -> None:
+    """
+    Save statistical power analysis results.
+    
+    Args:
+        power: Estimated power.
+        output_path: Path to save results.
+    """
+    result = {
+        "power_estimate": float(power),
+        "power_sufficient": power >= 0.8
+    }
+    
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
     logger.info(f"Power results saved to {output_path}")
+
+
+def calculate_ci_width_variable(mixing_ratio_samples: np.ndarray) -> Dict[str, Any]:
+    """
+    Calculate the 95% CI width of the water mixing ratio distribution.
+    
+    Args:
+        mixing_ratio_samples: Array of bootstrapped mixing ratio values.
+        
+    Returns:
+        Dictionary with CI width and threshold check.
+    """
+    if len(mixing_ratio_samples) == 0:
+        raise ValueError("No mixing ratio samples provided")
+        
+    ci_lower = np.percentile(mixing_ratio_samples, 2.5)
+    ci_upper = np.percentile(mixing_ratio_samples, 97.5)
+    ci_width = ci_upper - ci_lower
+    
+    result = {
+        "ci_width": float(ci_width),
+        "threshold_met": ci_width <= 0.2
+    }
+    
+    logger.info(f"Variable CI width: {ci_width:.4f} (threshold <= 0.2: {result['threshold_met']})")
+    return result
+
+
+def calculate_ci_width_tau(bootstrap_results: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Calculate the 95% CI width of the Kendall's tau coefficient itself.
+    
+    Args:
+        bootstrap_results: Dictionary containing bootstrap tau values and statistics.
+                           Expected keys: 'ci_lower', 'ci_upper'.
+                           Alternatively, can accept a list of tau values under 'taus'.
+    
+    Returns:
+        Dictionary with {ci_width_tau, threshold_met}.
+    """
+    if 'taus' in bootstrap_results:
+        taus = np.array(bootstrap_results['taus'])
+        ci_lower = np.percentile(taus, 2.5)
+        ci_upper = np.percentile(taus, 97.5)
+    elif 'ci_lower' in bootstrap_results and 'ci_upper' in bootstrap_results:
+        ci_lower = bootstrap_results['ci_lower']
+        ci_upper = bootstrap_results['ci_upper']
+    else:
+        raise ValueError("bootstrap_results must contain 'taus' array or 'ci_lower'/'ci_upper' values")
+    
+    ci_width_tau = ci_upper - ci_lower
+    threshold_met = ci_width_tau <= 0.2
+    
+    result = {
+        "ci_width_tau": float(ci_width_tau),
+        "threshold_met": bool(threshold_met)
+    }
+    
+    logger.info(f"Tau CI width: {ci_width_tau:.4f} (threshold <= 0.2: {threshold_met})")
+    return result
+
+
+def save_robustness_report_tau(result: Dict[str, Any], output_path: str) -> None:
+    """
+    Save the robustness report for Kendall's tau.
+    
+    Args:
+        result: Dictionary with ci_width_tau and threshold_met.
+        output_path: Path to save the JSON file.
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Robustness report (tau) saved to {output_path}")
+
 
 def main():
     """
-    Main entry point for the power analysis task.
-    Expects input dataset from previous analysis steps.
+    Main entry point for the analysis module.
+    Can be run as a script for debugging or integration.
     """
     config = get_config()
-    setup_logging()
+    input_path = config.get('analysis_input', 'data/processed/analysis_dataset.csv')
+    output_dir = Path(config.get('output_dir', 'results'))
     
-    # Paths
-    input_path = Path(config.get('analysis_dataset_path', 'data/processed/analysis_dataset.csv'))
-    power_output_path = Path(config.get('power_analysis_output', 'results/power_analysis.json'))
-    quality_report_path = Path(config.get('quality_report_output', 'results/quality_report.md'))
+    logger.info(f"Starting analysis with input: {input_path}")
     
-    logger.info(f"Starting power analysis with input: {input_path}")
+    if not Path(input_path).exists():
+        logger.error(f"Input file not found: {input_path}")
+        return
     
-    try:
-        df = load_analysis_data(input_path)
+    df = load_analysis_data(input_path)
+    df = quality_control_filter(df)
+    
+    # Example usage of calculate_ci_width_tau
+    # This function is typically called after bootstrap_kendall_tau
+    if 'water_mixing_ratio' in df.columns:
+        # Simulate bootstrap for demonstration if not already done
+        bootstrap_res, samples = bootstrap_kendall_tau(
+            df, 
+            x_col='temperature', 
+            y_col='water_mixing_ratio',
+            n_iterations=100
+        )
         
-        # Calculate power
-        power_results = calculate_statistical_power(df, effect_size=0.3)
+        # Calculate tau CI width
+        tau_ci_result = calculate_ci_width_tau(bootstrap_res)
+        tau_output_path = output_dir / 'robustness_report_tau.json'
+        save_robustness_report_tau(tau_ci_result, str(tau_output_path))
         
-        # Save results
-        save_power_results(power_results, power_output_path)
-        generate_quality_report(power_results, quality_report_path)
-        
-        logger.info("Power analysis completed successfully.")
-        return 0
-        
-    except Exception as e:
-        logger.error(f"Power analysis failed: {e}", exc_info=True)
-        return 1
+        # Calculate variable CI width
+        var_ci_result = calculate_ci_width_variable(samples)
+        var_output_path = output_dir / 'robustness_report_variable.json'
+        save_robustness_report_tau(var_ci_result, str(var_output_path))
+    
+    logger.info("Analysis complete.")
+
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

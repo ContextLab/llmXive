@@ -1,3 +1,10 @@
+T012:
+  c: false
+  h: 9587ea97bb2598144e50cdc7b41d24d54fe8b3d297bf9530a202d0ef002e113d
+  r: "The required output file `data/processed/metadata.csv` does not exist, and the\
+    \ provided `code/download.py` snippet shows no implementation of a `save_metadata_csv`\
+    \ function that would generate such a CSV. Consequently, the task\u2019s deliverable\
+    \ is missing."
 T013b:
   c: false
   h: 2fdd30fb262117876083fa4d6d0957a6b6d9b76a93d745be98f42a41fcd27695
@@ -12,6 +19,14 @@ T017:
   r: "The required artifact `tests/integration/test_retrieval.py` does not exist in\
     \ the repository, so the integration test for retrieval on a sample spectrum is\
     \ missing. Without this file, the task\u2019s deliverable is not provided."
+T020:
+  c: false
+  h: 06b133d22cc89ee1b636144f580c5079e9f62e9b728721ac76a6beb78294452e
+  r: The repository lacks the required `data/processed/retrieval_results.csv` file,
+    and the provided `code/retrieval.py` excerpt does not show an implementation of
+    `save_retrieval_results`. Consequently the function is not confirmed to exist
+    or to produce the specified CSV with the required columns. The task therefore
+    remains unfinished.
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,15 +34,41 @@ T021:
     \ for non\u2011convergent retrievals (logging the failure, attempting an upper\u2011\
     limit derivation, and allowing the pipeline to continue). Without such artifacts,\
     \ the requirement cannot be verified as met."
-T025c:
+T026:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or other artifact implementing a bootstrap resampling\
-    \ loop (e.g., a function that runs 1000 iterations to compute confidence intervals\
-    \ for Kendall\u2019s tau) was supplied. Without any tangible implementation, the\
-    \ requirement cannot be verified as met. The next implementer must provide the\
-    \ actual bootstrap loop code and demonstrate its output (e.g., confidence interval\
-    \ values)."
+  h: 79a131eeaeb3ca511c8b3fcc8469cdf92240b9b25a1c2ab29f6cad2c56db1dce
+  r: The repository lacks a `calculate_ci_width_variable` implementation in `code/analysis.py`
+    (the file excerpt ends before any such function) and the required output file
+    `results/robustness_report_variable.json` does not exist. Both the core function
+    and its JSON report are missing.
+T026b:
+  c: false
+  h: 6e43f36669228be9fe278eb74971f2124b0d9c3ca4c4cc66f8768deac93a1572
+  r: The repository lacks `results/robustness_report_tau.json`, and a search of `code/analysis.py`
+    shows no implementation of a `calculate_ci_width_tau` function (the file is truncated
+    before any such definition). Both required artifacts are missing, so the task
+    is not fulfilled.
+T030a:
+  c: false
+  h: d3c396ee0d9f2682a01c5393d811b7264f119dd15c24c0516f8c22d819fed56b
+  r: The repository lacks the required `data/processed/correlation_stats.json` file,
+    and the provided `code/analysis.py` excerpt does not show an implementation of
+    a `save_correlation_stats` function. Both the artifact and the core function are
+    missing, so the task is not satisfied.
+T030b:
+  c: false
+  h: e569f286c27ddbf50a5ba3c888c2f93894b7eb07426d13e469168285ffd8002d
+  r: The repository lacks the required `data/processed/regression_stats.json` file,
+    and the provided `code/analysis.py` excerpt does not contain an implementation
+    of `save_regression_stats`. Both the deliverable file and the core function are
+    missing, so the task is not satisfied.
+T030c:
+  c: false
+  h: a42dbbcdb2185c493f1d4615449ab469dfc201057719e3e38944019560d5bf2a
+  r: The required output file `data/processed/mdc_stats.json` does not exist, and
+    the provided `code/analysis.py` excerpt shows no implementation of a `save_mdc_stats`
+    function. Both the artifact and the expected function are missing, so the task
+    is not fulfilled.
 T030d:
   c: false
   h: 59e4c5c9f880c9fad369f8d7e3644d71fd1f66a5118abdde55baf1cfbb16a91b

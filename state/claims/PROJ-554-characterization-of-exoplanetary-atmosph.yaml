@@ -323,3 +323,108 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T12:43:03Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Hot Jupiter classification threshold T_eq > 1000K cites Fortney et al.
+    2008
+  claim_id: c_527c79de
+  context: 'Classification Logic: Implement classification logic in code/download.py
+    to tag planets as ''Hot Jupiter'' or ''Temperate Super-Earth'' AFTER download
+    is complete. Logic: Apply standard literature definitions for ''Hot Jupiter''
+    (e.g., irradiated gas giants) and ''Temperate Super-Earth'' (rocky/mini-Neptune
+    boundary). Use specific thresholds: T_eq > 1000K for Hot Jupiters and R < 1.6
+    R_E (and T_eq < 1000K) for Super-Earths.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Log the specific threshold and citation in logs/classification.log with
+    format: ''Threshold: T_eq > 1000K (Source: Fortney et al. 2008)''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T17:55:09Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 iterations with seed 42
+  claim_id: c_9340521d
+  context: 'Bootstrap Resampling: Implement bootstrap_kendall_tau in code/analysis.py.
+    Logic: Run 1000 iterations with random seed SEED=42. For each iteration, resample
+    the dataset (with replacement) and recompute Kendall''s tau.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 1000 iterations with random seed SEED=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T17:55:31Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Power analysis uses 1000 bootstrap samples to detect |tau| >= 0.3 at
+    alpha 0.05
+  claim_id: c_57b53ce9
+  context: 'Power Analysis: Implement calculate_statistical_power in code/analysis.py
+    using a custom bootstrap power estimator for Kendall''s tau. Logic: Generate 1000
+    bootstrap samples of the censored data, compute Kendall''s tau for each, and estimate
+    the power to detect |tau| >= 0.3 at alpha=0.05.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.3 at alpha 0.05'
+    relation: tau
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_uses_1000_bootstrap_samples_to_detect_tau_%3E=_
+    source_value: https://en.wikipedia.org/wiki/Power_analysis_uses_1000_bootstrap_samples_to_detect_tau_>=_
+    subject: Power analysis uses 1000 bootstrap samples to detect
+  kind: relational
+  raw_text: Generate 1000 bootstrap samples of the censored data, compute Kendall's
+    tau for each, and estimate the power to detect |tau| >= 0.3 at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T17:56:06Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Instrument with SNR variance > 20% flagged as confounding
+  claim_id: c_8901286b
+  context: 'Calibration & Noise Stability Analysis: Analyze the variance in the noise
+    floor across the sample. Compute the coefficient of variation (CV) for the SNR
+    across all spectra. Flag any instrument with high variance (>20%) as a potential
+    confounding factor.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag any instrument with high variance (>20%) as a potential confounding
+    factor.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T17:56:06Z'
+- artifact_path: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph/tasks.md
+  attempts: 1
+  canonical: Instrument/date with residual variance > 2x median flagged
+  claim_id: c_4c836a95
+  context: 'Noise Floor Stability & Calibration Verification: Calculate the residual
+    variance of the retrieval model for each spectrum. Group by instrument and observation
+    date (if available) to detect temporal drifts in detector stability. Flag any
+    instrument/date combination with residual variance > 2x the median.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Instrument/date_with_residual_variance_%3E_2x_median_flagged
+  kind: entity_fact
+  raw_text: Flag any instrument/date combination with residual variance > 2x the median.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T17:56:55Z'
