@@ -5,21 +5,26 @@ from typing import List, Dict, Optional, Union, Tuple
 from pathlib import Path
 import json
 import logging
-from .utils import get_logger
+from .utils import get_logger, log_audit_event
 
-# Configure logger
-logger = get_logger(__name__)
+# Ensure output directory exists
+OUTPUT_DIR = Path("data/processed")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 class VisualizationEngine:
     """
-    Handles generation of visualizations for the network structure impact study.
-    Produces high-resolution (300 DPI) figures as per FR-005.
+    Handles generation of all visualization artifacts.
+    Currently implements:
+      - Scatter plots with regression lines (T033)
+      - Correlation heatmaps (T034)
     """
 
-    def __init__(self, output_dir: Union[str, Path]):
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        sns.set_theme(style="whitegrid")
+    def __init__(self, logger: Optional[logging.Logger] = None):
+        self.logger = logger or get_logger("VisualizationEngine")
+        # Set high DPI for publication quality
+        plt.rcParams['figure.dpi'] = 300
+        plt.rcParams['savefig.dpi'] = 300
+        sns.set_theme(style="whitegrid", context="talk")
 
     def generate_scatter_plot(
         self,
@@ -28,170 +33,153 @@ class VisualizationEngine:
         x_label: str,
         y_label: str,
         title: str,
-        output_filename: str,
-        regression_line: bool = True,
-        confidence_interval: float = 0.95
-    ) -> str:
-        """
-        Generates a scatter plot with an optional regression line.
-        
-        Args:
-            x_data: List of x-axis values (e.g., clustering coefficient).
-            y_data: List of y-axis values (e.g., thermal conductivity).
-            x_label: Label for the x-axis.
-            y_label: Label for the y-axis.
-            title: Plot title.
-            output_filename: Name of the output file (e.g., 'scatter_clustering.png').
-            regression_line: Whether to fit and draw a regression line.
-            confidence_interval: Confidence interval for the regression line (default 0.95).
-        
-        Returns:
-            Path to the generated figure file.
-        
-        Raises:
-            ValueError: If data lengths do not match or N < 2 for regression.
-        """
-        if len(x_data) != len(y_data):
-            raise ValueError("x_data and y_data must have the same length.")
-        
-        n = len(x_data)
-        if n == 0:
-            logger.warning("Empty data provided for scatter plot. Skipping generation.")
-            return ""
-        
-        if n == 1:
-            logger.warning("Only one data point provided. Cannot compute regression. Plotting point only.")
-            regression_line = False
-        
-        # Convert to numpy for easier handling
-        x = np.array(x_data)
-        y = np.array(y_data)
+        output_path: Optional[Path] = None
+    ) -> Path:
+        """Generate a scatter plot with regression line (T033)."""
+        if output_path is None:
+            output_path = OUTPUT_DIR / "scatter_plot.png"
 
-        # Handle NaNs
-        valid_mask = ~(np.isnan(x) | np.isnan(y))
-        x_clean = x[valid_mask]
-        y_clean = y[valid_mask]
-
-        if len(x_clean) < 2:
-            logger.warning(f"Insufficient valid data points ({len(x_clean)}) for regression. Plotting available points.")
-            regression_line = False
-
-        plt.figure(figsize=(10, 6))
-        
-        if regression_line and len(x_clean) >= 2:
-            # Use regplot for regression line with CI
-            # We pass the clean data to regplot, but we need to ensure the plot context is correct
-            # regplot handles the plotting of points and line
-            sns.regplot(
-                x=x_clean, 
-                y=y_clean, 
-                ci=int(confidence_interval * 100), 
-                scatter_kws={'s': 60, 'alpha': 0.7},
-                line_kws={'color': 'red', 'linewidth': 2}
-            )
-        else:
-            # Just scatter plot
-            plt.scatter(x_clean, y_clean, s=60, alpha=0.7, edgecolors='k')
-            if len(x_clean) == 0:
-                logger.warning("No valid data points to plot.")
-
-        plt.title(title, fontsize=14, fontweight='bold')
-        plt.xlabel(x_label, fontsize=12)
-        plt.ylabel(y_label, fontsize=12)
-        
-        # Save with high DPI
-        output_path = self.output_dir / output_filename
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.figure(figsize=(10, 8))
+        sns.regplot(x=x_data, y=y_data, scatter_kws={'alpha':0.6}, line_kws={'color':'red'})
+        plt.title(title)
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=300)
         plt.close()
         
-        logger.info(f"Scatter plot saved to: {output_path}")
-        return str(output_path)
+        self.logger.info(f"Scatter plot saved to {output_path}")
+        log_audit_event("VISUALIZATION", "scatter_plot_generated", {"path": str(output_path)})
+        return output_path
 
     def generate_correlation_heatmap(
         self,
-        correlation_matrix: Union[np.ndarray, List[List[float]]],
-        labels: List[str],
-        title: str = "Correlation Matrix",
-        output_filename: str = "correlation_heatmap.png",
-        cmap: str = "coolwarm"
-    ) -> str:
+        metrics_data: Dict[str, List[float]],
+        conductivity_data: List[float],
+        output_path: Optional[Path] = None
+    ) -> Path:
         """
-        Generates a heatmap of a correlation matrix.
+        Generate a correlation heatmap for all topological metrics vs thermal conductivity.
         
         Args:
-            correlation_matrix: 2D array or list of lists representing the correlation matrix.
-            labels: List of labels for the axes (must match matrix dimensions).
-            title: Plot title.
-            output_filename: Name of the output file.
-            cmap: Matplotlib colormap string.
+            metrics_data: Dictionary mapping metric name (str) to list of values (float).
+            conductivity_data: List of thermal conductivity values (float).
+            output_path: Path to save the heatmap image. Defaults to data/processed/correlation_heatmap.png.
         
         Returns:
-            Path to the generated figure file.
+            Path to the generated image file.
+        
+        Verification:
+            - File must exist at output_path.
+            - File must be 300 DPI.
+            - Grid must contain labels for all metrics and conductivity.
         """
-        corr_matrix = np.array(correlation_matrix)
-        
-        if corr_matrix.shape[0] != corr_matrix.shape[1]:
-            raise ValueError("Correlation matrix must be square.")
-        
-        if len(labels) != corr_matrix.shape[0]:
-            raise ValueError("Number of labels must match matrix dimensions.")
+        if output_path is None:
+            output_path = OUTPUT_DIR / "correlation_heatmap.png"
 
-        plt.figure(figsize=(10, 8))
-        sns.heatmap(
+        # Ensure we have data
+        if not metrics_data or not conductivity_data:
+            self.logger.warning("No data provided for correlation heatmap. Generating empty placeholder.")
+            plt.figure(figsize=(8, 6))
+            plt.text(0.5, 0.5, "No Data Available", ha='center', va='center')
+            plt.axis('off')
+            plt.savefig(output_path, dpi=300)
+            plt.close()
+            return output_path
+
+        # Combine data into a DataFrame-like structure for correlation
+        # We expect all lists to be of the same length
+        n_samples = len(conductivity_data)
+        if any(len(v) != n_samples for v in metrics_data.values()):
+            self.logger.warning("Metric lists and conductivity data have mismatched lengths. Truncating to shortest.")
+            min_len = min(len(v) for v in metrics_data.values()) + 1 # +1 for conductivity
+            min_len = min(min_len, n_samples)
+            conductivity_data = conductivity_data[:min_len]
+            metrics_data = {k: v[:min_len] for k, v in metrics_data.items()}
+
+        # Prepare correlation matrix data
+        # Columns: Metric names + "Thermal_Conductivity"
+        all_labels = list(metrics_data.keys()) + ["Thermal_Conductivity"]
+        all_values = list(metrics_data.values()) + [conductivity_data]
+        
+        # Calculate correlation matrix
+        corr_matrix = np.corrcoef(all_values)
+        
+        # Create the heatmap
+        plt.figure(figsize=(12, 10))
+        ax = sns.heatmap(
             corr_matrix,
             annot=True,
-            fmt=".2f",
-            cmap=cmap,
+            fmt=".3f",
+            cmap='coolwarm',
             square=True,
             linewidths=.5,
-            cbar_kws={"shrink": .5},
-            xticklabels=labels,
-            yticklabels=labels
+            xticklabels=all_labels,
+            yticklabels=all_labels,
+            vmin=-1, vmax=1,
+            cbar_kws={'label': 'Correlation Coefficient'}
         )
-        plt.title(title, fontsize=14, fontweight='bold')
         
-        output_path = self.output_dir / output_filename
+        plt.title("Correlation Heatmap: Network Metrics vs Thermal Conductivity", pad=20)
+        plt.xticks(rotation=45, ha='right')
+        plt.yticks(rotation=0)
+        plt.tight_layout()
+        
+        # Save with explicit 300 DPI
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close()
         
-        logger.info(f"Heatmap saved to: {output_path}")
-        return str(output_path)
+        self.logger.info(f"Correlation heatmap saved to {output_path} (300 DPI)")
+        log_audit_event("VISUALIZATION", "heatmap_generated", {
+            "path": str(output_path),
+            "metrics_count": len(metrics_data),
+            "samples": n_samples
+        })
+        
+        return output_path
 
-    def generate_metric_distribution(
-        self,
-        data: List[float],
-        metric_name: str,
-        output_filename: str,
-        bins: int = 20
-    ) -> str:
-        """
-        Generates a histogram/KDE plot for a single metric distribution.
+def run_visualization_pipeline(
+    metrics_results: Dict[str, List[float]],
+    conductivity_values: List[float],
+    output_dir: Optional[Path] = None
+) -> Dict[str, Path]:
+    """
+    Orchestrates the generation of all required visualizations.
+    
+    Args:
+        metrics_results: Dict of metric_name -> list of values from MetricCalculator.
+        conductivity_values: List of thermal conductivity values.
+        output_dir: Optional override for output directory.
         
-        Args:
-            data: List of metric values.
-            metric_name: Name of the metric for the title.
-            output_filename: Output filename.
-            bins: Number of histogram bins.
-        
-        Returns:
-            Path to the generated figure file.
-        """
-        x = np.array(data)
-        x_clean = x[~np.isnan(x)]
-        
-        if len(x_clean) == 0:
-            logger.warning("No valid data for distribution plot.")
-            return ""
+    Returns:
+        Dictionary mapping visualization type to output Path.
+    """
+    engine = VisualizationEngine()
+    results = {}
 
-        plt.figure(figsize=(10, 6))
-        sns.histplot(x_clean, bins=bins, kde=True, color='skyblue', edgecolor='black')
-        plt.title(f"Distribution of {metric_name}", fontsize=14, fontweight='bold')
-        plt.xlabel(metric_name, fontsize=12)
-        plt.ylabel("Frequency", fontsize=12)
-        
-        output_path = self.output_dir / output_filename
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
-        
-        logger.info(f"Distribution plot saved to: {output_path}")
-        return str(output_path)
+    if output_dir:
+        output_dir.mkdir(parents=True, exist_ok=True)
+        # Re-bind the engine's default output dir if needed, 
+        # but for now we pass explicit paths to methods.
+    
+    # 1. Generate Heatmap (T034)
+    heatmap_path = engine.generate_correlation_heatmap(
+        metrics_data=metrics_results,
+        conductivity_data=conductivity_values,
+        output_path=(output_dir / "correlation_heatmap.png") if output_dir else None
+    )
+    results["heatmap"] = heatmap_path
+
+    # 2. Generate Scatter Plots for each metric (T033)
+    for metric_name, values in metrics_results.items():
+        scatter_path = engine.generate_scatter_plot(
+            x_data=values,
+            y_data=conductivity_values,
+            x_label=metric_name,
+            y_label="Thermal Conductivity (W/mK)",
+            title=f"{metric_name} vs Thermal Conductivity",
+            output_path=(output_dir / f"scatter_{metric_name}.png") if output_dir else None
+        )
+        results[f"scatter_{metric_name}"] = scatter_path
+
+    return results

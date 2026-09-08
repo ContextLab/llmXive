@@ -1,6 +1,3 @@
-# Ruff configuration file
-# Extends pyproject.toml for IDE/editor specific overrides if needed
+# This file is a duplicate for IDE compatibility; prefer pyproject.toml
+# Configuration matches pyproject.toml [tool.ruff] section
 extend = "pyproject.toml"
-
-# Override specific settings for local development if necessary
-# Currently relies on pyproject.toml defaults

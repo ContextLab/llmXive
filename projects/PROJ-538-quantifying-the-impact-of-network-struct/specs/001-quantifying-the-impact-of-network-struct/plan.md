@@ -131,7 +131,7 @@ projects/PROJ-538-quantifying-the-impact-of-network-struct/
 
 ### Phase 5: Visualization & Reporting
 - **Task**: Generate scatter plots, heatmaps (FR-005).
-- **Output**: PNG files (300 DPI) and final summary report.
+- **Output**: PNG files (high resolution) and final summary report.
 
 ## Risk Register
 

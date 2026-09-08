@@ -1,56 +1,56 @@
 """
-Unit tests for code/models.py.
-Verifies Pydantic model validation.
+Unit tests for code/models.py
 """
 import pytest
 import numpy as np
-from code.models import AtomicSnapshot, DefectGraph
+from code.models import AtomicSnapshot, DefectGraph, CorrelationResult
 from code.utils import DataAvailabilityError
 
+def test_atomic_snapshot_creation():
+    """Test creation of a valid AtomicSnapshot."""
+    snapshot = AtomicSnapshot(
+        snapshot_id="test_001",
+        elements=["Cu", "Ni"],
+        species=["Cu", "Ni", "Cu", "Ni"],
+        positions=[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]],
+        box=[2.0, 2.0, 2.0],
+        thermal_conductivity_W_m_K=12.5
+    )
+    assert snapshot.snapshot_id == "test_001"
+    assert len(snapshot.species) == 4
+    assert snapshot.thermal_conductivity_W_m_K == 12.5
 
-class TestAtomicSnapshot:
-    """Tests for AtomicSnapshot model."""
-
-    def test_create_snapshot(self):
-        """Test creating a valid AtomicSnapshot."""
-        snapshot = AtomicSnapshot(
-            species=["Cu", "Ni", "Cu"],
-            positions=[[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [2.0, 2.0, 2.0]],
-            cell=[[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]],
-            thermal_conductivity_W_m_K=10.5
+def test_atomic_snapshot_missing_conductivity():
+    """Test that missing thermal conductivity raises DataAvailabilityError."""
+    with pytest.raises(DataAvailabilityError):
+        AtomicSnapshot(
+            snapshot_id="test_002",
+            elements=["Au"],
+            species=["Au"],
+            positions=[[0.0, 0.0, 0.0]],
+            box=[1.0, 1.0, 1.0]
+            # thermal_conductivity_W_m_K is missing
         )
-        assert len(snapshot.species) == 3
-        assert snapshot.thermal_conductivity_W_m_K == 10.5
 
-    def test_missing_thermal_conductivity(self):
-        """Test that missing thermal conductivity raises an error."""
-        # Note: The model definition in code/models.py should handle this validation.
-        # If the field is required, Pydantic will raise ValidationError.
-        # If it's optional but we want to enforce it later, we test the logic.
-        # Assuming it's required based on task T013 description.
-        with pytest.raises(Exception): # Pydantic ValidationError or similar
-            AtomicSnapshot(
-                species=["Cu"],
-                positions=[[0.0, 0.0, 0.0]],
-                cell=[[4.0, 0.0, 0.0], [0.0, 4.0, 0.0], [0.0, 0.0, 4.0]]
-                # thermal_conductivity_W_m_K is missing
-            )
+def test_defect_graph_creation():
+    """Test creation of a DefectGraph."""
+    graph = DefectGraph(
+        snapshot_id="test_001",
+        nodes=[{"id": 0, "species": "Cu"}, {"id": 1, "species": "Ni"}],
+        edges=[{"source": 0, "target": 1, "type": "mismatch"}],
+        metrics={"clustering": 0.5, "mean_degree": 1.0}
+    )
+    assert graph.snapshot_id == "test_001"
+    assert len(graph.edges) == 1
 
-
-class TestDefectGraph:
-    """Tests for DefectGraph model."""
-
-    def test_create_graph(self):
-        """Test creating a valid DefectGraph."""
-        import networkx as nx
-        G = nx.Graph()
-        G.add_node(0, species="Cu")
-        G.add_node(1, species="Ni")
-        G.add_edge(0, 1)
-        
-        graph = DefectGraph(
-            graph_data=G,
-            source_snapshot_id="test-123"
-        )
-        assert graph.source_snapshot_id == "test-123"
-        assert graph.graph_data.number_of_nodes() == 2
+def test_correlation_result():
+    """Test CorrelationResult model."""
+    result = CorrelationResult(
+        metric_name="clustering",
+        target="thermal_conductivity",
+        method="pearson",
+        coefficient=0.85,
+        p_value=0.001,
+        corrected_p_value=0.005
+    )
+    assert result.coefficient == 0.85

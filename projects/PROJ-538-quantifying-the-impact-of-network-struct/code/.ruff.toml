@@ -1,20 +1,28 @@
 [lint]
-select = ["E", "F", "W", "I", "N", "D", "UP", "B", "C4", "SIM", "ARG", "PT", "RUF"]
-ignore = [
-  "D100",  # Missing docstring in public module
-  "D104",  # Missing docstring in public package
-  "D107",  # Missing docstring in __init__
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
 ]
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses/pydantic)
+    "C901", # complex structures (allow higher complexity for scientific logic)
+]
 
 [lint.per-file-ignores]
-"code/__init__.py" = ["F401"]
-"tests/*" = ["D", "ARG"]
+"tests/*" = ["S101"] # allow asserts in tests
+
+[lint.isort]
+known-first-party = ["config", "ingest", "interfaces", "main", "metrics", "models", "setup_data_dirs", "stats", "synthetic", "utils", "viz", "format_lint_check"]
 
 [format]
-quote-style = "double"
-indent-style = "space"
+# Enable format checking via ruff format (black-compatible)
 line-length = 88
-skip-magic-trailing-comma = false
+indent-style = "space"
+quote-style = "double"

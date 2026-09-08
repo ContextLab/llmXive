@@ -1,7 +1,61 @@
-T018:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No logging code, configuration, or documentation was provided to demonstrate
-    that data ingestion and graph construction now emit logs. The claim lacks any
-    artifact (e.g., modified scripts, log output examples, or test results) showing
-    the required logging functionality.
+  r: No evidence of a `projects/PROJ-538-quantifying-the-impact-of-network-struct/`
+    directory or any files within it was provided; the claim lacks any tangible artifact
+    to verify that the required project structure was created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or Black settings) or any evidence of them being set up are present.
+    The claim provides no artifacts demonstrating that ruff/flake8 and Black have
+    been configured, so the task requirement is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` directory with the required subfolders (`raw/`, `processed/`,
+    `contracts/`) is provided; the implementer did not supply any file system listing,
+    screenshots, or code that creates these directories. The task remains undone until
+    the directory structure is created and verified.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `tests/` directory, test files, or a pytest configuration (e.g.,\
+    \ `pytest.ini`, `pyproject.toml` with `pytest-cov` settings) was provided, so\
+    \ the required pytest framework with coverage integration is not demonstrated.\
+    \ The implementer must add the test suite and proper pytest\u2011cov configuration."
+T013:
+  c: false
+  h: c7350feab8d3d3c96cdb4534b3eba36a0539b13ab5c42d43057d6cc3f7cc8d66
+  r: "The repository lacks a `RealDataLoader` implementation in `code/ingest.py` (the\
+    \ file only defines `DefectGraphBuilder` and is truncated before any loader logic).\
+    \ Additionally, the required output file `data/processed/raw_snapshots.parquet`\
+    \ does not exist. Consequently, the task\u2019s specifications are not met."
+T034:
+  c: false
+  h: afc193a726aa8a4e756960f03d18f5ce7680e37428f59b16c1ca4f3d99c0b736
+  r: "The required output file `data/processed/correlation_heatmap.png` is missing,\
+    \ so the verification conditions (existence, 300\u202FDPI, labeled grid) cannot\
+    \ be satisfied. The implementation in `code/viz.py` exists, but without the generated\
+    \ image the task is not completed."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or docs/ files were presented, nor any description of changes made
+    to them. The required documentation artifacts are missing, so the task of updating
+    the documentation has not been demonstrated.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, diff, or documentation showing any cleanup or refactoring in the
+    `code/` directory were provided; the only evidence is the feature specification,
+    which does not demonstrate that the requested code cleanup was performed. The
+    required artifact (refactored/cleaned code) is missing.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of new or modified files under `tests/unit/` was provided; without\
+    \ seeing the actual unit test code we cannot confirm that additional edge\u2011\
+    case tests were added. The implementer must supply the test files (or a directory\
+    \ listing) showing the new tests."

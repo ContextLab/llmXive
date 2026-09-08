@@ -1,277 +1,304 @@
-"""
-Synthetic data generation and thermal conductivity estimation.
-
-This module contains:
-1. SyntheticDataGenerator: Generates MD snapshots using ASE (Lennard-Jones/FCC).
-2. ThermalConductivityEstimator: Estimates conductivity via Callaway model
-   based on defect density and mass difference (NOT graph metrics).
-"""
 import numpy as np
 import ase
 from ase.build import fcc111
 from ase.md.verlet import VelocityVerlet
-from ase.units import fs, eV, K
-from typing import List, Dict, Any, Optional
+from ase.md.nvt import NVT
+from ase.units import fs, eV, K, Bohr
+from typing import List, Dict, Any, Optional, Tuple
 import json
 from pathlib import Path
-
-from .ingest import SyntheticDataGenerator as BaseSyntheticGenerator
-from .utils import get_logger, DataAvailabilityError
-from .config import config
 from .models import AtomicSnapshot
+from .utils import get_logger, DataAvailabilityError
 
 logger = get_logger(__name__)
 
-# Atomic masses in amu (approximate)
-ATOMIC_MASSES = {
-    'Cu': 63.546,
-    'Ni': 58.693,
-    'Au': 196.967,
-    'Ag': 107.868
-}
-
 class ThermalConductivityEstimator:
     """
-    Estimates thermal conductivity via Callaway phonon-scattering model.
+    Estimates thermal conductivity using the Callaway phonon-scattering model.
     
-    The Callaway model approximates thermal conductivity (k) as:
-    k = (k_B / (2 * pi^2 * v)) * (k_B * T / h)^3 * integral( ... )
+    This model calculates conductivity based on intrinsic phonon properties and
+    scattering mechanisms (point defects, grain boundaries, etc.), strictly
+    avoiding any dependence on the defect network graph metrics to prevent
+    tautological correlation.
     
-    For disordered alloys, the dominant scattering mechanism is point-defect
-    scattering, which depends on:
-    1. Defect concentration (c)
-    2. Mass difference between host and solute (Delta M)
+    The Callaway model (simplified):
+    k = (k_B / (2 * pi^2 * v)) * (k_B * T / h)^3 * integral(
+        (tau * x^4 * e^x) / (e^x - 1)^2 dx
+    )
+    where x = h*omega / (k_B * T)
     
-    We use a simplified analytical form:
-    k ~ k_pure / (1 + Gamma * c * (Delta M / M_avg)^2)
-    
-    where Gamma is a scattering parameter derived from the Callaway formalism.
-    This ensures the estimate is based on physical properties of the snapshot,
-    NOT on the topological graph metrics (avoiding tautology).
+    For this implementation, we use a simplified analytical approximation
+    based on defect density and mass difference scattering rates.
     """
     
-    def __init__(self):
-        self.logger = logger
-        # Base conductivity for pure Cu (approx 400 W/mK at 300K)
-        self.k_pure_Cu = 400.0
-        # Base conductivity for pure Ni (approx 90 W/mK)
-        self.k_pure_Ni = 90.0
-        # Scattering parameter (empirical fit for FCC alloys)
-        self.gamma_factor = 150.0
-
-    def _calculate_mass_variance_parameter(self, species_list: List[str]) -> float:
+    def __init__(self, 
+                 temperature: float = 300.0, 
+                 velocity_sound: float = 3000.0,  # m/s
+                 specific_heat: float = 3.0 * 1.38e-23,  # J/K/atom (Dulong-Petit approx)
+                 Debye_temperature: float = 300.0):
         """
-        Calculates the mass variance parameter (Gamma) for the alloy.
-        Gamma = sum_i [ c_i * ( (M_i - M_avg) / M_avg )^2 ]
-        """
-        if not species_list:
-            return 0.0
-        
-        masses = [ATOMIC_MASSES.get(s, 60.0) for s in species_list]
-        avg_mass = np.mean(masses)
-        
-        if avg_mass == 0:
-            return 0.0
-            
-        variance_sum = 0.0
-        count = len(masses)
-        
-        for m in masses:
-            diff = (m - avg_mass) / avg_mass
-            variance_sum += diff ** 2
-            
-        return variance_sum / count
-
-    def estimate(self, snapshot: AtomicSnapshot) -> float:
-        """
-        Estimates thermal conductivity for a given AtomicSnapshot.
+        Initialize the estimator with physical parameters.
         
         Args:
-            snapshot: An AtomicSnapshot object containing species and coordinates.
-            
-        Returns:
-            Estimated thermal conductivity in W/(m*K).
-            
-        Raises:
-            DataAvailabilityError: If snapshot data is insufficient.
+            temperature: Temperature in Kelvin
+            velocity_sound: Speed of sound in the material (m/s)
+            specific_heat: Specific heat per atom (J/K)
+            Debye_temperature: Debye temperature for the material (K)
         """
-        if not snapshot.species:
-            raise DataAvailabilityError("Snapshot has no species data for conductivity estimation.")
+        self.temperature = temperature
+        self.velocity_sound = velocity_sound
+        self.specific_heat = specific_heat
+        self.Debye_temperature = Debye_temperature
         
-        if not snapshot.coordinates:
-            raise DataAvailabilityError("Snapshot has no coordinates for conductivity estimation.")
+        # Physical constants
+        self.k_B = 1.380649e-23  # Boltzmann constant (J/K)
+        self.h = 6.62607015e-34  # Planck constant (J*s)
+        self.hbar = self.h / (2 * np.pi)
         
-        species_list = snapshot.species
-        n_atoms = len(species_list)
-        temperature = snapshot.temperature if snapshot.temperature else 300.0
+        # Scattering parameters (to be set based on snapshot)
+        self.point_defect_scattering_rate = 0.0
+        self.grain_boundary_scattering_rate = 0.0
+        self.umklapp_scattering_rate = 0.0
         
-        # 1. Determine base conductivity based on average mass
-        # Simple linear interpolation between pure Cu and pure Ni for baseline
-        avg_mass = np.mean([ATOMIC_MASSES.get(s, 60.0) for s in species_list])
-        
-        # Normalizing to Cu mass for the baseline interpolation
-        # If mass is closer to Cu (63.5), k is closer to 400. If closer to Ni (58.7), k is closer to 90.
-        # This is a rough heuristic for the pure limit.
-        if avg_mass > 60:
-            k_base = self.k_pure_Cu
-        else:
-            k_base = self.k_pure_Ni
-            
-        # 2. Calculate mass variance parameter (Gamma)
-        gamma = self._calculate_mass_variance_parameter(species_list)
-        
-        # 3. Apply Callaway-like scattering reduction
-        # k = k_base / (1 + Gamma_factor * Gamma)
-        # Gamma_factor scales the impact of the mass variance
-        scattering_reduction = 1.0 + (self.gamma_factor * gamma)
-        
-        k_estimate = k_base / scattering_reduction
-        
-        # Log the estimation details
-        self.logger.info(
-            f"Estimated k for snapshot: {k_estimate:.2f} W/mK. "
-            f"Gamma={gamma:.4f}, Temp={temperature}K, N={n_atoms}"
-        )
-        
-        return float(k_estimate)
-
-    def estimate_from_species(self, species_list: List[str], temperature: float = 300.0) -> float:
+    def calculate_mass_difference_scattering(self, 
+                                             snapshot: AtomicSnapshot,
+                                             isotope_factor: float = 1.0) -> float:
         """
-        Convenience method to estimate conductivity from a species list directly.
-        Useful for generating synthetic labels without a full snapshot object.
-        """
-        # Create a minimal mock snapshot
-        mock_snapshot = AtomicSnapshot(
-            timestamp="synthetic_estimator",
-            n_atoms=len(species_list),
-            species=species_list,
-            coordinates=[[0.0, 0.0, 0.0]], # Dummy coordinate
-            temperature=temperature,
-            thermal_conductivity=None
-        )
-        return self.estimate(mock_snapshot)
-
-
-# Re-define SyntheticDataGenerator here to ensure it includes the new estimator logic
-# and to satisfy the "extend" constraint by providing the full implementation.
-class SyntheticDataGenerator(BaseSyntheticGenerator):
-    """
-    Generates synthetic MD snapshots and optionally estimates their conductivity.
-    
-    This generator creates FCC-based structures, introduces random substitutions
-    (defects), and thermalizes them using VelocityVerlet dynamics.
-    """
-
-    def __init__(self):
-        self.logger = get_logger(__name__)
-        self.estimator = ThermalConductivityEstimator()
-
-    def generate_snapshot(self, seed: int, n_atoms: int = 64, temperature: float = 300.0) -> AtomicSnapshot:
-        """
-        Generates a single MD snapshot with a random alloy composition.
+        Calculate the scattering rate due to mass difference (point defects).
+        
+        Based on Klemens' theory for isotopic/point defect scattering:
+        Gamma = sum_i (f_i * (1 - M_i/M_avg)^2)
+        where f_i is the fraction of species i, M_i is its mass, M_avg is average mass.
         
         Args:
-            seed: Random seed for reproducibility.
-            n_atoms: Target number of atoms (approximate).
-            temperature: Target temperature in Kelvin.
+            snapshot: The atomic snapshot containing species and positions
+            isotope_factor: Factor to scale the scattering (default 1.0)
             
         Returns:
-            AtomicSnapshot object with species, coordinates, and estimated conductivity.
+            Scattering rate parameter (s^-1)
         """
-        np.random.seed(seed)
-        
-        # Determine composition (e.g., 50/50 Cu/Ni or random)
-        # For this implementation, we'll do a random substitution on an FCC lattice
-        # Start with a standard FCC cell (Cu)
-        # fcc111 creates a slab, we need a bulk-like cube or just use the slab as a base
-        # Let's use a 2x2x2 supercell of a 4-atom unit cell = 32 atoms.
-        # To get ~64, we might need a 3x3x3 or similar.
-        # Let's just create a random FCC-like box.
-        
-        # Create a base FCC lattice of Cu
-        # Size (2,2,2) of the (2x2x2) conventional cell = 32 atoms.
-        # Let's make it (3,3,3) -> 108 atoms, then cut? 
-        # Simpler: Use ase build and then randomize.
-        # Let's stick to a 2x2x2 supercell (32 atoms) and duplicate or just use 32.
-        # The prompt asks for n_atoms parameter.
-        
-        # We'll construct a simple cubic box of FCC atoms.
-        lattice_constant = 3.61 # Cu in Angstroms
-        
-        # Determine grid size to approximate n_atoms
-        # 4 atoms per conventional cell
-        cells_per_dim = int(np.cbrt(n_atoms / 4))
-        if cells_per_dim < 1: cells_per_dim = 1
-        
-        # Create FCC slab (111) is not bulk, but fcc111 creates a surface.
-        # Let's use ase.build.bulk for a bulk crystal if available, or construct manually.
-        # ase.build.bulk is standard.
-        from ase.build import bulk
-        
-        try:
-            atoms = bulk('Cu', 'fcc', a=lattice_constant)
-        except Exception:
-            # Fallback if bulk fails
-            atoms = fcc111('Cu', size=(2, 2, 1), vacuum=0.0) 
-            # This might not be the right size, so we'll just scale manually if needed
-        
-        # Replicate to get closer to n_atoms
-        atoms = atoms * (cells_per_dim, cells_per_dim, cells_per_dim)
-        
-        # If we have too many, slice. If too few, repeat.
-        current_n = len(atoms)
-        if current_n > n_atoms:
-            atoms = atoms[:n_atoms]
-        elif current_n < n_atoms:
-            # Pad with a few more if needed (simple repeat)
-            repeat_factor = int(np.ceil(n_atoms / current_n))
-            atoms = atoms * (repeat_factor, repeat_factor, repeat_factor)
-            atoms = atoms[:n_atoms]
+        if not snapshot.species or len(snapshot.species) == 0:
+            logger.warning("Empty species list in snapshot")
+            return 0.0
             
-        # Introduce defects (randomly replace some Cu with Ni)
-        # Assume binary alloy Cu-Ni for synthetic data
-        num_defects = int(len(atoms) * np.random.uniform(0.05, 0.25)) # 5-25% disorder
-        defect_indices = np.random.choice(len(atoms), size=num_defects, replace=False)
+        # Atomic masses in kg (approximate values for Cu, Ni, Au, Ag)
+        masses = {
+            'Cu': 63.546 * 1.660539e-27,
+            'Ni': 58.693 * 1.660539e-27,
+            'Au': 196.967 * 1.660539e-27,
+            'Ag': 107.868 * 1.660539e-27
+        }
         
-        species_map = {'Cu': 'Ni'}
-        for i in defect_indices:
-            atoms[i].symbol = 'Ni'
+        # Calculate average mass
+        total_mass = 0.0
+        species_counts = {}
+        for sp in snapshot.species:
+            mass = masses.get(sp, 50.0 * 1.660539e-27)  # fallback mass
+            total_mass += mass
+            species_counts[sp] = species_counts.get(sp, 0) + 1
             
-        # Thermalize
-        timestep = 1 * fs
-        # Simple thermostat
-        dyn = VelocityVerlet(atoms, timestep)
-        # Run for a few steps to randomize velocities (NVE is fine for snapshot generation if velocities are randomized)
-        # Or use a Langevin thermostat for better thermalization
-        from ase.md.langevin import Langevin
-        dyn = Langevin(atoms, timestep, temperature * K, 0.02 * fs**-1)
+        n_atoms = len(snapshot.species)
+        avg_mass = total_mass / n_atoms if n_atoms > 0 else 1.0
         
-        dyn.run(steps=50) # Short run to thermalize
+        # Calculate Gamma parameter (mass variance)
+        gamma = 0.0
+        for sp, count in species_counts.items():
+            mass = masses.get(sp, 50.0 * 1.660539e-27)
+            fraction = count / n_atoms
+            gamma += fraction * ((1 - mass / avg_mass) ** 2)
         
-        species = [atom.symbol for atom in atoms]
-        coordinates = atoms.positions.tolist()
+        # Scattering rate: tau^-1 = Gamma * omega^4
+        # We use a representative frequency (Debye frequency)
+        omega_D = self.k_B * self.Debye_temperature / self.hbar
+        scattering_rate = isotope_factor * gamma * (omega_D ** 4) * (1e-40)  # scaling factor
         
-        # Estimate conductivity
-        k_est = self.estimator.estimate_from_species(species, temperature)
+        logger.debug(f"Mass difference scattering rate: {scattering_rate:.2e} s^-1")
+        return scattering_rate
         
-        return AtomicSnapshot(
-            timestamp=f"synthetic_seed_{seed}",
-            n_atoms=len(atoms),
-            species=species,
-            coordinates=coordinates,
-            temperature=temperature,
-            thermal_conductivity=k_est
-        )
+    def calculate_defect_density_scattering(self, 
+                                            snapshot: AtomicSnapshot,
+                                            defect_area: float = 1e-12) -> float:
+        """
+        Calculate scattering rate due to defect density (grain boundaries).
+        
+        Uses a simplified model where scattering rate is proportional to
+        defect density and inverse of mean free path.
+        
+        Args:
+            snapshot: The atomic snapshot
+            defect_area: Average defect cross-section area (m^2)
+            
+        Returns:
+            Scattering rate parameter (s^-1)
+        """
+        # Estimate defect density from snapshot (simplified)
+        # In a real implementation, this would come from the DefectGraph
+        # Here we use a proxy based on species disorder
+        if not snapshot.species or len(snapshot.species) < 2:
+            return 0.0
+            
+        # Simple disorder metric: fraction of minority species
+        species_counts = {}
+        for sp in snapshot.species:
+            species_counts[sp] = species_counts.get(sp, 0) + 1
+        
+        n_atoms = len(snapshot.species)
+        max_count = max(species_counts.values())
+        disorder_metric = 1.0 - (max_count / n_atoms)
+        
+        # Scattering rate proportional to disorder and defect area
+        # tau^-1 = v / l, where l ~ 1/(n_defect * sigma)
+        defect_density = disorder_metric * n_atoms / (snapshot.volume * 1e-30)  # m^-3
+        mean_free_path = 1.0 / (defect_density * defect_area) if defect_density > 0 else 1e9
+        
+        scattering_rate = self.velocity_sound / mean_free_path
+        
+        logger.debug(f"Defect density scattering rate: {scattering_rate:.2e} s^-1")
+        return scattering_rate
+        
+    def calculate_umklapp_scattering(self) -> float:
+        """
+        Calculate Umklapp phonon-phonon scattering rate.
+        
+        Uses a simplified temperature-dependent model:
+        tau_U^-1 = A * T * exp(-Theta_D / bT)
+        
+        Returns:
+            Scattering rate parameter (s^-1)
+        """
+        A = 1e-18  # Material-dependent constant
+        b = 3.0    # Typical value
+        
+        if self.temperature <= 0:
+            return 0.0
+            
+        scattering_rate = A * self.temperature * np.exp(-self.Debye_temperature / (b * self.temperature))
+        
+        logger.debug(f"Umklapp scattering rate: {scattering_rate:.2e} s^-1")
+        return scattering_rate
+        
+    def estimate_conductivity(self, snapshot: AtomicSnapshot) -> float:
+        """
+        Estimate thermal conductivity using the Callaway model.
+        
+        This method combines all scattering mechanisms and computes the
+        effective thermal conductivity without using any graph metrics.
+        
+        Args:
+            snapshot: The atomic snapshot containing species and coordinates
+            
+        Returns:
+            Estimated thermal conductivity in W/(m*K)
+        """
+        # Calculate individual scattering rates
+        mass_scatter = self.calculate_mass_difference_scattering(snapshot)
+        defect_scatter = self.calculate_defect_density_scattering(snapshot)
+        umklapp_scatter = self.calculate_umklapp_scattering()
+        
+        # Total scattering rate (Matthiessen's rule)
+        total_scatter = mass_scatter + defect_scatter + umklapp_scatter
+        
+        if total_scatter <= 0:
+            logger.warning("Zero or negative total scattering rate, using fallback")
+            total_scatter = 1e10  # Fallback to avoid division by zero
+            
+        # Calculate mean free path
+        mean_free_path = self.velocity_sound / total_scatter
+        
+        # Limit mean free path to system size
+        if snapshot.volume > 0:
+            system_size = (snapshot.volume * 1e-30) ** (1/3)
+            mean_free_path = min(mean_free_path, system_size)
+        
+        # Calculate thermal conductivity using kinetic theory
+        # k = (1/3) * C * v * l
+        # where C is heat capacity per unit volume
+        n_atoms = len(snapshot.species) if snapshot.species else 0
+        volume_m3 = snapshot.volume * 1e-30 if snapshot.volume > 0 else 1e-30
+        
+        if volume_m3 <= 0 or n_atoms <= 0:
+            logger.error("Invalid volume or atom count")
+            return 0.0
+            
+        heat_capacity_per_volume = (n_atoms * self.specific_heat) / volume_m3
+        
+        conductivity = (1/3) * heat_capacity_per_volume * self.velocity_sound * mean_free_path
+        
+        # Clamp to physically reasonable values (0.1 - 1000 W/mK)
+        conductivity = max(0.1, min(1000.0, conductivity))
+        
+        logger.info(f"Estimated conductivity: {conductivity:.3f} W/(m*K)")
+        return conductivity
+        
+    def estimate_conductivity_batch(self, snapshots: List[AtomicSnapshot]) -> List[float]:
+        """
+        Estimate conductivity for a batch of snapshots.
+        
+        Args:
+            snapshots: List of atomic snapshots
+            
+        Returns:
+            List of estimated conductivities
+        """
+        results = []
+        for i, snapshot in enumerate(snapshots):
+            try:
+                k = self.estimate_conductivity(snapshot)
+                results.append(k)
+                logger.info(f"Snapshot {i}: k = {k:.3f} W/(m*K)")
+            except Exception as e:
+                logger.error(f"Failed to estimate conductivity for snapshot {i}: {e}")
+                results.append(np.nan)
+                
+        return results
 
-    def generate_dataset(self, n_snapshots: int, n_atoms: int = 64, temperature: float = 300.0) -> List[AtomicSnapshot]:
-        """
-        Generates a dataset of independent snapshots.
-        """
-        snapshots = []
-        for i in range(n_snapshots):
-            seed = i * 12345 + 98765 # Unique seed per snapshot
-            snap = self.generate_snapshot(seed, n_atoms, temperature)
-            snapshots.append(snap)
-            self.logger.info(f"Generated snapshot {i+1}/{n_snapshots} with k={snap.thermal_conductivity:.2f}")
+def run_synthetic_generation():
+    """
+    Main function to run synthetic data generation and conductivity estimation.
+    
+    This function:
+    1. Generates synthetic snapshots using SyntheticDataGenerator
+    2. Estimates thermal conductivity for each snapshot using Callaway model
+    3. Saves results to data/processed/synthetic_conductivity.json
+    
+    Returns:
+        Dict containing generation results and conductivity estimates
+    """
+    from .synthetic import SyntheticDataGenerator
+    
+    logger.info("Starting synthetic generation and conductivity estimation")
+    
+    # Generate synthetic data
+    generator = SyntheticDataGenerator()
+    snapshots = generator.generate_snapshots(n_snapshots=50, seed_start=0)
+    
+    if not snapshots:
+        raise DataAvailabilityError("Failed to generate synthetic snapshots")
         
-        return snapshots
+    logger.info(f"Generated {len(snapshots)} snapshots")
+    
+    # Estimate conductivity
+    estimator = ThermalConductivityEstimator()
+    conductivities = estimator.estimate_conductivity_batch(snapshots)
+    
+    # Prepare results
+    results = {
+        "n_snapshots": len(snapshots),
+        "conductivities": conductivities,
+        "temperature_K": estimator.temperature,
+        "Debye_temperature_K": estimator.Debye_temperature,
+        "velocity_sound_m_s": estimator.velocity_sound
+    }
+    
+    # Save results
+    output_path = Path("data/processed/synthetic_conductivity.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+        
+    logger.info(f"Results saved to {output_path}")
+    return results
+
+if __name__ == "__main__":
+    run_synthetic_generation()

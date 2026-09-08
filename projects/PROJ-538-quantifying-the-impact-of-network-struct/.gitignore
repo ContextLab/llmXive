@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,7 +24,24 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+cover
+.tox/
+.nox/
+
+# Virtual environments
+.venv/
 venv/
 ENV/
 env/
@@ -31,13 +52,17 @@ env/
 *.swp
 *.swo
 
-# Data
-data/raw/
-data/processed/
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-!data/contracts/.gitkeep
+# OS
+.DS_Store
+Thumbs.db
 
-# Logs
-*.log
+# Project specific
+data/raw/*.xyz
+data/raw/*.cif
+data/processed/*.parquet
+data/processed/*.png
+data/processed/*.csv
+data/processed/*.json
 data/audit_log.json
+data/completeness_report.json
+logs/

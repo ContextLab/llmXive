@@ -1,70 +1,48 @@
-"""
-Data Directory Setup Module.
-
-This module provides functionality to initialize the required directory
-structure for the project's data management system. It ensures that
-the `data/` directory and its subdirectories (`raw/`, `processed/`,
-`contracts/`) exist on the filesystem.
-
-This satisfies task T004: Setup `data/` directory structure.
-"""
 import os
 from pathlib import Path
 
-
 def setup_data_directories() -> None:
     """
-    Create the required data directory structure if it does not already exist.
-
-    This function creates the following directory hierarchy relative to
-    the project root:
+    Setup the data directory structure required for the project.
+    
+    Creates the following directory structure relative to the project root:
     - data/
-        - raw/          (For unmodified source data)
-        - processed/    (For cleaned/transformed data)
-        - contracts/    (For data schema contracts and validation rules)
-
-    The function is idempotent; running it multiple times will not raise
-    errors if the directories already exist.
-
-    Side Effects:
-        Creates directories on the local filesystem.
+        - raw/
+        - processed/
+        - contracts/
+    
+    This ensures that all necessary directories exist before data ingestion,
+    processing, or schema contract generation begins.
     """
-    # Define the base project root. Assuming this script is in code/,
-    # the project root is the parent of code/.
-    # However, to be robust when run as a module or script, we look for
-    # the 'data' directory relative to the current working directory
-    # or a standard project root detection.
-    # Given the constraint "Stay inside the project tree", we assume
-    # the script is run from the project root or code is structured such
-    # that 'data' is a sibling to 'code'.
+    # Define the base data directory relative to the project root
+    # Assuming this script is run from the project root or code/ directory
+    # We resolve the project root by going up from the code/ directory
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
     
-    # Strategy: Look for 'data' in the current working directory.
-    # If not found, and 'code' exists in cwd, assume cwd is project root.
+    data_root = project_root / "data"
+    raw_dir = data_root / "raw"
+    processed_dir = data_root / "processed"
+    contracts_dir = data_root / "contracts"
     
-    current_dir = Path.cwd()
-    data_root = current_dir / "data"
+    # Create directories with parents=True to ensure full path creation
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    contracts_dir.mkdir(parents=True, exist_ok=True)
     
-    subdirectories = ["raw", "processed", "contracts"]
+    # Optional: Create a .gitkeep file in each directory to ensure they
+    # are tracked by version control even if empty
+    for directory in [raw_dir, processed_dir, contracts_dir]:
+        gitkeep = directory / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.write_text("# Directory for project data artifacts\n")
     
-    for subdir_name in subdirectories:
-        subdir_path = data_root / subdir_name
-        try:
-            subdir_path.mkdir(parents=True, exist_ok=True)
-            # Optionally verify it's a directory
-            if not subdir_path.is_dir():
-                raise RuntimeError(f"Failed to create directory: {subdir_path}")
-        except PermissionError:
-            raise RuntimeError(f"Permission denied when creating directory: {subdir_path}")
-        except OSError as e:
-            raise RuntimeError(f"OS error while creating directory {subdir_path}: {e}")
-
-    # Log the successful creation (using standard print for setup scripts
-    # as logging infrastructure T008 is not yet fully active, 
-    # though utils.py has get_logger, we keep this simple for setup)
-    print(f"Data directory structure verified/created at: {data_root}")
-    for subdir in subdirectories:
-        print(f"  - {data_root / subdir}")
-
+    # Log the creation for verification
+    print(f"Data directories created at: {data_root}")
+    print(f"  - {raw_dir}")
+    print(f"  - {processed_dir}")
+    print(f"  - {contracts_dir}")
 
 if __name__ == "__main__":
     setup_data_directories()

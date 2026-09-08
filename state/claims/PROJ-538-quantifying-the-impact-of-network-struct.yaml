@@ -1,0 +1,275 @@
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 50 statistically independent snapshots generated with random seeds 0-49
+  claim_id: c_a0250e3d
+  context: 'Implement SyntheticDataGenerator in code/synthetic.py: Generate N=50 statistically
+    independent snapshots using Lennard-Jones potentials (ase) with unique random
+    seeds (0-49) and NVT thermalization steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=50 statistically independent snapshots using Lennard-Jones
+    potentials with unique random seeds (0-49).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:48:18Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Lennard-Jones parameters for Cu-Ni: epsilon 0.104 eV, sigma 2.56 A'
+  claim_id: c_92104dbc
+  context: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:48:44Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Lennard-Jones parameters for Au-Ag: epsilon 0.103 eV, sigma 2.89 A'
+  claim_id: c_eb62e351
+  context: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Au-Ag (epsilon=0.103 eV, sigma=2.89 A).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:49:03Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Metric calculation tolerance less than 1e-6
+  claim_id: c_c363365d
+  context: "Run extraction on a synthetic graph with known properties (e.g., Erd\u0151\
+    s-R\xE9nyi) and verify metrics match theoretical expectations within < 1e-6 tolerance."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Metric_calculation_tolerance_less_than_1e-6
+  kind: magnitude
+  raw_text: Verify metrics match theoretical expectations within < 1e-6 tolerance.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:49:44Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Power analysis flags sample size less than 20
+  claim_id: c_4c54a0f5
+  context: Report minimum detectable effect size using statsmodels.stats.power.FTestPower
+    for correlation tests; flag if N < 20 (FR-007).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_flags_sample_size_less_than_20
+  kind: magnitude
+  raw_text: Flag if N < 20 in power analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:50:43Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis rank-order stability change limit 0.1
+  claim_id: c_9a5b91e1
+  context: Verify and report rank-order stability of correlation coefficients, calculate
+    magnitude difference, and ensure no change > 0.1 (Enforces SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure no change > 0.1 in rank-order stability of correlation coefficients.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:50:43Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Scatter plots generated at 300 DPI
+  claim_id: c_35b50e13
+  context: Generate scatter plots with regression lines in code/viz.py (300 DPI) (FR-005)
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Generate scatter plots with regression lines at 300 DPI.
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T00:50:46Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Correlation heatmaps generated at 300 DPI
+  claim_id: c_27bd939e
+  context: Generate correlation heatmaps in code/viz.py (300 DPI) (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate correlation heatmaps at 300 DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:51:14Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Data availability error raised for completeness less than 90 percent
+  claim_id: c_beb077b9
+  context: 'MUST raise DataAvailabilityError with specific message ''Completeness
+    < 90%: <details>'' if completeness < 90%,'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_availability_error_raised_for_completeness_less_than_90
+  kind: magnitude
+  raw_text: Raise DataAvailabilityError if completeness < 90%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:51:37Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Generate 50 statistically independent snapshots using Lennard-Jones potentials
+  claim_id: c_ebb186a6
+  context: 'Implement SyntheticDataGenerator in code/synthetic.py: Generate N=50 statistically
+    independent snapshots using Lennard-Jones potentials (ase) with unique random
+    seeds (0-49) and NVT thermalization steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=50 statistically independent snapshots using Lennard-Jones
+    potentials with unique random seeds (0-49) and NVT thermalization steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:55:11Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Cu-Ni Lennard-Jones parameters: epsilon 0.104 eV, sigma 2.56 A'
+  claim_id: c_51b628fb
+  context: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:55:11Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Au-Ag Lennard-Jones parameters: epsilon 0.103 eV, sigma 2.89 A'
+  claim_id: c_cb14d882
+  context: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Au-Ag (epsilon=0.103 eV, sigma=2.89 A).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:55:11Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Generate correlation heatmaps at 300 DPI
+  claim_id: c_625d7576
+  context: 'Generate correlation heatmaps in code/viz.py (300 DPI) (FR-005). Verification:
+    Verify data/processed/correlation_heatmap.png exists, is 300 DPI, and contains
+    a grid with labels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate correlation heatmaps in code/viz.py at 300 DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:55:28Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Generate scatter plots with regression lines at 300 DPI
+  claim_id: c_0801df30
+  context: Generate scatter plots with regression lines in code/viz.py (300 DPI) (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scatter plots with regression lines in code/viz.py at 300 DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:55:44Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Flag if sample size N is less than 20 in power analysis
+  claim_id: c_fe06a38d
+  context: Report minimum detectable effect size using statsmodels.stats.power.FTestPower
+    for correlation tests; flag if N < 20 (FR-007).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_if_sample_size_N_is_less_than_20_in_power_analysis
+  kind: magnitude
+  raw_text: Flag if N < 20 in post-hoc power analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:56:44Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Ensure rank-order stability change is not greater than 0.1
+  claim_id: c_be8818fb
+  context: verify and report rank-order stability of correlation coefficients, calculate
+    magnitude difference, and ensure no change > 0.1 (Enforces SC-004).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_rank-order_stability_change_is_not_greater_than_0.1
+  kind: magnitude
+  raw_text: Ensure no change greater than 0.1 in sensitivity analysis rank-order stability.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:57:19Z'
