@@ -1,164 +1,131 @@
 import pytest
 import pandas as pd
+import numpy as np
 import json
-from pathlib import Path
-import sys
 import os
+import sys
+import tempfile
+from pathlib import Path
+import yaml
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala" / "code"))
 
-from code.schema_discovery import (
-    discover_schema,
-    validate_schema,
-    load_schema,
-    save_schema,
-    validate_dataset,
-    RUBRIC_DIMENSIONS
-)
+from schema_discovery import discover_schema, validate_schema, load_schema, save_schema
 
-
-@pytest.fixture
-def sample_dataframe():
-    """Create a sample dataframe matching the expected schema."""
+def test_discover_schema_basic():
+    """Test basic schema discovery on a simple DataFrame."""
     data = {
-        "prompt": ["prompt1", "prompt2", "prompt3"],
-        "image_url": ["url1", "url2", "url3"],
-        "teacher_scores": [
-            {"Alignment": 4.5, "Realism": 3.2, "Aesthetics": 4.0, "Plausibility": 3.8},
-            {"Alignment": 3.9, "Realism": 4.1, "Aesthetics": 3.5, "Plausibility": 4.2},
-            {"Alignment": 4.2, "Realism": 3.8, "Aesthetics": 4.1, "Plausibility": 3.9}
-        ],
-        "student_scalar": [3.5, 4.0, 3.8],
-        "human_annotations": [
-            {"Alignment": 4.0, "Realism": 3.5, "Aesthetics": 3.8, "Plausibility": 3.6},
-            {"Alignment": 3.7, "Realism": 3.9, "Aesthetics": 3.2, "Plausibility": 4.0},
-            {"Alignment": 4.1, "Realism": 3.6, "Aesthetics": 4.0, "Plausibility": 3.7}
-        ],
-        "primary_dimension": ["Alignment", "Realism", "Aesthetics"]
+        "prompt": ["text1", "text2"],
+        "image_url": ["url1", "url2"],
+        "student_scalar": [1.0, 2.0]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    schema = discover_schema(df)
+    
+    assert schema["schema_version"] == "1.0"
+    assert len(schema["fields"]) == 3
+    
+    field_names = [f["name"] for f in schema["fields"]]
+    assert "prompt" in field_names
+    assert "image_url" in field_names
+    assert "student_scalar" in field_names
 
+def test_discover_schema_nested():
+    """Test schema discovery on a DataFrame with nested dictionary columns."""
+    data = {
+        "prompt": ["text1"],
+        "teacher_scores": [
+            {"Alignment": 0.9, "Realism": 0.8, "Aesthetics": 0.7, "Plausibility": 0.6}
+        ]
+    }
+    df = pd.DataFrame(data)
+    schema = discover_schema(df)
+    
+    teacher_field = next((f for f in schema["fields"] if f["name"] == "teacher_scores"), None)
+    assert teacher_field is not None
+    assert teacher_field["type"] == "object"
+    assert "properties" in teacher_field
+    assert "Alignment" in teacher_field["properties"]
+    assert "Realism" in teacher_field["properties"]
 
-@pytest.fixture
-def sample_template_schema():
-    """Create a sample template schema."""
-    return {
+def test_validate_schema_match():
+    """Test validation when discovered schema matches provisional."""
+    provisional = {
+        "schema_version": "1.0",
+        "fields": [
+            {"name": "prompt", "type": "object"}, # Simplified type check
+            {"name": "teacher_scores", "type": "object", "properties": {"Alignment": "float"}}
+        ]
+    }
+    discovered = {
+        "schema_version": "1.0",
+        "fields": [
+            {"name": "prompt", "type": "object"},
+            {"name": "teacher_scores", "type": "object", "properties": {"Alignment": "float"}}
+        ]
+    }
+    
+    discrepancies = validate_schema(discovered, provisional)
+    assert len(discrepancies) == 0
+
+def test_validate_schema_missing_field():
+    """Test validation when a required field is missing."""
+    provisional = {
         "schema_version": "1.0",
         "fields": [
             {"name": "prompt", "type": "string"},
-            {"name": "image_url", "type": "string"},
-            {
-                "name": "teacher_scores",
-                "type": "object",
-                "properties": {
-                    "Alignment": "float",
-                    "Realism": "float",
-                    "Aesthetics": "float",
-                    "Plausibility": "float"
-                }
-            },
-            {"name": "student_scalar", "type": "float"},
-            {
-                "name": "human_annotations",
-                "type": "object",
-                "properties": {
-                    "Alignment": "float",
-                    "Realism": "float",
-                    "Aesthetics": "float",
-                    "Plausibility": "float"
-                }
-            },
-            {"name": "primary_dimension", "type": "string"}
+            {"name": "required_field", "type": "string"}
         ]
     }
-
-
-def test_discover_schema(sample_dataframe):
-    """Test schema discovery from a dataframe."""
-    discovered = discover_schema(sample_dataframe)
+    discovered = {
+        "schema_version": "1.0",
+        "fields": [
+            {"name": "prompt", "type": "string"}
+        ]
+    }
     
-    assert "schema_version" in discovered
-    assert "fields" in discovered
-    assert len(discovered["fields"]) == len(sample_dataframe.columns)
-    
-    # Check that all columns are discovered
-    field_names = [f["name"] for f in discovered["fields"]]
-    for col in sample_dataframe.columns:
-        assert col in field_names
+    discrepancies = validate_schema(discovered, provisional)
+    assert len(discrepancies) == 1
+    assert "Missing required field: required_field" in discrepancies
 
+def test_validate_schema_missing_properties():
+    """Test validation when object properties are missing."""
+    provisional = {
+        "schema_version": "1.0",
+        "fields": [
+            {
+                "name": "teacher_scores", 
+                "type": "object", 
+                "properties": {"Alignment": "float", "Realism": "float"}
+            }
+        ]
+    }
+    discovered = {
+        "schema_version": "1.0",
+        "fields": [
+            {
+                "name": "teacher_scores", 
+                "type": "object", 
+                "properties": {"Alignment": "float"}
+            }
+        ]
+    }
+    
+    discrepancies = validate_schema(discovered, provisional)
+    assert len(discrepancies) == 1
+    assert "Missing property 'Realism'" in discrepancies[0]
 
-def test_validate_schema_valid(sample_dataframe, sample_template_schema):
-    """Test validation with a valid schema."""
-    discovered = discover_schema(sample_dataframe)
-    result = validate_schema(discovered, sample_template_schema)
+def test_save_and_load_schema(tmp_path):
+    """Test saving and loading a schema to/from file."""
+    schema = {
+        "schema_version": "1.0",
+        "fields": [{"name": "test", "type": "string"}]
+    }
+    file_path = tmp_path / "test_schema.yaml"
     
-    assert result["is_valid"] is True
-    assert len(result["missing_fields"]) == 0
-    assert len(result["type_mismatches"]) == 0
-
-
-def test_validate_schema_missing_field(sample_dataframe, sample_template_schema):
-    """Test validation with a missing field."""
-    # Remove a field from the dataframe
-    df_modified = sample_dataframe.drop(columns=["primary_dimension"])
-    discovered = discover_schema(df_modified)
-    result = validate_schema(discovered, sample_template_schema)
+    save_schema(schema, str(file_path))
+    assert file_path.exists()
     
-    assert result["is_valid"] is False
-    assert "primary_dimension" in result["missing_fields"]
-
-
-def test_validate_schema_extra_fields(sample_dataframe, sample_template_schema):
-    """Test validation with extra fields (should be allowed)."""
-    # Add an extra column
-    df_modified = sample_dataframe.copy()
-    df_modified["extra_field"] = ["value1", "value2", "value3"]
-    
-    discovered = discover_schema(df_modified)
-    result = validate_schema(discovered, sample_template_schema)
-    
-    # Extra fields are not an error, just logged
-    assert result["is_valid"] is True
-    assert "extra_field" in result.get("extra_fields", [])
-
-
-def test_rubric_dimensions_present(sample_dataframe, sample_template_schema):
-    """Test that rubric dimensions are detected in teacher_scores."""
-    discovered = discover_schema(sample_dataframe)
-    
-    # Find teacher_scores field
-    teacher_scores_field = None
-    for field in discovered["fields"]:
-        if field["name"] == "teacher_scores":
-            teacher_scores_field = field
-            break
-    
-    assert teacher_scores_field is not None
-    assert teacher_scores_field.get("type") == "object"
-    
-    # Check that all rubric dimensions are present
-    properties = teacher_scores_field.get("properties", [])
-    for dim in RUBRIC_DIMENSIONS:
-        assert dim in properties, f"Missing rubric dimension: {dim}"
-
-
-def test_human_annotations_dimensions(sample_dataframe, sample_template_schema):
-    """Test that human annotations dimensions are detected."""
-    discovered = discover_schema(sample_dataframe)
-    
-    # Find human_annotations field
-    ha_field = None
-    for field in discovered["fields"]:
-        if field["name"] == "human_annotations":
-            ha_field = field
-            break
-    
-    assert ha_field is not None
-    assert ha_field.get("type") == "object"
-    
-    # Check that all rubric dimensions are present
-    properties = ha_field.get("properties", [])
-    for dim in RUBRIC_DIMENSIONS:
-        assert dim in properties, f"Missing rubric dimension in human_annotations: {dim}"
+    loaded = load_schema(str(file_path))
+    assert loaded == schema

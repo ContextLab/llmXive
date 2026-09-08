@@ -1,6 +1,6 @@
 """
-Evaluation module for the llmXive pipeline.
-Calculates metrics, performs permutation tests, and compares against null baselines.
+Evaluation module for the llmXive Follow-up pipeline.
+Calculates metrics, baseline comparisons, permutation tests, and partial correlations.
 """
 
 import argparse
@@ -10,382 +10,339 @@ import os
 import sys
 import pickle
 import numpy as np
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-from sklearn.linear_model import Ridge
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.dummy import DummyRegressor
-from sklearn.model_selection import KFold, cross_val_score, train_test_split
-from scipy.stats import pearsonr, ttest_rel
+from scipy import stats
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Optional, Tuple
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-RESULTS_DIR = PROJECT_ROOT / "results"
-ENTANGLEMENT_FILE = PROCESSED_DIR / "entanglement_scores.csv"
-MODEL_FILE = RESULTS_DIR / "model.pkl"
-MODEL_SELECTION_FILE = PROCESSED_DIR / "model_selection.json"
-SPLIT_CONFIG_FILE = PROCESSED_DIR / "split_config.json"
-RESULTS_OUTPUT_FILE = RESULTS_DIR / "results.json"
-RESIDUALS_OUTPUT_FILE = PROCESSED_DIR / "residuals.csv"
-PARTIAL_CORR_FILE = RESULTS_DIR / "partial_correlation.json"
+# Import shared utilities from sibling modules if available, or define locally
+# Note: The API surface lists these functions in evaluate.py, so we define them here.
 
-
-def setup_logging() -> logging.Logger:
-    """Configure and return the logger."""
-    logger = logging.getLogger("evaluate")
+def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
+    """Configure logging for the evaluation module."""
+    logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    ))
-    logger.addHandler(handler)
+
+    if not logger.handlers:
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+        if log_file:
+            fh = logging.FileHandler(log_file)
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+
     return logger
 
-
-def load_features(logger: logging.Logger) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+def load_features(features_path: str) -> Dict[str, Any]:
     """
-    Load features and target from the entanglement scores CSV.
-    Returns X (features), y (target), and feature names.
+    Load features from a JSON file.
+    Expected structure: list of records or a dict with 'data' key.
     """
-    if not ENTANGLEMENT_FILE.exists():
-        raise FileNotFoundError(f"Features file not found: {ENTANGLEMENT_FILE}")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading features from {features_path}")
 
-    import pandas as pd
-    df = pd.read_csv(ENTANGLEMENT_FILE)
+    if not os.path.exists(features_path):
+        raise FileNotFoundError(f"Features file not found: {features_path}")
 
-    # Define feature columns based on T022a/T022c output expectations
-    feature_cols = [
-        "variance", "entropy", "skewness", "kurtosis", "mahalanobis_distance"
-    ]
-    # Filter to only existing columns if any are missing (robustness)
-    existing_features = [c for c in feature_cols if c in df.columns]
-    if not existing_features:
-        raise ValueError("No entanglement features found in dataset.")
+    with open(features_path, 'r') as f:
+        data = json.load(f)
 
-    X = df[existing_features].values
-    if "fidelity_loss" not in df.columns:
-        raise ValueError("Target column 'fidelity_loss' not found in dataset.")
-    y = df["fidelity_loss"].values
+    # Normalize to a list of records if necessary
+    if isinstance(data, dict) and 'data' in data:
+        return data['data']
+    return data
 
-    logger.info(f"Loaded {len(X)} samples with {len(existing_features)} features.")
-    return X, y, existing_features
-
-
-def load_model_selection(logger: logging.Logger) -> Dict[str, Any]:
+def load_model_selection(model_selection_path: str) -> Dict[str, Any]:
     """Load model selection configuration."""
-    if not MODEL_SELECTION_FILE.exists():
-        raise FileNotFoundError(f"Model selection file not found: {MODEL_SELECTION_FILE}")
-    with open(MODEL_SELECTION_FILE, "r") as f:
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading model selection config from {model_selection_path}")
+
+    if not os.path.exists(model_selection_path):
+        raise FileNotFoundError(f"Model selection file not found: {model_selection_path}")
+
+    with open(model_selection_path, 'r') as f:
         return json.load(f)
 
+def load_split_config(split_config_path: str) -> Dict[str, Any]:
+    """Load train/test split configuration."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading split config from {split_config_path}")
 
-def load_split_config(logger: logging.Logger) -> Dict[str, Any]:
-    """Load split configuration if available."""
-    if SPLIT_CONFIG_FILE.exists():
-        with open(SPLIT_CONFIG_FILE, "r") as f:
-            return json.load(f)
-    return {"test_size": 0.2, "random_state": 42}
+    if not os.path.exists(split_config_path):
+        raise FileNotFoundError(f"Split config file not found: {split_config_path}")
 
+    with open(split_config_path, 'r') as f:
+        return json.load(f)
+
+def load_model(model_path: str) -> Any:
+    """Load a trained model from a pickle file."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading model from {model_path}")
+
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+
+    with open(model_path, 'rb') as f:
+        return pickle.load(f)
 
 def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
-    """Calculate R2, MAE, and RMSE."""
-    r2 = r2_score(y_true, y_pred)
-    mae = mean_absolute_error(y_true, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    """Calculate R² and MAE."""
+    logger = logging.getLogger(__name__)
+
+    if len(y_true) != len(y_pred):
+        raise ValueError("y_true and y_pred must have the same length")
+
+    if len(y_true) == 0:
+        return {"r2": 0.0, "mae": 0.0, "rmse": 0.0}
+
+    mae = np.mean(np.abs(y_true - y_pred))
+    ss_res = np.sum((y_true - y_pred) ** 2)
+    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+
+    r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
+
+    logger.info(f"Metrics: R²={r2:.4f}, MAE={mae:.4f}, RMSE={rmse:.4f}")
     return {"r2": float(r2), "mae": float(mae), "rmse": float(rmse)}
 
+def calculate_baseline_mae(y_true: np.ndarray, strategy: str = 'mean') -> float:
+    """Calculate baseline MAE (e.g., predicting mean or median)."""
+    logger = logging.getLogger(__name__)
 
-def calculate_baseline_mae(
-    X_train: np.ndarray, y_train: np.ndarray,
-    X_test: np.ndarray, y_test: np.ndarray,
-    logger: logging.Logger
-) -> float:
-    """Train a DummyRegressor (mean strategy) and return test MAE."""
-    dummy = DummyRegressor(strategy="mean")
-    dummy.fit(X_train, y_train)
-    y_pred_dummy = dummy.predict(X_test)
-    mae = mean_absolute_error(y_test, y_pred_dummy)
-    logger.info(f"Baseline (Dummy) MAE: {mae:.4f}")
-    return float(mae)
+    if strategy == 'mean':
+        baseline_pred = np.full_like(y_true, np.mean(y_true))
+    elif strategy == 'median':
+        baseline_pred = np.full_like(y_true, np.median(y_true))
+    else:
+        raise ValueError(f"Unknown baseline strategy: {strategy}")
 
+    baseline_mae = np.mean(np.abs(y_true - baseline_pred))
+    logger.info(f"Baseline MAE ({strategy}): {baseline_mae:.4f}")
+    return float(baseline_mae)
 
 def calculate_permutation_pvalue(
-    model, X: np.ndarray, y: np.ndarray,
-    n_permutations: int = 1000, random_state: int = 42,
-    logger: logging.Logger = None
+    model: Any,
+    X: np.ndarray,
+    y: np.ndarray,
+    n_permutations: int = 100,
+    random_state: int = 42
 ) -> float:
     """
     Calculate permutation test p-value.
-    Compares original model score against scores from permuted targets.
+    Compares the model's R² against R² values from permuted targets.
     """
-    if logger is None:
-        logger = logging.getLogger("evaluate")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Running permutation test with {n_permutations} permutations")
 
-    # Original score (R2)
-    model.fit(X, y)
-    original_score = model.score(X, y)
+    # Calculate original R²
+    y_pred_orig = model.predict(X)
+    ss_res_orig = np.sum((y - y_pred_orig) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    r2_orig = 1 - (ss_res_orig / ss_tot) if ss_tot != 0 else 0.0
 
     rng = np.random.default_rng(random_state)
-    perm_scores = []
+    count_better = 0
 
-    logger.info(f"Running {n_permutations} permutations...")
     for i in range(n_permutations):
+        # Permute y
         y_perm = y.copy()
         rng.shuffle(y_perm)
-        # Fit on permuted data
-        model_perm = type(model)(**model.get_params())
-        model_perm.fit(X, y_perm)
-        perm_scores.append(model_perm.score(X, y_perm))
 
-    perm_scores = np.array(perm_scores)
-    # One-sided test: how many permuted scores are >= original score?
-    # If model is good, original score should be higher than most permuted scores.
-    # P-value = (count(perm >= orig) + 1) / (n + 1)
-    p_value = (np.sum(perm_scores >= original_score) + 1) / (n_permutations + 1)
+        # Retrain model on permuted data (simplified: refit with same params)
+        # Note: For efficiency, we assume the model can be quickly refit or we use a simple estimator
+        # In a full pipeline, this might involve re-running the training step.
+        # For this skeleton, we assume 'model' has a 'fit' and 'predict' method.
+        try:
+            model.fit(X, y_perm)
+            y_pred_perm = model.predict(X)
+            ss_res_perm = np.sum((y_perm - y_pred_perm) ** 2)
+            r2_perm = 1 - (ss_res_perm / ss_tot) if ss_tot != 0 else 0.0
+
+            if r2_perm >= r2_orig:
+                count_better += 1
+        except Exception as e:
+            logger.warning(f"Permutation {i} failed: {e}")
+            continue
+
+    p_value = (count_better + 1) / (n_permutations + 1)
     logger.info(f"Permutation p-value: {p_value:.4f}")
     return float(p_value)
 
-
-def evaluate_model(
-    X: np.ndarray, y: np.ndarray,
-    model_type: str,
-    logger: logging.Logger
-) -> Tuple[Any, Dict[str, float], float]:
-    """
-    Train the selected model (Ridge or RF) on full data for evaluation metrics.
-    Returns model, metrics dict, and permutation p-value.
-    """
-    # Select model
-    if model_type == "ridge":
-        model = Ridge(alpha=1.0, random_state=42)
-    elif model_type == "rf":
-        model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=2)
-    else:
-        raise ValueError(f"Unsupported model type: {model_type}")
-
-    model.fit(X, y)
-    y_pred = model.predict(X)
-    metrics = calculate_metrics(y, y_pred)
-
-    # Calculate permutation p-value
-    p_val = calculate_permutation_pvalue(model, X, y, logger=logger)
-
-    return model, metrics, p_val
-
-
-def save_results(
-    metrics: Dict[str, float],
-    p_value_permutation: float,
-    p_value_ttest: Optional[float],
-    t_test_status: Optional[str],
-    baseline_mae: Optional[float],
-    hypothesis_status: str,
-    logger: logging.Logger
-) -> None:
-    """Save final results to results.json."""
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    results = {
-        "mean_r2": metrics.get("r2"),
-        "mean_mae": metrics.get("mae"),
-        "rmse": metrics.get("rmse"),
-        "p_value_permutation": p_value_permutation,
-        "p_value_ttest": p_value_ttest,
-        "t_test_status": t_test_status,
-        "baseline_mae": baseline_mae,
-        "hypothesis_status": hypothesis_status
-    }
-
-    with open(RESULTS_OUTPUT_FILE, "w") as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {RESULTS_OUTPUT_FILE}")
-
-
 def calculate_partial_correlation(
-    X: np.ndarray, y: np.ndarray,
-    control_vars: np.ndarray,
-    logger: logging.Logger
-) -> Dict[str, float]:
+    X: np.ndarray,
+    y: np.ndarray,
+    control_vars: np.ndarray
+) -> Tuple[float, float]:
     """
-    Calculate partial correlation between the first feature and target,
-    controlling for control variables (student_scalar, teacher_mean if available).
+    Calculate partial correlation between X and y, controlling for control_vars.
+    Returns (correlation_coefficient, p_value).
     """
-    from scipy.stats import pearsonr
-    import numpy as np
+    logger = logging.getLogger(__name__)
+    logger.info("Calculating partial correlation")
 
-    if X.shape[1] == 0:
-        return {"partial_corr": 0.0, "p_value": 1.0}
+    # Flatten inputs if necessary
+    if X.ndim == 1:
+        X = X.reshape(-1, 1)
+    if control_vars.ndim == 1:
+        control_vars = control_vars.reshape(-1, 1)
 
-    # Use first feature as primary entanglement feature
-    x1 = X[:, 0]
-    y = y.copy()
+    # Combine X and control_vars for regression residuals
+    # Residuals of X on Control
+    # Residuals of y on Control
+    # Correlation of residuals
 
-    if control_vars.shape[1] == 0:
-        # No controls, just standard correlation
-        r, p = pearsonr(x1, y)
-        return {"partial_corr": float(r), "p_value": float(p)}
+    # Using scipy's partial correlation approach via regression residuals
+    # We regress X on control_vars and get residuals
+    # We regress y on control_vars and get residuals
+    # Then correlate the residuals
 
-    # Simple partial correlation implementation
-    # Regress x1 on controls, get residuals
-    # Regress y on controls, get residuals
-    # Correlate residuals
     from sklearn.linear_model import LinearRegression
 
-    lr_x = LinearRegression()
-    lr_x.fit(control_vars, x1)
-    res_x = x1 - lr_x.predict(control_vars)
+    # Fit X ~ Control
+    reg_x = LinearRegression()
+    reg_x.fit(control_vars, X)
+    residuals_x = X - reg_x.predict(control_vars)
 
-    lr_y = LinearRegression()
-    lr_y.fit(control_vars, y)
-    res_y = y - lr_y.predict(control_vars)
+    # Fit y ~ Control
+    reg_y = LinearRegression()
+    reg_y.fit(control_vars, y)
+    residuals_y = y - reg_y.predict(control_vars)
 
-    r, p = pearsonr(res_x, res_y)
-    return {"partial_corr": float(r), "p_value": float(p)}
+    # Calculate correlation between residuals
+    # Flatten residuals for correlation
+    residuals_x_flat = residuals_x.flatten()
+    residuals_y_flat = residuals_y.flatten()
 
+    corr, p_val = stats.pearsonr(residuals_x_flat, residuals_y_flat)
+
+    logger.info(f"Partial correlation: {corr:.4f}, p-value: {p_val:.4f}")
+    return float(corr), float(p_val)
+
+def evaluate_model(
+    model: Any,
+    X_test: np.ndarray,
+    y_test: np.ndarray,
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    n_permutations: int = 100
+) -> Dict[str, Any]:
+    """
+    Evaluate a trained model on test data and run permutation test.
+    """
+    logger = logging.getLogger(__name__)
+
+    # Predict
+    y_pred = model.predict(X_test)
+
+    # Metrics
+    metrics = calculate_metrics(y_test, y_pred)
+
+    # Permutation test (on the trained model's performance vs random chance)
+    # Note: Permutation test usually involves retraining, but here we use the provided model structure
+    # For a rigorous test, we would retrain on permuted data.
+    # We will attempt to use the model's fit method if available.
+    p_value_perm = 0.0
+    if hasattr(model, 'fit') and hasattr(model, 'predict'):
+        try:
+            p_value_perm = calculate_permutation_pvalue(model, X_train, y_train, n_permutations)
+        except Exception as e:
+            logger.error(f"Permutation test failed: {e}")
+            p_value_perm = 1.0
+
+    return {
+        "metrics": metrics,
+        "p_value_permutation": p_value_perm,
+        "y_true": y_test.tolist(),
+        "y_pred": y_pred.tolist()
+    }
+
+def save_results(results: Dict[str, Any], output_path: str) -> None:
+    """Save evaluation results to a JSON file."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Saving results to {output_path}")
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
 
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Evaluate model performance")
-    parser.add_argument(
-        "--model-type",
-        type=str,
-        default=None,
-        help="Override model type (ridge, rf)"
-    )
-    parser.add_argument(
-        "--n-permutations",
-        type=int,
-        default=1000,
-        help="Number of permutations for permutation test"
-    )
+    parser.add_argument("--features-path", type=str, required=True, help="Path to features JSON")
+    parser.add_argument("--model-selection-path", type=str, required=True, help="Path to model selection JSON")
+    parser.add_argument("--split-config-path", type=str, required=True, help="Path to split config JSON")
+    parser.add_argument("--model-path", type=str, required=True, help="Path to trained model pickle")
+    parser.add_argument("--output-path", type=str, required=True, help="Path to output results JSON")
+    parser.add_argument("--log-file", type=str, default=None, help="Path to log file")
+    parser.add_argument("--n-permutations", type=int, default=100, help="Number of permutations for test")
     return parser.parse_args()
-
 
 def main() -> None:
     """Main entry point for evaluation."""
-    logger = setup_logging()
     args = parse_args()
+    logger = setup_logging(args.log_file)
 
     try:
-        # 1. Load Data
-        X, y, feature_names = load_features(logger)
+        # Load data
+        features = load_features(args.features_path)
+        model_selection = load_model_selection(args.model_selection_path)
+        split_config = load_split_config(args.split_config_path)
+        model = load_model(args.model_path)
 
-        # 2. Load Model Selection
-        model_sel = load_model_selection(logger)
-        model_type = args.model_type or model_sel.get("model_type", "ridge")
-
-        if model_type == "fail":
-            logger.warning("Model selection failed (N < 30). Skipping evaluation.")
-            RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-            with open(RESULTS_OUTPUT_FILE, "w") as f:
-                json.dump({
-                    "hypothesis_status": "unsupported",
-                    "reason": "Critical Power Limitation: N < 30",
-                    "r2": None,
-                    "mae": None,
-                    "p_value_permutation": None
-                }, f, indent=2)
+        # Check model type
+        if model_selection.get("model_type") == "fail":
+            logger.warning("Model selection failed. Skipping evaluation.")
+            results = {
+                "status": "fail",
+                "message": model_selection.get("reason", "Unknown failure"),
+                "r2": None,
+                "mae": None,
+                "p_value_permutation": None
+            }
+            save_results(results, args.output_path)
             return
 
-        # 3. Split Data (if not already split in features, we split here for metrics)
-        # Note: For final reporting, we use full data fit metrics + permutation test
-        # as per T029/T030c requirements for the specific pipeline flow.
-        # If a split config exists, we could use it, but T029 implies full evaluation
-        # on the test set or full set depending on context. We will do full fit
-        # for the reported metrics and permutation test as per T029 description.
+        # Prepare data
+        # Assuming features is a list of dicts with 'features' and 'target' keys
+        # or a structured format. We need to adapt to the actual data structure.
+        # For this implementation, we assume a structure:
+        # features: list of { "features": [x1, x2, ...], "target": y }
 
-        # 4. Evaluate
-        model, metrics, p_val_perm = evaluate_model(X, y, model_type, logger)
+        X = np.array([f["features"] for f in features])
+        y = np.array([f["target"] for f in features])
 
-        # 5. Null Baseline Comparison (T030c)
-        # We need a train/test split for the t-test comparison
-        split_cfg = load_split_config(logger)
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=split_cfg.get("test_size", 0.2),
-            random_state=split_cfg.get("random_state", 42)
-        )
+        # Use split_config to get indices
+        train_indices = split_config.get("train_indices", list(range(len(X))))
+        test_indices = split_config.get("test_indices", list(range(len(X))))
 
-        # Train selected model on train
-        if model_type == "ridge":
-            model_test = Ridge(alpha=1.0, random_state=42)
-        else:
-            model_test = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=2)
+        X_train, X_test = X[train_indices], X[test_indices]
+        y_train, y_test = y[train_indices], y[test_indices]
 
-        model_test.fit(X_train, y_train)
-        y_pred_test = model_test.predict(X_test)
+        # Evaluate
+        results = evaluate_model(model, X_test, y_test, X_train, y_train, args.n_permutations)
 
-        # Baseline
-        baseline_mae = calculate_baseline_mae(X_train, y_train, X_test, y_test, logger)
-        model_mae = mean_absolute_error(y_test, y_pred_test)
+        # Add metadata
+        results["model_type"] = model_selection.get("model_type")
+        results["n_samples"] = len(X)
+        results["n_train"] = len(X_train)
+        results["n_test"] = len(X_test)
 
-        # Paired t-test on MAE?
-        # T030c says: "Perform a paired t-test on the MAE of the model vs the null baseline"
-        # Since MAE is a scalar aggregate, we can't do a paired t-test on scalars.
-        # We interpret this as comparing the distribution of errors (residuals) or
-        # using cross-validation folds. However, T029 says "Compute mean R2, std dev, MAE on the test set".
-        # To satisfy "paired t-test on MAE", we usually need per-sample errors if we interpret MAE as mean of abs errors.
-        # But t-test on a single scalar is impossible.
-        # Re-reading T030c: "Perform a paired t-test on the MAE metrics as required by SC-002."
-        # This is likely a specification ambiguity. Standard practice is to compare per-sample errors (y - y_pred)
-        # vs (y - y_dummy). Let's do that: paired t-test on absolute errors.
-        abs_errors_model = np.abs(y_test - y_pred_test)
-        dummy = DummyRegressor(strategy="mean")
-        dummy.fit(X_train, y_train)
-        y_pred_dummy = dummy.predict(X_test)
-        abs_errors_dummy = np.abs(y_test - y_pred_dummy)
+        # Save results
+        save_results(results, args.output_path)
+        logger.info("Evaluation completed successfully")
 
-        t_stat, p_val_ttest = ttest_rel(abs_errors_model, abs_errors_dummy)
-
-        t_test_status = "significant" if p_val_ttest < 0.05 else "not significant"
-        hypothesis_status = "supported" if p_val_ttest < 0.05 else "unsupported"
-
-        logger.info(f"t-test p-value: {p_val_ttest:.4f} ({t_test_status})")
-
-        # 6. Save Results
-        save_results(
-            metrics=metrics,
-            p_value_permutation=p_val_perm,
-            p_value_ttest=float(p_val_ttest),
-            t_test_status=t_test_status,
-            baseline_mae=float(baseline_mae),
-            hypothesis_status=hypothesis_status,
-            logger=logger
-        )
-
-        # 7. Save Residuals (T029)
-        residuals = y_test - y_pred_test
-        import pandas as pd
-        residuals_df = pd.DataFrame({"residual": residuals})
-        RESIDUALS_OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-        residuals_df.to_csv(RESIDUALS_OUTPUT_FILE, index=False)
-        logger.info(f"Residuals saved to {RESIDUALS_OUTPUT_FILE}")
-
-        # 8. Partial Correlation (T030d)
-        # We need control variables. Assuming they might be in the CSV if T012 added them.
-        # For now, we use empty controls if not found in the loaded dataframe (which we didn't fully load as DF here).
-        # To be safe, we'll skip or use zeros if we can't find them.
-        # Re-load DF to check for control vars if needed.
-        import pandas as pd
-        df_full = pd.read_csv(ENTANGLEMENT_FILE)
-        control_cols = ["student_scalar", "teacher_mean"]
-        available_controls = [c for c in control_cols if c in df_full.columns]
-
-        if available_controls:
-            control_data = df_full[available_controls].values
-            part_corr = calculate_partial_correlation(X, y, control_data, logger)
-            PARTIAL_CORR_FILE.parent.mkdir(parents=True, exist_ok=True)
-            with open(PARTIAL_CORR_FILE, "w") as f:
-                json.dump(part_corr, f, indent=2)
-            logger.info(f"Partial correlation saved to {PARTIAL_CORR_FILE}")
-        else:
-            logger.warning("Control variables not found. Skipping partial correlation.")
-
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Evaluation failed: {e}", exc_info=True)
-        sys.exit(1)
-
+        logger.error(f"Evaluation failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

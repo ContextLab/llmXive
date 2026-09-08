@@ -12,56 +12,54 @@ def setup_logging():
     )
     return logging.getLogger(__name__)
 
-def initialize_empty_artifacts(base_path: Path, logger: logging.Logger):
+def initialize_empty_artifacts(logger):
     """
     Initialize empty output artifacts to prevent file-not-found errors in downstream tasks.
     
     Artifacts created:
-    - data/processed/features.json: Empty list []
-    - results/results.json: Empty object {}
+    - data/processed/features.json: Initialized as an empty list []
+    - results/results.json: Initialized as an empty object {}
     """
-    processed_dir = base_path / "data" / "processed"
-    results_dir = base_path / "results"
-
+    # Define the project root relative to this script's location
+    # The script is in code/, so project root is two levels up
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
+    
+    # Define paths relative to project root
+    features_path = project_root / "data" / "processed" / "features.json"
+    results_path = project_root / "results" / "results.json"
+    
     # Ensure directories exist
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    results_dir.mkdir(parents=True, exist_ok=True)
-
+    features_path.parent.mkdir(parents=True, exist_ok=True)
+    results_path.parent.mkdir(parents=True, exist_ok=True)
+    
     # Initialize features.json with empty list
-    features_path = processed_dir / "features.json"
+    logger.info(f"Initializing {features_path} with empty list []")
     with open(features_path, 'w', encoding='utf-8') as f:
-        json.dump([], f)
-    logger.info(f"Initialized {features_path} with empty list []")
-
+        json.dump([], f, indent=2)
+    
     # Initialize results.json with empty object
-    results_path = results_dir / "results.json"
+    logger.info(f"Initializing {results_path} with empty object {{}}")
     with open(results_path, 'w', encoding='utf-8') as f:
-        json.dump({}, f)
-    logger.info(f"Initialized {results_path} with empty object {{}}")
+        json.dump({}, f, indent=2)
+    
+    logger.info("Output artifacts initialized successfully.")
+    return True
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Initialize empty output artifacts for the pipeline."
     )
-    parser.add_argument(
-        "--base-path",
-        type=str,
-        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala",
-        help="Base path to the project directory."
-    )
     return parser.parse_args()
 
 def main():
-    args = parse_args()
     logger = setup_logging()
-    base_path = Path(args.base_path)
-
-    if not base_path.exists():
-        logger.error(f"Base path does not exist: {base_path}")
-        sys.exit(1)
-
-    initialize_empty_artifacts(base_path, logger)
-    logger.info("Artifact initialization completed successfully.")
+    try:
+        initialize_empty_artifacts(logger)
+        return 0
+    except Exception as e:
+        logger.error(f"Failed to initialize artifacts: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

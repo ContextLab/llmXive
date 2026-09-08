@@ -1,29 +1,35 @@
 schema_version: "1.0"
-description: Output schema for processed features and results
-fields:
-  - name: sample_id
-    type: string
-  - name: variance
-    type: float
-  - name: entropy
-    type: float
-  - name: skewness
-    type: float
-  - name: kurtosis
-    type: float
-  - name: mahalanobis_distance
-    type: float
-  - name: fidelity_loss
-    type: float
-  - name: dominant_eigenvalue
-    type: float
-  - name: covariance_matrix
-    type: object
-  - name: features
-    type: object
-    properties:
-      variance: float
-      entropy: float
-      skewness: float
-      kurtosis: float
-      mahalanobis_distance: float
+description: "Schema for data/processed/features.json containing per-sample entanglement metrics and target variable"
+type: array
+items:
+  type: object
+  properties:
+    sample_id:
+      type: string
+      description: "Unique identifier for the data sample"
+    variance:
+      type: number
+      description: "Variance of the teacher scores across the four rubric dimensions"
+    entropy:
+      type: number
+      description: "Entropy of the teacher score distribution"
+    skewness:
+      type: number
+      description: "Skewness of the teacher score distribution"
+    kurtosis:
+      type: number
+      description: "Kurtosis of the teacher score distribution"
+    mahalanobis_distance:
+      type: number
+      description: "Mahalanobis distance of the sample's teacher score vector from the global mean"
+    fidelity_loss:
+      type: number
+      description: "Mean Absolute Error between student_scalar and human_annotations for the primary_dimension"
+  required:
+    - sample_id
+    - variance
+    - entropy
+    - skewness
+    - kurtosis
+    - mahalanobis_distance
+    - fidelity_loss

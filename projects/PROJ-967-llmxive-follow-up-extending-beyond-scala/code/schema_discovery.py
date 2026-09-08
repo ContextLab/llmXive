@@ -1,351 +1,182 @@
 import argparse
+import json
 import logging
 import sys
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
-import pandas as pd
 import yaml
+import pandas as pd
 
-# Add project root to path if running as script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Setup logging
+def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
+    logger = logging.getLogger("schema_discovery")
+    logger.setLevel(log_level)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+    logger.addHandler(handler)
+    return logger
 
-from code.setup_directories import setup_data_directories
+logger = setup_logging()
 
-logger = logging.getLogger(__name__)
-
-# Constants
-RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw"
-PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed"
-CONTRACTS_PATH = PROJECT_ROOT / "specs" / "001-llmxive-follow-up-extending-beyond-scala" / "contracts"
-SCHEMA_FILE = CONTRACTS_PATH / "dataset.schema.yaml"
-OUTPUT_SCHEMA_FILE = CONTRACTS_PATH / "output.schema.yaml"
-
-# Expected dimensions for teacher scores and human annotations
-RUBRIC_DIMENSIONS = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-
-
-def setup_logging():
-    """Configure logging for the script."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
-
-
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema file."""
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    with open(schema_path, "r") as f:
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load the provisional schema from a YAML file."""
+    logger.info(f"Loading schema from {schema_path}")
+    with open(schema_path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-
-def save_schema(schema: Dict[str, Any], schema_path: Path):
-    """Save a schema to a YAML file."""
-    schema_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(schema_path, "w") as f:
+def save_schema(schema: Dict[str, Any], schema_path: str) -> None:
+    """Save the updated schema to a YAML file."""
+    logger.info(f"Saving schema to {schema_path}")
+    with open(schema_path, "w", encoding="utf-8") as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
 
-
-def load_dataset(file_path: Path) -> pd.DataFrame:
-    """Load the dataset from a parquet file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {file_path}")
-    
-    # Try to load as parquet first
-    try:
-        df = pd.read_parquet(file_path)
-        return df
-    except Exception as e:
-        logger.warning(f"Failed to load as parquet: {e}")
-    
-    # Try CSV as fallback
-    try:
-        df = pd.read_csv(file_path)
-        return df
-    except Exception as e:
-        raise RuntimeError(f"Failed to load dataset from {file_path}: {e}")
-
+def load_dataset(data_path: str) -> pd.DataFrame:
+    """Load the dataset from a Parquet file."""
+    logger.info(f"Loading dataset from {data_path}")
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Dataset file not found: {data_path}")
+    return pd.read_parquet(data_path)
 
 def discover_schema(df: pd.DataFrame) -> Dict[str, Any]:
-    """Discover the actual schema from the dataframe."""
+    """Discover the schema of the loaded DataFrame."""
     fields = []
-    
     for col in df.columns:
+        dtype = str(df[col].dtype)
         field_info = {
             "name": col,
-            "type": str(df[col].dtype),
-            "nullable": df[col].isna().any(),
-            "sample_values": df[col].dropna().head(3).tolist() if not df[col].isna().all() else []
+            "type": dtype,
         }
-        
-        # Detect nested structures
+        # Handle nested structures if present
         if df[col].apply(lambda x: isinstance(x, dict)).any():
             field_info["type"] = "object"
-            # Try to extract properties if it's a dict
-            sample = df[col].dropna().iloc[0] if not df[col].isna().all() else {}
+            # Attempt to extract properties if it's a dict column
+            sample = df[col].dropna().iloc[0]
             if isinstance(sample, dict):
-                field_info["properties"] = list(sample.keys())
-        
+                props = {}
+                for k, v in sample.items():
+                    props[k] = type(v).__name__
+                field_info["properties"] = props
         fields.append(field_info)
     
     return {
         "schema_version": "1.0",
-        "discovered_at": pd.Timestamp.now().isoformat(),
-        "source_file": str(file_path),
-        "row_count": len(df),
         "fields": fields
     }
 
+def validate_schema(discovered: Dict[str, Any], provisional: Dict[str, Any]) -> List[str]:
+    """Compare discovered schema against provisional schema and return discrepancies."""
+    discrepancies = []
+    discovered_fields = {f["name"]: f for f in discovered["fields"]}
+    provisional_fields = {f["name"]: f for f in provisional["fields"]}
 
-def validate_schema(discovered: Dict[str, Any], template: Dict[str, Any]) -> Dict[str, Any]:
-    """Validate discovered schema against the template."""
-    validation_result = {
-        "is_valid": True,
-        "discrepancies": [],
-        "missing_fields": [],
-        "extra_fields": [],
-        "type_mismatches": []
-    }
-    
-    template_fields = {f["name"]: f for f in template.get("fields", [])}
-    discovered_fields = {f["name"]: f for f in discovered.get("fields", [])}
-    
     # Check for missing required fields
-    for name, template_field in template_fields.items():
+    for name, prov_field in provisional_fields.items():
         if name not in discovered_fields:
-            validation_result["is_valid"] = False
-            validation_result["missing_fields"].append(name)
-            validation_result["discrepancies"].append(f"Missing required field: {name}")
-        
-        elif template_field.get("type") and template_field["type"] != "any":
-            # Check type compatibility (simplified)
-            discovered_type = discovered_fields[name].get("type", "")
-            template_type = template_field["type"]
+            discrepancies.append(f"Missing required field: {name}")
+        else:
+            disc_field = discovered_fields[name]
+            # Type check (simple string comparison for now)
+            if disc_field["type"] != prov_field["type"]:
+                discrepancies.append(f"Type mismatch for {name}: discovered '{disc_field['type']}', expected '{prov_field['type']}'")
             
-            # Handle object types with properties
-            if template_type == "object" and template_field.get("properties"):
-                if discovered_fields[name].get("type") != "object":
-                    validation_result["is_valid"] = False
-                    validation_result["type_mismatches"].append({
-                        "field": name,
-                        "expected": template_type,
-                        "found": discovered_type
-                    })
-                else:
-                    # Check properties
-                    template_props = set(template_field["properties"])
-                    discovered_props = set(discovered_fields[name].get("properties", []))
-                    missing_props = template_props - discovered_props
-                    if missing_props:
-                        validation_result["is_valid"] = False
-                        validation_result["discrepancies"].append(
-                            f"Field '{name}' missing properties: {missing_props}"
-                        )
-            
-            elif discovered_type != template_type:
-                # Allow some flexibility for numeric types
-                numeric_types = {"int64", "float64", "int32", "float32", "int", "float"}
-                if not (template_type in numeric_types and discovered_type in numeric_types):
-                    validation_result["is_valid"] = False
-                    validation_result["type_mismatches"].append({
-                        "field": name,
-                        "expected": template_type,
-                        "found": discovered_type
-                    })
-    
-    # Check for extra fields not in template
-    extra_fields = set(discovered_fields.keys()) - set(template_fields.keys())
-    if extra_fields:
-        validation_result["extra_fields"] = list(extra_fields)
-        logger.info(f"Extra fields found (not in template): {extra_fields}")
-    
-    return validation_result
+            # Check properties if object type
+            if prov_field.get("properties"):
+                disc_props = disc_field.get("properties", {})
+                for prop_name in prov_field["properties"]:
+                    if prop_name not in disc_props:
+                        discrepancies.append(f"Missing property '{prop_name}' in object field '{name}'")
 
+    # Check for extra fields (optional, but good to log)
+    for name in discovered_fields:
+        if name not in provisional_fields:
+            logger.warning(f"Extra field found in dataset: {name}")
 
-def update_contract(discovered_schema: Dict[str, Any], validation_result: Dict[str, Any], target_path: Path):
-    """Update the contract schema file with the discovered and validated schema."""
-    # Create the final schema based on discovered fields
-    final_schema = {
-        "schema_version": "1.0",
-        "fields": []
-    }
-    
-    # Add discovered fields, mapping to the template structure where possible
-    template_fields = {f["name"]: f for f in load_schema(SCHEMA_FILE).get("fields", [])}
-    
-    for field in discovered_schema["fields"]:
-        field_name = field["name"]
-        final_field = {
-            "name": field_name,
-            "type": field.get("type", "string")
-        }
-        
-        # Add properties if it's an object type
-        if field.get("type") == "object" and field.get("properties"):
-            final_field["properties"] = {}
-            for prop in field["properties"]:
-                final_field["properties"][prop] = "float"  # Default to float for scores
-        
-        final_schema["fields"].append(final_field)
-    
-    # Save the updated schema
-    save_schema(final_schema, target_path)
-    logger.info(f"Updated schema saved to {target_path}")
+    return discrepancies
 
+def update_contract(discovered: Dict[str, Any], contract_path: str) -> None:
+    """Overwrite the contract file with the discovered schema."""
+    logger.info(f"Overwriting contract at {contract_path} with discovered schema.")
+    save_schema(discovered, contract_path)
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Schema Discovery and Validation")
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Schema Discovery and Validation Tool")
     parser.add_argument(
-        "--input-file",
+        "--input-data",
         type=str,
-        default=None,
-        help="Path to the input dataset file (parquet or csv). Defaults to auto-detection."
+        required=True,
+        help="Path to the input Parquet file (output of T037 or T037b)"
     )
     parser.add_argument(
-        "--template-schema",
+        "--contract-path",
         type=str,
-        default=str(SCHEMA_FILE),
-        help="Path to the template schema YAML file."
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/contracts/dataset.schema.yaml",
+        help="Path to the provisional schema contract file"
     )
     parser.add_argument(
-        "--output-schema",
+        "--output-path",
         type=str,
-        default=str(SCHEMA_FILE),
-        help="Path to save the updated schema."
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging."
+        help="Optional path to save the final discovered schema (if different from contract)"
     )
     return parser.parse_args()
 
-
-def main():
+def main() -> None:
     args = parse_args()
     
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-    
-    setup_logging()
-    logger.info("Starting schema discovery and validation...")
-    
-    # Setup directories
-    setup_data_directories()
-    
-    # Determine input file
-    input_file = Path(args.input_file) if args.input_file else None
-    
-    if not input_file:
-        # Auto-detect: check for z_reward.parquet first, then synthetic
-        potential_files = [
-            RAW_DATA_PATH / "z_reward.parquet",
-            RAW_DATA_PATH / "z_reward_synthetic.parquet",
-            RAW_DATA_PATH / "mock_z_reward.parquet"
-        ]
-        for candidate in potential_files:
-            if candidate.exists():
-                input_file = candidate
-                logger.info(f"Auto-detected input file: {input_file}")
-                break
-        
-        if not input_file:
-            raise FileNotFoundError(
-                "No dataset file found. Please provide --input-file or ensure one of the "
-                "expected files exists in data/raw/."
-            )
-    
-    logger.info(f"Loading dataset from: {input_file}")
-    
-    # Load dataset
+    # 1. Load Provisional Schema
     try:
-        df = load_dataset(input_file)
-        logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns")
-        logger.info(f"Columns: {list(df.columns)}")
+        provisional_schema = load_schema(args.contract_path)
+    except FileNotFoundError:
+        logger.error(f"Provisional schema not found at {args.contract_path}. Cannot proceed.")
+        sys.exit(1)
+
+    # 2. Load Dataset
+    try:
+        df = load_dataset(args.input_data)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
     except Exception as e:
         logger.error(f"Failed to load dataset: {e}")
         sys.exit(1)
-    
-    # Discover schema
-    logger.info("Discovering schema...")
-    discovered_schema = discover_schema(df)
-    
-    # Load template schema
-    template_schema_path = Path(args.template_schema)
-    if not template_schema_path.exists():
-        logger.warning(f"Template schema not found at {template_schema_path}, creating from scratch")
-        template_schema = {"schema_version": "1.0", "fields": []}
-    else:
-        template_schema = load_schema(template_schema_path)
-    
-    # Validate against template
-    logger.info("Validating schema against template...")
-    validation_result = validate_schema(discovered_schema, template_schema)
-    
-    # Log validation results
-    if validation_result["is_valid"]:
-        logger.info("✓ Schema validation PASSED")
-    else:
-        logger.warning("✗ Schema validation FAILED")
-        logger.warning(f"Missing fields: {validation_result['missing_fields']}")
-        logger.warning(f"Type mismatches: {validation_result['type_mismatches']}")
-        logger.warning(f"Discrepancies: {validation_result['discrepancies']}")
-    
-    # Check for critical mismatches (missing rubric dimensions)
-    critical_missing = []
-    for dim in RUBRIC_DIMENSIONS:
-        # Check if dimension exists in teacher_scores or human_annotations
-        found = False
-        for field in discovered_schema["fields"]:
-            if field["name"] in ["teacher_scores", "human_annotations"]:
-                if field.get("properties") and dim in field.get("properties", []):
-                    found = True
-                    break
-            elif field["name"] == dim:
-                found = True
-                break
-        
-        if not found:
-            critical_missing.append(dim)
-    
-    if critical_missing:
-        error_msg = f"CRITICAL: Missing rubric dimensions: {critical_missing}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-    
-    # Update contract if there are discrepancies
-    output_schema_path = Path(args.output_schema)
-    if validation_result["discrepancies"] or validation_result["missing_fields"]:
-        logger.info(f"Discrepancies found. Updating contract schema at {output_schema_path}")
-        update_contract(discovered_schema, validation_result, output_schema_path)
-    else:
-        logger.info("No discrepancies found. Contract schema remains unchanged.")
-    
-    # Save discovery report
-    report = {
-        "input_file": str(input_file),
-        "discovered_schema": discovered_schema,
-        "validation_result": validation_result,
-        "status": "valid" if validation_result["is_valid"] else "invalid"
-    }
-    
-    report_path = PROJECT_ROOT / "results" / "schema_discovery_report.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(report_path, "w") as f:
-        import json
-        json.dump(report, f, indent=2, default=str)
-    
-    logger.info(f"Schema discovery report saved to: {report_path}")
-    logger.info("Schema discovery and validation completed.")
-    
-    return 0 if validation_result["is_valid"] else 1
 
+    # 3. Discover Schema
+    discovered_schema = discover_schema(df)
+    logger.info(f"Discovered {len(discovered_schema['fields'])} fields.")
+
+    # 4. Validate
+    discrepancies = validate_schema(discovered_schema, provisional_schema)
+    
+    if discrepancies:
+        logger.warning("Schema discrepancies found:")
+        for d in discrepancies:
+            logger.warning(f"  - {d}")
+        
+        # Check for critical mismatches (missing rubric dimensions)
+        critical_fields = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+        # We need to check if these are inside teacher_scores or human_annotations
+        # Based on T001d, they are properties of 'teacher_scores' object.
+        # If the object exists but properties are missing, it's critical.
+        
+        teacher_scores_field = next((f for f in discovered_schema["fields"] if f["name"] == "teacher_scores"), None)
+        if teacher_scores_field:
+            props = teacher_scores_field.get("properties", {})
+            missing_dims = [dim for dim in critical_fields if dim not in props]
+            if missing_dims:
+                logger.critical(f"Critical mismatch: Missing rubric dimensions in teacher_scores: {missing_dims}")
+                raise RuntimeError(f"Critical Schema Mismatch: Missing dimensions {missing_dims}")
+        else:
+            logger.critical("Critical mismatch: Missing 'teacher_scores' field entirely.")
+            raise RuntimeError("Critical Schema Mismatch: Missing 'teacher_scores' field.")
+
+        # If we have discrepancies but no critical errors, we proceed to update.
+        logger.info("Overwriting contract with discovered schema to resolve discrepancies.")
+        target_path = args.output_path if args.output_path else args.contract_path
+        update_contract(discovered_schema, target_path)
+    else:
+        logger.info("Schema validation successful. No discrepancies found.")
+
+    logger.info("Schema Discovery and Validation completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

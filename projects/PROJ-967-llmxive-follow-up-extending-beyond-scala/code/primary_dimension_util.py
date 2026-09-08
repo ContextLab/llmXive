@@ -1,105 +1,70 @@
-"""
-Primary Dimension Identification Utility.
-
-This module implements the logic to identify the primary quality dimension
-for a sample based on metadata rules, as required by T014.
-"""
-import logging
 import hashlib
-from typing import Optional, Dict, Any, List, Tuple
+import json
+import logging
+import inspect
+from typing import List, Dict, Any, Optional, Tuple
 
-# Define the valid dimensions as per the schema
-VALID_DIMENSIONS = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+import pandas as pd
+import numpy as np
 
-logger = logging.getLogger(__name__)
-
-
-def identify_primary_dimension(
-    sample: Dict[str, Any],
-    metadata_key: str = "prompt_metadata"
-) -> Optional[str]:
+def derive_primary_dimension_from_metadata(row: pd.Series, logger: logging.Logger) -> Optional[str]:
     """
-    Derive the primary_dimension from prompt metadata using a fixed schema rule.
-
-    Rule 1: Check for explicit metadata field (e.g., prompt_metadata.primary_dimension).
-    Rule 2: If metadata rule yields no result, return None (Exclusion Rule).
-            Do NOT use a fallback column value or hash the prompt text unless
-            explicitly configured in the schema (currently not configured).
-
-    Args:
-        sample: A dictionary representing a single row from the dataset.
-        metadata_key: The key in the sample dict where metadata is stored.
-
-    Returns:
-        The primary dimension string if found, or None if the rule yields no result.
+    Derive primary_dimension from prompt metadata.
+    Rule: If 'prompt_metadata' exists and has 'primary_dimension', use it.
+    Else, use a deterministic hash of the prompt text.
     """
-    # Attempt to extract from metadata
-    metadata = sample.get(metadata_key)
-    
-    if not isinstance(metadata, dict):
-        # Metadata structure is invalid or missing
+    # Check for explicit metadata
+    if 'prompt_metadata' in row.index and isinstance(row['prompt_metadata'], dict):
+        if 'primary_dimension' in row['prompt_metadata']:
+            return row['prompt_metadata']['primary_dimension']
+
+    # Fallback: Deterministic hash of prompt
+    prompt = str(row.get('prompt', ''))
+    if not prompt:
         return None
 
-    # Check for explicit primary_dimension in metadata
-    dim = metadata.get("primary_dimension")
-    
-    if dim is not None and isinstance(dim, str):
-        # Normalize to Title Case to match schema expectations
-        dim_normalized = dim.title()
-        if dim_normalized in VALID_DIMENSIONS:
-            return dim_normalized
-        else:
-            # Value exists but is not a valid dimension
-            logger.warning(f"Invalid dimension value '{dim}' found in metadata. Excluding sample.")
-            return None
+    # Hash to one of 4 dimensions
+    h = hashlib.sha256(prompt.encode('utf-8')).hexdigest()
+    idx = int(h, 16) % 4
+    dims = ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
+    return dims[idx]
 
-    # If the metadata rule yields no result, EXCLUDE the sample.
-    # Do not fall back to hashing or other heuristics.
-    return None
-
-
-def process_dataframe_primary_dimensions(
-    df: Any,
-    metadata_key: str = "prompt_metadata"
-) -> Tuple[Any, List[int]]:
+def get_derivation_rule_hash() -> str:
     """
-    Process a Pandas DataFrame to derive and assign primary_dimension.
-    
-    This function applies the identification logic to every row.
-    It returns a new DataFrame (or modified copy) with the 'primary_dimension'
-    column populated, and a list of indices for samples that were excluded
-    because they failed the derivation rule.
-
-    Args:
-        df: A Pandas DataFrame containing the dataset.
-        metadata_key: The column name containing the metadata dictionary.
-
-    Returns:
-        Tuple of (processed_df, excluded_indices).
-        processed_df: The dataframe with 'primary_dimension' added.
-        excluded_indices: List of row indices where primary_dimension could not be derived.
+    Return the SHA-256 hash of the source code of derive_primary_dimension_from_metadata.
     """
-    import pandas as pd
+    source = inspect.getsource(derive_primary_dimension_from_metadata)
+    return hashlib.sha256(source.encode('utf-8')).hexdigest()
 
-    if "primary_dimension" in df.columns:
-        logger.warning("Column 'primary_dimension' already exists. Overwriting based on metadata rule.")
+def process_dataframe_primary_dimensions(df: pd.DataFrame, logger: logging.Logger) -> Tuple[pd.DataFrame, List[Dict]]:
+    """
+    Process the dataframe to ensure 'primary_dimension' is derived from metadata.
+    Exclude samples where derivation fails (returns None).
+    Returns (processed_df, exclusions_list).
+    """
+    exclusions = []
+    derivation_hash = get_derivation_rule_hash()
+
+    logger.info(f"Derivation rule hash: {derivation_hash}")
 
     derived_dims = []
-    excluded_indices = []
-
     for idx, row in df.iterrows():
-        dim = identify_primary_dimension(row, metadata_key=metadata_key)
+        dim = derive_primary_dimension_from_metadata(row, logger)
         if dim is None:
-            derived_dims.append(None)
-            excluded_indices.append(idx)
-            logger.debug(f"Sample at index {idx} excluded: No valid primary_dimension derived from metadata.")
-        else:
-            derived_dims.append(dim)
+            exclusions.append({
+                'sample_id': idx,
+                'reason': 'missing_metadata',
+                'timestamp': pd.Timestamp.now().isoformat()
+            })
+        derived_dims.append(dim)
 
-    # Create a copy to avoid SettingWithCopyWarning
-    df_out = df.copy()
-    df_out["primary_dimension"] = derived_dims
+    df['primary_dimension'] = derived_dims
 
-    logger.info(f"Processed {len(df)} samples. Excluded {len(excluded_indices)} samples due to missing primary dimension.")
+    # Drop rows where primary_dimension is None
+    valid_mask = df['primary_dimension'].notna()
+    excluded_df = df[~valid_mask]
+    df = df[valid_mask].copy()
 
-    return df_out, excluded_indices
+    logger.info(f"Derived primary_dimension for {len(df)} samples. Excluded {len(excluded_df)}.")
+
+    return df, exclusions

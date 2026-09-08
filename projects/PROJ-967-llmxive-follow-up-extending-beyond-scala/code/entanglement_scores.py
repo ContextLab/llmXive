@@ -1,3 +1,9 @@
+"""
+Entanglement Score Calculation Module (Task T022a)
+
+Implements per-sample entanglement scores (variance, entropy, skewness, kurtosis)
+and Mahalanobis distance using the global covariance matrix from T022b-filtered.
+"""
 import argparse
 import json
 import logging
@@ -7,197 +13,237 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy import stats
 
-def setup_logging(log_level=logging.INFO):
-    """Configure logging for the entanglement scores module."""
+# Import shared utilities from existing API surface
+from global_covariance import load_cleaned_data, extract_teacher_scores_matrix
+from features import calculate_entropy
+
+# Project root relative to code/
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+RESULTS = PROJECT_ROOT / "results"
+
+
+def setup_logging():
     logging.basicConfig(
-        level=log_level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)]
     )
     return logging.getLogger(__name__)
 
-def calculate_entropy(probs):
-    """
-    Calculate Shannon entropy for a probability distribution.
-    Handles zero probabilities by ignoring them (0 * log(0) = 0).
 
+def load_dominant_eigenvalue(logger):
+    """Load the global dominant eigenvalue from T022b-filtered."""
+    eigenvalue_path = RESULTS / "dominant_eigenvalue.json"
+    if not eigenvalue_path.exists():
+        logger.error(f"Missing dominant eigenvalue file: {eigenvalue_path}. Run T022b-filtered first.")
+        raise FileNotFoundError(f"Missing dominant eigenvalue file: {eigenvalue_path}")
+    
+    with open(eigenvalue_path, "r") as f:
+        data = json.load(f)
+    
+    if "dominant_eigenvalue" not in data:
+        logger.error("dominant_eigenvalue.json missing 'dominant_eigenvalue' key.")
+        raise KeyError("dominant_eigenvalue.json missing 'dominant_eigenvalue' key.")
+    
+    return data["dominant_eigenvalue"]
+
+
+def load_covariance_matrix(logger):
+    """Load the global covariance matrix from T022b-filtered for Mahalanobis distance."""
+    cov_path = RESULTS / "covariance_matrix.json"
+    if not cov_path.exists():
+        logger.error(f"Missing covariance matrix file: {cov_path}. Run T022b-filtered first.")
+        raise FileNotFoundError(f"Missing covariance matrix file: {cov_path}")
+    
+    with open(cov_path, "r") as f:
+        data = json.load(f)
+    
+    if "covariance_matrix" not in data:
+        logger.error("covariance_matrix.json missing 'covariance_matrix' key.")
+        raise KeyError("covariance_matrix.json missing 'covariance_matrix' key.")
+    
+    return np.array(data["covariance_matrix"])
+
+
+def compute_per_sample_stats(df, teacher_matrix, logger):
+    """
+    Compute per-sample variance, entropy, skewness, and kurtosis.
+    
     Args:
-        probs: 1D array of probabilities (must sum to 1).
-
+        df: DataFrame with teacher scores columns.
+        teacher_matrix: N x 4 numpy array of teacher scores.
+        logger: Logger instance.
+        
     Returns:
-        float: Shannon entropy.
+        Dictionary of per-sample stats arrays.
     """
-    # Filter out zeros to avoid log(0)
-    non_zero_probs = probs[probs > 0]
-    if len(non_zero_probs) == 0:
-        return 0.0
-    return -np.sum(non_zero_probs * np.log2(non_zero_probs))
-
-def compute_per_sample_stats(teacher_scores):
-    """
-    Compute per-sample entanglement statistics: Variance, Entropy, Skewness, Kurtosis.
-
-    Args:
-        teacher_scores: 1D numpy array of 4 teacher scores (Alignment, Realism, Aesthetics, Plausibility).
-
-    Returns:
-        dict: Dictionary containing variance, entropy, skewness, kurtosis.
-    """
-    if teacher_scores.size == 0:
-        return {"variance": 0.0, "entropy": 0.0, "skewness": 0.0, "kurtosis": 0.0}
-
-    # Variance
-    variance = np.var(teacher_scores)
-
-    # Entropy: Normalize scores to probabilities
-    # Handle negative scores or zeros by shifting or adding small epsilon if needed.
-    # However, scores are usually positive in this context. If not, use softmax or absolute.
-    # Given the context of "scores", we assume they are positive or can be normalized.
-    # If they are raw logits, softmax is appropriate. If they are already scores (e.g., 1-10),
-    # we normalize by sum.
-    scores = teacher_scores
-    score_sum = np.sum(scores)
-    if score_sum == 0:
-        # If sum is zero, probabilities are undefined. Set entropy to 0.
-        entropy = 0.0
-    else:
-        probs = scores / score_sum
-        entropy = calculate_entropy(probs)
-
-    # Skewness and Kurtosis
-    # Use scipy.stats for robust calculation, but fallback to numpy if not available
-    try:
-        from scipy.stats import skew, kurtosis
-        skewness = skew(teacher_scores)
-        kurtosis_val = kurtosis(teacher_scores)
-    except ImportError:
-        # Fallback manual calculation
-        n = len(teacher_scores)
-        mean = np.mean(teacher_scores)
-        std = np.std(teacher_scores)
-        if std == 0:
-            skewness = 0.0
-            kurtosis_val = 0.0
-        else:
-            skewness = np.mean(((teacher_scores - mean) / std) ** 3)
-            kurtosis_val = np.mean(((teacher_scores - mean) / std) ** 4) - 3
-
+    n_samples = teacher_matrix.shape[0]
+    n_dims = teacher_matrix.shape[1]
+    
+    logger.info(f"Computing per-sample stats for {n_samples} samples, {n_dims} dimensions.")
+    
+    # Variance (along dimensions for each sample)
+    # teacher_matrix shape: (n_samples, n_dims) -> axis=1
+    variance = np.var(teacher_matrix, axis=1, ddof=0)
+    
+    # Entropy (using scipy.stats.entropy, normalizing to probability distribution)
+    # We treat the 4 teacher scores as a distribution. To handle negative scores or zeros,
+    # we shift them to be positive or use a softmin/softmax if necessary.
+    # However, typically entropy on raw scores isn't standard. 
+    # Given the task description "Entropy... for teacher distributions", 
+    # we assume the scores represent a distribution or we normalize them.
+    # Strategy: Shift to positive, normalize to sum=1, then compute entropy.
+    # If scores are negative, adding a constant to make them positive.
+    min_vals = np.min(teacher_matrix, axis=1, keepdims=True)
+    shifted_matrix = teacher_matrix - min_vals + 1e-9  # Ensure positive
+    normalized_matrix = shifted_matrix / np.sum(shifted_matrix, axis=1, keepdims=True)
+    
+    # Avoid log(0)
+    normalized_matrix = np.clip(normalized_matrix, 1e-10, 1.0)
+    entropy = stats.entropy(normalized_matrix, axis=1)
+    
+    # Skewness (Fisher's definition, axis=1)
+    skewness = stats.skew(teacher_matrix, axis=1, nan_policy='omit')
+    
+    # Kurtosis (Fisher's definition, axis=1)
+    kurtosis = stats.kurtosis(teacher_matrix, axis=1, nan_policy='omit')
+    
     return {
-        "variance": float(variance),
-        "entropy": float(entropy),
-        "skewness": float(skewness),
-        "kurtosis": float(kurtosis_val),
+        "variance": variance,
+        "entropy": entropy,
+        "skewness": skewness,
+        "kurtosis": kurtosis
     }
 
-def load_cleaned_data(input_path):
+
+def compute_mahalanobis_distance(teacher_matrix, cov_matrix, logger):
     """
-    Load the cleaned dataset from parquet.
-
-    Args:
-        input_path: Path to the cleaned data parquet file.
-
-    Returns:
-        pd.DataFrame: Loaded dataframe.
+    Compute Mahalanobis distance for each sample using the global covariance matrix.
+    
+    D_M(x) = sqrt((x - mu)^T * Sigma^-1 * (x - mu))
     """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Cleaned data file not found: {input_path}")
-    return pd.read_parquet(input_path)
+    n_samples = teacher_matrix.shape[0]
+    
+    # Compute global mean
+    mu = np.mean(teacher_matrix, axis=0)
+    
+    # Use pseudo-inverse for singular matrices
+    try:
+        cov_inv = np.linalg.pinv(cov_matrix, rcond=1e-15)
+    except np.linalg.LinAlgError as e:
+        logger.warning(f"Could not invert covariance matrix, using pseudo-inverse: {e}")
+        cov_inv = np.linalg.pinv(cov_matrix, rcond=1e-15)
+    
+    diff = teacher_matrix - mu
+    
+    # (x - mu)^T * Sigma^-1 * (x - mu)
+    # diff shape: (n_samples, 4)
+    # cov_inv shape: (4, 4)
+    # result shape: (n_samples,)
+    mahal_sq = np.einsum('ij,jk,ik->i', diff, cov_inv, diff)
+    
+    # Ensure non-negative due to numerical errors
+    mahal_sq = np.maximum(mahal_sq, 0.0)
+    mahalanobis = np.sqrt(mahal_sq)
+    
+    return mahalanobis
 
-def extract_teacher_scores_matrix(df, dimensions=["Alignment", "Realism", "Aesthetics", "Plausibility"]):
+
+def integrate_features(df, stats_dict, mahalanobis, logger):
     """
-    Extract the 4-dimensional teacher score vector for each sample.
-
-    Args:
-        df: DataFrame containing the data.
-        dimensions: List of column names for teacher scores.
-
-    Returns:
-        np.ndarray: N x 4 matrix of teacher scores.
+    Integrate computed features into the DataFrame.
     """
-    # Ensure columns exist
-    missing_cols = [col for col in dimensions if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing teacher score columns: {missing_cols}")
+    df["variance"] = stats_dict["variance"]
+    df["entropy"] = stats_dict["entropy"]
+    df["skewness"] = stats_dict["skewness"]
+    df["kurtosis"] = stats_dict["kurtosis"]
+    df["mahalanobis_distance"] = mahalanobis
+    
+    logger.info("Features integrated into DataFrame.")
+    return df
 
-    return df[dimensions].values.astype(float)
 
-def integrate_features(df, stats_list, output_path):
-    """
-    Append calculated stats to the dataframe and write to CSV.
+def save_features(df, output_path, logger):
+    """Save features to JSON."""
+    # Select relevant columns
+    features_df = df[["variance", "entropy", "skewness", "kurtosis", "mahalanobis_distance"]]
+    
+    # Convert to list of dicts
+    records = features_df.to_dict(orient="records")
+    
+    with open(output_path, "w") as f:
+        json.dump(records, f, indent=2)
+    
+    logger.info(f"Saved features to {output_path}")
 
-    Args:
-        df: Original dataframe.
-        stats_list: List of dictionaries containing per-sample stats.
-        output_path: Path to write the output CSV.
-    """
-    # Create a DataFrame from stats
-    stats_df = pd.DataFrame(stats_list)
-
-    # Ensure index alignment if stats_df has same length as df
-    if len(stats_df) != len(df):
-        logging.warning(f"Stats length ({len(stats_df)}) does not match dataframe length ({len(df)}). Resetting index.")
-        stats_df = stats_df.reset_index(drop=True)
-        df = df.reset_index(drop=True)
-
-    # Concatenate
-    result_df = pd.concat([df, stats_df], axis=1)
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Write to CSV
-    result_df.to_csv(output_path, index=False)
-    logging.info(f"Entanglement scores written to {output_path}")
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Compute per-sample entanglement scores.")
     parser.add_argument(
-        "--input",
-        type=str,
-        default="data/processed/cleaned_data.parquet",
-        help="Path to the cleaned data parquet file.",
+        "--input", 
+        type=str, 
+        default=str(DATA_PROCESSED / "cleaned_data.parquet"),
+        help="Path to cleaned_data.parquet"
     )
     parser.add_argument(
-        "--output",
-        type=str,
-        default="data/processed/entanglement_scores.csv",
-        help="Path to write the output CSV.",
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Logging level.",
+        "--output", 
+        type=str, 
+        default=str(DATA_PROCESSED / "features.json"),
+        help="Path to output features.json"
     )
     return parser.parse_args()
 
+
 def main():
+    logger = setup_logging()
     args = parse_args()
-    logger = setup_logging(getattr(logging, args.log_level))
-
+    
+    logger.info("Starting T022a: Per-Sample Entanglement Score Calculation")
+    
+    # 1. Load cleaned data
     logger.info(f"Loading cleaned data from {args.input}")
-    df = load_cleaned_data(args.input)
-
-    logger.info("Extracting teacher scores matrix")
-    try:
-        teacher_matrix = extract_teacher_scores_matrix(df)
-    except ValueError as e:
-        logger.error(str(e))
+    df = load_cleaned_data(args.input, logger)
+    
+    if df is None or df.empty:
+        logger.error("Cleaned data is empty or None. Cannot compute features.")
         sys.exit(1)
+    
+    # 2. Extract teacher scores matrix
+    logger.info("Extracting teacher scores matrix.")
+    teacher_matrix = extract_teacher_scores_matrix(df, logger)
+    
+    if teacher_matrix is None:
+        logger.error("Failed to extract teacher scores matrix.")
+        sys.exit(1)
+    
+    # 3. Load global covariance matrix and eigenvalue
+    logger.info("Loading global covariance matrix and eigenvalue.")
+    cov_matrix = load_covariance_matrix(logger)
+    dominant_eigenvalue = load_dominant_eigenvalue(logger)
+    logger.info(f"Global Dominant Eigenvalue: {dominant_eigenvalue}")
+    
+    # 4. Compute per-sample stats
+    logger.info("Computing per-sample statistics.")
+    stats_dict = compute_per_sample_stats(df, teacher_matrix, logger)
+    
+    # 5. Compute Mahalanobis distance
+    logger.info("Computing Mahalanobis distance.")
+    mahalanobis = compute_mahalanobis_distance(teacher_matrix, cov_matrix, logger)
+    
+    # 6. Integrate features
+    df_features = integrate_features(df, stats_dict, mahalanobis, logger)
+    
+    # 7. Save features
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    save_features(df_features, output_path, logger)
+    
+    logger.info("T022a completed successfully.")
+    return 0
 
-    logger.info("Computing per-sample statistics")
-    stats_list = []
-    for i, row_scores in enumerate(teacher_matrix):
-        stats = compute_per_sample_stats(row_scores)
-        stats_list.append(stats)
-        if i % 1000 == 0:
-            logger.debug(f"Processed {i} samples")
-
-    logger.info(f"Integrating features and writing to {args.output}")
-    integrate_features(df, stats_list, args.output)
-
-    logger.info("Done.")
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -4,246 +4,147 @@ import logging
 import os
 import sys
 from pathlib import Path
-import hashlib
+
 import pandas as pd
 import numpy as np
-
-# Import shared utility from existing API surface
-from primary_dimension_util import process_dataframe_primary_dimensions
 
 def setup_logging():
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('results/fidelity_loss.log')
+        ]
     )
     return logging.getLogger(__name__)
 
-def load_raw_data(input_path, logger):
-    """
-    Load the aligned dataset from the ingestion step.
-    """
-    logger.info(f"Loading raw data from {input_path}")
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    try:
-        df = pd.read_parquet(input_path)
-        logger.info(f"Loaded {len(df)} rows")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load parquet file: {e}")
-        raise
+def load_raw_data(base_dir: Path, logger: logging.Logger):
+    path = base_dir / 'data' / 'processed' / 'raw_data.parquet'
+    if not path.exists():
+        raise FileNotFoundError(f"Raw data not found: {path}")
+    return pd.read_parquet(path)
 
-def calculate_fidelity_loss(df, logger):
+def calculate_fidelity_loss(df: pd.DataFrame, logger: logging.Logger):
     """
-    Calculate dimensional fidelity loss and filter the dataset.
-    
-    Rules:
-    1. Derive primary_dimension using T014 utility (metadata only).
-    2. Verify derivation does not reference teacher/student scores.
-    3. Compute MAE between student_scalar and human_annotation for primary_dimension.
-    4. Filter out samples where primary_dimension is null, human annotation missing, or student_scalar missing.
+    Calculate MAE between student_scalar and human-annotated score for the primary_dimension.
+    Filter out samples with missing data.
     """
-    logger.info("Calculating fidelity loss and filtering data")
-    
-    # Step 1: Ensure primary_dimension is derived from metadata only using T014 utility
-    # The utility process_dataframe_primary_dimensions handles the derivation rule
-    df = process_dataframe_primary_dimensions(df, logger)
-    
-    # Step 2: Verification - Assert that derivation logic does not reference scores
-    # We check that the derivation rule hash is consistent with metadata-only derivation
-    derivation_rule = 'primary_dimension = metadata.primary_dimension'
-    rule_hash = hashlib.sha256(derivation_rule.encode('utf-8'), usedforsecurity=False).hexdigest()
-    logger.info(f"Derivation rule hash (metadata only): {rule_hash}")
-    
-    # Step 3: Filter out invalid samples
-    # Conditions for exclusion:
-    # - primary_dimension is null
-    # - human_annotations for primary_dimension is missing (NaN or None)
-    # - student_scalar is missing (NaN or None)
-    
-    initial_count = len(df)
-    logger.info(f"Initial sample count: {initial_count}")
-    
-    # Create a mask for valid samples
-    valid_mask = pd.Series([True] * len(df), index=df.index)
-    
-    # Check for null primary_dimension
-    null_dim_mask = df['primary_dimension'].isna()
-    if null_dim_mask.any():
-        logger.warning(f"Excluding {null_dim_mask.sum()} samples with null primary_dimension")
-        valid_mask &= ~null_dim_mask
-    
-    # Check for missing student_scalar
-    null_student_mask = df['student_scalar'].isna()
-    if null_student_mask.any():
-        logger.warning(f"Excluding {null_student_mask.sum()} samples with missing student_scalar")
-        valid_mask &= ~null_student_mask
-    
-    # Check for missing human_annotations for the primary_dimension
-    # We need to dynamically access the correct column based on primary_dimension value
-    def check_human_annotation_valid(row):
+    # Ensure primary_dimension exists
+    if 'primary_dimension' not in df.columns:
+        raise ValueError("primary_dimension column missing in dataframe")
+
+    # Flatten human annotations if needed (should be done in ingest, but safety check)
+    if 'human_Alignment' not in df.columns and 'human_annotations' in df.columns:
+        if isinstance(df['human_annotations'].iloc[0], dict):
+            human_df = pd.DataFrame(df['human_annotations'].tolist(), index=df.index)
+            human_df.columns = [f'human_{c}' for c in human_df.columns]
+            df = pd.concat([df, human_df], axis=1)
+            df = df.drop('human_annotations', axis=1)
+
+    # Identify columns for dynamic lookup
+    dimensions = ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
+    human_cols = {d: f'human_{d}' for d in dimensions}
+
+    # Filter: exclude if primary_dimension is null, student_scalar is null, or human score is missing
+    valid_mask = (
+        df['primary_dimension'].notna() &
+        df['student_scalar'].notna()
+    )
+
+    # Check human annotation availability
+    def check_human(row):
         dim = row['primary_dimension']
-        if pd.isna(dim):
+        if dim not in human_cols:
             return False
-        # Construct column name: 'human_annotations_<dimension>' or similar based on schema
-        # Assuming schema has 'human_annotations' as a dict or separate columns
-        # Based on T001d schema: human_annotations is an object with properties
-        # We assume the data has been flattened or we access it as a dict
-        if 'human_annotations' in row:
-            annotations = row['human_annotations']
-            if isinstance(annotations, dict):
-                return dim in annotations and not pd.isna(annotations[dim])
-            elif isinstance(annotations, str):
-                # If stored as JSON string, try to parse
-                try:
-                    annotations = json.loads(annotations)
-                    return dim in annotations and not pd.isna(annotations[dim])
-                except:
-                    return False
-        return False
-    
-    human_ann_valid = df.apply(check_human_annotation_valid, axis=1)
-    invalid_ann_mask = ~human_ann_valid
-    if invalid_ann_mask.any():
-        logger.warning(f"Excluding {invalid_ann_mask.sum()} samples with missing human_annotations for primary_dimension")
-        valid_mask &= ~invalid_ann_mask
-    
-    # Apply filter
-    df_filtered = df[valid_mask].copy()
-    final_count = len(df_filtered)
-    excluded_count = initial_count - final_count
-    
-    logger.info(f"Filtered dataset: {final_count} samples retained, {excluded_count} excluded")
-    
-    # Step 4: Calculate fidelity loss (MAE between student_scalar and human_annotation for primary_dimension)
-    def calculate_mae_for_row(row):
-        dim = row['primary_dimension']
-        annotations = row['human_annotations']
-        if isinstance(annotations, dict):
-            human_score = annotations.get(dim)
-        elif isinstance(annotations, str):
-            try:
-                annotations = json.loads(annotations)
-                human_score = annotations.get(dim)
-            except:
-                return np.nan
+        col = human_cols[dim]
+        return col in df.columns and pd.notna(row[col])
+
+    valid_mask = valid_mask & df.apply(check_human, axis=1)
+
+    excluded_df = df[~valid_mask]
+    valid_df = df[valid_mask].copy()
+
+    # Log exclusions
+    exclusions = []
+    for idx, row in excluded_df.iterrows():
+        reason = "missing_data"
+        if pd.isna(row.get('primary_dimension')):
+            reason = "missing_primary_dimension"
+        elif pd.isna(row.get('student_scalar')):
+            reason = "missing_student_scalar"
+        elif row['primary_dimension'] not in human_cols:
+            reason = "invalid_dimension"
         else:
-            return np.nan
-        
-        student_score = row['student_scalar']
-        
-        if pd.isna(human_score) or pd.isna(student_score):
-            return np.nan
-        
-        return abs(student_score - human_score)
-    
-    df_filtered['fidelity_loss'] = df_filtered.apply(calculate_mae_for_row, axis=1)
-    
-    # Verify no NaN in fidelity_loss for filtered data (should be covered by filters, but double-check)
-    nan_loss = df_filtered['fidelity_loss'].isna().sum()
-    if nan_loss > 0:
-        logger.warning(f"Found {nan_loss} NaN values in fidelity_loss after filtering. Dropping them.")
-        df_filtered = df_filtered.dropna(subset=['fidelity_loss'])
-    
-    return df_filtered, rule_hash
+            col = human_cols[row['primary_dimension']]
+            if pd.isna(row.get(col)):
+                reason = "missing_human_annotation"
+        exclusions.append({
+            'sample_id': idx,
+            'reason': reason,
+            'timestamp': pd.Timestamp.now().isoformat()
+        })
 
-def save_cleaned_data(df, output_path, logger):
-    """
-    Save the filtered dataframe to parquet.
-    """
-    logger.info(f"Saving cleaned data to {output_path}")
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Saved {len(df)} rows to {output_path}")
+    # Append to existing exclusions log if it exists
+    exclusions_path = base_dir / 'data' / 'processed' / 'exclusions_log.json'
+    if exclusions_path.exists():
+        with open(exclusions_path, 'r') as f:
+            existing = json.load(f)
+        existing.extend(exclusions)
+    else:
+        existing = exclusions
 
-def save_summary(df, summary_path, excluded_count, logger):
-    """
-    Write summary statistics to JSON.
-    """
-    logger.info(f"Saving summary statistics to {summary_path}")
-    
-    fidelity_losses = df['fidelity_loss'].dropna()
-    
+    with open(exclusions_path, 'w') as f:
+        json.dump(existing, f, indent=2)
+
+    logger.info(f"Excluded {len(excluded_df)} samples. Remaining: {len(valid_df)}")
+
+    # Calculate MAE
+    valid_df['fidelity_loss'] = 0.0
+    for dim in dimensions:
+        col = human_cols[dim]
+        mask = valid_df['primary_dimension'] == dim
+        if mask.any():
+            valid_df.loc[mask, 'fidelity_loss'] = np.abs(valid_df.loc[mask, 'student_scalar'] - valid_df.loc[mask, col])
+
+    return valid_df, len(excluded_df)
+
+def save_cleaned_data(df: pd.DataFrame, base_dir: Path, logger: logging.Logger):
+    output_path = base_dir / 'data' / 'processed' / 'cleaned_data.parquet'
+    df.to_parquet(output_path)
+    logger.info(f"Saved cleaned data to {output_path}")
+
+def save_summary(df: pd.DataFrame, excluded_count: int, base_dir: Path, logger: logging.Logger):
     summary = {
-        'mean_fidelity_loss': float(fidelity_losses.mean()) if len(fidelity_losses) > 0 else None,
-        'median_fidelity_loss': float(fidelity_losses.median()) if len(fidelity_losses) > 0 else None,
-        'count': int(len(fidelity_losses)),
-        'excluded_count': int(excluded_count),
-        'std_fidelity_loss': float(fidelity_losses.std()) if len(fidelity_losses) > 0 else None,
-        'min_fidelity_loss': float(fidelity_losses.min()) if len(fidelity_losses) > 0 else None,
-        'max_fidelity_loss': float(fidelity_losses.max()) if len(fidelity_losses) > 0 else None
+        'mean_fidelity_loss': float(df['fidelity_loss'].mean()) if not df.empty else 0.0,
+        'median_fidelity_loss': float(df['fidelity_loss'].median()) if not df.empty else 0.0,
+        'count': len(df),
+        'excluded_count': excluded_count
     }
-    
-    output_dir = Path(summary_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Summary saved: {summary}")
-
-def generate_lineage_report(df, rule_hash, output_path, logger):
-    """
-    Generate lineage report proving target independence (SC-004).
-    """
-    logger.info(f"Generating lineage report to {output_path}")
-    
-    report = []
-    for _, row in df.iterrows():
-        sample_id = row.get('sample_id', f"sample_{hash(row)}")
-        # Determine dimension source (always metadata per T014)
-        dimension = row['primary_dimension']
-        
-        entry = {
-            'sample_id': str(sample_id),
-            'source_type': 'metadata',
-            'dimension': dimension,
-            'derivation_rule_hash': rule_hash
-        }
-        report.append(entry)
-    
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
+    output_path = base_dir / 'data' / 'processed' / 'fidelity_loss_summary.json'
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Lineage report generated with {len(report)} entries")
+        json.dump(summary, f, indent=2)
+    logger.info(f"Saved summary to {output_path}")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Calculate dimensional fidelity loss and filter data')
-    parser.add_argument('--input', type=str, required=True, help='Path to input parquet file (raw_data.parquet)')
-    parser.add_argument('--output', type=str, required=True, help='Path to output cleaned parquet file')
-    parser.add_argument('--summary', type=str, required=True, help='Path to output summary JSON file')
-    parser.add_argument('--lineage', type=str, required=True, help='Path to output lineage report JSON file')
+    parser = argparse.ArgumentParser(description='Calculate Fidelity Loss')
+    parser.add_argument('--base-dir', type=str, default='projects/PROJ-967-llmxive-follow-up-extending-beyond-scala')
     return parser.parse_args()
 
 def main():
     args = parse_args()
+    base_dir = Path(args.base_dir)
     logger = setup_logging()
-    
+
     try:
-        # Load data
-        df = load_raw_data(args.input, logger)
-        
-        # Calculate fidelity loss and filter
-        df_cleaned, rule_hash = calculate_fidelity_loss(df, logger)
-        
-        # Save outputs
-        save_cleaned_data(df_cleaned, args.output, logger)
-        
-        excluded_count = len(df) - len(df_cleaned)
-        save_summary(df_cleaned, args.summary, excluded_count, logger)
-        
-        generate_lineage_report(df_cleaned, rule_hash, args.lineage, logger)
-        
-        logger.info("Fidelity loss calculation and filtering completed successfully")
-        
+        df = load_raw_data(base_dir, logger)
+        cleaned_df, excluded_count = calculate_fidelity_loss(df, logger)
+        save_cleaned_data(cleaned_df, base_dir, logger)
+        save_summary(cleaned_df, excluded_count, base_dir, logger)
+        logger.info("Fidelity loss calculation completed.")
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+        logger.error(f"Failed: {e}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()
