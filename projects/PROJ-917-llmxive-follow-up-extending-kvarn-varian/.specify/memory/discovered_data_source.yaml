@@ -1,15 +1,15 @@
 status: none
-intent: Synthetic Attention Matrices with KVarN Sinkhorn scaling factors dataset python
-  package dataset
+intent: synthetic attention matrix dataset with sinkhorn scaling factors python package
+  dataset
 required_fields:
-- matrix_id
 - attention_matrix
-- dimension
+- matrix_dimensions
 - sparsity_level
 - outlier_magnitude
 - mean
 - variance
 - optimal_scaling_factors
-cache_key: fc378d090f291b4171e64671a69179b31ba3319afc25c4432038c70ff021ce4f
-searched_at: '2026-09-06T14:28:12.771315+00:00'
+- generation_seed
+cache_key: 3e1332feafb45fc32d94e2b448075ff446f966beb064dc6eaf07f34082555732
+searched_at: '2026-09-08T03:44:43.317881+00:00'
 retry_count: 1

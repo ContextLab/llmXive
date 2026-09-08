@@ -5559,3 +5559,72 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T14:38:21Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 0
+  canonical: EPSILON_SWEEP_VALUES range includes 1e-8, 1e-6, 1e-4
+  claim_id: c_1020c5b7
+  context: 'T005b [P] [US3] [FR-007] Define initial epsilon sweep values in code/config.py.
+    Action: Define constant EPSILON_SWEEP_VALUES containing a range of small magnitudes
+    spanning multiple orders of magnitude (e.g., [1e-8, 1e-6, 1e-4]).'
+  evidence:
+    asserted: 1e-08
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Define constant EPSILON_SWEEP_VALUES containing a range of small magnitudes
+    spanning multiple orders of magnitude (e.g., [1e-8, 1e-6, 1e-4]).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T03:49:36Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Theoretical lower bound KL_divergence formula 0.5 log(2 pi e sigma_q^2)
+  claim_id: c_e00e9ded
+  context: 'T009_calc [US3] [FR-008] Implement code/analysis/theoretical_lower_bound.py
+    to calculate the theoretical lower bound of KL-divergence. Requirement: Must derive
+    the analytical lower bound based on the quantization noise model defined in T032_base
+    (Uniform INT8). Formula: KL_divergence >= 0.5 * log(2 * pi * e * sigma_q^2) where
+    sigma_q^2 = (Delta^2) / 12 and Delta = (QUANTIZATION_MAX - QUANTIZATION_MIN) /
+    255.'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Theoretical lower bound formula: KL_divergence >= 0.5 * log(2 * pi *
+    e * sigma_q^2) where sigma_q^2 = (Delta^2) / 12 and Delta = (QUANTIZATION_MAX
+    - QUANTIZATION_MIN) / 255.'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T03:49:40Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Paired t-test on 30 runs for KL-divergence
+  claim_id: c_a076b484
+  context: T031 [US3] [FR-006] Implement and run statistical significance test (paired
+    t-test, n=30 runs) on the final accumulated KL-divergence in code/analysis/stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement and run statistical significance test (paired t-test, n=30 runs)
+    on the final accumulated KL-divergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T03:51:57Z'

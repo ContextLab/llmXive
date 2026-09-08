@@ -1,24 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/` directory is presented; the artifact list is empty,
-    so we cannot confirm that the required directory was created. The implementer
-    must provide a visible `code/` folder (e.g., a directory listing or screenshot)
-    to satisfy the task.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no visible evidence that a `tests/` directory (or the required\
-    \ sub\u2011directories `test_data_generation`, `test_model_training`, `test_simulation`)\
-    \ actually exists in the repository; no file listings or contents are shown. The\
-    \ task cannot be considered complete until the specified test directory hierarchy\
-    \ is present and populated with appropriate test code."
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No checksum file was presented in `state/projects/...yaml`, nor any evidence
-    that a checksumming script was run on the `data/` directory. The required artifact
-    is missing, so the task is not satisfied.
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,10 +16,20 @@ T009:
     \ would include, for example, a config file (e.g., YAML/JSON), command\u2011line\
     \ flag handling, or documentation showing how to enable CPU\u2011only mode across\
     \ the project."
-T035c:
+T017c:
   c: false
-  h: 7dcb31d2da3a0fb41a0c8ee57b4e12b37aae6d44a2f65fec6bc55c9b9c208842
-  r: "The required output file `data/metrics/baseline_comparison.json` does not exist,\
-    \ and the `compare_mlp_vs_baseline` function in `code/analysis/stats.py` is truncated\
-    \ and incomplete (ends abruptly at `mlp_`). Consequently, the comparison logic\
-    \ and the required p\u2011value/ratio metric are not implemented."
+  h: a48048fc6771a4e4a681a545c81ddc5792050353fcb4c6a56e828c325fdba56a
+  r: "The provided `synthetic_attention.py` script is truncated and shows no implementation\
+    \ of the generation loop, JSONL serialization, checksum computation, or handling\
+    \ of non\u2011convergence, and the required output file `data/raw/synthetic_attention_matrices.jsonl`\
+    \ does not exist. Consequently the task\u2019s core deliverables are missing."
+T046:
+  c: false
+  h: 7bbbdacb3481d53e3a153308afc380ccca092528366203e0b44e259e63d45e40
+  r: "The provided `code/main.py` is truncated before the `main()` function\u2019\
+    s body, so we cannot verify that it runs the four phases in the required strict\
+    \ order, applies the `--seed` argument to `config.RANDOM_SEED`, or raises on failure.\
+    \ Additionally, the expected log file `data/metrics/main_execution.log` does not\
+    \ exist, indicating the script has not yet been executed to produce the required\
+    \ logging output. The implementer must supply the complete `main()` implementation\
+    \ and ensure the script creates and writes to the specified log file."
