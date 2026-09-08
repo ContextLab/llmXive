@@ -1,0 +1,24 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AblationResult
+description: Schema for ablation study results comparing different graph representations.
+type: object
+properties:
+  graph_type:
+    type: string
+    description: The type of graph representation used in this ablation run (e.g., "Full Affordance Graph", "Simplified Connectivity Graph").
+  success_rate:
+    type: number
+    format: float
+    minimum: 0.0
+    maximum: 1.0
+    description: The observed success rate for tasks executed with this graph type.
+  compute_overhead:
+    type: number
+    format: float
+    minimum: 0.0
+    description: The measured compute overhead (e.g., in seconds or relative units) associated with this graph type.
+required:
+  - graph_type
+  - success_rate
+  - compute_overhead
+additionalProperties: false

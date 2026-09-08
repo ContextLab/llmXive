@@ -18,7 +18,7 @@ This project investigates whether high-fidelity continuous physics simulation is
 **Performance Goals**: Planner execution ≤ 60s per task; Total memory ≤ 6 GB; No GPU dependency for the symbolic layer.  
 **Constraints**: Must run entirely on CPU for the planning phase; Real-world execution data is the ground truth (no synthetic data generation for final metrics).  
 **Scale/Scope**: RoboDojo real-world tasks (subset of available video data).  
-**Dataset Version**: RoboDojo-Benchmark/RoboDojo (Commit: `v.` - Verified for 18-task subset).
+**Dataset Version**: RoboDojo-Benchmark/RoboDojo (Commit: `v.` - Verified for a task subset).
 
 ## Constitution Check
 
@@ -54,7 +54,7 @@ This project investigates whether high-fidelity continuous physics simulation is
 **Output**: `data/processed/adapter_weights.pt`.
 
 ### Phase 1: Symbolic Abstraction & Planning
-**Goal**: Generate symbolic plans for the 18 tasks.
+**Goal**: Generate symbolic plans for the tasks.
 **Tasks**:
 1. **Vision Encoding**: Run `vision_encoder.py` on raw video frames to generate `SemanticEmbedding`.
 2. **State Mapping**: Run `state_mapper.py` with deterministic thresholding (e.g., `>0.6` for `graspable`). Log ambiguity scores.
@@ -101,7 +101,7 @@ This project investigates whether high-fidelity continuous physics simulation is
 |-----------|------------|-------------------------------------|
 | **Oracle Executor** | Required to isolate the "Physics Fidelity Gap" (US-4, SC-006). | Without the Oracle, we cannot distinguish between planner infeasibility and low-level controller failure, violating the scientific rigor of the hypothesis test. |
 | **Sim-to-Real Adapter** | Real-world video data differs from simulation; direct use of sim weights fails. | Using raw simulation weights would result in catastrophic failure rates, making the comparison invalid. |
-| **Split-Data Adaptation** | Prevents overfitting confounds (Methodology Concern). | Fine-tuning on all 18 tasks would invalidate the baseline comparison. |
+| **Split-Data Adaptation** | Prevents overfitting confounds (Methodology Concern). | Fine-tuning on all tasks would invalidate the baseline comparison. |
 
 ## Project Structure
 

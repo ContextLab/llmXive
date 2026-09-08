@@ -42,7 +42,7 @@ def stream_robodojo_tasks(
     logger.info(f"Loading RoboDojo dataset from HuggingFace: {DATASET_HF_ID} @ {DATASET_COMMIT_HASH}")
     
     # Configure dataset loading with specific revision to ensure reproducibility
-    # per spec requirement for commit hash v3.0.1 (mapped to DATASET_COMMIT_HASH in config)
+    # per spec requirement for commit hash v.1 (mapped to DATASET_COMMIT_HASH in config)
     try:
         ds = load_dataset(
             DATASET_HF_ID,

@@ -105,7 +105,7 @@ The researcher MUST be able to run a control experiment using a "Perfect Low-Lev
 
 - **SC-001**: Task-completion success rate is measured against the original RoboDojo Neural Policy baseline success rate to determine if symbolic abstraction suffices. (See US-3)
 - **SC-002**: Wall-clock time to generate valid action sequences is measured against the GPU-based baseline time to quantify computational savings. (See US-3)
-- **SC-003**: Memory usage and CPU utilization are measured against the 7 GB RAM and 2 CPU core constraints of the GitHub Actions free-tier runner to ensure feasibility. (See US-1)
+- **SC-003**: Memory usage and CPU utilization are measured against the standard RAM and CPU core constraints of the GitHub Actions free-tier runner. to ensure feasibility. (See US-1)
 - **SC-004**: The p-value from the Wilcoxon signed-rank test is measured against the significance threshold of α = 0.05 to determine statistical significance of the difference. (See US-3)
 - **SC-005**: The rate of catastrophic failures (complete task abandonment due to unmodeled dynamics) is measured against a threshold of ≤ 5% to determine acceptability. (See US-3)
 - **SC-006**: The "Physics Fidelity Gap" (difference between Oracle success rate and Real-World success rate) is measured to isolate the impact of low-level controller limitations. (See US-4)

@@ -1,13 +1,44 @@
-T001o:
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/tests/` directory (or any files within it) is present in the provided
-    evidence; the implementer did not supply the required directory structure. The
-    task remains undone.
-T002:
+  r: No evidence was provided showing that the four required directories (`code/data/raw/`,
+    `code/data/interim/`, `code/data/processed/`, `code/data/final/`) actually exist;
+    the response contains only the task description and no filesystem artifacts. The
+    implementer must create and list these directories (or provide a directory tree
+    screenshot) to satisfy the requirement.
+T006a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml`, or scripts invoking ruff/black) are present in the
-    `code/` directory, nor any documentation showing they have been set up. The claim
-    lacks any concrete artifact demonstrating that ruff and black are configured.
+  h: a828d4cebc9e56dce778b48483bfdd4c7d043333e88ed3ed563a4ea07e326d61
+  r: The test file `code/tests/contract/test_symbolic_state.py` exists and uses jsonschema,
+    but the required schema file `specs/001-symbolic-dojo-extend/contracts/symbolic_state.schema.yaml`
+    is missing, so the test cannot actually perform the validation. The missing schema
+    must be added for the task to be satisfied.
+T006b:
+  c: false
+  h: a6c4ec9be314a85ab037adea9a6376ed0ee4b2a72eb2045200f5797f943bba23
+  r: The test file `code/tests/contract/test_execution_outcome.py` exists and uses
+    `jsonschema`, but the referenced schema `specs/001-symbolic-dojo-extend/contracts/execution_outcome.schema.yaml`
+    is missing, so the validation cannot actually be performed. The required schema
+    file must be present for the test to be functional.
+T006c:
+  c: false
+  h: cd8876eba5d52e7f0df8695e5ea5a89f7ea964f8dc793768376f40ed803dba2e
+  r: The test file `code/tests/contract/test_compute_metric.py` exists but is truncated
+    (the final test method is incomplete) and it depends on `specs/001-symbolic-dojo-extend/contracts/compute_metric.schema.yaml`,
+    which is missing from the repository. Without the schema file and a complete test
+    suite, the contract validation cannot be performed.
+T006d:
+  c: false
+  h: 65fad0712e2299a2750cda8abdf862e1ffa8c91ae901d9e96475113f8d419156
+  r: The test file `code/tests/contract/test_ablation_result.py` exists and uses jsonschema,
+    but the referenced schema file `specs/001-symbolic-dojo-extend/contracts/ablation_result.schema.yaml`
+    is missing, so the validation cannot actually be performed. The required schema
+    artifact must be added for the task to be complete.
+T010:
+  c: false
+  h: 6e4e01da122577b79b5fd345baf7072bf6419128b55c2c7ad1f85b9d8a9f921c
+  r: The provided `controller_adapter.py` only defines the Linear Probe class and
+    some utility functions; it does not implement the required data split, training
+    loop, validation logic, conditional saving of interim and final weights, nor does
+    it raise `ValidationFailedError`. Moreover, the expected weight files `data/processed/adapter_weights_interim.pt`
+    and `data/processed/adapter_weights.pt` are absent.

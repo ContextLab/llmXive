@@ -1,39 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "SymbolicState"
-description: "Discrete state representation for the Symbolic-Dojo planner."
-type: "object"
+title: SymbolicState
+description: >
+  Schema for the symbolic state representation used in the RoboDojo extension.
+  This state captures discrete predicates, affordances, connectivity, and replanning capabilities.
+type: object
 properties:
-  task_id:
-    type: "string"
-    description: "Unique identifier for the task."
   state_id:
-    type: "string"
-    description: "Unique identifier for this specific state node."
+    type: string
+    description: Unique identifier for this symbolic state instance.
   predicates:
-    type: "array"
+    type: array
+    description: List of logical predicates true in the current state.
     items:
-      type: "string"
-    description: "List of logical predicates true in this state (e.g., 'graspable', 'on_table')."
-  object_refs:
-    type: "array"
+      type: string
+  affordances:
+    type: object
+    description: >
+      Dictionary mapping object identifiers to their available affordances.
+      Keys are object IDs (string), values are lists of action strings.
+    additionalProperties:
+      type: array
+      items:
+        type: string
+  connectivity:
+    type: array
+    description: List of connectivity graph edges or neighbors for the current state.
     items:
-      type: "object"
-      properties:
-        object_id:
-          type: "string"
-        affordance:
-          type: "string"
-      required:
-        - object_id
-        - affordance
-    description: "Objects in the scene and their current affordances."
-  is_goal:
-    type: "boolean"
-    description: "True if this state satisfies the task goal."
+      type: string
+  replan_support:
+    type: boolean
+    description: >
+      Flag indicating whether the current state/task supports dynamic replanning
+      based on execution feedback.
 required:
-  - task_id
   - state_id
   - predicates
-  - object_refs
-  - is_goal
+  - affordances
+  - connectivity
+  - replan_support
 additionalProperties: false

@@ -1,11 +1,3 @@
-"""
-Metrics Logger for RoboDojo Symbolic Abstractions Pipeline.
-
-This module provides functionality to record CPU cycles, RAM usage,
-and wall-clock time for every task execution. It includes memory
-monitoring to enforce the 6 GB RAM limit constraint.
-"""
-
 import os
 import time
 import tracemalloc
@@ -13,251 +5,224 @@ import logging
 import json
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict, field
-from pathlib import Path
+import psutil
+import resource
 
-# Import config for paths
-from .config import DATA_INTERIM_PATH, LOGGING_LEVEL
+from src.config import BASE_DIR, RAM_LIMIT_GB
 
 # Configure logging
 logging.basicConfig(
-    level=LOGGING_LEVEL,
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-
-class ResourceLimitExceeded(Exception):
-    """Raised when RAM usage exceeds the 6 GB limit."""
-    pass
-
-
 @dataclass
 class TaskMetrics:
-    """Data class to store metrics for a single task execution."""
+    """
+    Data class to store metrics for a single task execution.
+    """
     task_id: str
-    start_time: float
-    end_time: float
-    wall_clock_time: float
-    cpu_cycles: int  # Approximate via time.process_time() * constant or similar
-    peak_memory_mb: float
-    current_memory_mb: float
-    status: str  # 'success', 'failed', 'resource_limit_exceeded'
-    error_message: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    cpu_cycles: int
+    ram_mb: float
+    wall_clock_s: float
+    timestamp: str
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
-
+@dataclass
 class MetricsLogger:
     """
-    Context manager and utility class for logging execution metrics.
-    Enforces the 6 GB RAM limit as per T022 requirements.
+    Logger to record CPU cycles, RAM usage, and wall-clock time for every task.
+    Supports streaming to a JSONL file to avoid loading all data into memory.
     """
+    output_path: str
+    _current_process: Optional[psutil.Process] = field(default=None, init=False)
+    _start_time: Optional[float] = field(default=None, init=False)
+    _start_ram: Optional[float] = field(default=None, init=False)
+    _start_cpu: Optional[int] = field(default=None, init=False)
 
-    # Constants
-    RAM_LIMIT_GB = 6.0
-    RAM_LIMIT_BYTES = RAM_LIMIT_GB * 1024 * 1024 * 1024
+    def __post_init__(self):
+        # Ensure output directory exists
+        os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
+        self._current_process = psutil.Process()
+        logger.info(f"MetricsLogger initialized. Output path: {self.output_path}")
 
-    def __init__(self, log_file: Optional[str] = None):
+    def _get_ram_mb(self) -> float:
+        """Get current RAM usage in MB."""
+        if self._current_process is None:
+            return 0.0
+        # RSS (Resident Set Size) in bytes
+        rss = self._current_process.memory_info().rss
+        return rss / (1024 * 1024)
+
+    def _get_cpu_cycles(self) -> int:
         """
-        Initialize the MetricsLogger.
-
-        Args:
-            log_file: Optional path to the JSON log file. Defaults to
-                      data/interim/metrics_log.json.
+        Estimate CPU cycles used.
+        Note: Python doesn't expose raw CPU cycles directly.
+        We use process CPU times (user + system) as a proxy for CPU work.
+        Multiplying by an estimated clock speed (e.g., 2.0 GHz) gives an approximate cycle count.
+        This is an estimate suitable for relative comparisons.
         """
-        self.log_file = log_file or os.path.join(DATA_INTERIM_PATH, "metrics_log.json")
-        self._metrics: List[Dict[str, Any]] = []
-        self._current_metrics: Optional[TaskMetrics] = None
-        self._tracemalloc_started = False
+        if self._current_process is None:
+            return 0
+        # Get CPU times in seconds
+        times = self._current_process.cpu_times()
+        total_cpu_seconds = times.user + times.system
+        # Estimate: assume 2.0 GHz average clock speed for calculation
+        # This is a heuristic for relative comparison across tasks
+        estimated_clock_speed_hz = 2.0e9
+        return int(total_cpu_seconds * estimated_clock_speed_hz)
 
-        # Ensure log directory exists
-        Path(self.log_file).parent.mkdir(parents=True, exist_ok=True)
+    def start_task(self, task_id: str) -> None:
+        """Start measuring metrics for a specific task."""
+        if self._start_time is not None:
+            logger.warning("A task is already being measured. Stopping previous measurement.")
+            self.stop_task()
 
-    def _get_memory_usage(self) -> float:
-        """
-        Get current memory usage in MB using tracemalloc.
-        Returns the peak memory usage if tracemalloc is active.
-        """
-        if self._tracemalloc_started:
-            current, peak = tracemalloc.get_traced_memory()
-            return peak / (1024 * 1024)  # Convert to MB
-        return 0.0
+        self._start_time = time.time()
+        # Force a garbage collection to get a cleaner baseline for memory
+        import gc
+        gc.collect()
+        
+        # Snapshot memory before task
+        self._start_ram = self._get_ram_mb()
+        
+        # Snapshot CPU times before task
+        if self._current_process:
+            self._start_cpu = self._get_cpu_cycles()
+        
+        logger.info(f"Started measuring metrics for task: {task_id}")
 
-    def _check_ram_limit(self, current_mb: float) -> None:
-        """
-        Check if current RAM usage exceeds the limit.
-        Raises ResourceLimitExceeded if it does.
-        """
-        if current_mb > (self.RAM_LIMIT_GB * 1024):
-            raise ResourceLimitExceeded(
-                f"RAM usage {current_mb:.2f} MB exceeds limit of {self.RAM_LIMIT_GB * 1024:.2f} MB. "
-                "Aborting to prevent system instability."
-            )
-
-    def start_task(self, task_id: str, metadata: Optional[Dict[str, Any]] = None) -> None:
-        """
-        Start tracking metrics for a new task.
-
-        Args:
-            task_id: Unique identifier for the task.
-            metadata: Optional dictionary of additional metadata to log.
-        """
-        self._current_metrics = TaskMetrics(
-            task_id=task_id,
-            start_time=time.time(),
-            end_time=0.0,
-            wall_clock_time=0.0,
-            cpu_cycles=0,
-            peak_memory_mb=0.0,
-            current_memory_mb=0.0,
-            status='running',
-            metadata=metadata or {}
-        )
-
-        # Start tracemalloc if not already running
-        if not self._tracemalloc_started:
-            tracemalloc.start()
-            self._tracemalloc_started = True
-
-        logger.info(f"Starting metrics tracking for task: {task_id}")
-
-    def update_metrics(self) -> None:
-        """
-        Update current memory metrics during task execution.
-        Checks against RAM limit.
-        """
-        if not self._current_metrics:
-            return
-
-        current_mb = self._get_memory_usage()
-        self._current_metrics.current_memory_mb = current_mb
-
-        # Check limit
-        self._check_ram_limit(current_mb)
-
-    def end_task(self, status: str = 'success', error_message: Optional[str] = None) -> None:
-        """
-        End tracking for the current task and finalize metrics.
-
-        Args:
-            status: Final status of the task ('success', 'failed', etc.).
-            error_message: Optional error message if the task failed.
-        """
-        if not self._current_metrics:
-            logger.warning("end_task called without a corresponding start_task.")
-            return
+    def stop_task(self, task_id: str) -> TaskMetrics:
+        """Stop measuring and return the TaskMetrics object."""
+        if self._start_time is None:
+            raise RuntimeError("No task is currently being measured. Call start_task first.")
 
         end_time = time.time()
-        self._current_metrics.end_time = end_time
-        self._current_metrics.wall_clock_time = end_time - self._current_metrics.start_time
-        self._current_metrics.status = status
-        self._current_metrics.error_message = error_message
-        self._current_metrics.cpu_cycles = int(time.process_time() * 1e9)  # Approximate cycles
-        self._current_metrics.peak_memory_mb = self._get_memory_usage()
-        self._current_metrics.current_memory_mb = self._current_metrics.peak_memory_mb
+        end_ram = self._get_ram_mb()
+        end_cpu = self._get_cpu_cycles()
 
-        logger.info(
-            f"Task {self._current_metrics.task_id} completed. "
-            f"Time: {self._current_metrics.wall_clock_time:.3f}s, "
-            f"Peak RAM: {self._current_metrics.peak_memory_mb:.2f} MB"
+        wall_clock_s = end_time - self._start_time
+        ram_mb = end_ram - self._start_ram if self._start_ram else end_ram
+        cpu_cycles = end_cpu - self._start_cpu if self._start_cpu else end_cpu
+
+        # Ensure non-negative values (in case of counter wrap or measurement noise)
+        if ram_mb < 0: ram_mb = 0.0
+        if cpu_cycles < 0: cpu_cycles = 0
+
+        metrics = TaskMetrics(
+            task_id=task_id,
+            cpu_cycles=cpu_cycles,
+            ram_mb=ram_mb,
+            wall_clock_s=wall_clock_s,
+            timestamp=time.strftime("%Y-%m-%d %H:%M:%S")
         )
 
-        self._metrics.append(self._current_metrics.to_dict())
-        self._current_metrics = None
+        self._start_time = None
+        self._start_ram = None
+        self._start_cpu = None
 
-    def save_log(self) -> None:
+        logger.info(f"Task {task_id} completed. Metrics: {metrics}")
+        return metrics
+
+    def log_metrics(self, metrics: TaskMetrics) -> None:
         """
-        Save all collected metrics to the log file.
-        Appends to existing file if it exists.
+        Append metrics to the output file in JSONL format.
+        This ensures memory efficiency for large numbers of tasks.
         """
-        # Ensure directory exists
-        Path(self.log_file).parent.mkdir(parents=True, exist_ok=True)
+        with open(self.output_path, 'a') as f:
+            f.write(json.dumps(metrics.to_dict()) + '\n')
+        logger.debug(f"Logged metrics for task {metrics.task_id} to {self.output_path}")
 
-        try:
-            # Load existing logs if file exists
-            existing_metrics = []
-            if os.path.exists(self.log_file):
-                with open(self.log_file, 'r') as f:
-                    content = f.read().strip()
-                    if content:
-                        existing_metrics = json.loads(content)
+    def check_ram_limit(self, task_id: str) -> None:
+        """
+        Check if current RAM usage exceeds the limit defined in config.
+        Raises ResourceLimitExceeded if the limit is breached.
+        """
+        current_ram = self._get_ram_mb()
+        if current_ram > RAM_LIMIT_GB * 1024:
+            error_msg = (
+                f"RAM limit exceeded for task {task_id}. "
+                f"Current usage: {current_ram:.2f} MB, Limit: {RAM_LIMIT_GB * 1024:.2f} MB"
+            )
+            logger.error(error_msg)
+            raise ResourceLimitExceeded(error_msg)
 
-            # Combine and save
-            all_metrics = existing_metrics + self._metrics
-            with open(self.log_file, 'w') as f:
-                json.dump(all_metrics, f, indent=2)
+class ResourceLimitExceeded(Exception):
+    """Raised when a resource limit (e.g., RAM) is exceeded."""
+    pass
 
-            logger.info(f"Metrics saved to {self.log_file}")
-        except Exception as e:
-            logger.error(f"Failed to save metrics log: {e}")
-            raise
-
-    def __enter__(self) -> 'MetricsLogger':
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        if exc_type is not None:
-            if self._current_metrics:
-                self.end_task(status='failed', error_message=str(exc_val))
-        else:
-            if self._current_metrics:
-                self.end_task(status='success')
-        
-        if self._tracemalloc_started:
-            tracemalloc.stop()
-            self._tracemalloc_started = False
-        
-        # Always save log on exit
-        self.save_log()
-
-
-def create_metrics_logger(log_file: Optional[str] = None) -> MetricsLogger:
+def create_metrics_logger(output_path: Optional[str] = None) -> MetricsLogger:
     """
     Factory function to create a MetricsLogger instance.
-
-    Args:
-        log_file: Optional path to the log file.
-
-    Returns:
-        A configured MetricsLogger instance.
+    Default output path is code/data/interim/metrics.jsonl.
     """
-    return MetricsLogger(log_file=log_file)
+    if output_path is None:
+        output_path = os.path.join(BASE_DIR, "data", "interim", "metrics.jsonl")
+    return MetricsLogger(output_path)
 
-
-# Convenience function for single-shot logging
-def log_task_metrics(
-    task_id: str,
-    func,
-    *args,
-    metadata: Optional[Dict[str, Any]] = None,
-    **kwargs
-) -> Dict[str, Any]:
+def log_task_metrics(task_id: str, logger_instance: Optional[MetricsLogger] = None) -> TaskMetrics:
     """
-    Execute a function and log its metrics.
-
-    Args:
-        task_id: Identifier for the task.
-        func: The function to execute.
-        *args: Positional arguments for func.
-        metadata: Optional metadata.
-        **kwargs: Keyword arguments for func.
-
-    Returns:
-        Dictionary containing the final metrics.
+    Convenience function to start and stop metrics logging for a task context.
+    If logger_instance is not provided, a new one is created with default path.
+    
+    Usage:
+    with log_task_metrics("task_123") as metrics:
+        # do work
+        return metrics
     """
-    logger = MetricsLogger()
-    logger.start_task(task_id, metadata)
-    try:
-        result = func(*args, **kwargs)
-        logger.end_task(status='success')
-        return logger._metrics[-1] if logger._metrics else {}
-    except ResourceLimitExceeded as e:
-        logger.end_task(status='resource_limit_exceeded', error_message=str(e))
-        raise
-    except Exception as e:
-        logger.end_task(status='failed', error_message=str(e))
-        raise
-    finally:
-        logger.save_log()
+    # This is a helper that mimics a context manager behavior if needed, 
+    # but the primary interface is via the MetricsLogger class methods.
+    # For direct usage:
+    if logger_instance is None:
+        logger_instance = create_metrics_logger()
+    
+    logger_instance.start_task(task_id)
+    # The caller is expected to do work and then call stop_task manually
+    # to ensure the work is actually done before stopping.
+    # However, to make this a true utility, we can't easily wrap arbitrary code
+    # without a context manager. Let's stick to the class methods for clarity
+    # or provide a context manager wrapper.
+    return logger_instance # Return the logger so user can call stop_task
+    
+# Context Manager wrapper for convenience
+class MetricsContext:
+    def __init__(self, task_id: str, logger_instance: MetricsLogger):
+        self.task_id = task_id
+        self.logger = logger_instance
+        self.metrics: Optional[TaskMetrics] = None
+
+    def __enter__(self):
+        self.logger.start_task(self.task_id)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.metrics = self.logger.stop_task(self.task_id)
+        self.logger.log_metrics(self.metrics)
+        # Check RAM limit after task completion
+        if self.metrics:
+            # We check against the final state, or we could check periodically.
+            # For strict compliance with T022, we check the peak or final.
+            # Here we check the final RAM delta or total if we tracked peak.
+            # The logger tracks current process RSS.
+            # Let's assume the check should be done on the final measurement.
+            try:
+                self.logger.check_ram_limit(self.task_id)
+            except ResourceLimitExceeded:
+                # Re-raise to halt execution as per T022
+                raise
+        return False
+
+def create_metrics_context(task_id: str, logger_instance: Optional[MetricsLogger] = None) -> MetricsContext:
+    """
+    Create a context manager for measuring metrics of a specific task.
+    Usage:
+    with create_metrics_context("task_123") as ctx:
+        # do work
+        final_metrics = ctx.metrics
+    """
+    if logger_instance is None:
+        logger_instance = create_metrics_logger()
+    return MetricsContext(task_id, logger_instance)

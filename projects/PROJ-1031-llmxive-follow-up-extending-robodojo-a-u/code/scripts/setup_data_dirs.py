@@ -1,27 +1,18 @@
+"""
+Script to create required data directories.
+"""
 import os
 from pathlib import Path
 
 def main():
-    """
-    Creates the required directory structure for the RoboDojo data pipeline:
-    - code/data/raw/
-    - code/data/interim/
-    - code/data/processed/
-    - code/data/final/
-    """
-    base_dir = Path(__file__).resolve().parent.parent / "data"
+    base = Path(__file__).parent.parent
+    data_dir = base / "data"
+    dirs = ["raw", "interim", "processed", "final"]
     
-    directories = [
-        "raw",
-        "interim",
-        "processed",
-        "final"
-    ]
-    
-    for dir_name in directories:
-        dir_path = base_dir / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created/Verified: {dir_path}")
+    for d in dirs:
+        path = data_dir / d
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created: {path}")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-1031-llmxive-follow-up-extending-robodojo-a-u",
+  "tasks": [
+    {
+      "task_key": "T002",
+      "reject_count": 1,
+      "last_reason": "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml`, or scripts invoking ruff/black) are present in the `code/` directory, nor any documentation showing they have been set up. The claim lacks any concrete artifact demonstrating that ruff and black are configured.",
+      "first_seen": "2026-09-08T17:56:51.879077+00:00",
+      "last_seen": "2026-09-08T17:56:51.879077+00:00"
+    }
+  ],
+  "updated_at": "2026-09-08T17:56:51.879077+00:00"
+}
