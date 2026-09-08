@@ -9,11 +9,11 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How do environmental conditions (temperature, humidity, precipitation) modulate the relationship between visible foliar symptoms and independently measured fungal disease severity (e.g., spore load, biomass, expert scoring) in crop plants?
+To what extent does environmental context (temperature, humidity) modulate the consistency of visual lesion area progression relative to established pathogen life-cycle stages in field-grown crops, given that direct spore counts are unavailable?
 
 ## Motivation
 
-Fungal diseases cause significant crop losses globally, yet field diagnostics often rely on visual symptom scoring which assumes a static relationship between appearance and biological severity. This assumption may fail under varying climate conditions where stress responses alter symptom expression. Understanding this modulation is critical for developing robust remote monitoring systems that do not misdiagnose disease pressure due to environmental context.
+Current remote sensing models often assume a static mapping between visual symptoms (e.g., lesion area) and biological disease severity. However, environmental stressors like desiccation or high humidity can decouple this relationship by altering symptom expression rates or pathogen development speeds. Understanding this modulation is critical for developing robust diagnostic tools that do not misestimate disease pressure under varying climate regimes.
 
 ## Literature gap analysis
 
@@ -23,7 +23,8 @@ We queried Semantic Scholar and arXiv using combinations of: ("plant disease sev
 
 ### What is known
 
-- [AgGym: An agricultural biotic stress simulation environment for ultra-precision management planning (2024)](https://arxiv.org/abs/2409.00735) — Establishes a simulation environment for agricultural biotic stress management, though it focuses on decision planning rather than the empirical quantification of symptom-severity-environment interactions.
+- [What Does TERRA-REF's High Resolution, Multi Sensor Plant Sensing Public Domain Data Offer the Computer Vision Community? (2021)](https://arxiv.org/abs/2107.14072) — Establishes a high-resolution, multi-sensor reference dataset for studying plants under field conditions, providing the necessary infrastructure for linking environmental data with plant phenotyping, though it does not specifically analyze the weather-modulated symptom-severity relationship.
+- [The Plant Pathology 2020 challenge dataset to classify foliar disease of apples (2020)](https://arxiv.org/abs/2004.11958) — Provides a benchmark dataset for early disease detection in apples, focusing on classification accuracy rather than the quantitative relationship between symptom appearance, pathogen load, and environmental covariates.
 
 ### What is NOT known
 
@@ -43,15 +44,16 @@ We expect to find that high humidity strengthens the symptom-severity correlatio
 
 ## Methodology sketch
 
-- Download the PlantVillage dataset (https://www.kaggle.com/datasets/emmarex/plantdisease) — contains labeled leaf images with disease categories.
-- Extract severity proxies from images using OpenCV (lesion segmentation, contour area calculation, and color-based necrosis indexing) to create a continuous "visual severity" score.
-- Match each image's metadata (location/date) to historical weather data via the Open-Meteo API (https://open-meteo.com/) or NOAA GHCN-Daily (https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily).
-- Aggregate weather features (mean temperature, total precipitation, mean humidity) for the 7 days preceding the image capture date.
-- Train a Random Forest regressor to predict the "visual severity" score from image features + weather covariates.
-- Compare model performance (R², RMSE) between: (a) image-only baseline, (b) image + weather main effects, (c) image + weather + interaction terms.
-- Conduct permutation tests (1000 iterations, α = 0.05) to assess whether weather features contribute unique variance beyond image features.
-- Generate interaction plots showing predicted severity across humidity/temperature bins to visualize the modulation effect.
-- All computations will be performed on CPU using batched OpenCV operations to ensure the pipeline runs within 7GB RAM and the 6-hour GHA time limit.
+- **Data Acquisition**: Download the PlantVillage dataset (https://www.kaggle.com/datasets/emmarex/plantdisease) containing labeled leaf images.
+- **Visual Feature Extraction**: Process images using OpenCV to segment lesions and calculate continuous "visual severity" metrics (lesion area ratio, necrosis color index, texture entropy).
+- **Environmental Data Linking**: Map image metadata (location/date) to historical weather data using the Open-Meteo API (https://open-meteo.com/) or NOAA GHCN-Daily (https://www.ncei.noaa.gov/products/land-based-station/global-historical-climatology-network-daily).
+- **Feature Engineering**: Aggregate weather features (mean temperature, relative humidity, precipitation) for the 7-day window preceding each image capture.
+- **Model Construction**: Train a Random Forest regressor to predict the "visual severity" score.
+    - *Baseline*: Predictors = Image features only.
+    - *Augmented*: Predictors = Image features + Weather main effects + Interaction terms (Image × Weather).
+- **Statistical Validation**: Perform permutation tests (1000 iterations, α = 0.05) to determine if weather features contribute unique variance to the model fit beyond image features.
+- **Interaction Analysis**: Generate partial dependence plots to visualize how the slope of the visual severity vs. weather relationship changes across temperature/humidity bins.
+- **Resource Constraints**: All computations will be executed on CPU using batched OpenCV and scikit-learn operations to ensure the pipeline runs within the 7GB RAM and 6-hour GitHub Actions limit.
 
 ## Duplicate-check
 
@@ -62,21 +64,18 @@ We expect to find that high humidity strengthens the symptom-severity correlatio
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-08-04T18:59:42Z
-**Outcome**: success
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-08T12:13:28Z
+**Outcome**: exhausted
 **Original term**: Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records biology
-**Verified citation count**: 5
+**Verified citation count**: 2
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records biology | 5 |
+| 0 (initial) | Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records biology | 2 |
 
 ### Verified citations
 
-1. **Deep 1D-Convnet for accurate Parkinson disease detection and severity prediction from gait** (2019). Imanne El Maachi, Guillaume-Alexandre Bilodeau, Wassim Bouachir. arXiv. [1910.11509](https://arxiv.org/abs/1910.11509). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-2. **ISPO: An Integrated Ontology of Symptom Phenotypes for Semantic Integration of Traditional Chinese Medical Data** (2024). Zixin Shu, Rui Hua, Dengying Yan, Chenxia Lu, Ning Xu, et al.. arXiv. [2407.12851](https://arxiv.org/abs/2407.12851). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-3. **The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset** (2024). Jeffrey D. Rudie, Hui-Ming Lin, Robyn L. Ball, Sabeena Jalal, Luciano M. Prevedello, et al.. arXiv. [2405.19595](https://arxiv.org/abs/2405.19595). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-4. **AgGym: An agricultural biotic stress simulation environment for ultra-precision management planning** (2024). Mahsa Khosravi, Matthew Carroll, Kai Liang Tan, Liza Van der Laan, Joscif Raigne, et al.. arXiv. [2409.00735](https://arxiv.org/abs/2409.00735). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-5. **Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis** (2024). Chenyang Liu, Keyan Chen, Haotian Zhang, Zipeng Qi, Zhengxia Zou, et al.. arXiv. [2403.19646](https://arxiv.org/abs/2403.19646). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+1. **What Does TERRA-REF's High Resolution, Multi Sensor Plant Sensing Public Domain Data Offer the Computer Vision Community?** (2021). David LeBauer, Max Burnette, Noah Fahlgren, Rob Kooper, Kenton McHenry, et al.. arXiv. [2107.14072](https://arxiv.org/abs/2107.14072). PDF-sampled: No.
+2. **The Plant Pathology 2020 challenge dataset to classify foliar disease of apples** (2020). Ranjita Thapa, Noah Snavely, Serge Belongie, Awais Khan. arXiv. [2004.11958](https://arxiv.org/abs/2004.11958). PDF-sampled: No.

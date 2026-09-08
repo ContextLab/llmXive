@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-04T18:59:42Z",
+  "fetched_at": "2026-09-08T12:12:04Z",
   "field": "biology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,105 @@
       "idea_body_excerpt": "Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records",
       "target_n": 5
     },
-    "duration_seconds": 42.096,
-    "ended_at": "2026-08-04T18:59:42Z",
-    "expansion": null,
+    "duration_seconds": 53.266,
+    "ended_at": "2026-09-08T12:12:04Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "plant disease severity estimation using image and weather data"
+        ],
+        [
+          2,
+          "multimodal plant pathology prediction with computer vision and climate variables"
+        ],
+        [
+          3,
+          "deep learning for crop disease severity assessment from RGB images and meteorological records"
+        ],
+        [
+          4,
+          "image-based plant disease quantification combined with environmental factors"
+        ],
+        [
+          5,
+          "data-driven modeling of plant disease progression using visual and weather features"
+        ],
+        [
+          6,
+          "integrating satellite imagery and local weather data for crop health monitoring"
+        ],
+        [
+          7,
+          "machine learning approaches to predict plant infection levels from multisource data"
+        ],
+        [
+          8,
+          "computer vision techniques for grading plant disease severity with climate context"
+        ],
+        [
+          9,
+          "phenotyping plant disease resistance using image analysis and meteorological inputs"
+        ],
+        [
+          10,
+          "fusion of visual and environmental data for agricultural disease forecasting"
+        ],
+        [
+          11,
+          "early warning systems for plant epidemics using image recognition and weather patterns"
+        ],
+        [
+          12,
+          "non-destructive assessment of plant disease severity via digital imaging and climate data"
+        ],
+        [
+          13,
+          "automated crop disease scoring using convolutional neural networks and weather stations"
+        ],
+        [
+          14,
+          "predictive analytics for plant health status using open-source image and climate datasets"
+        ],
+        [
+          15,
+          "correlation between meteorological conditions and plant disease severity in image datasets"
+        ],
+        [
+          16,
+          "transfer learning for plant disease severity prediction with limited labeled data and weather features"
+        ],
+        [
+          17,
+          "spatio-temporal modeling of plant diseases using remote sensing and climate records"
+        ],
+        [
+          18,
+          "ensemble methods for plant disease severity estimation from heterogeneous data sources"
+        ],
+        [
+          19,
+          "crop disease risk assessment using public image repositories and historical weather data"
+        ],
+        [
+          20,
+          "computer vision and meteorology integration for precision agriculture disease management"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records biology": 0,
+        "multimodal plant pathology prediction with computer vision and climate variables": 2,
+        "plant disease severity estimation using image and weather data": 3
+      },
+      "total_queries_issued": 2
+    },
     "extracted_queries": [
-      "phenotypic symptom progression environmental stress",
-      "PlantVillage dataset weather station data",
-      "abiotic biotic interaction stress response",
-      "disease severity index remote sensing metrics",
-      "pathogen epidemiology climate covariates modeling"
+      "phenotypic symptom quantification lesion area",
+      "deep learning plant pathology UAV multispectral",
+      "disease severity index automated visual inspection",
+      "weather covariates fungal outbreak forecasting",
+      "pathogen-environment interaction epidemiological modeling"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -26,26 +116,26 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "success",
+    "outcome": "exhausted",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2407.12851"
+        "2004.11958"
       ]
     },
     "per_query_hit_count": {
-      "PlantVillage dataset weather station data": 3,
       "Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records biology": 3,
-      "abiotic biotic interaction stress response": 3,
-      "disease severity index remote sensing metrics": 3,
-      "pathogen epidemiology climate covariates modeling": 3,
-      "phenotypic symptom progression environmental stress": 3
+      "deep learning plant pathology UAV multispectral": 3,
+      "disease severity index automated visual inspection": 1,
+      "pathogen-environment interaction epidemiological modeling": 3,
+      "phenotypic symptom quantification lesion area": 3,
+      "weather covariates fungal outbreak forecasting": 3
     },
     "relevance_judge": {
       "enabled": true,
-      "marginal_fallback_used": true,
-      "rejected_count": 5,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
       "rejections": [
         {
           "primary_pointer": "1910.11509",
@@ -53,29 +143,19 @@
           "title": "Deep 1D-Convnet for accurate Parkinson disease detection and severity prediction from gait"
         },
         {
-          "primary_pointer": "2407.12851",
-          "rationale": "The paper focuses on constructing an ontology for Traditional Chinese Medicine (TCM) symptom phenotypes using electronic medical records, which is an off-domain application (human medicine vs. plant biology) and addresses semantic data integration rather than the specific mechanism of predicting plant disease severity from images and meteorological data. It shares only the homonym keyword \"disease\" but lacks any measurable connection to the user's variables, domain, or empirical setting.",
-          "title": "ISPO: An Integrated Ontology of Symptom Phenotypes for Semantic Integration of Traditional Chinese Medical Data"
+          "primary_pointer": "2412.00160",
+          "rationale": "The paper focuses on Alzheimer's disease subtypes using MRI data in humans, which is an entirely different biological domain (neurology vs. plant pathology) and data modality (medical imaging vs. plant images/meteorology) than the user's question. It fails all inclusion criteria (a-f) as it shares no mechanism, variables, or empirical population with predicting plant disease severity, and the overlap in keywords like \"data-driven\" and \"subtypes\" represents a distinct construct sharing only homon",
+          "title": "How reproducible are data-driven subtypes of Alzheimer's disease atrophy?"
         },
         {
-          "primary_pointer": "2405.19595",
-          "rationale": "The paper is entirely off-domain, focusing on human medical imaging (abdominal CT scans) and traumatic injury detection, whereas the user's question concerns plant disease severity prediction using image data and meteorological records. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (e.g., \"disease\" in humans vs. plants) and \"Off-domain entirely,\" as there is no measurable connection to the biological mechanism, domain, or variables of the user's resea",
-          "title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset"
-        },
-        {
-          "primary_pointer": "2409.00735",
-          "rationale": "The paper focuses on a simulation environment for optimizing chemical treatment strategies and yield recovery using reinforcement learning, rather than addressing the specific mechanism of predicting disease severity from image and meteorological data. While it operates in the same broad domain of agricultural biotic stress, it does not measure the target variables (image-based severity prediction or weather correlations) nor does it establish the empirical baseline for the specific prediction t",
-          "title": "AgGym: An agricultural biotic stress simulation environment for ultra-precision management planning"
-        },
-        {
-          "primary_pointer": "2403.19646",
-          "rationale": "The paper focuses on general remote sensing change detection and captioning (e.g., urban expansion, land cover change) using a generic \"Change-Agent\" framework, which does not address the specific biological mechanism of plant disease severity or the integration of meteorological records required by the user's question. While it uses satellite imagery, it lacks the specific domain application (plant pathology) and the multi-modal data fusion (images + weather) necessary to be considered relevant",
-          "title": "Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis"
+          "primary_pointer": "1804.02985",
+          "rationale": "The paper focuses on verifying space weather forecasts (geomagnetic storms and X-ray flares) using satellite and planetary index data, which is entirely off-domain from the user's question regarding plant disease severity prediction using image and meteorological records. It shares the keyword \"forecast\" and \"weather\" but addresses a distinct construct (space weather vs. terrestrial plant pathology) with no measurable connection to the user's mechanism, variables, or empirical setting.",
+          "title": "Verification of Space Weather Forecasts issued by the Met Office Space Weather Operations Centre"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-04T18:59:00Z",
+    "started_at": "2026-09-08T12:11:11Z",
     "term_input": {
       "normalized": "predicting plant disease severity from publicly available image data and meteorological records biology",
       "raw": "Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological Records biology"
@@ -97,7 +177,7 @@
           "primary_pointer": "2412.00160"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title=\"How reproducible are data-driven subtypes of Alzheimer's disease atrophy?\")",
-        "failed_at": "2026-08-04T18:59:29Z",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
@@ -120,228 +200,244 @@
           "primary_pointer": "2402.12205"
         },
         "details": "query-relevance 0.200 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title=\"Self-organized clustering, prediction, and superposition of long-term cognitive decline from short-term individual cognitive test scores in Alzheimer's disease\")",
-        "failed_at": "2026-08-04T18:59:29Z",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Abdominal aortic aneurysm (AAA) is a permanent and irreversible dilation of the lower region of the aorta. It is typically an asymptomatic condition that if left untreated can expand to the point of rupture. Mechanically-speaking, rupture of an artery occurs when the local wall stress exceeds the local wall strength. It is therefore understandable that numerous studies have attempted to estimate the AAA wall stress. Recently the Intelligent Systems for Medicine Laboratory (ISML) presented a very efficient method to compute AAA wall stress using geometry from Computed Tomography (CT) images, and median arterial pressure as the applied load. The ISML's method is embedded in the software platform BioPARR - Biomechanics based Prediction of Aneurysm Rupture Risk, freely available from http://bioparr.mech.uwa.edu.au/. The uniqueness of our stress computation approach is three-fold: i) the results are insensitive to unknown patient-specific mechanical properties of arterial wall tissue; ii) the residual stress is accounted for, according to Y.C. Fung's Uniform Stress Hypothesis; and iii) the analysis is automated and quick, making our approach compatible with clinical workflows. In this study we evaluated 19 cases of AAA. A proportion of these were classified as symptomatic. The results of the analysis demonstrate, contrary to the common view, that neither the wall stress magnitude nor the stress distribution correlate with the presence of clinical symptoms.",
+          "claimed_abstract": "Accurate skin lesion classification can benefit from lesion segmentation masks, but requiring masks or an auxiliary segmentation model during inference reduces clinical practicality and increases computational complexity. This work introduces Privileged Lesion-Context Relational Distillation (PLCRD), a teacher-student framework that exploits lesion masks exclusively during training while preserving image-only inference. The privileged teacher jointly analyzes the original dermoscopic image and its mask-guided lesion region to learn lesion-specific and contextual diagnostic representations. An image-only student is then trained through complementary knowledge-transfer mechanisms that convey the teacher's diagnostic distribution, lesion-focused attention, inter-lesion relational geometry, and lesion-context structure. PLCRD decomposes deep representations into lesion and contextual embeddings and transfers their relational organization through inter-lesion similarity alignment, lesion-context affinity matching, separation regularization, and class-aware relational learning. This formulation avoids direct feature matching between heterogeneous teacher and student architectures and enables the student to internalize mask-informed diagnostic structure without accessing masks at deployment. The framework was evaluated on HAM10000 using lesion-disjoint data partitioning and externally validated on ISIC 2018 without retraining. PLCRD achieved a lesion-level macro-F1 of 0.773 +/- 0.018, balanced accuracy of 0.764 +/- 0.023, and macro-AUROC of 0.976 +/- 0.002 on HAM10000, together with a macro-F1 of 0.732 +/- 0.008 on ISIC 2018. The results indicate that privileged lesion annotations can be transformed into transferable relational knowledge, yielding a practical and interpretable approach to mask-free skin lesion classification.",
           "claimed_authors": [
-            "Karol Miller",
-            "Hozan Mufty",
-            "Alastair Catlin",
-            "Christopher Rogers",
-            "Bradley Saunders",
-            "Ross Sciarrone",
-            "Inge Fourneau",
-            "Bart Meuris",
-            "Angus Tavner",
-            "Grand R. Joldes",
-            "Adam Wittek"
+            "Abu Mukaddim Rahi",
+            "Md Mithun Hossain",
+            "Md Zulficar Hasan Joy",
+            "M. F. Mridha",
+            "Md. Jakir Hossen"
           ],
-          "claimed_title": "Wall Stress Distributions in Abdominal Aortic Aneurysms Do Not Correlate With Symptoms",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1904.07393"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Wall Stress Distributions in Abdominal Aortic Aneurysms Do Not Correlate With Symptoms')",
-        "failed_at": "2026-08-04T18:59:29Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Is environmental injustice driven by a global network of multinational companies? Is there a global environmental justice movement resisting extractivism? This study addresses these questions through a social network analysis of firms and Environmental Justice Organizations (EJOs) involved in socioenvironmental conflicts. Using Environmental Justice Atlas (EJAtlas) data, we examine 3,396 conflicts involving 6,244 companies and 11,231 EJOs. The findings reveal evident structural asymmetries. Corporations form cohesive, sector-specific global networks that support coordination across regions. Conversely, EJOs form a larger, decentralized, and self-organized network characterised by sparse localised interconnections that enable regional coordination across sectors. A limited number of international EJOs involved in many conflicts worldwide weaves a global environmental justice network to match the global spread of multinational corporations and supply chains. This research study shows that these contrasting network structures reflect the distinct purposes of their constituent actors: sectoral expansion for corporations and environmental and territorial defense for EJOs.",
-          "claimed_authors": [
-            "Dario Cottafava",
-            "José R. Nicolás-Carlock",
-            "Marcel Llavero-Pasquina",
-            "Joan Martínez Alier"
-          ],
-          "claimed_title": "Globally distributed environmental justice resistance against extractive corporate networks",
+          "claimed_title": "Privileged Lesion-Context Relational Distillation for Mask-Free Skin Lesion Classification",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2603.29722"
+          "primary_pointer": "2607.18773"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Globally distributed environmental justice resistance against extractive corporate networks')",
-        "failed_at": "2026-08-04T18:59:29Z",
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Privileged Lesion-Context Relational Distillation for Mask-Free Skin Lesion Classification')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_abstract": "Automatically measuring lesion/tumor size with RECIST (Response Evaluation Criteria In Solid Tumors) diameters and segmentation is important for computer-aided diagnosis. Although it has been studied in recent years, there is still space to improve its accuracy and robustness, such as (1) enhancing features by incorporating rich contextual information while keeping a high spatial resolution and (2) involving new tasks and losses for joint optimization. To reach this goal, this paper proposes a transformer-based network (MeaFormer, Measurement transFormer) for lesion RECIST diameter prediction and segmentation (LRDPS). It is formulated as three correlative and complementary tasks: lesion segmentation, heatmap prediction, and keypoint regression. To the best of our knowledge, it is the first time to use keypoint regression for RECIST diameter prediction. MeaFormer can enhance high-resolution features by employing transformers to capture their long-range dependencies. Two consistency losses are introduced to explicitly build relationships among these tasks for better optimization. Experiments show that MeaFormer achieves the state-of-the-art performance of LRDPS on the large-scale DeepLesion dataset and produces promising results of two downstream clinic-relevant tasks, i.e., 3D lesion segmentation and RECIST assessment in longitudinal studies.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Suhas Diggavi"
+            "Youbao Tang",
+            "Ning Zhang",
+            "Yirui Wang",
+            "Shenghua He",
+            "Mei Han",
+            "Jing Xiao",
+            "Ruei-Sung Lin"
           ],
-          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_title": "Accurate and Robust Lesion RECIST Diameter Prediction and Segmentation with Transformers",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2005.07866"
+          "claimed_year": 2022,
+          "primary_pointer": "2208.13113"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
-        "failed_at": "2026-08-04T18:59:29Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Accurate and Robust Lesion RECIST Diameter Prediction and Segmentation with Transformers')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_abstract": "Skin cancer, the most common human malignancy, is primarily diagnosed visually by physicians [1]. Classification with an automated method like CNN [2, 3] shows potential for challenging tasks [1]. By now, the deep convolutional neural networks are on par with human dermatologist [1]. This abstract is dedicated on developing a Deep Learning method for ISIC [5] 2017 Skin Lesion Detection Competition hosted at [6] to classify the dermatology pictures, which is aimed at improving the diagnostic accuracy rate and general level of the human health. The challenge falls into three sub-challenges, including Lesion Segmentation, Lesion Dermoscopic Feature Extraction and Lesion Classification. This project only participates in the Lesion Classification part. This algorithm is comprised of three steps: (1) original images preprocessing, (2) modelling the processed images using CNN [2, 3] in Caffe [4] framework, (3) predicting the test images and calculating the scores that represent the likelihood of corresponding classification. The models are built on the source images are using the Caffe [4] framework. The scores in prediction step are obtained by two different models from the source images.",
           "claimed_authors": [
-            "Deepesh Data",
-            "Linqi Song",
-            "Suhas Diggavi"
+            "Wenhao Zhang",
+            "Liangcai Gao",
+            "Runtao Liu"
           ],
-          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_title": "Using Deep Learning Method for Classification: A Proposed Algorithm for the ISIC 2017 Skin Lesion Classification Challenge",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.02664"
+          "claimed_year": 2017,
+          "primary_pointer": "1703.02182"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-08-04T18:59:29Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Using Deep Learning Method for Classification: A Proposed Algorithm for the ISIC 2017 Skin Lesion Classification Challenge')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Biotic stress consists of damage to plants through other living organisms. Efficient control of biotic agents such as pests and pathogens (viruses, fungi, bacteria, etc.) is closely related to the concept of agricultural sustainability. Agricultural sustainability promotes the development of new technologies that allow the reduction of environmental impacts, greater accessibility to farmers and, consequently, increase on productivity. The use of computer vision with deep learning methods allows the early and correct identification of the stress-causing agent. So, corrective measures can be applied as soon as possible to mitigate the problem. The objective of this work is to design an effective and practical system capable of identifying and estimating the stress severity caused by biotic agents on coffee leaves. The proposed approach consists of a multi-task system based on convolutional neural networks. In addition, we have explored the use of data augmentation techniques to make the system more robust and accurate. The experimental results obtained for classification as well as for severity estimation indicate that the proposed system might be a suitable tool to assist both experts and farmers in the identification and quantification of biotic stresses in coffee plantations.",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
           "claimed_authors": [
-            "J. G. M. Esgario",
-            "R. A. Krohling",
-            "J. A. Ventura"
+            "Deep Pandey",
+            "Qi Yu"
           ],
-          "claimed_title": "Deep Learning for Classification and Severity Estimation of Coffee Leaf Biotic Stress",
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1907.11561"
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Deep Learning for Classification and Severity Estimation of Coffee Leaf Biotic Stress')",
-        "failed_at": "2026-08-04T18:59:29Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "While generative artificial intelligence (Gen AI) increasingly transforms academic environments, a critical gap exists in understanding and mitigating human biases in AI interactions, such as anchoring and confirmation bias. This position paper advocates for metacognitive AI literacy interventions to help university students critically engage with AI and address biases across the Human-AI interaction workflows. The paper presents the importance of considering (1) metacognitive support with deliberate friction focusing on human bias; (2) bi-directional Human-AI interaction intervention addressing both input formulation and output interpretation; and (3) adaptive scaffolding that responds to diverse user engagement patterns. These frameworks are illustrated through ongoing work on \"DeBiasMe,\" AIED (AI in Education) interventions designed to enhance awareness of cognitive biases while empowering user agency in AI interactions. The paper invites multiple stakeholders to engage in discussions on design and evaluation methods for scaffolding mechanisms, bias visualization, and analysis frameworks. This position contributes to the emerging field of AI-augmented learning by emphasizing the critical role of metacognition in helping students navigate the complex interaction between human, statistical, and systemic biases in AI use while highlighting how cognitive adaptation to AI systems must be explicitly integrated into comprehensive AI literacy frameworks.",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
           "claimed_authors": [
-            "Chaeyeon Lim"
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
           ],
-          "claimed_title": "DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions",
+          "claimed_title": "The Modern Mathematics of Deep Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16770"
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='DeBiasMe: De-biasing Human-AI Interactions with Metacognitive AIED (AI in Education) Interventions')",
-        "failed_at": "2026-08-04T18:59:30Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Remote Sensing Image Retrieval remains a challenging topic due to the special nature of Remote Sensing Imagery. Such images contain various different semantic objects, which clearly complicates the retrieval task. In this paper, we present an image retrieval pipeline that uses attentive, local convolutional features and aggregates them using the Vector of Locally Aggregated Descriptors (VLAD) to produce a global descriptor. We study various system parameters such as the multiplicative and additive attention mechanisms and descriptor dimensionality. We propose a query expansion method that requires no external inputs. Experiments demonstrate that even without training, the local convolutional features and global representation outperform other systems. After system tuning, we can achieve state-of-the-art or competitive results. Furthermore, we observe that our query expansion method increases overall system performance by about 3%, using only the top-three retrieved images. Finally, we show how dimensionality reduction produces compact descriptors with increased retrieval performance and fast retrieval computation times, e.g. 50% faster than the current systems.",
+          "claimed_abstract": "Unmanned aerial vehicles (UAVs) are now beginning to be deployed for enhancing the network performance and coverage in wireless communication. However, due to the limitation of their on-board power and flight time, it is challenging to obtain an optimal resource allocation scheme for the UAV-assisted Internet of Things (IoT). In this paper, we design a new UAV-assisted IoT systems relying on the shortest flight path of the UAVs while maximising the amount of data collected from IoT devices. Then, a deep reinforcement learning-based technique is conceived for finding the optimal trajectory and throughput in a specific coverage area. After training, the UAV has the ability to autonomously collect all the data from user nodes at a significant total sum-rate improvement while minimising the associated resources used. Numerical results are provided to highlight how our techniques strike a balance between the throughput attained, trajectory, and the time spent. More explicitly, we characterise the attainable performance in terms of the UAV trajectory, the expected reward and the total sum-rate.",
           "claimed_authors": [
-            "Raffaele Imbriaco",
-            "Clint Sebastian",
-            "Egor Bondarev",
-            "Peter H. N. de With"
+            "Khoi Khac Nguyen",
+            "Trung Q. Duong",
+            "Tan Do-Duy",
+            "Holger Claussen",
+            "and Lajos Hanzo"
           ],
-          "claimed_title": "Aggregated Deep Local Features for Remote Sensing Image Retrieval",
+          "claimed_title": "3D UAV Trajectory and Data Collection Optimisation via Deep Reinforcement Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1903.09469"
+          "claimed_year": 2021,
+          "primary_pointer": "2106.03129"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Aggregated Deep Local Features for Remote Sensing Image Retrieval')",
-        "failed_at": "2026-08-04T18:59:30Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='3D UAV Trajectory and Data Collection Optimisation via Deep Reinforcement Learning')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Vision-language models (VLMs) have shown significant promise in remote sensing applications, particularly for land-use and land-cover (LULC) mapping via zero-shot classification and retrieval. However, current approaches face several key challenges, such as the dependence on caption-based supervision, which is often not available or very limited in terms of the covered semantics, and the fact of being adapted from generic VLM architectures that are suitable for very high resolution images. Consequently, these models tend to prioritize spatial context over spectral and temporal information, limiting their effectiveness for medium-resolution remote sensing imagery. In this work, we present TimeSenCLIP, a lightweight VLM for remote sensing time series, using a cross-view temporal contrastive framework to align multispectral Sentinel-2 time series with geo-tagged ground-level imagery, without requiring textual annotations. Unlike prior VLMs, TimeSenCLIP emphasizes temporal and spectral signals over spatial context, investigating whether single-pixel time series contain sufficient information for solving a variety of tasks.",
+          "claimed_abstract": "Industrial facilities often require periodic visual inspections of key installations. Examining these points of interest is time consuming, potentially hazardous or require special equipment to reach. MAVs are ideal platforms to automate this expensive and tedious task. In this work we present a novel system that enables a human operator to teach a visual inspection task to an autonomous aerial vehicle by simply demonstrating the task using a handheld device. To enable robust operation in confined, GPS-denied environments, the system employs the Google Tango visual-inertial mapping framework as the only source of pose estimates. In a first step the operator records the desired inspection path and defines the inspection points. The mapping framework then computes a feature-based localization map, which is shared with the robot. After take-off, the robot estimates its pose based on this map and plans a smooth trajectory through the way points defined by the operator. Furthermore, the system is able to track the poses of other robots or the operator, localized in the same map, and follow them in real-time while keeping a safe distance.",
           "claimed_authors": [
-            "Pallavi Jain",
-            "Diego Marcos",
-            "Dino Ienco",
-            "Roberto Interdonato",
-            "Tristan Berchoux"
+            "Marius Fehr",
+            "Thomas Schneider",
+            "Marcin Dymczyk",
+            "Jürgen Sturm",
+            "Roland Siegwart"
           ],
-          "claimed_title": "TimeSenCLIP: A Time Series Vision-Language Model for Remote Sensing",
+          "claimed_title": "Visual-Inertial Teach and Repeat for Aerial Inspection",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.11919"
+          "claimed_year": 2018,
+          "primary_pointer": "1803.09650"
         },
-        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='TimeSenCLIP: A Time Series Vision-Language Model for Remote Sensing')",
-        "failed_at": "2026-08-04T18:59:30Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Visual-Inertial Teach and Repeat for Aerial Inspection')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Mediterranean ecosystems such as those found in California, Central Chile, Southern Europe, and Southwest Australia host numerous, diverse, fire-adapted micro-ecosystems. These micro-ecosystems are as diverse as mountainous conifer to desert-like chaparral communities. Over the last few centuries, human intervention, invasive species, and climate warming have drastically affected the composition and health of Mediterranean ecosystems on almost every continent. Increased fuel load from fire suppression policies and the continued range expansion of non-native insects and plants, some driven by long-term drought, produced the deadliest wildfire season on record in 2018. As a consequence of these fires, a large number of structures are destroyed, releasing household chemicals into the environment as uncontrolled toxins. The mobilization of these materials can lead to health risks and disruption in both human and natural systems. This article identifies drivers that led to a structural weakening of the mosaic of fire-adapted ecosystems in California, and subsequently increased the risk of destructive and explosive wildfires throughout the state. Under a new climate regime, managing the impacts on systems moving out-of-phase with natural processes may protect lives and ensure the stability of ecosystem services.",
+          "claimed_abstract": "Coronal mass ejections (CMEs) from the Sun can have severe impacts on the Earth environment in the form of geomagnetic storms. These storms pose a risk to the global technological infrastructure, making the prediction of these events imperative. In this paper, we have broadened the statistical verification of the Bz4Cast tool, the first empirically-driven model to forecast solar wind magnetic vectors inside a CME prior to their Earth arrival. Twenty five CME events (between 2012 and 2016) have been tested with the Bz4Cast model, and the skills have been compared to the heuristic approach of NOAA's Space Weather Prediction Center (SWPC) G-scale for 3-day geomagnetic storm forecasts. For a broad range of scores, and within uncertainty, the Bz4Cast architecture provided the same skill as the experienced on-duty forecasters at SWPC. The most prominent difference is that the Bz4Cast architecture provides a slightly higher false alarm ratio than the SWPC 3-day forecast.",
           "claimed_authors": [
-            "Kimberley Miner",
-            "Laura Meyerson",
-            ". Climate Change Institute",
-            "School of Earth",
-            "Climate Sciences",
-            "University of Maine",
-            " Orono",
-            "ME 04469 2. Department of Natural Resources Science",
-            "University of Rhode Island",
-            " Kingston",
-            "RI 02881"
+            "H. J. Austin",
+            "N. P. Savani"
           ],
-          "claimed_title": "Invasive species, extreme fire risk, and toxin release under a changing climate",
+          "claimed_title": "Skills for forecasting space weather",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2008.01035"
+          "claimed_year": 2026,
+          "primary_pointer": "2608.08102"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Invasive species, extreme fire risk, and toxin release under a changing climate')",
-        "failed_at": "2026-08-04T18:59:30Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Skills for forecasting space weather')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The response of precipitation extremes to climate change is considered using results from theory, modeling, and observations, with a focus on the physical factors that control the response. Observations and simulations with climate models show that precipitation extremes intensify in response to a warming climate. However, the sensitivity of precipitation extremes to warming remains uncertain when convection is important, and it may be higher in the tropics than the extratropics. Several physical contributions govern the response of precipitation extremes. The thermodynamic contribution is robust and well understood, but theoretical understanding of the microphysical and dynamical contributions is still being developed. Orographic precipitation extremes and snowfall extremes respond differently from other precipitation extremes and require particular attention. Outstanding research challenges include the influence of mesoscale convective organization, the dependence on the duration considered, and the need to better constrain the sensitivity of tropical precipitation extremes to warming.",
+          "claimed_abstract": "The Met Office Space Weather Operations Centre produces 24/7/365 space weather guidance, alerts, and forecasts to a wide range of government and commercial end users across the United Kingdom. Solar flare forecasts are one of its products, which are issued multiple times a day in two forms; forecasts for each active region on the solar disk over the next 24 hours, and full-disk forecasts for the next four days. Here the forecasting process is described in detail, as well as first verification of archived forecasts using methods commonly used in operational weather prediction. Real-time verification available for operational flare forecasting use is also described. The influence of human forecasters is highlighted, with human-edited forecasts outperforming original model results, and forecasting skill decreasing over longer forecast lead times.",
           "claimed_authors": [
-            "Paul A. O'Gorman"
+            "Sophie A. Murray",
+            "Suzy Bingham",
+            "Michael Sharpe",
+            "David R. Jackson"
           ],
-          "claimed_title": "Precipitation extremes under climate change",
+          "claimed_title": "Flare forecasting at the Met Office Space Weather Operations Centre",
           "claimed_venue": "arXiv",
-          "claimed_year": 2015,
-          "primary_pointer": "1503.07557"
+          "claimed_year": 2017,
+          "primary_pointer": "1703.06754"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Precipitation extremes under climate change')",
-        "failed_at": "2026-08-04T18:59:30Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Flare forecasting at the Met Office Space Weather Operations Centre')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Assessments of impacts of climate change and future projections over the Indian region, have so far relied on a single regional climate model (RCM) - eg., the PRECIS RCM of the Hadley Centre, UK. While these assessments have provided inputs to various reports (e.g., INCCA 2010; NATCOMM2 2012), it is important to have an ensemble of climate projections drawn from multiple RCMs due to large uncertainties in regional-scale climate projections. Ensembles of multi-RCM projections driven under different perceivable socio-economic scenarios are required to capture the probable path of growth, and provide the behavior of future climate and impacts on various biophysical systems and economic sectors dependent on such systems.\n  The Centre for Climate Change Research, Indian Institute of Tropical Meteorology (CCCR-IITM) has generated an ensemble of high resolution downscaled projections of regional climate and monsoon over South Asia until 2100 for the Intergovernmental Panel for Climate Change (IPCC)using a RCM (ICTP-RegCM4) at 50 km horizontal resolution, by driving the regional model with lateral and lower boundary conditions from multiple global atmosphere-ocean coupled models from the Coupled Model Intercomparison Project Phase 5 (CMIP5). The future projections are based on three Representation Concentration Pathway (RCP) scenarios (viz., RCP2.6, RCP4.5, RCP8.5) of the IPCC.",
+          "claimed_abstract": "The space weather community has begun to use frontier methods such as data assimilation, machine learning, and ensemble modeling to advance current operational forecasting efforts. This was highlighted by a multi-disciplinary session at the 2017 American Geophysical Union Meeting, 'Frontier Solar-Terrestrial Science Enabled by the Combination of Data-Driven Techniques and Physics-Based Understanding', with considerable discussion surrounding ensemble techniques. Here ensemble methods are described in detail; using a set of predictions to improve on a single-model output, for example taking a simple average of multiple models, or using more complex techniques for data assimilation. They have been used extensively in fields such as numerical weather prediction and data science, for both improving model accuracy and providing a measure of model uncertainty. Researchers in the space weather community have found them to be similarly useful, and some examples of success stories are highlighted in this commentary. Future developments are also encouraged to transition these basic research efforts to operational forecasting as well as providing prediction errors to aid end-user understanding.",
           "claimed_authors": [
-            "J. Sanjay",
-            "R. Krishnan",
-            "M. V. S. Ramarao",
-            "R. Mahesh",
-            "Bhupendra Bahadur Singh",
-            "Jayashri Patel",
-            "Sandip Ingle",
-            "Preethi Bhaskar",
-            "J. V. Revadekar",
-            "T. P. Sabin",
-            "M. Mujumdar"
+            "Sophie A. Murray"
           ],
-          "claimed_title": "Future Climate Change Projections over the Indian Region",
+          "claimed_title": "The importance of ensemble techniques for operational space weather forecasting",
           "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2012.10386"
+          "claimed_year": 2018,
+          "primary_pointer": "1806.09861"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Future Climate Change Projections over the Indian Region')",
-        "failed_at": "2026-08-04T18:59:30Z",
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='The importance of ensemble techniques for operational space weather forecasting')",
+        "failed_at": "2026-09-08T12:11:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The simplest epidemiologic model composed by mutually exclusive compartments SIR (susceptible-infected-susceptible) is presented to describe a reality. From health concerns to situations related with marketing, informatics or even sociology, several are the fields that are using this epidemiological model as a first approach to better understand a situation. In this paper, the basic transmission model is analyzed, as well as simple tools that allows us to extract a great deal of information about possible solutions. A set of applications - traditional and new ones - is described to show the importance of this model.",
+          "claimed_authors": [
+            "Helena Sofia Rodrigues"
+          ],
+          "claimed_title": "Application of SIR epidemiological model: new trends",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.02565"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Application of SIR epidemiological model: new trends')",
+        "failed_at": "2026-09-08T12:11:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Network epidemiology has become a core framework for investigating the role of human contact patterns in the spreading of infectious diseases. In network epidemiology represents the contact structure as a network of nodes (individuals) connected by links (sometimes as a temporal network where the links are not continuously active) and the disease as a compartmental model (where individuals are assigned states with respect to the disease and follow certain transition rules between the states). In this paper, we discuss fast algorithms for such simulations and also compare two commonly used versions - one where there is a constant recovery rate (the number of individuals that stop being infectious per time is proportional to the number of such people), the other where the duration of the disease is constant. We find that, for most practical purposes, these versions are qualitatively the same.",
+          "claimed_authors": [
+            "Petter Holme"
+          ],
+          "claimed_title": "Model versions and fast algorithms for network epidemiology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1403.1011"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Model versions and fast algorithms for network epidemiology')",
+        "failed_at": "2026-09-08T12:11:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In epidemiology, an epidemic is defined as the spread of an infectious disease to a large number of people in a given population within a short period of time. In the marketing context, a message is viral when it is broadly sent and received by the target market through person-to-person transmission. This specific marketing communication strategy is commonly referred as viral marketing. Due to this similarity between an epidemic and the viral marketing process and because the understanding of the critical factors to this communications strategy effectiveness remain largely unknown, the mathematical models in epidemiology are presented in this marketing specific field. In this paper, an epidemiological model SIR (Susceptible- Infected-Recovered) to study the effects of a viral marketing strategy is presented. It is made a comparison between the disease parameters and the marketing application, and Matlab simulations are performed. Finally, some conclusions are carried out and their marketing implications are exposed: interactions across the parameters suggest some recommendations to marketers, as the profitability of the investment or the need to improve the targeting criteria of the communications campaigns.",
+          "claimed_authors": [
+            "Helena Sofia Rodrigues",
+            "Manuel José Fonseca"
+          ],
+          "claimed_title": "Can information be spread as a virus? Viral Marketing as epidemiological model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1611.04529"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Plant Disease Severity from Publicly Available Image Data and Meteoro', candidate_title='Can information be spread as a virus? Viral Marketing as epidemiological model')",
+        "failed_at": "2026-09-08T12:11:38Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -349,209 +445,59 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Imanne El Maachi",
-            "Guillaume-Alexandre Bilodeau",
-            "Wassim Bouachir"
+            "David LeBauer",
+            "Max Burnette",
+            "Noah Fahlgren",
+            "Rob Kooper",
+            "Kenton McHenry",
+            "Abby Stylianou"
           ],
-          "title": "Deep 1D-Convnet for accurate Parkinson disease detection and severity prediction from gait",
-          "topically_marginal": true,
+          "title": "What Does TERRA-REF's High Resolution, Multi Sensor Plant Sensing Public Domain Data Offer the Computer Vision Community?",
           "venue": "arXiv",
-          "year": 2019
+          "year": 2021
         },
-        "primary_pointer": "1910.11509",
-        "summary": "Diagnosing Parkinson's disease is a complex task that requires the evaluation of several motor and non-motor symptoms. During diagnosis, gait abnormalities are among the important symptoms that physicians should consider. However, gait evaluation is challenging and relies on the expertise and subjectivity of clinicians. In this context, the use of an intelligent gait analysis algorithm may assist physicians in order to facilitate the diagnosis process. This paper proposes a novel intelligent Parkinson detection system based on deep learning techniques to analyze gait information. We used 1D convolutional neural network (1D-Convnet) to build a Deep Neural Network (DNN) classifier. The proposed model processes 18 1D-signals coming from foot sensors measuring the vertical ground reaction force (VGRF). The first part of the network consists of 18 parallel 1D-Convnet corresponding to system inputs. The second part is a fully connected network that connects the concatenated outputs of the 1D-Convnets to obtain a final classification. We tested our algorithm in Parkinson's detection and in the prediction of the severity of the disease with the Unified Parkinson's Disease Rating Scale (UPDRS). Our experiments demonstrate the high efficiency of the proposed method in the detection of Parkinson disease based on gait data. The proposed algorithm achieved an accuracy of 98.7 %. To our knowledge, this is the state-of-the-start performance in Parkinson's gait recognition. Furthermore, we achieved an accuracy of 85.3 % in Parkinson's severity prediction. To the best of our knowledge, this is the first algorithm to perform a severity prediction based on the UPDRS. Our results show that the model is able to learn intrinsic characteristics from gait data and to generalize to unseen subjects, which could be helpful in a clinical diagnosis.",
+        "primary_pointer": "2107.14072",
+        "summary": "A core objective of the TERRA-REF project was to generate an open-access reference dataset for the evaluation of sensing technologies to study plants under field conditions. The TERRA-REF program deployed a suite of high-resolution, cutting edge technology sensors on a gantry system with the aim of scanning 1 hectare (10$^4$) at around 1 mm$^2$ spatial resolution multiple times per week. The system contains co-located sensors including a stereo-pair RGB camera, a thermal imager, a laser scanner to capture 3D structure, and two hyperspectral cameras covering wavelengths of 300-2500nm. This sensor data is provided alongside over sixty types of traditional plant phenotype measurements that can be used to train new machine learning models. Associated weather and environmental measurements, information about agronomic management and experimental design, and the genomic sequences of hundreds of plant varieties have been collected and are available alongside the sensor and plant phenotype data.\n  Over the course of four years and ten growing seasons, the TERRA-REF system generated over 1 PB of sensor data and almost 45 million files. The subset that has been released to the public domain accounts for two seasons and about half of the total data volume. This provides an unprecedented opportunity for investigations far beyond the core biological scope of the project.\n  The focus of this paper is to provide the Computer Vision and Machine Learning communities an overview of the available data and some potential applications of this one of a kind data.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1910.11509",
+          "final_url": "https://arxiv.org/abs/2107.14072",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.3,
+          "query_relevance_score": 0.4286,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-04T18:59:28Z"
+          "verified_at": "2026-09-08T12:11:52Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Zixin Shu",
-            "Rui Hua",
-            "Dengying Yan",
-            "Chenxia Lu",
-            "Ning Xu",
-            "Jun Li",
-            "Hui Zhu",
-            "Jia Zhang",
-            "Dan Zhao",
-            "Chenyang Hui",
-            "Junqiu Ye",
-            "Chu Liao",
-            "Qi Hao",
-            "Wen Ye",
-            "Cheng Luo",
-            "Xinyan Wang",
-            "Chuang Cheng",
-            "Xiaodong Li",
-            "Baoyan Liu",
-            "Xiaji Zhou",
-            "Runshun Zhang",
-            "Min Xu",
-            "Xuezhong Zhou"
+            "Ranjita Thapa",
+            "Noah Snavely",
+            "Serge Belongie",
+            "Awais Khan"
           ],
-          "title": "ISPO: An Integrated Ontology of Symptom Phenotypes for Semantic Integration of Traditional Chinese Medical Data",
-          "topically_marginal": true,
+          "title": "The Plant Pathology 2020 challenge dataset to classify foliar disease of apples",
           "venue": "arXiv",
-          "year": 2024
+          "year": 2020
         },
-        "primary_pointer": "2407.12851",
-        "summary": "Symptom phenotypes are one of the key types of manifestations for diagnosis and treatment of various disease conditions. However, the diversity of symptom terminologies is one of the major obstacles hindering the analysis and knowledge sharing of various types of symptom-related medical data particularly in the fields of Traditional Chinese Medicine (TCM). Objective: This study aimed to construct an Integrated Ontology of symptom phenotypes (ISPO) to support the data mining of Chinese EMRs and real-world study in TCM field. Methods: To construct an integrated ontology of symptom phenotypes (ISPO), we manually annotated classical TCM textbooks and large-scale Chinese electronic medical records (EMRs) to collect symptom terms with support from a medical text annotation system. Furthermore, to facilitate the semantic interoperability between different terminologies, we incorporated public available biomedical vocabularies by manual mapping between Chinese terms and English terms with cross-references to source vocabularies. In addition, we evaluated the ISPO using independent clinical EMRs to provide a high-usable medical ontology for clinical data analysis. Results: By integrating 78,696 inpatient cases of EMRs, 5 biomedical vocabularies, 21 TCM books and dictionaries, ISPO provides 3,147 concepts, 23,475 terms, and 55,552 definition or contextual texts. Adhering to the taxonomical structure of the related anatomical systems of symptom phenotypes, ISPO provides 12 top-level categories and 79 middle-level sub-categories. The validation of data analysis showed the ISPO has a coverage rate of 95.35%, 98.53% and 92.66% for symptom terms with occurrence rates of 0.5% in additional three independent curated clinical datasets, which can demonstrate the significant value of ISPO in mapping clinical terms to ontologies.",
+        "primary_pointer": "2004.11958",
+        "summary": "Apple orchards in the U.S. are under constant threat from a large number of pathogens and insects. Appropriate and timely deployment of disease management depends on early disease detection. Incorrect and delayed diagnosis can result in either excessive or inadequate use of chemicals, with increased production costs, environmental, and health impacts. We have manually captured 3,651 high-quality, real-life symptom images of multiple apple foliar diseases, with variable illumination, angles, surfaces, and noise. A subset, expert-annotated to create a pilot dataset for apple scab, cedar apple rust, and healthy leaves, was made available to the Kaggle community for 'Plant Pathology Challenge'; part of the Fine-Grained Visual Categorization (FGVC) workshop at CVPR 2020 (Computer Vision and Pattern Recognition). We also trained an off-the-shelf convolutional neural network (CNN) on this data for disease classification and achieved 97% accuracy on a held-out test set. This dataset will contribute towards development and deployment of machine learning-based automated plant disease classification algorithms to ultimately realize fast and accurate disease detection. We will continue to add images to the pilot dataset for a larger, more comprehensive expert-annotated dataset for future Kaggle competitions and to explore more advanced methods for disease classification and quantification.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2407.12851",
+          "final_url": "https://arxiv.org/abs/2004.11958",
           "http_status": 200,
-          "pdf_sample_score": 0.3326,
-          "query_relevance_score": 0.4,
+          "pdf_sample_score": 0.2902,
+          "query_relevance_score": 0.5714,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-04T18:59:29Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jeffrey D. Rudie",
-            "Hui-Ming Lin",
-            "Robyn L. Ball",
-            "Sabeena Jalal",
-            "Luciano M. Prevedello",
-            "Savvas Nicolaou",
-            "Brett S. Marinelli",
-            "Adam E. Flanders",
-            "Kirti Magudia",
-            "George Shih",
-            "Melissa A. Davis",
-            "John Mongan",
-            "Peter D. Chang",
-            "Ferco H. Berger",
-            "Sebastiaan Hermans",
-            "Meng Law",
-            "Tyler Richards",
-            "Jan-Peter Grunz",
-            "Andreas Steven Kunz",
-            "Shobhit Mathur",
-            "Sandro Galea-Soler",
-            "Andrew D. Chung",
-            "Saif Afat",
-            "Chin-Chi Kuo",
-            "Layal Aweidah",
-            "Ana Villanueva Campos",
-            "Arjuna Somasundaram",
-            "Felipe Antonio Sanchez Tijmes",
-            "Attaporn Jantarangkoon",
-            "Leonardo Kayat Bittencourt",
-            "Michael Brassil",
-            "Ayoub El Hajjami",
-            "Hakan Dogan",
-            "Muris Becircic",
-            "Agrahara G. Bharatkumar",
-            "Eduardo Moreno Júdice de Mattos Farina",
-            "Dataset Curator Group",
-            "Dataset Contributor Group",
-            "Dataset Annotator Group",
-            "Errol Colak"
-          ],
-          "title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2405.19595",
-        "summary": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2405.19595",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-04T18:59:29Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Mahsa Khosravi",
-            "Matthew Carroll",
-            "Kai Liang Tan",
-            "Liza Van der Laan",
-            "Joscif Raigne",
-            "Daren S. Mueller",
-            "Arti Singh",
-            "Aditya Balu",
-            "Baskar Ganapathysubramanian",
-            "Asheesh Kumar Singh",
-            "Soumik Sarkar"
-          ],
-          "title": "AgGym: An agricultural biotic stress simulation environment for ultra-precision management planning",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2409.00735",
-        "summary": "Agricultural production requires careful management of inputs such as fungicides, insecticides, and herbicides to ensure a successful crop that is high-yielding, profitable, and of superior seed quality. Current state-of-the-art field crop management relies on coarse-scale crop management strategies, where entire fields are sprayed with pest and disease-controlling chemicals, leading to increased cost and sub-optimal soil and crop management. To overcome these challenges and optimize crop production, we utilize machine learning tools within a virtual field environment to generate localized management plans for farmers to manage biotic threats while maximizing profits. Specifically, we present AgGym, a modular, crop and stress agnostic simulation framework to model the spread of biotic stresses in a field and estimate yield losses with and without chemical treatments. Our validation with real data shows that AgGym can be customized with limited data to simulate yield outcomes under various biotic stress conditions. We further demonstrate that deep reinforcement learning (RL) policies can be trained using AgGym for designing ultra-precise biotic stress mitigation strategies with potential to increase yield recovery with less chemicals and lower cost. Our proposed framework enables personalized decision support that can transform biotic stress management from being schedule based and reactive to opportunistic and prescriptive. We also release the AgGym software implementation as a community resource and invite experts to contribute to this open-sourced publicly available modular environment framework. The source code can be accessed at: https://github.com/SCSLabISU/AgGym.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2409.00735",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-04T18:59:29Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Chenyang Liu",
-            "Keyan Chen",
-            "Haotian Zhang",
-            "Zipeng Qi",
-            "Zhengxia Zou",
-            "Zhenwei Shi"
-          ],
-          "title": "Change-Agent: Towards Interactive Comprehensive Remote Sensing Change Interpretation and Analysis",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2403.19646",
-        "summary": "Monitoring changes in the Earth's surface is crucial for understanding natural processes and human impacts, necessitating precise and comprehensive interpretation methodologies. Remote sensing satellite imagery offers a unique perspective for monitoring these changes, leading to the emergence of remote sensing image change interpretation (RSICI) as a significant research focus. Current RSICI technology encompasses change detection and change captioning, each with its limitations in providing comprehensive interpretation. To address this, we propose an interactive Change-Agent, which can follow user instructions to achieve comprehensive change interpretation and insightful analysis, such as change detection and change captioning, change object counting, change cause analysis, etc. The Change-Agent integrates a multi-level change interpretation (MCI) model as the eyes and a large language model (LLM) as the brain. The MCI model contains two branches of pixel-level change detection and semantic-level change captioning, in which the BI-temporal Iterative Interaction (BI3) layer is proposed to enhance the model's discriminative feature representation capabilities. To support the training of the MCI model, we build the LEVIR-MCI dataset with a large number of change masks and captions of changes. Experiments demonstrate the SOTA performance of the MCI model in achieving both change detection and change description simultaneously, and highlight the promising application value of our Change-Agent in facilitating comprehensive interpretation of surface changes, which opens up a new avenue for intelligent remote sensing applications. To facilitate future research, we will make our dataset and codebase of the MCI model and Change-Agent publicly available at https://github.com/Chen-Yang-Liu/Change-Agent",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2403.19646",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-08-04T18:59:30Z"
+          "verified_at": "2026-09-08T12:11:52Z"
         }
       }
     ]
