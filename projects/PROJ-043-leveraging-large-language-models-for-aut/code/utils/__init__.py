@@ -1,3 +1,1 @@
-"""
-Utility modules.
-"""
+# Utility functions (logging, caching, validation) package

@@ -1,3 +1,1 @@
-"""
-LLM Refactoring Research Code Base.
-"""
+# Source code root

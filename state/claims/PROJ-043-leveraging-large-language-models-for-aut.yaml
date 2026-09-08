@@ -215,3 +215,406 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-04T21:49:36Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialization
+  claim_id: c_818c24d4
+  context: T002 Initialize Python 3.11 project with pinned dependencies in projects/PROJ-043-leveraging-large-language-models-for-aut/code/requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:34:28Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: datasets version 2.18.0
+  claim_id: c_856583db
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The datasets library version is 2.18.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:35:02Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: transformers version 4.38.0
+  claim_id: c_96523041
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The transformers library version is 4.38.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:35:36Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: radon version 6.0.1
+  claim_id: c_cfbfe91f
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The radon library version is 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:36:11Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: pylint version 3.0.3
+  claim_id: c_4bc031f2
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pylint library version is 3.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:36:36Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_796d94a9
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scikit-learn library version is 1.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:37:07Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_59e6e2f0
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statsmodels library version is 0.14.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:37:52Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_8ad83bb0
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pandas library version is 2.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:38:23Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_39d89ff0
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The numpy library version is 1.26.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:38:51Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_67c73b2c
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requests library version is 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:39:20Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: pydantic version 2.6.1
+  claim_id: c_a57a231f
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pydantic library version is 2.6.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:39:42Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.4
+  claim_id: c_b7af57e9
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pytest library version is 7.4.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:40:19Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: MAX_ATTEMPTS 400
+  claim_id: c_ca101a2a
+  context: Define variables HF_API_KEY (str), RANDOM_SEED (int), MAX_ATTEMPTS (int,
+    default 400), MIN_VALID_FUNCTIONS (int, default 100), TARGET_VALID_FUNCTIONS (int,
+    default 200), BATCH_SIZE (int, default 10), and BASELINE_TOLERANCE (float, default
+    0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of attempts for sampling is 400.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:41:05Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: MIN_VALID_FUNCTIONS 100
+  claim_id: c_edfa11d1
+  context: Define variables HF_API_KEY (str), RANDOM_SEED (int), MAX_ATTEMPTS (int,
+    default 400), MIN_VALID_FUNCTIONS (int, default 100), TARGET_VALID_FUNCTIONS (int,
+    default 200), BATCH_SIZE (int, default 10), and BASELINE_TOLERANCE (float, default
+    0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of valid functions required is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:42:07Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: TARGET_VALID_FUNCTIONS 200
+  claim_id: c_abd85bb2
+  context: Define variables HF_API_KEY (str), RANDOM_SEED (int), MAX_ATTEMPTS (int,
+    default 400), MIN_VALID_FUNCTIONS (int, default 100), TARGET_VALID_FUNCTIONS (int,
+    default 200), BATCH_SIZE (int, default 10), and BASELINE_TOLERANCE (float, default
+    0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target number of valid functions is 200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:44:01Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: BASELINE_TOLERANCE 0.01
+  claim_id: c_60e0f763
+  context: Define variables HF_API_KEY (str), RANDOM_SEED (int), MAX_ATTEMPTS (int,
+    default 400), MIN_VALID_FUNCTIONS (int, default 100), TARGET_VALID_FUNCTIONS (int,
+    default 200), BATCH_SIZE (int, default 10), and BASELINE_TOLERANCE (float, default
+    0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default baseline tolerance is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:49:54Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: bigcode/the-stack-dedup dataset
+  claim_id: c_476aead8
+  context: Fetch bigcode/the-stack-dedup via datasets.load_dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bigcode/the-stack-dedup_dataset
+  kind: entity_fact
+  raw_text: The dataset used for acquisition is bigcode/the-stack-dedup.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:53:54Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: WizardCoder-Python-13B model
+  claim_id: c_98b7c354
+  context: Invoke HuggingFace Inference API for WizardCoder-Python-13B with zero-shot
+    prompts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WizardCoder-Python-13B_model
+  kind: entity_fact
+  raw_text: The WizardCoder model used is WizardCoder-Python-13B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:54:15Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: API timeout 60 seconds
+  claim_id: c_970c9db4
+  context: "Implement batching (\u226410), retry logic (limited number of attempts),\
+    \ timeout=60 seconds per attempt, and integrate caching."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The timeout per API attempt is 60 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:54:25Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: LLM refactoring batch size 10
+  claim_id: c_413a42d6
+  context: "Implement batching (\u226410), retry logic (limited number of attempts),\
+    \ timeout=60 seconds per attempt."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch size limit for LLM refactoring is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:54:28Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: VIF threshold 5
+  claim_id: c_81efd2e8
+  context: "Iteratively drop the predictor with the highest VIF and re-fit the model\
+    \ until all remaining predictors have VIF \u2264 5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF threshold for predictor filtering is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:54:31Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: One-Sample T-Test validation
+  claim_id: c_6a708003
+  context: Perform a One-Sample T-Test on the delta distribution (testing against
+    zero).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q137330298
+        url: https://www.wikidata.org/wiki/Q137330298
+        value: "One-Sample \U0001D461-Test"
+      quote: one sample t-test
+      source_id: Q1309370
+      url: https://www.wikidata.org/wiki/Q1309370
+      value: one sample t-test
+    filled: true
+  kind: entity_fact
+  raw_text: The statistical validation method is a One-Sample T-Test.
+  resolved_value: one sample t-test
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T04:54:57Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: OLS, Ridge, and GLM models
+  claim_id: c_6f003a5c
+  context: Fit Multiple Linear Regression (OLS), Ridge Regression, and GLM models
+    using k-fold cross-validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OLS,_Ridge,_and_GLM_models
+  kind: entity_fact
+  raw_text: The models implemented are Multiple Linear Regression (OLS), Ridge Regression,
+    and GLM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:57:36Z'

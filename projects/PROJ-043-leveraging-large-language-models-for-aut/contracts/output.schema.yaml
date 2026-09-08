@@ -1,47 +1,173 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Raw Metrics Output Schema"
-description: "Schema for the output of the static analysis pipeline (User Story 1)."
-type: array
-items:
-  type: object
-  required:
-    - code
-    - hash
-    - loc
-    - nesting_depth
-    - param_count
-    - pep8_violations
-    - maintainability_index
-    - docstring_present
-  properties:
-    code:
-      type: string
-      description: "The original Python function source code."
-    hash:
-      type: string
-      description: "SHA-256 hash of the code string for deduplication and caching."
-    loc:
-      type: integer
-      description: "Lines of Code."
-      minimum: 0
-    nesting_depth:
-      type: integer
-      description: "Maximum nesting depth of control structures."
-      minimum: 0
-    param_count:
-      type: integer
-      description: "Number of parameters in the function signature."
-      minimum: 0
-    pep8_violations:
-      type: integer
-      description: "Count of PEP-8 style violations."
-      minimum: 0
-    maintainability_index:
-      type: number
-      description: "Maintainability Index score (0-100)."
-      minimum: 0
-      maximum: 100
-    docstring_present:
-      type: boolean
-      description: "Whether the function has a docstring."
-  additionalProperties: false
+# Output Schema for PROJ-043 LLM Refactoring Pipeline
+# Defines the required JSON structures for output artifacts
+# Used for validation of data/processed/raw_metrics.json and data/results/*.json
+type: object
+properties:
+  # Common metadata for all output artifacts
+  metadata:
+    type: object
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      pipeline_version:
+        type: string
+      config_snapshot:
+        type: object
+        description: Snapshot of configuration used
+    required:
+      - timestamp
+      - pipeline_version
+  # Raw metrics output structure (data/processed/raw_metrics.json)
+  raw_metrics:
+    type: array
+    items:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Original function source code
+        hash:
+          type: string
+          description: SHA256 hash of the code for caching
+          pattern: '^[a-f0-9]{64}$'
+        loc:
+          type: integer
+          description: Lines of code
+          minimum: 1
+        nesting_depth:
+          type: integer
+          description: Maximum nesting depth
+          minimum: 0
+        param_count:
+          type: integer
+          description: Number of parameters
+          minimum: 0
+        pep8_violations:
+          type: integer
+          description: Count of PEP-8 violations
+          minimum: 0
+        pep8_adherence_score:
+          type: number
+          format: float
+          description: Normalized PEP-8 adherence (0-1)
+          minimum: 0
+          maximum: 1
+        maintainability_index:
+          type: number
+          format: float
+          description: Maintainability index score
+        docstring_present:
+          type: boolean
+          description: Whether a docstring is present
+      required:
+        - code
+        - hash
+        - loc
+        - nesting_depth
+        - param_count
+        - pep8_violations
+        - pep8_adherence_score
+        - maintainability_index
+        - docstring_present
+  # Refactoring results structure (data/processed/refactoring_results.json)
+  refactoring_results:
+    type: array
+    items:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Original function code
+        hash:
+          type: string
+          description: SHA256 hash of the code
+          pattern: '^[a-f0-9]{64}$'
+        refactored_code:
+          type: string
+          description: LLM-refactored code
+        baseline_code:
+          type: string
+          description: Identity baseline code
+        delta_complexity:
+          type: number
+          format: float
+          description: Change in cyclomatic complexity
+        delta_pylint:
+          type: number
+          format: float
+          description: Change in pylint score
+        delta_maintainability:
+          type: number
+          format: float
+          description: Change in maintainability index
+        status:
+          type: string
+          enum:
+            - Success
+            - Refactoring Failed
+            - Baseline Error
+      required:
+        - code
+        - hash
+        - delta_complexity
+        - delta_pylint
+        - delta_maintainability
+        - status
+  # Model summary structure (data/results/model_summary.json)
+  model_summary:
+    type: object
+    properties:
+      mean_coefficients:
+        type: object
+        description: Mean coefficients from k-fold cross-validation
+        additionalProperties:
+          type: number
+      adjusted_r2:
+        type: number
+        format: float
+        description: Adjusted R-squared from cross-validation
+      t_test_result:
+        type: object
+        properties:
+          t_statistic:
+            type: number
+            format: float
+          p_value:
+            type: number
+            format: float
+          confidence_interval:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+        required:
+          - t_statistic
+          - p_value
+      model_type:
+        type: string
+        enum:
+          - OLS
+          - Ridge
+          - GLM
+      predictors_used:
+        type: array
+        items:
+          type: string
+    required:
+      - mean_coefficients
+      - adjusted_r2
+      - t_test_result
+      - model_type
+      - predictors_used
+required:
+  - metadata
+oneOf:
+  - required:
+      - raw_metrics
+  - required:
+      - refactoring_results
+  - required:
+      - model_summary
+additionalProperties: false

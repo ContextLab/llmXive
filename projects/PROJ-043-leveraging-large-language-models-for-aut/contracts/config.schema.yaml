@@ -1,41 +1,48 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: ConfigSchema
-description: "Schema for the configuration snapshot used to validate experiment parameters."
+# Configuration Schema for PROJ-043 LLM Refactoring Pipeline
+# Defines the required structure for the application configuration
+# Used for validation via pydantic in code/utils/schema_validation.py
 type: object
 properties:
-  hf_api_key:
+  HF_API_KEY:
     type: string
-    description: "Hugging Face API key (masked in logs)."
+    description: HuggingFace API key for model access
     minLength: 1
-  random_seed:
+  RANDOM_SEED:
     type: integer
-    description: "Random seed for reproducibility."
+    description: Random seed for reproducibility
     default: 42
-  max_attempts:
+  MAX_ATTEMPTS:
     type: integer
-    description: "Maximum number of attempts to fetch valid samples."
+    description: Maximum number of attempts to fetch valid functions
+    default: 400
     minimum: 1
-    default: 50
-  min_valid_functions:
+  MIN_VALID_FUNCTIONS:
     type: integer
-    description: "Minimum number of valid functions required to proceed."
-    minimum: 100
+    description: Minimum number of valid functions required to proceed
     default: 100
-  batch_size:
-    type: integer
-    description: "Batch size for LLM processing."
     minimum: 1
+  TARGET_VALID_FUNCTIONS:
+    type: integer
+    description: Target number of valid functions to fetch
+    default: 200
+    minimum: 1
+  BATCH_SIZE:
+    type: integer
+    description: Batch size for LLM processing
     default: 10
-  log_level:
-    type: string
-    description: "Logging level."
-    enum: ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-    default: "INFO"
+    minimum: 1
+  BASELINE_TOLERANCE:
+    type: number
+    format: float
+    description: Tolerance threshold for identity baseline delta checks
+    default: 0.01
+    minimum: 0
 required:
-  - hf_api_key
-  - random_seed
-  - max_attempts
-  - min_valid_functions
-  - batch_size
-  - log_level
+  - HF_API_KEY
+  - RANDOM_SEED
+  - MAX_ATTEMPTS
+  - MIN_VALID_FUNCTIONS
+  - TARGET_VALID_FUNCTIONS
+  - BATCH_SIZE
+  - BASELINE_TOLERANCE
 additionalProperties: false

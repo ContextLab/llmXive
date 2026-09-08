@@ -1,3 +1,1 @@
-"""
-Data models and entity definitions.
-"""
+# Machine learning models and statistical analysis package

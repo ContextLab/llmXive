@@ -1,50 +1,39 @@
-# Ruff configuration for llmXive
-# Enforces rules E (pycodestyle errors), F (pyflakes), W (pycodestyle warnings), I (isort)
+# Ruff configuration for llm-refactoring-pipeline
+# This file extends settings from pyproject.toml for specific overrides if needed,
+# but primarily pyproject.toml is the source of truth.
 
-[lint]
 # Enable specific rule sets
+# E: pycodestyle errors
+# F: Pyflakes
+# W: pycodestyle warnings
+# I: isort (import sorting)
 select = ["E", "F", "W", "I"]
 
-# Ignore specific rules if necessary (add to this list as needed)
+# Ignore specific rules if necessary (add only if justified)
 ignore = []
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few specific directories
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-# Same as Black.
+# Line length matching black
 line-length = 100
+
+# Target Python version
 target-version = "py311"
 
-[lint.per-file-ignores]
-# Ignore specific rules for specific files if needed
-"__init__.py" = ["F401"]
+# Exclude directories
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "data",
+]
 
-[lint.isort]
+# Per-file ignores
+[per-file-ignores]
+"__init__.py" = ["F401"] # Allow unused imports in __init__.py for exports
+
+# Isort configuration
+[isort]
 known-first-party = ["config", "data", "llm", "models", "utils"]
-force-sort-within-sections = false
+force-sort-within-sections = true
 lines-after-imports = 2

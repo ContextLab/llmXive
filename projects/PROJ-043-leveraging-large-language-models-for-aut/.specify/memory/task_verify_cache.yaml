@@ -1,12 +1,10 @@
-T001:
+T002:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I looked for the four required top\u2011level directories (`code/`, `data/`,\
-    \ `tests/`, `paper/`) in the provided artifact list, but no directory entries\
-    \ or file listings were supplied. Since there is no evidence that these directories\
-    \ were actually created, the task\u2019s requirement is not satisfied. The implementer\
-    \ must add the missing directory structure (or provide a manifest showing they\
-    \ exist)."
+  h: cf3e95d335822bd68cc0b0424ac87982e28213962f9a4e41c49f50c95431de3b
+  r: The required file `projects/PROJ-043-leveraging-large-language-models-for-aut/code/requirements.txt`
+    does not exist, and the existing `requirements.txt` files either have version
+    ranges or extra/unpinned packages that do not match the exact list specified.
+    The task therefore remains unfinished.
 T018:
   c: false
   h: cfd198c02874cc5872fbe2ff842ff50d5a36032515da0f19a3e3815aec26db71

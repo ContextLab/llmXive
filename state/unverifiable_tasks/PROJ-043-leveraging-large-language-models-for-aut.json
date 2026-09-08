@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-043-leveraging-large-language-models-for-aut",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "I looked for the four required top\u2011level directories (`code/`, `data/`, `tests/`, `paper/`) in the provided artifact list, but no directory entries or file listings were supplied. Since there is no evidence that these directories were actually created, the task\u2019s requirement is not satisfied. The implementer must add the missing directory structure (or provide a manifest showing they exist).",
+      "first_seen": "2026-09-08T04:57:36.856963+00:00",
+      "last_seen": "2026-09-08T04:57:36.856963+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: pyproject.toml, ruff.toml",
+      "first_seen": "2026-09-08T04:57:40.811339+00:00",
+      "last_seen": "2026-09-08T04:57:40.811339+00:00"
+    }
+  ],
+  "updated_at": "2026-09-08T04:57:40.811339+00:00"
+}
