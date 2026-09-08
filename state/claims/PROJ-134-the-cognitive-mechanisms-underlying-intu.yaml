@@ -10970,3 +10970,239 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T11:38:53Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MDES calculation alpha 0.05 power 0.8
+  claim_id: c_96b54a30
+  context: Calculates MDES using statsmodels.stats.power.tt_solve_power with alpha=0.05,
+    power=0.8.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MDES calculation uses alpha=0.05 and power=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:20:41Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Retry decorator max_attempts 3 backoff_factor 1
+  claim_id: c_9b6c09e0
+  context: Implement a retry decorator with max_attempts=3 and backoff_factor=1 for
+    file I/O operations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry decorator for file I/O operations has max_attempts=3 and backoff_factor=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:20:48Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: OSF HF dataset IDs moral-foundations mfq-v1 stories-v1
+  claim_id: c_369161d6
+  context: 'Fetch Real MFQ and Real Moral Stories from OSF/HuggingFace (IDs: hf://moral-foundations/mfq-v1,
+    hf://moral-foundations/stories-v1).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OSF_HF_dataset_IDs_moral-foundations_mfq-v1_stories-v1
+  kind: entity_fact
+  raw_text: The OSF/HuggingFace dataset IDs are hf://moral-foundations/mfq-v1 and
+    hf://moral-foundations/stories-v1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:21:11Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Response time simulation LogNormal 3.5 0.5
+  claim_id: c_13cd6e06
+  context: 'Distribution: response_time ~ LogNormal(3.5, 0.5), gaze_metrics ~ Normal(0.5,
+    0.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The response_time distribution in simulation is LogNormal(3.5, 0.5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:21:30Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Gaze metrics simulation Normal 0.5 0.1
+  claim_id: c_a3579732
+  context: 'Distribution: response_time ~ LogNormal(3.5, 0.5), gaze_metrics ~ Normal(0.5,
+    0.1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gaze_metrics distribution in simulation is Normal(0.5, 0.1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:21:36Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: PyMC5 convergence R-hat less than 1.05 effective sample size greater
+    than 200
+  claim_id: c_8a093af5
+  context: Verifies R-hat < 1.05 and effective sample size > 200 for all parameters.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PyMC5_convergence_R-hat_less_than_1.05_effective_sample_size
+  kind: magnitude
+  raw_text: The PyMC5 convergence check requires R-hat < 1.05 and effective sample
+    size > 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:24:06Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MCMC sampling chains 4 draws 2000
+  claim_id: c_3cc90ef3
+  context: Using pm.sample(chains=4, draws=2000, target_accept=0.9) that returns samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MCMC sampling execution uses chains=4 and draws=2000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:24:19Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: MCMC target_accept 0.9
+  claim_id: c_4d8c9453
+  context: Using pm.sample(chains=4, draws=2000, target_accept=0.9) that returns samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target_accept parameter for MCMC sampling is 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:24:33Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Baseline model statsmodels MixedLM formula judgment_rating salience_level
+    participant_id
+  claim_id: c_dee20fa9
+  context: Compare against a Frequentist Linear Mixed Model (LMM) baseline using statsmodels.MixedLM
+    with formula judgment_rating ~ salience_level + (1|participant_id).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The frequentist baseline model uses statsmodels.MixedLM with formula judgment_rating
+    ~ salience_level + (1|participant_id).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:24:39Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 2 10 20
+  claim_id: c_8ffb928e
+  context: Perform sensitivity analysis on model thresholds (e.g., {2, 10, 20}) as
+    required by FR-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis thresholds include {2, 10, 20}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:24:53Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds low 10 20
+  claim_id: c_c6f3bc3d
+  context: Implement code/analysis/validation.py for sensitivity analysis (thresholds
+    {low, 10, 20}).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis thresholds include {low, 10, 20}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:28:33Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Robustness claim parameter recovery coverage greater than 95 percent
+  claim_id: c_5dda73d0
+  context: If Parameter Recovery coverage > 95% AND Sensitivity stability metric <
+    0.1, then the model is robust.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_claim_parameter_recovery_coverage_greater_than_95
+  kind: magnitude
+  raw_text: The robustness claim requires Parameter Recovery coverage > 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:29:03Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: Robustness claim sensitivity stability metric less than 0.1
+  claim_id: c_5bcc7c13
+  context: If Parameter Recovery coverage > 95% AND Sensitivity stability metric <
+    0.1, then the model is robust.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_claim_sensitivity_stability_metric_less_than_0.1
+  kind: magnitude
+  raw_text: The robustness claim requires Sensitivity stability metric < 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:29:25Z'
+- artifact_path: projects/PROJ-134-the-cognitive-mechanisms-underlying-intu/specs/001-the-cognitive-mechanisms-underlying-intu/tasks.md
+  attempts: 1
+  canonical: CPU sampling convergence fail R-hat greater than 1.05 within 4 hours
+  claim_id: c_8d8014f1
+  context: If CPU sampling fails to converge (R-hat > 1.05) within the 4-hour limit,
+    the script must raise a RuntimeError.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CPU_sampling_convergence_fail_R-hat_greater_than_1.05_within
+  kind: magnitude
+  raw_text: The CPU sampling fails to converge if R-hat > 1.05 within the 4-hour limit.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:33:03Z'

@@ -6,13 +6,6 @@ T006:
     \ Moreover, the required `data/processed/test.csv` and `state/artifact_hashes.yaml`\
     \ files are absent, so the verification command cannot succeed. The task\u2019\
     s deliverables are therefore not satisfied."
-T013:
-  c: false
-  h: 6f817d1f01e3e1943a82ce03f2f89bce2615147781388eb1ae6599e3d8d87cf0
-  r: "The required output file `data/processed/synthetic_mfq.csv` does not exist,\
-    \ and the script does not validate the `ground_truth_effect` against the MDES\
-    \ report\u2019s `effect_size` as stipulated (it only checks literature bounds).\
-    \ Both the deliverable artifact and a key validation step are missing."
 T014:
   c: false
   h: 325eac4c325767563e277249048e34eee2484097af1bb0a637b0652dfa6baf12

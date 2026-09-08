@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-134-the-cognitive-mechanisms-underlying-intu",
+  "tasks": [
+    {
+      "task_key": "T013",
+      "reject_count": 1,
+      "last_reason": "The required `state/mdes_report.yaml` file is absent, causing the script to raise a `FileNotFoundError`, and the expected output `data/processed/synthetic_mfq.csv` was not generated. Consequently the deliverable CSV does not exist, so the task\u2019s validation criteria are not met.",
+      "first_seen": "2026-09-08T02:33:09.065868+00:00",
+      "last_seen": "2026-09-08T02:33:09.065868+00:00"
+    }
+  ],
+  "updated_at": "2026-09-08T02:33:09.065868+00:00"
+}
