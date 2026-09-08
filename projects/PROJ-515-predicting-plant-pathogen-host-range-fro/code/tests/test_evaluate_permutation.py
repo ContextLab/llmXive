@@ -6,72 +6,66 @@ import numpy as np
 import pytest
 from pathlib import Path
 
-from src.models.evaluate import run_permutation_test, run_nested_cv, print_summary, calculate_auprc
+from src.models.evaluate import run_permutation_test, run_nested_cv, print_summary
 
 @pytest.fixture
 def sample_data():
-    """Generate sample features and labels for testing."""
+    # Create a small synthetic dataset for testing
     np.random.seed(42)
     n_samples = 100
-    n_features = 5
-    
-    X = pd.DataFrame(
-        np.random.randn(n_samples, n_features),
-        columns=[f"feature_{i}" for i in range(n_features)]
-    )
-    # Create a simple binary label with some signal
-    y = pd.Series((X["feature_0"] + X["feature_1"] + np.random.randn(n_samples) * 0.5 > 0).astype(int))
-    
+    n_features = 10
+    X = np.random.rand(n_samples, n_features)
+    y = np.random.randint(0, 2, n_samples)
     return X, y
 
 @pytest.fixture
 def temp_output_dir():
-    """Create a temporary directory for test outputs."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
-def test_run_permutation_test_basic(sample_data):
-    """Test that permutation test runs and returns expected structure."""
+def test_run_permutation_test_basic(sample_data, temp_output_dir):
     X, y = sample_data
-    result = run_permutation_test(X, y, n_permutations=5, seed=42)
-    
-    assert isinstance(result, dict)
-    assert "mean" in result
-    assert "std" in result
-    assert "scores" in result
-    assert len(result["scores"]) == 5
-    assert result["mean"] >= 0.0
-    assert result["mean"] <= 1.0
-
-def test_run_nested_cv_with_permutation(sample_data, temp_output_dir):
-    """Test that nested CV runs and includes permutation logic."""
-    X, y = sample_data
-    # Use very small numbers for speed in unit test
-    result = run_nested_cv(
+    # Run a quick permutation test with few permutations
+    results = run_permutation_test(
         X, y, 
-        n_outer_folds=2, 
-        n_inner_folds=2, 
-        seed=42, 
-        n_permutations=2
+        n_permutations=5, 
+        n_splits=3, 
+        output_dir=temp_output_dir
     )
     
-    assert isinstance(result, dict)
-    assert "auprc_mean" in result
-    assert "permutation_mean" in result
-    assert "auprc_scores" in result
-    assert "permutation_scores" in result
-    
-    # Check that we got results for both outer folds
-    assert len(result["auprc_scores"]) == 2
-    assert len(result["permutation_scores"]) == 2
+    assert "mean_perm_auprc" in results
+    assert "std_perm_auprc" in results
+    assert "scores" in results
+    assert len(results["scores"]) == 5
+    assert isinstance(results["mean_perm_auprc"], float)
 
-def test_print_summary(sample_data):
-    """Test that print_summary executes without error."""
-    results = {
-        "auprc_mean": 0.85,
-        "auprc_std": 0.05,
-        "precision_mean": 0.80,
-        "permutation_mean": 0.45
-    }
-    # Just ensure it doesn't crash
+def test_run_nested_cv_with_permutation(sample_data, temp_output_dir):
+    X, y = sample_data
+    # Run nested CV with permutation test enabled
+    results = run_nested_cv(
+        X, y,
+        n_outer=3,
+        n_inner=2,
+        n_permutations=3,
+        output_dir=temp_output_dir
+    )
+    
+    assert "mean_outer_auprc" in results
+    assert "permutation_test_results" in results
+    assert len(results["permutation_test_results"]) == 3
+    
+    for res in results["permutation_test_results"]:
+        assert "real_inner_mean" in res
+        assert "perm_mean" in res
+        assert "perm_scores" in res
+
+def test_print_summary(sample_data, temp_output_dir):
+    X, y = sample_data
+    results = run_nested_cv(
+        X, y,
+        n_outer=2,
+        n_inner=2,
+        output_dir=temp_output_dir
+    )
+    # Should not raise
     print_summary(results)

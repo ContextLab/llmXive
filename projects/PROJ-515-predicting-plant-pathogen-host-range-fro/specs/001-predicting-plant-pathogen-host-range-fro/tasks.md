@@ -171,11 +171,11 @@
  - **Output**: `data/processed/sensitivity_interactions.csv`.
 - [ ] T031 [P] Train a secondary "Sensitivity Model" using the dataset from T030 in `src/models/train.py` (reusing T014 logic). <!-- ATOMIZE: requested -->
  - **Output**: `data/models/sensitivity_model.pkl`.
-- [~] T032 [P] Compare metrics in `src/models/evaluate.py`.
+- [ ] T032 [P] Compare metrics in `src/models/evaluate.py`.
  - **Logic**: Calculate AUPRC for the Sensitivity Model and compare against the Primary Model AUPRC.
  - **Output**: `data/reports/sensitivity_analysis.json` containing `primary_auprc`, `sensitivity_auprc`, `delta`, `flag`, and `methodology`. (FR-016)
 - [ ] T033 [P] Generate `data/reports/data_quality_report.json` quantifying missing % per pathogen (FR-013)
-- [~] T035 [P] Finalize `pipeline.log` ensuring INFO entries exist for all major steps (SC-005)
+- [ ] T035 [P] Finalize `pipeline.log` ensuring INFO entries exist for all major steps (SC-005)
 
 ---
 

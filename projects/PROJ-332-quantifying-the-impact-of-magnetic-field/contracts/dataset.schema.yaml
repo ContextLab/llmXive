@@ -1,6 +1,8 @@
+%YAML 1.2
+---
 $schema: http://json-schema.org/draft-07/schema#
-title: Raw Dataset Schema
-description: Schema for raw data retrieved from MDSplus before validation and analysis.
+title: DIII-D Raw Dataset Schema
+description: Schema for raw data retrieved from MDSplus before heavy processing.
 type: object
 required:
   - discharge_id
@@ -8,11 +10,10 @@ required:
 properties:
   discharge_id:
     type: integer
-    description: Unique identifier for the DIII-D discharge.
+    description: The unique DIII-D discharge number.
   fields:
     type: object
-    description: Dictionary of field names to their raw values or time-series data.
-    additionalProperties: true
+    description: Dictionary of retrieved time-series or scalar fields.
     properties:
       efit:
         type: object
@@ -23,35 +24,27 @@ properties:
             items:
               type: number
             description: q-profile values.
-          b_tor:
+          r_major:
             type: number
-            description: Toroidal magnetic field at magnetic axis (Tesla).
-          shear:
+            description: Major radius.
+          b_toroidal:
             type: number
-            description: Local magnetic shear.
+            description: Toroidal magnetic field.
       islands:
         type: object
         description: Island chain data.
         properties:
           width:
             type: number
-            description: Pre-calculated island width (m).
+            description: Pre-calculated island width in meters.
       taue:
         type: object
         description: Energy confinement time data.
         properties:
           value:
             type: number
-            description: Energy confinement time (s).
+            description: Confinement time in seconds.
       h98y2:
         type: number
-        description: H-mode confinement enhancement factor.
-  metadata:
-    type: object
-    description: Additional metadata.
-    properties:
-      time_stamp:
-        type: string
-        format: date-time
-      source:
-        type: string
+        description: H-factor relative to ITER98y,2 scaling law.
+additionalProperties: true

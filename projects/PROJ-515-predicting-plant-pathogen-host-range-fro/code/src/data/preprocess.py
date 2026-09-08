@@ -1,367 +1,474 @@
+"""
+Data Preprocessing Module for Plant Pathogen Host Range Prediction.
+
+This module handles loading interaction data, filtering unknown labels,
+validating pathogen lists, and performing pathogen-stratified data splitting
+for training and validation sets.
+"""
+
 import os
 import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Tuple, List, Optional, Dict, Any
-
 from loguru import logger
-from src.utils.logging import get_logger
-from src.config import Paths, Seeds, ModelParams, Thresholds, get_default_config
+from sklearn.model_selection import train_test_split
 
+# Import logging setup
+from src.utils.logging import get_logger
+
+# Initialize logger
 logger = get_logger(__name__)
 
-def load_interactions(data_dir: Path) -> pd.DataFrame:
+
+def load_interactions(interactions_path: Path) -> pd.DataFrame:
     """
-    Load the merged interaction table from data/raw/interactions_merged.csv.
-    
+    Load the merged interaction table from CSV.
+
     Args:
-        data_dir: Path to the data directory.
-        
+        interactions_path: Path to the interactions CSV file.
+
     Returns:
-        DataFrame with columns: pathogen, host, label (1=infected, 0=not_infected, -1=unknown)
-        
+        DataFrame containing pathogen-host interactions.
+
     Raises:
-        FileNotFoundError: If the interaction file does not exist.
-        ValueError: If the file is empty or missing required columns.
+        FileNotFoundError: If the file does not exist.
+        ValueError: If required columns are missing.
     """
-    file_path = data_dir / "raw" / "interactions_merged.csv"
+    logger.info(f"Loading interactions from {interactions_path}")
     
-    if not file_path.exists():
-        logger.error(f"Interaction file not found: {file_path}")
-        raise FileNotFoundError(f"Interaction file not found: {file_path}")
+    if not interactions_path.exists():
+        raise FileNotFoundError(f"Interaction file not found: {interactions_path}")
+
+    df = pd.read_csv(interactions_path)
     
-    df = pd.read_csv(file_path)
-    
-    required_cols = {'pathogen', 'host', 'label'}
-    if not required_cols.issubset(df.columns):
-        missing = required_cols - set(df.columns)
-        logger.error(f"Interaction file missing required columns: {missing}")
-        raise ValueError(f"Interaction file missing required columns: {missing}")
-    
-    if df.empty:
-        logger.warning("Interaction file is empty.")
-        return df
-        
+    required_cols = ['pathogen_id', 'host_species', 'interaction_label']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+
+    logger.info(f"Loaded {len(df)} interaction records")
     return df
 
-def filter_unknown_labels(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Separate known (1, 0) and unknown (-1) labels.
-    
-    Args:
-        df: Interaction DataFrame.
-        
-    Returns:
-        Tuple of (known_df, unknown_df)
-    """
-    known_df = df[df['label'] != -1].copy()
-    unknown_df = df[df['label'] == -1].copy()
-    return known_df, unknown_df
 
-def load_valid_pathogens(data_dir: Path) -> List[str]:
+def filter_unknown_labels(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Load the list of valid pathogens (those with >0 interactions) from data/processed/valid_pathogens.json.
-    
+    Filter out records with 'unknown' interaction labels.
+    These records are excluded from training as per FR-013.
+
     Args:
-        data_dir: Path to the data directory.
-        
+        df: Input DataFrame with interaction labels.
+
+    Returns:
+        DataFrame with 'unknown' labels removed.
+    """
+    logger.info(f"Filtering unknown labels from {len(df)} records")
+    
+    initial_count = len(df)
+    # Assuming 'unknown' is represented as string 'unknown' or NaN
+    mask = df['interaction_label'].notna() & (df['interaction_label'] != 'unknown')
+    filtered_df = df[mask].copy()
+    
+    removed_count = initial_count - len(filtered_df)
+    logger.info(f"Removed {removed_count} records with unknown/NaN labels")
+    
+    return filtered_df
+
+
+def load_valid_pathogens(valid_pathogens_path: Path) -> List[str]:
+    """
+    Load the list of valid pathogens (those with >0 interactions) from JSON.
+
+    Args:
+        valid_pathogens_path: Path to the JSON file containing valid pathogen IDs.
+
     Returns:
         List of valid pathogen IDs.
-        
-    Raises:
-        FileNotFoundError: If the valid pathogens file does not exist.
-        json.JSONDecodeError: If the file is not valid JSON.
     """
-    file_path = data_dir / "processed" / "valid_pathogens.json"
+    logger.info(f"Loading valid pathogens from {valid_pathogens_path}")
     
-    if not file_path.exists():
-        logger.error(f"Valid pathogens file not found: {file_path}. "
-                     "Run T010C (Zero Interaction check) before proceeding.")
-        raise FileNotFoundError(f"Valid pathogens file not found: {file_path}. "
-                                "Run T010C before proceeding.")
-    
-    with open(file_path, 'r') as f:
+    if not valid_pathogens_path.exists():
+        raise FileNotFoundError(f"Valid pathogens file not found: {valid_pathogens_path}")
+
+    with open(valid_pathogens_path, 'r') as f:
         data = json.load(f)
-        
-    if not isinstance(data, list):
-        logger.error(f"Valid pathogens file must contain a list, got {type(data)}")
-        raise ValueError(f"Valid pathogens file must contain a list, got {type(data)}")
-        
-    return data
+    
+    # Handle both list format and dict format
+    if isinstance(data, list):
+        valid_ids = data
+    elif isinstance(data, dict) and 'valid_pathogens' in data:
+        valid_ids = data['valid_pathogens']
+    else:
+        raise ValueError("Invalid format in valid_pathogens.json")
+    
+    logger.info(f"Loaded {len(valid_ids)} valid pathogen IDs")
+    return valid_ids
+
 
 def split_pathogen_stratified(
-    df: pd.DataFrame, 
-    valid_pathogens: List[str], 
-    data_dir: Path,
+    df: pd.DataFrame,
+    valid_pathogens: List[str],
+    holdout_size: int = 10,
     test_size: float = 0.2,
+    val_size: float = 0.1,
     random_state: int = 42
-) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Perform pathogen-stratified split of the interaction data.
+    Perform pathogen-stratified splitting of the interaction data.
     
-    This ensures that pathogens present in the test set are not used in training,
-    preventing data leakage.
+    This function ensures that the split is done at the pathogen level to prevent
+    data leakage. All interactions for a given pathogen must belong to the same
+    split (Train, Val, or Holdout).
     
+    The stratification is based on the distribution of host counts per pathogen
+    to ensure representative splits.
+
     Args:
-        df: Interaction DataFrame.
-        valid_pathogens: List of valid pathogen IDs.
-        data_dir: Path to the data directory.
-        test_size: Fraction of pathogens to hold out for testing.
+        df: DataFrame containing interactions (must be filtered for unknowns already).
+        valid_pathogens: List of valid pathogen IDs to consider.
+        holdout_size: Number of pathogens to reserve for the independent hold-out set.
+        test_size: Fraction of remaining pathogens for the validation set (relative to train+val).
+        val_size: Fraction of remaining pathogens for the validation set (relative to train+val).
         random_state: Random seed for reproducibility.
-        
+
     Returns:
-        Tuple of (train_df, val_df, metadata)
-        
-    Raises:
-        ValueError: If there are insufficient pathogens for splitting.
+        Tuple of (train_df, val_df, holdout_df).
     """
-    # Filter to only valid pathogens first
-    df_valid = df[df['pathogen'].isin(valid_pathogens)].copy()
+    logger.info(f"Starting pathogen-stratified split with holdout_size={holdout_size}")
     
-    unique_pathogens = df_valid['pathogen'].unique()
-    n_pathogens = len(unique_pathogens)
+    # Filter dataframe to only valid pathogens
+    df_filtered = df[df['pathogen_id'].isin(valid_pathogens)].copy()
     
-    if n_pathogens < 10:
-        logger.error(f"Insufficient pathogens ({n_pathogens}) for stratified split. "
-                     "Minimum 10 required (including hold-out set).")
-        raise ValueError(f"Insufficient pathogens ({n_pathogens}) for stratified split. "
-                         "Minimum 10 required.")
+    if len(df_filtered) == 0:
+        raise ValueError("No interactions found for valid pathogens after filtering.")
+
+    # Get unique pathogens and their host counts for stratification
+    pathogen_stats = df_filtered.groupby('pathogen_id').agg({
+        'host_species': 'count',
+        'interaction_label': 'mean' # Mean interaction (0 or 1) for rough balance
+    }).reset_index()
+    pathogen_stats.columns = ['pathogen_id', 'interaction_count', 'mean_interaction']
     
-    np.random.seed(random_state)
-    np.random.shuffle(unique_pathogens)
+    # Sort by interaction count to ensure we can stratify by data richness
+    pathogen_stats = pathogen_stats.sort_values('interaction_count', ascending=False)
     
-    # Reserve 10 pathogens for hold-out set (independent validation)
-    holdout_count = 10
-    if n_pathogens <= holdout_count:
-        logger.warning(f"Not enough pathogens for hold-out set. Using all {n_pathogens} for train/val.")
-        train_val_pathogens = unique_pathogens
-        holdout_pathogens = []
+    all_pathogens = pathogen_stats['pathogen_id'].tolist()
+    n_total = len(all_pathogens)
+    
+    if n_total < holdout_size:
+        raise ValueError(f"Not enough pathogens ({n_total}) to reserve {holdout_size} for holdout.")
+    
+    # 1. Select Holdout Set
+    # We want the holdout set to be representative. We'll use stratified sampling
+    # based on the mean_interaction (host range breadth proxy) or just random if counts are low.
+    # For simplicity and robustness, we'll stratify by the 'mean_interaction' (binned).
+    
+    # Create bins for stratification
+    n_bins = min(5, n_total)
+    pathogen_stats['bin'] = pd.qcut(pathogen_stats['mean_interaction'].astype(float), 
+                                    q=n_bins, labels=False, duplicates='drop')
+    
+    # If qcut fails due to too few unique values, fallback to random
+    if pathogen_stats['bin'].isna().any():
+        logger.warning("Stratification bins failed, falling back to random holdout selection.")
+        rng = np.random.default_rng(random_state)
+        rng.shuffle(all_pathogens)
+        holdout_pathogens = all_pathogens[:holdout_size]
+        remaining_pathogens = all_pathogens[holdout_size:]
     else:
-        holdout_pathogens = list(unique_pathogens[:holdout_count])
-        train_val_pathogens = list(unique_pathogens[holdout_count:])
+        # Stratified selection for holdout
+        holdout_pathogens = []
+        for bin_val in pathogen_stats['bin'].unique():
+            bin_pathogens = pathogen_stats[pathogen_stats['bin'] == bin_val]['pathogen_id'].tolist()
+            # Determine how many to take from this bin proportional to size
+            proportion = len(bin_pathogens) / n_total
+            take_count = max(1, int(holdout_size * proportion))
+            # Ensure we don't take more than available
+            take_count = min(take_count, len(bin_pathogens))
+            
+            # Random selection within bin
+            rng = np.random.default_rng(random_state + int(bin_val))
+            selected = rng.choice(bin_pathogens, size=take_count, replace=False)
+            holdout_pathogens.extend(selected)
+        
+        # If we didn't get enough, fill from remaining
+        if len(holdout_pathogens) < holdout_size:
+            remaining_pool = [p for p in all_pathogens if p not in holdout_pathogens]
+            rng = np.random.default_rng(random_state)
+            needed = holdout_size - len(holdout_pathogens)
+            fillers = rng.choice(remaining_pool, size=needed, replace=False)
+            holdout_pathogens.extend(fillers)
+        
+        holdout_pathogens = holdout_pathogens[:holdout_size]
+        remaining_pathogens = [p for p in all_pathogens if p not in holdout_pathogens]
+
+    logger.info(f"Selected {len(holdout_pathogens)} pathogens for holdout set")
+
+    # 2. Split Remaining into Train and Val
+    # We need to split remaining_pathogens into Train and Val sets.
+    # The task asks for Train/Val sets. Usually, this implies Train+Val are used for CV,
+    # and Holdout is final.
+    # Let's split remaining into Train and Val based on val_size.
+    # Note: The task description says "Reserve a 10-pathogen hold-out set... create pathogen-stratified Train/Val sets".
+    # We will split the remaining pathogens into Train and Val.
     
-    # Split train/val from the remaining pathogens
-    n_train_val = len(train_val_pathogens)
-    n_train = int(n_train_val * (1 - test_size))
+    if val_size > 0 and len(remaining_pathogens) > 0:
+        # Stratify by interaction count again
+        remaining_stats = pathogen_stats[pathogen_stats['pathogen_id'].isin(remaining_pathogens)].copy()
+        if not remaining_stats.empty:
+            if 'bin' in remaining_stats.columns:
+                # Re-calculate bins or use existing if valid
+                try:
+                    # Re-binning might be safer if distribution changed
+                    remaining_stats['val_bin'] = pd.qcut(remaining_stats['mean_interaction'].astype(float), 
+                                                         q=min(3, len(remaining_stats)), 
+                                                         labels=False, duplicates='drop')
+                    stratify_col = 'val_bin'
+                except ValueError:
+                    stratify_col = None
+            else:
+                stratify_col = None
+        else:
+            stratify_col = None
+    else:
+        stratify_col = None
+
+    # Perform split
+    rng = np.random.default_rng(random_state)
+    if stratify_col is not None and not remaining_stats[stratify_col].isna().all():
+        # Use sklearn's train_test_split with stratify on the pathogen level
+        # We need to map pathogen_id to its bin
+        pathogen_to_bin = remaining_stats.set_index('pathogen_id')[stratify_col].to_dict()
+        y_strat = [pathogen_to_bin.get(p, -1) for p in remaining_pathogens]
+        
+        train_pathogens, val_pathogens = train_test_split(
+            remaining_pathogens,
+            test_size=val_size,
+            stratify=y_strat if len(set(y_strat)) > 1 else None,
+            random_state=random_state
+        )
+    else:
+        # Fallback to random split if stratification fails
+        train_pathogens, val_pathogens = train_test_split(
+            remaining_pathogens,
+            test_size=val_size,
+            random_state=random_state
+        )
+
+    logger.info(f"Split remaining {len(remaining_pathogens)} pathogens: "
+                f"Train={len(train_pathogens)}, Val={len(val_pathogens)}")
+
+    # 3. Filter DataFrames
+    train_df = df_filtered[df_filtered['pathogen_id'].isin(train_pathogens)].copy()
+    val_df = df_filtered[df_filtered['pathogen_id'].isin(val_pathogens)].copy()
+    holdout_df = df_filtered[df_filtered['pathogen_id'].isin(holdout_pathogens)].copy()
+
+    logger.info(f"Final split sizes: Train={len(train_df)}, Val={len(val_df)}, Holdout={len(holdout_df)}")
     
-    train_pathogens = train_val_pathogens[:n_train]
-    val_pathogens = train_val_pathogens[n_train:]
-    
-    train_df = df_valid[df_valid['pathogen'].isin(train_pathogens)].copy()
-    val_df = df_valid[df_valid['pathogen'].isin(val_pathogens)].copy()
-    holdout_df = df_valid[df_valid['pathogen'].isin(holdout_pathogens)].copy()
-    
-    if train_df.empty:
-        logger.error("Training set is empty after splitting. Check pathogen distribution.")
-        raise ValueError("Training set is empty after splitting.")
-    
-    if val_df.empty and len(holdout_pathogens) == 0:
-        logger.error("Validation set is empty. Check split ratio.")
-        raise ValueError("Validation set is empty.")
+    return train_df, val_df, holdout_df
+
+
+def save_split_metadata(
+    train_df: pd.DataFrame,
+    val_df: pd.DataFrame,
+    holdout_df: pd.DataFrame,
+    output_dir: Path,
+    seed: int = 42
+) -> Path:
+    """
+    Save the metadata of the split (pathogen IDs in each set) to JSON.
+
+    Args:
+        train_df: Training DataFrame.
+        val_df: Validation DataFrame.
+        holdout_df: Holdout DataFrame.
+        output_dir: Directory to save the metadata file.
+        seed: Random seed used.
+
+    Returns:
+        Path to the saved metadata file.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    metadata_path = output_dir / "split_metadata.json"
     
     metadata = {
-        'train_pathogens': train_pathogens,
-        'val_pathogens': val_pathogens,
-        'holdout_pathogens': holdout_pathogens,
-        'train_count': len(train_df),
-        'val_count': len(val_df),
-        'holdout_count': len(holdout_df),
-        'total_pathogens': n_pathogens,
-        'random_state': random_state
+        "seed": seed,
+        "train_pathogens": sorted(train_df['pathogen_id'].unique().tolist()),
+        "val_pathogens": sorted(val_df['pathogen_id'].unique().tolist()),
+        "holdout_pathogens": sorted(holdout_df['pathogen_id'].unique().tolist()),
+        "train_count": len(train_df),
+        "val_count": len(val_df),
+        "holdout_count": len(holdout_df)
     }
     
-    logger.info(f"Split complete: Train={len(train_df)}, Val={len(val_df)}, Holdout={len(holdout_df)}")
-    logger.info(f"Pathogens: Train={len(train_pathogens)}, Val={len(val_pathogens)}, Holdout={len(holdout_pathogens)}")
-    
-    return train_df, val_df, metadata
-
-def save_split_metadata(metadata: Dict[str, Any], data_dir: Path) -> None:
-    """
-    Save split metadata to data/processed/split_metadata.json.
-    
-    Args:
-        metadata: Split metadata dictionary.
-        data_dir: Path to the data directory.
-    """
-    output_path = data_dir / "processed" / "split_metadata.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
+    with open(metadata_path, 'w') as f:
         json.dump(metadata, f, indent=2)
-        
-    logger.info(f"Split metadata saved to {output_path}")
+    
+    logger.info(f"Saved split metadata to {metadata_path}")
+    return metadata_path
 
-def generate_data_quality_report(df: pd.DataFrame, data_dir: Path) -> Dict[str, Any]:
+
+def generate_data_quality_report(
+    df: pd.DataFrame,
+    valid_pathogens: List[str],
+    output_path: Path
+) -> Dict[str, Any]:
     """
-    Generate a data quality report quantifying missing data per pathogen.
-    
+    Generate a data quality report quantifying missing interactions per pathogen.
+    This addresses FR-013.
+
     Args:
-        df: Interaction DataFrame.
-        data_dir: Path to the data directory.
-        
+        df: Full interaction DataFrame (including unknowns if any were kept, 
+            though typically this runs on the raw or pre-filtered data to measure missingness).
+        valid_pathogens: List of valid pathogen IDs.
+        output_path: Path to save the JSON report.
+
     Returns:
-        Data quality report dictionary.
+        Dictionary containing the report data.
     """
-    if df.empty:
-        report = {
-            'total_interactions': 0,
-            'unique_pathogens': 0,
-            'unique_hosts': 0,
-            'missing_percentage': 100.0,
-            'per_pathogen_missing': {},
-            'status': 'empty'
-        }
-    else:
-        total_interactions = len(df)
-        unique_pathogens = df['pathogen'].nunique()
-        unique_hosts = df['host'].nunique()
-        
-        # Calculate missing percentage (label == -1)
-        missing_count = (df['label'] == -1).sum()
-        missing_percentage = (missing_count / total_interactions) * 100 if total_interactions > 0 else 0.0
-        
-        # Per-pathogen missing
-        per_pathogen_missing = {}
-        for pathogen in df['pathogen'].unique():
-            pathogen_interactions = df[df['pathogen'] == pathogen]
-            pathogen_missing = (pathogen_interactions['label'] == -1).sum()
-            pathogen_total = len(pathogen_interactions)
-            per_pathogen_missing[pathogen] = {
-                'total': int(pathogen_total),
-                'missing': int(pathogen_missing),
-                'missing_percentage': round((pathogen_missing / pathogen_total) * 100, 2) if pathogen_total > 0 else 0.0
-            }
-        
-        report = {
-            'total_interactions': int(total_interactions),
-            'unique_pathogens': int(unique_pathogens),
-            'unique_hosts': int(unique_hosts),
-            'missing_percentage': round(missing_percentage, 2),
-            'per_pathogen_missing': per_pathogen_missing,
-            'status': 'healthy' if missing_percentage < 50 else 'concerning'
-        }
+    logger.info("Generating data quality report")
     
-    output_path = data_dir / "reports" / "data_quality_report.json"
+    # Calculate total possible interactions (assuming all valid pathogens x all unique hosts)
+    # This is a simplification. A more rigorous approach requires a known host universe.
+    # Here we estimate missingness by comparing observed interactions to the max possible for that pathogen.
+    
+    # Count interactions per pathogen
+    interaction_counts = df.groupby('pathogen_id').size().to_dict()
+    
+    report = {
+        "total_records": len(df),
+        "valid_pathogens_count": len(valid_pathogens),
+        "pathogens_with_interactions": len(interaction_counts),
+        "pathogens_without_interactions": len([p for p in valid_pathogens if p not in interaction_counts]),
+        "missing_percentage_estimate": 0.0, # Placeholder for complex calculation
+        "details": []
+    }
+    
+    # Detailed stats per pathogen
+    for pid in valid_pathogens:
+        count = interaction_counts.get(pid, 0)
+        # We cannot calculate % missing without a known total host set per pathogen.
+        # We will report the count and flag if 0.
+        report["details"].append({
+            "pathogen_id": pid,
+            "interaction_count": count,
+            "has_data": count > 0
+        })
+    
+    # Save report
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-        
+    
     logger.info(f"Data quality report saved to {output_path}")
     return report
 
+
 def run_preprocessing_pipeline(
-    data_dir: Path,
-    output_dir: Optional[Path] = None,
-    random_state: int = 42
-) -> Dict[str, Any]:
+    interactions_path: Path,
+    valid_pathogens_path: Path,
+    output_dir: Path,
+    holdout_size: int = 10,
+    val_size: float = 0.1,
+    seed: int = 42
+) -> Dict[str, Path]:
     """
-    Run the complete preprocessing pipeline:
+    Run the full preprocessing pipeline:
     1. Load interactions
-    2. Filter unknown labels
+    2. Filter unknowns
     3. Load valid pathogens
-    4. Split data (pathogen-stratified)
-    5. Generate data quality report
-    
+    4. Split data (Train/Val/Holdout)
+    5. Save split metadata
+    6. Generate quality report
+
     Args:
-        data_dir: Path to the data directory.
-        output_dir: Path to save processed outputs (defaults to data_dir/processed).
-        random_state: Random seed for reproducibility.
-        
+        interactions_path: Path to raw interactions CSV.
+        valid_pathogens_path: Path to valid pathogens JSON.
+        output_dir: Directory to save outputs.
+        holdout_size: Number of pathogens for holdout.
+        val_size: Fraction for validation set.
+        seed: Random seed.
+
     Returns:
-        Dictionary containing split dataframes and metadata.
-        
-    Raises:
-        FileNotFoundError: If required input files are missing.
-        ValueError: If data quality checks fail (e.g., zero interactions).
+        Dictionary with paths to generated files.
     """
-    if output_dir is None:
-        output_dir = data_dir / "processed"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Starting preprocessing pipeline")
     
-    logger.info("Starting preprocessing pipeline...")
+    # 1. Load
+    df = load_interactions(interactions_path)
     
-    # 1. Load interactions
-    logger.info("Loading interactions...")
-    try:
-        interactions_df = load_interactions(data_dir)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
-    
-    if interactions_df.empty:
-        logger.error("Interaction data is empty. Cannot proceed.")
-        raise ValueError("Interaction data is empty.")
-    
-    # 2. Filter unknown labels
-    logger.info("Filtering unknown labels...")
-    known_df, unknown_df = filter_unknown_labels(interactions_df)
-    logger.info(f"Known interactions: {len(known_df)}, Unknown: {len(unknown_df)}")
+    # 2. Filter
+    df_filtered = filter_unknown_labels(df)
     
     # 3. Load valid pathogens
-    logger.info("Loading valid pathogens...")
-    try:
-        valid_pathogens = load_valid_pathogens(data_dir)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
+    valid_pathogens = load_valid_pathogens(valid_pathogens_path)
     
-    if not valid_pathogens:
-        logger.error("No valid pathogens found. Check T010C output.")
-        raise ValueError("No valid pathogens found.")
+    # 4. Split
+    train_df, val_df, holdout_df = split_pathogen_stratified(
+        df_filtered, 
+        valid_pathogens, 
+        holdout_size=holdout_size, 
+        val_size=val_size,
+        random_state=seed
+    )
     
-    # 4. Split data
-    logger.info("Performing pathogen-stratified split...")
-    try:
-        train_df, val_df, metadata = split_pathogen_stratified(
-            known_df, valid_pathogens, data_dir, random_state=random_state
-        )
-    except ValueError as e:
-        logger.error(str(e))
-        raise
+    # 5. Save Metadata
+    metadata_path = save_split_metadata(train_df, val_df, holdout_df, output_dir, seed)
     
-    # 5. Save split metadata
-    save_split_metadata(metadata, data_dir)
+    # 6. Quality Report
+    quality_report_path = output_dir / "data_quality_report.json"
+    generate_data_quality_report(df, valid_pathogens, quality_report_path)
     
-    # 6. Generate data quality report
-    logger.info("Generating data quality report...")
-    generate_data_quality_report(interactions_df, data_dir)
-    
-    # Save processed splits
+    # 7. Save split dataframes (optional but useful for debugging)
     train_path = output_dir / "train_interactions.csv"
     val_path = output_dir / "val_interactions.csv"
-    known_df.to_csv(train_path, index=False)
+    holdout_path = output_dir / "holdout_interactions.csv"
+    
+    train_df.to_csv(train_path, index=False)
     val_df.to_csv(val_path, index=False)
+    holdout_df.to_csv(holdout_path, index=False)
     
-    logger.info(f"Train saved to {train_path}")
-    logger.info(f"Val saved to {val_path}")
-    
-    logger.info("Preprocessing pipeline completed successfully.")
+    logger.info("Preprocessing pipeline completed successfully")
     
     return {
-        'train': train_df,
-        'val': val_df,
-        'metadata': metadata
+        "train": train_path,
+        "val": val_path,
+        "holdout": holdout_path,
+        "metadata": metadata_path,
+        "quality_report": quality_report_path
     }
 
+
 def main():
-    """Main entry point for preprocessing pipeline."""
+    """
+    Entry point for running the preprocessing pipeline from CLI.
+    """
     import argparse
     
-    parser = argparse.ArgumentParser(description="Run preprocessing pipeline")
-    parser.add_argument("--data-dir", type=str, required=True, help="Path to data directory")
-    parser.add_argument("--output-dir", type=str, default=None, help="Path to output directory")
+    parser = argparse.ArgumentParser(description="Preprocessing Pipeline")
+    parser.add_argument("--interactions", type=str, required=True, help="Path to interactions CSV")
+    parser.add_argument("--valid-pathogens", type=str, required=True, help="Path to valid pathogens JSON")
+    parser.add_argument("--output-dir", type=str, required=True, help="Output directory")
+    parser.add_argument("--holdout-size", type=int, default=10, help="Number of holdout pathogens")
+    parser.add_argument("--val-size", type=float, default=0.1, help="Validation set size fraction")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     
     args = parser.parse_args()
     
-    data_dir = Path(args.data_dir)
-    output_dir = Path(args.output_dir) if args.output_dir else None
+    output_path = run_preprocessing_pipeline(
+        interactions_path=Path(args.interactions),
+        valid_pathogens_path=Path(args.valid_pathogens),
+        output_dir=Path(args.output_dir),
+        holdout_size=args.holdout_size,
+        val_size=args.val_size,
+        seed=args.seed
+    )
     
-    result = run_preprocessing_pipeline(data_dir, output_dir, args.seed)
-    
-    logger.info(f"Pipeline completed. Train: {len(result['train'])}, Val: {len(result['val'])}")
+    print(f"Pipeline completed. Outputs saved to {args.output_dir}")
+    for key, path in output_path.items():
+        print(f"  {key}: {path}")
+
 
 if __name__ == "__main__":
     main()

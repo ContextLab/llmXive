@@ -1,18 +1,18 @@
 T014:
   c: false
-  h: 573095a2c6b6fa29c3b2b4444e15fd841da9b632e1e3fb53d6eece05d74c8ee5
-  r: "The provided `code/preprocess.py` is truncated and only contains parsing utilities;\
-    \ it does not show any implementation of gene annotation with pybedtools nor aggregation\
-    \ of peaks into a background model, nor does it write `data/interim/background_union.bed`.\
-    \ Moreover, the required output file `background_union.bed` is missing from the\
-    \ repository. The task\u2019s core requirements are therefore not satisfied."
+  h: 96628ac0b7f228bf4d2cb3da9883ee8c61719624354c249bd33e866238ffbfe0
+  r: "The required output file `data/interim/background_union.bed` is not present,\
+    \ and the provided `code/preprocess.py` snippet is incomplete (truncated) with\
+    \ no visible logic that performs gene annotation, background aggregation, or writes\
+    \ the specified BED file. The task\u2019s core deliverable is therefore missing."
 T015:
   c: false
-  h: 104895f017f53eb8bb71fe104e5fcef1d2a43dfe5a8d93b40c53dfa899711108
-  r: "The repository contains a `code/main.py` file, but the `run_ingestion` function\
-    \ is truncated and does not show the logic that writes `data/processed/ingestion_summary.json`.\
-    \ Moreover, the required `data/processed/ingestion_summary.json` file is absent.\
-    \ The task\u2019s core output is therefore missing."
+  h: 0fd25cafa691c6d7f3d4afd6d6db57d32c49354e49b44362b40f9a17ad30922e
+  r: "The repository contains `code/main.py` with a `run_ingestion` function that\
+    \ validates cell types and computes summary values, but the function only returns\
+    \ a dictionary and never writes `data/processed/ingestion_summary.json`. The required\
+    \ output file is absent from the project tree, so the task\u2019s primary artifact\
+    \ is missing."
 T016:
   c: false
   h: 57872593667cab7fbc424a9f71f9676e2af0466b1ba2e3ff3416d31b6c052bd8

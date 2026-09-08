@@ -1,25 +1,22 @@
-# Ruff configuration for llmXive project
-# Extends default rules with project-specific settings
-
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "D", "UP"]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+  "C4", # flake8-comprehensions
+  "UP", # pyupgrade
+]
 ignore = [
-  "E501",  # Line too long (handled by black)
-  "D100",  # Missing docstring in public module
-  "D104",  # Missing docstring in public package
-  "D203",  # 1 blank line required before class docstring (conflicts with D211)
-  "D213",  # Multi-line docstring summary should start at the second line (conflicts with D212)
+  "E501", # line too long (handled by black)
+  "B008", # do not perform function calls in argument defaults
+]
+exclude = [
+  ".git",
+  "__pycache__",
+  "data",
 ]
 
 [lint.isort]
-# Use a single line for imports
-lines-after-imports = 2
-known-first-party = ["config", "data_gap_report", "evaluate", "features", "ingest", "main", "map", "train", "setup_project"]
-
-[format]
-# Configure formatting to match Black
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+known-first-party = ["config", "data_gap_report", "evaluate", "features", "ingest", "main", "map", "setup_project", "train"]

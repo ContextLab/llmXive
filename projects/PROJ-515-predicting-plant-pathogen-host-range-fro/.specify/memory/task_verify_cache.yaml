@@ -44,3 +44,17 @@ T029:
     \ description without any concrete implementation or evidence that a baseline\
     \ prevalence probability is assigned. The required edge\u2011case handling is\
     \ therefore not demonstrated."
+T032:
+  c: false
+  h: 9ef54e539c521bd7bb560c0205b95277c82202825ac2b62e1087ef24c1841cf2
+  r: The required file `src/models/evaluate.py` does not exist in the repository,
+    so no code or metrics comparison is present to satisfy the task. The implementer
+    must add the missing file with the appropriate functionality.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `pipeline.log` file was provided, nor any excerpt showing INFO\u2011level\
+    \ entries for the pipeline\u2019s major steps. Without the actual log artifact,\
+    \ we cannot verify that the requirement (INFO entries for all major steps) has\
+    \ been satisfied. The implementer must supply the completed `pipeline.log` containing\
+    \ the appropriate entries."

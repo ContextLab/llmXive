@@ -1,65 +1,110 @@
 """
-Unit tests for the limits module (T006).
+Unit tests for resource limits and guards (T006).
 """
 import pytest
 import time
+import signal
 import os
-import sys
 from unittest.mock import patch, MagicMock
 
-# Add project root to path if running from tests/
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
-from code.utils.limits import timeout_guard, MemoryLimitError, get_memory_usage_mb, check_memory_usage
+# Import the module under test
+from utils.limits import (
+    timeout_guard, 
+    timeout_context, 
+    memory_guard, 
+    TimeoutError, 
+    MemoryLimitError,
+    get_memory_usage_mb,
+    check_memory_usage
+)
 
 class TestTimeoutGuard:
-    def test_timeout_guard_completes_in_time(self):
+    def test_timeout_guard_success(self):
         """Test that a function completing within the limit runs successfully."""
-        def quick_func():
+        @timeout_guard(5)
+        def fast_function():
+            return "success"
+
+        result = fast_function()
+        assert result == "success"
+
+    def test_timeout_guard_failure(self):
+        """Test that a function exceeding the limit raises TimeoutError."""
+        @timeout_guard(1)
+        def slow_function():
+            time.sleep(3)
+            return "should not reach here"
+
+        with pytest.raises(TimeoutError):
+            slow_function()
+
+    def test_timeout_context_success(self):
+        """Test context manager for successful execution."""
+        def operation():
             return "done"
-        
-        with timeout_guard(5, "Too slow"):
-            result = quick_func()
-        assert result == "done"
 
-    def test_timeout_guard_raises_on_timeout(self):
-        """Test that a function taking too long raises TimeoutError."""
-        # This test might be flaky on Windows if SIGALRM is not supported.
-        # We skip it if not supported.
-        if not hasattr(__import__('signal'), 'SIGALRM'):
-            pytest.skip("SIGALRM not available on this platform")
+        with timeout_context(5):
+            result = operation()
+            assert result == "done"
 
-        def slow_func():
-            time.sleep(10)
-            return "done"
+    def test_timeout_context_failure(self):
+        """Test context manager for timeout."""
+        def slow_operation():
+            time.sleep(3)
 
-        with pytest.raises(Exception) as exc_info:
-            with timeout_guard(1, "Too slow"):
-                slow_func()
-        
-        assert "timeout" in str(exc_info.value).lower() or "Too slow" in str(exc_info.value)
+        with pytest.raises(TimeoutError):
+            with timeout_context(1):
+                slow_operation()
 
 class TestMemoryGuard:
-    def test_check_memory_usage_below_limit(self):
-        """Test that check_memory_usage passes when under limit."""
-        # Get current usage, add a buffer
-        current = get_memory_usage_mb()
-        # Limit should be higher than current
-        limit = current + 1000 
-        try:
-            check_memory_usage(limit)
-            # Should not raise
-        except MemoryLimitError:
-            pytest.fail("check_memory_usage raised unexpectedly")
+    @patch('utils.limits.get_memory_usage_mb')
+    def test_memory_guard_success(self, mock_mem_usage):
+        """Test memory guard passes when usage is low."""
+        mock_mem_usage.return_value = 100.0  # 100MB
+        
+        @memory_guard(1000)
+        def func():
+            return "ok"
 
-    def test_check_memory_usage_raises_on_exceed(self):
-        """Test that check_memory_usage raises when over limit."""
-        # Set a very low limit that current usage surely exceeds
+        result = func()
+        assert result == "ok"
+
+    @patch('utils.limits.get_memory_usage_mb')
+    def test_memory_guard_failure_before(self, mock_mem_usage):
+        """Test memory guard fails immediately if usage is high."""
+        mock_mem_usage.return_value = 2000.0  # 2000MB
+
+        @memory_guard(1000)
+        def func():
+            return "should not run"
+
         with pytest.raises(MemoryLimitError):
-            check_memory_usage(0.001) # 1KB limit
+            func()
 
-    def test_memory_usage_is_positive(self):
-        """Sanity check that memory usage is positive."""
+    @patch('utils.limits.get_memory_usage_mb')
+    def test_memory_guard_failure_after(self, mock_mem_usage):
+        """Test memory guard fails if usage spikes after start."""
+        # First call (check before) returns low, second call (check after) returns high
+        mock_mem_usage.side_effect = [100.0, 2000.0]
+
+        @memory_guard(1000)
+        def func():
+            return "executed"
+
+        with pytest.raises(MemoryLimitError):
+            func()
+
+class TestMemoryUtils:
+    def test_get_memory_usage_mb(self):
+        """Test that memory usage is a positive number."""
         usage = get_memory_usage_mb()
-        assert usage > 0
-        assert usage < 100000 # Sanity upper bound
+        assert isinstance(usage, float)
+        assert usage >= 0
+
+    def test_check_memory_usage(self):
+        """Test check_memory_usage logic."""
+        # Should be within a very large limit
+        assert check_memory_usage(100000.0) is True
+        # Should be outside a very small limit (unless running in tiny env, but unlikely < 1MB)
+        # We assume standard env has > 1MB usage
+        assert check_memory_usage(0.001) is False

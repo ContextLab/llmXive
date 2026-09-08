@@ -28,15 +28,37 @@ T014:
     \ task\u2019s requirement is not satisfied."
 T018:
   c: false
-  h: aa701108a5d7bb6c0d7090921e5f2ff8430f12fcbf6af120aba80e85516c55dd
-  r: The `code/features.py` file ends abruptly inside `check_definitional_circularity`
-    and never implements the required logic to drop DHW, use residuals, or log the
-    decision. Moreover, the required output file `data/processed/features.csv` does
-    not exist. Both the functional implementation and the artifact are missing.
+  h: d248450b4e30e0b7de5816bbc5e0e6f7143f2b4caf8f660e4da48a3953cca732
+  r: "The repository contains a `code/features.py` with a `check_definitional_circularity`\
+    \ function, but it never logs the decision or writes any flag to `data/processed/features.csv`,\
+    \ and the required `features.csv` file is absent. The task\u2019s primary artifact\
+    \ (the processed CSV with the circularity flag) is missing."
 T019:
   c: false
-  h: 72002245f19ed1c94d5fba4881349e933955fe180ca14002582a1542356744f7
-  r: "The provided `code/features.py` does not contain any function that computes\
-    \ Variance Inflation Factor or drops features with VIF\u202F>\u202F5, and the\
-    \ required output file `data/processed/filtered_features.csv` is absent. Both\
-    \ the core functionality and the expected artifact are missing."
+  h: fa6388aa4e7b8980e3bdc411f05a5babc0efd6e3f88380d7a07ec1993cb26150
+  r: "The repository contains `code/features.py`, but the file is truncated and does\
+    \ not clearly show the VIF calculation, feature\u2011dropping logic, or any code\
+    \ that writes `filtered_features.csv`. Moreover, the required output file `data/processed/filtered_features.csv`\
+    \ is absent from the disk. The task\u2019s core deliverable \u2013 saving the\
+    \ filtered feature list \u2013 is therefore not present."
+T030:
+  c: false
+  h: f33ad15f3b7dafd852fdbfae4c2b285c80d69c21d58dd9c934ed1cd9a5b904ba
+  r: '`data/models/bleaching_risk_map.tif` does not exist, and `code/map.py` is truncated
+    (e.g., the `perform_threshold_analysis` function is cut off), indicating the implementation
+    does not actually generate the required raster file. The required output artifact
+    is missing.'
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or any document containing the requested ROC\u2011AUC,\
+    \ AUPRC, stability scores, and data\u2011gap status was provided; the evidence\
+    \ consists only of the task description and project spec, without the required\
+    \ final report. The implementer must create and supply a populated `research.md`\
+    \ that aggregates the metrics from T033, T025, T027, T028, and T032."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data-model.md` file was presented or referenced; there is no evidence that
+    a markdown document describing the final schema of the `reef-species` dataset
+    exists or contains the required schema details. The task remains undone.

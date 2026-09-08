@@ -80,7 +80,7 @@
 - [X] T021 [US1] Implement `tests/unit/test_features.py`: Verify lagged feature calculations and VIF filtering logic. (TDD: Write before implementation)
 
 - [X] T013 [US1] Implement `code/ingest.py`: Download NOAA SST/DHW rasters, UNEP reef geometries, Coral Trait Database traits, and ReefBase bleaching events from URLs specified in `config.NOAA_URL`, `config.CORAL_TRAIT_URL`, etc. **Requires**: T012A (Data Gap Check must pass). (Requires: T012A)
-- [ ] T014 [US1] Implement `code/ingest.py`: Merge data into a unified `data/processed/reef_species_unified.csv` with 5-km grid resolution. (Requires: T013) <!-- ATOMIZE: requested -->
+- [ ] T014 [US1] Implement `code/ingest.py`: Merge data into a unified `data/processed/reef_species_unified.csv` with 5-km grid resolution. (Requires: T013) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T015 [US1] Implement `code/ingest.py`: Handle missing values by imputing with nearest valid temporal neighbor or excluding rows if gaps exceed thresholds. (Requires: T014)
 - [X] T016 [US1] Implement `code/ingest.py`: Flag rows where species trait data is missing (exclude or mark as "unknown" per edge case). (Requires: T015)
 - [X] T017 [US1] Implement `code/features.py`: Compute lagged environmental variables (30-day rolling mean SST) and the specific interaction term: **DHW * thermal_tolerance**. (Requires: T016)
@@ -121,11 +121,11 @@
 ### Implementation for User Story 3
 
 - [ ] T031B [US3] Ingest 2024 Environmental Rasters: Download and verify 2024 environmental rasters (SST, DHW) from `config.RASTER_2024_URL` required for risk mapping. (Requires: T004)
-- [~] T030 [US3] Implement `code/map.py`: Load 2024 environmental rasters (from T031B) and generate `data/models/bleaching_risk_map.tif` (probability 0-1) (FR-005). (Requires: T023, T031B)
+- [ ] T030 [US3] Implement `code/map.py`: Load 2024 environmental rasters (from T031B) and generate `data/models/bleaching_risk_map.tif` (probability 0-1) (FR-005). (Requires: T023, T031B)
 - [ ] T031A [US3] Verify Independent Reports: Fetch/verify existence of independent historical bleaching reports from `config.INDEPENDENT_BLEACHING_URL`. **Action**: If missing, log a warning and set `independent_data_available = false` in `metrics.json`; if present, proceed to T033. (Requires: T004)
 - [X] T031 [US3] Implement `code/map.py`: Use SHAP values to identify the dominant driver for the top 10 high-risk pixels (US-3 Acceptance Scenario 2). (Requires: T030)
-- [ ] T032 [US3] Implement `code/map.py`: Perform threshold sensitivity analysis sweeping cutoffs {0.3, 0.5, 0.7}. **Action**: Calculate FP/FN rates and **generate** a `threshold_sensitivity.csv` table and a `sensitivity_report.md` summarizing the variation (delta/range) for the end-user. (Requires: T023)
-- [ ] T033 [US3] Implement `code/map.py`: Validate map against independent historical bleaching reports (from T031A) by calculating and reporting AUPRC between predicted probability and observed severity. **Action**: If T031A found no data, mark as "N/A" in the report. (Requires: T031A, T030)
+- [X] T032 [US3] Implement `code/map.py`: Perform threshold sensitivity analysis sweeping cutoffs {0.3, 0.5, 0.7}. **Action**: Calculate FP/FN rates and **generate** a `threshold_sensitivity.csv` table and a `sensitivity_report.md` summarizing the variation (delta/range) for the end-user. (Requires: T023)
+- [X] T033 [US3] Implement `code/map.py`: Validate map against independent historical bleaching reports (from T031A) by calculating and reporting AUPRC between predicted probability and observed severity. **Action**: If T031A found no data, mark as "N/A" in the report. (Requires: T031A, T030)
 - [ ] T034 [US3] Implement `tests/integration/test_mapping.py`: Verify GeoTIFF generation and threshold analysis outputs.
 
 **Checkpoint**: All user stories should now be independently functional

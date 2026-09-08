@@ -84,7 +84,7 @@
 - [X] T014a [US1] Implement parsing logic to convert MDSplus time-series data into a raw structured DataFrame in `code/data/preprocessing.py`
 - [ ] T014b [US1] [FR-009] Implement schema validation logic to validate input/output against `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` **before** any parsing or analysis begins in `code/data/validator.py`.
 - [X] T015 [US1] Implement validation: ensure at least 5 valid discharges remain; fail pipeline if fewer [FR-001] in `code/main.py`
-- [ ] T016 [US1] Save unified dataset to `data/processed/unified_analysis.csv` with checksum generation. **Must include** `tau_e` AND the derived `confinement_mode` (L-mode vs H-mode) based on the H98y2 factor (H-mode if H98y2 >= 0.85) as per `spec.md:FR-003` in `code/data/preprocessing.py`. <!-- FAILED: unspecified -->
+- [ ] T016 [US1] Save unified dataset to `data/processed/unified_analysis.csv` with checksum generation. **Must include** `tau_e` AND the derived `confinement_mode` (L-mode vs H-mode) based on the H98y2 factor (H-mode if H98y2 >= 0.85) as per `spec.md:FR-003` in `code/data/preprocessing.py`. <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -120,7 +120,7 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T023 [P] [US3] Unit test for Spearman correlation and bootstrap resampling logic in `tests/unit/test_correlation.py`
-- [ ] T024 [P] [US3] Integration test for "Hypothesis Not Supported" flag logic in `tests/integration/test_analysis.py`
+- [X] T024 [P] [US3] Integration test for "Hypothesis Not Supported" flag logic in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 3
 
@@ -129,7 +129,7 @@
  2. **Multicollinearity Check**: Check correlation between `q_max - q_min` and `resonant_surface_density`. If > 0.95, flag as collinear, exclude `resonant_surface_density` from multivariate analysis, and report only univariate correlation as per `spec.md:FR-011`.
  3. **Bootstrap Resampling**: Perform bootstrap with a **fixed random seed** to ensure reproducibility as per `spec.md:FR-005` and Constitution I.
  4. Calculate confidence intervals.
-- [ ] T027 [US3] Implement hypothesis logic: `directional_effect` (r < -0.5) and `statistical_significance` (p < 0.05) in `code/analysis/correlation.py`
+- [X] T027 [US3] Implement hypothesis logic: `directional_effect` (r < -0.5) and `statistical_significance` (p < 0.05) in `code/analysis/correlation.py`
 - [ ] T028 [US3] **NEW**: Implement power analysis calculation to determine statistical power for the observed effect size given sample size N. If power < 20% to detect |r|=0.5, flag result as "Inconclusive due to low power" as per `spec.md:FR-008`.
 - [ ] T029 [US3] Generate diagnostic scatter plot (`topology_vs_confinement.png`) with regression line and CI bands in `code/viz/plot.py`
 - [ ] T030 [US3] Generate final summary report artifact consuming outputs from T025, T027, T028, and T029. **Must unconditionally report** the effect size magnitude (|r|) for ALL valid datasets regardless of statistical significance, and include the power analysis result and "Inconclusive" flag if applicable, in `code/main.py`.

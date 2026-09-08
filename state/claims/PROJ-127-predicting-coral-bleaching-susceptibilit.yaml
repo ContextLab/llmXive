@@ -208,3 +208,65 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-27T09:56:32Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/data-model.md
+  attempts: 1
+  canonical: Data aligned to 5-km grid resolution
+  claim_id: c_701979c3
+  context: The data is aligned to a 5-km grid resolution and includes engineered features
+    such as lagged environmental variables and interaction terms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data is aligned to a 5-km grid resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:30:59Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/data-model.md
+  attempts: 1
+  canonical: Data covers 2010 to 2024
+  claim_id: c_7286d8a2
+  context: 'Time Range: Data covers the period from 2010 to 2024 (subject to availability).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data covers the period from 2010 to 2024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:31:27Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/data-model.md
+  attempts: 1
+  canonical: High VIF features with VIF > 5 removed
+  claim_id: c_4418e14d
+  context: 'Filtering: High VIF features (VIF > 5) removed; resulting schema reflects
+    filtered columns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: High VIF features with VIF > 5 were removed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:31:27Z'
+- artifact_path: projects/PROJ-127-predicting-coral-bleaching-susceptibilit/data/data-model.md
+  attempts: 1
+  canonical: Lagged features computed using 30-day window
+  claim_id: c_b610ed99
+  context: Lagged features computed using `compute_lagged_features` (30-day window).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lagged features are computed using a 30-day window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:32:10Z'

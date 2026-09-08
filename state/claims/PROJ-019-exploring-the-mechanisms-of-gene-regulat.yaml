@@ -963,3 +963,279 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-23T02:23:29Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with error if RAM is less than 16GB
+  claim_id: c_5a201041
+  context: This task explicitly enforces the SC-004 requirement for 16GB RAM. If RAM
+    < 16GB, the pipeline MUST exit with a CRITICAL error and clear message.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_exits_with_error_if_RAM_is_less_than_16GB
+  kind: magnitude
+  raw_text: The pipeline must exit with a CRITICAL error and clear message if RAM
+    < 16GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:35:39Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with error if disk space is less than 14GB
+  claim_id: c_583835b6
+  context: This task explicitly implements the FR-002 disk space check. The pipeline
+    MUST exit with a clear error message if disk space < 14GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_exits_with_error_if_disk_space_is_less_than_14GB
+  kind: magnitude
+  raw_text: The pipeline must exit with a clear error message if disk space is less
+    than 14GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:36:31Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with error if execution time exceeds 6 hours
+  claim_id: c_b9b0bfa5
+  context: This task implements the runtime monitoring required to verify the 6-hour
+    constraint on the CPU-only runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must exit with an error if execution time exceeds 6 hours
+    on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:36:55Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Pipeline uses FIMO tool for motif scanning
+  claim_id: c_68a63d4d
+  context: The spec allows 'FIMO or HOMER', but plan.md explicitly selects FIMO. This
+    task explicitly acknowledges the spec's flexibility while adhering to the plan's
+    selection.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_FIMO_tool_for_motif_scanning
+  kind: entity_fact
+  raw_text: The pipeline must use the FIMO tool for motif scanning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:37:20Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Motif scanning p-value threshold is 0.0001
+  claim_id: c_86b38dbb
+  context: "Implement code/scan.py to invoke FIMO (subprocess) against JASPAR CORE\
+    \ database with p-value \u22640.0001 threshold (FR-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The motif scanning threshold is set to p-value \u2264 0.0001."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:37:20Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Memory usage must stay below 7GB
+  claim_id: c_980dceac
+  context: Add chunked processing logic in code/enrichment.py to ensure memory usage
+    stays <7GB if dataset size approaches RAM limits (GitHub Actions free-tier constraint).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_must_stay_below_7GB
+  kind: entity_fact
+  raw_text: Memory usage must stay below 7GB if dataset size approaches RAM limits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:37:51Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Heatmap clustering silhouette score must be at least 0.4
+  claim_id: c_49d3fc93
+  context: "Independent Test: Generate plots, verify heatmap clustering silhouette\
+    \ score \u22650.4, and confirm \u226560% overlap between predicted motifs and\
+    \ independent ChIP-seq peaks."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Heatmap_clustering_silhouette_score_must_be_at_least_0.4
+  kind: magnitude
+  raw_text: The validation test requires a heatmap clustering silhouette score of
+    at least 0.4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:38:50Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Overlap between predicted motifs and ChIP-seq peaks must be at least
+    60%
+  claim_id: c_c2aa25ff
+  context: "Independent Test: Generate plots, verify heatmap clustering silhouette\
+    \ score \u22650.4, and confirm \u226560% overlap between predicted motifs and\
+    \ independent ChIP-seq peaks."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Overlap_between_predicted_motifs_and_ChIP-seq_peaks_must_be
+  kind: magnitude
+  raw_text: The validation test requires at least 60% overlap between predicted motifs
+    and independent ChIP-seq peaks.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:39:20Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Validation exits with error if silhouette score is less than 0.4
+  claim_id: c_e91ef761
+  context: If score < 0.4, exit with non-zero error code and clear message (FAIL VALIDATION).
+    If score >= 0.4, log success.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_exits_with_error_if_silhouette_score_is_less_than
+  kind: magnitude
+  raw_text: The validation logic exits with a non-zero error code if the silhouette
+    score is less than 0.4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:40:06Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Validation sets overlap_test_passed to False if overlap is less than
+    60%
+  claim_id: c_3b4317bc
+  context: If < 60% or missing, set overlap_test_passed = False and validation_passed
+    = False.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_sets_overlap_test_passed_to_False_if_overlap_is_l
+  kind: magnitude
+  raw_text: The validation logic sets overlap_test_passed to False if the overlap
+    is less than 60%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:40:45Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Pipeline uses JASPAR CORE database for motif scanning
+  claim_id: c_af789da0
+  context: "Implement code/scan.py to invoke FIMO (subprocess) against JASPAR CORE\
+    \ database with p-value \u22640.0001 threshold."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_JASPAR_CORE_database_for_motif_scanning
+  kind: entity_fact
+  raw_text: The pipeline uses JASPAR CORE database for motif scanning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:41:07Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Pipeline targets human cell lines GM12878, K562, HepG2, H1-hESC, and
+    IMR90
+  claim_id: c_9802a556
+  context: Implement code/download.py to download ENCODE peak files for representative
+    human cell lines (GM, K, HepG, H-hESC, IMR90).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q54897669
+        url: https://www.wikidata.org/wiki/Q54897669
+        value: IMR-90
+      - channel: wikidata
+        source_id: Q54898191
+        url: https://www.wikidata.org/wiki/Q54898191
+        value: IMR90
+      quote: IMR90-890
+      source_id: Q102114228
+      url: https://www.wikidata.org/wiki/Q102114228
+      value: IMR90-890
+    filled: true
+  kind: entity_fact
+  raw_text: The pipeline targets human cell lines GM12878, K562, HepG2, H1-hESC, and
+    IMR90.
+  resolved_value: IMR90-890
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T15:41:16Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Gene annotation uses hg38 genome assembly
+  claim_id: c_1d2ee8ce
+  context: Implement gene annotation and background model aggregation in code/preprocess.py
+    using pybedtools to map peak coordinates to gene symbols (hg38).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gene_annotation_uses_hg38_genome_assembly
+  kind: entity_fact
+  raw_text: The genome assembly used for gene annotation is hg38.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:41:47Z'
+- artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/tasks.md
+  attempts: 1
+  canonical: Parallel FIMO execution memory footprint must remain below 7GB
+  claim_id: c_41afbe78
+  context: Modify FIMO loop in code/scan.py to use joblib.Parallel(n_jobs=2, max_nbytes=500MB)
+    where safe, ensuring total memory footprint remains <7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Parallel_FIMO_execution_memory_footprint_must_remain_below_7
+  kind: entity_fact
+  raw_text: The total memory footprint must remain below 7GB during parallel FIMO
+    execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:42:17Z'

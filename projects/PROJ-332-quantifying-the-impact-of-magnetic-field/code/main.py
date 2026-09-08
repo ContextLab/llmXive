@@ -1,200 +1,207 @@
+"""
+Main entry point for the plasma confinement analysis pipeline.
+Implements global timeout and memory guards as per FR-007.
+"""
 import argparse
 import sys
 import logging
 import traceback
+import signal
 from pathlib import Path
-from utils.logger import get_logger, setup_logging
-from data.retrieval import fetch_data_for_discharge
-from data.preprocessing import process_multiple_discharges, validate_parsed_data
-from data.validator import validate_output_schema
-from utils.limits import timeout_guard, memory_guard
+from typing import List, Optional
 
-# Configuration constants
-MIN_VALID_DISCHARGES = 5
-DEFAULT_DISCHARGE_IDS = [166666, 166667, 166668, 166669, 166670, 166671, 166672, 166673, 166674, 166675]
+# Import logger setup first
+from utils.logger import get_logger, setup_logging
+# Import limits utilities
+from utils.limits import (
+    timeout_guard, 
+    timeout_context, 
+    memory_guard, 
+    TimeoutError as LimitsTimeoutError, 
+    MemoryLimitError
+)
+
+# Import pipeline components
+from data.retrieval import fetch_data_for_discharge
+from data.preprocessing import process_multiple_discharges
+from data.validator import validate_input_schema, validate_output_schema
+from analysis.metrics import process_metrics_for_discharges
+from analysis.correlation import run_correlation_analysis
 
 logger = get_logger(__name__)
 
+# Configuration constants
+PIPELINE_TIMEOUT_SECONDS = 3600  # 1 hour default
+PIPELINE_MEMORY_LIMIT_MB = 7000  # ~7GB limit
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Quantify the impact of magnetic field topology on plasma confinement."
+        description="Analyze DIII-D discharge data for magnetic topology impact."
     )
     parser.add_argument(
-        "--discharges",
-        type=str,
-        nargs="+",
-        help="List of DIII-D discharge IDs to process (space-separated).",
-        default=None
+        "--discharges", 
+        type=str, 
+        required=True,
+        help="Comma-separated list of discharge IDs (e.g., 167001,167002)"
     )
     parser.add_argument(
         "--output-dir",
         type=str,
         default="data/processed",
-        help="Directory to save processed output files."
+        help="Directory for output files"
     )
     parser.add_argument(
         "--timeout",
         type=int,
-        default=3600,
-        help="Timeout in seconds for the entire pipeline execution."
+        default=PIPELINE_TIMEOUT_SECONDS,
+        help=f"Pipeline timeout in seconds (default: {PIPELINE_TIMEOUT_SECONDS})"
     )
     parser.add_argument(
-        "--memory-limit-mb",
+        "--memory-limit",
         type=int,
-        default=7000,
-        help="Memory limit in MB for the pipeline execution."
+        default=PIPELINE_MEMORY_LIMIT_MB,
+        help=f"Memory limit in MB (default: {PIPELINE_MEMORY_LIMIT_MB})"
     )
     parser.add_argument(
         "--log-level",
         type=str,
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Logging level."
+        help="Logging level"
     )
     return parser.parse_args()
 
+def validate_discharge_list(discharge_str: str) -> List[int]:
+    """Validate and parse discharge list."""
+    try:
+        ids = [int(x.strip()) for x in discharge_str.split(",")]
+        if not ids:
+            raise ValueError("Discharge list cannot be empty")
+        if len(ids) > 10:
+            logger.warning("More than 10 discharges requested. Limiting to first 10.")
+            ids = ids[:10]
+        return ids
+    except ValueError as e:
+        raise ValueError(f"Invalid discharge list format: {e}")
 
-def validate_discharge_list(discharge_ids: list) -> bool:
+@timeout_guard(PIPELINE_TIMEOUT_SECONDS)
+@memory_guard(PIPELINE_MEMORY_LIMIT_MB)
+def run_pipeline(discharge_ids: List[int], output_dir: str) -> bool:
     """
-    Validate that the discharge list is not empty and contains valid integers.
-    Returns True if valid, False otherwise.
-    """
-    if not discharge_ids:
-        logger.error("No discharge IDs provided.")
-        return False
+    Execute the full analysis pipeline with resource guards.
     
-    for d_id in discharge_ids:
-        if not isinstance(d_id, int):
-            try:
-                int(d_id)
-            except (ValueError, TypeError):
-                logger.error(f"Invalid discharge ID format: {d_id}. Must be an integer.")
-                return False
-    return True
-
-
-def run_pipeline(discharge_ids: list, output_dir: str, timeout: int, memory_limit_mb: int) -> bool:
+    Args:
+        discharge_ids: List of discharge IDs to process
+        output_dir: Directory to save outputs
+        
+    Returns:
+        True if pipeline completed successfully
+        
+    Raises:
+        LimitsTimeoutError: If pipeline exceeds time limit
+        MemoryLimitError: If pipeline exceeds memory limit
     """
-    Execute the main data retrieval and preprocessing pipeline.
-    
-    This function:
-    1. Fetches data for the provided discharge IDs from MDSplus.
-    2. Processes the raw data into a unified DataFrame.
-    3. Validates the parsed data against schemas.
-    4. Enforces the minimum valid discharge count (FR-001).
-    5. Returns True if the pipeline succeeds, False if it fails validation.
-    """
-    logger.info(f"Starting pipeline for {len(discharge_ids)} discharges: {discharge_ids}")
-    
-    # Ensure output directory exists
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Starting pipeline for discharges: {discharge_ids}")
     
     try:
-        # Step 1: Retrieve data for all discharges
-        # fetch_data_for_discharge returns a dict of discharge_id -> raw_data or raises on failure
-        all_raw_data = {}
-        for d_id in discharge_ids:
+        # 1. Data Retrieval
+        logger.info("Step 1: Retrieving data from MDSplus...")
+        raw_data = {}
+        for dis_id in discharge_ids:
             try:
-                logger.info(f"Fetching data for discharge {d_id}...")
-                raw_data = fetch_data_for_discharge(d_id)
-                if raw_data is not None:
-                    all_raw_data[d_id] = raw_data
-                    logger.info(f"Successfully fetched data for discharge {d_id}.")
+                data = fetch_data_for_discharge(dis_id)
+                if data:
+                    raw_data[dis_id] = data
+                    logger.info(f"Retrieved data for discharge {dis_id}")
                 else:
-                    logger.warning(f"No data returned for discharge {d_id}. Skipping.")
+                    logger.warning(f"No data retrieved for discharge {dis_id}")
             except Exception as e:
-                logger.error(f"Failed to fetch data for discharge {d_id}: {e}. Skipping.")
+                logger.error(f"Failed to retrieve data for discharge {dis_id}: {e}")
                 continue
-        
-        if not all_raw_data:
-            logger.error("No data could be retrieved for any discharge.")
-            return False
-        
-        # Step 2: Process raw data into unified format
-        logger.info("Processing raw data into unified format...")
-        processed_data = process_multiple_discharges(all_raw_data)
-        
-        if processed_data is None or processed_data.empty:
-            logger.error("Data processing resulted in an empty dataset.")
-            return False
-        
-        # Step 3: Validate parsed data against schemas
-        logger.info("Validating processed data against output schema...")
-        if not validate_output_schema(processed_data):
-            logger.error("Processed data failed schema validation.")
-            return False
-        
-        # Step 4: FR-001 Validation - Ensure at least MIN_VALID_DISCHARGES remain
-        valid_count = len(processed_data)
-        logger.info(f"Pipeline produced {valid_count} valid discharges.")
-        
-        if valid_count < MIN_VALID_DISCHARGES:
-            error_msg = (
-                f"FR-001 Violation: Insufficient valid discharges. "
-                f"Required: >= {MIN_VALID_DISCHARGES}, Found: {valid_count}. "
-                f"Pipeline execution aborted."
+
+        if len(raw_data) < 5:
+            raise RuntimeError(
+                f"Insufficient valid discharges: {len(raw_data)} < 5 required."
             )
-            logger.error(error_msg)
-            # Fail loudly as per constraints: do not proceed with insufficient data
-            return False
+
+        # 2. Preprocessing
+        logger.info("Step 2: Preprocessing data...")
+        processed_data = process_multiple_discharges(raw_data)
         
-        logger.info(f"Validation passed: {valid_count} >= {MIN_VALID_DISCHARGES}.")
+        # 3. Validation
+        logger.info("Step 3: Validating schema...")
+        if not validate_output_schema(processed_data):
+            raise RuntimeError("Output schema validation failed")
+
+        # 4. Metrics Calculation
+        logger.info("Step 4: Calculating metrics...")
+        metrics_data = process_metrics_for_discharges(processed_data)
+
+        # 5. Correlation Analysis
+        logger.info("Step 5: Running correlation analysis...")
+        analysis_results = run_correlation_analysis(processed_data, metrics_data)
+
+        # 6. Save Outputs
+        logger.info("Step 6: Saving results...")
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
         
-        # Step 5: Save to disk (T016 responsibility, but main orchestrates the flow)
-        # We save here to ensure the file exists for the next step or verification
-        output_file = output_path / "unified_analysis.csv"
-        processed_data.to_csv(output_file, index=False)
-        logger.info(f"Saved unified dataset to {output_file}")
+        # Save unified dataset
+        processed_data.to_csv(output_path / "unified_analysis.csv", index=False)
+        logger.info(f"Saved unified dataset to {output_path / 'unified_analysis.csv'}")
         
+        # Save metrics
+        if metrics_data is not None:
+            metrics_data.to_csv(output_path / "metrics.csv", index=False)
+            logger.info(f"Saved metrics to {output_path / 'metrics.csv'}")
+
+        logger.info("Pipeline completed successfully.")
         return True
-        
+
+    except LimitsTimeoutError:
+        logger.error("Pipeline timed out.")
+        raise
+    except MemoryLimitError:
+        logger.error("Pipeline exceeded memory limit.")
+        raise
     except Exception as e:
-        logger.critical(f"Pipeline execution failed with exception: {e}")
+        logger.error(f"Pipeline failed with error: {e}")
         traceback.print_exc()
         return False
 
-
-@timeout_guard
-@memory_guard
 def main():
-    """Main entry point for the pipeline."""
+    """Main entry point."""
     args = parse_arguments()
     
     # Setup logging
     setup_logging(level=args.log_level)
-    logger.info("Pipeline initialization started.")
     
-    # Determine discharge IDs
-    discharge_ids = args.discharges
-    if not discharge_ids:
-        logger.info("No discharge IDs provided via CLI. Using defaults.")
-        discharge_ids = DEFAULT_DISCHARGE_IDS
-    else:
-        # Convert to integers
-        discharge_ids = [int(d) for d in discharge_ids]
+    logger.info("Initializing Plasma Confinement Analysis Pipeline")
     
-    if not validate_discharge_list(discharge_ids):
-        logger.error("Invalid discharge list provided.")
+    try:
+        # Validate inputs
+        discharge_ids = validate_discharge_list(args.discharges)
+        
+        # Run pipeline with guards
+        success = run_pipeline(
+            discharge_ids=discharge_ids,
+            output_dir=args.output_dir
+        )
+        
+        if not success:
+            logger.error("Pipeline execution failed.")
+            sys.exit(1)
+            
+    except LimitsTimeoutError:
+        logger.critical("Pipeline execution aborted due to timeout.")
+        sys.exit(124)  # Standard timeout exit code
+    except MemoryLimitError:
+        logger.critical("Pipeline execution aborted due to memory limit.")
+        sys.exit(137)  # Standard OOM exit code (128+9)
+    except Exception as e:
+        logger.critical(f"Unexpected error: {e}")
         sys.exit(1)
-    
-    # Run the pipeline with timeout and memory constraints
-    success = run_pipeline(
-        discharge_ids=discharge_ids,
-        output_dir=args.output_dir,
-        timeout=args.timeout,
-        memory_limit_mb=args.memory_limit_mb
-    )
-    
-    if success:
-        logger.info("Pipeline completed successfully.")
-        sys.exit(0)
-    else:
-        logger.error("Pipeline failed or was aborted due to validation errors.")
-        sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
