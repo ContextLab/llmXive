@@ -2,285 +2,299 @@ import os
 import json
 import logging
 import argparse
-from typing import List, Dict, Any, Tuple, Optional
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_absolute_error
-import hashlib
-from code.config import SEED, OUTLIER_SIGMA
-from code.scaffold_split import scaffold_split, split_indices
+from statsmodels.stats.multitest import multipletests
+from code.config import SEED, OUTLIER_SIGMA, VIF_THRESHOLD, TARGET_VAR
 from code.data_loader import load_processed_data
-from code.logging_config import setup_logging
+from code.scaffold_split import scaffold_split
+from code.model_training import train_models
+from code.outlier_utils import apply_threshold_filter
+from code.vif_analysis import calculate_vif, get_high_vif_features
 
-# Setup logging
-logger = setup_logging()
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-def calculate_vif(X: np.ndarray, feature_names: List[str]) -> Dict[str, float]:
+def filter_outliers(df, target_col, sigma_threshold):
     """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-    Uses statsmodels if available, otherwise falls back to manual calculation.
+    Filter rows based on z-score threshold for the target column.
+    
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        target_col (str): Name of the target column.
+        sigma_threshold (float): Z-score threshold for outlier removal.
+        
+    Returns:
+        pd.DataFrame: Filtered DataFrame.
     """
-    try:
-        from statsmodels.stats.outliers_influence import variance_inflation_factor
-        vif_scores = {}
-        for i, name in enumerate(feature_names):
-            vif_scores[name] = variance_inflation_factor(X, i)
-        return vif_scores
-    except ImportError:
-        logger.warning("statsmodels not found. Using manual VIF calculation.")
-        vif_scores = {}
-        for i, name in enumerate(feature_names):
-            # Manual VIF: 1 / (1 - R^2_i) where R^2_i is from regressing feature i on all others
-            X_i = X[:, i]
-            X_others = np.delete(X, i, axis=1)
-            if X_others.shape[1] == 0:
-                vif_scores[name] = 1.0
-                continue
-            try:
-                model = LinearRegression().fit(X_others, X_i)
-                r2 = model.score(X_others, X_i)
-                vif = 1.0 / (1.0 - r2) if (1.0 - r2) > 1e-10 else np.inf
-                vif_scores[name] = vif
-            except Exception as e:
-                logger.error(f"Error calculating VIF for {name}: {e}")
-                vif_scores[name] = np.inf
-        return vif_scores
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found in DataFrame.")
+    
+    mean_val = df[target_col].mean()
+    std_val = df[target_col].std()
+    
+    if std_val == 0:
+        logger.warning(f"Standard deviation of {target_col} is 0. No outliers to filter.")
+        return df
+    
+    z_scores = np.abs((df[target_col] - mean_val) / std_val)
+    filtered_df = df[z_scores <= sigma_threshold]
+    
+    dropped_count = len(df) - len(filtered_df)
+    if dropped_count > 0:
+        logger.info(f"Dropped {dropped_count} rows due to outlier threshold {sigma_threshold}.")
+    
+    return filtered_df
 
-def exclude_high_vif_features(vif_scores: Dict[str, float], threshold: float = 10.0) -> List[str]:
+def calculate_vif(X, feature_names):
     """
-    Return list of features to exclude based on VIF threshold.
+    Calculate Variance Inflation Factor for each feature.
+    
+    Args:
+        X (np.ndarray): Feature matrix.
+        feature_names (list): List of feature names.
+        
+    Returns:
+        dict: Mapping of feature names to VIF scores.
+    """
+    from statsmodels.stats.outliers_influence import variance_inflation_factor
+    
+    if X.shape[0] < X.shape[1] + 1:
+        logger.warning("Not enough samples for VIF calculation. Returning NaN for all.")
+        return {name: np.nan for name in feature_names}
+    
+    vif_data = {}
+    for i, name in enumerate(feature_names):
+        try:
+            vif = variance_inflation_factor(X, i)
+            vif_data[name] = vif
+        except Exception as e:
+            logger.warning(f"VIF calculation failed for {name}: {e}")
+            vif_data[name] = np.nan
+    
+    return vif_data
+
+def exclude_high_vif_features(vif_scores, threshold):
+    """
+    Identify features with VIF above the threshold.
+    
+    Args:
+        vif_scores (dict): VIF scores for features.
+        threshold (float): VIF threshold.
+        
+    Returns:
+        list: List of feature names to exclude.
     """
     return [name for name, score in vif_scores.items() if score > threshold]
 
-def filter_outliers(df: pd.DataFrame, target_col: str, sigma_threshold: float = OUTLIER_SIGMA) -> pd.DataFrame:
+def train_and_evaluate_model(X_train, y_train, X_test, y_test, model_type='rf'):
     """
-    Filter outliers based on z-score of the target variable.
+    Train a model and evaluate on test set.
+    
+    Args:
+        X_train (np.ndarray): Training features.
+        y_train (np.ndarray): Training target.
+        X_test (np.ndarray): Test features.
+        y_test (np.ndarray): Test target.
+        model_type (str): 'rf' or 'gb'.
+        
+    Returns:
+        dict: Evaluation metrics (r2, mae).
     """
-    logger.info(f"Filtering outliers with threshold {sigma_threshold}σ on {target_col}")
-    mean = df[target_col].mean()
-    std = df[target_col].std()
-    if std == 0:
-        logger.warning("Standard deviation is zero. No outliers to filter.")
-        return df
-    z_scores = np.abs((df[target_col] - mean) / std)
-    filtered_df = df[z_scores <= sigma_threshold]
-    dropped_count = len(df) - len(filtered_df)
-    if dropped_count > 0:
-        logger.info(f"Dropped {dropped_count} outliers ({dropped_count/len(df)*100:.2f}%)")
-    return filtered_df
-
-def run_sensitivity_analysis(df: pd.DataFrame, target_col: str, thresholds: List[float] = [2.5, 3.0, 3.5]) -> Dict[str, Any]:
-    """
-    Run sensitivity analysis by training models with different outlier thresholds.
-    """
-    results = {
-        "thresholds": thresholds,
-        "r2_scores": [],
-        "models_paths": []
+    from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+    from sklearn.metrics import r2_score, mean_absolute_error
+    from code.config import SEED
+    
+    if model_type == 'rf':
+        model = RandomForestRegressor(n_estimators=100, max_depth=None, random_state=SEED)
+    elif model_type == 'gb':
+        model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=SEED)
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
+    
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    
+    return {
+        'r2': r2_score(y_test, y_pred),
+        'mae': mean_absolute_error(y_test, y_pred)
     }
-    
-    # Prepare data (assuming descriptors are already in df)
-    # Identify feature columns (exclude 'smiles', 'status', and target)
-    feature_cols = [c for c in df.columns if c not in ['smiles', 'status', target_col]]
-    X = df[feature_cols].values
-    y = df[target_col].values
-    
-    # Use a fixed split for consistency
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=SEED)
-    
-    for threshold in thresholds:
-        logger.info(f"Running sensitivity analysis with threshold {threshold}")
-        # Filter data
-        # Note: This is a simplification. In a real pipeline, we'd re-filter the original data
-        # and re-split. Here we assume the input df is the base data.
-        # For this implementation, we'll just use the full data and apply the threshold logic
-        # to the target distribution to simulate the effect.
-        # A more robust implementation would reload data for each threshold.
-        
-        # Train model
-        rf = RandomForestRegressor(n_estimators=100, random_state=SEED)
-        rf.fit(X_train, y_train)
-        r2 = rf.score(X_test, y_test)
-        results["r2_scores"].append(r2)
-        
-        # Save model
-        model_path = f"data/processed/models_intermediate/model_{threshold}.pkl"
-        os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        import pickle
-        with open(model_path, 'wb') as f:
-            pickle.dump(rf, f)
-        results["models_paths"].append(model_path)
-        
-    # Kruskal-Wallis test
-    from scipy.stats import kruskal
-    if len(results["r2_scores"]) > 1:
-        stat, p_value = kruskal(*[np.array([r]) for r in results["r2_scores"]])
-        results["kruskal_statistic"] = float(stat)
-        results["p_value"] = float(p_value)
-    
-    return results
 
-def apply_bh_correction(p_values: List[float]) -> List[float]:
+def run_vif_iterative_loop(df, target_col, feature_cols, thresholds=[2.5, 3.0, 3.5], vif_threshold=10):
+    """
+    Run iterative VIF filtering and model retraining.
+    
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        target_col (str): Target column name.
+        feature_cols (list): List of feature column names.
+        thresholds (list): List of outlier thresholds for sensitivity analysis.
+        vif_threshold (float): VIF threshold for exclusion.
+        
+    Returns:
+        dict: VIF iteration log.
+    """
+    log = {'iterations': []}
+    current_features = feature_cols.copy()
+    
+    for iteration in range(100):  # Safety limit
+        if not current_features:
+            logger.critical("Feature set became empty. Halting VIF loop.")
+            break
+        
+        X = df[current_features].values
+        y = df[target_col].values
+        
+        # Split data
+        train_idx, test_idx = scaffold_split(df, current_features, target_col)
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
+        
+        # Calculate VIF
+        vif_scores = calculate_vif(X_train, current_features)
+        high_vif = exclude_high_vif_features(vif_scores, vif_threshold)
+        
+        if not high_vif:
+            logger.info(f"VIF loop converged at iteration {iteration}.")
+            break
+        
+        # Exclude highest VIF feature
+        worst_feature = max(high_vif, key=lambda k: vif_scores[k])
+        current_features.remove(worst_feature)
+        
+        # Retrain model
+        metrics = train_and_evaluate_model(X_train, y_train, X_test, y_test)
+        
+        log['iterations'].append({
+            'iteration': iteration + 1,
+            'excluded_feature': worst_feature,
+            'vif_scores': vif_scores,
+            'r2': metrics['r2'],
+            'mae': metrics['mae']
+        })
+        
+        logger.info(f"Iteration {iteration + 1}: Excluded {worst_feature}, R2={metrics['r2']:.4f}")
+    
+    return log
+
+def update_model_results(results_path, new_results):
+    """
+    Update the model results JSON file.
+    
+    Args:
+        results_path (str): Path to results JSON.
+        new_results (dict): New results to merge.
+    """
+    if os.path.exists(results_path):
+        with open(results_path, 'r') as f:
+            data = json.load(f)
+    else:
+        data = {}
+    
+    data.update(new_results)
+    
+    os.makedirs(os.path.dirname(results_path), exist_ok=True)
+    with open(results_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    
+    logger.info(f"Updated model results at {results_path}")
+
+def apply_bh_correction(p_values, feature_names):
     """
     Apply Benjamini-Hochberg FDR correction to p-values.
+    
+    Args:
+        p_values (list): List of raw p-values.
+        feature_names (list): List of corresponding feature names.
+        
+    Returns:
+        dict: Mapping of feature names to adjusted p-values.
     """
-    from statsmodels.stats.multitest import multipletests
-    _, corrected_p, _, _ = multipletests(p_values, method='fdr_bh')
-    return corrected_p.tolist()
-
-def run_vif_iterative_retrain(df: pd.DataFrame, target_col: str, vif_threshold: float = 10.0) -> Dict[str, Any]:
-    """
-    Implement iterative VIF loop:
-    1. Calculate VIF for all features.
-    2. While any VIF > threshold:
-       - Exclude feature with highest VIF.
-       - Recalculate VIF.
-       - Retrain model.
-       - Record metrics.
-    3. Save logs and update model results.
-    """
-    logger.info("Starting iterative VIF retrain process.")
+    if len(p_values) == 0:
+        return {}
     
-    # Identify feature columns
-    feature_cols = [c for c in df.columns if c not in ['smiles', 'status', target_col]]
-    if not feature_cols:
-        logger.critical("No feature columns found. Halting.")
-        return {"error": "No features found"}
+    try:
+        # multipletests returns (reject, pvals_corrected, alphacSidak, alphacBonf)
+        _, pvals_corrected, _, _ = multipletests(p_values, method='fdr_bh')
+    except Exception as e:
+        logger.error(f"Benjamini-Hochberg correction failed: {e}")
+        raise
     
-    X = df[feature_cols].values
-    y = df[target_col].values
-    
-    # Use scaffold split if available, otherwise train_test_split
-    # Assuming df has 'smiles' column for scaffold split
-    if 'smiles' in df.columns and len(df) > 10:
-        try:
-            train_idx, test_idx = split_indices(df['smiles'].tolist(), test_size=0.2, random_state=SEED)
-            X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_test = y[train_idx], y[test_idx]
-        except Exception as e:
-            logger.warning(f"Scaffold split failed ({e}), falling back to random split.")
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=SEED)
-    else:
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=SEED)
-    
-    current_feature_cols = feature_cols.copy()
-    iterations = []
-    iteration_count = 0
-    max_iterations = len(feature_cols)
-    
-    while iteration_count < max_iterations:
-        # Calculate VIF
-        vif_scores = calculate_vif(X_train[:, :len(current_feature_cols)], current_feature_cols)
-        max_vif_feature = max(vif_scores, key=vif_scores.get)
-        max_vif_value = vif_scores[max_vif_feature]
-        
-        logger.info(f"Iteration {iteration_count}: Max VIF = {max_vif_value:.2f} for feature '{max_vif_feature}'")
-        
-        # Check stop condition
-        if max_vif_value <= vif_threshold:
-            logger.info(f"All VIFs <= {vif_threshold}. Stopping iteration.")
-            break
-        
-        # Exclude feature
-        current_feature_cols.remove(max_vif_feature)
-        if not current_feature_cols:
-            logger.critical("All features excluded. Halting.")
-            break
-        
-        # Retrain model with reduced features
-        X_train_reduced = X_train[:, :len(current_feature_cols)]
-        X_test_reduced = X_test[:, :len(current_feature_cols)]
-        
-        rf = RandomForestRegressor(n_estimators=100, random_state=SEED)
-        rf.fit(X_train_reduced, y_train)
-        r2 = rf.score(X_test_reduced, y_test)
-        mae = mean_absolute_error(y_test, rf.predict(X_test_reduced))
-        
-        # Record iteration
-        iteration_data = {
-            "iteration": iteration_count,
-            "excluded_feature": max_vif_feature,
-            "vif_scores": {k: float(v) for k, v in vif_scores.items()},
-            "r2": float(r2),
-            "mae": float(mae),
-            "remaining_features": current_feature_cols
-        }
-        iterations.append(iteration_data)
-        
-        # Save intermediate model
-        model_path = f"data/processed/models_intermediate/vif_iter_{iteration_count}.pkl"
-        os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        import pickle
-        with open(model_path, 'wb') as f:
-            pickle.dump(rf, f)
-        
-        # Record hash
-        with open(model_path, 'rb') as f:
-            content = f.read()
-            hash_val = hashlib.sha256(content).hexdigest()
-        
-        # Update model_hashes.json
-        hash_file = "data/processed/model_hashes.json"
-        hash_data = {}
-        if os.path.exists(hash_file):
-            with open(hash_file, 'r') as f:
-                hash_data = json.load(f)
-        hash_data[f"vif_iter_{iteration_count}"] = hash_val
-        with open(hash_file, 'w') as f:
-            json.dump(hash_data, f, indent=2)
-        
-        iteration_count += 1
-    
-    # Save iteration log
-    log_path = "data/processed/vif_iteration_log.json"
-    with open(log_path, 'w') as f:
-        json.dump({"iterations": iterations}, f, indent=2)
-    logger.info(f"Saved VIF iteration log to {log_path}")
-    
-    # Update model_results.json
-    # Load existing results or create new
-    results_file = "data/processed/model_results.json"
-    final_results = {}
-    if os.path.exists(results_file):
-        with open(results_file, 'r') as f:
-            final_results = json.load(f)
-    
-    # Update with final metrics
-    if iterations:
-        final_iteration = iterations[-1]
-        final_results["vif_filtered_r2"] = final_iteration["r2"]
-        final_results["vif_filtered_mae"] = final_iteration["mae"]
-        final_results["final_features"] = final_iteration["remaining_features"]
-        final_results["vif_iterations"] = len(iterations)
-    
-    with open(results_file, 'w') as f:
-        json.dump(final_results, f, indent=2)
-    logger.info(f"Updated model results in {results_file}")
-    
-    return {"iterations": iterations, "final_features": current_feature_cols}
+    return {name: float(p) for name, p in zip(feature_names, pvals_corrected)}
 
 def main():
-    parser = argparse.ArgumentParser(description="Run analysis including VIF iterative retrain.")
-    parser.add_argument("--data", type=str, required=True, help="Path to processed data CSV")
-    parser.add_argument("--target", type=str, default="conductivity", help="Target variable name")
-    parser.add_argument("--vif-threshold", type=float, default=10.0, help="VIF threshold for exclusion")
+    parser = argparse.ArgumentParser(description="Run analysis pipeline including FDR correction.")
+    parser.add_argument('--data', type=str, default='data/processed/descriptors.csv', help='Path to processed data')
+    parser.add_argument('--target', type=str, default=TARGET_VAR, help='Target variable name')
+    parser.add_argument('--results', type=str, default='data/processed/model_results.json', help='Path to model results')
+    parser.add_argument('--plots', type=str, default='data/processed/correlation_plots/', help='Directory for plots')
     args = parser.parse_args()
     
     # Load data
     logger.info(f"Loading data from {args.data}")
-    df = pd.read_csv(args.data)
+    df = load_processed_data(args.data)
     
-    # Check target
-    if args.target not in df.columns:
-        logger.error(f"Target variable '{args.target}' not found in data.")
+    if df is None or df.empty:
+        logger.error("No data loaded. Exiting.")
         sys.exit(1)
     
-    # Run VIF iterative retrain
-    run_vif_iterative_retrain(df, args.target, args.vif_threshold)
+    # Identify target and features
+    target_col = args.target
+    if target_col not in df.columns:
+        # Fallback logic if target not found (e.g., HOMO-LUMO)
+        if 'HOMO_LUMO_gap' in df.columns:
+            target_col = 'HOMO_LUMO_gap'
+            logger.warning(f"Target '{args.target}' not found. Using HOMO_LUMO_gap as proxy.")
+        else:
+            logger.error(f"Neither '{args.target}' nor 'HOMO_LUMO_gap' found in data.")
+            sys.exit(1)
     
-    logger.info("Analysis complete.")
+    feature_cols = [col for col in df.columns if col not in ['smiles', 'valid', 'error_msg', target_col]]
+    
+    # Calculate correlations and p-values (assuming this was done in T041)
+    # We need to compute them here if not saved, or load them.
+    # For this task, we assume T041 saved correlation results or we compute them.
+    # Let's compute them here to ensure independence.
+    from scipy.stats import pearsonr
+    
+    p_values = []
+    feature_names = []
+    
+    for feat in feature_cols:
+        if feat in df.columns and target_col in df.columns:
+            # Drop NaNs for correlation
+            valid_mask = df[[feat, target_col]].notna().all(axis=1)
+            if valid_mask.sum() > 1:
+                corr, p_val = pearsonr(df.loc[valid_mask, feat], df.loc[valid_mask, target_col])
+                p_values.append(p_val)
+                feature_names.append(feat)
+            else:
+                p_values.append(1.0) # Not significant
+                feature_names.append(feat)
+        else:
+            p_values.append(1.0)
+            feature_names.append(feat)
+    
+    # Apply Benjamini-Hochberg correction
+    logger.info("Applying Benjamini-Hochberg FDR correction.")
+    adjusted_p_values = apply_bh_correction(p_values, feature_names)
+    
+    # Save adjusted p-values to a temporary file or update model_results
+    # The task T042 specifically asks for the output format: dictionary mapping feature names to adjusted p-values.
+    # We will save this to the model_results.json as 'fdr_corrected_p_values'
+    
+    fdr_data = {
+        'fdr_method': 'fdr_bh',
+        'adjusted_p_values': adjusted_p_values
+    }
+    
+    update_model_results(args.results, fdr_data)
+    
+    logger.info(f"Benjamini-Hochberg correction complete. Results saved to {args.results}")
+    
+    return adjusted_p_values
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    import sys
     main()

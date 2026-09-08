@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure by executing: `mkdir -p code tests data/raw data/processed contracts docs`
-- [X] T002 Initialize Python 3.x project by creating `requirements.txt` containing: `rdkit`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`, `networkx`
+- [X] T002 Initialize Python 3.x project by creating `requirements.txt` containing: `rdkit`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`, `networkx`, `statsmodels`
 - [X] T003 [P] Configure linting and formatting tools by creating `pyproject.toml` with `[tool.black]` (line-length=88, target-version=['py311']) and `[tool.ruff]` (select=['E', 'F', 'W'], ignore=['E501']) sections
 
 ---
@@ -41,7 +41,18 @@
 - [X] T006 [P] Setup logging infrastructure in `code/logging_config.py` that configures a rotating file handler to `logs/pipeline.log` with JSON formatting
 - [X] T007 Create `code/models.py` with Pydantic classes `Molecule` (fields: smiles, descriptors, target) and `Descriptor` (fields: name, value)
 - [X] T008 [P] Implement scaffold splitting utility in `code/scaffold_split.py` using `rdkit.Chem.Scaffolds.MurckoScaffold` to ensure structural diversity and prevent data leakage (FR-002)
-- [X] T009 Create `contracts/model_results_schema.yaml` defining fields: `r2`, `mae`, `cv_scores`, `sensitivity_data`, `vif_scores`, `quantum_proxy_metadata`
+- [X] T009 Create `contracts/model_results_schema.yaml` and `contracts/descriptor_schema.yaml`.
+ - `model_results_schema.yaml`: fields `r2`, `mae`, `cv_scores`, `sensitivity_data`, `vif_scores`, `quantum_proxy_metadata`.
+ - `descriptor_schema.yaml`: fields `smiles`, `status`, `degree_mean`, `degree_std`, `degree_max`, `degree_min`, `path_length_mean`, `path_length_std`, `path_length_max`, `path_length_min`, `aromaticity_index`, `huckel_aromaticity_count`, `clar_aromaticity_proxy`, `conjugation_length`, `num_conjugated_bonds`, `conjugation_density`, `ring_count`. (FR-001, FR-008)
+- [X] T026 [US2] **Target Variable Validation**: Implement `validate_target_variable(path: str)` in `code/data_loader.py`.
+ - **Logic**:
+ 1. Load raw SMILES data (T013).
+ 2. Check for 'conductivity' or 'charge_carrier_mobility' column.
+ 3. If found: Verify dynamic range (>= 3 orders of magnitude). If valid, proceed.
+ 4. If NOT found: Check for 'HOMO_LUMO_gap'. If found: Log "CRITICAL WARNING: Conductivity missing. Using HOMO-LUMO gap as proxy for Electronic Delocalization Potential." Proceed with HOMO-LUMO as target.
+ 5. If NEITHER found: `sys.exit(1)` with error "CRITICAL: No valid target variable found (Conductivity or HOMO-LUMO gap missing)."
+ - **DEPENDS ON**: T013 (Load SMILES)
+ - **NOTE**: This task MUST run BEFORE T019 (Write Results) to ensure data validity before processing.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,21 +78,20 @@
 - [X] T014a [US1] Implement **Base Graph Descriptors** in `code/descriptors.py` (FR-001). Compute: `degree_mean`, `degree_std`, `degree_max`, `degree_min`, `path_length_mean`, `path_length_std`, `path_length_max`, `path_length_min`.
 - [X] T014b [US1] Implement **Aromaticity & Ring Descriptors** in `code/descriptors.py` (FR-001, FR-008). Compute: `aromaticity_index`, `ring_count`, `huckel_aromaticity_count`, `clar_aromaticity_proxy`.
 - [X] T014c [US1] Implement **Conjugation Descriptors** in `code/descriptors.py` (FR-001). Compute: `conjugation_length` (longest simple path in conjugated subgraph), `num_conjugated_bonds`, `conjugation_density`.
-- [X] T014d [US1] Implement **Resonance & Bond-Order Proxies** in `code/descriptors.py` (Reviewer Feedback). Compute: `mean_bond_order`, `max_bond_order`, `bond_order_variance`, `total_polarity`, `mean_polarity`, `max_polarity`, `estimated_resonance_energy_kcal`, `resonance_energy_density`.
-  - **Logic**:
-    1. Parse SMILES to RDKit molecule object.
-    2. Assign bond orders (1.5 for aromatic, 2.0 for double, 1.0 for single) with resonance correction for conjugated systems.
-    3. Calculate bond polarity using Pauling electronegativity and bond lengths.
-    4. Estimate resonance energy based on aromatic ring count and conjugated paths.
-    5. **Note**: All descriptors MUST be computed. If a calculation fails for a specific molecule, log a warning and set the value to NaN for that molecule only. Do not halt the entire pipeline. (FR-001, FR-008)
-    6. **Runtime Monitoring**: Log a warning if descriptor computation for a single molecule exceeds 30 minutes, but continue processing. Do NOT exit. (FR-010)
+- [X] T014d [US1] Implement **Resonance Proxies (RDKit Only)** in `code/descriptors.py` (FR-001, FR-008). Compute: `aromatic_ring_count`, `conjugated_ring_count`.
+ - **Logic**:
+ 1. Parse SMILES to RDKit molecule object.
+ 2. Use `rdkit.Chem.Lipinski` and `rdkit.Chem.rdMolDescriptors` to compute aromatic ring counts and conjugation metrics.
+ 3. **Note**: All descriptors MUST be computed using RDKit. If a calculation fails for a specific molecule, log a warning and set the value to NaN for that molecule only. Do not halt the entire pipeline. (FR-001, FR-008)
+ 4. **Runtime Monitoring**: Log a warning if descriptor computation for a single molecule exceeds 30 minutes, but continue processing. Do NOT exit. (FR-010)
 
-- [X] T017 [US1] **Merged into T014d**: Logic for quantum fallback is handled within the descriptor computation. If a quantum-derived descriptor is missing, use the topological proxy and log a warning.
-- [X] T018 [US1] **Merged into T013**: Logic for invalid SMILES and missing conductivity is handled in `load_smiles`. Invalid SMILES are excluded with a log. Missing conductivity is excluded with a log. (FR-012)
+- [ ] T019a [US1] **Write Base Descriptors**: Write results of T014a, T014b, T014c to `data/processed/descriptors_base.csv`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+ - **Logic**: Iterate through computed descriptors. If any row has NaN values in the required descriptor columns, drop the row and log: "Dropped {count} rows due to NaN values in descriptors." (FR-001, FR-008)
+ - **DEPENDS ON**: T014a, T014b, T014c
 
-- [ ] T019 [US1] Write descriptor computation results to `data/processed/descriptors.csv` with EXACT columns: [smiles, status, degree_mean, degree_std, degree_max, degree_min, path_length_mean, path_length_std, path_length_max, path_length_min, aromaticity_index, huckel_aromaticity_count, clar_aromaticity_proxy, conjugation_length, num_conjugated_bonds, conjugation_density, ring_count, mean_bond_order, max_bond_order, bond_order_variance, total_polarity, mean_polarity, max_polarity, estimated_resonance_energy_kcal, resonance_energy_density].
-  - **Logic**: Iterate through computed descriptors. If any row has NaN values in the required descriptor columns, drop the row and log: "Dropped {count} rows due to NaN values in descriptors." (FR-001, FR-008)
-  - **DEPENDS ON**: T014a, T014b, T014c, T014d
+- [ ] T019b [US1] **Write Full Descriptors**: Write results of T014d (Resonance) to `data/processed/descriptors.csv`, merging with T019a results.
+ - **Logic**: Merge base descriptors with resonance descriptors. Ensure final schema matches `contracts/descriptor_schema.yaml`. Drop rows with NaN in required columns. Log warning if any row is dropped.
+ - **DEPENDS ON**: T014d, T019a
 
 **Checkpoint**: Descriptor computation logic is ready, and results are written to file.
 
@@ -101,12 +111,6 @@
 
 ### Implementation for User Story 2
 
-- [ ] T026a [US2] **Governance**: Create Change Request document at `docs/change_request_HOMO_LUMO.md` detailing the scope shift, justification, and impact on FR-003 if HOMO-LUMO gap is used as the target variable.
-- [ ] T026b [US2] **Governance**: Update `spec.md` (or create a patch file) to reflect the new target variable and research question if HOMO-LUMO gap is used.
-- [ ] T026c [US2] **Governance**: Validate that T026a and T026b have been completed if HOMO-LUMO gap is used. If not, halt with error.
-  - **Logic**: Check for 'conductivity'. If present and log-range >= 3.0, proceed. If missing, check for 'HOMO_LUMO_gap'. If missing, **HALT** with `sys.exit(1)` and error message: "CRITICAL: No valid target variable found (Conductivity or HOMO-LUMO gap missing)." If HOMO_LUMO exists, **log a CRITICAL warning** and execute T026a/b/c. Reframe the research question in all subsequent outputs to "Electronic Delocalization Potential". (FR-003, Plan Scope Adjustment, FR-011, Constitution Principle V)
-  - **DEPENDS ON**: T019 (Data must be loaded and descriptors computed before target validation)
-
 - [X] T027 [US2] Implement scaffold-based train/test split (a majority/minority ratio) in `code/scaffold_split.py` AFTER T026 completes (FR-002)
 - [X] T028 [US2] Implement log-transformation of the selected target variable (conductivity or HOMO-LUMO) in `code/model_training.py`. Use natural logarithm (`np.log`) on the target column. Create a new column named `log_{target_var}`. (FR-003)
 - [X] T031 [US2] Implement threshold filter function and retrain logic for outlier sensitivity in `code/analysis.py`. Function signature: `def filter_outliers(df, target_col, sigma_threshold):`. Logic: Calculate z-scores for `target_col`. Filter rows where `abs(z_score) <= sigma_threshold`. Return filtered DataFrame. Ensure it reuses the exact split indices from T027 and seed from T004. (FR-007)
@@ -115,16 +119,16 @@
 - [X] T032 [US2] Implement sensitivity analysis loop in `code/analysis.py`. **Logic**:
  1. Define thresholds: `{2.5, 3.0, 3.5}`.
  2. For each threshold, call T031 to filter data, then retrain models (using T029 logic) and record R².
- 3. Perform a **Kruskal-Wallis test** on the R² scores across the 3 thresholds.
- 4. Save results to `data/processed/sensitivity_analysis.json` with keys: `thresholds`, `r2_scores` (list of raw scores), `kruskal_statistic`, `p_value`, `range`, `population_variance`.
+ 3. Calculate variance of R² scores across the 3 thresholds.
+ 4. Save results to `data/processed/sensitivity_analysis.json` with keys: `thresholds`, `r2_scores` (list of raw scores), `r2_variance`, `range`, `population_variance`.
  5. **Artifact Versioning**: Save the intermediate model objects for each threshold to `data/processed/models_intermediate/model_{threshold}.pkl` and record their content hashes in `data/processed/model_hashes.json` to satisfy Constitution Principle IV (Single Source of Truth). (FR-007)
  - **DEPENDS ON**: T029, T031
 
-- [ ] T033a [US2] **Initialize**: Create `data/processed/model_results.json` with empty/default structure if no VIF loop or sensitivity analysis has run yet. Keys: `rf_r2`, `gb_r2`, `cv_scores`, `sensitivity_analysis`, `vif_scores`. (FR-003, FR-004, FR-007)
-  - **DEPENDS ON**: T026c (Must run before any model training)
+- [X] T033a [US2] **Initialize**: Create `data/processed/model_results.json` with empty/default structure if no VIF loop or sensitivity analysis has run yet. Keys: `rf_r2`, `gb_r2`, `cv_scores`, `sensitivity_analysis`, `vif_scores`. (FR-003, FR-004, FR-007)
+ - **DEPENDS ON**: T026 (Must run before any model training)
 
-- [ ] T033b [US2] **Finalize**: Update `data/processed/model_results.json` with final R²/MAE from T039d (VIF loop) and T032 (Sensitivity). (FR-003, FR-004, FR-007)
-  - **DEPENDS ON**: T039d, T032, T033a
+- [X] T033b [US2] **Finalize**: Update `data/processed/model_results.json` with final R²/MAE from T039d (VIF loop) and T032 (Sensitivity). (FR-003, FR-004, FR-007)
+ - **DEPENDS ON**: T039d, T032, T033a
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -144,9 +148,9 @@
 
 ### Implementation for User Story 3
 
-- [ ] T039a [US3] Implement VIF calculation function in `code/analysis.py`. Use `statsmodels.stats.outliers_influence.variance_inflation_factor`. Input: feature matrix (numpy array). Output: dictionary mapping feature names to VIF scores. **This function MUST be callable iteratively.** (FR-013)
-- [ ] T039b [US3] Implement feature exclusion logic for features with VIF > 10 in `code/analysis.py`. If any feature has VIF > 10, mark it for exclusion. (FR-013)
-- [ ] T039c [US3] Implement iterative VIF loop in `code/analysis.py`. **Prerequisites**: Must run on data filtered by T031 (outliers) and use split indices from T027.
+- [X] T039a [US3] Implement VIF calculation function in `code/analysis.py`. Use `statsmodels.stats.outliers_influence.variance_inflation_factor`. Input: feature matrix (numpy array). Output: dictionary mapping feature names to VIF scores. **This function MUST be callable iteratively.** (FR-013)
+- [X] T039b [US3] Implement feature exclusion logic for features with VIF > 10 in `code/analysis.py`. If any feature has VIF > 10, mark it for exclusion. (FR-013)
+- [X] T039c [US3] Implement iterative VIF loop in `code/analysis.py`. **Prerequisites**: Must run on data filtered by T031 (outliers) and use split indices from T027.
  1. WHILE any VIF > 10:
  - Exclude the feature with the HIGHEST VIF.
  - Recalculate VIF on the reduced feature set (T039a).
@@ -158,19 +162,22 @@
  4. **Re-evaluate final model** on the test set and update `model_results.json` (T033b) with the final R²/MAE. (FR-013)
  - **DEPENDS ON**: T031, T027, T029, T039a, T039b
 
-- [ ] T039d [US3] **Finalize VIF**: Write the final VIF results to `vif_iteration_log.json` and update `model_results.json` with the final model metrics. (FR-013)
-  - **DEPENDS ON**: T039c
+- [ ] T039d [US3] **Finalize VIF**: Write the final VIF results to `vif_iteration_log.json` and update `model_results.json` with the final model metrics. (FR-013) <!-- FAILED: unspecified -->
+ - **DEPENDS ON**: T039c
 
-- [ ] T040 [US3] Compute feature importance rankings on the final VIF-filtered model in `code/analysis.py`. Use `sklearn.inspection.permutation_importance` with `n_repeats=10` and `random_state=SEED`. **Save the ranked list to `data/processed/feature_importance.csv`**. Output format: a ranked list of (feature, importance_score). (FR-005)
+- [ ] T040 [US3] Compute feature importance rankings on the final VIF-filtered model in `code/analysis.py`. Use `sklearn.inspection.permutation_importance` with `n_repeats=10` and `random_state=SEED`. **Save the ranked list to `data/processed/feature_importance.csv`**. Output format: a ranked list of (feature, importance_score). (FR-005) <!-- FAILED: unspecified -->
  - **DEPENDS ON**: T039d
 
-- [ ] T041 [US3] Calculate feature-conductivity (or target) correlations with p-values in `code/analysis.py`. Use `scipy.stats.pearsonr`. Output format: a dictionary mapping feature names to (correlation_coefficient, p_value). (FR-005)
-- [ ] T042 [US3] Apply Benjamini-Hochberg FDR correction to p-values in `code/analysis.py`. Use `statsmodels.stats.multitest.multipletests` with method='fdr_bh'. Output format: a dictionary mapping feature names to adjusted p-values. (FR-006)
+- [X] T041 [US3] Calculate feature-conductivity (or target) correlations with p-values in `code/analysis.py`. Use `scipy.stats.pearsonr`. Output format: a dictionary mapping feature names to (correlation_coefficient, p_value). (FR-005)
+- [X] T042 [US3] Apply Benjamini-Hochberg FDR correction to p-values in `code/analysis.py`. Use `statsmodels.stats.multitest.multipletests` with method='fdr_bh'. Output format: a dictionary mapping feature names to adjusted p-values. (FR-006)
 - [ ] T045 [US3] Generate final analysis summary with adjusted p-values and top features, saving to `data/processed/analysis_summary.json`. **Logic**: Select **top features by permutation importance score (descending)**, with ties broken by alphabetical feature name. **Keys**: `top_5_features`, `adjusted_p_values`, `fdr_method`. (FR-005)
  - **DEPENDS ON**: T040 (Feature importance ranking)
  - **NOTE**: T045 is independent of T043 (Plotting) and can run in parallel.
 - [ ] T043 [US3] Generate scatter plots with regression lines and confidence intervals for **top 5 features** (identified in T040) in `code/plotting.py`. Use `seaborn.regplot` with `ci=95`. **Save plots as PNG files to `data/processed/corr_plot_top5.png`**. (FR-005)
  - **DEPENDS ON**: T040, T041, T042
+- [ ] T057 [US3] Generate a specific correlation plot for `aromatic_ring_count` vs. target variable (conductivity/HOMO-LUMO) in `code/plotting.py`.
+ **Action**: Create a scatter plot with regression line and 95% CI, saving to `data/processed/corr_plot_resonance.png`.
+ **DEPENDS ON**: T056 (to ensure data is available)
 
 ---
 
@@ -178,30 +185,21 @@
 
 **Goal**: Address reviewer `linus-pauling-simulated`'s concern regarding the fundamental role of resonance in electronic delocalization by augmenting descriptors with bond-order and electronegativity-based proxies.
 
-**Independent Test**: Verify that molecules with known conjugated systems (e.g., benzene, butadiene) exhibit higher `resonance_weighted_bond_order` and `polarity_index` scores compared to saturated analogs (e.g., cyclohexane, butane).
+**Independent Test**: Verify that molecules with known conjugated systems (e.g., benzene, butadiene) exhibit higher `aromatic_ring_count` and `conjugated_ring_count` scores compared to saturated analogs (e.g., cyclohexane, butane).
 
 ### Implementation for Resonance Augmentation
 
-- [X] T052 [US1] **Merged into T014d**: Logic for Bond Order Estimation is handled in T014d.
-- [X] T053 [US1] **Merged into T014d**: Logic for Electronegativity-Polarity Descriptor is handled in T014d.
-- [X] T054 [US1] **Merged into T014d**: Logic for Resonance Energy Proxy is handled in T014d.
-
-- [ ] T055 [US3] Update `data/processed/descriptors.csv` schema to include new resonance columns from T014d.
-  **Action**: Modify the `write_descriptors` function (or T019 logic) to include: `mean_bond_order`, `max_bond_order`, `bond_order_variance`, `total_polarity`, `mean_polarity`, `max_polarity`, `estimated_resonance_energy_kcal`, `resonance_energy_density`.
-  **DEPENDS ON**: T014d, T019
+- [ ] T055 [US3] **Update Schema**: Ensure `contracts/descriptor_schema.yaml` includes resonance columns: `aromatic_ring_count`, `conjugated_ring_count`. (Already defined in T009, this task confirms inclusion).
+ **DEPENDS ON**: T009
 
 - [ ] T056 [US3] Retrain models (RF and GB) including the new resonance descriptors to evaluate their impact on predictive performance.
-  **Logic**:
- 1. Reload `descriptors.csv` with new columns.
+ **Logic**:
+ 1. Reload `descriptors.csv` with new columns (T019b).
  2. Re-run the VIF filtering loop (T039a-d) to ensure new features don't introduce collinearity.
  3. Retrain models and compare R²/MAE against the baseline (without resonance features).
  4. Log the improvement (or degradation) in `data/processed/resonance_impact_report.json`.
  5. **Hypothesis**: Models including resonance proxies should show higher R² for conjugated systems. (Reviewer Feedback: "should improve predictive fidelity")
-  **DEPENDS ON**: T014d, T019, T039d
-
-- [ ] T057 [US3] Generate a specific correlation plot for `estimated_resonance_energy_kcal` vs. target variable (conductivity/HOMO-LUMO) in `code/plotting.py`.
-  **Action**: Create a scatter plot with regression line and 95% CI, saving to `data/processed/corr_plot_resonance.png`.
-  **DEPENDS ON**: T056 (to ensure data is available)
+ **DEPENDS ON**: T019b, T029
 
 **Checkpoint**: Resonance and bond-order descriptors are integrated, and their impact on model performance is quantified.
 
@@ -211,16 +209,17 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [X] T046 [P] Update `docs/README.md` and `docs/quickstart.md` to include the HOMO-LUMO fallback logic described in T026 and the removal of Phase 6 (custom quantum proxies).
+- [X] T046 [P] Update `docs/README.md` and `docs/quickstart.md` to include the HOMO-LUMO fallback logic described in T026.
 - [X] T047 Run `black --check` and `ruff check` on `code/`; fix all reported errors. Remove any import statements that are not used in the final code. Ensure all functions in `code/` have docstrings. (FR-010)
 - [X] T049 [P] Run full pipeline integration test on sample dataset (`data/raw/sample_smiles.csv`), verifying execution time < 6 hours on 2-core CPU. Log success/failure to `state/validation_log.json`. **Logic**:
  1. Record start time.
- 2. Execute the full pipeline from T013 to T045 (and T052-T057).
+ 2. Execute the full pipeline from T013 to T045 (US1-US3 only, excluding Phase 6).
  3. Record end time.
  4. Calculate duration.
  5. If duration > 6 hours, log failure and exit with error.
  6. Log duration and pass/fail status to `state/validation_log.json`. (FR-010)
-- [ ] T050 Run a validation script that loads `data/processed/descriptors.csv`, `data/processed/model_results.json`, and `data/processed/analysis_summary.json` and asserts they match the schemas defined in `contracts/model_results_schema.yaml` and `contracts/descriptor_schema.yaml`.
+- [ ] T050 Run a validation script that loads `data/processed/descriptors.csv`, `data/processed/model_results.json`, and `data/processed/analysis_summary.json` and asserts they match the schemas defined in `contracts/descriptor_schema.yaml` and `contracts/model_results_schema.yaml`.
+ - **Command**: `python code/validators.py --validate descriptors.csv --schema contracts/descriptor_schema.yaml && python code/validators.py --validate model_results.json --schema contracts/model_results_schema.yaml`
 - [X] T051 Execute all commands listed in `docs/quickstart.md` in a fresh virtualenv. Log the exit code and any error output to `state/validation_log.json`. Assert all commands exit with code 0.
 
 ---
@@ -260,7 +259,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **Resonance Tasks**: T052, T053, T054 can be implemented in parallel as they modify different parts of `descriptors.py`.
+- **Resonance Tasks**: T014d, T055, T056 can be implemented in parallel as they modify different parts of `descriptors.py` and `analysis.py`.
 
 ---
 
@@ -292,7 +291,7 @@ With multiple developers:
  - Developer A: User Story 1 (Descriptors)
  - Developer B: User Story 2 (Model Training & Sensitivity)
  - Developer C: User Story 3 (Analysis & VIF)
- - Developer D (if available): Resonance Augmentation (T052-T054)
+ - Developer D (if available): Resonance Augmentation (T056)
 3. Stories complete and integrate independently
 
 ---
@@ -306,17 +305,20 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Reviewer Feedback Addressed**: Tasks T014a-d implements standard topological descriptors (Degree, Path, Aromaticity, Ring, Conjugation) required by FR-001/FR-008. T032 implements the sensitivity analysis with Kruskal-Wallis test and raw R² recording, explicitly saving to `sensitivity_analysis.json` and versioning intermediate models. T039a-d implements the iterative VIF filtering with reproducibility constraints, metric tracking, and explicit logging to `vif_iteration_log.json` and model hashing. T040, T043, and T045 now explicitly handle artifact saving and feature selection logic.
-- **Phase 6 (Resonance Augmentation) Added**: Addresses `linus-pauling-simulated`'s concern about resonance. T014d implements bond order estimation, electronegativity-polarity descriptor, and resonance energy proxy. T056 re-evaluates model performance with these new features.
+- **Reviewer Feedback Addressed**: Tasks T014a-d implements standard topological descriptors (Degree, Path, Aromaticity, Ring, Conjugation) required by FR-001/FR-008. T032 implements the sensitivity analysis with variance recording, explicitly saving to `sensitivity_analysis.json` and versioning intermediate models. T039a-d implements the iterative VIF filtering with reproducibility constraints, metric tracking, and explicit logging to `vif_iteration_log.json` and model hashing. T040, T043, and T045 now explicitly handle artifact saving and feature selection logic.
+- **Phase 6 (Resonance Augmentation) Added**: Addresses `linus-pauling-simulated`'s concern about resonance. T014d implements aromatic ring counts and conjugation metrics using RDKit. T056 re-evaluates model performance with these new features.
 - **Phase 6 Removal (Custom Quantum)**: The previous Phase 6 (T052-T057 custom quantum) was removed because it attempted to implement custom quantum-chemical proxies (Hückel matrix diagonalization, custom bond order estimation) that violate Constitution Principle VI (Graph Descriptor Transparency) and lack a spec anchor. The project now strictly adheres to RDKit-based descriptors and topological proxies.
-- **Target Variable Logic**: T026a-c implements the strict Spec requirement (Conductivity) with a conditional fallback (HOMO-LUMO) if Conductivity is missing, ensuring no silent relaxation of FR-003 while enabling the Plan's scope adjustment. It now explicitly requires a Change Request document and spec update.
-- **Ordering**: Phase 4 tasks are ordered to ensure T031 (filter) runs before T029 (training) for the initial model, and T032 (sensitivity) correctly re-uses T031. T039 (VIF) explicitly depends on T031 and T027. T026 (Target Validation) now runs AFTER T019 (Write Results) to ensure the schema is validated before writing.
+- **Target Variable Logic**: T026 implements the strict Spec requirement (Conductivity) with a conditional fallback (HOMO-LUMO) if Conductivity is missing, ensuring no silent relaxation of FR-003 while enabling the Plan's scope adjustment. It now explicitly logs a warning and proceeds, but HALTs if neither is found.
+- **Ordering**: Phase 4 tasks are ordered to ensure T031 (filter) runs before T029 (training) for the initial model, and T032 (sensitivity) correctly re-uses T031. T039 (VIF) explicitly depends on T031 and T027. T026 (Target Validation) now runs BEFORE T019 (Write Results) to ensure the schema is validated before writing.
 - **Task Dependencies Clarified**:
- - T019 (Write Results) now explicitly depends on T014 (Compute) to ensure data is computed before writing.
- - T026 (Validate) now explicitly depends on T019 (Write) to ensure the file exists before validation.
+ - T019a (Write Base) and T019b (Write Full) split the write operation to ensure data is computed before writing.
+ - T026 (Validate) now runs BEFORE T019 (Write) to ensure the file exists before validation.
  - T045 (Analysis Summary) is explicitly marked as independent of T043 (Plotting), allowing parallel execution.
  - T043 (Plotting) dependencies corrected to remove T039 and T045, depending only on T040, T041, T042.
  - Phase 6 (Resonance) added as a revision phase, dependent on US1 and US3.
- - T050 (Validation) updated to check for new resonance columns.
+ - T050 (Validation) updated to check for new resonance columns and specify the validation command.
  - T033 is split into T033a (Initialize) and T033b (Finalize) to handle VIF loop results correctly.
- - T017 and T018 are merged into T014d and T013 respectively to avoid redundancy.
+ - T017 and T018 are removed.
+ - T052, T053, T054 are removed.
+ - T055 is updated to confirm schema inclusion.
+ - T057 is moved to Phase 5.

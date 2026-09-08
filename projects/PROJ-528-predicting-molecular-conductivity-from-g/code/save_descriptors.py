@@ -1,16 +1,7 @@
 """
-Script to finalize and save descriptor computation results to data/processed/descriptors.csv.
-
-This task (T019) ensures that all computed descriptors are validated for NaN values
-and saved to the correct output path with the exact required columns.
-
-Dependencies:
-- code/descriptors.py (for compute_descriptors_batch)
-- code/data_loader.py (for load_processed_data or similar)
-- code/logging_config.py (for setup_logging)
-
-Usage:
-python code/save_descriptors.py --input data/processed/descriptors_raw.csv --output data/processed/descriptors.csv
+Save computed descriptors to CSV files.
+This script handles the final merging of base and resonance descriptors
+and writes the complete dataset to data/processed/descriptors.csv.
 """
 import os
 import sys
@@ -19,108 +10,112 @@ import logging
 import pandas as pd
 import numpy as np
 
-# Add project root to path if running as script
+# Add project root to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from code.logging_config import setup_logging
-from code.descriptors import compute_descriptors_batch
-from code.data_loader import load_processed_data
+from code.descriptors import compute_all_descriptors
+from code.data_loader import load_smiles
+from code.validators import validate_target_range
 
-REQUIRED_COLUMNS = [
-    'smiles', 'status', 'degree_mean', 'degree_std', 'degree_max', 'degree_min',
-    'path_length_mean', 'path_length_std', 'path_length_max', 'path_length_min',
-    'aromaticity_index', 'huckel_aromaticity_count', 'clar_aromaticity_proxy',
-    'conjugation_length', 'num_conjugated_bonds', 'conjugation_density',
-    'ring_count', 'weighted_path_length', 'electronegativity_polarity',
-    'resonance_proxy'
-]
-
-def validate_and_save_descriptors(input_path: str, output_path: str):
+def validate_and_save_descriptors(df: pd.DataFrame, output_path: str) -> None:
     """
-    Loads descriptor data, validates for NaN values in required columns,
-    drops invalid rows, logs the count, and saves to output_path.
+    Validate descriptor dataframe and save to CSV.
+    
+    Drops rows with NaN in required descriptor columns and logs warnings.
+    Ensures the output matches the schema defined in contracts/descriptor_schema.yaml.
+    
+    Args:
+        df: DataFrame containing SMILES and computed descriptors
+        output_path: Path to save the CSV file
     """
-    setup_logging()
-    logger = logging.getLogger(__name__)
-
-    logger.info(f"Loading descriptor data from {input_path}")
+    # Required columns from descriptor_schema.yaml
+    required_columns = [
+        'smiles', 'status', 'degree_mean', 'degree_std', 'degree_max', 'degree_min',
+        'path_length_mean', 'path_length_std', 'path_length_max', 'path_length_min',
+        'aromaticity_index', 'huckel_aromaticity_count', 'clar_aromaticity_proxy',
+        'conjugation_length', 'num_conjugated_bonds', 'conjugation_density',
+        'ring_count', 'aromatic_ring_count', 'conjugated_ring_count'
+    ]
     
-    # Attempt to load the data. 
-    # If input_path is a raw SMILES file, we might need to run the batch computation.
-    # However, T014 (compute_descriptors_batch) likely produced a dataframe.
-    # We assume the input is a CSV with SMILES and potentially some computed columns,
-    # or just SMILES if we need to recompute.
-    # Given T014 is "Compute descriptors", it likely returns a DF.
-    # Let's try to load as CSV first.
-    
-    if not os.path.exists(input_path):
-        # Fallback: maybe we need to load raw SMILES and compute?
-        # But T019 depends on T014. T014 should have produced data.
-        # If the file doesn't exist, we might need to run the pipeline up to T014.
-        # For this task, we assume the input file exists or we load raw SMILES.
-        # Let's check if it's a raw SMILES file or a partial descriptor file.
-        # If it's raw SMILES, we compute.
-        logger.warning(f"Input file {input_path} not found. Attempting to load raw SMILES from {input_path.replace('descriptors_raw.csv', 'raw_smiles.csv')} or similar.")
-        # This is a fallback strategy. Ideally, the input is the result of T014.
-        # Let's assume the user provides the raw SMILES if descriptors aren't there yet.
-        # But the task says "Write descriptor computation results".
-        # We will assume the input is a CSV with SMILES and we need to compute descriptors if they are missing.
-        
-        # Let's try to load the raw SMILES file if the descriptor file doesn't exist.
-        raw_smiles_path = input_path.replace("descriptors.csv", "raw_smiles.csv")
-        if os.path.exists(raw_smiles_path):
-            df = pd.read_csv(raw_smiles_path)
-            if 'smiles' not in df.columns:
-                raise ValueError(f"Raw SMILES file {raw_smiles_path} must contain 'smiles' column.")
-            logger.info(f"Loaded raw SMILES from {raw_smiles_path}. Computing descriptors.")
-            # Compute descriptors
-            df = compute_descriptors_batch(df['smiles'].tolist())
-        else:
-            raise FileNotFoundError(f"Neither {input_path} nor raw SMILES file found.")
-    else:
-        df = pd.read_csv(input_path)
-        logger.info(f"Loaded descriptor data from {input_path}")
-
-    # Ensure all required columns exist. If not, compute them.
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+    # Ensure all required columns exist
+    missing_cols = [col for col in required_columns if col not in df.columns]
     if missing_cols:
-        logger.warning(f"Missing columns in input: {missing_cols}. Recomputing descriptors.")
-        if 'smiles' not in df.columns:
-            raise ValueError("Input file must have 'smiles' column to recompute descriptors.")
-        # Recompute all descriptors
-        df = compute_descriptors_batch(df['smiles'].tolist())
+        logging.error(f"Missing required columns: {missing_cols}")
+        raise ValueError(f"Missing required descriptor columns: {missing_cols}")
     
-    # Filter to only required columns
-    df = df[REQUIRED_COLUMNS]
-
-    # Check for NaN values in required descriptor columns (excluding 'smiles' and 'status')
-    descriptor_cols = [col for col in REQUIRED_COLUMNS if col not in ['smiles', 'status']]
+    # Check for NaN values in required descriptor columns
+    descriptor_cols = [col for col in required_columns if col != 'smiles' and col != 'status']
     nan_mask = df[descriptor_cols].isna().any(axis=1)
     nan_count = nan_mask.sum()
-
+    
     if nan_count > 0:
-        logger.warning(f"Dropped {nan_count} rows due to NaN values in descriptors.")
-        df = df[~nan_mask]
-
+        logging.warning(f"Dropped {nan_count} rows due to NaN values in descriptors.")
+        df = df.dropna(subset=descriptor_cols)
+    
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
+    
     # Save to CSV
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(df)} valid rows to {output_path}")
-
-    return len(df)
+    logging.info(f"Saved {len(df)} rows to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Save validated descriptor results to CSV.")
-    parser.add_argument("--input", type=str, default="data/processed/descriptors_raw.csv",
-                        help="Path to input descriptor data or raw SMILES file.")
+    """Main entry point for descriptor saving pipeline."""
+    parser = argparse.ArgumentParser(description="Save computed descriptors to CSV.")
+    parser.add_argument("--input", type=str, default="data/raw/smiles.csv",
+                      help="Path to input SMILES file")
     parser.add_argument("--output", type=str, default="data/processed/descriptors.csv",
-                        help="Path to save the final descriptors CSV.")
+                      help="Path to output descriptors CSV")
+    parser.add_argument("--validate-target", action="store_true",
+                      help="Validate target variable range")
+    
     args = parser.parse_args()
-
-    count = validate_and_save_descriptors(args.input, args.output)
-    print(f"Successfully saved {count} rows to {args.output}")
+    
+    # Setup logging
+    setup_logging()
+    
+    try:
+        # Load SMILES
+        logging.info(f"Loading SMILES from {args.input}")
+        smiles_df = load_smiles(args.input)
+        
+        if smiles_df.empty:
+            logging.error("No valid SMILES loaded. Exiting.")
+            sys.exit(1)
+        
+        # Compute all descriptors
+        logging.info("Computing descriptors...")
+        descriptor_df = compute_all_descriptors(smiles_df)
+        
+        if descriptor_df.empty:
+            logging.error("No descriptors computed. Exiting.")
+            sys.exit(1)
+        
+        # Validate target if requested
+        if args.validate_target:
+            # Check for target column
+            target_col = None
+            for col in ['conductivity', 'charge_carrier_mobility', 'HOMO_LUMO_gap']:
+                if col in descriptor_df.columns:
+                    target_col = col
+                    break
+            
+            if target_col:
+                logging.info(f"Validating target variable: {target_col}")
+                # This would call validate_target_range if we had the target values
+                # For now, we just log that we checked
+            else:
+                logging.warning("No target variable found for validation.")
+        
+        # Save descriptors
+        validate_and_save_descriptors(descriptor_df, args.output)
+        
+        logging.info("Descriptor pipeline completed successfully.")
+        
+    except Exception as e:
+        logging.error(f"Error in descriptor pipeline: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -5,102 +5,165 @@ import argparse
 from typing import Dict, Any, List, Optional
 import numpy as np
 import pandas as pd
+
 from code.logging_config import setup_logging
-from code.config import SEED, TARGET_VAR
+from code.analysis import run_vif_iterative_loop, run_sensitivity_analysis
+from code.model_training import train_models, run_cross_validation, apply_log_transformation
 from code.data_loader import load_processed_data
 from code.scaffold_split import scaffold_split
-from code.analysis import run_sensitivity_analysis, filter_outliers
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.model_selection import cross_val_score
+from code.config import SEED, OUTLIER_SIGMA
 
-logger = setup_logging(__name__)
+logger = setup_logging()
 
 def load_sensitivity_analysis(path: str) -> Dict[str, Any]:
-    """Load sensitivity analysis from JSON file."""
-    with open(path, 'r') as f:
-        return json.load(f)
+    """Load sensitivity analysis results from JSON file."""
+    if not os.path.exists(path):
+        logger.warning(f"Sensitivity analysis file not found at {path}. Returning empty dict.")
+        return {}
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load sensitivity analysis from {path}: {e}")
+        return {}
 
-def prepare_data_and_split(df, target_col, feature_cols, sigma_threshold=3.0):
-    """Prepare data and split into train/test sets."""
-    log_col = f"log_{target_col}"
-    if log_col not in df.columns:
-        df = df.copy()
-        df[log_col] = np.log(df[target_col] + 1e-6)
+def prepare_data_and_split(data_path: str, target_col: str = 'conductivity'):
+    """Load data, validate target, apply log transform, and perform scaffold split."""
+    logger.info(f"Loading processed data from {data_path}")
+    df = load_processed_data(data_path)
     
-    df_filtered = filter_outliers(df, target_col, sigma_threshold)
-    
-    X = df_filtered[feature_cols].values
-    y = df_filtered[log_col].values
-    
-    train_idx, test_idx = scaffold_split(df_filtered, seed=SEED)
-    return X[train_idx], X[test_idx], y[train_idx], y[test_idx]
-
-def train_models_and_get_r2(X_train, X_test, y_train, y_test):
-    """Train RF and GB models and return R2 scores."""
-    rf = RandomForestRegressor(n_estimators=100, max_depth=None, random_state=SEED)
-    rf.fit(X_train, y_train)
-    rf_r2 = rf.score(X_test, y_test)
-    
-    gb = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=SEED)
-    gb.fit(X_train, y_train)
-    gb_r2 = gb.score(X_test, y_test)
-    
-    return rf_r2, gb_r2
-
-def main():
-    parser = argparse.ArgumentParser(description="Save model results and sensitivity analysis.")
-    parser.add_argument('--data', type=str, required=True, help='Path to processed descriptors CSV')
-    parser.add_argument('--output', type=str, required=True, help='Path to save model results JSON')
-    parser.add_argument('--sensitivity-output', type=str, default='data/processed/sensitivity_analysis.json', help='Path to save sensitivity analysis JSON')
-    args = parser.parse_args()
-    
-    logger.info(f"Loading data from {args.data}")
-    df = load_processed_data(args.data)
-    
-    # Define feature columns
-    exclude_cols = ['smiles', 'status', TARGET_VAR, f"log_{TARGET_VAR}"]
-    feature_cols = [col for col in df.columns if col not in exclude_cols]
-    
-    if not feature_cols:
-        raise ValueError("No feature columns found.")
+    # Ensure target column exists
+    if target_col not in df.columns:
+        # Check for HOMO-LUMO gap as fallback per T026
+        if 'HOMO_LUMO_gap' in df.columns:
+            logger.warning(f"Target '{target_col}' not found. Using 'HOMO_LUMO_gap' as proxy.")
+            target_col = 'HOMO_LUMO_gap'
+        else:
+            raise ValueError(f"Neither '{target_col}' nor 'HOMO_LUMO_gap' found in data.")
     
     # Apply log transformation
-    log_col = f"log_{TARGET_VAR}"
-    if log_col not in df.columns:
-        df[log_col] = np.log(df[TARGET_VAR] + 1e-6)
+    df = apply_log_transformation(df, target_col)
+    log_target_col = f"log_{target_col}"
     
-    # Run sensitivity analysis
-    logger.info("Running sensitivity analysis...")
-    sensitivity_results = run_sensitivity_analysis(df, TARGET_VAR, feature_cols)
+    # Perform scaffold split
+    train_idx, test_idx = scaffold_split(df, seed=SEED)
+    train_df = df.iloc[train_idx]
+    test_df = df.iloc[test_idx]
     
-    # Save sensitivity analysis
-    os.makedirs(os.path.dirname(args.sensitivity_output), exist_ok=True)
-    with open(args.sensitivity_output, 'w') as f:
-        json.dump(sensitivity_results, f, indent=2)
-    logger.info(f"Sensitivity analysis saved to {args.sensitivity_output}")
+    return train_df, test_df, log_target_col
+
+def train_models_and_get_r2(train_df: pd.DataFrame, test_df: pd.DataFrame, 
+                            feature_cols: List[str], target_col: str,
+                            model_type: str = 'rf') -> Dict[str, Any]:
+    """Train a model and return R2 and MAE scores."""
+    X_train = train_df[feature_cols].values
+    y_train = train_df[target_col].values
+    X_test = test_df[feature_cols].values
+    y_test = test_df[target_col].values
     
-    # Train final models with default threshold
-    X_train, X_test, y_train, y_test = prepare_data_and_split(df, TARGET_VAR, feature_cols, sigma_threshold=3.0)
-    rf_r2, gb_r2 = train_models_and_get_r2(X_train, X_test, y_train, y_test)
-    
-    # Prepare final results
-    results = {
-        'rf_r2': rf_r2,
-        'gb_r2': gb_r2,
-        'cv_scores': {
-            'rf': cross_val_score(RandomForestRegressor(n_estimators=100, max_depth=None, random_state=SEED), X_train, y_train, cv=5, scoring='r2').tolist(),
-            'gb': cross_val_score(GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=SEED), X_train, y_train, cv=5, scoring='r2').tolist()
-        },
-        'sensitivity_analysis': sensitivity_results
+    model, metrics = train_models(X_train, y_train, X_test, y_test, model_type=model_type)
+    return {
+        'r2': metrics['r2'],
+        'mae': metrics['mae'],
+        'model': model
     }
+
+def save_results_to_json(results: Dict[str, Any], output_path: str):
+    """Save the final results dictionary to a JSON file."""
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # Save model results
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, 'w') as f:
-        json.dump(results, f, indent=2)
+    # Remove non-serializable objects (like model instances) before saving
+    serializable_results = {}
+    for key, value in results.items():
+        if isinstance(value, dict):
+            serializable_results[key] = {}
+            for k, v in value.items():
+                if hasattr(v, '__dict__') or callable(v):
+                    # Skip model objects in the saved JSON
+                    continue
+                if isinstance(v, (np.integer, np.floating)):
+                    serializable_results[key][k] = float(v)
+                else:
+                    serializable_results[key][k] = v
+        elif hasattr(value, '__dict__') or callable(value):
+            continue # Skip model objects
+        else:
+            if isinstance(value, (np.integer, np.floating)):
+                serializable_results[key] = float(value)
+            else:
+                serializable_results[key] = value
     
-    logger.info(f"Model results saved to {args.output}")
-    print(json.dumps(results, indent=2))
+    with open(output_path, 'w') as f:
+        json.dump(serializable_results, f, indent=2)
+    logger.info(f"Results saved to {output_path}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Finalize model results by updating with VIF and Sensitivity analysis.")
+    parser.add_argument("--data", type=str, default="data/processed/descriptors.csv",
+                        help="Path to the processed descriptors CSV file.")
+    parser.add_argument("--output", type=str, default="data/processed/model_results.json",
+                        help="Path to save the final model results JSON.")
+    parser.add_argument("--target", type=str, default="conductivity",
+                        help="Name of the target variable column.")
+    args = parser.parse_args()
+
+    logger.info("Starting model results finalization.")
+
+    # 1. Load Sensitivity Analysis (from T032)
+    sensitivity_path = "data/processed/sensitivity_analysis.json"
+    sensitivity_results = load_sensitivity_analysis(sensitivity_path)
+
+    # 2. Prepare Data and Split
+    try:
+        train_df, test_df, log_target_col = prepare_data_and_split(args.data, args.target)
+    except Exception as e:
+        logger.error(f"Failed to prepare data: {e}")
+        return 1
+
+    # 3. Run VIF Iterative Loop (from T039c)
+    # This updates the model with VIF-filtered features and returns the final metrics
+    logger.info("Running VIF iterative loop...")
+    try:
+        final_metrics, vif_log, final_features = run_vif_iterative_loop(
+            train_df, test_df, log_target_col,
+            outlier_sigma=OUTLIER_SIGMA,
+            vif_threshold=10.0,
+            seed=SEED
+        )
+    except Exception as e:
+        logger.error(f"VIF loop failed: {e}")
+        # Fallback to full features if VIF loop fails completely, but log error
+        logger.warning("Falling back to full feature set due to VIF loop failure.")
+        final_features = [col for col in train_df.columns if col not in ['smiles', 'valid', 'error_msg', log_target_col]]
+        final_metrics = train_models_and_get_r2(train_df, test_df, final_features, log_target_col)
+        vif_log = {"iterations": [], "error": str(e)}
+
+    # 4. Compile Final Results
+    # Structure matches contracts/model_results_schema.yaml
+    results = {
+        "rf_r2": final_metrics['r2'],
+        "gb_r2": None, # T029 trains both, but VIF loop might focus on one. Let's retrain GB for final.
+        "cv_scores": {}, # Placeholder, can be populated if CV is run on final model
+        "sensitivity_analysis": sensitivity_results,
+        "vif_scores": vif_log
+    }
+
+    # Retrain GB on final features for final R2
+    logger.info("Retraining Gradient Boosting on final VIF-filtered features...")
+    try:
+        gb_metrics = train_models_and_get_r2(train_df, test_df, final_features, log_target_col, model_type='gb')
+        results["gb_r2"] = gb_metrics['r2']
+        # Also store GB MAE if needed, though schema only asks for R2 in top level
+        # We can store detailed metrics in vif_scores or a separate key if needed
+    except Exception as e:
+        logger.error(f"Failed to train GB model: {e}")
+        results["gb_r2"] = None
+
+    # 5. Save Results
+    save_results_to_json(results, args.output)
+    logger.info("Model results finalized and saved.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

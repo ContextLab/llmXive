@@ -1,99 +1,83 @@
 """
-Unit tests for descriptor calculations, focusing on conjugation path length
-and mixed hybridization validation.
+Unit tests for descriptor computation functions.
 """
 import pytest
 import numpy as np
+import pandas as pd
 from rdkit import Chem
+from code.descriptors import (
+    compute_aromaticity_index,
+    compute_conjugation_length,
+    compute_num_conjugated_bonds,
+    compute_all_descriptors,
+    compute_aromatic_ring_count,
+    compute_conjugated_ring_count
+)
 
-from code.descriptors import compute_path_length_statistics, compute_degree_statistics
-
-
-def get_conjugation_length(mol):
-    """
-    Calculate the length of the longest conjugated path in a molecule.
-    A conjugated path is a sequence of alternating single and double bonds.
-    Returns the number of bonds in the longest such path.
-    """
-    if mol is None:
-        return 0
-
-    # Build an adjacency list of conjugated bonds
-    n_atoms = mol.GetNumAtoms()
-    adj = {i: [] for i in range(n_atoms)}
-    for bond in mol.GetBonds():
-        if bond.GetIsConjugated():
-            start = bond.GetBeginAtomIdx()
-            end = bond.GetEndAtomIdx()
-            adj[start].append(end)
-            adj[end].append(start)
-
-    # Find the longest path in this graph (DFS)
-    max_len = 0
-
-    def dfs(node, current_len, visited):
-        nonlocal max_len
-        if current_len > max_len:
-            max_len = current_len
-
-        for neighbor in adj[node]:
-            if neighbor not in visited:
-                visited.add(neighbor)
-                dfs(neighbor, current_len + 1, visited)
-                visited.remove(neighbor)
-
-    for start_node in range(n_atoms):
-        if len(adj[start_node]) > 0:
-            visited = {start_node}
-            dfs(start_node, 0, visited)
-
-    return max_len
-
+def test_aromaticity_benzene():
+    """Test aromaticity index calculation on benzene."""
+    smiles = "c1ccccc1"
+    mol = Chem.MolFromSmiles(smiles)
+    assert mol is not None, "Failed to parse benzene SMILES"
+    
+    aromaticity_index = compute_aromaticity_index(mol)
+    assert aromaticity_index == 1.0, f"Expected aromaticity_index=1.0 for benzene, got {aromaticity_index}"
 
 def test_conjugation_path_length():
-    """
-    Test conjugation path length on butadiene vs. butane.
-    Butadiene (C=CC=C) should have a longer conjugation path than butane (CCCC).
-    """
-    smiles_butadiene = "C=CC=C"
-    smiles_butane = "CCCC"
-
-    mol_butadiene = Chem.MolFromSmiles(smiles_butadiene)
-    mol_butane = Chem.MolFromSmiles(smiles_butane)
-
-    assert mol_butadiene is not None, f"Failed to parse SMILES: {smiles_butadiene}"
-    assert mol_butane is not None, f"Failed to parse SMILES: {smiles_butane}"
-
-    conjugation_length_butadiene = get_conjugation_length(mol_butadiene)
-    conjugation_length_butane = get_conjugation_length(mol_butane)
-
-    assert conjugation_length_butadiene > conjugation_length_butane, \
-        f"Expected conjugation_length({smiles_butadiene}) > {smiles_butane}, " \
-        f"got {conjugation_length_butadiene} vs {conjugation_length_butane}"
-
+    """Test conjugation path length on butadiene vs. butane."""
+    butadiene_smiles = "C=CC=C"
+    butane_smiles = "CCCC"
+    
+    butadiene_mol = Chem.MolFromSmiles(butadiene_smiles)
+    butane_mol = Chem.MolFromSmiles(butane_smiles)
+    
+    assert butadiene_mol is not None, "Failed to parse butadiene SMILES"
+    assert butane_mol is not None, "Failed to parse butane SMILES"
+    
+    butadiene_conj = compute_conjugation_length(butadiene_mol)
+    butane_conj = compute_conjugation_length(butane_mol)
+    
+    assert butadiene_conj > butane_conj, f"Butadiene conjugation length ({butadiene_conj}) should be greater than butane ({butane_conj})"
 
 def test_mixed_hybridization_descriptors():
-    """
-    Test descriptor computation on mixed hybridization molecules.
-    Uses a molecule with both sp2 and sp3 carbons (e.g., "CC=C").
-    Asserts that all computed descriptors are finite numbers and no NaN values are present.
-    """
-    smiles_mixed = "CC=C"  # Propene: sp3 (CH3) and sp2 (CH=CH2)
-    mol = Chem.MolFromSmiles(smiles_mixed)
-    assert mol is not None, f"Failed to parse SMILES: {smiles_mixed}"
+    """Test descriptor computation on mixed hybridization molecules."""
+    smiles = "CC=C"  # Propene: sp3 and sp2 carbons
+    mol = Chem.MolFromSmiles(smiles)
+    assert mol is not None, "Failed to parse mixed hybridization SMILES"
+    
+    # Compute all descriptors
+    df = compute_all_descriptors(pd.DataFrame({'smiles': [smiles]}))
+    
+    # Check that all descriptor columns are finite numbers
+    descriptor_cols = [col for col in df.columns if col not in ['smiles', 'status', 'error_msg']]
+    for col in descriptor_cols:
+        value = df[col].iloc[0]
+        assert not np.isnan(value), f"NaN value found in {col}"
+        assert np.isfinite(value), f"Infinite value found in {col}"
 
-    # Compute degree statistics
-    degree_stats = compute_degree_statistics(mol)
+def test_aromatic_ring_count_benzene():
+    """Test aromatic ring count on benzene."""
+    smiles = "c1ccccc1"
+    mol = Chem.MolFromSmiles(smiles)
+    assert mol is not None
+    
+    count = compute_aromatic_ring_count(mol)
+    assert count == 1, f"Expected 1 aromatic ring for benzene, got {count}"
 
-    # Compute path length statistics
-    path_stats = compute_path_length_statistics(mol)
+def test_conjugated_ring_count_benzene():
+    """Test conjugated ring count on benzene."""
+    smiles = "c1ccccc1"
+    mol = Chem.MolFromSmiles(smiles)
+    assert mol is not None
+    
+    count = compute_conjugated_ring_count(mol)
+    assert count == 1, f"Expected 1 conjugated ring for benzene, got {count}"
 
-    # Collect all descriptor values
-    descriptors = list(degree_stats.values()) + list(path_stats.values())
-
-    # Assert all values are finite (not NaN, not Inf)
-    for val in descriptors:
-        assert np.isfinite(val), f"Descriptor value is not finite: {val}"
-
-    # Assert no NaN values explicitly (redundant with isfinite but explicit for clarity)
-    assert not any(np.isnan(v) for v in descriptors), "Found NaN values in computed descriptors"
+def test_conjugated_ring_count_cyclohexane():
+    """Test conjugated ring count on cyclohexane (should be 0)."""
+    smiles = "C1CCCCC1"
+    mol = Chem.MolFromSmiles(smiles)
+    assert mol is not None
+    
+    count = compute_conjugated_ring_count(mol)
+    assert count == 0, f"Expected 0 conjugated rings for cyclohexane, got {count}"

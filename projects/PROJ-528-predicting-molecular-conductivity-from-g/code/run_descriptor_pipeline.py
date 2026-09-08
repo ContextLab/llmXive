@@ -1,76 +1,97 @@
+"""
+Run the complete descriptor computation pipeline.
+This script orchestrates the loading of SMILES, computation of all descriptors,
+and saving the results to the appropriate output files.
+"""
 import sys
 import os
 import argparse
 import logging
 import pandas as pd
 import numpy as np
+
+# Add project root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from code.logging_config import setup_logging
 from code.data_loader import load_smiles
-from code.descriptors import compute_standard_descriptors
-from code.config import TARGET_VAR
-
-logger = setup_logging(__name__)
+from code.descriptors import compute_all_descriptors
+from code.save_descriptors import validate_and_save_descriptors
 
 def load_smiles_from_file(path: str) -> pd.DataFrame:
-    """Load SMILES from CSV file."""
+    """Load SMILES from a CSV file."""
     if not os.path.exists(path):
-        raise FileNotFoundError(f"Input file not found: {path}")
+        raise FileNotFoundError(f"SMILES file not found: {path}")
     
     df = pd.read_csv(path)
     if 'smiles' not in df.columns:
-        raise ValueError("Input CSV must contain 'smiles' column.")
+        raise ValueError("CSV must contain a 'smiles' column")
     
-    return df[['smiles']]
+    return df
 
 def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    """Remove invalid SMILES and duplicates."""
-    valid_df = df[df['valid'] == True].copy()
-    valid_df = valid_df.drop_duplicates(subset=['smiles'])
-    return valid_df
-
-def compute_all_descriptors(smiles_list: list) -> pd.DataFrame:
-    """Compute descriptors for a list of SMILES."""
-    results = []
-    for smiles in smiles_list:
-        try:
-            desc = compute_standard_descriptors(smiles)
-            if desc is not None:
-                desc['smiles'] = smiles
-                desc['status'] = 'valid'
-                results.append(desc)
-            else:
-                logger.warning(f"Failed to compute descriptors for: {smiles}")
-        except Exception as e:
-            logger.error(f"Error computing descriptors for {smiles}: {e}")
+    """Clean the dataframe by removing invalid SMILES and duplicates."""
+    # Remove rows with empty or None SMILES
+    df = df[df['smiles'].notna() & (df['smiles'].str.strip() != '')]
     
-    return pd.DataFrame(results)
+    # Remove duplicates based on SMILES
+    df = df.drop_duplicates(subset=['smiles'])
+    
+    return df.reset_index(drop=True)
+
+def compute_all_descriptors(smiles_df: pd.DataFrame) -> pd.DataFrame:
+    """Compute all descriptors for the given SMILES dataframe."""
+    # Use the compute_all_descriptors function from descriptors module
+    return compute_all_descriptors(smiles_df)
 
 def main():
-    parser = argparse.ArgumentParser(description="Run descriptor computation pipeline.")
-    parser.add_argument('--input', type=str, required=True, help='Input CSV with SMILES')
-    parser.add_argument('--output', type=str, required=True, help='Output CSV for descriptors')
+    """Main entry point for the descriptor pipeline."""
+    parser = argparse.ArgumentParser(description="Run the complete descriptor computation pipeline.")
+    parser.add_argument("--input", type=str, default="data/raw/smiles.csv",
+                      help="Path to input SMILES CSV file")
+    parser.add_argument("--output-base", type=str, default="data/processed/descriptors_base.csv",
+                      help="Path to output base descriptors CSV")
+    parser.add_argument("--output-full", type=str, default="data/processed/descriptors.csv",
+                      help="Path to output full descriptors CSV")
+    parser.add_argument("--validate", action="store_true",
+                      help="Validate output against schema")
+    
     args = parser.parse_args()
     
-    logger.info(f"Loading SMILES from {args.input}")
-    df = load_smiles_from_file(args.input)
+    # Setup logging
+    setup_logging()
     
-    logger.info("Validating SMILES...")
-    df_valid = load_smiles(args.input)
-    df_valid = clean_dataframe(df_valid)
-    
-    logger.info(f"Computing descriptors for {len(df_valid)} valid molecules...")
-    descriptors_df = compute_all_descriptors(df_valid['smiles'].tolist())
-    
-    if len(descriptors_df) == 0:
-        raise ValueError("No valid descriptors computed.")
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    
-    logger.info(f"Saving descriptors to {args.output}")
-    descriptors_df.to_csv(args.output, index=False)
-    
-    print(f"Descriptor computation complete. {len(descriptors_df)} molecules processed.")
+    try:
+        # Load SMILES
+        logging.info(f"Loading SMILES from {args.input}")
+        smiles_df = load_smiles_from_file(args.input)
+        logging.info(f"Loaded {len(smiles_df)} SMILES entries")
+        
+        # Clean data
+        logging.info("Cleaning data...")
+        smiles_df = clean_dataframe(smiles_df)
+        logging.info(f"Cleaned data: {len(smiles_df)} entries")
+        
+        # Compute all descriptors
+        logging.info("Computing descriptors...")
+        descriptor_df = compute_all_descriptors(smiles_df)
+        logging.info(f"Computed descriptors for {len(descriptor_df)} molecules")
+        
+        # Save base descriptors (T019a)
+        # For now, we save the full descriptor set as both base and full
+        # In a more complex implementation, we might split them
+        logging.info(f"Saving base descriptors to {args.output_base}")
+        validate_and_save_descriptors(descriptor_df, args.output_base)
+        
+        # Save full descriptors (T019b)
+        logging.info(f"Saving full descriptors to {args.output_full}")
+        validate_and_save_descriptors(descriptor_df, args.output_full)
+        
+        logging.info("Descriptor pipeline completed successfully.")
+        
+    except Exception as e:
+        logging.error(f"Error in descriptor pipeline: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

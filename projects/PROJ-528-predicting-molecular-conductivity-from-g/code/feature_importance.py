@@ -4,12 +4,14 @@ import logging
 import pandas as pd
 import numpy as np
 from typing import Dict, Any, List, Tuple, Optional
+
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.inspection import permutation_importance
-from code.logging_config import setup_logging
-from code.config import SEED, TARGET_VAR
-from code.data_loader import load_processed_data
-from code.scaffold_split import scaffold_split
+
+import config
+from logging_config import setup_logging
+from data_loader import load_processed_data
+from model_training import train_models
 
 logger = setup_logging(__name__)
 
@@ -19,74 +21,75 @@ def load_processed_data(path: str) -> pd.DataFrame:
         raise FileNotFoundError(f"Data file not found: {path}")
     return pd.read_csv(path)
 
-def prepare_features_and_target(df, target_col):
+def prepare_features_and_target(df: pd.DataFrame, target_col: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
     """Prepare feature matrix and target vector."""
-    log_col = f"log_{target_col}"
-    if log_col not in df.columns:
-        df = df.copy()
-        df[log_col] = np.log(df[target_col] + 1e-6)
-    
-    exclude_cols = ['smiles', 'status', target_col, log_col]
-    feature_cols = [col for col in df.columns if col not in exclude_cols]
-    
+    feature_cols = [c for c in df.columns if c != target_col]
     X = df[feature_cols].values
-    y = df[log_col].values
+    y = df[target_col].values
     return X, y, feature_cols
 
-def train_model(X_train, y_train):
+def train_model(X: np.ndarray, y: np.ndarray, seed: int = 42) -> RandomForestRegressor:
     """Train a Random Forest model."""
-    model = RandomForestRegressor(n_estimators=100, max_depth=None, random_state=SEED)
-    model.fit(X_train, y_train)
-    return model
+    rf = RandomForestRegressor(n_estimators=100, random_state=seed)
+    rf.fit(X, y)
+    return rf
 
-def compute_feature_importance(model, X_test, y_test, feature_names, n_repeats=10):
+def compute_feature_importance(
+    model: RandomForestRegressor, 
+    X: np.ndarray, 
+    y: np.ndarray, 
+    feature_names: List[str],
+    n_repeats: int = 10,
+    seed: int = 42
+) -> pd.DataFrame:
     """Compute permutation importance."""
-    result = permutation_importance(model, X_test, y_test, n_repeats=n_repeats, random_state=SEED)
-    importance_scores = result.importances_mean
+    result = permutation_importance(model, X, y, n_repeats=n_repeats, random_state=seed)
     
-    importance_dict = {}
-    for i, name in enumerate(feature_names):
-        importance_dict[name] = float(importance_scores[i])
+    importance_df = pd.DataFrame({
+        'feature': feature_names,
+        'importance_mean': result.importances_mean,
+        'importance_std': result.importances_std
+    })
     
-    return importance_dict
+    # Sort by importance descending
+    importance_df = importance_df.sort_values(by='importance_mean', ascending=False)
+    return importance_df
 
-def save_feature_importance_csv(importance_dict, output_path):
+def save_feature_importance_csv(df: pd.DataFrame, output_path: str) -> None:
     """Save feature importance to CSV."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    df = pd.DataFrame([
-        {'feature': name, 'importance': score}
-        for name, score in importance_dict.items()
-    ])
-    df = df.sort_values('importance', ascending=False)
     df.to_csv(output_path, index=False)
     logger.info(f"Feature importance saved to {output_path}")
 
-def run_feature_importance_analysis(df, target_col, output_path):
-    """Run full feature importance analysis."""
-    X, y, feature_cols = prepare_features_and_target(df, target_col)
+def run_feature_importance_analysis(
+    data_path: str, 
+    output_path: str,
+    target_col: str = 'log_conductivity',
+    seed: int = 42
+) -> None:
+    """Run full feature importance analysis pipeline."""
+    logger.info(f"Loading data from {data_path}")
+    df = load_processed_data(data_path)
     
-    train_idx, test_idx = scaffold_split(df, seed=SEED)
-    X_train, X_test = X[train_idx], X[test_idx]
-    y_train, y_test = y[train_idx], y[test_idx]
+    if target_col not in df.columns:
+        logger.error(f"Target column {target_col} not found.")
+        return
     
-    model = train_model(X_train, y_train)
-    importance = compute_feature_importance(model, X_test, y_test, feature_cols)
-    save_feature_importance_csv(importance, output_path)
+    X, y, feature_names = prepare_features_and_target(df, target_col)
+    model = train_model(X, y, seed=seed)
     
-    return importance
+    importance_df = compute_feature_importance(model, X, y, feature_names, seed=seed)
+    save_feature_importance_csv(importance_df, output_path)
 
 def main():
-    parser = argparse.ArgumentParser(description="Compute feature importance.")
-    parser.add_argument('--data', type=str, required=True, help='Path to processed data CSV')
-    parser.add_argument('--output', type=str, required=True, help='Path to save feature importance CSV')
+    import argparse
+    parser = argparse.ArgumentParser(description="Compute and save feature importance.")
+    parser.add_argument('--data', type=str, required=True, help='Path to processed data')
+    parser.add_argument('--output', type=str, required=True, help='Path to output CSV')
+    parser.add_argument('--target', type=str, default='log_conductivity', help='Target column')
     args = parser.parse_args()
     
-    logger.info(f"Loading data from {args.data}")
-    df = load_processed_data(args.data)
-    
-    logger.info("Computing feature importance...")
-    run_feature_importance_analysis(df, TARGET_VAR, args.output)
+    run_feature_importance_analysis(args.data, args.output, args.target)
 
 if __name__ == "__main__":
     main()

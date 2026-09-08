@@ -1,9 +1,3 @@
-T019:
-  c: false
-  h: 711ec551ce51b2a22c85a15737525e1606dffc7d5cfd89ace8e393c422cc333d
-  r: "The required output file `data/processed/descriptors.csv` does not exist, so\
-    \ no descriptor data with the specified columns was produced or verified. The\
-    \ task\u2019s core artifact is missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -76,34 +70,12 @@ T036:
     plot\u2011with\u2011confidence\u2011intervals feature were provided; the claim\
     \ lacks any tangible artifact to verify that such a test exists and passes. The\
     \ required test file (e.g., a pytest module) is missing."
-T037:
+T039d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, notebook, or output file implementing the calculation of Variance
-    Inflation Factors (VIF) for all predictor pairs is present. The provided artifacts
-    relate to descriptor computation and model training, not to the required VIF functionality,
-    and no VIF results or documentation are supplied. The task therefore remains unfinished.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided artifacts only describe descriptor computation and modeling pipelines;\
-    \ there is no code, script, configuration, or test output that implements or demonstrates\
-    \ the required feature\u2011exclusion logic based on variance inflation factor\
-    \ (VIF) >\u202F10. Consequently, the task\u2019s core deliverable is missing."
-T039:
-  c: false
-  h: d8b6d24a173ce6c0a9fd97ba345439a1059a87ddef474dacce59647856e3a7ca
-  r: "The required output files `data/processed/vif_analysis.json` and `data/processed/vif_iteration_log.json`\
-    \ are absent, and the provided `code/analysis.py` excerpt ends before any iterative\
-    \ VIF\u2011retraining logic is shown. Without these artifacts, the task\u2019\
-    s specifications are not satisfied."
-T040:
-  c: false
-  h: d2ee87f2bf36f3bc2c44d31f1f8587b197228cd2c915c14068531af7d0763efa
-  r: "The required output file `data/processed/feature_importance.csv` does not exist,\
-    \ and the provided `code/analysis.py` snippet (truncated) shows no implementation\
-    \ that computes permutation importance and writes the ranked list to that path.\
-    \ The task\u2019s core artifact is missing."
+  r: No `vif_iteration_log.json` file containing final VIF results is present, nor
+    is there an updated `model_results.json` with the final model metrics. Both required
+    output files are missing, so the task is not satisfied.
 T043:
   c: false
   h: 0895768f77a9e292cac17873b2ac96eb738e234fa366293d164f9de0c44a90c0
