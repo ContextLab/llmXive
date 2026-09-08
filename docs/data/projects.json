@@ -28686,7 +28686,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-09-08T08:34:48.137620+00:00",
+  "generated_at": "2026-09-08T08:29:22.047666+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -128036,7 +128036,7 @@
       },
       "authors": [
         {
-          "contributions": 11533,
+          "contributions": 11543,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -128096,83 +128096,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 1.895279,
-          "ended_at": "2026-09-08T07:03:38.163014Z",
+          "duration_s": 1.613667,
+          "ended_at": "2026-09-08T08:29:03.278697Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:36.267735Z"
+          "started_at": "2026-09-08T08:29:01.665030Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.57099,
-          "ended_at": "2026-09-08T07:03:36.204557Z",
+          "duration_s": 1.127957,
+          "ended_at": "2026-09-08T08:29:01.612008Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:34.633567Z"
+          "started_at": "2026-09-08T08:29:00.484051Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 2.967779,
-          "ended_at": "2026-09-08T07:03:34.572037Z",
+          "duration_s": 2.191879,
+          "ended_at": "2026-09-08T08:29:00.235203Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:31.604258Z"
+          "started_at": "2026-09-08T08:28:58.043324Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 3.002115,
-          "ended_at": "2026-09-08T07:03:31.541615Z",
+          "duration_s": 2.051246,
+          "ended_at": "2026-09-08T08:28:57.993632Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:28.539500Z"
+          "started_at": "2026-09-08T08:28:55.942386Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 2.445749,
-          "ended_at": "2026-09-08T07:03:28.478656Z",
+          "duration_s": 1.911899,
+          "ended_at": "2026-09-08T08:28:55.887584Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:26.032907Z"
+          "started_at": "2026-09-08T08:28:53.975685Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 2.517089,
-          "ended_at": "2026-09-08T07:03:25.969715Z",
+          "duration_s": 4.509943,
+          "ended_at": "2026-09-08T08:28:53.800604Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:23.452626Z"
+          "started_at": "2026-09-08T08:28:49.290661Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.098446,
-          "ended_at": "2026-09-08T07:03:23.391652Z",
+          "duration_s": 1.94869,
+          "ended_at": "2026-09-08T08:28:49.240282Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:22.293206Z"
+          "started_at": "2026-09-08T08:28:47.291592Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.527362,
-          "ended_at": "2026-09-08T07:03:22.230934Z",
+          "duration_s": 1.655794,
+          "ended_at": "2026-09-08T08:28:47.234634Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:20.703572Z"
+          "started_at": "2026-09-08T08:28:45.578840Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.953868,
-          "ended_at": "2026-09-08T07:03:20.640660Z",
+          "duration_s": 1.559862,
+          "ended_at": "2026-09-08T08:28:45.274719Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:18.686792Z"
+          "started_at": "2026-09-08T08:28:43.714857Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 8.801844,
-          "ended_at": "2026-09-08T07:03:18.618059Z",
+          "duration_s": 8.103684,
+          "ended_at": "2026-09-08T08:28:43.438355Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-08T07:03:09.816215Z"
+          "started_at": "2026-09-08T08:28:35.334671Z"
         }
       ],
       "paper_status": null,
@@ -165117,6 +165117,126 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 1.613667,
+      "ended_at": "2026-09-08T08:29:03.278697Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:29:01.665030Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.127957,
+      "ended_at": "2026-09-08T08:29:01.612008Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:29:00.484051Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.191879,
+      "ended_at": "2026-09-08T08:29:00.235203Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:28:58.043324Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.051246,
+      "ended_at": "2026-09-08T08:28:57.993632Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:28:55.942386Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.911899,
+      "ended_at": "2026-09-08T08:28:55.887584Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:28:53.975685Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.509943,
+      "ended_at": "2026-09-08T08:28:53.800604Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:28:49.290661Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.94869,
+      "ended_at": "2026-09-08T08:28:49.240282Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:28:47.291592Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.655794,
+      "ended_at": "2026-09-08T08:28:47.234634Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:28:45.578840Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.559862,
+      "ended_at": "2026-09-08T08:28:45.274719Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:28:43.714857Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 8.103684,
+      "ended_at": "2026-09-08T08:28:43.438355Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-08T08:28:35.334671Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 2.389074,
       "ended_at": "2026-09-08T08:11:13.851101Z",
       "failure_reason": "",
@@ -170994,126 +171114,6 @@
       "project_stage": "in_progress",
       "severity": "ok",
       "started_at": "2026-09-08T00:51:37.384497Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 250.734297,
-      "ended_at": "2026-09-08T00:51:37.380815Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-538-quantifying-the-impact-of-network-struct",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:47:26.646518Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 38.266514,
-      "ended_at": "2026-09-08T00:50:21.055772Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:49:42.789258Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 51.601132,
-      "ended_at": "2026-09-08T00:49:42.785393Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:48:51.184261Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 24.939707,
-      "ended_at": "2026-09-08T00:48:51.180433Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:48:26.240726Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 22.356597,
-      "ended_at": "2026-09-08T00:48:26.236937Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:48:03.880340Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 13.428106,
-      "ended_at": "2026-09-08T00:48:03.876499Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:47:50.448393Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 23.865837,
-      "ended_at": "2026-09-08T00:47:50.444563Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:47:26.578726Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 45.767686,
-      "ended_at": "2026-09-08T00:47:26.642973Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-538-quantifying-the-impact-of-network-struct",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:46:40.875287Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 22.461717,
-      "ended_at": "2026-09-08T00:47:26.574750Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:47:04.113033Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 20.525715,
-      "ended_at": "2026-09-08T00:47:04.109198Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-331-investigating-the-influence-of-network-m",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-08T00:46:43.583483Z"
     }
   ],
   "reviewed_preprints": [
