@@ -1,0 +1,294 @@
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: single training job with fixed staleness
+  claim_id: c_1e5a5087
+  context: The system can be tested by running a single training job with a fixed
+    staleness value and verifying that the training log outputs a sequence of reward
+    values and gradient norms without crashing due to OOM or CUDA errors.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Single_training_job_with_fixed_staleness
+  kind: entity_fact
+  raw_text: The system can be tested by running a single training job with a fixed
+    staleness value and verifying that the training log outputs a sequence of reward
+    values and gradient norms without crashing due to OOM or CUDA errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:29:36Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: seed stability variance < 5%
+  claim_id: c_c9f504da
+  context: MUST verify seed stability (variance < 5% of mean) before saving. If unstable,
+    **discard** and **retry** with the next seed in the pre-defined integer sequence
+    (e.g., increment index).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST verify seed stability (variance < 5% of mean) before saving.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:29:36Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: max retry limit per seed
+  claim_id: c_e1faed2f
+  context: 'MUST verify seed stability (variance < 5% of mean) before saving. If unstable,
+    **discard** and **retry** with the next seed in the pre-defined integer sequence
+    (e.g., increment index). **Max retry limit: attempts per seed slot**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Max_retry_limit_per_seed
+  kind: entity_fact
+  raw_text: 'Max retry limit: attempts per seed slot.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:30:14Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: DATA_INTEGRITY_ERROR on truncation
+  claim_id: c_2517b017
+  context: Implement src/llmxive/data_loader.py to stream GSM8K from openai/gsm8k
+    with checksum verification; MUST raise DATA_INTEGRITY_ERROR on truncation (FR-006,
+    Edge Case)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DATA_INTEGRITY_ERROR_on_truncation
+  kind: entity_fact
+  raw_text: MUST raise DATA_INTEGRITY_ERROR on truncation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:30:48Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: no overlap training/test indices
+  claim_id: c_051a70d7
+  context: 'Implement src/llmxive/data_loader.py (FR-006 compliance): Assert no overlap
+    between training staleness queue indices and test set indices before training
+    begins; raise DATA_INTEGRITY_ERROR if overlap detected.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_overlap_training/test_indices
+  kind: entity_fact
+  raw_text: Assert no overlap between training staleness queue indices and test set
+    indices before training begins
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:31:12Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: ERR_CPU_LOAD_FAIL on OOM
+  claim_id: c_1a8ad3d3
+  context: Implement src/llmxive/model_factory.py to load Phi-2 and Qwen1.5-1.8B with
+    8-bit CPU quantization; MUST raise ERR_CPU_LOAD_FAIL (from T005a) if OOM (FR-001,
+    Edge Case)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ERR_CPU_LOAD_FAIL_on_OOM
+  kind: entity_fact
+  raw_text: MUST raise ERR_CPU_LOAD_FAIL if OOM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:31:36Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: staleness clamp to buffer_size - 1
+  claim_id: c_c054d5e4
+  context: Implement src/llmxive/staleness_queue.py to buffer gradients; MUST clamp
+    staleness to buffer_size - 1 if exceeded (Edge Case)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST clamp staleness to buffer_size - 1 if exceeded
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:31:58Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: staleness = 0 for baseline
+  claim_id: c_20e2abae
+  context: 'Implement and execute synchronous baseline generation: Run staleness=0
+    for each seed in the sequence, compute static mean reward/gradient of an initial
+    sequence of steps, and save to data/processed/baseline_manifests/{seed}.json (FR-003,
+    FR-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run staleness=0 for each seed in the sequence
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:32:21Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: variance < 5% of mean
+  claim_id: c_11151725
+  context: '*Specifics*: MUST verify seed stability (variance < 5% of mean) before
+    saving. If unstable, **discard** and **retry** with the next seed in the pre-defined
+    integer sequence (e.g., increment index).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: variance < 5% of mean
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:32:22Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: max 3 attempts per seed
+  claim_id: c_3d6f2d28
+  context: '*Constraint*: Max 3 attempts per seed slot; if all fail, abort and log
+    ERR_SEED_UNSTABLE.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 3 attempts per seed slot
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:32:52Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: 500 steps < 45 mins
+  claim_id: c_55ebf5ad
+  context: Integration test for training loop in tests/integration/test_sync_loop.py
+    (verify 500 steps < 45 mins, no OOM)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify 500 steps < 45 mins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:34:01Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: divergence detection criteria
+  claim_id: c_3a0bcedf
+  context: 'Implement divergence detection logic in src/llmxive/baseline_loader.py:
+    Flag if reward < baseline_mean_reward (from T020) for 50 consecutive steps OR
+    gradient norm > 2x baseline_mean_grad_norm (from T020) for 50 consecutive steps
+    (FR-003).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: reward < baseline_mean_reward for 50 consecutive steps OR gradient norm
+    > 2x baseline_mean_grad_norm for 50 consecutive steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:34:20Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: reward variance ratio > 1.5
+  claim_id: c_24f013a3
+  context: Implement calculation of reward variance ratio (Low vs High staleness)
+    and **log confirmation status** if ratio > 1.5 to confirm hypothesis (SC-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: reward variance ratio > 1.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:34:20Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: System tested by verifying reward and gradient logs without OOM or CUDA
+    errors
+  claim_id: c_b6c1c264
+  context: Independent Test for User Story 1 describes the verification process for
+    the asynchronous RL training loop.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_by_verifying_reward_and_gradient_logs_without
+  kind: entity_fact
+  raw_text: The system can be tested by running a single training job with a fixed
+    staleness value and verifying that the training log outputs a sequence of reward
+    values and gradient norms without crashing due to OOM or CUDA errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:37:02Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: System tested by verifying divergence detection on pre-generated log
+    file
+  claim_id: c_117ed560
+  context: Independent Test for User Story 2 describes the verification process for
+    divergence detection.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_by_verifying_divergence_detection_on_pre-gener
+  kind: entity_fact
+  raw_text: The system can be tested by feeding a pre-generated log file with a known
+    divergence point and verifying that the analysis script correctly flags the run
+    as 'diverged'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:37:30Z'
+- artifact_path: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv/tasks.md
+  attempts: 1
+  canonical: System tested by verifying t-test p-value on mock dataset
+  claim_id: c_6ba6531f
+  context: Independent Test for User Story 3 describes the verification process for
+    statistical comparison.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_by_verifying_t-test_p-value_on_mock_dataset
+  kind: entity_fact
+  raw_text: The system can be tested by running a mock dataset with known means and
+    variances and verifying the t-test returns the correct p-value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T18:38:28Z'

@@ -17,7 +17,7 @@ This feature implements a CPU-optimized asynchronous Reinforcement Learning (RL)
 **Project Type**: Research CLI / Simulation Engine  
 **Performance Goals**: Complete 500 steps for a 1.4B model in <45 mins on CPU; <6.5 GB peak RAM usage.  
 **Constraints**: No GPU; strict memory ceiling; no external API calls for data (must use `datasets` library); deterministic seeds.  
-**Scale/Scope**: 2 models × 3 regimes (Low, High, Adaptive) × 5 seeds = 30 full runs per experimental block; ~100k total training steps per model.
+**Scale/Scope**: 2 models × 3 regimes (Low, High, Adaptive) × 5 seeds = 30 full runs per experimental block; A substantial number of total training steps per model.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,7 +25,7 @@ This feature implements a CPU-optimized asynchronous Reinforcement Learning (RL)
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **Principle I (Reproducibility)**: **COMPLIANT**. The plan mandates pinned seeds (`FR-004`), deterministic `torch` settings, and the use of the `datasets` library to fetch GSM8K from a canonical source (`openai/gsm8k`) on every run. No manual data intervention is allowed.
+- **Principle I (Reproducibility)**: **COMPLIANT**. The plan mandates pinned seeds (`FR-004`), deterministic `torch` settings, and the use of the `datasets` library to fetch GSM8K from a canonical source (`openai/gsmk`) on every run. No manual data intervention is allowed.
 - **Principle II (Verified Accuracy)**: **COMPLIANT**. All citations to the parent paper (arXiv:2607.07508) and dataset sources (HuggingFace GSM8K) will be validated against the `Verified datasets` block. No hallucinated URLs.
 - **Principle III (Data Hygiene)**: **COMPLIANT**. The plan includes a data loader that downloads GSM8K, checksums the raw parquet files, and stores them in `data/raw/`. Derived manifests (baseline stats) go to `data/processed/`. No in-place modification.
 - **Principle IV (Single Source of Truth)**: **COMPLIANT**. The `data/processed/` logs serve as the single source for all analysis. **All figures in the final paper MUST be generated programmatically** via `generate_plots.py` from these logs, ensuring no hand-calculated statistics.

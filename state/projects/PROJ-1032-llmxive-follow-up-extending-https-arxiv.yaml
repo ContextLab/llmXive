@@ -6,7 +6,7 @@ failed_stage: null
 field: other
 human_escalation_reason: null
 id: PROJ-1032-llmxive-follow-up-extending-https-arxiv
-last_run_id: 14090e29-c15e-4d0d-b0ef-dc60c5cbc548
+last_run_id: f980b202-0858-4418-be7c-6b90c6d0ff7a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-1032-llmxive-follow-up-extending-https-arxiv/specs/001-llmxive-follow-up-extending-https-arxiv
 title: 'llmXive follow-up: extending "https://arxiv.org/abs/2607.07508"'
-updated_at: '2026-09-05T09:58:55.601914Z'
+updated_at: '2026-09-08T18:57:23.837606Z'

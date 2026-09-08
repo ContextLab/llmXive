@@ -1,0 +1,36 @@
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, training logs, or analysis scripts were provided; the claim lacks any\
+    \ tangible artifact (e.g., a Python module that integrates `staleness_queue` into\
+    \ the training loop, sample run outputs showing delayed gradient updates, or a\
+    \ divergence\u2011detection script). Without these concrete files, the requirement\
+    \ to integrate and demonstrate the staleness mechanism is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `trainer.py` file or diff showing added memory\u2011monitoring logic is provided;\
+    \ there is no code that logs peak RAM usage nor aborts when usage exceeds 6.5\u202F\
+    GB, nor any test output demonstrating the behavior. The required artifact is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation implementing seed management is
+    present; the only artifacts described relate to a training loop and staleness
+    simulation, not to deterministic seeding. The required artifact (e.g., a function/module
+    that sets random seeds across libraries and ensures reproducibility) is missing,
+    so the task is not satisfied.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or example JSON manifest showing the added `model_id`,
+    `staleness_level`, `seed`, and `reward_curve` fields is present. The implementer
+    only restated the task and spec without providing the required logging implementation
+    or sample output. The required artifact is missing.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data/processed/baseline_manifests/{seed}.json` files (or any other artifacts)
+    were presented, and there is no code or logs showing that a synchronous run with
+    `staleness=0` was performed, mean reward/gradient computed, and results saved.
+    The required output is missing, so the task is not satisfied.
