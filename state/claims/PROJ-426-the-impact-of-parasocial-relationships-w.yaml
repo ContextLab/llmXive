@@ -261,3 +261,226 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-08T07:02:39Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: cluster bootstrap resampling with 1000 iterations seed 42 at user level
+  claim_id: c_d0079110
+  context: 'T027 [US3] Implement src/modeling/bootstrap_ci.py: Perform cluster bootstrap
+    resampling with 1000 iterations (seed=42) at User level'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform cluster bootstrap resampling with 1000 iterations (seed=42) at
+    User level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:36:48Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: filter unified dataset where age greater than or equal to 60 and age
+    is not null
+  claim_id: c_54ff1ab8
+  context: 'T028 [US3] Implement src/modeling/subgroup_analysis.py: Filter unified
+    dataset where age >= 60 AND age is not null (exclude missing ages)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_unified_dataset_where_age_greater_than_or_equal_to_60
+  kind: magnitude
+  raw_text: Filter unified dataset where age >= 60 AND age is not null
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:37:56Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: halt execution if match rate less than 80 percent or N less than 500
+  claim_id: c_5dd8617d
+  context: 'T015 [US1] Implement src/validation/validate_match.py: Validate N >= 500.
+    Mandatory: If match rate < 80% OR N < 500, halt execution with Power Insufficient
+    error'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_match_rate_less_than_80_percent_or_N_less
+  kind: magnitude
+  raw_text: If match rate < 80% OR N < 500, halt execution with Power Insufficient
+    error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:40:07Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: do not halt if R squared gain less than 0.05 but set passed flag to false
+  claim_id: c_dd54ba81
+  context: "T029 [US3] Implement src/validation/validate_success.py: Mandatory Check:\
+    \ Compare Marginal R\xB2 gain against a predefined significance threshold.. If\
+    \ R\xB2 gain < 0.05, DO NOT HALT. Record the value, set passed flag to false,\
+    \ and continue."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Do_not_halt_if_R_squared_gain_less_than_0.05_but_set_passed
+  kind: magnitude
+  raw_text: "If R\xB2 gain < 0.05, DO NOT HALT. Record the value, set passed flag\
+    \ to false, and continue."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:41:02Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: set passed flag to false if runtime greater than or equal to 6 hours
+  claim_id: c_d43ad06a
+  context: 'T029 [US3] Implement src/validation/validate_success.py: If Runtime >=
+    6 hours (per Plan Phase 7), set passed flag to false.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Set_passed_flag_to_false_if_runtime_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: If Runtime >= 6 hours (per Plan Phase 7), set passed flag to false.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:41:34Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: optimize bootstrap_ci.py to reduce runtime to less than 4 hours on 2
+    CPU runner
+  claim_id: c_903a8225
+  context: T033a [P] Optimize src/modeling/bootstrap_ci.py to reduce runtime to <
+    4 hours on 2-CPU runner
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimize_bootstrap_ci.py_to_reduce_runtime_to_less_than_4_ho
+  kind: magnitude
+  raw_text: Optimize src/modeling/bootstrap_ci.py to reduce runtime to < 4 hours on
+    2-CPU runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:42:15Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: refactor mixed_effects.py to reduce cyclomatic complexity to less than
+    10
+  claim_id: c_a0ae20ae
+  context: T032a [P] Refactor src/modeling/mixed_effects.py to reduce cyclomatic complexity
+    to < 10
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Refactor_mixed_effects.py_to_reduce_cyclomatic_complexity_to
+  kind: magnitude
+  raw_text: Refactor src/modeling/mixed_effects.py to reduce cyclomatic complexity
+    to < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:43:02Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: retrieve AI interaction logs for r/Replika r/characterAI r/AICompanions
+  claim_id: c_5003dd3e
+  context: 'T013 [US1] Implement src/ingest/fetch_pushshift.py: Retrieve AI interaction
+    logs for r/Replika, r/characterAI, r/AICompanions'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retrieve_AI_interaction_logs_for_r/Replika_r/characterAI_r/A
+  kind: entity_fact
+  raw_text: Retrieve AI interaction logs for r/Replika, r/characterAI, r/AICompanions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:44:01Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: hash raw usernames using SHA-256
+  claim_id: c_dcd47712
+  context: 'T014 [US1] Implement src/match/user_match.py: Hash raw usernames using
+    SHA-256'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hash raw usernames using SHA-256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:44:48Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: exponential backoff strategy max delay 60s
+  claim_id: c_11e16a26
+  context: 'T008 [P] Implement src/utils/retry_policy.py: Define exponential backoff
+    strategy (max retries, base delay is set to a minimal unit, max delay 60s)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exponential_backoff_strategy_max_delay_60s
+  kind: entity_fact
+  raw_text: max delay 60s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:45:44Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: implement exponential backoff with 60s timeout
+  claim_id: c_a6939780
+  context: 'T013 [US1] Implement src/ingest/fetch_pushshift.py: Implement exponential
+    backoff (max retries, 60s timeout) using src/utils/retry_policy.py and src/utils/rate_limit_handler.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_exponential_backoff_with_60s_timeout
+  kind: entity_fact
+  raw_text: Implement exponential backoff (max retries, 60s timeout)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:46:41Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: calculate session duration time between first and last activity in 7-day
+    window capped at 24h
+  claim_id: c_218fcee0
+  context: 'T020 [P] [US2] Implement src/features/usage_metrics.py: Calculate session_duration
+    (time between first and last activity in 7-day window, capped at 24h)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate session_duration (time between first and last activity in 7-day
+    window, capped at 24h)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:47:24Z'

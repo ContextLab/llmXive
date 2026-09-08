@@ -6,11 +6,12 @@ T006:
     \ and types. Without the artifact, the task\u2019s core deliverable is missing."
 T015c:
   c: false
-  h: 4654c158e052dc43970de098ccbec95b40aaa9946060dcc1f44a0aa7ff52211a
-  r: The repository lacks the required `data/processed/sample_info.json` file, and
-    the provided `code/download.py` does not contain any logic to generate or write
-    that JSON with the specified schema. Consequently, the explicit sample size declaration
-    requirement is not met.
+  h: 9596ed07dfa132fd899c2450f223245855d03abcb294ff62649cc6ab63d8f0c8
+  r: "The required `data/processed/sample_info.json` file does not exist, and the\
+    \ provided `code/download.py` contains no logic that writes the required JSON\
+    \ with `total_available`, `subjects_used`, `sampling_method`, and optional `seed`.\
+    \ Consequently the task\u2019s explicit sample size declaration requirement is\
+    \ not satisfied."
 T025:
   c: false
   h: bfe60c921f1461a0b55dd7f329d1c35400bdd4897abb4bb1e2b25bbcc102f3c2

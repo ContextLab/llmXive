@@ -27770,3 +27770,215 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-27T17:12:26Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: file size > 128 KB for Knot Atlas download
+  claim_id: c_e49b5a8b
+  context: "T184 **Direct Knot Atlas Download** (FR\u2011001). Deliverable: code/download/knot_atlas_downloader.py\
+    \ fetches raw knot data directly from the Knot Atlas URL using requests. Verification:\
+    \ Download succeeds, file size > 128\u202FKB, source URL is logged, and data schema\
+    \ matches expected format."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Download succeeds, file size > 128\u202FKB, source URL is logged, and\
+    \ data schema matches expected format."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:50:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: "core tabulated invariant match rate \u2265 90%"
+  claim_id: c_f1919175
+  context: "T016 **Core Tabulated Invariant Precision** \u2013 Validate crossing number\
+    \ and braid index against KnotInfo references with absolute tolerance 1\u202F\xD7\
+    \u202F10\u207B\u2076 and match rate \u2265\u202F90\u202F% (SC\u2011015, SC\u2011\
+    010)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate crossing number and braid index against KnotInfo references\
+    \ with absolute tolerance 1\u202F\xD7\u202F10\u207B\u2076 and match rate \u2265\
+    \u202F90\u202F% (SC\u2011015, SC\u2011010)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:51:41Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: "hyperbolic volume match rate \u2265 90%"
+  claim_id: c_be93787a
+  context: "T017 **Hyperbolic Volume Consistency** \u2013 Validate hyperbolic volume\
+    \ against KnotInfo where available, with tolerance 1\u202F\xD7\u202F10\u207B\u2076\
+    , match rate \u2265\u202F90\u202F% (SC\u2011015, SC\u2011010)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate hyperbolic volume against KnotInfo where available, with tolerance\
+    \ 1\u202F\xD7\u202F10\u207B\u2076, match rate \u2265\u202F90\u202F% (SC\u2011\
+    015, SC\u2011010)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:52:42Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: "null percentage \u2264 5%"
+  claim_id: c_51a34198
+  context: "T200a **Dataset Completeness Validation** \u2013 counts records per crossing\
+    \ number, checks null\u202F% \u2264\u202F5\u202F%, ensures no duplicates, and\
+    \ cross\u2011checks counts against the Hoste\u2011Thistlethwaite\u2011Weeks enumeration\
+    \ (OEIS A002863) for the full census (\u226413 crossings)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "checks null\u202F% \u2264\u202F5\u202F%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:53:59Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: dataset counts match OEIS A002863 full census
+  claim_id: c_2f4b1638
+  context: "T200a **Dataset Completeness Validation** \u2013 ... and cross\u2011checks\
+    \ counts against the Hoste\u2011Thistlethwaite\u2011Weeks enumeration (OEIS A002863)\
+    \ for the full census (\u226413 crossings). Verification: Report meets all thresholds\
+    \ and explicitly confirms full\u2011census count against OEIS A002863."
+  evidence:
+    fill:
+      channel: oeis
+      conflicts:
+      - channel: wikipedia
+        source_id: Knot theory
+        url: https://en.wikipedia.org/wiki/Knot_theory
+        value: 0, 0, 1, 1, 2, 3, 7, 21, 49, 165, 552, 2176, 9988, 46972, 253293, 1388705
+      quote: 20 1847319428
+      source_id: A002863
+      url: https://oeis.org/A002863
+      value: '1847319428'
+    filled: true
+  kind: entity_fact
+  raw_text: "full\u2011census count matches OEIS A002863 enumeration"
+  resolved_value: '1847319428'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T01:54:43Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: "core invariant coverage \u2265 95%"
+  claim_id: c_8925f20e
+  context: "T200c **Core\u2011Invariant Coverage Documentation** \u2013 ... Coverage\
+    \ \u2265\u202F95\u202F% as required."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Coverage \u2265\u202F95\u202F% as required."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:55:41Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: families deviating by at least 2 standard deviations
+  claim_id: c_975ec1e2
+  context: "T200h **Residual Analysis Threshold Documentation** \u2013 document explicitly\
+    \ states the \u2265\u202F2\u202FSD deviation rule and lists identified families."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Families_deviating_by_at_least_2_standard_deviations
+  kind: magnitude
+  raw_text: "families deviating \u2265\u202F2\u202FSD"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:56:46Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: "scatter plot visibility \u2265 95%"
+  claim_id: c_59d4c159
+  context: "T200j **Scatter\u2011Plot Visibility Validation** \u2013 enhance script\
+    \ to compute the percentage of data points visible in each plot ... require \u2265\
+    \u202F95% and fail the build (exit code 1) if <95%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "require \u2265\u202F95% visibility for scatter plots and fail the build\
+    \ if <95%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:56:51Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: orthogonalized predictor zero correlation with crossing number
+  claim_id: c_a3246397
+  context: "T026b **Orthogonalization Logic** \u2013 implement code/analysis/orthogonalization.py\
+    \ to orthogonalize braid index w.r.t. crossing number. Verification: Unit test\
+    \ confirms orthogonalized predictor has zero correlation with crossing number."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Orthogonalized_predictor_zero_correlation_with_crossing_numb
+  kind: entity_fact
+  raw_text: orthogonalized predictor has zero correlation with crossing number
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:57:59Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: "residual analysis detects families deviating \u2265 2 SD on synthetic\
+    \ data size 1000 with noise 0.1"
+  claim_id: c_e7f51a52
+  context: "T041b **Residual Analysis Module** \u2013 unit test confirms detection\
+    \ of families deviating \u2265\u202F2\u202FSD on synthetic data (distribution:\
+    \ normal, size: 1000, noise: 0.1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "unit test confirms detection of families deviating \u2265\u202F2\u202F\
+    SD on synthetic data (distribution: normal, size: 1000, noise: 0.1)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:59:09Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: synthetic data size 1000 for residual analysis
+  claim_id: c_cf1d8c71
+  context: "T041b **Residual Analysis Module** \u2013 unit test confirms detection\
+    \ of families deviating \u2265\u202F2\u202FSD on synthetic data (distribution:\
+    \ normal, size: 1000, noise: 0.1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: synthetic data of size 1000 used in residual analysis test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T02:00:26Z'

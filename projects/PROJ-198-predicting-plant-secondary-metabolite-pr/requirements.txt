@@ -1,16 +1,28 @@
-scikit-learn>=1.3.0
+# Core data science
 pandas>=2.0.0
 numpy>=1.24.0
+scikit-learn>=1.3.0
+scipy>=1.11.0
+
+# Bioinformatics
 biopython>=1.81
-requests>=2.31.0
-pyyaml>=6.0
 dendropy>=4.6.0
-statsmodels>=0.14.0
-pymc3>=3.11.0
-tqdm>=4.65.0
+
+# Configuration and validation
 pydantic>=2.0.0
 pydantic-settings>=2.0.0
-scipy>=1.11.0
+pyyaml>=6.0
+
+# HTTP and data handling
+requests>=2.31.0
+tqdm>=4.65.0
+
+# Statistical modeling
+statsmodels>=0.14.0
+
+# Testing
 pytest>=7.4.0
+
+# Linting and formatting
 ruff>=0.1.0
 black>=23.0.0

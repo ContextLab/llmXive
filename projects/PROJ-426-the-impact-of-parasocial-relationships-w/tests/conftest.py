@@ -1,21 +1,19 @@
-"""
-Pytest configuration and shared fixtures for the research pipeline.
-"""
-
-import os
 import pytest
+import sys
+from pathlib import Path
 
-@pytest.fixture(scope="session")
-def project_root():
-    """Return the root directory of the project."""
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+@pytest.fixture
+def add_src_to_path():
+    """Add the project src directory to sys.path for imports."""
+    root = Path(__file__).parent.parent
+    src_path = root / "code" / "src"
+    if str(src_path) not in sys.path:
+        sys.path.insert(0, str(src_path))
+    yield
+    # Cleanup if necessary, though sys.path is usually global per session
 
-@pytest.fixture(scope="session")
-def data_dir(project_root):
-    """Return the path to the data directory."""
-    return os.path.join(project_root, "data")
-
-@pytest.fixture(scope="session")
-def src_dir(project_root):
-    """Return the path to the source directory."""
-    return os.path.join(project_root, "src")
+@pytest.fixture
+def sample_data_path():
+    """Return the path to the sample data directory."""
+    root = Path(__file__).parent.parent
+    return root / "code" / "data" / "sample"

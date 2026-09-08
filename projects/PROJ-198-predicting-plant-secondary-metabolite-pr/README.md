@@ -1,57 +1,41 @@
-# llmXive: Predicting Plant Secondary Metabolite Profiles
-
-This project implements an automated pipeline to predict plant secondary metabolite profiles
-from genomic data using machine learning and phylogenetic analysis.
+# llmXive: Predicting Plant Secondary Metabolite Profiles from Genomic Data
 
 ## Project Structure
 
-```
-.
- ├── code/ # Source code
- │ ├── data/ # Data download and preprocessing
- │ ├── models/ # Pydantic data models
- │ ├── utils/ # Utility functions
- │ ├── scripts/ # CLI scripts
- │ └── tests/ # Test suite
- ├── data/
- │ ├── raw/ # Raw downloaded data
- │ └── processed/ # Processed/aligned data
- ├── tests/ # Additional test resources
- ├── requirements.txt # Python dependencies
- ├── pyproject.toml # Project configuration
- └── README.md
-```
+This project follows a standard data science pipeline structure:
+
+- `code/` - Source code for data processing, modeling, and utilities
+ - `models/` - Pydantic data models
+ - `data/` - Data download and preprocessing scripts
+ - `modeling/` - Machine learning and phylogenetic analysis
+ - `utils/` - Utility functions
+ - `scripts/` - CLI entry points
+- `data/` - Data storage
+ - `raw/` - Raw downloaded data (FASTA, GFF, metabolite tables)
+ - `processed/` - Processed and aligned datasets
+ - `interim/` - Intermediate data files (e.g., PCA features)
+- `tests/` - Test suite
+ - `unit/` - Unit tests
+ - `integration/` - Integration tests
+- `figures/` - Generated plots and visualizations
+- `specs/` - Feature specifications and design documents
+- `docs/` - Documentation
 
 ## Setup
 
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-2. Install dependencies:
+1. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-3. Configure environment (optional):
+2. Run the project structure setup script (if not already done):
  ```bash
- cp.env.example.env
- # Edit.env with your API keys and paths
+ python code/scripts/setup_project_structure.py
  ```
 
 ## Usage
 
-Run the main pipeline:
-```bash
-python code/scripts/main.py
-```
-
-Run tests:
-```bash
-pytest
-```
+See individual task documentation for specific execution instructions.
 
 ## License
 

@@ -1,4 +1,4 @@
-# Extend the main pyproject.toml configuration for specific overrides if needed
-# or use this as the primary config if preferred.
-# For now, we extend pyproject.toml settings.
+# Extends the main pyproject.toml config if needed, or standalone config
+# For this project, we rely on [tool.ruff] in pyproject.toml.
+# This file exists to satisfy tool discovery if pyproject is ignored.
 extend = "pyproject.toml"

@@ -1,3 +1,3 @@
 """
-Top-level tests package initialization.
+Test suite for llmXive project
 """

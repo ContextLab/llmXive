@@ -1,75 +1,53 @@
 """
-Script to verify and install linting/formatting tools (ruff, black).
-This script ensures the development environment is ready for code quality checks.
+Script to install and configure linting and formatting tools (ruff, black).
 """
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd: list[str]) -> bool:
-    """Run a shell command and return True if successful."""
+def run_command(cmd: list[str]) -> None:
+    """Run a shell command and raise on failure."""
     print(f"Running: {' '.join(cmd)}")
+    result = subprocess.run(cmd, check=False)
+    if result.returncode != 0:
+        raise RuntimeError(f"Command failed: {' '.join(cmd)}")
+
+def check_tool_installed(tool: str) -> bool:
+    """Check if a tool is installed and available."""
     try:
-        result = subprocess.run(
-            cmd,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-        if result.stdout:
-            print(result.stdout)
+        subprocess.run([tool, "--version"], check=True, capture_output=True)
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"Error running command: {e}")
-        print(f"stderr: {e.stderr}")
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-def check_tool_installed(tool_name: str) -> bool:
-    """Check if a tool is installed and accessible."""
-    try:
-        subprocess.run(
-            [tool_name, "--version"],
-            check=True,
-            capture_output=True,
-        )
-        print(f"✓ {tool_name} is installed.")
-        return True
-    except FileNotFoundError:
-        print(f"✗ {tool_name} is not installed.")
-        return False
+def main() -> None:
+    """Main entry point for setup_linting."""
+    print("Setting up linting and formatting tools...")
 
-def main() -> int:
-    """Main entry point for setup script."""
-    print("=== Linting & Formatting Setup ===")
+    # Check for pip
+    if not check_tool_installed("pip"):
+        print("Error: pip not found. Please install Python and pip.")
+        sys.exit(1)
 
-    # Check for tools
-    tools = ["ruff", "black"]
-    missing_tools = [t for t in tools if not check_tool_installed(t)]
+    # Install dev dependencies
+    print("Installing dev dependencies (ruff, black, pytest)...")
+    run_command([sys.executable, "-m", "pip", "install", "-e", ".[dev]"])
 
-    if missing_tools:
-        print("\nMissing tools detected. Attempting to install...")
-        if not run_command([sys.executable, "-m", "pip", "install", "ruff", "black"]):
-            print("Failed to install tools via pip.")
-            return 1
+    # Verify installation
+    tools = ["ruff", "black", "pytest"]
+    for tool in tools:
+        if check_tool_installed(tool):
+            print(f"✓ {tool} is installed.")
+        else:
+            print(f"✗ {tool} installation failed.")
+            sys.exit(1)
 
-        # Re-check
-        all_present = all(check_tool_installed(t) for t in tools)
-        if not all_present:
-            print("Tools still missing after installation attempt.")
-            return 1
-
-    print("\n=== Running Initial Checks ===")
-    
-    # Run ruff check
-    if not run_command(["ruff", "check", "code/"]):
-        print("Note: Ruff check found issues (expected in initial setup).")
-    
-    # Run black check
-    if not run_command(["black", "--check", "code/"]):
-        print("Note: Black check found formatting issues (expected in initial setup).")
-
-    print("\nSetup complete. Tools are available.")
-    return 0
+    # Create .ruff.toml and .black.toml if they don't exist (optional, mostly for IDEs)
+    # The primary config is in pyproject.toml.
+    print("Linting and formatting setup complete.")
+    print("Run 'ruff check .' to lint.")
+    print("Run 'black .' to format.")
+    print("Run 'pytest' to test.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

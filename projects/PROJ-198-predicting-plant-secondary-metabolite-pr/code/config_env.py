@@ -1,11 +1,12 @@
 """
-Environment configuration management for the llmXive project.
-Handles API keys, local paths, and directory validation.
+Environment configuration management.
+Loads settings from .env file and provides access to API keys and paths.
 """
 import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, Set
+
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -14,7 +15,6 @@ logger = logging.getLogger(__name__)
 class EnvConfig(BaseSettings):
     """
     Pydantic model for environment variables.
-    Loads from .env file if present, otherwise from system environment.
     """
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -24,210 +24,216 @@ class EnvConfig(BaseSettings):
     )
 
     # API Keys
-    NCBI_API_KEY: Optional[str] = Field(default=None, description="NCBI API Key for rate limit increases")
-    METABOLIGHTS_API_KEY: Optional[str] = Field(default=None, description="MetaboLights API Key")
-    PMDB_ACCESS_TOKEN: Optional[str] = Field(default=None, description="PMDB Access Token")
+    ncbi_api_key: Optional[str] = Field(None, description="NCBI API Key")
+    metabolights_api_key: Optional[str] = Field(None, description="MetaboLights API Key")
 
-    # Data Paths
-    DATA_ROOT_DIR: str = Field(default="data", description="Root directory for all data")
-    DATA_RAW_DIR: str = Field(default="data/raw", description="Directory for raw downloaded data")
-    DATA_PROCESSED_DIR: str = Field(default="data/processed", description="Directory for processed data")
-    DATA_INTERIM_DIR: str = Field(default="data/interim", description="Directory for intermediate data")
+    # Paths
+    data_raw_path: Path = Field(Path("data/raw"), description="Path to raw data directory")
+    data_processed_path: Path = Field(Path("data/processed"), description="Path to processed data directory")
+    data_interim_path: Path = Field(Path("data/interim"), description="Path to interim data directory")
+    logs_path: Path = Field(Path("code/logs"), description="Path to logs directory")
+    figures_path: Path = Field(Path("figures"), description="Path to figures directory")
+    phylogeny_path: Path = Field(Path("data/raw/phylogeny/tree.newick"), description="Path to phylogeny tree file")
 
-    # Logging
-    LOG_LEVEL: str = Field(default="INFO", description="Logging level")
-    LOG_FILE_PATH: str = Field(default="logs/project.log", description="Path to log file")
+    # Configuration
+    max_genome_size_mb: int = Field(500, description="Maximum genome size to download in MB")
+    antismash_timeout: int = Field(3600, description="AntiSMASH timeout in seconds")
+    log_level: str = Field("INFO", description="Logging level")
 
-    # Figures
-    FIGURES_DIR: str = Field(default="figures", description="Directory for output figures")
-
-    @field_validator('LOG_LEVEL')
+    @field_validator('data_raw_path', 'data_processed_path', 'data_interim_path', 'logs_path', 'figures_path', 'phylogeny_path')
     @classmethod
-    def validate_log_level(cls, v: str) -> str:
-        valid_levels = {'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'}
-        if v.upper() not in valid_levels:
-            raise ValueError(f"LOG_LEVEL must be one of {valid_levels}, got: {v}")
-        return v.upper()
+    def validate_paths(cls, v: Path) -> Path:
+        """Ensure paths are absolute if relative, or resolve them relative to project root."""
+        # Assuming project root is two levels up from code/
+        # This logic might need adjustment based on execution context
+        return v.resolve()
 
 def load_environment() -> EnvConfig:
     """
-    Load environment configuration from .env or system environment.
-    Returns a validated EnvConfig object.
+    Load environment configuration from .env file.
     """
     try:
         config = EnvConfig()
-        logger.debug("Environment configuration loaded successfully")
+        logger.info("Environment configuration loaded successfully.")
         return config
     except Exception as e:
         logger.error(f"Failed to load environment configuration: {e}")
         raise
 
-def ensure_directories(config: Optional[EnvConfig] = None) -> None:
+def ensure_directories(config: EnvConfig) -> None:
     """
-    Ensure all required directories exist based on configuration.
-    Creates directories if they don't exist.
+    Ensure all required directories exist.
     """
-    if config is None:
-        config = load_environment()
-
-    dirs_to_create = [
-        config.DATA_ROOT_DIR,
-        config.DATA_RAW_DIR,
-        config.DATA_PROCESSED_DIR,
-        config.DATA_INTERIM_DIR,
-        Path(config.LOG_FILE_PATH).parent,
-        config.FIGURES_DIR
+    directories = [
+        config.data_raw_path,
+        config.data_processed_path,
+        config.data_interim_path,
+        config.logs_path,
+        config.figures_path,
+        config.phylogeny_path.parent
     ]
-
-    for dir_path in dirs_to_create:
-        path_obj = Path(dir_path)
-        if not path_obj.exists():
-            path_obj.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {path_obj}")
-        else:
-            logger.debug(f"Directory already exists: {path_obj}")
+    
+    for directory in directories:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            logger.debug(f"Ensured directory exists: {directory}")
+        except Exception as e:
+            logger.error(f"Failed to create directory {directory}: {e}")
+            raise
 
 def get_api_key(service: str) -> Optional[str]:
     """
     Retrieve an API key for a specific service.
-
+    
     Args:
-        service: Service name ('ncbi', 'metabolights', 'pmdb')
-
+        service: Name of the service (e.g., 'ncbi', 'metabolights')
+        
     Returns:
-        The API key string or None if not configured
+        The API key string or None if not set.
     """
     config = load_environment()
-    service_map = {
-        'ncbi': config.NCBI_API_KEY,
-        'metabolights': config.METABOLIGHTS_API_KEY,
-        'pmdb': config.PMDB_ACCESS_TOKEN
-    }
-
-    key = service_map.get(service.lower())
-    if key is None:
-        logger.warning(f"No API key configured for {service}")
-    return key
+    
+    if service.lower() == 'ncbi':
+        return config.ncbi_api_key
+    elif service.lower() == 'metabolights':
+        return config.metabolights_api_key
+    else:
+        logger.warning(f"Unknown service requested for API key: {service}")
+        return None
 
 def get_data_path(subdir: Optional[str] = None) -> Path:
     """
-    Get a path within the data directory structure.
-
+    Get the path to the data directory, optionally with a subdirectory.
+    
     Args:
-        subdir: Optional subdirectory relative to DATA_ROOT_DIR
-
+        subdir: Optional subdirectory name.
+        
     Returns:
-        Path object to the requested location
+        Path object.
     """
     config = load_environment()
-    base = Path(config.DATA_ROOT_DIR)
+    base_path = config.data_processed_path
+    
     if subdir:
-        return base / subdir
-    return base
+        return base_path / subdir
+    return base_path
 
 def get_logs_path() -> Path:
     """
-    Get the path to the log file.
-
+    Get the path to the logs directory.
+    
     Returns:
-        Path object to the log file
+        Path object.
     """
     config = load_environment()
-    return Path(config.LOG_FILE_PATH)
+    return config.logs_path
 
 def get_figures_path() -> Path:
     """
     Get the path to the figures directory.
-
+    
     Returns:
-        Path object to the figures directory
+        Path object.
     """
     config = load_environment()
-    return Path(config.FIGURES_DIR)
+    return config.figures_path
 
-def validate_required_env_vars(required_keys: Set[str]) -> None:
+def validate_required_env_vars(required_vars: Set[str]) -> bool:
     """
-    Validate that all required environment variables are set.
-
+    Validate that required environment variables are set.
+    
     Args:
-        required_keys: Set of environment variable names that must be present
-
-    Raises:
-        ValueError: If any required variable is missing or empty
+        required_vars: Set of variable names to check.
+        
+    Returns:
+        True if all required vars are present, False otherwise.
     """
     config = load_environment()
     missing = []
-
-    # Map common names to config attributes
-    key_map = {
-        'NCBI_API_KEY': 'NCBI_API_KEY',
-        'METABOLIGHTS_API_KEY': 'METABOLIGHTS_API_KEY',
-        'PMDB_ACCESS_TOKEN': 'PMDB_ACCESS_TOKEN'
+    
+    # Map variable names to config attributes
+    var_map = {
+        'NCBI_API_KEY': 'ncbi_api_key',
+        'METABOLIGHTS_API_KEY': 'metabolights_api_key',
+        'DATA_RAW_PATH': 'data_raw_path',
+        'DATA_PROCESSED_PATH': 'data_processed_path',
+        'LOGS_PATH': 'logs_path',
+        'FIGURES_PATH': 'figures_path'
     }
-
-    for key in required_keys:
-        attr_name = key_map.get(key.upper(), key.upper())
-        value = getattr(config, attr_name, None)
-        if not value:
-            missing.append(key)
-
+    
+    for var in required_vars:
+        attr = var_map.get(var)
+        if attr and getattr(config, attr) is None:
+            missing.append(var)
+        
     if missing:
-        raise ValueError(f"Missing required environment variables: {missing}. "
-                       f"Please set them in your .env file or system environment.")
+        logger.error(f"Missing required environment variables: {missing}")
+        return False
+    
+    return True
 
-def create_env_file_template() -> str:
+def create_env_file_template() -> None:
     """
-    Generate a template for the .env file.
-
-    Returns:
-        String content for a .env file template
+    Create a template .env.example file if it doesn't exist.
     """
-    return """
-# Environment Configuration for llmXive Project
-# Copy this file to .env and fill in your values
-# DO NOT commit .env to version control
+    project_root = Path(__file__).parent.parent
+    env_example_path = project_root / "code" / ".env.example"
+    
+    if env_example_path.exists():
+        return
+    
+    template = """# Environment Variables for Plant Secondary Metabolite Prediction Pipeline
+# Copy this file to .env and fill in your specific values.
+# This file is gitignored. Do not commit real secrets.
 
-# API Keys (if external services are used)
-# NCBI API Key (optional, increases rate limits)
+# --- API Keys (Optional, only if specific services require authentication) ---
+# NCBI API Key (Optional, increases rate limits for Entrez queries)
+# Get one from: https://www.ncbi.nlm.nih.gov/account/
 NCBI_API_KEY=
 
-# MetaboLights API Key (if required by specific endpoints)
+# MetaboLights API Key (Optional, for restricted datasets)
+# Check documentation at: https://www.ebi.ac.uk/metabolights/
 METABOLIGHTS_API_KEY=
 
-# PMDB Access Token (if required)
-PMDB_ACCESS_TOKEN=
+# --- Local Paths ---
+# Root directory for raw data downloads (FASTA, GFF, etc.)
+DATA_RAW_PATH=data/raw
 
-# Local Path Configuration
-# Root directory for all project data
-DATA_ROOT_DIR=data
+# Root directory for processed data (aligned matrices, features)
+DATA_PROCESSED_PATH=data/processed
 
-# Subdirectories (usually derived from DATA_ROOT_DIR, but can be overridden)
-DATA_RAW_DIR=data/raw
-DATA_PROCESSED_DIR=data/processed
-DATA_INTERIM_DIR=data/interim
+# Root directory for interim data (PCA features, temporary files)
+DATA_INTERIM_PATH=data/interim
 
-# Logging configuration
+# Directory for log files
+LOGS_PATH=code/logs
+
+# Directory for generated figures/plots
+FIGURES_PATH=figures
+
+# Path to the phylogeny tree file (Newick format)
+PHYLOGENY_PATH=data/raw/phylogeny/tree.newick
+
+# --- Configuration ---
+# Maximum genome size to download (in MB)
+MAX_GENOME_SIZE_MB=500
+
+# AntiSMASH timeout in seconds
+ANITSMASH_TIMEOUT=3600
+
+# Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 LOG_LEVEL=INFO
-LOG_FILE_PATH=logs/project.log
+"""
+    with open(env_example_path, 'w', encoding='utf-8') as f:
+        f.write(template)
+    
+    logger.info(f"Created .env.example template at {env_example_path}")
 
-# Figures output directory
-FIGURES_DIR=figures
-""".strip()
-
-def get_env_config() -> Dict[str, Any]:
+def get_env_config() -> EnvConfig:
     """
-    Get a dictionary representation of the current environment configuration.
-
+    Get the environment configuration.
+    
     Returns:
-        Dictionary with configuration values (API keys masked)
+        EnvConfig instance.
     """
-    config = load_environment()
-    config_dict = config.model_dump()
-
-    # Mask sensitive values
-    sensitive_keys = {'NCBI_API_KEY', 'METABOLIGHTS_API_KEY', 'PMDB_ACCESS_TOKEN'}
-    for key in sensitive_keys:
-        if key in config_dict and config_dict[key]:
-            config_dict[key] = "***"
-
-    return config_dict
+    return load_environment()

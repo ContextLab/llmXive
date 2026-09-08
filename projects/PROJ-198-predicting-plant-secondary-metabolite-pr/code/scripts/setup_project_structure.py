@@ -1,80 +1,74 @@
-"""
-Script to create the project directory structure for llmXive.
-This implements T001: Create project structure per implementation plan.
-"""
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 def main():
-    # Define the project root (current directory where script is run from, or explicitly project root)
-    # The task implies creating structure relative to the project root.
-    # We assume the script is run from the project root.
-    project_root = Path.cwd()
+    """
+    Creates the required project directory structure:
+    - code/
+    - data/raw
+    - data/processed
+    - data/interim
+    - tests/unit
+    - tests/integration
+    - figures/
+    - specs/
     
-    # Define the required directories based on tasks.md and plan.md conventions
-    # Note: tasks.md mentions `code/`, `data/raw`, `data/processed`, `tests/`
-    # The existing API surface shows modules like `code/models/`, `code/data/`, `code/modeling/`, etc.
-    
+    Also creates .gitkeep files in each directory to ensure they are tracked by git.
+    """
+    base_dir = Path(__file__).resolve().parent.parent.parent
+    print(f"Creating project structure in: {base_dir}")
+
+    # Define directories to create
     directories = [
         "code",
-        "code/models",
-        "code/data",
-        "code/data/raw",
-        "code/data/processed",
-        "code/data/interim",
-        "code/modeling",
-        "code/utils",
-        "code/scripts",
-        "code/tests",
-        "code/tests/unit",
-        "code/tests/integration",
-        "data",
         "data/raw",
         "data/processed",
         "data/interim",
-        "data/figures",
-        "data/logs",
-        "specs",
-        "docs",
+        "tests/unit",
+        "tests/integration",
         "figures",
+        "specs",
+        "docs"
     ]
 
     created_count = 0
-    skipped_count = 0
-
-    print(f"Creating project structure in: {project_root}")
-
     for dir_path in directories:
-        full_path = project_root / dir_path
+        full_path = base_dir / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+            # Create .gitkeep to ensure directory is tracked in git
+            gitkeep = full_path / ".gitkeep"
+            gitkeep.touch()
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            # Check if it's a directory
-            if full_path.is_dir():
-                skipped_count += 1
-            else:
-                print(f"Warning: Path exists but is not a directory: {dir_path}")
-    
-    print(f"\nDone. Created {created_count} directories. Skipped {skipped_count} existing directories.")
+            print(f"Directory already exists: {full_path}")
 
-    # Verify critical directories exist
-    critical_dirs = ["code", "data/raw", "data/processed", "tests"]
-    # Adjust for the actual structure used in this project (code/tests)
-    critical_dirs = ["code", "data/raw", "data/processed", "code/tests"]
-    
-    missing = []
-    for d in critical_dirs:
-        if not (project_root / d).is_dir():
-            missing.append(d)
-    
-    if missing:
-        print(f"ERROR: Critical directories missing: {missing}")
-        sys.exit(1)
-    else:
-        print("Verification: All critical directories exist.")
+    # Create empty __init__.py files in Python package directories
+    python_packages = [
+        "code",
+        "code/models",
+        "code/data",
+        "code/modeling",
+        "code/utils",
+        "code/scripts",
+        "tests",
+        "tests/unit",
+        "tests/integration"
+    ]
+
+    for pkg_path in python_packages:
+        full_path = base_dir / pkg_path
+        init_file = full_path / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created __init__.py: {init_file}")
+        else:
+            print(f"__init__.py already exists: {init_file}")
+
+    print(f"\nProject structure setup complete. Created {created_count} new directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,5 +1,5 @@
 """
-Package for Pydantic data models.
+Pydantic models for the plant secondary metabolite prediction pipeline.
 """
 from models.species import Species
 from models.bgc import BGCType, BGCFeature

@@ -1,0 +1,7 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required root directories (`src/`, `tests/`, `data/`, `data/raw/`,
+    `data/processed/`, `data/results/`, `docs/`, `contracts/`, `config/`) was provided;
+    the claim lacks any artifact or listing confirming they exist. The task therefore
+    remains unfinished.

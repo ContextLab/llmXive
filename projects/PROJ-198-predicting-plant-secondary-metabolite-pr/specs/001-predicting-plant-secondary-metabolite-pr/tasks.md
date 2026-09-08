@@ -108,13 +108,13 @@
 - [X] T023b [US2] Implement `train_models_5fold()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting with 5-fold CV. **Run only if N >= 20 (skip if N < 20).** Use PCA-reduced features from T023a-PCA.
 - [X] T025 [US2] Implement `evaluate_models()` in `code/modeling/eval.py` to calculate R² and Pearson correlation on hold-out sets
 - [X] T026 [US2] Implement `run_phylogenetic_permutation()` in `code/modeling/eval.py` to shuffle labels while preserving tree structure and calculate baseline R²
-- [ ] T027 [US2] Implement `calculate_significance()` in `code/modeling/eval.py` to compare model R² against baseline (p < 0.05 check)
-- [ ] T028 [US2] Implement `save_metrics()` in `code/modeling/eval.py` to write initial metrics to `data/processed/metrics.json`
+- [X] T027 [US2] Implement `calculate_significance()` in `code/modeling/eval.py` to compare model R² against baseline (p < 0.05 check)
+- [X] T028 [US2] Implement `save_metrics()` in `code/modeling/eval.py` to write initial metrics to `data/processed/metrics.json`
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for phylogenetic stratified split logic in `tests/unit/test_modeling.py`
-- [ ] T020 [P] [US2] Unit test for permutation baseline generation in `tests/unit/test_eval.py`
+- [X] T019 [P] [US2] Unit test for phylogenetic stratified split logic in `tests/unit/test_modeling.py`
+- [X] T020 [P] [US2] Unit test for permutation baseline generation in `tests/unit/test_eval.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,9 +126,9 @@
 
 **Independent Test**: Re-run analysis with thresholds {0.1, 0.3, 0.5, 0.7} and verify R² variation is ≤ 0.05.
 
-- [ ] T030a [US3] Implement `retrain_with_thresholds()` in `code/modeling/eval.py` to re-train models using varied BGC detection thresholds across a range of low to high values.
-- [ ] T030b [US3] Implement `run_sensitivity_sweep()` in `code/modeling/eval.py` to iterate over thresholds and record R²/error rates for each sweep
-- [ ] T031 [US3] Implement `calculate_variation()` in `code/modeling/eval.py` to calculate the max R² difference, return the metric, and write it to `metrics.json` (verify ≤ 0.05). **Run after T028; update metrics.json with variation result or FAIL flag if max_diff > 0.05.**
+- [X] T030a [US3] Implement `retrain_with_thresholds()` in `code/modeling/eval.py` to re-train models using varied BGC detection thresholds across a range of low to high values.
+- [X] T030b [US3] Implement `run_sensitivity_sweep()` in `code/modeling/eval.py` to iterate over thresholds and record R²/error rates for each sweep
+- [X] T031 [US3] Implement `calculate_variation()` in `code/modeling/eval.py` to calculate the max R² difference, return the metric, and write it to `metrics.json` (verify ≤ 0.05). **Run after T028; update metrics.json with variation result or FAIL flag if max_diff > 0.05.**
 - [ ] T032 [US3] Implement `generate_report()` in `code/cli/main.py` or `code/utils/report.py` to compile model metrics, feature importance, and sensitivity results
 - [ ] T033 [US3] Add threshold justification text to the report citing "antiSMASH default confidence" and community standards
 - [ ] T034 [US3] Save final report as `data/processed/final_report.md` and `data/processed/sensitivity_results.json`

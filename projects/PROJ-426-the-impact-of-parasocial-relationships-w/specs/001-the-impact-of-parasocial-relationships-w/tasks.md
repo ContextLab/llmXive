@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create project root directory structure: `src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `docs/`, `contracts/`, `config/`
-- [ ] T001b [P] Create initialization files: `src/__init__.py`, `tests/__init__.py`, `tests/conftest.py`, `data/.gitkeep`, `docs/.gitkeep`, `config/.gitkeep`
+- [X] T001b [P] Create initialization files: `src/__init__.py`, `tests/__init__.py`, `tests/conftest.py`, `data/.gitkeep`, `docs/.gitkeep`, `config/.gitkeep`
 
 ---
 
@@ -55,11 +55,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Create `contracts/unified_dataset.schema.yaml` defining the schema for matched user data (user_id, loneliness_score, usage_frequency, session_duration, attachment scores, age)
-- [ ] T005 [P] Implement `src/utils/logging.py` for structured logging and progress tracking
+- [X] T005 [P] Implement `src/utils/logging.py` for structured logging and progress tracking
 - [ ] T006 [P] Setup environment configuration management for API keys and data paths
 - [ ] T007 Create `src/utils/data_validation.py` for schema validation and checksum recording
 - [ ] T008 [P] Implement `src/utils/retry_policy.py`:
- - Define exponential backoff strategy (max retries, base delay is set to a minimal unit, max delay 60s)
+ - Define exponential backoff strategy (max retries, base delay is set to a minimal unit, max delay 60s [UNRESOLVED-CLAIM: c_11e16a26 — status=not_enough_info])
  - Create configuration object for retry logic
  - **Output Artifact**: `src/utils/retry_policy.py`
 - [ ] T009 [P] Implement `src/utils/rate_limit_handler.py`:
@@ -112,18 +112,18 @@
  - **Depends on**: T012.6 (Must read `data/processed/survey_window_final.json` for boundaries)
  - Retrieve AI interaction logs for `r/Replika`, `r/characterAI`, `r/AICompanions`
  - Filter logs to the exact calendar window defined by `start_date` and `end_date` from `data/processed/survey_window_final.json`
- - Implement exponential backoff (max retries, 60s timeout) using `src/utils/retry_policy.py` and `src/utils/rate_limit_handler.py`
+ - Implement exponential backoff (max retries, 60s timeout) [UNRESOLVED-CLAIM: c_a6939780 — status=not_enough_info] using `src/utils/retry_policy.py` and `src/utils/rate_limit_handler.py`
  - **Output Artifact**: `data/raw/pushshift_logs.parquet`
 - [ ] T014 [US1] Implement `src/match/user_match.py`:
- - Hash raw usernames using SHA-256 [UNRESOLVED-CLAIM: c_96d3355a — status=not_enough_info]
+ - Hash raw usernames using SHA-256 [UNRESOLVED-CLAIM: c_dcd47712 — status=not_enough_info]
  - Join datasets on hashed ID
  - Drop unmatched rows (users with no Pushshift logs)
  - Output `data/processed/matched_users.parquet` with anonymized IDs
 - [ ] T015 [US1] Implement `src/validation/validate_match.py`:
  - **Depends on**: T014 (Must read `data/processed/matched_users.parquet`)
  - Calculate match rate (matched count / total loneliness users)
- - Validate N >= 500 [UNRESOLVED-CLAIM: c_0c47247f — status=not_enough_info]
- - **Mandatory**: If match rate < 80% OR N < 500, halt execution [UNRESOLVED-CLAIM: c_8cb392e9 — status=not_enough_info] with "Power Insufficient" error
+ - Validate N >= 500
+ - **Mandatory**: If match rate < 80% OR N < 500, halt execution with "Power Insufficient" error
  - Generate `data/validation/match_report.yaml` containing `match_rate`, `total_users`, `matched_users`, `status` (pass/fail)
  - **Output Artifact**: `data/validation/match_report.yaml`
 - [ ] T016 [US1] Add logging for ingestion stats and match failures

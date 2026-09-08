@@ -120,7 +120,7 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
  **Logic**: Create the file `src/data_acquisition.py` with an empty `check_feasibility_gate` function stub.
  **Requirements**: FR-001, FR-002.
 - [X] T014_2 [US1] [P] **Data Feasibility Gate**: Implement `check_feasibility_gate()` function.
- **Logic**: Implement `def check_feasibility_gate() -> bool:` in `src/data_acquisition.py`. **Pre-Check**: Verify existence of output files from T012a and T013a. Load results from T012a and T013a. Verify ≥3 TCGA types and ≥2 GEO datasets. Return `True` if valid, `False` otherwise.
+ **Logic**: Implement `def check_feasibility_gate() -> bool:` in `src/data_acquisition.py`. **Pre-Check**: Verify existence of output files from T012a and T013a. Load results from T012a and T013a. Verify ≥3 TCGA types and ≥2 GEO datasets. [UNRESOLVED-CLAIM: c_cd1124ea — status=not_enough_info] Return `True` if valid, `False` otherwise.
  **Dependency**: Runs after T012a AND T013a (file existence check).
  **Requirements**: FR-001, FR-002.
 - [X] T014_3 [US1] [P] **Data Feasibility Gate**: Implement logging and halting logic.
@@ -186,7 +186,7 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
  **Requirements**: FR-005.
 - [X] T023b [US2] **Aggregate DE Results**.
  1. Load DE results from all tumor types in `results/de/`.
- 2. Aggregate significant genes (FDR < 0.05, |log2FC| > 1.0) across types.
+ 2. Aggregate significant genes (FDR < 0.05, |log2FC| > 1.0) across types. [UNRESOLVED-CLAIM: c_5cf556b5 — status=not_enough_info]
  3. Output a unified list of significant genes per tumor type to `results/de/aggregate_significance.json`.
  4. **Output Schema**: The file MUST contain a dictionary: `{gene_symbol: {tumor_type: p_value}}` to support Stouffer's method. *(Logic updated)*
 - [ ] T023b_1 [US2] **Resolve Naming Conflicts, Format, and Validate**.
@@ -224,7 +224,7 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
 - [X] T024b_3 [US2] **Rank and Write Gene Panel**.
  1. **Load**: Load the final gene list (either intersection or fallback union).
  2. **Rank**: Rank genes by descending mean log2FC then ascending meta‑p‑value.
- 3. **Limit**: Limit final panel to ≤50 genes.
+ 3. **Limit**: Limit final panel to ≤50 genes. [UNRESOLVED-CLAIM: c_d29909d5 — status=not_enough_info]
  4. **Output**: Write `results/meta_analysis/gene_panel.json`.
  5. **Dependency**: Runs after T024b_2. *(New Task)*
 - [ ] T024c [US2] **Validate Gene Panel**.
@@ -304,7 +304,7 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
  6. Log results and update `results/summary.md` draft.
  7. **Output Artifact**: Save `results/loo_summary.json` (JSON object) with keys: `performance_drop` (float), `ci_95` (list of 2 floats), and `status` (string).
  **Requirements**: FR-008, SC-003.
-- [X] T037 [US3] **External GEO Validation**. **Update**: External validation uses **≥2 distinct independent GEO cohorts** drawn from the datasets acquired in T013a. If the initial 2 datasets are used for discovery/training, these cohorts must be **held-out subsets** of the same datasets or distinct datasets if the initial download included more than 2. **Constraint**: Do NOT require "additional" datasets beyond the ≥2 mandated by FR-002. The total count of valid GEO datasets used in the entire pipeline must be ≥2. If the minimum 2 datasets are used for training/LOO, log a warning and skip external validation.
+- [X] T037 [US3] **External GEO Validation**. **Update**: External validation uses **≥2 distinct independent GEO cohorts** drawn from the datasets acquired in T013a. If the initial 2 datasets are used for discovery/training, these cohorts must be **held-out subsets** of the same datasets or distinct datasets if the initial download included more than 2. **Constraint**: Do NOT require "additional" datasets beyond the ≥2 mandated by FR-002. {{claim:c_68aba0fb}} If the minimum 2 datasets are used for training/LOO, log a warning and skip external validation.
  1. Load external GEO datasets from `data/processed/` (post-normalization).
  2. **Leakage Check**: Verify that the dataset IDs in these cohorts are distinct from those used in T013 (Acquisition) and T031b (Training). If overlap is detected, exclude the dataset and log a warning.
  3. Apply the trained models (from T031c) to these datasets.
@@ -318,7 +318,7 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
 - [X] T039b [US3] **Clinical Covariate Extraction**. **Logic**:
  1. Load raw clinical metadata from `data/raw/`.
  2. Extract, clean, and format clinical covariates (age, stage) into a matrix compatible with the baseline model.
- 3. **Cleaning Logic**: Impute missing age with median age; impute missing stage with mode. Drop samples with missing response labels.
+ 3. **Cleaning Logic**: Impute missing age with median age; impute missing stage with mode. [UNRESOLVED-CLAIM: c_7088f8c0 — status=not_enough_info] Drop samples with missing response labels.
  4. **Output**: Save to `data/processed/clinical_covariates.csv` with columns: `sample_id`, `age`, `stage`, `response_label`.
  5. **Requirement**: This task ensures FR‑011 can be executed by providing the necessary input data.
  **Dependency**: Runs after T013a.
@@ -366,7 +366,7 @@ description: "Task list for feature implementation: Identifying Predictive Bioma
  1. Read `m_meta` and `m_delong` from `results/meta_analysis/bonferroni_correction.json`.
  2. Ensure the file is written before T039_2 executes.
 - [X] T041c [US3] **Apply Bonferroni Correction**.
- 1. Apply Bonferroni correction to meta‑analysis p‑values (using `m_meta`) and to DeLong test p‑values (using `m_delong`). Adjusted p‑values must be < 0.01.
+ 1. Apply Bonferroni correction to meta‑analysis p‑values (using `m_meta`) and to DeLong test p‑values (using `m_delong`). Adjusted p‑values must be < 0.01. [UNRESOLVED-CLAIM: c_6d87aa9f — status=not_enough_info]
  2. Record adjusted meta‑p‑values in `results/meta_analysis/gene_panel.json` (add field `adjusted_p`).
  3. **Dependency**: Runs after T041a.
 - [ ] T039_1_1 [US3] **Implement DeLong R Script and Orchestrator**. **Logic**:

@@ -1,199 +1,140 @@
 """
-Unit tests for Pydantic models defined in code/models/.
+Unit tests for Pydantic models in code/models/.
 """
 import pytest
 from datetime import datetime
-from pydantic import ValidationError
-
 from models.species import Species
 from models.bgc import BGCType, BGCFeature
 from models.metabolite import MetaboliteClass, Metabolite
 from models.output import ModelOutput
 
-
 class TestSpecies:
-    """Tests for the Species model."""
-
-    def test_valid_species(self):
-        """Test creation of a valid Species instance."""
+    def test_valid_species_creation(self):
         species = Species(
-            species_id="sp_001",
-            scientific_name="Arabidopsis thaliana",
-            common_name="Mouse-ear cress",
-            family="Brassicaceae",
-            genome_assembly_id="NC_003070.9",
-            genome_size_mb=135.0,
-            chromosome_count=5,
-            ploidy_level=2
+            species_id="12345",
+            scientific_name="Solanum lycopersicum",
+            common_name="Tomato",
+            family="Solanaceae"
         )
-        assert species.species_id == "sp_001"
+        assert species.species_id == "12345"
+        assert species.scientific_name == "Solanum lycopersicum"
+        assert species.common_name == "Tomato"
+
+    def test_empty_scientific_name_raises(self):
+        with pytest.raises(ValueError):
+            Species(species_id="123", scientific_name="")
+
+    def test_whitespace_stripped(self):
+        species = Species(
+            species_id="  678  ",
+            scientific_name="  Arabidopsis thaliana  "
+        )
+        assert species.species_id == "678"
         assert species.scientific_name == "Arabidopsis thaliana"
-        assert species.genome_size_mb == 135.0
-        assert species.chromosome_count == 5
-
-    def test_species_minimum_required_fields(self):
-        """Test that only required fields are needed."""
-        species = Species(
-            species_id="sp_002",
-            scientific_name="Oryza sativa"
-        )
-        assert species.species_id == "sp_002"
-        assert species.common_name is None
-        assert species.metadata == {}
-
-    def test_species_invalid_genome_size(self):
-        """Test validation error for negative genome size."""
-        with pytest.raises(ValidationError):
-            Species(
-                species_id="sp_003",
-                scientific_name="Zea mays",
-                genome_size_mb=-100.0
-            )
-
-    def test_species_to_dict(self):
-        """Test conversion to dictionary."""
-        species = Species(
-            species_id="sp_004",
-            scientific_name="Solanum lycopersicum"
-        )
-        d = species.to_dict()
-        assert d["species_id"] == "sp_004"
-        assert d["scientific_name"] == "Solanum lycopersicum"
-
 
 class TestBGCFeature:
-    """Tests for the BGCFeature model."""
-
-    def test_valid_bgc_feature(self):
-        """Test creation of a valid BGCFeature instance."""
+    def test_valid_bgc_creation(self):
         bgc = BGCFeature(
-            species_id="sp_001",
-            bgc_id="bgc_001",
+            feature_id="bgc_001",
+            species_id="12345",
             bgc_type=BGCType.POLYKETIDE,
-            confidence_score=0.95,
-            start_position=1000,
-            end_position=5000
+            confidence_score=0.95
         )
         assert bgc.bgc_type == BGCType.POLYKETIDE
-        assert bgc.length == 4000
         assert bgc.confidence_score == 0.95
 
-    def test_bgc_feature_length_calculation(self):
-        """Test that length is calculated correctly."""
+    def test_confidence_score_bounds(self):
+        with pytest.raises(ValueError):
+            BGCFeature(
+                feature_id="bgc_002",
+                species_id="12345",
+                confidence_score=1.5
+            )
+
+    def test_bgctype_from_string(self):
+        assert BGCType.from_string("polyketide") == BGCType.POLYKETIDE
+        assert BGCType.from_string("PK") == BGCType.POLYKETIDE
+        assert BGCType.from_string("non-ribosomal peptide") == BGCType.NON_RIBOSOMAL_PEPTIDE
+        assert BGCType.from_string("unknown_type") == BGCType.UNKNOWN
+
+    def test_to_binary_record(self):
         bgc = BGCFeature(
-            species_id="sp_001",
-            bgc_id="bgc_002",
+            feature_id="bgc_003",
+            species_id="12345",
             bgc_type=BGCType.TERPENE,
-            confidence_score=0.8,
-            start_position=100,
-            end_position=100
+            confidence_score=0.8
         )
-        assert bgc.length == 0
-
-    def test_bgc_feature_invalid_confidence(self):
-        """Test validation error for confidence > 1.0."""
-        with pytest.raises(ValidationError):
-            BGCFeature(
-                species_id="sp_001",
-                bgc_id="bgc_003",
-                bgc_type=BGCType.ALKALOID,
-                confidence_score=1.5,
-                start_position=0,
-                end_position=1000
-            )
-
-    def test_bgc_feature_invalid_position(self):
-        """Test validation error for negative position."""
-        with pytest.raises(ValidationError):
-            BGCFeature(
-                species_id="sp_001",
-                bgc_id="bgc_004",
-                bgc_type=BGCType.UNKNOWN,
-                confidence_score=0.5,
-                start_position=-100,
-                end_position=1000
-            )
-
+        record = bgc.to_binary_record()
+        assert record["species_id"] == "12345"
+        assert record["present"] == 1
+        assert record["type"] == "terpene"
 
 class TestMetabolite:
-    """Tests for the Metabolite model."""
-
-    def test_valid_metabolite(self):
-        """Test creation of a valid Metabolite instance."""
-        metab = Metabolite(
-            species_id="sp_001",
-            metabolite_id="PMDB000001",
-            inchi_key="UHFFFAOYSA-N",
-            name="Test Compound",
-            metabolite_class=MetaboliteClass.TERPENE,
-            abundance=125.5
+    def test_valid_metabolite_creation(self):
+        met = Metabolite(
+            metabolite_id="PMDB0001",
+            common_name="Solanine",
+            inchikey="ABCDEFGHIJKLMNOPQRSTUVWXYZ-1234567890-X",
+            metabolite_class=MetaboliteClass.ALKALOID
         )
-        assert metab.inchi_key == "UHFFFAOYSA-N"
-        assert metab.abundance == 125.5
+        assert met.metabolite_id == "PMDB0001"
+        assert met.metabolite_class == MetaboliteClass.ALKALOID
 
-    def test_metabolite_invalid_inchi_key(self):
-        """Test validation error for invalid InChIKey format."""
-        with pytest.raises(ValidationError):
-            Metabolite(
-                species_id="sp_001",
-                metabolite_id="PMDB000002",
-                inchi_key="INVALID",
-                metabolite_class=MetaboliteClass.ALKALOID,
-                abundance=50.0
-            )
+    def test_inchikey_uppercase(self):
+        met = Metabolite(
+            metabolite_id="PMDB0002",
+            common_name="Test",
+            inchikey="abcdefghijklmnopqrstuvwxyz-1234567890-x"
+        )
+        assert met.inchikey == met.inchikey.upper()
 
-    def test_metabolite_negative_abundance(self):
-        """Test validation error for negative abundance."""
-        with pytest.raises(ValidationError):
-            Metabolite(
-                species_id="sp_001",
-                metabolite_id="PMDB000003",
-                inchi_key="UHFFFAOYSA-N",
-                metabolite_class=MetaboliteClass.POLYKETIDE,
-                abundance=-10.0
-            )
+    def test_metaboliteclass_from_string(self):
+        assert MetaboliteClass.from_string("alkaloid") == MetaboliteClass.ALKALOID
+        assert MetaboliteClass.from_string("terpenoid") == MetaboliteClass.TERPENOID
+        assert MetaboliteClass.from_string("flavonoid") == MetaboliteClass.FLAVONOID
+        assert MetaboliteClass.from_string("unknown_class") == MetaboliteClass.UNKNOWN
 
-    def test_metabolite_to_json(self):
-        """Test conversion to JSON."""
-        metab = Metabolite(
-            species_id="sp_001",
-            metabolite_id="PMDB000004",
-            inchi_key="JYJIGFIDKWBXDU-UHFFFAOYSA-N",
-            metabolite_class=MetaboliteClass.NON_RIBOSOMAL_PEPTIDE,
+    def test_harmonize_log_transform(self):
+        import math
+        met = Metabolite(
+            metabolite_id="PMDB0003",
+            common_name="Test",
+            inchikey="ABCDEFGHIJKLMNOPQRSTUVWXYZ-1234567890-X",
             abundance=100.0
         )
-        json_str = metab.to_json()
-        assert "PMDB000004" in json_str
-        assert "non-ribosomal peptide" in json_str
-
+        harmonized = met.harmonize()
+        expected = math.log1p(100.0)
+        assert harmonized.abundance == pytest.approx(expected)
 
 class TestModelOutput:
-    """Tests for the ModelOutput model."""
-
     def test_valid_model_output(self):
-        """Test creation of a valid ModelOutput instance."""
         output = ModelOutput(
-            model_id="model_001",
+            output_id="model_run_001",
             model_type="PGLS",
-            species_id="sp_001",
-            predicted_metabolite_class="terpene",
-            predicted_abundance=50.0,
-            prediction_confidence=0.85,
-            features_used=["polyketide", "terpene"],
-            feature_importance={"polyketide": 0.6, "terpene": 0.4},
-            model_metrics={"R2": 0.75}
+            performance_metrics={"r2": 0.75, "rmse": 0.12},
+            training_species_count=20
         )
-        assert output.model_id == "model_001"
         assert output.model_type == "PGLS"
-        assert output.timestamp is not None
+        assert output.performance_metrics["r2"] == 0.75
+        assert output.training_species_count == 20
 
-    def test_model_output_minimal(self):
-        """Test creation with minimal required fields."""
+    def test_timestamp_default(self):
         output = ModelOutput(
-            model_id="model_002",
-            model_type="Random Forest"
+            output_id="model_run_002",
+            model_type="RF",
+            training_species_count=10
         )
-        assert output.features_used == []
-        assert output.feature_importance == {}
-        assert output.model_metrics == {}
         assert isinstance(output.timestamp, datetime)
+
+    def test_to_summary_dict(self):
+        output = ModelOutput(
+            output_id="model_run_003",
+            model_type="ElasticNet",
+            performance_metrics={"r2": 0.65},
+            training_species_count=15,
+            phylogenetic_adjustment=True
+        )
+        summary = output.to_summary_dict()
+        assert summary["model_type"] == "ElasticNet"
+        assert summary["species_count"] == 15
+        assert summary["phylogenetic"] is True

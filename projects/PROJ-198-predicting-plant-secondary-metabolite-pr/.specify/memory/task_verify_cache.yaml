@@ -1,29 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no visible evidence of the required directories (`code/`,
-    `data/raw`, `data/processed`, `tests/`) or any files within them; no directory
-    listing or file contents were supplied. Without concrete artifacts, we cannot
-    confirm that the project structure was actually created.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., pyproject.toml, .ruff.toml,
-    .flake8, or black settings) are present in the provided evidence, so the requirement
-    to configure ruff/flake8 and black has not been satisfied.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files or code defining Pydantic models for `Species`, `BGCFeature`, `Metabolite`,
-    or `ModelOutput` were presented in `code/models/`; the evidence does not show
-    any such artifacts exist or contain the required definitions. The implementer
-    must add the model files with proper Pydantic classes.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration files, or documentation were provided showing that environment
-    variables for API keys or local data paths have been created, managed, or documented.
-    The claim lacks any tangible artifact to verify the setup.
 T018:
   c: true
   h: d06fa43e41d100dc9445e77d3b65cef30287c5ff8502d735d08a25c4ac88b436
@@ -38,3 +12,18 @@ T023a:
     (the file shows only other functions and is truncated before any PCA logic) and
     the expected output file `data/interim/pca_features.csv` is missing. Both the
     code artifact and the generated CSV are absent, so the task is not satisfied.
+T028:
+  c: true
+  h: 42771512bb2913c0a378f6fbe85808df913db2b2c459cdcef28906a40d804e7d
+  r: "The `save_metrics()` function in `code/modeling/eval.py` is fully implemented:\
+    \ it creates the target directory, writes the provided metrics dictionary to `data/processed/metrics.json`\
+    \ with proper JSON formatting, and logs the action. No placeholder or stub remains.\
+    \ The missing `metrics.json` file is acceptable because the task only required\
+    \ implementing the saving functionality, not pre\u2011creating the file."
+T032:
+  c: false
+  h: 483716db4bbcf0f6421876308d1005cfda1b558bf740b9984473b16efe30e4ae
+  r: "The repository lacks a `code/cli/main.py` file and the existing `code/utils/report.py`\
+    \ does not contain a `generate_report()` function (the file is truncated and only\
+    \ defines loading/formatting helpers). Consequently, the required report\u2011\
+    generation functionality is not implemented."
