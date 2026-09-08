@@ -27,6 +27,8 @@ properties:
     properties:
       intercept:
         type: "number"
+      log_n:
+        type: "number"
       condition_number:
         type: "number"
       bp_p:
@@ -37,6 +39,7 @@ properties:
         type: "number"
     required:
       - "intercept"
+      - "log_n"
       - "condition_number"
       - "bp_p"
       - "cooks_d"
@@ -45,6 +48,8 @@ properties:
     type: "object"
     description: "P-values for the regression coefficients."
     properties:
+      log_n:
+        type: "number"
       condition_number:
         type: "number"
       bp_p:
@@ -54,6 +59,7 @@ properties:
       interaction:
         type: "number"
     required:
+      - "log_n"
       - "condition_number"
       - "bp_p"
       - "cooks_d"
@@ -61,3 +67,4 @@ properties:
   interpretation:
     type: "string"
     description: "Human-readable interpretation of the results (effect sizes, not significance)."
+additionalProperties: false

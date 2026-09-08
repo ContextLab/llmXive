@@ -1,42 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "StabilityResult"
-description: "Schema for the aggregated stability results (SD of coefficients) per tier."
+description: "Results of OLS fitting on a specific subset."
 type: "object"
-required:
-  - "dataset"
-  - "tier"
-  - "n_subsets"
-  - "coefficient_sd"
-  - "convergence_check"
 properties:
-  dataset:
+  dataset_id:
     type: "string"
-    description: "Dataset identifier."
-  tier:
+    description: "ID of the source dataset."
+  tier_percentage:
     type: "integer"
-    description: "Sample size tier percentage (10, 25, 50, 75, 90)."
-  n_subsets:
+    enum:
+      - 10
+      - 25
+      - 50
+      - 75
+      - 90
+    description: "Sample size tier percentage."
+  subset_id:
     type: "integer"
-    description: "Number of subsets generated (must be sufficient to ensure statistical robustness)."
-  coefficient_sd:
+    description: "Unique ID for the subset."
+  n_samples:
+    type: "integer"
+    description: "Actual number of samples in the subset."
+  coefficients:
     type: "object"
-    description: "Map of predictor names to their empirical standard deviation."
+    description: "Map of feature name to coefficient value."
     additionalProperties:
       type: "number"
-  convergence_check:
+  standard_errors:
     type: "object"
-    required:
-      - "se_of_sd"
-      - "ratio"
-      - "passed"
-    properties:
-      se_of_sd:
-        type: "number"
-        description: "Standard Error of the Standard Deviation."
-      ratio:
-        type: "number"
-        description: "Ratio of SE to SD (must be < 0.07)."
-      passed:
-        type: "boolean"
-        description: "True if ratio < 0.07."
+    description: "Map of feature name to standard error value."
+    additionalProperties:
+      type: "number"
+  r_squared:
+    type: "number"
+    description: "R-squared of the OLS fit."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp."
+required:
+  - dataset_id
+  - tier_percentage
+  - subset_id
+  - n_samples
+  - coefficients
+  - standard_errors
+  - r_squared
+  - timestamp
 additionalProperties: false

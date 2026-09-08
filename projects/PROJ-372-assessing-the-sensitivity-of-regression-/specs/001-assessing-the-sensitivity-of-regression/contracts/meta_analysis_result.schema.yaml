@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetaAnalysisResult"
+description: "Aggregated results of the meta-analysis regression."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "ID of the source dataset."
+  feature_name:
+    type: "string"
+    description: "The specific coefficient being analyzed."
+  model_summary:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+      adj_r_squared:
+        type: "number"
+      f_statistic:
+        type: "number"
+      p_value_f:
+        type: "number"
+    required:
+      - r_squared
+      - f_statistic
+  coefficients:
+    type: "object"
+    properties:
+      intercept:
+        type: "number"
+      log_n_coef:
+        type: "number"
+        description: "Coefficient for log(N) (sample size control)"
+      condition_number_coef:
+        type: "number"
+        description: "Coefficient for Subset_CondNum"
+      bp_p_coef:
+        type: "number"
+        description: "Coefficient for Subset_BP_p"
+      cooks_d_coef:
+        type: "number"
+        description: "Coefficient for Subset_Cooks_D"
+      interaction_cond_bp_coef:
+        type: "number"
+        description: "Interaction term: CondNum × BP"
+      interaction_cond_cooks_coef:
+        type: "number"
+        description: "Interaction term: CondNum × Cooks"
+      random_intercept:
+        type: "number"
+        description: "Random intercept for Dataset ID (Full Dataset baseline)"
+    required:
+      - intercept
+      - log_n_coef
+      - condition_number_coef
+      - bp_p_coef
+      - cooks_d_coef
+  convergence_status:
+    type: "string"
+    enum:
+      - "Converged"
+      - "Invalid"
+    description: "Convergence status based on Bootstrap SE of SD."
+  se_of_sd:
+    type: "number"
+    description: "Standard Error of the standard deviation (Bootstrap derived)."
+  sd_of_coef:
+    type: "number"
+    description: "Empirical standard deviation of the coefficient."
+required:
+  - dataset_id
+  - feature_name
+  - model_summary
+  - coefficients
+  - convergence_status
+  - se_of_sd
+  - sd_of_coef
+additionalProperties: false

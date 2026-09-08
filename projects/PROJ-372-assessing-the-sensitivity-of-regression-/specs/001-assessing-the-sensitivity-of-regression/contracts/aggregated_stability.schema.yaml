@@ -30,7 +30,7 @@ properties:
     type: "object"
     additionalProperties:
       type: "number"
-    description: "Standard Error of the SD for each coefficient."
+    description: "Standard Error of the SD for each coefficient (Bootstrap derived)."
   convergence_met:
     type: "boolean"
     description: "True if SE of SD < 5% of SD for all coefficients."

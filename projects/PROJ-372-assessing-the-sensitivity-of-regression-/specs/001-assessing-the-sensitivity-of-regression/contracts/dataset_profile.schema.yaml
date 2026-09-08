@@ -1,28 +1,58 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "DatasetProfile"
-description: "Schema for the OLS assumption violation profile of a dataset (aggregated from subsets)."
+description: "Profile of a dataset including OLS assumption violation metrics."
 type: "object"
-required:
-  - "dataset_name"
-  - "source_url"
-  - "n_rows"
-  - "n_cols"
-  - "timestamp"
 properties:
-  dataset_name:
+  dataset_id:
     type: "string"
-    description: "Identifier of the dataset."
+    description: "Unique identifier for the dataset."
   source_url:
     type: "string"
-    description: "Verified URL of the dataset source."
+    description: "Verified URL of the source dataset."
   n_rows:
     type: "integer"
-    description: "Number of rows in the full dataset."
-  n_cols:
+    description: "Total number of rows in the dataset."
+  n_features:
     type: "integer"
-    description: "Number of columns in the full dataset."
+    description: "Number of features used in OLS."
+  violation_metrics:
+    type: "object"
+    description: "Metrics for OLS assumption violations."
+    properties:
+      condition_number:
+        type: "number"
+        description: "Condition number of the design matrix."
+      breusch_pagan_statistic:
+        type: "number"
+        description: "Breusch-Pagan test statistic."
+      breusch_pagan_p_value:
+        type: "number"
+        description: "Breusch-Pagan test p-value."
+      mean_cooks_distance:
+        type: "number"
+        description: "Average Cook's Distance."
+    required:
+      - condition_number
+      - breusch_pagan_statistic
+      - breusch_pagan_p_value
+      - mean_cooks_distance
+  severity_classification:
+    type: "string"
+    enum:
+      - "Low"
+      - "Medium"
+      - "High"
+    description: "Severity classification based on BP p-value."
   timestamp:
     type: "string"
     format: "date-time"
-    description: "ISO 8601 timestamp of the profile generation."
+    description: "ISO 8601 timestamp of profiling."
+required:
+  - dataset_id
+  - source_url
+  - n_rows
+  - n_features
+  - violation_metrics
+  - severity_classification
+  - timestamp
 additionalProperties: false

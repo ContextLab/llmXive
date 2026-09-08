@@ -1,5 +1,9 @@
 status: none
-reason: no data intent found in planning artifacts
-cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
-searched_at: '2026-09-02T12:26:43.027937+00:00'
-retry_count: 3
+intent: California housing dataset Delaney solubility dataset UCI wine quality python
+  package dataset
+required_fields:
+- numeric predictor columns
+- continuous target column
+cache_key: 80698e2a8ed81641c67fd56b1d3773efdb25d165d2e51f1944b0f231021a9847
+searched_at: '2026-09-08T22:29:37.723401+00:00'
+retry_count: 1

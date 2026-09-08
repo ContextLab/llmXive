@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-372-assessing-the-sensitivity-of-regression-
-last_run_id: b07fbefc-3c1b-4d39-9929-d9330037b636
+last_run_id: 0152b97d-06cb-454e-af52-89db00212a8e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression
 title: Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection
-updated_at: '2026-09-05T12:49:22.409494Z'
+updated_at: '2026-09-08T22:49:15.374541Z'

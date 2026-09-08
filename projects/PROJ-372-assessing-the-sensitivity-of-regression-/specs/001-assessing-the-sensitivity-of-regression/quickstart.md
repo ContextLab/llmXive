@@ -2,15 +2,15 @@
 
 ## Prerequisites
 - Python 3.11+
-- `pip` or `poetry`
-- Git
+- `pip` or `conda`
+- Access to a Unix-like environment (Linux/macOS/WSL)
 
 ## Installation
 
 1. **Clone the repository**:
    ```bash
    git clone <repo-url>
-   cd <project-dir>
+   cd PROJ-372-assessing-sensitivity
    ```
 
 2. **Create and activate a virtual environment**:
@@ -29,57 +29,81 @@
    pre-commit install
    ```
 
-## Running the Pipeline
+## Configuration
 
-The pipeline is executed via the CLI entry point. It automatically handles data ingestion, per-subset profiling, resampling, stratified analysis, and **generates stability curves**.
+Create a `config.yaml` in the project root (or use the provided template):
 
-```bash
-# Run the full analysis
-python src/cli.py run --datasets california_housing,delaney,wine_quality --output artifacts/
+```yaml
+# Research Design Parameters
+sample_size_tiers:
+  - 10
+  - 25
+  - 50
+  - 75
+  - 90
+
+num_subsets_per_tier: 200
+convergence_threshold: 0.05  # 5%
+
+# Random Seed
+random_seed: 42
+
+# Datasets (verified URLs)
+datasets:
+  - name: "census_income"
+    url: "https://huggingface.co/datasets/jlh/uci-census-income-94/resolve/main/data/train-00000-of-00001-813c8c5127cc5484.parquet"
+    target: "income"  # Example target column
+    features: ["age", "education", "hours_per_week"] # Example features
+  - name: "wine_quality"
+    url: "https://huggingface.co/datasets/UCI/wine-quality-red/resolve/main/winequality-red.csv"
+    target: "quality"
+    features: ["fixed acidity", "volatile acidity", "citric acid", "residual sugar", "chlorides", "free sulfur dioxide", "total sulfur dioxide", "density", "pH", "sulphates", "alcohol"]
 ```
 
-**Arguments**:
-- `--datasets`: Comma-separated list of dataset keys (e.g., `california_housing`, `delaney`, `wine_quality`).
-- `--output`: Output directory for artifacts (default: `artifacts/`).
+## Running the Pipeline
 
-### Step-by-Step Breakdown
+### 1. Ingest and Profile
+Profiles the dataset for OLS assumption violations.
+```bash
+python -m src.cli main ingest --config config.yaml
+```
+*Output*: `artifacts/profiles/<dataset_id>_profile.json`
 
-1. **Ingestion & Per-Subset Profiling**:
-   - Downloads datasets from verified HuggingFace/UCI URLs.
-   - For each tier (low, medium, high), generates a representative set of subsets.
-   - For **each subset**, computes Condition Number, Breusch-Pagan, and Cook's Distance.
-   - Saves `artifacts/profiles/{dataset}_{tier}_{id}.json`.
+### 2. Resample and Fit
+Generates subsets, fits OLS, computes subset-specific violations, and checks convergence.
+```bash
+python -m src.cli main resample --config config.yaml
+```
+*Output*: `artifacts/stability/subsets_*.json`, `artifacts/stability/coefficient_sd.json`, `artifacts/convergence.log`
 
-2. **Resampling & Stability**:
-   - Fits OLS models to each subset.
-   - Computes SD of coefficients across multiple subsets per tier.
-   - Checks convergence (SE of SD < 7%).
-   - **Excludes** tiers that fail convergence from the final analysis.
-   - Saves `artifacts/stability/coefficient_sd.json` and `artifacts/convergence.log`.
+### 3. Meta-Analysis
+Runs the hierarchical regression analysis on stability results.
+```bash
+python -m src.cli main meta --config config.yaml
+```
+*Output*: `artifacts/meta_analysis/meta_results.json`
 
-3. **Stratified Analysis & Visualization**:
-   - Bins subsets by violation severity (Low/Med/High).
-   - Runs Kruskal-Wallis tests to compare stability across bins.
-   - **Generates stability curves** (Mean SD vs Severity Bin) and saves them as `artifacts/figures/stability_curves.csv` and `artifacts/figures/stability_curves.png`.
-   - Saves `artifacts/stratified_analysis/results.json`.
+### 4. Generate Report & Visualizations
+Compiles the final findings into a markdown report and generates **Stability Curves** (Coefficient SD vs. Subset Condition Number).
+```bash
+python -m src.cli main report --config config.yaml
+```
+*Output*: `reports/final_report.md`, `reports/stability_curves.png`
 
-## Verification
+## Testing
 
-1. **Check Convergence**:
-   ```bash
-   cat artifacts/convergence.log
-   ```
-   Ensure lines show `PASSED`. If `FAILED (Excluded)` appears, that tier was correctly excluded from the final analysis.
+Run unit tests:
+```bash
+pytest tests/unit -v
+```
 
-2. **View Stratified Results**:
-   - Open `artifacts/stratified_analysis/results.json` to see binning statistics and test p-values.
-   - Or inspect `artifacts/figures/stability_curves.png` to visualize the relationship between violation severity and coefficient stability.
+Run integration tests:
+```bash
+pytest tests/integration -v
+```
 
-3. **Validate Artifacts**:
-   ```bash
-   python -m pytest tests/
-   ```
-   This runs unit and integration tests to verify the pipeline logic and artifact structure.
+## Troubleshooting
 
-4. **Reproducibility Check**:
-   Re-run the command with the same arguments. The output files in `artifacts/` should have identical content hashes.
+- **Memory Error**: Ensure `streaming=True` is used in `src/ingestion/loader.py` for large datasets.
+- **Convergence Failed**: Check `artifacts/convergence.log`. If SE > 5%, the tier is marked "Invalid" and excluded from the final report. This is a validity gate, not a cosmetic log.
+- **Missing Data**: Verify that the `target` and `features` columns exist in the dataset as defined in `config.yaml`.
