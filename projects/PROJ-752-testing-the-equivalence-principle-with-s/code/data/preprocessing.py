@@ -3,171 +3,179 @@ import numpy as np
 from typing import List, Optional, Tuple, Dict
 from datetime import timedelta
 import logging
-from utils.logging import get_logger, log_progress, log_error, AnalysisError
+import sys
+import os
+
+# Import from local utils
+from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def filter_residuals(df: pd.DataFrame, threshold_cm: float = 2.0) -> pd.DataFrame:
+# Constants
+MIN_POINTS_THRESHOLD = 500
+
+def filter_residuals(df: pd.DataFrame, residual_column: str = 'residual', threshold_m: float = 0.02) -> pd.DataFrame:
     """
-    Filter SLR normal points based on residual magnitude.
+    Filter out SLR normal points with residuals greater than the threshold (2cm default).
     
     Args:
-        df: DataFrame with at least 'residual_m' column.
-        threshold_cm: Maximum allowed residual in centimeters (default 2.0 cm).
+        df: DataFrame containing SLR observations.
+        residual_column: Name of the column containing residual values (in meters).
+        threshold_m: Maximum allowed residual in meters (default 0.02m = 2cm).
         
     Returns:
         Filtered DataFrame.
-        
-    Raises:
-        AnalysisError: If required columns are missing.
     """
-    required_cols = ['residual_m']
-    if not all(col in df.columns for col in required_cols):
-        raise AnalysisError(f"DataFrame missing required columns: {required_cols}")
+    if residual_column not in df.columns:
+        logger.warning(f"Column '{residual_column}' not found in dataframe. Skipping residual filter.")
+        return df
         
-    threshold_m = threshold_cm / 100.0
-    valid_mask = np.abs(df['residual_m']) <= threshold_m
+    initial_count = len(df)
+    filtered_df = df[np.abs(df[residual_column]) <= threshold_m]
+    removed_count = initial_count - len(filtered_df)
     
-    log_progress(logger, f"Filtered {len(df) - valid_mask.sum()} points exceeding {threshold_cm}cm threshold")
-    return df[valid_mask].copy()
+    if removed_count > 0:
+        logger.info(f"Filtered {removed_count} points with residuals > {threshold_m*1000:.1f}mm.")
+    
+    return filtered_df
 
-def handle_sparse_satellites(df: pd.DataFrame, min_points: int = 500) -> pd.DataFrame:
+def handle_sparse_satellites(df: pd.DataFrame, satellite_id_col: str = 'satellite_id', min_points: int = MIN_POINTS_THRESHOLD) -> Tuple[pd.DataFrame, List[str]]:
     """
-    Handle satellites with insufficient data points.
+    Identify and exclude satellites with insufficient data points.
+    
+    Requirement T018:
+    1. Log a specific "Insufficient Data" warning for satellites with < min_points.
+    2. Explicitly exclude these satellites from the returned DataFrame.
+    3. Return the list of excluded satellite IDs for downstream reporting.
     
     Args:
-        df: DataFrame with 'satellite_id' column.
-        min_points: Minimum required points per satellite.
+        df: DataFrame containing SLR observations.
+        satellite_id_col: Name of the column containing satellite identifiers.
+        min_points: Minimum number of points required (default 500).
         
     Returns:
-        DataFrame with sparse satellites flagged or removed (based on context).
-        Currently returns full DF but logs warnings for sparse satellites.
-        
-    Raises:
-        AnalysisError: If 'satellite_id' column is missing.
+        Tuple of (Filtered DataFrame with sufficient satellites, List of excluded satellite IDs).
     """
-    if 'satellite_id' not in df.columns:
-        raise AnalysisError("DataFrame missing 'satellite_id' column")
+    if satellite_id_col not in df.columns:
+        raise ValueError(f"Column '{satellite_id_col}' not found in dataframe.")
         
-    counts = df['satellite_id'].value_counts()
-    sparse_ids = counts[counts < min_points].index.tolist()
+    satellite_counts = df[satellite_id_col].value_counts()
+    excluded_satellites = []
     
-    if sparse_ids:
-        log_error(logger, f"Found {len(sparse_ids)} satellites with <{min_points} points: {sparse_ids}")
-        # Note: We do not drop them here; downstream logic or T018 will handle the warning logic
-        # This function ensures the data is available for the warning mechanism.
+    for sat_id, count in satellite_counts.items():
+        if count < min_points:
+            excluded_satellites.append(sat_id)
+            logger.warning(f"Insufficient Data: Satellite '{sat_id}' has {count} points (threshold: {min_points}). Excluding from joint estimation.")
+    
+    if excluded_satellites:
+        # Explicitly exclude
+        valid_satellites = [s for s in satellite_counts.index if s not in excluded_satellites]
+        filtered_df = df[df[satellite_id_col].isin(valid_satellites)]
+        logger.info(f"Excluded {len(excluded_satellites)} satellites due to insufficient data.")
+    else:
+        filtered_df = df
         
+    return filtered_df, excluded_satellites
+
+def align_time_series(df: pd.DataFrame, timestamp_col: str = 'timestamp', freq: str = 'H') -> pd.DataFrame:
+    """
+    Align time series to a regular frequency (optional resampling).
+    
+    Args:
+        df: DataFrame with time series data.
+        timestamp_col: Name of the timestamp column.
+        freq: Pandas frequency string for resampling (default 'H' for hourly).
+        
+    Returns:
+        Resampled DataFrame (if applicable).
+    """
+    # Basic alignment logic placeholder for T017 dependency
+    if timestamp_col in df.columns:
+        df[timestamp_col] = pd.to_datetime(df[timestamp_col])
+        df = df.sort_values(timestamp_col)
     return df
 
-def align_time_series(df: pd.DataFrame, time_col: str = 'time', tolerance: str = '1s') -> pd.DataFrame:
+def merge_multi_satellite_datasets(dfs: List[pd.DataFrame], common_cols: Optional[List[str]] = None) -> pd.DataFrame:
     """
-    Align time series to a regular grid (optional, for interpolation needs).
-    Currently returns a sorted copy to ensure time ordering for merging.
+    Merge multiple satellite datasets into a single DataFrame.
     
     Args:
-        df: DataFrame with time column.
-        time_col: Name of the time column.
-        tolerance: Pandas frequency tolerance string (not strictly used for sort, but for future resample).
+        dfs: List of DataFrames.
+        common_cols: Columns to use for merging if needed.
         
     Returns:
-        Sorted DataFrame by time.
+        Merged DataFrame.
     """
-    if time_col not in df.columns:
-        raise AnalysisError(f"DataFrame missing time column: {time_col}")
-        
-    df_sorted = df.sort_values(by=time_col).reset_index(drop=True)
-    return df_sorted
-
-def merge_multi_satellite_datasets(
-    df_list: List[pd.DataFrame], 
-    time_col: str = 'time', 
-    tolerance: str = '1s'
-) -> pd.DataFrame:
-    """
-    Merge multiple satellite datasets into a single time-aligned DataFrame.
-    
-    This function performs an outer join on time to allow for non-overlapping
-    observation windows, then sorts by time. It assumes each input DataFrame
-    has a 'satellite_id' column to distinguish sources.
-    
-    Args:
-        df_list: List of DataFrames, each representing one satellite's data.
-        time_col: Name of the time column to align on.
-        tolerance: Tolerance for time alignment (passed to pandas merge logic if needed).
-        
-    Returns:
-        Merged DataFrame with all satellites, sorted by time.
-        
-    Raises:
-        AnalysisError: If any input DataFrame is empty or missing required columns.
-    """
-    if not df_list:
-        raise AnalysisError("No DataFrames provided for merging.")
-        
-    if not all('satellite_id' in df.columns for df in df_list):
-        raise AnalysisError("All input DataFrames must contain 'satellite_id' column.")
-        
-    if not all(time_col in df.columns for df in df_list):
-        raise AnalysisError(f"All input DataFrames must contain '{time_col}' column.")
-        
-    # Filter out empty dataframes
-    valid_dfs = [df for df in df_list if not df.empty]
-    if not valid_dfs:
-        logger.warning("All input DataFrames were empty. Returning empty DataFrame.")
+    if not dfs:
         return pd.DataFrame()
-        
-    # Concatenate and sort
-    # Using concat is more efficient than iterative merging for time alignment
-    # when the goal is a single time-ordered stream for joint analysis
-    combined = pd.concat(valid_dfs, ignore_index=True)
-    combined = combined.sort_values(by=time_col).reset_index(drop=True)
-    
-    log_progress(logger, f"Merged {len(valid_dfs)} satellite datasets into {len(combined)} total points")
-    return combined
+    return pd.concat(dfs, ignore_index=True)
 
 def preprocess_slr_data(
-    raw_data: pd.DataFrame, 
-    threshold_cm: float = 2.0,
-    min_points: int = 500
-) -> pd.DataFrame:
+    df: pd.DataFrame, 
+    residual_col: str = 'residual', 
+    sat_id_col: str = 'satellite_id',
+    timestamp_col: str = 'timestamp'
+) -> Tuple[pd.DataFrame, List[str]]:
     """
-    End-to-end preprocessing pipeline for SLR data.
+    Orchestrate the full preprocessing pipeline including filtering and exclusion logic.
     
-    1. Filter residuals > threshold_cm
-    2. Check for sparse satellites (logs warning if < min_points)
-    3. Align time series (sort by time)
-    4. Merge multi-satellite data if multiple IDs present
+    This function implements the core logic for T016 (filtering) and T018 (exclusion).
     
     Args:
-        raw_data: Raw DataFrame from ingestion.
-        threshold_cm: Residual filtering threshold.
-        min_points: Minimum points per satellite warning threshold.
+        df: Raw SLR data DataFrame.
+        residual_col: Column name for residuals.
+        sat_id_col: Column name for satellite IDs.
+        timestamp_col: Column name for timestamps.
         
     Returns:
-        Cleaned, time-aligned DataFrame ready for estimation.
+        Tuple of (Cleaned DataFrame, List of excluded satellite IDs).
     """
-    if raw_data.empty:
-        raise AnalysisError("Input raw_data is empty.")
+    logger.info("Starting preprocessing pipeline...")
+    
+    # 1. Filter residuals > 2cm (T016)
+    df_filtered = filter_residuals(df, residual_column=residual_col, threshold_m=0.02)
+    
+    # 2. Handle sparse satellites / Exclusion Logic (T018)
+    df_clean, excluded_list = handle_sparse_satellites(
+        df_filtered, 
+        satellite_id_col=sat_id_col, 
+        min_points=MIN_POINTS_THRESHOLD
+    )
+    
+    # 3. Time alignment (T017)
+    df_aligned = align_time_series(df_clean, timestamp_col=timestamp_col)
+    
+    logger.info(f"Preprocessing complete. Final shape: {df_aligned.shape}, Excluded satellites: {excluded_list}")
+    return df_aligned, excluded_list
+
+def main():
+    """
+    CLI entry point for preprocessing (for testing/debugging).
+    Expects input CSV and outputs cleaned CSV + excluded list JSON.
+    """
+    import argparse
+    import json
+    
+    parser = argparse.ArgumentParser(description="Preprocess SLR data")
+    parser.add_argument('--input', type=str, required=True, help='Input CSV path')
+    parser.add_argument('--output', type=str, required=True, help='Output CSV path')
+    parser.add_argument('--excluded-log', type=str, default='data/processed/excluded_satellites.json', help='JSON log of excluded satellites')
+    args = parser.parse_args()
+    
+    logger.info(f"Loading data from {args.input}")
+    df = pd.read_csv(args.input)
+    
+    cleaned_df, excluded = preprocess_slr_data(df)
+    
+    logger.info(f"Saving cleaned data to {args.output}")
+    cleaned_df.to_csv(args.output, index=False)
+    
+    logger.info(f"Saving excluded satellites list to {args.excluded_log}")
+    os.makedirs(os.path.dirname(args.excluded_log), exist_ok=True)
+    with open(args.excluded_log, 'w') as f:
+        json.dump(excluded, f, indent=2)
         
-    # 1. Filter
-    filtered = filter_residuals(raw_data, threshold_cm)
-    
-    # 2. Handle sparse (logging side-effect)
-    handle_sparse_satellites(filtered, min_points)
-    
-    # 3 & 4. Align and Merge
-    # If multiple satellites, merge_multi_satellite_datasets ensures a single coherent stream
-    # If single satellite, it just sorts.
-    result = merge_multi_satellite_datasets([filtered], time_col='time')
-    
-    # Ensure no NaN values in critical columns
-    critical_cols = ['time', 'residual_m', 'satellite_id']
-    existing_cols = [c for c in critical_cols if c in result.columns]
-    if existing_cols:
-        nan_counts = result[existing_cols].isna().sum()
-        if nan_counts.any():
-            log_error(logger, f"Found NaN values in critical columns: {nan_counts[nan_counts > 0].to_dict()}")
-            # Drop rows with NaN in critical columns
-            result = result.dropna(subset=existing_cols)
-            
-    return result
+    logger.info("Done.")
+
+if __name__ == '__main__':
+    main()

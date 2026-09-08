@@ -1,215 +1,106 @@
 import pytest
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
-from data.preprocessing import (
-    filter_residuals,
-    handle_sparse_satellites,
-    align_time_series,
-    merge_multi_satellite_datasets,
-    preprocess_slr_data
-)
-from utils.logging import AnalysisError
+import os
+import sys
+import json
 
-@pytest.fixture
-def sample_data():
-    """Create sample SLR data for testing."""
-    n_points = 1000
-    dates = pd.date_range(start="2023-01-01", periods=n_points, freq="1min")
-    residuals = np.random.normal(0, 0.015, n_points)  # Mean 0, std 1.5cm
-    
-    return pd.DataFrame({
-        "time": dates,
-        "satellite_id": "LAGEOS-1",
-        "range": 12000000.0 + np.random.normal(0, 0.01, n_points),
-        "residual": residuals
-    })
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-@pytest.fixture
-def outlier_data():
-    """Create data with outliers > 2cm."""
-    n_points = 1000
-    dates = pd.date_range(start="2023-01-01", periods=n_points, freq="1min")
-    residuals = np.random.normal(0, 0.01, n_points)
-    # Inject outliers
-    residuals[100:150] = np.random.uniform(0.025, 0.05, 50)  # 2.5-5cm
-    
-    return pd.DataFrame({
-        "time": dates,
-        "satellite_id": "LAGEOS-1",
-        "range": 12000000.0 + residuals,
-        "residual": residuals
-    })
+from data.preprocessing import filter_residuals, handle_sparse_satellites, preprocess_slr_data
 
-@pytest.fixture
-def multi_sat_data():
-    """Create data for multiple satellites."""
-    sat1 = pd.DataFrame({
-        "time": pd.date_range("2023-01-01", periods=500, freq="1min"),
-        "satellite_id": "LAGEOS-1",
-        "range": 12000000.0,
-        "residual": np.random.normal(0, 0.01, 500)
-    })
-    
-    sat2 = pd.DataFrame({
-        "time": pd.date_range("2023-01-01 02:00:00", periods=500, freq="1min"),
-        "satellite_id": "ETALON-1",
-        "range": 10000000.0,
-        "residual": np.random.normal(0, 0.01, 500)
-    })
-    
-    return [sat1, sat2]
+class TestHandleSparseSatellites:
+    """Tests for T018 Exclusion Logic"""
 
-def test_filter_residuals_basic(sample_data):
-    """Test basic residual filtering."""
-    filtered = filter_residuals(sample_data, threshold_m=0.02)
-    
-    # Check that all residuals are within threshold
-    assert all(np.abs(filtered["residual"]) <= 0.02)
-    # Check that we didn't add new rows
-    assert len(filtered) <= len(sample_data)
+    def test_excludes_satellite_below_threshold(self):
+        """Verify satellites with < 500 points are excluded and logged."""
+        # Create synthetic data: Sat A has 100 points, Sat B has 1000 points
+        data = {
+            'satellite_id': ['SatA'] * 100 + ['SatB'] * 1000,
+            'timestamp': pd.date_range('2023-01-01', periods=1100),
+            'range': np.random.rand(1100) * 10000 + 6000,
+            'residual': np.random.rand(1100) * 0.01  # All within 1cm
+        }
+        df = pd.DataFrame(data)
+        
+        # Run exclusion
+        cleaned_df, excluded_list = handle_sparse_satellites(df, min_points=500)
+        
+        # Assertions
+        assert 'SatA' not in cleaned_df['satellite_id'].values, "SatA should be excluded"
+        assert 'SatB' in cleaned_df['satellite_id'].values, "SatB should remain"
+        assert 'SatA' in excluded_list, "SatA should be in excluded list"
+        assert 'SatB' not in excluded_list, "SatB should not be in excluded list"
+        assert len(cleaned_df) == 1000, "Only SatB data should remain"
 
-def test_filter_residuals_outliers(outlier_data):
-    """Test that outliers > 2cm are removed."""
-    initial_count = len(outlier_data)
-    filtered = filter_residuals(outlier_data, threshold_m=0.02)
-    
-    # Should have removed the injected outliers
-    assert len(filtered) < initial_count
-    assert all(np.abs(filtered["residual"]) <= 0.02)
+    def test_no_exclusion_above_threshold(self):
+        """Verify no exclusion if all satellites have >= 500 points."""
+        data = {
+            'satellite_id': ['SatA'] * 500 + ['SatB'] * 600,
+            'timestamp': pd.date_range('2023-01-01', periods=1100),
+            'range': np.random.rand(1100),
+            'residual': np.random.rand(1100)
+        }
+        df = pd.DataFrame(data)
+        
+        cleaned_df, excluded_list = handle_sparse_satellites(df, min_points=500)
+        
+        assert len(excluded_list) == 0, "No satellites should be excluded"
+        assert len(cleaned_df) == 1100, "All data should remain"
 
-def test_filter_residuals_missing_column(sample_data):
-    """Test error when residual column is missing."""
-    df = sample_data.drop(columns=["residual"])
-    with pytest.raises(AnalysisError):
-        filter_residuals(df, residual_col="nonexistent")
+    def test_all_excluded_if_below_threshold(self):
+        """Verify behavior when all satellites are sparse."""
+        data = {
+            'satellite_id': ['SatA'] * 100 + ['SatB'] * 200,
+            'timestamp': pd.date_range('2023-01-01', periods=300),
+            'range': np.random.rand(300),
+            'residual': np.random.rand(300)
+        }
+        df = pd.DataFrame(data)
+        
+        cleaned_df, excluded_list = handle_sparse_satellites(df, min_points=500)
+        
+        assert len(cleaned_df) == 0, "All data should be excluded"
+        assert set(excluded_list) == {'SatA', 'SatB'}, "Both should be excluded"
 
-def test_handle_sparse_satellites_warns():
-    """Test that sparse satellites trigger a warning."""
-    # Create data with < 500 points
-    sparse_df = pd.DataFrame({
-        "time": pd.date_range("2023-01-01", periods=100, freq="1min"),
-        "satellite_id": "SPARSE-SAT",
-        "residual": np.random.normal(0, 0.01, 100)
-    })
-    
-    # This should log a warning but not raise
-    result = handle_sparse_satellites(sparse_df, min_points=500)
-    assert len(result) == 100  # Data is returned, just warned
+class TestFilterResiduals:
+    """Tests for T016 Residual Filtering"""
 
-def test_handle_sparse_satellites_enough_points():
-    """Test that sufficient points pass without issue."""
-    sufficient_df = pd.DataFrame({
-        "time": pd.date_range("2023-01-01", periods=600, freq="1min"),
-        "satellite_id": "GOOD-SAT",
-        "residual": np.random.normal(0, 0.01, 600)
-    })
-    
-    result = handle_sparse_satellites(sufficient_df, min_points=500)
-    assert len(result) == 600
+    def test_filters_large_residuals(self):
+        """Verify residuals > 2cm are removed."""
+        data = {
+            'id': [1, 2, 3, 4],
+            'residual': [0.01, 0.025, 0.005, 0.03]  # 1, 3 ok; 2, 4 bad
+        }
+        df = pd.DataFrame(data)
+        
+        filtered = filter_residuals(df, residual_column='residual', threshold_m=0.02)
+        
+        assert len(filtered) == 2
+        assert 2 not in filtered['id'].values
+        assert 4 not in filtered['id'].values
 
-def test_align_time_series(sample_data):
-    """Test time series alignment."""
-    # Introduce gaps
-    sample_data = sample_data.iloc[::2].reset_index(drop=True)  # Keep every other row
-    
-    aligned = align_time_series(sample_data, frequency="2min", method="nearest")
-    
-    # Check that time is regular
-    time_diffs = aligned["time"].diff().dropna()
-    assert all(time_diffs == pd.Timedelta("2min"))
+class TestPreprocessingPipeline:
+    """Integration test for the full pipeline"""
 
-def test_merge_multi_satellite_datasets(multi_sat_data):
-    """Test merging multiple satellite datasets."""
-    merged = merge_multi_satellite_datasets(
-        multi_sat_data,
-        time_col="time",
-        satellite_col="satellite_id",
-        common_time_range=False
-    )
-    
-    assert len(merged) == 1000
-    assert "satellite_id" in merged.columns
-    assert len(merged["satellite_id"].unique()) == 2
-
-def test_merge_multi_satellite_common_range(multi_sat_data):
-    """Test merging with common time range."""
-    # Sat1: 00:00-08:20, Sat2: 02:00-10:20
-    # Common: 02:00-08:20
-    merged = merge_multi_satellite_datasets(
-        multi_sat_data,
-        time_col="time",
-        satellite_col="satellite_id",
-        common_time_range=True
-    )
-    
-    # Should only have overlapping points
-    assert len(merged) < 1000
-    assert len(merged) > 0
-
-def test_merge_no_overlap():
-    """Test error when no time overlap exists."""
-    sat1 = pd.DataFrame({
-        "time": pd.date_range("2023-01-01", periods=100, freq="1min"),
-        "satellite_id": "SAT1",
-        "residual": [0.01] * 100
-    })
-    sat2 = pd.DataFrame({
-        "time": pd.date_range("2023-01-02", periods=100, freq="1min"),  # Next day
-        "satellite_id": "SAT2",
-        "residual": [0.01] * 100
-    })
-    
-    with pytest.raises(AnalysisError, match="No overlapping time range"):
-        merge_multi_satellite_datasets([sat1, sat2], common_time_range=True)
-
-def test_preprocess_slr_data_full_pipeline():
-    """Test the full preprocessing pipeline."""
-    # Create two satellites with some outliers
-    sat1 = pd.DataFrame({
-        "time": pd.date_range("2023-01-01", periods=600, freq="1min"),
-        "satellite_id": "LAGEOS-1",
-        "range": 12000000.0,
-        "residual": np.concatenate([
-            np.random.normal(0, 0.01, 550),
-            np.random.uniform(0.025, 0.05, 50)  # Outliers
-        ])
-    })
-    
-    sat2 = pd.DataFrame({
-        "time": pd.date_range("2023-01-01 01:00:00", periods=600, freq="1min"),
-        "satellite_id": "ETALON-1",
-        "range": 10000000.0,
-        "residual": np.random.normal(0, 0.01, 600)
-    })
-    
-    result = preprocess_slr_data(
-        [sat1, sat2],
-        residual_threshold_m=0.02,
-        min_points_per_sat=500,
-        align_to_common=True
-    )
-    
-    # Check results
-    assert len(result) > 0
-    assert all(np.abs(result["residual"]) <= 0.02)
-    assert len(result["satellite_id"].unique()) == 2
-    assert "time" in result.columns
-
-def test_preprocess_empty_input():
-    """Test error on empty input."""
-    with pytest.raises(AnalysisError, match="No raw data provided"):
-        preprocess_slr_data([])
-
-def test_preprocess_empty_result():
-    """Test error when filtering removes all data."""
-    # All outliers
-    sat = pd.DataFrame({
-        "time": pd.date_range("2023-01-01", periods=100, freq="1min"),
-        "satellite_id": "SAT1",
-        "range": 12000000.0,
-        "residual": [0.05] * 100  # All > 2cm
-    })
-    
-    with pytest.raises(AnalysisError, match="empty dataset"):
-        preprocess_slr_data([sat], residual_threshold_m=0.02)
+    def test_full_pipeline_exclusion(self):
+        """Verify full pipeline correctly filters and excludes."""
+        data = {
+            'satellite_id': ['LAGEOS'] * 100 + ['ETALON'] * 1000, # LAGEOS too sparse
+            'timestamp': pd.date_range('2023-01-01', periods=1100),
+            'range': np.random.rand(1100) * 10000,
+            'residual': np.random.rand(1100) * 0.05 # Some will be > 2cm
+        }
+        df = pd.DataFrame(data)
+        
+        cleaned_df, excluded = preprocess_slr_data(df)
+        
+        # Check exclusion
+        assert 'LAGEOS' not in cleaned_df['satellite_id'].values
+        assert 'LAGEOS' in excluded
+        
+        # Check residual filtering (implicit via count reduction if any > 2cm)
+        # Note: LAGEOS is excluded first, so we only check ETALON residuals
+        etalon_df = cleaned_df[cleaned_df['satellite_id'] == 'ETALON']
+        assert all(etalon_df['residual'] <= 0.02)

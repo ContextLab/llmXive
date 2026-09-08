@@ -1,135 +1,99 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Eötvös Parameter Result Schema"
-description: |
-  Schema for the final metric output of the Equivalence Principle test.
-  Defines the structure for the Eötvös parameter (η), its uncertainty,
-  confidence interval, and associated metadata from the joint least-squares fit.
-  This schema is consumed by analysis/report.py and validation tasks.
+title: EotvosResult
+description: >
+  Schema for the final Eötvös parameter estimation result, including
+  the calculated value, confidence interval, p-value from statistical tests,
+  and sensitivity sweep data.
 type: object
 required:
-  - etvos_parameter
-  - uncertainty
-  - confidence_level
-  - ci_lower
-  - ci_upper
-  - differential_acceleration
-  - local_gravity
-  - fit_statistics
-  - metadata
+  - eta_value
+  - confidence_interval
+  - p_value
+  - sensitivity_sweep_data
+  - timestamp
+  - satellites_used
+  - status
 properties:
-  etvos_parameter:
+  eta_value:
     type: number
-    description: |
-      The calculated Eötvös parameter η = |a_c| / g.
-      Dimensionless ratio representing the violation of the Weak Equivalence Principle.
+    description: >
+      The calculated Eötvös parameter (η = |a_c| / g).
+      This is the primary metric for testing the Equivalence Principle.
     minimum: 0
-  uncertainty:
-    type: number
-    description: |
-      The standard uncertainty (1-sigma) of the Eötvös parameter,
-      propagated from the joint covariance matrix of the fit.
-    minimum: 0
-  confidence_level:
-    type: number
-    description: |
-      The confidence level used for the interval (e.g., 0.95 for 95% CI).
-    enum: [0.90, 0.95, 0.99]
-  ci_lower:
-    type: number
-    description: |
-      Lower bound of the confidence interval for η.
-      Calculated as η - (z_score * uncertainty).
-    minimum: 0
-  ci_upper:
-    type: number
-    description: |
-      Upper bound of the confidence interval for η.
-      Calculated as η + (z_score * uncertainty).
-    minimum: 0
-  differential_acceleration:
-    type: number
-    description: |
-      The differential acceleration (a_c) between the two satellite species
-      (e.g., LAGEOS vs Starlette) in m/s².
-      This is the composition-dependent term extracted from the joint solution.
-    minimum: -1e-15
-    maximum: 1e-15
-  local_gravity:
-    type: number
-    description: |
-      The local gravitational acceleration (g) at the mean orbital radius
-      used for normalization, in m/s².
-      Calculated as GM / |r|².
-    minimum: 0
-  fit_statistics:
+  confidence_interval:
     type: object
-    description: |
-      Statistics from the joint least-squares estimation that produced this result.
+    description: 95% confidence interval for the eta_value.
     required:
-      - chi_squared
-      - degrees_of_freedom
-      - reduced_chi_squared
-      - convergence_status
+      - lower
+      - upper
+      - level
     properties:
-      chi_squared:
+      lower:
         type: number
-        description: The total chi-squared value of the joint fit.
-      degrees_of_freedom:
-        type: integer
-        description: Number of observations minus number of estimated parameters.
-        minimum: 1
-      reduced_chi_squared:
+      upper:
         type: number
-        description: Chi-squared per degree of freedom.
-      convergence_status:
-        type: string
-        description: Status of the optimizer (e.g., 'converged', 'max_iterations').
-        enum:
-          - converged
-          - max_iterations
-          - singular_matrix
-          - error
+      level:
+        type: number
+        const: 0.95
+  p_value:
+    type: number
+    description: >
+      P-value from the F-test comparing the Null model (no differential acceleration)
+      against the Alternative model (with differential acceleration).
+    minimum: 0
+    maximum: 1
+  sensitivity_sweep_data:
+    type: array
+    description: >
+      Results of the sensitivity analysis performed across different geopotential
+      models (e.g., GGM, EGM2008, GOCO). Each entry represents the eta_value
+      and uncertainty derived from a specific model.
+    items:
+      type: object
+      required:
+        - model_name
+        - eta_value
+        - uncertainty
+      properties:
+        model_name:
+          type: string
+          description: Name of the geopotential model used (e.g., "EGM2008").
+        eta_value:
+          type: number
+        uncertainty:
+          type: number
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the analysis was completed.
+  satellites_used:
+    type: array
+    description: List of satellite IDs included in the joint estimation.
+    items:
+      type: string
+      examples:
+        - "LAGEOS-1"
+        - "LAGEOS-2"
+        - "Etalon-1"
+        - "Starlette"
+  status:
+    type: string
+    description: Status of the result generation.
+    enum:
+      - "Success"
+      - "Incomplete"
+      - "Failed"
+    examples:
+      - "Success"
   metadata:
     type: object
-    description: |
-      Metadata regarding the data and models used for this calculation.
-    required:
-      - satellites
-      - geopotential_model
-      - timestamp
-      - config_hash
+    description: Additional metadata for reproducibility.
     properties:
-      satellites:
-        type: array
-        description: List of satellite IDs used in the joint fit.
-        items:
-          type: string
-        minItems: 2
-      geopotential_model:
+      config_version:
         type: string
-        description: The name of the geopotential model used (e.g., GGM05C).
-      timestamp:
+      software_version:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of when the result was computed.
-      config_hash:
+      data_checksum:
         type: string
-        description: SHA-256 hash of the configuration used to ensure reproducibility.
-examples:
-  - etvos_parameter: 1.2e-13
-    uncertainty: 0.5e-13
-    confidence_level: 0.95
-    ci_lower: 0.2e-13
-    ci_upper: 2.2e-13
-    differential_acceleration: 3.5e-15
-    local_gravity: 0.22
-    fit_statistics:
-      chi_squared: 1024.5
-      degrees_of_freedom: 5000
-      reduced_chi_squared: 0.2049
-      convergence_status: converged
-    metadata:
-      satellites: ["LAGEOS", "Starlette"]
-      geopotential_model: "GGM05C"
-      timestamp: "2023-10-27T10:00:00Z"
-      config_hash: "a1b2c3d4..."
+        description: SHA-256 checksum of the input data used.
+additionalProperties: false

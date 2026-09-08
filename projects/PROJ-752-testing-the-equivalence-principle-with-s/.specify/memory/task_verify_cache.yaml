@@ -1,16 +1,3 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `utils/logging.py` file or its contents are provided; without the actual module
-    we cannot verify that standardized error handling and progress logging have been
-    implemented as required. The task therefore remains unfinished.
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided that adds handling for HTTP 403\
-    \ responses or generates warnings when fewer than 500 data points are retrieved.\
-    \ The required error\u2011handling logic and any associated tests or logs are\
-    \ missing, so the task is not satisfied."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

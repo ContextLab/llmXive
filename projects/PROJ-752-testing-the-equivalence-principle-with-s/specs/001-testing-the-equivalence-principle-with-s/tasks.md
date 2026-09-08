@@ -66,7 +66,7 @@
  4. Ensure these classes are importable and match the YAML schemas in T005-T007.
  **Dependency**: None (foundational).
 - [ ] T008 Implement `utils/logging.py` for standardized error handling and progress logging
-- [ ] T009a [P] **Generate Verified Datasets Artifact**: Create `data/verified_datasets.yaml`. **Requirement**:
+- [X] T009a [P] **Generate Verified Datasets Artifact**: Create `data/verified_datasets.yaml`. **Requirement**:
  1. Populate the YAML with the canonical ILRS archive URLs for LAGEOS, LAGEOS-2, Etalon-1, Etalon-2, and Starlette.
  2. Include metadata: satellite_id, source_url, version, and last_verified_date.
  3. Ensure the file exists and is valid YAML before T009 runs.
@@ -132,7 +132,7 @@
 
 - [X] T011 [P] [US1] Unit test for URL validation and backoff retry logic in `tests/test_ingestion.py`
 - [X] T012 [P] [US1] Unit test for quality filtering (>2cm residual exclusion) in `tests/test_preprocessing.py`
-- [X] T013 [P] [US1] Integration test: Verify end-to-end download and CSV generation for LAGEOS-1 in `tests/test_data_pipeline.py`
+- [X] T013 [P] [US1] Integration test: Verify end-to-end download and CSV generation for LAGEOS-1 [UNRESOLVED-CLAIM: c_cb440292 — status=not_enough_info] in `tests/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
@@ -193,7 +193,7 @@
  **Note**: This extracts the *differential* parameter directly as defined in `spec_amendment_FR-003.md`. **Dependency**: T024, T007a.
 - [ ] T025a [US2] **Implement Consistency Check**: Create `analysis/eotvos.py` (or extend) to verify the joint estimate against the separate-fit baseline. **Requirement**:
  1. Compare the joint estimate of $a_c$ (from T025) with the separate-fit difference (from T024a).
- 2. Verify the difference is within a statistically significant range of the joint covariance.
+ 2. Verify the difference is within a statistically significant range of the joint covariance [UNRESOLVED-CLAIM: c_19b421cb — status=not_enough_info].
  3. Log a warning if the consistency check fails.
  4. Include the consistency check result in the final report.
  **Dependency**: T024, T024a, T007a.
@@ -232,7 +232,7 @@
 - [ ] T033b [US3] Implement `analysis/validation.py` function `run_sensitivity_per_model(model: str, data: pd.DataFrame) -> EotvosResult`. **Requirement**: Run the estimator per model and collect results.
 - [ ] T033c [US3] Implement `analysis/validation.py` function `aggregate_sensitivity_results(results: list[EotvosResult]) -> SensitivityReport`. **Requirement**: Aggregate and report the sensitivity sweep results (using T032a class).
 - [ ] T034 [US3] Implement `analysis/validation.py` function `apply_correction(p_values: list[float], method: str) -> list[float]` to support Bonferroni, Holm-Bonferroni, and Benjamini-Hochberg methods. **Requirement**:
- 1. **Default**: Use Bonferroni if method is not specified.
+ 1. **Default**: Use Bonferroni if method is not specified [UNRESOLVED-CLAIM: c_a97f6ce0 — status=not_enough_info].
  2. **Input**: Accept unsorted p-values.
  3. Return corrected p-values.
  **Dependency**: T032.

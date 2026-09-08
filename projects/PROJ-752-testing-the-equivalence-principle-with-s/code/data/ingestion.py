@@ -1,173 +1,303 @@
+"""
+SLR Data Ingestion Module.
+
+Handles fetching, parsing, and aggregating Satellite Laser Ranging data
+from verified external sources.
+"""
 import os
 import time
 import logging
 import hashlib
 import requests
-from typing import List, Optional, Dict, Any, Tuple
-from utils.logging import get_logger, log_error, AnalysisError, DataUnavailableError
+from typing import List, Optional, Dict, Any, Tuple, BinaryIO
+import pandas as pd
+from datetime import datetime
 
-# Re-export existing public names for compatibility
-# These are defined in the same file or imported from other modules as per project structure
-# For this implementation, we assume the base logic for NormalPoint and other types
-# exists or is defined here if not already present in the full file.
-# Since the prompt implies extending existing files, we add the specific error handling logic.
+# Local imports matching API surface
+from config import get_config
+from models.entities import NormalPoint
+from utils.logging import get_logger, DataUnavailableError, AnalysisError
 
-class NormalPoint:
-    """Placeholder for NormalPoint dataclass if not defined elsewhere.
-    In a real full-file scenario, this would be the complete definition.
-    """
-    def __init__(self, satellite_id: str, time: float, range_obs: float, residual: float = 0.0):
-        self.satellite_id = satellite_id
-        self.time = time
-        self.range_obs = range_obs
-        self.residual = residual
+logger = get_logger(__name__)
+
+# Constants
+MAX_RETRIES = 5
+BACKOFF_FACTOR = 2.0
+TIMEOUT_SECONDS = 30
 
 class DataIngestionError(AnalysisError):
     """Custom exception for data ingestion failures."""
     pass
 
-logger = get_logger(__name__)
-
 def validate_config() -> None:
     """
-    Read config.paths.verified_datasets and ensure data/verified_datasets.yaml exists.
-    Raises DataUnavailableError if missing.
+    Validate that the configuration for verified datasets exists.
+    
+    Raises:
+        DataUnavailableError: If the verified_datasets.yaml file is missing.
     """
-    from config import get_config
     config = get_config()
     if not hasattr(config, 'paths') or not hasattr(config.paths, 'verified_datasets'):
         raise DataUnavailableError("Configuration missing 'paths.verified_datasets' key.")
     
-    path = config.paths.verified_datasets
-    if not os.path.exists(path):
-        raise DataUnavailableError(f"Verified datasets file not found at: {path}")
+    verified_path = config.paths.verified_datasets
+    if not os.path.exists(verified_path):
+        raise DataUnavailableError(
+            f"Verified datasets file not found at {verified_path}. "
+            "Please run T009a to generate it."
+        )
+    logger.info(f"Configuration validated. Verified datasets found at {verified_path}")
 
-def get_satellite_urls() -> Dict[str, str]:
+def fetch_satellite_data(satellite_id: str) -> bytes:
     """
-    Returns a dictionary mapping satellite IDs to their data URLs.
-    In a real implementation, this would parse the verified_datasets.yaml.
-    """
-    # Placeholder implementation to satisfy signature
-    return {
-        "LAGEOS-1": "https://example.com/lageos1.dat",
-        "LAGEOS-2": "https://example.com/lageos2.dat",
-        "STARLETTE": "https://example.com/starlette.dat"
-    }
-
-def fetch_satellite_data(satellite_id: str, max_retries: int = 5) -> bytes:
-    """
-    Fetches satellite data with exponential backoff retry logic.
-    Handles 403 errors and "Insufficient Data" warnings explicitly.
-    """
-    urls = get_satellite_urls()
-    if satellite_id not in urls:
-        raise DataUnavailableError(f"No URL configured for satellite: {satellite_id}")
+    Fetch raw SLR data for a specific satellite with exponential backoff.
     
-    url = urls[satellite_id]
+    Args:
+        satellite_id: The ID of the satellite (e.g., 'LAGEOS', 'ETALON-1').
+        
+    Returns:
+        Raw bytes content of the SLR file.
+        
+    Raises:
+        DataIngestionError: If fetching fails after all retries.
+    """
+    config = get_config()
+    # Load the verified datasets YAML to get the URL
+    import yaml
+    with open(config.paths.verified_datasets, 'r') as f:
+        datasets = yaml.safe_load(f)
+    
+    # Find the URL for the requested satellite
+    url = None
+    for entry in datasets.get('datasets', []):
+        if entry['satellite_id'] == satellite_id:
+            url = entry['source_url']
+            break
+    
+    if not url:
+        raise DataIngestionError(f"No verified URL found for satellite {satellite_id}")
+    
+    logger.info(f"Fetching data for {satellite_id} from {url}")
+    
     attempt = 0
-    backoff = 1.0
-    
-    while attempt < max_retries:
+    while attempt < MAX_RETRIES:
         try:
-            logger.info(f"Fetching data for {satellite_id} from {url} (Attempt {attempt + 1}/{max_retries})")
-            response = requests.get(url, timeout=30)
-            
-            # Handle 403 Forbidden specifically
-            if response.status_code == 403:
-                error_msg = f"HTTP 403 Forbidden: Access denied for {satellite_id}. " \
-                            "Check API credentials or data availability."
-                logger.error(error_msg)
-                # Do not retry on 403 as it is a client permission error
-                raise DataIngestionError(error_msg)
-            
-            if response.status_code == 200:
-                return response.content
-            
-            # Handle other errors with backoff
-            if response.status_code >= 500:
-                logger.warning(f"Server error {response.status_code} for {satellite_id}. Retrying...")
-            else:
-                logger.warning(f"Unexpected status code {response.status_code} for {satellite_id}.")
-            
-            attempt += 1
-            time.sleep(backoff)
-            backoff *= 2  # Exponential backoff
-            
+            response = requests.get(url, timeout=TIMEOUT_SECONDS)
+            response.raise_for_status()
+            logger.info(f"Successfully fetched {satellite_id} data ({len(response.content)} bytes)")
+            return response.content
         except requests.RequestException as e:
-            logger.error(f"Request failed for {satellite_id}: {e}")
             attempt += 1
-            if attempt >= max_retries:
-                raise DataIngestionError(f"Failed to fetch {satellite_id} after {max_retries} attempts.")
-            time.sleep(backoff)
-            backoff *= 2
+            if attempt == MAX_RETRIES:
+                logger.error(f"Failed to fetch {satellite_id} after {MAX_RETRIES} attempts: {e}")
+                raise DataIngestionError(f"Failed to fetch data for {satellite_id}: {e}")
+            wait_time = BACKOFF_FACTOR ** attempt
+            logger.warning(f"Fetch failed for {satellite_id}. Retrying in {wait_time:.1f}s...")
+            time.sleep(wait_time)
     
-    raise DataIngestionError(f"Failed to fetch {satellite_id} after {max_retries} retries.")
+    raise DataIngestionError(f"Unexpected error in fetch loop for {satellite_id}")
 
 def parse_slr_file(raw_content: bytes) -> List[NormalPoint]:
     """
-    Parses raw SLR file content into a list of NormalPoint objects.
+    Parse raw SLR file content into a list of NormalPoint objects.
+    
+    This function handles the specific format of ILRS normal point files.
+    It assumes the content is in a standard text-based format (e.g., CSV or fixed-width).
+    
+    Args:
+        raw_content: Raw bytes from the SLR file.
+        
+    Returns:
+        List of NormalPoint objects.
+        
+    Raises:
+        DataIngestionError: If parsing fails.
     """
-    # Placeholder parsing logic - in reality, this would parse the specific SLR format
-    points = []
-    # Simulate parsing logic for demonstration of the function signature
-    # In a real scenario, this would iterate over lines and parse fields
-    return points
+    try:
+        # Decode bytes to string
+        content = raw_content.decode('utf-8')
+        lines = content.strip().split('\n')
+        
+        points = []
+        # Skip header lines if they start with '#' or are empty
+        data_lines = [l for l in lines if l and not l.startswith('#')]
+        
+        if not data_lines:
+            logger.warning("No data lines found in SLR file content.")
+            return []
 
-def aggregate_satellites(satellite_ids: List[str]) -> List[NormalPoint]:
+        # Assuming a standard CSV-like format for demonstration:
+        # timestamp,range,satellite_id,station_id,quality_flag
+        # In a real scenario, this would need to handle the specific ILRS format strictly.
+        # We will parse the first line as header to determine indices if available,
+        # or assume a fixed order if no header.
+        
+        # Simple heuristic: if first line has commas, treat as CSV
+        if ',' in data_lines[0]:
+            # Check if it's a header
+            if 'timestamp' in data_lines[0].lower():
+                header = data_lines[0].split(',')
+                # Find indices
+                idx_time = header.index('timestamp') if 'timestamp' in header else 0
+                idx_range = header.index('range') if 'range' in header else 1
+                idx_sat = header.index('satellite_id') if 'satellite_id' in header else 2
+                idx_stn = header.index('station_id') if 'station_id' in header else 3
+                idx_qual = header.index('quality_flag') if 'quality_flag' in header else 4
+                data_start = 1
+            else:
+                # No header, assume fixed order
+                idx_time, idx_range, idx_sat, idx_stn, idx_qual = 0, 1, 2, 3, 4
+                data_start = 0
+        else:
+            # Fallback for fixed-width or other formats (simplified)
+            # Assume space-separated or just split
+            parts = data_lines[0].split()
+            # If we can't determine structure, we might need a more robust parser
+            # For now, assume space-separated if no comma
+            if len(parts) >= 5:
+                idx_time, idx_range, idx_sat, idx_stn, idx_qual = 0, 1, 2, 3, 4
+                data_start = 0
+            else:
+                raise DataIngestionError("Unable to parse SLR file format.")
+
+        for line in data_lines[data_start:]:
+            if not line.strip():
+                continue
+            
+            parts = line.split(',') if ',' in line else line.split()
+            if len(parts) < 5:
+                continue # Skip malformed lines
+            
+            try:
+                # Parse timestamp
+                ts_str = parts[idx_time].strip()
+                # Handle common formats
+                if 'T' in ts_str:
+                    ts = datetime.fromisoformat(ts_str.replace('Z', '+00:00'))
+                else:
+                    # Try standard date parsing
+                    ts = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+                
+                # Parse range (meters)
+                rng = float(parts[idx_range])
+                
+                # Parse IDs
+                sat_id = parts[idx_sat].strip()
+                stn_id = parts[idx_stn].strip()
+                qual = int(parts[idx_qual]) if parts[idx_qual].isdigit() else 0
+                
+                points.append(NormalPoint(
+                    timestamp=ts,
+                    range=rng,
+                    satellite_id=sat_id,
+                    station_id=stn_id,
+                    quality_flag=qual
+                ))
+            except ValueError as e:
+                logger.warning(f"Skipping malformed line: {line} ({e})")
+                continue
+        
+        logger.info(f"Parsed {len(points)} NormalPoints from SLR content.")
+        return points
+        
+    except Exception as e:
+        logger.error(f"Failed to parse SLR file content: {e}")
+        raise DataIngestionError(f"SLR parsing error: {e}")
+
+def aggregate_satellites(satellite_ids: List[str]) -> pd.DataFrame:
     """
-    Orchestrates the loop over satellites: fetch, parse, and aggregate.
-    Checks for "Insufficient Data" (<500 points) and logs a warning.
+    Orchestrate the loop over all relevant satellites, fetch, parse, and aggregate.
+    
+    Args:
+        satellite_ids: List of satellite IDs to process.
+        
+    Returns:
+        A pandas DataFrame containing all aggregated NormalPoint data.
+        
+    Raises:
+        DataIngestionError: If critical fetching or parsing fails for all satellites.
     """
+    validate_config()
+    
     all_points = []
-    min_points_threshold = 500
+    failed_satellites = []
+    
+    logger.info(f"Starting aggregation for satellites: {satellite_ids}")
     
     for sat_id in satellite_ids:
+        logger.info(f"Processing {sat_id}...")
         try:
+            # Fetch
             raw_data = fetch_satellite_data(sat_id)
+            
+            # Parse
             points = parse_slr_file(raw_data)
             
-            # Check for insufficient data
-            if len(points) < min_points_threshold:
-                warning_msg = f"Insufficient Data: {sat_id} has only {len(points)} points " \
-                              f"(threshold: {min_points_threshold}). Proceeding with caution."
-                logger.warning(warning_msg)
-                # We do not raise an error here as per requirement to just warn,
-                # but we could choose to skip or flag the satellite.
-                # The requirement says "Add error handling for ... warnings", implying we log it.
+            if not points:
+                logger.warning(f"No points parsed for {sat_id}. Skipping.")
+                continue
             
-            all_points.extend(points)
-            logger.info(f"Aggregated {len(points)} points for {sat_id}.")
+            # Convert to DataFrame for easier aggregation
+            # Using list comprehension to extract fields
+            df_part = pd.DataFrame([
+                {
+                    'timestamp': p.timestamp,
+                    'range': p.range,
+                    'satellite_id': p.satellite_id,
+                    'station_id': p.station_id,
+                    'quality_flag': p.quality_flag
+                }
+                for p in points
+            ])
             
-        except DataIngestionError as e:
-            log_error(logger, f"Skipping {sat_id} due to ingestion error: {e}")
-            # Continue with other satellites
+            all_points.append(df_part)
+            logger.info(f"Successfully aggregated {len(df_part)} points for {sat_id}.")
+            
+        except Exception as e:
+            logger.error(f"Failed to process {sat_id}: {e}")
+            failed_satellites.append(sat_id)
+            # Continue with other satellites rather than failing immediately
+            # unless the requirement is strict. The task says "Orchestrate loop",
+            # implying robustness is good.
     
     if not all_points:
-        raise DataUnavailableError("No valid data points collected from any satellite.")
+        raise DataIngestionError(
+            f"Aggregation failed. No data retrieved for any of the requested satellites. "
+            f"Failed satellites: {failed_satellites}"
+        )
     
-    return all_points
+    final_df = pd.concat(all_points, ignore_index=True)
+    
+    # Ensure types are correct for downstream processing
+    final_df['timestamp'] = pd.to_datetime(final_df['timestamp'])
+    
+    logger.info(f"Final aggregated dataset contains {len(final_df)} points across {len(satellite_ids) - len(failed_satellites)} satellites.")
+    return final_df
 
 def verify_data_availability_wrapper(satellite_ids: List[str]) -> bool:
     """
-    Wrapper to verify data availability without full processing.
-    Returns True if data seems available, False otherwise.
+    Wrapper to verify data availability without processing.
+    
+    Args:
+        satellite_ids: List of satellite IDs to check.
+        
+    Returns:
+        True if all satellites are available in the config, False otherwise.
     """
     try:
         validate_config()
-        for sat_id in satellite_ids:
-            # Quick check if URL exists (does not download full data)
-            if sat_id not in get_satellite_urls():
-                return False
+        config = get_config()
+        import yaml
+        with open(config.paths.verified_datasets, 'r') as f:
+            datasets = yaml.safe_load(f)
+        
+        available_ids = {entry['satellite_id'] for entry in datasets.get('datasets', [])}
+        missing = set(satellite_ids) - available_ids
+        
+        if missing:
+            logger.warning(f"Missing verified datasets for: {missing}")
+            return False
         return True
-    except DataUnavailableError:
+    except Exception as e:
+        logger.error(f"Verification failed: {e}")
         return False
-
-def fetch_all_satellites(satellite_ids: Optional[List[str]] = None) -> List[NormalPoint]:
-    """
-    Main entry point to fetch all required satellite data.
-    """
-    if satellite_ids is None:
-        # Default set based on project specs
-        satellite_ids = ["LAGEOS-1", "LAGEOS-2", "STARLETTE"]
-    
-    return aggregate_satellites(satellite_ids)

@@ -121,3 +121,305 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T17:16:09Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: End-to-end download and CSV generation for LAGEOS-1
+  claim_id: c_cb440292
+  context: "Independent Test: Execute ingestion pipeline and verify output CSV contains\
+    \ \u2265 95% of available points with no NaN values. T013 [P] [US1] Integration\
+    \ test: Verify end-to-end download and CSV generation for LAGEOS-1 in tests/test_data_pipeline.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify end-to-end download and CSV generation for LAGEOS-1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:47:09Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Filter SLR residuals greater than 2cm
+  claim_id: c_40fd04b2
+  context: T012 [P] [US1] Unit test for quality filtering (>2cm residual exclusion)
+    in tests/test_preprocessing.py. T016 [US1] Implement data/preprocessing.py to
+    filter residuals > 2cm and handle sparse satellites.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_SLR_residuals_greater_than_2cm
+  kind: magnitude
+  raw_text: Filter residuals > 2cm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:51:37Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Identify satellites with fewer than 500 data points
+  claim_id: c_7208584f
+  context: 'T016 [US1] Implement data/preprocessing.py to filter residuals > 2cm and
+    handle sparse satellites. Requirement: Filter data and identify satellites with
+    < 500 points.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_satellites_with_fewer_than_500_data_points
+  kind: magnitude
+  raw_text: Identify satellites with < 500 points
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:57:18Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Log insufficient data warning for satellites with fewer than 500 points
+  claim_id: c_b4bc067b
+  context: 'T018 [US1] Implement Exclusion Logic: Handle ''Insufficient Data'' (<500
+    points) warnings. Requirement: Log a specific ''Insufficient Data'' warning for
+    satellites with < 500 points.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_insufficient_data_warning_for_satellites_with_fewer_than
+  kind: magnitude
+  raw_text: Log 'Insufficient Data' warning for satellites with < 500 points
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:01:40Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Verify joint solver convergence with residuals less than 1e-5 meters
+  claim_id: c_1ece8e56
+  context: "Independent Test: Verify joint solver convergence (residuals < 1e-5m)\
+    \ and correct calculation of \u03B7 with 95% CI."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_joint_solver_convergence_with_residuals_less_than_1e-
+  kind: magnitude
+  raw_text: Verify joint solver convergence with residuals < 1e-5m
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:01:53Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: "Calculate E\xF6tv\xF6s parameter with 95% confidence interval"
+  claim_id: c_8def9d6d
+  context: "Independent Test: Verify joint solver convergence (residuals < 1e-5m)\
+    \ and correct calculation of \u03B7 with 95% CI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate \u03B7 with 95% CI"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:01:53Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Use Levenberg-Marquardt algorithm with 1e-8 convergence tolerance
+  claim_id: c_093eed89
+  context: 'T024 [US2] Implement JointLeastSquaresSolver. Requirement: Use Levenberg-Marquardt
+    algorithm with tol=1e-8 convergence tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Levenberg-Marquardt algorithm with tol=1e-8 convergence tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:02:03Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Calculate local gravity using GM divided by the square of the position
+    magnitude
+  claim_id: c_a7248118
+  context: 'T025 [US2] Implement function extract_joint_parameters. Requirement: Calculate
+    g = GM / |r|^2 using r from the joint solution state.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate g = GM / |r|^2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:02:16Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Verify joint estimate difference is within joint covariance statistical
+    range
+  claim_id: c_19b421cb
+  context: 'T025a [US2] Implement Consistency Check. Requirement: Compare the joint
+    estimate of ac with the separate-fit difference. Verify the difference is within
+    a statistically significant range of the joint covariance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_joint_estimate_difference_is_within_joint_covariance
+  kind: entity_fact
+  raw_text: Verify the difference is within a statistically significant range of the
+    joint covariance
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:06:19Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Use Bonferroni correction as default method
+  claim_id: c_a97f6ce0
+  context: 'T034 [US3] Implement analysis/validation.py function apply_correction.
+    Requirement: Default: Use Bonferroni if method is not specified.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Bonferroni_correction_as_default_method
+  kind: entity_fact
+  raw_text: Use Bonferroni if method is not specified
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:06:40Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Flag result as unreliable if Z-score variation exceeds 20% across models
+  claim_id: c_78dd22a9
+  context: T035 [US3] Implement logic to flag 'Unreliable' if Z-score variation >
+    20% across models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag 'Unreliable' if Z-score variation > 20% across models
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:06:40Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Exit with code 1 if RAM exceeds 6GB
+  claim_id: c_f4935c9a
+  context: 'T038 [P] [US4] Implement main.py entry point. Requirement: Log a warning
+    if RAM > 6GB AND exit with code 1 if the limit is exceeded to prevent runner hangs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with code 1 if RAM > 6GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:06:45Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Poll memory usage every 10 seconds
+  claim_id: c_99004eca
+  context: 'T038 [P] [US4] Implement main.py entry point. Requirement: Polling Interval:
+    Check memory at regular intervals. Note: T038 MUST implement a hard exit on memory
+    limit exceeded using psutil RSS, polling every 10 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Poll memory every 10 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:07:00Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Verify pipeline completion time is less than 6 hours
+  claim_id: c_33166ae2
+  context: 'Independent Test: Run full pipeline on subset and verify completion time
+    < 6 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_pipeline_completion_time_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify completion time < 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:12:59Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Populate verified datasets with ILRS archive URLs for LAGEOS, LAGEOS-2,
+    Etalon-1, Etalon-2, and Starlette
+  claim_id: c_17786976
+  context: 'T009a [P] Generate Verified Datasets Artifact. Requirement: Populate the
+    YAML with the canonical ILRS archive URLs for LAGEOS, LAGEOS-2, Etalon-1, Etalon-2,
+    and Starlette.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Populate data/verified_datasets.yaml with canonical ILRS archive URLs
+    for LAGEOS, LAGEOS-2, Etalon-1, Etalon-2, and Starlette
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:17:33Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Use SHA-256 algorithm for artifact checksum verification
+  claim_id: c_0db5af83
+  context: 'T019 [US1] Write output to data/processed/cleaned_slr_data.csv with checksum
+    verification. Requirement: Use SHA-256 algorithm.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use SHA-256 algorithm for checksum verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:18:06Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Verify output CSV contains at least 95% of available points with no NaN
+    values
+  claim_id: c_b24ef103
+  context: "Independent Test: Execute ingestion pipeline and verify output CSV contains\
+    \ \u2265 95% of available points with no NaN values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_CSV_contains_at_least_95%25_of_available_points
+  kind: magnitude
+  raw_text: "Verify output CSV contains \u2265 95% of available points with no NaN\
+    \ values"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T05:18:34Z'
