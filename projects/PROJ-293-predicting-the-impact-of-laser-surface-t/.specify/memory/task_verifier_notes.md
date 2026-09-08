@@ -1,0 +1,12 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No directory listings or screenshots were provided to confirm that the required folders (`code/`, `data/`, `tests/`, `state/`, `models/`, `data/raw/`, `data/processed/`, `reports/`) actually exist on disk. Without concrete evidence of these directories, the task cannot be considered completed.
+- **T008** — declared artifact(s) missing/empty/invalid: code/logging_config.py
+- **T009** — No directory listings, creation scripts, or verification output were provided, so there is no evidence that `data/raw/`, `data/processed/`, `models/`, and `reports/` actually exist or were checked. The required artifacts are missing.
+- **T039** — No `research.md` file content or verification output was provided, so we cannot confirm that it contains only static, pre‑verified URLs/IDs and lacks any dynamic search logic as required. The artifact is missing or empty.
+- **T012** — No code, script, or dataset artifact was provided that demonstrates dropping records with missing predictor values while retaining those missing `contact_load`/`sliding_speed` and setting `normalization_method='raw'`. The required preprocessing implementation and its output (e.g., cleaned CSV and `missing_record_count` metric) are missing.
+- **T018** — No code, notebook, script, or output showing a GridSearchCV with ≥10 distinct hyperparameter combinations and proper nested or separate‑training‑split 5‑fold CV is present. The evidence provided is only the task description and requirements, without any implementation artifact to verify the grid search or leakage prevention.
+- **T019** — No evaluation script, functions, or output files (e.g., computed R², MAE, RMSE values, model selection logic, or a `model_report.json`) are present in the provided evidence. The claim lacks any concrete artifact demonstrating that the required metrics are calculated and the best model is selected.
+- **T021** — No code, script, or documentation implementing the required LOMO (Leave-One-Group-Out) logic was provided; there is no evidence of class‑size checks, fallback to K‑Fold, or warning logging, so the task is not satisfied.

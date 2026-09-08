@@ -1,0 +1,56 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or screenshots were provided to confirm that the required
+    folders (`code/`, `data/`, `tests/`, `state/`, `models/`, `data/raw/`, `data/processed/`,
+    `reports/`) actually exist on disk. Without concrete evidence of these directories,
+    the task cannot be considered completed.
+T005:
+  c: false
+  h: 517ac7584a382a3fbfbd9e07c4d22bc9faf446699601018f6f8214ee6b040c59
+  r: '`code/hygiene.py` provides MD5 calculation and loading functions, but the `save_artifact_hashes`
+    implementation is truncated and the required `state/artifact_hashes.yaml` file
+    does not exist. The task also demands that the utilities update this YAML file,
+    which cannot be verified without a concrete file and a complete save routine.
+    The missing file and incomplete function must be added for the task to be considered
+    complete.'
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings, creation scripts, or verification output were provided,
+    so there is no evidence that `data/raw/`, `data/processed/`, `models/`, and `reports/`
+    actually exist or were checked. The required artifacts are missing.
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or dataset artifact was provided that demonstrates dropping
+    records with missing predictor values while retaining those missing `contact_load`/`sliding_speed`
+    and setting `normalization_method='raw'`. The required preprocessing implementation
+    and its output (e.g., cleaned CSV and `missing_record_count` metric) are missing.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or output showing a GridSearchCV with \u226510 distinct\
+    \ hyperparameter combinations and proper nested or separate\u2011training\u2011\
+    split 5\u2011fold CV is present. The evidence provided is only the task description\
+    \ and requirements, without any implementation artifact to verify the grid search\
+    \ or leakage prevention."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evaluation script, functions, or output files (e.g., computed R\xB2, MAE,\
+    \ RMSE values, model selection logic, or a `model_report.json`) are present in\
+    \ the provided evidence. The claim lacks any concrete artifact demonstrating that\
+    \ the required metrics are calculated and the best model is selected."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the required LOMO (Leave-One-Group-Out)\
+    \ logic was provided; there is no evidence of class\u2011size checks, fallback\
+    \ to K\u2011Fold, or warning logging, so the task is not satisfied."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file content or verification output was provided, so we cannot\
+    \ confirm that it contains only static, pre\u2011verified URLs/IDs and lacks any\
+    \ dynamic search logic as required. The artifact is missing or empty."

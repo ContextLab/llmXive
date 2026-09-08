@@ -1,0 +1,89 @@
+{
+  "description": "Canonical column mapping for LST wear data standardization. Maps target canonical names to lists of potential source column names found in raw datasets.",
+  "version": "1.0.0",
+  "mappings": {
+    "pulse_duration": [
+      "pulse_duration",
+      "pulse_width",
+      "duration_us",
+      "pulse_time",
+      "on_time"
+    ],
+    "power": [
+      "power",
+      "laser_power",
+      "laser_pwr",
+      "avg_power",
+      "power_w",
+      "input_power"
+    ],
+    "scanning_speed": [
+      "scanning_speed",
+      "scan_speed",
+      "velocity",
+      "speed_mm_s",
+      "feed_rate",
+      "traverse_speed"
+    ],
+    "pattern_geometry": [
+      "pattern_geometry",
+      "texture_pattern",
+      "geometry",
+      "pattern_type",
+      "surface_pattern",
+      "texturing_pattern"
+    ],
+    "hardness": [
+      "hardness",
+      "hv",
+      "vickers",
+      "hv0.1",
+      "hv0.3",
+      "hardness_hv",
+      "microhardness"
+    ],
+    "elastic_modulus": [
+      "elastic_modulus",
+      "youngs_modulus",
+      "modulus",
+      "e_modulus",
+      "elasticity",
+      "young_modulus"
+    ],
+    "wear_rate": [
+      "wear_rate",
+      "wear",
+      "volume_loss",
+      "wear_volume",
+      "material_loss",
+      "wear_rate_mm3_nm"
+    ],
+    "contact_load": [
+      "contact_load",
+      "load",
+      "force",
+      "normal_load",
+      "applied_load",
+      "load_n"
+    ],
+    "sliding_speed": [
+      "sliding_speed",
+      "sliding_velocity",
+      "sliding_rate",
+      "speed",
+      "velocity_m_s",
+      "counterface_speed"
+    ]
+  },
+  "target_columns": [
+    "pulse_duration",
+    "power",
+    "scanning_speed",
+    "pattern_geometry",
+    "hardness",
+    "elastic_modulus",
+    "wear_rate",
+    "contact_load",
+    "sliding_speed"
+  ]
+}

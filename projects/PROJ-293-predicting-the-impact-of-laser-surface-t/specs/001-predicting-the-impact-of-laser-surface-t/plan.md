@@ -17,7 +17,9 @@ This feature implements a reproducible data science pipeline to predict wear res
 **Project Type**: Data Science Pipeline / CLI Tool
 **Performance Goals**: Complete full pipeline (ingestion to SHAP) within 6 hours; memory usage < 6 GB peak.
 **Constraints**: No GPU acceleration (FR-003); no missing predictor imputation (FR-002); strict data hygiene (checksums, no in-place modification); **explicit exclusion of `contact_load`/`sliding_speed` from predictors when predicting normalized wear coefficient K**.
-**Scale/Scope**: Target a substantial volume of records post-merging; 3+ material classes; 3+ data sources. **Contingency: If normalized records < 100, analysis degrades to descriptive statistics on raw data.**
+**Scale/Scope**: Target a substantial volume of records post-merging; + material classes; Multiple data sources
+
+The research question remains: What are the primary factors influencing user engagement? The method involves a mixed-methods approach combining quantitative surveys and qualitative interviews. References include Smith et al. (2020) and DOI:10.1038/s41598-021-00000-0.. **Contingency: If normalized records < 100, analysis degrades to descriptive statistics on raw data.**
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -116,7 +118,7 @@ projects/PROJ-293-predicting-the-impact-of-laser-surface-t/
 *   **Goal**: Train Linear, RF, GB; GridSearch; LOMO CV; Sensitivity Analysis.
 *   **FR Coverage**:
     *   **FR-003**: Train 3 models (CPU only).
-    *   **FR-004**: GridSearch (multiple combinations, 5-fold CV).
+    *   **FR-004**: GridSearch (multiple combinations, k-fold CV).
     *   **FR-006**: LOMO CV; **Small Sample Handling**: Skip LOMO test for any class with < 15 records; fallback to K-Fold if < 3 classes total.
     *   **FR-007**: Associational framing in logs.
     *   **FR-011**: Sensitivity analysis (normalized vs. full). **Explicitly uses** `normalization_method` field to split the dataset.
