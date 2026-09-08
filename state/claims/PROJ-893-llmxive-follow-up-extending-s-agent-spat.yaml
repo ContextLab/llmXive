@@ -1,0 +1,107 @@
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: process 1000 scenes sample size
+  claim_id: c_1501d067
+  context: Configure code/config.py for paths, random seeds, and sample size (n=1,000)
+    constants
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project plans to process a sample size of n=1,000 scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T06:29:36Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: symbolic solver process 1000 scenes on CPU in 6 hours
+  claim_id: c_bc641fc4
+  context: 'Checkpoint: Symbolic solver produces valid predictions and latency logs
+    for n=1,000 scenes on CPU within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The symbolic solver is expected to produce valid predictions and latency
+    logs for 1,000 scenes on CPU within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T06:29:58Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis threshold step 0.05
+  claim_id: c_64b03699
+  context: Implement code/benchmark/sensitivity.py to sweep the accuracy threshold
+    (SC-005) across a range of values ([deferred] to [deferred] of the VLM baseline
+    accuracy, step 0.05)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the accuracy threshold across a range
+    of values with a step of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T06:30:32Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Independent verification of symbolic solver, benchmarking, and failure
+    analysis against S-Agent-300K dataset
+  claim_id: c_5da66a62
+  context: 'Organization: Tasks are grouped by phase and user story to enable independent
+    verification of the symbolic solver, benchmarking, and failure analysis against
+    the S-Agent-300K dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Independent_verification_of_symbolic_solver,_benchmarking,_a
+  kind: entity_fact
+  raw_text: Tasks are grouped by phase and user story to enable independent verification
+    of the symbolic solver, benchmarking, and failure analysis against the S-Agent-300K
+    dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T06:36:53Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Batch process 1000 scenes
+  claim_id: c_f4fcd508
+  context: 'Implement code/solver/run_solver.py to batch process n=1,000 scenes. Requirements:
+    1. Implement a global batch timeout (defined duration).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/solver/run_solver.py to batch process n=1,000 scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T06:37:24Z'
+- artifact_path: projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat/specs/001-llmxive-follow-up-extending-s-agent-spat/tasks.md
+  attempts: 1
+  canonical: Symbolic solver produces valid predictions and latency logs for 1000
+    scenes on CPU within 6 hours
+  claim_id: c_a3349d93
+  context: 'Checkpoint: Symbolic solver produces valid predictions and latency logs
+    for n=1,000 scenes on CPU within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Checkpoint: Symbolic solver produces valid predictions and latency logs
+    for n=1,000 scenes on CPU within 6 hours.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T06:38:05Z'

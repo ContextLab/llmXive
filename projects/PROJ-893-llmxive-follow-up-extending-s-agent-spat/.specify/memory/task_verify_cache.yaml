@@ -13,6 +13,15 @@ T010:
     logging, and writing to `data/derived/constraints.jsonl`. Moreover, the required
     output file `data/derived/constraints.jsonl` is absent. Both the artifact and
     its expected result are missing or incomplete.
+T021:
+  c: false
+  h: f6dd288909fa5d6952bd742826148124ad49345241a28fbfc57154c6a321d888
+  r: "The repository contains a partially shown `code/benchmark/analyze_failures.py`,\
+    \ but the file is truncated and does not clearly include logic to compute the\
+    \ proportion of semantic\u2011gap failures or to write the required `data/derived/failure_classification.json`.\
+    \ Moreover, the expected JSON output file is absent from the project. The task\u2019\
+    s core deliverable\u2014producing the classification JSON with the calculated\
+    \ proportion\u2014is therefore missing."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

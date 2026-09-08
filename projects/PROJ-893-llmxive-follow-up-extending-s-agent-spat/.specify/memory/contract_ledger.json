@@ -1,0 +1,14 @@
+[
+  {
+    "symbol": "DATA_DERIVED",
+    "owner": "Config"
+  },
+  {
+    "symbol": "DATA_DIR",
+    "owner": "Config"
+  },
+  {
+    "symbol": "DERIVED_PATH",
+    "owner": "Config"
+  }
+]

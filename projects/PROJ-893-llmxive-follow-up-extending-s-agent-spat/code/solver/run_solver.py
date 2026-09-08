@@ -2,152 +2,133 @@ import os
 import sys
 import json
 import time
+import signal
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from config import Config
+from config import config
 from solver.csp_engine import CSPEngine, SolveResult
 
-def load_constraints(constraints_path: Path) -> List[Dict[str, Any]]:
-    """Load constraints from the extracted JSONL file."""
-    if not constraints_path.exists():
-        raise FileNotFoundError(f"Constraints file not found: {constraints_path}")
-    
+class ConstraintSatisfactionError(Exception):
+    """Custom exception for constraint satisfaction failures (T028a)."""
+    pass
+
+def load_constraints(input_path: Path) -> List[Dict[str, Any]]:
+    """Load constraints from JSONL file."""
     constraints = []
-    with open(constraints_path, 'r') as f:
+    with open(input_path, 'r') as f:
         for line in f:
             if line.strip():
                 constraints.append(json.loads(line))
     return constraints
 
-def save_predictions(predictions: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save predictions to a JSONL file."""
+def save_predictions(results: List[SolveResult], output_path: Path):
+    """Save predictions to JSONL."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        for pred in predictions:
-            f.write(json.dumps(pred) + '\n')
+        for r in results:
+            f.write(json.dumps({
+                "scene_id": r.scene_id,
+                "prediction": r.solution,
+                "status": r.status,
+                "latency_ms": r.latency_ms
+            }) + '\n')
 
-def save_latency_log(latency_log: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save latency logs to a JSONL file."""
+def save_latency_log(results: List[SolveResult], output_path: Path):
+    """Save latency log to JSONL."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        for entry in latency_log:
-            f.write(json.dumps(entry) + '\n')
+        for r in results:
+            f.write(json.dumps({
+                "scene_id": r.scene_id,
+                "latency_ms": r.latency_ms
+            }) + '\n')
 
-def save_exclusion_log(exclusion_data: Dict[str, Any], output_path: Path) -> None:
-    """Save exclusion log to a JSON file with counts and IDs."""
+def save_exclusion_log(failures: List[Dict[str, Any]], output_path: Path):
+    """Save solver failures to JSON."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(exclusion_data, f, indent=2)
+        json.dump({"failures": failures}, f, indent=2)
 
-def run_batch_solver(
-    constraints: List[Dict[str, Any]],
-    engine: CSPEngine
-) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
+def run_batch_solver(constraints: List[Dict[str, Any]], batch_timeout: float, per_scene_timeout: float) -> tuple:
     """
-    Run the solver on a batch of constraints.
-    Returns: (predictions, latency_log, excluded_scenes)
+    Run solver on a batch of constraints.
+    Returns (results, failures).
     """
-    predictions = []
-    latency_log = []
-    excluded_scenes = []
+    engine = CSPEngine(timeout_seconds=per_scene_timeout)
+    results = []
+    failures = []
+    start_batch = time.time()
 
     for scene in constraints:
+        # Check batch timeout
+        if time.time() - start_batch > batch_timeout:
+            print(f"Batch timeout reached ({batch_timeout}s). Stopping.")
+            break
+
         scene_id = scene.get('scene_id', 'unknown')
-        
-        # Measure latency
-        start_time = time.perf_counter()
-        
+        scene_constraints = scene.get('constraints', [])
+
         try:
-            result = engine.solve(scene)
-            end_time = time.perf_counter()
-            latency = end_time - start_time
-
-            if result.success:
-                predictions.append({
-                    'scene_id': scene_id,
-                    'prediction': result.solution,
-                    'status': 'success'
-                })
-                latency_log.append({
-                    'scene_id': scene_id,
-                    'latency_seconds': latency,
-                    'status': 'success'
-                })
-            else:
-                # Solver ran but found no solution (valid exclusion)
-                excluded_scenes.append({
-                    'scene_id': scene_id,
-                    'reason': 'No solution found by CSP',
-                    'details': result.error_message
-                })
-                latency_log.append({
-                    'scene_id': scene_id,
-                    'latency_seconds': latency,
-                    'status': 'no_solution'
-                })
-        
+            result = engine.solve(scene_id, scene_constraints)
+            results.append(result)
+            if result.status == "Error":
+                failures.append({"scene_id": scene_id, "error": "Solver Error"})
+        except ConstraintSatisfactionError as e:
+            # T028b: Catch ConstraintSatisfactionError using the format from T028a
+            # Addressing Edge Case: "insufficient constraints"
+            error_type = type(e).__name__
+            log_entry = {
+                "scene_id": scene_id,
+                "error_type": error_type,
+                "message": str(e)
+            }
+            failures.append(log_entry)
+            # Record a failed result to maintain alignment with input count
+            results.append(SolveResult(scene_id, None, "Error", 0))
         except Exception as e:
-            end_time = time.perf_counter()
-            latency = end_time - start_time
-            
-            # Critical error (malformed input, etc.)
-            excluded_scenes.append({
-                'scene_id': scene_id,
-                'reason': 'Critical Error',
-                'error': str(e)
-            })
-            latency_log.append({
-                'scene_id': scene_id,
-                'latency_seconds': latency,
-                'status': 'error'
-            })
+            # Fallback for other unexpected errors
+            error_type = type(e).__name__
+            log_entry = {
+                "scene_id": scene_id,
+                "error_type": error_type,
+                "message": str(e)
+            }
+            failures.append(log_entry)
+            results.append(SolveResult(scene_id, None, "Error", 0))
 
-    return predictions, latency_log, excluded_scenes
+    return results, failures
 
 def main():
-    """Main entry point for the solver pipeline."""
-    config = Config()
+    parser = argparse.ArgumentParser(description="Run CSP solver batch")
+    parser.add_argument("--input", type=str, required=True, help="Input constraints JSONL")
+    parser.add_argument("--output", type=str, required=True, help="Output predictions JSONL")
+    args = parser.parse_args()
+
+    input_path = Path(args.input)
+    output_path = Path(args.output)
     
-    # Paths
-    constraints_path = config.DERIVED_DATA_DIR / 'constraints.jsonl'
-    predictions_path = config.DERIVED_DATA_DIR / 'predictions.jsonl'
-    latency_log_path = config.DERIVED_DATA_DIR / 'latency_log.jsonl'
-    exclusion_log_path = config.RESULTS_DIR / 'exclusion_log.json'
-
-    print(f"Loading constraints from {constraints_path}...")
-    constraints = load_constraints(constraints_path)
-    print(f"Loaded {len(constraints)} scenes.")
-
-    # Initialize solver engine
-    engine = CSPEngine()
-
-    print("Running batch solver...")
-    predictions, latency_log, excluded_scenes = run_batch_solver(constraints, engine)
-
-    # Save outputs
-    save_predictions(predictions, predictions_path)
-    save_latency_log(latency_log, latency_log_path)
-
-    # Generate exclusion log
-    exclusion_data = {
-        'total_scenes_processed': len(constraints),
-        'valid_scenes': len(predictions),
-        'excluded_scenes': len(excluded_scenes),
-        'exclusion_details': excluded_scenes
-    }
+    # Use config with tolerant attribute access
+    derived_path = getattr(config, 'DATA_DERIVED', getattr(config, 'DERIVED_PATH', Path('data/derived')))
     
-    save_exclusion_log(exclusion_data, exclusion_log_path)
-    
-    print(f"Solver completed.")
-    print(f"  - Predictions saved to: {predictions_path}")
-    print(f"  - Latency log saved to: {latency_log_path}")
-    print(f"  - Exclusion log saved to: {exclusion_log_path}")
-    print(f"  - Total processed: {len(constraints)}, Valid: {len(predictions)}, Excluded: {len(excluded_scenes)}")
+    latency_log_path = derived_path / "latency_log.jsonl"
+    solver_failures_path = derived_path / "solver_failures.json"
 
-if __name__ == '__main__':
+    if not input_path.exists():
+        print(f"Input file not found: {input_path}")
+        sys.exit(1)
+
+    constraints = load_constraints(input_path)
+    results, failures = run_batch_solver(
+        constraints,
+        batch_timeout=getattr(config, 'TIMEOUT_BATCH', 21600),
+        per_scene_timeout=getattr(config, 'TIMEOUT_PER_SCENE', 60)
+    )
+
+    save_predictions(results, output_path)
+    save_latency_log(results, latency_log_path)
+    save_exclusion_log(failures, solver_failures_path)
+
+    print(f"Solver completed. {len(results)} scenes processed.")
+
+if __name__ == "__main__":
     main()

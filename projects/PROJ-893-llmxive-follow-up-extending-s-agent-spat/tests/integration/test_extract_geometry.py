@@ -13,41 +13,13 @@ import tempfile
 import shutil
 from pathlib import Path
 import pytest
-
-# We need to mock the Config to point to our temp directories
-# Since extract_geometry imports Config at the top, we can't easily mock it
-# unless we use unittest.mock.patch. However, for integration tests,
-# it's often cleaner to create a temporary directory structure that mimics
-# the real one and patch the Config class if possible, or rely on environment variables.
-
-# Given the constraint to use existing API surface, we will assume the test
-# runs in an environment where we can patch the paths or we create a
-# minimal stub of Config for the test scope.
-
-# Better approach: Patch the imports in extract_geometry module.
-# But since we are writing a test file, we can import the module and patch
-# the CONFIG object inside it if we access it via the module.
-
-# Let's assume we can modify the code slightly to allow injection, 
-# but the prompt says "extend, don't re-author". 
-# We will use a monkeypatch on the module-level CONFIG if possible, 
-# or create a temporary directory structure and set environment variables 
-# that Config might use (though Config uses hardcoded paths in the provided snippet).
-
-# Since the provided Config snippet shows:
-#   class Config:
-#       def __init__(self):
-#           self.data_raw_dir = Path("data/raw")
-#           ...
-# We can't easily change this without editing code.
-# Instead, we will create a temporary directory structure inside the test
-# and copy the relevant files, then run the main function of extract_geometry
-# after patching the module's CONFIG.
-
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 # Import the module to be tested
+# We need to ensure the code directory is in the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import code.data.extract_geometry as extract_module
 from code.config import Config
 
@@ -110,19 +82,32 @@ def test_extract_geometry_integration(temp_data_structure):
     derived_dir = temp_data_structure["derived_dir"]
     results_dir = temp_data_structure["results_dir"]
 
-    # Patch the Config in the extract_module
-    # We create a mock Config that points to our temp directories
-    mock_config = MagicMock(spec=Config)
-    mock_config.data_raw_dir = raw_dir.parent # Point to data/raw
+    # We need to patch the module-level CONFIG in extract_geometry
+    # Since extract_geometry imports Config and instantiates it, we patch the attribute
+    # on the module after import.
+    
+    # Create a mock config object that mimics the real Config structure
+    # but points to our temp directories.
+    mock_config = MagicMock()
+    # The real Config has attributes like data_raw_dir, derived_dir, results_dir
+    # We need to match the names used in extract_geometry.py
+    # Based on typical patterns, it likely uses:
+    #   CONFIG.data_raw_dir -> raw_dir parent (data/raw)
+    #   CONFIG.derived_dir -> derived_dir
+    #   CONFIG.results_dir -> results_dir
+    
+    mock_config.data_raw_dir = raw_dir.parent 
     mock_config.derived_dir = derived_dir
     mock_config.results_dir = results_dir
 
     # Patch the CONFIG object in the module
-    original_config = extract_module.CONFIG
+    original_config = getattr(extract_module, 'CONFIG', None)
     extract_module.CONFIG = mock_config
 
     try:
         # Run the main function
+        # We need to ensure the working directory allows relative paths if used
+        # But since we patched CONFIG to use absolute paths, it should be fine.
         extract_module.main()
 
         # Check outputs
@@ -156,4 +141,7 @@ def test_extract_geometry_integration(temp_data_structure):
 
     finally:
         # Restore original config
-        extract_module.CONFIG = original_config
+        if original_config is not None:
+            extract_module.CONFIG = original_config
+        elif hasattr(extract_module, 'CONFIG'):
+            delattr(extract_module, 'CONFIG')

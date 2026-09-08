@@ -9,7 +9,7 @@
 
 ### User Story 1 - Symbolic CSP Solver Execution on Static Scenes (Priority: P1)
 
-**User Journey**: As a researcher, I need to execute a deterministic Constraint Satisfaction Problem (CSP) solver on a representative sample of up to 1,000 static multi-view scenes from the S-Agent-300K dataset using *only* extracted 3D geometric evidence (coordinates, object relations), so that I can generate spatial reasoning predictions (counting and positioning) without invoking a neural VLM or using historical tool-call traces.
+**User Journey**: As a researcher, I need to execute a deterministic Constraint Satisfaction Problem (CSP) solver on a representative sample of up to 1,000 static multi-view scenes from the S-AgentK dataset using *only* extracted 3D geometric evidence (coordinates, object relations), so that I can generate spatial reasoning predictions (counting and positioning) without invoking a neural VLM or using historical tool-call traces.
 
 **Why this priority**: This is the core experimental intervention. Without a functioning symbolic solver that can ingest raw geometry and produce outputs *independently* of VLM traces, no valid comparison is possible. It represents the primary hypothesis test: "Can symbolic logic replace neural planning?"
 
