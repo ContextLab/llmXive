@@ -1,1 +1,3 @@
-"""Visualization module."""
+"""
+Visualization utilities.
+"""

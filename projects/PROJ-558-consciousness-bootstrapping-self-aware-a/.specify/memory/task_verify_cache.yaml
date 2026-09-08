@@ -12,13 +12,6 @@ T004b:
     \ and `data/manifest.json` contains placeholder checksums and zero sizes, indicating\
     \ the datasets were never fetched or saved. The implementation does not meet the\
     \ task\u2019s requirement."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer did not provide any code files or definitions for `ModelCheckpoint`
-    or `EvaluationResult` in the required `code/models/` and `code/evaluation/` directories;
-    no artifacts exist to verify serialization suitability. The task therefore remains
-    unfinished.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

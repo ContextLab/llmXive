@@ -5,79 +5,106 @@ from pathlib import Path
 from typing import Optional
 from config import get_project_root, ensure_directories
 
-def get_log_path(filename: str = "app.log") -> Path:
-    """Get the path to the log file."""
+def get_log_path() -> Path:
+    """Get the path to the logs directory."""
     project_root = get_project_root()
-    log_dir = project_root / "logs"
-    ensure_directories([log_dir])
-    return log_dir / filename
+    log_path = project_root / "logs"
+    ensure_directories([log_path])
+    return log_path
 
-def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
-    """Configure the logging infrastructure."""
-    logger = logging.getLogger()
-    logger.setLevel(log_level)
+def setup_logging(
+    level: int = logging.INFO,
+    log_file: Optional[str] = None,
+    format_str: Optional[str] = None,
+) -> logging.Logger:
+    """
+    Set up logging configuration.
 
-    # Clear existing handlers to avoid duplicates
-    logger.handlers.clear()
+    Args:
+        level: Logging level (default: INFO)
+        log_file: Optional log file path (default: logs/app.log)
+        format_str: Optional format string (default: standard format)
+
+    Returns:
+        Root logger instance
+    """
+    if format_str is None:
+        format_str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+    if log_file is None:
+        log_path = get_log_path()
+        log_file = str(log_path / "app.log")
+
+    # Ensure log directory exists
+    ensure_directories([Path(log_file).parent])
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+
+    # Clear existing handlers
+    root_logger.handlers.clear()
+
+    # File handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(level)
+    file_handler.setFormatter(logging.Formatter(format_str))
+    root_logger.addHandler(file_handler)
 
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
+    console_handler.setLevel(level)
+    console_handler.setFormatter(logging.Formatter(format_str))
+    root_logger.addHandler(console_handler)
 
-    # File handler
-    if log_file:
-        log_path = get_log_path(log_file)
-        file_handler = logging.FileHandler(log_path)
-        file_handler.setLevel(log_level)
-        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
+    return root_logger
 
-    return logger
-
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    """Get a logger instance with the specified name."""
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        # Ensure handlers are set up if this is the first call
-        setup_logging()
-    return logger
-
-def log_counterbalance_strategy(seed: int, split_ratio: float, output_file: str = "counterbalance_strategy.log") -> None:
+def get_logger(name: str) -> logging.Logger:
     """
-    Log the specific counterbalancing assignment strategy used.
-    
+    Get a logger with the specified name.
+
     Args:
-        seed: The random seed used for assignment generation.
-        split_ratio: The ratio of participants in each condition (e.g., 0.5 for 50/50).
-        output_file: The name of the log file to write the strategy to.
+        name: Logger name (usually __name__)
+
+    Returns:
+        Logger instance
     """
-    logger = get_logger("Counterbalance")
-    log_path = get_log_path(output_file)
-    
-    # Ensure the log directory exists
-    ensure_directories([log_path.parent])
-    
-    # Create a file handler specifically for this log
-    file_handler = logging.FileHandler(log_path)
+    return logging.getLogger(name)
+
+def log_counterbalance_strategy(seed: int, split_ratio: float, log_file: Optional[str] = None) -> None:
+    """
+    Log the counterbalancing assignment strategy used.
+
+    Args:
+        seed: Random seed used for shuffling
+        split_ratio: Ratio of participants assigned to each order (e.g., 0.5 for 50/50)
+        log_file: Optional specific log file path (default: logs/counterbalance_strategy.log)
+    """
+    if log_file is None:
+        log_path = get_log_path()
+        log_file = str(log_path / "counterbalance_strategy.log")
+
+    # Ensure log directory exists
+    ensure_directories([Path(log_file).parent])
+
+    logger = logging.getLogger("counterbalance")
+    logger.setLevel(logging.INFO)
+
+    # Remove existing handlers to avoid duplicates
+    logger.handlers.clear()
+
+    # File handler for counterbalance strategy
+    file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    
-    # Add handler if not already present
-    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == str(log_path) for h in logger.handlers):
-        logger.addHandler(file_handler)
-    
-    logger.info(f"Counterbalancing Strategy Log")
-    logger.info(f"=" * 50)
+    file_handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(file_handler)
+
+    # Log the strategy
+    logger.info(f"Counterbalancing Assignment Strategy")
+    logger.info(f"====================================")
     logger.info(f"Random Seed: {seed}")
-    logger.info(f"Split Ratio: {split_ratio:.4f} (Low-High : High-Low)")
-    logger.info(f"Method: Seeded random shuffle (np.random.default_rng(seed))")
-    logger.info(f"Assignment File: data/processed/counterbalance_assignment.csv")
-    logger.info(f"=" * 50)
-    
-    # Remove the handler to avoid accumulation
-    logger.removeHandler(file_handler)
+    logger.info(f"Split Ratio: {split_ratio:.2f} (Low-High vs High-Low)")
+    logger.info(f"Method: Seeded random shuffle (numpy.random.default_rng)")
+    logger.info(f"Timestamp: {logging.Formatter().formatTime(logging.LogRecord('', 0, '', 0, '', (), None))}")
+    logger.info(f"====================================")
+    logger.info("")

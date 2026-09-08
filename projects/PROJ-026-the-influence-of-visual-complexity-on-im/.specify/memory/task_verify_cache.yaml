@@ -1,19 +1,20 @@
 T017a:
   c: false
-  h: 27ef0253e41ff38b80c44e3d634de3f971aae3e201be4e95348015c25f1eb57c
-  r: "The provided `process.py` is truncated and does not contain a complete implementation\
-    \ of the batch processing logic (e.g., it never creates a `status` column, nor\
-    \ does it write the required CSV). Moreover, the expected output file `data/processed/complexity_scores_raw.csv`\
-    \ is missing. The task\u2019s schema and status requirements are therefore not\
-    \ satisfied."
+  h: 7e1e183df78d29b2ab608c080446e2e530fd077c49a572bceb12c3443fcc153f
+  r: The provided `process.py` is truncated and never reaches the part that writes
+    `data/processed/complexity_scores_raw.csv`; the CSV file is absent from the repository.
+    Consequently the required output file with the specified columns and status logic
+    does not exist. The task needs a complete implementation that iterates the raw
+    stimuli, computes the three metrics, records each image (including skipped ones)
+    with the correct columns, and saves the result to the expected CSV path.
 T026b:
   c: false
-  h: d0dd91bb76fb34771e1f88ca519688aeaf64c3f6df9f5b81ee3a3cc436d8d6d3
-  r: "The required output file `data/processed/aggregated_d_scores.csv` does not exist,\
-    \ so the aggregation step is not completed. Additionally, the provided `code/data/process.py`\
-    \ is truncated and does not show any code that writes the CSV with the required\
-    \ columns or handles paired low/high sessions. The missing CSV and incomplete\
-    \ script mean the task\u2019s core requirement is unmet."
+  h: b13c7790d93788f4c2f108e8a81f73801e11540ed785edca6009fdaf2b5836a6
+  r: "The repository contains a `code/data/process.py` file, but it is truncated and\
+    \ shows no logic that writes the required `data/processed/aggregated_d_scores.csv`\
+    \ with the specified columns, nor any handling of paired Low/High sessions. Moreover,\
+    \ the CSV file itself is missing from the project. The task\u2019s core output\
+    \ is therefore not present."
 T027b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,6 +22,13 @@ T027b:
     \ content showing the required seed and split\u2011ratio values. The implementer\
     \ must create the log file and ensure it records the specific counterbalancing\
     \ assignment strategy, including those details."
+T032:
+  c: false
+  h: 98587b6678f0518931454b658d4e02e16e2640dbf0410cfe3d7a5cdbef9954f0
+  r: "The provided `code/analysis/pca.py` computes PCA and returns results, but it\
+    \ never writes `data/results/pca_variance.json` (the file is missing) and does\
+    \ not check that the cumulative variance exceeds\u202F0.8. The required output\
+    \ artifact and verification step are therefore absent."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,6 +44,22 @@ T034a:
     \ required output file `data/results/power_analysis.json` is missing entirely.\
     \ The task\u2019s specifications (using Cohen\u2019s d\u202F=\u202F0.5, \u03B1\
     \u202F=\u202F0.05, sample size N, and `TTestIndPower`) are not satisfied."
+T034b:
+  c: false
+  h: 8c6f7c939b905fc8cabe68e706872e8847ec406449da88a64b41a1cfb1fbcc74
+  r: "The repository lacks the required `data/results/permutation_results.json` and\
+    \ `data/results/power_analysis.json` files, and the `permutation.py` script does\
+    \ not read the observed Cohen\u2019s\u202Fd from a JSON file nor write the power\
+    \ analysis results to the specified output file. Consequently the post\u2011hoc\
+    \ power calculation is not fully implemented as described."
+T035b:
+  c: false
+  h: f8ebae39016741307fe35942cb672383661363bde90d2d9b0cf34143a1c28229
+  r: "The `permutation.py` file only contains generic permutation\u2011test utilities\
+    \ and does not implement any Leave\u2011One\u2011Image\u2011Out loop, nor does\
+    \ it write or append results to `data/results/sensitivity_results.json`. Moreover,\
+    \ the expected `sensitivity_results.json` file is absent from the repository.\
+    \ Both required artifacts are missing, so the task is not fulfilled."
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

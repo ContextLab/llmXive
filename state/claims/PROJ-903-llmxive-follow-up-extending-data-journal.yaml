@@ -250,3 +250,104 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T00:52:40Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Dataset sample size validation halts pipeline if n is less than 30
+  claim_id: c_fc8e433e
+  context: 'T005b [P] **CRITICAL**: Implement dataset sample size validation in `code/data/loader.py`
+    to detect if `n < 30`. If invalid, raise a specific `LowPowerError` and halt pipeline
+    execution immediately, logging the report per FR-006.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_sample_size_validation_halts_pipeline_if_n_is_less_t
+  kind: magnitude
+  raw_text: Implement dataset sample size validation in `code/data/loader.py` to detect
+    if `n < 30`. If invalid, raise a specific `LowPowerError` and halt pipeline execution
+    immediately.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:44:55Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Counterfactual validity requires p-value less than 0.05 and absolute
+    partial correlation greater than 0.15
+  claim_id: c_a4698646
+  context: 'Generate a JSON array of results. **Mandatory Schema**: Each object MUST
+    contain `threshold_config` (string), `claim` (string or \"NO_SIGNIFICANT_COUNTERFACTUAL\"),
+    `p_value` (float), and `partial_r` (float). Validity is strictly defined by `p_value
+    < 0.05` AND `|partial_r| > 0.15`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Counterfactual_validity_requires_p-value_less_than_0.05_and
+  kind: magnitude
+  raw_text: Validity is strictly defined by `p_value < 0.05` AND `|partial_r| > 0.15`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:45:57Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Validity status is verified if stability score is at least 0.8 and original
+    p-value is less than 0.05
+  claim_id: c_81d39217
+  context: 'T023b [US2] Implement logic to determine `validity_status`: \"verified\"
+    if `stability_score >= 0.8` AND `original_p < 0.05`; \"low_power\" if n < 30;
+    \"confounded\" if stability is low; \"failed\" otherwise.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validity_status_is_verified_if_stability_score_is_at_least_0
+  kind: magnitude
+  raw_text: A `validity_status` of \"verified\" is assigned if `stability_score >=
+    0.8` AND `original_p < 0.05`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:46:29Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Expert panel process halts if Kappa remains below 0.6 after 2 re-runs
+  claim_id: c_46ddcf5c
+  context: T032b [US3] Implement a simulation script `code/evaluation/simulate_expert_panel.py`
+    to generate \"expert scores\" for the blinded stories (satisfying Constitution
+    Principle VII and SC-001). Run `run_kappa_check.py` on the scores. If Kappa <
+    0.6, trigger `engage_4th_expert.py`, re-calculate. If Kappa < 0.6 after 2 re-runs,
+    halt with \"Kappa Failure\".
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Kappa < 0.6, trigger `engage_4th_expert.py`, re-calculate. If Kappa
+    < 0.6 after 2 re-runs, halt with \"Kappa Failure\".
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:46:29Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Computational feasibility requires runtime under 6 hours and RAM under
+    7 GB on GitHub Actions free-tier
+  claim_id: c_c8265e87
+  context: T036 Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub
+    Actions free-tier runner for the full batch
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub Actions
+    free-tier runner for the full batch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:46:29Z'

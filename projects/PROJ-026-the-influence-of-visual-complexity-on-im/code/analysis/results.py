@@ -1,217 +1,189 @@
+"""
+Results aggregation and serialization module.
+Handles saving permutation test results, sensitivity analyses, and LOIO results.
+"""
+
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
 import numpy as np
 import pandas as pd
 
-from config import get_project_root, get_data_path
-from .permutation import run_permutation_test, calculate_effect_size, run_sensitivity_analysis, calculate_power
+from config import get_project_root, ensure_directories, get_data_path
+from utils.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def save_json_results(data: Dict[str, Any], filepath: Path) -> None:
+
+def save_json_results(data: Dict[str, Any], output_path: Path) -> None:
     """
     Save a dictionary of results to a JSON file.
-    
+
     Args:
         data: Dictionary containing results to save.
-        filepath: Path to the output JSON file.
+        output_path: Path to the output JSON file.
     """
-    # Ensure parent directory exists
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    ensure_directories()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(filepath, 'w', encoding='utf-8') as f:
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, default=str)
     
-    logger.info(f"Results saved to {filepath}")
+    logger.info(f"Results saved to {output_path}")
+
 
 def aggregate_permutation_results(
-    d_scores_df: pd.DataFrame,
-    complexity_df: pd.DataFrame,
+    p_value: float,
+    effect_size: float,
+    partial_eta2: float,
+    observed_cohen_d: float,
     n_permutations: int = 10000,
-    seed: int = 42
+    n_samples: int = 0
 ) -> Dict[str, Any]:
     """
-    Run the permutation test and calculate effect sizes.
-    
-    Args:
-        d_scores_df: DataFrame with participant D-scores.
-        complexity_df: DataFrame with image complexity categories.
-        n_permutations: Number of permutations for the test.
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        Dictionary containing permutation test results and effect sizes.
-    """
-    # Merge data to get complexity category for each response
-    # Assuming d_scores_df has 'participant_id' and complexity_df links images to complexity
-    # We need to map the session/image to complexity. 
-    # For this implementation, we assume the d_scores_df already contains the complexity 
-    # condition (Low/High) derived from the session design or image mapping.
-    # If not, we would need to join with the stimuli processing results.
-    
-    # Check if complexity column exists, if not, we might need to join
-    if 'complexity_category' not in d_scores_df.columns:
-        # Attempt to join with complexity_df if it has participant/image mapping
-        # This is a simplified assumption: d_scores_df should have the condition
-        logger.warning("complexity_category not found in d_scores_df. "
-                     "Assuming it needs to be derived or joined.")
-        # In a full pipeline, we would perform the join here.
-        # For now, we assume the data is prepared correctly by T026/T033 dependencies.
-        raise ValueError("Input d_scores_df must contain 'complexity_category' or be joinable.")
+    Aggregate permutation test results into a standardized dictionary.
 
-    # Run permutation test
-    perm_result = run_permutation_test(
-        d_scores_df, 
-        'd_score', 
-        'complexity_category', 
-        n_permutations=n_permutations, 
-        seed=seed
-    )
-    
-    # Calculate effect size (Cohen's d)
-    effect_size = calculate_effect_size(
-        d_scores_df, 
-        'd_score', 
-        'complexity_category'
-    )
-    
-    # Calculate power
-    # We need sample size N and effect size
-    n_total = len(d_scores_df)
-    power_result = calculate_power(effect_size, alpha=0.05, n=n_total)
-    
+    Args:
+        p_value: Permutation p-value.
+        effect_size: Permutation effect size (Cohen's d).
+        partial_eta2: Partial eta-squared for compatibility.
+        observed_cohen_d: Observed Cohen's d value.
+        n_permutations: Number of permutations run.
+        n_samples: Total number of samples used.
+
+    Returns:
+        Dictionary with standardized result keys.
+    """
     return {
-        "permutation_test": {
-            "p_value": float(perm_result['p_value']),
-            "observed_statistic": float(perm_result['observed_statistic']),
-            "n_permutations": n_permutations,
-            "seed": seed
-        },
-        "effect_size": {
-            "cohen_d": float(effect_size['cohen_d']),
-            "interpretation": effect_size['interpretation']
-        },
-        "power_analysis": {
-            "power_value": float(power_result['power_value']),
-            "target": 0.8,
-            "status": "pass" if power_result['power_value'] >= 0.8 else "fail",
-            "sample_size": n_total
-        },
-        "metadata": {
-            "total_participants": n_total,
-            "timestamp": pd.Timestamp.now().isoformat()
-        }
+        "p_value": float(p_value),
+        "effect_size": float(effect_size),
+        "partial_eta2": float(partial_eta2),
+        "observed_cohen_d": float(observed_cohen_d),
+        "n_permutations": int(n_permutations),
+        "n_samples": int(n_samples),
+        "method": "Permutation Test",
+        "alpha": 0.05
     }
+
 
 def run_and_save_all_results(
-    d_scores_path: Optional[str] = None,
-    complexity_path: Optional[str] = None,
-    output_dir: Optional[str] = None,
-    n_permutations: int = 10000,
-    seed: int = 42
-) -> Dict[str, str]:
+    permutation_results: Dict[str, Any],
+    sensitivity_results: Dict[str, Any],
+    power_results: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Main function to load data, run analyses, and save all result files.
-    
+    Run all analysis components and save results to JSON files.
+
+    This function orchestrates the saving of:
+    1. Permutation test results (p_value, effect_size, etc.)
+    2. Sensitivity analysis results (threshold sweep and LOIO)
+    3. Power analysis results (if available)
+
     Args:
-        d_scores_path: Path to aggregated D-scores CSV.
-        complexity_path: Path to complexity scores CSV (if needed for join).
-        output_dir: Directory to save results.
-        n_permutations: Number of permutations.
-        seed: Random seed.
-        
-    Returns:
-        Dictionary mapping result types to file paths.
+        permutation_results: Results from the permutation test.
+        sensitivity_results: Results from sensitivity analyses.
+        power_results: Optional power analysis results.
     """
     project_root = get_project_root()
-    
-    # Default paths if not provided
-    if d_scores_path is None:
-        d_scores_path = str(project_root / "data" / "processed" / "aggregated_d_scores.csv")
-    if output_dir is None:
-        output_dir = str(project_root / "data" / "results")
-        
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Loading D-scores from {d_scores_path}")
-    if not Path(d_scores_path).exists():
-        raise FileNotFoundError(f"Data file not found: {d_scores_path}")
-        
-    d_scores_df = pd.read_csv(d_scores_path)
-    
-    # Filter out invalid trials/participants if marked
-    valid_df = d_scores_df[d_scores_df['status'] == 'valid'].copy()
-    
-    if len(valid_df) == 0:
-        raise ValueError("No valid participant data found to analyze.")
-    
-    logger.info(f"Running permutation test on {len(valid_df)} valid records...")
-    
-    # 1. Permutation Results
-    perm_results = aggregate_permutation_results(
-        valid_df, 
-        None, 
-        n_permutations=n_permutations, 
-        seed=seed
-    )
-    
-    perm_file = output_path / "permutation_results.json"
-    save_json_results(perm_results, perm_file)
-    
-    # 2. Sensitivity Analysis
-    logger.info("Running sensitivity analysis...")
-    sensitivity_results = run_sensitivity_analysis(
-        valid_df,
-        'd_score',
-        'complexity_category',
-        n_permutations=n_permutations,
-        seed=seed
-    )
-    
-    sens_file = output_path / "sensitivity_results.json"
-    save_json_results(sensitivity_results, sens_file)
-    
-    return {
-        "permutation_results": str(perm_file),
-        "sensitivity_results": str(sens_file)
-    }
+    results_dir = project_root / "data" / "results"
+    ensure_directories()
 
-def main():
-    """Entry point for CLI execution."""
-    import argparse
+    # Save permutation results
+    permutation_path = results_dir / "permutation_results.json"
+    save_json_results(permutation_results, permutation_path)
+
+    # Save sensitivity results
+    sensitivity_path = results_dir / "sensitivity_results.json"
+    save_json_results(sensitivity_results, sensitivity_path)
+
+    # Save power results if available
+    if power_results:
+        power_path = results_dir / "power_analysis.json"
+        save_json_results(power_results, power_path)
+
+    logger.info("All results saved successfully")
+
+
+def main() -> None:
+    """
+    Main entry point for T036: Save results to JSON files.
     
-    parser = argparse.ArgumentParser(description="Save analysis results to JSON.")
-    parser.add_argument("--d-scores", type=str, help="Path to aggregated D-scores CSV")
-    parser.add_argument("--n-permutations", type=int, default=10000, help="Number of permutations")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--output-dir", type=str, help="Output directory for results")
+    This function loads the computed results from the analysis modules,
+    aggregates them, and saves them to the required JSON files.
+    """
+    logger.info("Starting T036: Save results to JSON files")
     
-    args = parser.parse_args()
+    project_root = get_project_root()
+    results_dir = project_root / "data" / "results"
+    ensure_directories()
     
-    setup_logger = logging.getLogger(__name__)
-    setup_logger.setLevel(logging.INFO)
-    if not setup_logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        setup_logger.addHandler(handler)
+    # Load permutation results from T034
+    permutation_path = results_dir / "permutation_results.json"
+    if not permutation_path.exists():
+        logger.error(f"Permutation results file not found: {permutation_path}")
+        raise FileNotFoundError(f"Missing permutation results: {permutation_path}")
     
-    try:
-        results = run_and_save_all_results(
-            d_scores_path=args.d_scores,
-            n_permutations=args.n_permutations,
-            seed=args.seed,
-            output_dir=args.output_dir
-        )
-        print(f"Analysis complete. Results saved to:")
-        for k, v in results.items():
-            print(f"  {k}: {v}")
-    except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        raise
+    with open(permutation_path, 'r', encoding='utf-8') as f:
+        permutation_data = json.load(f)
+    
+    # Load power analysis results from T034b
+    power_path = results_dir / "power_analysis.json"
+    power_data = None
+    if power_path.exists():
+        with open(power_path, 'r', encoding='utf-8') as f:
+            power_data = json.load(f)
+        logger.info(f"Loaded power analysis results from {power_path}")
+    
+    # Load sensitivity results from T035a and T035b
+    sensitivity_path = results_dir / "sensitivity_results.json"
+    if not sensitivity_path.exists():
+        logger.error(f"Sensitivity results file not found: {sensitivity_path}")
+        raise FileNotFoundError(f"Missing sensitivity results: {sensitivity_path}")
+    
+    with open(sensitivity_path, 'r', encoding='utf-8') as f:
+        sensitivity_data = json.load(f)
+    
+    # Verify required keys in permutation results
+    required_perm_keys = ['p_value', 'effect_size', 'observed_cohen_d']
+    for key in required_perm_keys:
+        if key not in permutation_data:
+            logger.error(f"Missing required key in permutation results: {key}")
+            raise KeyError(f"Missing required key in permutation results: {key}")
+    
+    # Verify required keys in sensitivity results
+    required_sens_keys = ['sensitivity_sweep', 'loio_results']
+    for key in required_sens_keys:
+        if key not in sensitivity_data:
+            logger.error(f"Missing required key in sensitivity results: {key}")
+            raise KeyError(f"Missing required key in sensitivity results: {key}")
+    
+    # Aggregate and re-save results to ensure consistency
+    aggregated_permutation = {
+        "p_value": permutation_data['p_value'],
+        "effect_size": permutation_data['effect_size'],
+        "partial_eta2": permutation_data.get('partial_eta2', None),
+        "observed_cohen_d": permutation_data['observed_cohen_d'],
+        "n_permutations": permutation_data.get('n_permutations', 10000),
+        "n_samples": permutation_data.get('n_samples', 0),
+        "method": "Permutation Test",
+        "alpha": 0.05
+    }
+    
+    # Save final results
+    save_json_results(aggregated_permutation, permutation_path)
+    save_json_results(sensitivity_data, sensitivity_path)
+    
+    if power_data:
+        save_json_results(power_data, power_path)
+    
+    logger.info("T036 completed successfully: All results saved and verified")
+    logger.info(f"  - Permutation results: {permutation_path}")
+    logger.info(f"  - Sensitivity results: {sensitivity_path}")
+    if power_data:
+        logger.info(f"  - Power analysis: {power_path}")
+
 
 if __name__ == "__main__":
     main()

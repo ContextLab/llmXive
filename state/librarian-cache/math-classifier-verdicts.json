@@ -1855,6 +1855,10 @@
     "classified_at": "2026-07-10T01:11:42Z",
     "verdict": false
   },
+  "PROJ-959-llmxive-follow-up-extending-searchswarm::1.6.0": {
+    "classified_at": "2026-09-08T10:55:56Z",
+    "verdict": false
+  },
   "PROJ-960-llmxive-follow-up-extending-geometry-awa::1.6.0": {
     "classified_at": "2026-08-13T12:28:47Z",
     "verdict": false

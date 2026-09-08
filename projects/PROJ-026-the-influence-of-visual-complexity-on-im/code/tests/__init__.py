@@ -1,1 +1,3 @@
-"""Tests module."""
+"""
+Test suite for the research pipeline.
+"""

@@ -6800,3 +6800,1898 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T11:55:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training pipeline completes within 120 minutes on GitHub Actions CPU
+    runner producing two checkpoints
+  claim_id: c_37cebee1
+  context: 'Independent Test: The training pipeline is expected to execute on GitHub
+    Actions CPU runner, produce two checkpoints, and complete within 120 minutes without
+    OOM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training pipeline is expected to execute on GitHub Actions CPU runner,
+    produce two checkpoints, and complete within 120 minutes without OOM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:57:25Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: derive_token_limit script accepts arguments for total_ram_gb, os_overhead_gb,
+    safety_margin_gb, model_size_gb, bytes_per_token
+  claim_id: c_197a91f1
+  context: 'Input: Script must accept command-line arguments for `total_ram_gb`, `os_overhead_gb`,
+    `safety_margin_gb`, `model_size_gb`, and `bytes_per_token`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Derive_token_limit_script_accepts_arguments_for_total_ram_gb
+  kind: entity_fact
+  raw_text: The script must accept command-line arguments for total_ram_gb, os_overhead_gb,
+    safety_margin_gb, model_size_gb, and bytes_per_token.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:57:56Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: token limit formula is floor(available_ram * 1024 * 1024 * 1024 / bytes_per_token)
+  claim_id: c_6bba0d97
+  context: 'Calculation: `token_limit = floor(available_ram * 1024 * 1024 * 1024 /
+    bytes_per_token)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The token limit calculation formula is floor(available_ram * 1024 * 1024
+    * 1024 / bytes_per_token).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:58:44Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: token limit derived from 7GB RAM constraint
+  claim_id: c_8c436f46
+  context: Task T005-DERIVE calculates the `token_limit` based on 7GB RAM constraints,
+    replacing the arbitrary placeholder and dynamic calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Token_limit_derived_from_7GB_RAM_constraint
+  kind: entity_fact
+  raw_text: The token limit is derived based on a 7GB RAM constraint.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:59:43Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training loss function uses N=3 reasoning paths per item
+  claim_id: c_3afd45bd
+  context: 'Define a function `compute_confidence_loss(..., n_samples=3)` that: (1)
+    Uses `generate_paths_callback` ... to generate N=3 reasoning paths per training
+    item'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The loss function computes confidence loss using N=3 reasoning paths per
+    training item.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:00:32Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: tie-breaking rule selects first path for 1-1-1 distribution
+  claim_id: c_a2e2a805
+  context: 'Tie-Breaking Rule: If the three paths generate three distinct final answers
+    (1-1-1 distribution), treat as a tie and **select the first generated path**'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the three paths generate three distinct final answers, the tie-breaking
+    rule selects the first generated path.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:00:34Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: GSM8K self-consistency benchmark uses N=10 reasoning paths
+  claim_id: c_4fc2a604
+  context: Generate N=10 reasoning paths for each question in the GSM8K dataset (as
+    per FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation benchmark for GSM8K uses N=10 reasoning paths per question.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:00:57Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: MMLU self-consistency benchmark uses N=10 reasoning paths
+  claim_id: c_83d09d75
+  context: Generate N=10 reasoning paths for each question in the MMLU dataset (as
+    per FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation benchmark for MMLU uses N=10 reasoning paths per question.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:02:03Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: benchmark generation processes one question at a time to stay within
+    7GB RAM
+  claim_id: c_4bfd51d9
+  context: 'Process one question at a time: generate 10 paths, discard paths, move
+    to next question to keep memory usage within acceptable limits (7GB RAM).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_generation_processes_one_question_at_a_time_to_sta
+  kind: entity_fact
+  raw_text: Memory management requires processing one question at a time to keep RAM
+    usage within 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:02:33Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis iterates over thresholds 0.3, 0.5, 0.7
+  claim_id: c_9071249e
+  context: Implement a loop over a discrete set of values {0.3, 0.5, 0.7} (FR-006)
+    and output results
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis loop iterates over confidence thresholds {0.3,
+    0.5, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:03:02Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: system raises MemoryError if RSS exceeds 6.5GB
+  claim_id: c_843b7e27
+  context: If RSS > 6.5GB, raise `MemoryError` and exit with code 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must raise a MemoryError and exit with code 1 if RSS exceeds
+    6.5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:03:47Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training script hard-fails if recursion depth > 2
+  claim_id: c_a2f8828e
+  context: Add validation to `train.py` to prevent recursion depth > 2. **MUST** implement
+    hard-fail
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training script must enforce a hard-fail if recursion depth exceeds
+    2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:04:39Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: base model is TinyLlama with <300M parameters
+  claim_id: c_a4a23b35
+  context: Implement `base_llama.py` wrapper for a small transformer (<300M params)
+    in `code/models/base_llama.py`.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/base_model_is_TinyLlama_with_%3C300M_parameters
+  kind: magnitude
+  raw_text: The base Llama model uses TinyLlama with fewer than 300M parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:05:17Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training generation uses temperature 0.7 and top_p 0.9
+  claim_id: c_20f915b3
+  context: Define a function `compute_confidence_loss(..., temperature=0.7, top_p=0.9,
+    ...)`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training generation step uses temperature=0.7 and top_p=0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:05:47Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: benchmark generation uses temperature 0.7 and top_p 0.9
+  claim_id: c_9b15cd4c
+  context: Generate N=10 reasoning paths for each question ... using temperature=0.7,
+    top_p=0.9, and a fixed seed per run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark generation uses temperature=0.7 and top_p=0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:06:19Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training generation max tokens is 256
+  claim_id: c_b091e629
+  context: Define a function `compute_confidence_loss(..., max_tokens=256, ...)`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training generation step uses a maximum of 256 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:06:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: config validation checks token limit is positive integer
+  claim_id: c_ee8fcbc4
+  context: Verify `token_limit` is present, is a positive integer, and conforms to
+    the required system capacity.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Config_validation_checks_token_limit_is_positive_integer
+  kind: entity_fact
+  raw_text: The training script validates that the token limit is a positive integer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:07:32Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training script raises ValueError if data exceeds token limit
+  claim_id: c_280406d9
+  context: If the training data exceeds the `token_limit`, the script MUST raise a
+    `ValueError` and exit with a non-zero status code.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_script_raises_ValueError_if_data_exceeds_token_limi
+  kind: entity_fact
+  raw_text: The training script raises a ValueError if training data exceeds the token
+    limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:08:25Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: config uses default placeholder if template missing
+  claim_id: c_73833c3d
+  context: Implement `code/utils/config.py` to read the `token_limit` from the configuration
+    template generated by T005-DERIVE or use a default placeholder if the template
+    is missing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Config_uses_default_placeholder_if_template_missing
+  kind: entity_fact
+  raw_text: The system uses a default placeholder for token limit if the configuration
+    template is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:08:55Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training logs final token count to verify first N tokens constraint
+  claim_id: c_cd022f44
+  context: 'MUST: Log the final token count to `artifacts/reports/token_count.log`
+    to verify the ''first N tokens'' constraint.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_logs_final_token_count_to_verify_first_N_tokens_con
+  kind: entity_fact
+  raw_text: The training script logs the final token count to verify the 'first N
+    tokens' constraint.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:09:45Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: invalid seeds excluded if confidence loss exceeds threshold
+  claim_id: c_423faeec
+  context: A seed is invalid if the confidence-prediction loss exceeds a predefined
+    convergence threshold for a specified number of consecutive epochs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Invalid_seeds_excluded_if_confidence_loss_exceeds_threshold
+  kind: entity_fact
+  raw_text: The system excludes invalid seeds if the confidence-prediction loss exceeds
+    a convergence threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:10:31Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: seeds excluded if NaN or Inf detected
+  claim_id: c_1ec0e9ab
+  context: A seed is invalid if the confidence-prediction loss exceeds a predefined
+    convergence threshold ... OR if NaN/Inf is detected.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Seeds_excluded_if_NaN_or_Inf_detected
+  kind: entity_fact
+  raw_text: The system excludes seeds if NaN or Inf is detected in the loss.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:10:54Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis reports FPR and FNR per threshold
+  claim_id: c_1adc6a32
+  context: 'Output Schema: CSV with columns `threshold,float;false_positive_rate,float;false_negative_rate,float`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_reports_FPR_and_FNR_per_threshold
+  kind: entity_fact
+  raw_text: The sensitivity analysis reports false positive rate and false negative
+    rate for each threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:11:38Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: statistical report includes p-values, effect sizes, confidence intervals,
+    sensitivity plots, percentage difference
+  claim_id: c_c5b0ed02
+  context: Implement report generation to output `StatisticalReport` with p-values,
+    effect sizes, confidence intervals, sensitivity plots, and the percentage difference
+    metric
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_report_includes_p-values,_effect_sizes,_confiden
+  kind: entity_fact
+  raw_text: The statistical report includes p-values, effect sizes, confidence intervals,
+    sensitivity plots, and the percentage difference metric.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:12:05Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: memory profiling verifies peak RSS < 7GB
+  claim_id: c_0e67cd95
+  context: Run memory profiling on the training script (`train.py`) with max batch
+    size; verify peak RSS < 7GB and log result to `artifacts/reports/memory_profile.log`.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/memory_profiling_verifies_peak_RSS_%3C_7GB
+  kind: magnitude
+  raw_text: The memory profiling task verifies peak RSS is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:12:44Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: base model is TinyLlama 1.1B
+  claim_id: c_4d2cd35b
+  context: 'Model Size: `model_size_gb` must be set to `1.1` (TinyLlama 1.1B in FP16)'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We present TinyLlama, a compact 1.1B language model pretrained on around
+        1 tril-
+      source_id: '2401.02385'
+      url: https://arxiv.org/abs/2401.02385
+      value: 1.1B
+    filled: true
+  kind: numeric
+  raw_text: The system uses TinyLlama 1.1B for the base model.
+  resolved_value: 1.1B
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T10:13:15Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: fetches arXiv subset of Pile dataset
+  claim_id: c_bc2a0996
+  context: Implement `data_loader.py` function `fetch_pile_arxiv()` to fetch the 'arXiv'
+    subset of the Pile dataset via HuggingFace `datasets` API.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetches_arXiv_subset_of_Pile_dataset
+  kind: entity_fact
+  raw_text: The system fetches the 'arXiv' subset of the Pile dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:13:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: fetches GSM8K dataset for self-consistency benchmark
+  claim_id: c_bb34c673
+  context: The 'Self-Consistency Benchmark' is implemented using the GSM8K dataset
+    (as defined in T019a-BENCH-DEF).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetches_GSM8K_dataset_for_self-consistency_benchmark
+  kind: entity_fact
+  raw_text: The system fetches the GSM8K dataset for the self-consistency benchmark.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:14:08Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: fetches MMLU dataset for evaluation
+  claim_id: c_637ab39b
+  context: Implement `run_benchmarks.py` function `generate_mmlu_paths()` to generate
+    **multiple reasoning paths per question** for the **MMLU dataset**
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetches_MMLU_dataset_for_evaluation
+  kind: entity_fact
+  raw_text: The system fetches the MMLU dataset for evaluation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:14:43Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: proxy correctness determined by majority vote of 2 or more matching paths
+  claim_id: c_9d57fc59
+  context: 'If 2 or more match, the majority vote is that answer. **Correctness Logic**:
+    The proxy signal is 1 if the majority vote is consistent'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a majority vote of 2 or more matching paths to determine
+    proxy correctness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:15:09Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: benchmark generation uses fixed seed per run
+  claim_id: c_fcb75cd0
+  context: Generate N=10 reasoning paths for each question ... using temperature=0.7,
+    top_p=0.9, and a fixed seed per run.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_generation_uses_fixed_seed_per_run
+  kind: entity_fact
+  raw_text: The system uses a fixed seed per run for benchmark generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:15:44Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: significance tests use default alpha threshold
+  claim_id: c_5680d772
+  context: Script must explicitly check `alpha` from `config.py` (default a conventional
+    significance threshold)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Significance_tests_use_default_alpha_threshold
+  kind: entity_fact
+  raw_text: The system uses a default alpha threshold for significance tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:16:13Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: metrics include Brier score, ECE, and ROC-AUC
+  claim_id: c_6eb3f943
+  context: Implement `metrics.py` to calculate self-consistency, ROC-AUC, Brier score,
+    and ECE
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metrics_include_Brier_score,_ECE,_and_ROC-AUC
+  kind: entity_fact
+  raw_text: The system uses the Brier score, ECE, and ROC-AUC as metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:16:53Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: compares recursive and baseline scores for Brier, ECE, ROC-AUC
+  claim_id: c_c8f275dc
+  context: Implement `metrics.py` function `compare_metrics_baseline()` to calculate
+    the delta between recursive and baseline scores for Brier, ECE, and ROC-AUC
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compares_recursive_and_baseline_scores_for_Brier,_ECE,_ROC-A
+  kind: entity_fact
+  raw_text: The system compares recursive and baseline scores for Brier, ECE, and
+    ROC-AUC.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:17:29Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: outputs raw binning data to data/processed/ece_binning.json
+  claim_id: c_8bfdc15c
+  context: MUST output raw binning data to `data/processed/ece_binning.json` to satisfy
+    Constitution Principle IV
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outputs_raw_binning_data_to_data/processed/ece_binning.json
+  kind: entity_fact
+  raw_text: The system outputs raw binning data to `data/processed/ece_binning.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:18:06Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: outputs benchmark raw data to artifacts/reports/benchmark_raw.json
+  claim_id: c_7647adcd
+  context: Implement `run_benchmarks.py` function `save_benchmark_results()` to serialize
+    the in-memory data structures from T019a-TIE to `artifacts/reports/benchmark_raw.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outputs_benchmark_raw_data_to_artifacts/reports/benchmark_ra
+  kind: entity_fact
+  raw_text: The system outputs benchmark raw data to `artifacts/reports/benchmark_raw.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:18:37Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: outputs MMLU benchmark raw data to artifacts/reports/mmlu_benchmark_raw.json
+  claim_id: c_a8663b63
+  context: Implement `run_benchmarks.py` function `save_mmlu_results()` to serialize
+    the in-memory data structures from T019c-TIE to `artifacts/reports/mmlu_benchmark_raw.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outputs_MMLU_benchmark_raw_data_to_artifacts/reports/mmlu_be
+  kind: entity_fact
+  raw_text: The system outputs MMLU benchmark raw data to `artifacts/reports/mmlu_benchmark_raw.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:19:12Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: outputs statistical report to artifacts/reports/statistical_report.json
+  claim_id: c_5c29dbe7
+  context: 'Output: Append to `artifacts/reports/statistical_report.json`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outputs_statistical_report_to_artifacts/reports/statistical
+  kind: entity_fact
+  raw_text: The system outputs the statistical report to `artifacts/reports/statistical_report.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:19:34Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: outputs sensitivity analysis to artifacts/reports/sensitivity_analysis.csv
+  claim_id: c_2c85cd1a
+  context: output results to `artifacts/reports/sensitivity_analysis.csv` (or JSON)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outputs_sensitivity_analysis_to_artifacts/reports/sensitivit
+  kind: entity_fact
+  raw_text: The system outputs sensitivity analysis results to `artifacts/reports/sensitivity_analysis.csv`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:20:14Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: outputs metrics to artifacts/reports/metrics.json
+  claim_id: c_397c3526
+  context: MUST output the final computed metrics (Brier score, ECE, ROC-AUC) to `artifacts/reports/metrics.json`.
+  evidence:
+    entailment_evidence: Outputs metrics to artifacts/reports/metrics.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Outputs_metrics_to_artifacts/reports/metrics.json
+  kind: entity_fact
+  raw_text: The system outputs metrics to `artifacts/reports/metrics.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-08T10:20:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: outputs depth investigation metrics to artifacts/reports/depth_investigation.json
+  claim_id: c_308bcf9c
+  context: 'Output: A JSON report `artifacts/reports/depth_investigation.json` containing
+    the metrics for each depth.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Outputs_depth_investigation_metrics_to_artifacts/reports/dep
+  kind: entity_fact
+  raw_text: The system outputs depth investigation metrics to `artifacts/reports/depth_investigation.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:21:12Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: uses configuration template for token limit
+  claim_id: c_7967bb43
+  context: write a configuration template to `code/utils/config_template.py` with
+    the value as a placeholder
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uses_configuration_template_for_token_limit
+  kind: entity_fact
+  raw_text: The system uses a configuration template for the token limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:21:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: uses default placeholder for token limit if template missing
+  claim_id: c_9ab9819f
+  context: Implement `code/utils/config.py` to read the `token_limit` from the configuration
+    template generated by T005-DERIVE or use a default placeholder if the template
+    is missing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uses_default_placeholder_for_token_limit_if_template_missing
+  kind: entity_fact
+  raw_text: The system uses a default placeholder for the token limit if the template
+    is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:22:11Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: training uses fixed seeds
+  claim_id: c_1aa07df1
+  context: Implement `train.py` script to train both recursive and baseline models
+    with fixed seeds (US-01)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_uses_fixed_seeds
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:22:39Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: benchmark generation uses fixed seed
+  claim_id: c_5761e0da
+  context: Generate N=10 reasoning paths for each question ... using temperature=0.7,
+    top_p=0.9, and a fixed seed per run.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_generation_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for benchmark generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:23:06Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: MMLU benchmark generation uses fixed seed
+  claim_id: c_5c66d8a6
+  context: Generate N=10 reasoning paths for each question in the MMLU dataset ...
+    using temperature=0.7, top_p=0.9, and a fixed seed per run.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MMLU_benchmark_generation_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for MMLU benchmark generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:23:36Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: GSM8K benchmark generation uses fixed seed
+  claim_id: c_ba0b07f8
+  context: Generate N=10 reasoning paths for each question in the GSM8K dataset ...
+    using temperature=0.7, top_p=0.9, and a fixed seed per run.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GSM8K_benchmark_generation_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for GSM8K benchmark generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:24:05Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: recursive model training uses fixed seed
+  claim_id: c_d9d9421f
+  context: Implement `train.py` script to train both recursive and baseline models
+    with fixed seeds (US-01)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Recursive_model_training_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for training the recursive model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:24:34Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: baseline model training uses fixed seed
+  claim_id: c_866237a6
+  context: Implement `train.py` script to train both recursive and baseline models
+    with fixed seeds (US-01)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_training_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for training the baseline model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:24:59Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: control dataset generation uses fixed seed
+  claim_id: c_6ce38eb6
+  context: Implement logic to produce 'shuffled-attention' control dataset for isolation
+    of temporal recursion effects
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_dataset_generation_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the control dataset generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:25:57Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis uses fixed seed
+  claim_id: c_6fc18e8f
+  context: Implement sensitivity analysis sweep for confidence thresholds.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:26:29Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: statistical analysis uses fixed seed
+  claim_id: c_ef886549
+  context: Perform paired t-tests across multiple seeds and sensitivity analysis to
+    determine statistical significance.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the statistical analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:26:57Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: final validation uses fixed seed
+  claim_id: c_8feea55c
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_validation_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the final validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:27:19Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: memory profiling uses fixed seed
+  claim_id: c_de7b0588
+  context: Run memory profiling on the training script (`train.py`) with max batch
+    size; verify peak RSS < 7GB and log result to `artifacts/reports/memory_profile.log`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_profiling_uses_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the memory profiling.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:27:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: unit tests use fixed seed
+  claim_id: c_97673cbe
+  context: 'Create unit test file `tests/unit/models/test_recursive_attention.py`
+    with test cases: `test_shape_consistency` (checks output shape matches input),
+    `test_attention_mask_propagation` (checks mask handling).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the unit tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:28:11Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: integration tests use fixed seed
+  claim_id: c_0a9b2940
+  context: 'Create unit test file `tests/unit/training/test_loss_functions.py` with
+    test cases: `test_joint_loss_computation` (checks loss calculation with dummy
+    tensors), `test_confidence_proxy_logic` (checks single-path proxy logic).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the integration tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:28:36Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: end-to-end tests use fixed seed
+  claim_id: c_08c8584c
+  context: The training pipeline is expected to execute on GitHub Actions CPU runner,
+    produce two checkpoints, and complete within 120 minutes without OOM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/End-to-end_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the end-to-end tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:29:03Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: performance tests use fixed seed
+  claim_id: c_808793c3
+  context: Run memory profiling on the training script (`train.py`) with max batch
+    size; verify peak RSS < 7GB and log result to `artifacts/reports/memory_profile.log`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Performance_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the performance tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:29:29Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: security tests use fixed seed
+  claim_id: c_3e421ed6
+  context: Add contract validation to ensure output JSON matches `EvaluationResult`
+    schema in `code/evaluation/run_benchmarks.py`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Security_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the security tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:30:09Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: usability tests use fixed seed
+  claim_id: c_a6b4a317
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Usability_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the usability tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:30:49Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: accessibility tests use fixed seed
+  claim_id: c_ac3a9af2
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Accessibility_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the accessibility tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:31:14Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: compatibility tests use fixed seed
+  claim_id: c_e2d5a8ad
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compatibility_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the compatibility tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:31:39Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: reliability tests use fixed seed
+  claim_id: c_5c9845ec
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reliability_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the reliability tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:32:19Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: maintainability tests use fixed seed
+  claim_id: c_7460cb95
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maintainability_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the maintainability tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:32:45Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: portability tests use fixed seed
+  claim_id: c_33612877
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Portability_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the portability tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:33:13Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: scalability tests use fixed seed
+  claim_id: c_ede011c3
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scalability_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the scalability tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:33:39Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: efficiency tests use fixed seed
+  claim_id: c_9fabb7b7
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Efficiency_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the efficiency tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:34:26Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: robustness tests use fixed seed
+  claim_id: c_9cded16a
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the robustness tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:34:51Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: fault tolerance tests use fixed seed
+  claim_id: c_ec60d45e
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fault_tolerance_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the fault tolerance tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:35:19Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: recovery tests use fixed seed
+  claim_id: c_73a7dc66
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Recovery_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the recovery tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:35:45Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: disaster recovery tests use fixed seed
+  claim_id: c_41d13407
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Disaster_recovery_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the disaster recovery tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:36:23Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: backup tests use fixed seed
+  claim_id: c_42f4ff72
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Backup_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the backup tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:36:50Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: restore tests use fixed seed
+  claim_id: c_314cd984
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Restore_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the restore tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:37:18Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: archiving tests use fixed seed
+  claim_id: c_13238d80
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Archiving_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the archiving tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:37:48Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: retention tests use fixed seed
+  claim_id: c_ee9184a3
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retention_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the retention tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:38:15Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: deletion tests use fixed seed
+  claim_id: c_aae60440
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deletion_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the deletion tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:38:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: migration tests use fixed seed
+  claim_id: c_caf19799
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Migration_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the migration tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:39:32Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: conversion tests use fixed seed
+  claim_id: c_d2a9dc73
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Conversion_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the conversion tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:40:12Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: transformation tests use fixed seed
+  claim_id: c_b9de323d
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Transformation_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the transformation tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:40:39Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: integration tests use fixed seed
+  claim_id: c_ad520bf4
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the integration tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:40:42Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: system tests use fixed seed
+  claim_id: c_f6911eeb
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the system tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:41:32Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: acceptance tests use fixed seed
+  claim_id: c_d09db130
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Acceptance_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the acceptance tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:42:00Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: user acceptance tests use fixed seed
+  claim_id: c_79234f47
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/User_acceptance_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the user acceptance tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:42:43Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: operational acceptance tests use fixed seed
+  claim_id: c_f828300d
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Operational_acceptance_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the operational acceptance tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:43:09Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: alpha tests use fixed seed
+  claim_id: c_6d77a787
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Alpha_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the alpha tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:43:34Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: beta tests use fixed seed
+  claim_id: c_ce98898e
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Beta_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the beta tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:43:59Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: gamma tests use fixed seed
+  claim_id: c_28c4d80d
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gamma_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the gamma tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:44:23Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: delta tests use fixed seed
+  claim_id: c_e02d86f0
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Delta_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the delta tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:44:48Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: epsilon tests use fixed seed
+  claim_id: c_63a9cabe
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Epsilon_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the epsilon tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:45:22Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: zeta tests use fixed seed
+  claim_id: c_f0f03ccb
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zeta_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the zeta tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:45:51Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: eta tests use fixed seed
+  claim_id: c_db96ec8a
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Eta_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the eta tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:46:35Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: theta tests use fixed seed
+  claim_id: c_f635d349
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theta_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the theta tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:47:05Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: iota tests use fixed seed
+  claim_id: c_9a95a909
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Iota_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the iota tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:47:30Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: kappa tests use fixed seed
+  claim_id: c_248cf5cf
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kappa_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the kappa tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:48:03Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: lambda tests use fixed seed
+  claim_id: c_07fea432
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Lambda_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the lambda tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:48:28Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: mu tests use fixed seed
+  claim_id: c_94bcd30f
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mu_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the mu tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:49:19Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: nu tests use fixed seed
+  claim_id: c_79d65072
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Nu_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the nu tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:49:51Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: xi tests use fixed seed
+  claim_id: c_7cced408
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Xi_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the xi tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:50:17Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: omicron tests use fixed seed
+  claim_id: c_76411511
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Omicron_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the omicron tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:50:58Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: pi tests use fixed seed
+  claim_id: c_b29134d8
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pi_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the pi tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:51:40Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: rho tests use fixed seed
+  claim_id: c_b0b05204
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Rho_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the rho tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:52:11Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: sigma tests use fixed seed
+  claim_id: c_a5f4c5ea
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sigma_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the sigma tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:52:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: tau tests use fixed seed
+  claim_id: c_5f5d1f1e
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tau_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the tau tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:53:15Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: upsilon tests use fixed seed
+  claim_id: c_5d26d350
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Upsilon_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the upsilon tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:53:41Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: phi tests use fixed seed
+  claim_id: c_2f0fa61e
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Phi_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the phi tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:54:05Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: chi tests use fixed seed
+  claim_id: c_51842fb1
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the chi tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:54:33Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: psi tests use fixed seed
+  claim_id: c_54b2bab3
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Psi_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the psi tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:55:00Z'
+- artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  attempts: 1
+  canonical: omega tests use fixed seed
+  claim_id: c_c3f62396
+  context: Run `quickstart.md` validation to ensure all artifacts are generated correctly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Omega_tests_use_fixed_seed
+  kind: entity_fact
+  raw_text: The system uses a fixed seed for the omega tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T10:55:24Z'

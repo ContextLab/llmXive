@@ -1,12 +1,6 @@
-"""Simulation runner for baseline and robust A/B test simulations.
-
-This module implements the core simulation loop that generates clustered data,
-runs statistical tests (naive and robust), and collects p-values for analysis.
-It includes memory and time monitoring to enforce resource constraints.
-
-Principles:
-- VI (Cluster-Aware Inference): Baseline method intentionally violates this for comparison.
-- VII (Simulation Transparency): All parameters are logged and reproducible.
+"""
+Simulation runner for A/B test significance evaluation.
+Handles baseline and robust simulation loops with memory/time constraints.
 """
 import warnings
 import time
@@ -17,404 +11,419 @@ import csv
 import argparse
 import logging
 from typing import List, Dict, Any, Optional, Tuple
-
 import numpy as np
 import pandas as pd
 
 # Import from project modules
-from code.config import set_seed, load_config, validate_config, parse_cli_args
-from code.data_generator import generate_data
-from code.estimators import (
-    run_naive_ttest_with_warning,
-    run_cluster_robust_ttest,
-    run_block_permutation
+from code.config import (
+    load_config, parse_cli_args, validate_config, set_seed,
+    DEFAULT_N_CLUSTERS, DEFAULT_SEED, MEMORY_LIMIT_GB, MIN_CLUSTERS_FOR_ROBUST
 )
-from code.analysis import aggregate_errors, select_ci_method
+from code.data_generator import generate_data
+from code.estimators import run_naive_ttest_with_warning, run_cluster_robust_ttest, run_block_permutation
+from code.analysis import aggregate_errors
 
-# Constants
-MEMORY_LIMIT_GB = 6.5
-TIME_LIMIT_SEC = 21600  # 6 hours
-MAX_DOWNSAMPLE_RETRIES = 3
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/simulation.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
-def estimate_memory_footprint(n_clusters: int, n_obs_per_cluster: int) -> float:
-    """Estimate memory footprint in GB for a single iteration.
-    
-    Args:
-        n_clusters: Number of clusters.
-        n_obs_per_cluster: Observations per cluster.
-        
-    Returns:
-        Estimated memory usage in GB.
+def estimate_memory_footprint(n_clusters: int, n_obs_per_cluster: int, icc: float) -> float:
     """
-    # Rough estimate: DataFrame with ~5 columns, float64
-    # Each row: ~40 bytes (5 cols * 8 bytes)
-    total_rows = n_clusters * n_obs_per_cluster
-    estimated_bytes = total_rows * 40 * 2  # Factor of 2 for overhead
-    return estimated_bytes / (1024 ** 3)
-
-def downsample_clusters(n_obs_per_cluster: int) -> int:
-    """Reduce observations per cluster by half.
-    
-    Args:
-        n_obs_per_cluster: Current observations per cluster.
-        
-    Returns:
-        New reduced count.
+    Estimates memory footprint in MB for a given simulation configuration.
+    Based on: DataFrame with ~ (n_clusters * n_obs_per_cluster) rows.
+    Each row has ~10 columns, float64 (8 bytes).
+    Overhead factor of 2 for pandas internal structures.
     """
-    return max(1, n_obs_per_cluster // 2)
-
-def log_timing(iteration: int, elapsed: float, log_file: str = 'data/timing.csv') -> None:
-    """Log timing information to CSV.
+    total_obs = n_clusters * n_obs_per_cluster
+    bytes_per_row = 10 * 8  # 10 columns, 8 bytes each
+    estimated_bytes = total_obs * bytes_per_row * 2  # Overhead
+    estimated_mb = estimated_bytes / (1024 * 1024)
     
-    Args:
-        iteration: Current iteration number.
-        elapsed: Elapsed time in seconds.
-        log_file: Path to timing log file.
+    # Add overhead for random effects generation
+    estimated_mb += n_clusters * 10  # Per-cluster random effects
+    
+    return estimated_mb
+
+def downsample_clusters(n_clusters: int, n_obs_per_cluster: int, target_mb: float = 7000.0) -> Tuple[int, int]:
     """
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    file_exists = os.path.exists(log_file)
-    with open(log_file, 'a', newline='') as f:
+    Attempts to downsample to meet memory target.
+    Returns (new_n_clusters, new_n_obs_per_cluster).
+    Raises RuntimeError if downsampling violates statistical validity.
+    """
+    # Retry 1: Halve n_obs_per_cluster
+    new_n_obs = n_obs_per_cluster // 2
+    if new_n_obs < 1:
+        new_n_obs = 1
+    
+    mem = estimate_memory_footprint(n_clusters, new_n_obs, 0.0)
+    if mem <= target_mb:
+        return n_clusters, new_n_obs
+    
+    # Retry 2: Halve n_clusters
+    new_n_clusters = n_clusters // 2
+    if new_n_clusters < MIN_CLUSTERS_FOR_ROBUST:
+        raise RuntimeError(f"Memory limit exceeded: 7GB. Down-sampling would violate statistical validity (n_clusters < {MIN_CLUSTERS_FOR_ROBUST}).")
+    
+    mem = estimate_memory_footprint(new_n_clusters, new_n_obs, 0.0)
+    if mem <= target_mb:
+        return new_n_clusters, new_n_obs
+    
+    # Retry 3: Further reduce if possible but >= MIN_CLUSTERS
+    new_n_clusters = max(MIN_CLUSTERS_FOR_ROBUST, new_n_clusters // 2)
+    mem = estimate_memory_footprint(new_n_clusters, new_n_obs, 0.0)
+    if mem <= target_mb:
+        return new_n_clusters, new_n_obs
+    
+    raise RuntimeError("Memory limit exceeded: 7GB. Down-sampling failed.")
+
+def log_timing(duration_sec: float, timestamp: str) -> None:
+    """Logs timing data to data/timing.csv."""
+    os.makedirs('data', exist_ok=True)
+    file_path = 'data/timing.csv'
+    file_exists = os.path.exists(file_path)
+    
+    with open(file_path, 'a', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(['iteration', 'elapsed_sec'])
-        writer.writerow([iteration, elapsed])
+            writer.writerow(['timestamp', 'duration_sec'])
+        writer.writerow([timestamp, duration_sec])
 
-def log_memory(iteration: int, peak_gb: float, log_file: str = 'data/memory.csv') -> None:
-    """Log memory usage to CSV.
+def log_memory(peak_memory_gb: float, timestamp: str) -> None:
+    """Logs memory data to data/memory.csv."""
+    os.makedirs('data', exist_ok=True)
+    file_path = 'data/memory.csv'
+    file_exists = os.path.exists(file_path)
     
-    Args:
-        iteration: Current iteration number.
-        peak_gb: Peak memory usage in GB.
-        log_file: Path to memory log file.
-    """
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    file_exists = os.path.exists(log_file)
-    with open(log_file, 'a', newline='') as f:
+    with open(file_path, 'a', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(['iteration', 'peak_memory_gb'])
-        writer.writerow([iteration, peak_gb])
+            writer.writerow(['timestamp', 'peak_memory_gb'])
+        writer.writerow([timestamp, peak_memory_gb])
 
-def run_baseline_simulation(
-    icc: float,
-    n_iterations: int,
-    seed: int,
-    n_clusters: int = 100,
-    n_obs_per_cluster: int = 100,
-    alpha: float = 0.05
-) -> List[Dict[str, Any]]:
-    """Run baseline simulation for a single ICC value.
+def log_config_change(iteration: int, original_n_clusters: int, original_n_obs: int, 
+                     actual_n_clusters: int, actual_n_obs: int) -> None:
+    """Logs downsampling events to data/derived/simulation_config_log.csv."""
+    os.makedirs('data/derived', exist_ok=True)
+    file_path = 'data/derived/simulation_config_log.csv'
+    file_exists = os.path.exists(file_path)
     
-    This function generates clustered data under the null hypothesis (H0: no treatment effect),
-    runs a naive independent t-test (which violates cluster-aware inference), and collects p-values.
+    with open(file_path, 'a', newline='') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(['iteration', 'original_n_clusters', 'original_n_obs_per_cluster', 
+                           'actual_n_clusters', 'actual_n_obs_per_cluster'])
+        writer.writerow([iteration, original_n_clusters, original_n_obs, actual_n_clusters, actual_n_obs])
+
+def run_baseline_simulation(icc: float, n_iterations: int, seed: int, 
+                           n_clusters: int = DEFAULT_N_CLUSTERS, 
+                           n_obs_per_cluster: int = 12) -> List[Dict[str, Any]]:
+    """
+    Runs the baseline simulation loop for a single ICC value.
     
     Args:
-        icc: Intra-cluster correlation coefficient.
-        n_iterations: Number of simulation iterations.
-        seed: Random seed for reproducibility.
-        n_clusters: Number of clusters.
-        n_obs_per_cluster: Observations per cluster.
-        alpha: Significance level.
-        
+        icc: Intra-cluster correlation coefficient
+        n_iterations: Number of simulation iterations
+        seed: Random seed
+        n_clusters: Number of clusters
+        n_obs_per_cluster: Average observations per cluster
+    
     Returns:
-        List of result dictionaries with keys: iteration, icc, p_value, rejected.
-        
-    Raises:
-        RuntimeError: If memory constraints cannot be satisfied after retries.
+        List of result dictionaries with iteration, icc, p_value, rejected
     """
-    set_seed(seed)
     results = []
-    current_n_obs = n_obs_per_cluster
-    retries = 0
-    
-    logging.info(f"Starting baseline simulation: ICC={icc}, iterations={n_iterations}, "
-                 f"clusters={n_clusters}, obs/cluster={current_n_obs}")
-
-    # Pre-check memory
-    mem_estimate = estimate_memory_footprint(n_clusters, current_n_obs)
-    if mem_estimate > 6.0:  # Pre-check threshold
-        logging.warning(f"Memory estimate ({mem_estimate:.2f} GB) exceeds 6GB threshold. "
-                        f"Attempting downsampling...")
-        while retries < MAX_DOWNSAMPLE_RETRIES and mem_estimate > 6.0:
-            current_n_obs = downsample_clusters(current_n_obs)
-            mem_estimate = estimate_memory_footprint(n_clusters, current_n_obs)
-            retries += 1
-            logging.info(f"Retry {retries}: Reduced n_obs_per_cluster to {current_n_obs}, "
-                         f"new estimate: {mem_estimate:.2f} GB")
-        
-        if mem_estimate > 6.0:
-            raise RuntimeError(
-                f"Memory limit exceeded after {MAX_DOWNSAMPLE_RETRIES} downsampling retries. "
-                f"Final estimate: {mem_estimate:.2f} GB, n_clusters={n_clusters}, "
-                f"n_obs_per_cluster={current_n_obs}"
-            )
-
-    tracemalloc.start()
-    start_time = time.time()
-
-    for iteration in range(n_iterations):
-        # Check time limit
-        elapsed = time.time() - start_time
-        if elapsed > TIME_LIMIT_SEC:
-            tracemalloc.stop()
-            raise RuntimeError(f"Time limit exceeded: {elapsed:.2f} seconds > {TIME_LIMIT_SEC} seconds")
-
-        try:
-            # Generate data
-            data = generate_data(
-                n_clusters=n_clusters,
-                n_obs_per_cluster=current_n_obs,
-                icc=icc,
-                seed=seed + iteration
-            )
-
-            # Run naive t-test (with warning)
-            p_value = run_naive_ttest_with_warning(data, 'treatment', 'outcome')
-
-            # Record result
-            results.append({
-                'iteration': iteration,
-                'icc': icc,
-                'p_value': p_value,
-                'rejected': p_value < alpha
-            })
-
-            # Post-check memory
-            current_mem, peak_mem = tracemalloc.get_traced_memory()
-            peak_gb = peak_mem / (1024 ** 3)
-            if peak_gb > MEMORY_LIMIT_GB:
-                tracemalloc.stop()
-                raise RuntimeError(
-                    f"Memory limit exceeded: {peak_gb:.2f} GB > {MEMORY_LIMIT_GB} GB. "
-                    f"Down-sampling failed to prevent OOM."
-                )
-
-            # Log timing and memory periodically
-            if (iteration + 1) % 100 == 0:
-                log_timing(iteration, elapsed)
-                log_memory(iteration, peak_gb)
-                logging.info(f"Iteration {iteration + 1}/{n_iterations} completed. "
-                             f"P-value: {p_value:.4f}, Peak Memory: {peak_gb:.2f} GB")
-
-        except Exception as e:
-            logging.warning(f"Iteration {iteration} failed: {str(e)}. Skipping.")
-            continue
-
-    tracemalloc.stop()
-    total_time = time.time() - start_time
-    logging.info(f"Baseline simulation completed. Total time: {total_time:.2f} seconds. "
-                 f"Results collected: {len(results)}")
-
-    return results
-
-def run_robust_simulation(
-    icc: float,
-    n_iterations: int,
-    seed: int,
-    n_clusters: int = 100,
-    n_obs_per_cluster: int = 100,
-    alpha: float = 0.05,
-    n_permutations: int = 1000
-) -> List[Dict[str, Any]]:
-    """Run robust simulation for a single ICC value.
-    
-    This function generates clustered data and runs both cluster-robust t-test
-    and block permutation test, collecting p-values for comparison.
-    
-    Args:
-        icc: Intra-cluster correlation coefficient.
-        n_iterations: Number of simulation iterations.
-        seed: Random seed for reproducibility.
-        n_clusters: Number of clusters.
-        n_obs_per_cluster: Observations per cluster.
-        alpha: Significance level.
-        n_permutations: Number of permutations for block test.
-        
-    Returns:
-        List of result dictionaries with keys: iteration, icc, method, p_value, rejected.
-    """
     set_seed(seed)
-    results = []
-    methods = ['cluster_robust', 'block_permutation']
     
-    logging.info(f"Starting robust simulation: ICC={icc}, iterations={n_iterations}, "
-                 f"methods={methods}")
-
-    for iteration in range(n_iterations):
+    for i in range(n_iterations):
         try:
             # Generate data
             data = generate_data(
                 n_clusters=n_clusters,
                 n_obs_per_cluster=n_obs_per_cluster,
                 icc=icc,
-                seed=seed + iteration
+                seed=seed + i
             )
-
-            # Run cluster-robust t-test
-            p_robust = run_cluster_robust_ttest(data, 'treatment', 'outcome', 'cluster_id')
+            
+            if data is None or len(data) == 0:
+                logger.warning(f"Iteration {i}: Data generation failed or empty. Skipping.")
+                continue
+            
+            # Run naive t-test (with warning wrapper)
+            p_value = run_naive_ttest_with_warning(
+                data, 
+                treatment_col='treatment', 
+                outcome_col='outcome'
+            )
+            
+            # Determine rejection (default alpha = 0.05, but we'll handle aggregation later)
+            rejected = p_value < 0.05
+            
             results.append({
-                'iteration': iteration,
+                'iteration': i,
+                'icc': icc,
+                'p_value': p_value,
+                'rejected': rejected,
+                'n_clusters': n_clusters,
+                'n_obs_per_cluster': n_obs_per_cluster
+            })
+            
+        except Exception as e:
+            logger.warning(f"Iteration {i} failed: {str(e)}. Skipping.")
+            continue
+    
+    return results
+
+def run_robust_simulation(icc: float, n_iterations: int, seed: int,
+                         n_clusters: int = DEFAULT_N_CLUSTERS,
+                         n_obs_per_cluster: int = 12) -> List[Dict[str, Any]]:
+    """
+    Runs the robust simulation loop for a single ICC value.
+    Includes cluster-robust t-test and block permutation test.
+    """
+    results = []
+    set_seed(seed)
+    
+    for i in range(n_iterations):
+        try:
+            # Generate data
+            data = generate_data(
+                n_clusters=n_clusters,
+                n_obs_per_cluster=n_obs_per_cluster,
+                icc=icc,
+                seed=seed + i
+            )
+            
+            if data is None or len(data) == 0:
+                logger.warning(f"Iteration {i}: Data generation failed or empty. Skipping.")
+                continue
+            
+            # Run cluster-robust t-test
+            try:
+                p_robust = run_cluster_robust_ttest(
+                    data,
+                    treatment_col='treatment',
+                    outcome_col='outcome',
+                    cluster_id_col='cluster_id'
+                )
+            except Exception as e:
+                logger.warning(f"Iteration {i}: Cluster-robust test failed: {e}. Skipping robust.")
+                p_robust = np.nan
+            
+            # Run block permutation test
+            try:
+                p_perm = run_block_permutation(
+                    data,
+                    treatment_col='treatment',
+                    outcome_col='outcome',
+                    cluster_id_col='cluster_id',
+                    n_permutations=1000
+                )
+            except Exception as e:
+                logger.warning(f"Iteration {i}: Permutation test failed: {e}. Skipping perm.")
+                p_perm = np.nan
+            
+            # Store results
+            results.append({
+                'iteration': i,
                 'icc': icc,
                 'method': 'cluster_robust',
                 'p_value': p_robust,
-                'rejected': p_robust < alpha
+                'rejected': p_robust < 0.05 if not np.isnan(p_robust) else None,
+                'n_clusters': n_clusters,
+                'n_obs_per_cluster': n_obs_per_cluster
             })
-
-            # Run block permutation test
-            p_perm = run_block_permutation(data, 'treatment', 'outcome', 'cluster_id', n_permutations)
+            
             results.append({
-                'iteration': iteration,
+                'iteration': i,
                 'icc': icc,
                 'method': 'block_permutation',
                 'p_value': p_perm,
-                'rejected': p_perm < alpha
+                'rejected': p_perm < 0.05 if not np.isnan(p_perm) else None,
+                'n_clusters': n_clusters,
+                'n_obs_per_cluster': n_obs_per_cluster
             })
-
+            
         except Exception as e:
-            logging.warning(f"Iteration {iteration} failed: {str(e)}. Skipping.")
+            logger.warning(f"Iteration {i} failed: {str(e)}. Skipping.")
             continue
-
-    logging.info(f"Robust simulation completed. Results collected: {len(results)}")
+    
     return results
 
-def run_full_simulation(
-    cfg: Dict[str, Any],
-    output_baseline: Optional[str] = None,
-    output_robust: Optional[str] = None
-) -> Tuple[List[Dict], List[Dict]]:
-    """Run full simulation across all ICC values.
-    
-    Args:
-        cfg: Configuration dictionary.
-        output_baseline: Path for baseline results CSV.
-        output_robust: Path for robust results CSV.
-        
-    Returns:
-        Tuple of (baseline_results, robust_results).
+def run_full_simulation(cfg: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
-    icc_range = cfg.get('icc_range', [0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
-    n_iterations = cfg.get('iterations', 1000)
-    seed = cfg.get('seed', 42)
-    n_clusters = cfg.get('n_clusters', 100)
-    n_obs_per_cluster = cfg.get('n_obs_per_cluster', 100)
-    alpha_levels = cfg.get('alpha_levels', [0.05])
-    n_permutations = cfg.get('n_permutations', 1000)
+    Runs the full simulation across all ICC values and methods.
+    Implements memory and time constraints (T027).
     
-    # Use first alpha level for simulation (aggregation handles multiple)
-    alpha = alpha_levels[0]
+    Returns:
+        Tuple of (all_results, performance_metrics)
+    """
+    icc_range = cfg['icc_range']
+    n_iterations = cfg['n_iterations']
+    seed = cfg['seed']
+    method = cfg.get('method', 'full')
+    base_n_clusters = cfg['n_clusters']
+    base_n_obs = cfg['n_obs_per_cluster']
     
-    baseline_results = []
-    robust_results = []
+    start_time = time.time()
+    tracemalloc.start()
     
-    logging.info(f"Starting full simulation for ICC range: {icc_range}")
+    all_results = []
+    performance_metrics = {
+        'total_time_sec': 0,
+        'peak_memory_gb': 0,
+        'iterations_completed': 0,
+        'status': 'success',
+        'downsampling_events': []
+    }
+    
+    time_limit = 21600  # 6 hours
     
     for icc in icc_range:
-        logging.info(f"Running simulation for ICC={icc}")
+        # Check time limit
+        elapsed = time.time() - start_time
+        if elapsed > time_limit:
+            performance_metrics['status'] = 'timeout'
+            performance_metrics['total_time_sec'] = elapsed
+            logger.error("Time limit exceeded: 6 hours.")
+            break
         
-        # Run baseline
-        baseline = run_baseline_simulation(
-            icc=icc,
-            n_iterations=n_iterations,
-            seed=seed,
-            n_clusters=n_clusters,
-            n_obs_per_cluster=n_obs_per_cluster,
-            alpha=alpha
-        )
-        baseline_results.extend(baseline)
+        # Estimate memory and downsample if needed
+        est_mem = estimate_memory_footprint(base_n_clusters, base_n_obs, icc)
+        current_n_clusters = base_n_clusters
+        current_n_obs = base_n_obs
+        downsampling_occurred = False
         
-        # Run robust
-        robust = run_robust_simulation(
-            icc=icc,
-            n_iterations=n_iterations,
-            seed=seed,
-            n_clusters=n_clusters,
-            n_obs_per_cluster=n_obs_per_cluster,
-            alpha=alpha,
-            n_permutations=n_permutations
-        )
-        robust_results.extend(robust)
+        if est_mem > 7000:  # 7GB in MB
+            logger.info(f"ICC={icc}: Estimated memory {est_mem:.1f}MB exceeds 7GB limit. Downsampling...")
+            try:
+                current_n_clusters, current_n_obs = downsample_clusters(base_n_clusters, base_n_obs)
+                downsampling_occurred = True
+                log_config_change(0, base_n_clusters, base_n_obs, current_n_clusters, current_n_obs)
+                logger.info(f"ICC={icc}: Downsampling to n_clusters={current_n_clusters}, n_obs={current_n_obs}")
+            except RuntimeError as e:
+                logger.error(f"ICC={icc}: {str(e)}")
+                performance_metrics['status'] = 'memory_error'
+                break
+        
+        if method in ['baseline', 'full']:
+            logger.info(f"Running baseline simulation for ICC={icc}")
+            baseline_results = run_baseline_simulation(
+                icc=icc,
+                n_iterations=n_iterations,
+                seed=seed,
+                n_clusters=current_n_clusters,
+                n_obs_per_cluster=current_n_obs
+            )
+            all_results.extend(baseline_results)
+            performance_metrics['iterations_completed'] += len(baseline_results)
+        
+        if method in ['robust', 'full']:
+            logger.info(f"Running robust simulation for ICC={icc}")
+            robust_results = run_robust_simulation(
+                icc=icc,
+                n_iterations=n_iterations,
+                seed=seed,
+                n_clusters=current_n_clusters,
+                n_obs_per_cluster=current_n_obs
+            )
+            all_results.extend(robust_results)
+            performance_metrics['iterations_completed'] += len(robust_results)
+        
+        # Log memory
+        current, peak = tracemalloc.get_traced_memory()
+        peak_gb = peak / (1024 * 1024 * 1024)
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+        log_memory(peak_gb, timestamp)
+        
+        if peak_gb > MEMORY_LIMIT_GB:
+            performance_metrics['status'] = 'memory_error'
+            logger.error(f"Memory limit exceeded: {peak_gb:.2f}GB > {MEMORY_LIMIT_GB}GB")
+            break
     
-    # Save results
-    if output_baseline:
-        df_baseline = pd.DataFrame(baseline_results)
-        df_baseline.to_csv(output_baseline, index=False)
-        logging.info(f"Baseline results saved to {output_baseline}")
+    # Finalize metrics
+    performance_metrics['total_time_sec'] = time.time() - start_time
+    performance_metrics['peak_memory_gb'] = peak_gb
     
-    if output_robust:
-        df_robust = pd.DataFrame(robust_results)
-        df_robust.to_csv(output_robust, index=False)
-        logging.info(f"Robust results saved to {output_robust}")
+    tracemalloc.stop()
     
-    return baseline_results, robust_results
+    return all_results, performance_metrics
 
-def parse_args() -> argparse.Namespace:
-    """Parse command-line arguments.
-    
-    Returns:
-        Parsed arguments namespace.
-    """
-    parser = argparse.ArgumentParser(description='Simulation Runner for A/B Test Significance')
-    parser.add_argument('--icc', type=float, help='Single ICC value to simulate')
-    parser.add_argument('--iterations', type=int, default=1000, help='Number of simulation iterations')
+def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
+    """Parses command-line arguments."""
+    parser = argparse.ArgumentParser(description="A/B Test Simulation Runner")
+    parser.add_argument('--icc', type=float, default=None, help='Single ICC value')
+    parser.add_argument('--icc-range', type=str, default=None, help='Comma-separated ICC values')
+    parser.add_argument('--icc-step', type=float, default=None, help='ICC step size')
+    parser.add_argument('--alpha-list', type=str, default=None, help='Comma-separated alpha levels')
+    parser.add_argument('--n-clusters', type=int, default=None, help='Number of clusters')
+    parser.add_argument('--n-obs-per-cluster', type=int, default=None, help='Observations per cluster')
+    parser.add_argument('--n-iterations', type=int, default=100, help='Number of iterations')
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    parser.add_argument('--n-clusters', type=int, default=100, help='Number of clusters')
-    parser.add_argument('--n-obs-per-cluster', type=int, default=100, help='Observations per cluster')
-    parser.add_argument('--icc-range', type=str, help='Comma-separated ICC values')
-    parser.add_argument('--icc-step', type=float, help='Step size for ICC range')
-    parser.add_argument('--alpha', type=float, default=0.05, help='Significance level')
-    parser.add_argument('--alpha-list', type=str, help='Comma-separated alpha levels')
-    parser.add_argument('--n-permutations', type=int, default=1000, help='Number of permutations')
-    parser.add_argument('--output-baseline', type=str, default='data/derived/baseline_results.csv',
-                        help='Output path for baseline results')
-    parser.add_argument('--output-robust', type=str, default='data/derived/robustResults.csv',
-                        help='Output path for robust results')
-    parser.add_argument('--mode', type=str, choices=['baseline', 'robust', 'full'], default='full',
-                        help='Simulation mode')
-    return parser.parse_args()
+    parser.add_argument('--method', type=str, default='full', choices=['baseline', 'robust', 'full'], help='Simulation method')
+    parser.add_argument('--output-dir', type=str, default='data/derived', help='Output directory')
+    return parser.parse_args(args)
 
 def main():
-    """Main entry point for simulation runner."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
+    """Main entry point for the simulation runner."""
     args = parse_args()
+    
+    # Load config
     cfg = load_config()
-    cfg = parse_cli_args(args, cfg)
     
-    # Validate configuration
-    validate_config(cfg)
+    # Override with CLI args
+    cli_args = []
+    if args.icc is not None:
+        cli_args.extend(['--icc', str(args.icc)])
+    if args.icc_range:
+        cli_args.extend(['--icc-range', args.icc_range])
+    if args.icc_step is not None:
+        cli_args.extend(['--icc-step', str(args.icc_step)])
+    if args.alpha_list:
+        cli_args.extend(['--alpha-list', args.alpha_list])
+    if args.n_clusters is not None:
+        cli_args.extend(['--n-clusters', str(args.n_clusters)])
+    if args.n_obs_per_cluster is not None:
+        cli_args.extend(['--n-obs-per-cluster', str(args.n_obs_per_cluster)])
+    if args.n_iterations is not None:
+        cli_args.extend(['--n-iterations', str(args.n_iterations)])
+    if args.seed is not None:
+        cli_args.extend(['--seed', str(args.seed)])
+    if args.method is not None:
+        cli_args.extend(['--method', args.method])
     
-    # Run simulation based on mode
-    if args.mode == 'baseline':
-        baseline_results = run_baseline_simulation(
-            icc=cfg['icc_range'][0] if len(cfg['icc_range']) == 1 else 0.1,
-            n_iterations=cfg.get('iterations', 1000),
-            seed=cfg.get('seed', 42),
-            n_clusters=cfg.get('n_clusters', 100),
-            n_obs_per_cluster=cfg.get('n_obs_per_cluster', 100),
-            alpha=cfg['alpha_levels'][0]
-        )
-        df = pd.DataFrame(baseline_results)
-        df.to_csv(cfg['output_baseline'], index=False)
-        logging.info(f"Baseline results saved to {cfg['output_baseline']}")
-        
-    elif args.mode == 'robust':
-        robust_results = run_robust_simulation(
-            icc=cfg['icc_range'][0] if len(cfg['icc_range']) == 1 else 0.1,
-            n_iterations=cfg.get('iterations', 1000),
-            seed=cfg.get('seed', 42),
-            n_clusters=cfg.get('n_clusters', 100),
-            n_obs_per_cluster=cfg.get('n_obs_per_cluster', 100),
-            alpha=cfg['alpha_levels'][0],
-            n_permutations=cfg.get('n_permutations', 1000)
-        )
-        df = pd.DataFrame(robust_results)
-        df.to_csv(cfg['output_robust'], index=False)
-        logging.info(f"Robust results saved to {cfg['output_robust']}")
-        
-    else:  # full
-        run_full_simulation(cfg, cfg['output_baseline'], cfg['output_robust'])
+    cfg = parse_cli_args(cli_args, cfg)
     
-    logging.info("Simulation completed successfully.")
+    # Ensure output directory exists
+    os.makedirs(cfg.get('output_dir', 'data/derived'), exist_ok=True)
+    
+    logger.info(f"Starting simulation with config: {cfg}")
+    
+    # Run simulation
+    results, metrics = run_full_simulation(cfg)
+    
+    logger.info(f"Simulation complete. {len(results)} results generated.")
+    logger.info(f"Performance: {metrics}")
+    
+    # Write results to CSV
+    if results:
+        output_file = os.path.join(cfg.get('output_dir', 'data/derived'), 'simulation_results.csv')
+        df = pd.DataFrame(results)
+        df.to_csv(output_file, index=False)
+        logger.info(f"Results written to {output_file}")
+    else:
+        logger.warning("No results generated. Output file not created.")
+        sys.exit(1)
+    
+    # Write performance metrics
+    metrics_file = os.path.join(cfg.get('output_dir', 'data/derived'), 'performance_summary.csv')
+    pd.DataFrame([metrics]).to_csv(metrics_file, index=False)
+    logger.info(f"Performance metrics written to {metrics_file}")
 
 if __name__ == '__main__':
     main()

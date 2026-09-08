@@ -1,27 +1,30 @@
-T001i:
+T021b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the required directories (`projects/PROJ-903-llmxive-follow-up-extending-data-journal/data/raw/`,
-    `data/processed/`, and `output/`) actually exist; the response contains only the
-    task description and no filesystem listing or screenshots confirming their creation.
-T002c:
+  r: No `output/sensitivity_report.json` file or any code implementing the aggregation/reporting
+    logic was presented. Consequently, there is no evidence that the required JSON
+    schema (with `threshold_config`, `claim`, `p_value`, `partial_r`, `stability_score`,
+    `validity_status`) was generated from T021a and T023c outputs. The task remains
+    unfinished.
+T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `black` settings) or setup scripts are present in the provided evidence, so we
-    cannot confirm that ruff and black have been configured as required. The task
-    lacks the necessary artifacts to demonstrate completion.
-T005d:
+  r: No code, script, or module defining the `validity_status` logic (or its output
+    for T021b) is present in the provided evidence. Without an actual implementation
+    file or snippet, we cannot confirm that the required conditional rules were coded
+    or integrated, so the task remains unfulfilled.
+T023c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation was provided showing that the \u201C\
-    Low Power\u201D flag from T005b is actually propagated into the final story structure\
-    \ or reflected in any report, especially for edge cases. The required implementation\
-    \ artifact is missing."
-T008:
+  r: No output schema definition (e.g., JSON schema, data model diagram, or documented
+    field list) was provided that explicitly includes the `stability_score` and `validity_status`
+    fields for T023a/T023b results. Without such an artifact, the task requirement
+    is not satisfied.
+T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/unit/` or `tests/integration/` directory, nor any `pytest`
-    configuration files (e.g., `pytest.ini`, `conftest.py`, or `pyproject.toml` with
-    pytest settings) is provided. The required test directory structure and configuration
-    are absent, so the task is not satisfied.
+  r: No code, scripts, or documentation implementing the counterfactual query generation
+    (SQL/Python) with retry logic were provided; the only evidence is the task description
+    and specification excerpt, which do not constitute the required artifact. The
+    implementer must supply the actual implementation files (e.g., a module or notebook)
+    and demonstrate that it generates and retries queries as specified.

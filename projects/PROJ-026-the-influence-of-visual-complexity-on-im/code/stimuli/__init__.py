@@ -1,1 +1,3 @@
-"""Stimuli processing module."""
+"""
+Stimulus processing and metrics utilities.
+"""

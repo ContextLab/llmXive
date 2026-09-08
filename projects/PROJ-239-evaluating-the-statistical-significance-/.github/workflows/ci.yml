@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
@@ -9,25 +9,20 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.11']
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.11'
 
       - name: Cache pip dependencies
         uses: actions/cache@v4
-        id: cache-pip
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
 
@@ -38,12 +33,12 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest tests/ -v
+          pytest
 
       - name: Verify CPU-only dependencies
         run: |
-          if grep -i "cuda" requirements.txt; then
-            echo "Error: CUDA-related packages found in requirements.txt"
+          if grep -i cuda requirements.txt; then
+            echo "Error: CUDA dependencies found in requirements.txt"
             exit 1
           fi
-          echo "Verification passed: No CUDA dependencies found."
+          echo "No CUDA dependencies found. OK."

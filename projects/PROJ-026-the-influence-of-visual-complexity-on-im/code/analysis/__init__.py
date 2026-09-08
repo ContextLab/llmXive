@@ -1,1 +1,3 @@
-"""Analysis module."""
+"""
+Statistical analysis utilities.
+"""

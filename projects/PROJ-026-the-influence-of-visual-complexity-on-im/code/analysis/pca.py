@@ -15,7 +15,7 @@ def run_pca_check(complexity_scores_path: Optional[Path] = None) -> Dict[str, An
     
     Args:
         complexity_scores_path: Path to the complexity scores CSV. If None, uses default path.
-        
+            
     Returns:
         Dictionary containing PCA results including explained variance and component loadings.
     """
@@ -35,7 +35,9 @@ def run_pca_check(complexity_scores_path: Optional[Path] = None) -> Dict[str, An
             missing = [col for col in required_cols if col not in df.columns]
             raise ValueError(f"Missing required columns: {missing}")
         
-        metrics_df = df[required_cols].dropna()
+        # Filter for valid rows only (status == 'valid')
+        valid_df = df[df['status'] == 'valid']
+        metrics_df = valid_df[required_cols].dropna()
         
         if metrics_df.empty:
             logger.warning("No valid data points for PCA analysis.")
@@ -77,7 +79,8 @@ def main() -> int:
     
     results = run_pca_check()
     
-    output_path = get_data_path() / "results" / "pca_results.json"
+    # Output path as specified in task T032
+    output_path = get_data_path() / "results" / "pca_variance.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(output_path, "w") as f:

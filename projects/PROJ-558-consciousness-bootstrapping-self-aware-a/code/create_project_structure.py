@@ -1,74 +1,51 @@
-"""
-Project structure creation utility for the Consciousness Bootstrapping project.
-
-This module provides functions to create the required directory structure
-for the PROJ-558-consciousness-bootstrapping-self-aware-a project.
-"""
 import os
 from pathlib import Path
 
-def create_structure(root_path: str = None) -> None:
+def create_structure(root_dir: str) -> None:
     """
-    Create the project directory structure.
+    Creates the directory structure for project PROJ-558.
+    
+    Structure:
+    projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
+    ├── data/
+    │   ├── raw
+    │   └── processed
+    ├── code
+    ├── tests
+    └── artifacts/
+        ├── checkpoints
+        └── reports
     
     Args:
-        root_path: The root directory for the project. If None, uses the current
-                   working directory.
-    
-    Creates the following structure:
-        projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
-        ├── data/
-        │   ├── raw/
-        │   └── processed/
-        ├── code/
-        ├── tests/
-        └── artifacts/
-            ├── checkpoints/
-            └── reports/
+        root_dir: The root directory where the project folder will be created.
     """
-    if root_path is None:
-        root_path = Path.cwd()
-    else:
-        root_path = Path(root_path)
-    
-    # Define the project root
     project_name = "PROJ-558-consciousness-bootstrapping-self-aware-a"
-    project_root = root_path / "projects" / project_name
+    base_path = Path(root_dir) / "projects" / project_name
     
-    # Define all required directories
-    directories = [
-        project_root,
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "code",
-        project_root / "tests",
-        project_root / "artifacts" / "checkpoints",
-        project_root / "artifacts" / "reports",
+    # Define subdirectories relative to the base path
+    subdirs = [
+        "data/raw",
+        "data/processed",
+        "code",
+        "tests",
+        "artifacts/checkpoints",
+        "artifacts/reports"
     ]
     
-    # Create all directories
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
-    
-    print(f"\nProject structure created successfully at: {project_root}")
+    for subdir in subdirs:
+        full_path = base_path / subdir
+        full_path.mkdir(parents=True, exist_ok=True)
+        # Ensure the directory actually exists (mkdir with exist_ok=True might fail silently in rare cases)
+        if not full_path.is_dir():
+            raise RuntimeError(f"Failed to create directory: {full_path}")
 
-def main():
-    """Main entry point for the script."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(
-        description="Create the project directory structure for Consciousness Bootstrapping."
-    )
-    parser.add_argument(
-        "--root",
-        type=str,
-        default=None,
-        help="Root directory for the project (default: current working directory)"
-    )
-    
-    args = parser.parse_args()
-    create_structure(args.root)
+def main() -> None:
+    """Entry point for creating the project structure."""
+    # Default to current working directory as root
+    root = os.getcwd()
+    print(f"Creating project structure in: {root}/projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
+    create_structure(root)
+    print("Directory structure created successfully.")
 
 if __name__ == "__main__":
     main()

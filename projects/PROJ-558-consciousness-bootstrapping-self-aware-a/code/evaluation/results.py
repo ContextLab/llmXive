@@ -1,10 +1,3 @@
-"""
-EvaluationResult entity for serialization.
-
-This module defines the data structure used to store and serialize the results
-of model evaluations, including metrics, predictions, and metadata. It adheres
-to the project's serialization requirements and Constitution Principle III (Data Hygiene).
-"""
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 from datetime import datetime
@@ -14,134 +7,71 @@ from pathlib import Path
 @dataclass
 class EvaluationResult:
     """
-    Represents the results of a model evaluation run.
-
-    Attributes:
-        id: Unique identifier for this evaluation result.
-        model_id: The ID of the model that was evaluated.
-        dataset_name: The name of the dataset used for evaluation (e.g., 'gsm8k', 'mmlu').
-        benchmark_name: The name of the benchmark protocol used (e.g., 'self_consistency_n10').
-        metrics: A dictionary of computed metrics (e.g., accuracy, self_consistency, brier_score).
-        raw_predictions: A list of raw prediction data (e.g., generated paths, confidence scores).
-        aggregate_metrics: A dictionary of aggregated metrics across all samples.
-        config_snapshot: A dictionary snapshot of the configuration used during evaluation.
-        created_at: Timestamp of when the evaluation was completed.
-        metadata: Additional arbitrary metadata.
+    Represents the results of a model evaluation on a benchmark.
+    Contains metrics, raw data summaries, and metadata for analysis.
     """
-    id: str
-    model_id: str
+    evaluation_id: str
+    model_checkpoint_id: str
+    benchmark_name: str  # e.g., 'gsm8k_self_consistency', 'mmlu_standard'
     dataset_name: str
-    benchmark_name: str
+    num_samples: int
     metrics: Dict[str, float] = field(default_factory=dict)
-    raw_predictions: List[Dict[str, Any]] = field(default_factory=list)
-    aggregate_metrics: Dict[str, float] = field(default_factory=dict)
+    raw_data_summary: Dict[str, Any] = field(default_factory=dict)
+    generated_paths_count: int = 0
+    majority_vote_accuracy: Optional[float] = None
+    self_consistency_score: Optional[float] = None
+    calibration_metrics: Dict[str, float] = field(default_factory=dict)
+    created_at: datetime = field(default_factory=datetime.utcnow)
     config_snapshot: Dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.now)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    error_log: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Converts the evaluation result to a dictionary for JSON serialization.
-
-        Returns:
-            A dictionary representation of the evaluation result.
-        """
+        """Convert evaluation result to dictionary for JSON serialization."""
         return {
-            'id': self.id,
-            'model_id': self.model_id,
-            'dataset_name': self.dataset_name,
+            'evaluation_id': self.evaluation_id,
+            'model_checkpoint_id': self.model_checkpoint_id,
             'benchmark_name': self.benchmark_name,
+            'dataset_name': self.dataset_name,
+            'num_samples': self.num_samples,
             'metrics': self.metrics,
-            'raw_predictions': self.raw_predictions,
-            'aggregate_metrics': self.aggregate_metrics,
-            'config_snapshot': self.config_snapshot,
+            'raw_data_summary': self.raw_data_summary,
+            'generated_paths_count': self.generated_paths_count,
+            'majority_vote_accuracy': self.majority_vote_accuracy,
+            'self_consistency_score': self.self_consistency_score,
+            'calibration_metrics': self.calibration_metrics,
             'created_at': self.created_at.isoformat(),
-            'metadata': self.metadata
+            'config_snapshot': self.config_snapshot,
+            'error_log': self.error_log
         }
 
-    def to_json(self, indent: Optional[int] = 2) -> str:
-        """
-        Converts the evaluation result to a JSON string.
-
-        Args:
-            indent: Indentation level for pretty printing.
-
-        Returns:
-            A JSON string representation of the evaluation result.
-        """
+    def to_json(self, indent: int = 2) -> str:
+        """Serialize evaluation result to JSON string."""
         return json.dumps(self.to_dict(), indent=indent)
+
+    def save_to_file(self, output_path: str) -> Path:
+        """
+        Save evaluation result to a JSON file.
+        Returns the path to the saved file.
+        """
+        path = Path(output_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(self.to_json())
+        return path
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'EvaluationResult':
-        """
-        Creates an EvaluationResult instance from a dictionary.
-
-        Args:
-            data: A dictionary containing evaluation result data.
-
-        Returns:
-            An EvaluationResult instance.
-        """
-        created_at = data.get('created_at')
-        if isinstance(created_at, str):
-            created_at = datetime.fromisoformat(created_at)
-        elif created_at is None:
-            created_at = datetime.now()
-
-        return cls(
-            id=data['id'],
-            model_id=data['model_id'],
-            dataset_name=data['dataset_name'],
-            benchmark_name=data['benchmark_name'],
-            metrics=data.get('metrics', {}),
-            raw_predictions=data.get('raw_predictions', []),
-            aggregate_metrics=data.get('aggregate_metrics', {}),
-            config_snapshot=data.get('config_snapshot', {}),
-            created_at=created_at,
-            metadata=data.get('metadata', {})
-        )
+        """Create an EvaluationResult instance from a dictionary."""
+        if 'created_at' in data and isinstance(data['created_at'], str):
+            data['created_at'] = datetime.fromisoformat(data['created_at'])
+        return cls(**data)
 
     @classmethod
-    def from_json(cls, json_str: str) -> 'EvaluationResult':
-        """
-        Creates an EvaluationResult instance from a JSON string.
-
-        Args:
-            json_str: A JSON string containing evaluation result data.
-
-        Returns:
-            An EvaluationResult instance.
-        """
-        data = json.loads(json_str)
-        return cls.from_dict(data)
-
-    def save_results(self, output_dir: str) -> str:
-        """
-        Saves the evaluation results to a JSON file.
-
-        Args:
-            output_dir: The directory where the results file will be saved.
-
-        Returns:
-            The path to the saved results file.
-        """
-        output_path = Path(output_dir) / f"{self.id}_results.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(self.to_json())
-        return str(output_path)
-
-    @classmethod
-    def load_results(cls, file_path: str) -> 'EvaluationResult':
-        """
-        Loads evaluation results from a JSON file.
-
-        Args:
-            file_path: The path to the results file.
-
-        Returns:
-            An EvaluationResult instance.
-        """
-        with open(file_path, 'r', encoding='utf-8') as f:
+    def load_from_file(cls, file_path: str) -> 'EvaluationResult':
+        """Load evaluation result from a JSON file."""
+        path = Path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Evaluation result file not found: {file_path}")
+        with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         return cls.from_dict(data)

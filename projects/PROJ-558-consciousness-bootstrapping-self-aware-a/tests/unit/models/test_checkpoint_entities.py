@@ -1,155 +1,182 @@
-import pytest
-from datetime import datetime
-from pathlib import Path
 import json
 import tempfile
-import os
+from pathlib import Path
+from datetime import datetime
+import pytest
 
-# Import the entities created in T006
 from code.models.checkpoint import ModelCheckpoint
 from code.evaluation.results import EvaluationResult
 
+
 class TestModelCheckpoint:
-    def test_creation_and_defaults(self):
-        """Test that a checkpoint can be created with defaults."""
-        ckpt = ModelCheckpoint(
+    def test_creation(self):
+        """Test basic creation of ModelCheckpoint."""
+        checkpoint = ModelCheckpoint(
             checkpoint_id="test-001",
-            model_type="recursive_llama"
+            model_type="recursive",
+            architecture="TinyLlama-1.1B",
+            recursion_depth=2,
+            epoch=5,
+            step=1000,
+            loss=0.45,
+            metrics={"accuracy": 0.85},
+            tags=["final", "best"]
         )
-        assert ckpt.checkpoint_id == "test-001"
-        assert ckpt.model_type == "recursive_llama"
-        assert ckpt.epoch == 0
-        assert ckpt.loss is None
-        assert isinstance(ckpt.timestamp, datetime)
+        assert checkpoint.checkpoint_id == "test-001"
+        assert checkpoint.loss == 0.45
+        assert "best" in checkpoint.tags
 
     def test_to_dict_serialization(self):
         """Test conversion to dictionary."""
-        ckpt = ModelCheckpoint(
+        checkpoint = ModelCheckpoint(
             checkpoint_id="test-002",
-            model_type="baseline_llama",
-            epoch=5,
-            loss=0.42,
-            metrics={"accuracy": 0.85}
+            model_type="baseline",
+            architecture="TinyLlama-1.1B",
+            recursion_depth=0,
+            epoch=10,
+            step=2000,
+            loss=0.30,
+            metrics={"accuracy": 0.90, "loss": 0.30}
         )
-        data = ckpt.to_dict()
+        data = checkpoint.to_dict()
+        assert isinstance(data, dict)
         assert data["checkpoint_id"] == "test-002"
-        assert data["epoch"] == 5
-        assert data["loss"] == 0.42
-        assert data["metrics"]["accuracy"] == 0.85
-        assert "timestamp" in data
+        assert data["loss"] == 0.30
+        assert "created_at" in data
 
-    def test_from_dict_deserialization(self):
-        """Test reconstruction from dictionary."""
-        raw_data = {
-            "checkpoint_id": "test-003",
-            "model_type": "recursive_llama",
-            "epoch": 10,
-            "step": 1000,
-            "loss": 0.1,
-            "metrics": {"loss": 0.1},
-            "timestamp": datetime.now().isoformat()
-        }
-        ckpt = ModelCheckpoint.from_dict(raw_data)
-        assert ckpt.checkpoint_id == "test-003"
-        assert ckpt.epoch == 10
-        assert ckpt.loss == 0.1
+    def test_to_json_roundtrip(self):
+        """Test JSON serialization and deserialization."""
+        checkpoint = ModelCheckpoint(
+            checkpoint_id="test-003",
+            model_type="recursive",
+            architecture="TinyLlama-1.1B",
+            recursion_depth=1,
+            epoch=3,
+            step=500,
+            loss=0.55
+        )
+        json_str = checkpoint.to_json()
+        assert isinstance(json_str, str)
+        
+        # Verify it's valid JSON
+        parsed = json.loads(json_str)
+        assert parsed["checkpoint_id"] == "test-003"
 
     def test_save_and_load_metadata(self):
-        """Test saving metadata to disk and reloading."""
+        """Test saving to file and loading back."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_dir = Path(tmpdir)
-            ckpt = ModelCheckpoint(
+            checkpoint = ModelCheckpoint(
                 checkpoint_id="test-004",
-                model_type="recursive_llama",
+                model_type="recursive",
+                architecture="TinyLlama-1.1B",
+                recursion_depth=2,
                 epoch=1,
-                metrics={"val_acc": 0.9}
+                step=100,
+                loss=0.60,
+                metrics={"proxy_loss": 0.15}
             )
-            ckpt.save_metadata(output_dir)
             
-            metadata_file = output_dir / "test-004_metadata.json"
-            assert metadata_file.exists()
+            saved_path = checkpoint.save_metadata(tmpdir)
+            assert saved_path.exists()
             
-            with open(metadata_file, 'r') as f:
-                loaded_data = json.load(f)
-            
-            assert loaded_data["checkpoint_id"] == "test-004"
-            assert loaded_data["metrics"]["val_acc"] == 0.9
+            loaded = ModelCheckpoint.load_metadata(str(saved_path))
+            assert loaded.checkpoint_id == checkpoint.checkpoint_id
+            assert loaded.loss == checkpoint.loss
+            assert loaded.metrics == checkpoint.metrics
+
+    def test_from_dict_with_datetime(self):
+        """Test from_dict handles datetime correctly."""
+        data = {
+            "checkpoint_id": "test-005",
+            "model_type": "baseline",
+            "architecture": "TinyLlama-1.1B",
+            "recursion_depth": 0,
+            "epoch": 1,
+            "step": 10,
+            "loss": 0.70,
+            "created_at": datetime(2026, 1, 1, 12, 0, 0).isoformat()
+        }
+        checkpoint = ModelCheckpoint.from_dict(data)
+        assert isinstance(checkpoint.created_at, datetime)
+        assert checkpoint.created_at.year == 2026
+
 
 class TestEvaluationResult:
-    def test_creation_with_paths(self):
-        """Test creation with generated paths."""
+    def test_creation(self):
+        """Test basic creation of EvaluationResult."""
         result = EvaluationResult(
-            result_id="eval-001",
+            evaluation_id="eval-001",
+            model_checkpoint_id="ckpt-001",
+            benchmark_name="gsm8k_self_consistency",
             dataset_name="gsm8k",
-            question_id="q-123",
-            generated_paths=["Answer: 5", "Answer: 5", "Answer: 4"],
-            majority_vote_answer="5",
-            confidence_scores=[0.9, 0.8, 0.6],
-            average_confidence=0.76,
-            ground_truth="5",
-            is_correct=True
+            num_samples=100,
+            metrics={"accuracy": 0.75, "brier_score": 0.12},
+            self_consistency_score=0.82
         )
-        assert result.result_id == "eval-001"
-        assert len(result.generated_paths) == 3
-        assert result.is_correct is True
+        assert result.evaluation_id == "eval-001"
+        assert result.self_consistency_score == 0.82
 
-    def test_serialization(self):
-        """Test full serialization to dict."""
+    def test_to_dict_serialization(self):
+        """Test conversion to dictionary."""
         result = EvaluationResult(
-            result_id="eval-002",
+            evaluation_id="eval-002",
+            model_checkpoint_id="ckpt-002",
+            benchmark_name="mmlu_standard",
             dataset_name="mmlu",
-            question_id="q-999",
-            generated_paths=["Option A"],
-            majority_vote_answer="A",
-            confidence_scores=[0.5],
-            average_confidence=0.5,
-            ground_truth="B",
-            is_correct=False,
-            metrics={"consistency": 1.0}
+            num_samples=50,
+            metrics={"accuracy": 0.65}
         )
         data = result.to_dict()
-        assert data["dataset_name"] == "mmlu"
-        assert data["is_correct"] is False
-        assert data["metrics"]["consistency"] == 1.0
+        assert isinstance(data, dict)
+        assert data["evaluation_id"] == "eval-002"
+        assert data["num_samples"] == 50
 
-    def test_deserialization(self):
-        """Test reconstruction from dict."""
-        raw = {
-            "result_id": "eval-003",
-            "dataset_name": "gsm8k",
-            "question_id": "q-55",
-            "timestamp": datetime.now().isoformat(),
-            "generated_paths": ["5", "5"],
-            "majority_vote_answer": "5",
-            "tie_break_used": False,
-            "confidence_scores": [0.8, 0.8],
-            "average_confidence": 0.8,
-            "ground_truth": "5",
-            "is_correct": True,
-            "metrics": {},
-            "raw_log_data": {}
-        }
-        result = EvaluationResult.from_dict(raw)
-        assert result.result_id == "eval-003"
-        assert result.is_correct is True
+    def test_to_json_roundtrip(self):
+        """Test JSON serialization and deserialization."""
+        result = EvaluationResult(
+            evaluation_id="eval-003",
+            model_checkpoint_id="ckpt-003",
+            benchmark_name="gsm8k_self_consistency",
+            dataset_name="gsm8k",
+            num_samples=200,
+            metrics={"accuracy": 0.80, "roc_auc": 0.88},
+            calibration_metrics={"ece": 0.05, "brier": 0.10}
+        )
+        json_str = result.to_json()
+        parsed = json.loads(json_str)
+        assert parsed["evaluation_id"] == "eval-003"
+        assert "calibration_metrics" in parsed
 
-    def test_save_to_json(self):
-        """Test saving result to JSON file."""
+    def test_save_and_load_file(self):
+        """Test saving to file and loading back."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "result.json"
             result = EvaluationResult(
-                result_id="eval-004",
+                evaluation_id="eval-004",
+                model_checkpoint_id="ckpt-004",
+                benchmark_name="gsm8k_self_consistency",
                 dataset_name="gsm8k",
-                question_id="q-1",
-                generated_paths=["10"],
-                majority_vote_answer="10",
-                ground_truth="10",
-                is_correct=True
+                num_samples=150,
+                metrics={"accuracy": 0.72, "self_consistency": 0.78}
             )
-            result.save_to_json(output_path)
             
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                data = json.load(f)
-            assert data["result_id"] == "eval-004"
-            assert data["is_correct"] is True
+            output_path = Path(tmpdir) / "results" / "eval_004.json"
+            saved_path = result.save_to_file(str(output_path))
+            assert saved_path.exists()
+            
+            loaded = EvaluationResult.load_from_file(str(saved_path))
+            assert loaded.evaluation_id == result.evaluation_id
+            assert loaded.metrics == result.metrics
+
+    def test_from_dict_with_datetime(self):
+        """Test from_dict handles datetime correctly."""
+        data = {
+            "evaluation_id": "eval-005",
+            "model_checkpoint_id": "ckpt-005",
+            "benchmark_name": "test_bench",
+            "dataset_name": "test_data",
+            "num_samples": 10,
+            "created_at": datetime(2026, 5, 25, 10, 30, 0).isoformat()
+        }
+        result = EvaluationResult.from_dict(data)
+        assert isinstance(result.created_at, datetime)
+        assert result.created_at.month == 5

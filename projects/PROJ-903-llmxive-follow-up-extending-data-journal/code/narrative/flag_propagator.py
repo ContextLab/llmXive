@@ -1,10 +1,8 @@
 """
-Flag Propagator Module for llmXive Pipeline.
+Flag Propagator Module for T005d
 
-This module implements the logic to propagate the "Low Power" flag from
-the data loading stage (T005b) into the final story structure and reports.
-It ensures that datasets failing the sample size check (n < 30) are explicitly
-marked in the narrative output and the final aggregation report.
+Implements logic to propagate the "Low Power" flag from T005b
+into the final story structure and report.
 """
 
 import json
@@ -23,199 +21,214 @@ logger = logging.getLogger(__name__)
 
 
 def propagate_low_power_flag(
-    narrative_input: Optional[Dict[str, Any]],
-    dataset_id: str,
-    error_context: Optional[Dict[str, Any]] = None
+    baseline_result: Dict[str, Any],
+    inspector_result: Dict[str, Any],
+    sample_size: int,
+    threshold: int = 30
 ) -> Dict[str, Any]:
     """
-    Propagates the Low Power flag into the narrative structure.
+    Propagate the "Low Power" flag into the story structure.
 
-    If the input narrative is None or indicates a failure due to LowPowerError,
-    this function constructs a standard "Low Power" narrative object that
-    adheres to the project's schema requirements for edge cases.
+    This function checks if the sample size is below the threshold (n < 30).
+    If so, it injects a 'low_power' flag into the narrative structure and
+    modifies the validity status of claims to reflect the statistical limitation.
 
     Args:
-        narrative_input: The output from the baseline narrative generator.
-                         If None or if it contains a 'low_power' flag, it is overridden.
-        dataset_id: The unique identifier for the dataset being processed.
-        error_context: Optional dictionary containing details about the error
-                       (e.g., sample size detected, threshold).
+        baseline_result: The output dictionary from the baseline analysis (T012).
+        inspector_result: The output dictionary from the inspector analysis (T021b).
+        sample_size: The number of rows in the processed dataset.
+        threshold: The minimum sample size required for statistical power (default 30).
 
     Returns:
-        A dictionary representing the narrative output, guaranteed to contain
-        the 'low_power' flag if applicable.
+        A modified story structure dictionary with the 'low_power' flag propagated.
     """
-    config = get_config()
-    result = {
-        "dataset_id": dataset_id,
-        "status": "completed",
-        "narrative": None,
-        "flags": [],
-        "warnings": []
+    logger.info(f"Checking sample size: n={sample_size}, threshold={threshold}")
+
+    is_low_power = sample_size < threshold
+    story_structure = {
+        "meta": {
+            "sample_size": sample_size,
+            "is_low_power": is_low_power,
+            "power_threshold": threshold,
+            "timestamp": None  # Should be populated by caller if needed
+        },
+        "baseline_narrative": None,
+        "counterfactual_insights": [],
+        "summary": ""
     }
 
-    # Check if we need to force the Low Power flag
-    # This happens if narrative_input is None (pipeline halted early)
-    # or if the input explicitly signals a low power condition
-    is_low_power = False
-    if narrative_input is None:
-        is_low_power = True
-        logger.warning(f"Dataset {dataset_id}: Narrative input is None. Assuming Low Power condition.")
-    elif isinstance(narrative_input, dict) and narrative_input.get("status") == "low_power":
-        is_low_power = True
-        logger.info(f"Dataset {dataset_id}: Narrative input explicitly flagged as Low Power.")
-    elif isinstance(narrative_input, dict) and narrative_input.get("flags") and "low_power" in narrative_input.get("flags", []):
-        is_low_power = True
-        logger.info(f"Dataset {dataset_id}: Narrative input contains 'low_power' flag.")
-
     if is_low_power:
-        result["status"] = "low_power"
-        result["flags"].append("low_power")
+        logger.warning(f"Low Power detected (n={sample_size} < {threshold}). Propagating flag.")
         
-        # Construct the standard Low Power narrative message
-        sample_size = error_context.get("sample_size") if error_context else "unknown"
-        min_required = config.min_sample_size if hasattr(config, 'min_sample_size') else 30
-        
-        narrative_text = (
-            f"Analysis halted for dataset '{dataset_id}'. "
-            f"Insufficient statistical power detected: sample size (n={sample_size}) "
-            f"is below the required threshold (n >= {min_required}). "
-            "No primary narrative or counterfactual analysis could be generated."
+        # 1. Mark the meta section
+        story_structure["meta"]["status"] = "low_power"
+        story_structure["meta"]["warning"] = (
+            f"Statistical power is low (n={sample_size} < {threshold}). "
+            "Correlations may be unstable or spurious. "
+            "Counterfactual analysis results are flagged as 'low_power'."
         )
-        
-        result["narrative"] = {
-            "primary_narrative": narrative_text,
-            "r_value": None,
-            "p_value": None,
-            "var_x": None,
-            "var_y": None,
-            "significance": "insufficient_data",
-            "edge_case_reason": "low_power"
-        }
-        
-        result["warnings"].append(
-            f"Low Power Error: n={sample_size} < {min_required}. "
-            "Dataset excluded from correlation analysis."
-        )
-    else:
-        # Normal flow: merge input narrative but ensure flags are preserved
-        if narrative_input:
-            result["narrative"] = narrative_input.get("narrative") or narrative_input
-            result["flags"] = narrative_input.get("flags", [])
-            result["warnings"] = narrative_input.get("warnings", [])
-            
-            # Ensure status reflects success if no low power flag
-            if "low_power" not in result["flags"]:
-                result["status"] = "completed"
 
-    return result
+        # 2. Process Baseline Narrative
+        if baseline_result:
+            # Inject low_power flag into the primary narrative metadata
+            baseline_copy = baseline_result.copy()
+            baseline_copy["low_power_flag"] = True
+            baseline_copy["validity_status"] = "low_power"
+            baseline_copy["caution"] = (
+                "Results derived from a small sample size (n < 30). "
+                "P-values and correlation coefficients should be interpreted with extreme caution."
+            )
+            story_structure["baseline_narrative"] = baseline_copy
+        else:
+            story_structure["baseline_narrative"] = {
+                "low_power_flag": True,
+                "validity_status": "low_power",
+                "primary_narrative": "No baseline narrative generated due to low sample size.",
+                "caution": "Sample size insufficient for reliable statistical inference."
+            }
+
+        # 3. Process Counterfactual Insights
+        if inspector_result and isinstance(inspector_result, list):
+            # If inspector returned a list of results (e.g., from sensitivity analysis)
+            for item in inspector_result:
+                item_copy = item.copy()
+                item_copy["validity_status"] = "low_power"
+                item_copy["stability_score"] = 0.0  # Cannot establish stability with n < 30
+                item_copy["caution"] = (
+                    "Counterfactual claim validity is compromised by low sample size."
+                )
+                story_structure["counterfactual_insights"].append(item_copy)
+        elif inspector_result and isinstance(inspector_result, dict):
+            # If inspector returned a single dict
+            inspector_copy = inspector_result.copy()
+            inspector_copy["validity_status"] = "low_power"
+            inspector_copy["stability_score"] = 0.0
+            inspector_copy["caution"] = (
+                "Counterfactual claim validity is compromised by low sample size."
+            )
+            story_structure["counterfactual_insights"].append(inspector_copy)
+        else:
+            # No inspector result, but low power exists
+            story_structure["counterfactual_insights"].append({
+                "claim": "No counterfactuals generated due to low sample size.",
+                "validity_status": "low_power",
+                "stability_score": 0.0,
+                "caution": "Sample size insufficient for reliable counterfactual analysis."
+            })
+
+        # 4. Generate Summary
+        story_structure["summary"] = (
+            f"ANALYSIS WARNING: The dataset contains only {sample_size} records, "
+            f"which is below the minimum threshold of {threshold} required for robust statistical inference. "
+            "All generated narratives and counterfactuals are flagged as 'low_power'. "
+            "Results should not be used for decision-making without further validation on a larger dataset."
+        )
+
+    else:
+        # Normal operation
+        logger.info("Sample size is sufficient. Propagating normal status.")
+        story_structure["meta"]["status"] = "valid"
+        
+        if baseline_result:
+            baseline_copy = baseline_result.copy()
+            baseline_copy["low_power_flag"] = False
+            baseline_copy["validity_status"] = baseline_result.get("validity_status", "verified")
+            story_structure["baseline_narrative"] = baseline_copy
+        
+        if inspector_result:
+            if isinstance(inspector_result, list):
+                story_structure["counterfactual_insights"] = [
+                    item.copy() for item in inspector_result
+                ]
+            elif isinstance(inspector_result, dict):
+                story_structure["counterfactual_insights"].append(inspector_result.copy())
+        
+        story_structure["summary"] = (
+            f"Analysis completed on {sample_size} records. "
+            "Statistical power is sufficient for standard inference."
+        )
+
+    return story_structure
 
 
 def write_propagated_report(
-    reports: List[Dict[str, Any]],
+    story_structure: Dict[str, Any],
     output_path: Path
 ) -> None:
     """
-    Writes the list of propagated narrative reports to a JSON file.
-
-    This function aggregates the results from multiple datasets, ensuring
-    that any "Low Power" flags are clearly visible in the final report.
+    Write the propagated story structure to a JSON file.
 
     Args:
-        reports: List of narrative dictionaries returned by propagate_low_power_flag.
-        output_path: Path to the output JSON file (e.g., output/narrative_report.json).
+        story_structure: The dictionary containing the story with propagated flags.
+        output_path: The path to the output JSON file.
     """
-    if not output_path.parent.exists():
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    report_summary = {
-        "total_datasets": len(reports),
-        "low_power_count": sum(1 for r in reports if r.get("status") == "low_power"),
-        "completed_count": sum(1 for r in reports if r.get("status") == "completed"),
-        "reports": reports
-    }
-
-    logger.info(f"Writing propagated report to {output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report_summary, f, indent=2, default=str)
+        json.dump(story_structure, f, indent=2, default=str)
+    
+    logger.info(f"Propagated report written to {output_path}")
 
-    logger.info(f"Report written. Low Power cases: {report_summary['low_power_count']}")
 
-
-def main() -> None:
+def main() -> int:
     """
-    Entry point for the flag propagator script.
+    Main entry point for the flag propagator script.
     
-    This script is designed to be called by the main pipeline (T009) after
-    the narrative stage. It reads the raw narrative outputs (or errors)
-    and ensures the Low Power flag is correctly propagated to the final JSON.
+    This script is intended to be called by the main pipeline (T009) or
+    integrated into the narrative stage. For standalone testing, it can
+    simulate a scenario where a LowPowerError is caught and the report
+    is generated.
     
-    Usage:
-        python code/narrative/flag_propagator.py --input <input_json> --output <output_json>
+    Returns:
+        0 on success, non-zero on failure.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Propagate Low Power flags to narrative reports.")
-    parser.add_argument("--input", type=str, required=True, help="Path to the raw narrative JSON or list of errors.")
-    parser.add_argument("--output", type=str, required=True, help="Path to the final propagated report JSON.")
-    parser.add_argument("--dataset", type=str, default="unknown", help="Dataset ID if processing a single item.")
+    config = get_config()
+    output_dir = Path(config.get('output_dir', 'output'))
     
-    args = parser.parse_args()
-
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        # If input is missing, it might be because the pipeline halted early due to LowPowerError
-        # We create a synthetic entry for the specific dataset ID provided
-        logger.warning(f"Creating Low Power entry for dataset: {args.dataset}")
-        reports = [
-            propagate_low_power_flag(
-                narrative_input=None,
-                dataset_id=args.dataset,
-                error_context={"sample_size": "0", "reason": "File not found (likely halted early)"}
-            )
-        ]
-    else:
-        with open(input_path, 'r', encoding='utf-8') as f:
-            try:
-                data = json.load(f)
-            except json.JSONDecodeError:
-                logger.error(f"Invalid JSON in input file: {input_path}")
-                return
-
-        if isinstance(data, list):
-            # Batch processing
-            reports = []
-            for item in data:
-                # Handle list of dicts where each might have dataset_id and narrative/error
-                  rid = item.get("dataset_id", item.get("id", "unknown"))
-                  narrative = item.get("narrative")
-                  error = item.get("error")
-                  
-                  context = None
-                  if error:
-                      if "LowPowerError" in str(error):
-                          context = {"sample_size": error.get("sample_size", "unknown")}
-                  
-                  reports.append(propagate_low_power_flag(narrative, rid, context))
-        elif isinstance(data, dict):
-            # Single item processing
-            rid = data.get("dataset_id", args.dataset)
-            narrative = data.get("narrative")
-            error = data.get("error")
-            context = None
-            if error and "LowPowerError" in str(error):
-                context = {"sample_size": error.get("sample_size", "unknown")}
-            
-            reports = [propagate_low_power_flag(narrative, rid, context)]
-        else:
-            logger.error(f"Unexpected input format: {type(data)}")
-            return
-
-    write_propagated_report(reports, output_path)
+    # Simulate inputs for demonstration/standalone run
+    # In the real pipeline, these would come from the outputs of T012 and T021b
+    # and the sample size from T005b/T006c.
+    
+    sample_size = 25  # Simulating a low power scenario
+    
+    mock_baseline = {
+        "r_value": 0.45,
+        "p_value": 0.02,
+        "var_x": "income",
+        "var_y": "education",
+        "significance": "significant",
+        "primary_narrative": "Income is positively correlated with education levels."
+    }
+    
+    mock_inspector = [
+        {
+            "claim": "Housing price might be the confounder.",
+            "p_value": 0.04,
+            "partial_r": 0.30,
+            "stability_score": 0.6
+        }
+    ]
+    
+    try:
+        story = propagate_low_power_flag(
+            baseline_result=mock_baseline,
+            inspector_result=mock_inspector,
+            sample_size=sample_size,
+            threshold=30
+        )
+        
+        output_file = output_dir / "narrative_with_flags.json"
+        write_propagated_report(story, output_file)
+        
+        print(f"Success: Propagated report generated at {output_file}")
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Failed to propagate flags: {e}")
+        traceback.print_exc()
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

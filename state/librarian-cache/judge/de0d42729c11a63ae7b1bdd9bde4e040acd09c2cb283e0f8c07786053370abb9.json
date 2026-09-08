@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.08975",
+  "judged_at": "2026-09-08T10:56:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"searchswarm: towards delegation intelligence in agentic llms for long-\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the \"multi-agent\" and \"communication/delegation\" mechanisms central to the user's question about \"SearchSwarm\" and \"Delegation Intelligence in Agentic LLMs.\" Although the paper focuses on Deep Reinforcement Learning rather than LLMs specifically, it establishes the theoretical framework and communication dimensions for agent swarms that are directly applicable to the user's domain of agentic delegation",
+  "relevant": true
+}

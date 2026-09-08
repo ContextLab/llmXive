@@ -1,69 +1,90 @@
 """
-Tests for counterbalance assignment generation (T027a).
+Tests for counterbalance assignment generation.
 """
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import sys
+import tempfile
 import os
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from code.data.counterbalance import generate_counterbalance_assignments
+from code.config import get_data_path
 
-from data.counterbalance import generate_counterbalance_assignments, SESSION_ORDER_A, SESSION_ORDER_B
+class TestCounterbalance:
+    """Test suite for counterbalance assignment generation."""
 
+    def test_generate_assignments_basic(self):
+        """Test basic generation of counterbalance assignments."""
+        participant_ids = ["PID001", "PID002", "PID003", "PID004"]
+        
+        df = generate_counterbalance_assignments(participant_ids, seed=42)
+        
+        assert len(df) == 4
+        assert list(df.columns) == [
+            'participant_id', 
+            'session_order', 
+            'complexity_condition_1', 
+            'complexity_condition_2'
+        ]
+        assert set(df['session_order']) == {'Low-High', 'High-Low'}
+        assert all(df['participant_id'].isin(participant_ids))
 
-class TestCounterbalanceGeneration:
-    """Tests for the counterbalance assignment logic."""
-
-    def test_seed_reproducibility(self):
-        """Verify that the same seed produces the same assignment."""
-        df1 = generate_counterbalance_assignments(num_participants=20, seed=42)
-        df2 = generate_counterbalance_assignments(num_participants=20, seed=42)
-
+    def test_generate_assignments_reproducibility(self):
+        """Test that the same seed produces the same results."""
+        participant_ids = ["PID001", "PID002", "PID003", "PID004", "PID005", "PID006"]
+        
+        df1 = generate_counterbalance_assignments(participant_ids, seed=42)
+        df2 = generate_counterbalance_assignments(participant_ids, seed=42)
+        
         pd.testing.assert_frame_equal(df1, df2)
 
-    def test_even_split_even_count(self):
-        """Verify equal split for even number of participants."""
-        n = 100
-        df = generate_counterbalance_assignments(num_participants=n, seed=42)
+    def test_generate_assignments_odd_count(self):
+        """Test with an odd number of participants."""
+        participant_ids = ["PID001", "PID002", "PID003"]
+        
+        df = generate_counterbalance_assignments(participant_ids, seed=42)
+        
+        assert len(df) == 3
+        # Should have 2 of one order and 1 of the other
+        counts = df['session_order'].value_counts()
+        assert 1 in counts.values
+        assert 2 in counts.values
 
-        count_a = (df["session_order"] == SESSION_ORDER_A).sum()
-        count_b = (df["session_order"] == SESSION_ORDER_B).sum()
+    def test_generate_assignments_empty_list(self):
+        """Test that empty participant list raises ValueError."""
+        with pytest.raises(ValueError):
+            generate_counterbalance_assignments([], seed=42)
 
-        assert count_a == count_b, f"Expected equal split, got A={count_a}, B={count_b}"
-        assert count_a + count_b == n
+    def test_generate_assignments_condition_mapping(self):
+        """Test that conditions are correctly mapped to session orders."""
+        participant_ids = ["PID001", "PID002", "PID003", "PID004"]
+        
+        df = generate_counterbalance_assignments(participant_ids, seed=42)
+        
+        for _, row in df.iterrows():
+            if row['session_order'] == 'Low-High':
+                assert row['complexity_condition_1'] == 'Low'
+                assert row['complexity_condition_2'] == 'High'
+            elif row['session_order'] == 'High-Low':
+                assert row['complexity_condition_1'] == 'High'
+                assert row['complexity_condition_2'] == 'Low'
 
-    def test_odd_split_odd_count(self):
-        """Verify near-equal split for odd number of participants."""
-        n = 101
-        df = generate_counterbalance_assignments(num_participants=n, seed=42)
-
-        count_a = (df["session_order"] == SESSION_ORDER_A).sum()
-        count_b = (df["session_order"] == SESSION_ORDER_B).sum()
-
-        # Difference should be at most 1
-        assert abs(count_a - count_b) == 1, f"Expected diff of 1, got {abs(count_a - count_b)}"
-        assert count_a + count_b == n
-
-    def test_valid_session_orders(self):
-        """Verify all assigned orders are valid constants."""
-        df = generate_counterbalance_assignments(num_participants=50, seed=42)
-        unique_orders = set(df["session_order"].unique())
-        expected_orders = {SESSION_ORDER_A, SESSION_ORDER_B}
-
-        assert unique_orders.issubset(expected_orders), f"Invalid orders found: {unique_orders - expected_orders}"
-
-    def test_participant_id_format(self):
-        """Verify participant IDs follow P{N:03d} format."""
-        df = generate_counterbalance_assignments(num_participants=10, seed=42)
-        expected_ids = [f"P{i+1:03d}" for i in range(10)]
-        assert list(df["participant_id"]) == expected_ids
-
-    def test_output_schema(self):
-        """Verify the DataFrame has the correct columns."""
-        df = generate_counterbalance_assignments(num_participants=10, seed=42)
-        assert "participant_id" in df.columns
-        assert "session_order" in df.columns
-        assert len(df.columns) == 2
+    def test_generate_assignments_output_path(self):
+        """Test that output is written to the correct path."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a temporary output path
+            output_path = Path(tmpdir) / "counterbalance_test.csv"
+            
+            participant_ids = ["PID001", "PID002"]
+            df = generate_counterbalance_assignments(
+                participant_ids, 
+                seed=42, 
+                output_path=output_path
+            )
+            
+            assert output_path.exists()
+            
+            # Read back and verify
+            df_read = pd.read_csv(output_path)
+            pd.testing.assert_frame_equal(df, df_read)

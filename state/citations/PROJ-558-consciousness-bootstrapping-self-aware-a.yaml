@@ -20,3 +20,14 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181e5e/79480e94ce3f49e007a4aded562ddf6f3345b85652d7e18c64d6994cae08df86?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dev-00000-of-00001.parquet%3B+filename%3D%22dev-00000-of-00001.parquet%22%3B&user_id=public&Expires=1787663900&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZTVlLzc5NDgwZTk0Y2UzZjQ5ZTAwN2E0YWRlZDU2MmRkZjZmMzM0NWI4NTY1MmQ3ZTE4YzY0ZDY5OTRjYWUwOGRmODZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV2LTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJkZXYtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg3NjYzOTAwfX19XX0_&Signature=MEQCIB4SLzy1w1KVsxMkDI8dEt6UzTig3WgG9VJkhf2KUB9xAiBDXrXxEj3A4Ypw2b2ey4RWYTE26P7Y7waWH3U11wMEKQ__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
   verified_at: '2026-08-25T12:18:19.609377Z'
+- artifact_hash: a6cf66eddd7a0b4017efe88959644417b5eb7b75ba8d61a706bf8440b8b53787
+  artifact_path: projects/PROJ-558-consciousness-bootstrapping-self-aware-a/specs/001-consciousness-bootstrapping-self-aware-a/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2401.02385] TinyLlama: An Open-Source Small Language Model'
+  kind: url
+  value: https://arxiv.org/abs/2401.02385
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2401.02385
+  verified_at: '2026-09-08T10:55:25.529881Z'
