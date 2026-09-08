@@ -16,7 +16,7 @@ This feature implements a statistical pipeline to test the **association** betwe
 **Project Type**: Data analysis pipeline / Research script.  
 **Performance Goals**: Full pipeline execution < 6 hours on 2-core CPU; Memory peak < 7GB.  
 **Constraints**: No external credentials for gated datasets; all data must be downloadable via public URL; statistical methods must handle ordinal outcomes correctly (CLMM).  
-**Scale/Scope**: ~30k dialogues (estimated across three datasets); A primary model, a robustness model, and multiple subgroup models
+**Scale/Scope**: A substantial volume of dialogues (estimated across three datasets); A primary model, a robustness model, and multiple subgroup models
 
 The research question remains: [Research Question]
 The method remains: [Method]
