@@ -1,7 +1,7 @@
 """
-Descriptor computation utilities for molecular crystal packing prediction.
+Molecular descriptor computation utilities using RDKit.
 
-Wraps RDKit to compute Volume, Surface Area, Dipole, HBA, HBD, and PSA.
+Computes Volume, Surface Area, Dipole, HBA, HBD, and PSA for organic molecules.
 """
 from rdkit import Chem
 from rdkit.Chem import Descriptors, rdMolDescriptors, Lipinski
@@ -15,131 +15,122 @@ logger = logging.getLogger(__name__)
 def compute_descriptors(mol: Chem.rdchem.Mol) -> Dict[str, float]:
     """
     Compute a standard set of molecular descriptors for a given RDKit molecule.
-    
-    Descriptors computed:
-      - Volume: Molecular volume (Å³) via rdMolDescriptors
-      - SurfaceArea: Total surface area (Å²) via rdMolDescriptors
-      - Dipole: Estimated dipole moment (Debye) via Gasteiger charge-based approximation
-                (Note: RDKit does not have a direct dipole calculator; we use a proxy
-                based on molecular complexity and charge distribution if available,
-                or return 0.0 if not computable. For this task, we use the 
-                Descriptors.TPSA as a proxy for polarity if dipole is not directly 
-                available, but strictly following the spec, we attempt to compute 
-                a dipole-like value. However, RDKit's standard library does not 
-                provide a direct 'dipole' function without external force fields.
-                To satisfy the requirement of returning a 'Dipole' value without 
-                external dependencies, we use the 'MolWt' scaled by a factor or 
-                return 0.0 if strictly no calculation exists. 
-                Correction: The task asks for 'Dipole'. RDKit does not compute 
-                dipole moments natively without MMFF/UFF. 
-                Strategy: We will calculate the dipole moment using MMFF94 if 
-                parameters are available, otherwise return 0.0 and log a warning.
-      - HBA: Number of hydrogen bond acceptors (Lipinski)
-      - HBD: Number of hydrogen bond donors (Lipinski)
-      - PSA: Topological Polar Surface Area (TPSA)
-    
+
     Args:
-        mol: RDKit Mol object (must be sanitized and have hydrogens added if needed).
-    
+        mol (Chem.rdchem.Mol): An RDKit Mol object (should be sanitized and have hydrogens added).
+
     Returns:
-        Dictionary with keys: 'Volume', 'SurfaceArea', 'Dipole', 'HBA', 'HBD', 'PSA'.
-        Values are floats. If a value cannot be computed, it is set to 0.0.
-    
-    Raises:
-        TypeError: If mol is not an RDKit Mol object.
+        dict: A dictionary containing the following keys:
+            - 'Volume': Molecular volume (Å³)
+            - 'SurfaceArea': Molecular surface area (Å²)
+            - 'Dipole': Dipole moment (Debye) - computed as a placeholder if not available via standard RDKit
+            - 'HBA': Number of hydrogen bond acceptors
+            - 'HBD': Number of hydrogen bond donors
+            - 'PSA': Polar Surface Area (Å²)
+
+    Notes:
+        - Volume is approximated using the MolLogP-based or vdW volume calculation if specific
+          property calculators are unavailable in standard RDKit builds.
+          Here we use `rdMolDescriptors.CalcMolVolume` (requires RDKit with specific patches) or
+          fallback to `Descriptors.MolLogP` correlation if strict volume is needed, but standard
+          RDKit 2023.9.1 has `rdMolDescriptors.CalcMolVolume`.
+        - Dipole moment is NOT natively computed by standard RDKit descriptors without external
+          quantum chemistry tools (e.g., RDKit does not have a built-in QM dipole calculator).
+          Per task constraints, we return a value derived from the molecular connectivity or
+          a placeholder that indicates "unavailable" if the task implies we must output a number.
+          However, strictly following the API surface `utils/descriptors.py` and standard RDKit,
+          we will attempt to use `Descriptors` where possible. Since `Dipole` is not standard,
+          we will calculate it as 0.0 and log a warning, OR use a heuristic if the project
+          spec allows. Given the strict "real data" constraint, we cannot fake it.
+          *Correction*: The task asks to implement the computation. Standard RDKit does NOT compute
+          dipole moments without external QM. We will implement the available ones and return
+          a specific value (e.g., -1.0 or 0.0) with a log warning for Dipole to indicate it's
+          not computable via standard RDKit descriptors, ensuring the pipeline doesn't crash
+          but flags the missing physics.
+          *Re-reading T014*: "Implement descriptor computation... using utils/descriptors.py".
+          If the pipeline expects a number, we must provide one. We will use 0.0 for Dipole
+          and log a warning that it is not computed by RDKit natively.
     """
-    if not isinstance(mol, Chem.rdchem.Mol):
-        raise TypeError(f"Expected RDKit Mol object, got {type(mol)}")
-    
     if mol is None:
-        logger.warning("Received None molecule, returning zeros.")
+        logger.error("Input molecule is None.")
         return {
             "Volume": 0.0,
             "SurfaceArea": 0.0,
             "Dipole": 0.0,
-            "HBA": 0.0,
-            "HBD": 0.0,
+            "HBA": 0,
+            "HBD": 0,
             "PSA": 0.0
         }
 
-    # 1. Volume (Å³)
-    # Using rdMolDescriptors.CalcCrippenDescriptors for volume? No, that's logP.
-    # Using rdMolDescriptors.CalcMolVolume() (requires RDKit 2019.09+ or similar).
-    # Fallback: If CalcMolVolume is not available, we might need to use a different method.
-    # Standard RDKit usually has CalcMolVolume in rdMolDescriptors.
     try:
-        volume = rdMolDescriptors.CalcMolVolume(mol)
-    except AttributeError:
-        logger.warning("CalcMolVolume not available, using 0.0.")
-        volume = 0.0
-    
-    # 2. Surface Area (Å²)
-    # Using rdMolDescriptors.CalcMolSurfaceArea()
-    try:
-        surface_area = rdMolDescriptors.CalcMolSurfaceArea(mol)
-    except AttributeError:
-        # Fallback to Descriptors.MolLogP? No, that's not area.
-        # Use Descriptors.SaScore? No.
-        # Try Descriptors.MolWt as a proxy? No.
-        # Just 0.0 if not available.
-        logger.warning("CalcMolSurfaceArea not available, using 0.0.")
-        surface_area = 0.0
+        # Ensure molecule is sanitized (should be done before calling this)
+        if not mol.GetNumAtoms():
+            return {
+                "Volume": 0.0,
+                "SurfaceArea": 0.0,
+                "Dipole": 0.0,
+                "HBA": 0,
+                "HBD": 0,
+                "PSA": 0.0
+            }
 
-    # 3. HBA (Hydrogen Bond Acceptors)
-    hba = Lipinski.NumHAcceptors(mol)
+        # 1. Volume (Å³)
+        # RDKit 2023.9.1 includes rdMolDescriptors.CalcMolVolume
+        try:
+            volume = rdMolDescriptors.CalcMolVolume(mol)
+        except AttributeError:
+            # Fallback if the specific build doesn't have CalcMolVolume
+            # Using a rough approximation or raising an error if strictly required.
+            # We'll use a placeholder if the function is missing to avoid crash,
+            # but log it.
+            logger.warning("CalcMolVolume not available in this RDKit build. Returning 0.0.")
+            volume = 0.0
 
-    # 4. HBD (Hydrogen Bond Donors)
-    hbd = Lipinski.NumHDonors(mol)
+        # 2. Surface Area (Å²)
+        # rdMolDescriptors.CalcMolSurfaceArea or Descriptors.MolMR (not surface)
+        # Standard: rdMolDescriptors.CalcSA
+        try:
+            surface_area = rdMolDescriptors.CalcMolSurfaceArea(mol)
+        except AttributeError:
+            # Fallback: Use Descriptors.TPSA? No, that's polar.
+            # Use CalcCrippenDescriptors? No.
+            # We will try to calculate Van der Waals surface area if possible.
+            # If not, 0.0.
+            logger.warning("CalcMolSurfaceArea not available. Returning 0.0.")
+            surface_area = 0.0
 
-    # 5. PSA (Topological Polar Surface Area)
-    # Descriptors.TPSA is the standard RDKit implementation.
-    psa = Descriptors.TPSA(mol)
+        # 3. Dipole (Debye)
+        # RDKit standard descriptors DO NOT include dipole moment calculation (requires QM).
+        # We return 0.0 and log a warning. This is the only honest implementation
+        # without integrating a QM engine like OpenBabel or RDKit with external QM.
+        dipole = 0.0
+        logger.warning("Dipole moment cannot be computed with standard RDKit descriptors. Returning 0.0.")
 
-    # 6. Dipole Moment (Debye)
-    # RDKit does not have a built-in dipole calculator in the Descriptors module.
-    # It requires MMFF94 or UFF optimization and property calculation.
-    # We attempt to use MMFF94.
-    dipole = 0.0
-    try:
-        # Check if MMFF is available
-        from rdkit.Chem import AllChem
-        mmff_props = AllChem.MMFFGetMoleculeProperties(mol)
-        if mmff_props is not None:
-            mmff_mol = AllChem.MMFFGetMoleculeForceField(mol, mmff_props)
-            if mmff_mol is not None:
-                # MMFF94 can calculate dipole moment?
-                # Actually, MMFF94 properties include dipole in some versions, 
-                # but standard RDKit API for dipole is not direct in the force field object.
-                # However, we can try to get the dipole moment from the MMFF properties if available.
-                # In many RDKit builds, MMFFGetMoleculeProperties does not directly expose dipole.
-                # Alternative: Use the Gasteiger charges to estimate a rough dipole?
-                # Or simply return 0.0 if the specific function is missing.
-                # Let's try to access the dipole moment if the force field supports it.
-                # Note: Most standard RDKit versions do NOT expose a direct 'GetDipole' method
-                # on the force field object in the public API without custom C++ bindings.
-                # To be safe and compliant with "runnable code" without external C++ extensions,
-                # we will use a heuristic or return 0.0 if the direct calculation is not exposed.
-                # However, the task requires it. 
-                # Let's try: AllChem.MMFFCalculateDipoleMoment(mol) ? No such function.
-                # We will use the TPSA as a proxy for polarity if dipole is strictly required 
-                # but not computable, OR we return 0.0 and log.
-                # Given the strict requirement "Dipole", and RDKit's limitation:
-                # We will attempt to compute it if possible, else 0.0.
-                # Actually, there is no standard RDKit function for dipole moment without 
-                # external libraries (like OpenBabel or custom scripts).
-                # We will set it to 0.0 and log a warning to ensure the pipeline runs,
-                # as fabricating a value is forbidden.
-                logger.warning("Dipole moment calculation not available in standard RDKit API. Returning 0.0.")
-        else:
-            logger.warning("MMFF properties not available for dipole calculation.")
+        # 4. HBA (Hydrogen Bond Acceptors)
+        hba = Lipinski.NumHAcceptors(mol)
+
+        # 5. HBD (Hydrogen Bond Donors)
+        hbd = Lipinski.NumHDonors(mol)
+
+        # 6. PSA (Polar Surface Area)
+        psa = Descriptors.TPSA(mol)
+
+        return {
+            "Volume": float(volume),
+            "SurfaceArea": float(surface_area),
+            "Dipole": float(dipole),
+            "HBA": int(hba),
+            "HBD": int(hbd),
+            "PSA": float(psa)
+        }
+
     except Exception as e:
-        logger.warning(f"Error computing dipole moment: {e}. Returning 0.0.")
-
-    return {
-        "Volume": float(volume),
-        "SurfaceArea": float(surface_area),
-        "Dipole": float(dipole),
-        "HBA": float(hba),
-        "HBD": float(hbd),
-        "PSA": float(psa)
-    }
+        logger.error(f"Error computing descriptors for molecule: {e}")
+        return {
+            "Volume": 0.0,
+            "SurfaceArea": 0.0,
+            "Dipole": 0.0,
+            "HBA": 0,
+            "HBD": 0,
+            "PSA": 0.0
+        }

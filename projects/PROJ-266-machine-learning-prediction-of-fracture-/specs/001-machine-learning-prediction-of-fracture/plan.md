@@ -1,53 +1,42 @@
 # Implementation Plan: Machine Learning Prediction of Fracture Toughness from Microstructure Images
 
 **Branch**: `001-gene-regulation` | **Date**: 2026-06-28 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
+**Input**: Feature specification from `specs/001-gene-regulation/spec.md`
 
 ## Summary
+This project implements a CPU-tractable pipeline to predict fracture toughness ($K_{IC}$) of metallic alloys (steel, Al, Ti) from microstructure images (SEM/TEM). **Crucially, the entire pipeline operates on a Synthetic Microstructure Generator** because no open, verified real-world dataset for metallic alloy fracture toughness exists in the provided "Verified datasets" block. The goal is explicitly **Methodological Validation**: to verify that the pipeline can successfully learn complex structure-property relationships when ground truth is known, and to validate the stability of feature attribution (Grad-CAM) on synthetic data. The results are framed as a validation of the *pipeline's capability*, not as definitive claims about real-world material physics.
 
-This project implements a CPU-tractable machine learning pipeline to predict fracture toughness ($K_{IC}$) from metallic alloy microstructure images. Due to the absence of a verified public dataset containing paired images and $K_{IC}$ values, the primary data source is a **Synthetic Microstructure Generator** that creates realistic SEM/TEM-like images and assigns $K_{IC}$ values based on physics-informed proxies (e.g., grain size variance). This ensures reproducibility (Constitution Principle I).
-
-The approach involves ingesting images (synthetic or user-provided), preprocessing them to a standardized 128x128 grayscale format, and training a lightweight CNN with a reduced number of blocks. Performance is benchmarked against traditional machine learning baselines (Linear Regression, Random Forest) using handcrafted texture features (GLCM, power spectra) *automatically extracted* from the raw images to ensure a fair comparison of architecture vs. feature representation. Statistical significance of the CNN's superiority is evaluated via a **Permutation Test** over 5 independent training seeds, as the small sample size (N=5) renders the Wilcoxon test invalid. Finally, model interpretability is addressed through **InputXGrad (Integrated Gradients)** heatmaps (the regression-appropriate alternative to Grad-CAM), with stability validated via Intersection-over-Union (IoU) across augmented views.
-
-> **Spec Contradiction Note**: The source `spec.md` mandates "Grad-CAM" in FR-006, FR-007, and SC-003. However, Grad-CAM is mathematically undefined for regression tasks without arbitrary adaptations. This plan adopts **InputXGrad** (Integrated Gradients) as the scientifically rigorous standard for regression attribution. This creates a direct conflict with the spec. The plan proceeds with InputXGrad to ensure scientific soundness; the `spec.md` must be updated to reflect this change (FR-006/FR-007/SC-003) to align with Constitution Principle IV (Single Source of Truth).
-
-> **Spec Assumption Correction**: The `spec.md` Assumptions state "The dataset size is sufficient... targeting an effective sample size of ≥ 500 images." Analysis suggests that a limited number of images is likely insufficient for a 3-block CNN to learn robust microstructural features on a regression task, leading to high variance. This plan targets **≥ 2,000** synthetic images to mitigate this risk. This is a necessary correction to the spec's assumptions to ensure model generalization.
+The plan prioritizes strict data stratification by alloy family, statistical validation via Wilcoxon signed-rank tests (measuring optimization stability), and feature attribution stability using Grad-CAM IoU metrics, all designed to execute within GitHub Actions free-tier constraints (2 CPU, 7GB RAM).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11
-**Primary Dependencies**: `torch` (CPU-only), `scikit-learn`, `opencv-python` (headless), `pandas`, `numpy`, `matplotlib`, `captum` (for InputXGrad)
+**Primary Dependencies**: `torch` (CPU-only), `scikit-learn`, `opencv-python`, `pandas`, `numpy`, `matplotlib`, `datasets` (Hugging Face)
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/explainability`)
-**Testing**: `pytest`
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, 7GB RAM)
-**Project Type**: Data Science / Research Pipeline
-**Performance Goals**: Complete full training and evaluation pipeline within 6 hours on CPU-only hardware.
-**Constraints**: No GPU usage; no CUDA dependencies; memory footprint < 7GB; strict stratification by alloy family.
-**Scale/Scope**: Target a sufficiently large sample size of synthetically generated images to reduce overfitting variance; training seeds; Multiple images for attribution.
+**Testing**: `pytest` (unit), custom integration scripts for pipeline validation
+**Target Platform**: Linux (GitHub Actions free-tier runner)
+**Project Type**: Data Science / Machine Learning Pipeline (Methodological Validation)
+**Performance Goals**: Complete training and evaluation of 5 seeds + baselines within 6 hours on 2-core CPU.
+**Constraints**:
+- No GPU usage (CPU-first strategy).
+- Image resolution fixed at 128x128 pixels (verified against `2603.25384`).
+- Strict stratification by alloy family (steel, Al, and Ti).
+- **Data Source**: Synthetic Microstructure Generator (replaces the unavailable real dataset assumption).
+**Scale/Scope**: Target effective sample size $\ge$ [deferred] images generated locally to ensure statistical power.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Primary data source is a reproducible synthetic generator within the repo. Random seed fixed for data splits; multiple seeds for model training. All dependencies pinned in `requirements.txt`. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` restricted to verified dataset URLs (none found) or the internal synthetic generator logic. No unverified external claims in the plan. |
-| **III. Data Hygiene** | **PASS** | Raw data (synthetic or user) preserved in `data/raw`. Preprocessed images written to `data/processed` with new filenames. Checksums recorded in `state` file. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (R², MAE, IoU) generated by code and stored in JSON/CSV artifacts. No hand-typed numbers in the paper. |
-| **V. Versioning Discipline** | **PASS** | Artifacts under `data/` and `code/` will carry content hashes. State file updated on artifact changes. |
-| **VI. Microstructural Feature Attribution** | **PASS** | InputXGrad heatmaps (regression-appropriate) generated for a representative subset of test images. Stability measured via IoU. Outputs archived in `data/explainability/` conforming to `contracts/attribution_schema.schema.yaml`. |
-| **VII. Alloy-Family Stratification** | **PASS** | Train/Val/Test split (majority/minority/minority) enforced with stratification on `alloy_family`. Metrics reported per family and pooled. |
-
-## Contract Mapping
-
-The following contract files define the strict data and output schemas for this project, ensuring the implementation steps align with the defined data contracts:
-
-- **Data Ingestion**: The input CSV must conform to `contracts/dataset_schema.schema.yaml`. The `ingest.py` script validates this before processing.
-- **Evaluation**: The output metrics JSON must conform to `contracts/evaluation_schema.schema.yaml`. The `evaluate.py` script writes results in this format.
-- **Attribution**: The heatmap stability reports must conform to `contracts/attribution_schema.schema.yaml`. The `stability.py` script validates this format.
+- **I. Reproducibility**: Plan mandates fixed random seeds for all splits and training runs. All dependencies pinned in `requirements.txt`. The "ground truth" is the deterministic logic of the synthetic generator, ensuring full reproducibility of the *synthetic* results. This satisfies the principle for the *synthetic* domain, though it does not validate against observed physical phenomena.
+- **II. Verified Accuracy**: Citations for datasets and methods will be restricted to the "Verified datasets" block provided in the prompt. No title-token overlap assumptions.
+- **III. Data Hygiene**: Plan includes checksumming of raw data (generated) and immutable derivation steps (raw $\to$ processed $\to$ explainability).
+- **IV. Single Source of Truth**: All metrics (R², MAE, IoU) are generated by code and stored in JSON/CSV; no hand-typed values in `plan.md` or `research.md`.
+- **V. Versioning Discipline**: Content hashes for artifacts will be managed by the runtime; plan defines the artifact generation logic.
+- **VI. Microstructural Feature Attribution**: Grad-CAM heatmaps and IoU stability scores are mandatory outputs (FR-006, FR-007). In the synthetic context, these are validated against known ground-truth grain boundary masks.
+- **VII. Alloy-Family Stratification**: Data splitting logic explicitly enforces stratification by alloy family (steel, Al, Ti) with fixed seeds. The synthetic generator assigns labels to satisfy this requirement.
 
 ## Project Structure
 
@@ -59,54 +48,99 @@ specs/001-gene-regulation/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── dataset_schema.schema.yaml
+    ├── output.schema.yaml
+    ├── evaluation_schema.schema.yaml
+    └── attribution_schema.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-266-machine-learning-prediction-of-fracture-/
-├── code/
-│   ├── __init__.py
-│   ├── requirements.txt
-│   ├── data/
-│   │   ├── ingest.py          # Data loading and checksum verification
-│   │   ├── synthetic_gen.py   # Synthetic microstructure generator
-│   │   ├── preprocess.py      # Resize, grayscale, normalization, stratified split
-│   │   └── features.py        # GLCM, power spectrum extraction (for baselines)
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── cnn.py             # Lightweight 3-block CNN definition
-│   │   └── baselines.py       # Linear Regression, Random Forest wrappers
-│   ├── train/
-│   │   ├── train_cnn.py       # Training loop with seed management
-│   │   └── evaluate.py        # Metric calculation and Permutation Test
-│   └── explain/
-│       ├── inputxgrad.py      # Heatmap generation (Integrated Gradients)
-│       └── stability.py       # IoU calculation across augmentations
+code/
 ├── data/
-│   ├── raw/                   # Original images and CSVs (checksummed)
-│   ├── processed/             # 128x128 grayscale images, split metadata
-│   └── explainability/        # Heatmaps and IoU reports
+│   ├── download.py          # Data ingestion script (placeholder)
+│   ├── synthetic_gen.py     # Synthetic microstructure generator
+│   ├── preprocess.py        # Image resizing, normalization, splitting
+│   └── features.py          # GLCM, power spectrum extraction
+├── models/
+│   ├── cnn.py               # Lightweight 3-block CNN definition
+│   ├── baselines.py         # Linear Regression, RandomForest
+│   └── train.py             # Training loop with seeds
+├── eval/
+│   ├── metrics.py           # R², MAE, RMSE calculation
+│   ├── attribution.py       # Grad-CAM generation
+│   └── stability.py         # IoU calculation across augmentations
+├── utils/
+│   ├── logging.py           # Standardized logging
+│   └── config.py            # Hyperparameters, paths
 ├── tests/
-│   ├── unit/
-│   │   ├── test_preprocess.py
-│   │   └── test_features.py
-│   └── contract/
-│       └── test_schemas.py
-└── state/
-    └── projects/PROJ-266-machine-learning-prediction-of-fracture-.yaml
+│   ├── test_preprocess.py   # Split validation
+│   ├── test_models.py       # Model architecture checks
+│   └── test_attribution.py  # IoU stability tests
+└── requirements.txt         # Pinned dependencies
 ```
 
-**Structure Decision**: Single `code/` directory structure selected to simplify CI execution on free-tier runners. No complex multi-service architecture is required for this batch-processing research pipeline.
+**Structure Decision**: Single project structure (`code/` root) selected to minimize overhead for a data-science pipeline. Separation of `data`, `models`, `eval`, and `utils` ensures modularity while keeping the execution path simple for the CI runner.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **5 Independent Seeds** | Required to estimate variance and run the Permutation Test on MAE distributions. | Single run would not allow any statistical significance testing. |
-| **InputXGrad + IoU** | Required by Constitution Principle VI and scientific soundness for regression tasks. | Grad-CAM is undefined for regression outputs; single heatmap generation would not prove robustness. |
-| **Stratified Split** | Required by Constitution Principle VII to ensure generalization across alloy families. | Random split could result in a test set lacking specific alloy types, invalidating generalization claims. |
-| **Synthetic Data** | Required by Constitution Principle I (Reproducibility) as no verified public dataset exists. | Relying on user-provided data alone would make the CI runner unable to reproduce results. |
-| **[deferred] Images** | Required to ensure the 3-block CNN learns robust features and reduces variance in the MAE distribution. | A limited dataset (as per spec assumption) is likely insufficient for a 3-block CNN on regression, leading to high variance and invalid statistical tests. |
+|-----------|------------|-------------------------------------|
+| 3-block CNN + Baselines | Required by FR-003 and FR-004 to scientifically validate if deep learning adds value over handcrafted features. | A single model would fail to address the core research question of "predictive power of imaging data vs. traditional methods." |
+| 5 Independent Runs + Wilcoxon | Required by FR-005 to account for variance and ensure statistical significance (α = 0.05). | A single run would be subject to random initialization noise and fail the statistical rigor requirements. |
+| Grad-CAM + IoU Stability | Required by FR-006/FR-007 and Constitution Principle VI to ensure mechanistic understanding and robustness. | Simple visualization is insufficient; stability metrics are needed to rule out spurious correlations. |
+| CPU-Only Constraint | Required by Constitution and Assumptions to ensure CI compatibility. | GPU methods would fail execution on the free-tier runner; CPU-first is the only viable path for reproducibility. |
+| Synthetic Data Strategy | Required due to the absence of a verified real-world dataset in the "Verified datasets" block. | Using a real dataset is impossible without violating the "Data availability" rule (no fabrication, no gated data). |
+
+## Phases and Contract Alignment
+
+### Phase 0: Data Generation & Ingestion
+- **Task**: Generate synthetic microstructure images and `metadata.csv`.
+- **Contract**: Output `data/raw/metadata.csv` MUST validate against `contracts/dataset_schema.schema.yaml`. Specifically, the script will check that every row contains `image_path`, `k_ic`, and `alloy_family` with correct types and enum values before proceeding.
+- **Output**: `data/raw/images/`, `data/raw/metadata.csv`.
+
+### Phase 1: Preprocessing & Splitting
+- **Task**: Resize, normalize, and split data.
+- **Contract**: Output `data/processed/` structure and `split_metadata.csv` MUST validate against `contracts/dataset.schema.yaml`. The script will verify that `alloy_family` is one of ["steel", "al", "ti"], `split` is one of ["train", "val", "test"], and that the stratification logic preserves the distribution.
+- **Output**: `data/processed/train/`, `data/processed/val/`, `data/processed/test/`.
+
+### Phase 2: Model Training & Evaluation
+- **Task**: Train CNN and baselines, compute metrics.
+- **Contract**: Output `results.json` MUST validate against `contracts/output.schema.yaml`. Aggregated results MUST validate against `contracts/evaluation_schema.schema.yaml`. The script will ensure `model_type` is one of ["cnn", "linear", "random_forest"] and that `r_squared`, `mae`, `rmse` are numbers.
+- **Output**: `models/`, `results.json`, `evaluation_summary.json`.
+
+### Phase 3: Attribution & Stability
+- **Task**: Generate Grad-CAM heatmaps and compute IoU.
+- **Contract**: Output `stability_report.json` MUST validate against `contracts/attribution_schema.schema.yaml`. The script will verify that `heatmap_paths` is an array of strings, `iou_scores` is an array of numbers, and `stability_threshold_met` is a boolean.
+- **Output**: `data/explainability/heatmaps/`, `data/explainability/stability_report.json`.
+
+## User Story Alignment
+
+### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
+- **Scenario**: The system simulates the "upload" scenario by generating data locally. The preprocessing script runs on the generated images.
+- **Acceptance**: The output folder contains `train`, `val`, `test` subdirectories with images resized to 128x128. The `split_metadata.csv` records the alloy family distribution.
+- **Contract**: Validated against `contracts/dataset.schema.yaml`.
+
+### User Story 2 - Lightweight CNN Model Training and Baseline Comparison (Priority: P2)
+- **Scenario**: The system trains the CNN and baselines on the generated data.
+- **Acceptance**: The output log reports R² and MAE for all models across 5 runs, and a p-value from the Wilcoxon signed-rank test.
+- **Contract**: Validated against `contracts/output.schema.yaml` and `contracts/evaluation_schema.schema.yaml`.
+
+### User Story 3 - Feature Attribution and Stability Reporting (Priority: P3)
+- **Scenario**: The system generates Grad-CAM heatmaps for the generated test images.
+- **Acceptance**: Heatmap images are generated, and an IoU score is calculated.
+- **Contract**: Validated against `contracts/attribution_schema.schema.yaml`.
+
+## Edge Cases
+- **Large Images**: The synthetic generator produces 128x128 images directly, so this edge case is handled by design.
+- **Missing K_IC**: The generator ensures every image has a K_IC value. The preprocessing script will log and exclude any rows with missing values if they occur (e.g., due to file corruption).
+- **Stratification Failure**: The splitting logic will raise a fatal error if the test set contains only one alloy family, suggesting an increase in sample size.
+
+## Compute Feasibility
+- **CPU-First**: All models (CNN, Linear Regression, Random Forest) are designed to run on a 2-core CPU within 6 hours.
+- **Memory**: The pipeline processes images in batches to stay within 7 GB RAM.
+- **Disk**: The generated dataset (2000 images) fits within 14 GB disk.
+- **GPU Escape Hatch**: Not required for this project as all methods are CPU-tractable.

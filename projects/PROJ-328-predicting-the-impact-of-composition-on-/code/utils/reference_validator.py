@@ -1,119 +1,176 @@
+"""
+Reference Validator Utility Module.
+
+Provides functions to validate research sources, check URL accessibility,
+and verify citation formats.
+"""
 import os
 import re
 import logging
 import requests
 from pathlib import Path
 from typing import List, Optional, Tuple
-from utils.logging_config import get_logger
-from utils.error_handlers import ConfigurationError
-
-logger = get_logger(__name__)
 
 class ConstitutionError(Exception):
-    """Raised when validation fails and the pipeline must halt."""
+    """Raised when a critical configuration or validation rule is violated."""
     pass
 
-def validate_url(url: str, timeout: int = 10) -> bool:
+def validate_url(url: str, timeout: int = 10) -> Tuple[bool, str]:
     """
-    Validates a URL by attempting a HEAD request.
-    Returns True if the status code is 200, False otherwise.
+    Validate if a URL is accessible and returns a valid response.
+    
+    Args:
+        url: The URL to validate.
+        timeout: Request timeout in seconds.
+        
+    Returns:
+        Tuple of (is_valid, message)
     """
-    if not url.startswith(('http://', 'https://')):
-        return False
+    if not url or not isinstance(url, str):
+        return False, "Invalid URL format"
+    
+    # Basic regex check for URL structure
+    url_pattern = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        
+    if not url_pattern.match(url):
+        return False, "URL does not match standard pattern"
     
     try:
-        # Use HEAD first to be polite, fallback to GET if HEAD not allowed
+        # HEAD request is faster, fallback to GET if HEAD is not allowed
         response = requests.head(url, timeout=timeout, allow_redirects=True)
+        if response.status_code == 405:
+            response = requests.get(url, timeout=timeout, allow_redirects=True)
+        
         if response.status_code == 200:
-            return True
-        # Some servers return 403 for HEAD, try GET
-        response = requests.get(url, timeout=timeout, allow_redirects=True)
-        return response.status_code == 200
-    except requests.RequestException as e:
-        logger.debug(f"URL validation failed for {url}: {e}")
-        return False
+            return True, "OK"
+        else:
+            return False, f"HTTP {response.status_code}"
+    except requests.exceptions.RequestException as e:
+        return False, f"Request failed: {str(e)}"
 
-def validate_citation_format(line: str) -> Optional[dict]:
+def validate_citation_format(citation_text: str) -> Tuple[bool, str]:
     """
-    Parses a line expected to be in format: [ID] Title | URL
-    Returns a dict with 'id', 'title', 'url' if valid, None otherwise.
-    """
-    # Pattern: [T00X] or similar ID, followed by title, pipe, URL
-    # Example: [T008a] Initial Draft | https://example.com
-    pattern = r'\[(.*?)\]\s*(.*?)\s*\|\s*(https?://\S+)'
-    match = re.search(pattern, line)
+    Validate the format of a citation string.
     
-    if match:
-        return {
-            'id': match.group(1),
-            'title': match.group(2).strip(),
-            'url': match.group(3).strip()
-        }
-    return None
+    Expected format: [Author et al., Year] or similar standard academic format.
+    """
+    if not citation_text.strip():
+        return False, "Empty citation"
+    
+    # Simple check for presence of author/year pattern
+    # This is a heuristic; real validation might require NLP
+    if re.search(r'\[?.*[A-Z][a-z]+.*\d{4}.*\]?', citation_text):
+        return True, "Looks like a valid citation"
+    
+    # If it doesn't match the pattern but has text, warn but allow
+    if len(citation_text) > 10:
+        return True, "Non-standard but present citation"
+        
+    return False, "Citation format too short or unclear"
 
-def validate_research_md(input_path: Path, output_path: Path) -> List[dict]:
+def validate_research_md(draft_content: str, logger: Optional[logging.Logger] = None) -> str:
     """
-    Reads the draft research.md, validates each entry's URL and format,
-    and writes only the valid entries to research_verified.md.
+    Process the draft research content, verify URLs, and return verified content.
     
-    Returns the list of verified entries.
+    This function:
+    1. Parses the draft text to extract lines with URLs and citations.
+    2. Validates each URL.
+    3. Filters out invalid entries.
+    4. Reconstructs the verified markdown.
+    
+    Args:
+        draft_content: The raw markdown content from the draft.
+        logger: Optional logger instance.
+        
+    Returns:
+        The verified markdown content.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file {input_path} does not exist.")
-
-    verified_entries = []
-    total_entries = 0
+    if logger is None:
+        logger = logging.getLogger(__name__)
     
-    logger.info(f"Reading draft from {input_path}")
+    lines = draft_content.splitlines()
+    verified_lines = []
+    verified_lines.append("# Research Sources - Verified")
+    verified_lines.append("")
+    verified_lines.append("Generated by Reference-Validator Agent (T008b).")
+    verified_lines.append("")
+    verified_lines.append("## Verified Sources")
+    verified_lines.append("")
     
-    with open(input_path, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-
+    valid_count = 0
+    invalid_count = 0
+    
     for line in lines:
-        line = line.strip()
-        if not line or line.startswith('#'):
+        # Skip headers or empty lines that don't contain URLs
+        if not line.strip() or line.strip().startswith('#'):
+            if line.strip().startswith('#'):
+                verified_lines.append(line) # Keep headers
             continue
-
-        entry = validate_citation_format(line)
-        if entry:
-            total_entries += 1
-            logger.debug(f"Checking URL: {entry['url']}")
-            
-            if validate_url(entry['url']):
-                verified_entries.append(entry)
-                logger.debug(f"Verified: {entry['title']}")
-            else:
-                logger.warning(f"Failed validation: {entry['url']}")
-
-    if not verified_entries:
-        logger.error("No valid sources found. Halting.")
-        raise ConstitutionError("Verification failed: No valid sources found.")
-
-    # Write verified content
-    logger.info(f"Writing {len(verified_entries)} verified sources to {output_path}")
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write("# Verified Research Sources\n")
-        f.write("# Generated by T008b: Reference-Validator Agent\n")
-        f.write("# Only valid URLs and citations are included below.\n\n")
-        for entry in verified_entries:
-            f.write(f"[{entry['id']}] {entry['title']} | {entry['url']}\n")
-
-    return verified_entries
+        
+        # Look for URLs in the line
+        url_pattern = re.compile(r'(https?://[^\s\)]+)')
+        urls = url_pattern.findall(line)
+        
+        if not urls:
+            # If no URL, keep the line if it's part of a citation block, else skip
+            # For simplicity, we keep lines that look like text descriptions
+            if len(line.strip()) > 5:
+                verified_lines.append(line)
+            continue
+        
+        # Validate all URLs in the line
+        all_valid = True
+        for url in urls:
+            is_valid, msg = validate_url(url)
+            if not is_valid:
+                all_valid = False
+                logger.warning(f"Invalid URL found: {url} - {msg}")
+                break
+        
+        if all_valid:
+            verified_lines.append(line)
+            valid_count += 1
+        else:
+            invalid_count += 1
+            logger.info(f"Skipping line with invalid URL: {line[:50]}...")
+    
+    verified_lines.append("")
+    verified_lines.append(f"## Summary")
+    verified_lines.append(f"- Valid sources: {valid_count}")
+    verified_lines.append(f"- Invalid sources skipped: {invalid_count}")
+    verified_lines.append("")
+    
+    return "\n".join(verified_lines)
 
 def main():
-    """CLI entry point for direct execution."""
-    project_root = Path(__file__).resolve().parent.parent
-    specs_dir = project_root / "specs" / "001-predict-solder-hardness"
-    draft = specs_dir / "research.md"
-    verified = specs_dir / "research_verified.md"
+    """
+    CLI entry point for manual testing of the validator.
+    """
+    import sys
+    from utils.logging_config import get_logger
     
-    try:
-        count = validate_research_md(draft, verified)
-        print(f"Success: Verified {len(count)} sources.")
-    except Exception as e:
-        print(f"Failed: {e}")
+    logger = get_logger("reference_validator_cli")
+    
+    if len(sys.argv) < 2:
+        print("Usage: python -m utils.reference_validator <draft_file_path>")
         sys.exit(1)
+    
+    draft_path = Path(sys.argv[1])
+    if not draft_path.exists():
+        print(f"File not found: {draft_path}")
+        sys.exit(1)
+    
+    with open(draft_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    result = validate_research_md(content, logger)
+    print(result)
 
 if __name__ == "__main__":
-    import sys
     main()

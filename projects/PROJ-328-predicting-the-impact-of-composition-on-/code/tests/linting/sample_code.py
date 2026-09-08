@@ -1,20 +1,19 @@
 """
-Sample Python file for linting verification.
-This file contains intentional style issues to test flake8 configuration.
+Sample file for linting verification (Task T003b).
+Contains intentional style elements to verify flake8 configuration.
 """
-import os
-import sys
-
-# Intentional: long line that should trigger E501 if max-line-length is 88
-very_long_variable_name_that_exceeds_eighty_eight_characters = "This is a very long string value that exceeds the standard line length limit"
 
 def sample_function( x,y ):
-    """Sample function with bad spacing."""
-    result=x+y  # Intentional: missing spaces around operator
+    """Sample function with intentional spacing issues."""
+    result=x+y
+    # This is a comment
     return result
 
-# Intentional: unused import
-from collections import defaultdict
 
-if __name__ == "__main__":
-    print(sample_function(1, 2))
+def another_function():
+    """Another function to test linting."""
+    long_variable_name = 10
+    another_long_variable_name = 20
+    # Testing line length
+    very_long_comment_that_might_exceed_standard_line_length_limits_if_not_handled_properly_by_the_linter = "test"
+    return long_variable_name + another_long_variable_name

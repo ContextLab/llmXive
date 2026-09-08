@@ -1,26 +1,29 @@
+"""
+Reproducibility and seeding utilities.
+"""
 import random
 import os
 import numpy as np
+from typing import Optional
 
-def set_seed(seed: int = 42) -> None:
-    """Set the random seed for reproducibility across libraries."""
+def set_seed(seed: int = 42):
+    """Set random seeds for reproducibility."""
     random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
-def get_seed_env_vars() -> dict:
-    """Return a dictionary of environment variables related to seeding."""
-    return {
-        "PYTHONHASHSEED": os.environ.get("PYTHONHASHSEED", "42"),
-        "PYTHONHASHSEED_VAL": os.environ.get("PYTHONHASHSEED", "42")
-    }
+def get_seed_env_vars() -> int:
+    """Get seed from environment variable or default to 42."""
+    return int(os.environ.get('PYTHONHASHSEED', '42'))
 
-def apply_seed_env_vars() -> None:
-    """Apply seed-related environment variables to the current process."""
-    seed = os.environ.get("PYTHONHASHSEED", "42")
-    os.environ["PYTHONHASHSEED"] = str(seed)
-
-def init_reproducibility(seed: int = 42) -> None:
-    """Initialize all reproducibility settings."""
+def apply_seed_env_vars():
+    """Apply seed from environment variables."""
+    seed = get_seed_env_vars()
     set_seed(seed)
-    apply_seed_env_vars()
+
+def init_reproducibility(seed: Optional[int] = None):
+    """Initialize reproducibility settings."""
+    if seed is not None:
+        set_seed(seed)
+    else:
+        apply_seed_env_vars()

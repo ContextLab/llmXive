@@ -1,85 +1,62 @@
 # Research: Machine Learning Prediction of Fracture Toughness from Microstructure Images
 
-## Dataset Strategy
+## Introduction
+This research investigates whether microstructural images of metallic alloys (steel, aluminum, titanium) contain sufficient predictive signal to estimate fracture toughness ($K_{IC}$) using deep learning. The study compares a lightweight Convolutional Neural Network (CNN) against traditional machine learning baselines (Linear Regression, Random Forest) trained on handcrafted texture features. 
 
-The project relies on the availability of a dataset containing paired microstructure images (SEM/TEM) and fracture toughness ($K_{IC}$) values for steel, aluminum, and titanium alloys.
+**Scope Definition**: Due to the absence of an open, verified real-world dataset for metallic alloy fracture toughness in the provided "Verified datasets" block, this study **pivots to a Synthetic Microstructure Generator**. The primary goal is **Methodological Validation**: to determine if the pipeline can successfully learn complex structure-property relationships when ground truth is known, and to validate the stability of feature attribution (Grad-CAM) on synthetic data. The results are framed as a validation of the *pipeline's capability*, not as definitive claims about real-world material physics.
 
-### Verified Datasets
+## Methodology
 
-The following datasets have been verified for reachability and format. **Note**: A direct "Metallurgical Microstructure–Fracture Toughness" dataset with $K_{IC}$ labels was **not** found in the verified list provided.
+### Data Strategy
+The project relies on a **Synthetic Microstructure Generator** that creates realistic 128x128 grayscale images of simulated grain structures and assigns $K_{IC}$ values based on a deterministic, non-linear function of grain size, phase distribution, and topological connectivity.
+- **Generator Logic**: The generator simulates grain boundaries and precipitates using Voronoi tessellation. The target $K_{IC}$ is calculated using a modified Hall-Petch relation that includes a non-linear term for grain boundary connectivity (a feature not directly captured by simple GLCM). This ensures the CNN must learn complex patterns, preventing trivial baseline solutions.
+- **Alloy Family Assignment**: Synthetic images are assigned alloy families (steel, Al, Ti) via random assignment with a fixed seed to ensure stratification. The distribution is set to be equal across families (e.g., [deferred] each) to satisfy FR-002.
+- **Sample Size**: The generator targets $\ge$ [deferred] images to ensure statistical power for the Wilcoxon test.
 
-*If the provided verified datasets do not contain the required $K_{IC}$ labels, the implementation will fail the "Dataset-variable fit" check. The plan explicitly flags this gap and provides a fallback.*
+**Critical Gap Identification**:
+The spec assumes the existence of a "Metallurgical Microstructure–Fracture Toughness" dataset from the "Materials Data Facility." However, the **Verified datasets** block provided for this project contains NO valid sources for metallic alloy fracture data.
+- The listed SEM URLs are for: Mathematical answer generation (SEMEVAL), Brain tumor segmentation, and AI vs Real image detection.
+- The listed TEM URLs are for: Turkish text (OSCAR), Polish text (AEZAKMI), and Temporal language modeling.
 
-| Dataset Name | Verified URL | Format | Suitability for $K_{IC}$ Prediction |
-|:--- |:--- |:--- |:--- |
-| SEMrush Videos | ` | CSV (Video metadata) | **NO**. Contains video metadata, not microstructure images or $K_{IC}$. |
-| LandCover Aerial | ` | ZIP (Aerial imagery) | **NO**. Contains aerial land cover, not metallic microstructures. |
-| SemiKong Training | ` | Parquet (Training data) | **NO**. Likely contains non-metallurgical training data. |
-| WebVid-10M | ` | CSV (Video metadata) | **NO**. Video dataset. |
-| kbd-ru-1.67M | ` | Parquet (Text/Keyboard) | **NO**. Text/Keyboard data. |
-| CNN/DailyMail | ` | Parquet (News) | **NO**. Text summarization dataset. |
-| CNN/DailyMail Meta | ` | Parquet (News) | **NO**. Text data. |
-| CNN/DailyMail Snippets | ` | Parquet (News) | **NO**. Text data. |
+**Resolution Strategy**:
+Per the "Data availability" rules, a plan using access-gated or non-existent data is a fatal flaw. Since no open, verified source for *metallic alloy fracture toughness* exists in the provided list, and the spec's assumed dataset is not in the verified list:
+1.  The implementation **cannot** proceed with the specific "Metallurgical Microstructure–Fracture Toughness" dataset as originally assumed.
+2.  The plan adopts a **Synthetic Microstructure Generator** approach. This ensures the data is obtainable, the ground truth is known, and the pipeline is fully reproducible on the CI runner.
+3.  The research question is reframed to "Methodological Validation of the Prediction Pipeline" rather than "Predicting Real-World Fracture Toughness."
 
-**Critical Gap Identified**: None of the verified datasets listed above contain metallic alloy microstructure images paired with fracture toughness ($K_{IC}$) values.
-* **Assumption in Spec**: The spec assumes "The 'Metallurgical Microstructure–Fracture Toughness' dataset from the Materials Data Facility contains all necessary variables".
-* **Reality**: This dataset is **not** in the verified list.
-* **Plan Action**: The implementation will use a **Synthetic Microstructure Generator** as the primary data source to ensure reproducibility (Constitution Principle I). The code will also support a **user-provided local dataset** (CSV + Image folder) as a secondary fallback. The `research.md` explicitly documents this mismatch to prevent the "fatal, blocking flaw" of planning for a dataset that doesn't exist.
+**Limitations of Synthetic Data**:
+The synthetic data lacks the complex, non-linear microstructural defects (voids, inclusions, complex grain boundaries) that actually drive fracture toughness variance in real materials. A model trained on this data cannot validate the predictive power of *real* imaging data. The relationship between microstructure and K_IC in real materials is non-linear, history-dependent, and influenced by factors (e.g., residual stress, inclusion morphology) not captured by simple grain-size functions. Therefore, the results do not demonstrate generalizability to real-world fracture mechanics; they only validate the pipeline's mathematical capacity to learn the programmed mapping.
 
-### Data Variable Fit
-* **Required**: Image (SEM/TEM), $K_{IC}$ (float), Alloy Family (categorical: Steel, Al, Ti).
-* **Available in Verified List**: None.
-* **Strategy**: The `synthetic_gen.py` script generates images and $K_{IC}$ values based on a physics-informed proxy (e.g., grain size variance). The `ingest.py` script validates the presence of these columns in a local CSV if provided. If missing, the pipeline will halt with a clear error message: "Required variable 'K_IC' or 'alloy_family' missing from input."
+### Model Architecture
+- **CNN**: 3-block architecture (Conv-ReLU-BatchNorm-MaxPool) followed by FC layers (256 → 64 → 1). Input: 128x128 grayscale.
+- **Baselines**:
+    - Linear Regression on GLCM (Gray-Level Co-occurrence Matrix) features.
+    - RandomForestRegressor on GLCM and Band-pass filtered power spectrum features.
+- **Training**: 5 independent runs with different random seeds. Loss: Mean Squared Error (MSE). Optimizer: Adam.
 
-## Statistical Rigor
+### Statistical Analysis
+- **Primary Metric**: Mean Absolute Error (MAE) and $R^2$.
+- **Significance Test**: Wilcoxon signed-rank test (α = 0.05) on the distribution of MAE differences between CNN and baselines across the 5 runs. 
+    - **Null Hypothesis**: There is no difference in optimization stability between the CNN and baselines on the synthetic data.
+    - **Interpretation**: The test measures the stability of the optimizer on a fixed synthetic distribution, not the statistical significance of the model's predictive power against a null hypothesis of 'no signal' in real data. A permutation test against shuffled labels will be performed to establish a baseline for random chance.
+- **Attribution Stability**: Grad-CAM heatmaps generated for 10+ test images. IoU calculated between heatmaps of multiple augmented views of the same image.
+    - **Validation**: Heatmaps will be overlaid on the known ground-truth grain boundary masks to verify alignment with "physically meaningful" features in the synthetic context. In the synthetic domain, "physically meaningful" features are defined as the generated grain boundaries and precipitates. The stability metric validates that the CNN focuses on these structures rather than noise.
 
-### Multiple Comparison Correction
-The project compares the CNN against two baselines (Linear Regression, Random Forest).
-* **Method**: **Permutation Test** on the distribution of MAE differences across 5 seeds.
-* **Rationale**: The Wilcoxon signed-rank test is invalid for N=5 (too few pairs). The Permutation Test is non-parametric and robust for small sample sizes, allowing us to empirically estimate the null distribution by shuffling model labels.
-* **Correction**: Since the primary comparison is CNN vs. Baseline, we will report the uncorrected p-value from the Permutation Test. However, if multiple comparisons are made (e.g., CNN vs. LR AND CNN vs. RF), we will apply a **Bonferroni correction** to the final p-values to control the family-wise error rate.
+## Resolution Limits
+- **Image Resolution**: Fixed at 128x128 pixels. This is a trade-off between computational feasibility on CPU and the ability to resolve fine microstructural details (precipitates). As noted in the verified facts, 128px is the default configuration (`2603.25384`).
+- **Sample Size**: The synthetic generator will target an effective sample size of $\ge$ [deferred] images to ensure statistical power for the Wilcoxon test.
+- **Domain Generalization**: The synthetic data approach limits physical generalizability to real-world alloys. The study will explicitly frame results as "methodological validation" of the pipeline rather than definitive material science claims. The results validate the *pipeline's ability to learn structure-property relationships* when ground truth is known, not as a claim about real-world fracture mechanics.
 
-### Sample Size / Power
-* **Limitation**: The spec targets $\ge$ 500 images, but the plan now targets $\ge$ 2,000 images via synthetic generation to reduce overfitting variance.
-* **Acknowledgement**: With N=5 seeds, the statistical power to detect small differences in MAE is limited. The Permutation Test will be used, but the plan explicitly states: "With N=5, the confidence interval will be wide; significance is only claimed if the effect size is massive."
-* **Strategy**: If the actual dataset size is < 2,000, the results will be reported as 'exploratory' rather than 'definitive'.
-* **Image Count vs. Seed Count**: The validity of the statistical test depends on the number of *seeds* (N=5), not the number of images. Even with a large dataset of images, if only 5 seeds are run, the test remains invalid for significance claims without a Permutation Test. The increased image count ensures the model learns robust features, reducing the variance in the MAE distribution, which is critical for the Permutation Test to have power.
+## Results
+*Results are deferred to the implementation phase. The plan ensures that when run, the system will output:*
+- R², MAE, RMSE for CNN, Linear Regression, and Random Forest.
+- Wilcoxon test statistic and p-value.
+- Mean IoU score for Grad-CAM stability.
+- Heatmap images for test samples.
 
-### Causal Inference / Identification
-* **Observational Nature**: This is an observational study (predictive modeling). No causal claims (e.g., "Grain boundaries *cause* higher toughness") will be made.
-* **Framing**: All claims will be framed as "associational" or "predictive". The model learns correlations between texture features and $K_{IC}$.
+## Discussion
+The study will evaluate whether the CNN learns features that are stable (high IoU) and predictive (low MAE) compared to handcrafted features. If the CNN outperforms baselines with statistical significance, it suggests that deep learning can capture complex microstructural patterns (e.g., grain boundary networks) that simple texture metrics miss. The use of synthetic data ensures reproducibility but requires careful validation that the synthetic images resemble real microstructures (e.g., via visual inspection of generated samples). The strict CPU constraint ensures the pipeline is accessible to all researchers without GPU hardware.
 
-### Measurement Validity
-* **$K_{IC}$**: For synthetic data, $K_{IC}$ is assigned based on a physics-informed proxy (grain size variance). For user data, it is assumed ground truth from standard mechanical testing.
-* **Texture Features**: GLCM and Power Spectra are standard, validated metrics in materials science for quantifying grain size and phase distribution.
+The results will be interpreted as a validation of the *pipeline's ability to learn structure-property relationships* when ground truth is known, not as a claim about real-world fracture mechanics. The claim "imaging data explains variance" is tautological for synthetic data, as the variance was programmed in. Therefore, the success criteria (SC-001, SC-002) are reinterpreted as validating the *pipeline's ability* to detect the programmed signal, not the signal's existence in real materials. The comparison between the CNN and baselines is a test of the CNN's capacity to learn complex non-linearities beyond simple texture metrics, given that the synthetic K_IC is a function of grain size (which GLCM measures). If the baseline models outperform or match the CNN, it indicates that the synthetic mapping is simple enough for traditional methods, or that the CNN is overfitting the generator's specific noise.
 
-### Predictor Collinearity
-* **Issue**: Handcrafted features (GLCM) and CNN features may be correlated.
-* **Strategy**: The baselines are trained on GLCM and Power Spectra features *automatically extracted* from the raw pixel data by the same preprocessing pipeline used for the CNN. This ensures the comparison isolates the 'architecture' (CNN vs. Shallow) rather than 'feature source' (pixels vs. pre-computed). The null hypothesis is that the CNN's ability to learn non-linear combinations of these features (and spatial hierarchies) provides superior predictive power over the handcrafted features alone.
-
-### Attribution Methodology
-* **Method**: **InputXGrad (Integrated Gradients)** is selected over Grad-CAM.
-* **Rationale**: Grad-CAM is designed for classification tasks (activating class-specific neurons) and is mathematically undefined for regression tasks without arbitrary adaptations. InputXGrad is the standard, mathematically rigorous method for attributing scalar outputs (like $K_{IC}$) to input features. This ensures the attribution is scientifically sound and aligns with the project's goal of identifying predictive microstructural motifs.
-* **Stability**: Stability is validated via Intersection-over-Union (IoU) across multiple augmented views of the same image.
-
-## Compute Feasibility
-
-* **Hardware**: 2 vCPU, 7GB RAM, No GPU.
-* **Model**: 3-block CNN (Conv-ReLU-BN-MaxPool) $\to$ FC (256 $\to$ 64 $\to$ 1).
- * **Parameter Count**: Estimated $\approx 0.5 - 1.0$ million parameters.
- * **Memory Footprint**: $\approx 4-8$ MB for model weights. Training batch size will be set to 16 or 32 to fit in RAM.
-* **Dataset**: [deferred] images $\times$ 128x128 pixels $\times$ 1 channel $\times$ 5 seeds.
- * **Disk**: $\approx 2000 \times 128 \times 128 / 1024 / 1024 \approx 32$ MB (negligible).
- * **RAM**: Loading all images into memory at once is feasible.
-* **Time Limit**: 6 hours.
- * **Estimate**: 5 seeds $\times$ 100 epochs $\times$ 2000 samples / 32 batch size $\approx$ [deferred] iterations.
- * **CPU Speed**: ~100-200 iterations/sec on 2 vCPU. Total time $\approx$ 2.5-4 hours. Safe margin.
-
-## Decision Rationale
-
-1. **Synthetic Data**: The plan explicitly adopts a synthetic data generator to ensure reproducibility (Constitution Principle I) and overcome the lack of a verified external dataset.
-2. **CPU-Only**: All libraries are pinned to CPU-compatible versions. No CUDA, no 8-bit quantization.
-3. **Statistical Test**: Permutation Test is chosen over Wilcoxon because N=5 is too small for Wilcoxon to have power. The Permutation Test is valid for small N.
-4. **Attribution**: InputXGrad (Integrated Gradients) is selected as the standard, mathematically defined method for regression tasks, replacing Grad-CAM which is undefined for continuous outputs.
-5. **Baseline Fairness**: Baselines use automatically extracted features from the same pipeline as the CNN, ensuring a fair comparison of architecture vs. feature representation.
-6. **Sample Size**: The target sample size is increased to [deferred] images to ensure the 3-block CNN can learn robust microstructural features and reduce variance in the MAE distribution, addressing the concern that 500 images is insufficient.
+The results are framed as a validation of the pipeline's capability, not as definitive claims about real-world material physics. The synthetic data lacks the complex, non-linear microstructural defects that actually drive fracture toughness variance in real materials. Therefore, the results do not demonstrate generalizability to real-world fracture mechanics.

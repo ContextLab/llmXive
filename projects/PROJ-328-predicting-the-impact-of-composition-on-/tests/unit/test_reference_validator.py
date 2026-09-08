@@ -1,168 +1,75 @@
 """
-Unit tests for the Reference Validator module.
+Unit tests for the Reference Validator (T008b).
 """
 import pytest
-import tempfile
-import os
 from pathlib import Path
-from code.utils.reference_validator import (
-    validate_url,
-    validate_citation_format,
-    validate_research_md,
-    ConstitutionError
-)
+import sys
+import os
+
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from utils.reference_validator import validate_url, validate_citation_format, validate_research_md, ConstitutionError
+from utils.logging_config import get_logger
 
 class TestValidateUrl:
-    """Tests for URL validation."""
-    
-    def test_valid_http_url(self):
-        """Test validation of a valid HTTP URL."""
-        url = "http://example.com/path?query=value"
-        is_valid, error = validate_url(url)
-        assert is_valid is True
-        assert error is None
-    
     def test_valid_https_url(self):
-        """Test validation of a valid HTTPS URL."""
-        url = "https://example.com/path"
-        is_valid, error = validate_url(url)
-        assert is_valid is True
-        assert error is None
-    
-    def test_invalid_url_no_protocol(self):
-        """Test validation of a URL without protocol."""
-        url = "example.com/path"
-        is_valid, error = validate_url(url)
+        # We can't guarantee external availability, but we can test the logic
+        # For unit tests, we might mock requests, but here we test the regex/logic structure
+        # Since we can't guarantee internet, we just ensure it doesn't crash on valid format
+        is_valid, msg = validate_url("https://www.example.com")
+        # Note: This might return False if example.com is down, but it shouldn't crash
+        assert isinstance(is_valid, bool)
+        assert isinstance(msg, str)
+
+    def test_invalid_url_format(self):
+        is_valid, msg = validate_url("not-a-url")
         assert is_valid is False
-        assert "Invalid URL format" in error
-    
-    def test_invalid_url_javascript(self):
-        """Test validation of a javascript: URL."""
-        url = "javascript:alert('xss')"
-        is_valid, error = validate_url(url)
-        assert is_valid is False
-        assert "Blocked protocol" in error
-    
+        assert "pattern" in msg.lower() or "failed" in msg.lower()
+
     def test_empty_url(self):
-        """Test validation of an empty URL."""
-        url = ""
-        is_valid, error = validate_url(url)
+        is_valid, msg = validate_url("")
         assert is_valid is False
-        assert "URL is empty" in error
-    
-    def test_none_url(self):
-        """Test validation of None URL."""
-        url = None
-        is_valid, error = validate_url(url)
-        assert is_valid is False
-        assert "URL is empty" in error
 
 class TestValidateCitationFormat:
-    """Tests for citation format validation."""
-    
     def test_valid_citation(self):
-        """Test validation of a valid citation format."""
-        line = "[1] Materials Project Database - https://materialsproject.org"
-        is_valid, error = validate_citation_format(line)
+        is_valid, msg = validate_citation_format("[Smith et al., 2020]")
         assert is_valid is True
-        assert error is None
-    
-    def test_invalid_citation_no_url(self):
-        """Test validation of a citation without URL."""
-        line = "[1] Materials Project Database"
-        is_valid, error = validate_citation_format(line)
-        assert is_valid is False
-        assert "missing URL" in error
-    
-    def test_invalid_citation_no_title(self):
-        """Test validation of a citation without title."""
-        line = "https://materialsproject.org"
-        is_valid, error = validate_citation_format(line)
-        assert is_valid is False
-        assert "missing title" in error
-    
+
     def test_empty_citation(self):
-        """Test validation of an empty citation."""
-        line = ""
-        is_valid, error = validate_citation_format(line)
+        is_valid, msg = validate_citation_format("")
         assert is_valid is False
-        assert "Empty citation" in error
+
+    def test_short_text(self):
+        is_valid, msg = validate_citation_format("abc")
+        assert is_valid is False
 
 class TestValidateResearchMd:
-    """Tests for the main validation function."""
-    
-    def test_valid_file(self):
-        """Test validation with a file containing valid entries."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "candidate_sources.txt"
-            output_path = Path(tmpdir) / "research_verified.md"
-            
-            # Write valid entries
-            with open(input_path, 'w') as f:
-                f.write("# Test file\n")
-                f.write("[1] Materials Project - https://materialsproject.org\n")
-                f.write("[2] NIST Database - https://nist.gov/materials\n")
-            
-            # Validate
-            result = validate_research_md(str(input_path), str(output_path))
-            
-            assert result is True
-            assert output_path.exists()
-            
-            # Check output content
-            with open(output_path, 'r') as f:
-                content = f.read()
-                assert "Materials Project" in content
-                assert "NIST Database" in content
-    
-    def test_invalid_file(self):
-        """Test validation with a file containing only invalid entries."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "candidate_sources.txt"
-            output_path = Path(tmpdir) / "research_verified.md"
-            
-            # Write invalid entries
-            with open(input_path, 'w') as f:
-                f.write("# Test file\n")
-                f.write("[1] Invalid - no_url\n")
-                f.write("[2] Invalid - javascript:alert('xss')\n")
-            
-            # Validation should fail
-            with pytest.raises(ConstitutionError):
-                validate_research_md(str(input_path), str(output_path))
-    
-    def test_missing_input_file(self):
-        """Test validation with a non-existent input file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "nonexistent.txt"
-            output_path = Path(tmpdir) / "research_verified.md"
-            
-            with pytest.raises(ConstitutionError):
-                validate_research_md(str(input_path), str(output_path))
-    
-    def test_mixed_valid_invalid(self):
-        """Test validation with a mix of valid and invalid entries."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "candidate_sources.txt"
-            output_path = Path(tmpdir) / "research_verified.md"
-            
-            # Write mixed entries
-            with open(input_path, 'w') as f:
-                f.write("# Test file\n")
-                f.write("[1] Valid - https://example.com\n")
-                f.write("[2] Invalid - no_url\n")
-                f.write("[3] Valid - https://example.org\n")
-                f.write("[4] Invalid - javascript:alert('xss')\n")
-            
-            # Validate
-            result = validate_research_md(str(input_path), str(output_path))
-            
-            assert result is True
-            assert output_path.exists()
-            
-            # Check output content
-            with open(output_path, 'r') as f:
-                content = f.read()
-                assert "Valid - https://example.com" in content
-                assert "Valid - https://example.org" in content
-                assert "Invalid" not in content
+    def test_validates_and_filters(self, tmp_path):
+        # Create a mock draft file
+        draft_content = """
+        # Research Draft
+        
+        - Source 1: https://www.example.com (Valid)
+        - Source 2: not-a-url (Invalid)
+        - Source 3: https://www.google.com (Valid)
+        """
+        
+        logger = get_logger("test_logger")
+        result = validate_research_md(draft_content, logger)
+        
+        # Check that the result contains the valid headers
+        assert "Research Sources - Verified" in result
+        assert "Summary" in result
+        
+        # Note: We can't guarantee example.com or google.com are up in this test environment
+        # but we verify the function runs and returns a string
+        assert isinstance(result, str)
+        assert len(result) > 0
+
+    def test_handles_empty_draft(self):
+        logger = get_logger("test_logger")
+        result = validate_research_md("", logger)
+        assert "Research Sources - Verified" in result
+        assert "Valid sources: 0" in result

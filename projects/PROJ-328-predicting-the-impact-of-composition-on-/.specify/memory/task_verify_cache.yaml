@@ -1,10 +1,9 @@
 T002:
   c: false
-  h: a0fb782e2d26820e8bf175aac7178990f59566e397be776ccde8a4f8890515de
-  r: "The required `projects/PROJ-328-predicting-the-impact-of-composition-on-/requirements.txt`\
-    \ file does not exist, and the only `requirements.txt` present is at a different\
-    \ location. Without the correctly placed file, the task\u2019s requirement is\
-    \ not satisfied."
+  h: fff6acd31e4a96a3f9baed6b86dd08333cb6c8b9387216aa101f936157075ffc
+  r: "The required `requirements.txt` file does not exist at `projects/PROJ-328-predicting-the-impact-of-composition-on-/requirements.txt`;\
+    \ only a different `requirements.txt` is present elsewhere. Consequently the task\u2019\
+    s location-specific requirement is not satisfied."
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,24 +24,6 @@ T009a:
   r: I could not locate any evidence of a `code/utils/` directory or an `__init__.py`
     file within it; no artifact listing or file content was provided. Without confirming
     the presence of the required scaffolding file, the task remains unfulfilled.
-T009c:
-  c: false
-  h: eb107492d8a59190b750e5bc7c51dd15778ebd23fa6178caf0cd7e5585b95bbe
-  r: "The `data/config/sources.yaml` file exists but contains placeholder URLs with\
-    \ a comment that they will be replaced after verification, so the verified URLs\
-    \ from `research_verified.md` have not actually been populated. This does not\
-    \ meet the task\u2019s requirement to populate the file with the specific, verified\
-    \ URLs and API endpoints."
-T012a:
-  c: false
-  h: b6a362b0e7f50e62c6f8fa806c34f413dab9ccd619f18ba15a8229c8a9136b22
-  r: "The repository lacks a `research_verified.md` file, so the required pre\u2011\
-    check cannot be performed, and the provided `aggregator.py` does not contain any\
-    \ logic that verifies this file or raises `ConfigError` when it is absent. Moreover,\
-    \ `data/config/sources.yaml` only contains placeholder URLs and a comment that\
-    \ they will be populated later, meaning the sources are not yet verified as the\
-    \ task demands. Consequently the implementation does not meet the critical pre\u2011\
-    check or the \u201Cverified sources\u201D requirement."
 T012c:
   c: false
   h: 23226dcdee3e1351e03fcba50f2cab9cea3ebbbecfc11d407821d38cd3107543
@@ -51,6 +32,15 @@ T012c:
     shows no concrete implementation for fetching OpenAlloy data; it only defines
     configuration loading and scaffolding. Both the essential configuration and the
     specific OpenAlloy fetch logic are missing.
+T012g:
+  c: false
+  h: 15d6ef4593602a72b74d67ccafb7040f6726ebe39c71b8a6ae2a7153cd7c75b7
+  r: "The repository contains `code/ingestion/aggregator.py`, but the shown code does\
+    \ not include any implementation that writes the required raw files (`raw_mp.json`,\
+    \ `raw_lit.csv`, `raw_openalloy.json`, `raw_slr.csv`) or generates SHA\u2011256\
+    \ checksums. Moreover, the expected `data/checksums.txt` file is absent from the\
+    \ project. These missing artifacts mean the task\u2019s core requirements are\
+    \ not satisfied."
 T014:
   c: false
   h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a
@@ -62,21 +52,22 @@ T014:
     \ file is absent. The implementer must add the missing validation logic and ensure\
     \ the status JSON is created with the exact fields."
 T016b:
-  c: false
-  h: 9146e8090ea8407a0b38cac2a2ee7b77cefc8bd2f3214a8b2a6c511c913b7636
-  r: The provided `generate_validation_report.py` is truncated, contains undefined
-    variables (e.g., `warning`), and never writes `validation_report.yaml`. Moreover,
-    the required input file `data/processed/.ingestion_status.json` and the expected
-    output `validation_report.yaml` are absent, so the script cannot be executed to
-    produce the report.
+  c: true
+  h: 9959d99f6c90e61c029025f4783bd73146602e8011237a53a4618564abe01d64
+  r: "The repository contains the required `code/ingestion/generate_validation_report.py`\
+    \ script (non\u2011empty, implements loading the JSON status, building a report\
+    \ dict, and (presumably) writing it to `validation_report.yaml`). The task only\
+    \ demanded the script; the input JSON and generated YAML are runtime artifacts,\
+    \ not required to be pre\u2011present."
 T016c:
   c: false
-  h: 26f81da17c855fa75b827ca9e9625630731b6edd3f9fe59feaecd76e4bdae274
-  r: The repository contains the `generate_validation_report.py` script but the required
-    mock `data/processed/.ingestion_status.json` file is absent, and the script itself
-    is truncated (e.g., references an undefined `warning` variable and lacks closing
-    braces). No execution output or `validation_report.yaml` is provided, so the task
-    of verifying successful run and valid YAML generation is not satisfied.
+  h: 2bd891a8f0164235e886cb71b3f13ab4693e527ab2062e8c0fbdaf87478f9988
+  r: "The repository contains the `generate_validation_report.py` script, but the\
+    \ required mock `data/processed/.ingestion_status.json` file is missing, and there\
+    \ is no evidence (e.g., execution logs, generated `validation_report.yaml`, or\
+    \ test results) showing that the script was run successfully and produced valid\
+    \ YAML. The task\u2019s core requirement\u2014to verify the script runs without\
+    \ errors and outputs a YAML report\u2014has not been demonstrated."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

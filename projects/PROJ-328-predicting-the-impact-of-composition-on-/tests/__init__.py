@@ -1,3 +1,3 @@
 """
-Test suite for the solder hardness prediction pipeline.
+Tests module for the solder hardness prediction pipeline.
 """

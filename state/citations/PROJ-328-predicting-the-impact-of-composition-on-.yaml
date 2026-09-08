@@ -232,47 +232,25 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1007/s11664-006-0123-4.pdf
   verified_at: '2026-08-13T02:06:27.701712Z'
-- artifact_hash: abd54aa596fa538fb1ed1ad0e7bfa3d95bfa032cf1c52fc49caff3eb2e1854d3
+- artifact_hash: 92301ec0306efd109fb06ddfb2be2e59a99d0d3f805e9db359b8ba410a20f87e
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Example Domain
   kind: url
-  value: https://www.materialsproject.org
+  value: https://www.example.com
   verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-09-05T09:47:47.764197Z'
-- artifact_hash: abd54aa596fa538fb1ed1ad0e7bfa3d95bfa032cf1c52fc49caff3eb2e1854d3
+  verified_against_url: https://www.example.com
+  verified_at: '2026-09-08T03:25:27.185325Z'
+- artifact_hash: 92301ec0306efd109fb06ddfb2be2e59a99d0d3f805e9db359b8ba410a20f87e
   artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: National Institute of Standards and Technology
+  fetched_title: Google
   kind: url
-  value: https://www.nist.gov/
+  value: https://www.google.com
   verification_status: pending
-  verified_against_url: https://www.nist.gov/
-  verified_at: '2026-09-05T09:47:47.764197Z'
-- artifact_hash: abd54aa596fa538fb1ed1ad0e7bfa3d95bfa032cf1c52fc49caff3eb2e1854d3
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/openalloy
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/openalloy/datasets
-  verified_at: '2026-09-05T09:47:47.764197Z'
-- artifact_hash: abd54aa596fa538fb1ed1ad0e7bfa3d95bfa032cf1c52fc49caff3eb2e1854d3
-  artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research_verified.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.sciencedirect.com/science/article/pii/S0925838820300000
-  verification_status: pending
-  verified_against_url: https://www.sciencedirect.com/science/article/pii/S0925838820300000
-  verified_at: '2026-09-05T09:47:47.764197Z'
+  verified_against_url: https://www.google.com
+  verified_at: '2026-09-08T03:25:27.185325Z'

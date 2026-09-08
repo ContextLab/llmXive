@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Output Schema"
+description: "Schema for the results.json file containing model performance metrics."
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "cnn"
+      - "linear"
+      - "random_forest"
+    description: "Type of model evaluated."
+  seed:
+    type: integer
+    description: "Random seed used for this run."
+  r_squared:
+    type: number
+    description: "Coefficient of determination."
+  mae:
+    type: number
+    description: "Mean Absolute Error."
+  rmse:
+    type: number
+    description: "Root Mean Squared Error."
+  run_time_seconds:
+    type: number
+    description: "Execution time in seconds."
+required:
+  - model_type
+  - seed
+  - r_squared
+  - mae
+  - rmse
+  - run_time_seconds
+additionalProperties: false

@@ -1,0 +1,12 @@
+status: none
+intent: Materials Project and Open Materials Database metallic alloy SEM images K_IC
+  python package dataset
+required_fields:
+- image_file
+- alloy_family
+- K_IC
+- image_modality
+- image_resolution
+cache_key: d507d5b56d5dc006cda66d775d5c7f621e781a5ddd6469cb9cbe5fff6ac59832
+searched_at: '2026-09-08T03:46:48.175989+00:00'
+retry_count: 1

@@ -1,17 +1,3 @@
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/descriptors.py` file or any code implementing the six molecular descriptor\
-    \ calculations is present; the submission provides no artifact to verify that\
-    \ volume, surface area, dipole, H\u2011bond acceptor/donor counts, and polar surface\
-    \ area are actually computed. The required implementation is missing."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data file was provided that demonstrates the calculation\
-    \ of `packing_coefficient = V_mol / V_cell` nor the filtering of values outside\
-    \ the [0,\u202F1] range. Without such artifacts, we cannot confirm the requirement\
-    \ was implemented."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -80,3 +66,10 @@ T038:
   r: The required artifact `results/metrics.json` does not exist, so there is no file
     to check for required fields or the Bonferroni flag. The task cannot be considered
     satisfied until the JSON file is present and contains the specified content.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file or any schema files under a `contracts/` directory were
+    presented. Without these artifacts, the requirement to generate documentation
+    and contract schemas from the data model is not satisfied. The implementer must
+    add the missing markdown guide and the corresponding schema files.

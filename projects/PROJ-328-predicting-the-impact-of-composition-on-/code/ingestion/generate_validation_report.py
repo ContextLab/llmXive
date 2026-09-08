@@ -5,7 +5,7 @@ Reads the ingestion status from data/processed/.ingestion_status.json
 and generates a structured validation report at data/processed/validation_report.yaml.
 
 This script ensures data consistency by explicitly reading threshold_status,
-warning_text, and manual review counts from the JSON state file.
+exact_N, and power_limitation_warning from the JSON state file produced by T014.
 """
 import os
 import sys
@@ -60,39 +60,23 @@ def generate_validation_report(status: dict) -> dict:
     Returns:
         A dictionary representing the validation report.
     """
-    # Explicitly extract required fields to ensure consistency
+    # Explicitly extract required fields as per T014 output schema
+    # Schema: threshold_status (str), exact_N (int), power_limitation_warning (str)
     threshold_status = status.get('threshold_status', 'UNKNOWN')
-    warning_text = status.get('warning_text', '')
-    total_records = status.get('total_records', 0)
-    valid_records = status.get('valid_records', 0)
-    filtered_records = status.get('filtered_records', 0)
+    exact_n = status.get('exact_N', 0)
+    power_limitation_warning = status.get('power_limitation_warning', '')
     
-    # Extract manual review counts if present
-    manual_review_counts = status.get('manual_review_counts', {})
-    
-    # Extract checksums if present
-    checksums = status.get('checksums', {})
-
+    # Map to output schema: status, count, power_limitation_warning
     report = {
         "report_metadata": {
             "generated_at": datetime.utcnow().isoformat() + "Z",
             "source_file": str(STATUS_FILE),
-            "report_type": "Ingestion Validation Summary"
+            "report_type": "Ingestion Validation Summary",
+            "task_id": "T016b"
         },
-        "ingestion_summary": {
-            "threshold_status": threshold_status,
-            "total_records_processed": total_records,
-            "valid_records": valid_records,
-            "filtered_records": filtered_records,
-            "warning_message": warning_text
-        },
-        "manual_review_queue": {
-            "total_count": sum(manual_review_counts.values()) if manual_review_counts else 0,
-            "breakdown": manual_review_counts
-        },
-        "data_integrity": {
-            "checksums": checksums
-        },
+        "status": threshold_status,
+        "count": exact_n,
+        "power_limitation_warning": power_limitation_warning,
         "associational_warning": "NOTE: Results are associational, not causal. See FR-007."
     }
 

@@ -184,7 +184,7 @@
 
 - [ ] T037 [P] Update `state/projects/PROJ-238.../artifact_hashes` with final result checksums
 - [ ] T038 Verify `results/metrics.json` contains all required fields and the Bonferroni flag
-- [~] T039 [P] Generate `quickstart.md` and `contracts/` schemas from data model
+- [ ] T039 [P] Generate `quickstart.md` and `contracts/` schemas from data model
 - [X] T040 [P] Execute full pipeline validation: Run `code/01_ingest_and_descriptors.py`, `code/02_train_models.py`, and `code/03_evaluate_and_report.py` in a CI environment. <!-- ATOMIZE: requested -->
  **Verification**: All exit codes are 0 and artifacts are generated in `data/` and `results/`.
 

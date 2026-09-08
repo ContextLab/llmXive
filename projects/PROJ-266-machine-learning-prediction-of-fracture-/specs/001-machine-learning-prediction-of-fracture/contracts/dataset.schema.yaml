@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Metadata Schema"
+description: "Schema for the metadata.csv file containing image paths, alloy families, and K_IC values."
+type: object
+properties:
+  image_id:
+    type: string
+    description: "Unique identifier for the image file."
+  file_path:
+    type: string
+    description: "Relative path to the image file within data/raw/images."
+  alloy_family:
+    type: string
+    enum:
+      - "steel"
+      - "al"
+      - "ti"
+    description: "Alloy family classification."
+  k_ic_value:
+    type: number
+    description: "Fracture toughness value in MPa·m^0.5 (synthetic ground truth)."
+  split:
+    type: string
+    enum:
+      - "train"
+      - "val"
+      - "test"
+    description: "Data split assignment."
+required:
+  - image_id
+  - file_path
+  - alloy_family
+  - k_ic_value
+  - split
+additionalProperties: false
