@@ -116,7 +116,7 @@ tests/
 *   **Source**: Human Connectome Project (HCP) Large-Sample Release.
 *   **Access Method**: **HCP S via AWS S3 public bucket (us-east-1) using `awscli` with anonymous public read access**.
     *   *Fallback*: If the specific HCP S3 bucket is inaccessible or the download fails for a subject, the pipeline will skip the subject, log the error, and continue. If >5% of subjects fail, the pipeline will abort and suggest using the verified OpenNeuro dataset `ds` (HCP minimal processing pipeline data) as a smaller, verified alternative.
-    *   *Constraint Check*: The spec assumes a cohort of subjects. If the CI cannot hold 50 raw datasets, we will process them one-by-one (download -> process -> delete raw) to stay within disk limits.
+    *   *Constraint Check*: The spec assumes a cohort of subjects. If the CI cannot hold a large volume of raw datasets, we will process them one-by-one (download -> process -> delete raw) to stay within disk limits.
 
 ## Phase Breakdown
 

@@ -224,3 +224,646 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-07T10:20:52Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: cohort size is 100 subjects
+  claim_id: c_ba15e6ac
+  context: 'Schema for subject_list_manifest.json includes total_subjects: 100'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'total_subjects: 100'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:42:54Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: 98 subjects were attempted in the cohort
+  claim_id: c_5dd09b5d
+  context: 'Schema for subject_list_manifest.json includes subjects_attempted: 98'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'subjects_attempted: 98'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:43:22Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Schaefer parcellation uses 400 nodes
+  claim_id: c_262c70e2
+  context: Shape of weighted_adjacency.npy is (N, N) where N is the number of parcellation
+    nodes (e.g., 400)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N is the number of parcellation nodes (e.g., 400)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:44:50Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: There are 13 directed 3-node isomorphism classes
+  claim_id: c_c1ed95f5
+  context: 'Note: M1 to M13 represent the 13 possible directed 3-node isomorphism
+    classes'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: M1 to M13 represent the 13 possible directed 3-node isomorphism classes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:45:24Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Dependencies are Python 3.9, NumPy 1.24, and NetworkX 3.1
+  claim_id: c_e61b8723
+  context: 'Versioning section lists Dependencies: Python 3.9+, NumPy 1.24+, NetworkX
+    3.1+'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Dependencies: Python 3.9+, NumPy 1.24+, NetworkX 3.1+'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:45:44Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Pipeline operates on SC, FC, and Motif Profile data domains
+  claim_id: c_0c061dba
+  context: 'The pipeline operates on three primary data domains: Structural Connectome
+    (SC), Functional Connectivity (FC), and Motif Profiles.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_operates_on_SC,_FC,_and_Motif_Profile_data_domains
+  kind: entity_fact
+  raw_text: 'The pipeline operates on three primary data domains: Structural Connectome
+    (SC), Functional Connectivity (FC), and Motif Profiles.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:56:21Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Total subjects in manifest is 100
+  claim_id: c_5652f90a
+  context: 'The canonical list of subjects attempted in the current run. { "total_subjects":
+    100, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total number of subjects in the subject manifest is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:56:49Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: M1-M13 standard naming for directed 3-node isomorphism classes per Milo
+    et al. 2002
+  claim_id: c_9475582b
+  context: 'M1-M13: Standard naming for directed 3-node isomorphism classes (Milo
+    et al., 2002).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: M1-M13 are standard naming for directed 3-node isomorphism classes according
+    to Milo et al., 2002.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:57:06Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: M1 represents a 3-cycle fully connected directed loop
+  claim_id: c_2f229601
+  context: 'M1: 3-cycle (fully connected directed loop).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: M1 represents a 3-cycle (fully connected directed loop).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:57:29Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: M2 represents a 2-cycle with one outgoing edge
+  claim_id: c_6635a88f
+  context: 'M2: 2-cycle with one outgoing edge.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: M2 represents a 2-cycle with one outgoing edge.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:58:10Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: There are 13 directed 3-node motifs
+  claim_id: c_da47e40f
+  context: Aggregated z-scores for all 13 directed 3-node motifs per subject.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: There are 13 directed 3-node motifs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:58:38Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Global efficiency for subject 100307 is 0.452
+  claim_id: c_d32df2eb
+  context: 'Global efficiency calculated on the binary structural connectome. { "100307":
+    { "global_efficiency": 0.452, ... } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The global efficiency for subject 100307 is 0.452.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:59:05Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Number of nodes for subject 100307 is 400
+  claim_id: c_c5dfbf78
+  context: 'Global efficiency calculated on the binary structural connectome. { "100307":
+    { ..., "n_nodes": 400 } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of nodes for subject 100307 is 400.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T00:59:38Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Pearson correlation r for M1 is 0.35
+  claim_id: c_9d451a3c
+  context: 'Final statistical outputs including Bonferroni-corrected p-values. { "M1":
+    { "pearson": { "r": 0.35, ... } } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation r for M1 is 0.35.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:03:38Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Raw p-value for Pearson correlation of M1 is 0.002
+  claim_id: c_afec9fde
+  context: 'Final statistical outputs including Bonferroni-corrected p-values. { "M1":
+    { "pearson": { ..., "p_raw": 0.002 } } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The raw p-value for Pearson correlation of M1 is 0.002.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:04:36Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Bonferroni-corrected p-value for Pearson correlation of M1 is 0.026
+  claim_id: c_1b2082bc
+  context: 'Final statistical outputs including Bonferroni-corrected p-values. { "M1":
+    { "pearson": { ..., "p_bonferroni": 0.026 } } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected p-value for Pearson correlation of M1 is 0.026.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:05:22Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Spearman correlation r for M1 is 0.32
+  claim_id: c_658bba71
+  context: 'Final statistical outputs including Bonferroni-corrected p-values. { "M1":
+    { "spearman": { "r": 0.32, ... } } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Spearman correlation r for M1 is 0.32.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:07:27Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Raw p-value for Spearman correlation of M1 is 0.004
+  claim_id: c_4a614247
+  context: 'Final statistical outputs including Bonferroni-corrected p-values. { "M1":
+    { "spearman": { ..., "p_raw": 0.004 } } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The raw p-value for Spearman correlation of M1 is 0.004.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:08:55Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Bonferroni-corrected p-value for Spearman correlation of M1 is 0.052
+  claim_id: c_7c6800ec
+  context: 'Final statistical outputs including Bonferroni-corrected p-values. { "M1":
+    { "spearman": { ..., "p_bonferroni": 0.052 } } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected p-value for Spearman correlation of M1 is 0.052.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:11:02Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Empirical p-value for motif M1 is 0.015
+  claim_id: c_83d4c385
+  context: 'Empirical p-values for significant motifs. { "motif_id": "M1", ..., "empirical_p":
+    0.015, "n_permutations": 1000 }'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The empirical p-value for motif M1 is 0.015.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T01:11:03Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Number of permutations performed for M1 is 1000
+  claim_id: c_a6f7621b
+  context: 'Empirical p-values for significant motifs. { "motif_id": "M1", ..., "empirical_p":
+    0.015, "n_permutations": 1000 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of permutations performed for M1 is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:13:14Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: VIF value is 1.2
+  claim_id: c_b8487576
+  context: 'Flags for VIF, zero-variance motifs, and method selection. { "vif_value":
+    1.2, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF value is 1.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:25:15Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Minimum detectable r in power analysis is 0.25
+  claim_id: c_c6258130
+  context: 'Parameters for power calculation. { "min_detectable_r": 0.25, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum detectable r in the power analysis is 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:26:43Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Power level in power analysis is 0.80
+  claim_id: c_ba20496b
+  context: 'Parameters for power calculation. { ..., "power_level": 0.80, ... }'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power level in the power analysis is 0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T01:27:05Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Adjusted alpha in power analysis is 0.0038
+  claim_id: c_d457663d
+  context: 'Parameters for power calculation. { ..., "adjusted_alpha": 0.0038, ...
+    }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adjusted alpha in the power analysis is 0.0038.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:27:54Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Number of subjects used in power analysis is 50
+  claim_id: c_c57ffad3
+  context: 'Parameters for power calculation. { ..., "n_subjects": 50, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of subjects used in the power analysis is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:28:44Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Statsmodels version used is 0.14.0
+  claim_id: c_e26979f3
+  context: 'Parameters for power calculation. { ..., "statsmodels_version": "0.14.0",
+    ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statsmodels version used is 0.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:29:28Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Random seed used is 42
+  claim_id: c_c1b9c2e5
+  context: 'Parameters for power calculation. { ..., "seed": 42 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed used is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:30:15Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Default number of nodes is 400 based on Schaefer 400 parcellation
+  claim_id: c_f08df3d9
+  context: 'Constraints & Validations. - N_NODES: Default 400 (Schaefer 400 parcellation).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of nodes (N_NODES) is 400 based on Schaefer 400 parcellation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:30:46Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Default motif size is 3 directed
+  claim_id: c_08e2405c
+  context: 'Constraints & Validations. - MOTIF_SIZE: Default 3 (directed).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default motif size is 3 (directed).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:31:26Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: VIF threshold is 5.0
+  claim_id: c_ddfe04e8
+  context: 'Constraints & Validations. - VIF_THRESHOLD: 5.0. If VIF > 5, fallback
+    to permutation-only analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF threshold is 5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:32:08Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Bonferroni alpha is 0.05 divided by 13 approximately 0.0038
+  claim_id: c_8e3eb9ae
+  context: 'Constraints & Validations. - BONFERRONI_ALPHA: 0.05 / 13 (approx 0.0038)
+    for 13 motifs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni alpha is calculated as 0.05 divided by 13 (approximately
+    0.0038) for 13 motifs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:32:54Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Minimum number of permutations is 1000
+  claim_id: c_eaf87b5e
+  context: 'Constraints & Validations. - PERMUTATIONS: Minimum 1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of permutations is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:33:32Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Subject 100307 has M1 z-score 1.23 and count 500
+  claim_id: c_b7a56e6f
+  context: 'Aggregated z-scores for all 13 directed 3-node motifs per subject. { "100307":
+    { "M1": { "z_score": 1.23, "count": 500 } } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subject 100307 has a motif M1 z-score of 1.23 and a count of 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:33:58Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Subject 100307 has M2 z-score -0.45 and count 420
+  claim_id: c_d6260b06
+  context: 'Aggregated z-scores for all 13 directed 3-node motifs per subject. { "100307":
+    { "M2": { "z_score": -0.45, "count": 420 } } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subject 100307 has a motif M2 z-score of -0.45 and a count of 420.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:34:36Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Subject 100307 has M13 z-score 2.10 and count 110
+  claim_id: c_9e5d7a74
+  context: 'Aggregated z-scores for all 13 directed 3-node motifs per subject. { "100307":
+    { ..., "M13": { "z_score": 2.10, "count": 110 } } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subject 100307 has a motif M13 z-score of 2.10 and a count of 110.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:35:07Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Density for subject 100307 is 0.15
+  claim_id: c_1227fa8c
+  context: 'Tracks the processing status of each subject''s structural data. { "100307":
+    { ..., "density": 0.15 } }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The density for subject 100307 is 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:35:28Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: Cohort threshold is 0.12
+  claim_id: c_2fe0e923
+  context: 'Tracks the processing status of each subject''s structural data. { ...,
+    "cohort_threshold": 0.12 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The cohort threshold is 0.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T01:36:06Z'
+- artifact_path: projects/PROJ-331-investigating-the-influence-of-network-m/specs/001-investigating-the-influence-of-network-m/motif-rsfc/data-model.md
+  attempts: 1
+  canonical: M5 and M9 are zero-variance motifs
+  claim_id: c_35942963
+  context: 'Flags for VIF, zero-variance motifs, and method selection. { ..., "zero_variance_motifs":
+    ["M5", "M9"] }'
+  evidence:
+    entailment_evidence: M5 and M9 are zero-variance motifs
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/M5_and_M9_are_zero-variance_motifs
+  kind: entity_fact
+  raw_text: M5 and M9 are listed as zero-variance motifs.
+  resolved_value: M5 and M9 are zero-variance motifs
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T01:36:08Z'

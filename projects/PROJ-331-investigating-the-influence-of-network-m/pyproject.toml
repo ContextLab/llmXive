@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "motif-rsfc-pipeline"
+name = "motif-rsfc-analysis"
 version = "0.1.0"
 description = "Investigating the Influence of Network Motifs on Resting-State Functional Connectivity"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "numpy",
     "scipy",
@@ -20,34 +20,37 @@ dependencies = [
     "tqdm",
     "joblib",
     "dipy",
-    "flake8",
-    "black",
-    "pytest",
+    "statsmodels",
+    "weasyprint",
+    "igraph",
+    "python-igraph",
 ]
 
 [tool.black]
-line-length = 88
-target-version = ['py311']
+line-length = 120
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
-  | results
-  | state
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | results
+    | state
 )/
 '''
 
-[tool.setuptools]
-packages = ["code", "tests", "scripts"]
+[tool.isort]
+profile = "black"
+line_length = 120
+skip = ["data", "results", "state", ".git", "__pycache__"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

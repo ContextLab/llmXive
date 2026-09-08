@@ -29,9 +29,11 @@ def mock_config(tmp_path):
         'DOCS_DIR': str(tmp_path / 'docs'),
         'STATE_DIR': str(tmp_path / 'state'),
         'SEED': 42,
-        'NUM_MOTIFS': 13,
+        'N_MOTIF_NODES': 3,
+        'EXPECTED_COHORT_SIZE': 10,
+        'ALPHA': 0.05,
         'PERMUTATIONS': 1000,
-        'ALPHA': 0.05
+        'VIF_THRESHOLD': 5.0
     }
     
     # Create directories
@@ -50,7 +52,32 @@ def mock_config(tmp_path):
     checksums_file = Path(config_data['DATA_RAW_DIR']) / '.checksums.json'
     with open(checksums_file, 'w') as f:
         json.dump({}, f)
+
+    # Create a mock subject list manifest
+    manifest_file = Path(config_data['DATA_PROCESSED_DIR']) / 'subject_list_manifest.json'
+    with open(manifest_file, 'w') as f:
+        json.dump({
+            "total_subjects": config_data['EXPECTED_COHORT_SIZE'],
+            "subject_ids": [f"100{str(i).zfill(3)}" for i in range(config_data['EXPECTED_COHORT_SIZE'])],
+            "subjects_attempted": config_data['EXPECTED_COHORT_SIZE']
+        }, f)
     
+    # Create a mock structural connectome metadata file
+    metadata_file = Path(config_data['DATA_PROCESSED_DIR']) / 'structural_connectome_metadata.json'
+    with open(metadata_file, 'w') as f:
+        json.dump({
+            "subjects": {f"100{str(i).zfill(3)}": "complete" for i in range(config_data['EXPECTED_COHORT_SIZE'])}
+        }, f)
+
+    # Create a mock global efficiency file
+    eff_file = Path(config_data['DATA_PROCESSED_DIR']) / 'global_efficiency.json'
+    with open(eff_file, 'w') as f:
+        json.dump([
+            {"subject_id": f"100{str(i).zfill(3)}", "global_efficiency": 0.5 + (i * 0.01)}
+            for i in range(config_data['EXPECTED_COHORT_SIZE'])
+        ], f)
+
+    # Patch the config module with these values
     with patch('config.DATA_RAW_DIR', config_data['DATA_RAW_DIR']):
         with patch('config.DATA_PROCESSED_DIR', config_data['DATA_PROCESSED_DIR']):
             with patch('config.DATA_LOGS_DIR', config_data['DATA_LOGS_DIR']):
@@ -59,10 +86,12 @@ def mock_config(tmp_path):
                         with patch('config.DOCS_DIR', config_data['DOCS_DIR']):
                             with patch('config.STATE_DIR', config_data['STATE_DIR']):
                                 with patch('config.SEED', config_data['SEED']):
-                                    with patch('config.NUM_MOTIFS', config_data['NUM_MOTIFS']):
-                                        with patch('config.PERMUTATIONS', config_data['PERMUTATIONS']):
+                                    with patch('config.N_MOTIF_NODES', config_data['N_MOTIF_NODES']):
+                                        with patch('config.EXPECTED_COHORT_SIZE', config_data['EXPECTED_COHORT_SIZE']):
                                             with patch('config.ALPHA', config_data['ALPHA']):
-                                                yield config_data
+                                                with patch('config.PERMUTATIONS', config_data['PERMUTATIONS']):
+                                                    with patch('config.VIF_THRESHOLD', config_data['VIF_THRESHOLD']):
+                                                        yield config_data
 
 @pytest.fixture
 def mock_logger(tmp_path):

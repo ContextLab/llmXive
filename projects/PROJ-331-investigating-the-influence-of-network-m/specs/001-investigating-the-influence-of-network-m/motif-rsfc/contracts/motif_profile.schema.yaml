@@ -1,0 +1,148 @@
+%YAML 1.2
+---
+# Schema for Motif Profile Data
+# Defines the structure for motif z-scores and counts aggregated per subject.
+# Generated for task T011 in project PROJ-331.
+# Dependency: T009 (data-model.md)
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MotifProfile"
+description: "Aggregated motif analysis results per subject, including z-scores and raw counts."
+type: object
+additionalProperties: false
+
+properties:
+  metadata:
+    type: object
+    description: "Metadata about the generation of this profile."
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of generation."
+      n_motif_nodes:
+        type: integer
+        description: "Number of nodes in the motif (n=3 for this study)."
+      null_model_iterations:
+        type: integer
+        description: "Number of iterations used for the null model generation."
+      z_thresholds_used:
+        type: array
+        items:
+          type: number
+        description: "List of z-score thresholds used in sensitivity analysis (e.g., 1.5, 2.0, 2.5)."
+      software_versions:
+        type: object
+        properties:
+          python:
+            type: string
+          networkx:
+            type: string
+          numpy:
+            type: string
+        description: "Versions of key libraries used."
+    required:
+      - generated_at
+      - n_motif_nodes
+      - null_model_iterations
+
+  subjects:
+    type: object
+    description: "Keys are subject IDs, values are motif profiles."
+    patternProperties:
+      "^sub-[0-9]+$":
+        type: object
+        description: "Motif profile for a specific subject."
+        additionalProperties: false
+        properties:
+          subject_id:
+            type: string
+            description: "The subject ID (repeated for clarity)."
+          structural_connectome_path:
+            type: string
+            description: "Relative path to the binary structural connectome used."
+          analysis_status:
+            type: string
+            enum:
+              - complete
+              - timeout
+              - error
+            description: "Status of the motif analysis for this subject."
+          error_message:
+            type: string
+            nullable: true
+            description: "Error message if status is 'error' or 'timeout'."
+          motifs:
+            type: object
+            description: "Dictionary of motif results keyed by motif ID (e.g., M1, M2...)."
+            patternProperties:
+              "^M[0-9]+$":
+                type: object
+                description: "Results for a specific motif type."
+                additionalProperties: false
+                properties:
+                  count:
+                    type: integer
+                    minimum: 0
+                    description: "Observed count of this motif in the subject's graph."
+                  mean_null:
+                    type: number
+                    description: "Mean count from the degree-preserving null model."
+                  std_null:
+                    type: number
+                    minimum: 0
+                    description: "Standard deviation of counts from the null model."
+                  z_score:
+                    type: number
+                    description: "Calculated z-score: (observed - mean_null) / std_null."
+                  p_value_raw:
+                    type: number
+                    minimum: 0
+                    maximum: 1
+                    description: "Raw p-value (optional, if calculated)."
+                required:
+                  - count
+                  - mean_null
+                  - std_null
+                  - z_score
+        required:
+          - subject_id
+          - analysis_status
+          - motifs
+    required:
+      - metadata
+      - subjects
+
+required:
+  - metadata
+  - subjects
+
+examples:
+  - metadata:
+      generated_at: "2023-10-27T10:00:00Z"
+      n_motif_nodes: 3
+      null_model_iterations: 100
+      z_thresholds_used: [1.5, 2.0, 2.5]
+      software_versions:
+        python: "3.9.0"
+        networkx: "2.8.0"
+        numpy: "1.23.0"
+    subjects:
+      sub-001:
+        subject_id: "sub-001"
+        structural_connectome_path: "data/processed/sub-001/canonical_binary_adj.npy"
+        analysis_status: "complete"
+        error_message: null
+        motifs:
+          M1:
+            count: 150
+            mean_null: 120.5
+            std_null: 10.2
+            z_score: 2.89
+            p_value_raw: 0.0038
+          M2:
+            count: 45
+            mean_null: 48.0
+            std_null: 5.5
+            z_score: -0.55
+            p_value_raw: 0.58

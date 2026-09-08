@@ -1,0 +1,47 @@
+# Schema for Statistical Analysis Results
+# Defines the structure for power analysis and permutation test outputs
+# Used by: code/stats.py (T034, T032c), code/report.py (T035b)
+# Dependency: T009 (data-model.md)
+
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisResults
+description: |
+  Aggregated statistical outputs from the motif-rsfc correlation analysis.
+  Includes power analysis parameters, permutation test results, and method selection flags.
+
+type: object
+required:
+  - power_analysis
+  - permutation_results
+  - quality_flags
+  - metadata
+
+properties:
+  metadata:
+    type: object
+    description: Execution context and configuration snapshot
+    required:
+      - seed
+      - statsmodels_version
+      - bonferroni_alpha
+      - permutation_count
+      - vif_threshold
+      - timestamp
+    properties:
+      seed:
+        type: integer
+        description: Random seed used for reproducibility
+      statsmodels_version:
+        type: string
+        description: Version of statsmodels library used
+      bonferroni_alpha:
+        type: number
+        format: float
+        description: Bonferroni-adjusted alpha level (0.05 / N_motifs)
+      permutation_count:
+        type: integer
+        description: Number of permutations performed in the test
+      vif_threshold:
+        type: number
+        format: float
+        description: VIF thresholdvt bow GonenedARD regionalrus c/d probeanderTRore‐ariixTR

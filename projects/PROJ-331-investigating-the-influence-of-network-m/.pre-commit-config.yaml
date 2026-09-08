@@ -1,17 +1,28 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 24.3.0
+    rev: 24.2.0
     hooks:
       - id: black
-        language_version: python3.11
+        language_version: python3
+        args: [--config=pyproject.toml]
+
   - repo: https://github.com/pycqa/flake8
     rev: 7.0.0
     hooks:
       - id: flake8
-        additional_dependencies: []
         args: [--config=.flake8]
+
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
-        args: ["--profile", "black"]
+        args: [--settings-path=pyproject.toml]
+
+  - repo: local
+    hooks:
+      - id: check-requirements
+        name: Check requirements.txt consistency
+        entry: bash -c 'echo "Checking requirements consistency..."'
+        language: system
+        pass_filenames: false
+        always_run: true

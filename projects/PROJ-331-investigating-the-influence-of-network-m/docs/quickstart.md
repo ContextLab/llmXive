@@ -1,113 +1,119 @@
-# Quick Start Guide: Investigating Network Motifs on Resting-State Functional Connectivity
+# Quickstart Guide: Motif-RSFC Pipeline
 
-This guide provides step-by-step instructions to run the full pipeline on a fresh environment.
-It assumes you have a UNIX-like environment (Linux/macOS) with Python 3.9+ installed.
+This guide provides step-by-step instructions to run the full **Investigating the Influence of Network Motifs on Resting-State Functional Connectivity** pipeline on a fresh environment.
 
 ## Prerequisites
 
-- Python 3.9 or higher
-- pip (Python package installer)
-- Git (for cloning the repository)
-- At least 20GB of free disk space (for raw HCP data and processed artifacts)
-- Network access to the HCP S3 bucket (anonymous read access)
+- **Operating System**: Linux (Ubuntu 20.04+ recommended) or macOS
+- **Python**: Version 3.9 or higher
+- **Disk Space**: At least 50 GB free (for raw data and processed artifacts)
+- **Internet Access**: Required to download HCP data and Python dependencies
+- **HCP Access**: Ensure you have anonymous access to the HCP S3 bucket as per the project's `research.md` configuration.
 
-## 1. Clone the Repository
+## Step 1: Environment Setup
 
-```bash
-git clone
-cd PROJ-331-investigating-the-influence-of-network-m
-```
+1. **Clone the repository**:
+ ```bash
+ git clone <repository-url>
+ cd <project-root>
+ ```
 
-## 2. Create and Activate a Virtual Environment
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
+3. **Install dependencies**:
+ ```bash
+ pip install --upgrade pip
+ pip install -r requirements.txt
+ ```
 
-## 3. Install Dependencies
+4. **Verify HCP connectivity** (Optional but recommended):
+ ```bash
+ bash scripts/verify_hcp_access.sh
+ ```
+ Ensure this script completes successfully and creates `data/raw/.access_verified`.
 
-Install all required Python packages defined in `requirements.txt`:
+## Step 2: Project Initialization
 
-```bash
-pip install --upgrade pip
-pip install -r requirements.txt
-```
+1. **Initialize project directories**:
+ ```bash
+ python code/setup_project.py
+ ```
+ This creates `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, and `state/`.
 
-## 4. Verify HCP Data Access
+2. **Configure the pipeline**:
+ Edit `code/config.py` if necessary to set `EXPECTED_COHORT_SIZE` or other constants.
 
-Before running the full pipeline, verify that you can access the HCP S3 bucket:
+## Step 3: Run the Full Pipeline
 
-```bash
-bash scripts/verify_hcp_access.sh
-```
+The pipeline is executed in stages. Run the following commands in order:
 
-This script will create a `data/raw/.access_verified` flag if successful.
-
-## 5. Initialize Project Structure
-
-Ensure all necessary directories are created:
-
-```bash
-python -c "from setup_project import create_directories; create_directories()"
-```
-
-## 6. Run the Full Pipeline
-
-Execute the main pipeline script which orchestrates data download, preprocessing, motif analysis, and reporting:
-
-```bash
-python code/download.py
-python code/preprocess.py
-python code/motifs.py
-python code/stats.py
-python code/report.py
-```
-
-**Note**: The full pipeline may take several hours depending on the number of subjects and network speed.
-
-## 7. Validate Outputs
-
-After the pipeline completes, run the validation script to ensure all artifacts were generated correctly:
+### 3.1 Download and Process Subject Data (US1)
+This stage downloads raw DWI and rsfMRI data, performs Schaefer parcellation, and generates connectomes.
 
 ```bash
-bash scripts/validate_quickstart.sh
+python code/download.py --mode full
 ```
+*Output*: `data/processed/subject_list_manifest.json`, `data/processed/weighted_adjacency.npy`, `data/processed/canonical_binary_adj.npy`, `data/processed/rsfc.npy`.
 
-This script verifies:
-- All expected output files exist in `data/processed/` and `results/`
-- Checksums match recorded values
-- The PDF report was generated successfully
-- Log files contain required statistical parameters
+### 3.2 Motif Quantification (US2)
+This stage enumerates 3-node motifs, computes z-scores against null models, and aggregates profiles.
 
-## 8. View Results
+```bash
+python code/motifs.py --mode full
+```
+*Output*: `data/processed/motif_profiles.json`, `data/processed/sensitivity_z*.json`.
 
-- **Processed Data**: `data/processed/`
- - `subject_metrics.csv`: Aggregated metrics for all subjects
- - `motif_profiles.json`: Z-scores for all 13 directed 3-node motifs
- - `structural_connectome_metadata.json`: Status flags for each subject
-- **Analysis Results**: `results/`
- - `correlation_results.json`: Bonferroni-corrected correlation results
- - `permutation_results.json`: Empirical p-values from permutation tests
- - `power_analysis.json`: Power analysis details
- - `results.pdf`: Final report with visualizations and methods
-- **Logs**: `data/logs/pipeline.log`
- - Contains all processing steps, warnings, and statistical parameters
+### 3.3 Statistical Analysis and Reporting (US3)
+This stage correlates motif scores with functional connectivity, applies Bonferroni correction, runs permutation tests, and generates the final PDF report.
+
+```bash
+python code/stats.py --mode full
+python code/report.py --mode full
+```
+*Output*: `results/correlation_results.json`, `results/permutation_results.json`, `results/power_analysis.json`, `results/results.pdf`.
+
+## Step 4: Validation
+
+Verify that the pipeline executed correctly and all artifacts are present:
+
+1. **Check Success Rate**:
+ Inspect `data/processed/success_rate.json`. The `success_rate` should match the ratio of completed subjects to `subjects_attempted`.
+
+2. **Validate Statistical Logging**:
+ Ensure `data/logs/pipeline.log` contains the required parameters (Bonferroni alpha, seed, library versions, permutation count, VIF threshold) by running:
+ ```bash
+ python code/utils.py --validate-log
+ ```
+
+3. **Verify PDF Report**:
+ Open `results/results.pdf` and confirm the presence of:
+ - Correlation plots with confidence intervals
+ - Sensitivity analysis across z-thresholds
+ - Power analysis section
+ - Limitations section
+ - Mandatory disclaimer: "These findings are associational only and do not imply causation."
+
+4. **Run Automated Validation Script**:
+ ```bash
+ bash scripts/validate_quickstart.sh
+ ```
+ This script re-runs key steps in a clean environment and verifies all outputs against expected schemas.
 
 ## Troubleshooting
 
-### HCP Access Issues
-If `verify_hcp_access.sh` fails, ensure your network allows access to the HCP S3 bucket and that you have not exceeded any rate limits.
-
-### Memory Errors
-If you encounter memory errors during motif enumeration, the pipeline includes a fallback to `igraph` (see `code/motifs.py`). Ensure `igraph` is installed.
-
-### Timeout Errors
-If a subject exceeds the 300-second timeout for motif enumeration, the pipeline will log a warning and skip that subject for that specific motif, continuing with the rest of the cohort.
+- **HCP Download Failures**: If `stream_hcp_dwi` fails, verify your internet connection and the `HCP_S3_BUCKET` configuration in `code/config.py`. Ensure no firewall is blocking S3 access.
+- **Timeout Errors**: If motif enumeration exceeds 300s per subject, the pipeline will log a warning and skip that subject. Check `data/logs/pipeline.log` for details.
+- **Missing Dependencies**: If `pip install` fails, ensure you are using Python 3.9+ and that `requirements.txt` is up to date.
 
 ## Next Steps
 
-- Review the `results.pdf` for the final analysis
-- Examine `data/logs/pipeline.log` for detailed processing information
-- Run individual components separately for debugging or incremental analysis
-- Consult `README.md` for project overview and architecture details
+After a successful run, you can:
+- Analyze the `results/results.pdf` for scientific insights.
+- Customize the analysis by modifying parameters in `code/config.py`.
+- Extend the pipeline by implementing additional user stories or feature flags.
+
+For more details, refer to the main `README.md` and the `specs/feature/motif-rsfc/` documentation.

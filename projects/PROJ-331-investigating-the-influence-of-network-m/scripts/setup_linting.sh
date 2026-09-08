@@ -1,21 +1,23 @@
 #!/bin/bash
-# Script to initialize linting and formatting tools for the project
-# This installs pre-commit hooks and verifies configuration
+# Setup script for linting and formatting tools
+# Usage: ./scripts/setup_linting.sh
 
 set -e
 
-echo "Installing development dependencies..."
-pip install -r requirements-dev.txt
+echo "Installing linting and formatting tools..."
 
-echo "Initializing pre-commit hooks..."
-pre-commit install
+# Install development tools
+pip install black flake8 isort pre-commit pytest
 
-echo "Running a quick lint check on existing files..."
-# Run flake8 on code directory if files exist
-if [ -d "code" ]; then
-    echo "Checking code/ with flake8..."
-    flake8 code/ --config=.flake8 || echo "Lint warnings found (non-fatal in setup)"
+# Initialize pre-commit hooks if not already done
+if [ ! -d .git/hooks ]; then
+    echo "Initializing git repository..."
+    git init
 fi
 
-echo "Linting and formatting configuration complete."
-echo "To run manually: pre-commit run --all-files"
+pre-commit install
+
+echo "Linting setup complete!"
+echo "Run 'pre-commit run --all-files' to check all files"
+echo "Run 'black code/' to format code"
+echo "Run 'flake8 code/' to check for style issues"

@@ -1,102 +1,80 @@
 #!/bin/bash
-# scripts/hash_artifacts.sh
-# Finalizes versioning by generating SHA256 checksums for all processed artifacts
-# and updating the state tracking YAML file.
+# hash_artifacts.sh
+# Generates SHA256 checksums for all artifacts in data/, results/, and figures/
+# Updates state/artifacts.yaml with the checksums and metadata.
 #
-# Prerequisites:
-#   - data/processed/ directory exists with .npy, .json, .csv files
-#   - results/ directory exists with .json, .pdf files
-#   - state/ directory exists
+# Usage: ./scripts/hash_artifacts.sh
 #
-# Output:
-#   - state/artifact_checksums.yaml: Updated manifest with latest hashes and timestamps
+# Dependencies: sha256sum (standard on Linux/macOS), python3, pyyaml (pip install pyyaml)
 
 set -e
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROCESSED_DIR="${PROJECT_ROOT}/data/processed"
-RESULTS_DIR="${PROJECT_ROOT}/results"
-STATE_DIR="${PROJECT_ROOT}/state"
-CHECKSUMS_FILE="${STATE_DIR}/artifact_checksums.yaml"
-PIPELINE_LOG="${PROJECT_ROOT}/data/logs/pipeline.log"
+DATA_DIR="$PROJECT_ROOT/data"
+RESULTS_DIR="$PROJECT_ROOT/results"
+FIGURES_DIR="$PROJECT_ROOT/figures"
+STATE_DIR="$PROJECT_ROOT/state"
+STATE_FILE="$STATE_DIR/artifacts.yaml"
 
-# Ensure directories exist
-mkdir -p "${STATE_DIR}"
-mkdir -p "${PROJECT_ROOT}/data/logs"
+# Ensure state directory exists
+mkdir -p "$STATE_DIR"
 
-# Initialize log if missing
-if [ ! -f "${PIPELINE_LOG}" ]; then
-    touch "${PIPELINE_LOG}"
-fi
+# Initialize a temporary file for the YAML content
+TEMP_YAML=$(mktemp)
+echo "artifacts:" > "$TEMP_YAML"
+echo "  timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$TEMP_YAML"
+echo "  checksums:" >> "$TEMP_YAML"
 
-log_msg() {
-    local msg="[$(date '+%Y-%m-%d %H:%M:%S')] [HASH_SCRIPT] $1"
-    echo "${msg}" | tee -a "${PIPELINE_LOG}"
-}
-
-log_msg "Starting artifact hashing process..."
-
-# Check if source directories have content
-if [ ! -d "${PROCESSED_DIR}" ] || [ -z "$(ls -A ${PROCESSED_DIR} 2>/dev/null)" ]; then
-    log_msg "WARNING: ${PROCESSED_DIR} is empty or missing. No files to hash."
-fi
-
-if [ ! -d "${RESULTS_DIR}" ] || [ -z "$(ls -A ${RESULTS_DIR} 2>/dev/null)" ]; then
-    log_msg "WARNING: ${RESULTS_DIR} is empty or missing. No files to hash."
-fi
-
-# Start YAML content
-YAML_CONTENT="# Artifact Checksums Manifest\n"
-YAML_CONTENT+="# Generated: $(date -Iseconds)\n"
-YAML_CONTENT+="# Project: PROJ-331-investigating-the-influence-of-network-m\n"
-YAML_CONTENT+="# Task: T042 - Finalize versioning\n"
-YAML_CONTENT+="artifacts:\n"
-
-# Function to hash a file and append to YAML
-hash_file() {
-    local file_path="$1"
-    local relative_path="${file_path#${PROJECT_ROOT}/}"
+# Function to process a directory and append to YAML
+process_directory() {
+    local dir="$1"
+    local label="$2"
     
-    if [ -f "${file_path}" ]; then
-        local hash=$(sha256sum "${file_path}" | awk '{print $1}')
-        local size=$(stat -f%z "${file_path}" 2>/dev/null || stat -c%s "${file_path}" 2>/dev/null || echo "0")
-        local timestamp=$(date -Iseconds)
-        
-        YAML_CONTENT+="  - path: ${relative_path}\n"
-        YAML_CONTENT+="    sha256: ${hash}\n"
-        YAML_CONTENT+="    size_bytes: ${size}\n"
-        YAML_CONTENT+="    timestamp: ${timestamp}\n"
-        
-        log_msg "Hashed: ${relative_path} -> ${hash:0:12}..."
+    if [ ! -d "$dir" ]; then
+        echo "# Directory $label does not exist, skipping." >&2
+        return
     fi
+
+    # Find all files recursively, excluding hidden files and directories
+    find "$dir" -type f ! -name ".*" ! -path "*/\.*" | while read -r file; do
+        # Calculate relative path from project root
+        rel_path="${file#$PROJECT_ROOT/}"
+        
+        # Calculate SHA256
+        if command -v sha256sum &> /dev/null; then
+            checksum=$(sha256sum "$file" | awk '{print $1}')
+        elif command -v shasum &> /dev/null; then
+            # macOS fallback
+            checksum=$(shasum -a 256 "$file" | awk '{print $1}')
+        else
+            echo "Error: Neither sha256sum nor shasum found." >&2
+            exit 1
+        fi
+
+        # Get file size in bytes
+        file_size=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null)
+        
+        # Append to YAML (using a simple format)
+        # We use a unique key based on the path (sanitized)
+        safe_key=$(echo "$rel_path" | tr '/' '_')
+        echo "    - path: \"$rel_path\"" >> "$TEMP_YAML"
+        echo "      sha256: \"$checksum\"" >> "$TEMP_YAML"
+        echo "      size_bytes: $file_size" >> "$TEMP_YAML"
+        echo "      source_dir: \"$label\"" >> "$TEMP_YAML"
+    done
 }
 
-# Hash processed data files
-if [ -d "${PROCESSED_DIR}" ]; then
-    for file in "${PROCESSED_DIR}"/*.{npy,json,csv} 2>/dev/null; do
-        if [ -f "${file}" ]; then
-            hash_file "${file}"
-        fi
-    done
+# Process directories
+process_directory "$DATA_DIR" "data"
+process_directory "$RESULTS_DIR" "results"
+process_directory "$FIGURES_DIR" "figures"
+
+# Move the temporary file to the final location
+mv "$TEMP_YAML" "$STATE_FILE"
+
+echo "Checksums generated and saved to $STATE_FILE"
+
+# Optional: Verify the YAML is valid using Python if pyyaml is available
+if command -v python3 &> /dev/null; then
+    python3 -c "import yaml; yaml.safe_load(open('$STATE_FILE'))" 2>/dev/null && echo "YAML validation successful." || echo "Warning: YAML validation failed."
 fi
-
-# Hash results files
-if [ -d "${RESULTS_DIR}" ]; then
-    for file in "${RESULTS_DIR}"/*.{json,pdf,csv} 2>/dev/null; do
-        if [ -f "${file}" ]; then
-            hash_file "${file}"
-        fi
-    done
-fi
-
-# Write to state file
-echo -e "${YAML_CONTENT}" > "${CHECKSUMS_FILE}"
-
-log_msg "Checksums written to ${CHECKSUMS_FILE}"
-log_msg "Artifact hashing process completed successfully."
-
-# Final summary
-total_files=$(grep -c "path:" "${CHECKSUMS_FILE}" || echo "0")
-log_msg "Total artifacts versioned: ${total_files}"
-
-exit 0

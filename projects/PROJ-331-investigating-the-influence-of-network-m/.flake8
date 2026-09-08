@@ -1,5 +1,5 @@
 [flake8]
-max-line-length = 88
+max-line-length = 120
 extend-ignore = E203, W503
 exclude =
     .git,
@@ -10,10 +10,10 @@ exclude =
     *.egg-info,
     data,
     results,
-    state,
-    tests
+    state
 per-file-ignores =
-    # Allow long lines in data loading scripts if necessary
-    code/download.py: E501
-    code/preprocess.py: E501
-ignore = E203, W503
+    # Allow unused imports in __init__.py if any
+    */__init__.py: F401
+    # Allow unused arguments in function definitions (common in callbacks/interfaces)
+    code/*.py: N806
+max-complexity = 15

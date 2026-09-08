@@ -12,5 +12,3 @@ joblib>=1.1.0
 dipy>=1.5.0
 statsmodels>=0.12.0
 weasyprint>=53.0
-igraph>=0.9.0
-pytest>=6.2.0

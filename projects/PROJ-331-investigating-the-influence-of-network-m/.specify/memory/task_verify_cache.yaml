@@ -1,3 +1,33 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided only narrative user stories and no tangible file system
+    artifacts. There is no evidence that the required directories (`code/`, `tests/`,
+    `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`) exist or contain
+    any files, so the core task of creating the project directory structure is unmet.
+    The next implementer should create these folders (and optionally add placeholder
+    files) in the repository.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting configuration files (e.g., `.flake8`, `pyproject.toml` with Black\
+    \ settings, or a pre\u2011commit hook) were presented, nor any evidence that flake8/black\
+    \ have been set up and integrated into the project. Without these artifacts the\
+    \ requirement to \u201CConfigure linting (flake8/black) and formatting tools\u201D\
+    \ is not satisfied."
+T008:
+  c: false
+  h: f33c331b9b908b4507725b3317515635783bb3ed9f5cf10f9bc6e4d1b90b86a4
+  r: The repository lacks a `load_subject_list` implementation in `code/download.py`
+    (the shown code does not define it) and the required output file `data/processed/subject_list_manifest.json`
+    is absent. Both the function behavior and the manifest file are missing, so the
+    task is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `specs/feature/motif-rsfc/data-model.md` file (or any content thereof) was\
+    \ presented. The required markdown defining data entities, relationships, and\
+    \ file formats is missing, so the task\u2019s deliverable is not satisfied."
 T012:
   c: false
   h: 1e569817eb954940c02456d83dbce0165aba6124525bdc2c5f7aa2d412821319
@@ -5,6 +35,20 @@ T012:
     \ not exist, and the expected log file `data/logs/pipeline.log` is also missing,\
     \ so no evidence that the pipeline was run or that the required assertions were\
     \ checked. The task\u2019s deliverables are absent."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file is presented in the provided evidence, and thus we cannot\
+    \ confirm that a step\u2011by\u2011step guide (installation, configuration, execution\
+    \ command, expected outputs) exists. The required deliverable is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file was presented in the provided artifacts, and therefore there\
+    \ is no evidence that the required project overview, installation instructions,\
+    \ usage guide, dependency list, quick\u2011start steps, or contribution guide\
+    \ have been created. The implementer must add a non\u2011empty `README.md` at\
+    \ the repository root containing all specified sections."
 T026:
   c: false
   h: eb3b4845d1953fc1b5b0d8a8f1ea1116e2d481f6b13e0ad204121ffc7fdec278
