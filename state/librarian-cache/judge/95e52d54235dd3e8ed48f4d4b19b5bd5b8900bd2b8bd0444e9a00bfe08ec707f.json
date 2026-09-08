@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.20448",
+  "judged_at": "2026-09-08T13:06:25Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "This paper satisfies criterion (b) as it measures the dependent variable (volatility and non-stationary fluctuations) on the user's specific domain (financial time series), providing an empirical baseline and methodological approach for modeling temporal dependence in financial data, even though it does not exclusively focus on cryptocurrency.",
+  "relevant": true
+}

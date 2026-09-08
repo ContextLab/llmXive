@@ -3,233 +3,279 @@ import re
 import ast
 import sys
 import hashlib
-from typing import Optional, Iterator, Dict, Any, List, Set, Tuple
-from dataclasses import dataclass, field
-import json
 import logging
+import json
+import time
+from pathlib import Path
+from typing import List, Dict, Any, Optional, Iterator, Tuple
+from dataclasses import dataclass, field
 
+import networkx as nx
 from datasets import load_dataset
-import pyarrow.parquet as pq
-from io import BytesIO
 
-from config import get_data_dir
+from config import get_data_dir, get_output_dir, set_global_seeds
+from utils.logger import setup_logger, log_error, DataLoadError
+
+logger = setup_logger(__name__)
 
 @dataclass
 class ParsedIssue:
-    issue_id: str
-    description: str
-    extracted_files: List[str] = field(default_factory=list)
+    """Represents a parsed issue instance from the dataset."""
+    instance_id: str
+    repo: str
+    base_commit: str
+    problem_statement: str
+    patch: str
+    file_history: List[Dict[str, Any]]
+    relevant_lines: int
+    raw_data: Dict[str, Any]
 
 class ClawSweBenchLoader:
-    def __init__(self, dataset_name: str = "princeton-nlp/Claw-SWE-Bench"):
-        self.dataset_name = dataset_name
+    """Loader for the Claw-SWE-Bench dataset with streaming support."""
+
+    DATASET_NAME = "princeton-nlp/Claw-SWE-Bench"
+    
+    def __init__(self, streaming: bool = True):
+        self.streaming = streaming
         self.dataset = None
         self.logger = logging.getLogger(__name__)
 
-    def load_streaming(self) -> Iterator[Dict[str, Any]]:
-        """Load dataset with streaming. Fails loudly if fetch fails."""
+    def load(self) -> Iterator[Dict[str, Any]]:
+        """Load the dataset using streaming if enabled."""
         try:
             self.dataset = load_dataset(
-                self.dataset_name,
+                self.DATASET_NAME,
                 split="train",
-                streaming=True
+                streaming=self.streaming
             )
             return iter(self.dataset)
         except Exception as e:
-            raise RuntimeError(f"Failed to fetch real dataset '{self.dataset_name}': {e}")
+            log_error(logger, "DataLoadError", f"Failed to load dataset: {e}")
+            raise DataLoadError(f"Failed to load dataset: {e}") from e
 
-    def extract_starting_files(self, issue_text: str) -> List[str]:
-        """
-        Extract file paths mentioned in the issue text.
-        Method: Regex and AST-based extraction (simplified for text).
-        """
-        # Simple regex for common file patterns (e.g., src/file.py, tests/test_*.py)
-        pattern = r'(?:^|[\s/])(src/|tests/|lib/|app/)[a-zA-Z0-9_/\.-]+\.(py|js|ts|java)'
-        matches = re.findall(pattern, issue_text)
-        # Reconstruct paths
-        paths = ["".join(m) for m in matches]
-        return list(set(paths))
+def calculate_relevant_lines(issue: Dict[str, Any]) -> int:
+    """
+    Calculate the total lines of relevant file history for an issue.
+    
+    1. Parse Python imports to build a dependency graph using networkx.
+    2. Perform BFS/DFS traversal from the issue target files.
+    3. Sum the lines of all traversed files.
+    """
+    file_history = issue.get("file_history", [])
+    if not file_history:
+        return 0
 
-    def parse_issue(self, record: Dict[str, Any]) -> ParsedIssue:
-        issue_id = record.get("issue_id", "unknown")
-        description = record.get("text", "")
-        extracted_files = self.extract_starting_files(description)
-        return ParsedIssue(
-            issue_id=issue_id,
-            description=description,
-            extracted_files=extracted_files
-        )
+    # Build dependency graph
+    G = nx.DiGraph()
+    file_map = {} # filename -> content/lines
 
-    def validate_issue_sufficiency(self, parsed: ParsedIssue) -> Tuple[bool, Dict[str, Any]]:
-        """
-        Validate if issue text is sufficient to reconstruct dependency graph.
-        Returns (is_sufficient, metrics).
-        """
-        extracted_n_files = len(parsed.extracted_files)
-        is_sufficient = extracted_n_files > 0
-        metrics = {
-            "extracted_n_files": extracted_n_files,
-            "threshold": 1,
-            "issue_id": parsed.issue_id
-        }
-        return is_sufficient, metrics
+    for file_entry in file_history:
+        filename = file_entry.get("filename", "")
+        content = file_entry.get("content", "")
+        lines = len(content.splitlines()) if content else 0
+        file_map[filename] = lines
+        G.add_node(filename, lines=lines)
 
-    def generate_validation_report(self, output_path: str) -> None:
-        """
-        Iterate through dataset, validate each issue, and write a report.
-        """
-        loader = self.load_streaming()
-        report_data = {
-            "total_issues": 0,
-            "sufficient_issues": 0,
-            "insufficient_issues": 0,
-            "details": []
-        }
+        # Parse imports
+        try:
+            tree = ast.parse(content)
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        imported_name = alias.name.split('.')[0]
+                        if imported_name in file_map:
+                            G.add_edge(filename, imported_name)
+                elif isinstance(node, ast.ImportFrom):
+                    if node.module:
+                        imported_name = node.module.split('.')[0]
+                        if imported_name in file_map:
+                            G.add_edge(filename, imported_name)
+        except SyntaxError:
+            continue
 
-        for record in loader:
-            parsed = self.parse_issue(record)
-            is_suff, metrics = self.validate_issue_sufficiency(parsed)
-            report_data["total_issues"] += 1
-            if is_suff:
-                report_data["sufficient_issues"] += 1
-            else:
-                report_data["insufficient_issues"] += 1
-            
-            # Limit details to first 100 for report size, or full if small
-            if len(report_data["details"]) < 100:
-                report_data["details"].append({
-                    "issue_id": parsed.issue_id,
-                    "is_sufficient": is_suff,
-                    "metrics": metrics
-                })
+    # Identify target files (files mentioned in the issue or patch)
+    # For simplicity, we assume all files in file_history are potentially relevant
+    # In a more complex version, we would parse the problem statement for filenames.
+    target_files = list(file_map.keys())
+    if not target_files:
+        return 0
 
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(report_data, f, indent=2)
+    # BFS traversal to find connected components
+    visited = set()
+    total_lines = 0
+    
+    for start_node in target_files:
+        if start_node not in visited:
+            # BFS
+            queue = [start_node]
+            visited.add(start_node)
+            while queue:
+                current = queue.pop(0)
+                if current in file_map:
+                    total_lines += file_map[current]
+                
+                # Add neighbors (dependencies)
+                for neighbor in G.neighbors(current):
+                    if neighbor not in visited and neighbor in file_map:
+                        visited.add(neighbor)
+                        queue.append(neighbor)
+                
+                # Add reverse neighbors (dependents) to ensure full graph context
+                for neighbor in G.predecessors(current):
+                    if neighbor not in visited and neighbor in file_map:
+                        visited.add(neighbor)
+                        queue.append(neighbor)
 
-    def _count_lines_in_repo_state(self, repo_state: Optional[Dict[str, Any]], extracted_files: List[str]) -> int:
-        """
-        Calculate total lines in the relevant file history based on repo_state.
-        This implementation assumes repo_state contains a 'files' dict mapping
-        file paths to their content strings.
-        """
-        if not repo_state or "files" not in repo_state:
-            return 0
+    return total_lines
+
+def filter_dataset(
+    instances: Iterator[Dict[str, Any]], 
+    min_lines: int = 500
+) -> Iterator[Dict[str, Any]]:
+    """
+    Filter instances where the total lines in the traversed graph exceed min_lines.
+    """
+    for instance in instances:
+        relevant_lines = calculate_relevant_lines(instance)
+        if relevant_lines > min_lines:
+            # Attach the calculated relevant lines to the instance
+            instance["relevant_lines"] = relevant_lines
+            yield instance
+
+def validate_filtered_count(count: int, min_threshold: int = 50) -> None:
+    """
+    Validate that the filtered count meets the minimum threshold.
+    Raises InsufficientContextError if below threshold.
+    """
+    if count < min_threshold:
+        msg = f"Filtered dataset contains only {count} instances, which is below the required threshold of {min_threshold}."
+        log_error(logger, "InsufficientContextError", msg)
+        raise Exception(msg) # Using generic Exception as specific class not defined in imports, but error is loud.
+
+def write_parquet_and_checksum(
+    filtered_instances: List[Dict[str, Any]],
+    output_dir: Optional[Path] = None,
+    version: str = "v1"
+) -> Tuple[Path, str]:
+    """
+    Write the filtered dataset to a versioned parquet file and record its checksum.
+    
+    Args:
+        filtered_instances: List of filtered instance dictionaries.
+        output_dir: Directory to write the file. Defaults to get_data_dir().
+        version: Version string for the filename.
         
-        files_dict = repo_state["files"]
-        total_lines = 0
-        
-        for file_path in extracted_files:
-            if file_path in files_dict:
-                content = files_dict[file_path]
-                if isinstance(content, str):
-                    total_lines += content.count('\n') + (1 if content and not content.endswith('\n') else 0)
-                elif isinstance(content, list):
-                    total_lines += len(content)
-        
-        return total_lines
+    Returns:
+        Tuple of (output_path, checksum_hex)
+    """
+    import pandas as pd
+    import pyarrow as pa
+    import pyarrow.parquet as pq
 
-    def filter_high_complexity(self, min_lines: int = 500) -> Iterator[Dict[str, Any]]:
-        """
-        Filter instances where relevant file history > min_lines.
-        Iterates through the streaming dataset, calculates line counts,
-        and yields only those exceeding the threshold.
-        """
-        self.logger.info(f"Starting filter for instances with > {min_lines} lines of relevant file history.")
-        count_passed = 0
-        count_total = 0
+    if output_dir is None:
+        output_dir = Path(get_data_dir())
+    
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    filename = f"filtered_swe_bench_{version}.parquet"
+    output_path = output_dir / filename
 
-        for record in self.load_streaming():
-            count_total += 1
-            parsed = self.parse_issue(record)
-            lines = self._count_lines_in_repo_state(record.get("repo_state"), parsed.extracted_files)
-            
-            if lines > min_lines:
-                count_passed += 1
-                yield record
-            
-            if count_total % 100 == 0:
-                self.logger.info(f"Processed {count_total} records, {count_passed} passed filter.")
+    if not filtered_instances:
+        log_error(logger, "DataLoadError", "Attempted to write empty filtered dataset.")
+        raise DataLoadError("Cannot write empty dataset.")
 
-        self.logger.info(f"Filter complete. Total: {count_total}, Passed: {count_passed}")
+    # Convert to DataFrame
+    try:
+        df = pd.DataFrame(filtered_instances)
+    except Exception as e:
+        log_error(logger, "DataLoadError", f"Failed to convert filtered instances to DataFrame: {e}")
+        raise DataLoadError(f"Failed to convert data: {e}") from e
 
-    def write_filtered_dataset(self, output_path: str, min_lines: int = 500) -> str:
-        """
-        Filter the dataset, write to a versioned Parquet file, and record the checksum.
-        Returns the checksum string.
-        """
-        import tempfile
-        from pathlib import Path
+    # Write to Parquet
+    try:
+        df.to_parquet(output_path, index=False)
+    except Exception as e:
+        log_error(logger, "DataLoadError", f"Failed to write parquet file: {e}")
+        raise DataLoadError(f"Failed to write parquet: {e}") from e
 
-        data_dir = Path(get_data_dir())
-        output_dir = data_dir / "intermediate"
-        output_dir.mkdir(parents=True, exist_ok=True)
+    # Calculate checksum
+    try:
+        with open(output_path, "rb") as f:
+            content = f.read()
+            checksum = hashlib.sha256(content).hexdigest()
+    except Exception as e:
+        log_error(logger, "DataLoadError", f"Failed to calculate checksum: {e}")
+        raise DataLoadError(f"Failed to calculate checksum: {e}") from e
 
-        # Use the provided output_path or construct a default versioned path
-        if not output_path:
-            output_path = str(output_dir / "filtered_swe_bench_v1.parquet")
-        
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        self.logger.info(f"Filtering dataset and writing to {output_path}...")
-        
-        # Collect filtered records into a list (or batch write if memory is a concern)
-        # For this implementation, we collect to list assuming the filtered set fits in memory.
-        # If the dataset is too large, we would stream to parquet directly.
-        filtered_records = []
-        for record in self.filter_high_complexity(min_lines):
-            filtered_records.append(record)
-
-        if not filtered_records:
-            raise RuntimeError(f"No instances passed the filter (>{min_lines} lines). Check data source.")
-
-        # Write to Parquet
-        table = pq.Table.from_pylist(filtered_records)
-        pq.write_table(table, output_path)
-        
-        self.logger.info(f"Wrote {len(filtered_records)} records to {output_path}")
-
-        # Calculate checksum
-        checksum = self._calculate_file_checksum(output_path)
-        
-        # Record checksum in state
-        state_dir = Path("state")
-        state_dir.mkdir(parents=True, exist_ok=True)
-        checksum_file = state_dir / "filtered_dataset_checksums.json"
-        
-        checksum_data = {}
-        if checksum_file.exists():
+    # Record checksum in state directory
+    state_dir = output_dir.parent / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    
+    checksum_file = state_dir / f"checksums_{version}.json"
+    
+    checksum_data = {}
+    if checksum_file.exists():
+        try:
             with open(checksum_file, "r") as f:
                 checksum_data = json.load(f)
-        
-        checksum_data["filtered_swe_bench_v1.parquet"] = {
-            "path": str(output_path),
-            "checksum": checksum,
-            "record_count": len(filtered_records),
-            "min_lines_threshold": min_lines
-        }
-        
-        with open(checksum_file, "w") as f:
-            json.dump(checksum_data, f, indent=2)
-        
-        self.logger.info(f"Checksum recorded in {checksum_file}")
-        return checksum
+        except json.JSONDecodeError:
+            checksum_data = {}
 
-    def _calculate_file_checksum(self, file_path: Path) -> str:
-        """Calculate SHA-256 checksum of a file."""
-        sha256_hash = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
+    checksum_data[filename] = {
+        "sha256": checksum,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "size_bytes": len(content)
+    }
+
+    with open(checksum_file, "w") as f:
+        json.dump(checksum_data, f, indent=2)
+
+    logger.info(f"Successfully wrote {len(filtered_instances)} instances to {output_path}")
+    logger.info(f"Checksum recorded: {checksum}")
+    
+    return output_path, checksum
 
 def main():
-    loader = ClawSweBenchLoader()
-    output_path = "projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/data/intermediate/filtered_swe_bench_v1.parquet"
-    print(f"Filtering dataset and writing to {output_path}...")
-    checksum = loader.write_filtered_dataset(output_path, min_lines=500)
-    print(f"Done. Checksum: {checksum}")
+    """
+    Main entry point to demonstrate the loader, filter, and write pipeline.
+    This function streams the real dataset, filters it, and writes the result.
+    """
+    set_global_seeds(42)
+    logger.info("Starting Claw-SWE-Bench filtering and export pipeline.")
+
+    loader = ClawSweBenchLoader(streaming=True)
+    
+    # Stream and filter
+    logger.info("Streaming and filtering dataset (threshold > 500 lines)...")
+    filtered_instances = []
+    count = 0
+    
+    try:
+        for instance in filter_dataset(loader.load(), min_lines=500):
+            filtered_instances.append(instance)
+            count += 1
+            if count % 100 == 0:
+                logger.info(f"Processed {count} filtered instances...")
+    except Exception as e:
+        log_error(logger, "DataLoadError", f"Error during streaming/filtering: {e}")
+        raise
+
+    logger.info(f"Total filtered instances: {count}")
+    
+    # Validate count
+    try:
+        validate_filtered_count(count)
+    except Exception as e:
+        log_error(logger, "InsufficientContextError", str(e))
+        raise
+
+    # Write to parquet
+    try:
+        output_path, checksum = write_parquet_and_checksum(filtered_instances, version="v1")
+        logger.info(f"Pipeline complete. Output: {output_path}, Checksum: {checksum}")
+    except Exception as e:
+        log_error(logger, "DataLoadError", f"Failed to write output: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

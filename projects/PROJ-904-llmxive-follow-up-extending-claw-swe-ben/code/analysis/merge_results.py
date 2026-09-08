@@ -1,13 +1,3 @@
-"""
-Merge results from baseline and high-fidelity experiments into a single CSV.
-
-This script aggregates JSONL files from different model sizes and strategies
-into a unified 'data/results.csv' file, serving as the Single Source of Truth
-for the GLM analysis (T029).
-
-It implements the schema validation and aggregation logic defined in T008a.
-"""
-
 import json
 import csv
 import logging
@@ -16,218 +6,307 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Set
 from dataclasses import dataclass, asdict
 
-# Configure logging to match project standards
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+from utils.logger import AnalysisError
+
 logger = logging.getLogger(__name__)
+
+REQUIRED_BASELINE_FIELDS = {"instance_id", "model_output", "status", "strategy", "model_size"}
+REQUIRED_HF_RUN_FIELDS = {"instance_id", "model_output", "status", "strategy", "model_size", "retrieval_score"}
 
 @dataclass
 class MergedResultRow:
-    """Schema for the merged output row."""
+    """
+    Represents a single row in the aggregated results CSV.
+    Combines baseline, 1B high-fidelity, and 7B high-fidelity results for a single instance.
+    """
     instance_id: str
-    model_size: str  # '1B', '7B', etc.
-    strategy: str    # 'baseline', 'tfidf', 'diff_aware', 'semantic'
-    pass_label: bool
-    context_length: int
-    execution_time: float
-    failure_category: Optional[str] = None
-    raw_log_path: Optional[str] = None
-    # Additional fields from source JSONL if present
-    metadata: Optional[Dict[str, Any]] = None
+    baseline_status: str
+    baseline_strategy: str
+    hf_1b_status: str
+    hf_1b_strategy: str
+    hf_7b_status: str
+    hf_7b_strategy: str
+    comparison_result: str
+    
+    # Optional metrics if available
+    baseline_latency: Optional[float] = None
+    hf_1b_latency: Optional[float] = None
+    hf_7b_latency: Optional[float] = None
 
-def validate_input_schema(row: Dict[str, Any], source_file: str) -> None:
-    """
-    Validates that a row from a source JSONL file contains required fields.
-    Raises ValueError if schema is violated.
-    """
-    required_fields = ['instance_id', 'pass_label']
-    missing = [f for f in required_fields if f not in row]
-    if missing:
-        raise ValueError(
-            f"Schema validation failed in {source_file}: "
-            f"Missing required fields: {missing}. Row: {row}"
-        )
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the row to a dictionary for CSV serialization."""
+        return asdict(self)
 
-def validate_strategy_consistency(rows: List[Dict[str, Any]]) -> None:
+def validate_input_schema(record: Dict[str, Any], schema_name: str) -> bool:
     """
-    Ensures all rows have a 'strategy' field. If missing, infers from filename context
-    or defaults to 'unknown' (which is flagged).
-    """
-    for i, row in enumerate(rows):
-        if 'strategy' not in row:
-            # Attempt to infer or warn
-            logger.warning(f"Row {i} missing 'strategy' field. Defaulting to 'unknown'.")
-            row['strategy'] = 'unknown'
-
-def validate_model_sizes(rows: List[Dict[str, Any]]) -> None:
-    """
-    Ensures 'model_size' field exists.
-    """
-    for i, row in enumerate(rows):
-        if 'model_size' not in row:
-            # Attempt to infer from file path if possible, else warn
-            logger.warning(f"Row {i} missing 'model_size' field.")
-            row['model_size'] = 'unknown'
-
-def define_aggregation_schema() -> List[str]:
-    """Returns the list of columns for the output CSV."""
-    return [
-        'instance_id',
-        'model_size',
-        'strategy',
-        'pass_label',
-        'context_length',
-        'execution_time',
-        'failure_category',
-        'raw_log_path',
-        'metadata'
-    ]
-
-def define_merge_logic() -> None:
-    """
-    Defines the logic for merging:
-    1. Append all rows from all input files.
-    2. No deduplication by instance_id (we want to see all runs).
-    3. Normalize field names if necessary (handled in loading).
-    """
-    pass # Logic is implicit in the processing loop
-
-def execute_merge(input_paths: List[Path], output_path: Path) -> int:
-    """
-    Reads multiple JSONL files and writes a single aggregated CSV.
-
+    Validates a single record against the expected schema for a given source.
+    
     Args:
-        input_paths: List of paths to input JSONL files.
-        output_path: Path to the output CSV file.
-
+        record: The JSON record to validate.
+        schema_name: One of 'baseline', 'hf_run'.
+        
     Returns:
-        The number of rows written.
+        True if valid.
+        
+    Raises:
+        AnalysisError: If validation fails.
     """
-    all_rows: List[Dict[str, Any]] = []
+    required_fields = REQUIRED_BASELINE_FIELDS if schema_name == "baseline" else REQUIRED_HF_RUN_FIELDS
+    
+    missing_fields = required_fields - set(record.keys())
+    if missing_fields:
+        raise AnalysisError(f"Record missing required fields for {schema_name}: {missing_fields}")
+    
+    # Basic type checks could go here if needed
+    if not isinstance(record.get("instance_id"), str):
+        raise AnalysisError(f"instance_id must be a string in {schema_name}")
+    
+    return True
 
-    logger.info(f"Starting merge of {len(input_paths)} files.")
+def validate_strategy_consistency(records: List[Dict[str, Any]], allowed_strategies: Set[str]) -> None:
+    """
+    Ensures all records in the list use only allowed strategies.
+    
+    Args:
+        records: List of records to check.
+        allowed_strategies: Set of valid strategy strings.
+        
+    Raises:
+        AnalysisError: If an invalid strategy is found.
+    """
+    for i, record in enumerate(records):
+        strategy = record.get("strategy")
+        if strategy not in allowed_strategies:
+            raise AnalysisError(f"Invalid strategy '{strategy}' found in record {i}. Allowed: {allowed_strategies}")
 
-    for path in input_paths:
-        if not path.exists():
-            logger.error(f"Input file not found: {path}")
-            continue
+def validate_model_sizes(records: List[Dict[str, Any]], allowed_sizes: Set[str]) -> None:
+    """
+    Ensures all records in the list use only allowed model sizes.
+    
+    Args:
+        records: List of records to check.
+        allowed_sizes: Set of valid model size strings (e.g., '1B', '7B').
+        
+    Raises:
+        AnalysisError: If an invalid model size is found.
+    """
+    for i, record in enumerate(records):
+        size = record.get("model_size")
+        if size not in allowed_sizes:
+            raise AnalysisError(f"Invalid model_size '{size}' found in record {i}. Allowed: {allowed_sizes}")
 
-        logger.info(f"Processing {path.name}...")
+def define_aggregation_schema() -> Dict[str, Any]:
+    """
+    Defines the schema for the final aggregated CSV output.
+    """
+    return {
+        "instance_id": "str",
+        "baseline_status": "str",
+        "baseline_strategy": "str",
+        "hf_1b_status": "str",
+        "hf_1b_strategy": "str",
+        "hf_7b_status": "str",
+        "hf_7b_strategy": "str",
+        "comparison_result": "str",
+        "baseline_latency": "float",
+        "hf_1b_latency": "float",
+        "hf_7b_latency": "float"
+    }
+
+def define_merge_logic() -> Dict[str, Any]:
+    """
+    Defines the logic for merging multiple JSONL sources into a single row.
+    """
+    return {
+        "key": "instance_id",
+        "sources": ["baseline", "hf_1b", "hf_7b"],
+        "comparison_rule": "determine_best_performer"
+    }
+
+def aggregate_jsonl(
+    baseline_path: Path,
+    hf_1b_path: Path,
+    hf_7b_path: Path,
+    output_path: Path
+) -> Path:
+    """
+    Merges three JSONL files (baseline, hf_1b, hf_7b) into a single CSV file.
+    
+    This function implements the "Single Source of Truth" aggregation logic.
+    It loads all three sources, groups them by instance_id, and writes a CSV
+    containing columns for all relevant fields and a comparison result.
+    
+    Args:
+        baseline_path: Path to the baseline run JSONL file.
+        hf_1b_path: Path to the 1B high-fidelity run JSONL file.
+        hf_7b_path: Path to the 7B high-fidelity run JSONL file.
+        output_path: Path where the final CSV will be written.
+        
+    Returns:
+        The Path to the created CSV file.
+        
+    Raises:
+        AnalysisError: If files are missing, malformed, or schemas don't match.
+        FileNotFoundError: If input files do not exist.
+    """
+    if not baseline_path.exists():
+        raise FileNotFoundError(f"Baseline file not found: {baseline_path}")
+    if not hf_1b_path.exists():
+        raise FileNotFoundError(f"1B High-Fidelity file not found: {hf_1b_path}")
+    if not hf_7b_path.exists():
+        raise FileNotFoundError(f"7B High-Fidelity file not found: {hf_7b_path}")
+
+    logger.info(f"Starting aggregation: {baseline_path}, {hf_1b_path}, {hf_7b_path}")
+
+    # Load data into dictionaries keyed by instance_id
+    baseline_data = {}
+    hf_1b_data = {}
+    hf_7b_data = {}
+
+    def load_jsonl(path: Path, schema_name: str) -> Dict[str, Dict[str, Any]]:
+        data = {}
         with open(path, 'r', encoding='utf-8') as f:
-            count = 0
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:
                     continue
                 try:
-                    row = json.loads(line)
-                    # Validate schema
-                    validate_input_schema(row, str(path))
-                    
-                    # Ensure model_size and strategy exist
-                    # If the source file doesn't have them, we might need to infer from filename
-                    # but for now we assume the experiment scripts (T016, T023, T027) 
-                    # populated these fields. If not, we add a fallback.
-                    if 'model_size' not in row:
-                        if '1b' in path.name.lower():
-                            row['model_size'] = '1B'
-                        elif '7b' in path.name.lower():
-                            row['model_size'] = '7B'
-                        else:
-                            row['model_size'] = 'unknown'
-                    
-                    if 'strategy' not in row:
-                        if 'baseline' in path.name.lower():
-                            row['strategy'] = 'baseline'
-                        else:
-                            row['strategy'] = 'high_fidelity' # Fallback
-
-                    all_rows.append(row)
-                    count += 1
+                    record = json.loads(line)
+                    validate_input_schema(record, schema_name)
+                    instance_id = record["instance_id"]
+                    if instance_id in data:
+                        logger.warning(f"Duplicate instance_id {instance_id} in {path} at line {line_num}. Overwriting.")
+                    data[instance_id] = record
                 except json.JSONDecodeError as e:
-                    logger.error(f"JSON decode error in {path} at line {line_num}: {e}")
-                    continue
-                except ValueError as e:
-                    logger.error(f"Schema error in {path} at line {line_num}: {e}")
-                    continue
+                    raise AnalysisError(f"Invalid JSON in {path} at line {line_num}: {e}")
+        return data
 
-        logger.info(f"Loaded {count} rows from {path.name}")
+    try:
+        baseline_data = load_jsonl(baseline_path, "baseline")
+        hf_1b_data = load_jsonl(hf_1b_path, "hf_run")
+        hf_7b_data = load_jsonl(hf_7b_path, "hf_run")
+    except AnalysisError as e:
+        raise e
 
-    if not all_rows:
-        logger.warning("No valid rows found to merge. Creating empty CSV.")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=define_aggregation_schema())
-            writer.writeheader()
-        return 0
+    # Determine all unique instance IDs
+    all_ids = set(baseline_data.keys()) | set(hf_1b_data.keys()) | set(hf_7b_data.keys())
+    logger.info(f"Found {len(all_ids)} unique instances across sources.")
+
+    merged_rows = []
+    missing_count = 0
+
+    for instance_id in sorted(all_ids):
+        baseline_rec = baseline_data.get(instance_id)
+        hf_1b_rec = hf_1b_data.get(instance_id)
+        hf_7b_rec = hf_7b_data.get(instance_id)
+
+        # Handle missing records gracefully but log warnings
+        if not baseline_rec:
+            logger.warning(f"Instance {instance_id} missing in baseline. Skipping comparison for this row.")
+            missing_count += 1
+            continue
+        if not hf_1b_rec:
+            logger.warning(f"Instance {instance_id} missing in hf_1b. Skipping comparison for this row.")
+            missing_count += 1
+            continue
+        if not hf_7b_rec:
+            logger.warning(f"Instance {instance_id} missing in hf_7b. Skipping comparison for this row.")
+            missing_count += 1
+            continue
+
+        # Extract statuses
+        b_status = baseline_rec.get("status", "unknown")
+        b_strategy = baseline_rec.get("strategy", "unknown")
+        h1_status = hf_1b_rec.get("status", "unknown")
+        h1_strategy = hf_1b_rec.get("strategy", "unknown")
+        h7_status = hf_7b_rec.get("status", "unknown")
+        h7_strategy = hf_7b_rec.get("strategy", "unknown")
+
+        # Determine comparison result
+        # Logic: 
+        # - If baseline passed and others failed -> baseline_superior
+        # - If any HF passed and baseline failed -> hf_superior
+        # - If all passed -> all_passed (could be refined by latency later)
+        # - If all failed -> all_failed
+        
+        baseline_passed = b_status == "passed"
+        h1_passed = h1_status == "passed"
+        h7_passed = h7_status == "passed"
+
+        if baseline_passed and not h1_passed and not h7_passed:
+            comparison = "baseline_superior"
+        elif (h1_passed or h7_passed) and not baseline_passed:
+            comparison = "hf_superior"
+        elif baseline_passed and (h1_passed or h7_passed):
+            comparison = "all_passed"
+        elif not baseline_passed and not h1_passed and not h7_passed:
+            comparison = "all_failed"
+        else:
+            comparison = "mixed"
+
+        row = MergedResultRow(
+            instance_id=instance_id,
+            baseline_status=b_status,
+            baseline_strategy=b_strategy,
+            hf_1b_status=h1_status,
+            hf_1b_strategy=h1_strategy,
+            hf_7b_status=h7_status,
+            hf_7b_strategy=h7_strategy,
+            comparison_result=comparison,
+            baseline_latency=baseline_rec.get("latency"),
+            hf_1b_latency=hf_1b_rec.get("latency"),
+            hf_7b_latency=hf_7b_rec.get("latency")
+        )
+        merged_rows.append(row)
+
+    if missing_count > 0:
+        logger.warning(f"Skipped {missing_count} instances due to missing data in one or more sources.")
 
     # Write to CSV
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = define_aggregation_schema()
+    fieldnames = define_aggregation_schema().keys()
     
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        
-        for row in all_rows:
-            # Normalize pass_label if it's a string representation
-            if isinstance(row.get('pass_label'), str):
-                row['pass_label'] = row['pass_label'].lower() == 'true'
-            
-            # Ensure numeric fields are numeric
-            if 'context_length' in row and row['context_length'] is not None:
-                try:
-                    row['context_length'] = int(row['context_length'])
-                except (ValueError, TypeError):
-                    row['context_length'] = 0
-            
-            if 'execution_time' in row and row['execution_time'] is not None:
-                try:
-                    row['execution_time'] = float(row['execution_time'])
-                except (ValueError, TypeError):
-                    row['execution_time'] = 0.0
+        for row in merged_rows:
+            writer.writerow(row.to_dict())
 
-            writer.writerow(row)
+    logger.info(f"Aggregation complete. Wrote {len(merged_rows)} rows to {output_path}")
+    return output_path
 
-    logger.info(f"Successfully merged {len(all_rows)} rows into {output_path}")
-    return len(all_rows)
+def execute_merge(
+    baseline_path: Path,
+    hf_1b_path: Path,
+    hf_7b_path: Path,
+    output_path: Path
+) -> Path:
+    """
+    Wrapper for aggregate_jsonl to ensure it is the entry point for execution.
+    """
+    return aggregate_jsonl(baseline_path, hf_1b_path, hf_7b_path, output_path)
 
 def main():
     """
-    Main entry point for the merge script.
-    Expects input files to be in data/intermediate/ as per task description.
+    CLI entry point for merging results.
+    Expects arguments: baseline_path hf_1b_path hf_7b_path output_path
     """
-    # Define paths relative to project root
-    # Assuming script is run from code/ or root, we use absolute paths based on project structure
-    project_root = Path(__file__).resolve().parent.parent
-    intermediate_dir = project_root / 'data' / 'intermediate'
-    output_dir = project_root / 'data'
-    
-    input_files = [
-        intermediate_dir / 'baseline_run.jsonl',
-        intermediate_dir / 'hf_run_1b.jsonl',
-        intermediate_dir / 'hf_run_7b.jsonl'
-    ]
-    
-    output_file = output_dir / 'results.csv'
-
-    # Filter to existing files only (some might not exist if experiments failed)
-    existing_inputs = [p for p in input_files if p.exists()]
-    
-    if not existing_inputs:
-        logger.error("No input files found. Aborting merge.")
+    if len(sys.argv) != 5:
+        print(f"Usage: python {sys.argv[0]} <baseline.jsonl> <hf_1b.jsonl> <hf_7b.jsonl> <output.csv>")
         sys.exit(1)
 
-    logger.info(f"Found {len(existing_inputs)} input files.")
-    
+    baseline_p = Path(sys.argv[1])
+    hf_1b_p = Path(sys.argv[2])
+    hf_7b_p = Path(sys.argv[3])
+    out_p = Path(sys.argv[4])
+
     try:
-        count = execute_merge(existing_inputs, output_file)
-        print(f"Merge complete. {count} rows written to {output_file}")
+        result_path = execute_merge(baseline_p, hf_1b_p, hf_7b_p, out_p)
+        print(f"Success: {result_path}")
     except Exception as e:
-        logger.exception("Merge failed with exception")
+        logger.error(f"Merge failed: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

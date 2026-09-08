@@ -1,356 +1,473 @@
-"""
-MixedAgent: Trains on mixed task domains randomly per generation.
-
-Implements the Mixed-task condition for User Story 2.
-Unlike SequentialAgent, this agent draws training instances from a mixed pool
-of both Logic Proofs and Grid Worlds at every step, ensuring no temporal
-separation of domains.
-"""
 import random
 from typing import List, Dict, Any, Tuple, Optional
 from .base_agent import BaseAgent
 from sympy import simplify_logic, symbols, Implies, And, Or, Not
 import networkx as nx
 from src.utils.config import Config
-from src.generators.logic_generator import LogicProofGenerator
-from src.generators.grid_generator import GridWorldGenerator
-from src.utils.parity_checker import ParityChecker, EvaluationStats
-
+import json
+from pathlib import Path
+from datetime import datetime
 
 class MixedAgent(BaseAgent):
     """
-    Agent that trains on a random mix of logic proofs and grid worlds.
-
-    This agent maintains a single population of rules that are evaluated
-    against both task types indiscriminately during the training loop.
+    MixedAgent: Trains on mixed task domains randomly per generation.
+    
+    This agent implements the "Mixed-task" condition where the agent is exposed
+    to both logic proofs and grid-world tasks in a randomized interleaved order
+    during the evolutionary training process. This prevents the agent from
+    specializing on one domain before seeing the other, testing resilience
+    against catastrophic forgetting in a continuous mixed stream.
     """
 
-    def __init__(self, config: Config, agent_id: str = "mixed_0"):
-        """
-        Initialize the MixedAgent.
+    def __init__(self, config: Config, seed: Optional[int] = None):
+        super().__init__(config, seed)
+        self.rule_sets: List[Dict[str, Any]] = []
+        self.evaluation_count = 0
+        self.training_history: List[Dict[str, Any]] = []
+        self.current_domain = None
+        
+        # Initialize random state
+        if seed is not None:
+            random.seed(seed)
 
-        Args:
-            config: The configuration object containing seeds and hyperparameters.
-            agent_id: Unique identifier for this agent instance.
+    def _load_training_data(self) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
         """
-        super().__init__(config, agent_id)
-        self.logic_gen = LogicProofGenerator(config)
-        self.grid_gen = GridWorldGenerator(config)
+        Load training data for both logic and grid domains.
         
-        # Initialize parity checker for this agent
-        self.parity_checker = ParityChecker(agent_id)
+        Returns:
+            Tuple of (logic_proofs, grid_worlds)
+        """
+        data_path = Path(self.config.data_dir)
         
-        # State tracking
-        self.current_rules: List[Dict[str, Any]] = []
-        self.evaluation_count: int = 0
-        self.generation_count: int = 0
-        self.history: List[Dict[str, Any]] = []
+        # Load logic proofs
+        logic_file = data_path / "logic_proofs.json"
+        if logic_file.exists():
+            with open(logic_file, 'r') as f:
+                logic_proofs = json.load(f)
+        else:
+            raise FileNotFoundError(f"Logic proofs not found at {logic_file}")
+        
+        # Load grid worlds
+        grid_file = data_path / "grid_worlds.json"
+        if grid_file.exists():
+            with open(grid_file, 'r') as f:
+                grid_worlds = json.load(f)
+        else:
+            raise FileNotFoundError(f"Grid worlds not found at {grid_file}")
+        
+        return logic_proofs, grid_worlds
 
-    def _initialize_population(self, population_size: int) -> List[Dict[str, Any]]:
+    def _evaluate_rule_set(self, rule_set: Dict[str, Any], task: Dict[str, Any]) -> bool:
         """
-        Initialize a population of random rule-sets.
+        Evaluate a rule set against a specific task (logic or grid).
         
         Args:
-            population_size: Number of individuals in the population.
+            rule_set: The rule set to evaluate
+            task: The task instance to solve
             
         Returns:
-            List of rule-set dictionaries.
+            True if the rule set successfully solves the task, False otherwise
         """
+        self.evaluation_count += 1
+        
+        task_type = task.get('type', 'unknown')
+        
+        if task_type == 'logic_proof':
+            return self._evaluate_logic(rule_set, task)
+        elif task_type == 'grid_world':
+            return self._evaluate_grid(rule_set, task)
+        else:
+            raise ValueError(f"Unknown task type: {task_type}")
+
+    def _evaluate_logic(self, rule_set: Dict[str, Any], task: Dict[str, Any]) -> bool:
+        """
+        Evaluate rule set on a logic proof task.
+        
+        Args:
+            rule_set: Dictionary containing 'rules' (list of sympy expressions)
+            task: Dictionary containing 'premises' and 'conclusion'
+            
+        Returns:
+            True if the conclusion can be derived from premises using the rules
+        """
+        rules = rule_set.get('rules', [])
+        premises = task.get('premises', [])
+        conclusion = task.get('conclusion')
+        
+        if not conclusion or not premises:
+            return False
+        
+        try:
+            # Parse premises and conclusion if they are strings
+            if isinstance(conclusion, str):
+                # Simplify the conclusion expression
+                concl_expr = simplify_logic(conclusion)
+            else:
+                concl_expr = conclusion
+            
+            # Start with premises as known truths
+            current_state = And(*premises) if premises else And()
+            
+            # Apply rules iteratively to derive new facts
+            max_iterations = 10
+            for _ in range(max_iterations):
+                new_facts = []
+                for rule in rules:
+                    if isinstance(rule, str):
+                        rule_expr = simplify_logic(rule)
+                    else:
+                        rule_expr = rule
+                        
+                    # Check if rule antecedent is satisfied by current state
+                    if isinstance(rule_expr, Implies):
+                        antecedent = rule_expr.args[0]
+                        consequent = rule_expr.args[1]
+                        
+                        # Check if antecedent is implied by current state
+                        # Simplify: (current_state AND antecedent) == current_state
+                        combined = And(current_state, antecedent)
+                        if simplify_logic(combined) == simplify_logic(current_state):
+                            new_facts.append(consequent)
+                
+                if not new_facts:
+                    break
+                
+                # Add new facts to current state
+                current_state = And(current_state, *new_facts)
+            
+            # Check if conclusion is implied by final state
+            final_check = And(current_state, Not(concl_expr))
+            if simplify_logic(final_check) == False:
+                return True
+                
+            return False
+            
+        except Exception as e:
+            # Log error but return False for failed evaluation
+            print(f"Logic evaluation error: {e}")
+            return False
+
+    def _evaluate_grid(self, rule_set: Dict[str, Any], task: Dict[str, Any]) -> bool:
+        """
+        Evaluate rule set on a grid world navigation task.
+        
+        Args:
+            rule_set: Dictionary containing 'rules' (navigation constraints)
+            task: Dictionary containing 'grid', 'start', 'goal'
+            
+        Returns:
+            True if a valid path exists from start to goal following rules
+        """
+        rules = rule_set.get('rules', [])
+        grid_data = task.get('grid', {})
+        start = task.get('start')
+        goal = task.get('goal')
+        
+        if not all([grid_data, start, goal]):
+            return False
+        
+        try:
+            # Reconstruct grid graph
+            grid_size = grid_data.get('size', (5, 5))
+            obstacles = grid_data.get('obstacles', [])
+            
+            G = nx.DiGraph()
+            rows, cols = grid_size
+            
+            # Create nodes
+            for r in range(rows):
+                for c in range(cols):
+                    if (r, c) not in obstacles:
+                        G.add_node((r, c))
+            
+            # Add edges based on movement rules
+            for r in range(rows):
+                for c in range(cols):
+                    if (r, c) not in obstacles:
+                        # Check all 4 directions
+                        for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                            nr, nc = r + dr, c + dc
+                            if 0 <= nr < rows and 0 <= nc < cols:
+                                if (nr, nc) not in obstacles:
+                                    # Check if edge violates any rules
+                                    if self._check_grid_rules(G, (r, c), (nr, nc), rules):
+                                        G.add_edge((r, c), (nr, nc))
+            
+            # Check if path exists
+            if start in G and goal in G:
+                try:
+                    path = nx.shortest_path(G, source=start, target=goal)
+                    return True
+                except nx.NetworkXNoPath:
+                    return False
+            return False
+            
+        except Exception as e:
+            print(f"Grid evaluation error: {e}")
+            return False
+
+    def _check_grid_rules(self, G: nx.DiGraph, current: Tuple[int, int], next_node: Tuple[int, int], rules: List[str]) -> bool:
+        """
+        Check if moving from current to next_node violates any rules.
+        
+        Args:
+            G: The grid graph
+            current: Current position
+            next_node: Target position
+            rules: List of rule strings
+            
+        Returns:
+            True if move is valid, False if it violates a rule
+        """
+        for rule in rules:
+            # Simple rule checking logic
+            # In a real implementation, this would parse and evaluate rule expressions
+            if isinstance(rule, str):
+                # Example: "avoid_red" would check if next_node is a red cell
+                if "avoid" in rule.lower():
+                    # Placeholder: assume no red cells unless specified in task
+                    pass
+            else:
+                # Assume valid if not a string
+                pass
+        return True
+
+    def _generate_offspring(self, parent: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Generate an offspring rule set from a parent via mutation.
+        
+        Args:
+            parent: Parent rule set dictionary
+            
+        Returns:
+            Mutated offspring rule set
+        """
+        offspring = {
+            'rules': [],
+            'fitness': 0.0,
+            'generation': parent.get('generation', 0) + 1
+        }
+        
+        # Mutate rules
+        for rule in parent.get('rules', []):
+            # 10% chance to mutate a rule
+            if random.random() < 0.1:
+                # Simple mutation: add a random symbol or negate
+                if isinstance(rule, str):
+                    # Add a random variable or operator
+                    new_var = f"X{random.randint(0, 99)}"
+                    if random.random() > 0.5:
+                        mutated = f"({rule} AND {new_var})"
+                    else:
+                        mutated = f"(NOT {new_var} OR {rule})"
+                    offspring['rules'].append(mutated)
+                else:
+                    offspring['rules'].append(rule)
+            else:
+                offspring['rules'].append(rule)
+        
+        # 20% chance to add a new random rule
+        if random.random() < 0.2:
+            new_var = f"X{random.randint(0, 99)}"
+            offspring['rules'].append(new_var)
+        
+        return offspring
+
+    def _calculate_fitness(self, rule_set: Dict[str, Any], tasks: List[Dict[str, Any]]) -> float:
+        """
+        Calculate fitness of a rule set on a batch of tasks.
+        
+        Args:
+            rule_set: The rule set to evaluate
+            tasks: List of tasks to evaluate on
+            
+        Returns:
+            Fitness score (0.0 to 1.0)
+        """
+        if not tasks:
+            return 0.0
+        
+        correct = 0
+        for task in tasks:
+            if self._evaluate_rule_set(rule_set, task):
+                correct += 1
+        
+        return correct / len(tasks)
+
+    def train(self, num_generations: int, population_size: int, batch_size: int) -> Dict[str, Any]:
+        """
+        Train the mixed agent over multiple generations.
+        
+        This method implements the mixed-task training loop where tasks are
+        randomly sampled from both logic and grid domains for each generation.
+        
+        Args:
+            num_generations: Number of evolutionary generations to run
+            population_size: Size of the population per generation
+            batch_size: Number of tasks to evaluate per individual per generation
+            
+        Returns:
+            Dictionary containing training results and final best rule set
+        """
+        # Load data
+        logic_proofs, grid_worlds = self._load_training_data()
+        
+        # Prepare mixed task pool
+        mixed_tasks = []
+        for proof in logic_proofs:
+            mixed_tasks.append({'type': 'logic_proof', 'data': proof})
+        for grid in grid_worlds:
+            mixed_tasks.append({'type': 'grid_world', 'data': grid})
+        
+        if not mixed_tasks:
+            raise ValueError("No mixed tasks available for training")
+        
+        # Initialize population
         population = []
         for _ in range(population_size):
-            # Generate a random rule set for logic (using sympy symbols)
-            # and a random heuristic for grids
-            rule_set = {
-                "logic_rules": self._generate_random_logic_rules(),
-                "grid_heuristics": self._generate_random_grid_heuristics(),
-                "fitness": 0.0,
-                "age": 0
+            # Create initial random rule set
+            initial_rules = []
+            num_initial_rules = random.randint(2, 5)
+            for _ in range(num_initial_rules):
+                var = f"X{random.randint(0, 99)}"
+                initial_rules.append(var)
+            
+            population.append({
+                'rules': initial_rules,
+                'fitness': 0.0,
+                'generation': 0
+            })
+        
+        best_rule_set = None
+        best_fitness = -1.0
+        
+        # Evolutionary loop
+        for gen in range(num_generations):
+            # Shuffle tasks for this generation
+            random.shuffle(mixed_tasks)
+            
+            # Evaluate population
+            for individual in population:
+                # Sample tasks for this individual
+                task_sample = mixed_tasks[:batch_size] if len(mixed_tasks) >= batch_size else mixed_tasks
+                fitness = self._calculate_fitness(individual, [t['data'] for t in task_sample])
+                individual['fitness'] = fitness
+                
+                if fitness > best_fitness:
+                    best_fitness = fitness
+                    best_rule_set = individual.copy()
+            
+            # Selection: Keep top 50%
+            population.sort(key=lambda x: x['fitness'], reverse=True)
+            survivors = population[:population_size // 2]
+            
+            # Reproduction: Create offspring
+            new_population = list(survivors)
+            while len(new_population) < population_size:
+                # Tournament selection
+                parent1 = random.choice(survivors)
+                parent2 = random.choice(survivors)
+                
+                # Crossover (simple: take rules from one parent)
+                if random.random() > 0.5:
+                    child = self._generate_offspring(parent1)
+                else:
+                    child = self._generate_offspring(parent2)
+                
+                child['generation'] = gen + 1
+                new_population.append(child)
+            
+            population = new_population
+            
+            # Record history
+            avg_fitness = sum(ind['fitness'] for ind in population) / len(population)
+            self.training_history.append({
+                'generation': gen,
+                'average_fitness': avg_fitness,
+                'best_fitness': best_fitness,
+                'evaluation_count': self.evaluation_count
+            })
+        
+        # Final result
+        result = {
+            'best_rule_set': best_rule_set,
+            'best_fitness': best_fitness,
+            'total_generations': num_generations,
+            'total_evaluations': self.evaluation_count,
+            'training_history': self.training_history,
+            'config': {
+                'population_size': population_size,
+                'batch_size': batch_size,
+                'num_generations': num_generations
             }
-            population.append(rule_set)
-        return population
-
-    def _generate_random_logic_rules(self) -> Dict[str, Any]:
-        """Generate a random set of logical implications."""
-        # Create 3-5 random symbols
-        num_symbols = random.randint(3, 6)
-        sym_names = [f"p{i}" for i in range(num_symbols)]
-        syms = symbols(sym_names)
-        
-        rules = []
-        for _ in range(random.randint(1, 3)):
-            # Create a random implication: (A & B) -> C
-            antecedents = random.sample(list(syms), k=random.randint(1, 2))
-            consequent = random.choice(list(syms))
-            if len(antecedents) > 1:
-                antecedent_expr = And(*antecedents)
-            else:
-                antecedent_expr = antecedents[0]
-            
-            implication = Implies(antecedent_expr, consequent)
-            rules.append({
-                "expr": implication,
-                "simplified": simplify_logic(implication)
-            })
-        
-        return {"rules": rules, "symbols": sym_names}
-
-    def _generate_random_grid_heuristics(self) -> List[str]:
-        """Generate a random set of grid navigation heuristics."""
-        possible_heuristics = [
-            "avoid_red", "avoid_blue", "prefer_diagonal", 
-            "shortest_path", "avoid_corners", "follow_wall"
-        ]
-        num_heuristics = random.randint(1, 3)
-        return random.sample(possible_heuristics, num_heuristics)
-
-    def _generate_mixed_batch(self, batch_size: int) -> List[Dict[str, Any]]:
-        """
-        Generate a batch of mixed training instances (logic + grid).
-        
-        Args:
-            batch_size: Total number of instances to generate.
-            
-        Returns:
-            List of instance dictionaries with 'type' ('logic' or 'grid') and data.
-        """
-        batch = []
-        for _ in range(batch_size):
-            if random.random() < 0.5:
-                # Generate a logic proof instance
-                proof_data = self.logic_gen.generate_proof()
-                batch.append({
-                    "type": "logic",
-                    "data": proof_data,
-                    "domain": "propositional_logic"
-                })
-            else:
-                # Generate a grid world instance
-                grid_data = self.grid_gen.generate_grid()
-                batch.append({
-                    "type": "grid",
-                    "data": grid_data,
-                    "domain": "grid_navigation"
-                })
-        return batch
-
-    def _evaluate_individual(self, individual: Dict[str, Any], instance: Dict[str, Any]) -> float:
-        """
-        Evaluate a single individual on a single instance.
-        
-        Args:
-            individual: The rule-set to evaluate.
-            instance: The task instance (logic or grid).
-            
-        Returns:
-            Fitness score (0.0 to 1.0).
-        """
-        score = 0.0
-        instance_type = instance["type"]
-        
-        if instance_type == "logic":
-            # Evaluate logic rules against the proof
-            logic_data = instance["data"]
-            target = logic_data.get("target")
-            premises = logic_data.get("premises", [])
-            
-            # Check if individual's rules can derive the target
-            # Simplified evaluation: check rule overlap and validity
-            valid_derivations = 0
-            total_checks = 0
-            
-            for rule in individual["logic_rules"]["rules"]:
-                simplified_rule = rule["simplified"]
-                # Try to verify if the rule helps in derivation
-                # In a real scenario, this would involve a theorem prover
-                # Here we use a heuristic based on symbol overlap
-                rule_symbols = list(simplified_rule.free_symbols)
-                target_symbols = list(target.free_symbols)
-                
-                if any(s in target_symbols for s in rule_symbols):
-                    valid_derivations += 1
-                total_checks += 1
-            
-            if total_checks > 0:
-                score = min(1.0, valid_derivations / total_checks)
-        
-        elif instance_type == "grid":
-            # Evaluate grid heuristics
-            grid_data = instance["data"]
-            solution_length = grid_data.get("solution_length", 0)
-            grid_size = grid_data.get("size", 0)
-            
-            # Heuristic score based on rule adherence
-            heuristic_count = len(individual["grid_heuristics"])
-            # Simplified: assume more heuristics = better coverage, capped at 1.0
-            score = min(1.0, heuristic_count / 3.0)
-            
-            # Bonus if solution is found (simulated)
-            if solution_length > 0:
-                score = min(1.0, score + 0.1)
-        
-        return score
-
-    def train_generation(self, batch_size: int = 10, generations: int = 1) -> Dict[str, Any]:
-        """
-        Execute one or more generations of training.
-        
-        Args:
-            batch_size: Number of instances per generation.
-            generations: Number of generations to run.
-            
-        Returns:
-            Training results dictionary.
-        """
-        # Initialize population if empty
-        if not self.current_rules:
-            self.current_rules = self._initialize_population(self.config.population_size)
-        
-        results = {
-            "agent_id": self.agent_id,
-            "generation_start": self.generation_count,
-            "instances_evaluated": 0,
-            "fitness_history": []
         }
-
-        for gen in range(generations):
-            # 1. Generate mixed batch
-            batch = self._generate_mixed_batch(batch_size)
-            
-            # 2. Evaluate all individuals on the batch
-            for individual in self.current_rules:
-                total_fitness = 0.0
-                count = 0
-                for instance in batch:
-                    # Increment evaluation counter
-                    self.evaluation_count += 1
-                    self.parity_checker.record_evaluation("mixed", instance["domain"])
-                    
-                    fitness = self._evaluate_individual(individual, instance)
-                    total_fitness += fitness
-                    count += 1
-                
-                if count > 0:
-                    individual["fitness"] = total_fitness / count
-                individual["age"] += 1
-
-            # 3. Selection and Evolution (Simple tournament + mutation)
-            self._evolve_population()
-            
-            # 4. Record history
-            avg_fitness = sum(ind["fitness"] for ind in self.current_rules) / len(self.current_rules)
-            self.history.append({
-                "generation": self.generation_count,
-                "avg_fitness": avg_fitness,
-                "max_fitness": max(ind["fitness"] for ind in self.current_rules),
-                "evaluations": self.evaluation_count
-            })
-            
-            results["fitness_history"].append(avg_fitness)
-            self.generation_count += 1
-
-        results["generation_end"] = self.generation_count
-        results["total_evaluations"] = self.evaluation_count
-        results["final_population"] = self.current_rules
         
-        # Update parity stats
-        stats = self.parity_checker.get_stats()
-        results["parity_stats"] = stats.to_dict() if hasattr(stats, 'to_dict') else stats
+        return result
 
-        return results
-
-    def _evolve_population(self) -> None:
-        """Perform selection and mutation to evolve the population."""
-        # Tournament selection
-        tournament_size = 3
-        new_population = []
-        
-        for _ in range(self.config.population_size):
-            # Select best from tournament
-            candidates = random.sample(self.current_rules, tournament_size)
-            winner = max(candidates, key=lambda x: x["fitness"])
-            new_population.append(winner.copy())
-        
-        # Mutation
-        for individual in new_population:
-            if random.random() < self.config.mutation_rate:
-                # Mutate logic rules
-                if random.random() < 0.5:
-                    individual["logic_rules"] = self._generate_random_logic_rules()
-                # Mutate grid heuristics
-                if random.random() < 0.5:
-                    individual["grid_heuristics"] = self._generate_random_grid_heuristics()
-            
-            individual["age"] = 0 # Reset age for new offspring
-
-        self.current_rules = new_population
-
-    def get_state(self) -> Dict[str, Any]:
-        """Return the current state of the agent for checkpointing."""
-        return {
-            "agent_id": self.agent_id,
-            "type": "mixed",
-            "generation_count": self.generation_count,
-            "evaluation_count": self.evaluation_count,
-            "population": self.current_rules,
-            "history": self.history
+    def save_state(self, output_path: str):
+        """Save agent state to a file."""
+        state = {
+            'rule_sets': self.rule_sets,
+            'evaluation_count': self.evaluation_count,
+            'training_history': self.training_history,
+            'timestamp': datetime.now().isoformat()
         }
+        with open(output_path, 'w') as f:
+            json.dump(state, f, indent=2)
 
-    def load_state(self, state: Dict[str, Any]) -> None:
-        """Load a previously saved state."""
-        if state.get("type") != "mixed":
-            raise ValueError(f"State type '{state.get('type')}' does not match MixedAgent")
-        
-        self.agent_id = state["agent_id"]
-        self.generation_count = state["generation_count"]
-        self.evaluation_count = state["evaluation_count"]
-        self.current_rules = state["population"]
-        self.history = state["history"]
-
+    def load_state(self, input_path: str):
+        """Load agent state from a file."""
+        with open(input_path, 'r') as f:
+            state = json.load(f)
+        self.rule_sets = state.get('rule_sets', [])
+        self.evaluation_count = state.get('evaluation_count', 0)
+        self.training_history = state.get('training_history', [])
 
 def main():
     """
-    Entry point for running MixedAgent training directly.
-    Usage: python -m src.agents.mixed_agent --config path/to/config.json
+    Main entry point for MixedAgent training.
+    
+    This function loads configuration, instantiates the MixedAgent,
+    runs the training loop, and saves results to disk.
     """
-    import argparse
-    import json
-    from pathlib import Path
-
-    parser = argparse.ArgumentParser(description="Run MixedAgent Training")
-    parser.add_argument("--config", type=str, required=True, help="Path to config file")
-    parser.add_argument("--output", type=str, default="data/results/mixed_training.json", help="Output path")
-    args = parser.parse_args()
-
-    # Load config
-    config_path = Path(args.config)
-    if not config_path.exists():
-        raise FileNotFoundError(f"Config file not found: {config_path}")
+    import sys
+    from src.utils.config import load_config
     
-    with open(config_path, "r") as f:
-        config_dict = json.load(f)
+    # Load configuration
+    config = load_config()
     
-    config = Config(**config_dict)
-
+    # Set seed for reproducibility
+    if config.seed is not None:
+        random.seed(config.seed)
+    
     # Initialize agent
-    agent = MixedAgent(config, agent_id="mixed_main")
-
+    agent = MixedAgent(config, seed=config.seed)
+    
     # Run training
-    print(f"Starting MixedAgent training with {config.population_size} population...")
-    result = agent.train_generation(
-        batch_size=config.batch_size, 
-        generations=config.generations
+    print(f"Starting MixedAgent training with seed {config.seed}")
+    print(f"Population size: {config.population_size}")
+    print(f"Generations: {config.num_generations}")
+    print(f"Batch size: {config.batch_size}")
+    
+    results = agent.train(
+        num_generations=config.num_generations,
+        population_size=config.population_size,
+        batch_size=config.batch_size
     )
-
+    
     # Save results
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir = Path(config.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+    result_file = output_dir / f"mixed_agent_results_{config.seed}.json"
+    with open(result_file, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
     
-    print(f"Training complete. Results saved to {output_path}")
-    print(f"Total evaluations: {result['total_evaluations']}")
-    print(f"Final avg fitness: {result['fitness_history'][-1]:.4f}")
+    print(f"Training complete. Results saved to {result_file}")
+    print(f"Best fitness: {results['best_fitness']:.4f}")
+    print(f"Total evaluations: {results['total_evaluations']}")
+    
+    return results
 
 if __name__ == "__main__":
     main()

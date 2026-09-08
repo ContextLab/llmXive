@@ -14,10 +14,11 @@ T002:
     files are actually created and shown.
 T003:
   c: false
-  h: a1026803e84fd499a62e9720d54ec9762bac4046a7fe9c97d5655fcb27c74221
+  h: 5feead8fda2bde5c72d710d0264c171d69dafb1205317609a4c90e16ed1bf3f0
   r: The required file `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/requirements.txt`
-    does not exist, so the specified dependencies are not initialized at the correct
-    location. The existing `code/requirements.txt` is irrelevant to the task.
+    does not exist, so the project has not been initialized as specified. The existing
+    `code/requirements.txt` is at a different location and does not satisfy the path
+    requirement.
 T005:
   c: false
   h: ae8779cd785f17b42c34e78d43b46ddcb9a70b419612fe66651a3a9c506fb4c1
@@ -25,6 +26,20 @@ T005:
     \ is truncated) and does not contain a `log_error()` function at all. Moreover,\
     \ the required unit test `tests/unit/test_logger.py` is absent, so the verification\
     \ command cannot run. The task\u2019s required artifacts are missing or incomplete."
+T012a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code artifact for `ClawSweBenchLoader` was provided, so we cannot confirm
+    that `datasets.load_dataset(..., streaming=True)` is used or that a `.load()`
+    call on the full dataset has been removed. The required source change is missing.
+T012c:
+  c: false
+  h: 13710f1978ff1ceba87cdb0173cbc9f4cd1a0b78f845d3801210556341342455
+  r: The repository does not contain a `write_parquet_and_checksum()` implementation
+    in `code/data/loader.py` (the shown file ends with a truncated `calculate_relevant_lines`
+    function and no such function is present). Additionally, the expected output file
+    `data/filtered_swe_bench_v1.parquet` is missing, so the required artifact was
+    never created. The task therefore remains unfinished.
 T016b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

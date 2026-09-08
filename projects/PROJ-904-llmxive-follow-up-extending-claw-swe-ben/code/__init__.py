@@ -1,1 +1,3 @@
-"""llmXive Follow-up: Context Fidelity vs. Model Scaling Trade-offs."""
+"""
+llmXive research pipeline code root.
+"""

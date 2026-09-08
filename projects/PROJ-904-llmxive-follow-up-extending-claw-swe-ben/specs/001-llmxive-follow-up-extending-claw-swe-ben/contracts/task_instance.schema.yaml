@@ -1,67 +1,75 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: TaskInstance
+title: TaskInstance Schema
 description: >-
-  Schema for a task instance derived from the Claw-SWE-Bench dataset.
-  Represents a specific software engineering task (issue + patch + context).
+  JSON Schema for the TaskInstance entity.
+  Matches the dataclass structure in code/models/task_instance.py.
 type: object
-required:
-  - instance_id
-  - problem_statement
-  - repo
-  - version
-  - base_commit
-  - patch
-  - test_patch
-  - relevant_files
-  - total_lines
-  - status
-  - created_at
 properties:
   instance_id:
     type: string
-    description: Unique identifier for the task instance (e.g., 'swe-bench-12345')
-    pattern: '^swe-bench-[0-9]+$'
-  problem_statement:
-    type: string
-    description: The natural language description of the issue to be resolved.
+    description: Unique identifier for the task instance (e.g., 'swe-bench-123').
   repo:
     type: string
-    description: The repository name (e.g., 'pallets/flask')
-  version:
-    type: string
-    description: The version of the repository at the time of the issue.
+    description: Repository name (e.g., 'pytorch/pytorch').
   base_commit:
     type: string
-    description: The SHA of the base commit before the issue was introduced.
-    pattern: '^[a-f0-9]{40}$'
+    description: Git commit hash for the base state.
   patch:
     type: string
-    description: The ground-truth patch that resolves the issue.
+    description: The gold patch applied to fix the issue.
   test_patch:
     type: string
-    description: The test patch used to verify the solution.
-  relevant_files:
-    type: array
-    description: List of file paths relevant to the issue (derived from import graph traversal).
-    items:
-      type: string
-  total_lines:
-    type: integer
-    description: Total number of lines in the traversed import graph.
-    minimum: 0
-  status:
+    description: The test patch used to verify the fix.
+  problem_statement:
     type: string
-    description: Current status of the task instance.
-    enum:
-      - pending
-      - processing
-      - completed
-      - failed
+    description: The natural language description of the issue.
+  hints_text:
+    type: string
+    description: Optional hints provided for the task.
   created_at:
     type: string
     format: date-time
-    description: ISO 8601 timestamp when the instance was created/loaded.
-  metadata:
+    description: Timestamp of instance creation.
+  version:
+    type: string
+    description: Version of the dataset schema.
+  relevant_files:
+    type: array
+    items:
+      type: string
+    description: List of file paths relevant to the issue.
+  imports_graph:
     type: object
-    description: Optional additional metadata (e.g., graph traversal depth, import count).
-    additionalProperties: true
+    description: Serialized import graph data (nodes and edges).
+    properties:
+      nodes:
+        type: array
+        items:
+          type: string
+      edges:
+        type: array
+        items:
+          type: array
+          items:
+            type: string
+  total_lines:
+    type: integer
+    minimum: 0
+    description: Total number of lines in the traversed context graph.
+  status:
+    type: string
+    enum:
+      - pending
+      - running
+      - completed
+      - failed
+    description: Current execution status.
+required:
+  - instance_id
+  - repo
+  - base_commit
+  - patch
+  - test_patch
+  - problem_statement
+  - status
+additionalProperties: false

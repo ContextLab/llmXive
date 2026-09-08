@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.06224",
+  "judged_at": "2026-09-08T13:06:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it explicitly models the temporal dependence (via ARIMA/SARIMA for price dynamics and GARCH/EGARCH for volatility clustering) in cryptocurrency price fluctuations, which is the core mechanism and domain of the user's question.",
+  "relevant": true
+}

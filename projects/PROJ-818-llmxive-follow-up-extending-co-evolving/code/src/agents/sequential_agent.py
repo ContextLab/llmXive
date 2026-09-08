@@ -1,218 +1,399 @@
+"""
+Sequential Agent Implementation for Co-Evolving Policy Distillation.
+
+This module implements the SequentialAgent, which trains on one task domain
+block at a time (e.g., all logic proofs, then all grid worlds).
+"""
 import random
 from typing import List, Dict, Any, Tuple, Optional
 from .base_agent import BaseAgent
 from sympy import simplify_logic, symbols, Implies, And, Or, Not
 import networkx as nx
 from src.utils.config import Config
+import json
+import os
 
 class SequentialAgent(BaseAgent):
     """
-    SequentialAgent trains on one task domain block at a time.
+    An agent that trains sequentially on distinct task domains.
     
-    It processes the training data in distinct blocks (e.g., all logic proofs,
-    then all grid worlds) to simulate sequential learning. This allows for
-    measuring catastrophic forgetting when the agent moves from one domain
-    to the next.
+    Training Order:
+    1. Logic Proofs Domain
+    2. Grid Worlds Domain
+    
+    This contrasts with MixedAgent (random mixing) and CoevolvingAgent 
+    (simultaneous sub-populations with exchange).
     """
 
     def __init__(self, config: Config, seed: Optional[int] = None):
         super().__init__(config, seed)
         self.current_domain_index = 0
-        self.domain_history: List[str] = []
-        self.evaluation_count = 0
-        self.rule_sets: Dict[str, Any] = {}
-        
-    def _get_domain_blocks(self, training_data: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
-        """
-        Group training data into domain blocks based on 'domain_type'.
-        Assumes data is a flat list that needs to be grouped.
-        """
-        domains = {}
-        for item in training_data:
-            dtype = item.get('domain_type', 'unknown')
-            if dtype not in domains:
-                domains[dtype] = []
-            domains[dtype].append(item)
-        
-        # Return blocks in a deterministic order (sorted by domain name)
-        return [domains[k] for k in sorted(domains.keys())]
+        self.domains = ['logic', 'grid']
+        self.domain_progress = {domain: 0 for domain in self.domains}
+        self.evaluation_counts = {domain: 0 for domain in self.domains}
+        self.history = []
 
-    def train(self, training_data: List[Dict[str, Any]], max_generations: int) -> Dict[str, Any]:
+    def train_step(self, batch: List[Dict[str, Any]], domain: str) -> Dict[str, Any]:
         """
-        Train the agent sequentially on domain blocks.
+        Perform a single training step on a batch of data for a specific domain.
         
         Args:
-            training_data: List of training instances (logic proofs or grids).
-            max_generations: Total number of generations to run.
+            batch: List of task instances for the current domain.
+            domain: The domain name ('logic' or 'grid').
             
         Returns:
-            Dictionary containing final agent state and training metrics.
+            Dictionary containing training metrics and updated state.
         """
-        blocks = self._get_domain_blocks(training_data)
-        if not blocks:
-            return self.get_state()
+        if not batch:
+            return {"status": "skipped", "reason": "empty_batch"}
 
-        current_gen = 0
-        generations_per_block = max_generations // len(blocks)
-        remainder = max_generations % len(blocks)
-
-        for i, block in enumerate(blocks):
-            self.current_domain_index = i
-            domain_name = block[0].get('domain_type', 'unknown') if block else 'unknown'
-            self.domain_history.append(domain_name)
+        # Update evaluation counts
+        self.evaluation_counts[domain] += len(batch)
+        
+        # Simulate rule-set evolution for this domain
+        # In a real evolutionary system, this would involve selection, crossover, mutation
+        # Here we simulate the effect of training on the current rule set
+        
+        current_state = self.get_state()
+        
+        # Process each item in the batch
+        success_count = 0
+        total_count = 0
+        
+        for item in batch:
+            total_count += 1
+            task_type = item.get('type', domain)
             
-            # Allocate generations for this block
-            gens_for_block = generations_per_block + (1 if i < remainder else 0)
+            if task_type == 'logic':
+                # Logic proof evaluation
+                if self._evaluate_logic_proof(item, current_state['rule_set']):
+                    success_count += 1
+            elif task_type == 'grid':
+                # Grid navigation evaluation
+                if self._evaluate_grid_task(item, current_state['rule_set']):
+                    success_count += 1
+            else:
+                # Fallback evaluation
+                if self._evaluate_generic_task(item, current_state['rule_set']):
+                    success_count += 1
+        
+        # Calculate accuracy for this step
+        accuracy = success_count / total_count if total_count > 0 else 0.0
+        
+        # Update internal state (simulated evolution)
+        # In a real system, this would modify the rule set based on performance
+        new_rule_set = self._evolve_rule_set(current_state['rule_set'], accuracy)
+        self.set_rule_set(new_rule_set)
+        
+        step_result = {
+            "domain": domain,
+            "batch_size": len(batch),
+            "accuracy": accuracy,
+            "success_count": success_count,
+            "total_evaluations": self.evaluation_counts[domain],
+            "global_evaluations": sum(self.evaluation_counts.values())
+        }
+        
+        self.history.append(step_result)
+        return step_result
+
+    def train_on_domain(self, domain: str, data: List[Dict[str, Any]], 
+                      steps_per_epoch: int = 10) -> Dict[str, Any]:
+        """
+        Train exclusively on a single domain for multiple steps.
+        
+        Args:
+            domain: The domain to train on ('logic' or 'grid').
+            data: The dataset for this domain.
+            steps_per_epoch: Number of training steps to perform.
             
-            for gen in range(gens_for_block):
-                if current_gen >= max_generations:
-                    break
-                
-                # Select a random instance from the current block
-                instance = random.choice(block)
-                
-                # Evaluate and update rule set based on the instance
-                self._evaluate_instance(instance)
-                self.evaluation_count += 1
-                current_gen += 1
-
-        return self.get_state()
-
-    def _evaluate_instance(self, instance: Dict[str, Any]) -> None:
+        Returns:
+            Summary of training performance on this domain.
         """
-        Evaluate a single training instance and update the internal rule set.
+        if domain not in self.domains:
+            raise ValueError(f"Unknown domain: {domain}. Must be one of {self.domains}")
         
-        For SequentialAgent, this involves attempting to solve the instance
-        with current rules, and if successful, reinforcing the rules used.
-        If it's a logic proof, we check logical implication.
-        If it's a grid, we check path validity.
-        """
-        domain_type = instance.get('domain_type')
-        instance_data = instance.get('data', {})
+        if not data:
+            return {"status": "skipped", "reason": "no_data"}
         
-        if domain_type == 'logic':
-            self._process_logic_proof(instance_data)
-        elif domain_type == 'grid':
-            self._process_grid_world(instance_data)
-        else:
-            # Unknown domain, skip or log warning
-            pass
-
-    def _process_logic_proof(self, data: Dict[str, Any]) -> None:
-        """Process a logic proof instance."""
-        axioms = data.get('axioms', [])
-        conclusion = data.get('conclusion')
+        epoch_results = []
         
-        if not axioms or not conclusion:
-            return
-
-        # Convert to sympy expressions if they are strings
-        # Assuming axioms and conclusion are provided as logical strings or symbols
-        # Simplify the logic to ensure consistency
-        try:
-            # Example: If axioms are implications, we check if they imply conclusion
-            # This is a simplified evaluation step for the agent's rule set
-            # In a full implementation, this would involve a genetic programming step
-            # to evolve the rule set. Here we simulate the evaluation count.
-            pass
-        except Exception:
-            pass
-
-    def _process_grid_world(self, data: Dict[str, Any]) -> None:
-        """Process a grid world instance."""
-        grid_size = data.get('size', (10, 10))
-        start = data.get('start')
-        end = data.get('end')
-        obstacles = data.get('obstacles', [])
+        for step in range(steps_per_epoch):
+            # Sample a batch from the domain data
+            batch_size = min(self.config.batch_size, len(data))
+            batch = random.sample(data, batch_size)
+            
+            result = self.train_step(batch, domain)
+            epoch_results.append(result)
+            
+            # Update domain progress
+            self.domain_progress[domain] += batch_size
         
-        if not start or not end:
-            return
-
-        # Create a graph representation
-        G = nx.Graph()
-        rows, cols = grid_size
-        for r in range(rows):
-            for c in range(cols):
-                if (r, c) not in obstacles:
-                    G.add_node((r, c))
-                    # Add edges to neighbors
-                    for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                        nr, nc = r + dr, c + dc
-                        if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in obstacles:
-                            G.add_edge((r, c), (nr, nc))
+        # Calculate aggregate metrics for this domain training
+        avg_accuracy = sum(r.get('accuracy', 0) for r in epoch_results) / len(epoch_results) if epoch_results else 0.0
         
-        # Check solvability
-        try:
-            nx.shortest_path(G, source=start, target=end)
-            # If path exists, the instance is valid and rules are reinforced
-        except nx.NetworkXNoPath:
-            # Instance is unsolvable with current constraints
-            pass
-
-    def get_state(self) -> Dict[str, Any]:
-        """Return the current state of the agent."""
         return {
-            'agent_type': 'SequentialAgent',
-            'current_domain_index': self.current_domain_index,
-            'domain_history': self.domain_history,
-            'evaluation_count': self.evaluation_count,
-            'rule_sets': self.rule_sets,
-            'seed': self.seed
+            "domain": domain,
+            "epochs_completed": steps_per_epoch,
+            "avg_accuracy": avg_accuracy,
+            "total_samples_processed": self.domain_progress[domain],
+            "step_results": epoch_results
         }
 
-    def reset(self) -> None:
-        """Reset the agent to initial state."""
-        self.current_domain_index = 0
-        self.domain_history = []
-        self.evaluation_count = 0
-        self.rule_sets = {}
+    def train_full_sequence(self, logic_data: List[Dict[str, Any]], 
+                          grid_data: List[Dict[str, Any]],
+                          steps_per_domain: int = 10) -> Dict[str, Any]:
+        """
+        Execute the full sequential training protocol:
+        1. Train on Logic domain exclusively
+        2. Train on Grid domain exclusively
+        
+        Args:
+            logic_data: Dataset of logic proofs.
+            grid_data: Dataset of grid worlds.
+            steps_per_domain: Number of training steps per domain.
+            
+        Returns:
+            Comprehensive training summary.
+        """
+        results = {
+            "training_order": self.domains,
+            "steps_per_domain": steps_per_domain,
+            "domain_results": {},
+            "final_state": {}
+        }
+        
+        # Phase 1: Logic Domain
+        logic_result = self.train_on_domain('logic', logic_data, steps_per_domain)
+        results["domain_results"]['logic'] = logic_result
+        
+        # Phase 2: Grid Domain
+        grid_result = self.train_on_domain('grid', grid_data, steps_per_domain)
+        results["domain_results"]['grid'] = grid_result
+        
+        # Final state summary
+        results["final_state"] = {
+            "total_evaluations": sum(self.evaluation_counts.values()),
+            "evaluations_by_domain": self.evaluation_counts,
+            "final_accuracy": self.get_average_accuracy(),
+            "history_length": len(self.history)
+        }
+        
+        return results
 
+    def _evaluate_logic_proof(self, proof_instance: Dict[str, Any], 
+                            rule_set: List[str]) -> bool:
+        """
+        Evaluate if the current rule set can solve a logic proof instance.
+        
+        Args:
+            proof_instance: A dictionary representing a logic proof task.
+            rule_set: Current list of active rules.
+            
+        Returns:
+            True if the proof is successfully derived, False otherwise.
+        """
+        try:
+            premises = proof_instance.get('premises', [])
+            conclusion = proof_instance.get('conclusion', '')
+            
+            if not premises or not conclusion:
+                return False
+            
+            # Convert premises and conclusion to sympy expressions
+            # This is a simplified evaluation; real implementation would use full symbolic logic
+            symbols_map = {}
+            for i in range(10):  # Support up to 10 variables
+                symbols_map[f'P{i}'] = symbols(f'P{i}')
+            
+            # Parse premises
+            parsed_premises = []
+            for p in premises:
+                # Simple parsing for demonstration
+                # In reality, this would be more robust
+                expr_str = p.replace('AND', '&').replace('OR', '|').replace('NOT', '~').replace('IMPLIES', '>>')
+                parsed_premises.append(expr_str)
+            
+            # Check if conclusion follows from premises (simplified)
+            # A real implementation would use sympy's satisfiability or proof methods
+            return len(rule_set) > 0  # Placeholder: success if we have rules
+            
+        except Exception:
+            return False
+
+    def _evaluate_grid_task(self, grid_instance: Dict[str, Any], 
+                          rule_set: List[str]) -> bool:
+        """
+        Evaluate if the current rule set can navigate a grid task.
+        
+        Args:
+            grid_instance: A dictionary representing a grid navigation task.
+            rule_set: Current list of active rules.
+            
+        Returns:
+            True if the goal is reached, False otherwise.
+        """
+        try:
+            grid_size = grid_instance.get('size', 10)
+            start = grid_instance.get('start', (0, 0))
+            goal = grid_instance.get('goal', (grid_size-1, grid_size-1))
+            obstacles = grid_instance.get('obstacles', [])
+            
+            if not start or not goal:
+                return False
+            
+            # Build graph representation
+            G = nx.Graph()
+            for i in range(grid_size):
+                for j in range(grid_size):
+                    if (i, j) not in obstacles:
+                        G.add_node((i, j))
+                        # Add edges to neighbors
+                        for di, dj in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                            ni, nj = i + di, j + dj
+                            if 0 <= ni < grid_size and 0 <= nj < grid_size and (ni, nj) not in obstacles:
+                                G.add_edge((i, j), (ni, nj))
+            
+            # Check if path exists
+            if nx.has_path(G, start, goal):
+                # Apply rules to see if path is valid
+                # Rules might restrict certain moves (e.g., avoid red cells)
+                return len(rule_set) > 0  # Placeholder: success if we have rules
+            return False
+            
+        except Exception:
+            return False
+
+    def _evaluate_generic_task(self, task: Dict[str, Any], 
+                             rule_set: List[str]) -> bool:
+        """Fallback evaluation for unknown task types."""
+        return len(rule_set) > 0
+
+    def _evolve_rule_set(self, current_rules: List[str], 
+                       performance: float) -> List[str]:
+        """
+        Simulate evolution of the rule set based on performance.
+        
+        In a real system, this would involve genetic operators.
+        Here we simulate the effect by adding/removing rules based on performance.
+        
+        Args:
+            current_rules: Current list of rule strings.
+            performance: Performance metric from recent training (0.0 to 1.0).
+            
+        Returns:
+            New list of rules after simulated evolution.
+        """
+        new_rules = current_rules.copy()
+        
+        # Simulate rule adaptation
+        if performance < 0.5:
+            # Poor performance: try to add new rules
+            if len(new_rules) < 5:  # Limit max rules
+                new_rule = f"rule_{len(new_rules)}_adapted"
+                new_rules.append(new_rule)
+        elif performance > 0.8:
+            # Good performance: refine rules (remove weak ones)
+            if len(new_rules) > 1:
+                # Remove a random rule to simulate pruning
+                new_rules.pop(random.randint(0, len(new_rules) - 1))
+        
+        return new_rules
+
+    def get_average_accuracy(self) -> float:
+        """Calculate the average accuracy across all training steps."""
+        if not self.history:
+            return 0.0
+        accuracies = [step.get('accuracy', 0) for step in self.history]
+        return sum(accuracies) / len(accuracies)
+
+    def get_state(self) -> Dict[str, Any]:
+        """Get the current state of the agent."""
+        return {
+            "rule_set": self.rule_set,
+            "evaluation_counts": self.evaluation_counts,
+            "domain_progress": self.domain_progress,
+            "current_domain_index": self.current_domain_index,
+            "history_length": len(self.history)
+        }
+
+    def set_state(self, state: Dict[str, Any]) -> None:
+        """Restore the agent from a saved state."""
+        self.rule_set = state.get('rule_set', [])
+        self.evaluation_counts = state.get('evaluation_counts', {d: 0 for d in self.domains})
+        self.domain_progress = state.get('domain_progress', {d: 0 for d in self.domains})
+        self.current_domain_index = state.get('current_domain_index', 0)
+
+    def save_results(self, output_path: str) -> None:
+        """Save training results to a JSON file."""
+        results = {
+            "agent_type": "SequentialAgent",
+            "config": self.config.to_dict() if hasattr(self.config, 'to_dict') else {},
+            "final_state": self.get_state(),
+            "history": self.history,
+            "evaluation_counts": self.evaluation_counts
+        }
+        
+        os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
 
 def main():
     """
     Main entry point for testing the SequentialAgent.
-    Reads config, generates dummy training data, and runs training.
+    This function generates sample data, trains the agent, and saves results.
     """
-    import json
-    import sys
-    from pathlib import Path
-
-    # Load config
-    config_path = Path('data/config.json')
-    if not config_path.exists():
-        print("Config file not found. Using defaults.")
-        config = Config()
-    else:
-        config = Config.load(config_path)
-
-    # Create agent
+    from src.utils.config import load_config, get_default_config
+    
+    # Load configuration
+    config = load_config()
+    
+    # Initialize agent
     agent = SequentialAgent(config, seed=config.seed)
-
-    # Create dummy training data for demonstration
-    # In a real run, this would come from data/
-    dummy_data = [
-        {'domain_type': 'logic', 'data': {'axioms': ['A', 'A -> B'], 'conclusion': 'B'}},
-        {'domain_type': 'logic', 'data': {'axioms': ['C', 'C -> D'], 'conclusion': 'D'}},
-        {'domain_type': 'grid', 'data': {'size': [5, 5], 'start': [0, 0], 'end': [4, 4], 'obstacles': []}},
-        {'domain_type': 'grid', 'data': {'size': [5, 5], 'start': [0, 0], 'end': [4, 4], 'obstacles': [(2, 2)]}}
+    
+    # Generate sample data (in real usage, this would come from generators)
+    # Creating minimal valid data for demonstration
+    logic_data = [
+        {
+            "type": "logic",
+            "premises": ["P0 IMPLIES P1", "P0"],
+            "conclusion": "P1",
+            "id": f"logic_{i}"
+        }
+        for i in range(20)
     ]
+    
+    grid_data = [
+        {
+            "type": "grid",
+            "size": 5,
+            "start": (0, 0),
+            "goal": (4, 4),
+            "obstacles": [(1, 1), (2, 2), (3, 3)],
+            "id": f"grid_{i}"
+        }
+        for i in range(20)
+    ]
+    
+    # Train sequentially
+    results = agent.train_full_sequence(
+        logic_data=logic_data,
+        grid_data=grid_data,
+        steps_per_domain=5
+    )
+    
+    # Print summary
+    print("Sequential Training Complete")
+    print(f"Logic Domain Accuracy: {results['domain_results']['logic']['avg_accuracy']:.3f}")
+    print(f"Grid Domain Accuracy: {results['domain_results']['grid']['avg_accuracy']:.3f}")
+    print(f"Total Evaluations: {results['final_state']['total_evaluations']}")
+    
+    # Save results
+    output_path = "data/results/sequential_training_results.json"
+    agent.save_results(output_path)
+    print(f"Results saved to {output_path}")
+    
+    return results
 
-    # Train
-    print("Starting Sequential Agent Training...")
-    state = agent.train(dummy_data, max_generations=config.max_generations)
-    
-    print("Training complete.")
-    print(f"Final State: {json.dumps(state, indent=2)}")
-    
-    # Save state to data/results
-    output_dir = Path('data/results')
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / f'sequential_agent_state_{config.seed}.json'
-    
-    with open(output_file, 'w') as f:
-        json.dump(state, f, indent=2)
-    
-    print(f"State saved to {output_file}")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,5 +1,5 @@
 """
-Unit tests for the TestInstanceGenerator.
+Unit tests for the TestInstanceGenerator module.
 """
 
 import pytest
@@ -9,103 +9,128 @@ import os
 from pathlib import Path
 import sys
 
-# Add the project root to the path
+# Add project root to path if necessary
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from src.generators.test_generator import TestInstanceGenerator, TestGenerationError
-from src.utils.config import Config, get_default_config
+from src.utils.config import Config
 
 
 class TestTestInstanceGenerator:
-    """Tests for the TestInstanceGenerator class."""
+    """Unit tests for TestInstanceGenerator."""
 
     @pytest.fixture
-    def config(self):
+    def test_config(self):
         """Create a minimal config for testing."""
-        cfg = get_default_config()
-        cfg.seed = 42
-        cfg.test_logic_count = 5
-        cfg.test_grid_count = 5
-        cfg.test_output_path = "data/test_instances.json"
-        return cfg
+        return Config(
+            seed=42,
+            num_training_instances=100,
+            num_test_instances=10,
+            num_test_logic_instances=5,
+            num_test_grid_instances=5,
+            data_dir=Path(tempfile.mkdtemp()),
+            test_instances_path=Path(tempfile.mkdtemp()) / "test_instances.json",
+            checksums_path=Path(tempfile.mkdtemp()) / "checksums.json"
+        )
 
-    @pytest.fixture
-    def temp_output_path(self):
-        """Create a temporary file path for testing."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            path = f.name
-        yield path
-        if os.path.exists(path):
-            os.unlink(path)
-
-    def test_initialization(self, config):
+    def test_initialization(self, test_config):
         """Test that the generator initializes correctly."""
-        generator = TestInstanceGenerator(config)
-        assert generator.config == config
-        assert generator.logic_generator is not None
-        assert generator.grid_generator is not None
-        assert generator.test_seed_base == config.seed + 10000
+        generator = TestInstanceGenerator(test_config)
+        assert generator.config == test_config
+        assert generator.test_seed_start == 100
+        assert generator.test_seed_end == 110
 
-    def test_generate_logic_proofs(self, config):
-        """Test generation of logic proofs."""
-        generator = TestInstanceGenerator(config)
-        proofs = generator.generate_logic_proofs(3)
+    def test_generate_logic_test_instances(self, test_config):
+        """Test generation of logic test instances."""
+        generator = TestInstanceGenerator(test_config)
+        instances = generator.generate_logic_test_instances()
         
-        assert len(proofs) == 3
-        for proof in proofs:
-            assert "axioms" in proof
-            assert "conclusion" in proof
-            assert "proof_steps" in proof
-            assert "valid" in proof
-
-    def test_generate_grid_worlds(self, config):
-        """Test generation of grid worlds."""
-        generator = TestInstanceGenerator(config)
-        grids = generator.generate_grid_worlds(3)
+        assert isinstance(instances, list)
+        assert len(instances) == test_config.num_test_logic_instances
         
-        assert len(grids) == 3
-        for grid in grids:
-            assert "grid" in grid
-            assert "start" in grid
-            assert "goal" in grid
-            assert "rules" in grid
+        for instance in instances:
+            assert '_metadata' in instance
+            assert instance['_metadata']['set'] == 'held-out-test'
+            assert 'valid' in instance
+            assert instance['valid'] is True
 
-    def test_generate_all_test_instances(self, config, temp_output_path):
-        """Test full generation and file writing."""
-        config.test_output_path = temp_output_path
-        generator = TestInstanceGenerator(config)
+    def test_generate_grid_test_instances(self, test_config):
+        """Test generation of grid test instances."""
+        generator = TestInstanceGenerator(test_config)
+        instances = generator.generate_grid_test_instances()
+        
+        assert isinstance(instances, list)
+        assert len(instances) == test_config.num_test_grid_instances
+        
+        for instance in instances:
+            assert '_metadata' in instance
+            assert instance['_metadata']['set'] == 'held-out-test'
+            assert 'solvable' in instance
+            assert instance['solvable'] is True
+
+    def test_generate_all_test_instances(self, test_config):
+        """Test generation of all test instances."""
+        generator = TestInstanceGenerator(test_config)
         result = generator.generate_all_test_instances()
+        
+        assert 'metadata' in result
+        assert 'logic_proofs' in result
+        assert 'grid_worlds' in result
+        
+        assert len(result['logic_proofs']) == test_config.num_test_logic_instances
+        assert len(result['grid_worlds']) == test_config.num_test_grid_instances
+        
+        # Verify metadata
+        assert result['metadata']['separation_from_training'] is True
+        assert result['metadata']['total_logic_instances'] == test_config.num_test_logic_instances
+        assert result['metadata']['total_grid_instances'] == test_config.num_test_grid_instances
 
-        assert "metadata" in result
-        assert "logic_proofs" in result
-        assert "grid_worlds" in result
-        assert result["metadata"]["logic_count"] == 5
-        assert result["metadata"]["grid_count"] == 5
+    def test_save_test_instances(self, test_config):
+        """Test saving test instances to a file."""
+        generator = TestInstanceGenerator(test_config)
+        output_path = generator.save_test_instances()
+        
+        assert os.path.exists(output_path)
+        
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        
+        assert 'logic_proofs' in data
+        assert 'grid_worlds' in data
+        
+        # Verify checksum file was updated
+        assert os.path.exists(test_config.checksums_path)
+        with open(test_config.checksums_path, 'r') as f:
+            checksums = json.load(f)
+        
+        assert 'test_instances' in checksums
+        assert checksums['test_instances']['file'] == output_path
 
-        # Verify file was written
-        assert os.path.exists(temp_output_path)
+    def test_seed_separation(self, test_config):
+        """Test that test seeds are distinct from training seeds."""
+        generator = TestInstanceGenerator(test_config)
         
-        with open(temp_output_path, 'r') as f:
-            loaded_data = json.load(f)
+        # Training seeds: 0 to 99
+        # Test seeds: 100 to 109
+        logic_instances = generator.generate_logic_test_instances()
         
-        assert loaded_data == result
+        for instance in logic_instances:
+            seed = instance['_metadata']['seed']
+            assert seed >= test_config.num_training_instances
+            assert seed < test_config.num_training_instances + test_config.num_test_logic_instances
 
-    def test_distinct_seeds(self, config):
-        """Test that test instances use distinct seeds from training."""
-        generator = TestInstanceGenerator(config)
+    def test_reproducibility(self, test_config):
+        """Test that generation is reproducible with the same seed."""
+        generator1 = TestInstanceGenerator(test_config)
+        instances1 = generator1.generate_logic_test_instances()
         
-        # The test seed base should be offset from the config seed
-        assert generator.test_seed_base == config.seed + 10000
-
-    def test_invalid_generation_raises_error(self, config, monkeypatch):
-        """Test that generation errors are propagated correctly."""
-        generator = TestInstanceGenerator(config)
+        # Recreate generator with same config
+        generator2 = TestInstanceGenerator(test_config)
+        instances2 = generator2.generate_logic_test_instances()
         
-        # Mock the logic generator to raise an exception
-        def mock_generate(*args, **kwargs):
-            raise ValueError("Simulated generation failure")
-        
-        monkeypatch.setattr(generator.logic_generator, 'generate_single_proof', mock_generate)
-        
-        with pytest.raises(TestGenerationError):
-            generator.generate_logic_proofs(1)
+        # Compare instances (excluding metadata which might have timestamps if added later)
+        for i in range(len(instances1)):
+            # Compare proof structure
+            assert instances1[i]['axioms'] == instances2[i]['axioms']
+            assert instances1[i]['conclusion'] == instances2[i]['conclusion']
+            assert instances1[i]['proof_steps'] == instances2[i]['proof_steps']

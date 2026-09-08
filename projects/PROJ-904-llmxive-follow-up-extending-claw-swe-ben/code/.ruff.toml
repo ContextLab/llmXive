@@ -1,32 +1,24 @@
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP"]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+    "E501", # Line too long (handled by black)
+    "W191", # Indentation contains tabs (handled by black)
 ]
-fixable = ["ALL"]
-unfixable = []
 
-# Allow autofix for all enabled rules
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[lint.isort]
+force-single-line = false
+lines-between-types = 0
+lines-after-imports = 2
+known-first-party = ["config", "data", "models", "utils", "analysis", "experiments"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/*" = ["S101", "ARG"]
+"__init__.py" = ["F401"] # Allow unused imports in __init__.py for re-exports
 
 [format]
-# Same as Black
+# Use black-compatible formatting
 quote-style = "double"
 indent-style = "space"
-skip-magic-trailing-comma = false
 line-ending = "auto"
-docstring-code-format = true
-docstring-code-line-length = "dynamic"
+skip-magic-trailing-comma = false

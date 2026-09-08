@@ -12,5 +12,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T018** — declared artifact(s) missing/empty/invalid: src/agents/sequential_agent.py
 - **T019** — declared artifact(s) missing/empty/invalid: src/agents/mixed_agent.py
 - **T020** — declared artifact(s) missing/empty/invalid: src/agents/coevolving_agent.py
-- **T036** — No code files, refactored modules, or documentation were provided; consequently there is no evidence that type hints or docstrings have been added or completed. The required artifacts for the cleanup task are missing.
-- **T037** — The implementer provided no code, configuration changes, profiling data, or benchmark results demonstrating that runs now finish within the CI time limit on limited CPU cores. No performance‑optimization artifact (e.g., optimized training loop, parallelism settings, CI timeout adjustments, or timing reports) is present, so the requirement is unmet.
+- **T021** — declared artifact(s) missing/empty/invalid: src/agents/coevolving_agent.py
+- **T022** — declared artifact(s) missing/empty/invalid: src/utils/parity_checker.py

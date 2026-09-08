@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T20:21:24.832424Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-818-llmxive-follow-up-extending-co-evolving
-last_run_id: 47f3cb91-4e34-4452-8dcb-a07d88ef4414
+last_run_id: f7348453-13ce-40cb-9257-84a386530f19
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-818-llmxive-follow-up-extending-co-evolving/specs/001-llmxive-follow-up-extending-co-evolving
 title: 'llmXive follow-up: extending "Co-Evolving Policy Distillation"'
-updated_at: '2026-07-11T15:19:21.274908Z'
+updated_at: '2026-09-08T12:53:45.869965Z'

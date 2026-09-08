@@ -1,4 +1,4 @@
-- artifact_hash: 3774d07a1cd54d3f14c96a9adcb0b38fe5015e736182d8f55ce6663a61b7ced8
+- artifact_hash: 0f3988ad55c9593873392d4b60f7a5269604da10938c3967420adf335182f27a
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,8 +8,8 @@
   value: https://example.com
   verification_status: pending
   verified_against_url: https://example.com
-  verified_at: '2026-08-17T13:13:15.888121Z'
-- artifact_hash: 3774d07a1cd54d3f14c96a9adcb0b38fe5015e736182d8f55ce6663a61b7ced8
+  verified_at: '2026-09-08T12:43:31.900280Z'
+- artifact_hash: 0f3988ad55c9593873392d4b60f7a5269604da10938c3967420adf335182f27a
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -19,8 +19,8 @@
   value: 10.5281/zenodo.7964353
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.7964353
-  verified_at: '2026-08-17T13:13:15.888121Z'
-- artifact_hash: 3774d07a1cd54d3f14c96a9adcb0b38fe5015e736182d8f55ce6663a61b7ced8
+  verified_at: '2026-09-08T12:43:31.900280Z'
+- artifact_hash: 0f3988ad55c9593873392d4b60f7a5269604da10938c3967420adf335182f27a
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -32,4 +32,4 @@
   value: 10.1111/jace.18342
   verification_status: pending
   verified_against_url: https://doi.org/10.1111/jace.18342
-  verified_at: '2026-08-17T13:13:15.888121Z'
+  verified_at: '2026-09-08T12:43:31.900280Z'

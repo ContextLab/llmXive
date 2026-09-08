@@ -332,3 +332,322 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T13:13:15Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: 29 valid rows generated from 10 specific compositions
+  claim_id: c_2added55
+  context: 'Task T017c: Create test data for data gap verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use a fixed list of valid compositions: [''Al2O3'', ''ZrO2'', ''SiC'',
+    ''Si3N4'', ''MgO'', ''TiC'', ''HfC'', ''B4C'', ''WC'', ''AlN''] repeated cyclically
+    to ensure 29 valid rows.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:32:42Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Filter entries with sample count greater than or equal to 30
+  claim_id: c_26d7c51e
+  context: 'Task T018f-1: Implement Per-Entry Sample Count Filter.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_entries_with_sample_count_greater_than_or_equal_to_30
+  kind: magnitude
+  raw_text: Filter entries where sample_count (N) >= 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:34:07Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Pipeline halts with exit code 1 if row count is less than 30
+  claim_id: c_44d4181e
+  context: 'Task T017b: Implement Data Gap Validation & Report.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_with_exit_code_1_if_row_count_is_less_than_30
+  kind: magnitude
+  raw_text: If total row count < 30, immediately call generate_data_availability_report()
+    and execute sys.exit(1) to halt the pipeline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:34:17Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 0 for datasets with size between 30 and 50
+  claim_id: c_df5a40bb
+  context: 'Task T017b: Implement Data Gap Validation & Report.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If 30 <= N < 50, log Warning: Small dataset (30 <= N < 50). Hold-out
+    validation will be used. and exit with code 0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:35:23Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Use 80/20 hold-out split for datasets between 30 and 50 samples
+  claim_id: c_20f0fbfd
+  context: 'Task T026: Implement prepare_splits().'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If 30 <= N < 50, use Stratified 80/20 Hold-out.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:36:13Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Use 5-fold cross-validation for datasets with 50 or more samples
+  claim_id: c_5a661a1d
+  context: 'Task T026: Implement prepare_splits().'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N >= 50, use Stratified 5-fold CV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:36:56Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Permutation test iterations doubled up to 5000 if standard error exceeds
+    0.01
+  claim_id: c_babea969
+  context: 'Task T029: Implement run_permutation_test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute the standard error (SE) of the p-value estimate. If SE > 0.01,
+    double the iterations (up to max 5000) and re-run.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:36:56Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Cluster features if Variance Inflation Factor exceeds 5
+  claim_id: c_cf801251
+  context: 'Task T056: Enforce Collinearity Clustering in SHAP.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, group features and report aggregate importance for the cluster.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:36:56Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Flag potential leakage if MAE increases by less than 10%
+  claim_id: c_af8c4162
+  context: 'Task T030: Implement Descriptor Sufficiency Check.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_potential_leakage_if_MAE_increases_by_less_than_10%25
+  kind: magnitude
+  raw_text: If MAE increases (performance drop) by < 10%, flag POTENTIAL LEAKAGE.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:37:28Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Flag descriptors sufficient if MAE increases by 10% or more
+  claim_id: c_f0ca6ace
+  context: 'Task T030: Implement Descriptor Sufficiency Check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If MAE increases by >= 10%, flag DESCRIPTORS SUFFICIENT.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:37:28Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Calculate CV for top 5 feature importance scores
+  claim_id: c_7c8499c6
+  context: 'Task T039: Calculate CV Stability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Coefficient of Variation (CV) for top 5 feature importance scores
+    across cross-validation folds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:37:59Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Test streaming logic with dataset yielding more than 100,000 rows
+  claim_id: c_bb246114
+  context: 'Task T054-stream-test: Test Streaming Logic.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_streaming_logic_with_dataset_yielding_more_than_100,000
+  kind: magnitude
+  raw_text: Verify that fetch_materials_project_data processes the data within reasonable
+    memory constraints using a mock dataset generator that yields > 100,000 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:39:04Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Permutation test must use at least 1000 iterations
+  claim_id: c_8e7b0171
+  context: 'Task T057: Verify Permutation Test Robustness.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 9593 100003
+      source_id: A000040
+      url: https://oeis.org/A000040
+      value: '10000'
+    filled: true
+  kind: magnitude
+  raw_text: Ensure run_permutation_test() uses a sufficient number of iterations (>=
+    1000).
+  resolved_value: '10000'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T12:39:23Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Power analysis uses effect size 0.5 and alpha 0.05
+  claim_id: c_2b4a7804
+  context: 'Task T062: Add Dataset Power Analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Cohen's d based power analysis with effect size = 0.5, alpha = 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:41:16Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Hyperparameter search space combinations must not exceed 50
+  claim_id: c_cdf1dcda
+  context: 'Task T063: Explicitly Define Hyperparameter Search Space.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure the total combinations do not exceed 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:41:41Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Streaming test with 1 million rows must use less than 2GB memory
+  claim_id: c_5fcaf6c1
+  context: 'Task T065: Stream Large Dataset Validation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_test_with_1_million_rows_must_use_less_than_2GB_me
+  kind: magnitude
+  raw_text: Run a test with a mock generator yielding 1M rows; assert peak memory
+    usage < 2GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:42:24Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Remove classes with fewer than 5 samples from stratification
+  claim_id: c_d756aa97
+  context: 'Task T066: Stratification Fallback for Rare Classes.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Remove_classes_with_fewer_than_5_samples_from_stratification
+  kind: magnitude
+  raw_text: If a class has < 5 samples, log a warning and remove it from the stratification
+    list.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:43:23Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Fetch data from Zenodo record 10.5281/zenodo.7964353
+  claim_id: c_0c03467f
+  context: 'Task T018c: Fetch Ceramic Reliability Data (Zenodo).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Fetch data from the verified Zenodo record 10.5281/zenodo.7964353.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:43:30Z'
+- artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  attempts: 1
+  canonical: Load data from DOI 10.1111/jace.18342
+  claim_id: c_b242b5a3
+  context: 'Task T018g-gen: Generate Curated Literature Dataset.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Load data from a verified direct URL source: https://doi.org/10.1111/jace.18342.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:43:31Z'

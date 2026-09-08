@@ -5,77 +5,73 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-follow-up-extending-claw-swe-ben"
 version = "0.1.0"
-description = "Context Fidelity vs. Model Scaling Trade-offs Research"
+description = "Follow-up research on Context Fidelity vs. Model Scaling Trade-offs"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
-authors = [
-    {name = "llmXive Research Team", email = "research@llmxive.org"}
-]
-keywords = ["llm", "scaling", "context-fidelity", "swe-bench", "research"]
 dependencies = [
-    "transformers>=4.40.0",
-    "datasets>=2.18.0",
-    "scikit-learn>=1.4.0",
-    "statsmodels>=0.14.0",
-    "networkx>=3.2",
-    "pytest>=7.4.0",
-    "huggingface_hub>=0.22.0",
-    "pandas>=2.2.0",
-    "pyarrow>=15.0.0",
-    "torch>=2.2.0",
-    "accelerate>=0.28.0",
+    "transformers",
+    "datasets",
+    "scikit-learn",
+    "statsmodels",
+    "networkx",
+    "pytest",
+    "huggingface_hub",
+    "ruff",
+    "black",
+    "numpy",
+    "pandas",
+    "torch",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.3.0",
-    "black>=24.3.0",
-    "mypy>=1.9.0",
-    "pre-commit>=3.7.0",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "black",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["code*"]
+include = ["*", "data/*", "models/*", "utils/*", "analysis/*", "experiments/*", "tests/*"]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.mypy_cache
+    | \.venv
+    | venv
+    | build
+    | dist
 )/
 '''
 
-[tool.ruff]
-# Same as .ruff.toml, but inline for pyproject convenience if needed
-line-length = 88
-target-version = "py311"
-
 [tool.pytest.ini_options]
-testpaths = ["code/tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
 ]
 
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
-check_untyped_defs = true
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+src = ["."]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "N", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "data", "models", "utils", "analysis", "experiments"]
+force-sort-within-sections = false
+lines-after-imports = 2

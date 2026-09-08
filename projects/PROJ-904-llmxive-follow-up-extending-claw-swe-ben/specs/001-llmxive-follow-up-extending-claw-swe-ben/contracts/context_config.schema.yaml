@@ -1,58 +1,69 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: ContextConfiguration
+title: ContextConfiguration Schema
 description: >-
-  Schema for the configuration of context processing strategies.
-  Defines how the full task context is compressed or selected for model input.
+  JSON Schema for the ContextConfiguration entity.
+  Matches the dataclass structure in code/models/context_config.py.
 type: object
-required:
-  - strategy_type
-  - config_id
-  - parameters
-  - created_at
 properties:
   strategy_type:
     type: string
-    description: The type of context processing strategy used.
     enum:
-      - first_n_lines
+      - baseline
       - tfidf
       - diff_aware
       - semantic_summarization
-  config_id:
+    description: The context processing strategy used.
+  max_tokens:
+    type: integer
+    minimum: 1
+    description: Maximum number of tokens allowed in the context.
+  temperature:
+    type: number
+    minimum: 0.0
+    maximum: 2.0
+    description: Sampling temperature.
+  top_p:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Nucleus sampling parameter.
+  top_k:
+    type: integer
+    minimum: 1
+    description: Top-k sampling parameter.
+  context_snippets:
+    type: array
+    items:
+      type: object
+      properties:
+        file_path:
+          type: string
+        start_line:
+          type: integer
+        end_line:
+          type: integer
+        content:
+          type: string
+        relevance_score:
+          type: number
+      required:
+        - file_path
+        - start_line
+        - end_line
+        - content
+    description: List of selected context snippets.
+  truncation_method:
     type: string
-    description: Unique identifier for this specific configuration instance.
-    pattern: '^ctx-config-[0-9a-f]{8}$'
-  parameters:
+    enum:
+      - first_n
+      - last_n
+      - relevance_sorted
+    description: How context was truncated if it exceeded limits.
+  metadata:
     type: object
-    description: Strategy-specific parameters (e.g., n for first_n_lines, k for tfidf).
+    description: Additional configuration metadata.
     additionalProperties: true
-    properties:
-      max_tokens:
-        type: integer
-        description: Maximum number of tokens allowed in the context.
-        minimum: 1
-      n:
-        type: integer
-        description: Number of lines/snippets to retrieve (for first_n_lines or top_k).
-        minimum: 1
-      k:
-        type: integer
-        description: Number of top snippets to keep (for TF-IDF).
-        minimum: 1
-      window_size:
-        type: integer
-        description: Size of the sliding window (for diff_aware).
-        minimum: 1
-      threshold:
-        type: number
-        description: Relevance threshold for filtering.
-        minimum: 0.0
-        maximum: 1.0
-  created_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp when the configuration was created.
-  checksum:
-    type: string
-    description: SHA-256 checksum of the serialized parameters for reproducibility.
-    pattern: '^[a-f0-9]{64}$'
+required:
+  - strategy_type
+  - max_tokens
+additionalProperties: false

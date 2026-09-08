@@ -1,286 +1,255 @@
 """
-Parity checker module for enforcing exact parity of rule evaluations across agent conditions.
+Parity Checker Module for Co-Evolving Policy Distillation.
 
-This module implements the enforcement logic required by SC-002, ensuring that:
-1. A hard integer cap is enforced on rule evaluations during generation loops
-2. Exact parity is verified before analysis
-3. ParityError is raised if checksums mismatch across conditions
+This module enforces strict parity in rule evaluations across different
+training conditions (Sequential, Mixed-task, Co-evolving) as required by
+SC-002. It provides mechanisms to cap evaluations during generation,
+track evaluation counts, and verify parity across runs.
 """
 
 import json
 import hashlib
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 
 class ParityError(Exception):
-    """Raised when parity enforcement fails due to evaluation count mismatch or checksum mismatch."""
+    """Exception raised when parity constraints are violated."""
     pass
 
 
 @dataclass
 class EvaluationStats:
-    """Container for evaluation statistics of a single run."""
+    """
+    Statistics for rule evaluations in a single training run.
+
+    Attributes:
+        total_evaluations: Total number of rule evaluations performed.
+        task_evaluations: Dict mapping task_id to evaluation count for that task.
+        checksum: SHA-256 hash of the evaluation distribution for integrity.
+        condition: The training condition name (e.g., 'sequential', 'mixed', 'coevolving').
+        seed: Random seed used for this run.
+    """
+    total_evaluations: int
+    task_evaluations: Dict[str, int]
+    checksum: str
     condition: str
     seed: int
-    total_evaluations: int
-    checksum: str
-    filepath: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for serialization."""
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'EvaluationStats':
+        """Create from dictionary."""
+        return cls(**data)
 
 
 class ParityChecker:
     """
-    Enforces hard integer cap on rule evaluations and verifies exact parity across conditions.
-    
-    This class ensures that all three agent conditions (Sequential, Mixed-task, Co-evolving)
-    have identical total rule evaluations before analysis proceeds, as required by SC-002.
+    Enforces hard integer caps on rule evaluations and verifies parity.
+
+    This class is used during the generation loop to ensure that:
+    1. No run exceeds the configured maximum evaluation budget.
+    2. The total evaluations match exactly across all three conditions.
+    3. The distribution of evaluations across tasks is consistent.
     """
 
-    def __init__(self, config: Any):
+    def __init__(self, max_evaluations: int, expected_tasks: List[str]):
         """
         Initialize the parity checker.
-        
-        Args:
-            config: Configuration object containing evaluation budgets and paths
-        """
-        self.config = config
-        self.max_evaluations = config.get('rule_evaluation_budget', 10000)
-        self.results_dir = Path(config.get('results_dir', 'data/results'))
-        self.results_dir.mkdir(parents=True, exist_ok=True)
 
-    def clamp_evaluations(self, current_count: int) -> int:
-        """
-        Enforce hard integer cap on rule evaluations.
-        
         Args:
-            current_count: Current number of rule evaluations
-        
-        Returns:
-            Clamped evaluation count (never exceeds max_evaluations)
-        
+            max_evaluations: The hard cap on total rule evaluations per run.
+            expected_tasks: List of task IDs that should be evaluated.
+        """
+        self.max_evaluations = max_evaluations
+        self.expected_tasks = set(expected_tasks)
+        self.current_count = 0
+        self.task_counts: Dict[str, int] = {task: 0 for task in expected_tasks}
+        self._evaluation_log: List[Dict[str, Any]] = []
+
+    def reset(self) -> None:
+        """Reset the counter for a new run."""
+        self.current_count = 0
+        self.task_counts = {task: 0 for task in self.expected_tasks}
+        self._evaluation_log = []
+
+    def record_evaluation(self, task_id: str, count: int = 1) -> None:
+        """
+        Record rule evaluations for a specific task.
+
+        Args:
+            task_id: The identifier of the task being evaluated.
+            count: Number of evaluations to record (default 1).
+
         Raises:
-            ParityError: If clamping would cause significant deviation from target
+            ParityError: If recording this evaluation would exceed the cap.
         """
-        if current_count > self.max_evaluations:
-            # Log the clamping event but continue with the capped value
-            # This ensures we don't exceed the budget while maintaining parity
-            clamped_count = self.max_evaluations
-            # We allow the clamping to happen without raising an error here,
-            # as the enforcement is to cap the value, not to fail
-            return clamped_count
-        return current_count
+        if task_id not in self.expected_tasks:
+            raise ParityError(f"Unknown task_id: {task_id}. Expected one of {self.expected_tasks}")
 
-    def record_run(self, condition: str, seed: int, total_evaluations: int, filepath: str) -> EvaluationStats:
-        """
-        Record evaluation statistics for a single run.
-        
-        Args:
-            condition: Agent condition name (sequential, mixed, coevolving)
-            seed: Random seed used for the run
-            total_evaluations: Total rule evaluations performed
-            filepath: Path to the results file for this run
-        
-        Returns:
-            EvaluationStats object with recorded data
-        """
-        # Compute checksum of the results file
-        checksum = self._compute_file_checksum(filepath)
-        
-        # Apply hard cap to evaluations
-        capped_evaluations = self.clamp_evaluations(total_evaluations)
-        
-        stats = EvaluationStats(
-            condition=condition,
-            seed=seed,
-            total_evaluations=capped_evaluations,
-            checksum=checksum,
-            filepath=filepath
-        )
-        
-        return stats
-
-    def _compute_file_checksum(self, filepath: str) -> str:
-        """
-        Compute SHA-256 checksum of a file.
-        
-        Args:
-            filepath: Path to the file
-        
-        Returns:
-            Hex digest of the file's SHA-256 hash
-        """
-        file_path = Path(filepath)
-        if not file_path.exists():
-            raise ParityError(f"Results file not found: {filepath}")
-        
-        sha256_hash = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        
-        return sha256_hash.hexdigest()
-
-    def verify_parity(self, runs: List[EvaluationStats]) -> bool:
-        """
-        Verify exact parity of rule evaluations across all runs.
-        
-        Args:
-            runs: List of EvaluationStats from different conditions/seed runs
-        
-        Returns:
-            True if parity is verified
-        
-        Raises:
-            ParityError: If evaluation counts don't match or checksums mismatch
-        """
-        if not runs:
-            raise ParityError("No runs to verify parity for")
-        
-        # Group runs by condition
-        condition_evals: Dict[str, List[int]] = {}
-        condition_checksums: Dict[str, List[str]] = {}
-        
-        for run in runs:
-            if run.condition not in condition_evals:
-                condition_evals[run.condition] = []
-                condition_checksums[run.condition] = []
-            
-            condition_evals[run.condition].append(run.total_evaluations)
-            condition_checksums[run.condition].append(run.checksum)
-        
-        # Check that all conditions have the same evaluation count
-        eval_counts = set()
-        for condition, evals in condition_evals.items():
-            # All runs within a condition should have the same count (capped)
-            if len(set(evals)) > 1:
-                raise ParityError(
-                    f"Evaluation count mismatch within condition '{condition}': {evals}"
-                )
-            eval_counts.add(evals[0])
-        
-        if len(eval_counts) > 1:
+        if self.current_count + count > self.max_evaluations:
             raise ParityError(
-                f"Evaluation count mismatch across conditions: {condition_evals}"
+                f"Evaluation cap exceeded: current={self.current_count}, "
+                f"adding={count}, max={self.max_evaluations}"
             )
-        
-        # Check checksums for each condition (multiple runs of same condition should match)
-        for condition, checksums in condition_checksums.items():
-            if len(set(checksums)) > 1:
-                # This is expected if different seeds produce different results
-                # We only care that the evaluation counts match
-                pass
-        
-        # Final verification: all conditions must have identical evaluation counts
-        unique_counts = list(eval_counts)
-        if len(unique_counts) == 1:
-            return True
-        
-        raise ParityError(
-            f"Parity verification failed. Evaluation counts: {condition_evals}"
+
+        self.current_count += count
+        self.task_counts[task_id] += count
+        self._evaluation_log.append({
+            "task_id": task_id,
+            "count": count,
+            "total_so_far": self.current_count
+        })
+
+    def clamp_to_cap(self, task_id: str, requested_count: int) -> int:
+        """
+        Clamp the requested evaluation count to the remaining budget.
+
+        This enforces the hard cap during the generation loop.
+
+        Args:
+            task_id: The task being evaluated.
+            requested_count: The number of evaluations requested.
+
+        Returns:
+            The actual number of evaluations that can be performed.
+
+        Raises:
+            ParityError: If the task_id is invalid.
+        """
+        if task_id not in self.expected_tasks:
+            raise ParityError(f"Unknown task_id: {task_id}")
+
+        remaining = self.max_evaluations - self.current_count
+        if remaining <= 0:
+            return 0
+
+        actual_count = min(requested_count, remaining)
+        self.record_evaluation(task_id, actual_count)
+        return actual_count
+
+    def get_stats(self, condition: str, seed: int) -> EvaluationStats:
+        """
+        Generate statistics for the current run.
+
+        Args:
+            condition: The training condition name.
+            seed: The random seed used.
+
+        Returns:
+            An EvaluationStats object with the run's metrics.
+        """
+        # Create a canonical representation for checksumming
+        canonical_data = {
+            "total": self.current_count,
+            "tasks": {k: v for k, v in sorted(self.task_counts.items())}
+        }
+        json_str = json.dumps(canonical_data, sort_keys=True)
+        checksum = hashlib.sha256(json_str.encode('utf-8')).hexdigest()
+
+        return EvaluationStats(
+            total_evaluations=self.current_count,
+            task_evaluations=dict(self.task_counts),
+            checksum=checksum,
+            condition=condition,
+            seed=seed
         )
 
-    def enforce_and_verify(self, runs: List[EvaluationStats]) -> int:
+    def verify_exact_parity(self, stats_list: List[EvaluationStats]) -> None:
         """
-        Enforce hard cap on all runs and verify exact parity.
-        
+        Verify that all provided stats have identical total evaluations.
+
         Args:
-            runs: List of EvaluationStats from different conditions/seed runs
-        
-        Returns:
-            The common evaluation count that all runs have been capped to
-        
+            stats_list: List of EvaluationStats from different conditions.
+
         Raises:
-            ParityError: If parity cannot be achieved after capping
+            ParityError: If totals do not match exactly.
         """
-        # Apply hard cap to all runs
-        for run in runs:
-            run.total_evaluations = self.clamp_evaluations(run.total_evaluations)
-        
-        # Verify parity after capping
-        self.verify_parity(runs)
-        
-        # Return the common evaluation count
-        return runs[0].total_evaluations
+        if len(stats_list) < 2:
+            return  # Nothing to compare
 
-    def save_parity_report(self, runs: List[EvaluationStats], output_path: Optional[str] = None) -> str:
-        """
-        Save a parity verification report to disk.
-        
-        Args:
-            runs: List of EvaluationStats to include in the report
-            output_path: Optional custom output path (defaults to data/results/parity_report.json)
-        
-        Returns:
-            Path to the saved report file
-        """
-        if output_path is None:
-            output_path = str(self.results_dir / "parity_report.json")
-        
-        report = {
-            "parity_verified": True,
-            "common_evaluation_count": runs[0].total_evaluations if runs else 0,
-            "conditions": {},
-            "runs": []
-        }
-        
-        for run in runs:
-          # Group by condition
-          if run.condition not in report["conditions"]:
-              report["conditions"][run.condition] = {
-                  "evaluation_count": run.total_evaluations,
-                  "num_runs": 0,
-                  "checksums": []
-              }
-          
-          report["conditions"][run.condition]["num_runs"] += 1
-          report["conditions"][run.condition]["checksums"].append(run.checksum)
-          
-          report["runs"].append({
-              "condition": run.condition,
-              "seed": run.seed,
-              "total_evaluations": run.total_evaluations,
-              "checksum": run.checksum,
-              "filepath": run.filepath
-          })
-        
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        
-        return output_path
+        target_total = stats_list[0].total_evaluations
+        target_checksum = stats_list[0].checksum
+
+        for stats in stats_list[1:]:
+            if stats.total_evaluations != target_total:
+                raise ParityError(
+                    f"Parity mismatch: {stats.condition} has {stats.total_evaluations} "
+                    f"evaluations, expected {target_total}"
+                )
+            if stats.checksum != target_checksum:
+                raise ParityError(
+                    f"Checksum mismatch: {stats.condition} has checksum "
+                    f"{stats.checksum}, expected {target_checksum}"
+                )
 
 
-def verify_run_parity(run_files: List[str], conditions: List[str], seeds: List[int], config: Any) -> bool:
+def verify_run_parity(
+    results_dir: Path,
+    conditions: List[str],
+    max_evaluations: int
+) -> Dict[str, Any]:
     """
-    Convenience function to verify parity for a set of run files.
-    
+    Load results from multiple conditions and verify evaluation parity.
+
+    This function reads the evaluation statistics from result files generated
+    by the training loop and ensures they meet the SC-002 requirement of
+    exact parity across conditions.
+
     Args:
-        run_files: List of paths to results files
-        conditions: List of condition names corresponding to run_files
-        seeds: List of seeds corresponding to run_files
-        config: Configuration object
-    
+        results_dir: Directory containing result JSON files.
+        conditions: List of condition names to check (e.g., ['sequential', 'mixed', 'coevolving']).
+        max_evaluations: The expected total evaluation count per run.
+
     Returns:
-        True if parity is verified
-    
+        A dictionary with verification results and statistics.
+
     Raises:
-        ParityError: If parity verification fails
+        ParityError: If parity cannot be verified.
     """
-    if not (len(run_files) == len(conditions) == len(seeds)):
-        raise ParityError("run_files, conditions, and seeds must have the same length")
-    
-    checker = ParityChecker(config)
-    runs = []
-    
-    for filepath, condition, seed in zip(run_files, conditions, seeds):
-        # Read the actual evaluation count from the results file if possible
-        # For now, we assume the caller has already tracked this or we compute it
-        # In a real implementation, we'd load the file and extract the count
-        stats = checker.record_run(condition, seed, 0, filepath)
-        runs.append(stats)
-    
-    # This is a simplified version - in practice, we'd need the actual evaluation counts
-    # from the files. For now, we'll assume they're all capped to the same value.
-    # The caller should ensure the counts are correct before calling this function.
-    
-    return checker.verify_parity(runs)
+    stats_by_condition = {}
+
+    for condition in conditions:
+        result_file = results_dir / f"{condition}_results.json"
+        if not result_file.exists():
+            raise ParityError(f"Result file missing for {condition}: {result_file}")
+
+        with open(result_file, 'r') as f:
+            data = json.load(f)
+
+        # Extract evaluation stats from the result file
+        # Expected structure: {"stats": {"total_evaluations": ..., "task_evaluations": ...}}
+        if "stats" not in data:
+            raise ParityError(f"Missing 'stats' in {result_file}")
+
+        stats_data = data["stats"]
+        stats = EvaluationStats(
+            total_evaluations=stats_data.get("total_evaluations", 0),
+            task_evaluations=stats_data.get("task_evaluations", {}),
+            checksum=stats_data.get("checksum", ""),
+            condition=condition,
+            seed=stats_data.get("seed", 0)
+        )
+
+        if stats.total_evaluations != max_evaluations:
+            raise ParityError(
+                f"Condition {condition} has {stats.total_evaluations} evaluations, "
+                f"expected {max_evaluations}"
+            )
+
+        stats_by_condition[condition] = stats
+
+    # Verify exact parity across all conditions
+    checker = ParityChecker(max_evaluations, [])
+    checker.verify_exact_parity(list(stats_by_condition.values()))
+
+    return {
+        "verified": True,
+        "conditions": conditions,
+        "max_evaluations": max_evaluations,
+        "stats": {cond: stats.to_dict() for cond, stats in stats_by_condition.items()}
+    }

@@ -1,1 +1,3 @@
-"""Test suite for llmXive follow-up project."""
+"""
+Test suite root.
+"""

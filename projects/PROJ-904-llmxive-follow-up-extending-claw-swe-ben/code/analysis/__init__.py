@@ -1,1 +1,3 @@
-"""Analysis modules for context fidelity experiments."""
+"""
+Analysis modules for result aggregation, failure classification, and statistical testing.
+"""

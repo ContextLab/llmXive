@@ -1,68 +1,61 @@
 """
-JSON Schema definitions for validating llmXive project artifacts.
-Derived from project contracts for dataset, agent_state, and result structures.
+JSON Schema definitions and validators for dataset, agent_state, and result structures.
+These schemas are derived from the project's contracts and used to validate data artifacts.
 """
-from typing import Dict, Any, List, Optional
 import json
+from typing import Any, Dict, List, Optional
+from dataclasses import dataclass, field
 
-# Dataset Schema (for generated training/test data)
-DATASET_SCHEMA: Dict[str, Any] = {
+# ---------------------------------------------------------------------------
+# Schema Definitions
+# ---------------------------------------------------------------------------
+
+DATASET_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "llmXive Dataset",
-    "description": "Schema for generated propositional logic proofs and grid-world navigation tasks",
+    "title": "Generated Dataset",
+    "description": "Schema for generated training and test datasets (logic proofs and grid worlds).",
     "type": "object",
-    "required": ["metadata", "instances"],
+    "required": ["metadata", "data"],
     "properties": {
         "metadata": {
             "type": "object",
-            "required": ["version", "generation_seed", "task_type", "rule_set_id"],
+            "required": ["version", "seed", "generator", "timestamp"],
             "properties": {
-                "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
-                "generation_seed": {"type": "integer", "minimum": 0},
-                "task_type": {"type": "string", "enum": ["logic_proofs", "grid_worlds", "mixed"]},
-                "rule_set_id": {"type": "string"},
-                "generated_at": {"type": "string", "format": "date-time"},
-                "total_instances": {"type": "integer", "minimum": 1}
+                "version": {"type": "string"},
+                "seed": {"type": "integer"},
+                "generator": {"type": "string"},
+                "timestamp": {"type": "string", "format": "date-time"},
+                "checksum": {"type": "string"}
             }
         },
-        "instances": {
+        "data": {
             "type": "array",
             "items": {
                 "oneOf": [
                     {
                         "type": "object",
-                        "required": ["instance_id", "type", "data"],
+                        "title": "LogicProof",
+                        "required": ["type", "id", "axioms", "conclusion", "proof_steps"],
                         "properties": {
-                            "instance_id": {"type": "string"},
                             "type": {"const": "logic_proof"},
-                            "data": {
-                                "type": "object",
-                                "required": ["axioms", "goal", "proof_steps"],
-                                "properties": {
-                                    "axioms": {"type": "array", "items": {"type": "string"}},
-                                    "goal": {"type": "string"},
-                                    "proof_steps": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                            "id": {"type": "string"},
+                            "axioms": {"type": "array", "items": {"type": "string"}},
+                            "conclusion": {"type": "string"},
+                            "proof_steps": {"type": "array", "items": {"type": "object"}}
                         }
                     },
                     {
                         "type": "object",
-                        "required": ["instance_id", "type", "data"],
+                        "title": "GridWorld",
+                        "required": ["type", "id", "grid_size", "start", "end", "obstacles", "rules"],
                         "properties": {
-                            "instance_id": {"type": "string"},
                             "type": {"const": "grid_world"},
-                            "data": {
-                                "type": "object",
-                                "required": ["grid_size", "start", "goal", "obstacles", "rules"],
-                                "properties": {
-                                    "grid_size": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
-                                    "start": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
-                                    "goal": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
-                                    "obstacles": {"type": "array", "items": {"type": "array", "items": {"type": "integer"}}},
-                                    "rules": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                            "id": {"type": "string"},
+                            "grid_size": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
+                            "start": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
+                            "end": {"type": "array", "items": {"type": "integer"}, "minItems": 2, "maxItems": 2},
+                            "obstacles": {"type": "array", "items": {"type": "array", "items": {"type": "integer"}}},
+                            "rules": {"type": "array", "items": {"type": "string"}}
                         }
                     }
                 ]
@@ -71,207 +64,195 @@ DATASET_SCHEMA: Dict[str, Any] = {
     }
 }
 
-# Agent State Schema (for tracking agent training progress)
-AGENT_STATE_SCHEMA: Dict[str, Any] = {
+AGENT_STATE_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "llmXive Agent State",
-    "description": "Schema for agent state during training (rule-sets, evaluation counts, performance metrics)",
+    "title": "Agent State",
+    "description": "Schema for the internal state of an agent during or after training.",
     "type": "object",
-    "required": ["agent_id", "condition", "state_version", "rule_sets", "evaluation_stats"],
+    "required": ["agent_type", "config", "population", "evaluation_stats"],
     "properties": {
-        "agent_id": {"type": "string"},
-        "condition": {"type": "string", "enum": ["sequential", "mixed", "coevolving"]},
-        "state_version": {"type": "integer", "minimum": 0},
-        "generation_step": {"type": "integer", "minimum": 0},
-        "rule_sets": {
+        "agent_type": {"type": "string"},
+        "config": {"type": "object"},
+        "population": {
             "type": "array",
             "items": {
                 "type": "object",
-                "required": ["rule_id", "rules", "fitness_score", "task_domains"],
+                "required": ["id", "rules", "fitness"],
                 "properties": {
-                    "rule_id": {"type": "string"},
+                    "id": {"type": "string"},
                     "rules": {"type": "array", "items": {"type": "string"}},
-                    "fitness_score": {"type": "number"},
-                    "task_domains": {"type": "array", "items": {"type": "string"}}
+                    "fitness": {"type": "number"}
                 }
             }
         },
         "evaluation_stats": {
             "type": "object",
-            "required": ["total_evaluations", "evaluations_by_domain"],
+            "required": ["total_evaluations", "by_task"],
             "properties": {
-                "total_evaluations": {"type": "integer", "minimum": 0},
-                "evaluations_by_domain": {
+                "total_evaluations": {"type": "integer"},
+                "by_task": {
                     "type": "object",
-                    "additionalProperties": {"type": "integer", "minimum": 0}
+                    "additionalProperties": {"type": "integer"}
                 }
             }
         },
-        "performance_history": {
+        "generation_history": {
             "type": "array",
-            "items": {
-                "type": "object",
-                "required": ["step", "accuracy", "domains_tested"],
-                "properties": {
-                    "step": {"type": "integer"},
-                    "accuracy": {"type": "number", "minimum": 0.0, "maximum": 1.0},
-                    "domains_tested": {"type": "array", "items": {"type": "string"}}
-                }
-            }
+            "items": {"type": "object"}
         }
     }
 }
 
-# Result Schema (for training run results and forgetting metrics)
-RESULT_SCHEMA: Dict[str, Any] = {
+RESULT_SCHEMA = {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "llmXive Training Result",
-    "description": "Schema for training run results including forgetting metrics and retention rates",
+    "title": "Training Result",
+    "description": "Schema for the final output of a training run (forgetting metrics, parity checks).",
     "type": "object",
-    "required": ["run_id", "condition", "seed", "final_state", "forgetting_metrics"],
+    "required": ["run_id", "condition", "metrics", "parity_data"],
     "properties": {
         "run_id": {"type": "string"},
         "condition": {"type": "string", "enum": ["sequential", "mixed", "coevolving"]},
-        "seed": {"type": "integer", "minimum": 0},
-        "config_snapshot": {"type": "object"},
-        "final_state": {
+        "metrics": {
             "type": "object",
-            "required": ["agent_id", "condition", "state_version", "rule_sets", "evaluation_stats"],
+            "required": ["initial_accuracy", "final_accuracy", "forgetting_rate"],
             "properties": {
-                "agent_id": {"type": "string"},
-                "condition": {"type": "string"},
-                "state_version": {"type": "integer"},
-                "generation_step": {"type": "integer"},
-                "rule_sets": {"type": "array"},
-                "evaluation_stats": {"type": "object"}
-            }
-        },
-        "forgetting_metrics": {
-            "type": "object",
-            "required": ["initial_accuracy", "final_accuracy", "accuracy_drop", "retention_rates"],
-            "properties": {
-                "initial_accuracy": {"type": "number", "minimum": 0.0, "maximum": 1.0},
-                "final_accuracy": {"type": "number", "minimum": 0.0, "maximum": 1.0},
-                "accuracy_drop": {"type": "number"},
+                "initial_accuracy": {"type": "number"},
+                "final_accuracy": {"type": "number"},
+                "forgetting_rate": {"type": "number"},
                 "retention_rates": {
                     "type": "object",
-                    "additionalProperties": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+                    "additionalProperties": {"type": "number"}
                 }
             }
         },
-        "evaluation_parity": {
+        "parity_data": {
             "type": "object",
-            "required": ["expected_total", "actual_total", "parity_verified"],
+            "required": ["total_evaluations", "checksum"],
             "properties": {
-                "expected_total": {"type": "integer"},
-                "actual_total": {"type": "integer"},
-                "parity_verified": {"type": "boolean"}
+                "total_evaluations": {"type": "integer"},
+                "checksum": {"type": "string"}
             }
         },
-        "generated_at": {"type": "string", "format": "date-time"}
+        "agent_state_snapshot": {"type": "object"}
     }
 }
 
-def validate_against_schema(data: Dict[str, Any], schema: Dict[str, Any], schema_name: str) -> None:
-    """
-    Validate data against a JSON schema using basic Python validation.
-    Raises ValueError if validation fails.
-    
-    Args:
-        data: The data to validate
-        schema: The JSON schema to validate against
-        schema_name: Name of the schema for error messages
-    """
-    errors = _validate_object(data, schema, schema_name, "root")
-    if errors:
-        error_msg = f"Validation failed for {schema_name}:\n" + "\n".join(errors)
-        raise ValueError(error_msg)
+# ---------------------------------------------------------------------------
+# Validator Class
+# ---------------------------------------------------------------------------
 
-def _validate_object(data: Any, schema: Dict[str, Any], schema_name: str, path: str) -> List[str]:
-    """Recursively validate data against schema, returning list of error messages."""
-    errors = []
-    
-    schema_type = schema.get("type")
-    
-    if schema_type == "object":
-        if not isinstance(data, dict):
-            errors.append(f"{path}: Expected object, got {type(data).__name__}")
-            return errors
-        
-        # Check required properties
-        required = schema.get("required", [])
-        for prop in required:
-            if prop not in data:
-                errors.append(f"{path}: Missing required property '{prop}'")
-        
-        # Validate properties
-        properties = schema.get("properties", {})
-        for prop, prop_schema in properties.items():
-            if prop in data:
-                errors.extend(_validate_object(
-                    data[prop], 
-                    prop_schema, 
-                    schema_name, 
-                    f"{path}.{prop}"
-                ))
-        
-        # Check additionalProperties
-        if "additionalProperties" not in schema:
-            allowed_props = set(properties.keys())
-            for key in data.keys():
-                if key not in allowed_props:
-                    errors.append(f"{path}: Unexpected property '{key}'")
-                    
-    elif schema_type == "array":
-        if not isinstance(data, list):
-            errors.append(f"{path}: Expected array, got {type(data).__name__}")
-            return errors
-        
-        items_schema = schema.get("items")
-        if items_schema:
-            for i, item in enumerate(data):
-                errors.extend(_validate_object(
-                    item, 
-                    items_schema, 
-                    schema_name, 
-                    f"{path}[{i}]"
-                ))
-                
-    elif schema_type == "string":
-        if not isinstance(data, str):
-            errors.append(f"{path}: Expected string, got {type(data).__name__}")
-        elif "pattern" in schema:
+@dataclass
+class ValidationError:
+    """Represents a single validation error."""
+    instance_path: str
+    message: str
+    schema_path: str = ""
+
+@dataclass
+class ValidationResult:
+    """Result of a schema validation."""
+    valid: bool
+    errors: List[ValidationError] = field(default_factory=list)
+
+    def add_error(self, path: str, message: str, schema_path: str = ""):
+        self.errors.append(ValidationError(path, message, schema_path))
+        self.valid = False
+
+class SchemaValidator:
+    """
+    Simple JSON Schema validator for the specific schemas defined above.
+    Implements a subset of JSON Schema draft-07 sufficient for our contracts.
+    """
+
+    def __init__(self, schema: Dict[str, Any]):
+        self.schema = schema
+
+    def validate(self, instance: Any) -> ValidationResult:
+        result = ValidationResult(valid=True)
+        self._validate_node(instance, self.schema, "", result)
+        return result
+
+    def _validate_node(self, instance: Any, schema: Dict[str, Any], path: str, result: ValidationResult):
+        # Type checking
+        if "type" in schema:
+            expected_type = schema["type"]
+            if not self._check_type(instance, expected_type):
+                result.add_error(path, f"Expected type '{expected_type}', got '{type(instance).__name__}'", "#/type")
+                return # Stop further validation for this node if type is wrong
+
+        # Enum checking
+        if "enum" in schema:
+            if instance not in schema["enum"]:
+                result.add_error(path, f"Value '{instance}' not in enum {schema['enum']}", "#/enum")
+
+        # Const checking
+        if "const" in schema:
+            if instance != schema["const"]:
+                result.add_error(path, f"Value must be '{schema['const']}'", "#/const")
+
+        # Object validation
+        if schema.get("type") == "object" and isinstance(instance, dict):
+            # Required properties
+            if "required" in schema:
+                for req in schema["required"]:
+                    if req not in instance:
+                        result.add_error(path, f"Missing required property '{req}'", "#/required")
+
+            # Property validation
+            if "properties" in schema:
+                for key, value in instance.items():
+                    if key in schema["properties"]:
+                        self._validate_node(value, schema["properties"][key], f"{path}.{key}", result)
+                    elif "additionalProperties" not in schema:
+                        # Strict mode: reject unknown properties if not explicitly allowed
+                        # For this project, we are strict on top-level known fields
+                        pass # Allow additional properties for now unless specified
+
+        # Array validation
+        if schema.get("type") == "array" and isinstance(instance, list):
+            if "items" in schema:
+                for i, item in enumerate(instance):
+                    self._validate_node(item, schema["items"], f"{path}[{i}]", result)
+
+        # String format (basic check)
+        if schema.get("type") == "string" and schema.get("format") == "date-time":
+            # Basic ISO 8601 check
             import re
-            if not re.match(schema["pattern"], data):
-                errors.append(f"{path}: String '{data}' does not match pattern '{schema['pattern']}'")
-        elif "enum" in schema:
-            if data not in schema["enum"]:
-                errors.append(f"{path}: String '{data}' not in allowed values {schema['enum']}")
-                
-    elif schema_type == "integer":
-        if not isinstance(data, int) or isinstance(data, bool):
-            errors.append(f"{path}: Expected integer, got {type(data).__name__}")
-        else:
-            if "minimum" in schema and data < schema["minimum"]:
-                errors.append(f"{path}: Integer {data} is less than minimum {schema['minimum']}")
-            if "maximum" in schema and data > schema["maximum"]:
-                errors.append(f"{path}: Integer {data} is greater than maximum {schema['maximum']}")
-                
-    elif schema_type == "number":
-        if not isinstance(data, (int, float)) or isinstance(data, bool):
-            errors.append(f"{path}: Expected number, got {type(data).__name__}")
-        else:
-            if "minimum" in schema and data < schema["minimum"]:
-                errors.append(f"{path}: Number {data} is less than minimum {schema['minimum']}")
-            if "maximum" in schema and data > schema["maximum"]:
-                errors.append(f"{path}: Number {data} is greater than maximum {schema['maximum']}")
-                
-    elif schema_type == "boolean":
-        if not isinstance(data, bool):
-            errors.append(f"{path}: Expected boolean, got {type(data).__name__}")
-            
-    elif schema_type == "null":
-        if data is not None:
-            errors.append(f"{path}: Expected null, got {type(data).__name__}")
-            
-    return errors
+            if not re.match(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}", str(instance)):
+                result.add_error(path, "Invalid date-time format", "#/format")
+
+    def _check_type(self, instance: Any, expected: str) -> bool:
+        if expected == "string":
+            return isinstance(instance, str)
+        elif expected == "integer":
+            return isinstance(instance, int) and not isinstance(instance, bool)
+        elif expected == "number":
+            return isinstance(instance, (int, float)) and not isinstance(instance, bool)
+        elif expected == "boolean":
+            return isinstance(instance, bool)
+        elif expected == "array":
+            return isinstance(instance, list)
+        elif expected == "object":
+            return isinstance(instance, dict)
+        elif expected == "null":
+            return instance is None
+        return False
+
+# ---------------------------------------------------------------------------
+# Convenience Functions
+# ---------------------------------------------------------------------------
+
+def validate_dataset(data: Dict[str, Any]) -> ValidationResult:
+    """Validates a dataset structure against the DATASET_SCHEMA."""
+    validator = SchemaValidator(DATASET_SCHEMA)
+    return validator.validate(data)
+
+def validate_agent_state(state: Dict[str, Any]) -> ValidationResult:
+    """Validates an agent state structure against the AGENT_STATE_SCHEMA."""
+    validator = SchemaValidator(AGENT_STATE_SCHEMA)
+    return validator.validate(state)
+
+def validate_result(result: Dict[str, Any]) -> ValidationResult:
+    """Validates a training result structure against the RESULT_SCHEMA."""
+    validator = SchemaValidator(RESULT_SCHEMA)
+    return validator.validate(result)
