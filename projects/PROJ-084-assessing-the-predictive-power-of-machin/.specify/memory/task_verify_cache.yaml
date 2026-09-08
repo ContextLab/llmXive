@@ -1,68 +1,78 @@
-T001a:
+T015:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the required directories (`code/`, `data/raw/`,
-    `data/processed/`, `data/results/`, `tests/`) actually exist on disk; the artifact
-    list is empty, so the task is not satisfied. The implementer must create those
-    directories (e.g., via `mkdir -p`) and show their presence.
-T007b:
+  h: aac6c9aceaec1a160f3fd2327763aa1fb9be9f77bae7c35b9e46d1b2aad1d301
+  r: "The repository lacks the required `data/results/data_quality_report.json` file,\
+    \ and the shown portion of `code/preprocessing/sanitize.py` does not demonstrate\
+    \ reading `YIELD_RANGE_STRATEGY` from `config.py` or implementing the midpoint\
+    \ vs. exclude logic and logging it to the report. Consequently the task\u2019\
+    s core requirements are not satisfied."
+T017a:
   c: false
-  h: e7077ba157ab91693f033c438b3de2d62428dfdfac73d7a6c2e5f64ad0ddccfe
-  r: "The `validators.py` file defines Pydantic models but does not actually load\
-    \ a `dataset.schema.yaml` (the required schema file is missing) nor demonstrate\
-    \ validation of a sample row against that external schema. Consequently the core\
-    \ requirement\u2014to load and enforce `dataset.schema.yaml`\u2014is not satisfied.\
-    \ The missing `dataset.schema.yaml` (and incomplete `load_schema` implementation)\
-    \ must be provided and integrated."
-T008b:
+  h: e1a685965e387f29b419716f52744dd13fcd2fc502b0fe47149b4270b1e08706
+  r: "The provided `code/preprocessing/ingest.py` writes to `data/processed/cleaned_reactions.parquet`\
+    \ and its docstring describes a full ingestion pipeline, not the specific sanitization\
+    \ step that should produce `data/processed/sanitized_reactions.parquet`. Moreover,\
+    \ the required `sanitized_reactions.parquet` file is absent from the repository.\
+    \ The task\u2019s output artifact is missing and the script does not match the\
+    \ specified behavior."
+T017b:
   c: false
-  h: e7077ba157ab91693f033c438b3de2d62428dfdfac73d7a6c2e5f64ad0ddccfe
-  r: The repository lacks the required `output.schema.yaml` file, so the validator
-    cannot load the intended schema. Moreover, the provided `validators.py` is truncated
-    and does not contain a concrete function that loads `output.schema.yaml` and validates
-    a sample output object against it, nor does it demonstrate raising errors on mismatches.
-    Both the schema file and the full validation implementation are missing.
-T010:
+  h: 933e128e0e6bf2f5f8fb213395bcc3569d8f3257e5652c7306850a036fe92f1f
+  r: "The repository contains `code/preprocessing/ingest.py`, but it writes to `data/processed/cleaned_reactions.parquet`\
+    \ and includes sanitization/fingerprint steps rather than solely orchestrating\
+    \ yield parsing on already\u2011sanitized data. The required output file `data/processed/parsed_reactions.parquet`\
+    \ is absent. The implementation does not meet the specified output name or the\
+    \ focused scope of the task."
+T017c:
   c: false
-  h: c89a4fbc5e950779256dd9479265be93c29648b94004401cbdea67b141097a79
-  r: The repository contains a partially implemented `scaffold.py` (functions for
-    generating scaffolds) but the script does not load `data/processed/cleaned_reactions.parquet`,
-    create a `scaffold_id` column, or write `data/processed/scaffold_groups.parquet`.
-    Moreover, the required input parquet file and the expected output parquet file
-    are absent. The task therefore remains unfinished.
-T014:
+  h: d18681f3728e8e8a9dee2a8ca38078501450b21e62ab9f5cb08457c0a83f5cad
+  r: "The provided `code/preprocessing/ingest.py` writes to `cleaned_reactions.parquet`\
+    \ instead of the required `fingerprinted_reactions.parquet`, and it loads the\
+    \ entire raw file at once rather than using batched/chunked loading. Moreover,\
+    \ the expected output file `data/processed/fingerprinted_reactions.parquet` is\
+    \ missing. The task\u2019s core requirements are therefore not satisfied."
+T017d:
   c: false
-  h: 1a1b0ae58c4483ef28166cacea2f45ebec8f60f29e538b1fe0027092628f82ce
-  r: The repository lacks the required input files (`data/raw/uspto_raw.parquet` and
-    `data/results/download_checksum.txt`), so the script cannot perform the checksum
-    verification or load the data. Moreover, the provided `sanitize.py` is truncated
-    and does not contain code that reads the parquet, applies the sanitization to
-    each entry, and writes the sanitized SMILES to an output file. Both the necessary
-    artifacts and the full implementation are missing.
-T016:
+  h: 579d34aea9987bad55f014fbc3334ac5b25b6bac8a232bfc03bc152dec3399f9
+  r: The repository contains an `ingest.py` script, but the required output artifacts
+    (`data/processed/cleaned_reactions.parquet`, `data/results/data_quality_report.json`)
+    are not present, and the referenced `dataset.schema.yaml` is also missing. Without
+    these files the pipeline cannot be verified as functional.
+T019:
   c: false
-  h: 6908ec985ff867d4f3341305241b90dcc1c3b34ab76a5a3b6125244ee5a5241f
-  r: "The `fingerprints.py` file is present but the shown code is truncated (e.g.,\
-    \ `generate_fingerprints_batch` ends abruptly) and does not contain the logic\
-    \ to log the actual bit lengths to `data/results/fingerprint_dimensions.log`.\
-    \ Moreover, the required log file `data/results/fingerprint_dimensions.log` is\
-    \ missing. The chunked/streamed processing is only partially evident and the dimension\u2011\
-    logging requirement is not satisfied."
-T026a:
+  h: fc52284daa48988ac2756a80fb14fa9261d18ad09ac8dbc64f7cd08cef0e5ccf
+  r: "The `download.py` script is present but truncated and does not contain the full\
+    \ logic required: it lacks a coordinating routine that chooses between HF and\
+    \ fallback, writes the source used and SHA256 checksum to `data/results/download_checksum.txt`,\
+    \ and raises `FileNotFoundError` if both downloads fail. Moreover, the expected\
+    \ output files (`data/raw/uspto_raw.parquet` and the checksum file) are missing.\
+    \ The next implementer must complete the script\u2019s main flow, ensure checksum\
+    \ logging, and verify that the required files are created."
+T022b:
   c: false
-  h: a21420f24c00d36c61ed87b0d4598a32d87b260f62441d54cae0dc6775854802
-  r: The repository contains a partially implemented `code/modeling/evaluate.py`,
-    but it does not include logic that writes `data/results/test_metrics.json`, and
-    that file is absent from the project. Consequently the required output JSON with
-    the specified metric keys is not produced. The task therefore remains unfinished.
+  h: 679c9d7c6e5fdc31b89fe4e0292bb79a2a065f301abf1eea10a1c0f482b79618
+  r: "The repository contains a partially\u2011implemented `code/modeling/split.py`\
+    \ (the file is truncated and lacks the full splitting logic and file\u2011writing\
+    \ code). The required output artifacts `data/processed/stratified_groups.csv`\
+    \ and `data/results/split_log.json` are not present on disk. Consequently the\
+    \ task\u2019s deliverables are missing."
+T022c:
+  c: false
+  h: 64cf537c11e4f76afaa93137e8e270a292e9ed6932749751b81080827ef9d1bd
+  r: "The required output file `data/processed/tuning_validation_indices.csv` does\
+    \ not exist, and the provided `split.py` excerpt shows no logic that writes this\
+    \ CSV or explicitly designates a held\u2011out test split. Consequently the task\u2019\
+    s core requirement\u2014generating strictly held\u2011out sets and outputting\
+    \ the indices file while ensuring scaffold IDs are not shared across splits\u2014\
+    is not satisfied."
 T027b:
   c: false
-  h: 5d2609b684df7bb286ae40f9783003870398ac3b90d6a290ac8ece424aa57d97
-  r: "The required output files `data/results/memory_profile.log` and `data/results/runtime_profile.json`\
-    \ are missing, and the provided `train.py` snippet is truncated before showing\
-    \ any assertion of peak RAM\u202F<\u202F7\u202FGB or saving of those logs. Thus\
-    \ the implementation does not demonstrably satisfy the task\u2019s output and\
-    \ validation requirements."
+  h: ef01497be22832321c9b419fe468426dced4ee9702445cdbee55a4f7af5dea33
+  r: "The provided `memory_profiler.py` is truncated (the `wrapper` function ends\
+    \ abruptly with an incomplete line) and does not contain the logic to write the\
+    \ log and JSON files, nor does it wrap the T017, T024, and T025 steps. Additionally,\
+    \ the required output files `data/results/memory_profile.log` and `data/results/runtime_profile.json`\
+    \ are missing. The task\u2019s core requirements are therefore not satisfied."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -92,6 +102,22 @@ T032a:
     \ of permutation importance (no use of `sklearn.inspection.permutation_importance`\
     \ or the required parameters), and the expected output file `data/results/permutation_importance.json`\
     \ is absent. Consequently the task\u2019s core requirement is not satisfied."
+T033:
+  c: false
+  h: 07e49f21e42e2c9fb940f2bc9819ccf52f2c7bf819082068979f3d05ec44f494
+  r: "The provided `code/modeling/evaluate.py` contains only model loading and evaluation\
+    \ code; it does not implement the unified feature\u2011importance mapping, bit\u2011\
+    to\u2011substructure/reaction\u2011center extraction, collision handling, or generation\
+    \ of the required JSON report. Moreover, the expected output file `data/results/feature_importance_report.json`\
+    \ is absent. The task\u2019s core requirements are therefore unmet."
+T035a:
+  c: false
+  h: 7242cf9155fe7124eddba3394c601718ccd1fdad95c1a773a0372141a032ec76
+  r: "The repository lacks the required `data/results/feature_importance_report.json`,\
+    \ `sc003_validation.json`, and `final_report.json` files, and the provided `code/modeling/evaluate.py`\
+    \ does not contain the logic for computing a high\u2011yield threshold, loading\
+    \ the held\u2011out set, checking substructures with RDKit, or writing the specified\
+    \ JSON reports. These essential artifacts and functionality are missing."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

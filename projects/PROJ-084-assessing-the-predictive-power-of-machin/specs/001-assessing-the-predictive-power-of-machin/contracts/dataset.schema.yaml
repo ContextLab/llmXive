@@ -1,32 +1,55 @@
-fields:
+# Dataset Schema for USPTO Reaction Outcomes
+# Defines the structure of the processed reaction dataset
+# Used for validation of data ingestion and preprocessing pipelines
+
+type: object
+description: "A single reaction record with molecular fingerprints and yield data"
+required:
+  - smiles
+  - yield
+  - reaction_class
+  - fingerprint_ecfp
+  - fingerprint_maccs
+
+properties:
   smiles:
     type: string
-    required: true
-    description: SMILES string of the reaction
-    constraints:
-      non_null: true
-  yield_pct:
-    type: float
-    required: true
-    description: Yield percentage
-    constraints:
-      min: 0.0
-      max: 100.0
+    description: "Canonical SMILES string representing the reaction (reactants > reagents > products)"
+    minLength: 1
+    pattern: "^[^\\s]+$"
+    x-validation: "non-null, valid SMILES format"
+
+  yield:
+    type: number
+    description: "Reaction yield percentage"
+    minimum: 0.0
+    maximum: 100.0
+    x-validation: "float between 0.0 and 100.0"
+
   reaction_class:
     type: string
-    required: true
-    description: Reaction class label
+    description: "Classified reaction type (e.g., 'S_N2', 'Suzuki', 'Heck')"
+    minLength: 1
+    x-validation: "non-empty string"
+
   fingerprint_ecfp:
-    type: list
-    required: true
-    description: ECFP fingerprint bits
-    constraints:
-      item_type: int
-      length: 2048
+    type: array
+    description: "ECFP4 fingerprint vector"
+    items:
+      type: integer
+      enum: [0, 1]
+    minItems: 2048
+    maxItems: 2048
+    x-validation: "list of integers, length exactly 2048, values 0 or 1"
+
   fingerprint_maccs:
-    type: list
-    required: true
-    description: MACCS fingerprint bits
-    constraints:
-      item_type: int
-      length: 167
+    type: array
+    description: "MACCS keys fingerprint vector"
+    items:
+      type: integer
+      enum: [0, 1]
+    minItems: 167
+    maxItems: 167
+    x-validation: "list of integers, length exactly 167, values 0 or 1"
+
+additionalProperties: false

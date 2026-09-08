@@ -17,7 +17,7 @@ This project assesses the predictive power of classical machine learning (Random
 
 Research Question: How does the choice of CI/CD infrastructure affect build performance for open-source projects?
 Method: Comparative performance analysis using controlled build jobs across different runner configurations.
-References: Smith et al. (2023) [doi:10.1234/example]; GitHub Docs (2024) [arXiv:2401.00000].)  
+References: Smith et al. (n.d.) [doi:10.1234/example]; GitHub Docs () [arXiv:2401.00000].)  
 **Project Type**: Data Science Pipeline / Research Library  
 **Performance Goals**: Process full dataset subset within 6 hours; Peak RAM < 7.0 GB  
 **Constraints**: No GPU, no deep learning, no external API calls during execution, strict reproducibility (pinned seeds).  
