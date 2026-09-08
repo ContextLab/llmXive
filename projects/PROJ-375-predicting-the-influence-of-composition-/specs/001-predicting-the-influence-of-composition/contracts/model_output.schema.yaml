@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformanceOutput"
+description: "Schema for individual model run outputs (e.g., feature_importance.csv)."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used (e.g., linear, random_forest)."
+  r2:
+    type: "number"
+    description: "R-squared metric."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error."
+  rmse:
+    type: "number"
+    description: "Root Mean Square Error."
+  p_value:
+    type: "number"
+    description: "P-value from permutation test."
+  is_significant:
+    type: "boolean"
+    description: "Whether the model performance is statistically significant (p < 0.05)."
+  divergence_score:
+    type: "number"
+    description: "Average rank difference between feature importance and correlation (descriptive)."
+  stability_score:
+    type: "number"
+    description: "Average stability score from bootstrapping."
+required:
+  - model_type
+  - r2
+  - mae
+  - rmse
+  - p_value
+  - is_significant
+additionalProperties: false

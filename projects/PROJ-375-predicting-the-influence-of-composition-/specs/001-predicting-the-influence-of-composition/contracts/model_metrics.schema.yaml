@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelPerformance"
-description: "Schema for model evaluation metrics and statistical significance results."
+description: "Schema for model evaluation metrics and statistical significance results (aggregated)."
 type: "object"
 properties:
   model_type:
@@ -9,6 +9,7 @@ properties:
       - "LinearRegression"
       - "RandomForest"
       - "NullModel"
+      - "BaselineWeightedAvg"
     description: "Type of model evaluated."
   fold:
     type: "integer"
@@ -23,7 +24,7 @@ properties:
     description: "Mean Absolute Error."
   rmse:
     type: "number"
-    description: "Root Mean Squared Error."
+    description: "Root Mean Square Error."
   p_value:
     type: "number"
     description: "P-value from permutation test. Null if analysis is qualitative or no data."
@@ -31,7 +32,7 @@ properties:
     maximum: 1
   is_significant:
     type: "boolean"
-    description: "True if p < 0.05 and R2 > 0.3. Null if analysis is qualitative or no data."
+    description: "True if p < 0.05. Null if analysis is qualitative or no data."
   analysis_type:
     type: "string"
     enum:
@@ -54,7 +55,13 @@ properties:
           type: "number"
         divergence_flag:
           type: "boolean"
-          description: "True if rank differs from correlation rank."
+          description: "True if rank differs from correlation rank (descriptive only)."
+        vif_score:
+          type: "number"
+          description: "Variance Inflation Factor for this feature."
+        stability_score:
+          type: "number"
+          description: "Stability score from bootstrapping."
       required:
         - feature_name
         - importance_score

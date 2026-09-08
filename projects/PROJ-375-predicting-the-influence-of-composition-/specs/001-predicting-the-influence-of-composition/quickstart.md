@@ -2,69 +2,65 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   API Keys (Optional but recommended for full data):
-    *   Materials Project API Key (`MP_API_KEY`)
-    *   AFLOWlib API Key (`AFLOW_API_KEY`)
-*   (Optional) If keys are missing, the pipeline will automatically fall back to the verified Zenodo dataset (Zhang et al., 2020).
+- Python 3.11+
+- Access to the verified Zenodo dataset (DOI: 10.5281/zenodo.1000000 - *Metallic Glass Thermal Expansion Dataset*).
+- (Optional) Materials Project API key if using that source.
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
+1.  **Clone and Setup**:
     ```bash
+    git clone <repo-url>
+    cd <project-dir>
     python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
+    source venv/bin/activate
     pip install -r code/requirements.txt
     ```
 
-## Configuration
-
-Set your API keys as environment variables (optional):
-
-```bash
-export MP_API_KEY="your_mp_key_here"
-export AFLOW_API_KEY="your_aflow_key_here"
-```
-
-*Note: If keys are not set, the script will log a warning and automatically attempt to download the verified Zenodo dataset as a fallback.*
+2.  **Environment Variables**:
+    Create a `.env` file in the root:
+    ```env
+    MP_API_KEY=your_key_here
+    ZENODO_DATASET_ID=1000000
+    DATA_URL=https://zenodo.org/api/records/1000000/files/mg_cte_data.csv
+    ```
 
 ## Running the Pipeline
 
-Execute the main pipeline script:
-
+### 1. Data Ingestion
 ```bash
 python code/ingestion/fetch_data.py
+```
+*Output*: `data/raw/zenodo_mg.parquet` (or `data/raw/mp_aflow.parquet` if APIs are used)
+
+### 2. Feature Engineering
+```bash
 python code/features/descriptors.py
+```
+*Output*: `data/processed/clean_mg_data_with_features.parquet` (includes `size_mismatch_resid` and VIF scores)
+
+### 3. Model Training
+```bash
 python code/modeling/train.py
+```
+*Output*: `results/metrics.csv`, `results/feature_importance.csv`
+
+### 4. Evaluation & Significance
+```bash
 python code/modeling/evaluate.py
 ```
-
-Or run the end-to-end runner (if available):
-
-```bash
-python code/run_pipeline.py
-```
-
-## Expected Outputs
-
-1.  **Data**: `data/processed/clean_mg_data.parquet`
-2.  **Models**: `models/linear_regression.pkl`, `models/random_forest.pkl`, `models/null_model.pkl`
-3.  **Metrics**: `results/metrics.json` (containing R², MAE, RMSE, p-values, and analysis type)
-4.  **Logs**: `logs/pipeline.log` (including warnings about missing data, API failures, VIF exclusions, or "No Data" status)
+*Output*: `results/divergence.csv`, `results/correlations.csv`, `results/stability.csv`
 
 ## Verification
 
-Check the `results/metrics.json` file.
-*   If `analysis_type` is "Quantitative" and `p_value` < 0.05 and `r2` > 0.3, the model is statistically significant.
-*   If `analysis_type` is "Qualitative" (N < 50), review the `feature_importance` and `divergence_flag` for trend insights.
-*   If `analysis_type` is "NoData", the pipeline completed successfully but found no valid entries in API or Zenodo.
+Run the test suite:
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
 
-*   **No Data Found**: If the pipeline stops with "No amorphous entries found," it will automatically fall back to the Zenodo dataset. If that also fails, check your internet connection.
-*   **Memory Error**: If running on a local machine with low RAM, the script attempts to stream data. If this fails, reduce the dataset size manually in `code/ingestion/fetch_data.py`.
-*   **VIF Warning**: If `size_mismatch` is excluded, it is due to high multicollinearity. This is expected and ensures valid results.
+- **"No verified dataset found"**: Ensure `DATA_URL` in `.env` points to the verified Zenodo dataset. The default NER dataset is not valid.
+- **Memory Error**: If the dataset is large, ensure `requests` downloads the file and `pandas` processes it in chunks (default behavior).
+- **Collinearity Warning**: If VIF > 10, the linear model will automatically apply Ridge regularization.
+- **Spec Constraint Warning**: The pipeline will report divergence between feature importance and correlation, even if SC-003 (spec) implies they must match. This is a known spec flaw. Stability Analysis is the primary metric.

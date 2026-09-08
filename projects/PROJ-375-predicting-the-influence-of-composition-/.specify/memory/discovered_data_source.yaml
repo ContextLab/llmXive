@@ -1,6 +1,6 @@
 status: none
-intent: Materials Project AFLOWlib metallic glass composition CTE dataset python package
-  dataset
+intent: Materials Project metallic glass composition thermal expansion coefficient
+  dataset AFLOWlib download python package dataset
 required_fields:
 - composition
 - CTE
@@ -9,6 +9,6 @@ required_fields:
 - valence_electron_concentration
 - atomic_size_mismatch
 - amorphous_state_flag
-cache_key: c0ba50bcc2e0ecbb946683697a7c7d8f9194205cbd45c869e9924dc0f2a723b3
-searched_at: '2026-07-20T20:45:14.627218+00:00'
+cache_key: b75e1ce869469ba687ef567fe7b3346560d3525eaf01d688a1fab7c0116f8f0f
+searched_at: '2026-09-08T02:28:57.156001+00:00'
 retry_count: 1

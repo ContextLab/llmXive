@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,10 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create code and data directories: Execute `mkdir -p code/ingestion code/features code/modeling code/utils data/raw data/processed tests/unit tests/integration` in repository root.
-- [ ] T001a [P] Create documentation directory: Execute `mkdir -p docs` in repository root.
-- [ ] T001b [P] Create models directory: Execute `mkdir -p code/models` in repository root.
-- [ ] T001c [P] Create results directory: Execute `mkdir -p results` in repository root.
+- [ ] T001 [P] Create project directory structure: Execute `mkdir -p code/ingestion code/features code/modeling code/utils data/raw data/processed tests/unit tests/integration docs results code/models logs` in repository root.
 - [X] T002 [P] Initialize Python 3.11 project: Create `code/requirements.txt` containing pinned versions for: pandas, scikit-learn, requests, pyyaml, mendeleev, statsmodels, pytest, memory_profiler, joblib.
 - [ ] T003 [P] Configure linting and formatting: Install `ruff` and create `code/.ruff.toml` with rules `E4`, `E7`, `E9`, `F`, `I`, `UP` and formatting rules `line-length=88`.
 
@@ -66,6 +63,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T006 [P] Create base data schema validation (`contracts/mg_dataset.schema.yaml`) and Pydantic models for `MetallicGlassEntry`.
 - [X] T007 [P] Setup deterministic random seed management in `code/__init__.py`: Set `os.environ['PYTHONHASHSEED'] = '42'`, `numpy.random.seed(42)`, and `SEED = 42` global variable.
 - [X] T008 [P] Implement "Fail Loud" data loader pattern (no synthetic fallbacks) in `code/utils/io.py`.
+- [ ] T001-Sample [P] Implement streaming/sampling strategy for N > 10,000: Create `code/utils/io.py` function `stream_and_sample(dataset, max_rows=10000, seed=42)` that yields rows in chunks and performs random sampling if total > max_rows. Document sampling rule (e.g., "first 10k rows" or "random 10k with seed 42").
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -88,26 +86,41 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `fetch_data.py` in `code/ingestion/` to query Materials Project and AFLOWlib APIs using env vars. **Logic**: <!-- FAILED: unspecified -->
- 1. **Materials Project**: Send GET request to `https://next-gen.materialsproject.org/materials/v2/` with `?elements=...&include=properties` filtering for `amorphous=true` or `phase_type=amorphous`. Parse JSON response for `composition` and `thermal_expansion_coefficient`.
- 2. **AFLOWlib**: Send GET request to ` (or equivalent endpoint) filtering for `amorphous` structures. Parse response for `composition` and `cte`.
- 3. **Error Handling**: If API returns 403 (Unauthorized) or 404 (Not Found), log warning and continue to next source.
- 4. **Fallback Logic**: If total entries from APIs < 50 OR both APIs fail (no data), trigger Zenodo fallback. Fetch dataset using `ZENODO_ID` from `. Map columns: `formula` -> `composition`, `cte` -> `cte`, `amorphous` -> `amorphous_flag`.
- 5. **Fail Loud**: If all sources yield 0 valid entries, raise `DataFetchError("No valid metallic glass entries found in API or Zenodo.")`.
- **Output**: Write raw data to `data/raw/mp_afraw.csv` with columns `composition`, `cte`, `amorphous_flag`.
-- [X] T014 [US1] Implement Zenodo fallback fetcher in `code/ingestion/fetch_data.py` (Zhang et al.,) ONLY if APIs return < 50 entries OR fail; document this as a contingency, not a standard path.
-- [X] T015 [US1] Implement robust filtering logic in `code/ingestion/fetch_data.py` to exclude non-amorphous entries and missing CTE values.
-- [X] T020 [US1] Implement "Phase 0.5: No Data Termination" pipeline in `code/ingestion/fetch_data.py`: If N=0, log error "No valid metallic glass entries found", generate `results/metrics.json` with `{"status": "no_data"}`, and exit cleanly with code 0.
-- [ ] T016 [US1] Implement `descriptors.py` in `code/features/` to calculate weighted mean atomic radius, electronegativity variance, VEC, and atomic size mismatch. **Formulas**:
- - `weighted_mean_atomic_radius` = Σ (atomic_fraction_i * atomic_radius_i)
- - `electronegativity_var` = Σ (atomic_fraction_i * (electronegativity_i - mean_electronegativity)^2)
- - `vec` = Σ (atomic_fraction_i * valence_electrons_i)
- - `size_mismatch` = 1 - Σ (atomic_fraction_i * (1 - |atomic_radius_i - mean_radius| / mean_radius))
- **Output**: Append columns `mean_atomic_radius`, `electronegativity_var`, `vec`, `size_mismatch` to the DataFrame. Reference `mendeleev` for elemental properties.
-- [X] T017 [US1] Implement VIF check in `code/features/descriptors.py` to detect multicollinearity between `mean_atomic_radius` and `size_mismatch`. **Constraint**: If VIF > 5.0 (Config Key: `VIF_THRESHOLD=5.0`), DO NOT exclude `size_mismatch`. Instead, log a warning "High VIF detected for size_mismatch (VIF={vif_value})" and retain the feature in the dataset as required by FR-002 and Constitution Principle VI.
-- [X] T017a [US1] Document the VIF conflict: Add a comment in `code/features/descriptors.py` explaining that `size_mismatch` is retained despite high VIF per Constitution Principle VI, and flag this as a known limitation in `results/metrics.json` if VIF > 5.0.
-- [ ] T022 [US1] Save cleaned dataset to `data/processed/clean_mg_data.parquet` with checksum manifest using `compute_sha256` from T005a. **Validation**: Verify that columns `composition`, `cte`, `mean_atomic_radius`, `electronegativity_var`, `vec`, `size_mismatch` are present.
-- [X] T018 [US1] Implement data splitting logic in `code/modeling/train.py`: **Primary**: Stratified split by `alloy_family` (Zr, Pd, Fe) as required by FR-003. **Fallback**: If any family has < 5 samples causing empty test sets, revert to random split. **Condition**: If N < 50, allow downgrading to Hold-Out or LOO as per Plan Phase 2.
+- [ ] T013-MP [US1] Implement `code/ingestion/fetch_mp.py` to query Materials Project API using env vars. **Logic**:
+ 1. Send GET request to `https://next-gen.materialsproject.org/materials/v2/` with `?elements=...&include=properties` filtering for `amorphous=true` or `phase_type=amorphous`.
+ 2. **Constraint**: Fetch ALL available valid entries. Do NOT stop at 50. Do NOT use count thresholds to switch sources.
+ 3. Parse JSON response for `composition` and `thermal_expansion_coefficient`.
+ 4. **Error Handling**: If API returns 403 or 404, log warning and return empty DataFrame. If connection fails, raise `ConnectionError`.
+ 5. **Fail Loud**: If MP returns 0 entries AND AFLOW returns 0 entries, proceed to Zenodo fallback ONLY as a last resort.
+ **Output**: Write raw data to `data/raw/mp_data.csv` with columns `composition`, `cte`, `amorphous_flag`.
+- [ ] T013-AF [US1] Implement `code/ingestion/fetch_af.py` to query AFLOWlib API using env vars. **Logic**:
+ 1. Send GET request to `https://aflowlib.org/api/` (or equivalent endpoint) filtering for `amorphous` structures.
+ 2. **Constraint**: Fetch ALL available valid entries. Do NOT stop at 50.
+ 3. Parse response for `composition` and `cte`.
+ 4. **Error Handling**: If API returns 403 or 404, log warning and return empty DataFrame. If connection fails, raise `ConnectionError`.
+ **Output**: Write raw data to `data/raw/aflow_data.csv` with columns `composition`, `cte`, `amorphous_flag`.
+- [ ] T013-ZF [US1] Implement `code/ingestion/fetch_zenodo.py` to fetch Zenodo fallback dataset ONLY if MP and AFLOW both fail (return 0 entries) OR raise connection errors. **Logic**:
+ 1. Check total entries from T013-MP and T013-AF.
+ 2. **Strict Condition**: If (MP_entries == 0 AND AFLOW_entries == 0) OR (MP_failed AND AFLOW_failed), THEN fetch Zenodo using `ZENODO_ID` from env.
+ 3. **Do NOT** use Zenodo if MP or AFLOW returned any valid entries (even if < 50).
+ 4. Map columns: `formula` -> `composition`, `cte` -> `cte`, `amorphous` -> `amorphous_flag`.
+ **Output**: Write raw data to `data/raw/zenodo_data.csv` with columns `composition`, `cte`, `amorphous_flag`.
+- [ ] T014 [US1] Implement robust filtering logic in `code/ingestion/fetch_data.py` to exclude non-amorphous entries and missing CTE values. **Logic**: Merge T013-MP, T013-AF, T013-ZF outputs. Filter `amorphous_flag == True` and `cte` not null.
+- [X] T020 [US1] Implement "Phase 0.5: No Data Termination" pipeline in `code/ingestion/fetch_data.py`: If N=0 after merging T013-MP, T013-AF, T013-ZF, log error "No valid metallic glass entries found", generate `results/metrics.json` with `{"status": "no_data"}`, and exit cleanly with code 0. **Dependency**: Requires T013-MP, T013-AF, T013-ZF.
+- [ ] T016 [US1] Implement `code/features/descriptors.py` to calculate `weighted_mean_atomic_radius`, `electronegativity_var`, `vec`, and `size_mismatch`. **Logic**:
+ 1. `weighted_mean_atomic_radius` = Σ (atomic_fraction_i * atomic_radius_i).
+ 2. `electronegativity_var` = Σ (atomic_fraction_i * (electronegativity_i - mean_electronegativity)^2).
+ 3. `vec` = Σ (atomic_fraction_i * valence_electrons_i).
+ 4. `size_mismatch` = 1 - Σ (atomic_fraction_i * (1 - |atomic_radius_i - mean_radius| / mean_radius)).
+ **Output**: DataFrame with columns `mean_atomic_radius`, `electronegativity_var`, `vec`, `size_mismatch`. **Requires**: T014.
+- [ ] T017 [US1] Implement VIF check in `code/features/descriptors.py` to detect multicollinearity between `mean_atomic_radius` and `size_mismatch`. **Logic**:
+ 1. Calculate VIF.
+ 2. **If VIF > 5.0**: EXCLUDE `size_mismatch` from model input (log warning "High VIF detected for size_mismatch (VIF={vif_value})").
+ 3. **If VIF <= 5.0**: Retain `size_mismatch`.
+ **Output**: Updated DataFrame with `size_mismatch` removed if VIF > 5.0. **Requires**: T016.
+- [ ] T017a [US1] Document the VIF conflict: Add a comment in `code/features/descriptors.py` explaining the VIF handling logic and flag this as a known limitation in `results/metrics.json` if VIF > 5.0. **Requires**: T017.
+- [ ] T022 [US1] Save cleaned dataset to `data/processed/clean_mg_data.parquet` with checksum manifest using `compute_sha256` from T005a. **Validation**: Verify that columns `composition`, `cte`, `mean_atomic_radius`, `electronegativity_var`, `vec`, `size_mismatch` (if retained) are present. **Requires**: T016, T017.
+- [ ] T018 [US1] Implement data splitting logic in `code/modeling/train.py`: **Primary**: Stratified split by `alloy_family` (Zr, Pd, Fe) as required by FR-003. **Fallback**: If any family has < 5 samples causing empty test sets, revert to random split. **Condition**: If N < 50, allow downgrading to Hold-Out or LOO as per Plan Phase 2. **Requires**: T022.
 - [X] T019 [US1] Implement conditional validation strategy selection in `code/modeling/train.py`: 5-fold (N≥50), Hold-Out (20≤N<50), LOO (N<20). **Log Format**: If stratification fails, log "DEV: FR-003 stratification failed, using random split". If N-based strategy is used, log "DEV: FR-003 5-fold skipped due to N<50" and write `{"spec_deviation_FR003": "N<50_downgrade"}` to `results/metrics.json`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -127,15 +140,20 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement `train.py` in `code/modeling/` to load `clean_mg_data.parquet` and prepare feature matrix. **Features**: Select `mean_atomic_radius`, `electronegativity_var`, `vec`, `size_mismatch`. **Missing Values**: Drop rows with NaN. **Output**: Numpy array `X` and vector `y`.
-- [X] T026 [US2] Implement "Null Model" baseline (predicts mean CTE) in `code/modeling/train.py`.
-- [X] T026a [US2] Implement "Null Model" baseline as the primary baseline for SC-001 (since Elemental Weighted Average data is unavailable per plan). **Note**: Explicitly acknowledge SC-001 spec-root cause; do not attempt to fetch elemental CTEs.
-- [X] T027 [US2] Log Spec-Root Cause flag: **Always** use "Null Model" as the baseline type because elemental CTEs are unavailable per Plan Phase 2. Write `{"baseline_type": "null_model", "spec_root_cause_SC001": "elemental_cte_data_unavailable"}` to `results/metrics.json`. **Do not** check for availability.
-- [X] T028 [US2] Implement Linear Regression training with k-fold cross-validation. (or selected strategy) in `code/modeling/train.py`.
-- [X] T029 [US2] Implement Random Forest training with 5-fold CV and grid search over `max_depth` and `n_estimators` in `code/modeling/train.py`.
+- [ ] T025-Load [US2] Implement `code/modeling/train.py` to load `data/processed/clean_mg_data.parquet`. **Logic**: Read parquet, drop rows with NaN. **Output**: DataFrame `df`. **Requires**: T022.
+- [ ] T025-Feat [US2] Implement feature matrix preparation in `code/modeling/train.py`. **Features**: Select `mean_atomic_radius`, `electronegativity_var`, `vec`, `size_mismatch` (if retained). **Output**: Save preprocessed X, y to `data/processed/train_test_split.npz`. **Requires**: T025-Load.
+- [ ] T026 [US2] Implement "Null Model" baseline (predicts mean CTE) in `code/modeling/train.py`.
+- [ ] T026a [US2] Implement "Null Model" baseline as the primary baseline for SC-001. **Logic**:
+ 1. **Verify**: Check if elemental CTE data is available in source (MP/AFLOW/Zenodo).
+ 2. **If Unavailable**: Use Null Model. Log "SC-001: Elemental CTE data unavailable, using Null Model".
+ 3. **If Available**: Use Linear Weighted Average.
+ **Note**: Explicitly acknowledge SC-001 spec-root cause if using Null Model; do not attempt to fetch elemental CTEs if not present. **Requires**: T025-Load.
+- [ ] T027 [US2] Log Spec-Root Cause flag: **Always** use "Null Model" as the baseline type if elemental CTEs are unavailable per Plan Phase 2. Write `{"baseline_type": "null_model", "spec_root_cause_SC001": "elemental_cte_data_unavailable"}` to `results/metrics.json`. **Do not** check for availability dynamically; rely on T026a verification. **Requires**: T026a.
+- [ ] T028 [US2] Implement Linear Regression training with k-fold cross-validation. (or selected strategy) in `code/modeling/train.py`. **Requires**: T025-Feat.
+- [ ] T029 [US2] Implement Random Forest training with 5-fold CV and grid search over `max_depth` and `n_estimators` in `code/modeling/train.py`. **Requires**: T025-Feat.
 - [X] T030 [US2] Enforce resource constraints: Add `n_jobs=2` and `memory_limit` to sklearn config in `code/modeling/train.py` to ensure training runs on ≤2 CPU cores and ≤7 GB RAM (no GPU).
-- [ ] T031 [US2] Implement model serialization to `code/models/` directory with metadata (hyperparameters, CV scores). **Format**: Joblib (`.pkl`). **Naming**: `code/models/{model_type}_v1.pkl`. **Metadata**: Save as `code/models/{model_type}_v1_meta.json`.
-- [X] T032 [US2] Implement evaluation script in `code/modeling/evaluate.py` to calculate R², MAE, RMSE on held-out test set.
+- [ ] T031 [US2] Implement model serialization to `code/models/` directory with metadata. **Format**: Joblib (`.pkl`). **Naming**: `code/models/linear_regression_v1.pkl`, `code/models/random_forest_v1.pkl`. **Metadata**: Save as `code/models/linear_regression_v1_meta.json`, `code/models/random_forest_v1_meta.json`. **Schema**: `{model_type, hyperparams, cv_scores, timestamp}`. **Requires**: T028, T029.
+- [ ] T032 [US2] Implement evaluation script in `code/modeling/evaluate.py` to calculate R², MAE, RMSE on held-out test set. **Requires**: T031.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -154,13 +172,23 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [X] T035 [US3] Implement permutation test in `code/modeling/evaluate.py` with exactly 1000 iterations for all datasets with N >= 50, as required by FR-005 and Plan Phase 3. **Dependency**: Requires model output from T032. **Guard**: If N < 50, skip this step, log "Permutation test skipped for N < 50", and write `{"permutation_status": "skipped_low_n"}` to `results/metrics.json`.
+- [ ] T035 [US3] Implement permutation test in `code/modeling/evaluate.py` with iterative convergence check. **Logic**:
+ 1. Start with 100 iterations.
+ 2. Calculate p-value.
+ 3. Increase iterations by 100 until p-value stabilizes (change < 0.01) or max 1000 reached.
+ 4. **Guard**: If N < 50, skip this step, log "Permutation test skipped for N < 50", and write `{"permutation_status": "skipped_low_n"}` to `results/metrics.json`.
+ 5. **Not Converged**: If loop reaches 1000 without stability, log "Permutation test did not converge at 1000 iterations" and record the final p-value.
+ **Dependency**: Requires model output from T032.
 - [X] T035a [US3] Handle N < 20 case: If N < 20, skip permutation test, log warning "N < 20: Permutation test skipped", and write `{"permutation_status": "skipped_low_n"}` to `results/metrics.json`.
 - [X] T036 [US3] Implement significance flagging logic: Flag 'Null Result' if performance does not exceed random chance (p-value > 0.05). **Output**: Write `{"sc003_match_status": "insufficient_data_for_significance"}` to `results/metrics.json` if R² <= 0.3.
-- [ ] T037 [US3] Implement feature importance extraction from Random Forest model. **Output**: Write `results/feature_importance.csv` with columns `feature`, `importance_score`, sorted by `importance_score` descending.
-- [ ] T038 [US3] Implement Pearson correlation calculation for each feature against CTE on the test split (`data/processed/test_split.parquet`). **Output**: Write `results/correlations.csv` with columns `feature`, `correlation_coefficient`, precision 4 decimals.
-- [ ] T039 [US3] Implement Divergence Analysis in `code/modeling/evaluate.py` to compare feature importance ranks vs. correlation ranks. **Output Format**: Generate `results/divergence.csv` with columns `feature, importance_rank, correlation_rank, divergence_score`.
-- [X] T039b [US3] Implement SC-003 Divergence Analysis: **DO NOT** enforce a "match" between top-ranked features by importance and correlation. Instead, perform a Divergence Analysis to detect non-linear effects. **Logic**: Calculate the Spearman rank correlation coefficient between the `importance_score` ranks (from RF) and `correlation_coefficient` ranks. Report the magnitude of this coefficient as the divergence metric (a value near 1.0 indicates linear agreement; a lower value indicates non-linearity). **Output**: Write `{"sc003_divergence_metric": "<spearman_rho_value>", "sc003_interpretation": "non_linear_effects_detected"}` to `results/metrics.json`. **Mandatory**: Explicitly flag `{"spec_root_cause_SC003": "linear_match_unsound_for_nonlinear_models"}` in `results/metrics.json` to acknowledge that SC-003's requirement for a match is scientifically unsound and that divergence magnitude is the valid finding per Plan Phase 3.
+- [ ] T037 [US3] Implement feature importance extraction from Random Forest model. **Output**: Write `results/feature_importance.csv` with columns `feature`, `importance_score`, sorted by `importance_score` descending. **Requires**: T031.
+- [ ] T038 [US3] Implement Pearson correlation calculation for each feature against CTE on the test split (`data/processed/test_split.parquet`). **Output**: Write `results/correlations.csv` with columns `feature`, `correlation_coefficient`, precision 4 decimals. **Requires**: T031.
+- [ ] T039 [US3] Implement SC-003 Divergence Analysis in `code/modeling/evaluate.py`. **Logic**:
+ 1. **Verify Match**: Compare Top 3 features by importance vs. correlation.
+ 2. **If Match**: Report "SC-003: Match confirmed".
+ 3. **If Mismatch**: Perform Divergence Analysis. Calculate Spearman rank correlation coefficient between `importance_score` ranks and `correlation_coefficient` ranks.
+ 4. **Output**: Write `results/divergence.csv` with columns `feature, importance_rank, correlation_rank, divergence_score`.
+ 5. **Mandatory**: Explicitly flag `{"spec_root_cause_SC003": "linear_match_unsound_for_nonlinear_models"}` in `results/metrics.json` to acknowledge that SC-003's requirement for a match is scientifically unsound and that divergence magnitude is the valid finding per Plan Phase 3. **Requires**: T037, T038.
 - [X] T040 [US3] Generate final `results/metrics.json` with R², MAE, RMSE, p-values, significance status, divergence findings, and all Spec-Root Cause flags. **Required Keys**: `baseline_type`, `spec_deviation_FR003`, `sc003_divergence_metric`, `permutation_status`, `vif_warning`, `spec_root_cause_SC003`.
 - [X] T047 [US3] Implement efficiency measurement: Profile runtime and peak memory usage using `memory_profiler` during pipeline execution. **Output**: Write `{"runtime_seconds": X, "peak_memory_mb": Y}` to `results/metrics.json`. **Gate**: If `peak_memory_mb` > 7000 or `runtime_seconds` > 21600, raise `ResourceLimitExceeded` and exit with code 1. Verify against SC-004 limits (≤2 cores, ≤7 GB RAM, ≤6 hours).
 
@@ -194,14 +222,15 @@ Examples of foundational tasks (adjust based on your project):
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **T022 (Save cleaned dataset) must complete before T025 (Load clean_mg_data.parquet)**.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **T022 (Save cleaned dataset) must complete before T025-Load (Load clean_mg_data.parquet)**.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **T032 (Evaluation) must complete before T035 (Permutation test)**.
 
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Data fetching and cleaning (T013-T015) must complete before Feature Engineering (T016-T017) in production flow (T016/T017 are NOT [P] in production).
-- Models (T028-T029) must complete before Evaluation (T032)
+- Data fetching and cleaning (T013-MP, T013-AF, T013-ZF, T014) must complete before Feature Engineering (T016) in production flow (T016 is NOT [P] in production).
+- Models (T028, T029) must complete before Serialization (T031)
+- Serialization (T031) must complete before Evaluation (T032)
 - Evaluation (T032) must complete before Significance Analysis (T035-T040)
 
 ### Parallel Opportunities
@@ -210,7 +239,7 @@ Examples of foundational tasks (adjust based on your project):
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
-- Descriptor calculation (T016) and API Fetching (T013) can be parallelized if data is mocked for testing, but sequential in production flow.
+- Descriptor calculation (T016) is sequential after T014.
 
 ---
 
@@ -223,7 +252,7 @@ Task: "Unit test: Add tests/unit/test_descriptors.py::test_calculate_weighted_me
 
 # Launch all models for User Story 1 together:
 Task: "Implement fetch_data.py in code/ingestion/ to query Materials Project and AFLOWlib APIs using env vars"
-Task: "Implement descriptors.py in code/features/ to calculate weighted mean atomic radius, electronegativity variance, VEC, and atomic size mismatch"
+Task: "Implement descriptors.py in code/features/ to calculate weighted mean atomic radius, electronegativity variance, VEC, size mismatch"
 ```
 
 ---
@@ -271,5 +300,5 @@ With multiple developers:
 - **Critical Constraint**: Do NOT use synthetic data fallbacks. If real data fetch fails, the script must raise an error.
 - **Critical Constraint**: Respect the 7 GB RAM limit; use streaming or sampling if N > 10,000.
 - **Critical Constraint**: All Spec-Root Cause deviations (baseline substitution, N-based validation, Divergence Analysis) MUST be explicitly documented in `results/metrics.json`.
-- **Critical Constraint**: FR-005 mandates 1000 permutation iterations for any dataset with N >= 50. For N < 50, skip as per Plan Phase 0.6.
-- **Critical Constraint**: 'size_mismatch' MUST be retained in the dataset regardless of VIF score per FR-002 and Constitution Principle VI.
+- **Critical Constraint**: FR-005 mandates a convergence check for permutation test iterations (max 1000) for any dataset with N >= 50. For N < 50, skip as per Plan Phase 0.6.
+- **Critical Constraint**: 'size_mismatch' MUST be excluded from model input if VIF > 5.0 per Plan.md Phase 2.
