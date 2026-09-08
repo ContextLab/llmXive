@@ -1,72 +1,90 @@
-# Quickstart: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
+# Quickstart: llmXive follow‑up – Post‑generation Physics Filtering
+
+This guide walks you through reproducing the entire experiment on a fresh GitHub Actions runner (or locally on Linux).
 
 ## Prerequisites
+* Python 3.11
+* Git clone of the repository
+* Internet access (to download open datasets)
 
-- Python 3.11+
-- Git
-- Access to Hugging Face (for Wan2.1 and PyBullet datasets)
-- (Optional) Kaggle account for GPU offloading (if generation fails on CPU)
+## Step‑by‑Step
 
-## Installation
-
-1. **Clone the Repository**:
+1. **Setup the environment**  
    ```bash
-   git clone <repo-url>
-   cd projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r code/requirements.txt
+   python src/utils/verify_env.py   # asserts CPU‑only, checks data checksums
    ```
 
-2. **Create Virtual Environment**:
+2. **Download raw assets**  
    ```bash
-   python -m venv venv
-   source venv/bin/activate
+   python src/generation/download_wan_weights.py
+   python src/generation/download_pybullet_examples.py
    ```
 
-3. **Install Dependencies**:
+3. **Generate synthetic videos**  
    ```bash
-   pip install -r requirements.txt
+   python src/generation/generate_videos.py \
+       --num_videos 200 \
+       --output_dir data/generated/videos/
    ```
-   *Note*: `requirements.txt` includes `torch` (CPU), `diffusers`, `pybullet`, `mujoco`, `pandas`, `numpy`, `scipy`.
 
-4. **Configure Environment**:
-   - Set `HF_TOKEN` if required for private datasets.
-   - Ensure `config.yaml` is present in the root of `code/`.
+4. **Run the physics filter**  
+   ```bash
+   python src/filtering/pybullet_filter.py \
+       --input_dir data/generated/videos/ \
+       --output_csv data/curated/curated_dataset.csv \
+       --percentile <desired_percentile>   # keep top <desired_percentile>th percentile
+   ```
 
-## Running the Pipeline
+5. **(Optional) Augment to reach n ≥ 30**  
+   ```bash
+   python src/augmentation/geometric_augmenter.py \
+       --manifest data/curated/curated_dataset.csv \
+       --target_n 30
+   ```
 
-### Step 1: Generate & Filter (US-1)
-This step generates videos and filters them. If the generation step requires GPU, the script will attempt to offload to Kaggle (if configured) or fail gracefully.
-```bash
-python src/cli/run_pipeline.py --phase generate_and_filter
-```
-*Output*: `data/curated/` with filtered videos and `scores.parquet`.
+6. **Train the distilled diffusion model**  
+   ```bash
+   python src/training/train_diffusion.py \
+       --manifest data/curated/curated_dataset.csv \
+       --epochs 8 \
+       --batch_size <small> \
+       --frame_resolution <desired_resolution> \
+       --precision float16 \
+       --output_dir data/models/
+   ```
 
-### Step 2: Train Model (US-2)
-Trains the large-scale diffusion model on the curated dataset.
-```bash
-python src/cli/run_pipeline.py --phase train
-```
-*Output*: `data/models/model_*.pt`.
+7. **Validate the filter with MuJoCo**  
+   ```bash
+   python src/filtering/mujoco_validator.py \
+       --manifest data/curated/curated_dataset.csv
+   ```
 
-### Step 3: Evaluate (US-3)
-Evaluates the trained model against baselines and runs TOST.
-```bash
-python src/cli/run_pipeline.py --phase evaluate
-```
-*Output*: `data/results/evaluation.json`.
+8. **Evaluate on benchmarks**  
+   ```bash
+   python src/evaluation/evaluate_benchmarks.py \
+       --model_path data/models/diffusion_checkpoint.pt \
+       --output_dir data/reports/
+   ```
 
-## Verifying Results
+9. **Run the TOST equivalence test**  
+   ```bash
+   python src/evaluation/tost_equivalence.py \
+       --baseline data/reports/baseline_RBench.json \
+       --candidate data/reports/curated_RBench.json \
+       --margin <default small margin> \
+       --output data/reports/tost_results.json
+   ```
 
-- **Check Filtration**:
-  ```bash
-  python -c "import pandas as pd; df = pd.read_parquet('data/curated/scores.parquet'); print(f'Retention Rate: {(df.pass_status.mean()*100):.2f}%')"
-  ```
-- **Check Equivalence**:
-  ```bash
-  cat data/results/evaluation.json | jq '.equivalence_flag'
-  ```
+10. **Inspect the final report**  
+    The file `data/reports/final_summary.md` is auto‑generated and contains:
+    * Retention rate after filtering (SC‑001)
+    * **Physical consistency score (SC‑002)** – extracted from benchmark results.
+    * **Performance gap (SC‑03) within 15 % equivalence margin (SC‑003)**.
+    * **p‑value < 0.05 (SC‑004)** indicating statistical significance.
+    * Correlation **> 0.95?** (SC‑006) **?** — should be < 0.95 to satisfy SC‑006.
+    * Training **time ≤ 4 h (SC‑005)** – by `````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````
 
-## Troubleshooting
 
-- **CUDA Error during Generation**: The script will log a warning. If configured for Kaggle, it will retry. If not, the user must manually run the generation step on a GPU and save the results to `data/raw/`.
-- **Memory Error during Training**: Reduce `batch_size` in `config.yaml`.
-- **PyBullet Crash**: Check `logs/filtering.log` for specific video IDs causing crashes. These are automatically excluded.

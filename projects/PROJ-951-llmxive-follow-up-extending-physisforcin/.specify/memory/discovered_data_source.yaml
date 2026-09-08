@@ -1,12 +1,16 @@
 status: none
-intent: RLBench robotics manipulation video dataset pip install python package
+intent: Robotic Manipulation Video Dataset YCB-Video RoboNet Meta-World ContactDB
+  python package dataset
 required_fields:
-- video_file_path (MP4)
-- joint_trajectory (list of joint angles over time)
-- object_pose_trajectory (list of 3D poses over time)
-- timestamp_series (frame timestamps)
-- task_label (string)
-- camera_intrinsics (optional)
-cache_key: e8d4d4a6c8e0425c73b148a3b59634f1422353231f5e2796084156504035b3bb
-searched_at: '2026-08-24T12:17:15.622659+00:00'
+- video_file_path
+- frame_rate
+- robot_joint_states
+- object_6dof_poses
+- contact_event_annotations
+- physics_score
+- timestamp
+- camera_intrinsics
+- video_id
+cache_key: db173b1b596260acf80385912b05ff7c8c1b1ad9c01ac539ea9f2730e9dcc135
+searched_at: '2026-09-08T19:15:49.732280+00:00'
 retry_count: 1

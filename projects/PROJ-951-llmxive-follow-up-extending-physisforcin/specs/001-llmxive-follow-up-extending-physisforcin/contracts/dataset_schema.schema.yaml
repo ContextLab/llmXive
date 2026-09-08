@@ -56,10 +56,10 @@ examples:
   - id: "vid-001"
     prompt: "Robot arm picking a block"
     video_path: "data/raw/vid-001.mp4"
-    physics_score: 0.85
-    continuity_score: 0.90
-    contact_score: 0.80
-    action_variance: 0.50
-    object_displacement: 0.30
+    physics_score: above average
+    continuity_score: high
+    contact_score: high
+    action_variance: a moderate level
+    object_displacement: a modest displacement
     status: "pass"
     generated_at: "2026-07-13T10:00:00Z"

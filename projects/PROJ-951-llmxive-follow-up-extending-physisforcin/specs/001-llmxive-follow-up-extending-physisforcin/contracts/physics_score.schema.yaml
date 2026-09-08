@@ -10,7 +10,7 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Normalized physics consistency score (0.0 = impossible, 1.0 = perfect)."
+    description: "Normalized physics consistency score (lowest possible value = impossible, highest possible value = perfect)."
   trajectory_continuity:
     type: "number"
     description: "Score for trajectory smoothness and continuity."

@@ -21,7 +21,7 @@ properties:
     description: "P-value from the Two One-Sided Tests (TOST)."
   equivalence_margin:
     type: "number"
-    description: "The equivalence margin used (e.g., 0.15 for 15%)."
+    description: "The equivalence margin used (e.g., a modest proportion reflecting a small effect)."
   equivalent:
     type: "boolean"
     description: "True if the model is equivalent to the baseline within the margin."

@@ -14,10 +14,10 @@ properties:
     maximum: 1000
   filter_discard_percent:
     type: "number"
-    description: "Percentage of videos to discard (bottom) based on physics score. Default 40 (retain top 60)."
+    description: "Percentage of videos to discard (bottom) based on physics score. Default setting discards a moderate proportion of low‑scoring videos, retaining the majority of higher‑scoring ones."
     minimum: 0.0
     maximum: 100.0
-    default: 40.0
+    default: a standard default value
   training_epochs:
     type: "integer"
     description: "Number of epochs for diffusion training."
@@ -33,6 +33,6 @@ properties:
     default: true
   equivalence_margin:
     type: "number"
- description: "Equivalence margin for TOST (e.g., 0.15 for [deferred])."
-    default: 0.15
+    description: "Equivalence margin for TOST (e.g., a modestly sized margin)."
+    default: a typical baseline value
 additionalProperties: false

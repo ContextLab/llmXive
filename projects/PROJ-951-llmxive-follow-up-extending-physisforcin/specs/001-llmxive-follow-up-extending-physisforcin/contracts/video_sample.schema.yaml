@@ -1,32 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "VideoSample"
-description: "Schema for a single video sample with metadata."
-type: "object"
-properties:
-  id:
-    type: "string"
-    description: "Unique UUID for the video."
-  prompt:
-    type: "string"
-    description: "Text prompt used for generation."
-  video_path:
-    type: "string"
-    description: "Relative path to the MP4 file."
-  physics_score:
-    type: "number"
-    description: "Physics consistency score."
-  pass_status:
-    type: "boolean"
-    description: "Whether the video passed the filter."
-  generation_timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO 8601 timestamp of generation."
+type: object
 required:
-  - id
+  - video_id
   - prompt
   - video_path
-  - physics_score
-  - pass_status
   - generation_timestamp
+  - physics_score
+  - filter_status
+  - augmented
+properties:
+  video_id:
+    type: string
+    description: "Unique identifier for the video sample."
+  prompt:
+    type: string
+    description: "Text prompt used to generate the video."
+  video_path:
+    type: string
+    format: uri
+    description: "File system path (or URI) pointing to the MP4 video."
+  generation_timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of when the video was generated."
+  physics_score:
+    type: number
+    description: "Continuity & contact conservation score normalized to a standardized range from the lowest to the highest possible value."
+    minimum: a non‑negative value
+    maximum: at the upper limit of the defined range
+  filter_status:
+    type: string
+    enum: ["pass", "fail", "error"]
+    description: "Result of the physics filter."
+  augmented:
+    type: boolean
+    description: "Whether the sample was created via data augmentation (FR‑009)."
 additionalProperties: false

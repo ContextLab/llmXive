@@ -1,60 +1,43 @@
-# Data Model: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
+# Data Model: llmXive follow-up: extending "PhysisForcing"
 
-## Entities & Relationships
+## Overview
+The pipeline manipulates three core entities:
 
-### VideoSample
-- **Description**: A single generated video clip with associated metadata.
-- **Attributes**:
-  - `id`: Unique identifier (UUID).
-  - `prompt`: Text prompt used for generation.
-  - `video_path`: Relative path to MP4 file in `data/raw/`.
-  - `physics_score`: Float (0.0 - 1.0) from PyBullet filter.
-  - `pass_status`: Boolean (True if score ≥ 60th percentile).
-  - `generation_timestamp`: ISO 8601 string.
-  - `generation_status`: "success", "failed", "crash".
+| Entity | Description | Primary Fields |
+|--------|-------------|----------------|
+| **VideoSample** | A single synthetic robotic manipulation video (MP4) together with generation metadata. | `video_id` (str), `prompt` (str), `video_path` (str), `generation_timestamp` (ISO8601), `physics_score` (float, **0 – 1**, normalized), `filter_status` (`"pass"` / `"fail"` / `"error"`), `augmented` (bool) |
+| **CuratedDataset** | CSV manifest of all `VideoSample`s that survived the filter (and any augmentations). | `dataset_id`, `total_samples`, `threshold_percentile` (numeric, e.g., 60), `threshold_score` (absolute score 0‑1), `samples` (list of `VideoSampleRef`), `created_at`, `augmented`, `augmentation_method` |
+| **TrainedModel** | Serialized checkpoint of the distilled diffusion model and its training metadata. | `model_id` (str), `checkpoint_path` (str), `training_epochs` (int), `final_train_loss` (float), `seed` (int), `timestamp` (ISO8601) |
+| **BenchmarkResult** | Evaluation metrics for a given model on a benchmark. | `model_id`, `benchmark_name` (`"R-Bench"` / `"PAI-Bench"`), `score` (float), `score_std` (float), `num_samples` (int) |
+| **TOSTResult** | Outcome of the equivalence test between two models on a benchmark. | `model_id_a`, `model_id_b`, `benchmark_name`, `equivalence_margin` (float), `p_value` (float), `equivalent` (bool) |
 
-### CuratedDataset
-- **Description**: The collection of `VideoSample` entities that passed the filter.
-- **Attributes**:
-  - `dataset_id`: UUID.
-  - `total_samples`: Integer.
-  - `retention_rate`: Float (percentage retained).
-  - `min_score`: Float (minimum score in curated set).
-  - `samples`: List of `VideoSample` references.
+All files are stored under `data/` with the following layout:
 
-### TrainedModel
-- **Description**: The 50M parameter diffusion model trained on `CuratedDataset`.
-- **Attributes**:
-  - `model_id`: UUID.
-  - `architecture`: String (e.g., "UNet-Diffusion-50M").
-  - `training_epochs`: Integer.
-  - `final_loss`: Float.
-  - `checkpoint_path`: Path to model weights.
-  - `training_config`: JSON object of hyperparameters.
+```text
+data/
+├── raw/
+│   ├── wan2.1/
+│   └── pybullet_examples/
+├── generated/
+│   └── videos/
+├── curated/
+│   └── curated_dataset.csv
+├── models/
+│   └── diffusion_checkpoint.pt
+└── reports/
+    ├── benchmark_RBench.json
+    ├── benchmark_PAIBench.json
+    └── tost_results.json
+```
 
-### BenchmarkResult
-- **Description**: Evaluation metrics for a model on R-Bench and PAI-Bench.
-- **Attributes**:
-  - `model_id`: Reference to `TrainedModel` or `BaselineModel`.
-  - `r_bench_score`: Float.
-  - `pai_bench_score`: Float.
-  - `sample_count`: Integer (n).
-  - `tost_p_value`: Float (from equivalence test).
-  - `equivalence_flag`: Boolean (True if gap ≤ 15% and p < 0.05).
+## Normalization Note
+All **physics scores** produced by the PyBullet filter are **normalized to the interval [0, 1]**. The filtering step retains videos whose score is at or **above the 60 th percentile** of the batch distribution; the corresponding absolute threshold is stored in the `threshold_score` field of the curated manifest. This ensures consistency between the percentile‑based filter and the absolute score recorded.
 
-## Data Flow Diagram
+## Entities
+(Details omitted for brevity; full field definitions are in the contract schemas.)
 
-1. **Generation**: `Wan2.1` -> `data/raw/video_*.mp4` + `data/raw/metadata.jsonl`.
-2. **Filtering**: `data/raw/*` -> `PyBullet Filter` -> `data/curated/scores.parquet` + `data/curated/video_*.mp4`.
-3. **Validation**: `data/curated/*` -> `MuJoCo Validator` -> `data/validation/mujoco_scores.parquet`.
-4. **Training**: `data/curated/*` + `config.yaml` -> `Train Loop` -> `data/models/model_*.pt`.
-5. **Evaluation**: `data/models/*` + `data/validation/*` -> `R-Bench/PAI-Bench` -> `data/results/evaluation.json`.
+## Data Hygiene
+- Raw data downloads **must** be checksummed **never** altered in place — transformations produce new files.  
+- **Version** of each artifact is tracked by content hash (e.g., `curated_dataset_8a3f…csv`).  
 
-## Storage Schema
-
-- **Raw Videos**: `data/raw/` (MP4).
-- **Metadata**: `data/raw/metadata.jsonl` (JSON Lines).
-- **Curated Data**: `data/curated/` (MP4 + `scores.parquet`).
-- **Validation**: `data/validation/` (Parquet).
-- **Models**: `data/models/` (PyTorch `.pt` files).
-- **Results**: `data/results/` (JSON).
+## Single Source of Truth (​S​S​O​T ​Principle ​II ​III ​IV) ​​ ​  ​  ​ ​ ​ ​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​ ​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​

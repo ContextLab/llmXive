@@ -1,43 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CuratedDataset"
 description: "Schema for the curated dataset metadata."
-type: "object"
+type: object
 properties:
   dataset_id:
-    type: "string"
+    type: string
     description: "Unique identifier for the curated dataset."
   total_samples:
-    type: "integer"
+    type: integer
     description: "Total number of samples in the curated set."
+  threshold_percentile:
+    type: number
+    description: "Percentile (0‑100) used to retain top videos (e.g., 60)."
+    minimum: 0
+    maximum: 100
   threshold_score:
-    type: "number"
-    description: "Fixed absolute physics score threshold (e.g., 60.0)."
+    type: number
+    description: "Absolute physics score corresponding to the percentile."
+    minimum: 0.0
+    maximum: 1.0
   samples:
-    type: "array"
+    type: array
     items:
       $ref: "#/definitions/VideoSampleRef"
   created_at:
-    type: "string"
-    format: "date-time"
+    type: string
+    format: date-time
     description: "ISO 801 timestamp of creation."
   augmented:
-    type: "boolean"
+    type: boolean
     description: "True if data augmentation was applied to reach sample size."
   augmentation_method:
-    type: "string"
+    type: string
     description: "Method used for augmentation (e.g., 'geometric_transforms')."
 definitions:
   VideoSampleRef:
-    type: "object"
+    type: object
     properties:
       video_id:
-        type: "string"
+        type: string
       physics_score:
-        type: "number"
+        type: number
       continuity_score:
-        type: "number"
+        type: number
       contact_score:
-        type: "number"
+        type: number
     required:
       - video_id
       - physics_score
@@ -46,6 +53,7 @@ definitions:
 required:
   - dataset_id
   - total_samples
+  - threshold_percentile
   - threshold_score
   - samples
   - created_at
