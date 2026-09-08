@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a comparative study to determine if deterministic geometric constraints (fixed 4x4 camera projection) can replace learned positional encodings (E-PRoPE) in the DreamX-World 1.0 DiT backbone. The primary requirement is to swap the trainable module for a non-trainable linear projection, generate 10-second video rollouts on a CPU-only runner, recover trajectories via external SfM, and compute statistical significance (McNemar, Wilcoxon) of 3D consistency metrics. The technical approach involves a strict architectural ablation, decoupled metric evaluation, and sensitivity analysis across MAE thresholds.
+This project implements a comparative study to determine if deterministic geometric constraints (fixed 4x4 camera projection) can replace learned positional encodings (E-PRoPE) in the DreamX-World 1.0 DiT backbone. The primary requirement is to swap the trainable module for a non-trainable linear projection, generate video rollouts of moderate duration on a CPU-only runner, recover trajectories via external SfM, and compute statistical significance (McNemar, Wilcoxon) of 3D consistency metrics. The technical approach involves a strict architectural ablation, decoupled metric evaluation, and sensitivity analysis across MAE thresholds.
 
 **Critical Data Note**: The 'DreamX-World subset' and 'DreamX-World 1.0' weights have no verified public source. The implementation includes a strict **Data Fallback Protocol**: if the primary dataset/weights are unavailable, the pipeline aborts the primary claim generation and runs a 'Logic Verification' mode on a verified ScanNet subset, marking the primary results as 'Pending Data Access'. No synthetic data is used.
 
