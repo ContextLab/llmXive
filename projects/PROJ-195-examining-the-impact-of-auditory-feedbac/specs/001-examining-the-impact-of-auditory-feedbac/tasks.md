@@ -43,29 +43,41 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: `mkdir -p projects/PROJ-195-examining-the-impact-of-auditory-feedbac/{code,data/raw,data/derivatives,data/processed,roi_masks,tests/unit,tests/integration,tests/contract}` and `data/{raw,derivatives,processed}`.
+- [X] T001 Create project structure per implementation plan (referencing plan.md structure decision): `mkdir -p projects/PROJ-195-examining-the-impact-of-auditory-feedbac/{code,data/raw,data/derivatives,data/processed,roi_masks,tests/unit,tests/integration,tests/contract}` and `data/{raw,derivatives,processed}`.
+
 - [X] T002 Initialize Python project: Create `projects/PROJ-195-examining-the-impact-of-auditory-feedbac/requirements.txt` with pinned versions for: nilearn, pandas, numpy, scipy, matplotlib, seaborn, bids-validator, pytest. (Removed fmriprep as it is a Docker container)
+
 - [X] T003 [P] Configure linting (flake8) and formatting (black) tools
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites & Spec Amendments)
+## Phase 2: Foundational (Blocking Prerequisites & Configuration)
 
-**Purpose**: Core infrastructure, Spec Amendments, and validation that MUST be complete before ANY user story can be implemented.
+**Purpose**: Core infrastructure, configuration, and validation that MUST be complete before ANY user story can be implemented. Includes critical spec updates to align with the implementation plan.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. All Spec Amendment tasks (T004a, T021a, T024a, T028a) are placed here to ensure the spec is corrected before implementation.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. All configuration tasks (T004, T005, T006, T007, T008) are placed here to ensure the foundation is ready.
 
-- [ ] T004 [P] Create `stats_config.yaml` defining GLM parameters, FDR threshold (q<0.05), and ROI definitions
-- [ ] T005 [P] Create `roi_masks/auditory_cortex.nii.gz` using the Harvard-Oxford Cortical Structural Atlas. **Exact Command**: Use `nilearn.datasets.fetch_atlas_harvard_oxford('cort-maxprob-thr0-1mm')` and extract the 'Auditory Cortex' label mask. Ensure deterministic output by setting the random seed if any sampling is involved (though maxprob is deterministic). (Depends on T001)
-- [X] T006 [P] Implement `code/utils.py` for BIDS path helpers, QC logging, and motion threshold checks (>2mm exclusion logic) (Prerequisite for T009)
-- [X] T007 Setup Docker configuration for `fmriprep` by creating `docker-compose.yml`. **Exact Syntax**: Use a configured memory limit in the service definition., mount `./data/raw:/data:ro` and `./data/derivatives:/out`, and set entrypoint arguments for `fmriprep` including `--output-spaces MNI152NLin2009cAsym --fs-no-reconall`. (Depends on T001, T006; Hard prerequisite for T009)
-- [ ] T008 [P] Specify Docker image tag: Create a script or configuration to Pull `nipreps/fmriprep` with a specific stable version tag for determinism. (Depends on T001; Prerequisite for T009)
-- [ ] T009 [SPEC-AMEND] Update `spec.md` FR-001 to reference `ds000246` instead of `ds000115`. **Exact Text Replacement**: Replace "ds000115" with "ds000246" in FR-001, User Story 1, and Assumptions sections of `spec.md`. (Depends on T001, T002; **Must complete before T012**)
-- [ ] T010 [SPEC-AMEND] Update `spec.md` FR-004 to change "paired-sample t-test" to "one-sample t-test against zero". **Exact Text Replacement**: Replace "paired-sample t-test" with "one-sample t-test against zero" in FR-004 of `spec.md`. (Depends on T001; **Must complete before T021**)
-- [ ] T011 [SPEC-AMEND] Update `spec.md` FR-005 to allow "global learning rate slope" independent of condition. **Exact Text Replacement**: Replace "per condition" with "global (independent of condition)" in FR-005 of `spec.md`. (Depends on T001; **Must complete before T028**)
-- [ ] T012 [SPEC-AMEND] Update `spec.md` SC-002 to allow "global t-statistic p < 0.10" for pilot adjustments. **Exact Text Replacement**: Replace "p < 0.05" with "p < 0.10" in SC-002 of `spec.md`. (Depends on T001; **Must complete before T024**)
+- [X] T004 [P] Create `stats_config.yaml` defining GLM parameters, FDR threshold, and ROI definitions. **Schema**: `glm_params: {smoothing:, high_pass: a low cutoff frequency appropriate for the signal bandwidth}, fdr_threshold:, roi_definition: {name: 'auditory_cortex', file: 'roi_masks/auditory_cortex.nii.gz'}`. **Traceability**: T022 and T024 must read this file. (Depends on T001, T002)
 
-**Checkpoint**: Foundation and Spec Amendments ready - user story implementation can now begin in parallel
+- [X] T005 [P] Create `code/generate_roi_mask.py` to generate `roi_masks/auditory_cortex.nii.gz`. **Logic**: Use `nilearn.datasets.fetch_atlas_harvard_oxford('cort-maxprob-thrmm')` and extract the 'Auditory' label. **Constraint**: If 'Auditory' label is absent, raise an explicit error (NO fallback to 'Superior Temporal Gyrus'). **Environment**: Run using the environment defined in `requirements.txt`. (Depends on T001, T002)
+
+- [X] T006 [P] Implement `code/utils.py` for BIDS path helpers, QC logging, and motion threshold checks (>2mm exclusion logic). **Logging**: Must include a function `log_deviation(subject_id, deviation_type, details)` that writes to `data/processed/preprocessing.log` in JSON format. **Verification**: Task is complete only if `data/processed/preprocessing.log` exists and contains valid JSON entries. (Prerequisite for T009, T019)
+
+- [X] T008 [P] Define Docker image tag in `code/docker_config.env`. **Content**: `FMRIREP_TAG=nipreps/fmriprep:.0`. **Traceability**: T007 must read this file. (Depends on T001)
+
+- [X] T007 [P] Setup Docker configuration for `fmriprep` by creating `docker-compose.yml`. **Exact Syntax**: Use a configured memory limit `--memory=6g` in the service definition, mount `./data/raw:/data:ro` and `./data/derivatives:/out`, and set entrypoint arguments for `fmriprep` including `--output-spaces MNI152NLin2009cAsym --fs-no-reconall --slidedir --motion-correction --normalize`. **Dependency**: Must read Docker tag from `code/docker_config.env` (defaulting to 23.1.0 if variable missing). (Depends on T001, T006, T008)
+
+- [X] T009 [US1] Implement dataset filtering logic in `code/download.py` to ensure total size < 14GB. **Exact Strategy**: Select subjects `sub` through `sub-10` (deterministic subset). **Constraint**: No dynamic size calculation; use fixed subject list. **Logging**: Integrate `log_deviation` from T006 to log selection. (Depends on T001, T002; Corrected dataset source ds000246)
+
+- [X] T009a [Spec Update] Update `specs/001-examining-the-impact-of-auditory-feedback-motor-learning/spec.md` FR-001, User Story 1, and Assumptions to replace `ds000115` with `ds000246`. **Verification**: Verify `spec.md` no longer contains `ds000115`. (Depends on T001)
+
+- [X] T009b [Spec Update] Update `specs/001-examining-the-impact-of-auditory-feedback-motor-learning/spec.md` Constitution Principle VI to replace `ds000115` with `ds000246`. **Verification**: Verify `spec.md` Constitution VI references `ds000246`. (Depends on T001)
+
+- [X] T009c [Spec Update] Update `specs/001-examining-the-impact-of-auditory-feedback-motor-learning/spec.md` FR-004 and SC-002 to replace "paired-sample t-test" with "one-sample t-test against zero" and "p < 0.05" with "p < 0.10" for pilot adjustment. **Verification**: Verify `spec.md` FR-004 uses one-sample t-test. (Depends on T001)
+
+- [X] T009d [Spec Update] Update `specs/001-examining-the-impact-of-auditory-feedback-motor-learning/spec.md` FR-005 to explicitly state "global learning rate slope (independent of condition)". **Verification**: Verify `spec.md` FR-005 includes "global learning rate". (Depends on T001)
+
+**Checkpoint**: Foundation and Configuration ready - user story implementation can now begin in parallel
 
 ---
 
@@ -74,6 +86,7 @@
 **Purpose**: Write tests for User Story 1 BEFORE implementation to ensure test-driven development.
 
 - [X] T013 [P] [US1] Unit test for download integrity and checksum validation in `tests/unit/test_download.py` (Must be written before T014/T015)
+
 - [X] T014 [P] [US1] Integration test for fmriprep execution on a single subject in `tests/integration/test_preprocess.py` (Must be written before T016/T017)
 
 **Checkpoint**: Tests written and failing - ready for implementation
@@ -88,13 +101,13 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement dataset filtering logic in `code/download.py` to ensure total size < 14GB. **Exact Strategy**: Select the initial subjects from the dataset and maintain their alphabetical ordering.
+- [X] T015 [US1] Implement event label validation in `code/utils.py` to halt with exit code 1 and log "ERROR: Missing required event labels" if 'normal', 'delayed', or 'pitch-shifted' are missing. **Input**: Validate all `data/raw/*/events.tsv` files. (Depends on T009, T006; Hard stop constraint)
 
-The research question, method, and references remain unchanged as no specific citations or experimental procedures were included in the original passage to preserve. (Depends on T009; Corrected dataset source ds000246; Explicitly depends on T009's core fetch logic)
-- [X] T016 [US1] Implement event label validation in `code/utils.py` to halt with exit code 1 and log "ERROR: Missing required event labels" if 'normal', 'delayed', or 'pitch-shifted' are missing (Depends on T009, T006; Hard stop constraint)
-- [X] T017 [US1] Implement motion QC extraction in `code/preprocess.py` to parse fmriprep logs and flag subjects >2mm displacement. (Depends on T009)
-- [X] T018 [US1] Implement subject exclusion logic to generate `data/processed/valid_subjects.txt` for downstream steps
-- [ ] T019 [US1] Add logging for ALL pipeline deviations (slice-time, motion, normalization, smoothing) to `data/processed/preprocessing.log` in JSON format for every subject with motion >2mm or fmriprep failure, adhering to Constitution Principle VI. (Depends on T009)
+- [X] T016 [US1] Implement motion QC extraction in `code/preprocess.py` to parse fmriprep logs and flag subjects >2mm displacement. (Depends on T009)
+
+- [X] T017 [US1] Implement subject exclusion logic to generate `data/processed/valid_subjects.txt` for downstream steps
+
+- [ ] T018 [US1] Run `code/download.py` to download the dataset subset and `code/preprocess.py` to run fmriprep. **Pre-flight Check**: Calculate total size of sub-01..sub-10; if >13GB, abort and log error. If <13GB, proceed. **Data Availability**: Ensure raw behavioral data (`events.tsv`) is accessible for downstream steps. (Depends on T009, T007, T016, T017)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,17 +122,24 @@ The research question, method, and references remain unchanged as no specific ci
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T020 [P] [US2] Unit test for contrast definition logic (delayed + pitch-shifted) in `tests/unit/test_glm_first_level.py`
+
 - [X] T021 [P] [US2] Unit test for FDR correction and one-sample t-test logic in `tests/unit/test_glm_group.py`
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement First-Level GLM in `code/glm_first_level.py` using nilearn, defining 'perturbed' as union of 'delayed' and 'pitch-shifted'. (Depends on T018)
-- [X] T023 [US2] Implement contrast map generation and saving for each valid subject to `data/processed/` (Depends on T022)
-- [X] T024 [US2] Implement Group-Level analysis in `code/glm_group.py` performing a **one-sample t-test against zero**. (Depends on T023; Corrected from spec's paired-sample to scientifically valid method per plan; **Depends on T010**)
-- [ ] T025 [US2] Apply Voxel-wise FDR correction (q < 0.05) and extract significant clusters. (Depends on T024)
+- [X] T022 [US2] Implement First-Level GLM in `code/glm_first_level.py` using nilearn, defining 'perturbed' as union of 'delayed' and 'pitch-shifted'. **Config**: Read parameters from `stats_config.yaml`. (Depends on T018, T004)
+
+- [X] T023 [US2] Implement contrast map generation and saving for each valid subject to `data/processed/`. (Depends on T022)
+
+- [X] T024 [US2] Implement Group-Level analysis in `code/glm_group.py` performing a **one-sample t-test against zero**. **Config**: Read parameters from `stats_config.yaml`. (Depends on T023, T004)
+
+- [ ] T025 [US2] Apply Voxel-wise FDR correction (q < 0.05) and extract significant clusters. **Method**: Use `nilearn.mass_univariate.fdr_correction` on 3D contrast maps. **Output**: Generate `data/processed/fdr_clusters.csv` and `data/processed/fdr_mask.nii.gz`. (Depends on T024)
+
 - [X] T026 [US2] Calculate and save Cohen's d effect sizes and confidence intervals for identified clusters (Depends on T025)
-- [X] T027 [US2] Handle edge case: if no clusters survive FDR, calculate global t-statistic p-value, save uncorrected map (thresholded at p < 0.001 uncorrected) to `data/processed/uncorrected_map.nii.gz`, and log "NULL RESULT: No clusters survived FDR". (Depends on T025; Includes global p-value logic for SC-002; **Depends on T012**)
-- [X] T028 [US2] Extract mean beta values from `auditory_cortex.nii.gz` for each subject and save to `data/processed/roi_betas.csv`. (Depends on T005, T023; **Moved from Phase 5 to Phase 4 to resolve ordering dependency**)
+
+- [ ] T027 [US2] Handle edge case: if no clusters survive FDR, calculate global t-statistic p-value, save uncorrected map to `data/processed/uncorrected_map.nii.gz`, and log "NULL RESULT: No clusters survived FDR". **Note**: Map generation threshold is p<0.001 (standard), but pilot success reporting threshold is p<0.10. (Depends on T025; Includes global p-value logic for SC-002)
+
+- [ ] T028 [US2] Extract mean beta values from `auditory_cortex.nii.gz` for each subject and save to `data/processed/roi_betas.csv`. (Depends on T005, T023)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently. **US3 cannot start until T028 is complete.**
 
@@ -134,15 +154,20 @@ The research question, method, and references remain unchanged as no specific ci
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T029 [P] [US3] Unit test for learning rate proxy calculation (linear regression slope) in `tests/unit/test_behavior.py`. **Specific Test**: `tests/unit/test_behavior.py::test_learning_rate_slope_independence` verifies that the slope is calculated over ALL trials and is independent of condition labels.
+
 - [X] T030 [P] [US3] Unit test for correlation logic and plotting in `tests/unit/test_correlation.py`. **Specific Test**: `tests/unit/test_correlation.py::test_pearson_correlation_and_plot_generation` verifies Pearson's r calculation and that a PNG/PDF plot is generated.
 
 ### Implementation for User Story 3
 
-- [X] T031 [P] [US3] Implement behavioral metric extraction in `code/behavior.py` (trial-wise RTs or block-level slope if missing) (Depends on T018)
-- [ ] T032 [US3] Implement global learning rate proxy calculation using Ordinary Least Squares (OLS) regression of mean RT (ms) against trial index to derive the slope. (Depends on T031; **Depends on T011**)
-- [ ] T033 [US3] Calculate Pearson correlation between auditory cortex activation (from T028) and learning rate proxy. (Depends on T032, T028; **Must wait for T028 completion**)
-- [X] T034 [US3] Implement visualization scripts in `code/viz.py` to generate thresholded statistical maps and scatter plots. (Depends on T033)
-- [ ] T035 [US3] Generate final report summary table with cluster coordinates and behavioral correlations to `docs/report_summary.csv`. **Exact Schema**: Columns must be `cluster_id, x, y, z, t, p_val_fdr, r_corr, p_val_beh, description`. (Depends on T026, T033)
+- [ ] T031 [US3] Implement behavioral metric extraction in `code/behavior.py` to extract trial-wise RTs from `data/raw/*/events.tsv` and generate `data/processed/behavioral_metrics.csv` containing mean RTs per subject. (Depends on T018)
+
+- [ ] T032 [US3] Implement global learning rate proxy calculation using Ordinary Least Squares (OLS) regression of mean RT (ms) against trial index to derive the slope. **Input**: Read from `data/processed/behavioral_metrics.csv` (columns: subject_id, mean_rt, trial_index). **Output**: Generate `data/processed/learning_rates.csv`. **Constraint**: The regression must be performed on ALL trials combined, ignoring condition labels, to satisfy the "independent of condition" requirement. (Depends on T031)
+
+- [ ] T033 [US3] Calculate Pearson correlation between auditory cortex activation (from T028) and learning rate proxy. **Input**: Read from `data/processed/roi_betas.csv` and `data/processed/learning_rates.csv`. **Output**: Save correlation coefficient (r), p-value, and 95% CI to `data/processed/correlation_results.json`. (Depends on T032, T028)
+
+- [ ] T034 [US3] Implement visualization scripts in `code/viz.py` to generate thresholded statistical maps and scatter plots. **Output**: Generate `figures/brain_behavior_correlation.png` showing RT slope vs. Beta values with regression line and CI. (Depends on T033)
+
+- [ ] T035 [US3] Generate final report summary table with cluster coordinates and behavioral correlations to `docs/report_summary.csv`. **Schema**: Columns `cluster_id, x, y, z, t, p_val_fdr, r_corr, p_val_beh, description`. **Logic**: Load cluster data (no subject_id) and correlation data (single row). Merge by creating a copy of the single correlation row for each cluster row. Handle missing p_val_fdr as NaN. (Depends on T026, T033)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,11 +178,17 @@ The research question, method, and references remain unchanged as no specific ci
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T036a [P] Update `README.md` with project overview and setup instructions
+
 - [ ] T036b [P] Update `docs/api.md` with function signatures and usage examples for `download.py`, `preprocess.py`, `glm_first_level.py`
+
 - [ ] T036c [P] Update `quickstart.md` with end-to-end execution guide
+
 - [ ] T037 Code cleanup and refactoring of utils
+
 - [ ] T038 Performance optimization for sequential fmriprep execution
+
 - [ ] T039 [P] Additional unit tests (if requested) in `tests/unit/`
+
 - [ ] T040 Run `quickstart.md` validation to ensure end-to-end flow on a small subset
 
 ---
@@ -167,7 +198,7 @@ The research question, method, and references remain unchanged as no specific ci
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **Includes all Spec Amendments**.
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **Includes all configuration tasks and spec updates**.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -191,7 +222,7 @@ The research question, method, and references remain unchanged as no specific ci
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T009/T010/T011/T012 which must complete before their respective implementation tasks**
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T005 which must complete before T028/T033**
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows) **EXCEPT T033/T034/T035 which depend on T028 completion**.
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -236,7 +267,7 @@ Task: "Implement event label validation in code/utils.py"
 
 With multiple developers:
 
-1. Team completes Setup + Foundational together (excluding T009/T010/T011/T012 until validated)
+1. Team completes Setup + Foundational together (excluding T005 until validated)
 2. Once Foundational is done:
  - Developer A: User Story 1
  - Developer B: User Story 2
@@ -257,5 +288,6 @@ With multiple developers:
 - **Critical Constraint**: All tasks must run on free-tier CPU (limited cores, constrained RAM). No GPU, no 8-bit models.
 - **Data Source**: Ensure all tasks reference `ds000246` (corrected from spec's ds000115).
 - **Statistical Method**: Ensure all tasks implement 'one-sample t-test' (corrected from spec's paired-sample).
-- **Spec Amendments**: Tasks T009, T010, T011, T012 are explicitly designated to update spec.md to match the plan's corrections. These MUST be completed before their corresponding implementation tasks.
 - **Ordering Fix**: T028 (ROI extraction) moved to Phase 4 to ensure US3 (Phase 5) does not start until ROI data is available.
+- **Spec Amendments**: Tasks T009a-d explicitly update spec.md to match the plan's corrected dataset, methodology, and thresholds.
+- **Behavioral Logic**: T032 explicitly enforces "global" learning rate calculation (all trials, no condition split) to align with FR-005.

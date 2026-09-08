@@ -1,13 +1,15 @@
 import os
 import sys
-import tempfile
-import unittest
-from pathlib import Path
+import pytest
 import pandas as pd
 import numpy as np
+from pathlib import Path
+import tempfile
+import json
 
-# Add parent directory to path to import code modules
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+# Add code directory to path
+code_dir = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
 from correlation_analysis import (
     load_roi_betas,
@@ -16,95 +18,167 @@ from correlation_analysis import (
     generate_scatter_plot
 )
 
-class TestCorrelationAnalysis(unittest.TestCase):
+class TestCorrelationAnalysis:
     
-    def setUp(self):
-        """Create temporary files for testing."""
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.data_dir = Path(self.temp_dir.name)
+    @pytest.fixture
+    def temp_data_dir(self):
+        """Create a temporary directory for test data."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
+
+    def test_load_roi_betas_missing_file(self):
+        """Test that FileNotFoundError is raised when ROI file is missing."""
+        with pytest.raises(FileNotFoundError):
+            load_roi_betas("nonexistent/path.csv")
+
+    def test_load_learning_rate_missing_file(self):
+        """Test that FileNotFoundError is raised when learning rate file is missing."""
+        with pytest.raises(FileNotFoundError):
+            load_learning_rate_slopes("nonexistent/path.csv")
+
+    def test_load_roi_betas_valid(self, temp_data_dir):
+        """Test loading a valid ROI betas CSV."""
+        data = {
+            'subject_id': ['sub-01', 'sub-02', 'sub-03'],
+            'mean_beta': [0.5, 1.2, 0.8]
+        }
+        df = pd.DataFrame(data)
+        filepath = temp_data_dir / "roi_betas.csv"
+        df.to_csv(filepath, index=False)
         
-        # Create mock roi_betas.csv
-        self.roi_betas_path = self.data_dir / "roi_betas.csv"
-        betas_df = pd.DataFrame({
-            'subject_id': ['sub-01', 'sub-02', 'sub-03', 'sub-04'],
-            'beta_value': [0.5, 0.8, 1.2, 0.9]
+        loaded = load_roi_betas(str(filepath))
+        assert len(loaded) == 3
+        assert 'subject_id' in loaded.columns
+        assert 'mean_beta' in loaded.columns
+        assert list(loaded['subject_id']) == ['sub-01', 'sub-02', 'sub-03']
+
+    def test_load_learning_rate_valid(self, temp_data_dir):
+        """Test loading a valid learning rates CSV."""
+        data = {
+            'subject_id': ['sub-01', 'sub-02', 'sub-03'],
+            'slope': [-5.0, -12.0, -8.0]
+        }
+        df = pd.DataFrame(data)
+        filepath = temp_data_dir / "learning_rates.csv"
+        df.to_csv(filepath, index=False)
+        
+        loaded = load_learning_rate_slopes(str(filepath))
+        assert len(loaded) == 3
+        assert 'slope' in loaded.columns
+
+    def test_calculate_pearson_correlation(self, temp_data_dir):
+        """Test Pearson correlation calculation logic."""
+        # Create data with a known negative correlation
+        roi_data = {
+            'subject_id': ['s1', 's2', 's3', 's4', 's5'],
+            'mean_beta': [1.0, 2.0, 3.0, 4.0, 5.0]
+        }
+        slope_data = {
+            'subject_id': ['s1', 's2', 's3', 's4', 's5'],
+            'slope': [10.0, 8.0, 6.0, 4.0, 2.0]
+        }
+        
+        roi_df = pd.DataFrame(roi_data)
+        slope_df = pd.DataFrame(slope_data)
+        
+        r, p, merged = calculate_pearson_correlation(roi_df, slope_df)
+        
+        # Check that correlation is negative (as beta increases, slope decreases)
+        assert r < 0
+        # Check that we have perfect negative correlation for this linear data
+        assert np.isclose(r, -1.0, atol=0.01)
+        # Check that merged data has correct length
+        assert len(merged) == 5
+
+    def test_calculate_pearson_correlation_insufficient_data(self):
+        """Test that ValueError is raised with insufficient data points."""
+        roi_data = {
+            'subject_id': ['s1'],
+            'mean_beta': [1.0]
+        }
+        slope_data = {
+            'subject_id': ['s1'],
+            'slope': [5.0]
+        }
+        
+        roi_df = pd.DataFrame(roi_data)
+        slope_df = pd.DataFrame(slope_data)
+        
+        with pytest.raises(ValueError, match="Insufficient data points"):
+            calculate_pearson_correlation(roi_df, slope_df)
+
+    def test_generate_scatter_plot(self, temp_data_dir):
+        """Test that scatter plot is generated successfully."""
+        data = {
+            'subject_id': ['s1', 's2', 's3'],
+            'mean_beta': [1.0, 2.0, 3.0],
+            'slope': [5.0, 4.0, 3.0]
+        }
+        df = pd.DataFrame(data)
+        
+        output_path = temp_data_dir / "test_plot.png"
+        
+        generate_scatter_plot(
+            df, 
+            roi_col='mean_beta', 
+            slope_col='slope', 
+            output_path=str(output_path),
+            correlation_val=-0.5,
+            p_value=0.01
+        )
+        
+        assert output_path.exists()
+        assert output_path.stat().st_size > 0
+
+    def test_pearson_correlation_and_plot_generation(self, temp_data_dir):
+        """
+        Comprehensive test: Verify Pearson's r calculation and that a PNG/PDF plot is generated.
+        This test simulates the full workflow of T033.
+        """
+        # Prepare synthetic but realistic data
+        subjects = [f'sub-{i:02d}' for i in range(1, 11)]
+        # Simulate a moderate negative correlation
+        betas = np.random.normal(loc=1.5, scale=0.3, size=10)
+        slopes = -2.0 * betas + np.random.normal(loc=0, scale=0.5, size=10)
+        
+        roi_df = pd.DataFrame({
+            'subject_id': subjects,
+            'mean_beta': betas
         })
-        betas_df.to_csv(self.roi_betas_path, index=False)
         
-        # Create mock learning_rate_slopes.csv
-        self.slopes_path = self.data_dir / "learning_rate_slopes.csv"
-        slopes_df = pd.DataFrame({
-            'subject_id': ['sub-01', 'sub-02', 'sub-03', 'sub-04'],
-            'slope': [-5.0, -8.0, -12.0, -9.5]
+        slope_df = pd.DataFrame({
+            'subject_id': subjects,
+            'slope': slopes
         })
-        slopes_df.to_csv(self.slopes_path, index=False)
-
-    def tearDown(self):
-        """Clean up temporary files."""
-        self.temp_dir.cleanup()
-
-    def test_load_roi_betas(self):
-        """Test loading ROI betas from CSV."""
-        data = load_roi_betas(self.roi_betas_path)
-        self.assertEqual(len(data), 4)
-        self.assertEqual(data['sub-01'], 0.5)
-        self.assertEqual(data['sub-03'], 1.2)
-
-    def test_load_learning_rate_slopes(self):
-        """Test loading learning rate slopes from CSV."""
-        data = load_learning_rate_slopes(self.slopes_path)
-        self.assertEqual(len(data), 4)
-        self.assertEqual(data['sub-02'], -8.0)
-
-    def test_pearson_correlation_calculation(self):
-        """Test Pearson correlation calculation and plot generation."""
-        betas = load_roi_betas(self.roi_betas_path)
-        slopes = load_learning_rate_slopes(self.slopes_path)
         
-        r, p_value, common_subjects = calculate_pearson_correlation(betas, slopes)
+        # Calculate correlation
+        r, p, merged = calculate_pearson_correlation(roi_df, slope_df)
         
-        # Verify we have the correct subjects
-        self.assertEqual(len(common_subjects), 4)
-        self.assertIn('sub-01', common_subjects)
+        # Assertions on correlation
+        assert -1.0 <= r <= 1.0
+        assert 0.0 <= p <= 1.0
+        assert len(merged) == 10
         
-        # Verify correlation is negative (higher activation -> more negative slope -> faster learning)
-        # Or positive depending on slope definition. Let's check magnitude.
-        self.assertIsInstance(r, float)
-        self.assertIsInstance(p_value, float)
-        self.assertLessEqual(abs(r), 1.0)
-        self.assertGreaterEqual(p_value, 0.0)
-        self.assertLessEqual(p_value, 1.0)
+        # Generate plot
+        plot_path = temp_data_dir / "correlation_output.png"
+        generate_scatter_plot(
+            merged, 
+            roi_col='mean_beta', 
+            slope_col='slope', 
+            output_path=str(plot_path),
+            correlation_val=r,
+            p_value=p
+        )
+        
+        # Verify plot exists and is non-empty
+        assert plot_path.exists()
+        assert plot_path.stat().st_size > 1000 # Should be a reasonable image size
 
-    def test_plot_generation(self):
-        """Test that a plot file is generated."""
-        betas = load_roi_betas(self.roi_betas_path)
-        slopes = load_learning_rate_slopes(self.slopes_path)
-        r, p_value, _ = calculate_pearson_correlation(betas, slopes)
+        # Verify merged data structure
+        assert 'subject_id' in merged.columns
+        assert 'mean_beta' in merged.columns
+        assert 'slope' in merged.columns
         
-        output_path = self.data_dir / "test_plot.png"
-        generate_scatter_plot(betas, slopes, output_path, r, p_value)
-        
-        self.assertTrue(output_path.exists())
-        self.assertGreater(output_path.stat().st_size, 0)
-
-    def test_insufficient_subjects(self):
-        """Test error handling when too few common subjects exist."""
-        # Create a dataset with only 2 common subjects
-        small_betas = {'sub-01': 0.5, 'sub-02': 0.8}
-        small_slopes = {'sub-01': -5.0, 'sub-02': -8.0}
-        
-        with self.assertRaises(ValueError) as context:
-            calculate_pearson_correlation(small_betas, small_slopes)
-        
-        self.assertIn("Insufficient common subjects", str(context.exception))
-
-    def test_missing_file(self):
-        """Test error handling for missing input files."""
-        with self.assertRaises(FileNotFoundError):
-            load_roi_betas(Path("non_existent_file.csv"))
-        
-        with self.assertRaises(FileNotFoundError):
-            load_learning_rate_slopes(Path("non_existent_file.csv"))
-
-if __name__ == '__main__':
-    unittest.main()
+        # Verify correlation sign (should be negative in this simulation)
+        assert r < 0
+        assert p < 0.10 # With 10 subjects and strong effect, should be significant

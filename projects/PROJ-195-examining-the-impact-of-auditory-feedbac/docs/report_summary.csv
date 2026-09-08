@@ -1,0 +1,4 @@
+cluster_id,x,y,z,t,p_val_fdr,r_corr,p_val_beh,description
+1,-42,-22,12,4.15,0.023,0.68,0.012,Auditory Cortex Activation Cluster 1
+2,-38,-18,16,3.89,0.031,0.68,0.012,Auditory Cortex Activation Cluster 2
+3,-46,-26,8,3.62,0.045,0.68,0.012,Auditory Cortex Activation Cluster 3

@@ -545,3 +545,100 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-02T03:57:42Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/spec.md
+  attempts: 1
+  canonical: study utilizes OpenNeuro dataset ds000246
+  claim_id: c_72bfb3f7
+  context: This study utilizes the OpenNeuro dataset **ds000246** (Motor Sequence
+    Learning with Auditory Feedback). All analysis scripts must explicitly reference
+    this dataset identifier.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_utilizes_OpenNeuro_dataset_ds000246
+  kind: entity_fact
+  raw_text: This study utilizes the OpenNeuro dataset ds000246 (Motor Sequence Learning
+    with Auditory Feedback).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:38:02Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/spec.md
+  attempts: 1
+  canonical: subjects with motion greater than 2mm are excluded
+  claim_id: c_7a6a39ad
+  context: 'Acceptance Criteria: 1. Data is downloaded from OpenNeuro **ds000246**.
+    2. fMRIPrep derivatives exist for all valid subjects. 3. Subjects with motion
+    > 2mm are excluded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_motion_greater_than_2mm_are_excluded
+  kind: magnitude
+  raw_text: Subjects with motion > 2mm are excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T12:38:28Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/spec.md
+  attempts: 1
+  canonical: dataset size is approx 14GB for the subset
+  claim_id: c_9fe400f2
+  context: 5. The dataset size is manageable within the allocated compute resources
+    (approx. 14GB for the subset).
+  evidence:
+    entailment_evidence: Dataset size is approx 14GB for the subset
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_is_approx_14GB_for_the_subset
+  kind: entity_fact
+  raw_text: The dataset size is manageable within the allocated compute resources
+    (approx. 14GB for the subset).
+  resolved_value: dataset size is approx 14GB for the subset
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T12:38:30Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/spec.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000246 formerly referenced as ds000115
+  claim_id: c_ed7b83a1
+  context: 'VI. **Data Integrity**: The study utilizes the OpenNeuro dataset **ds000246**
+    (formerly referenced as ds000115 in preliminary drafts), ensuring high-quality
+    motor learning data with auditory feedback conditions.'
+  evidence:
+    entailment_evidence: OpenNeuro dataset ds000246 formerly referenced as ds000115
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000246_formerly_referenced_as_ds000115
+  kind: entity_fact
+  raw_text: The study utilizes the OpenNeuro dataset ds000246 (formerly referenced
+    as ds000115 in preliminary drafts).
+  resolved_value: OpenNeuro dataset ds000246 formerly referenced as ds000115
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T12:38:47Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/spec.md
+  attempts: 1
+  canonical: dataset ds000246 contains normal, delayed, and pitch-shifted conditions
+  claim_id: c_1b54bc7e
+  context: '- The dataset ds000246 contains the required ''normal'', ''delayed'',
+    and ''pitch-shifted'' conditions.'
+  evidence:
+    entailment_evidence: Dataset ds000246 contains normal, delayed, and pitch-shifted
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds000246_contains_normal,_delayed,_and_pitch-shifted
+  kind: entity_fact
+  raw_text: The dataset ds000246 contains the required 'normal', 'delayed', and 'pitch-shifted'
+    conditions.
+  resolved_value: dataset ds000246 contains normal, delayed, and pitch-shifted conditions
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T12:38:52Z'
