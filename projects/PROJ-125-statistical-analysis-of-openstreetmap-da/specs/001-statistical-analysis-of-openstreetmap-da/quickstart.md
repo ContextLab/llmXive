@@ -1,66 +1,60 @@
 # Quickstart: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
 ## Prerequisites
+
 - Python 3.11+
 - Git
-- A GitHub Actions runner (or local machine with 7GB+ RAM).
+- (Optional) Google Earth Engine API key (for satellite data, but not required if data is successfully downloaded via Hugging Face)
 
-## 1. Setup
+## Installation
 
-Clone the repository and install dependencies:
-```bash
-git clone
-cd PROJ-125-statistical-analysis-of-openstreetmap-da
-pip install -r code/requirements.txt
-```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-125-statistical-analysis-of-openstreetmap-da
+   ```
 
-## 2. Data Acquisition
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-**CRITICAL**: The `# Verified datasets` block for this project **does not contain** OSM or LST sources. You must manually provide a verified URL for the following:
-- **OSM Data**: Download a `.osm.pbf` file for your target city (e.g., from Geofabrik). Place it in `data/raw/osm/`.
-- **LST Data**: Download MODIS or Landsat LST rasters for the target period. Place them in `data/raw/lst/`.
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-*Note: Without these files, the pipeline will **halt** with a clear error and output **NO** metrics. It will not generate 'N/A' or '0.0' values.*
+## Configuration
 
-## 3. Configuration
+1. **Set up environment variables** (if using Earth Engine):
+   ```bash
+   export GOOGLE_APPLICATION_CREDENTIALS="path/to/your/credentials.json"
+   ```
 
-Edit `code/config.py` to set:
-- `CITY_NAME`: e.g., "Boston"
-- `OSM_PATH`: Path to your OSM file.
-- `LST_PATH`: Path to your LST file.
-- `SEED`: Random seed for reproducibility (e.g., 42).
-- `MAX_MEMORY_GB`: Set to 5.5 (to stay under 6GB limit).
+2. **Configure `code/config.py`**:
+   - Set `MAX_MEMORY_GB = 6`
+   - Set `MAX_SAMPLES = 500000`
+   - Set `RANDOM_SEED = 42`
 
-## 4. Run the Pipeline
+## Running the Pipeline
 
-Execute the main script:
-```bash
-python code/main.py
-```
+1. **Download Data** (if not already present):
+   ```bash
+   python code/main.py --task download --city "New York"
+   ```
 
-This will:
-1. Ingest and reproject data.
-2. Rasterize OSM features to 30m.
-3. Perform EDA (Moran's I, correlation).
-4. Fit OLS (and SAR/GWR if memory permits, else fallback to OLS).
-5. Run spatial CV and FDR correction.
-6. Generate `data/results/metrics.csv` and plots.
+2. **Run Analysis**:
+   ```bash
+   python code/main.py --task run --city "New York"
+   ```
 
-*Note: If data is missing, the pipeline will **halt** with a clear error and output **NO** metrics. It will not generate 'N/A' or '0.0' values.*
+3. **View Results**:
+   - Metrics: `data/results/metrics.csv`
+   - Plots: `data/results/plots/`
+   - Reports: `data/results/reports/`
 
-## 5. Verify Results
+## Troubleshooting
 
-Check `data/results/metrics.csv` for:
-- `model_type`: Should be `OLS` or `OLS_DEGRADED` if memory constraints were hit.
-- `rmse`, `r2`: Real values (no "N/A" or "0.0" unless data is missing, in which case the file is not generated).
-- `correction_method`: "Permutation_FDR".
-
-Check `data/results/sensitivity_plot.png` for the GWR bandwidth sweep (if GWR was run).
-
-*Note: If data is missing, the pipeline will **halt** and output **NO** results.*
-
-## 6. Troubleshooting
-
-- **Memory Error**: If the pipeline crashes, check `config.py` and reduce `MAX_MEMORY_GB` or enable spatial sampling.
-- **Data Not Found**: Ensure OSM and LST files are in `data/raw/` and paths are correct in `config.py`. The pipeline will **halt** with a clear error if data is missing.
-- **No Verified Source**: If you see "NO VERIFIED SOURCE" in logs, update the `# Verified datasets` block in the spec with a real URL for OSM/LST.
+- **Memory Error**: The pipeline will halt execution if memory exceeds 6GB.
+- **Data Download Failure**: Ensure Earth Engine API key is set or that the Hugging Face dataset download succeeds.

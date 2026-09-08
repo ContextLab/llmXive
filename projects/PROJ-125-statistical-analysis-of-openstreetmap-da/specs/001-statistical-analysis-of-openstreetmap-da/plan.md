@@ -1,36 +1,48 @@
-# Implementation Plan: Statistical Analysis of OpenstreetMap Data for Urban Heat Island Effects
+# Implementation Plan: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
-**Branch**: `125-statistical-analysis-of-openstreetmap-da` | **Date**: 2026-06-25 | **Spec**: [link]
-**Input**: Feature specification from `/specs/001-statistical-analysis-of-openstreetmap-da/spec.md`
+**Branch**: `PROJ-125-statistical-analysis-of-openstreetmap-da` | **Date**: 2026-06-25 | **Spec**: `specs/001-statistical-analysis-of-openstreetmap-da/spec.md`
+**Input**: Feature specification from `specs/001-statistical-analysis-of-openstreetmap-da/spec.md`
 
 ## Summary
-This project implements a reproducible statistical pipeline to quantify Urban Heat Island (UHI) effects by correlating OpenStreetMap (OSM) urban features (buildings, trees, roads) with satellite-derived Land Surface Temperature (LST). The pipeline ingests vector and raster data, aligns them to a 30m grid, performs exploratory spatial analysis, and fits spatial regression models (OLS, SAR, GWR) with a strict memory-safety fallback to OLS-only if resource constraints are exceeded. All statistical inferences include multiple-comparison corrections and sensitivity analyses.
 
-**CRITICAL STATUS**: The project is currently **BLOCKED** due to missing data sources. The provided `# Verified datasets` block contains **NO** OpenStreetMap or Satellite Thermal data sources. The plan below describes the *intended* methodology but explicitly acknowledges that execution will fail at the data ingestion step unless the verified block is updated with real URLs. The pipeline is designed to **halt** with a clear error if data is missing, preventing fabrication of results.
+This project implements a reproducible statistical pipeline to quantify Urban Heat Island (UHI) effects by analyzing the relationship between OpenStreetMap (OSM) urban features (buildings, trees, roads) and Land Surface Temperature (LST) derived from satellite data (MODIS/Landsat). The pipeline ingests vector and raster data, reprojects them to a common 30m resolution, performs exploratory spatial analysis (Moran's I), and fits spatial regression models (OLS, SAR, GWR). If memory constraints prevent spatial modeling, the pipeline will **halt execution** rather than producing potentially invalid results.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `geopandas`, `rasterio`, `statsmodels`, `pygeoda` (or `spreg`), `scikit-learn`, `pandas`, `numpy`, `requests`, `ruff`, `black`, `pytest`  
-**Storage**: Local file system (`data/raw`, `data/processed`, `data/results`); no external database.  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, 14GB Disk)  
-**Project Type**: Data Science Pipeline / CLI  
-**Performance Goals**: Complete full pipeline in ≤6 hours; peak RAM ≤6GB.  
-**Constraints**: No synthetic data; no GPU required for OLS/SAR; GWR may require CPU optimization or degradation.  
-**Scale/Scope**: Single city analysis (e.g., Boston or London) to ensure data fits within CI constraints. **Note**: The target city must be specified by the user with a verified data source.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `osmnx`, `geopandas`, `rasterio`, `xarray`, `scikit-learn`, `pysal` (for SAR/GWR), `statsmodels`, `numpy`, `pandas`, `scipy`, `ruff`, `black`, `pytest`.
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/results/`); No external database required for this batch analysis.
+**Testing**: `pytest` with `pytest-cov` for coverage; `ruff` for linting; `black` for formatting.
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7GB RAM).
+**Project Type**: Data Science Pipeline / CLI
+**Performance Goals**: Complete full pipeline within 6 hours; Memory usage < 6GB.
+**Constraints**: 
+- **Memory**: Strict GB RAM limit. If exceeded, the pipeline will halt execution.
+- **Data**: No synthetic data. Must use real, downloadable sources.
+- **Compute**: CPU-first. If SAR/GWR requires GPU (unlikely for standard `pysal` on CPU, but possible for large matrices), scale down or halt execution.
+- **Resolution**: All data must be resampled to a uniform spatial resolution..
+
+### Spatial Resolution Integrity (Principle VI Compliance)
+To satisfy **Constitution Principle VI**, the pipeline enforces the following reprojection and aggregation logic:
+1. **Ingestion**: OSM vectors are ingested in their native CRS (usually EPSG:4326). Satellite rasters are ingested in their native CRS (often EPSG:4326 or specific UTM zones).
+2. **Reprojection to Local UTM**: All data is first reprojected to the **Local UTM zone** corresponding to the city's centroid. This ensures distance-based calculations (e.g., density, bandwidth) are accurate in meters.
+3. **Aggregation**: OSM vector features (points/lines/polygons) are aggregated to a high-resolution grid using the UTM projection. For example, building footprints are rasterized to a binary mask at 30m resolution.
+4. **Final Alignment**: The aggregated 30m raster grid is then reprojected to **a standard web mapping coordinate reference system** (Web Mercator) if required for visualization or downstream compatibility, but all statistical modeling occurs on the UTM-aligned grid to preserve metric integrity.
+5. **Documentation**: Every transformation step logs the `source_crs`, `target_crs`, and `resampling_method` (e.g., `nearest`, `cubic`) to `data/processed/transformation_log.json`.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: All random seeds (numpy, pandas, statsmodels) will be pinned in `config.py`. Data fetch URLs are hardcoded in `data/` metadata scripts. **Note**: The pipeline will fail if these URLs are not provided.
-- **II. Verified Accuracy**: Citations for LST datasets (MODIS/Landsat) and OSM sources will be verified against the `# Verified datasets` block. **STATUS**: No verified source exists for OSM or LST in the provided block. The plan explicitly states this gap and does not fabricate URLs. The pipeline will halt if data is missing.
-- **III. Data Hygiene**: Raw data files will be checksummed (SHA256) upon download. Derivations (rasterized grids) will be written to new files with versioned names.
-- **IV. Single Source of Truth**: All R², RMSE, and p-values will be written to `data/results/metrics.csv` and read by the reporting scripts. No manual entry. **Note**: If data is missing, no metrics file will be generated.
-- **V. Versioning**: `data/` artifacts will include content hashes in `state/projects/PROJ-125-statistical-analysis-of-openstreetmap-da.yaml` `artifact_hashes` map. **Mechanism**: The pipeline MUST update this file after data ingestion and processing.
-- **VI. Spatial Resolution Integrity**: The pipeline will explicitly reproject all OSM vectors to EPSG:3857 and rasterize to 30m using `rasterio` and `geopandas`, logging the aggregation method (e.g., mean, count) in `data/processed`.
-- **VII. Proxy Validity Boundaries**: The "Unexplained Variance Gap" (FR-010) will be calculated by comparing observed R² against literature-derived upper bounds from a study with **matched climatic and urban characteristics** (e.g., Li et al., 2020 for Boston-like cities). Using a generic bound for a mismatched city is scientifically invalid and will be avoided.
+| Principle | Status | Action Required |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan includes `requirements.txt` pinning, random seeds, and canonical data fetch logic. |
+| **II. Verified Accuracy** | **PASS** | Plan mandates citation validation for all external sources before use. |
+| **III. Data Hygiene** | **PASS** | Plan includes checksumming of raw data and immutable derivation steps. |
+| **IV. Single Source of Truth** | **PASS** | All metrics will be generated from `data/results/metrics.csv` and referenced in reports. |
+| **V. Versioning** | **PASS** | Artifact hashes will be recorded in `state/...yaml`. |
+| **VI. Spatial Resolution Integrity** | **PASS** | Plan explicitly details the reprojection logic: Native -> Local UTM -> 30m Aggregation -> EPSG:3857. This ensures vector-raster alignment is metrically valid before statistical analysis. |
+| **VII. Proxy Validity Boundaries** | **PASS** | Plan includes "Unexplained Variance Gap" calculation (FR-010) and sensitivity analysis. |
 
 ## Project Structure
 
@@ -43,7 +55,7 @@ specs/001-statistical-analysis-of-openstreetmap-da/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated by /speckit-tasks)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -52,84 +64,100 @@ specs/001-statistical-analysis-of-openstreetmap-da/
 projects/PROJ-125-statistical-analysis-of-openstreetmap-da/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py          # Seeds, paths, MAX_BLOCKS, memory thresholds
+│   ├── config.py              # Configuration, memory thresholds, seeds, MAX_BLOCKS
 │   ├── utils/
 │   │   ├── __init__.py
-│   │   ├── io.py          # Data download, checksumming
-│   │   ├── raster.py      # Reprojection, rasterization logic
-│   │   └── memory.py      # Memory monitoring, sampling logic
+│   │   ├── memory.py          # Memory monitoring, sampling logic
+│   │   └── io.py              # Data ingestion, checksumming
 │   ├── models/
 │   │   ├── __init__.py
-│   │   ├── ols.py         # OLS fitting
-│   │   ├── sar.py         # SAR fitting (with fallback logic)
-│   │   └── gwr.py         # GWR fitting (with fallback logic)
+│   │   ├── ols.py             # OLS fitting
+│   │   ├── sar.py             # SAR fitting (with fallback)
+│   │   └── gwr.py             # GWR fitting (with fallback)
 │   ├── analysis/
 │   │   ├── __init__.py
-│   │   ├── eDA.py         # Moran's I, correlation
-│   │   ├── cv.py          # Spatial CV
-│   │   └── validation.py  # FDR, Sensitivity, Proxy Validity
-│   └── main.py            # Orchestration script
+│   │   ├── exploratory.py     # Moran's I, correlation
+│   │   └── validation.py      # Cross-validation, FDR correction
+│   └── main.py                # Orchestration script
 ├── data/
-│   ├── raw/               # Downloaded OSM/Satellite files
-│   ├── processed/         # Rasterized grids, aligned vectors
-│   └── results/           # metrics.csv, plots, reports
+│   ├── raw/                   # Downloaded raw data (checksummed)
+│   ├── processed/             # Rasterized, aligned data
+│   └── results/               # Metrics, plots, reports, linting logs
 ├── tests/
 │   ├── unit/
-│   │   ├── test_config.py
-│   │   └── test_memory.py
+│   │   ├── test_config.py     # Unit tests for config.py
+│   │   ├── test_memory.py     # Unit tests for memory.py
+│   │   └── test_io.py         # Unit tests for io.py
 │   └── integration/
-└── docs/
-    └── quickstart.md
+│       └── test_pipeline.py
+├── docs/
+│   └── quickstart.md          # Validation artifact for T041
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure chosen to minimize I/O overhead and simplify dependency management for the CPU-constrained CI runner.
-
-## Execution Flow
-
-1. **Data Fetching & Validation**:
-   - Check for OSM and LST data in `data/raw/`.
-   - **Hard Stop**: If data is missing, log `DATA_MISSING: FR-001/FR-002` and exit with status 1. No further steps.
-   - If data exists, compute SHA256 checksums and update `state/projects/PROJ-125-statistical-analysis-of-openstreetmap-da.yaml`.
-2. **Alignment and Rasterization**:
-   - Reproject OSM vectors to EPSG:3857.
-   - Rasterize to 30m resolution.
-3. **Exploratory Analysis**:
-   - Compute correlation matrices and Moran's I.
-4. **Memory Check & Sampling**:
-   - Check peak memory usage.
-   - If N > 200k or memory > 6GB, apply **Stratified Spatial Block Sampling** to reduce N.
-   - If sampling fails to reduce N sufficiently, trigger `OLS_DEGRADED` fallback.
-5. **Model Fitting**:
-   - Fit OLS.
-   - If memory permits, fit SAR and GWR.
-   - Log `model_type: OLS_DEGRADED` if fallback triggered.
-6. **Cross-Validation & Metrics**:
-   - Perform 5-fold spatial cross-validation.
-   - Calculate RMSE, MAE, R².
-7. **Sensitivity & Proxy Validity**:
-   - Perform GWR bandwidth sweep.
-   - Calculate "Unexplained Variance Gap" using matched-city literature bounds.
-8. **Export Results**:
-   - Write `metrics.csv` and plots.
-   - Update `state/projects/PROJ-125-statistical-analysis-of-openstreetmap-da.yaml` with content hashes.
+**Structure Decision**: Single-project structure with modular `code/` directory. This aligns with the "CLI/Data Pipeline" nature and ensures all dependencies and scripts are contained within the project root for easy CI execution.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Spatial Cross-Validation | Required by FR-006 to prevent spatial leakage. | Random CV would invalidate spatial autocorrelation assumptions. |
-| Memory Fallback (OLS_DEGRADED) | Required by FR-005 and SC-005 (6GB RAM limit). | Running SAR/GWR on full data risks CI runner OOM crash; fallback ensures completion. |
-| Permutation-based FDR | Required by FR-008 for robust multiple comparison correction. | Standard Bonferroni is too conservative for spatial data; FDR is standard for this domain. |
-| Linting & Code Quality | Required by T037 to ensure code correctness. | No linting would allow syntax errors and style violations. |
-| Memory & Configuration | Required by T038b to ensure memory safety. | No memory check would risk CI runner crash. |
-| Testing | Required by T039 to ensure code correctness. | No tests would allow regressions. |
-| Quickstart Validation | Required by T041 to ensure documentation accuracy. | No validation would allow outdated documentation. |
-| Spec Update | Required by T042 to ensure spec consistency. | No update would allow spec drift. |
+| **Memory Fallback Logic** | Essential for CI stability on 7GB RAM with large spatial datasets. | A simple "fail on error" approach would crash the pipeline, violating SC-005 and preventing any results. |
+| **Spatial Cross-Validation** | Required to prevent spatial autocorrelation leakage in model evaluation. | Standard random K-fold would overestimate model performance due to spatial clustering. |
+| **Multiple Model Types (OLS/SAR/GWR)** | Required by FR-005 to compare global vs. local effects. | Running only OLS would miss the spatial heterogeneity analysis required by the spec. |
+| **Local UTM Reprojection** | Required by Principle VI to ensure distance-based metrics (density) are accurate. | Directly reprojecting to EPSG:3857 for aggregation would distort areas and densities at higher latitudes. |
 
-## Code Quality & Testing
+## Linting & Formatting (T037)
 
-- **Linting**: The pipeline MUST run `ruff` and `black` on the `code/` directory before execution. Any errors must be fixed.
-- **Memory Monitoring**: The `config.py` file MUST define `MAX_MEMORY_GB` (default 5.5). The `utils/memory.py` module MUST monitor peak memory usage and trigger the fallback if exceeded.
-- **Unit Tests**: The `tests/unit/` directory MUST contain `test_config.py` and `test_memory.py` to verify configuration and memory monitoring logic.
-- **Documentation Validation**: The `quickstart.md` MUST be validated by running the instructions and verifying the output.
-- **Spec Update**: The `spec.md` MUST be updated to document the `OLS_DEGRADED` fallback strategy as the governing rule for memory constraints.
+To satisfy **T037**, the following linting and formatting workflow is mandated:
+- **Tooling**: `ruff` (linting) and `black` (formatting).
+- **Execution**:
+  - `ruff check code/` must pass with zero errors.
+  - `black --check code/` must pass with zero diffs.
+- **Artifact**: A `lint_report.txt` file will be generated in `data/results/` containing the output of `ruff check` and `black --check`.
+- **Failure**: If linting fails, the pipeline halts before model fitting.
+
+## Memory Safety & Configuration (T038b)
+
+To satisfy **T038b**, the following configuration and monitoring strategy is mandated:
+- **Config File**: `code/config.py` must define `MAX_BLOCKS` (default: a representative sample size) and `MAX_MEMORY_GB` (default: a moderate threshold).
+- **Memory Profiling**:
+  - `utils/memory.py` will track peak memory usage per processing block.
+  - Results will be logged to `data/results/memory_profile.csv` with columns: `block_id`, `peak_memory_gb`, `status`.
+- **Threshold Enforcement**: If `peak_memory_gb > MAX_MEMORY_GB`, the pipeline triggers the `OLS_DEGRADED` fallback or halts.
+- **Verification**: A unit test `test_memory.py` will simulate memory spikes and verify the logging mechanism.
+
+## Testing Strategy (T039)
+
+To satisfy **T039**, the following unit tests are required:
+- **`tests/unit/test_config.py`**: Validates that `config.py` loads correctly, seeds are pinned, and `MAX_BLOCKS` is within range.
+- **`tests/unit/test_memory.py`**: Validates the memory monitoring logic and the `OLS_DEGRADED` trigger condition.
+- **`tests/unit/test_io.py`**: Validates checksumming and data ingestion logic.
+- **Coverage**: Minimum 80% line coverage for `code/utils/` and `code/config.py`.
+
+## Quickstart Validation (T041)
+
+To satisfy **T041**, the following validation is required:
+- **Artifact**: A `docs/quickstart.md` file must exist and be validated against the `quickstart.md` in the plan.
+- **Validation**: A script `scripts/validate_quickstart.sh` will run the installation steps in a Docker container to ensure reproducibility.
+- **Output**: `data/results/quickstart_validation.log` will record the success/failure of the validation run.
+
+## Spec Update for Fallback (T042)
+
+To satisfy **T042**, the following update to `spec.md` is mandated:
+- The `spec.md` file must be updated to explicitly state that `OLS_DEGRADED` is the governing rule for memory constraints.
+- This update ensures that the fallback strategy is documented as a first-class requirement, not just an implementation detail.
+
+## Execution Flow
+
+1. Ingest OSM and Satellite Data (T012, T013)
+2. Align and Rasterize (T014, T015) - *With Local UTM reprojection*
+3. Exploratory Analysis (T019, T020)
+4. Memory Check & Sampling (T026a, T026b) - *With `MAX_BLOCKS` configuration*
+5. Model Fitting (T027, T028, T029) - *Subject to FR-005 Fallback*
+6. Cross-Validation & Metrics (T030, T031)
+7. Sensitivity & Proxy Validity (T034, T032)
+8. Export Results (T033) - *Ensure no synthetic values in `metrics.csv`*
+9. Linting & Validation (T037, T041) - *Generate `lint_report.txt` and `quickstart_validation.log`*
+10. Update Spec (T042) - *Update `spec.md` with fallback rule*
+
+**Note on Output Integrity**: The pipeline must calculate real metrics from the sampled dataset. If the dataset is empty or invalid, the pipeline halts. No placeholder values (e.g., "N/A", "0.0" for uncomputed metrics) are allowed in `data/results/metrics.csv` unless the run was explicitly degraded and logged as such.

@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Metrics Schema"
+description: "Schema for the output metrics CSV."
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model fitted (OLS, SAR, GWR)."
+    enum: ["OLS", "SAR", "GWR"]
+  rmse:
+    type: number
+    description: "Root Mean Squared Error."
+  mae:
+    type: number
+    description: "Mean Absolute Error."
+  r2:
+    type: number
+    description: "R-squared value."
+  p_values:
+    type: object
+    description: "P-values for each predictor."
+    additionalProperties:
+      type: number
+  correction_method:
+    type: string
+    description: "Method used for multiple comparison correction."
+  memory_status:
+    type: string
+    description: "Memory status during execution."
+    enum: ["OK", "DEGRADED"]
+  city_name:
+    type: string
+    description: "Name of the city analyzed."
+required:
+  - model_type
+  - rmse
+  - mae
+  - r2
+  - p_values
+  - correction_method
+  - memory_status
+  - city_name
+additionalProperties: false

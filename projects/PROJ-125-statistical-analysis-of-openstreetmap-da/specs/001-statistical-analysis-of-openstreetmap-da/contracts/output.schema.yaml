@@ -9,8 +9,7 @@ properties:
       - "OLS"
       - "SAR"
       - "GWR"
-      - "OLS_DEGRADED"
-    description: "Type of model fitted. OLS_DEGRADED indicates fallback due to memory. If data is missing, the pipeline halts and no output is generated."
+    description: "Type of model fitted."
   rmse:
     type: number
     description: "Root Mean Square Error."
@@ -22,21 +21,27 @@ properties:
     description: "R-squared value."
   p_value:
     type: number
-    description: "P-value for the model (if applicable)."
+    description: "P-value for the model."
   correction_method:
     type: string
-    description: "Method used for multiple comparison correction (e.g., 'Permutation_FDR')."
+    description: "Method used for multiple comparison correction."
   n_samples:
     type: integer
     description: "Number of samples used in the model."
   memory_peak_gb:
     type: number
     description: "Peak memory usage in GB during execution."
+  memory_status:
+    type: string
+    description: "Indicates if the memory limit was exceeded"
+    enum: ["OK", "DEGRADED"]
 required:
   - model_type
   - rmse
   - mae
   - r2
+  - p_value
   - correction_method
   - n_samples
+  - memory_status
 additionalProperties: false

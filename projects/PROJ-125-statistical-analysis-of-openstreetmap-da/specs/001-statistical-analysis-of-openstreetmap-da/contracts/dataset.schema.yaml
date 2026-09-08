@@ -1,42 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema for UHI Analysis"
-description: "Schema for the aligned raster dataset used in modeling."
+title: "Processed Dataset Schema"
+description: "Schema for the aligned dataset used in spatial regression."
 type: object
 properties:
-  metadata:
+  geometry:
     type: object
+    description: "GeoJSON geometry for the point."
     properties:
-      city_name:
+      type:
         type: string
-        description: "Name of the city analyzed."
-      crs:
-        type: string
-        description: "Coordinate Reference System used (e.g., EPSG:3857)."
-      resolution_m:
-        type: number
-        description: "Resolution of the raster grid in meters."
-      data_version:
-        type: string
-        description: "Version hash of the raw data files."
-  columns:
-    type: array
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-          description: "Variable name (e.g., 'building_density', 'LST')."
-        type:
-          type: string
-          enum:
-            - "continuous"
-            - "categorical"
-            - "target"
-          description: "Type of variable."
-        source:
-          type: string
-          description: "Source of the data (e.g., 'OSM', 'MODIS')."
+        enum: ["Point"]
+      coordinates:
+        type: array
+        items:
+          type: number
+    required:
+      - type
+      - coordinates
+  building_density:
+    type: number
+    description: "Building density per 30m cell."
+  tree_cover:
+    type: number
+    description: "Tree cover percentage per 30m cell."
+  road_density:
+    type: number
+    description: "Road density per 30m cell."
+  lst:
+    type: number
+    description: "Land Surface Temperature (K)."
+  city_name:
+    type: string
+    description: "Name of the city."
 required:
-  - metadata
-  - columns
+  - geometry
+  - building_density
+  - tree_cover
+  - road_density
+  - lst
+  - city_name
 additionalProperties: false

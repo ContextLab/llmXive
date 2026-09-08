@@ -9,7 +9,7 @@ properties:
       - "OLS"
       - "GWR"
       - "SAR"
-    description: "Type of spatial model fitted. If data is missing, the pipeline halts and no output is generated."
+    description: "Type of spatial model fitted."
   city_id:
     type: "string"
     description: "City identifier."
@@ -29,7 +29,7 @@ properties:
       type: "number"
       minimum: 0.0
       maximum: 1.0
-    description: "Map of feature names to p-values (BH corrected)."
+    description: "Map of feature names to p-values."
   metrics:
     type: "object"
     properties:

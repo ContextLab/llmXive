@@ -1,46 +1,68 @@
 # Data Model: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
-## 1. Entities
+## Overview
+
+This document defines the data structures, schemas, and relationships used in the project. All data is stored in the `data/` directory with strict versioning and checksumming.
+
+## Core Entities
 
 ### CityBoundary
-- **Name**: `str` - Name of the city (e.g., "Boston").
-- **BBox**: `tuple[float, float, float, float]` - (minx, miny, maxx, maxy) in EPSG:4326.
-- **CRS**: `str` - Coordinate Reference System (default: EPSG:4326).
+Represents the administrative boundary of the study area.
+- **Attributes**:
+  - `name`: str (City name)
+  - `bbox`: Tuple[float, float, float, float] (MinX, MinY, MaxX, MaxY)
+  - `crs`: str (EPSG code, e.g., "EPSG:4326")
 
 ### RasterCovariate
-- **Path**: `str` - File path to the rasterized covariate (e.g., `data/processed/buildings_30m.tif`).
-- **Resolution**: `float` - Cell size in meters (30.0).
-- **CRS**: `str` - Coordinate Reference System (EPSG:3857).
-- **Variable Name**: `str` - Name of the variable (e.g., "building_density", "tree_coverage").
+Represents a rasterized urban feature (e.g., building density, tree cover).
+- **Attributes**:
+  - `path`: str (Relative path to GeoTIFF)
+  - `resolution`: float (30.0)
+  - `crs`: str (EPSG:3857 or Local UTM)
+  - `variable_name`: str (e.g., "building_density")
+  - `source`: str (e.g., "OSM")
 
 ### TemperatureRaster
-- **Path**: `str` - File path to the LST raster.
-- **Resolution**: `float` - Cell size in meters (30.0).
-- **CRS**: `str` - Coordinate Reference System (EPSG:3857).
-- **Time Range**: `str` - Start and end dates (e.g., "2020-01-01 to 2025-01-01").
+Represents the Land Surface Temperature (LST) data.
+- **Attributes**:
+  - `path`: str (Relative path to GeoTIFF)
+  - `resolution`: float (30.0)
+  - `crs`: str (EPSG:3857 or Local UTM)
+  - `time_range`: str (e.g., "2020-2025")
+  - `source`: str (e.g., "MODIS")
 
-## 2. Data Flow
+### ModelResult
+Stores the output of a regression model.
+- **Attributes**:
+  - `model_type`: str ("OLS", "SAR", "GWR")
+  - `rmse`: float
+  - `mae`: float
+  - `r2`: float
+  - `p_values`: Dict[str, float] (Variable -> p-value)
+  - `correction_method`: str (e.g., "FDR_BH")
+  - `memory_status`: str ("OK", "DEGRADED")
+  - `city_name`: str
 
-1. **Ingestion**:
-   - `OSM Vector` (`.osm.pbf` or `.geojson`) -> `CityBoundary` (extracted).
-   - `LST Raster` (`.tif`) -> `TemperatureRaster`.
-   - **Note**: If OSM or LST data is missing, the pipeline will **halt** with a clear error. No metrics will be generated.
-2. **Processing**:
-   - `OSM Vector` + `CityBoundary` -> Rasterization -> `RasterCovariate` (per variable).
-   - All rasters aligned to a common grid (30m, EPSG:3857).
-3. **Analysis**:
-   - `RasterCovariate` + `TemperatureRaster` -> Extracted values at each pixel -> `DataFrame` (N rows, M columns).
-   - `DataFrame` -> `OLS/SAR/GWR` -> `ModelResults`.
-4. **Output**:
-   - `ModelResults` -> `metrics.csv` (RMSE, MAE, R², p-values).
-   - `ModelResults` -> `plots/` (sensitivity, spatial maps).
-   - **Note**: If data is missing, `metrics.csv` will **not** be generated. The pipeline will exit with an error.
-5. **Versioning**:
-   - After data ingestion and processing, the pipeline MUST update `state/projects/PROJ-125-statistical-analysis-of-openstreetmap-da.yaml` with content hashes for all data artifacts.
+## File Formats
 
-## 3. Constraints
+### Raw Data
+- **OSM**: GeoJSON or GeoParquet (downloaded via `osmnx`).
+- **Satellite**: HDF or GeoTIFF (downloaded via `earthengine-api` or `modis`).
 
-- **Resolution**: All rasters must be 30m.
-- **CRS**: All spatial operations must use EPSG:3857.
-- **Memory**: The final `DataFrame` used for modeling must fit in < 6GB RAM. If not, **Stratified Spatial Block Sampling** is applied to reduce N < 200k. If sampling fails, the fallback to OLS is triggered.
-- **Versioning**: All data artifacts will include content hashes in `state/projects/PROJ-125-statistical-analysis-of-openstreetmap-da.yaml` `artifact_hashes` map. The pipeline MUST update this file after processing.
+### Processed Data
+- **Rasterized Features**: GeoTIFF (30m, EPSG:3857).
+- **Aligned Dataset**: CSV or GeoParquet (30m points with all variables).
+
+### Results
+- **Metrics**: CSV (`data/results/metrics.csv`).
+- **Plots**: PNG/SVG (in `data/results/plots/`).
+- **Reports**: Markdown/HTML (in `data/results/reports/`).
+
+## Data Flow
+
+1. **Ingest**: Download raw OSM and Satellite data to `data/raw/`.
+2. **Preprocess**: Rasterize OSM features and align with LST to 30m resolution.
+3. **Sample**: If N > 500k, apply spatial sampling to reduce size.
+4. **Model**: Fit OLS, SAR, GWR (or pipeline halts if memory constraints are exceeded).
+5. **Validate**: Spatial cross-validation and FDR correction.
+6. **Export**: Save metrics and plots to `data/results/`.
