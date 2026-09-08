@@ -89,6 +89,6 @@ projects/PROJ-490-the-effect-of-simulated-social-compariso/
 | :--- | :--- | :--- |
 | **Synthetic Data Generator** | Required by FR-011/US-1 as a fallback if no real dataset contains RSES+INCOM+Pre/Post. | Simple mock data lacks ground-truth parameters for parameter recovery validation (FR-011, SC-005). |
 | **MICE Imputation** | Required by FR-002 for missingness < 20%. | Mean/median imputation introduces bias and violates the statistical rigor requirement for correlation structures. |
-| **Bootstrap (1,000 iters)** | Required by FR-005/SC-004 for stability. | Single run lacks confidence in effect stability; analytical standard errors are insufficient for non-normal distributions. |
+| **Bootstrap (a sufficient number of iterations)** | Required by FR-005/SC-004 for stability. | Single run lacks confidence in effect stability; analytical standard errors are insufficient for non-normal distributions. |
 | **ANCOVA Model** | Required to avoid mathematical coupling (regressing change on baseline). | Change-score regression is statistically invalid for this hypothesis; ANCOVA is the standard correction. |
 | **Visual Diagnostics** | Required for robust assumption checking (Shapiro/Breusch-Pagan have low power). | Sole reliance on p-values is methodologically weak for small samples; visual checks are mandatory. |

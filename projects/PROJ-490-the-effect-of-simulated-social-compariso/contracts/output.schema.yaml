@@ -1,39 +1,99 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Output Schema for Preprocessed Data"
-description: "Schema for the cleaned and preprocessed dataset ready for analysis."
+$schema: http://json-schema.org/draft-07/schema#
+title: Output Schema
+description: >
+  Schema for the primary regression output artifacts (coefficients and diagnostics).
+  Used to validate the CSV and JSON files produced by the analysis pipeline.
 type: object
-required:
-  - participant_id
-  - avatar_condition
-  - pre_self_esteem
-  - post_self_esteem
-  - comparison_tendency
-  - imputation_method
 properties:
-  participant_id:
-    type: string
-    description: "Unique identifier for the participant"
-  avatar_condition:
-    type: integer
-    description: "Normalized experimental condition (0 or 1)"
-    enum: [0, 1]
-  pre_self_esteem:
-    type: number
-    description: "RSES score after missing value imputation"
-  post_self_esteem:
-    type: number
-    description: "RSES score after missing value imputation"
-  comparison_tendency:
-    type: number
-    description: "INCOM score after missing value imputation"
-  imputation_method:
-    type: string
-    description: "Method used for imputation (e.g., 'miceforest', 'iterative_imputer')"
-  imputed:
-    type: boolean
-    description: "Whether this row was originally missing and has been imputed"
-  data_source_type:
-    type: string
-    description: "Source of the data"
-    enum: ["real", "synthetic"]
-additionalProperties: false
+  regression_results:
+    type: array
+    items:
+      type: object
+      properties:
+        term:
+          type: string
+          description: Name of the regression term (e.g., Intercept, avatar_condition).
+        estimate:
+          type: number
+          description: Estimated coefficient value.
+        std_error:
+          type: number
+          description: Standard error of the estimate.
+        statistic:
+          type: number
+          description: Test statistic (t-value or F-value).
+        p_value:
+          type: number
+          description: P-value for the hypothesis test.
+        ci_lower:
+          type: number
+          description: Lower bound of the 95% confidence interval.
+        ci_upper:
+          type: number
+          description: Upper bound of the 95% confidence interval.
+      required:
+        - term
+        - estimate
+        - std_error
+        - statistic
+        - p_value
+        - ci_lower
+        - ci_upper
+  diagnostics:
+    type: object
+    properties:
+      model_type:
+        type: string
+        description: Type of model fitted (e.g., "ANCOVA").
+      n_observations:
+        type: integer
+        description: Number of observations used in the model.
+      assumptions:
+        type: object
+        properties:
+          normality:
+            type: object
+            properties:
+              test:
+                type: string
+              statistic:
+                type: number
+              p_value:
+                type: number
+              passed:
+                type: boolean
+          homoscedasticity:
+            type: object
+            properties:
+              test:
+                type: string
+              statistic:
+                type: number
+              p_value:
+                type: number
+              passed:
+                type: boolean
+          collinearity:
+            type: object
+            properties:
+              max_vif:
+                type: number
+              warning:
+                type: boolean
+              warning_message:
+                type: string
+        required:
+          - normality
+          - homoscedasticity
+          - collinearity
+      interpretation:
+        type: string
+        description: Dynamic interpretation label (e.g., "Empirical Association" or "Simulated Causal Effect").
+    required:
+      - model_type
+      - n_observations
+      - assumptions
+      - interpretation
+required:
+  - regression_results
+  - diagnostics

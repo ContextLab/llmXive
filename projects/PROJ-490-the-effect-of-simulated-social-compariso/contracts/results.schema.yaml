@@ -1,126 +1,83 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Results Schema for ANCOVA Analysis"
-description: "Schema for the regression coefficients and diagnostic metrics."
+$schema: http://json-schema.org/draft-07/schema#
+title: Final Report Schema
+description: >
+  Schema for the comprehensive final report JSON file.
+  Aggregates data source info, model results, bootstrap stability, and sensitivity analysis.
 type: object
-required:
-  - model_type
-  - coefficients
-  - diagnostics
-  - interpretation_label
 properties:
-  model_type:
+  data_source_type:
     type: string
-    description: "Type of model fitted"
-    enum: ["ANCOVA"]
-  coefficients:
-    type: object
-    description: "Regression coefficients for the model"
-    properties:
-      intercept:
-        type: number
-      avatar_condition:
-        type: number
-      pre_self_esteem:
-        type: number
-      comparison_tendency:
-        type: number
-      interaction_term:
-        type: number
-    required:
-      - intercept
-      - avatar_condition
-      - pre_self_esteem
-      - comparison_tendency
-  diagnostics:
-    type: object
-    description: "Model assumption validation results"
-    properties:
-      normality:
-        type: object
-        properties:
-          test:
-            type: string
-            enum: ["Shapiro-Wilk"]
-          statistic:
-            type: number
-          p_value:
-            type: number
-          passed:
-            type: boolean
-      homoscedasticity:
-        type: object
-        properties:
-          test:
-            type: string
-            enum: ["Breusch-Pagan"]
-          statistic:
-            type: number
-          p_value:
-            type: number
-          passed:
-            type: boolean
-      collinearity:
-        type: object
-        properties:
-          vif_values:
-            type: object
-            additionalProperties:
-              type: number
-          max_vif:
-            type: number
-          passed:
-            type: boolean
-          flagged:
-            type: boolean
-            description: "True if any VIF >= 5"
-    required:
-      - normality
-      - homoscedasticity
-      - collinearity
-  interpretation_label:
+    description: Source of the data used ("real" or "synthetic").
+  data_path:
     type: string
-    description: "Dynamic interpretation based on data source"
-    enum: ["Empirical Association", "Simulated Causal Effect"]
-  confidence_intervals:
+    description: Relative path to the data file used.
+  model_results:
+    $ref: '#/definitions/OutputSchema'
+  bootstrap_results:
     type: object
-    description: "95% Confidence intervals for coefficients"
     properties:
-      avatar_condition:
-        type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-      pre_self_esteem:
-        type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-      comparison_tendency:
-        type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-  bootstrap_stability:
-    type: object
-    description: "Bootstrap stability metrics"
-    properties:
+      iterations:
+        type: integer
+        description: Number of bootstrap iterations performed.
       ci_width_variance:
         type: number
-      stable:
+        description: Variance of the confidence interval widths across iterations.
+      stability_check:
         type: boolean
-  sensitivity_findings:
+        description: True if CI width variance < 0.01, indicating stability.
+    required:
+      - iterations
+      - ci_width_variance
+      - stability_check
+  sensitivity_results:
     type: object
-    description: "Results from sensitivity analysis"
     properties:
-      parameter_recovery_error:
+      parameter_recovery_bias:
         type: number
+        description: Absolute difference between estimated and true parameters (synthetic only).
+        nullable: true
       threshold_sensitivity:
-        type: object
-        additionalProperties:
-          type: boolean
-      fwe_corrected_significance:
+        type: array
+        description: Results of threshold sensitivity sweeps.
+        items:
+          type: object
+      error_correction_applied:
         type: boolean
-additionalProperties: false
+        description: Whether family-wise error correction was applied.
+  interpretation_summary:
+    type: string
+    description: Human-readable summary of the findings.
+  metadata:
+    type: object
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      pipeline_version:
+        type: string
+      seed:
+        type: integer
+    required:
+      - timestamp
+      - pipeline_version
+required:
+  - data_source_type
+  - data_path
+  - model_results
+  - bootstrap_results
+  - sensitivity_results
+  - interpretation_summary
+  - metadata
+definitions:
+  OutputSchema:
+    type: object
+    properties:
+      coefficients:
+        type: array
+        items:
+          type: object
+      diagnostics:
+        type: object
+    required:
+      - coefficients
+      - diagnostics
