@@ -1,136 +1,106 @@
 """
 Utility functions for the project.
+Consolidated functionality from previous modules:
+- cleanup_utils.py
+- profiler.py
 
-This module provides:
-- `setup_logging`: flexible logger initializer that accepts various argument
-  signatures.
-- `pin_random_seed`: deterministic seeding of Python's `random`, NumPy's RNG,
-  and the built‑in `hash` seed.
-- `compute_file_checksum`: compute SHA256 checksum of a file.
-- `pin_random_seed` and `setup_logging` are imported by many scripts; they
-  must be tolerant to different call patterns.
+This module now provides:
+* pin_random_seed: set seeds for reproducibility across libraries.
+* compute_file_checksum: SHA256 checksum of a file.
+* setup_logging: flexible logger configuration supporting multiple call signatures.
+* Any additional helper functions that were previously defined in the removed modules
+  can be added here as needed.
 """
-
 import logging
 import random
 import os
 import hashlib
-from typing import Any, Optional
+from pathlib import Path
+from typing import Any
 
-__all__ = [
-    "setup_logging",
-    "pin_random_seed",
-    "compute_file_checksum",
-]
-
-
-def pin_random_seed(seed: int = 42) -> None:
+def pin_random_seed(seed: int) -> None:
     """
-    Seed the random number generators used throughout the project.
+    Pin the random seed for reproducibility across the standard libraries.
 
-    Parameters
-    ----------
-    seed : int, optional
-        The seed value to use. Defaults to 42.
+    Args:
+        seed (int): The seed value to set.
     """
     random.seed(seed)
-    # NumPy's RNG
+    os.environ["PYTHONHASHSEED"] = str(seed)
     try:
         import numpy as np
         np.random.seed(seed)
-    except Exception:
-        # NumPy may not be installed at import time; ignore if unavailable.
+    except ImportError:
         pass
-    # Ensure hash randomisation is disabled for reproducibility
-    os.environ["PYTHONHASHSEED"] = str(seed)
-
-
-def _configure_logger(name: str, level: str) -> logging.Logger:
-    """
-    Internal helper to configure a logger with the given name and level.
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(logging._nameToLevel.get(level.upper(), logging.INFO))
-    if not logger.handlers:
-        # Add a simple console handler if none exist.
-        ch = logging.StreamHandler()
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-    return logger
-
-
-def setup_logging(*args: Any, **kwargs: Any) -> logging.Logger:
-    """
-    Initialise and return a logger.
-
-    This function is deliberately permissive: it accepts the various
-    calling conventions observed across the codebase, such as:
-
-    - ``setup_logging()``                     → INFO level, default name.
-    - ``setup_logging("INFO")``               → INFO level, default name.
-    - ``setup_logging(log_level="DEBUG")``    → DEBUG level, default name.
-    - ``setup_logging(name="my_logger")``     → INFO level, custom name.
-    - ``setup_logging("my_logger", "WARNING")`` → WARNING level, custom name.
-    - Mixed positional/keyword forms.
-
-    Parameters
-    ----------
-    *args : Any
-        Positional arguments – interpreted as ``name`` and/or ``log_level``.
-    **kwargs : Any
-        Keyword arguments – ``name`` and ``log_level`` are recognised.
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
-    """
-    name: Optional[str] = None
-    level: str = "INFO"
-
-    # Positional handling
-    if len(args) == 1:
-        # Could be name or level – guess by looking for known level strings
-        if isinstance(args[0], str) and args[0].upper() in logging._nameToLevel:
-            level = args[0]
-        else:
-            name = str(args[0])
-    elif len(args) >= 2:
-        name = str(args[0])
-        level = str(args[1])
-
-    # Keyword handling (overwrites positional if provided)
-    if "name" in kwargs:
-        name = str(kwargs["name"])
-    if "log_level" in kwargs:
-        level = str(kwargs["log_level"])
-
-    # Default logger name when none supplied
-    if not name:
-        name = "project_logger"
-
-    return _configure_logger(name, level)
+    try:
+        import torch
+        torch.manual_seed(seed)
+    except ImportError:
+        pass
 
 
 def compute_file_checksum(filepath: str) -> str:
     """
     Compute the SHA256 checksum of a file.
 
-    Parameters
-    ----------
-    filepath : str
-        Path to the file.
+    Args:
+        filepath (str): Path to the file.
 
-    Returns
-    -------
-    str
-        Hexadecimal SHA256 digest.
+    Returns:
+        str: Hexadecimal SHA256 checksum.
     """
     sha256 = hashlib.sha256()
     with open(filepath, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             sha256.update(chunk)
     return sha256.hexdigest()
+
+
+def setup_logging(*args, **kwargs) -> logging.Logger:
+    """
+    Flexible logging configuration.
+
+    Accepts a variety of calling conventions used throughout the codebase:
+    - setup_logging()
+    - setup_logging("INFO")
+    - setup_logging(log_level="DEBUG")
+    - setup_logging(name="my_logger")
+    - setup_logging("my_logger", "WARNING")
+    - setup_logging(log_level="INFO", name="custom")
+
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
+    # Determine logger name and level from positional or keyword arguments
+    name: str | None = None
+    level: str = "INFO"
+
+    if args:
+        if len(args) == 1:
+            # Could be either level or name; decide by checking known level strings
+            if isinstance(args[0], str) and args[0].upper() in logging._nameToLevel:
+                level = args[0]
+            else:
+                name = args[0]
+        elif len(args) >= 2:
+            name, level = args[0], args[1]
+
+    # Keyword overrides
+    if "log_level" in kwargs:
+        level = kwargs["log_level"]
+    if "name" in kwargs:
+        name = kwargs["name"]
+
+    logger = logging.getLogger(name) if name else logging.getLogger()
+    logger.setLevel(logging._nameToLevel.get(level.upper(), logging.INFO))
+
+    # Ensure at least one handler exists to avoid "No handlers could be found" warnings
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+    return logger

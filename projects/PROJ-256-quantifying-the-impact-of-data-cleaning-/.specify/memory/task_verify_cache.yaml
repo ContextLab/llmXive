@@ -1,10 +1,10 @@
-T015:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided specification excerpt includes an explicit amendment lowering the\
-    \ dataset count requirement to as few as\u202F2 datasets, satisfying the required\
-    \ spec change. No additional OpenML datasets were needed, and the amendment is\
-    \ present and non\u2011empty."
+T005:
+  c: false
+  h: 17a20cce7364aa3e9d876af372aa4d6dc63831c67c3993b5724bb4f69f867d62
+  r: "`code/utils.py` exists and correctly implements `pin_random_seed` and a SHA256\u2011\
+    based `compute_file_checksum`. However, the required `state/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-.yaml`\
+    \ file is missing, so the checksum cannot be recorded or verified as stipulated.\
+    \ The missing YAML file must be added with the appropriate checksum entries."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,20 +19,22 @@ T040:
     \ or documented output containing the required fields (baseline_metrics, cleaned_metrics,\
     \ absolute_diff, relative_diff, sensitivity_analysis). Consequently the task\u2019\
     s deliverable is missing."
-T050:
+T1219:
+  c: false
+  h: 38ab8d367fa2ba6e4e34e89a7f0443ee56c6cb668c02c1472a79b6538cbadb61
+  r: "The repository lacks the required `contracts/cleaned_metrics.schema.yaml` file,\
+    \ so schema validation cannot be performed. Moreover, the provided excerpt of\
+    \ `code/reporting.py` does not include any implementation that consumes cleaning\u2011\
+    function metadata and writes `cleaned_metrics.json` with exactly the four specified\
+    \ numeric fields. Both the schema dependency and the core functionality are missing."
+T1220:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the file `specs/001-quantify-cleaning-impact/spec.md`\
-    \ exists, was examined, or that the headings \u201CLLM data quality reports\u201D\
-    \ and \u201Cglioblastoma biomarkers\u201D have been removed. Without the actual\
-    \ file or a diff showing their absence, the requirement cannot be confirmed."
-T050b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `specs/001-quantify-cleaning-impact/spec.md` content was supplied,\
-    \ so we cannot confirm that the \u201CLLM\u201D and \u201Cglioblastoma\u201D paragraphs\
-    \ were removed and that FR\u2011006 now contains only the outlier threshold sweep\
-    \ and FPR logic. The required artifact is missing."
+  r: No code, diff, or audit output was provided showing that bootstrap calls were
+    changed to use `config.BOOTSTRAP_ITERATIONS` and that any fallback logic was removed.
+    Without these artifacts, we cannot confirm the required configuration update was
+    made. The implementer must supply the modified source files (or a diff) and evidence
+    (e.g., a static analysis report) that no fallback remains.
 T1223:
   c: true
   h: afab1c8943e47efad71adf5ae5d7a8594e3459e9d58f065327e4581e32103317
@@ -49,19 +51,3 @@ T1227:
     conform to schemas, or contain the required fields such as `p_value_delta` and
     `direction`. Without these artifacts, the claim that the full pipeline was executed
     and verified cannot be substantiated.
-T1228:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `power_analysis.txt` file or its contents were provided, and there is no\
-    \ evidence that a WilcoxonPower calculation was performed, the effect size, \u03B1\
-    , and power criteria were applied, or a minimum dataset count was derived. The\
-    \ required artifact is missing, so the task is not satisfied."
-T1229:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No concrete artifact (e.g., a validation report, script output, or `T1229a`\
-    \ log) is provided to demonstrate that the final dataset collection was checked\
-    \ and that each size\u2011bin (n\u202F<\u202F50, 50\u2011200, >200) contains at\
-    \ least one dataset. Without such evidence the requirement that the pipeline halt\
-    \ on an empty bin cannot be verified. The implementer must supply the actual validation\
-    \ results or code confirming the bins are populated."

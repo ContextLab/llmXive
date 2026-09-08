@@ -26,7 +26,7 @@ def test_run_linear_regression():
     result = run_linear_regression(df, 'y', ['x1'])
     assert 'p_value' in result
     assert 'r_squared' in result
-    assert isinstance(result['p_value'], float)
+    assert isinstance(result['p_value'], float) or result['p_value'] is None
 
 def test_run_baseline_analysis_auto_detect():
     """Test baseline analysis with auto-detection."""

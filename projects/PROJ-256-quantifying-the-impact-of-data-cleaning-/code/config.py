@@ -1,77 +1,56 @@
 """
-Configuration handling for the project.
-
-The ``Config`` class provides a ``get`` method (used throughout the code
-base) and a permissive ``__getattr__`` fallback so that any attribute
-access that is not explicitly defined returns a no‑op callable.  This
-satisfies the diverse call patterns required by the many scripts that
-import ``config``.
+Configuration module for the project.
+Provides a singleton Config object that stores configuration values,
+loaded from environment variables or defaults.
+Includes a permissive __getattr__ to tolerate any accessed attribute,
+returning a no-op callable to avoid AttributeError in legacy code.
 """
-
 import os
-from typing import Any, Dict, Optional
-
-__all__ = ["Config", "get_config", "reload_config"]
-
+from typing import Any, Dict
 
 class Config:
     """
-    Simple configuration wrapper around environment variables.
-
-    Attributes are accessed via ``get(key, default)``.  Unknown attribute
-    names resolve to a no‑op callable to avoid ``AttributeError`` in
-    legacy scripts.
+    Simple configuration holder.
+    Values are stored in an internal dictionary _store.
     """
-
     def __init__(self) -> None:
-        # Load all environment variables into an internal dict for fast lookup.
-        self._store: Dict[str, str] = dict(os.environ)
+        self._store: Dict[str, Any] = {
+            # Default paths – can be overridden by environment variables
+            "RAW_DATA_PATH": os.getenv("RAW_DATA_PATH", "data/raw"),
+            "PROCESSED_DATA_PATH": os.getenv("PROCESSED_DATA_PATH", "data/processed"),
+            "OUTPUT_PATH": os.getenv("OUTPUT_PATH", "output"),
+            "DATASET_URLS": os.getenv("DATASET_URLS", ""),  # comma‑separated list if needed
+            "RANDOM_SEED": int(os.getenv("RANDOM_SEED", "42")),
+            "BOOTSTRAP_ITERATIONS": int(os.getenv("BOOTSTRAP_ITERATIONS", "1000")),
+        }
 
     def get(self, key: str, default: Any = None) -> Any:
-        """
-        Retrieve a configuration value.
-
-        Parameters
-        ----------
-        key : str
-            Configuration key name.
-        default : Any, optional
-            Value to return if the key is missing.
-
-        Returns
-        -------
-        Any
-            The stored value (as a string) or ``default``.
-        """
+        """Retrieve a configuration value with a fallback default."""
         return self._store.get(key, default)
 
-    # -----------------------------------------------------------------
-    # Compatibility helpers – any unknown attribute becomes a callable
-    # that does nothing and returns ``None``.  This mirrors the logger‑style
-    # usage (e.g. ``config.info(...)``) found in many scripts.
-    # -----------------------------------------------------------------
+    def set(self, key: str, value: Any) -> None:
+        """Set a configuration value."""
+        self._store[key] = value
+
     def __getattr__(self, name: str):
+        """
+        Gracefully handle any attribute that is not explicitly defined.
+        Returns a no‑op callable for unknown attributes, allowing legacy
+        code that expects methods like .info(), .debug(), etc., to continue
+        without raising AttributeError.
+        """
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
-
         return _noop
 
-
-# Global singleton used by the rest of the code base.
-_GLOBAL_CONFIG = Config()
-
+# Singleton instance used throughout the project
+_config = Config()
 
 def get_config() -> Config:
-    """
-    Return the global configuration instance.
-    """
-    return _GLOBAL_CONFIG
-
+    """Return the global Config singleton."""
+    return _config
 
 def reload_config() -> None:
-    """
-    Reload configuration from the environment.  Useful in long‑running
-    processes where environment variables may change.
-    """
-    global _GLOBAL_CONFIG
-    _GLOBAL_CONFIG = Config()
+    """Reload configuration from environment variables (useful in tests)."""
+    global _config
+    _config = Config()

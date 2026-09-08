@@ -7,7 +7,6 @@ matplotlib
 seaborn
 pytest
 jsonschema
-pydantic
-# other project‑specific requirements may already be listed; the line
-# above ensures ``scikit-learn`` (required for missingness generation) is
-# installed.
+openml
+# other dependencies already listed in earlier tasks
+# (e.g., pydantic, etc.) are assumed to be present.

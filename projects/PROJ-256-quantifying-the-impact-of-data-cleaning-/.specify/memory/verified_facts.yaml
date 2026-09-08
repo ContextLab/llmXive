@@ -1,5 +1,5 @@
-'|false less positive rate than':
-  quote: '0.009'
-  source_id: '1809.03910'
-  url: https://arxiv.org/abs/1809.03910
-  value: '0.009'
+0 02073 94|02073a94 check claim existence implementation script size t2020a:
+  quote: 'P856: https://verifythis.com'
+  source_id: Q126592664
+  url: https://www.wikidata.org/wiki/Q126592664
+  value: https://verifythis.com

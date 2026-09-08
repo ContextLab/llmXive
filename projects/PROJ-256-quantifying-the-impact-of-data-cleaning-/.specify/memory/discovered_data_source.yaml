@@ -1,9 +1,33 @@
-status: none
-intent: download UCI Machine Learning Repository WineQuality/BreastCancer/HeartDisease/Parinsons/Diabetes/GermanCredit/AdultIncome/StudentPerformance/CarEvaluation/Ionosphere
-  python package dataset
-required_fields:
+status: verified
+kind: pypi_package
+ref: openml
+access_python: 'import openml, pandas as pd
+
+  # Iris dataset (UCI) is available on OpenML with ID 61
+
+  dataset = openml.datasets.get_dataset(61)
+
+  X, y, _, _ = dataset.get_data(dataset_format=''dataframe'')
+
+  # Combine features and target, naming the target column ''outcome''
+
+  df = X.copy()
+
+  df[''outcome''] = y
+
+  print(f"RECORDS={len(df)}")
+
+  print("FIELDS=" + ",".join(df.columns))'
+record_count: 150
+sample_fields:
+- sepallength
+- sepalwidth
+- petallength
+- petalwidth
+- class
 - outcome
-- features
-cache_key: a123852c04f2382a1265fc8025e87eafe9ecf6119f224646b94d31bcfcac984a
-searched_at: '2026-09-02T13:40:08.072359+00:00'
-retry_count: 1
+field_coverage: 1.0
+required_fields:
+- outcome column
+intent: UCI Machine Learning Repository OpenML python package dataset
+cache_key: 3d41822129b21ffce34e868c0cd80edbe9358abc3a1349c330607dd904fd8ba9

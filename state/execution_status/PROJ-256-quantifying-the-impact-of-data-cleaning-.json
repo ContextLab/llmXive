@@ -1,16 +1,18 @@
 {
   "project_id": "PROJ-256-quantifying-the-impact-of-data-cleaning-",
   "ok": false,
-  "reason": "1 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/processed/baseline_metrics.json: results file is EMPTY ({}) \u2014 the analysis produced no values; every produced artifact is gitignored (data/processed/baseline_metrics.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 declared deliverable(s) absent: data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json",
-  "artifacts": [
-    "data/processed/baseline_metrics.json"
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/sensitivity.py: self-declared fabricated metric \u2014 \u201c\u2026lder         inc_rate = 0.1 # Placeholder                  results[\"fpr\"].append({\"k\": k, \"fpr\"\u2026\u201d; 3 command(s) failed: python -m code.main (rc=1); python -m code.data_loader (rc=1); python -m code.main --dataset-id wine_quality --stage cleaning_bootstrap (rc=2); 5 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/comparison_report.json",
+  "artifacts": [],
+  "failures": [
+    "python -m code.main -> rc=1\n    s\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/main.py\", line 75, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/main.py\", line 71, in main\n    run_pipeline(stage=args.stage)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/main",
+    "python -m code.data_loader -> rc=1\n    No dataset URLs found in configuration. Aborting.",
+    "python -m code.main --dataset-id wine_quality --stage cleaning_bootstrap -> rc=2\n    usage: main.py [-h] [--stage STAGE]\nmain.py: error: unrecognized arguments: --dataset-id wine_quality"
   ],
-  "failures": [],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 1,
-  "total_attempts": 4,
+  "total_attempts": 5,
   "replan_rounds": 0,
-  "updated_at": "2026-07-14T23:46:06Z",
   "failure_class": "fabrication",
-  "evidence": []
+  "evidence": [],
+  "updated_at": "2026-09-08T22:23:05Z"
 }

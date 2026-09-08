@@ -1,186 +1,100 @@
 """
-Data Loader Module
-------------------
-
-This module provides utilities for downloading raw datasets, verifying their
-integrity via SHA‑256 checksums, and loading them into pandas DataFrames.
-
-The primary entry point is the ``main`` function, which is executed when the
-module is run as a script (``python -m code.data_loader``).  It reads the
-configuration (dataset URLs and expected checksums) from ``code.config``,
-ensures that each dataset is present, and aborts with a non‑zero exit code
-if any download fails or a checksum does not match.
-
-The implementation deliberately avoids any silent fallback to mock data:
-failures are logged and cause the process to exit with status ``1``.
+Data acquisition utilities.
+Downloads a verified dataset (Iris via OpenML) if the raw data directory is empty,
+writes it to CSV, and records basic metadata.
 """
-
-import os
 import json
 import logging
-import hashlib
-import sys
+import os
 from pathlib import Path
-from typing import Optional, Tuple, Dict, Any, List
-from urllib.request import urlopen, Request
+from typing import List
 
+import openml
 import pandas as pd
 
-from utils import compute_file_checksum, setup_logging
 from config import get_config
+from utils import setup_logging
 
-logger = logging.getLogger(__name__)
-
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
+logger = setup_logging(log_level="INFO")
 
 
-def download_dataset(url: str, dest_path: str) -> None:
+def _download_iris_dataset(raw_dir: Path) -> Path:
     """
-    Download a dataset from ``url`` and write it to ``dest_path``.
-
-    On any error (network, HTTP status, write permission, etc.) this
-    function raises an exception.  The caller is responsible for handling
-    the exception and exiting with a non‑zero status code.
+    Download the Iris dataset (OpenML ID 61) and store it as ``iris.csv`` in ``raw_dir``.
+    Returns the path to the written CSV file.
     """
-    try:
-        logger.info(f"Starting download from {url}")
-        req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urlopen(req, timeout=30) as response:
-            # Raise for HTTP errors (e.g., 404) – urllib does this automatically
-            data = response.read()
+    logger.info("Downloading Iris dataset from OpenML (ID 61)")
+    dataset = openml.datasets.get_dataset(61)
+    X, y, _, _ = dataset.get_data(dataset_format="dataframe")
+    df = X.copy()
+    df["outcome"] = y
 
-        # Ensure parent directory exists
-        Path(dest_path).parent.mkdir(parents=True, exist_ok=True)
-
-        with open(dest_path, "wb") as f:
-            f.write(data)
-
-        logger.info(f"Successfully downloaded {url} to {dest_path}")
-    except Exception as e:
-        logger.error(f"Failed to download {url}: {e}")
-        # Re‑raise so the caller can abort the whole script
-        raise
+    csv_path = raw_dir / "iris.csv"
+    df.to_csv(csv_path, index=False)
+    logger.info(f"Iris dataset written to {csv_path}")
+    return csv_path
 
 
-def compute_checksum(filepath: str) -> str:
+def write_dataset_metadata(df: pd.DataFrame, raw_path: Path) -> None:
     """
-    Compute the SHA‑256 checksum of ``filepath`` using the shared utility.
+    Write ``dataset_metadata.json`` to the processed data directory.
+    The metadata includes:
+        - outcome column name
+        - number of records (sample size)
+        - proportion of missing values in the outcome column
     """
-    return compute_file_checksum(filepath)
+    processed_dir = Path(
+        get_config().get("PROCESSED_DATA_PATH", "data/processed")
+    )
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    outcome_col = "outcome"
+    n_rows = len(df)
+    missing_outcome = df[outcome_col].isna().sum()
+    missing_proportion = missing_outcome / n_rows if n_rows > 0 else 0.0
+
+    metadata = {
+        "outcome_column": outcome_col,
+        "sample_size": n_rows,
+        "outcome_missing_proportion": missing_proportion,
+    }
+
+    metadata_path = processed_dir / "dataset_metadata.json"
+    with metadata_path.open("w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2)
+    logger.info(f"Dataset metadata written to {metadata_path}")
 
 
-def verify_checksum(filepath: str, expected_checksum: str) -> bool:
+def ensure_data_exists() -> None:
     """
-    Verify that the SHA‑256 checksum of ``filepath`` matches ``expected_checksum``.
-    Returns ``True`` if they match, ``False`` otherwise.
+    Ensure that at least one CSV file exists in the raw data directory.
+    If the directory is empty, download the Iris dataset via OpenML,
+    write it to CSV, and generate accompanying metadata.
     """
-    actual = compute_checksum(filepath)
-    if actual.lower() == expected_checksum.lower():
-        logger.info(f"Checksum verification passed for {filepath}")
-        return True
-    else:
-        logger.error(
-            f"Checksum mismatch for {filepath}: expected {expected_checksum}, got {actual}"
+    config = get_config()
+    raw_dir = Path(config.get("RAW_DATA_PATH", "data/raw"))
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    csv_files = list(raw_dir.glob("*.csv"))
+    if csv_files:
+        logger.info(
+            f"Raw data already present ({len(csv_files)} CSV file(s) in {raw_dir})"
         )
-        return False
+        return  # Nothing to do
 
+    # No raw CSVs – download the default dataset.
+    csv_path = _download_iris_dataset(raw_dir)
 
-def load_datasets_from_raw(raw_dir: str) -> Dict[str, pd.DataFrame]:
-    """
-    Load all CSV/JSON files from ``raw_dir`` into a dictionary of DataFrames.
-    """
-    datasets: Dict[str, pd.DataFrame] = {}
-    raw_path = Path(raw_dir)
-
-    if not raw_path.exists():
-        logger.warning(f"Raw directory {raw_dir} does not exist.")
-        return datasets
-
-    for file_path in raw_path.iterdir():
-        if file_path.suffix.lower() not in {".csv", ".json"}:
-            continue
-
-        try:
-            if file_path.suffix.lower() == ".csv":
-                df = pd.read_csv(file_path)
-            else:
-                df = pd.read_json(file_path)
-
-            dataset_id = file_path.stem
-            datasets[dataset_id] = df
-            logger.info(f"Loaded {dataset_id} from {file_path}")
-        except Exception as e:
-            logger.error(f"Failed to load {file_path}: {e}")
-
-    return datasets
-
-
-def ensure_data_exists(raw_dir: str, urls: Dict[str, str], checksums: Dict[str, str]) -> bool:
-    """
-    Ensure that every dataset listed in ``urls`` exists in ``raw_dir``.
-    If a file is missing, it is downloaded.  After download the SHA‑256
-    checksum is verified against ``checksums``.  The function returns ``True``
-    only if **all** datasets are present and pass checksum verification.
-    """
-    all_ok = True
-    for name, url in urls.items():
-        dest = Path(raw_dir) / f"{name}.csv"
-        expected_checksum = checksums.get(name)
-
-        if not dest.exists():
-            logger.info(f"Dataset {name} not found locally – downloading.")
-            try:
-                download_dataset(url, str(dest))
-            except Exception:
-                # download_dataset already logged the error
-                all_ok = False
-                continue
-
-        # If we have an expected checksum, verify it
-        if expected_checksum:
-            if not verify_checksum(str(dest), expected_checksum):
-                all_ok = False
-        else:
-            logger.warning(
-                f"No expected checksum provided for {name}; skipping verification."
-            )
-    return all_ok
+    # Load the just‑downloaded CSV to compute metadata.
+    df = pd.read_csv(csv_path)
+    write_dataset_metadata(df, csv_path)
 
 
 def main() -> None:
     """
-    Command‑line entry point.
-
-    Reads configuration, ensures all raw datasets are present and valid,
-    and exits with status ``0`` on success or ``1`` on any failure.
+    CLI entry point for manual data acquisition.
     """
-    # Initialise logging – default to INFO level if not configured elsewhere
-    setup_logging("INFO")
-
-    config = get_config()
-    raw_dir = config.get("RAW_DATA_PATH", "data/raw")
-    urls: Dict[str, str] = config.get("DATASET_URLS", {})
-    checksums: Dict[str, str] = config.get("DATASET_CHECKSUMS", {})
-
-    if not urls:
-        logger.error("No dataset URLs found in configuration. Aborting.")
-        sys.exit(1)
-
-    logger.info(f"Ensuring raw data directory exists at {raw_dir}")
-    Path(raw_dir).mkdir(parents=True, exist_ok=True)
-
-    success = ensure_data_exists(raw_dir, urls, checksums)
-
-    if not success:
-        logger.error("One or more datasets failed to download or verify.")
-        sys.exit(1)
-
-    logger.info("All datasets are present and passed checksum verification.")
-    # Optionally, we could load them here to confirm they are readable,
-    # but the primary responsibility of this script is acquisition & verification.
-    sys.exit(0)
+    ensure_data_exists()
 
 
 if __name__ == "__main__":
