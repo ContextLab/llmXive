@@ -1,0 +1,15 @@
+# JSON Schema for model comparison output
+# This schema validates the structure of data/results/model_comparison.json
+# Produced by code/models/evaluate.py
+type: object
+additionalProperties:
+  type: object
+  properties:
+    r2:
+      type: number
+    p_value:
+      type: number
+  required:
+    - r2
+    - p_value
+  additionalProperties: false

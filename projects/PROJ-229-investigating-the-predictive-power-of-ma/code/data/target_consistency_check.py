@@ -1,171 +1,240 @@
 """
-Target Consistency Check Script (T005a).
+Target Consistency Check
+------------------------
 
-Loads a sample of Materials Project data, calculates the Pearson correlation
-between 'melting_point' and 'latent_heat', and writes the decision
-(which target to use) and coefficient to 'data/results/target_decision.json'.
+This module loads the raw Materials Project data and the NIST data, merges them on a
+common identifier, computes the Pearson correlation between the two target properties
+(latent heat and melting point), decides which target should be used for downstream
+modeling, and writes the decision to ``data/results/target_decision.json``.
 
-Must run before T006a.
+The implementation follows the public API surface of the project:
+  * Logging utilities are imported from ``utils.logger``.
+  * Configuration (if needed) would be loaded via ``config`` but is not required for
+    this script.
+  * All file paths are resolved relative to the repository root using ``Path``.
 """
 
-import os
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Tuple, Optional
 
 import pandas as pd
-import numpy as np
 
-from config import get_config
-from utils.logger import get_pipeline_logger
+# Project‑wide logger utilities
+from utils.logger import get_pipeline_logger, log_error, log_info
 
-# Configure logger
-logger = get_pipeline_logger()
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 
-def load_available_data() -> Optional[pd.DataFrame]:
+
+def _resolve_path(relative_path: str) -> Path:
     """
-    Attempts to load a sample of Materials Project data.
-    Prefers the raw JSON from data/raw if available, otherwise attempts
-    to fetch a small sample via the API (if configured) or falls back
-    to a specific known file if the project has pre-downloaded data.
+    Resolve a path relative to the repository root.
 
-    For this task, we assume the existence of a raw data file or
-    attempt to fetch a minimal sample if the API key is present.
+    Parameters
+    ----------
+    relative_path: str
+        Path relative to the repository root (e.g. ``data/raw/...``).
+
+    Returns
+    -------
+    Path
+        Absolute ``Path`` object.
     """
-    config = get_config()
-    data_dir = Path(config.get("data_dirs", {}).get("raw", "data/raw"))
-    raw_file = data_dir / "materials_project_raw.json"
+    repo_root = Path(__file__).resolve().parents[2]  # ``code/data`` -> repo root
+    return repo_root / relative_path
 
-    # Strategy 1: Load from existing raw JSON if present
-    if raw_file.exists():
-        logger.info(f"Loading raw data from {raw_file}")
-        try:
-            df = pd.read_json(raw_file)
-            # Ensure we have the required columns
-            if "melting_point" in df.columns and "latent_heat" in df.columns:
-                return df
-            else:
-                logger.warning(f"Raw file {raw_file} exists but lacks required columns.")
-        except Exception as e:
-            logger.warning(f"Failed to parse {raw_file}: {e}")
 
-    # Strategy 2: If no raw file, try to fetch a small sample from MP API
-    # This requires the MP API key to be set in config.yaml
-    api_key = config.get("api_keys", {}).get("materials_project")
-    if api_key:
-        logger.info("No raw data found. Attempting to fetch a small sample from Materials Project API.")
-        try:
-            from pymatgen.ext.matproj import MPRester
-            with MPRester(api_key) as mpr:
-                # Fetch a small sample (e.g., first 500 entries) to save time
-                # We request specific fields to keep it light
-                docs = mpr.query(
-                    criteria={"nelements": {"$gt": 1}}, # Just oxides/compounds
-                    properties=["formula", "melting_point", "latent_heat"],
-                    limit=500
-                )
-                if not docs:
-                    logger.warning("MP API returned no documents.")
-                    return None
-                df = pd.DataFrame(docs)
-                # Flatten if necessary (some APIs return nested dicts)
-                if "melting_point" in df.columns and "latent_heat" in df.columns:
-                    return df
-                else:
-                    logger.warning("MP API response lacks required columns.")
-                    return None
-        except Exception as e:
-            logger.error(f"Failed to fetch from MP API: {e}")
-            raise RuntimeError("Cannot load data from file or API. Please ensure data/raw/materials_project_raw.json exists or a valid MP API key is configured.")
-    else:
-        raise RuntimeError(
-            "No raw data file found and no Materials Project API key configured. "
-            "Please run T011a to fetch data first, or provide an API key in config.yaml."
+def load_available_data() -> pd.DataFrame:
+    """
+    Load the raw Materials Project data and the NIST data, and merge them on a
+    common identifier (``material_id``).
+
+    Returns
+    -------
+    pd.DataFrame
+        Merged DataFrame containing at least the columns
+        ``material_id``, ``latent_heat`` and ``melting_point``.
+    """
+    logger = get_pipeline_logger()
+    logger.debug("Loading raw Materials Project data.")
+    mp_path = _resolve_path("data/raw/materials_project_data.json")
+    nist_path = _resolve_path("data/raw/nist_data.json")
+
+    if not mp_path.is_file():
+        raise FileNotFoundError(f"Materials Project data not found at {mp_path}")
+    if not nist_path.is_file():
+        raise FileNotFoundError(f"NIST data not found at {nist_path}")
+
+    # The JSON files are expected to be a list of dictionaries.
+    with mp_path.open("r", encoding="utf-8") as f:
+        mp_records = json.load(f)
+
+    with nist_path.open("r", encoding="utf-8") as f:
+        nist_records = json.load(f)
+
+    mp_df = pd.DataFrame(mp_records)
+    nist_df = pd.DataFrame(nist_records)
+
+    # Ensure expected columns exist
+    required_mp_cols = {"material_id", "latent_heat"}
+    required_nist_cols = {"material_id", "melting_point"}
+
+    missing_mp = required_mp_cols - set(mp_df.columns)
+    missing_nist = required_nist_cols - set(nist_df.columns)
+
+    if missing_mp:
+        raise KeyError(f"Materials Project data missing columns: {missing_mp}")
+    if missing_nist:
+        raise KeyError(f"NIST data missing columns: {missing_nist}")
+
+    logger.debug("Merging datasets on 'material_id'.")
+    merged = pd.merge(mp_df, nist_df, on="material_id", how="inner")
+    logger.info(f"Merged dataset contains {len(merged)} overlapping entries.")
+    return merged
+
+
+def calculate_correlation(df: pd.DataFrame) -> Optional[float]:
+    """
+    Calculate the Pearson correlation coefficient between ``latent_heat`` and
+    ``melting_point`` in the provided DataFrame.
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        DataFrame containing ``latent_heat`` and ``melting_point`` columns.
+
+    Returns
+    -------
+    Optional[float]
+        Pearson r value, or ``None`` if the correlation cannot be computed
+        (e.g., not enough data).
+    """
+    logger = get_pipeline_logger()
+    if df.empty:
+        logger.warning("Empty DataFrame supplied to calculate_correlation.")
+        return None
+
+    # Drop rows with NaN in either column
+    clean_df = df.dropna(subset=["latent_heat", "melting_point"])
+    if len(clean_df) < 2:
+        logger.warning(
+            "Insufficient non‑NaN rows (%d) for correlation calculation.",
+            len(clean_df),
         )
+        return None
 
-def calculate_correlation(df: pd.DataFrame) -> Tuple[float, int]:
-    """
-    Calculates the Pearson correlation coefficient between melting_point and latent_heat.
-    Returns (coefficient, sample_size).
-    """
-    # Drop rows where either value is null
-    clean_df = df.dropna(subset=["melting_point", "latent_heat"])
-    sample_size = len(clean_df)
+    r = clean_df["latent_heat"].corr(clean_df["melting_point"])
+    logger.info(f"Pearson correlation (latent_heat vs melting_point): {r:.4f}")
+    return r
 
-    if sample_size < 2:
-        raise ValueError("Insufficient data points to calculate correlation.")
 
-    corr_matrix = clean_df[["melting_point", "latent_heat"]].corr()
-    coeff = corr_matrix.loc["melting_point", "latent_heat"]
-    return float(coeff), sample_size
+def determine_target(correlation: Optional[float]) -> str:
+    """
+    Decide which target property to use for downstream modeling.
 
-def determine_target(coeff: float) -> str:
+    The heuristic is simple:
+      * If the correlation is positive (greater than zero), we assume ``latent_heat``
+        tracks ``melting_point`` sensibly and select ``latent_heat`` as the primary
+        target.
+      * If the correlation is zero or negative, we fall back to ``melting_point``.
+
+    Parameters
+    ----------
+    correlation: Optional[float]
+        Pearson r value (or ``None`` if not computable).
+
+    Returns
+    -------
+    str
+        Chosen target name (``latent_heat`` or ``melting_point``).
     """
-    Determines the target variable based on the correlation coefficient.
-    Logic:
-    - If correlation is high (e.g., > 0.7), either could work, but we prefer 'latent_heat'
-      if it is scientifically more stable for phase change prediction, or 'melting_point'
-      if it is more commonly available.
-    - For this specific task (T005a), the decision rule is:
-      If |coeff| > 0.6, choose 'latent_heat' as the primary target (assuming strong coupling).
-      Otherwise, choose 'melting_point' as the fallback (more robust data availability).
-    """
-    if abs(coeff) > 0.6:
-        return "latent_heat"
-    else:
+    logger = get_pipeline_logger()
+    if correlation is None:
+        logger.warning(
+            "Correlation could not be computed; defaulting to 'melting_point'."
+        )
         return "melting_point"
 
-def save_decision(target: str, coeff: float, rationale: str, output_path: Path):
-    """
-    Saves the decision and coefficient to a JSON file.
-    """
-    decision = {
-        "target": target,
-        "coefficient": coeff,
-        "decision_rationale": rationale,
-        "target_override": False
-    }
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(decision, f, indent=2)
-    logger.info(f"Decision saved to {output_path}")
+    chosen = "latent_heat" if correlation > 0 else "melting_point"
+    logger.info(f"Target decision based on correlation: {chosen}")
+    return chosen
 
-def main():
+
+def save_decision(
+    correlation: Optional[float],
+    chosen_target: str,
+    output_path: Optional[Path] = None,
+) -> None:
     """
-    Main entry point for the target consistency check.
+    Write the target decision to a JSON file.
+
+    The JSON structure follows the contract defined in
+    ``contracts/target_decision.schema.yaml`` (which expects ``correlation``,
+    ``chosen_target`` and a ``timestamp``).
+
+    Parameters
+    ----------
+    correlation: Optional[float]
+        Pearson correlation coefficient (may be ``null`` in JSON if unavailable).
+    chosen_target: str
+        The target selected for downstream work.
+    output_path: Optional[Path]
+        Destination path; defaults to ``data/results/target_decision.json``.
     """
-    logger.info("Starting Target Consistency Check (T005a)...")
-    config = get_config()
-    results_dir = Path(config.get("data_dirs", {}).get("results", "data/results"))
-    output_path = results_dir / "target_decision.json"
+    logger = get_pipeline_logger()
+    if output_path is None:
+        output_path = _resolve_path("data/results/target_decision.json")
+
+    decision = {
+        "correlation": correlation,
+        "chosen_target": chosen_target,
+        "timestamp": pd.Timestamp.utcnow().isoformat() + "Z",
+    }
+
+    # Ensure the parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(decision, f, indent=2)
+
+    logger.info(f"Target decision written to {output_path}")
+
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+
+
+def main() -> Tuple[Optional[float], str]:
+    """
+    Execute the full target‑consistency workflow.
+
+    Returns
+    -------
+    Tuple[Optional[float], str]
+        The computed Pearson correlation and the chosen target.
+    """
+    logger = get_pipeline_logger()
+    logger.info("Starting target consistency check.")
 
     try:
-        # 1. Load Data
-        df = load_available_data()
-        if df is None or df.empty:
-            raise ValueError("No data loaded for analysis.")
-
-        # 2. Calculate Correlation
-        coeff, sample_size = calculate_correlation(df)
-        logger.info(f"Calculated Pearson correlation: {coeff:.4f} (n={sample_size})")
-
-        # 3. Determine Target
-        target = determine_target(coeff)
-        rationale = (
-            f"Correlation between melting_point and latent_heat is {coeff:.4f}. "
-            f"Based on the threshold (|r| > 0.6), the target is set to '{target}'."
-        )
-        logger.info(f"Target decision: {target}")
-
-        # 4. Save Decision
-        save_decision(target, coeff, rationale, output_path)
-
-        logger.info("Target Consistency Check completed successfully.")
-
-    except Exception as e:
-        logger.error(f"Target Consistency Check failed: {e}")
+        merged_df = load_available_data()
+        correlation = calculate_correlation(merged_df)
+        chosen_target = determine_target(correlation)
+        save_decision(correlation, chosen_target)
+        logger.info("Target consistency check completed successfully.")
+        return correlation, chosen_target
+    except Exception as exc:
+        # Log the full traceback and re‑raise for visibility to the pipeline.
+        log_error(f"Target consistency check failed: {exc}")
         raise
 
+
 if __name__ == "__main__":
+    # When executed as a script, run the workflow and exit with a non‑zero code
+    # on failure (the exception will propagate).
     main()

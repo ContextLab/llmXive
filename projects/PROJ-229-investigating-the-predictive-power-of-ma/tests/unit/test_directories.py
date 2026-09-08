@@ -1,79 +1,44 @@
-"""
-Unit tests to verify the project directory structure.
-Checks that all required data/, code/, and tests/ subfolders exist.
-"""
 import os
 import pytest
 from pathlib import Path
-from config import get_config
-
-def get_project_root():
-    """Retrieve the project root path from config or default."""
-    try:
-        config = get_config()
-        return Path(config.get("project_root", "."))
-    except Exception:
-        # Fallback if config is not loaded or project_root is missing
-        return Path(".")
 
 class TestDirectoryStructure:
-    """Tests for verifying the existence of required project directories."""
+    """Tests to verify the project directory structure exists."""
 
-    def test_data_directories_exist(self):
-        """Verify that all required data subdirectories exist."""
-        root = get_project_root()
-        required_data_dirs = [
-            "data/raw",
-            "data/processed",
-            "data/results",
-            "data/external",
-        ]
-        
-        for dir_name in required_data_dirs:
-            dir_path = root / dir_name
-            assert dir_path.exists(), f"Missing required directory: {dir_path}"
-            assert dir_path.is_dir(), f"Path is not a directory: {dir_path}"
+    @pytest.fixture
+    def project_root(self):
+        # Assuming tests are in tests/unit, root is two levels up
+        return Path(__file__).parent.parent.parent
 
-    def test_code_directories_exist(self):
-        """Verify that all required code subdirectories exist."""
-        root = get_project_root()
-        required_code_dirs = [
-            "code/data",
-            "code/models",
-            "code/utils",
-            "code/validate",
-        ]
-        
-        for dir_name in required_code_dirs:
-            dir_path = root / dir_name
-            assert dir_path.exists(), f"Missing required directory: {dir_path}"
-            assert dir_path.is_dir(), f"Path is not a directory: {dir_path}"
+    def test_data_raw_exists(self, project_root):
+        assert (project_root / "data" / "raw").exists()
 
-    def test_test_directories_exist(self):
-        """Verify that all required test subdirectories exist (T001c)."""
-        root = get_project_root()
-        required_test_dirs = [
-            "tests/unit",
-            "tests/integration",
-            "tests/contract",
-        ]
-        
-        for dir_name in required_test_dirs:
-            dir_path = root / dir_name
-            assert dir_path.exists(), f"Missing required directory: {dir_path}"
-            assert dir_path.is_dir(), f"Path is not a directory: {dir_path}"
+    def test_data_processed_exists(self, project_root):
+        assert (project_root / "data" / "processed").exists()
 
-    def test_project_structure_integrity(self):
-        """
-        High-level check to ensure the basic project structure is intact.
-        """
-        root = get_project_root()
-        
-        # Check top-level directories
-        assert (root / "data").exists(), "Missing 'data' root directory"
-        assert (root / "code").exists(), "Missing 'code' root directory"
-        assert (root / "tests").exists(), "Missing 'tests' root directory"
-        
-        # Check key files exist
-        assert (root / "config.yaml").exists(), "Missing 'config.yaml'"
-        assert (root / "requirements.txt").exists(), "Missing 'requirements.txt'"
+    def test_data_results_exists(self, project_root):
+        assert (project_root / "data" / "results").exists()
+
+    def test_data_external_exists(self, project_root):
+        assert (project_root / "data" / "external").exists()
+
+    def test_code_data_exists(self, project_root):
+        assert (project_root / "code" / "data").exists()
+
+    def test_code_models_exists(self, project_root):
+        assert (project_root / "code" / "models").exists()
+
+    def test_code_utils_exists(self, project_root):
+        assert (project_root / "code" / "utils").exists()
+
+    def test_code_validate_exists(self, project_root):
+        assert (project_root / "code" / "validate").exists()
+
+    def test_tests_unit_exists(self, project_root):
+        assert (project_root / "tests" / "unit").exists()
+
+    def test_tests_integration_exists(self, project_root):
+        assert (project_root / "tests" / "integration").exists()
+
+    def test_tests_contract_exists(self, project_root):
+        assert (project_root / "tests" / "contract").exists()

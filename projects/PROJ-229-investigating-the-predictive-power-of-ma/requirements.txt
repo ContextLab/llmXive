@@ -9,5 +9,6 @@ requests
 pyyaml
 mp-api
 datasets
-psutil
-# Existing requirements may already be listed; ensure mp-api and datasets are present.
+jsonschema
+# Note: versions are not pinned to keep the environment flexible for the
+# execution environment used in the evaluation pipeline. Adjust as needed.

@@ -4,11 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence of the required directories (`data/raw`, `data/processed`, `data/results`, `data/external`) is provided; the implementer did not supply any file‑system listing, script output, or screenshots confirming their creation. The task remains undone until those directories exist and are shown.
-- `T001b` (rejected 1x): No evidence of the required directories (`code/data`, `code/models`, `code/utils`) is provided; the artifact list is empty, so the claim that the code directories were created cannot be verified.
-- `T001c` (rejected 1x): The claim provides no concrete evidence (e.g., a directory listing, screenshots, or file tree) that the required `tests/unit`, `tests/integration`, and `tests/contract` directories actually exist in the repository. Without such proof, we cannot verify that the task was completed.
-- `T006b` (rejected 1x): The required file `contracts/target_decision.schema.yaml` does not exist (listed as missing), so no JSON schema has been provided. The task’s core artifact is absent.
-- `T005a` (rejected 1x): The provided `fetch_materials.py` is truncated; the visible portion stops before the query execution and never shows the fallback to the `matbench` dataset, the validation of a `material_id` column, the JSON‑write step, or the required `FileNotFoundError`. Moreover, the expected output file `data/raw/materials_project_data.json` is absent, indicating the script either does not create it or has not been run. The implementation must be completed to include the fallback logic, ID verification, error handling, and saving of the fetched data.
+- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T008a` (rejected 1x): The `code/utils/checksum.py` script is present, but the required output file `data/checksums.txt` does not exist, so the task of recording the SHA256 checksums for the raw data files is not fulfilled.
+- `T013` (rejected 1x): The repository contains the required `code/data/fetch_literature_pcm.py` script, but the expected output file `data/external/literature_pcms_raw.csv` is absent. Without the CSV, the deliverable is not fully satisfied. The next implementer must ensure the script is executed (or otherwise provide the CSV) so that the file exists and contains the fetched literature PCM data.
 
 ## Required change
 

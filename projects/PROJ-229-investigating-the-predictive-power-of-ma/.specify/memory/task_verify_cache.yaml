@@ -5,22 +5,32 @@ T003b:
     \ configuration (max\u2011line\u2011length=88 and appropriate ignore settings)\
     \ is missing. The implementer must add a non\u2011empty `.flake8` file containing\
     \ the specified settings."
-T007a:
-  c: true
-  h: 7f741e0a2cbf89764ad0beb332e0f02193bbfdb58f58b9feb25df2e70fcb1989
-  r: "The `code/utils/schema_validator.py` file is present, non\u2011empty, and contains\
-    \ functions that load `data/results/target_decision.json`, load the static schema,\
-    \ and perform validation of the processed dataset, satisfying the implementation\
-    \ requirement. The missing input files are external data, not part of the required\
-    \ artifact."
-T008a:
+T005a:
   c: false
-  h: b9ff03bbd7597fb242f8968bb64ccc4e8c1039aebcfda8ea7d5a0d5d4269bba9
-  r: "The required output file `data/checksums.txt` does not exist, so the task\u2019\
-    s primary artifact is missing. Although `code/utils/checksum.py` is present and\
-    \ implements checksum generation, the script has not produced the manifest file\
-    \ as required. The implementer must run the script (or otherwise create) `data/checksums.txt`\
-    \ containing SHA256 checksums for all raw data files."
+  h: 311242c5864fcdb24aa93e6efc77cf04cdd5956cdcac00d22f6ee3fd92a3be26
+  r: The script `code/data/fetch_materials.py` is present, but the required output
+    file `data/raw/materials_project_data.json` does not exist on disk, so the data
+    retrieval step was not completed. The deliverable is missing.
+T005b:
+  c: false
+  h: f38a801cdac7a2103ff607f41599510633b1ceec23e255e74fdacf878e6796cf
+  r: The required artifact `data/raw/nist_data.json` is absent; only the fetch script
+    is present (and truncated), but there is no evidence that it was executed or that
+    the JSON file was generated. The deliverable file must exist and contain the fetched
+    NIST data for the task to be considered complete.
+T005c:
+  c: false
+  h: eb20f2714ce7fdde5ad9aaedea51e584cf3e84f717384eba3dfbf2eed7381174
+  r: The required `data/results/target_decision.json` file is missing, and the provided
+    `target_consistency_check.py` script is truncated before performing the correlation
+    calculation and writing the decision, so the implementation is incomplete.
+T006a:
+  c: false
+  h: eb20f2714ce7fdde5ad9aaedea51e584cf3e84f717384eba3dfbf2eed7381174
+  r: The repository contains the `code/data/target_consistency_check.py` script, but
+    the required output file `data/results/target_decision.json` is absent, and there
+    is no evidence that the script was executed to generate it. Consequently, the
+    deliverable specified by the task has not been produced.
 T008b:
   c: false
   h: b9ff03bbd7597fb242f8968bb64ccc4e8c1039aebcfda8ea7d5a0d5d4269bba9

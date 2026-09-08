@@ -13,7 +13,7 @@ This project investigates whether machine learning models, specifically interpre
 **Primary Dependencies**: `pymatgen` (structure/graph), `scikit-learn` (baselines), `shap` (interpretability), `pysr` (symbolic regression), `pandas`, `numpy`, `datasets` (HuggingFace), `pyyaml`, `pytest`  
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/external`), JSON/YAML config files  
 **Testing**: `pytest` (unit, integration, contract), `pytest-cov` for coverage  
-**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU cores, 7 GB RAM, 14 GB disk)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU cores, several GB of RAM, 14 GB disk)  
 **Project Type**: Research pipeline / Data science library  
 **Performance Goals**: Complete full pipeline (fetch, feature, train, validate) within 6 hours on CPU; memory usage < 7 GB; disk usage < 12 GB.  
 **Constraints**: No GPU available on primary runner; no access to gated datasets (e.g., ADNI, HCP) without open substitute; all external data must be checksummed and reproducible.  
@@ -112,7 +112,7 @@ tests/
 
 ## Validation Strategy Details
 
-- **Top-N Hit Rate**: N = 10 (derived from 50 PCM validation set). Success is ≥ 60% of the top 10 PCMs correctly ranked by latent heat.
+- **Top-N Hit Rate**: N = 10 (derived from PCM validation set). Success is ≥ 60% of the top 10 PCMs correctly ranked by latent heat.
 - **Sensitivity Analysis**: Sweep feature importance thresholds across a low-range interval in fine-grained steps.. Report variation in false-positive rates.
 - **Proxy Leakage Test**: Remove melting point as a feature. If R² on latent heat drops by >20%, leakage is detected.
 - **Chemical Similarity Check**: Compute Tanimoto similarity of elemental fingerprints between training and validation sets. Report distribution shift.

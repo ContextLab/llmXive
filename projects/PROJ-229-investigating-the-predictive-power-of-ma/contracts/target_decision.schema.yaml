@@ -1,25 +1,21 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Target Decision Schema"
+# Schema for the target decision JSON produced by target_consistency_check
+# Ensures the selected target property and the correlation metric are recorded.
 type: object
 properties:
-  target:
+  selected_target:
     type: string
-    description: "The selected target variable name, e.g., 'latent_heat' or 'melting_point'."
-  coefficient:
+    description: The property chosen as the predictive target.
+    enum:
+      - latent_heat
+      - melting_point
+  pearson_r:
     type: number
-    description: "Pearson correlation coefficient between the two targets."
-  decision_rationale:
-    type: string
-    description: "Explanation for why the target was selected."
-  target_override:
+    description: Pearson correlation coefficient between the two candidate targets.
+  fallback_used:
     type: boolean
-    description: "Flag indicating if the target was manually overridden."
-  fallback_triggered:
-    type: boolean
-    description: "Indicates whether a fallback to the alternative target was triggered."
+    description: Whether a fallback decision was required (e.g., insufficient overlap).
 required:
-  - target
-  - coefficient
-  - decision_rationale
-  - fallback_triggered
+  - selected_target
+  - pearson_r
+  - fallback_used
 additionalProperties: false

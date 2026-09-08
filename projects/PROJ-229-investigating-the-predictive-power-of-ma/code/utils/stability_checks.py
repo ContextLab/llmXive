@@ -36,12 +36,21 @@ def check_nan_inf(df: pd.DataFrame, column: Optional[str] = None) -> Dict[str, i
     target = df[column] if column else df
 
     if isinstance(target, pd.DataFrame):
+        # Count NaNs in all columns
         nan_count = int(target.isna().sum().sum())
-        inf_count = int(np.isinf(target.select_dtypes(include=[np.number])).sum().sum())
+        # Count Infs only in numeric columns
+        numeric_data = target.select_dtypes(include=[np.number])
+        if not numeric_data.empty:
+            inf_count = int(np.isinf(numeric_data).sum().sum())
+        else:
+            inf_count = 0
     else:
         # Series case
         nan_count = int(target.isna().sum())
-        inf_count = int(np.isinf(target.select_dtypes(include=[np.number])).sum())
+        if target.dtype in [np.float64, np.float32, np.int64, np.int32]:
+            inf_count = int(np.isinf(target).sum())
+        else:
+            inf_count = 0
 
     result = {"nan_count": nan_count, "inf_count": inf_count}
 

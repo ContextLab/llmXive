@@ -1,21 +1,38 @@
-project:
-  name: investigating-the-predictive-power-of-ma
-  version: "0.1.0"
-  seed: 42
-api:
-  materials_project:
-    api_key: ""
-    timeout: 30
-    rate_limit_delay: 1.0
-constraints:
-  max_memory_gb: 7.0
-  max_time_hours: 4.0
-  max_samples: 10000
-paths:
-  data_root: data
-  code_root: code
-  results_root: data/results
-  figures_root: figures
+# Configuration for llmXive Pipeline
+# Generated for PROJ-229
+
+# Logging Configuration
 logging:
-  level: INFO
-  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  level: INFO  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: "data/logs/pipeline.log" # Optional, set to null to disable file logging
+
+# API Keys (Set these via environment variables or fill in securely)
+api_keys:
+  materials_project: ""  # MP API Key
+  nist: ""               # NIST API Key (if applicable)
+
+# Random Seeds for Reproducibility
+random_seed: 42
+
+# Resource Constraints
+memory_limit_gb: 7.0
+time_limit_hours: 24.0
+
+# Analysis Parameters
+top_n: 10  # Number of top candidates to consider (Research Decision Required)
+
+# Data Fetching
+data_fetch:
+  max_retries: 3
+  timeout_seconds: 300
+
+# Model Training
+model_training:
+  max_iterations: 1000
+  early_stopping_patience: 50
+
+# Validation
+validation:
+  nist_overlap_threshold: 500
+  r2_threshold: 0.0
+  correlation_threshold: 0.2

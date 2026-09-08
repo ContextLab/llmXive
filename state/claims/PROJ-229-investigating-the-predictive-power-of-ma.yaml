@@ -6315,3 +6315,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T02:07:32Z'
+- artifact_path: projects/PROJ-229-investigating-the-predictive-power-of-ma/specs/001-investigating-the-predictive-power-of-ma/tasks.md
+  attempts: 1
+  canonical: handle over 7 GB datasets without loading full data into RAM
+  claim_id: c_6b198456
+  context: 'Implement Streaming Data Loader in `code/data/compute_descriptors.py`
+    using `datasets.load_dataset(..., streaming=True)` and chunked processing. Constraint:
+    MUST handle >7 GB datasets without loading full data into RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement Streaming Data Loader in `code/data/compute_descriptors.py`
+    using `datasets.load_dataset(..., streaming=True)` and chunked processing. Constraint:
+    MUST handle >7 GB datasets without loading full data into RAM.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T09:54:26Z'

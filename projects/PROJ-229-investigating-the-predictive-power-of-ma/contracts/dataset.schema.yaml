@@ -1,28 +1,41 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Dataset Schema
-description: Superset schema for the processed dataset. Includes both `melting_point` and `latent_heat` columns to support dynamic target selection.
 type: object
+required:
+  - material_id
+  - composition
+  - elemental_count
+  - formation_energy
+  - density
+  - elemental_features
+  - graph_features
 properties:
   material_id:
     type: string
-    description: Unique identifier for the material (e.g., Materials Project ID).
-  formula:
+    description: Unique identifier for the material (e.g., Materials Project ID)
+  composition:
     type: string
-    description: Chemical formula of the compound.
-  melting_point:
-    type:
-      - number
-      - "null"
-    description: Melting point of the material (K). May be null if not available.
-  latent_heat:
-    type:
-      - number
-      - "null"
-    description: Latent heat of fusion (J/g). May be null if not available.
-  # Additional feature columns can be added here as needed.
-required:
-  - material_id
-  - formula
-  - melting_point
-  - latent_heat
+    description: Chemical formula representation of the material
+  elemental_count:
+    type: integer
+    description: Number of distinct elements present in the composition
+  formation_energy:
+    type: number
+    description: Formation energy per atom (eV)
+  density:
+    type: number
+    description: Density of the material (g/cm³)
+  elemental_features:
+    type: array
+    items:
+      type: number
+    description: Vector of elemental-level descriptor values
+  graph_features:
+    type: array
+    items:
+      type: number
+    description: Vector of graph-based descriptor values
 additionalProperties: false
+metadata:
+  target_field: formation_energy
+  decision_rationale: >
+    Target field selected based on strongest correlation with available
+    measurement data across the curated dataset.

@@ -2,82 +2,184 @@ import os
 import sys
 import logging
 import tempfile
+import json
 from pathlib import Path
+import pytest
 
-# Add the project root to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Ensure the code directory is in the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.utils.logger import setup_logger, get_pipeline_logger, log_info, log_error
-from code.utils.error_handling import handle_error, PipelineError
+from utils.logger import (
+    setup_logger, 
+    get_pipeline_logger, 
+    log_error, 
+    log_warning, 
+    log_info, 
+    log_debug,
+    PipelineError,
+    DataFetchError,
+    handle_error,
+    validate_not_null,
+    validate_positive
+)
+from config import get_config
 
-def test_logger_initialization():
-    """Test that the logger initializes correctly."""
-    logger = setup_logger("test_logger", level=logging.INFO)
-    assert logger is not None
-    assert logger.name == "test_logger"
-    assert logger.level == logging.INFO
+class TestLoggerInfrastructure:
+    """Tests for the logging infrastructure and error handling utilities."""
 
-def test_logger_file_handler():
-    """Test that the logger writes to a file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_file = Path(tmpdir) / "test.log"
-        logger = setup_logger("test_file_logger", level=logging.INFO, log_file=str(log_file))
+    def test_setup_logger_creates_instance(self):
+        """Test that setup_logger creates and returns a logger instance."""
+        logger = setup_logger("test_logger_1")
+        assert logger is not None
+        assert isinstance(logger, logging.Logger)
+        assert logger.name == "test_logger_1"
+
+    def test_get_pipeline_logger_reuses_instance(self):
+        """Test that get_pipeline_logger returns the same instance if already initialized."""
+        # First call initializes
+        logger1 = get_pipeline_logger("test_shared")
+        # Second call should return the same
+        logger2 = get_pipeline_logger("test_shared")
+        assert logger1 is logger2
+
+    def test_log_info_writes_message(self, caplog):
+        """Test that log_info writes an info message."""
+        # Temporarily set level to INFO to capture logs
+        logger = setup_logger("test_info", level=logging.INFO)
         
-        # Log a message
-        logger.info("Test message")
+        with caplog.at_level(logging.INFO):
+            log_info("Test info message")
         
-        # Check if file exists and contains the message
-        assert log_file.exists()
-        content = log_file.read_text()
-        assert "Test message" in content
+        assert "Test info message" in caplog.text
+        assert "INFO" in caplog.text
 
-def test_get_pipeline_logger():
-    """Test that get_pipeline_logger returns the initialized logger."""
-    # First, ensure it's initialized
-    setup_logger("pipeline_test", level=logging.DEBUG)
-    logger = get_pipeline_logger("pipeline_test")
-    assert logger is not None
-    assert logger.level == logging.DEBUG
+    def test_log_warning_writes_message(self, caplog):
+        """Test that log_warning writes a warning message."""
+        logger = setup_logger("test_warning", level=logging.WARNING)
+        
+        with caplog.at_level(logging.WARNING):
+            log_warning("Test warning message")
+        
+        assert "Test warning message" in caplog.text
+        assert "WARNING" in caplog.text
 
-def test_log_info():
-    """Test the log_info helper function."""
-    logger = setup_logger("info_test", level=logging.INFO)
-    # This should not raise
-    log_info("Info message test")
+    def test_log_error_writes_exception(self, caplog):
+        """Test that log_error writes exception details."""
+        logger = setup_logger("test_error", level=logging.ERROR)
+        test_exception = ValueError("Test error value")
+        
+        with caplog.at_level(logging.ERROR):
+            log_error(test_exception, "Test Context")
+        
+        assert "Test Context" in caplog.text
+        assert "ValueError" in caplog.text
+        assert "Test error value" in caplog.text
 
-def test_error_handling():
-    """Test the error handling utilities."""
-    try:
-        raise ValueError("Test error")
-    except Exception as e:
-        # Should not raise because reraise=False
-        handle_error(e, "Test Context", reraise=False)
-        
-        # Should raise because reraise=True
-        try:
-            handle_error(e, "Test Context", reraise=True)
-        except ValueError:
-            pass  # Expected
+    def test_log_file_creation(self):
+        """Test that log_file parameter creates a file with entries."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "test_pipeline.log"
+            logger = setup_logger("test_file_log", log_file=str(log_path), level=logging.INFO)
+            
+            log_info("File log test message")
+            
+            assert log_path.exists()
+            content = log_path.read_text()
+            assert "File log test message" in content
+            assert "INFO" in content
 
-def test_logger_write_and_read_entry():
-    """
-    Test that a log entry can be written and read back.
-    This satisfies the requirement to write and read a log entry.
-    """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_file = Path(tmpdir) / "entry_test.log"
-        logger = setup_logger("entry_logger", level=logging.INFO, log_file=str(log_file))
+    def test_pipeline_error_custom_exception(self):
+        """Test that PipelineError stores message and details."""
+        details = {"key": "value", "code": 404}
+        error = PipelineError("Pipeline failed", details)
         
-        test_message = "Verification entry for T005"
-        logger.info(test_message)
+        assert error.message == "Pipeline failed"
+        assert error.details == details
+        assert "Pipeline failed" in str(error)
+
+    def test_data_fetch_error_subclass(self):
+        """Test that DataFetchError is a subclass of PipelineError."""
+        error = DataFetchError("Fetch failed")
+        assert isinstance(error, PipelineError)
+        assert error.message == "Fetch failed"
+
+    def test_handle_error_logs_and_raises(self):
+        """Test that handle_error logs the error and re-raises it."""
+        logger = setup_logger("test_handle", level=logging.ERROR)
+        test_exception = RuntimeError("Handle test")
         
-        # Read back the file
-        assert log_file.exists(), "Log file was not created"
-        content = log_file.read_text()
+        with pytest.raises(RuntimeError) as exc_info:
+            handle_error(test_exception, "Handle Context")
         
-        # Verify the message is present
-        assert test_message in content, f"Message '{test_message}' not found in log file"
-        
-        # Verify standard log format components are present
-        assert "INFO" in content, "Log level INFO not found"
-        assert "entry_logger" in content, "Logger name not found"
+        assert exc_info.value is test_exception
+
+    def test_validate_not_null_pass(self):
+        """Test validate_not_null with valid value."""
+        result = validate_not_null("valid", "field_name")
+        assert result == "valid"
+
+    def test_validate_not_null_fail(self):
+        """Test validate_not_null with None raises ValueError."""
+        with pytest.raises(ValueError, match="cannot be None"):
+            validate_not_null(None, "field_name")
+
+    def test_validate_positive_pass(self):
+        """Test validate_positive with positive value."""
+        result = validate_positive(10.5, "value_field")
+        assert result == 10.5
+
+    def test_validate_positive_fail_zero(self):
+        """Test validate_positive with zero raises ValueError."""
+        with pytest.raises(ValueError, match="must be positive"):
+            validate_positive(0, "value_field")
+
+    def test_validate_positive_fail_negative(self):
+        """Test validate_positive with negative value raises ValueError."""
+        with pytest.raises(ValueError, match="must be positive"):
+            validate_positive(-5, "value_field")
+
+    def test_validate_positive_fail_string(self):
+        """Test validate_positive with non-numeric value raises ValueError."""
+        with pytest.raises(ValueError, match="must be numeric"):
+            validate_positive("not a number", "value_field")
+
+    def test_logger_write_and_read_entry(self):
+        """
+        Unit test for T005d: Write and read a log entry.
+        Verifies that the logger actually writes to a file and the entry can be retrieved.
+        """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "write_read_test.log"
+            test_message = "T005d verification entry"
+            
+            # Setup logger with file output
+            logger = setup_logger(
+                "write_read_test",
+                log_file=str(log_path),
+                level=logging.INFO
+            )
+            
+            # Write a log entry
+            log_info(test_message)
+            
+            # Verify file exists
+            assert log_path.exists(), "Log file was not created"
+            
+            # Read the file content
+            content = log_path.read_text()
+            
+            # Verify the specific message is present
+            assert test_message in content, f"Message '{test_message}' not found in log file"
+            
+            # Verify standard log format components are present
+            assert "INFO" in content, "Log level INFO not found"
+            assert "write_read_test" in content, "Logger name not found"
+            
+            # Verify we can parse the line (basic structural check)
+            lines = content.strip().split('\n')
+            assert len(lines) > 0, "Log file is empty"
+            
+            # Check that the line contains the message and level
+            last_line = lines[-1]
+            assert test_message in last_line
+            assert "INFO" in last_line
