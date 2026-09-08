@@ -1,0 +1,25 @@
+T005:
+  c: false
+  h: bede40b72d59dbfa661c720a340c70101b499033dbd39ba384aa2a9fdde946de
+  r: The provided `memory_profiler.py` defines logging functions but the `profile_memory_latency`
+    context manager is cut off before it computes peak memory, latency, and calls
+    `log_metrics`, so it does not demonstrably perform the required logging. Additionally,
+    the target `data/logs/memory_profile.json` file is absent, indicating that no
+    logging has actually occurred. The implementation must be completed to calculate
+    and record the metrics and ensure the JSON file is created.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or module that actually sets deterministic random seeds (e.g.,\
+    \ for `random`, `numpy`, `torch`, etc.) is present. The provided text only describes\
+    \ synthetic benchmark requirements and does not include the required seed\u2011\
+    utility implementation or any evidence that such utilities exist. The task therefore\
+    \ remains unfinished."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a high\u2011level feature specification and no\
+    \ code or file defining an `ExecutionLog` dataclass. There is no artifact on disk\
+    \ showing a non\u2011empty, correctly structured data model, so the task requirement\
+    \ is unmet. The missing piece is a concrete Python dataclass (e.g., `@dataclass\
+    \ class ExecutionLog: ...`) that records the necessary fields for decision logging."

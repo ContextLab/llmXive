@@ -17,49 +17,52 @@
 
 - **Single project**: `code/`, `tests/` at repository root (adjusted from template to match plan.md structure)
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create root `code/` directory and subdirectories (`data_generation`, `agents`, `retrieval`, `evaluation`, `utils`)
-- [ ] T001b [P] Create `tests/` directory structure (`unit`, `integration`, `contract`)
-- [ ] T001c [P] Create `code/main.py` (orchestration entry point) and `code/requirements.txt` (placeholder)
+- [ ] T001a [P] Create `code/data_generation` directory
+- [ ] T001b [P] Create `code/agents` directory
+- [ ] T001c [P] Create `code/retrieval` directory
+- [ ] T001d [P] Create `code/evaluation` directory
+- [ ] T001e [P] Create `code/utils` directory
+- [ ] T001f [P] Create `tests/` directory structure (`unit`, `integration`, `contract`)
+- [X] T001g [P] Create `code/main.py` (orchestration entry point)
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
+- [ ] T005 [P] Create base `ExecutionLog` data model (dataclass) for structured decision recording in `code/utils/execution_log.py`
+- [ ] T006 [P] Implement `code/utils/memory_profiler.py` to log peak memory footprint and inference latency to `data/synthetic_benchmark/memory_profile.json` (fields: `peak_memory_mb`, `latency_ms`, `agent_type`)
+- [ ] T007 [P] Implement `code/data_generation/validator.py` to check dependency links in trajectories
+- [ ] T008 [P] Implement `code/data_generation/coherence_validator.py` for semantic plausibility checks (automated only)
 - [ ] T002 [P] Create `code/requirements.txt` with pinned versions of: `transformers`, `sentence-transformers`, `datasets`, `statsmodels`, `scipy`, `accelerate`, `pandas`, `pytest`, `bitsandbytes`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`
-- [ ] T004 Implement `code/utils/config.py` for seed pinning, path configuration, and environment variables
-- [ ] T005 Implement `code/utils/memory_profiler.py` to log peak memory footprint and inference latency to `data/logs/memory_profile.json` (fields: `peak_memory_mb`, `latency_ms`, `agent_type`)
-- [ ] T006 [P] Setup deterministic random seed utilities for reproducible synthetic generation
-- [ ] T007 Create base `ExecutionLog` data model (dataclass) for structured decision recording
-- [ ] T008 Implement `code/data_generation/validator.py` to check dependency links in trajectories
-- [ ] T009 Implement `code/data_generation/coherence_validator.py` for semantic plausibility checks (automated only)
+- [ ] T004 [P] Setup deterministic random seed utilities for reproducible synthetic generation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -67,26 +70,24 @@
 
 ## Phase 3: User Story 1 - Synthetic Ultra-Long Horizon Benchmark Generation (Priority: P1) 🎯 MVP
 
-**Goal**: Construct a synthetic test dataset with a representative set of trajectories (50–100 steps) containing explicit cross-app dependencies.
+**Goal**: Construct a synthetic test dataset with a representative set of trajectories (multiple steps) containing explicit cross-app dependencies.
 
 **Independent Test**: The generation script runs successfully, outputs a JSONL file, and the validation script asserts dependency links exist for >95% of trajectories.
 
-**Scope Note**: Spec FR-001 mandates "≥50 trajectories", but Plan.md "Scale/Scope" reduces this to "30 synthetic trajectories" to fit 7GB RAM constraints. **Task T012a amends Spec FR-001 to match the Plan.** Tasks below follow the Plan's resource constraints.
+**Scope Note**: Spec FR-001 mandates "≥50 trajectories". The Plan notes a reduction to a feasible limit for memory constraints, but the Task MUST implement the Spec as written. If resources prevent 50, the script must fail loudly with a `RESOURCE_LIMIT` error code, preserving the requirement rather than weakening it.
 
-**Testing Strategy**: TDD approach. T010/T011 are MANDATORY for MVP. Write tests first (expected to fail), then implement.
+**Testing Strategy**: TDD approach. T009/T010 are MANDATORY for MVP. Write tests first (expected to fail), then implement.
 
 ### Tests for User Story 1 (MANDATORY for MVP) ⚠️
 
-- [ ] T010 [P] [US1] Write unit test for dependency link injection logic in `tests/unit/data_generation/test_dependency_injection.py` (Expected to fail initially)
-- [ ] T011 [P] [US1] Write integration test for end-to-end trajectory generation in `tests/integration/data_generation/test_benchmark_gen.py` (Expected to fail initially)
+- [ ] T009 [P] [US1] Write unit test for dependency link injection logic in `tests/unit/data_generation/test_dependency_injection.py` (Expected to fail initially)
+- [ ] T010 [P] [US1] Write integration test for end-to-end trajectory generation in `tests/integration/data_generation/test_benchmark_gen.py` (Expected to fail initially)
 
 ### Implementation for User Story 1
 
-- [ ] T012a [P] [US1] **Spec Amendment**: Amend `specs/001-llmxive-long-horizon-context/spec.md` FR-001 to change requirement from "≥50 trajectories" to "≥30 trajectories" to align with Plan.md memory constraints. Update SC-001 accordingly.
-- [ ] T012 [US1] Implement `code/data_generation/synthetic_benchmark.py`: Load `UltraData-SFT-Agent-2609` (split=train, streaming=True) to extract state templates; implement procedural generation logic to chain workflows ensuring critical info is available only several steps prior; output `data/synthetic_benchmark/trajectories.jsonl` with annotated "dependency links"; generate exactly **30 synthetic trajectories** (A moderate number of steps each) complying with amended FR-001 (T012a).
-- [ ] T016 [US1] Integrate `code/data_generation/coherence_validator.py` (automated) to validate dependency links and semantic consistency of the generated trajectories.
-- [ ] T017a [P] [US1] **Spec Amendment**: Amend `specs/001-llmxive-long-horizon-context/spec.md` FR-007 to remove "human-in-the-loop" and mandate only "expert-system" validation to align with Constitution Principle I (Reproducibility).
-- [ ] T017b [US1] Implement `code/data_generation/expert_system_validator.py`: An automated expert-system validator to review a subset (≥10) for "semantically plausible" rating (FR-007 amended); output review results to `data/synthetic_benchmark/review_results.json`. **Note**: Replaces human-in-the-loop requirement to ensure reproducibility (Constitution Principle I).
+- [ ] T011 [US1] Implement `code/data_generation/synthetic_benchmark.py`: Load `UltraData-SFT-Agent-2609` (split=train, streaming=True) to extract state templates; implement procedural generation logic to chain workflows ensuring critical info is available only several steps prior; output `data/synthetic_benchmark/trajectories.jsonl` with annotated "dependency links"; generate **≥50 synthetic trajectories** complying with Spec FR-001. **If resource constraints prevent generating 50, the script must fail loudly with a `RESOURCE_LIMIT` error code.**
+- [ ] T012 [US1] Integrate `code/data_generation/coherence_validator.py` (automated) to validate dependency links and semantic consistency of the generated trajectories.
+- [ ] T013 [US1] Implement `code/data_generation/expert_system_validator.py`: An automated expert-system validator to review a subset (≥10) for "semantically plausible" rating (FR-007); output review results to `data/synthetic_benchmark/review_results.json`. **Note**: Implements the 'expert-system' path explicitly allowed by FR-007 ('human-in-the-loop OR expert-system'). The task must ensure the 'human-in-the-loop' option remains a valid, active path in the spec as written, and if the expert-system fails, the system must be able to trigger human review as per the 'OR' clause.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,18 +101,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for agent execution interface in `tests/contract/test_agent_interface.py`
-- [ ] T019 [P] [US2] Integration test for baseline execution loop in `tests/integration/agents/test_baseline_execution.py`
+- [ ] T014 [P] [US2] Contract test for agent execution interface in `tests/contract/test_agent_interface.py`
+- [ ] T015 [P] [US2] Integration test for baseline execution loop in `tests/integration/agents/test_baseline_execution.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020a [P] [US2] Implement `code/agents/model_checker.py` to perform a **static pre-verification** check against the "Verified datasets" block in Plan/Spec for "MemGUI-8B-SFT" or a pre-verified substitute (e.g., "microsoft/Phi-3-mini-4k-instruct"). **Fail loud** if no pre-verified model is found; do NOT pivot at runtime.
-- [ ] T020 [P] [US2] Implement `code/agents/base_conact.py` wrapper for the model selected by T020a (static verification) using `bitsandbytes` 4-bit quantization.
-- [ ] T021 [US2] Configure `code/agents/base_conact.py` to force CPU-only execution (no CUDA) and manage memory footprint (<7GB).
-- [ ] T022b [P] [US2] Define `code/evaluation/interfaces.py` with `RunnerProtocol` interface (methods: `run_trajectory`, `get_logs`) to decouple baseline and recall runners.
-- [ ] T022 [US2] Implement `code/evaluation/runner.py` (ATOMIC): Execute the baseline agent on `data/synthetic_benchmark/trajectories.jsonl`, record the exact step where "information decay" causes a failure, **implement explicit attribution logic to attribute the failure to missing context from a step >10 indices prior**, and generate `data/results/baseline_execution_logs.jsonl`. Adhere to `RunnerProtocol` (T022b).
-- [ ] T025 [US2] Implement `code/evaluation/stats.py` preliminary analysis to calculate success rate trend (early vs late step).
-- [ ] T026 [US2] Add `code/utils/memory_profiler.py` integration to log peak memory for baseline runs.
+- [ ] T016 [P] [US2] Implement `code/agents/model_checker.py` to perform a **static pre-verification** check against the "Verified datasets" block in Plan/Spec for "MemGUI-8B-SFT" or a pre-verified substitute (e.g., "microsoft/Phi-3-mini-4k-instruct"). **Fail loud** if no pre-verified model is found; do NOT pivot at runtime.
+- [ ] T017 [P] [US2] Implement `code/agents/base_conact.py` wrapper for the model selected by T016 (static verification) using `bitsandbytes` 4-bit quantization.
+- [ ] T018 [US2] Configure `code/agents/base_conact.py` to force CPU-only execution (no CUDA) and manage memory footprint (<7GB).
+- [ ] T019 [P] [US2] Define `code/evaluation/interfaces.py` with `RunnerProtocol` interface (methods: `run_trajectory`, `get_logs`) to decouple baseline and recall runners.
+- [ ] T020 [US2] Implement `code/evaluation/runner.py` (ATOMIC): Execute the baseline agent on `data/synthetic_benchmark/trajectories.jsonl`, record the exact step where "information decay" causes a failure, **implement explicit attribution logic to attribute the failure to missing context from a step >10 indices prior **, and generate `data/results/baseline_execution_logs.jsonl`. Adhere to `RunnerProtocol` (T019).
+- [ ] T021 [US2] Implement `code/evaluation/stats.py` preliminary analysis to calculate success rate trend (early vs late step).
+- [ ] T022 [US2] Add `code/utils/memory_profiler.py` (T006) integration to log peak memory for baseline runs.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,27 +124,25 @@
 
 **Independent Test**: The recall-enhanced agent runs on the same synthetic set, and the success rate in the early-step range is compared to the baseline.
 
-**Statistical Methodology Note**: Plan.md selects "Mixed-Effects Logistic Regression (GLMM)" as primary analysis due to hierarchical data. Spec FR-005 mandates Wilcoxon as primary. **Task T036a amends Spec FR-005 to adopt GLMM as primary.** Tasks below follow the amended Spec.
+**Statistical Methodology Note**: The Plan selects "Mixed-Effects Logistic Regression (GLMM)" as primary analysis. However, Spec FR-005 mandates Wilcoxon as primary. The tasks below implement the **Spec (Wilcoxon)** as the primary analysis to preserve requirement integrity. The Plan's GLMM preference is treated as a secondary or governance issue to be resolved separately, not by altering the task implementation.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for retrieval query generation (no ground-truth leakage) in `tests/unit/retrieval/test_query_gen.py`
-- [ ] T028 [P] [US3] Integration test for recall injection and re-execution in `tests/integration/retrieval/test_recall_injection.py`
+- [ ] T023 [P] [US3] Unit test for retrieval query generation (no ground-truth leakage) in `tests/unit/retrieval/test_query_gen.py`
+- [ ] T024 [P] [US3] Integration test for recall injection and re-execution in `tests/integration/retrieval/test_recall_injection.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/retrieval/index_builder.py` to build an in-memory index from the agent's folded history.
-- [ ] T030 [P] [US3] Implement `code/retrieval/retriever.py` using `all-MiniLM-L6-v2` to generate embeddings for historical snippets.
-- [ ] T031 [US3] Implement `code/retrieval/retriever.py` to generate queries based *solely* on the current goal state (no ground-truth metadata).
-- [ ] T032 [US3] Implement `code/agents/recall_agent.py` to inject retrieved "memory flashes" into the prompt when similarity > threshold.
-- [ ] T033 [US3] Implement `code/evaluation/recall_runner.py`: Execute the recall-enhanced agent on `data/synthetic_benchmark/trajectories.jsonl` adhering to `RunnerProtocol` (T022b), generate `data/results/recall_execution_logs.jsonl`. **Implement as a subclass/adapter of the RunnerProtocol, not a direct extension of T022 file.**
-- [ ] T034 [US3] Implement `code/evaluation/log_merger.py`: Merge `data/results/baseline_execution_logs.jsonl` (from T022) and `data/results/recall_execution_logs.jsonl` (from T033) into `data/results/combined_logs.csv` (long-form: trajectory_id, step, success, agent_type).
-- [ ] T035 [US3] Implement `code/evaluation/stats.py` to perform Wilcoxon signed-rank test as **Secondary/Validation** analysis comparing baseline vs recall success rates.
-- [ ] T036a [P] [US3] **Spec Amendment**: Amend `specs/001-llmxive-long-horizon-context/spec.md` FR-005 to change primary analysis from "Wilcoxon signed-rank test" to "Mixed-Effects Logistic Regression (GLMM)" to align with Plan.md and T036.
-- [ ] T036 [US3] Implement `code/evaluation/stats.py` to perform **Mixed-Effects Logistic Regression (GLMM)** as **Primary Analysis**: Input `data/results/combined_logs.csv` (from T034); Model: `success ~ agent_type + (1|trajectory_id)`; Output p-value and effect size. Comply with amended FR-005 (T036a).
-- [ ] T037a [P] [US3] **Spec Amendment**: Amend `specs/001-llmxive-long-horizon-context/spec.md` SC-004 to replace "[deferred] limit" with "hard limit of <10% overhead" to align with Constitution Principle VII and FR-006.
-- [ ] T037 [US3] Integrate `code/utils/memory_profiler.py` to log overhead and ensure <10% latency increase (FR-006 / Constitution Principle VII / amended SC-004).
-- [ ] T038 [US3] Implement `code/evaluation/stats.py` to handle negative/shuffled controls to isolate retrieval variable.
+- [ ] T025 [P] [US3] Implement `code/retrieval/index_builder.py` to build an in-memory index from the agent's folded history.
+- [ ] T026 [P] [US3] Implement `code/retrieval/retriever.py` using `all-MiniLM-L6-v2` to generate embeddings for historical snippets.
+- [ ] T027 [US3] Implement `code/retrieval/retriever.py` to generate queries based *solely* on the current goal state (no ground-truth metadata).
+- [ ] T028 [US3] Implement `code/agents/recall_agent.py` to inject retrieved "memory flashes" into the prompt when similarity > threshold.
+- [ ] T029 [US3] Implement `code/evaluation/recall_runner.py`: Execute the recall-enhanced agent on `data/synthetic_benchmark/trajectories.jsonl` adhering to `RunnerProtocol` (T019), generate `data/results/recall_execution_logs.jsonl`. **Implement as a subclass/adapter of the RunnerProtocol, not a direct extension of T020 file.**
+- [ ] T030 [US3] Implement `code/evaluation/log_merger.py`: Merge `data/results/baseline_execution_logs.jsonl` (from T020) and `data/results/recall_execution_logs.jsonl` (from T029) into `data/results/combined_logs.csv` (long-form: `trajectory_id`, `step`, `success`, `agent_type`, `latency_ms`). **Preserve hierarchical structure required for GLMM analysis.**
+- [ ] T031 [US3] Implement `code/evaluation/stats.py` to perform **Wilcoxon signed-rank test** as **Primary Analysis** comparing baseline vs recall success rates, complying with Spec FR-005.
+- [ ] T032 [US3] Implement `code/evaluation/stats.py` to perform **Mixed-Effects Logistic Regression (GLMM)** as **Secondary/Validation Analysis**: Input `data/results/combined_logs.csv` (from T030); Model: `success ~ agent_type + (1|trajectory_id)`; Output p-value and effect size. Comply with Plan methodology as secondary.
+- [ ] T033 [US3] Integrate `code/utils/memory_profiler.py` (T006) to log overhead and ensure <10% latency increase (FR-006 / Constitution Principle VII).
+- [ ] T034 [US3] Implement `code/evaluation/stats.py` to handle negative/shuffled controls to isolate retrieval variable.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,11 +152,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Documentation updates in `docs/` for the synthetic benchmark generation logic
-- [ ] T040 Code cleanup and refactoring of `code/evaluation/stats.py` for clarity
-- [ ] T041 Performance optimization for retrieval index building (ensure it fits in RAM)
-- [ ] T042 [P] Additional unit tests for edge cases (ambiguous similarity scores, missing context) in `tests/unit/`
-- [ ] T043 Run `code/quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T035 [P] Documentation updates in `docs/` for the synthetic benchmark generation logic
+- [ ] T036 Code cleanup and refactoring of `code/evaluation/stats.py` for clarity
+- [ ] T037 Performance optimization for retrieval index building (ensure it fits in RAM)
+- [ ] T038 [P] Additional unit tests for edge cases (ambiguous similarity scores, missing context) in `tests/unit/`
+- [ ] T039 Run `code/quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -168,8 +167,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -216,7 +215,7 @@ Task: "Implement code/data_generation/synthetic_benchmark.py..."
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (T010, T011, T012, T016, T017b)
+3. Complete Phase 3: User Story 1 (T009, T010, T011, T012, T013)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -234,9 +233,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Generation)
-   - Developer B: User Story 2 (Baseline Execution)
-   - Developer C: User Story 3 (Recall & Stats)
+ - Developer A: User Story 1 (Data Generation)
+ - Developer B: User Story 2 (Baseline Execution)
+ - Developer C: User Story 3 (Recall & Stats)
 3. Stories complete and integrate independently
 
 ---
@@ -252,7 +251,7 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: The synthetic benchmark MUST use procedural generation based on verified templates; no fallback to synthetic mock data if the generator fails.
 - **Resource Constraints**: All agent execution tasks MUST enforce CPU-only and 4-bit quantization to fit within the GB RAM limit.
-- **Statistical Rigor**: The primary analysis MUST use Mixed-Effects Logistic Regression (GLMM) as per the Plan and amended Spec FR-005 (T036a), with Wilcoxon as a secondary check.
-- **Scope**: Tasks reflect the Plan's reduced scope (30 trajectories) per amended Spec FR-001 (T012a).
-- **Reproducibility**: All validation (T017b) is automated (expert-system) to comply with Constitution Principle I.
-- **Model Verification**: T020a enforces static pre-verification of models; runtime pivots are forbidden.
+- **Statistical Rigor**: The primary analysis MUST use Wilcoxon signed-rank test as per Spec FR-005, with GLMM as secondary validation.
+- **Scope**: Tasks reflect the Spec's requirements (≥50 trajectories, Wilcoxon primary) while implementing the Plan's methodology where it does not conflict.
+- **Reproducibility**: All validation (T013) is automated (expert-system) but must preserve the 'human-in-the-loop' option as per FR-007.
+- **Model Verification**: T016 enforces static pre-verification of models; runtime pivots are forbidden.

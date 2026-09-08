@@ -1,0 +1,82 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-memgui-followup"
+version = "0.1.0"
+description = "Extension of MemGUI-Agent for long-horizon mobile GUI tasks"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "transformers",
+    "sentence-transformers",
+    "datasets",
+    "statsmodels",
+    "scipy",
+    "accelerate",
+    "pandas",
+    "pytest",
+    "bitsandbytes",
+    "ruff",
+    "black",
+]
+
+[tool.ruff]
+# Linter configuration
+line-length = 88
+target-version = "py39"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"tests/*" = ["S101"] # assert allowed in tests
+
+[tool.ruff.isort]
+known-first-party = ["data_generation", "agents", "retrieval", "evaluation", "utils"]
+force-sort-within-sections = true
+case-sensitive = true
+
+[tool.black]
+# Black formatting configuration
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
