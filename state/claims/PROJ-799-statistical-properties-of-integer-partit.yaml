@@ -3063,3 +3063,454 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T06:39:00Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: Analysis scope bounded by n_max = 50000
+  claim_id: c_64fb9dfd
+  context: The scope of this analysis is bounded by $n_{max} = 50,000$, a limit chosen
+    to balance computational feasibility with the observation of asymptotic trends
+    in the "transition region" where prime density effects become dominant.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scope of this analysis is bounded by $n_{max} = 50,000$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:46:59Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: Hardy-Ramanujan asymptotic formula for p(n)
+  claim_id: c_db536d81
+  context: 'The asymptotic behavior of $p(n)$, derived by Hardy and Ramanujan using
+    the circle method, is: $$ p(n) \sim \frac{1}{4n\sqrt{3}} \exp\left(\pi \sqrt{\frac{2n}{3}}\right)
+    $$'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The asymptotic behavior of $p(n)$, derived by Hardy and Ramanujan using
+    the circle method, is $p(n) \sim \frac{1}{4n\sqrt{3}} \exp\left(\pi \sqrt{\frac{2n}{3}}\right)$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:48:30Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: Prime number theorem density pi(x) ~ x/ln x
+  claim_id: c_da981a2e
+  context: The set of primes $\mathbb{P}$ has density zero in the integers ($\pi(x)
+    \sim x/\ln x$). The "holes" (composite numbers) are not minor perturbations; they
+    fundamentally alter the combinatorial structure.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 10000 104729
+      source_id: A000040
+      url: https://oeis.org/A000040
+      value: '104729'
+    filled: true
+  kind: entity_fact
+  raw_text: The set of primes $\mathbb{P}$ has density zero in the integers ($\pi(x)
+    \sim x/\ln x$).
+  resolved_value: '104729'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T14:49:20Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: Asymptotic form of distinct prime partitions p_P(n) ~ C n^-gamma exp(K
+    sqrt(n)/sqrt(ln n))
+  claim_id: c_0cffba8a
+  context: 'Because the density of summands is $\pi(x) \sim x/\ln x$, the resulting
+    asymptotic form (derived via Meinardus'' theorem for sets with density $\sim x^\alpha
+    / (\ln x)^\beta$) takes the form: $$ p_{\mathcal{P}}(n) \sim C \cdot n^{-\gamma}
+    \exp\left( K \frac{\sqrt{n}}{\sqrt{\ln n}} \right) $$'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Asymptotic_form_of_distinct_prime_partitions_p_P(n)_~_C_n%5E-g
+  kind: entity_fact
+  raw_text: The resulting asymptotic form for $p_{\mathcal{P}}(n)$ takes the form
+    $p_{\mathcal{P}}(n) \sim C \cdot n^{-\gamma} \exp\left( K \frac{\sqrt{n}}{\sqrt{\ln
+    n}} \right)$.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:51:46Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: Transition region defined as 100 <= n <= 50000
+  claim_id: c_5b89b66a
+  context: '-   **Transition Region ($100 \le n \le 50,000$)**: This is the primary
+    focus of our study. Here, the number of partitions is large enough to exhibit
+    statistical trends, but the discrete nature of primes (gaps) is still significant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Transition_region_defined_as_100_%3C=_n_%3C=_50000
+  kind: entity_fact
+  raw_text: The transition region is defined as $100 \le n \le 50,000$.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:52:59Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: Exact DP computation feasible within 6 hours and 6.5 GB memory for n=50000
+  claim_id: c_a8b5dba5
+  context: 'This limit is chosen because: 1. It represents a computational boundary
+    where exact DP computation (using the distinct-prime algorithm) remains feasible
+    within our time budget (6 hours) and memory constraints (< 6.5 GB).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exact_DP_computation_feasible_within_6_hours_and_6.5_GB_memo
+  kind: magnitude
+  raw_text: The exact DP computation for the distinct-prime algorithm remains feasible
+    within a time budget of 6 hours and memory constraints of less than 6.5 GB for
+    $n_{max} = 50,000$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:53:58Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Generate primes up to 50,000 using Sieve of Eratosthenes
+  claim_id: c_6379030e
+  context: 'Implement code/utils/prime_sieve.py: Generate primes up to 50,000 using
+    Sieve of Eratosthenes. Use a boolean array for memory optimization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate primes up to 50,000 using Sieve of Eratosthenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:55:11Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Save primes to data/cache/primes.npy as 1D np.int32 array
+  claim_id: c_f645c925
+  context: 'Output: Save the list of primes to data/cache/primes.npy as a 1D np.int32
+    array. Verification: Ensure the file exists, dtype is int32, and shape matches
+    the count of primes <= 50,000.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_primes_to_data/cache/primes.npy_as_1D_np.int32_array
+  kind: entity_fact
+  raw_text: Save the list of primes to data/cache/primes.npy as a 1D np.int32 array.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:55:36Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Compute exact p_P(n) for n in [1, 100] using distinct-prime DP
+  claim_id: c_6aa98637
+  context: 'Generate Reference Data: Implement code/generate_reference.py to compute
+    exact p_P(n) for all n in the range n in [1, 100] using the exact same distinct-prime
+    DP algorithm as T011, limited to this range.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute exact p_P(n) for all n in the range n in [1, 100] using the exact
+    same distinct-prime DP algorithm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:56:26Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Justify n_max=50,000 as transition region for prime gap impact
+  claim_id: c_b3972fc7
+  context: 'Implement docs/scope_justification.md: Explicitly define and document
+    the asymptotic regime (small n vs large n vs transition region) for the analysis.
+    Justify the n_max=50,000 limit as a transition region where prime gaps begin to
+    significantly impact the density of summands, distinguishing it from the unrestricted
+    partition regime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Justify the n_max=50,000 limit as a transition region where prime gaps
+    begin to significantly impact the density of summands.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:57:21Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Cite Meinardus 1954 and Andrews 1998 for density pi(x) ~ x/ln x
+  claim_id: c_d59e88b7
+  context: 'Update code/utils/asymptotic_baseline.py: Add a detailed docstring and
+    inline comments deriving the leading-order term of Q_as(n) specifically for distinct
+    prime partitions. Cite Meinardus (1954) and Andrews (1998) regarding the application
+    to sets with density pi(x) ~ x/ln x.'
+  evidence:
+    asserted: '1954.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Cite Meinardus (1954) and Andrews (1998) regarding the application to
+    sets with density pi(x) ~ x/ln x.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T14:57:21Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Meinardus distinct-partition uses leading-order from product (1+q^p)
+  claim_id: c_7b269624
+  context: 'Implement code/utils/asymptotic_baseline.py: Implement Q_as(n) based on
+    the distinct-partition variant of Meinardus'' theorem. The implementation must
+    use the leading-order term derived from the generating function product (1+q^p).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The distinct-partition variant of Meinardus' theorem uses the leading-order
+    term derived from the generating function product (1+q^p).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T14:58:36Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Distinct-prime generating function is product (1+q^p)
+  claim_id: c_00286db4
+  context: 'Add documentation to generate_partitions.py: Add a docstring explaining
+    the generating function product_{p in P} (1+q^p) and explicitly distinguishing
+    it from the unrestricted partition generating function product (1-q^k)^-1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The distinct-prime generating function is product_{p in P} (1+q^p).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:00:29Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Unrestricted partition generating function is product (1-q^k)^-1
+  claim_id: c_aa2b453d
+  context: 'Add documentation to generate_partitions.py: Add a docstring explaining
+    the generating function product_{p in P} (1+q^p) and explicitly distinguishing
+    it from the unrestricted partition generating function product (1-q^k)^-1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unrestricted partition generating function is product (1-q^k)^-1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:02:00Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Generate partition data up to n=50,000
+  claim_id: c_9240a432
+  context: Generate data for the full range of n values up to 50,000. Include --n-max
+    argument using argparse with a default set to 50000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data for the full range of n values up to 50,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:02:45Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Verify memory usage < 6.5 GB for generate_partitions.py
+  claim_id: c_2f62ab4c
+  context: Verify memory usage < 6.5 GB during execution. Requires T004, T005, T013,
+    T018, T040, T041, T044 to complete.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify memory usage < 6.5 GB during execution of generate_partitions.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:02:45Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: DP generation phase completes within 1.25 hours
+  claim_id: c_318f9173
+  context: 'Time-budget test: Verify that the DP generation phase completes within
+    1.25 hours (derived from SC-004 total time budget of 6h minus 1.25h buffer for
+    US2 and US3) in tests/test_pipeline.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the DP generation phase completes within 1.25 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:03:09Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Feature engineering and modeling phase completes within 3.0 hours
+  claim_id: c_7fc63996
+  context: 'Time-budget test: Verify that the feature engineering and modeling phase
+    (US2) completes within 3.0 hours (derived from SC-004 total 6h minus 1.25h DP
+    and 1.75h buffer for US3) in tests/test_pipeline.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the feature engineering and modeling phase completes within
+    3.0 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:03:30Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Visualization phase completes within 0.75 hours
+  claim_id: c_f7406cb0
+  context: 'Time-budget test: Verify that the visualization phase (US3) completes
+    within 0.75 hours (derived from SC-004 total 6h minus 1.25h DP and 3.0h US2) in
+    tests/test_pipeline.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the visualization phase completes within 0.75 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:03:51Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Entire pipeline completes within 6 hours
+  claim_id: c_083e6327
+  context: Run code/run_full_pipeline.py to execute the entire sequence (US1 -> US2
+    -> US3) in a single run. Measure and report the total execution time to verify
+    SC-004 (6-hour limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entire pipeline must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:04:20Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni and Benjamini-Hochberg corrections with alpha=0.05
+  claim_id: c_55c6a510
+  context: Apply BOTH Bonferroni and Benjamini-Hochberg corrections (alpha=0.05) to
+    the list of raw p-values (FR-005, SC-005). Write both sets of corrected p-values
+    to data/processed/model_results_full.json under keys 'full_model_bonferroni' and
+    'full_model_bh'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply BOTH Bonferroni and Benjamini-Hochberg corrections (alpha=0.05)
+    to the list of raw p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:04:44Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Calculate Newey-West standard errors for regression coefficients
+  claim_id: c_401317af
+  context: Calculate Newey-West standard errors (or HAC estimators) for the regression
+    model coefficients to handle autocorrelation in residuals as required by the plan's
+    'Statistical Rigor' section.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_Newey-West_standard_errors_for_regression_coeffici
+  kind: entity_fact
+  raw_text: Calculate Newey-West standard errors for the regression model coefficients
+    to handle autocorrelation in residuals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:05:24Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if CV R^2 < 0.05
+  claim_id: c_390b87b4
+  context: If the CV R^ is less than 0.05, raise a RuntimeError with message 'CV R^2
+    < 0.05 threshold met'.
+  evidence:
+    asserted: 'True'
+    compute:
+      computed: 'False'
+      expression: 2<0.05
+    corrected: true
+    mode: computational
+  kind: magnitude
+  raw_text: If the CV R^2 is less than 0.05, raise a RuntimeError with message 'CV
+    R^2 < 0.05 threshold met'.
+  resolved_value: 'False'
+  resolver: compute
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T15:05:25Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit/tasks.md
+  attempts: 1
+  canonical: Exclude rows where n < 5 or p_P(n) <= 0 from features.csv
+  claim_id: c_779c3ef2
+  context: Explicitly exclude rows where n < 5 or p_P(n) <= 0 from the output features.csv
+    to handle edge cases as required by the spec.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly exclude rows where n < 5 or p_P(n) <= 0 from the output features.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T15:06:44Z'

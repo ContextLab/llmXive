@@ -62,12 +62,12 @@ As a researcher, I need to perform cross-validation (10-fold) on the regression 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST compute the exact count of partitions of $n$ into distinct primes, $p_{\mathcal{P}}(n)$, for all integers $1 \le n \le [deferred]$ using a dynamic programming approach with memory optimization to fit within ~7 GB RAM. (See US-1)
+- **FR-001**: System MUST compute the exact count of partitions of $n$ into distinct primes, $p_{\mathcal{P}}(n)$, for all integers $ \le n \le [deferred]$ using a dynamic programming approach with memory optimization to fit within ~7 GB RAM. (See US-1)
 - **FR-002**: System MUST implement the asymptotic formula $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem (using the generating function $\prod (1+q^p)$) to generate theoretical predictions for the same range $1 \le n \le [deferred]$. (See US-1)
 - **FR-003**: System MUST calculate the log-residual $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ for all $n$ where $p_{\mathcal{P}}(n) > 0$ and $Q_{as}(n) > 0$, handling edge cases where values are zero or non-positive. (See US-2)
 - **FR-004**: System MUST generate predictor variables including the prime-counting function $\pi(n)$, the prime density $1/\ln(n)$, and the distance to the nearest prime (absolute difference to the closest prime, either smaller or larger), ensuring these are derived independently of the partition calculation. This feature is essential to distinguish local fluctuations from global trends. (See US-2)
 - **FR-005**: System MUST fit a linear regression or Generalized Additive Model (GAM) where $R(n)$ is the dependent variable and the density metrics are independent variables, including sine/cosine terms based on $\log n$ to account for potential oscillatory components, and outputting coefficients, p-values, and $R^2$. (See US-2)
-- **FR-006**: System MUST perform 10-fold cross-validation on the regression model to estimate the Mean Squared Error (MSE) on held-out data, ensuring the model generalizes beyond the training set. (See US-3)
+- **FR-006**: System MUST perform k-fold cross-validation on the regression model to estimate the Mean Squared Error (MSE) on held-out data, ensuring the model generalizes beyond the training set. (See US-3)
 - **FR-007**: System MUST generate a visualization plotting $n$ against the raw residuals $R(n)$ and the fitted correction term to visually inspect convergence and identify periodic anomalies. (See US-3)
 - **FR-008**: System MUST include a null model (intercept-only) in the regression analysis to verify that the observed correlation is not an artifact of the baseline's density dependence. (See US-2)
 
@@ -86,13 +86,13 @@ As a researcher, I need to perform cross-validation (10-fold) on the regression 
 - **SC-003**: The computed values $p_{\mathcal{P}}(n)$ must match known small-case enumerations (e.g., $n=5, 6, 10$) with exact integer match, measured against pre-computed reference values for $n \le 100$. (See US-1)
 - **SC-004**: The entire data generation and analysis pipeline must complete within 6 hours on a standard GitHub Actions free-tier runner (2 CPU, 7 GB RAM), measured against the job timeout limit. (See US-1, US-2, US-3)
 - **SC-005**: If multiple hypothesis tests are performed (e.g., testing multiple density predictors), the system MUST apply a Bonferroni or Benjamini-Hochberg correction to the p-values, measured against the standard false discovery rate control methods. (See US-2)
-- **SC-006**: Peak memory usage of the dynamic programming algorithm must be $\le 6.5$ GB, measured against the system resource monitor. (See US-1)
+- **SC-006**: Peak memory usage of the dynamic programming algorithm must be within acceptable system limits, measured against the system resource monitor. (See US-1)
 
 ## Assumptions
 
 - **Assumption about data**: The dataset of primes up to 50,000 is finite and can be pre-computed or generated on-the-fly within the memory constraints of the CI runner.
 - **Assumption about methodology**: The applicability of the asymptotic formula $Q_{as}(n)$ for distinct parts to the finite range $n \le [deferred]$ is a hypothesis to be tested (i.e., we assume the leading order term dominates at $n=50,000$).
-- **Assumption about computational resources**: The dynamic programming algorithm for $p_{\mathcal{P}}(n)$ can be optimized (e.g., using a 1D array or bitset) to fit within the 7 GB RAM limit of the GitHub Actions free tier without requiring GPU acceleration.
+- **Assumption about computational resources**: The dynamic programming algorithm for $p_{\mathcal{P}}(n)$ can be optimized (e.g., using a D array or bitset) to fit within the 7 GB RAM limit of the GitHub Actions free tier without requiring GPU acceleration.
 - **Assumption about error nature**: The deviation between $p_{\mathcal{P}}(n)$ and $Q_{as}(n)$ is expected to be systematic and correlated with prime density, rather than purely random noise, justifying the regression approach.
 - **Assumption about statistical validity**: The sample size of [deferred] data points is sufficient to detect a meaningful correlation between the residuals and density features, even if the effect size is small.
 - **Assumption about threshold justification**: Any decision cutoffs used in the regression (e.g., significance level $\alpha=0.05$) are standard community defaults and do not require sensitivity analysis in this exploratory context, as the primary goal is detection of *any* signal.

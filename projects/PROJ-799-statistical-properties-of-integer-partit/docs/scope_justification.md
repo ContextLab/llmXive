@@ -1,64 +1,80 @@
-# Scope Justification: Asymptotic Regimes and the $n_{max}=50,000$ Limit
+# Scope Justification: Statistical Properties of Integer Partitions into Distinct Prime Summands
 
 ## 1. Introduction
 
-This document explicitly defines the asymptotic regimes relevant to the analysis of integer partitions into distinct prime summands, $p_{\mathcal{P}}(n)$. It justifies the selection of $n_{max} = 50,000$ as the upper bound for this study, distinguishing the "transition region" of this analysis from both the small-$n$ regime and the true large-$n$ asymptotic limit of the unrestricted partition function.
+This project investigates the statistical properties of $p_{\mathcal{P}}(n)$, the number of partitions of an integer $n$ into **distinct prime summands**. This is a distinct combinatorial problem from the classical unrestricted partition function $p(n)$. The scope of this analysis is bounded by $n_{max} = 50,000$, a limit chosen to balance computational feasibility with the observation of asymptotic trends in the "transition region" where prime density effects become dominant.
 
-The primary motivation for this scope definition is to address a critical observation regarding the generating function of the problem. Unlike the unrestricted partition function $p(n)$, which has the generating function:
-$$ G(q) = \prod_{k=1}^{\infty} \frac{1}{1-q^k} $$
-the distinct-prime partition function $p_{\mathcal{P}}(n)$ is governed by:
-$$ G_{\mathcal{P}}(q) = \prod_{p \in \mathbb{P}} (1+q^p) $$
-where $\mathbb{P}$ is the set of prime numbers. This fundamental structural difference means that $p_{\mathcal{P}}(n)$ is not merely a perturbation of $p(n)$; it is a distinct combinatorial object subject to the distribution of prime numbers.
+## 2. The Distinct-Prime Generating Function vs. Unrestricted Partitions
 
-## 2. Definition of Asymptotic Regimes
+A critical distinction must be made between the generating functions governing unrestricted partitions and those governing partitions into distinct primes. Confusing these two leads to fundamental errors in asymptotic analysis.
 
-### 2.1 The Small-$n$ Regime ($n < 50$)
-In this regime, the discrete nature of the prime summands dominates the behavior of the partition function.
-- **Characteristics**: $p_{\mathcal{P}}(n)$ is zero for $n < 2$ and exhibits significant stochastic fluctuations for small $n$ due to the sparsity of primes.
-- **Behavior**: The asymptotic formulas derived from Meinardus' theorem or saddle-point approximations are **invalid** here. The density of primes $\pi(n)$ is too low to approximate the sum over primes with an integral.
-- **Treatment**: This regime is excluded from the primary regression analysis (US2) and treated as a boundary condition where $p_{\mathcal{P}}(n) = 0$ for $n < 5$ (the first prime is 2, but distinct primes require $2+3=5$ for a second partition).
+### 2.1 Unrestricted Partitions (Hardy-Ramanujan)
 
-### 2.2 The Transition Region ($50 \le n \le 50,000$)
-This is the primary scope of the current investigation.
-- **Characteristics**: The number of available prime summands increases, allowing for non-trivial partition counts. However, the "holes" created by prime gaps (composite numbers that cannot be summands) remain significant relative to the total number of integers.
-- **Prime Gap Impact**: In this range, the average prime gap $g_n \approx \ln n$ is small but non-negligible. The gaps create a "rough" density landscape for the summands. The generating function $\prod (1+q^p)$ does not yet smooth out into a continuous density approximation effectively enough to ignore the local variance in prime density.
-- **Why $n_{max}=50,000$?**:
- 1. **Computational Feasibility**: Calculating exact $p_{\mathcal{P}}(n)$ via dynamic programming up to $n=50,000$ is computationally tractable within the 6-hour project budget (SC-004) while requiring memory $< 6.5$ GB.
- 2. **Theoretical Bound**: At $n=50,000$, $\pi(n) \approx 5,133$. The ratio of primes to integers is $\approx 0.1$. This is the threshold where the "distinct prime" constraint begins to diverge significantly from the "distinct integer" constraint, yet remains far from the dense limit where $p_{\mathcal{P}}(n)$ might asymptotically approach a scaled version of $p(n)$.
- 3. **Gap Dominance**: In this region, the prime gap size $g_n$ is large enough (average $\approx 11$) to create measurable "holes" in the partition generation process, which is the specific phenomenon this project aims to model (US2, T016a).
+The classical partition function $p(n)$ counts the number of ways to write $n$ as a sum of positive integers, where order does not matter and repetitions are allowed. Its generating function is:
+$$
+G_{unrestricted}(q) = \prod_{k=1}^{\infty} \frac{1}{1-q^k} = \sum_{n=0}^{\infty} p(n)q^n
+$$
+The asymptotic behavior of $p(n)$, derived by Hardy and Ramanujan using the circle method, is:
+$$
+p(n) \sim \frac{1}{4n\sqrt{3}} \exp\left(\pi \sqrt{\frac{2n}{3}}\right)
+$$
+This growth is driven by the fact that **every** integer $k \ge 1$ is available as a summand. The density of summands is maximal (density 1), and the partition function grows extremely rapidly.
 
-### 2.3 The Large-$n$ Asymptotic Regime ($n \to \infty$)
-- **Characteristics**: As $n \to \infty$, the prime number theorem suggests $\pi(n) \sim n/\ln n$. The distribution of primes becomes dense enough that the discrete sum in the exponent of the generating function can be approximated by an integral.
-- **Theoretical Limit**: In this limit, $p_{\mathcal{P}}(n)$ is expected to follow a specific asymptotic form derived from the distinct-partition variant of Meinardus' theorem:
- $$ \ln p_{\mathcal{P}}(n) \sim C \sqrt{\frac{n}{\ln n}} $$
- where $C$ is a constant derived from the Riemann zeta function and the density of primes.
-- **Exclusion**: This regime is **outside** the scope of the current project. Reaching the true asymptotic limit where prime gaps become negligible relative to $n$ would require $n$ values orders of magnitude larger than 50,000, making exact computation of $p_{\mathcal{P}}(n)$ infeasible.
+### 2.2 Distinct Prime Partitions
 
-## 3. Justification of the $n_{max}=50,000$ Limit
+In contrast, $p_{\mathcal{P}}(n)$ counts partitions where:
+1. Summands must be **prime numbers**.
+2. Summands must be **distinct** (no repetitions).
 
-The choice of $n_{max} = 50,000$ is not arbitrary but is a deliberate selection of the **transition region** where the specific effects of prime gaps are most pronounced and measurable.
+The generating function for this sequence is:
+$$
+G_{distinct-prime}(q) = \prod_{p \in \mathbb{P}} (1 + q^p) = \sum_{n=0}^{\infty} p_{\mathcal{P}}(n)q^n
+$$
+where $\mathbb{P} = \{2, 3, 5, 7, 11, \dots\}$.
 
-1. **Addressing the "Holes" Concern**:
- The reviewer raised a concern that "prime gaps create 'holes' that fundamentally alter the asymptotic regime." This project explicitly targets this phenomenon.
- - In the unrestricted partition function, every integer $k$ is a valid summand.
- - In $p_{\mathcal{P}}(n)$, the set of valid summands is $\mathbb{P}$. The "holes" are the composite numbers.
- - At $n=50,000$, the density of these holes is high enough to cause systematic deviations from the unrestricted partition curve, but low enough that the dynamic programming algorithm can still resolve the exact counts.
- - If we were to extend to $n=10^9$, the "holes" would effectively average out, and the specific local variance caused by gaps (the target of the regression model in US2) would be lost in the global trend.
+**Why the Hardy-Ramanujan Formula is Invalid Here:**
+Applying the Hardy-Ramanujan asymptotic to $p_{\mathcal{P}}(n)$ is mathematically incorrect for two primary reasons:
+1. **Summand Density**: {{claim:c_da981a2e}} (OEIS A000040, https://oeis.org/A000040) The "holes" (composite numbers) are not minor perturbations; they fundamentally alter the combinatorial structure. The generating function is a product over a sparse subset of integers, not the fullset.
+2. **Distinctness Constraint**: The factor $(1+q^p)$ enforces distinctness (each prime can be used 0 or 1 time), whereas the unrestricted factor $(1-q^k)^{-1}$ allows infinite repetition. This drastically reduces the number of available combinations.
 
-2. **Distinguishing from Unrestricted Partitions**:
- The unrestricted partition function $p(n)$ grows as $\exp(\pi \sqrt{2n/3})$. The distinct-prime partition function grows significantly slower. The region $n \in [1, 50,000]$ is the "sweet spot" where the divergence between $\ln p(n)$ and $\ln p_{\mathcal{P}}(n)$ is large enough to be modeled as a residual error term $R(n)$, but the data is still exact.
+Consequently, $p_{\mathcal{P}}(n)$ grows significantly slower than $p(n)$. The asymptotic behavior is governed by the density of primes, not the density of integers.
 
-3. **Modeling Implications**:
- The regression model in US2 (T017a) is designed to predict $R(n) = \ln p_{\mathcal{P}}(n) - \ln Q_{as}(n)$.
- - If $n$ were too small, $R(n)$ would be dominated by discrete noise.
- - If $n$ were too large (approaching the true asymptotic limit), $R(n)$ would vanish or become a constant, rendering the density features ($\pi(n)$, prime gaps) irrelevant.
- - The range $[1, 50,000]$ is where $R(n)$ is dynamic and correlated with local prime density features.
+### 2.3 The Role of the Prime Number Theorem (PNT)
 
-## 4. Conclusion
+To derive a valid asymptotic approximation for $p_{\mathcal{P}}(n)$, one must invoke the **Prime Number Theorem** within the saddle-point analysis of the generating function.
 
-The scope of this project is strictly limited to the **transition region** of integer partitions into distinct primes. We explicitly define $n_{max}=50,000$ as the boundary of this region. This limit ensures that:
-- The "holes" created by prime gaps are the dominant source of deviation from the unrestricted partition baseline.
-- The exact computation of $p_{\mathcal{P}}(n)$ remains feasible within the project's computational constraints.
-- The asymptotic baseline $Q_{as}(n)$ serves as a meaningful reference point that is distinct from the true $n \to \infty$ limit.
+The logarithm of the generating function is:
+$$
+\ln G_{distinct-prime}(q) = \sum_{p \in \mathbb{P}} \ln(1 + q^p)
+$$
+For $q = e^{-\tau}$ with $\tau \to 0^+$, this sum can be approximated by an integral over the prime density $\pi(x) \sim x/\ln x$. The saddle-point method requires solving for $\tau$ such that the expected value of the sum of primes equals $n$. Because the density of summands is $\pi(x) \sim x/\ln x$, the resulting asymptotic form (derived via Meinardus' theorem for sets with density $\sim x^\alpha / (\ln x)^\beta$) takes the form:
+$$
+p_{\mathcal{P}}(n) \sim C \cdot n^{-\gamma} \exp\left( K \frac{\sqrt{n}}{\sqrt{\ln n}} \right)
+$$
+(Specific constants $C, \gamma, K$ depend on the detailed application of Meinardus' theorem to the prime set).
 
-This scope directly addresses the reviewer's concern by treating the prime gaps not as a minor perturbation, but as the central feature of the analysis, defining the asymptotic regime of the study as the region where these gaps are structurally significant.
+**Addressing Reviewer Concerns:**
+The reviewer correctly noted that "prime gaps create 'holes' that fundamentally alter the asymptotic regime." This is not merely a boundary effect; it is the defining characteristic of the problem. The "holes" (composite numbers) reduce the available summands, and the increasing size of prime gaps as $n$ grows introduces a non-smoothness in the density of summands. Our baseline $Q_{as}(n)$ is explicitly constructed using the distinct-partition variant of Meinardus' theorem, which accounts for the prime density $\pi(x) \sim x/\ln x$, rather than the unrestricted density of 1.
+
+## 3. The Asymptotic Regime: Transition Region
+
+We explicitly define the scope of this analysis as the **Transition Region**.
+
+- **Small $n$ ($n < 100$)**: Discrete effects dominate. The specific values of the first few primes (2, 3, 5) dictate the partition counts. Asymptotic formulas are poor approximations here.
+- **Transition Region ($100 \le n \le 50,000$)**: This is the primary focus of our study. Here, the number of partitions is large enough to exhibit statistical trends, but the discrete nature of primes (gaps) is still significant. The "holes" in the summand set create systematic deviations from a smooth asymptotic curve. We hypothesize that these deviations are correlated with local prime gap sizes and prime density fluctuations.
+- **Large $n$ ($n \gg 50,000$)**: In the true asymptotic limit, the relative impact of individual gaps diminishes, and the smooth density approximation $\pi(x) \sim x/\ln x$ becomes more accurate. However, the growth rate is still fundamentally different from the unrestricted case.
+
+**Justification for $n_{max} = 50,000$:**
+This limit is chosen because:
+1. It represents a computational boundary where exact DP computation (using the distinct-prime algorithm) remains feasible within our time budget (6 hours) and memory constraints (< 6.5 GB).
+2. It is large enough to observe the "transition" behavior where the prime density begins to smooth out but gaps are still influential.
+3. It distinguishes our work from studies that either focus purely on small-number combinatorics or purely on large-$n$ asymptotic theory without empirical validation of the transition.
+
+## 4. Methodology Alignment
+
+Our methodology explicitly contrasts with the unrestricted partition approach:
+- **Baseline**: We use $Q_{as}(n)$ derived from the distinct-prime generating function, not $p(n)$.
+- **Features**: We engineer features specifically designed to capture the "hole" effect (e.g., `prime_gap_size`, `distance_to_nearest_prime`).
+- **Analysis**: We analyze residuals $R(n) = \ln p_{\mathcal{P}}(n) - \ln Q_{as}(n)$ to detect systematic biases caused by the discrete nature of primes in the transition region.
+
+By rigorously distinguishing the distinct-prime generating function from the unrestricted case and focusing on the transition region, this project aims to provide a statistically robust characterization of how prime gaps influence partition statistics.
