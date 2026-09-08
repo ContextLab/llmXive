@@ -5,6 +5,7 @@ requests==2.31.0
 numpy==1.24.3
 pyyaml==6.0.1
 pytest==7.4.0
-psutil==5.9.5
 scipy==1.11.1
-tomlkit==0.12.1
+tomlkit==0.11.8
+black==23.7.0
+ruff==0.0.285

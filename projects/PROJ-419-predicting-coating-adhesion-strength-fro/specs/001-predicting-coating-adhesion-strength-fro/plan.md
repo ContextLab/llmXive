@@ -47,7 +47,7 @@ The plan below outlines the rigorous methodology to be executed **ONLY AFTER** v
 | **III. Data Hygiene** | PASS | Raw data preserved in `data/raw/` with checksums. Derivations written to `data/processed/` with new filenames. No PII allowed. |
 | **IV. Single Source of Truth** | PASS | All figures/stats in `paper/` will trace to specific rows in `data/processed/` and code blocks in `code/`. |
 | **V. Versioning Discipline** | PASS | Artifacts carry content hashes. `state/` YAML updated on changes. |
-| **VI. Computational Stability** | PASS | Models run in CPU-only mode. Nested CV used. Memory capped at 7 GB via sampling. Feature engineering validated for numerical stability. |
+| **VI. Computational Stability** | PASS | Models run in CPU-only mode. Nested CV used. Memory capped via sampling. Feature engineering validated for numerical stability. |
 | **VII. Multi-Modal Rigor** | **FAIL** | **Remediation Required**: Multi-modal alignment (composition + surface) is impossible without verified unique identifiers. Current heuristic mapping is rejected. |
 
 ## Project Structure

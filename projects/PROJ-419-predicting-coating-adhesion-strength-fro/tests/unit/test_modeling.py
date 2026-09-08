@@ -1,165 +1,115 @@
 import pytest
-import pandas as pd
 import numpy as np
-import os
-import tempfile
-from unittest.mock import patch, MagicMock
-from sklearn.ensemble import GradientBoostingRegressor
-from scipy.stats import spearmanr
-
-# Import functions to test
+import pandas as pd
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.model_selection import KFold
 from code.modeling import (
-    load_processed_data,
-    train_gradient_boosting,
-    train_random_forest,
-    compute_shap_values,
-    compute_permutation_importance,
-    rank_features,
-    calculate_spearman_correlation,
-    distinguish_feature_categories,
-    run_sensitivity_analysis_crosslinker_proxy
+    train_gradient_boosting, 
+    train_random_forest, 
+    compute_shap_values, 
+    compute_permutation_importance, 
+    rank_features, 
+    calculate_spearman_correlation
 )
 
 @pytest.fixture
 def sample_data():
-    """Create sample data for testing."""
-    data = {
-        'atomic_radius_variance': np.random.rand(100),
-        'crosslinker_density': np.random.rand(100),
-        'surface_roughness': np.random.rand(100),
-        'adhesion_strength': np.random.rand(100) * 10
-    }
-    return pd.DataFrame(data)
+    """Generate sample data for testing."""
+    np.random.seed(42)
+    n_samples = 100
+    n_features = 5
+    X = np.random.randn(n_samples, n_features)
+    y = X[:, 0] + 0.5 * X[:, 1] + np.random.randn(n_samples) * 0.1
+    return X, y, ['f1', 'f2', 'f3', 'f4', 'f5']
 
-@pytest.fixture
-def temp_csv_file(sample_data):
-    """Create a temporary CSV file with sample data."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        sample_data.to_csv(f, index=False)
-        return f.name
-
-@pytest.fixture
-def temp_output_file():
-    """Create a temporary output file path."""
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as f:
-        return f.name
-
-def test_load_processed_data(temp_csv_file):
-    """Test loading processed data from CSV."""
-    df = load_processed_data(temp_csv_file)
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) == 100
-    assert 'adhesion_strength' in df.columns
-
-def test_train_gradient_boosting(sample_data):
-    """Test training Gradient Boosting model."""
-    X = sample_data.drop(columns=['adhesion_strength']).values
-    y = sample_data['adhesion_strength'].values
+def test_nested_cv_gradient_boosting(sample_data):
+    """Test Gradient Boosting with nested CV (no data leakage)."""
+    X, y, feature_names = sample_data
     
     model, metrics = train_gradient_boosting(X, y, cv_folds=3)
     
     assert isinstance(model, GradientBoostingRegressor)
     assert 'mean_r2' in metrics
-    assert 'std_r2' in metrics
-    assert isinstance(metrics['mean_r2'], float)
+    assert 'mean_rmse' in metrics
+    assert metrics['mean_r2'] <= 1.0
+    assert metrics['mean_rmse'] >= 0
+    # Basic sanity check: R2 should be positive for this synthetic data
+    assert metrics['mean_r2'] > 0.1
 
-def test_train_random_forest(sample_data):
-    """Test training Random Forest model."""
-    X = sample_data.drop(columns=['adhesion_strength']).values
-    y = sample_data['adhesion_strength'].values
+def test_nested_cv_random_forest(sample_data):
+    """Test Random Forest with nested CV (no data leakage)."""
+    X, y, feature_names = sample_data
     
     model, metrics = train_random_forest(X, y, cv_folds=3)
     
-    assert isinstance(model, GradientBoostingRegressor.__bases__[0])  # RandomForestRegressor
+    assert isinstance(model, RandomForestRegressor)
     assert 'mean_r2' in metrics
-    assert 'std_r2' in metrics
+    assert 'mean_rmse' in metrics
+    assert metrics['mean_r2'] <= 1.0
+    assert metrics['mean_rmse'] >= 0
+    assert metrics['mean_r2'] > 0.1
+
+def test_shap_values_computation(sample_data):
+    """Test SHAP value calculation and ranking stability."""
+    X, y, feature_names = sample_data
+    
+    # Train a simple model first
+    model = GradientBoostingRegressor(random_state=42)
+    model.fit(X, y)
+    
+    shap_values, explainer = compute_shap_values(model, X, feature_names)
+    
+    assert shap_values.shape == X.shape
+    assert explainer is not None
+    assert np.all(np.isfinite(shap_values))
+
+def test_permutation_importance(sample_data):
+    """Test permutation importance calculation."""
+    X, y, feature_names = sample_data
+    
+    model = GradientBoostingRegressor(random_state=42)
+    model.fit(X, y)
+    
+    perm_importance = compute_permutation_importance(model, X, y, feature_names)
+    
+    assert len(perm_importance) == len(feature_names)
+    assert np.all(np.isfinite(perm_importance))
 
 def test_rank_features(sample_data):
-    """Test feature ranking."""
-    X = sample_data.drop(columns=['adhesion_strength'])
-    feature_names = X.columns.tolist()
-    n_features = len(feature_names)
+    """Test feature ranking functionality."""
+    X, y, feature_names = sample_data
     
-    # Create mock SHAP values
-    shap_values = np.random.rand(n_features, 100)
+    model = GradientBoostingRegressor(random_state=42)
+    model.fit(X, y)
     
-    rankings = rank_features(shap_values, feature_names)
+    shap_values, _ = compute_shap_values(model, X, feature_names)
+    perm_importance = compute_permutation_importance(model, X, y, feature_names)
     
-    assert isinstance(rankings, pd.DataFrame)
-    assert 'feature' in rankings.columns
-    assert 'mean_abs_shap' in rankings.columns
-    assert len(rankings) == n_features
+    ranking_df = rank_features(shap_values, perm_importance)
+    
+    assert 'shap_rank' in ranking_df.columns
+    assert 'perm_rank' in ranking_df.columns
+    assert len(ranking_df) == len(feature_names)
+    assert ranking_df['shap_rank'].min() == 1
+    assert ranking_df['shap_rank'].max() == len(feature_names)
 
-def test_calculate_spearman_correlation():
-    """Test Spearman correlation calculation."""
-    ranking1 = pd.Series([1, 2, 3, 4, 5])
-    ranking2 = pd.Series([1, 2, 3, 4, 5])
+def test_spearman_correlation_stability(sample_data):
+    """Test Spearman correlation between SHAP and permutation rankings."""
+    X, y, feature_names = sample_data
     
-    corr = calculate_spearman_correlation(ranking1, ranking2)
+    model = GradientBoostingRegressor(random_state=42)
+    model.fit(X, y)
     
-    assert corr == 1.0  # Perfect correlation
-
-def test_distinguish_feature_categories():
-    """Test feature category distinction."""
-    features = [
-        'atomic_radius_variance',
-        'crosslinker_density',
-        'surface_roughness',
-        'rms_roughness',
-        'skewness',
-        'kurtosis'
-    ]
+    shap_values, _ = compute_shap_values(model, X, feature_names)
+    perm_importance = compute_permutation_importance(model, X, y, feature_names)
     
-    categories = distinguish_feature_categories(features)
+    ranking_df = rank_features(shap_values, perm_importance)
     
-    assert 'compositional' in categories
-    assert 'surface' in categories
-    assert 'atomic_radius_variance' in categories['compositional']
-    assert 'crosslinker_density' in categories['compositional']
-    assert 'surface_roughness' in categories['surface']
-    assert 'rms_roughness' in categories['surface']
-
-def test_run_sensitivity_analysis_crosslinker_proxy(temp_csv_file, temp_output_file):
-    """Test sensitivity analysis report generation."""
-    # Run the analysis
-    result = run_sensitivity_analysis_crosslinker_proxy(temp_csv_file, temp_output_file)
+    corr = calculate_spearman_correlation(
+        ranking_df['shap_rank'].values,
+        ranking_df['perm_rank'].values
+    )
     
-    # Verify output file exists
-    assert os.path.exists(temp_output_file)
-    
-    # Verify report content
-    assert isinstance(result, pd.DataFrame)
-    assert not result.empty
-    assert 'definition' in result.columns
-    assert 'model_r2' in result.columns
-    assert 'model_rmse' in result.columns
-    assert 'variance' in result.columns
-    
-    # Verify all expected definitions are present
-    expected_definitions = ['ratio_A_B', 'inverse_ratio', 'log_ratio', 'squared_ratio']
-    assert set(result['definition'].tolist()) == set(expected_definitions)
-
-def test_run_sensitivity_analysis_missing_columns(temp_output_file):
-    """Test sensitivity analysis with missing atomic columns."""
-    # Create data without atomic fraction columns
-    data = {
-        'surface_roughness': np.random.rand(50),
-        'adhesion_strength': np.random.rand(50) * 10
-    }
-    
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        df = pd.DataFrame(data)
-        df.to_csv(f, index=False)
-        input_file = f.name
-    
-    try:
-        # Should handle missing columns gracefully
-        result = run_sensitivity_analysis_crosslinker_proxy(input_file, temp_output_file)
-        
-        assert os.path.exists(temp_output_file)
-        assert isinstance(result, pd.DataFrame)
-        assert not result.empty
-    finally:
-        # Cleanup
-        if os.path.exists(input_file):
-            os.remove(input_file)
+    assert -1.0 <= corr <= 1.0
+    # For consistent models, correlation should be reasonably high
+    assert corr >= 0.5

@@ -1,3 +1,10 @@
+T015:
+  c: false
+  h: 4fb00f3f8c462d69609010a9435bfd6b1d1f01a302b26f1a70216222b1ce77c1
+  r: The required output file `data/processed/proxy_validation_report.csv` is missing,
+    and the implemented function does not clearly use the internal thresholds (`PROXY_R2_THRESHOLD`,
+    `VARIANCE_THRESHOLD`) from `code/config.py` as the task specifies. The artifact
+    must be generated and the logic must reference those config values.
 T041:
   c: false
   h: 3e364ac40cbb44b855e08a21caf2ff51edd676bf527ed44a1fa005db89a8867e
