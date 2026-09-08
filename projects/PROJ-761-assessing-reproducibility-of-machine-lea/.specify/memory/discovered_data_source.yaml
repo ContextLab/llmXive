@@ -1,12 +1,12 @@
 status: none
-intent: downloadable Papers with Code dataset API python package open source
+intent: USPTO Extract reaction dataset USPTO Balanced v1.0 download pip install python
+  package dataset
 required_fields:
-- doi
-- repository_url
-- dataset_name
-- reported_mae
-- reported_r2
-- reported_spearman_rho
-cache_key: 7edf71804a6bc4cf0278cece7aa3b262583a7d751feb6576bdf6ae998890418f
-searched_at: '2026-09-02T23:27:56.754249+00:00'
+- reaction_smiles
+- reactant_smiles
+- product_smiles
+- yield_percent
+- reaction_id
+cache_key: 845972799cfcffce48d0a5d30b7dc99f5a5bb2df2961982242639f248544940d
+searched_at: '2026-09-08T06:35:50.841223+00:00'
 retry_count: 1
