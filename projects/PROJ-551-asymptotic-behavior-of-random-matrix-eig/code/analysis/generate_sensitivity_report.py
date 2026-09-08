@@ -1,206 +1,230 @@
+"""
+Task T030: Generate sensitivity report data/processed/sensitivity_report.md.
+
+This script aggregates statistical validation results from T029a (sensitivity_variation.csv)
+and the raw density sweep data (sensitivity_density_sweep.csv) to produce a comprehensive
+Markdown report stating the stability or shift magnitude of the critical threshold theta_c
+across sparsity densities.
+
+It explicitly includes the statistical validation (t-test results) required by the spec.
+"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+import csv
+from datetime import datetime, timezone
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure code directory is in path for imports
+code_root = Path(__file__).resolve().parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
 from utils.config import get_project_paths
 
-logger = logging.getLogger(__name__)
+def setup_logging() -> logging.Logger:
+    logger = logging.getLogger("generate_sensitivity_report")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        logger.addHandler(handler)
+    return logger
 
-def load_sensitivity_variation_csv(path: Path) -> List[Dict[str, Any]]:
-    """Load the sensitivity variation CSV data."""
-    import csv
+def load_sensitivity_variation_csv(logger: logging.Logger) -> List[Dict[str, Any]]:
+    """
+    Load the sensitivity variation results from data/processed/sensitivity_variation.csv.
+    Schema: density, theta_c, std_dev, p_value, shift_flag
+    """
+    paths = get_project_paths()
+    input_path = paths['processed'] / 'sensitivity_variation.csv'
+    
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {input_path}. "
+            "Ensure T029a has completed successfully."
+        )
+
     data = []
-    with open(path, 'r', newline='', encoding='utf-8') as f:
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             data.append({
                 'density': float(row['density']),
                 'theta_c': float(row['theta_c']),
-                'std_dev': float(row['std_dev'])
+                'std_dev': float(row['std_dev']),
+                'p_value': float(row['p_value']),
+                'shift_flag': row['shift_flag'].lower() == 'true'
             })
+    
+    logger.info(f"Loaded {len(data)} rows from {input_path}")
     return data
 
-def load_sensitivity_statistics(path: Path) -> Optional[Dict[str, Any]]:
-    """Load the sensitivity statistics JSON if it exists."""
-    if not path.exists():
-        logger.warning(f"Statistics file not found at {path}. Generating report without statistical validation.")
-        return None
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        logger.warning(f"Could not load statistics file {path}: {e}. Generating report without statistical validation.")
-        return None
+def load_sensitivity_density_sweep(logger: logging.Logger) -> List[Dict[str, Any]]:
+    """
+    Load the raw density sweep data to calculate summary statistics if needed.
+    """
+    paths = get_project_paths()
+    input_path = paths['processed'] / 'sensitivity_density_sweep.csv'
+    
+    if not input_path.exists():
+        logger.warning(f"Raw sweep file not found: {input_path}. Skipping raw data summary.")
+        return []
 
-def load_sensitivity_density_sweep(path: Path) -> List[Dict[str, Any]]:
-    """Load the raw sensitivity density sweep data."""
-    import csv
     data = []
-    with open(path, 'r', newline='', encoding='utf-8') as f:
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Parse numeric fields
-            parsed = {}
-            for key, value in row.items():
-                try:
-                    parsed[key] = float(value)
-                except (ValueError, TypeError):
-                    parsed[key] = value
-            data.append(parsed)
+            data.append({
+                'density': float(row['density']),
+                'theta_c': float(row['theta_c']),
+                'seed': int(row['seed']),
+                'perturbation_type': row.get('perturbation_type', 'unknown')
+            })
+    
+    logger.info(f"Loaded {len(data)} rows from {input_path}")
     return data
 
 def generate_report_content(
     variation_data: List[Dict[str, Any]],
-    stats_data: Optional[Dict[str, Any]],
-    sweep_data: List[Dict[str, Any]]
+    raw_sweep_data: List[Dict[str, Any]],
+    logger: logging.Logger
 ) -> str:
-    """Generate the Markdown content for the sensitivity report."""
-
-    # Calculate overall statistics
+    """
+    Generate the Markdown content for the sensitivity report.
+    """
+    report_lines = []
+    
+    # Header
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    report_lines.append("# Sensitivity Analysis Report: Sparsity Thresholds")
+    report_lines.append("")
+    report_lines.append(f"**Generated:** {timestamp}")
+    report_lines.append(f"**Task ID:** T030")
+    report_lines.append("")
+    report_lines.append("---")
+    report_lines.append("")
+    
+    # Executive Summary
+    report_lines.append("## Executive Summary")
+    report_lines.append("")
+    
     if not variation_data:
-        return "# Sensitivity Report\n\nNo variation data available."
-
-    theta_c_values = [d['theta_c'] for d in variation_data]
-    std_devs = [d['std_dev'] for d in variation_data]
-    densities = [d['density'] for d in variation_data]
-
-    mean_theta_c = sum(theta_c_values) / len(theta_c_values)
-    max_theta_c = max(theta_c_values)
-    min_theta_c = min(theta_c_values)
-    range_theta_c = max_theta_c - min_theta_c
-    avg_std_dev = sum(std_devs) / len(std_devs)
-
-    # Determine stability
-    stability_threshold = 0.05  # 5%
-    is_stable = range_theta_c / mean_theta_c < stability_threshold if mean_theta_c > 0 else True
-
-    report_lines = [
-        "# Sensitivity Analysis Report: Sparsity Thresholds",
-        "",
-        "## Executive Summary",
-        "",
-        f"This report summarizes the sensitivity analysis of the critical threshold $\\theta_c$ "
-        f"with respect to the support density of sparse perturbations. The analysis covers "
-        f"densities ranging from {min(densities)} to {max(densities)}.",
-        "",
-        "## Key Findings",
-        "",
-        f"- **Mean Critical Threshold ($\\bar{{\\theta_c}}$)**: {mean_theta_c:.6f}",
-        f"- **Range of $\\theta_c$**: [{min_theta_c:.6f}, {max_theta_c:.6f}] (Span: {range_theta_c:.6f})",
-        f"- **Average Standard Deviation**: {avg_std_dev:.6f}",
-        f"- **Stability Assessment**: {'STABLE' if is_stable else 'UNSTABLE'}",
-        "",
-        f"The critical threshold $\\theta_c$ {'remains stable' if is_stable else 'shows significant variation'} "
-        f"across the tested density range. The relative shift is "
-        f"{(range_theta_c / mean_theta_c * 100):.2f}%, which is "
-        f"{'below' if is_stable else 'above'} the 5% stability threshold.",
-        "",
-        "## Detailed Results",
-        "",
-        "### Variation by Density",
-        "",
-        "| Density | $\\theta_c$ | Std Dev |",
-        "|---------|-------------|---------|"
-    ]
-
-    for row in variation_data:
-        report_lines.append(
-            f"| {row['density']:.2f} | {row['theta_c']:.6f} | {row['std_dev']:.6f} |"
-        )
-
-    report_lines.extend([
-        "",
-        "### Raw Sweep Data Summary",
-        "",
-        f"Total data points analyzed: {len(sweep_data)}",
-        "",
-        "## Statistical Validation",
-        ""
-    ])
-
-    if stats_data:
-        report_lines.append("The following statistical validation metrics were computed:")
+        report_lines.append("**Status:** No data available. The sensitivity variation analysis (T029a) has not been completed or produced no results.")
         report_lines.append("")
-        for key, value in stats_data.items():
-            if isinstance(value, float):
-                report_lines.append(f"- **{key}**: {value:.6f}")
-            else:
-                report_lines.append(f"- **{key}**: {value}")
+        return "\n".join(report_lines)
+
+    # Analyze stability
+    significant_shifts = [row for row in variation_data if row['shift_flag']]
+    total_runs = len(variation_data)
+    
+    if significant_shifts:
+        report_lines.append(f"**Conclusion:** The critical threshold $\\theta_c$ shows **statistically significant sensitivity** to sparsity density changes.")
+        report_lines.append(f"Found {len(significant_shifts)} out of {total_runs} density levels with a shift magnitude > 5% (p < 0.05).")
+    else:
+        report_lines.append(f"**Conclusion:** The critical threshold $\\theta_c$ is **stable** across the tested sparsity densities.")
+        report_lines.append(f"No statistically significant shifts (> 5% with p < 0.05) were detected across {total_runs} density levels.")
+    
+    report_lines.append("")
+    
+    # Statistical Validation Section
+    report_lines.append("## Statistical Validation Results")
+    report_lines.append("")
+    report_lines.append("The following table summarizes the statistical tests (two-sample t-test) performed to compare $\\theta_c$ distributions across density levels.")
+    report_lines.append("")
+    report_lines.append("| Density ($p$) | Estimated $\\theta_c$ | Std. Deviation | P-Value | Shift Flag (>5%) |")
+    report_lines.append("| :--- | :--- | :--- | :--- | :--- |")
+    
+    for row in variation_data:
+        shift_flag_str = "Yes" if row['shift_flag'] else "No"
+        report_lines.append(
+            f"| {row['density']:.2f} | {row['theta_c']:.4f} | {row['std_dev']:.4f} | {row['p_value']:.4e} | {shift_flag_str} |"
+        )
+    
+    report_lines.append("")
+    
+    # Detailed Analysis
+    report_lines.append("## Detailed Analysis")
+    report_lines.append("")
+    
+    if significant_shifts:
+        report_lines.append("### Observed Shifts")
+        report_lines.append("")
+        report_lines.append("The following density levels exhibited significant deviations from the baseline, suggesting that the sparse perturbation structure influences the spectral phase transition threshold:")
+        report_lines.append("")
+        for row in significant_shifts:
+            report_lines.append(f"- **Density $p={row['density']}$**: $\\theta_c = {row['theta_c']:.4f}$ (Shift detected, p={row['p_value']:.4e})")
         report_lines.append("")
     else:
-        report_lines.append("*Statistical validation data was not available or could not be loaded.*")
+        report_lines.append("### Stability Observation")
         report_lines.append("")
-
-    report_lines.extend([
-        "## Methodology",
-        "",
-        "The sensitivity analysis was performed by:",
-        "",
-        "1. Generating random Wigner matrices of size $N$.",
-        "2. Applying sparse perturbations with fixed rank but varying support density $p \\in \\{0.1, 0.2, 0.3\\}$.",
-        "3. Computing the critical threshold $\\theta_c$ for each density using logistic regression on outlier emergence.",
-        "4. Calculating the standard deviation of $\\theta_c$ across Monte Carlo iterations.",
-        "",
-        "## Conclusion",
-        "",
-        f"The study confirms that the BBP phase transition threshold $\\theta_c$ is "
-        f"{'robust' if is_stable else 'sensitive'} to variations in the sparsity density of the perturbation. "
-        f"This suggests that {'the theoretical prediction is insensitive to the specific support density ' if is_stable else 'the specific support density plays a significant role in determining'} "
-        f"the location of the spectral outlier transition in the asymptotic limit.",
-        "",
-        "---",
-        f"*Report generated automatically from sensitivity analysis artifacts.*"
-    ])
-
+        report_lines.append("Across all tested densities ($p \\in \\{0.2, 0.3\\}$), the critical threshold $\\theta_c$ remained consistent within statistical error margins. This confirms the robustness of the BBP transition prediction against variations in support density for the tested perturbation types.")
+        report_lines.append("")
+    
+    # Methodology Note
+    report_lines.append("## Methodology")
+    report_lines.append("")
+    report_lines.append("1. **Data Source**: Results derived from `data/processed/sensitivity_density_sweep.csv` (T028) and `data/processed/sensitivity_variation.csv` (T029a).")
+    report_lines.append("2. **Statistical Test**: Two-sample t-test (`scipy.stats.ttest_ind`) was used to compare $\\theta_c$ distributions between adjacent density levels.")
+    report_lines.append("3. **Significance Criteria**: A shift is flagged if the magnitude of change in $\\theta_c$ exceeds 5% and the p-value is less than 0.05.")
+    report_lines.append("4. **Observational Constraint**: Consistent with FR-007, this analysis treats the 'observer' as the deterministic spectral solver measuring statistical correlations in simulated data. No physical system is modeled; findings are strictly associational.")
+    report_lines.append("")
+    
+    # Footer
+    report_lines.append("---")
+    report_lines.append("")
+    report_lines.append("*Report generated by the llmXive automated science pipeline.*")
+    
     return "\n".join(report_lines)
 
-def main():
-    """Main entry point to generate the sensitivity report."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
+def write_report(content: str, logger: logging.Logger) -> Path:
+    """
+    Write the report to data/processed/sensitivity_report.md.
+    """
     paths = get_project_paths()
-    variation_path = paths['data_processed'] / 'sensitivity_variation.csv'
-    stats_path = paths['data_processed'] / 'sensitivity_statistics.json'
-    sweep_path = paths['data_processed'] / 'sensitivity_density_sweep.csv'
-    output_path = paths['data_processed'] / 'sensitivity_report.md'
-
-    logger.info(f"Loading sensitivity variation data from {variation_path}...")
-    if not variation_path.exists():
-        logger.error(f"Required input file not found: {variation_path}")
-        sys.exit(1)
-
-    variation_data = load_sensitivity_variation_csv(variation_path)
-    logger.info(f"Loaded {len(variation_data)} variation records.")
-
-    logger.info(f"Loading sensitivity statistics from {stats_path}...")
-    stats_data = load_sensitivity_statistics(stats_path)
-
-    logger.info(f"Loading raw sweep data from {sweep_path}...")
-    if not sweep_path.exists():
-        logger.warning(f"Raw sweep data not found at {sweep_path}. Proceeding without it.")
-        sweep_data = []
-    else:
-        sweep_data = load_sensitivity_density_sweep(sweep_path)
-        logger.info(f"Loaded {len(sweep_data)} raw sweep records.")
-
-    logger.info("Generating report content...")
-    report_content = generate_report_content(variation_data, stats_data, sweep_data)
-
-    logger.info(f"Writing report to {output_path}...")
+    output_path = paths['processed'] / 'sensitivity_report.md'
+    
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(report_content)
+        f.write(content)
+    
+    logger.info(f"Sensitivity report written to: {output_path}")
+    return output_path
 
-    logger.info(f"Sensitivity report successfully generated at {output_path}")
+def main() -> int:
+    """
+    Main entry point for Task T030.
+    """
+    logger = setup_logging()
+    logger.info("Starting Task T030: Generate Sensitivity Report")
+    
+    try:
+        # Load inputs
+        variation_data = load_sensitivity_variation_csv(logger)
+        raw_sweep_data = load_sensitivity_density_sweep(logger)
+        
+        # Generate content
+        report_content = generate_report_content(variation_data, raw_sweep_data, logger)
+        
+        # Write output
+        output_path = write_report(report_content, logger)
+        
+        logger.info("Task T030 completed successfully.")
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.error(f"Missing required input data: {e}")
+        logger.error("Ensure T029a (sensitivity_variation.csv) has been completed before running T030.")
+        return 1
+    except Exception as e:
+        logger.exception(f"An unexpected error occurred: {e}")
+        return 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,237 +1,281 @@
+"""
+Fit utilities for threshold analysis.
+
+This module provides functions to extract fitted parameters from the threshold
+identification model and validate the fit quality against strict numerical
+tolerance thresholds (1e-10) as required by the project specification.
+
+It implements the statistical inference logic for the critical threshold theta_c
+using Logistic Regression, ensuring residuals meet the 1e-10 tolerance.
+"""
 import json
 import logging
 import os
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
+
 import numpy as np
 from scipy.optimize import curve_fit
+from scipy import stats
 
-from utils.config import get_project_paths
-
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def sigmoid_function(x, a, b, c):
-    """
-    Sigmoid function for threshold fitting.
-    
-    P(outlier) = 1 / (1 + exp(-a * (x - c)))
-    
-    Where:
-      - a: slope parameter
-      - b: not used directly, but kept for compatibility
-      - c: critical threshold (theta_c)
-    
-    Returns:
-      Sigmoid value at x
-    """
-    # Clip x to avoid overflow
-    x = np.clip(x, -100, 100)
-    return 1.0 / (1.0 + np.exp(-a * (x - c)))
+# Strict tolerance for numerical validation
+STRICT_TOLERANCE = 1e-10
 
-def load_mc_results(csv_path: str) -> List[Dict[str, Any]]:
+def sigmoid_function(x: np.ndarray, theta_c: float, steepness: float) -> np.ndarray:
+    """
+    Logistic sigmoid function modeling the probability of outlier emergence.
+    
+    P(outlier) = 1 / (1 + exp(-steepness * (theta - theta_c)))
+    
+    Args:
+        x: Array of theta values
+        theta_c: Critical threshold parameter
+        steepness: Steepness of the transition (k)
+        
+    Returns:
+        Probability values for each theta
+    """
+    return 1.0 / (1.0 + np.exp(-steepness * (x - theta_c)))
+
+def load_mc_results(filepath: str) -> np.ndarray:
     """
     Load Monte Carlo results from CSV file.
     
     Args:
-        csv_path: Path to mc_results.csv
-    
+        filepath: Path to mc_results.csv
+        
     Returns:
-        List of result dictionaries
+        Array of (theta, outlier_flag) pairs
     """
-    import csv
-    
-    results = []
-    with open(csv_path, 'r') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            results.append({
-                "run_id": row["run_id"],
-                "N": int(row["N"]),
-                "theta": float(row["theta"]),
-                "seed": int(row["seed"]),
-                "outlier_count": int(row["outlier_count"]),
-                "max_eigenvalue": float(row["max_eigenvalue"])
-            })
-    
-    return results
+    data = []
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+        # Skip header
+        for line in lines[1:]:
+            parts = line.strip().split(',')
+            if len(parts) >= 4:
+                try:
+                    theta = float(parts[1])
+                    outlier = int(parts[3])
+                    data.append((theta, outlier))
+                except ValueError:
+                    continue
+    return np.array(data)
 
-def aggregate_by_theta(
-    results: List[Dict[str, Any]],
-    n_per_config: Optional[int] = None
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def aggregate_by_theta(data: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Aggregate results by theta value.
     
     Args:
-        results: List of MC result dictionaries
-        n_per_config: Expected number of iterations per config (optional)
-    
+        data: Array of (theta, outlier_flag) pairs
+        
     Returns:
-        Tuple of (theta_values, outlier_probabilities, counts)
+        Tuple of (unique_thetas, mean_prob, counts)
     """
-    # Group by theta
-    theta_groups = {}
-    for r in results:
-        theta = r["theta"]
-        if theta not in theta_groups:
-            theta_groups[theta] = []
-        theta_groups[theta].append(r)
+    thetas = data[:, 0]
+    outliers = data[:, 1]
     
-    # Compute statistics
-    theta_values = []
-    outlier_probs = []
+    unique_thetas = np.unique(thetas)
+    mean_probs = []
     counts = []
     
-    for theta in sorted(theta_groups.keys()):
-        group = theta_groups[theta]
-        total = len(group)
-        outliers = sum(1 for r in group if r["outlier_count"] > 0)
+    for theta in unique_thetas:
+        mask = thetas == theta
+        prob = np.mean(outliers[mask])
+        count = np.sum(mask)
+        mean_probs.append(prob)
+        counts.append(count)
         
-        prob = outliers / total if total > 0 else 0.0
-        
-        theta_values.append(theta)
-        outlier_probs.append(prob)
-        counts.append(total)
-    
-    return np.array(theta_values), np.array(outlier_probs), np.array(counts)
+    return unique_thetas, np.array(mean_probs), np.array(counts)
 
 def fit_critical_threshold(
-    theta_values: np.ndarray,
-    outlier_probs: np.ndarray,
-    p0: Optional[List[float]] = None
-) -> Optional[Dict[str, float]]:
+    thetas: np.ndarray, 
+    probs: np.ndarray, 
+    initial_guess: Optional[Tuple[float, float]] = None
+) -> Dict[str, Any]:
     """
-    Fit sigmoid to outlier probability data to find critical threshold.
+    Fit the critical threshold model using curve fitting.
+    
+    Uses scipy.optimize.curve_fit with strict bounds and tolerance settings.
     
     Args:
-        theta_values: Array of theta values
-        outlier_probs: Array of outlier probabilities
-        p0: Initial guess for [a, b, c] (slope, scale, threshold)
-    
+        thetas: Array of theta values
+        probs: Array of outlier probabilities
+        initial_guess: Optional (theta_c, steepness) initial guess
+        
     Returns:
-        Dictionary with fitted parameters, or None if fit fails
+        Dictionary containing fitted parameters and fit statistics
     """
-    if len(theta_values) < 3:
-        logger.warning("Not enough data points for fitting")
-        return None
-    
-    # Filter out exact 0 or 1 probabilities to avoid log issues
-    # (though sigmoid handles them, fitting can be unstable)
-    mask = (outlier_probs > 0.01) & (outlier_probs < 0.99)
-    if np.sum(mask) < 3:
-        logger.warning("Not enough intermediate probability points for fitting")
-        # Try fitting anyway with all points
-        mask = np.ones_like(outlier_probs, dtype=bool)
-    
-    theta_fit = theta_values[mask]
-    prob_fit = outlier_probs[mask]
-    
-    if p0 is None:
-        # Reasonable initial guess: slope=5, threshold=2.0
-        p0 = [5.0, 1.0, 2.0]
+    if initial_guess is None:
+        # Default guess: theta_c at 0.5 probability, steepness=5
+        median_theta = np.median(thetas)
+        initial_guess = (median_theta, 5.0)
     
     try:
         popt, pcov = curve_fit(
             sigmoid_function,
-            theta_fit,
-            prob_fit,
-            p0=p0,
-            maxfev=5000
+            thetas,
+            probs,
+            p0=initial_guess,
+            bounds=([0, 0.1], [10, 100]),  # Reasonable bounds
+            maxfev=10000,
+            ftol=STRICT_TOLERANCE,
+            xtol=STRICT_TOLERANCE,
+            gtol=STRICT_TOLERANCE
         )
         
-        a, b, c = popt
-        theta_c = c
-        
-        # Compute confidence intervals (approximate)
+        theta_c, steepness = popt
         perr = np.sqrt(np.diag(pcov))
-        theta_c_err = perr[2]
         
-        logger.info(f"Fitted critical threshold: theta_c = {theta_c:.4f} ± {theta_c_err:.4f}")
+        # Calculate residuals
+        predicted_probs = sigmoid_function(thetas, theta_c, steepness)
+        residuals = probs - predicted_probs
+        max_residual = np.max(np.abs(residuals))
+        mean_residual = np.mean(np.abs(residuals))
+        
+        # Validate fit quality against tolerance
+        fit_valid = max_residual < STRICT_TOLERANCE
+        
+        # Calculate R-squared
+        ss_res = np.sum(residuals**2)
+        ss_tot = np.sum((probs - np.mean(probs))**2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
         
         return {
-            "theta_c": float(theta_c),
-            "theta_c_error": float(theta_c_err),
-            "slope": float(a),
-            "slope_error": float(perr[0]),
-            "r_squared": None  # Can compute if needed
+            'theta_c': float(theta_c),
+            'steepness': float(steepness),
+            'theta_c_std': float(perr[0]),
+            'steepness_std': float(perr[1]),
+            'max_residual': float(max_residual),
+            'mean_residual': float(mean_residual),
+            'r_squared': float(r_squared),
+            'fit_valid': fit_valid,
+            'tolerance': STRICT_TOLERANCE,
+            'convergence_message': 'success' if fit_valid else 'warning: residual exceeds tolerance'
         }
-    
+        
     except Exception as e:
-        logger.error(f"Curve fitting failed: {e}", exc_info=True)
-        return None
+        logger.error(f"Curve fitting failed: {str(e)}")
+        return {
+            'theta_c': None,
+            'steepness': None,
+            'error': str(e),
+            'fit_valid': False,
+            'tolerance': STRICT_TOLERANCE
+        }
 
 def analyze_threshold_identification(
-    mc_results_path: str,
+    input_path: str, 
     output_path: str
 ) -> Dict[str, Any]:
     """
-    Analyze Monte Carlo results to identify threshold.
+    Main analysis function to extract fitted parameters and validate fit quality.
+    
+    This function:
+    1. Loads validated sweep results
+    2. Aggregates by theta
+    3. Fits the critical threshold model
+    4. Validates residuals against 1e-10 tolerance
+    5. Writes results to JSON
     
     Args:
-        mc_results_path: Path to mc_results.csv
-        output_path: Path to write threshold_identification_raw.json
-    
+        input_path: Path to validated_sweep_results.csv
+        output_path: Path to threshold_fit_params.json
+        
     Returns:
-        Analysis results dictionary
+        Dictionary containing analysis results
     """
-    # Load data
-    results = load_mc_results(mc_results_path)
+    logger.info(f"Loading data from {input_path}")
     
-    # Aggregate by theta
-    theta_values, outlier_probs, counts = aggregate_by_theta(results)
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    # Fit threshold
-    fit_result = fit_critical_threshold(theta_values, outlier_probs)
+    # Load and aggregate data
+    data = load_mc_results(input_path)
+    thetas, probs, counts = aggregate_by_theta(data)
     
-    analysis = {
-        "theta_values": theta_values.tolist(),
-        "outlier_probabilities": outlier_probs.tolist(),
-        "counts": counts.tolist(),
-        "fit_result": fit_result,
-        "metadata": {
-            "total_runs": len(results),
-            "unique_thetas": len(theta_values),
-            "analysis_timestamp": datetime.now(timezone.utc).isoformat()
-        }
+    if len(thetas) < 3:
+        raise ValueError("Insufficient data points for fitting (need at least 3 theta values)")
+    
+    logger.info(f"Fitting threshold model to {len(thetas)} theta values")
+    
+    # Fit model
+    fit_results = fit_critical_threshold(thetas, probs)
+    
+    # Prepare output
+    output_data = {
+        'input_file': input_path,
+        'data_points': len(thetas),
+        'fit_parameters': {
+            'theta_c': fit_results.get('theta_c'),
+            'steepness': fit_results.get('steepness'),
+            'theta_c_std': fit_results.get('theta_c_std'),
+            'steepness_std': fit_results.get('steepness_std')
+        },
+        'fit_quality': {
+            'max_residual': fit_results.get('max_residual'),
+            'mean_residual': fit_results.get('mean_residual'),
+            'r_squared': fit_results.get('r_squared'),
+            'tolerance': STRICT_TOLERANCE,
+            'fit_valid': fit_results.get('fit_valid'),
+            'convergence_message': fit_results.get('convergence_message')
+        },
+        'aggregated_data': {
+            'thetas': thetas.tolist(),
+            'probabilities': probs.tolist(),
+            'counts': counts.tolist()
+        },
+        'validation': {
+            'residual_threshold_met': fit_results.get('fit_valid', False),
+            'max_residual_value': fit_results.get('max_residual', float('inf')),
+            'required_tolerance': STRICT_TOLERANCE,
+            'status': 'PASS' if fit_results.get('fit_valid', False) else 'FAIL'
+        },
+        'timestamp': str(np.datetime64('now'))
     }
     
     # Write output
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Writing results to {output_path}")
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
     
-    with open(output_file, 'w') as f:
-        json.dump(analysis, f, indent=2)
-    
-    logger.info(f"Threshold analysis written to {output_path}")
-    
-    return analysis
+    return output_data
 
 def main():
-    """Main entry point for fit_utils."""
+    """
+    Command-line entry point for fit parameter extraction and validation.
+    """
     import argparse
-    from datetime import datetime, timezone
     
-    parser = argparse.ArgumentParser(description="Fit critical threshold from MC results")
-    parser.add_argument(
-        "--input",
-        type=str,
-        default="data/processed/mc_results.csv",
-        help="Input MC results CSV"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="data/processed/threshold_identification_raw.json",
-        help="Output analysis JSON"
-    )
+    parser = argparse.ArgumentParser(description='Extract and validate fitted threshold parameters')
+    parser.add_argument('--input', type=str, default='data/processed/validated_sweep_results.csv',
+                      help='Path to validated sweep results CSV')
+    parser.add_argument('--output', type=str, default='data/processed/threshold_fit_params.json',
+                      help='Path to output JSON file')
     
     args = parser.parse_args()
     
-    if not Path(args.input).exists():
-        logger.error(f"Input file not found: {args.input}")
-        sys.exit(1)
-    
-    analyze_threshold_identification(args.input, args.output)
+    try:
+        results = analyze_threshold_identification(args.input, args.output)
+        
+        if results['validation']['status'] == 'PASS':
+            logger.info(f"✓ Fit validation PASSED: max_residual={results['fit_quality']['max_residual']:.2e} < {STRICT_TOLERANCE:.2e}")
+            logger.info(f"  Critical threshold θ_c = {results['fit_parameters']['theta_c']:.6f} ± {results['fit_parameters']['theta_c_std']:.6f}")
+        else:
+            logger.warning(f"✗ Fit validation FAILED: max_residual={results['fit_quality']['max_residual']:.2e} > {STRICT_TOLERANCE:.2e}")
+            logger.warning(f"  {results['fit_quality']['convergence_message']}")
+            
+    except Exception as e:
+        logger.error(f"Analysis failed: {str(e)}")
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

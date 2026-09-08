@@ -1,12 +1,3 @@
-"""
-Threshold Sweep Aggregator
-
-Aggregates results from the threshold identification raw analysis into a
-single CSV file for downstream visualization and reporting.
-
-Reads: data/processed/threshold_identification_raw.json
-Writes: data/processed/threshold_sweep_results.csv
-"""
 import csv
 import json
 import logging
@@ -14,123 +5,107 @@ import os
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Ensure imports work relative to project root when run as module
-try:
-    from utils.config import get_project_paths
-except ImportError:
-    # Fallback for direct execution
-    import sys
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    from utils.config import get_project_paths
-
 logger = logging.getLogger(__name__)
 
-def load_threshold_identification_raw(path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def load_threshold_identification_raw(input_path: str) -> List[Dict[str, Any]]:
     """
-    Load the raw threshold identification JSON file.
-
-    Args:
-        path: Path to the JSON file. If None, uses project config.
-
-    Returns:
-        List of dictionaries containing threshold analysis results.
+    Load the raw threshold identification results (JSON) produced by T021c.
+    Expected structure: a list of records containing theta, probability, theta_c, etc.
     """
-    if path is None:
-        paths = get_project_paths()
-        path = paths["processed"] / "threshold_identification_raw.json"
-
+    path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"Raw threshold identification file not found: {path}")
-
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
     with open(path, 'r') as f:
         data = json.load(f)
+    
+    if not isinstance(data, list):
+        # If it's a single dict, wrap it
+        if isinstance(data, dict):
+            return [data]
+        raise ValueError(f"Expected list of results, got {type(data)}")
+    
+    return data
 
-    # Handle both list format and dict with 'results' key
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'results' in data:
-        return data['results']
-    else:
-        raise ValueError(f"Unexpected JSON structure in {path}")
-
-def aggregate_sweep_results_to_csv(
-    input_path: Optional[Path] = None,
-    output_path: Optional[Path] = None
-) -> Path:
+def aggregate_sweep_results_to_csv(results: List[Dict[str, Any]], output_path: str) -> None:
     """
-    Aggregate threshold identification results into a CSV file.
-
-    The CSV contains columns for:
-    - N: Matrix dimension
-    - theta: Perturbation strength
-    - outlier_probability: Fraction of runs with outliers
-    - mean_max_eigenvalue: Mean of max eigenvalues across runs
-    - std_max_eigenvalue: Standard deviation of max eigenvalues
-    - num_runs: Number of Monte Carlo iterations
-
-    Args:
-        input_path: Path to threshold_identification_raw.json
-        output_path: Path for output CSV
-
-    Returns:
-        Path to the created CSV file
+    Aggregate the threshold identification results into a single CSV file.
+    This creates the primary deliverable for T024.
+    
+    Expected fields in results:
+    - N: matrix size
+    - theta: perturbation strength
+    - seed: random seed
+    - theta_c: estimated critical threshold (if applicable)
+    - probability: probability of outlier emergence
+    - outlier_count: number of outliers detected
+    - total_runs: total number of runs for this config
     """
-    if input_path is None:
-        paths = get_project_paths()
-        input_path = paths["processed"] / "threshold_identification_raw.json"
-
-    if output_path is None:
-        paths = get_project_paths()
-        output_path = paths["processed"] / "threshold_sweep_results.csv"
-
-    # Load raw data
-    results = load_threshold_identification_raw(input_path)
-
     if not results:
-        logger.warning("No results found in threshold identification raw file")
-        # Create empty CSV with headers
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['N', 'theta', 'outlier_probability', 'mean_max_eigenvalue', 'std_max_eigenvalue', 'num_runs'])
-        return output_path
-
-    # Write CSV
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['N', 'theta', 'outlier_probability', 'mean_max_eigenvalue', 'std_max_eigenvalue', 'num_runs'])
-
-        for entry in results:
-            row = [
-                entry.get('N', 0),
-                entry.get('theta', 0.0),
-                entry.get('outlier_probability', 0.0),
-                entry.get('mean_max_eigenvalue', 0.0),
-                entry.get('std_max_eigenvalue', 0.0),
-                entry.get('num_runs', 0)
-            ]
+        logger.warning("No results to aggregate. Creating empty CSV with headers.")
+    
+    # Define standard columns for the aggregated results
+    fieldnames = [
+        'N', 'theta', 'seed', 'theta_c', 'probability', 
+        'outlier_count', 'total_runs', 'fit_status', 'residual_norm'
+    ]
+    
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
+        writer.writeheader()
+        
+        for record in results:
+            # Normalize record to ensure all expected fields exist
+            row = {
+                'N': record.get('N', 0),
+                'theta': record.get('theta', 0.0),
+                'seed': record.get('seed', 0),
+                'theta_c': record.get('theta_c', None),
+                'probability': record.get('probability', 0.0),
+                'outlier_count': record.get('outlier_count', 0),
+                'total_runs': record.get('total_runs', 0),
+                'fit_status': record.get('fit_status', 'unknown'),
+                'residual_norm': record.get('residual_norm', None)
+            }
             writer.writerow(row)
-
+    
     logger.info(f"Aggregated {len(results)} results to {output_path}")
-    return output_path
 
 def main():
-    """Main entry point for the aggregator."""
+    """
+    Main entry point for T024: Generate aggregated results file.
+    
+    Input: data/processed/threshold_identification.json (produced by T021c)
+    Output: data/processed/threshold_sweep_results.csv
+    """
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-
+    
+    # Define paths relative to project root
+    input_path = "data/processed/threshold_identification.json"
+    output_path = "data/processed/threshold_sweep_results.csv"
+    
     try:
-        output_path = aggregate_sweep_results_to_csv()
-        logger.info(f"Successfully created {output_path}")
+        logger.info(f"Loading threshold identification results from {input_path}")
+        results = load_threshold_identification_raw(input_path)
+        
+        logger.info(f"Aggregating {len(results)} results to {output_path}")
+        aggregate_sweep_results_to_csv(results, output_path)
+        
+        logger.info("T024 completed successfully")
         return 0
+        
     except FileNotFoundError as e:
         logger.error(f"Input file not found: {e}")
         return 1
     except Exception as e:
-        logger.error(f"Error aggregating results: {e}")
-        return 1
+        logger.error(f"Error during aggregation: {e}")
+        raise
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    exit(main())

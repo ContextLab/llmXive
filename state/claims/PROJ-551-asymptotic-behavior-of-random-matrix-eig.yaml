@@ -822,3 +822,104 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T12:37:13Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: Wigner semicircle law convergence for Wigner matrices with variance 1/N
+  claim_id: c_b32cb36f
+  context: "We consider the ensemble of N \xD7 N symmetric random matrices W_N (Wigner\
+    \ matrices), where the entries W_ij for i \u2264 j are independent, identically\
+    \ distributed (i.i.d.) random variables with mean 0 and variance 1/N. As N \u2192\
+    \ \u221E, the empirical spectral distribution of W_N converges to the Wigner semicircle\
+    \ law"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "As N \u2192 \u221E, the empirical spectral distribution of W_N converges\
+    \ to the Wigner semicircle law: \u03C1_sc(x) = (1/2\u03C0)\u221A(4 - x\xB2) for\
+    \ |x| \u2264 2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:43:34Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: BBP transition critical threshold typically 1 or 2 depending on normalization
+  claim_id: c_c541f9b0
+  context: "According to the Baik-Ben Arous-P\xE9ch\xE9 (BBP) transition, if the perturbation\
+    \ strength \u03B8 exceeds a critical value \u03B8_c (typically \u03B8_c = 1 for\
+    \ standard scaling, or \u03B8_c = 2 depending on the specific normalization),\
+    \ the largest eigenvalue of H_N separates from the bulk spectrum"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_critical_threshold_typically_1_or_2_depending
+  kind: magnitude
+  raw_text: "According to the Baik-Ben Arous-P\xE9ch\xE9 (BBP) transition, if the\
+    \ perturbation strength \u03B8 exceeds a critical value \u03B8_c (typically \u03B8\
+    _c = 1 for standard scaling, or \u03B8_c = 2 depending on the specific normalization),\
+    \ the largest eigenvalue of H_N separates from the bulk spectrum"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:44:42Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: Largest eigenvalue remains within bulk support [-2, 2] when perturbation
+    strength is below critical threshold
+  claim_id: c_9874247f
+  context: "For \u03B8 \u2264 \u03B8_c, the largest eigenvalue remains within the\
+    \ bulk support [-2, 2]"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Largest_eigenvalue_remains_within_bulk_support_%5B-2,_2%5D_when_
+  kind: magnitude
+  raw_text: "For \u03B8 \u2264 \u03B8_c, the largest eigenvalue remains within the\
+    \ bulk support [-2, 2]"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:45:07Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: Monte Carlo sweep across theta range 1.0 to 4.0 confirmed sharp phase
+    transition
+  claim_id: c_fd7822b4
+  context: "The Monte Carlo sweep across \u03B8 \u2208 [1.0, 4.0] confirmed the existence\
+    \ of a sharp phase transition. The fitted critical threshold \u03B8_c was found\
+    \ to be consistent with theoretical predictions for the given normalization"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Monte Carlo sweep across \u03B8 \u2208 [1.0, 4.0] confirmed the existence\
+    \ of a sharp phase transition"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:45:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: Study limited to matrix size 2000 due to 7 GB RAM limit
+  claim_id: c_07d71909
+  context: "The study is limited to N \u2264 2000 due to memory constraints (7 GB\
+    \ RAM limit). While asymptotic behavior is expected to manifest at this scale,\
+    \ finite-size effects cannot be entirely ruled out for very small N"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study is limited to N \u2264 2000 due to memory constraints (7 GB\
+    \ RAM limit)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:45:22Z'

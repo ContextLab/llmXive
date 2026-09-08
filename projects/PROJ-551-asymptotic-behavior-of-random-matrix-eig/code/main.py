@@ -4,167 +4,73 @@ import logging
 import os
 import sys
 import time
-from datetime import datetime
+from pathlib import Path
 
-from utils.config import (
-    get_project_paths,
-    get_seed,
-    get_tolerance,
-    get_matrix_size,
-    get_num_eigenvalues,
-    get_perturbation_norm,
-    get_sparsity_density,
-)
-from utils.logging_config import (
-    setup_simulation_logger,
-    log_simulation_start,
-    log_simulation_end,
-    log_eigenvalue_results,
-)
-from generators.wigner import generate_wigner_matrix
-from generators.perturbation import create_perturbation
-from analysis.eigen_solver import compute_top_eigenvalues
-from analysis.outlier_detect import detect_outliers
-from utils.results_logger import record_simulation_result
+# Add code directory to path for imports
+code_dir = Path(__file__).parent
+if str(code_dir) not in sys.path:
+    sys.path.insert(0, str(code_dir))
+
+from utils.config import load_config, ensure_directories
+from analysis.threshold_sweep_aggregator import main as aggregate_sweep_results
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Run a single simulation of perturbed Wigner matrices."
-    )
-    parser.add_argument(
-        "--seed", type=int, default=None, help="Random seed for reproducibility"
-    )
-    parser.add_argument(
-        "--size", type=int, default=None, help="Matrix dimension N"
-    )
-    parser.add_argument(
-        "--theta", type=float, default=None, help="Perturbation norm"
-    )
-    parser.add_argument(
-        "--perturbation-type",
-        type=str,
-        default="diagonal",
-        choices=["diagonal", "block_sparse", "random_sparse"],
-        help="Type of perturbation",
-    )
-    parser.add_argument(
-        "--sparsity-density",
-        type=float,
-        default=None,
-        help="Sparsity density for sparse perturbations",
-    )
-    parser.add_argument(
-        "--log-file",
-        type=str,
-        default=None,
-        help="Path to structured JSON log file",
-    )
+    parser = argparse.ArgumentParser(description="Main entry point for random matrix eigenvalue analysis")
+    parser.add_argument('--config', type=str, default='code/config.json', help='Path to configuration file')
+    parser.add_argument('--task', type=str, choices=['sweep_aggregate'], help='Task to execute')
+    parser.add_argument('--input', type=str, help='Input file path (task dependent)')
+    parser.add_argument('--output', type=str, help='Output file path (task dependent)')
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose logging')
     return parser.parse_args()
+
+def setup_logging(verbose=False):
+    level = logging.DEBUG if verbose else logging.INFO
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('data/logs/main_execution.log')
+        ]
+    )
 
 def main():
     args = parse_args()
-
-    # Initialize configuration
-    paths = get_project_paths()
-    seed = args.seed if args.seed is not None else get_seed()
-    matrix_size = args.size if args.size is not None else get_matrix_size()
-    perturbation_norm = (
-        args.theta if args.theta is not None else get_perturbation_norm()
-    )
-    num_eigenvalues = get_num_eigenvalues()
-    sparsity_density = (
-        args.sparsity_density
-        if args.sparsity_density is not None
-        else get_sparsity_density()
-    )
-
-    # Setup structured logging
-    logger = setup_simulation_logger(log_file_path=args.log_file)
-
-    start_time = time.time()
-
-    # Log simulation start with full reproducibility context
-    log_simulation_start(
-        logger=logger,
-        seed=seed,
-        matrix_size=matrix_size,
-        perturbation_norm=perturbation_norm,
-        perturbation_type=args.perturbation_type,
-        sparsity_density=sparsity_density,
-        num_eigenvalues=num_eigenvalues,
-        config_path=str(paths["config"]),
-    )
+    setup_logging(args.verbose)
+    logger = logging.getLogger(__name__)
 
     try:
-        # Generate Wigner matrix
-        wigner_matrix = generate_wigner_matrix(matrix_size, seed=seed)
+        # Load configuration if provided
+        if args.config and os.path.exists(args.config):
+            config = load_config(args.config)
+            ensure_directories(config)
+            logger.info(f"Loaded configuration from {args.config}")
+        else:
+            logger.warning("No configuration file found, using defaults")
 
-        # Create perturbation
-        perturbation_matrix = create_perturbation(
-            matrix_size,
-            perturbation_norm,
-            perturbation_type=args.perturbation_type,
-            sparsity_density=sparsity_density,
-            seed=seed + 1,
-        )
-
-        # Combine matrices
-        perturbed_matrix = wigner_matrix + perturbation_matrix
-
-        # Compute top eigenvalues
-        eigenvalues = compute_top_eigenvalues(
-            perturbed_matrix, k=num_eigenvalues, tol=get_tolerance()
-        )
-
-        # Detect outliers
-        outlier_result = detect_outliers(
-            eigenvalues, perturbation_norm, perturbation_type=args.perturbation_type
-        )
-
-        # Log eigenvalue results
-        log_eigenvalue_results(
-            logger=logger,
-            eigenvalues=eigenvalues,
-            outlier_indices=outlier_result.outlier_indices,
-            theoretical_edge=outlier_result.theoretical_edge,
-        )
-
-        # Record results to data/processed
-        record_simulation_result(
-            seed=seed,
-            matrix_size=matrix_size,
-            perturbation_norm=perturbation_norm,
-            perturbation_type=args.perturbation_type,
-            sparsity_density=sparsity_density,
-            eigenvalues=eigenvalues,
-            outlier_indices=outlier_result.outlier_indices,
-            theoretical_edge=outlier_result.theoretical_edge,
-            is_outlier_present=outlier_result.is_outlier_present,
-        )
-
-        execution_time = time.time() - start_time
-
-        # Log simulation end
-        log_simulation_end(
-            logger=logger,
-            execution_time_seconds=execution_time,
-            status="success",
-        )
-
-        print(f"Simulation completed successfully in {execution_time:.2f}s")
-        print(f"Top eigenvalues: {eigenvalues}")
-        print(f"Outliers detected: {outlier_result.outlier_indices}")
+        # Execute requested task
+        if args.task == 'sweep_aggregate':
+            logger.info("Executing sweep aggregation task (T024)")
+            # Override paths if provided via CLI
+            if args.input:
+                # This would require modifying the aggregator to accept CLI args
+                # For now, we use default paths as defined in the task
+                logger.warning("Input path override not implemented for this task. Using default.")
+            if args.output:
+                logger.warning("Output path override not implemented for this task. Using default.")
+            
+            return aggregate_sweep_results()
+        
+        else:
+            logger.error(f"Unknown task: {args.task}")
+            return 1
 
     except Exception as e:
-        execution_time = time.time() - start_time
-        log_simulation_end(
-            logger=logger,
-            execution_time_seconds=execution_time,
-            status="failed",
-            error_message=str(e),
-        )
-        logger.error(f"Simulation failed: {str(e)}", exc_info=True)
-        raise
+        logger.error(f"Execution failed: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
