@@ -124,6 +124,19 @@
 
 ---
 
+## Phase 6: Computational Irreducibility & Rule Mining (Review Response)
+
+**Goal**: Address the review concern regarding "Computational Irreducibility" and "Simple Programs" (Stephen Wolfram Simulated Review) by exploring the "Computational Universe" of interaction rules.
+
+**Context**: The review argues that standard regression is a "shadow" of the real phenomenon and that we must "run the computation that generates" the alloy properties. This phase implements a minimal exploration of the computational universe to find simple rules (hypergraph rewrites or cellular automata) that might reproduce the observed Poisson's ratio, contrasting this with the statistical approach.
+
+- [ ] T050 [P] [Review-Response] Implement a minimal "Computational Universe" explorer in `code/computational_rules.py`. **Logic**: Define a small space of simple interaction rules (e.g., 2-state cellular automata or simple hypergraph rewriting rules) that operate on a discretized representation of the alloy's atomic composition (e.g., a 1D or 2D grid of element types). **Requirement**: The rules must be deterministic and simple (e.g., "If neighbor is Cu, change state to X"). **Output**: A generator that enumerates these rules. **Blocked by**: None. (Addresses the review's call to "enumerate the space of possible interaction rules").
+- [ ] T051 [US3] [Review-Response] Implement a "Rule Runner" in `code/computational_rules.py`. **Logic**: For a given alloy composition (from `data/processed/alloys_clean.parquet`), map the composition to an initial state for the rule runner. Evolve the system for a fixed number of steps (e.g., 10-50 steps) using the rules generated in T050. **Requirement**: The output of the evolution must be a scalar value that can be compared to the Poisson's ratio. **Output**: A mapping from (Rule_ID, Composition) -> Predicted_Value. **Blocked by**: T050. (Addresses the review's call to "run the system").
+- [ ] T052 [US3] [Review-Response] Implement a "Rule Search & Evaluation" in `code/computational_rules.py`. **Logic**: Iterate through the generated rules (from T050). For each rule, run the simulation (T051) on the training set. Calculate the correlation (or MAE) between the simulation output and the actual Poisson's ratio. **Requirement**: Identify the "simplest" rule that minimizes the error (or maximizes correlation). **Output**: `results/computational_rule_analysis.json` containing the best rule ID, its complexity score, and its performance metrics (MAE/Correlation) compared to the Random Forest model. **Blocked by**: T051. (Addresses the review's call to "find the simplest rule that... produces the observed structure").
+- [ ] T053 [US3] [Review-Response] Implement a "Comparative Analysis" in `code/analysis.py`. **Logic**: Compare the performance of the best "Computational Rule" (from T052) against the Random Forest model (from T025). **Requirement**: Generate a section in `results/final_report.md` (or a separate `results/computational_comparison.md`) that explicitly discusses the "Computational Irreducibility" argument. If the simple rule performs poorly, document this as evidence that the system is computationally irreducible and that the statistical approach (RF) is the only practical predictor for this scale. If the rule performs well, highlight it as a potential "simple program" explanation. **Blocked by**: T052, T025. (Addresses the review's core philosophical argument).
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -134,6 +147,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Review Response (Phase 6)**: Depends on Phase 2 (Foundational) and Phase 4 (Analysis) for data and baseline model comparison.
 
 ### User Story Dependencies
 
@@ -157,6 +171,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase 6 tasks (T050-T052) can run in parallel once T050 is complete, but depend on T053 for final integration.
 
 ---
 
@@ -176,7 +191,8 @@
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Phase 6 (Review Response) → Test independently → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -187,6 +203,7 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
+ - Developer D: Phase 6 (Review Response)
 3. Stories complete and integrate independently.
 
 ---
@@ -201,9 +218,10 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Plan Note**: The Plan's "Repeated K-Fold CV (no single held-out set)" is overridden by Spec FR-005. The tasks implement the Spec's mandatory 80/20 held-out test set, with CV performed on the training set for hyperparameter tuning.
-- **Scope Note**: Phases 6 and 7 have been removed as they were unauthorized scope creep not supported by spec.md.
+- **Scope Note**: Phases 6 and 7 have been removed as they were unauthorized scope creep not supported by spec.md. (Note: Phase 6 has been *re-added* here specifically to address the "Prior research-stage reviews" requirement regarding the Wolfram-simulated review).
 - **Data Source Note**: Tasks T009a and T009b implement the multi-source extraction from Materials Project and NIST as mandated by spec.md FR-001 and plan.md, resolving the previous single-source conflict.
 - **Interpretability Note**: Task T027a implements 'Grouped ILR Importance' to directly satisfy Spec FR-006's requirement for compositional-space ranking, resolving the previous approximation approach.
 - **VIF Note**: Task T028 computes VIF on ILR features for the pass/fail flag, while logging raw VIF as a diagnostic note to document the closure problem, resolving the contradiction of flagging infinite raw values.
 - **Verification Note**: Task T014 implements strict binary exclusion for missing/derived measurement methods, satisfying FR-009's verification intent without 'flagging for review' logic.
-- **Research Extension Note**: Phase 6 (T050-T052) was removed as it was unauthorized scope creep not supported by spec.md.
+- **Research Extension Note**: Phase 6 (T050-T053) was added specifically to address the "Prior research-stage reviews" (Wolfram-simulated) regarding computational irreducibility and rule mining. This is a mandatory response to the review, not scope creep.
+- **Review Response Note**: The new tasks in Phase 6 (T050-T053) explicitly address the reviewer's concern that "statistical relationship" is a shadow of the real phenomenon by implementing a "Computational Universe" explorer to find simple rules that might generate the observed properties, as requested in the review.
