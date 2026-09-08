@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "alloy-poissons-ratio"
 version = "0.1.0"
-description = "Predicting the effect of alloying on the Poisson's ratio of aluminum alloys"
+description = "Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys"
 requires-python = ">=3.9"
 dependencies = [
     "pandas",
@@ -28,44 +28,90 @@ dependencies = [
 ]
 
 [tool.ruff]
-target-version = "py39"
-line-length = 88
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults (common in data classes)
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "W"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# A list of file patterns to exclude from analysis.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
 
+# Same as above, but for per-file ignores.
+per-file-ignores = {}
+
+# Assume Python 3.9
+target-version = "py39"
+
+# Line length for formatting (black compatible)
+line-length = 88
+
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+# Ignore imports in __init__.py files
+"__init__.py" = ["E402", "F401"]
 
 [tool.black]
 line-length = 88
-target-version = ["py39"]
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
+    \.bzr
+    | \.direnv
+    | \.eggs
     | \.git
+    | \.git-rewrite
     | \.hg
     | \.mypy_cache
+    | \.nox
+    | \.pants.d
+    | \.pytype
+    | \.ruff_cache
+    | \.svn
     | \.tox
     | \.venv
+    | \__pypackages__
     | _build
     | buck-out
     | build
     | dist
+    | node_modules
+    | venv
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --cov=code --cov-report=term-missing"
+
+[tool.setuptools]
+packages = ["code", "code.data", "code.cli", "code.utils", "code.schemas"]
+
+[tool.setuptools.package-dir]
+"" = "code"

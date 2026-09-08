@@ -15,3 +15,6 @@ pytest-cov
 ruff==0.1.6
 black==23.12.1
 shap
+openml  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
+pydantic  # auto-added: imported by run-book but missing from venv

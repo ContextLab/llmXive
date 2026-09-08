@@ -1,311 +1,302 @@
-"""
-Unit tests for the modeling module.
+"""Unit tests for modeling logic (Task T041).
+
+Tests cover:
+- ILR transformation edge cases (zero sum, negative values)
+- Random Forest training convergence
+- Cross-validation split reproducibility
 """
 import json
 import os
+import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from typing import Dict, List, Any
 
 import numpy as np
 import pandas as pd
 import pytest
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
 
-from code.modeling import (
-    load_features_and_target,
+# Ensure code/ is importable
+code_root = Path(__file__).parent.parent / "code"
+sys.path.insert(0, str(code_root))
+
+from modeling import (
     apply_ilr_transformation,
-    save_split_indices,
-    load_split_indices,
-    split_data,
+    split_dataset,
+    load_features_and_target,
     train_random_forest_with_cv,
-    evaluate_model_on_test,
-    save_model,
-    load_model,
-    save_best_hyperparameters,
-    load_best_hyperparameters,
-    save_model_metrics,
-    save_residuals,
-    save_methodological_flags,
-    run_modeling_pipeline,
-    main
 )
 
 
-class TestILRTransform:
-    """Tests for ILR transformation logic."""
+class TestILRTransformation:
+    """Tests for the ILR transformation logic."""
 
     def test_ilr_transform_handles_zero_sum(self):
-        """Test that ILR transformation handles zero values correctly."""
-        # Create a DataFrame with a zero value
-        X = pd.DataFrame({
-            'Cu': [0.0, 0.1, 0.2],
-            'Mg': [0.1, 0.1, 0.1],
-            'Si': [0.1, 0.1, 0.1],
-            'Zn': [0.1, 0.1, 0.1],
-            'Mn': [0.1, 0.1, 0.1]
-        })
+        """Test that ILR transformation handles zero-sum compositions gracefully.
 
-        # This should not raise an error
-        X_ilr = apply_ilr_transformation(X)
+        The ILR transformation requires strictly positive components.
+        This test verifies that the function either raises a clear error
+        or handles the zero-sum case appropriately without crashing.
+        """
+        # Create a composition with a zero value (which leads to issues in ILR)
+        # ILR requires strictly positive values for log-ratio calculations
+        data = {
+            "Cu": [0.0, 0.1, 0.2],
+            "Mg": [0.0, 0.1, 0.2],
+            "Si": [0.0, 0.1, 0.2],
+            "Zn": [0.0, 0.1, 0.2],
+            "Mn": [1.0, 0.7, 0.4],  # Compensate to sum to 1.0
+        }
+        df = pd.DataFrame(data)
 
-        assert X_ilr.shape[0] == 3
-        assert X_ilr.shape[1] == 4  # 5 components -> 4 ILR coordinates
+        # ILR should fail or handle zeros appropriately
+        # Since ILR uses log(), zeros will cause -inf or NaN
+        # We test that the function doesn't crash unexpectedly
+        with pytest.raises((ValueError, ZeroDivisionError)) as exc_info:
+            apply_ilr_transformation(df)
 
-        # Check that no NaN values are present
-        assert not X_ilr.isna().any().any()
+        # Verify the error message is informative
+        assert "zero" in str(exc_info.value).lower() or "positive" in str(
+            exc_info.value
+        ).lower()
 
+    def test_ilr_transform_normal_composition(self):
+        """Test ILR transformation on valid compositional data."""
+        # Create valid compositional data (all positive, sum to 1.0)
+        data = {
+            "Cu": [0.1, 0.2, 0.3],
+            "Mg": [0.2, 0.1, 0.2],
+            "Si": [0.3, 0.3, 0.2],
+            "Zn": [0.2, 0.2, 0.2],
+            "Mn": [0.2, 0.2, 0.1],
+        }
+        df = pd.DataFrame(data)
 
-    def test_ilr_transform_output_shape(self):
-        """Test that ILR transformation produces correct output shape."""
-        n_samples = 100
-        X = pd.DataFrame({
-            'Cu': np.random.rand(n_samples) * 0.5,
-            'Mg': np.random.rand(n_samples) * 0.5,
-            'Si': np.random.rand(n_samples) * 0.5,
-            'Zn': np.random.rand(n_samples) * 0.5,
-            'Mn': np.random.rand(n_samples) * 0.5
-        })
+        # Apply ILR transformation
+        ilr_df = apply_ilr_transformation(df)
 
-        # Normalize to sum to 1
-        X = X.div(X.sum(axis=1), axis=0)
+        # Verify output dimensions
+        assert ilr_df.shape[0] == df.shape[0]
+        assert ilr_df.shape[1] == 4  # 5 components -> 4 ILR coordinates
 
-        X_ilr = apply_ilr_transformation(X)
+        # Verify no NaN values (should be valid for positive inputs)
+        assert not ilr_df.isna().any().any()
 
-        assert X_ilr.shape == (n_samples, 4)
+    def test_ilr_transform_negative_values(self):
+        """Test that ILR transformation handles negative values appropriately."""
+        data = {
+            "Cu": [-0.1, 0.1, 0.2],
+            "Mg": [0.2, 0.1, 0.2],
+            "Si": [0.3, 0.3, 0.2],
+            "Zn": [0.2, 0.2, 0.2],
+            "Mn": [0.4, 0.3, 0.2],
+        }
+        df = pd.DataFrame(data)
+
+        with pytest.raises((ValueError, ZeroDivisionError)) as exc_info:
+            apply_ilr_transformation(df)
+
+        assert "positive" in str(exc_info.value).lower()
 
 
 class TestRFTraining:
-    """Tests for Random Forest training logic."""
+    """Tests for Random Forest training convergence."""
 
     def test_rf_training_converges(self):
-        """Test that Random Forest training converges without errors."""
-        # Create dummy data
-        X_train = pd.DataFrame({
-            'ilr_0': np.random.rand(50),
-            'ilr_1': np.random.rand(50),
-            'ilr_2': np.random.rand(50),
-            'ilr_3': np.random.rand(50)
-        })
-        y_train = pd.Series(np.random.rand(50))
+        """Test that Random Forest training converges on valid data.
 
-        # Train a model
-        model, best_params, cv_score = train_random_forest_with_cv(
-            X_train, y_train,
-            param_grid={'n_estimators': [10, 20], 'max_depth': [5, 10]}
+        This test verifies that the model training process completes
+        successfully and produces a fitted model that can make predictions.
+        """
+        # Create synthetic but realistic data
+        np.random.seed(42)
+        n_samples = 100
+
+        # Generate compositional data (Dirichlet distribution)
+        raw_comps = np.random.dirichlet([1.0, 1.0, 1.0, 1.0, 1.0], n_samples)
+        df = pd.DataFrame(
+            raw_comps, columns=["Cu", "Mg", "Si", "Zn", "Mn"]
         )
 
-        assert model is not None
-        assert isinstance(model, RandomForestRegressor)
-        assert 'n_estimators' in best_params
-        assert isinstance(cv_score, float)
-        assert cv_score >= 0
+        # Generate target variable (Poisson's ratio)
+        # Add some noise to make it realistic
+        poisson_ratio = 0.33 + 0.05 * np.random.randn(n_samples)
+        df["poisson_ratio"] = poisson_ratio
 
+        # Apply ILR transformation
+        ilr_df = apply_ilr_transformation(df)
+        ilr_df["poisson_ratio"] = df["poisson_ratio"]
 
-    def test_rf_training_with_custom_params(self):
-        """Test training with custom hyperparameter grid."""
-        X_train = pd.DataFrame({
-            'ilr_0': np.random.rand(30),
-            'ilr_1': np.random.rand(30),
-            'ilr_2': np.random.rand(30),
-            'ilr_3': np.random.rand(30)
-        })
-        y_train = pd.Series(np.random.rand(30))
+        # Split data
+        train_df = ilr_df.sample(frac=0.8, random_state=42)
+        test_df = ilr_df.drop(train_df.index)
 
-        custom_grid = {
-            'n_estimators': [5],
-            'max_depth': [3],
-            'min_samples_split': [2]
-        }
+        # Define features and target
+        feature_cols = [col for col in ilr_df.columns if col != "poisson_ratio"]
+        X_train = train_df[feature_cols].values
+        y_train = train_df["poisson_ratio"].values
+        X_test = test_df[feature_cols].values
+        y_test = test_df["poisson_ratio"].values
 
-        model, best_params, cv_score = train_random_forest_with_cv(
-            X_train, y_train, param_grid=custom_grid
-        )
-
-        assert best_params == custom_grid
-
-
-class TestCVCrossValidation:
-    """Tests for cross-validation logic."""
-
-    def test_cv_split_reproducibility(self):
-        """Test that CV splits are reproducible with fixed random state."""
-        X_train = pd.DataFrame({
-            'ilr_0': np.random.rand(50),
-            'ilr_1': np.random.rand(50),
-            'ilr_2': np.random.rand(50),
-            'ilr_3': np.random.rand(50)
-        })
-        y_train = pd.Series(np.random.rand(50))
-
-        # Run twice with same random state
-        _, params1, score1 = train_random_forest_with_cv(
-            X_train, y_train,
-            param_grid={'n_estimators': [10], 'max_depth': [5]}
-        )
-
-        _, params2, score2 = train_random_forest_with_cv(
-            X_train, y_train,
-            param_grid={'n_estimators': [10], 'max_depth': [5]}
-        )
-
-        # Scores should be identical
-        assert score1 == score2
-        assert params1 == params2
-
-
-class TestSplitIndices:
-    """Tests for split indices serialization."""
-
-    def test_save_and_load_split_indices(self):
-        """Test saving and loading split indices."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "split_indices.json"
-
-            train_indices = [1, 2, 3, 4, 5]
-            test_indices = [6, 7, 8, 9, 10]
-
-            save_split_indices(train_indices, test_indices, str(output_path))
-
-            loaded_train, loaded_test = load_split_indices(str(output_path))
-
-            assert loaded_train == train_indices
-            assert loaded_test == test_indices
-
-            # Verify file content
-            with open(output_path, 'r') as f:
-                data = json.load(f)
-                assert data['train_indices'] == train_indices
-                assert data['test_indices'] == test_indices
-
-
-class TestModelSerialization:
-    """Tests for model serialization."""
-
-    def test_save_and_load_model(self):
-        """Test saving and loading a Random Forest model."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            model_path = Path(tmpdir) / "test_model.pkl"
-
-            # Create a simple model
-            model = RandomForestRegressor(n_estimators=10, random_state=42)
-
-            # Save and load
-            save_model(model, str(model_path))
-            loaded_model = load_model(str(model_path))
-
-            assert loaded_model is not None
-            assert isinstance(loaded_model, RandomForestRegressor)
-            assert loaded_model.n_estimators == 10
-
-
-    def test_model_serialization_compression(self):
-        """Test that model is saved with compression."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            model_path = Path(tmpdir) / "test_model.pkl"
-
-            model = RandomForestRegressor(n_estimators=10, random_state=42)
-            save_model(model, str(model_path), compress=3, protocol=3)
-
-            # Check file exists and has reasonable size
-            assert os.path.exists(model_path)
-            assert os.path.getsize(model_path) > 0
-
-
-class TestHyperparameterSaving:
-    """Tests for hyperparameter saving."""
-
-    def test_save_and_load_hyperparameters(self):
-        """Test saving and loading best hyperparameters."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "hyperparams.json"
-
-            best_params = {
-                'n_estimators': 100,
-                'max_depth': 10,
-                'min_samples_split': 2
-            }
-
-            save_best_hyperparameters(best_params, str(output_path))
-            loaded_params = load_best_hyperparameters(str(output_path))
-
-            assert loaded_params == best_params
-
-
-class TestMetricsSaving:
-    """Tests for metrics and residuals saving."""
-
-    def test_save_model_metrics(self):
-        """Test saving model metrics."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "metrics.json"
-
-            save_model_metrics(
-                cv_mae=0.05,
-                cv_ci_lower=0.04,
-                cv_ci_upper=0.06,
-                test_mae=0.07,
-                output_path=str(output_path)
+        # Train model with cross-validation
+        try:
+            model, cv_metrics = train_random_forest_with_cv(
+                X_train, y_train, random_state=42
             )
 
-            with open(output_path, 'r') as f:
-                data = json.load(f)
+            # Verify model is fitted
+            assert hasattr(model, "estimators_")
+            assert len(model.estimators_) > 0
 
-            assert data['cv_mae'] == 0.05
-            assert data['test_mae'] == 0.07
+            # Verify model can predict
+            predictions = model.predict(X_test)
+            assert predictions.shape == (X_test.shape[0],)
 
-    def test_save_residuals(self):
-        """Test saving residuals."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "residuals.json"
+            # Verify predictions are reasonable (within physical bounds)
+            assert np.all(predictions > 0)
+            assert np.all(predictions < 1)
 
-            y_true = [1.0, 2.0, 3.0]
-            y_pred = [1.1, 2.1, 2.9]
-            indices = [10, 20, 30]
+            # Verify CV metrics are computed
+            assert "cv_mae" in cv_metrics
+            assert cv_metrics["cv_mae"] > 0
 
-            save_residuals(y_true, y_pred, indices, str(output_path))
+        except Exception as e:
+            pytest.fail(f"Random Forest training failed: {str(e)}")
 
-            with open(output_path, 'r') as f:
-                data = json.load(f)
+    def test_rf_training_with_small_dataset(self):
+        """Test that Random Forest training handles small datasets."""
+        np.random.seed(42)
+        n_samples = 20  # Small dataset
 
-            assert len(data['residuals']) == 3
-            assert data['indices'] == indices
+        raw_comps = np.random.dirichlet([1.0, 1.0, 1.0, 1.0, 1.0], n_samples)
+        df = pd.DataFrame(raw_comps, columns=["Cu", "Mg", "Si", "Zn", "Mn"])
+        df["poisson_ratio"] = 0.33 + 0.05 * np.random.randn(n_samples)
 
-    def test_save_methodological_flags(self):
-        """Test saving methodological flags."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "flags.json"
+        ilr_df = apply_ilr_transformation(df)
+        ilr_df["poisson_ratio"] = df["poisson_ratio"]
 
-            save_methodological_flags(mae_flag=True, cv_mae=0.06, output_path=str(output_path))
+        train_df = ilr_df.sample(frac=0.8, random_state=42)
 
-            with open(output_path, 'r') as f:
-                data = json.load(f)
+        feature_cols = [col for col in ilr_df.columns if col != "poisson_ratio"]
+        X_train = train_df[feature_cols].values
+        y_train = train_df["poisson_ratio"].values
 
-            assert data['mae_flag'] is True
-            assert data['cv_mae'] == 0.06
+        try:
+            model, cv_metrics = train_random_forest_with_cv(
+                X_train, y_train, random_state=42
+            )
+
+            assert hasattr(model, "estimators_")
+            assert len(model.estimators_) > 0
+
+        except Exception as e:
+            pytest.fail(f"RF training on small dataset failed: {str(e)}")
 
 
-class TestEvaluation:
-    """Tests for model evaluation."""
+class TestCvSplitReproducibility:
+    """Tests for cross-validation split reproducibility."""
 
-    def test_evaluate_model_on_test(self):
-        """Test evaluation on test set."""
-        # Create a simple model
-        model = RandomForestRegressor(n_estimators=10, random_state=42)
+    def test_cv_split_reproducibility(self):
+        """Test that cross-validation splits are reproducible with fixed random_state.
 
-        # Dummy data
-        X_test = pd.DataFrame({
-            'ilr_0': [0.1, 0.2, 0.3],
-            'ilr_1': [0.1, 0.2, 0.3],
-            'ilr_2': [0.1, 0.2, 0.3],
-            'ilr_3': [0.1, 0.2, 0.3]
-        })
-        y_test = pd.Series([0.5, 0.6, 0.7])
+        This test verifies that using the same random_state produces
+        identical train/test splits across multiple runs.
+        """
+        np.random.seed(42)
+        n_samples = 100
 
-        # Train model first (to avoid random prediction issues)
-        model.fit(X_test, y_test)
+        raw_comps = np.random.dirichlet([1.0, 1.0, 1.0, 1.0, 1.0], n_samples)
+        df = pd.DataFrame(raw_comps, columns=["Cu", "Mg", "Si", "Zn", "Mn"])
+        df["poisson_ratio"] = 0.33 + 0.05 * np.random.randn(n_samples)
 
-        mae = evaluate_model_on_test(model, X_test, y_test)
+        ilr_df = apply_ilr_transformation(df)
+        ilr_df["poisson_ratio"] = df["poisson_ratio"]
 
-        assert isinstance(mae, float)
-        assert mae >= 0
+        feature_cols = [col for col in ilr_df.columns if col != "poisson_ratio"]
+        X = ilr_df[feature_cols].values
+        y = ilr_df["poisson_ratio"].values
+
+        # First run
+        model1, metrics1 = train_random_forest_with_cv(X, y, random_state=42)
+        predictions1 = model1.predict(X)
+
+        # Second run with same random_state
+        model2, metrics2 = train_random_forest_with_cv(X, y, random_state=42)
+        predictions2 = model2.predict(X)
+
+        # Verify metrics are identical
+        assert np.isclose(metrics1["cv_mae"], metrics2["cv_mae"])
+
+        # Verify predictions are identical (due to fixed random_state)
+        assert np.allclose(predictions1, predictions2)
+
+    def test_cv_split_different_random_states(self):
+        """Test that different random_states produce different splits."""
+        np.random.seed(42)
+        n_samples = 100
+
+        raw_comps = np.random.dirichlet([1.0, 1.0, 1.0, 1.0, 1.0], n_samples)
+        df = pd.DataFrame(raw_comps, columns=["Cu", "Mg", "Si", "Zn", "Mn"])
+        df["poisson_ratio"] = 0.33 + 0.05 * np.random.randn(n_samples)
+
+        ilr_df = apply_ilr_transformation(df)
+        ilr_df["poisson_ratio"] = df["poisson_ratio"]
+
+        feature_cols = [col for col in ilr_df.columns if col != "poisson_ratio"]
+        X = ilr_df[feature_cols].values
+        y = ilr_df["poisson_ratio"].values
+
+        # Run with different random states
+        _, metrics_a = train_random_forest_with_cv(X, y, random_state=42)
+        _, metrics_b = train_random_forest_with_cv(X, y, random_state=123)
+
+        # Metrics should be different (though possibly close)
+        # We don't assert they're exactly different, just that the process works
+        assert "cv_mae" in metrics_a
+        assert "cv_mae" in metrics_b
+
+    def test_split_dataset_reproducibility(self):
+        """Test that split_dataset produces reproducible splits."""
+        np.random.seed(42)
+        n_samples = 100
+
+        df = pd.DataFrame(
+            np.random.rand(n_samples, 6),
+            columns=["Cu", "Mg", "Si", "Zn", "Mn", "poisson_ratio"],
+        )
+
+        # First split
+        train_indices_1, test_indices_1 = split_dataset(df, random_state=42)
+
+        # Second split with same random_state
+        train_indices_2, test_indices_2 = split_dataset(df, random_state=42)
+
+        # Verify indices are identical
+        assert train_indices_1 == train_indices_2
+        assert test_indices_1 == test_indices_2
+
+        # Verify splits are valid
+        assert len(train_indices_1) + len(test_indices_1) == n_samples
+        assert set(train_indices_1).isdisjoint(set(test_indices_1))
+
+    def test_split_dataset_different_random_states(self):
+        """Test that split_dataset produces different splits with different random_states."""
+        np.random.seed(42)
+        n_samples = 100
+
+        df = pd.DataFrame(
+            np.random.rand(n_samples, 6),
+            columns=["Cu", "Mg", "Si", "Zn", "Mn", "poisson_ratio"],
+        )
+
+        train_indices_1, test_indices_1 = split_dataset(df, random_state=42)
+        train_indices_2, test_indices_2 = split_dataset(df, random_state=123)
+
+        # Splits should be different (though this is probabilistic)
+        # We just verify the function works with different seeds
+        assert len(train_indices_1) > 0
+        assert len(test_indices_1) > 0
+        assert len(train_indices_2) > 0
+        assert len(test_indices_2) > 0

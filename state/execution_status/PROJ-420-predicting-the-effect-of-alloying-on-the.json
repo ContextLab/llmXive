@@ -1,16 +1,16 @@
 {
   "project_id": "PROJ-420-predicting-the-effect-of-alloying-on-the",
   "ok": false,
-  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main_pipeline.py",
+  "reason": "1 command(s) failed: python code/main_pipeline.py (rc=1); 1 declared deliverable(s) absent: data/processed/report_context.json",
   "artifacts": [],
   "failures": [
-    "python code/main_pipeline.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main_pipeline.py': [Errno 2] No such file or directory"
+    "python code/main_pipeline.py -> rc=1\n    call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/main_pipeline.py\", line 14, in <module>\n    from data.download import main as download_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/data/download.py\", line 4, in <module>\n    from data_extraction import run_extraction as extraction_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-420-predicting-the-effect-of-alloying-on-the/code/data_extraction.py\", line 8, in "
   ],
-  "fix_rounds": 6,
+  "fix_rounds": 7,
   "model_tier": 0,
-  "total_attempts": 6,
+  "total_attempts": 7,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-06T14:34:00Z"
+  "updated_at": "2026-09-08T06:22:01Z"
 }
