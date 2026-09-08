@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-734-detecting-distribution-shift-in-public-h",
+  "ok": false,
+  "reason": "11 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/benchmark_mmd.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\")         # Extend with synthetic data just for benchmarking if\u2026\u201d; code/bocpd.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\")         # Fallback to synthetic data for testing if real data\u2026\u201d; code/bocpd.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.warning(\"Using synthetic data for BOCPD baseline as re\u2026\u201d; 2 command(s) failed: python code/download_data.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/raw/fluview_ili.csv; data/raw/ground_truth_events.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/download_data.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-734-detecting-distribution-shift-in-public-h/code/download_data.py\", line 309, in main\n    fetch_cdc_data(url, output_path, data_type)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-734-detecting-distribution-shift-in-public-h/code/download_data.py\", line 99, in fetch_cdc_data\n    logger.info(f\"Attempting to fetch {data_type} from: {url}\")\n    ^^^^^^^^^^^\nAttributeError: 'NoneType' object has no attribute 'info'\n\nDuring handling of the above exception, an",
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-734-detecting-distribution-shift-in-public-h/code/main.py\", line 3, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-08T17:15:12Z"
+}

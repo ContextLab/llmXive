@@ -1,11 +1,3 @@
-T009:
-  c: true
-  h: cda04b41f3e2578980ac11835aa7d2025e650f1366c81d9ce8a6742c0d057657
-  r: The `code/exceptions.py` file defines the required `E_NO_DATA` exception, and
-    `code/main.py` implements `validate_data_availability()` that checks for the two
-    CSV files, raises `E_NO_DATA` with the mandated message (including the required
-    phrase) and the main routine logs the error and exits. The necessary artifacts
-    are present and functional.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -56,3 +48,19 @@ T039:
     shift pipeline and no evidence of any `data/` files being checked for `sha256sum`\
     \ nor any `state/` JSON files being created or updated with those hashes. Consequently,\
     \ the required artifacts for task T039 are missing."
+T045:
+  c: false
+  h: 7603791f22aa2c0ed101285405489ea589c83c5e0d9aeaf61f0c036575b6b092
+  r: "The repository lacks the required `data/processed/reproducibility_manifest.json`\
+    \ file, and the provided `code/main.py` excerpt shows no implementation that writes\
+    \ such a manifest (no git hash retrieval, requirements dump, seed or URL collection).\
+    \ Consequently the task\u2019s specification is not met."
+T049:
+  c: false
+  h: e83dd86f0be3fce5859fd30d9823ee9267b48bfe0ff2a1f06fb8339ede68e056
+  r: "The `code/bocpd.py` file now accepts a `run_length_prior` argument and logs\
+    \ its choice, and `code/sensitivity.py` builds a grid that varies BOCPD priors,\
+    \ but the required `config.yaml` file that should expose the `run_length_prior`\
+    \ setting is missing, and the sensitivity script does not show concrete logging\
+    \ of the prior used together with the resulting change\u2011point outputs. Both\
+    \ artifacts needed to satisfy the task are absent or incomplete."

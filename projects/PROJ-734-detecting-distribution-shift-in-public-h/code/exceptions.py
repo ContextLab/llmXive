@@ -1,14 +1,15 @@
 """
-Custom exceptions for the distribution shift detection pipeline.
+Custom exceptions for the project.
+
+Constitution Principle VI: E_NO_DATA is raised when real data sources are unavailable,
+preventing silent fallback to synthetic data.
 """
 
 class E_NO_DATA(Exception):
     """
-    Raised when required real-world CDC data files are missing.
+    Raised when a required data source is unavailable or inaccessible.
     
-    This exception enforces Constitution Principle VI and FR-001/FR-006,
-    ensuring the pipeline halts immediately if the primary data sources
-    (fluview_ili.csv or ground_truth_events.csv) are not present.
-    No fallback to synthetic or local placeholder data is permitted.
+    This exception ensures that the pipeline fails loudly rather than
+    silently falling back to synthetic or mock data.
     """
     pass
