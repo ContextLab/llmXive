@@ -1,1 +1,4 @@
-node_id
+node_id,reason
+2,empty_title
+3,null_title
+5,empty_title

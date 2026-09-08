@@ -1,3 +1,20 @@
+T016a:
+  c: false
+  h: 9eb2d87f8d3c8ecfcf83750495e315ed57a4f59f6d874297f0e0ef35d14bbbd6
+  r: "The repository lacks the required `verify_parquet()` function in `tests/unit/test_graph_utils.py`;\
+    \ the file only contains bridging\u2011coefficient unit tests. Additionally, the\
+    \ expected artifact `data/processed/subgraph_with_clusters.parquet` is absent,\
+    \ so the test cannot even be executed. Both the test code and the data file need\
+    \ to be added to satisfy the task."
+T020:
+  c: false
+  h: 028e8c495abe7320119a401e850fb55fbf7f3151557b84ee5c3d5dbcd38fb427
+  r: "The required `src/services/embeddings.py` file does not exist, so no implementation\
+    \ of loading the model or the `generate_embeddings_batch` function is present.\
+    \ Moreover, the benchmark test imports `load_embedding_model` and `generate_embeddings_batched`\
+    \ (a different name and batch size) from that missing module, indicating the expected\
+    \ functionality is not implemented. The task\u2019s core requirement is therefore\
+    \ unmet."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

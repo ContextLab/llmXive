@@ -1,5 +1,8 @@
 import pytest
 import networkx as nx
+import pandas as pd
+import os
+import tempfile
 from src.models.graph_utils import calc_bridging
 
 def test_calc_bridging_complete_graph():
@@ -105,3 +108,37 @@ def test_calc_bridging_missing_cluster_assignment():
     # We assert that 0 and 1 are present and valid.
     assert 0 in result
     assert 1 in result
+
+def test_verify_parquet():
+    """
+    Verify that the saved graph artifact exists and contains the required columns
+    with no null values in critical fields.
+    
+    This test asserts:
+    1. The file `data/processed/subgraph_with_clusters.parquet` exists.
+    2. It contains columns: [id, title, citation_count, primary_cluster, bridging_coefficient].
+    3. There are no null values in `primary_cluster` or `bridging_coefficient`.
+    """
+    import os
+    import pandas as pd
+    
+    file_path = "data/processed/subgraph_with_clusters.parquet"
+    
+    # Assert file exists
+    assert os.path.exists(file_path), f"Parquet file not found at {file_path}"
+    
+    # Load the dataframe
+    df = pd.read_parquet(file_path)
+    
+    # Assert required columns exist
+    required_columns = ['id', 'title', 'citation_count', 'primary_cluster', 'bridging_coefficient']
+    for col in required_columns:
+        assert col in df.columns, f"Missing required column: {col}"
+    
+    # Assert no null values in primary_cluster
+    assert df['primary_cluster'].isnull().sum() == 0, \
+        f"Found {df['primary_cluster'].isnull().sum()} null values in 'primary_cluster'"
+    
+    # Assert no null values in bridging_coefficient
+    assert df['bridging_coefficient'].isnull().sum() == 0, \
+        f"Found {df['bridging_coefficient'].isnull().sum()} null values in 'bridging_coefficient'"

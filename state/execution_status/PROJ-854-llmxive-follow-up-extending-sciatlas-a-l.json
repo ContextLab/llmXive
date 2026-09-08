@@ -1,0 +1,22 @@
+{
+  "project_id": "PROJ-854-llmxive-follow-up-extending-sciatlas-a-l",
+  "ok": false,
+  "reason": "7 command(s) failed: python -m pytest tests/unit/test_data_source.py -v (rc=1); python code/tests/integration/test_ingest_pipeline.py (rc=1); python code/tests/integration/test_embeddings_pipeline.py (rc=1); 2 declared deliverable(s) absent: data/processed/final_analysis_dataset.parquet; data/processed/subgraph_with_clusters.parquet",
+  "artifacts": [],
+  "failures": [
+    "python -m pytest tests/unit/test_data_source.py -v -> rc=1\n    ng handling of the above exception, another exception occurred:\n\n    def test_pyalex_basic_query():\n        \"\"\"\n        Verify that pyalex can perform a basic search query (e.g., count of works).\n    \n        This tests the API's ability to handle query parameters, not just ID lookups.\n        \"\"\"\n        try:\n            # Query for a very common term to ensure a result exists\n            # We use a small sample to keep it fast\n            result = Works().filter(openalex=\"W2741809807\").sample(1)\n    \n            assert len(result",
+    "python code/tests/integration/test_ingest_pipeline.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/tests/integration/test_ingest_pipeline.py\", line 7, in <module>\n    from src.services.ingest import fetch_sample_ids, fetch_and_build_subgraph\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/src/services/ingest.py\", line 11, in <module>\n    from src.lib import config\nImportError: cannot import name 'config' from 'src.lib' (unknown lo",
+    "python code/tests/integration/test_embeddings_pipeline.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/tests/integration/test_embeddings_pipeline.py\", line 14, in <module>\n    from src.services.embeddings import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/src/services/embeddings.py\", line 10, in <module>\n    from src.lib.config import get_config, get_path\nModuleNotFoundError: No module named 'src.lib.config'",
+    "python code/scripts/save_final_dataset.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/scripts/save_final_dataset.py\", line 22, in <module>\n    from src.lib import config\nImportError: cannot import name 'config' from 'src.lib' (unknown location)",
+    "python code/scripts/save_statistical_metrics.py --correction-method bh -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/scripts/save_statistical_metrics.py\", line 13, in <module>\n    from src.lib.config import get_artifacts_path\nModuleNotFoundError: No module named 'src.lib.config'",
+    "python code/scripts/generate_analysis_report.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/scripts/generate_analysis_report.py\", line 7, in <module>\n    from src.lib import config\nImportError: cannot import name 'config' from 'src.lib' (unknown location)",
+    "python code/scripts/run_validation.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/scripts/run_validation.py\", line 23, in <module>\n    from src.lib import config\nImportError: cannot import name 'config' from 'src.lib' (unknown location)"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-08T07:21:54Z"
+}

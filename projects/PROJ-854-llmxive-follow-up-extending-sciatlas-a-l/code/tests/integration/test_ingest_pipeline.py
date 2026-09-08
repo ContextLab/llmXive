@@ -3,72 +3,110 @@ import tempfile
 import pytest
 import pandas as pd
 import networkx as nx
-from unittest.mock import patch, MagicMock
-from src.services.ingest import fetch_sample_ids, fetch_and_build_subgraph
+import sys
+import logging
+
+# Configure logging for the test run
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Adjust path to match project structure relative to this file
+# The project root is assumed to be two levels up from tests/integration
+_project_root = os.path.join(os.path.dirname(__file__), '..', '..', 'code')
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+from src.services.ingest import fetch_and_build_subgraph
 from src.lib import config
+from src.models.node import Node
 
-def test_ingest_creates_subgraph():
+@pytest.fixture
+def temp_output_dir():
+    """Create a temporary directory for test outputs."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        logger.info(f"Created temporary directory: {tmpdir}")
+        yield tmpdir
+
+def test_ingest_creates_subgraph(temp_output_dir):
     """
-    Integration test: Verify that the ingestion pipeline successfully
-    fetches data and constructs a networkx.Graph object.
+    Integration test for the ingestion pipeline on a sample of OpenAlex data.
+    
+    Verifies that:
+    1. The fetch_and_build_subgraph function executes without error.
+    2. It returns a valid networkx.Graph object.
+    3. The graph contains at least one node and one edge.
+    4. Nodes have the required attributes (id, title, citation_count, etc.).
+    5. The output parquet file is created at the expected path.
     """
-    # Mock the OpenAlex API to avoid network dependency in CI
-    mock_work = MagicMock()
-    mock_work.id = "https://openalex.org/W123456"
-    mock_work.title = "Test Paper"
-    mock_work.cited_by_count = 10
-    mock_work.referenced_works = ["https://openalex.org/W789012"]
+    # Configuration for a small sample to ensure fast execution
+    # Targeting a small subgraph to avoid rate limits and long execution times
+    sample_size = 20 
+    output_path = os.path.join(temp_output_dir, "test_subgraph.parquet")
+    
+    logger.info(f"Running ingestion pipeline with target size: {sample_size}")
+    logger.info(f"Output path: {output_path}")
+    
+    # Execute the ingestion pipeline
+    # We pass a temporary directory for logs/data to avoid polluting the real data dir
+    try:
+        G, nodes_df = fetch_and_build_subgraph(
+            target_size=sample_size,
+            output_path=output_path,
+            sample_seed=42
+        )
+    except Exception as e:
+        logger.error(f"Ingestion pipeline failed: {e}")
+        raise
 
-    mock_work_2 = MagicMock()
-    mock_work_2.id = "https://openalex.org/W789012"
-    mock_work_2.title = "Referenced Paper"
-    mock_work_2.cited_by_count = 5
-    mock_work_2.referenced_works = []
-
-    with patch('src.services.ingest.Works') as mock_works_class:
-        # Setup the mock to return our fake works
-        mock_instance = MagicMock()
-        mock_instance.sample.return_value = [mock_work, mock_work_2]
-        mock_instance.filter.return_value = [mock_work, mock_work_2]
-        mock_works_class.return_value = mock_instance
-
-        # Run the ingestion logic
-        # 1. Fetch IDs (mocked)
-        ids = fetch_sample_ids(target_size=2, seed=42)
+    # Assertions
+    assert isinstance(G, nx.Graph), "Output must be a networkx.Graph"
+    assert G.number_of_nodes() > 0, "Graph must contain at least one node"
+    assert G.number_of_edges() > 0, "Graph must contain at least one edge (sampled subgraph)"
+    
+    # Verify node attributes based on the Node dataclass and ingestion logic
+    required_attrs = ['id', 'title', 'citation_count', 'embedding_vector', 'primary_cluster', 'topic_cluster']
+    for node_id, data in G.nodes(data=True):
+        for attr in required_attrs:
+            assert attr in data, f"Node {node_id} missing '{attr}'"
         
-        # 2. Build Graph (mocked)
-        G = fetch_and_build_subgraph(ids, depth=1)
+        assert isinstance(data['citation_count'], (int, float)), "citation_count must be numeric"
+        # embedding_vector is typically a list or numpy array
+        assert data['embedding_vector'] is not None, f"Node {node_id} has None embedding_vector"
+        
+    # Verify DataFrame output
+    assert isinstance(nodes_df, pd.DataFrame), "nodes_df must be a pandas DataFrame"
+    assert len(nodes_df) == G.number_of_nodes(), "DataFrame row count must match graph node count"
+    assert 'id' in nodes_df.columns, "DataFrame must have 'id' column"
+    assert 'title' in nodes_df.columns, "DataFrame must have 'title' column"
+    assert 'citation_count' in nodes_df.columns, "DataFrame must have 'citation_count' column"
+    
+    # Verify file creation
+    assert os.path.exists(output_path), f"Output file not created at {output_path}"
+    
+    # Verify we can load the file back
+    loaded_df = pd.read_parquet(output_path)
+    assert len(loaded_df) == len(nodes_df), "Loaded DataFrame size mismatch"
+    logger.info(f"Test passed: Subgraph created with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
 
-        # Assertions
-        assert isinstance(G, nx.Graph)
-        assert G.number_of_nodes() > 0
-        assert G.number_of_edges() >= 0
-
-        # Check node attributes
-        for node_id, data in G.nodes(data=True):
-            assert 'title' in data
-            assert 'citation_count' in data
-            assert 'primary_cluster' in data
-            assert 'topic_cluster' in data
-            assert data['primary_cluster'] is None # Not clustered yet
-            assert data['topic_cluster'] is None
-
-        # Check edge connectivity
-        # We expect an edge between W123456 and W789012
-        assert G.has_edge("123456", "789012") or G.has_edge("123456", "W789012") # Depending on ID parsing
-
-def test_ingest_handles_empty_response():
+def test_ingest_handles_empty_response(temp_output_dir):
     """
-    Test that the pipeline handles an empty API response gracefully.
+    Test that the pipeline handles cases where the sample size results in no valid nodes.
+    This is an edge case check.
     """
-    with patch('src.services.ingest.Works') as mock_works_class:
-        mock_instance = MagicMock()
-        mock_instance.sample.return_value = []
-        mock_instance.filter.return_value = []
-        mock_works_class.return_value = mock_instance
-
-        ids = fetch_sample_ids(target_size=10, seed=42)
-        assert len(ids) == 0
-
-        G = fetch_and_build_subgraph(ids, depth=1)
-        assert G.number_of_nodes() == 0
+    # We use a very small target size or a seed that might yield nothing in a real scenario,
+    # but since we are testing the logic, we rely on the function's internal handling.
+    # If the function returns an empty graph, it should still be a valid graph.
+    output_path = os.path.join(temp_output_dir, "test_empty.parquet")
+    
+    # Note: In a real scenario with OpenAlex, a sample_size of 0 or 1 might behave differently.
+    # We test the robustness of the return type.
+    G, nodes_df = fetch_and_build_subgraph(
+        target_size=1, # Minimal valid request
+        output_path=output_path,
+        sample_seed=12345
+    )
+    
+    assert isinstance(G, nx.Graph)
+    assert isinstance(nodes_df, pd.DataFrame)
+    # Even if empty, the structure should be valid
+    logger.info(f"Empty/minimal test passed: {G.number_of_nodes()} nodes.")

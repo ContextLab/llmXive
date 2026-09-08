@@ -1,0 +1,13 @@
+status: none
+intent: PubGraph scholarly network dataset download python package dataset
+required_fields:
+- node_id
+- source
+- target
+- node_label
+- publication_year
+- discipline
+- edge_weight
+cache_key: e7e848095ed519f0676d622ded84bf853a1bcc3b65bc1bf58f8ca3c0695a592d
+searched_at: '2026-09-08T07:22:47.618142+00:00'
+retry_count: 1
