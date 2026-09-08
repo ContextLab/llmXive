@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-071-exploring-the-correlation-between-molecu",
+  "tasks": [
+    {
+      "task_key": "T026",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/analysis_results.json",
+      "first_seen": "2026-09-08T05:54:12.818949+00:00",
+      "last_seen": "2026-09-08T05:54:12.818949+00:00"
+    }
+  ],
+  "updated_at": "2026-09-08T05:54:12.818949+00:00"
+}

@@ -13,6 +13,14 @@ T012:
     \ of `code/ingest.py` does not show any implementation of the gate\u2011status\
     \ check, report generation, or the merge logic required by the task. These essential\
     \ artifacts and behaviors are missing."
+T025:
+  c: false
+  h: c75e6732e45019f1ce74bb80589f5f554c949a930c9d941c1e2b65858b308e79
+  r: "The provided `code/analysis.py` does not contain any implementation of Shapiro\u2011\
+    Wilk or Breusch\u2011Pagan tests, nor does it import `statsmodels`. Moreover,\
+    \ the required output file `data/processed/analysis_results.json` is absent. Consequently,\
+    \ the task\u2019s core requirement\u2014performing the diagnostics and writing\
+    \ the results to the JSON file\u2014is not satisfied."
 T033:
   c: false
   h: 2b13c68f134c741fead75b43ec95ff865248c5e79992fd122d9e123d08d54d04
