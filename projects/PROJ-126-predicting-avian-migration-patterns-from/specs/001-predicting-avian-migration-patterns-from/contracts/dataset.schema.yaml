@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GridCellObservation"
+description: "Schema for the aggregated spatiotemporal grid cell data derived from eBird and MODIS."
+type: "object"
+properties:
+  grid_cell_id:
+    type: "string"
+    description: "Unique identifier for the 0.5° grid cell (e.g., 'lat_40.5_lon_-75.5')."
+  year:
+    type: "integer"
+    minimum: 2015
+    maximum: 2023
+    description: "Year of observation."
+  week:
+    type: "integer"
+    minimum: 1
+    maximum: 52
+    description: "ISO week number of the year."
+  observation_count:
+    type: "integer"
+    minimum: 0
+    description: "Total count of Setophaga ruticilla in this cell/week."
+  cumulative_count:
+    type: "integer"
+    minimum: 0
+    description: "Running sum of observations from the start of the year."
+  first_arrival_week:
+    type:
+      - "integer"
+      - "null"
+    minimum: 1
+    maximum: 52
+    description: "Week where cumulative count reached the threshold (default 5). Null if threshold not met."
+  is_valid:
+    type: "boolean"
+    description: "True if total annual count >= 10, otherwise False."
+  temp_lag_1:
+    type:
+      - "number"
+      - "null"
+    description: "Mean Land Surface Temperature 1 week prior."
+  temp_lag_2:
+    type:
+      - "number"
+      - "null"
+    description: "Mean Land Surface Temperature 2 weeks prior."
+  temp_lag_3:
+    type:
+      - "number"
+      - "null"
+    description: "Mean Land Surface Temperature 3 weeks prior."
+  temp_lag_4:
+    type:
+      - "number"
+      - "null"
+    description: "Mean Land Surface Temperature 4 weeks prior."
+  ndvi_lag_1:
+    type:
+      - "number"
+      - "null"
+    description: "Mean NDVI 1 week prior."
+  ndvi_lag_2:
+    type:
+      - "number"
+      - "null"
+    description: "Mean NDVI 2 weeks prior."
+  ndvi_lag_3:
+    type:
+      - "number"
+      - "null"
+    description: "Mean NDVI 3 weeks prior."
+  ndvi_lag_4:
+    type:
+      - "number"
+      - "null"
+    description: "Mean NDVI 4 weeks prior."
+required:
+  - "grid_cell_id"
+  - "year"
+  - "week"
+  - "observation_count"
+  - "cumulative_count"
+  - "is_valid"
+additionalProperties: false
