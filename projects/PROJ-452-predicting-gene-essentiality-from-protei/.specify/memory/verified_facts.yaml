@@ -1,0 +1,5 @@
+'|code complexity cyclomatic less reduce refactor than':
+  quote: number should be in the range of 1 -10 and range specifies that
+  source_id: '1412.6216'
+  url: https://arxiv.org/abs/1412.6216
+  value: '10'

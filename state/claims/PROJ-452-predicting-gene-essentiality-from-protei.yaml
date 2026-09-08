@@ -1,0 +1,391 @@
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Fetch OpenTree phylogenetic tree for 7 specific taxonomic IDs including
+    Homo sapiens and Mus musculus
+  claim_id: c_99f290fc
+  context: 'T009 Fetch the Newick phylogenetic tree from OpenTree of Life using the
+    specific endpoint... and the following taxonomic IDs: 9606 (Homo sapiens)... Save
+    to data/phylogeny/tree.newick.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch the Newick phylogenetic tree from OpenTree of Life using the specific
+    endpoint and the following taxonomic IDs: 9606 (Homo sapiens), 10090 (Mus musculus),
+    7955 (Danio rerio), 6239 (Caenorhabditis elegans), 7227 (Drosophila melanogaster),
+    8355 (Xenopus tropicalis), 9615 (Canis lupus familiaris).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:36:08Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Fetch PPI networks from STRING API for 8 model organisms
+  claim_id: c_a5961107
+  context: T013 [US1] Implement fetch_string_ppi function... to fetch PPI networks
+    from STRING API for each of the -8 model organisms defined in config...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch PPI networks from STRING API for each of the 8 model organisms defined
+    in config.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:36:52Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Use STRING API confidence threshold of 700 or higher
+  claim_id: c_c1085514
+  context: T013... use confidence threshold >= 700; if API fails, raise an error...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use confidence threshold >= 700 when fetching PPI networks from STRING
+    API.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:37:28Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Apply k-sampling for betweenness centrality on networks exceeding 5000
+    nodes
+  claim_id: c_8ae64271
+  context: T016... use k-sampling for betweenness on networks >5,000 nodes to ensure
+    <30min runtime...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_k-sampling_for_betweenness_centrality_on_networks_exce
+  kind: magnitude
+  raw_text: Use k-sampling for betweenness centrality on networks with more than 5,000
+    nodes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:38:01Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Perform 1000 label permutations for Null Model A
+  claim_id: c_3a0ea255
+  context: 'Notes section: Statistical Validity: T020 uses 1,000 permutations for
+    SC-001...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 1,000 permutations for label permutation in Null Model A.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:39:16Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Skip PGLS analysis when effective sample size is below 10
+  claim_id: c_8980c025
+  context: T029... Include logic to skip if effective sample size n < 10... T031...
+    skip PGLS if effective sample size n < 10...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_PGLS_analysis_when_effective_sample_size_is_below_10
+  kind: magnitude
+  raw_text: Skip PGLS model if effective sample size n is less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:40:07Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Flag stability failure if correlation coefficient difference exceeds
+    0.1
+  claim_id: c_3d1bb6f4
+  context: T038... flag if > 0.1; log pass/fail status for SC-002... SC-002 (stability
+    <= 0.1).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_stability_failure_if_correlation_coefficient_difference
+  kind: magnitude
+  raw_text: Flag stability if the absolute difference in correlation coefficients
+    across thresholds is greater than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:40:54Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Ensure pipeline runtime is under 6 hours on GitHub Actions
+  claim_id: c_a96a2703
+  context: T041... verify runtime < 6h on GitHub Actions runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_pipeline_runtime_is_under_6_hours_on_GitHub_Actions
+  kind: magnitude
+  raw_text: Verify runtime is less than 6 hours on GitHub Actions runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:41:23Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Reduce code cyclomatic complexity to below 10
+  claim_id: c_62dcb4c6
+  context: T040... Refactor code/data_loader.py to reduce cyclomatic complexity <
+    10...
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: number should be in the range of 1 -10 and range specifies that
+      source_id: '1412.6216'
+      url: https://arxiv.org/abs/1412.6216
+      value: '10'
+    filled: true
+  kind: magnitude
+  raw_text: Refactor code to reduce cyclomatic complexity to less than 10.
+  resolved_value: '10'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T16:42:25Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Log warning for networks with fewer than 500 edges
+  claim_id: c_375ae9c7
+  context: T036... Implement logging for network sparsity (flag if edges < 500)...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_for_networks_with_fewer_than_500_edges
+  kind: magnitude
+  raw_text: Log a warning if network sparsity indicates edge count is less than 500.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:43:21Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei/tasks.md
+  attempts: 1
+  canonical: Run sensitivity analysis with confidence thresholds 700 and 900
+  claim_id: c_7c6b0fff
+  context: 'T035... iterates over a list of confidence thresholds (default: [, 700,
+    900]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a list of confidence thresholds including 700 and 900 for sensitivity
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:43:49Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/quickstart.md
+  attempts: 1
+  canonical: OpenTree of Life used for 7 model organisms
+  claim_id: c_706d82b2
+  context: '### 3.1 Phylogenetic Tree The tree is fetched from OpenTree of Life for
+    the 7 model organisms. Tax IDs: 9606, 10090, 7955, 6239, 7227, 8355, 9615.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The tree is fetched from OpenTree of Life for the 7 model organisms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:45:29Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/quickstart.md
+  attempts: 1
+  canonical: Tax IDs 9606, 10090, 7955, 6239, 7227, 8355, 9615 used
+  claim_id: c_0b1e4846
+  context: 'The tree is fetched from OpenTree of Life for the 7 model organisms. Tax
+    IDs: 9606, 10090, 7955, 6239, 7227, 8355, 9615. Output: data/phylogeny/tree.newick'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Tax IDs: 9606, 10090, 7955, 6239, 7227, 8355, 9615.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:46:51Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/quickstart.md
+  attempts: 1
+  canonical: Pipeline automatically fetches required data
+  claim_id: c_5d16e472
+  context: '### 3. Data Fetching The pipeline automatically fetches required data.
+    Ensure you have internet access.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_automatically_fetches_required_data
+  kind: entity_fact
+  raw_text: The pipeline automatically fetches required data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:47:29Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/quickstart.md
+  attempts: 1
+  canonical: Pipeline fetches STRING PPI networks and DEG essentiality labels
+  claim_id: c_fd9f9e6f
+  context: '### 3.2 PPI Networks and Essentiality Labels The main pipeline script
+    handles fetching of STRING PPI networks and DEG essentiality labels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fetches_STRING_PPI_networks_and_DEG_essentiality_la
+  kind: entity_fact
+  raw_text: The main pipeline script handles fetching of STRING PPI networks and DEG
+    essentiality labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:49:13Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/quickstart.md
+  attempts: 1
+  canonical: Sensitivity analysis across confidence thresholds 500, 700, 900
+  claim_id: c_291a58cf
+  context: '7. **Sensitivity Analysis**: Re-runs correlation analysis across confidence
+    thresholds [500, 700, 900].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sensitivity Analysis: Re-runs correlation analysis across confidence
+    thresholds [500, 700, 900].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:50:02Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: PPI networks retrieved from STRING for 7 model organisms
+  claim_id: c_7dd29e63
+  context: Data Sources section listing the organisms and database source.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Protein-Protein Interaction Networks were retrieved from STRING database
+    for 7 model organisms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T16:59:36Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Degree centrality positively correlated with essentiality across 7 organisms
+  claim_id: c_eee1e11b
+  context: Key Findings section under Cross-Species Correlation Analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Degree centrality shows a consistent positive correlation with essentiality
+    across all 7 organisms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T17:00:01Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Rewired graph correlations significantly lower than observed correlations
+  claim_id: c_927ceb08
+  context: Rewired Null Model Validation section describing Maslov-Sneppen algorithm
+    results.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Rewired_graph_correlations_significantly_lower_than_observed
+  kind: entity_fact
+  raw_text: Correlations on rewired graphs were significantly lower than observed
+    correlations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T17:00:34Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: "Correlation coefficients stable with |\u0394\u03C1| < 0.1 across thresholds\
+    \ 500 700 900"
+  claim_id: c_9ece2339
+  context: Sensitivity Analysis section discussing robustness to network sparsity.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_coefficients_stable_with_%7C%CE%94%CF%81%7C_%3C_0.1_across_thres
+  kind: magnitude
+  raw_text: "Correlation coefficients were stable across confidence thresholds [500,\
+    \ 700, 900], with |\u0394\u03C1| < 0.1 for most organisms."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T17:01:20Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: Study analyzed 7 model organisms including Homo sapiens and Mus musculus
+  claim_id: c_340044df
+  context: Data Sources section listing the specific organisms studied.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The study analyzed 7 model organisms: Homo sapiens, Mus musculus, Danio
+    rerio, Caenorhabditis elegans, Drosophila melanogaster, Xenopus tropicalis, and
+    Canis lupus familiaris.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T17:01:38Z'
+- artifact_path: projects/PROJ-452-predicting-gene-essentiality-from-protei/research.md
+  attempts: 1
+  canonical: 1000 shuffles used for label permutation null distribution
+  claim_id: c_090647f9
+  context: Null Models section describing the label permutation method.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1,000 shuffles of essentiality labels were used to generate the null distribution
+    for label permutation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T17:01:57Z'

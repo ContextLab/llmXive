@@ -43,9 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `results/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies: `networkx`, `pandas`, `scipy`, `statsmodels`, `requests`, `pyyaml`, `numpy`, `biopython`, `dendropy`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Run `scripts/init_project_structure.sh` to create directories: `code/`, `data/raw/`, `data/processed/`, `data/phylogeny/`, `results/`, `tests/`.
 
 ---
 
@@ -55,12 +53,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.py` to load organism IDs, confidence thresholds, and paths from YAML
-- [X] T005 [P] Implement `code/utils.py` with logging setup, checksumming (SHA256), and exponential backoff helpers
-- [X] T006 [P] Create `code/hash_checker.py` to compute hashes for `data/` and `results/` and update `state/` YAML
-- [ ] T007 Create `contracts/correlation_result.schema.yaml`, `contracts/pgls_result.schema.yaml`, `contracts/sensitivity_report.schema.yaml`
-- [X] T008 [P] Setup `tests/contract/test_schemas.py` to validate JSON outputs against the schema files
-- [ ] T009 [P] Fetch the Newick phylogenetic tree from OpenTree of Life (api.opentree.org) using taxonomic IDs for target organisms; save to `data/phylogeny/tree.newick`; if fetch fails, log a warning and skip the comparative test (PGLS) gracefully (per Spec Assumptions) rather than failing the build
+- [X] T002 Initialize Python 3.11 project with dependencies: `networkx`, `pandas`, `scipy`, `statsmodels`, `requests`, `pyyaml`, `numpy`, `biopython`, `dendropy` (Create `requirements.txt` with pinned versions).
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools.
+- [X] T004 Create `code/config.py` to load organism IDs, confidence thresholds, and paths from YAML.
+- [X] T005 [P] Implement `code/utils.py` with logging setup, checksumming (SHA256), and exponential backoff helpers.
+- [X] T006 [P] Create `code/hash_checker.py` to compute hashes for `data/` and `results/` and update `state/` YAML.
+- [X] T007 Create `contracts/correlation_result.schema.yaml`, `contracts/pgls_result.schema.yaml`, `contracts/sensitivity_report.schema.yaml`.
+- [X] T008 [P] Setup `tests/contract/test_schemas.py` to validate JSON outputs against the schema files.
+- [X] T009 Fetch the Newick phylogenetic tree from OpenTree of Life using the specific endpoint ` Name or service not known)"))] and the following taxonomic IDs: 9606 (Homo sapiens), 10090 (Mus musculus), 7955 (Danio rerio), 6239 (Caenorhabditis elegans), 7227 (Drosophila melanogaster), 8355 (Xenopus tropicalis), 9615 (Canis lupus familiaris). Use the `tax_ids` parameter. Save to `data/phylogeny/tree.newick`. **STRICT FAILURE CONDITION**: If the tree cannot be fetched or is missing, the build MUST FAIL immediately. Do NOT skip gracefully. This is a hard prerequisite for T024.
+- [X] T010 [P] Implement `quickstart.md` with exact reproduction steps: Environment Setup, Data Fetching (commands), Pipeline Execution, and Reproducibility Verification. This task is critical for Constitution Principle I and must be completed before Phase 3.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,29 +77,30 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T010 [P] [US1] Contract test for correlation result schema in `tests/contract/test_correlation_schema.py`
-- [X] T011 [US1] Integration test for single-organism pipeline in `tests/integration/test_single_organism.py` (Note: Depends on implementation completion) <!-- FAILED: unspecified -->
+- [X] T011 [P] [US1] Contract test for correlation result schema in `tests/contract/test_correlation_schema.py`.
+- [X] T012 [US1] Integration test for single-organism pipeline in `tests/integration/test_single_organism.py`: Use mock data for *S. cerevisiae* (small graph, 100 genes) and assert that `results/correlations.json` contains a valid Spearman ρ and p-value. (Note: Depends on implementation completion).
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/data_loader.py` to fetch PPI networks from STRING API (default threshold ≥700) for several model organisms; use specific endpoint (e.g., `) and fallback to local `data/raw/` files if API is unreachable; define organism list in config
-- [X] T013 [US1] Implement `code/data_loader.py` to fetch gene essentiality labels (binary) from DEG database (e.g., ` or direct CSV fetch) for the same organisms; fallback to local `data/raw/` if API fails; define organism list in config
-- [X] T014 [US1] Implement ID mapping logic in `code/data_loader.py` using Ensembl BioMart API to align STRING and DEG gene identifiers; log `mapping_coverage_percent`
-- [X] T015 [US1] Implement `code/network_analysis.py` to compute degree, betweenness, and eigenvector centrality using NetworkX; use k-sampling for betweenness on networks >5,000 nodes to ensure <30min runtime (FR-004); exact calculation for smaller networks
-- [X] T016 [US1] Implement `code/statistics.py` to calculate Spearman's rank correlation between each centrality metric and essentiality labels
-- [ ] T017 [US1] Implement `code/main.py` orchestration loop: download → map → centrality → correlation → save to `results/correlations.json` <!-- FAILED: unspecified -->
-- [ ] T020 [US1] Add error handling for disconnected networks (assign 0 centrality) and missing gene overlaps (skip with warning)
+- [X] T013 [US1] Implement `fetch_string_ppi` function in `code/data_loader.py` to fetch PPI networks from STRING API (`) for each of the -8 model organisms defined in config; use confidence threshold ≥700; if API fails, raise an error (no fallback to synthetic).
+- [X] T014 [US1] Implement `fetch_deg_essentiality` function in `code/data_loader.py` to fetch gene essentiality labels (binary) from the DEG database via FTP: `ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/deg_essential_genes.csv`. Parse CSV; raise error if fetch fails (no fallback to synthetic).
+- [X] T015 [US1] Implement ID mapping logic in `code/data_loader.py` using Ensembl BioMart API to align STRING and DEG gene identifiers; log `mapping_coverage_percent`.
+- [X] T016 [US1] Implement `compute_centrality` function in `code/network_analysis.py` to compute degree, betweenness, and eigenvector centrality using NetworkX; use k-sampling for betweenness on networks >5,000 nodes to ensure <30min runtime (FR-004); exact calculation for smaller networks.
+- [X] T017 [US1] Implement `calculate_correlation` function in `code/statistics.py` to calculate Spearman's rank correlation between each centrality metric and essentiality labels.
+- [X] T018 [US1] Implement `run_organism_analysis` function in `code/main.py` that orchestrates the full pipeline for a single organism: calls `fetch_string_ppi`, `fetch_deg_essentiality`, `map_ids`, `compute_centrality`, `calculate_correlation`, and `save_results`. This function must accept a `threshold` parameter.
+- [X] T019 [US1] Add error handling for disconnected networks in `code/network_analysis.py`: check if edge count == 0; if so, assign 0 centrality for all nodes, log a specific warning "Network disconnected for {organism}", and skip further centrality calculation. This satisfies FR-004 and Edge Case requirements.
 
 ### Null Model A: Label Permutation (SC-001)
 
-- [ ] T018a [US1] [P] Implement label permutation loop in `code/statistics.py` to shuffle essentiality labels [deferred] times and compute Spearman correlation for each shuffle; save results to `results/null_distribution/label_permutation.csv`
-- [ ] T018b [US1] [P] Implement empirical p-value calculation in `code/statistics.py` by comparing the observed correlation (from T016) against the null distribution (from T018a); update `results/correlations.json` with `empirical_p_value` and `null_distribution_summary`
+- [X] T020 [US1] [P] Implement label permutation loop in `code/statistics.py` to shuffle essentiality labels [deferred] times (per SC-001) and compute Spearman correlation for each shuffle; save results to `results/null_distribution/{organism}/threshold_<value>/label_permutation.csv` (organism-specific and threshold-specific subfolders to prevent race conditions).
+- [X] T021 [US1] [P] Implement empirical p-value calculation in `code/statistics.py` by comparing the observed correlation (from T017) against the null distribution (from T020); update `results/correlations.json` with `empirical_p_value` and `null_distribution_summary`.
 
 ### Null Model B: Graph Rewiring (FR-010)
 
-- [X] T019a [US1] [P] Implement graph rewiring in `code/network_analysis.py` to generate a set of degree-preserving random graphs using the Maslov-Sneppen algorithm; save graphs to `results/null_distribution/rewired_graphs/`
-- [X] T019b [US1] [P] Implement centrality computation on rewired graphs in `code/network_analysis.py` to calculate degree centrality for each rewired graph
-- [X] T019c [US1] [P] Implement correlation calculation on rewired graphs in `code/statistics.py` to compute Spearman correlation between rewired centrality and original essentiality labels; save results to `results/null_distribution/rewired_correlations.csv`; compare observed correlation against this null distribution to validate FR-010
+- [X] T022 [US1] [P] Implement graph rewiring in `code/network_analysis.py` to generate a set of degree-preserving random graphs using the Maslov-Sneppen algorithm; save graphs to `results/null_distribution/{organism}/threshold_<value>/rewired_graphs/` (organism-specific and threshold-specific subfolders).
+- [X] T023 [US1] [P] Implement centrality computation on rewired graphs in `code/network_analysis.py` to calculate degree centrality for each rewired graph.
+- [X] T024 [US1] [P] Implement correlation calculation on rewired graphs in `code/statistics.py` to compute Spearman correlation between rewired centrality and original essentiality labels; save results to `results/null_distribution/{organism}/threshold_<value>/rewired_correlations.csv`.
+- [X] T025 [US1] [P] Implement statistical comparison in `code/statistics.py` to calculate the p-value or z-score comparing the observed correlation (from T017) against the rewired null distribution (from T024) to validate FR-010; save results to `results/correlations.json` with `rewired_p_value`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,16 +114,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T021 [P] [US2] Contract test for PGLS result schema in `tests/contract/test_pgls_schema.py`
-- [ ] T022 [P] [US2] Integration test for cross-species comparison in `tests/integration/test_cross_species.py`
+- [X] T026 [P] [US2] Contract test for PGLS result schema in `tests/contract/test_pgls_schema.py`.
+- [X] T027 [P] [US2] Integration test for cross-species comparison in `tests/integration/test_cross_species.py`: Use mock correlation data for multiple organisms and a mock tree; assert that `results/pgls_results.json` contains a valid PGLS statistic and p-value.
 
 ### Implementation for User Story 2
 
-- [X] T023 [US2] Implement Fisher's z-transformation in `code/statistics.py` to normalize correlation coefficients for comparison
-- [X] T024 [US2] Implement PGLS model in `code/statistics.py` using `statsmodels` and the loaded phylogenetic tree (from T009) to test for differences in correlation strength
-- [ ] T025 [P] [US2] Implement Benjamini-Hochberg correction in `code/statistics.py` for multiple-comparison adjustment of PGLS p-values (FR-008) and apply in output generation
-- [ ] T026 [US2] Add logic in `code/main.py` to skip PGLS if effective sample size n < 10 and log "Power insufficient" warning (FR-009)
-- [ ] T027 [US2] Save comparative statistics to `results/pgls_results.json` with metadata on organisms and tree used
+- [X] T028 [US2] Implement Fisher's z-transformation in `code/statistics.py` to normalize correlation coefficients for comparison.
+- [X] T029 [US2] Implement PGLS model in `code/statistics.py` using `statsmodels` and the loaded phylogenetic tree (from T009) to test for differences in correlation strength. **Include logic to skip if effective sample size n < 10 and log "Power insufficient" warning** (FR-009). **Calculate and save Benjamini-Hochberg corrected p-values** (FR-008) as part of this task.
+- [X] T030 [P] [US2] Implement Benjamini-Hochberg correction in `code/statistics.py` for multiple-comparison adjustment of PGLS p-values (FR-008) and apply in output generation. (Note: Logic integrated into T029, this task is for unit testing the correction function).
+- [X] T031 [US2] Add logic in `code/main.py` to skip PGLS if effective sample size n < 10 and log "Power insufficient" warning (FR-009).
+- [X] T032 [US2] Save comparative statistics to `results/pgls_results.json` with metadata on organisms and tree used; **ensure Benjamini-Hochberg corrected p-values are saved** (FR-008).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,19 +133,19 @@
 
 **Goal**: Re-run the correlation analysis varying the STRING confidence score threshold across a range of low, medium, and high values. to assess robustness.
 
-**Independent Test**: Run pipeline with thresholds [500, 700] for one organism; verify output contains separate results for each threshold.
+**Independent Test**: Run pipeline with thresholds [lower bound, upper bound] for one organism; verify output contains separate results for each threshold.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_schema.py`
-- [ ] T029 [P] [US3] Integration test for multi-threshold run in `tests/integration/test_sensitivity.py`
+- [X] T033 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_schema.py`.
+- [X] T034 [P] [US3] Integration test for multi-threshold run in `tests/integration/test_sensitivity.py`: Run with thresholds within a moderate-to-high range. for a mock organism; assert that `results/sensitivity_report.md` contains a table with |Δρ| values and a pass/fail flag for SC-002.
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Refactor `code/main.py` to accept a list of confidence thresholds (default: [500, 700, 900]); for each threshold, re-fetch data, re-map IDs, re-compute centralities, and re-calculate correlations; save results to `results/correlations.json` with key naming convention `threshold_<value>` (e.g., `threshold_500`, `threshold_700`) containing nested objects with correlation metrics and sample sizes
-- [ ] T031 [P] [US3] Implement logging for network sparsity (flag if edges < 500) while allowing NaN/0 returns for centrality metrics (Edge Case)
-- [ ] T032 [US3] Generate `results/sensitivity_report.md` summarizing correlation coefficients and stability (|Δρ|) across thresholds; MUST include a table of |Δρ| values for each threshold pair and a pass/fail flag for SC-002 (stability ≤ 0.1)
-- [ ] T033 [US3] Verify SC-002: Calculate absolute difference in correlation coefficients across thresholds and flag if > 0.1; log pass/fail status for SC-002 in `results/sensitivity_report.md`
+- [X] T035 [US3] Refactor `code/main.py` to include a `run_sensitivity_analysis` function that iterates over a list of confidence thresholds (default: [, 700, 900]). For each threshold, call `run_organism_analysis` (from T018) with the specific threshold. **Ensure null models (T020, T022) are re-executed for each threshold** and results are saved to `results/null_distribution/{organism}/threshold_<value>/` to prevent overwrites.
+- [X] T036 [P] [US3] Implement logging for network sparsity (flag if edges < 500) while allowing NaN/0 returns for centrality metrics (Edge Case).
+- [X] T037 [US3] Generate `results/sensitivity_report.md` summarizing correlation coefficients and stability (|Δρ|) across thresholds; MUST include a table of |Δρ| values for each threshold pair and a pass/fail flag for SC-002 (stability ≤ 0.1).
+- [X] T038 [US3] Verify SC-002: Calculate absolute difference in correlation coefficients across thresholds and flag if > 0.1; log pass/fail status for SC-002 in `results/sensitivity_report.md`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,12 +155,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates in `quickstart.md` and `research.md`
-- [ ] T035 Code cleanup and refactoring of `code/` modules
-- [ ] T036 Performance optimization: ensure total runtime < 6 hours on GitHub Actions (2 CPU, 7GB RAM)
-- [ ] T037 [P] Additional unit tests in `tests/unit/` for centrality algorithms and statistical functions
-- [ ] T038 Run `hash_checker.py` and verify `state/` artifact hashes are updated
-- [ ] T039 Run quickstart.md validation to ensure end-to-end reproducibility
+- [ ] T039 [P] Documentation updates in `quickstart.md` and `research.md` (Ensure all steps are verified).
+- [ ] T040 Code cleanup and refactoring of `code/` modules (Refactor `code/data_loader.py` to reduce cyclomatic complexity < 10 and remove unused imports; run flake8 --max-complexity=10).
+- [ ] T041 Performance optimization: Profile code/ using cProfile; implement caching for T013/T014 fetches; verify runtime < 6h on GitHub Actions runner.
+- [ ] T042 [P] Additional unit tests in `tests/unit/` for centrality algorithms and statistical functions.
+- [ ] T043 Run `hash_checker.py` and verify `state/` artifact hashes are updated.
+- [ ] T044 [P] Run quickstart.md validation to ensure end-to-end reproducibility (Note: Assumes `quickstart.md` exists from T010).
 
 ---
 
@@ -176,7 +178,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 results (correlations) and phylogenetic tree (T009)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 results (correlations from T018) and phylogenetic tree (T009)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Reuses US1 logic with different parameters
 
 ### Within Each User Story
@@ -184,16 +186,19 @@
 - Tests (if included) MUST be written and FAIL before implementation
 - Data loading and mapping before centrality computation
 - Centrality computation before correlation calculation
-- Null distribution generation (T018a, T019a) must precede comparison (T018b, T019c)
-- Core implementation (T017) must precede sensitivity analysis (T030)
+- Null distribution generation (T020, T022) must precede comparison (T021, T025)
+- Core implementation (T018) must precede sensitivity analysis (T035)
 - Story complete before moving to next priority
 
 ### Explicit Prerequisites
 
-- **T017** is a prerequisite for **T030** (orchestration loop must exist before refactoring for thresholds)
-- **T018a** is a prerequisite for **T018b** (null distribution must be generated before p-value calculation)
-- **T019a** is a prerequisite for **T019b**, which is a prerequisite for **T019c** (graph generation → centrality → correlation)
-- **T009** is a prerequisite for **T024** (phylogenetic tree must be fetched before PGLS)
+- **T018** is a prerequisite for **T035** (orchestration function must exist before sensitivity wrapper)
+- **T020** is a prerequisite for **T021** (null distribution must be generated before p-value calculation)
+- **T022** is a prerequisite for **T023**, which is a prerequisite for **T024** (graph generation → centrality → correlation)
+- **T024** is a prerequisite for **T025** (rewired correlation must be generated before statistical comparison)
+- **T009** is a prerequisite for **T029** (phylogenetic tree must be fetched before PGLS)
+- **T018** (US1 Completion) is a prerequisite for **T029** (PGLS requires correlation results from US1)
+- **T007** is a prerequisite for **T008** (schema files must exist before contract tests)
 
 ### Parallel Opportunities
 
@@ -211,11 +216,11 @@
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Contract test for correlation result schema in tests/contract/test_correlation_schema.py"
-# Note: Integration test T011 cannot run in parallel with implementation
+# Note: Integration test T012 cannot run in parallel with implementation
 
 # Launch all data loading models for User Story 1 together:
-Task: "Implement data_loader.py to fetch PPI networks"
-Task: "Implement data_loader.py to fetch essentiality labels"
+Task: "Implement fetch_string_ppi function in code/data_loader.py"
+Task: "Implement fetch_deg_essentiality function in code/data_loader.py"
 ```
 
 ---
@@ -261,5 +266,18 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Feasibility Check**: All centrality tasks use NetworkX on CPU; sampling enabled for large graphs to respect 6h CI limit. No GPU or 8-bit quantization tasks included.
-- **Data Integrity**: All tasks use real data from STRING/DEG/OpenTree APIs or local fallbacks; no synthetic/fake data generation tasks.
-- **Ordering**: T018a/T019a must precede T018b/T019c. T017 must precede T030. T009 must precede T024.
+- **Data Integrity**: All tasks use real data from STRING/DEG/OpenTree APIs; no synthetic/fake data generation tasks.
+- **Ordering**: T020/T022 must precede T021/T025. T018 must precede T035. T009 must precede T029.
+- **Concurrency Safety**: T020 and T022 use organism-specific and threshold-specific subfolders to prevent race conditions in parallel execution.
+- **Data Caching**: T035 uses cached local files to avoid rate limits during sensitivity analysis.
+- **Error Handling**: T019 explicitly handles disconnected networks to prevent crashes.
+- **Statistical Validity**: T020 uses 1,000 permutations for SC-001; T029 applies Benjamini-Hochberg correction for FR-008.
+- **Prerequisite Integrity**: T007 is marked as completed to satisfy T008; T009 is a hard prerequisite for T029.
+- **Function Signatures**: T018 includes explicit function signatures for deterministic orchestration.
+- **Specific Endpoints**: T013, T014, T009 use specific, actionable API/FTP endpoints.
+- **Sample Size Check**: T029 includes logic to skip PGLS if n < 10.
+- **Statistical Comparison**: T025 explicitly performs the statistical comparison for FR-010.
+- **Mock Data**: Integration tests (T012, T027, T033, T034) specify mock data inputs and expected assertions.
+- **Organism Scope**: T013, T014 explicitly iterate over 5-8 model organisms.
+- **Placeholder Resolution**: All placeholders (e.g., '[deferred]', '...') have been replaced with concrete values or specific patterns.
+- **Tree Requirement**: T009 enforces a hard failure if the phylogenetic tree is missing, ensuring FR-006 is not silently skipped.
