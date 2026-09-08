@@ -1,8 +1,6 @@
 """
-Unit tests for feature engineering module (T018).
-
-Tests interaction feature calculation, temperature feature inclusion,
-and dataset size validation.
+Unit tests for code/engineer.py (T019).
+Tests interaction feature engineering and temperature feature validation.
 """
 import pytest
 import pandas as pd
@@ -11,7 +9,7 @@ from pathlib import Path
 import sys
 import os
 
-# Add project root to path
+# Ensure project root is in path to import engineer module
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -22,112 +20,196 @@ from code.engineer import (
     run_engineering_pipeline
 )
 
+class TestCalculateInteractionFeatures:
+    """Tests for calculate_interaction_features function."""
 
-@pytest.fixture
-def sample_dataframe():
-    """Create a sample DataFrame for testing."""
-    data = {
-        'cold_work': [10, 20, 30, 40, 50],
-        'Mn_content': [0.5, 0.6, 0.7, 0.8, 0.9],
-        'Mg_content': [0.2, 0.3, 0.4, 0.5, 0.6],
-        'Si_content': [0.1, 0.2, 0.3, 0.4, 0.5],
-        'Cu_content': [0.05, 0.1, 0.15, 0.2, 0.25],
-        'annealing_temperature': [200, 250, 300, 350, 400],
-        'time_to_peak': [100, 90, 80, 70, 60]
-    }
-    return pd.DataFrame(data)
+    def test_basic_interaction_calculation(self):
+        """Test that interaction features are correctly calculated."""
+        # Create a simple DataFrame with known values
+        data = {
+            'cold_work_pct': [10.0, 20.0, 30.0],
+            'Mn_wt': [0.5, 1.0, 1.5],
+            'Mg_wt': [0.2, 0.4, 0.6],
+            'Si_wt': [0.1, 0.2, 0.3],
+            'Cu_wt': [0.05, 0.1, 0.15],
+            'annealing_temp_K': [500.0, 550.0, 600.0]
+        }
+        df = pd.DataFrame(data)
 
+        result = calculate_interaction_features(df)
 
-def test_calculate_interaction_features(sample_dataframe):
-    """Test that interaction features are correctly calculated."""
-    df = calculate_interaction_features(sample_dataframe)
-    
-    # Check that new columns exist
-    expected_interactions = [
-        'cold_work_Mn_interaction',
-        'cold_work_Mg_interaction',
-        'cold_work_Si_interaction',
-        'cold_work_Cu_interaction'
-    ]
-    
-    for col in expected_interactions:
-        assert col in df.columns, f"Missing interaction column: {col}"
-    
-    # Verify calculation for first row
-    assert df.loc[0, 'cold_work_Mn_interaction'] == 10 * 0.5
-    assert df.loc[0, 'cold_work_Mg_interaction'] == 10 * 0.2
-    assert df.loc[0, 'cold_work_Si_interaction'] == 10 * 0.1
-    assert df.loc[0, 'cold_work_Cu_interaction'] == 10 * 0.05
-    
-    # Verify calculation for last row
-    assert df.loc[4, 'cold_work_Mn_interaction'] == 50 * 0.9
-    assert df.loc[4, 'cold_work_Mg_interaction'] == 50 * 0.6
-    assert df.loc[4, 'cold_work_Si_interaction'] == 50 * 0.5
-    assert df.loc[4, 'cold_work_Cu_interaction'] == 50 * 0.25
+        # Check that interaction columns exist
+        assert 'cold_work_Mn_interaction' in result.columns
+        assert 'cold_work_Mg_interaction' in result.columns
+        assert 'cold_work_Si_interaction' in result.columns
+        assert 'cold_work_Cu_interaction' in result.columns
 
+        # Verify calculations (row 0: 10 * 0.5 = 5.0)
+        assert result.loc[0, 'cold_work_Mn_interaction'] == pytest.approx(5.0)
+        assert result.loc[0, 'cold_work_Mg_interaction'] == pytest.approx(2.0)
+        assert result.loc[0, 'cold_work_Si_interaction'] == pytest.approx(1.0)
+        assert result.loc[0, 'cold_work_Cu_interaction'] == pytest.approx(0.5)
 
-def test_ensure_temperature_feature(sample_dataframe):
-    """Test that annealing temperature is properly included."""
-    df = ensure_temperature_feature(sample_dataframe)
-    
-    assert 'annealing_temperature' in df.columns
-    assert df['annealing_temperature'].dtype in ['int64', 'float64']
-    
-    # Verify values are preserved
-    assert list(df['annealing_temperature']) == [200, 250, 300, 350, 400]
+    def test_missing_cold_work_column(self):
+        """Test behavior when cold_work_pct is missing."""
+        data = {
+            'Mn_wt': [0.5, 1.0],
+            'Mg_wt': [0.2, 0.4]
+        }
+        df = pd.DataFrame(data)
 
+        # Should not raise an error, just skip interactions
+        result = calculate_interaction_features(df)
 
-def test_ensure_temperature_feature_missing_column():
-    """Test that error is raised when temperature column is missing."""
-    data = {
-        'cold_work': [10, 20, 30],
-        'Mn_content': [0.5, 0.6, 0.7]
-    }
-    df = pd.DataFrame(data)
-    
-    with pytest.raises(ValueError, match="Required column 'annealing_temperature' not found"):
-        ensure_temperature_feature(df)
+        # Interaction columns should not be added
+        assert 'cold_work_Mn_interaction' not in result.columns
+        assert 'cold_work_Mg_interaction' not in result.columns
 
+    def test_partial_composition_columns(self):
+        """Test when only some composition columns are present."""
+        data = {
+            'cold_work_pct': [10.0],
+            'Mn_wt': [0.5],
+            # Mg_wt missing
+            'Si_wt': [0.1]
+            # Cu_wt missing
+        }
+        df = pd.DataFrame(data)
 
-def test_validate_dataset_size_pass(sample_dataframe):
-    """Test that validation passes with sufficient rows."""
-    # Should not raise
-    validate_dataset_size(sample_dataframe, min_rows=50)
-    
-    # Create a larger dataframe
-    large_df = pd.concat([sample_dataframe] * 10, ignore_index=True)
-    validate_dataset_size(large_df, min_rows=500)
+        result = calculate_interaction_features(df)
 
+        # Only interactions for present columns should be created
+        assert 'cold_work_Mn_interaction' in result.columns
+        assert 'cold_work_Si_interaction' in result.columns
+        assert 'cold_work_Mg_interaction' not in result.columns
+        assert 'cold_work_Cu_interaction' not in result.columns
 
-def test_validate_dataset_size_fail():
-    """Test that validation fails with insufficient rows."""
-    data = {
-        'cold_work': [10, 20, 30],
-        'Mn_content': [0.5, 0.6, 0.7],
-        'Mg_content': [0.2, 0.3, 0.4],
-        'Si_content': [0.1, 0.2, 0.3],
-        'Cu_content': [0.05, 0.1, 0.15],
-        'annealing_temperature': [200, 250, 300],
-        'time_to_peak': [100, 90, 80]
-    }
-    df = pd.DataFrame(data)
-    
-    with pytest.raises(ValueError, match="Dataset size validation failed"):
-        validate_dataset_size(df, min_rows=50)
+    def test_zero_cold_work(self):
+        """Test that zero cold work results in zero interactions."""
+        data = {
+            'cold_work_pct': [0.0, 0.0],
+            'Mn_wt': [1.0, 2.0],
+            'Mg_wt': [0.5, 1.0]
+        }
+        df = pd.DataFrame(data)
 
+        result = calculate_interaction_features(df)
 
-def test_calculate_interaction_features_missing_column(sample_dataframe):
-    """Test behavior when a composition column is missing."""
-    # Remove one composition column
-    df_missing = sample_dataframe.drop(columns=['Cu_content'])
-    
-    # Should not raise, but should skip the missing interaction
-    result = calculate_interaction_features(df_missing)
-    
-    # Check that Cu interaction is not created
-    assert 'cold_work_Cu_interaction' not in result.columns
-    
-    # Check that other interactions are still created
-    assert 'cold_work_Mn_interaction' in result.columns
-    assert 'cold_work_Mg_interaction' in result.columns
-    assert 'cold_work_Si_interaction' in result.columns
+        assert result.loc[0, 'cold_work_Mn_interaction'] == 0.0
+        assert result.loc[0, 'cold_work_Mg_interaction'] == 0.0
+
+    def test_no_temperature_interaction(self):
+        """Verify that cold_work * Temperature is NOT calculated."""
+        data = {
+            'cold_work_pct': [10.0],
+            'Mn_wt': [0.5],
+            'annealing_temp_K': [500.0]
+        }
+        df = pd.DataFrame(data)
+
+        result = calculate_interaction_features(df)
+
+        # Ensure no temperature interaction was created
+        assert 'cold_work_Temperature_interaction' not in result.columns
+        assert 'cold_work_annealing_temp_K_interaction' not in result.columns
+
+class TestEnsureTemperatureFeature:
+    """Tests for ensure_temperature_feature function."""
+
+    def test_temperature_present(self):
+        """Test that function works when temperature is present."""
+        data = {
+            'annealing_temp_K': [500.0, 550.0, 600.0]
+        }
+        df = pd.DataFrame(data)
+
+        result = ensure_temperature_feature(df)
+
+        assert 'annealing_temp_K' in result.columns
+        assert result['annealing_temp_K'].dtype in [np.float64, np.float32]
+
+    def test_temperature_missing(self):
+        """Test that function raises error when temperature is missing."""
+        data = {
+            'cold_work_pct': [10.0]
+        }
+        df = pd.DataFrame(data)
+
+        with pytest.raises(ValueError, match="annealing_temp_K is missing"):
+            ensure_temperature_feature(df)
+
+    def test_temperature_numeric_conversion(self):
+        """Test that temperature is converted to numeric."""
+        data = {
+            'annealing_temp_K': ['500', '550', '600']  # Strings
+        }
+        df = pd.DataFrame(data)
+
+        result = ensure_temperature_feature(df)
+
+        assert result['annealing_temp_K'].dtype in [np.float64, np.float32]
+        assert result.loc[0, 'annealing_temp_K'] == 500.0
+
+    def test_temperature_with_nulls(self):
+        """Test handling of null temperature values."""
+        data = {
+            'annealing_temp_K': [500.0, None, 600.0]
+        }
+        df = pd.DataFrame(data)
+
+        result = ensure_temperature_feature(df)
+
+        assert pd.isna(result.loc[1, 'annealing_temp_K'])
+
+class TestValidateDatasetSize:
+    """Tests for validate_dataset_size function."""
+
+    def test_valid_size(self):
+        """Test that valid size passes."""
+        df = pd.DataFrame({'col': range(5000)})
+        # Should not raise
+        validate_dataset_size(df)
+
+    def test_exceeds_cap(self):
+        """Test that size exceeding cap raises error."""
+        df = pd.DataFrame({'col': range(10001)})
+
+        with pytest.raises(ValueError, match="exceeds cap of 10000 rows"):
+            validate_dataset_size(df)
+
+    def test_exact_cap(self):
+        """Test that exactly 10000 rows passes."""
+        df = pd.DataFrame({'col': range(10000)})
+        # Should not raise
+        validate_dataset_size(df)
+
+class TestRunEngineeringPipeline:
+    """Integration tests for the full engineering pipeline."""
+
+    def test_pipeline_with_mock_data(self, tmp_path):
+        """Test the pipeline with a temporary CSV file."""
+        # Create temporary input file
+        input_path = tmp_path / "validated.csv"
+        data = {
+            'cold_work_pct': [10.0, 20.0],
+            'Mn_wt': [0.5, 1.0],
+            'Mg_wt': [0.2, 0.4],
+            'Si_wt': [0.1, 0.2],
+            'Cu_wt': [0.05, 0.1],
+            'annealing_temp_K': [500.0, 550.0]
+        }
+        pd.DataFrame(data).to_csv(input_path, index=False)
+
+        # Mock the paths in the function by temporarily patching
+        original_func = run_engineering_pipeline.__code__
+        
+        # We'll test the core logic by calling the helper functions directly
+        # since run_engineering_pipeline has hardcoded paths
+        df = pd.read_csv(input_path)
+        df = ensure_temperature_feature(df)
+        df = calculate_interaction_features(df)
+
+        # Verify output
+        assert 'cold_work_Mn_interaction' in df.columns
+        assert 'annealing_temp_K' in df.columns
+        assert len(df) == 2

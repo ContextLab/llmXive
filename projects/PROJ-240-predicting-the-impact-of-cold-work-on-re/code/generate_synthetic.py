@@ -1,139 +1,203 @@
-import os
 import hashlib
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Tuple, List, Dict, Any
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
-# Constants
-RANDOM_SEED = 42
-N_SAMPLES = 1000
+# Hard-coded seed to satisfy Constitution Principle I
+HARD_CODED_SEED = 42
+MAX_ROWS = 10000
 
-def generate_compositions(n_samples: int, rng: np.random.Generator) -> pd.DataFrame:
-    """Generate alloy composition features (Mn, Mg, Si, Cu in wt%)."""
-    # Realistic ranges for 5xxx and 6xxx series aluminum alloys
-    Mn_wt = rng.uniform(0.0, 1.5, n_samples)
-    Mg_wt = rng.uniform(0.5, 5.0, n_samples)
-    Si_wt = rng.uniform(0.2, 1.5, n_samples)
-    Cu_wt = rng.uniform(0.0, 0.6, n_samples)
-    return pd.DataFrame({
-        'Mn_wt': Mn_wt,
-        'Mg_wt': Mg_wt,
-        'Si_wt': Si_wt,
-        'Cu_wt': Cu_wt
-    })
 
-def generate_cold_work(n_samples: int, rng: np.random.Generator) -> pd.Series:
+def generate_compositions(n: int, rng: np.random.Generator) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Generate alloy composition weights (wt%) for Mn, Mg, Si, Cu.
+    Ranges based on typical 5xxx/6xxx/7xxx aluminum alloys.
+    """
+    # Mn: 0.0 to 1.5 wt%
+    Mn = rng.uniform(0.0, 1.5, n)
+    # Mg: 0.0 to 5.0 wt%
+    Mg = rng.uniform(0.0, 5.0, n)
+    # Si: 0.0 to 1.2 wt%
+    Si = rng.uniform(0.0, 1.2, n)
+    # Cu: 0.0 to 2.5 wt%
+    Cu = rng.uniform(0.0, 2.5, n)
+    return Mn, Mg, Si, Cu
+
+
+def generate_cold_work(n: int, rng: np.random.Generator) -> np.ndarray:
     """Generate cold work percentage (0-100%)."""
-    return rng.uniform(0.0, 100.0, n_samples)
+    return rng.uniform(0.0, 100.0, n)
 
-def generate_temperature(n_samples: int, rng: np.random.Generator) -> pd.Series:
-    """Generate annealing temperature in Kelvin (400K - 700K)."""
-    return rng.uniform(400.0, 700.0, n_samples)
 
-def calculate_time_to_peak(cold_work: pd.Series, compositions: pd.DataFrame, temperature: pd.Series, rng: np.random.Generator) -> pd.Series:
+def generate_temperature(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Generate annealing temperature in Kelvin (300K to 700K)."""
+    return rng.uniform(300.0, 700.0, n)
+
+
+def calculate_time_to_peak(
+    cold_work: np.ndarray,
+    Mn: np.ndarray,
+    Mg: np.ndarray,
+    Si: np.ndarray,
+    Cu: np.ndarray,
+    temp: np.ndarray,
+    rng: np.random.Generator
+) -> np.ndarray:
     """
-    Calculate time-to-peak softening using a physical kinetics model.
-    Model: t_peak = A * exp(Q/RT) * (1 - cold_work/100)^(-n) * (1 + sum(composition_effects))
+    Calculate time to peak softening using a deterministic physical kinetics model + noise.
+    Model Logic:
+    - Higher cold work -> faster recovery (lower time).
+    - Higher temp -> faster kinetics (lower time, Arrhenius-like).
+    - Alloying elements (Mn, Mg, Si, Cu) generally pin boundaries -> slower kinetics (higher time).
+    
+    Formula: t = (Base / (CW^0.5 * exp(-Q/RT))) * (1 + k1*Mn + k2*Mg + k3*Si + k4*Cu) + noise
+    Simplified for synthetic generation:
     """
-    R = 8.314  # J/(mol*K)
-    Q = 140000  # Activation energy in J/mol (approx for Al recrystallization)
-    A = 0.001  # Pre-exponential factor
-    n = 2.5  # Cold work exponent
+    # Constants
+    Base = 1000.0
+    Activation_energy_factor = 0.005  # Simplified Q/R
+    k_Mn, k_Mg, k_Si, k_Cu = 0.5, 0.3, 0.4, 0.6
 
-    # Composition effects (simplified linear model based on literature)
-    comp_effect = (
-        0.5 * compositions['Mn_wt'] +
-        0.8 * compositions['Mg_wt'] +
-        0.3 * compositions['Si_wt'] +
-        0.2 * compositions['Cu_wt']
-    )
+    # Avoid division by zero or log(0)
+    cw_safe = np.maximum(cold_work, 0.1)
+    temp_safe = np.maximum(temp, 300.0)
 
-    # Base kinetics
-    base_time = A * np.exp(Q / (R * temperature))
+    # Kinetic term: Cold work accelerates, Temperature accelerates
+    # CW term: inverse relationship (more work -> less time)
+    cw_term = 1.0 / np.sqrt(cw_safe)
+    
+    # Temp term: Arrhenius-like (higher temp -> less time)
+    temp_term = np.exp(-Activation_energy_factor * (1000.0 / temp_safe))
 
-    # Cold work acceleration (more cold work = faster recrystallization)
-    cw_factor = (1 - cold_work / 100.0) ** (-n)
+    # Alloying term: additive effect increasing time
+    alloy_term = 1.0 + (k_Mn * Mn) + (k_Mg * Mg) + (k_Si * Si) + (k_Cu * Cu)
 
-    # Composition retardation (solute drag effect)
-    comp_factor = 1.0 + comp_effect
+    # Base calculation
+    time_to_peak = Base * cw_term * temp_term * alloy_term
 
-    t_peak = base_time * cw_factor * comp_factor
+    # Add deterministic noise based on the provided rng
+    # Noise magnitude: 10% of the value
+    noise = rng.normal(0, 0.1 * time_to_peak)
+    time_to_peak += noise
 
-    # Add small physical noise (5% std dev)
-    noise = rng.normal(0, 0.05 * t_peak.mean(), n_samples)
-    t_peak = t_peak + noise
+    # Ensure positive time
+    time_to_peak = np.maximum(time_to_peak, 1.0)
 
-    # Ensure positive values
-    t_peak = np.maximum(t_peak, 1.0)
+    return time_to_peak
 
-    return pd.Series(t_peak, name='time_to_peak_min')
 
-def add_noise(data: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
-    """Add realistic measurement noise to the dataset."""
-    # Small noise for composition (0.01 wt% std dev)
-    for col in ['Mn_wt', 'Mg_wt', 'Si_wt', 'Cu_wt']:
-        data[col] += rng.normal(0, 0.01, len(data))
-        data[col] = np.maximum(data[col], 0.0)
+def add_noise(values: np.ndarray, rng: np.random.Generator, magnitude: float = 0.05) -> np.ndarray:
+    """Add small Gaussian noise to values."""
+    noise = rng.normal(0, magnitude * np.std(values), values.shape)
+    return values + noise
 
-    # Small noise for cold work (0.5% std dev)
-    data['cold_work_pct'] += rng.normal(0, 0.5, len(data))
-    data['cold_work_pct'] = np.clip(data['cold_work_pct'], 0.0, 100.0)
 
-    # Small noise for temperature (2K std dev)
-    data['annealing_temp_K'] += rng.normal(0, 2.0, len(data))
-    data['annealing_temp_K'] = np.clip(data['annealing_temp_K'], 400.0, 700.0)
-
-    return data
-
-def compute_sha256(filepath: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+
 def main():
-    """Generate synthetic dataset and save to CSV with SHA-256 checksum."""
-    # Initialize random generator with seed
-    rng = np.random.default_rng(RANDOM_SEED)
+    """
+    Generate synthetic dataset and save to CSV.
+    - Hard-coded seed=42.
+    - Cap at 10,000 rows.
+    - Compute SHA-256 checksum and write to .sha256 file.
+    - Update state YAML with checksum.
+    """
+    # Initialize RNG with hard-coded seed
+    rng = np.random.default_rng(seed=HARD_CODED_SEED)
+
+    # Determine number of samples (cap at MAX_ROWS)
+    # For this task, we generate a substantial dataset but respect the cap
+    n_samples = 5000 
+    if n_samples > MAX_ROWS:
+        n_samples = MAX_ROWS
+
+    print(f"Generating synthetic dataset with {n_samples} samples (seed={HARD_CODED_SEED})...")
 
     # Generate data
-    compositions = generate_compositions(N_SAMPLES, rng)
-    cold_work = generate_cold_work(N_SAMPLES, rng)
-    temperature = generate_temperature(N_SAMPLES, rng)
-    time_to_peak = calculate_time_to_peak(cold_work, compositions, temperature, rng)
+    Mn, Mg, Si, Cu = generate_compositions(n_samples, rng)
+    cold_work = generate_cold_work(n_samples, rng)
+    temp = generate_temperature(n_samples, rng)
+    time_to_peak = calculate_time_to_peak(cold_work, Mn, Mg, Si, Cu, temp, rng)
 
-    # Assemble dataset
+    # Create DataFrame
     df = pd.DataFrame({
-        'cold_work_pct': cold_work,
-        'Mn_wt': compositions['Mn_wt'],
-        'Mg_wt': compositions['Mg_wt'],
-        'Si_wt': compositions['Si_wt'],
-        'Cu_wt': compositions['Cu_wt'],
-        'annealing_temp_K': temperature,
-        'time_to_peak_min': time_to_peak
+        "cold_work_pct": cold_work,
+        "Mn_wt": Mn,
+        "Mg_wt": Mg,
+        "Si_wt": Si,
+        "Cu_wt": Cu,
+        "annealing_temp_K": temp,
+        "time_to_peak_min": time_to_peak
     })
 
-    # Add noise
-    df = add_noise(df, rng)
+    # Define paths relative to project root
+    # Assuming script runs from project root or code directory
+    # We need to resolve the project root dynamically
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
+    data_raw_dir = project_root / "data" / "raw"
+    data_raw_dir.mkdir(parents=True, exist_ok=True)
 
-    # Ensure output directory exists
-    output_dir = Path('data/raw')
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / 'synthetic_baseline.csv'
+    csv_path = data_raw_dir / "synthetic_baseline.csv"
+    sha_path = data_raw_dir / "synthetic_baseline.csv.sha256"
+    state_file = project_root / "state" / "projects" / "PROJ-240-predicting-the-impact-of-cold-work-on-re.yaml"
 
-    # Save to CSV
-    df.to_csv(output_path, index=False)
+    # Save CSV
+    try:
+        df.to_csv(csv_path, index=False)
+        print(f"Saved CSV to {csv_path}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to save CSV: {e}")
 
-    # Compute and save SHA-256 checksum
-    checksum = compute_sha256(output_path)
-    checksum_path = output_dir / 'synthetic_baseline.csv.sha256'
-    with open(checksum_path, 'w') as f:
-        f.write(f"{checksum}  synthetic_baseline.csv\n")
+    # Compute and save checksum
+    try:
+        checksum = compute_sha256(str(csv_path))
+        # Format: "hash  filename" (two spaces)
+        checksum_content = f"{checksum}  synthetic_baseline.csv\n"
+        with open(sha_path, "w") as f:
+            f.write(checksum_content)
+        print(f"Saved checksum to {sha_path}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to compute or save checksum: {e}")
 
-    print(f"Generated synthetic dataset with {N_SAMPLES} samples to {output_path}")
-    print(f"SHA-256 checksum saved to {checksum_path}: {checksum}")
+    # Update state YAML
+    try:
+        import yaml
+        state_file.parent.mkdir(parents=True, exist_ok=True)
+        
+        if state_file.exists():
+            with open(state_file, "r") as f:
+                state_data = yaml.safe_load(f) or {}
+        else:
+            state_data = {}
 
-if __name__ == '__main__':
+        if "artifact_hashes" not in state_data:
+            state_data["artifact_hashes"] = {}
+        
+        state_data["artifact_hashes"]["synthetic_baseline_csv"] = checksum
+
+        with open(state_file, "w") as f:
+            yaml.dump(state_data, f, default_flow_style=False)
+        print(f"Updated state file at {state_file}")
+    except ImportError:
+        print("Warning: PyYAML not installed. Skipping state file update.")
+    except Exception as e:
+        raise RuntimeError(f"Failed to update state file: {e}")
+
+    print("Synthetic baseline generation complete.")
+
+
+if __name__ == "__main__":
     main()

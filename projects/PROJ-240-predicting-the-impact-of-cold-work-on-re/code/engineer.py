@@ -1,3 +1,7 @@
+"""
+Feature Engineering Pipeline (T019).
+Calculates interaction features and ensures temperature is present.
+"""
 import os
 import sys
 from pathlib import Path
@@ -5,85 +9,102 @@ from typing import Dict, Any, List, Tuple
 import pandas as pd
 import numpy as np
 
+# Ensure project root is in path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from config import get_project_root
+
 def calculate_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Calculate interaction features: cold_work * composition.
-    
-    Creates:
-        cold_work_Mn: cold_work_pct * Mn_wt
-        cold_work_Mg: cold_work_pct * Mg_wt
-        cold_work_Si: cold_work_pct * Si_wt
-        cold_work_Cu: cold_work_pct * Cu_wt
-        
-    Does NOT include cold_work * Temperature per FR-002.
+    """
+    Calculate interaction features: cold_work * Mn, Mg, Si, Cu.
+    Do NOT include cold_work * Temperature.
     """
     df = df.copy()
     
-    # Verify required columns exist
-    required_cols = ['cold_work_pct', 'Mn_wt', 'Mg_wt', 'Si_wt', 'Cu_wt']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns for interaction features: {missing}")
+    interaction_features = []
     
-    # Calculate interactions using exact column names from T007
-    df['cold_work_Mn'] = df['cold_work_pct'] * df['Mn_wt']
-    df['cold_work_Mg'] = df['cold_work_pct'] * df['Mg_wt']
-    df['cold_work_Si'] = df['cold_work_pct'] * df['Si_wt']
-    df['cold_work_Cu'] = df['cold_work_pct'] * df['Cu_wt']
-    
+    if 'cold_work_pct' in df.columns:
+        if 'Mn_wt' in df.columns:
+            col_name = "cold_work_Mn_interaction"
+            df[col_name] = df['cold_work_pct'] * df['Mn_wt']
+            interaction_features.append(col_name)
+        
+        if 'Mg_wt' in df.columns:
+            col_name = "cold_work_Mg_interaction"
+            df[col_name] = df['cold_work_pct'] * df['Mg_wt']
+            interaction_features.append(col_name)
+        
+        if 'Si_wt' in df.columns:
+            col_name = "cold_work_Si_interaction"
+            df[col_name] = df['cold_work_pct'] * df['Si_wt']
+            interaction_features.append(col_name)
+        
+        if 'Cu_wt' in df.columns:
+            col_name = "cold_work_Cu_interaction"
+            df[col_name] = df['cold_work_pct'] * df['Cu_wt']
+            interaction_features.append(col_name)
+    else:
+        print("Warning: 'cold_work_pct' not found. Skipping interaction features.")
+
+    print(f"Added interaction features: {interaction_features}")
     return df
 
 def ensure_temperature_feature(df: pd.DataFrame) -> pd.DataFrame:
-    """Ensure annealing temperature is present as a direct feature.
-    
-    Per T018: Include annealing temperature as a direct feature.
-    Uses exact column name from T007: 'annealing_temp_K'.
+    """
+    Ensure annealing_temp_K is present as a direct feature (T019).
     """
     if 'annealing_temp_K' not in df.columns:
-        raise ValueError("annealing_temp_K column missing from input data. "
-                       "Expected column name from T007 synthetic generator.")
-    # Temperature is already present as a direct feature, no transformation needed
+        # If missing, we might need to generate or raise error.
+        # Assuming it exists in the input from T006.
+        raise ValueError("annealing_temp_K is missing from the dataset. It must be present as a direct feature.")
+    
+    # If it exists, ensure it's numeric
+    df['annealing_temp_K'] = pd.to_numeric(df['annealing_temp_K'], errors='coerce')
     return df
 
-def validate_dataset_size(df: pd.DataFrame, min_rows: int = 50):
-    """Raise ValueError if dataset has fewer than min_rows (FR-008)."""
-    if len(df) < min_rows:
-        raise ValueError(f"Dataset size {len(df)} is below minimum threshold of {min_rows}")
+def validate_dataset_size(df: pd.DataFrame):
+    """Check dataset size (T019 constraint)."""
+    if len(df) > 10000:
+        raise ValueError(f"Dataset size ({len(df)}) exceeds cap of 10000 rows.")
 
-def run_engineering_pipeline(input_path: str, output_path: str):
-    """Run the feature engineering pipeline.
-    
-    Loads validated data, calculates interaction features, ensures temperature
-    is present, validates size, and saves to output path.
+def run_engineering_pipeline():
     """
-    print(f"Loading data from {input_path}...")
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}. "
-                              "Ensure T012 (ingest.py) has run successfully.")
+    Orchestrate engineering pipeline (T019).
+    """
+    project_root = get_project_root()
+    input_path = project_root / "data" / "processed" / "validated.csv"
+    output_path = project_root / "data" / "processed" / "engineered_features.csv"
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input data not found: {input_path}. Run T013-T018 first.")
+
+    # Load
     df = pd.read_csv(input_path)
-    
-    print(f"Loaded {len(df)} rows. Validating dataset size...")
+    print(f"Loaded {len(df)} rows for engineering.")
+
+    # Validate Size
     validate_dataset_size(df)
-    
-    print("Ensuring temperature feature is present...")
+
+    # Ensure Temperature
     df = ensure_temperature_feature(df)
-    
-    print("Calculating interaction features (cold_work * composition)...")
+
+    # Calculate Interactions
     df = calculate_interaction_features(df)
-    
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save output
+
+    # Save
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     print(f"Saved engineered features to {output_path}")
-    print(f"Output columns: {list(df.columns)}")
+
     return df
 
 def main():
-    """Main entry point for engineering pipeline (T018)."""
-    input_path = 'data/processed/validated.csv'
-    output_path = 'data/processed/engineered_features.csv'
-    run_engineering_pipeline(input_path, output_path)
+    try:
+        run_engineering_pipeline()
+    except Exception as e:
+        print(f"Error in engineering pipeline: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -26,16 +26,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T001 [P] Create project root directories: `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code`, `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/tests`, `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/data`, `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/artifacts`. **Requirement**: Create `.gitkeep` files in all new directories to ensure they are tracked by version control.
-- [ ] T002 [P] Create data subdirectories: `data/raw`, `data/processed`, `data/split`. **Requirement**: Create `.gitkeep` files in all new directories.
-- [ ] T003 [P] Create artifacts subdirectories: `artifacts/models`, `artifacts/reports`, `artifacts/figures`. **Requirement**: Create `.gitkeep` files in all new directories.
-- [ ] T004 [P] Configure `pyproject.toml` with initial configuration for ruff and black (line-length: a standard maximum limit, rules E, W, F).
-- [ ] T005 [P] Create `code/__init__.py` and basic project scaffolding.
-- [ ] T006 [P] Generate deterministic synthetic baseline data using `code/generate_synthetic.py` with seed=42 and output `data/raw/synthetic_baseline.csv`. **Schema**: Columns must include `cold_work_pct` (float, 0-100), `Mn_wt` (float), `Mg_wt` (float), `Si_wt` (float), `Cu_wt` (float), `annealing_temp_K` (float), `time_to_peak_min` (float). **Logic**: Use a deterministic physical kinetics model + noise. **Data Hygiene**: MUST compute the SHA-256 checksum of the generated CSV using the `sha256sum` command and write it to `data/raw/synthetic_baseline.csv.sha256` in the format `hash filename` (two spaces). **Versioning**: MUST record this checksum in the project's state YAML (`state/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re.yaml`) under `artifact_hashes`. **Error Handling**: If generation fails, raise `RuntimeError` immediately; do NOT fall back to mock data. **Dataset Cap**: If the requested generation size exceeds 10,000 rows, the generator MUST cap the output at 10000 rows to satisfy FR-003 and Constitution Principle VII.
-- [ ] T007 [P] Calculate synthetic baseline statistics and write `artifacts/reports/baseline_stats.json`. **Logic**: Read `data/raw/synthetic_baseline.csv`, calculate the mean of `time_to_peak_min`, and store it as `baseline_mean`. **Requirement**: This file is required for SC-006 (MAE threshold check).
-- [ ] T008 [P] Implement orchestration in `code/main.py`. **Logic**: This script must be the single entry point that calls the ingestion, feature engineering, training, and evaluation scripts in sequence. **Requirement**: Must handle errors and exit with non-zero code on failure.
-- [ ] T009 [P] Implement dataset size validation in `code/ingest.py`: Raise `ValueError` immediately if the dataset size is < 50 rows (FR-008) to ensure 'fail-fast' behavior. **Requirement**: This check must occur BEFORE any feature engineering or model training.
-- [ ] T010 [P] [US1] Generate `artifacts/reports/ingestion_metrics.json` and `artifacts/reports/validation_log.json`. **Schema**: `ingestion_metrics.json` must contain `rows_ingested`, `rows_filtered`, `null_handling_success_rate`. `validation_log.json` must contain `rows_ingested`, `rows_filtered`, `null_counts`, `clipped_outliers_count`, `clipped_values_list`, `threshold_99th_percentile`. **Requirement**: These metrics are required for SC-007.
+- [ ] T001 [P] Create project root directories: `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code`, `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/tests`, `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/data`, `projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/artifacts`. **Requirement**: Create `.gitkeep` files in all new directories. **Verification**: Run `ls -R` on the project root and confirm the directory tree matches the plan.
+- [ ] T002 [P] Create data subdirectories: `data/raw`, `data/processed`, `data/split`. **Requirement**: Create `.gitkeep` files. **Verification**: Run `ls -R data` and confirm subdirectories exist.
+- [ ] T003 [P] Create artifacts subdirectories: `artifacts/models`, `artifacts/reports`, `artifacts/figures`. **Requirement**: Create `.gitkeep` files. **Verification**: Run `ls -R artifacts` and confirm subdirectories exist.
+- [X] T004 [P] Configure `pyproject.toml` with initial configuration for ruff and black (line-length: a standard maximum limit, rules E, W, F).
+- [X] T005 [P] Create `code/__init__.py` and basic project scaffolding.
+- [ ] T006 [P] Generate deterministic synthetic baseline data using `code/generate_synthetic.py` with seed=42 and output `data/raw/synthetic_baseline.csv`. **Schema**: Columns must include `cold_work_pct` (float, 0-100), `Mn_wt` (float), `Mg_wt` (float), `Si_wt` (float), `Cu_wt` (float), `annealing_temp_K` (float), `time_to_peak_min` (float). **Logic**: Use a deterministic physical kinetics model + noise. **Reproducibility**: MUST hard-code `seed=42` inside the `generate_synthetic.py` script logic (not just as a CLI argument) to satisfy Constitution Principle I. **Data Hygiene**: MUST compute the SHA-256 checksum of the generated CSV using the `sha256sum` command (e.g., `sha256sum data/raw/synthetic_baseline.csv > data/raw/synthetic_baseline.csv.sha256`) and write it to `data/raw/synthetic_baseline.csv.sha256` in the format `hash filename` (two spaces, `filename` is the basename only). **Versioning**: MUST record this checksum in the project's state YAML (`state/projects/PROJ-240-predicting-the-impact-of-cold-work-on-re.yaml`) under `artifact_hashes`. **Error Handling**: If generation fails, raise `RuntimeError` immediately; do NOT fall back to mock data. **Dataset Cap**: Generate [deferred] rows to satisfy FR-003 and Constitution Principle VII (well under the 10k limit).
+- [ ] T007 [P] Calculate synthetic baseline statistics and write `artifacts/reports/baseline_stats.json`. **Logic**: Read `data/raw/synthetic_baseline.csv`, calculate the mean of `time_to_peak_min` (in minutes) from the synthetic generator output, and store it as `baseline_mean`. **Requirement**: This file is required for SC-006 (MAE threshold check). **Versioning**: MUST verify that the `synthetic_baseline.csv` checksum matches the recorded hash in `state.yaml` (key `artifact_hashes.synthetic_baseline.csv`) before calculating; if mismatch, re-calculate or raise error. **Dependency**: Must run AFTER T006.
+- [X] T008 [P] Implement orchestration in `code/main.py`. **Logic**: This script must be the single entry point that calls the ingestion, feature engineering, training, and evaluation scripts in sequence. **Requirement**: Must handle errors and exit with non-zero code on failure. **Scope**: This is a skeleton orchestrator; full functionality depends on downstream tasks (T013, T019, etc.) being implemented.
+- [X] T009 [P] Implement dataset size validation in `code/ingest.py`: Raise `ValueError` immediately if the dataset size is < 50 rows (FR-008) to ensure 'fail-fast' behavior. **Requirement**: This check must occur BEFORE any feature engineering or model training.
+- [ ] T010 [US1] Generate `artifacts/reports/ingestion_metrics.json` and `artifacts/reports/validation_log.json`. **Schema**: `ingestion_metrics.json` must contain `rows_ingested` (int), `rows_filtered` (int), `null_handling_success_rate` (float, calculated as `rows_output / rows_input`), `rows_output` (int). `validation_log.json` must contain `rows_ingested`, `rows_filtered`, `null_counts`, `clipped_outliers_count`, `clipped_values_list` (list of integer row indices), `threshold_99th_percentile` (float). **Requirement**: These metrics are required for SC-007. **Dependency**: Must run AFTER T013 (ingestion logic).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -51,19 +51,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Write TDD unit test for physical bound validation in `tests/unit/test_validation.py` (test fails initially).
-- [ ] T012 [P] [US1] Write TDD unit test for interaction feature engineering in `tests/unit/test_engineering.py` (test fails initially).
+- [X] T011 [P] [US1] Write TDD unit test for physical bound validation in `tests/unit/test_validation.py` (test fails initially).
+- [X] T012 [P] [US1] Write TDD unit test for interaction feature engineering in `tests/unit/test_engineering.py` (test fails initially).
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement orchestration in `code/ingest.py`: Load `data/raw/synthetic_baseline.csv` (from T006) as the PRIMARY and mandatory source. Do NOT attempt to fetch external data in this step. Output `data/processed/validated.csv` and `artifacts/reports/validation_log.json`. **Requirement**: Ensure the dataset size is >= 50 rows (T009) and <= 10000 rows (T006 cap). **Fail-Fast**: If the dataset size is < 50 rows after loading, raise `ValueError` immediately (FR-008) before any further processing.
-- [ ] T014 [US1] Implement row filtering for missing "time-to-peak softening" in `code/ingest.py` (exclude rows, do not impute target).
-- [ ] T015 [US1] Implement physical bound validation (0 ≤ cold work ≤ 100%, positive time) in `code/ingest.py`.
-- [ ] T016 [US1] Implement missing composition value handling in `code/ingest.py`: Impute using the mean of the specific alloy series (group by alloy type or concentration range) or flag for exclusion as per spec Edge Cases. Do NOT use a global mean for all rows.
-- [ ] T017 [US1] Implement unit normalization for time-to-peak (minutes) in `code/ingest.py`.
-- [ ] T018 [US1] Implement outlier clipping on target variable at 99th percentile in `code/ingest.py` (FR-007) before any statistical analysis. Log clipped values to `artifacts/reports/validation_log.json`. **Requirement**: The clipped data must be the ONLY data used for subsequent statistical tests. **Artifact**: Write `clipped_outliers_count` and `clipped_values_list` to `validation_log.json`.
-- [ ] T019 [US1] Implement interaction feature engineering in `code/engineer.py`: Calculate `cold_work * Mn_content`, `cold_work * Mg_content`, `cold_work * Si_content`, `cold_work * Cu_content`. **Constraint**: Do NOT include `cold_work * Temperature`. Use exact column names from T006 (e.g., `cold_work_pct`, `Mn_wt`, `annealing_temp_K`). Include annealing temperature as a direct feature. **Data Cap**: Assume dataset is already capped at 10000 rows by T006/T013. Output `data/processed/engineered_features.csv`.
-- [ ] T020 [US1] Generate final dataset artifact `data/processed/final_dataset.csv` ready for modeling.
+- [ ] T013 [US1] Implement orchestration in `code/ingest.py`: Load `data/raw/synthetic_baseline.csv` (from T006) as the PRIMARY and mandatory source. **Logic**: Load the synthetic data. If T049 (external fetch) has successfully generated a merged dataset, load that instead; otherwise, load the synthetic baseline. Output `data/processed/validated.csv` and `artifacts/reports/validation_log.json`. **Requirement**: Ensure the dataset size is >= 50 rows (T009) and <= 10000 rows (T006 cap). **Fail-Fast**: If the dataset size is < 50 rows after loading, raise `ValueError` immediately (FR-008) before any further processing. **Dependency**: T006.
+- [X] T014 [US1] Implement row filtering for missing "time-to-peak softening" in `code/ingest.py` (exclude rows, do not impute target).
+- [X] T015 [US1] Implement physical bound validation (0 ≤ cold work ≤ 100%, positive time) in `code/ingest.py`.
+- [X] T016 [US1] Implement missing composition value handling in `code/ingest.py`: Impute using the mean of the specific alloy series (group by alloy type or concentration range) or flag for exclusion as per spec Edge Cases. Do NOT use a global mean for all rows.
+- [X] T017 [US1] Implement unit normalization for time-to-peak (minutes) in `code/ingest.py`.
+- [ ] T018 [US1] Implement outlier clipping on target variable at a high percentile threshold to mitigate extreme value influence, as discussed in [Citation]. in `code/ingest.py` (FR-007) before any statistical analysis. Log clipped values to `artifacts/reports/validation_log.json`. **Requirement**: The clipped data must be the ONLY data used for subsequent statistical tests. **Method**: Use `np.percentile` with `interpolation='linear'` (or `method='linear'` in newer numpy) to calculate a high percentile threshold. **Artifact**: Write `clipped_outliers_count` (int) and `clipped_values_list` (list of integer row indices) to `validation_log.json`. **Dependency**: T013.
+- [ ] T019 [US1] Implement interaction feature engineering in `code/engineer.py`: Calculate `cold_work * Mn_content`, `cold_work * Mg_content`, `cold_work * Si_content`, `cold_work * Cu_content`. **Constraint**: Do NOT include `cold_work * Temperature`. Use exact column names from T006 (e.g., `cold_work_pct`, `Mn_wt`, `annealing_temp_K`). **Output Naming**: Rename interaction columns to snake_case (e.g., `cold_work_Mn_content`, `cold_work_Mg_content`). **Requirement**: MUST include `annealing_temp_K` as a standalone direct predictor feature in the output `engineered_features.csv`. Include annealing temperature as a direct feature. **Data Cap**: Assume dataset is already capped at 10000 rows by T006/T013. Output `data/processed/engineered_features.csv`. **Dependency**: T018.
+- [ ] T020 [US1] Generate final dataset artifact `data/processed/final_dataset.csv` ready for modeling. **Dependency**: T019.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -79,18 +79,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for VIF calculation in `tests/unit/test_vif.py`.
-- [ ] T022 [P] [US2] Unit test for model training with small subset in `tests/unit/test_train.py`.
+- [X] T021 [P] [US2] Unit test for VIF calculation in `tests/unit/test_vif.py`.
+- [X] T022 [P] [US2] Unit test for model training with small subset in `tests/unit/test_train.py`.
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement data splitting logic in `code/train.py`: An 80/20 stratified split (train/test) with random seed=42. Stratify on `time_to_peak_min` binned into 5 bins. **Requirement**: Save split indices or ensure reproducibility for use in Phase 4.
-- [ ] T024 [US2] Implement Random Forest Regressor training (CPU-only) in `code/train.py`. **Model Type**: Train the **Interaction Model** (full feature set including interactions) to serve as the primary predictive model. Ensure dataset size ≤ 10000 rows (FR-003). Handle pure aluminum (zero variance) gracefully by detecting the condition across the entire dataset and setting a `pure_aluminum_flag: true` in `artifacts/reports/training_metrics.json`, then skipping interaction importance calculation. **Output**: Write `pure_aluminum_flag` as a boolean field in the JSON report. **Requirement**: This task requires T020 completion.
-- [ ] T025 [US2] Implement k-fold cross-validation in `code/train.py` and calculate mean R² and std dev.
-- [ ] T026 [US2] Implement held-out test set evaluation in `code/train.py`: Calculate MAE and R² on the test set. **Requirement**: Compare MAE against [deferred] of the `baseline_mean` read from `artifacts/reports/baseline_stats.json` (T007).
-- [ ] T027 [US2] Save trained model to `artifacts/models/kinetic_model.pkl`. **Format**: Use `pickle` protocol 4 for cross-version compatibility.
-- [ ] T028 [US2] Generate `artifacts/reports/training_metrics.json` containing CV scores and test set MAE/R². **Format**: JSON schema must include `cv_r2_mean`, `cv_r2_std`, `test_mae`, `test_r2`, and `pure_aluminum_flag`.
-- [ ] T029 [US2] Implement "Pure Aluminum" dataset detection in `code/train.py`: Check if standard deviation of all composition columns (Mn, Mg, Si, Cu) is zero. If so, set `pure_aluminum_flag` to `true` in `artifacts/reports/training_metrics.json` and `artifacts/reports/shap_interaction_report.json` (if applicable) and log a warning. **Requirement**: The `pure_aluminum_flag` must be a structured field in the JSON report, not just a log message, to ensure testability per Edge Cases.
+- [X] T023 [US2] Implement data splitting logic in `code/train.py`: An 80/20 stratified split (train/test) with random seed=42. Stratify on `time_to_peak_min` binned into multiple bins. **Requirement**: Save split indices or ensure reproducibility for use in Phase 4. **Dependency**: T020.
+- [ ] T024 [US2] Implement Random Forest Regressor training (CPU-only) in `code/train.py`. **Model Type**: Train the **Interaction Model** (full feature set including interactions) to serve as the primary predictive model. Ensure dataset size ≤ 10000 rows (FR-003). **Pure Aluminum Handling**: Check if standard deviation of all composition columns (Mn, Mg, Si, Cu) is zero. If `std < 1e-9` for all composition columns, set `pure_aluminum_flag: true` in `artifacts/reports/training_metrics.json`, **SKIP interaction importance calculation** (do not run SHAP interaction analysis or permutation importance for interactions), and log a warning. **Output**: Write `pure_aluminum_flag` as a boolean field in the JSON report. **Requirement**: This task requires T020 completion. **Artifact**: Save model to `artifacts/models/kinetic_model.pkl`. **Dependency**: T023.
+- [ ] T027 [US2] Save trained model to `artifacts/models/kinetic_model.pkl`. **Format**: Use `pickle` protocol 4 for cross-version compatibility. **Dependency**: T024.
+- [ ] T025 [US2] Implement k-fold cross-validation in `code/train.py` and calculate mean R² and std dev. **Dependency**: T027.
+- [ ] T026 [US2] Implement held-out test set evaluation in `code/train.py`: Calculate MAE and R² on the test set. **Requirement**: Calculate the threshold as a fixed proportion of the baseline mean. (read from `artifacts/reports/baseline_stats.json` from T007) and compare the test MAE against this threshold. **Dependency**: T027, T007.
+- [ ] T028 [US2] Generate `artifacts/reports/training_metrics.json` containing CV scores and test set MAE/R². **Format**: JSON schema must include `cv_r2_mean`, `cv_r2_std`, `test_mae`, `test_r2`, and `pure_aluminum_flag`. **Dependency**: T025, T026.
+- [ ] T029 [US2] Implement "Pure Aluminum" dataset detection in `code/train.py`: Check if standard deviation of all composition columns (Mn, Mg, Si, Cu) is zero. If `std < 1e-9` for all composition columns, set `pure_aluminum_flag` to `true` in `artifacts/reports/training_metrics.json` and `artifacts/reports/shap_interaction_report.json` (if applicable) and log a warning. **Requirement**: The `pure_aluminum_flag` must be a structured field in the JSON report, not just a log message, to ensure testability per Edge Cases. **Conditional Path**: If `pure_aluminum_flag` is true, **exclude interaction terms from SHAP analysis (T036)** and **exclude interaction terms from Permutation Test (T034)** to prevent invalid results on zero-variance data. **Dependency**: T024.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -106,27 +106,31 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for Permutation Test logic in `tests/unit/test_permutation.py`.
-- [ ] T031 [P] [US3] Unit test for SHAP interaction calculation in `tests/unit/test_shap.py`.
+- [X] T030 [P] [US3] Unit test for Permutation Test logic in `tests/unit/test_permutation.py`.
+- [X] T031 [P] [US3] Unit test for SHAP interaction calculation in `tests/unit/test_shap.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement Baseline Model (Additive: cold work + composition, NO interactions) training in `code/evaluate.py` for comparison. **Requirement**: Use the SAME data split (seed=42) as T023 to ensure fair comparison.
-- [ ] T033 [US3] Implement Interaction Model (cold work + composition + interactions) training in `code/evaluate.py` (re-use logic from T024 but with full feature set) to ensure consistency for the Delta-Permutation Test. **Requirement**: Use the SAME data split (seed=42) as T023.
+- [ ] T032 [US3] Implement Baseline Model (Additive: cold work + composition, NO interactions) training in `code/evaluate.py` for comparison. **Requirement**: Use the SAME data split (seed=42) as T023. Train a Random Forest Regressor with identical hyperparameters to T024 (except no interaction features). **Artifact**: Save model to `artifacts/models/additive_model.pkl` to ensure a distinct artifact for the comparison. **Dependency**: T023.
+- [ ] T033 [US3] Ensure Interaction Model consistency in `code/evaluate.py`. **Requirement**: Load the Interaction Model from `artifacts/models/kinetic_model.pkl` (T027) if it exists and matches the expected parameters. If retraining is necessary for consistency, retrain with the EXACT same parameters and data split as T024. **Artifact**: Ensure `artifacts/models/kinetic_model.pkl` is used for the Interaction Model in the subsequent test. **Dependency**: T027.
 - [ ] T034 [US3] Implement Delta-Permutation Test in `code/evaluate.py`:
- 1. Train Additive Model (T032) and Interaction Model (T033) on the SAME data split.
- 2. Generate error distributions (MAE per fold) for BOTH models using k-fold cross-validation.
- 3. **Comparison**: Compare the error distribution of the Additive Model against the error distribution of the Interaction Model (unshuffled) using the Mann-Whitney U test.
- 4. Calculate p-value (FR-005) based on the overlap of these two distributions to determine if the interaction terms provide statistically significant improvement. Output to `artifacts/reports/statistical_significance.json`.
-- [ ] T035 [US3] Implement Permutation Importance calculation in `code/evaluate.py`: Calculate permutation importance (drop in R² score) for interaction terms and verify > 0.01 threshold (SC-003). Update `artifacts/reports/statistical_significance.json` with key `permutation_importance`.
-- [ ] T036 [US3] Implement SHAP Interaction Value analysis in `code/evaluate.py` to rank features by unique contribution (FR-006). **Prerequisites**: `data/processed/engineered_features.csv` (from T019) and `artifacts/models/kinetic_model.pkl` (from T027). **Parameters**: Use `TreeExplainer` with `nsamples=1000` for determinism.
-- [ ] T037 [US3] Generate `artifacts/reports/statistical_significance.json` containing p-value, test statistic, and conclusion.
-- [ ] T038 [US3] Generate `artifacts/reports/shap_interaction_report.json` with top features and interaction terms. Include `pure_aluminum_flag` status if detected in T029.
+ 1. Load the Additive Model (T032) and Interaction Model (T033).
+ 2. Generate error distributions (MAE per fold) for BOTH models using k-fold cross-validation on the same split.
+ 3. **Permutation Logic**: For each permutation iteration (run `n_permutations=1000`), shuffle the values of the interaction terms (e.g., `cold_work_Mn_content`) in the validation set while holding main effects constant.
+ 4. Calculate the prediction error (MAE) for the Interaction Model on this shuffled data.
+ 5. Compare the distribution of these permuted errors against the original (unshuffled) error distribution of the Interaction Model.
+ 6. **Crucially**: Also compare the error distribution of the Interaction Model (unshuffled) against the error distribution of the Additive Model (T032) to determine if the interaction terms provide a statistically significant improvement over the additive baseline.
+ 7. Calculate the p-value (FR-005) as the proportion of permuted errors that are **GREATER THAN OR EQUAL TO** the original error (assuming lower error is better). This determines if interaction terms provide statistically significant improvement (p < 0.05).
+ 8. Output to `artifacts/reports/statistical_significance.json`. **Requirement**: This p-value determines if interaction terms provide statistically significant improvement (p < 0.05). **Dependency**: T032, T033.
+- [ ] T035 [US3] Implement Permutation Importance calculation in `code/evaluate.py`: Calculate permutation importance (drop in R² score) for interaction terms and verify > 0.01 threshold (SC-003). Update `artifacts/reports/statistical_significance.json` with key `permutation_importance`. **Dependency**: T034.
+- [ ] T036 [US3] Implement SHAP Interaction Value analysis in `code/evaluate.py` to rank features by unique contribution (FR-006). **Prerequisites**: `data/processed/engineered_features.csv` (from T019) and `artifacts/models/kinetic_model.pkl` (from T027). **Parameters**: Use `TreeExplainer` with `nsamples=1000` for determinism and `random_state=42` to ensure reproducibility. **Output Requirement**: The output report MUST explicitly separate 'interaction term contributions' from 'main effects' in the JSON structure (e.g., `main_effects_ranking` and `interaction_terms_ranking` keys). **Dependency**: T019, T027.
+- [ ] T037 [US3] Generate `artifacts/reports/statistical_significance.json` containing p-value, test statistic, and conclusion. **Dependency**: T034, T035.
+- [ ] T038 [US3] Generate `artifacts/reports/shap_interaction_report.json` with top features and interaction terms. Include `pure_aluminum_flag` status if detected in T029. **Dependency**: T036.
 - [ ] T039 [US3] Verify Success Criteria:
  1. Check p-value < 0.05 (from T034/T037).
  2. Check Permutation Importance > 0.01 (from T035).
  3. Check R² > 0.6 (SC-001). **Logic**: Read `test_r2` from `artifacts/reports/training_metrics.json`. If R² <= 0.6, flag failure. Do NOT flag if R² > 0.6.
- Flag in report if any criteria fail (do not crash, but document failure).
+ Flag in report if any criteria fail (do not crash, but document failure). **Dependency**: T028, T037.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,17 +140,17 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Documentation updates: Update `README.md` installation steps and `quickstart.md` with a 5-step execution guide.
-- [ ] T041 [P] Refactor `code/utils.py` for clarity and performance. **Metric**: Reduce cyclomatic complexity score of `utils.py` functions to < 5 using `radon cc code/utils.py -a`.
-- [ ] T042 [P] Refactor `code/ingest.py` to ensure strict error handling on data fetch. **Logic**: If external data fetch fails, proceed with the synthetic dataset already loaded; do not halt. (Note: Synthetic is primary per FR-001).
-- [ ] T043 [P] Optimize model training loop in `code/train.py` to ensure <60 min runtime. **Metric**: Reduce training time compared to baseline.
-- [ ] T044 [P] Optimize data loading in `code/engineer.py` and `code/evaluate.py`. **Metric**: Reduce memory peak usage via chunking.
-- [ ] T045 [P] Write unit tests for `code/utils.py` in `tests/unit/test_utils.py`.
-- [ ] T046 [P] Write unit tests for `code/engineer.py` in `tests/unit/test_engineer.py`.
+- [ ] T040 [P] Documentation updates: Update `README.md` installation steps and `quickstart.md` with a 5-step execution guide. **Steps to document**: 1. Install deps (`pip install -r requirements.txt`), 2. Generate data (`python code/generate_synthetic.py`), 3. Ingest & Engineer (`python code/ingest.py`), 4. Train (`python code/train.py`), 5. Evaluate (`python code/evaluate.py`).
+- [X] T041 [P] Refactor `code/utils.py` for clarity and performance. **Metric**: Reduce cyclomatic complexity score of `utils.py` functions to < 5 using `radon cc code/utils.py -a`.
+- [X] T042 [P] Refactor `code/ingest.py` to ensure strict error handling on data fetch. **Logic**: If external data fetch fails, proceed with the synthetic dataset already loaded; do not halt. (Note: Synthetic is primary per FR-001).
+- [ ] T043 [P] Ensure model training parameters are set to `n_estimators=100` and `max_depth=None` (default) in `code/train.py` to ensure runtime < 60 min on 10k rows. **Metric**: Verify training time < 60 min on CI runner.
+- [ ] T044 [P] Implement chunked data loading in `code/engineer.py` and `code/evaluate.py` if file size > 5MB. **Requirement**: Use `chunksize=1000` for `pandas.read_csv` to reduce memory peak usage.
+- [X] T045 [P] Write unit tests for `code/utils.py` in `tests/unit/test_utils.py`.
+- [X] T046 [P] Write unit tests for `code/engineer.py` in `tests/unit/test_engineer.py`.
 - [ ] T047 [P] Write unit tests for `code/evaluate.py` in `tests/unit/test_evaluate.py`.
-- [ ] T048 [P] Security hardening (input sanitization).
-- [ ] T049 [P] [Optional] Implement external data fetching logic in `code/ingest_external.py` to attempt fetching from NIST/HuggingFace. **Logic**: If fetch fails, log a warning and proceed with the synthetic dataset already loaded in T006/T013; do NOT halt the pipeline. Synthetic is the primary source per FR-001. Merge external data only if explicitly configured and validated. This task is non-blocking and separate from the primary ingestion flow.
-- [ ] T050 [P] Run `quickstart.md` validation to ensure end-to-end execution of the full pipeline (US1 + US2 + US3).
+- [ ] T048 [P] Security hardening (input sanitization). **Requirement**: Implement `pandas.read_csv` with explicit `dtype` enforcement and `na_filter=True` to sanitize inputs and prevent type confusion.
+- [ ] T049 [P] [Optional] Implement external data fetching logic in `code/ingest_external.py` to attempt fetching from NIST/HuggingFace. **Logic**: If fetch fails, log a warning and proceed with the synthetic dataset already loaded in T006/T013; do NOT halt the pipeline. Synthetic is the primary source per FR-001. If a public dataset is available and fetch succeeds, merge it with the synthetic data. This task is non-blocking and separate from the primary ingestion flow.
+- [ ] T050 [P] Run `quickstart.md` validation to ensure end-to-end execution of the full pipeline (US1 + US2 + US3). **Command**: `python code/main.py`. **Success Criteria**: Exit code 0, and files `data/raw/synthetic_baseline.csv`, `data/processed/final_dataset.csv`, `artifacts/models/kinetic_model.pkl`, `artifacts/reports/training_metrics.json`, `artifacts/reports/statistical_significance.json` must exist.
 
 ---
 
@@ -155,14 +159,20 @@
 **Purpose**: Address specific reviewer concerns and ensure strict adherence to the "No Fabrication" and "Real Data" rules.
 
 - [ ] T051 [P] [Review] Ensure T029 correctly flags pure aluminum datasets in the report artifacts. **Requirement**: Verify `pure_aluminum_flag` is present in `training_metrics.json` and `shap_interaction_report.json` when applicable.
-- [ ] T052 [P] [Review] Verify T034 implements distribution-based comparison for the Permutation Test. **Requirement**: Confirm the test compares CV error distributions (Additive vs Interaction), not single MAE values.
-- [ ] T053 [P] [Review] Verify T019 does not include `cold_work * Temperature`. **Requirement**: Confirm feature engineering strictly follows FR-002.
+- [ ] T052 [P] [Review] Verify T034 implements the specific Permutation Test (shuffling interaction terms) logic. **Requirement**: Confirm the test shuffles interaction terms while holding main effects constant, not a Mann-Whitney U test.
+- [ ] T053 [P] [Review] Verify T019 does not include `cold_work * Temperature` but DOES include `annealing_temp_K` as a standalone feature. **Requirement**: Confirm feature engineering strictly follows FR-002.
 - [ ] T054 [P] [Review] Verify T006 generates checksums. **Requirement**: Confirm `synthetic_baseline.csv.sha256` exists and is recorded in state YAML.
 - [ ] T055 [P] [Review] Verify T049 logic for data source failures. **Requirement**: Confirm that T049 correctly distinguishes between:
  1. **Local Synthetic Generator Failure** (T006): Must raise an error (Fail-Loud).
  2. **External Data Fetch Failure** (T049): Must proceed with synthetic data (Fail-Safe/Fallback).
  Ensure no task requires raising an error for external fetch failures, as this contradicts FR-001 and T049.
-- [ ] T056 [P] [Review] Verify T056 (main.py) implementation. **Requirement**: Confirm `code/main.py` exists and correctly orchestrates the pipeline (T006 -> T013 -> T019 -> T024 -> T034).
+- [ ] T056 [P] [Review] Verify T008 (main.py) implementation. **Requirement**: Confirm `code/main.py` exists and correctly orchestrates the pipeline (T006 -> T013 -> T019 -> T024 -> T034).
+- [ ] T057 [P] [Review] Verify T013 does not contain any `try/except` blocks that fallback to synthetic data if the primary load fails. **Requirement**: The load of `data/raw/synthetic_baseline.csv` must be a direct read; if the file is missing, the script must crash with a clear `FileNotFoundError` to satisfy the "Fail-Loud" principle for the primary source.
+- [ ] T058 [P] [Review] Verify T018 outlier clipping is applied BEFORE T032/T034 statistical tests. **Requirement**: Confirm the data passed to the Permutation Test is the clipped version from `data/processed/validated.csv` (post-T018), not the raw version.
+- [ ] T059 [P] [Review] Verify T023 stratification logic handles the case where `time_to_peak_min` has low variance. **Requirement**: Ensure `train_test_split` does not crash if binning results in empty bins; implement a fallback to non-stratified split with a warning if stratification is impossible.
+- [ ] T060 [P] [Review] Verify T006 dataset size cap logic. **Requirement**: Confirm `generate_synthetic.py` enforces a hard cap on row count (e.g., `n_rows = min(requested, 10000)`) to prevent memory overflow on the CI runner, as mandated by FR-003 and Constitution Principle VII.
+- [ ] T061 [P] [Review] Verify T024 handles the "Pure Aluminum" edge case without crashing. **Requirement**: Confirm that if `std < 1e-9` for composition columns, the model training either skips interaction feature importance calculation or handles the zero-variance input gracefully (e.g., by excluding interaction features from the model input for that specific run) while still producing a valid `pure_aluminum_flag: true` in the report.
+- [ ] T062 [P] [Review] Verify T036 SHAP calculation parameters. **Requirement**: Confirm `TreeExplainer` is used with `nsamples=1000` and `random_state=42` to ensure deterministic and reproducible SHAP values, avoiding stochastic variance in the interaction analysis.
 
 ---
 
@@ -257,7 +267,7 @@ With multiple developers:
 - **Critical Constraint**: All tasks must run on free CPU-only CI (limited cores, constrained RAM, no GPU). No 8-bit/4-bit quantization, no CUDA, no large LLMs.
 - **Data Integrity**: Use `code/generate_synthetic.py` for baseline data if real data is unavailable; **synthetic is the PRIMARY source**. If external fetch fails, proceed with synthetic (do not halt).
 - **Data Flow**: Ensure data ingestion (US1) completes before model training (US2), and model training completes before validation (US3).
-- **Statistical Rigor**: Permutation Test (comparing Additive vs. Interaction models) and SHAP Interaction Values are mandatory for US3 to validate the "pinning effect" hypothesis.
+- **Statistical Rigor**: Permutation Test (shuffling interaction terms) and SHAP Interaction Values are mandatory for US3 to validate the "pinning effect" hypothesis.
 - **Imputation Logic**: Missing composition values must be imputed using the mean of the specific alloy series, not a global mean.
-- **Interaction Terms**: Explicitly calculate `cold_work * Mn_content`, `cold_work * Mg_content`, `cold_work * Si_content`, `cold_work * Cu_content`. **Do NOT** calculate `cold_work * Temperature`.
+- **Interaction Terms**: Explicitly calculate `cold_work * Mn_content`, `cold_work * Mg_content`, `cold_work * Si_content`, `cold_work * Cu_content`. **Do NOT** calculate `cold_work * Temperature`. **MUST** include `annealing_temp_K` as a standalone feature.
 - **Revision Focus**: Phase 6 tasks specifically address the "No Fabrication" rule by ensuring data loaders fail loudly on local generation errors but fall back to synthetic data on external fetch errors, maintaining the synthetic generator as the guaranteed primary source.

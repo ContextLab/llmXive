@@ -1,28 +1,49 @@
 """
-Script to create the required artifact directories for the project.
-Creates: artifacts/models, artifacts/reports, artifacts/figures
+Directory creation for project artifacts.
+
+Creates the necessary directory structure for storing models,
+reports, figures, and processed data.
 """
 import os
 from pathlib import Path
 
-
 def main():
-    """Create artifact directories."""
-    project_root = Path(__file__).parent.parent
-    artifacts_root = project_root / "artifacts"
+    """
+    Create all required artifact directories.
     
+    Creates directories under the project root for:
+    - data/raw, data/processed, data/split
+    - artifacts/models, artifacts/reports, artifacts/figures
+    """
+    # Get project root
+    project_root = Path(__file__).parent.parent
+    
+    # Define directory structure
     directories = [
-        artifacts_root / "models",
-        artifacts_root / "reports",
-        artifacts_root / "figures",
+        "data/raw",
+        "data/processed",
+        "data/split",
+        "artifacts/models",
+        "artifacts/reports",
+        "artifacts/figures",
     ]
     
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
+    # Create directories
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
     
-    print("All artifact directories created successfully.")
-
+    # Create .gitkeep files to ensure directories are tracked
+    gitkeep_path = project_root / "data" / ".gitkeep"
+    if not gitkeep_path.exists():
+        gitkeep_path.touch()
+        print(f"Created .gitkeep in data/")
+        
+    gitkeep_path = project_root / "artifacts" / ".gitkeep"
+    if not gitkeep_path.exists():
+        gitkeep_path.touch()
+        print(f"Created .gitkeep in artifacts/")
 
 if __name__ == "__main__":
     main()

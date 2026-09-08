@@ -1,110 +1,124 @@
 """
-Main orchestration script for the Cold Work Recrystallization pipeline.
-This script reconciles the run-book (quickstart.md) with the implementation
-by providing a single entry point to execute the pipeline steps.
+Main orchestration script for the cold work recrystallization pipeline.
 
-Usage:
-    python code/main.py --step generate
-    python code/main.py --step ingest
-    python code/main.py --step engineer
-    python code/main.py --step train
-    python code/main.py --step evaluate
-    python code/main.py --step all
+This script coordinates the execution of all pipeline steps:
+1. Generate synthetic data (if needed)
+2. Ingest and validate data
+3. Engineer features
+4. Finalize dataset
+5. Train model
+6. Evaluate model
 """
 import argparse
 import sys
 import os
 from pathlib import Path
 
-# Ensure the code directory is in the path for relative imports if run from project root
-# However, since we are importing from sibling modules in 'code/', we rely on the
-# execution environment having 'code' in sys.path or running from the project root
-# where 'code' is a package. The task assumes 'code' is the package root.
-# We explicitly import the main functions from the existing modules.
+# Import step functions
+from generate_synthetic import main as run_generate
+from ingest import main as run_ingest
+from engineer import main as run_engineer
+from finalize_dataset import main as run_finalize
+from train import main as run_train
+from evaluate import main as run_evaluate
+from config import get_project_root
 
-def run_generate():
-    """Execute T007: Generate synthetic baseline data."""
-    print("Executing: Generate synthetic baseline data...")
-    from code.generate_synthetic import main as gen_main
-    gen_main()
-    print("Success: data/raw/synthetic_baseline.csv generated.")
-
-def run_ingest():
-    """Execute T012-T017: Ingest, validate, and filter data."""
-    print("Executing: Ingest and validate data...")
-    from code.ingest import main as ingest_main
-    ingest_main()
-    print("Success: data/processed/validated.csv generated.")
-
-def run_engineer():
-    """Execute T018-T019: Engineer interaction features."""
-    print("Executing: Engineer interaction features...")
-    from code.engineer import main as engineer_main
-    engineer_main()
-    print("Success: data/processed/engineered_features.csv generated.")
-
-def run_finalize():
-    """Execute T020: Finalize dataset (row cap)."""
-    print("Executing: Finalize dataset...")
-    from code.finalize_dataset import main as finalize_main
-    finalize_main()
-    print("Success: data/processed/final_dataset.csv generated.")
-
-def run_train():
-    """Execute T023-T029: Train model and save metrics."""
-    print("Executing: Train model...")
-    from code.train import main as train_main
-    train_main()
-    print("Success: artifacts/models/kinetic_model.pkl and metrics generated.")
-
-def run_evaluate():
-    """Execute T032-T039: Statistical evaluation and SHAP."""
-    print("Executing: Evaluate model and statistical significance...")
-    from code.evaluate import main as eval_main
-    eval_main()
-    print("Success: Statistical reports and SHAP analysis generated.")
-
-def run_all():
-    """Execute the full pipeline."""
-    run_generate()
-    run_ingest()
-    run_engineer()
-    run_finalize()
-    run_train()
-    run_evaluate()
-    print("Pipeline completed successfully.")
-
-def main():
-    parser = argparse.ArgumentParser(
-        description="Orchestrate the Cold Work Recrystallization prediction pipeline."
-    )
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Cold Work Recrystallization Pipeline")
     parser.add_argument(
         "--step",
         type=str,
-        required=True,
         choices=["generate", "ingest", "engineer", "finalize", "train", "evaluate", "all"],
-        help="The pipeline step to execute."
+        default="all",
+        help="Which step(s) to run. Default: all"
     )
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    try:
-        if args.step == "generate":
-            run_generate()
-        elif args.step == "ingest":
-            run_ingest()
-        elif args.step == "engineer":
-            run_engineer()
-        elif args.step == "finalize":
-            run_finalize()
-        elif args.step == "train":
-            run_train()
-        elif args.step == "evaluate":
-            run_evaluate()
-        elif args.step == "all":
-            run_all()
-    except Exception as e:
-        print(f"Error executing step '{args.step}': {e}", file=sys.stderr)
-        sys.exit(1)
+def run_generate_step():
+    """Run the data generation step."""
+    print("Running generate step...")
+    exit_code = run_generate()
+    if exit_code != 0:
+        print("Generate step failed.")
+        sys.exit(exit_code)
+    print("Generate step completed.")
+
+def run_ingest_step():
+    """Run the ingestion step."""
+    print("Running ingest step...")
+    exit_code = run_ingest()
+    if exit_code != 0:
+        print("Ingest step failed.")
+        sys.exit(exit_code)
+    print("Ingest step completed.")
+
+def run_engineer_step():
+    """Run the feature engineering step."""
+    print("Running engineer step...")
+    exit_code = run_engineer()
+    if exit_code != 0:
+        print("Engineer step failed.")
+        sys.exit(exit_code)
+    print("Engineer step completed.")
+
+def run_finalize_step():
+    """Run the finalize dataset step."""
+    print("Running finalize step...")
+    exit_code = run_finalize()
+    if exit_code != 0:
+        print("Finalize step failed.")
+        sys.exit(exit_code)
+    print("Finalize step completed.")
+
+def run_train_step():
+    """Run the training step."""
+    print("Running train step...")
+    exit_code = run_train()
+    if exit_code != 0:
+        print("Train step failed.")
+        sys.exit(exit_code)
+    print("Train step completed.")
+
+def run_evaluate_step():
+    """Run the evaluation step."""
+    print("Running evaluate step...")
+    exit_code = run_evaluate()
+    if exit_code != 0:
+        print("Evaluate step failed.")
+        sys.exit(exit_code)
+    print("Evaluate step completed.")
+
+def run_all_steps():
+    """Run all pipeline steps in order."""
+    run_generate_step()
+    run_ingest_step()
+    run_engineer_step()
+    run_finalize_step()
+    run_train_step()
+    run_evaluate_step()
+    print("All steps completed successfully.")
+
+def main():
+    """Main entry point."""
+    args = parse_args()
+    
+    if args.step == "all":
+        run_all_steps()
+    elif args.step == "generate":
+        run_generate_step()
+    elif args.step == "ingest":
+        run_ingest_step()
+    elif args.step == "engineer":
+        run_engineer_step()
+    elif args.step == "finalize":
+        run_finalize_step()
+    elif args.step == "train":
+        run_train_step()
+    elif args.step == "evaluate":
+        run_evaluate_step()
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

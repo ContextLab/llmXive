@@ -1,11 +1,30 @@
-T007:
+T001:
   c: false
-  h: 2c8e336483b35fc6acfd1483222c518709db71e0b4b0cf20e322e85ff35a6648
-  r: The repository contains a partially shown `code/generate_synthetic.py`, but the
-    script does not produce the required `data/raw/synthetic_baseline.csv` nor the
-    accompanying `.sha256` checksum file (both are missing). Consequently the deterministic
-    data generation, file output, and checksum steps mandated by the task are not
-    fulfilled.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or `.gitkeep` files were provided as evidence; the claim\
+    \ that the four project root directories exist and contain `.gitkeep` placeholders\
+    \ cannot be verified from the supplied artifacts. The implementer must supply\
+    \ a concrete file\u2011system snapshot (e.g., a tree view or list of files) showing\
+    \ the created directories and the presence of `.gitkeep` in each."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission provides only the task description and project context; it contains
+    no visible evidence of the `data/raw`, `data/processed`, and `data/split` directories
+    nor the required `.gitkeep` files within them. Without these artifacts, the requirement
+    is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that the directories `artifacts/models`, `artifacts/reports`,\
+    \ and `artifacts/figures` exist, nor that each contains a `.gitkeep` file. The\
+    \ implementer\u2019s claim cannot be verified without these artifacts."
+T006:
+  c: false
+  h: c47f8fffaf876f35dee335fbc9baff047491ab540660c92abd5365811e5a7695
+  r: "The required output files `data/raw/synthetic_baseline.csv`, its SHA\u2011256\
+    \ checksum file, and the state YAML entry are all missing, so the task\u2019s\
+    \ core deliverables are not present despite the presence of the generator script."
 T012:
   c: false
   h: 484b87d94c49ea47a879dbfa6375db98dd532b6f268c4465dc78424c6cdf3e25
@@ -14,13 +33,53 @@ T012:
     are also missing. Moreover, `code/ingest.py` only defines helper functions and
     lacks any orchestration logic that loads the specified CSV and writes the required
     outputs.
+T013:
+  c: false
+  h: 7cd3f0bc672a400cfd370ade6bca143cb0871080d1f1505ad9402baafe76c736
+  r: The repository lacks the required `data/raw/synthetic_baseline.csv`, and the
+    expected output files `data/processed/validated.csv` and `artifacts/reports/validation_log.json`
+    are not present. Moreover, `code/ingest.py` is truncated and does not contain
+    a complete orchestration that loads the CSV, enforces the size check, and writes
+    the specified outputs. These essential artifacts and functionality are missing.
+T018:
+  c: false
+  h: 65ff0a8fb327b087ecd787ce40562a401c0a109a303975483b05d7f69d7c34d1
+  r: The provided `code/ingest.py` snippet shows no logic that computes the 99th percentile
+    of the target variable, clips values, or logs the count and list of clipped values.
+    Additionally, the required `artifacts/reports/validation_log.json` file does not
+    exist. Both the functional change and the logging artifact are missing.
+T019:
+  c: false
+  h: ba63f13c19f37fa8e2411fb9e93162a338caa08cb5c156a88cd058f93d5f671b
+  r: "The required output file `data/processed/engineered_features.csv` does not exist,\
+    \ so the pipeline\u2019s result is missing. Consequently the task\u2019s core\
+    \ deliverable (a CSV containing the interaction features and the standalone `annealing_temp_K`\
+    \ column) is not satisfied. The next implementer must ensure the pipeline writes\
+    \ the engineered DataFrame to the specified path."
+T024:
+  c: false
+  h: a33936714890fb29a9a1343a0421eb5a6fc613a7240fba04926907643806d0cf
+  r: "The repository lacks the required output files \u2013 `artifacts/reports/training_metrics.json`\
+    \ and `artifacts/models/kinetic_model.pkl` are missing. Moreover, the provided\
+    \ `code/train.py` does not contain logic for detecting a pure\u2011aluminum dataset,\
+    \ setting `pure_aluminum_flag`, or writing that flag to the JSON report. These\
+    \ essential parts of the task are absent."
+T026:
+  c: false
+  h: 02418d42f350a14a55cda27efd1b47d7443e11c7cdf86ddb46ae36da58bb64e7
+  r: "The `code/train.py` defines an `evaluate_model` function that computes MAE and\
+    \ R\xB2, but the script never reads `artifacts/reports/baseline_stats.json` nor\
+    \ compares the MAE to the baseline mean. Moreover, the required `baseline_stats.json`\
+    \ file is absent from the repository. Both the comparison step and the baseline\
+    \ artifact are missing."
 T029:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or log file was provided showing that a fallback mechanism was\
-    \ added to detect a pure\u2011aluminum dataset (zero variance in composition),\
-    \ emit a warning, and skip the interaction\u2011feature\u2011importance step.\
-    \ The required artifact (implementation and verification) is missing."
+  h: 9d48005860955ba5203da5ca9ac1dd569255a9d72f908b0e2db6267384cdab2a
+  r: "The provided `code/train.py` snippet shows no logic that computes the standard\
+    \ deviation of the composition columns or adds a `pure_aluminum_flag` to any JSON\
+    \ report, and the required JSON files (`artifacts/reports/training_metrics.json`\
+    \ and `artifacts/reports/shap_interaction_report.json`) are absent from the repository.\
+    \ Consequently, the task\u2019s core requirement is not satisfied."
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
