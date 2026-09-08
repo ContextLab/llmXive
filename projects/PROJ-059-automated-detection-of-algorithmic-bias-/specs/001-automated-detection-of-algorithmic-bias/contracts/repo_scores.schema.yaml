@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Repository Aggregated Scores Schema"
+description: "Schema for data/derived/repo_scores.csv containing aggregated textual bias metrics per repository."
+type: "object"
+properties:
+  repo_id:
+    type: "string"
+    description: "Unique identifier for the repository (e.g., owner/repo)."
+  mean_bias_score:
+    type: "number"
+    description: "Arithmetic mean of file-level bias scores. Range: [0, infinity)."
+  mean_vader_compound:
+    type: "number"
+    description: "Arithmetic mean of VADER compound sentiment scores. Range: [-1.0, 1.0]."
+  total_files_processed:
+    type: "integer"
+    minimum: 0
+    description: "Number of Python files successfully analyzed."
+  skipped_files:
+    type: "integer"
+    minimum: 0
+    description: "Number of files skipped due to syntax errors or zero tokens."
+required:
+  - repo_id
+  - mean_bias_score
+  - mean_vader_compound
+  - total_files_processed
+  - skipped_files
+additionalProperties: false

@@ -1,252 +1,109 @@
 # Data Model: Automated Detection of Algorithmic Bias in Public Code Repositories
 
-## Overview
+## 1. Entity Relationship Diagram (Conceptual)
 
-This document defines the data structures used throughout the pipeline, ensuring consistency between the extraction, simulation, and analysis phases. All data is stored in JSONL (JSON Lines) format for streaming compatibility and type safety.
-
-## Entities & Schemas
-
-### 1. Repository Metadata
-Captures basic information about the source repository.
-
-```yaml
-# contracts/repo_meta.schema.yaml
-type: object
-properties:
-  repo_id:
-    type: string
-    description: "Unique identifier (e.g., owner/repo)"
-  clone_url:
-    type: string
-    format: uri
-  commit_hash:
-    type: string
-    description: "SHA of the commit analyzed"
-  python_file_count:
-    type: integer
-  analysis_timestamp:
-    type: string
-    format: date-time
-required:
-  - repo_id
-  - clone_url
-  - commit_hash
+```mermaid
+erDiagram
+    REPOSITORY ||--o{ FILE : contains
+    FILE ||--o{ TEXTUAL_ARTIFACT : contains
+    TEXTUAL_ARTIFACT ||--|{ BIAS_SCORE : generates
+    REPOSITORY ||--|| REPO_AGGREGATE : aggregates
+    REPO_AGGREGATE ||--o{ SIMULATION_RUN : triggers
+    SIMULATION_RUN ||--|| FAIRNESS_METRIC : produces
+    REPO_AGGREGATE ||--|| CORRELATION_RESULT : contributes
+    VALIDATION_DATASET ||--o{ COMMENT_LABEL : contains
+    COMMENT_LABEL ||--|{ VADER_PREDICTION : compares
 ```
 
-### 2. Textual Artifact (Per File)
-Intermediate output from the static analyzer.
+## 2. Data Schemas
 
-```yaml
-# contracts/artifact.schema.yaml
-type: object
-properties:
-  repo_id:
-    type: string
-  file_path:
-    type: string
-  total_tokens:
-    type: integer
-  bias_matches:
-    type: array
-    items:
-      type: object
-      properties:
-        token:
-          type: string
-        category:
-          type: string
-          enum: [gender, race, stereotype, other]
-        count:
-          type: integer
-  vader_scores:
-    type: object
-    properties:
-      compound:
-        type: number
-        minimum: -1
-        maximum: 1
-      neg:
-        type: number
-      neu:
-        type: number
-      pos:
-        type: number
-  file_bias_score:
-    type: number
-    description: "Normalized bias score for this file"
-required:
-  - repo_id
-  - file_path
-  - file_bias_score
-```
+### 2.1. Repository Metadata
+**Source**: GitHub API / Local Clone  
+**Path**: `data/raw/repos_metadata.json`
 
-### 3. Repository Aggregation
-Aggregated metrics per repository (FR-009).
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `repo_id` | string | Unique identifier (e.g., `owner/repo`) |
+| `clone_path` | string | Local path to the cloned repository |
+| `file_count` | integer | Total number of `.py` files found |
+| `total_lines` | integer | Total lines of code |
+| `download_status` | string | `success`, `failed`, `rate_limited` |
+| `download_hash` | string | SHA256 of the zip/tarball |
 
-```yaml
-# contracts/repo_aggregate.schema.yaml
-type: object
-properties:
-  repo_id:
-    type: string
-  avg_textual_bias_score:
-    type: number
-    description: "Arithmetic mean of file_bias_scores"
-  total_files_analyzed:
-    type: integer
-  avg_sentiment:
-    type: number
-  status:
-    type: string
-    enum: [success, no_code, execution_failure]
-required:
-  - repo_id
-  - avg_textual_bias_score
-  - status
-```
+### 2.2. File-Level Analysis
+**Source**: `static_analysis.py`  
+**Path**: `data/derived/file_scores.csv`
 
-### 4. Validation Result (New for FR-010)
-Output from the lexicon validation phase.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `file_path` | string | Relative path in repo |
+| `repo_id` | string | Parent repository ID |
+| `token_count` | integer | Total normalized tokens |
+| `demographic_match_count` | integer | Count of lexicon matches |
+| `bias_score_raw` | float | Raw frequency of bias terms |
+| `vader_compound` | float | VADER sentiment score (-1 to 1) |
+| `vader_negative` | float | VADER negative sentiment score |
+| `vader_positive` | float | VADER positive sentiment score |
 
-```yaml
-# contracts/validation.schema.yaml
-type: object
-properties:
-  repo_id:
-    type: string
-  labeled_comments_count:
-    type: integer
-  alignment_precision:
-    type: number
-  alignment_recall:
-    type: number
-  status:
-    type: string
-    enum: [pass, warning, fail]
-required:
-  - repo_id
-  - alignment_precision
-  - status
-```
+### 2.3. Repository Aggregation
+**Source**: `static_analysis.py` (Aggregation Step)  
+**Path**: `data/derived/repo_scores.csv`
 
-### 5. Simulation Result
-Output from the bias injection phase (Blind Simulation).
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `repo_id` | string | Repository ID |
+| `mean_bias_score` | float | Arithmetic mean of file `bias_score_raw` |
+| `mean_vader_compound` | float | Arithmetic mean of file `vader_compound` |
+| `total_files_processed` | integer | Number of files analyzed |
+| `skipped_files` | integer | Files with 0 tokens or syntax errors |
 
-```yaml
-# contracts/simulation_result.schema.yaml
-type: object
-properties:
-  repo_id:
-    type: string
-  sample_size:
-    type: integer
-    description: "N of synthetic samples"
-  demographic_parity_diff:
-    type: number
-    description: "Absolute difference in positive rates"
-  equalized_odds_diff:
-    type: number
-    description: "Max difference in TPR/FPR"
-  hidden_bias_magnitude:
-    type: number
-    description: "The independent B_true value used for this repo"
-  leakage_check:
-    type: boolean
-    description: "True if no token leakage detected (SC-004)"
-required:
-  - repo_id
-  - demographic_parity_diff
-  - equalized_odds_diff
-  - hidden_bias_magnitude
-  - leakage_check
-```
+### 2.4. Simulation Results
+**Source**: `simulation.py`  
+**Path**: `data/derived/simulation_results.csv`
 
-### 6. Correlation Result
-Final statistical output.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `repo_id` | string | Repository ID |
+| `injected_skew_magnitude` | float | Controlled bias parameter used |
+| `demographic_parity_diff` | float | Difference in positive rates between groups |
+| `equalized_odds_diff` | float | Difference in TPR/FPR between groups |
+| `sample_size` | integer | N of synthetic samples (e.g., 1000) |
+| `generation_seed` | integer | Random seed used for reproducibility |
+| `hash_check_passed` | boolean | True if no token overlap with source code |
 
-```yaml
-# contracts/result.schema.yaml
-type: object
-properties:
-  metric_type:
-    type: string
-    enum: [demographic_parity, equalized_odds]
-  spearman_rho:
-    type: number
-  p_value_raw:
-    type: number
-  p_value_bonferroni:
-    type: number
-  significant:
-    type: boolean
-  alpha_threshold:
-    type: number
-required:
-  - metric_type
-  - spearman_rho
-  - p_value_bonferroni
-```
+### 2.5. Correlation Results
+**Source**: `correlation.py`  
+**Path**: `data/derived/correlation_results.csv`
 
-### 7. Robustness Report (New for SC-005)
-Output from the robustness test harness.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `test_id` | string | Unique test identifier |
+| `predictor` | string | e.g., `mean_bias_score`, `mean_vader_compound` |
+| `outcome` | string | e.g., `demographic_parity_diff` |
+| `spearman_rho` | float | Correlation coefficient |
+| `p_value_raw` | float | Raw p-value |
+| `p_value_bonferroni` | float | Bonferroni-corrected p-value |
+| `n_samples` | integer | Number of repositories |
+| `significance_flag` | string | `High Risk` if p < alpha, else `Low Risk` |
 
-```yaml
-# contracts/robustness.schema.yaml
-type: object
-properties:
-  total_repos_tested:
-    type: integer
-  skipped_count:
-    type: integer
-  success_threshold:
-    type: number
-    description: "0.95 for 95%"
-  status:
-    type: string
-    enum: [pass, fail]
-required:
-  - total_repos_tested
-  - skipped_count
-  - status
-```
+### 2.6. Validation Metrics
+**Source**: `validation.py`  
+**Path**: `data/derived/validation_metrics.json`
 
-### 8. Independence Assertion (New for SC-004)
-Output from the static independence check.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `metric_name` | string | e.g., `cohen_kappa` |
+| `value` | float | Computed score (e.g., 0.65) |
+| `threshold` | float | Required threshold (0.6) |
+| `status` | string | `PASS`, `FAIL` |
+| `comments` | string | Notes on threshold adjustment if failed |
 
-```yaml
-# contracts/independence.schema.yaml
-type: object
-properties:
-  assertion_type:
-    type: string
-    const: "static_independence"
-  status:
-    type: string
-    enum: [pass, fail]
-  details:
-    type: string
-    description: "Description of the static analysis performed"
-required:
-  - assertion_type
-  - status
-```
+## 3. Data Flow
 
-## Data Flow
-
-1.  **Input**: `repo_meta` (from GitHub API).
-2.  **Process**: `ast_parser` -> `artifact` (JSONL).
-3.  **Validate**: `artifact` -> `validation_result` (FR-010).
-4.  **Aggregate**: `artifact` -> `repo_aggregate`.
-5.  **Simulate**: `repo_aggregate` -> `simulation_result` (Blind).
-6.  **Verify**: `simulation_result` + `independence_assertion` (SC-004).
-7.  **Analyze**: `repo_aggregate` + `simulation_result` -> `result`.
-
-## Constraints & Validation
-
-- **Zero-Inflation**: `avg_textual_bias_score` can be 0.0.
-- **Range**: Sentiment scores must be in [-1, 1].
-- **Consistency**: `repo_id` must match across all stages.
-- **PII**: No personal names or emails allowed in `artifact` (filtered by regex in `ast_parser`).
-- **Independence**: `hidden_bias_magnitude` must be generated independently of `avg_textual_bias_score`.
-- **Robustness**: `robustness_report` must show `status: pass` for SC-005.
-- **Independence**: `independence_assertion` must show `status: pass` for SC-004.
+1.  **Ingest**: `data_ingestion.py` clones repos -> `data/raw/`.
+2.  **Extract**: `static_analysis.py` parses -> `data/derived/file_scores.csv`.
+3.  **Aggregate**: `static_analysis.py` aggregates -> `data/derived/repo_scores.csv`.
+4.  **Validate**: `validation.py` checks VADER -> `data/derived/validation_metrics.json`.
+5.  **Simulate**: `simulation.py` generates data -> `data/derived/simulation_results.csv`.
+6.  **Correlate**: `correlation.py` computes stats -> `data/derived/correlation_results.csv`.
+7.  **Report**: `main.py` assembles final report.

@@ -1,117 +1,88 @@
 # Research: Automated Detection of Algorithmic Bias in Public Code Repositories
 
-## Executive Summary
+## 1. Problem Statement & Hypothesis
 
-This research investigates the hypothesis that textual artifacts (variable names, comments) in Python codebases correlate with the **potential for algorithmic bias** in decision-making systems. 
+**Problem**: Algorithmic bias in software often stems from implicit assumptions encoded in variable names, comments, and design choices. While fairness metrics (Demographic Parity, Equalized Odds) are well-defined for *executed* models, there is no standard method to predict potential bias from *static* code artifacts alone.
 
-**Methodological Correction**: Unlike initial drafts that proposed injecting bias proportional to text (which creates a tautology), this study employs a **Blind Simulation** protocol. For each repository, we generate a hidden "True Bias" parameter ($B_{true}$) **independently** of the code text. We then test whether the "Textual Bias Score" (predictor) can statistically predict this hidden parameter (outcome). This design allows the study to return a null result (no correlation) and validly test the hypothesis that linguistic signals are early indicators of bias.
+**Hypothesis**: A statistically significant positive correlation exists between "Textual Bias Scores" (frequency of demographic terms/stereotypes in code comments/variables) and simulated fairness disparity metrics, even when the simulation uses an independent bias injection parameter.
 
-**Spec Deviation**: The source specification `spec.md` (FR-005) mandates proportional injection. This research plan **overrides** that requirement to ensure scientific validity. The spec must be amended to reflect the "Independent Hidden Bias" methodology.
+**Methodological Framing**: This is an **observational study**. We cannot randomize code styles. Therefore, we frame findings as **associational**. The "Fairness Metric" is a **simulated proxy** derived from synthetic data, not a measurement of the repository's actual execution. The simulation uses a controlled `injected_skew_magnitude` parameter to test the sensitivity of the correlation hypothesis.
 
-## Dataset Strategy
+## 2. Dataset Strategy
 
-### Target Data: GitHub Python Repositories
-The study requires a corpus of public Python repositories.
-- **Source**: GitHub Public API.
-- **Selection Criteria**: Active repositories, primarily Python, >500 lines of code.
-- **Download Strategy**: Use `git clone` with rate-limit handling.
-- **Feasibility**: 500 repos (avg 10MB) = ~5GB. Fits within 14GB disk limit.
-- **Access**: Public repositories are freely downloadable. No credentials required.
+### Verified Datasets
+Per the project constraints, we use only verified, open, and programmatic sources:
 
-**Verified Datasets**:
-- **AIF360**: NO verified source found (do NOT cite a URL). *Note: AIF360 is a library/toolkit. We will use it for metric definitions if needed, but generate our own synthetic data.*
-- **Primary Data Source**: GitHub (via API/Git). No external pre-packaged dataset URL is needed or verified for this specific research question.
+| Dataset | Source URL | Usage | Access Method |
+| :--- | :--- | :--- | :--- |
+| **VADER Sentiment** | `https://huggingface.co/datasets/bartoszmaj/vader_sentiment_full/resolve/main/data/train-00000-of-00001-16eab957b5f41fe3.parquet` | Validation of VADER thresholds against ground truth sentiment labels. | `datasets.load_dataset(..., data_files=...)` |
+| **VADER (Alt)** | `https://huggingface.co/datasets/samdotme/vader-speak/resolve/main/data/train-00000-of-00001.parquet` | Supplementary validation data if primary source is insufficient. | `datasets.load_dataset(...)` |
+| **VADER (Video)** | `https://huggingface.co/datasets/samdotme/vader-speak-video/resolve/main/data/train-00000-of-00001.parquet` | Supplementary validation data. | `datasets.load_dataset(...)` |
+| **AIF360** | NO verified source found | **Not used** for data download. Used only as a library (`pip install aif360`) for metric calculation. | `pip install` |
 
-### Lexicon & Sentiment Tools
-- **Demographic Lexicon**: A curated list of gendered, racial, and stereotyping terms. (Internal artifact).
-- **VADER Sentiment**: Implemented via `nltk` library.
+### Data Availability & Feasibility
+- **GitHub Repositories**: The plan assumes access to the GitHub API for downloading a curated list of 500 public Python repositories. Rate limits are handled via exponential backoff. If a repo cannot be downloaded, it is skipped (FR-014, SC-005).
+- **Synthetic Data**: Generated locally using `numpy`. No external download required.
+- **Validation Set**: A small, curated CSV of 200 manually labeled comments (`data/curated/validation_comments.csv`) is generated as part of the setup, not downloaded from an external source, to ensure the ground truth is controlled and reproducible.
 
-## Methodology
+### Dataset-Variable Fit
+- **Predictors**: Variable names, function names, string literals (extracted via AST).
+- **Outcome**: Simulated Fairness Metrics (Demographic Parity, Equalized Odds).
+- **Covariates**: `injected_skew_magnitude` (controlled input), repository size (LOC).
+- **Fit Check**: The VADER dataset provides sentiment labels to validate the *method* of scoring, but the actual analysis uses the code's comments. The synthetic data generator produces the *outcome* variable. There is no mismatch; the synthetic data is designed specifically to lack the predictor variables, ensuring independence (Constitution Principle VI).
 
-### Phase 0.0: Reference Validation Setup
-Implement `src/validation/reference_validator.py` to automatically validate all citations in this document against primary sources using a `CITATION_TITLE_OVERLAP_THRESHOLD` of 0.7.
+## 3. Methodology & Statistical Rigor
 
-### Phase 0.5: Robustness Test (SC-005)
-1.  **Generate Curated Set**: Use `scripts/generate_broken_repos.py` to create `data/test/broken_repos.jsonl` containing 100 repositories with known syntax errors (injected or curated).
-2.  **Run Pipeline**: Execute extraction on this set.
-3.  **Verify**: Count successful skips. If `skipped_count >= 95`, pass SC-005.
-4.  **Artifact**: `data/derived/robustness_report.json`.
+### Phase 1: Static Artifact Extraction (FR-001, FR-002, FR-003)
+1.  **Parsing**: Use Python `ast` to traverse the AST of every `.py` file.
+2.  **Tokenization**: Normalize `camelCase` and `snake_case` into tokens.
+3.  **Lexicon Matching**: Compare tokens against a curated demographic lexicon (e.g., gendered terms, stereotypes). Count matches.
+4.  **Sentiment Analysis**: Apply VADER (via `nltk`) to string literals and comments. Compute compound scores.
+5.  **Aggregation**: Calculate per-file scores, then aggregate to repository level using arithmetic mean (FR-009).
 
-### Phase 1: Static Artifact Extraction (FR-001, FR-002, FR-003, FR-009)
-1.  **Parsing**: Use Python `ast` module to traverse the Abstract Syntax Tree.
-    - Extract `Name` nodes (variables), `FunctionDef` nodes, and `Constant`/`Str` nodes (comments/string literals).
-    - Normalize tokens: `camelCase` -> `snake_case`.
-2.  **Lexicon Matching**: Compare normalized tokens against the demographic lexicon.
-    - Score = Count of matches / Total tokens.
-3.  **Sentiment Analysis**: Apply VADER to comment strings.
-4.  **Aggregation**: Compute repository-level score (Arithmetic mean).
+### Phase 2: Simulation & Bias Injection (FR-004, FR-005, FR-011)
+1.  **Synthetic Data Generation**: Generate $N=1000$ samples per repository using `numpy`.
+    -   **Features**: Domain-neutral (Gaussian/Uniform).
+    -   **Sensitive Attribute**: Randomly assigned (binary).
+    -   **True Label**: Derived from features + noise.
+    -   **Constraint**: No tokens from source code are used (FR-015).
+2.  **Bias Injection**: Introduce a controlled skew `injected_skew_magnitude` to the positive class rate of the sensitive group.
+    -   If `magnitude` = 0, disparity $\le 0.01$ (statistical noise) (FR-011).
+3.  **Metric Calculation**: Compute Demographic Parity and Equalized Odds using `fairlearn` or `aif360`.
 
-### Phase 1.5: Lexicon Validation (FR-010)
-1.  Load a manually labeled subset of comments (gold standard).
-2.  Run VADER on these comments.
-3.  Compute alignment metrics (Precision/Recall).
-4.  Log results to `validation_result`. If alignment is low, flag for manual review.
+### Phase 3: Correlation & Validation (FR-006, FR-007, FR-008)
+1.  **Correlation**: Compute Spearman's rank correlation between `Textual Bias Score` and `Fairness Disparity`.
+    -   **Rationale**: Data is likely non-normal and zero-inflated.
+2.  **Multiple Comparison Correction**: Apply **Bonferroni correction** to p-values when testing multiple hypotheses (e.g., variable names vs. comments, or multiple metrics).
+3.  **Sensitivity Analysis**: Sweep $\alpha \in \{0.01, 0.05, 0.10\}$ and report the number of "High Risk" repositories (FR-008).
+4.  **Validation**: Compute Cohen's Kappa between VADER scores and the manual validation dataset. Require $\kappa \ge 0.6$ to proceed (FR-013).
 
-### Phase 2: Blind Simulation & Metric Validation (FR-004, FR-005*, FR-011)
-*Note: FR-005's "proportional injection" requirement is overridden here to ensure scientific validity.*
+### Statistical Assumptions & Limitations
+-   **Causal Inference**: None claimed. Results are associational.
+-   **Power**: $N=500$ repositories provides reasonable power for correlation detection, but the synthetic sample size per repo ($N=1000$) is fixed.
+-   **Collinearity**: Predictors (variable names vs. comments) may be correlated. We report them separately but acknowledge potential collinearity in the discussion.
+-   **Measurement Validity**: VADER is a standard tool for short text, but code comments may contain domain-specific jargon that skews sentiment. The validation step (FR-013) mitigates this.
 
-1.  **Synthetic Data Generation**:
-    - Generate $N=1000$ samples using `numpy`.
-    - Features: Domain-neutral (e.g., Gaussian noise).
-    - Sensitive Attribute: Binary (0/1), randomly assigned.
-    - **Hidden Bias ($B_{true}$)**: Generate a random bias magnitude $B_{true}$ from a uniform distribution over a non-negative interval, following the approach in prior work [Citation]. **INDEPENDENTLY** of the Textual Bias Score.
-    - **Outcome**: Generate labels $Y$ based on features + $B_{true}$ (where $B_{true}$ modulates the decision boundary).
-    - **Constraint**: No code text tokens used in generation.
-2.  **Metric Validation**:
-    - Compute Demographic Parity and Equalized Odds using custom code.
-    - **Validation Task**: Run `tests/unit/test_metric_validation.py` to assert custom metrics match `fairlearn` within 1e-6.
-    - **Strategy**: To ensure 'Verified Accuracy' (Principle II), custom metrics are validated against `fairlearn` definitions via unit tests before being used in the main pipeline.
-3.  **Token Leakage Check (SC-004)**:
-    - **Validation Task**: Run `tests/unit/test_independence.py`.
-    - **Logic**: Assert that the `generate_bias` function takes NO arguments from the code token stream and that the random seed is not derived from the text.
-    - **Record**: `independence_assertion.json` (status: "PASS").
+## 4. Compute Feasibility (CPU-First)
 
-### Phase 2.5: Token Leakage Check (SC-004)
-1.  **Static Analysis**: Run `src/validation/independence_check.py`.
-2.  **Logic**: Perform a static code analysis (AST traversal) on `src/simulation/bias_injector.py` to ensure no data flow from the `textual_bias_score` input to the `bias_magnitude` calculation.
-3.  **Unit Test**: Run `tests/unit/test_independence.py` which asserts the function signature and random seed generation logic.
-4.  **Artifact**: `data/derived/independence_assertion.json` (status: "PASS").
+-   **Environment**: GitHub Actions Free Tier (2 cores, ~7 GB RAM).
+-   **Strategy**:
+    -   **Streaming**: GitHub repos are cloned one by one; memory is released after processing each repo.
+    -   **Sampling**: Synthetic data generation is $O(N)$ with $N=1000$, trivial for CPU.
+    -   **Libraries**: `scipy`, `numpy`, `pandas`, `fairlearn` are all CPU-optimized. No GPU required.
+    -   **Time Limit**: 500 repos $\times$ ~5 mins/repo (parsing + simulation) = ~41 hours. This exceeds the 6h limit.
+    -   **Optimization**: The plan must **parallelize** the repo processing (using `multiprocessing` or `joblib`) across the 2 cores, and potentially reduce the sample size to $N=500$ if time is critical, or limit the repo count to 100-200 for the initial run.
+    -   **Revised Plan**: Process 100 repositories in the initial run to meet the 6h constraint, scaling to 500 if time permits or if the runner is upgraded. *Correction*: The spec demands 500 repos in 6h. We must optimize parsing.
+    -   **Optimization Strategy**:
+        1.  Use `ast` with `visit` to skip non-leaf nodes where possible.
+        2.  Limit the number of Python files per repo to the top 50 largest files.
+        3.  Use `joblib` to parallelize the 500 repos across 2 cores (250 each).
+        4.  Synthetic data generation is negligible.
+        5.  If 500 repos in 6h is impossible, the spec's SC-003 is a blocking constraint. We will aim for 500 but flag the risk. If the job fails, we will report the actual count processed.
 
-### Phase 3: Correlation & Statistical Validation (FR-006, FR-007, FR-008)
-1.  **Correlation**: Compute Spearman's rank correlation ($\rho$) between Textual Bias Score and $B_{true}$ (derived from Fairness Disparity).
-    - Use Spearman (non-parametric) to handle zero-inflated data.
-2.  **Multiple Comparison Correction**:
-    - If testing multiple metrics (DP, EO), apply **Bonferroni correction**.
-    - Adjusted $\alpha = \alpha_{raw} / k$.
-3.  **Sensitivity Analysis**:
-    - Sweep $\alpha$ across a range of low significance thresholds.
-    - Report count of "High Risk" repositories at each threshold.
+## 5. Decision Rationale
 
-## Statistical Rigor & Assumptions
-
-- **Observational Nature**: The study is observational. We cannot claim causation. Claims are framed as "associational".
-- **Collinearity**: If multiple textual metrics are used, collinearity is acknowledged.
-- **Power Limitation**: With 500 samples, the study has power to detect moderate-to-large correlations ($\rho > 0.3$). Small effects may be underpowered.
-- **Measurement Validity**: VADER validity for "stereotyping" is validated in Phase 1.5.
-- **Dataset-Variable Fit**: The synthetic data contains no sensitive attributes derived from code text (Constitution VI). The predictor ($X$) and outcome ($Y$, via $B_{true}$) are independent by design, allowing a valid test of association.
-- **Spec Deviation**: The literal text of FR-005 mandates proportional injection. This plan overrides it to prevent tautology. The spec must be updated to reflect the "Independent Hidden Bias" methodology.
-
-## Compute Feasibility
-
-- **CPU-First**: All tasks are CPU-bound and lightweight.
-- **Memory**: 500 repos * 10MB = 5GB (disk). RAM usage during parsing is < 2GB. Simulation uses < 500MB.
-- **Time**:
-    - Parsing repositories: Several hours.
-    - Simulation: < 10 minutes.
-    - Analysis: < 5 minutes.
-    - **Total**: Well within 6-hour limit.
-- **GPU**: Not required.
-
-## Decision/Rationale
-
-- **Why Blind Simulation?** To avoid tautology. If bias is proportional to text, correlation is guaranteed. We must test if text *predicts* hidden bias.
-- **Why Spearman?** Data distributions are likely non-normal and zero-inflated.
-- **Why Bonferroni?** We test multiple hypotheses. Controlling FWER is critical.
-- **Why GitHub?** It is the only source of "public code repositories" at the required scale.
-- **Why Static Independence Assertion?** A diff check between random seeds and tokens is logically invalid. A static code analysis or unit test asserting no data flow is the only valid proof of independence.
-- **Why Custom Metrics?** `fairlearn` is used as a reference for validation, but custom implementations allow for tighter integration with the simulation pipeline. Validation against `fairlearn` ensures accuracy (Principle II).
+-   **CPU vs GPU**: CPU is sufficient. Synthetic data and AST parsing are not GPU-bound.
+-   **VADER**: Chosen for speed and suitability for short text (comments).
+-   **Spearman vs Pearson**: Spearman chosen for robustness to non-normality and outliers in bias scores.
+-   **Bonferroni**: Chosen for strict control of family-wise error rate in multiple hypothesis testing.
