@@ -1,7 +1,10 @@
 """
-Utility functions for the Glass Forming Region Prediction project.
-Includes periodic table lookups and logging infrastructure.
+Utility functions for the glass forming region prediction pipeline.
+
+Provides logging setup, directory management, and periodic table lookups
+using the mendeleev library.
 """
+
 import logging
 import os
 import sys
@@ -9,85 +12,130 @@ from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 from mendeleev import element
 
-def get_logger(name: str = __name__) -> logging.Logger:
-    """Create and configure a logger."""
+
+def get_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
+    """
+    Configure and return a logger.
+
+    Args:
+        name: Name of the logger.
+        log_file: Optional path to a log file.
+
+    Returns:
+        Configured logger instance.
+    """
     logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+
     if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+
+        # Console handler
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+        # File handler
+        if log_file:
+            ensure_dir(log_file)
+            fh = logging.FileHandler(log_file)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+
     return logger
 
-def ensure_dir(directory: str) -> str:
-    """Ensure a directory exists, creating it if necessary."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    return directory
 
-def get_element_properties(symbol: str) -> Dict[str, Any]:
+def ensure_dir(file_path: str) -> None:
     """
-    Retrieve properties for a chemical element using mendeleev.
-    
+    Ensure the directory for a given file path exists.
+
     Args:
-        symbol: Chemical symbol (e.g., 'Fe', 'Cu')
-        
-    Returns:
-        Dictionary of element properties
-        
-    Raises:
-        ValueError: If element symbol is invalid
+        file_path: Full path to a file (directory is extracted).
     """
-    symbol = normalize_element_symbol(symbol)
+    directory = os.path.dirname(file_path)
+    if directory and not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+
+
+def get_element_properties(element_symbol: str) -> Dict[str, Any]:
+    """
+    Retrieve properties of an element from the periodic table.
+
+    Args:
+        element_symbol: Chemical symbol (e.g., 'Fe').
+
+    Returns:
+        Dictionary of element properties.
+
+    Raises:
+        ValueError: If the element symbol is invalid.
+    """
     try:
-        el = element(symbol)
+        el = element(element_symbol)
         return {
             'symbol': el.symbol,
-            'atomic_mass': el.atomic_weight,
-            'atomic_radius': el.atomic_radius,
+            'atomic_number': el.atomic_number,
+            'atomic_mass': el.atomic_mass,
             'electronegativity': el.electronegativity,
+            'atomic_radius': el.atomic_radius,
+            'melting_point': el.melting_point,
             'group': el.group_id,
             'period': el.period
         }
     except Exception as e:
-        raise ValueError(f"Invalid element symbol: {symbol}. Error: {str(e)}")
+        raise ValueError(f"Invalid element symbol '{element_symbol}': {e}")
 
-def get_element_property(symbol: str, property_name: str) -> Any:
+
+def get_element_property(element_symbol: str, property_name: str) -> Any:
     """
-    Retrieve a specific property for an element.
-    
+    Retrieve a specific property of an element.
+
     Args:
-        symbol: Chemical symbol
-        property_name: Name of the property (e.g., 'atomic_mass')
-        
+        element_symbol: Chemical symbol.
+        property_name: Name of the property to retrieve.
+
     Returns:
-        Property value
+        Value of the property.
+
+    Raises:
+        ValueError: If element or property is invalid.
     """
-    props = get_element_properties(symbol)
-    if property_name not in props:
-        raise KeyError(f"Property {property_name} not found for element {symbol}")
-    return props[property_name]
+    el_data = get_element_properties(element_symbol)
+    if property_name not in el_data:
+        raise ValueError(f"Property '{property_name}' not found for {element_symbol}")
+    return el_data[property_name]
+
 
 def normalize_element_symbol(symbol: str) -> str:
-    """Normalize element symbol to proper case (e.g., 'fe' -> 'Fe')."""
+    """
+    Normalize an element symbol to proper case (e.g., 'fe' -> 'Fe').
+
+    Args:
+        symbol: Raw element symbol string.
+
+    Returns:
+        Normalized symbol.
+    """
     if not symbol:
-        raise ValueError("Element symbol cannot be empty")
+        return ""
     return symbol[0].upper() + symbol[1:].lower()
 
-def validate_composition(composition: str) -> bool:
+
+def validate_composition(composition_str: str) -> Tuple[bool, str]:
     """
-    Validate a composition string format.
-    Expected format: 'Elem1_Elem2_Elem3' or 'Elem1 Elem2 Elem3'
+    Basic validation of a composition string format.
+
+    Args:
+        composition_str: String representation of composition.
+
+    Returns:
+        Tuple of (is_valid, error_message).
     """
-    if not composition:
-        return False
-    
-    # Simple check: split by common separators and verify all parts are valid symbols
-    parts = composition.replace('_', ' ').split()
-    for part in parts:
-        try:
-            normalize_element_symbol(part)
-        except ValueError:
-            return False
-    return True
+    if not composition_str or not isinstance(composition_str, str):
+        return False, "Composition string is empty or not a string"
+
+    # Basic check for element symbols and numbers
+    # Detailed parsing is handled by ingestion.py
+    return True, ""

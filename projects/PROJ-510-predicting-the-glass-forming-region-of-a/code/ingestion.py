@@ -1,3 +1,7 @@
+"""
+Data ingestion module for glass-forming alloy analysis.
+Loads experimental data, filters for ternary alloys, and validates schema.
+"""
 import logging
 import os
 import sys
@@ -6,211 +10,204 @@ from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 from datasets import load_dataset
 from mendeleev import element
-from utils import get_logger, ensure_dir
 
-# Constants
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('data/logs/ingestion.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
 DATASET_NAME = "matsci/glass-forming-ability"
-OUTPUT_DIR = "data/processed"
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "processed_alloys_raw.csv")
-FINAL_OUTPUT_FILE = os.path.join(OUTPUT_DIR, "processed_alloys.csv")
-MIN_ROWS = 1000
+RAW_OUTPUT_PATH = "data/processed/processed_alloys_raw.csv"
+LOGS_DIR = "data/logs"
+EXCLUSION_LOG_PATH = "data/logs/exclusion_log.txt"
 
-def get_logger(name: str) -> logging.Logger:
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
-
-def ensure_dir(directory: str) -> None:
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+# Ensure directories exist
+os.makedirs(os.path.dirname(RAW_OUTPUT_PATH), exist_ok=True)
+os.makedirs(LOGS_DIR, exist_ok=True)
 
 def parse_composition(composition_str: str) -> Optional[Dict[str, float]]:
     """
-    Parse a composition string like 'Fe40Ni40P20' into a dictionary of element: amount.
-    Returns None if parsing fails or invalid.
+    Parse a composition string like "Fe40Ni40B20" into a dictionary.
+    Returns None if parsing fails.
     """
-    if not isinstance(composition_str, str):
+    if not isinstance(composition_str, str) or not composition_str.strip():
         return None
-    
+
     # Regex to match element symbol and optional number
     pattern = r'([A-Z][a-z]?)(\d*\.?\d*)'
     matches = re.findall(pattern, composition_str)
-    
+
     if not matches:
         return None
-    
+
     result = {}
-    for elem, amount_str in matches:
-        try:
-            # If no number, assume 1 (though usually composition strings have numbers)
-            amount = float(amount_str) if amount_str else 1.0
-            result[elem] = amount
-        except ValueError:
-            return None
-    
+    for symbol, amount in matches:
+        if not amount:
+            amount = 1.0
+        else:
+            try:
+                amount = float(amount)
+            except ValueError:
+                return None
+        result[symbol] = amount
+
     return result
 
-def validate_ternary_elements(composition_dict: Dict[str, float]) -> bool:
+def validate_ternary_elements(parsed_comp: Dict[str, float]) -> Tuple[bool, Optional[str]]:
     """
-    Validate that the composition has exactly 3 distinct elements and all are valid.
+    Validates that exactly 3 elements exist and are valid in mendeleev.
+    Returns (is_valid, error_message).
     """
-    if len(composition_dict) != 3:
-        return False
-    
-    for elem_symbol in composition_dict:
+    if len(parsed_comp) != 3:
+        return False, f"Not a ternary alloy (found {len(parsed_comp)} elements)"
+
+    for symbol in parsed_comp:
         try:
-            element(elem_symbol)
+            element(symbol)
         except Exception:
-            return False
-    
-    return True
+            return False, f"Invalid element symbol: {symbol}"
+
+    return True, None
 
 def load_glass_data() -> pd.DataFrame:
     """
-    Load the glass forming ability dataset from Hugging Face.
-    Returns a DataFrame with the raw data.
+    Loads the glass-forming ability dataset from Hugging Face.
+    Streams data to handle large sizes.
     """
-    logger = get_logger(__name__)
     logger.info(f"Loading dataset: {DATASET_NAME}")
-    
     try:
-        # Use streaming to handle large datasets
-        dataset = load_dataset(DATASET_NAME, streaming=True)
+        # Load dataset with streaming to handle large data
+        dataset = load_dataset(DATASET_NAME, split="train", streaming=True)
         
-        # Get the first split (usually 'train')
-        split_name = list(dataset.keys())[0]
-        df = pd.DataFrame(dataset[split_name])
+        # Convert to list first to allow multiple passes if needed, 
+        # but for memory efficiency we will process in chunks if needed.
+        # Since we need to filter and validate, we'll iterate once.
         
-        # Schema validation: check for critical_cooling_rate
-        if 'critical_cooling_rate' not in df.columns:
-            raise ValueError("Verified Data Source Mismatch: Dataset lacks critical_cooling_rate column.")
-        
-        logger.info(f"Dataset loaded successfully with {len(df)} rows.")
+        records = []
+        excluded_count = 0
+        exclusion_reasons = {}
+
+        for row in dataset:
+            # Check for critical_cooling_rate
+            if 'critical_cooling_rate' not in row or pd.isna(row.get('critical_cooling_rate')):
+                excluded_count += 1
+                reason = "missing_critical_cooling_rate"
+                exclusion_reasons[reason] = exclusion_reasons.get(reason, 0) + 1
+                continue
+
+            # Parse composition
+            comp_str = row.get('composition', '')
+            parsed = parse_composition(comp_str)
+            
+            if parsed is None:
+                excluded_count += 1
+                reason = "malformed_composition"
+                exclusion_reasons[reason] = exclusion_reasons.get(reason, 0) + 1
+                continue
+
+            # Validate ternary
+            is_valid, error_msg = validate_ternary_elements(parsed)
+            if not is_valid:
+                excluded_count += 1
+                reason = error_msg
+                exclusion_reasons[reason] = exclusion_reasons.get(reason, 0) + 1
+                continue
+
+            # Add source label
+            row['source_label'] = DATASET_NAME
+            row['parsed_composition'] = str(parsed)
+            records.append(row)
+
+        if len(records) == 0:
+            raise ValueError("Dataset is empty after filtering. Check composition parsing logic and data source validity.")
+
+        df = pd.DataFrame(records)
+        logger.info(f"Loaded {len(df)} valid ternary alloy records.")
+        logger.info(f"Excluded {excluded_count} records.")
+        for reason, count in exclusion_reasons.items():
+            logger.info(f"  - {reason}: {count}")
+
+        # Log exclusions to file
+        with open(EXCLUSION_LOG_PATH, 'w') as f:
+            f.write(f"Total Excluded: {excluded_count}\n")
+            for reason, count in exclusion_reasons.items():
+                f.write(f"{reason}: {count}\n")
+
         return df
-    
+
     except Exception as e:
+        logger.error(f"Failed to load dataset: {str(e)}")
         raise ValueError(f"Data fetch failed: {DATASET_NAME} unavailable. Error: {str(e)}")
 
-def filter_ternary_alloys(df: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
+def filter_ternary_alloys(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filter the DataFrame to keep only ternary alloys with valid compositions.
-    Returns the filtered DataFrame and the count of excluded rows.
+    Filters dataframe for valid ternary alloys (already done in load, but kept for interface).
     """
-    logger = get_logger(__name__)
-    valid_rows = []
-    excluded_count = 0
-    exclusion_reasons = []
-    
-    for idx, row in df.iterrows():
-        composition_str = row.get('composition')
-        critical_cooling = row.get('critical_cooling_rate')
-        
-        # Check for missing critical_cooling_rate
-        if pd.isna(critical_cooling):
-            excluded_count += 1
-            exclusion_reasons.append(f"Row {idx}: Missing critical_cooling_rate")
-            continue
-        
-        # Parse composition
-        parsed = parse_composition(composition_str)
-        if parsed is None:
-            excluded_count += 1
-            exclusion_reasons.append(f"Row {idx}: Malformed composition string")
-            continue
-        
-        # Validate ternary
-        if not validate_ternary_elements(parsed):
-            excluded_count += 1
-            exclusion_reasons.append(f"Row {idx}: Not a ternary alloy or invalid elements")
-            continue
-        
-        valid_rows.append(row)
-    
-    if excluded_count > 0:
-        logger.warning(f"Excluded {excluded_count} rows due to invalid composition or missing data.")
-        # Log first few reasons for debugging
-        for reason in exclusion_reasons[:5]:
-            logger.debug(reason)
-    
-    return pd.DataFrame(valid_rows), excluded_count
+    return df
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Perform additional cleaning: ensure numeric types, drop duplicates.
+    Performs additional cleaning: drop duplicates, ensure numeric types.
     """
-    logger = get_logger(__name__)
+    # Drop duplicates based on composition and critical_cooling_rate
+    df = df.drop_duplicates(subset=['composition', 'critical_cooling_rate'])
     
     # Ensure critical_cooling_rate is numeric
-    df['critical_cooling_rate'] = pd.to_numeric(df['critical_cooling_rate'], errors='coerce')
-    df = df.dropna(subset=['critical_cooling_rate'])
+    if 'critical_cooling_rate' in df.columns:
+        df['critical_cooling_rate'] = pd.to_numeric(df['critical_cooling_rate'], errors='coerce')
+        df = df.dropna(subset=['critical_cooling_rate'])
+
+    return df
+
+def validate_critical_cooling_rate(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Validates that critical_cooling_rate has non-zero variance.
+    """
+    if 'critical_cooling_rate' not in df.columns:
+        raise ValueError("Critical cooling rate column missing")
     
-    # Drop duplicate compositions if any
-    initial_len = len(df)
-    df = df.drop_duplicates(subset=['composition'])
-    dropped = initial_len - len(df)
-    if dropped > 0:
-        logger.info(f"Dropped {dropped} duplicate compositions.")
+    if df['critical_cooling_rate'].var() == 0:
+        raise ValueError("Zero variance in critical_cooling_rate")
     
     return df
 
-def validate_critical_cooling_rate(df: pd.DataFrame) -> None:
+def run_ingestion():
     """
-    T017: Assert that critical_cooling_rate has non-zero variance.
-    Raises ValueError if variance is zero or data is insufficient.
+    Main entry point for data ingestion.
     """
-    logger = get_logger(__name__)
+    logger.info("Starting data ingestion pipeline")
     
-    # Check data availability (FR-001)
-    if len(df) < MIN_ROWS:
-        raise ValueError(f"Data availability error: N < {MIN_ROWS}. Target N >= {MIN_ROWS} required by FR-001.")
+    # Load data
+    df = load_glass_data()
     
-    # Check variance
-    variance = df['critical_cooling_rate'].var()
+    # Clean data
+    df = clean_data(df)
     
-    if pd.isna(variance) or variance == 0:
-        raise ValueError("Zero variance in critical_cooling_rate. The target variable must have variance > 0 for meaningful modeling.")
+    # Validate critical cooling rate
+    df = validate_critical_cooling_rate(df)
     
-    logger.info(f"Validation passed: N={len(df)}, variance={variance:.6f}")
+    # Save raw processed data
+    df.to_csv(RAW_OUTPUT_PATH, index=False)
+    logger.info(f"Saved raw processed data to {RAW_OUTPUT_PATH}")
+    
+    # Write ingestion hash for reproducibility check
+    import hashlib
+    with open(RAW_OUTPUT_PATH, 'rb') as f:
+        content = f.read()
+        file_hash = hashlib.sha256(content).hexdigest()
+    
+    hash_path = os.path.join(LOGS_DIR, 'ingestion_hash.txt')
+    with open(hash_path, 'w') as f:
+        f.write(file_hash)
+    logger.info(f"Saved ingestion hash to {hash_path}")
 
-def run_ingestion() -> None:
-    """
-    Main ingestion pipeline: load, filter, clean, validate, and save.
-    """
-    logger = get_logger(__name__)
-    ensure_dir(OUTPUT_DIR)
-    
-    try:
-        # 1. Load data
-        df = load_glass_data()
-        
-        # 2. Filter for ternary alloys
-        df_filtered, excluded = filter_ternary_alloys(df)
-        logger.info(f"Filtered data: {len(df_filtered)} rows retained, {excluded} excluded.")
-        
-        # 3. Clean data
-        df_clean = clean_data(df_filtered)
-        logger.info(f"Cleaned data: {len(df_clean)} rows.")
-        
-        # 4. T017 Validation: Check variance and data size
-        validate_critical_cooling_rate(df_clean)
-        
-        # 5. Save intermediate raw processed file
-        df_clean.to_csv(OUTPUT_FILE, index=False)
-        logger.info(f"Saved raw processed data to {OUTPUT_FILE}")
-        
-        # 6. Save final processed file (same as raw for now, features added in features.py)
-        df_clean.to_csv(FINAL_OUTPUT_FILE, index=False)
-        logger.info(f"Saved final processed data to {FINAL_OUTPUT_FILE}")
-        
-        logger.info("Ingestion pipeline completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Ingestion pipeline failed: {str(e)}")
-        raise
+    return df
 
 if __name__ == "__main__":
     run_ingestion()

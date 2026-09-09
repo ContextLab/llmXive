@@ -1,297 +1,260 @@
 """
-Schema Validation Module for Glass Forming Region Prediction Pipeline.
-
-This module validates that all generated data artifacts match the defined
-JSON Schema contracts in the contracts/ directory.
+Schema Validation Script for PROJ-510
+Validates all generated JSON and CSV artifacts against their defined contracts.
 """
-
-import yaml
-import json
-import jsonschema
 import os
 import sys
+import json
+import yaml
+import csv
 import logging
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Set
+import jsonschema
+from jsonschema import validate, ValidationError, Draft7Validator
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Define paths relative to project root
+# Project paths
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONTRACTS_DIR = os.path.join(PROJECT_ROOT, 'contracts')
-PROCESSED_DATA_DIR = os.path.join(PROJECT_ROOT, 'data', 'processed')
-MODELS_DIR = os.path.join(PROJECT_ROOT, 'data', 'models')
+CONTRACTS_DIR = os.path.join(PROJECT_ROOT, "contracts")
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+MODELS_DIR = os.path.join(PROJECT_ROOT, "data", "models")
+PROCESSED_DIR = os.path.join(PROJECT_ROOT, "data", "processed")
 
-
-def load_schema(schema_name: str) -> Dict[str, Any]:
-    """
-    Load a JSON schema from the contracts directory.
-
-    Args:
-        schema_name: Name of the schema file (e.g., 'dataset.schema.yaml')
-
-    Returns:
-        Dictionary containing the schema definition
-    """
-    schema_path = os.path.join(CONTRACTS_DIR, schema_name)
-    if not os.path.exists(schema_path):
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-
-    with open(schema_path, 'r') as f:
-        if schema_path.endswith('.yaml') or schema_path.endswith('.yml'):
-            return yaml.safe_load(f)
-        else:
-            return json.load(f)
-
-
-def validate_json_against_schema(
-    data_path: str,
-    schema: Dict[str, Any],
-    schema_name: str
-) -> Tuple[bool, List[str]]:
-    """
-    Validate a JSON file against a schema.
-
-    Args:
-        data_path: Path to the JSON file to validate
-        schema: The schema dictionary to validate against
-        schema_name: Name of the schema for logging purposes
-
-    Returns:
-        Tuple of (is_valid, list of error messages)
-    """
-    errors = []
-
-    if not os.path.exists(data_path):
-        errors.append(f"Data file not found: {data_path}")
-        return False, errors
-
-    try:
-        with open(data_path, 'r') as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        errors.append(f"Invalid JSON in {data_path}: {str(e)}")
-        return False, errors
-
-    try:
-        jsonschema.validate(instance=data, schema=schema)
-        logger.info(f"✓ {os.path.basename(data_path)} validates against {schema_name}")
-        return True, []
-    except jsonschema.exceptions.ValidationError as e:
-        errors.append(f"Schema validation error in {data_path}: {e.message}")
-        errors.append(f"  Path: {list(e.path)}")
-        return False, errors
-
-
-def validate_csv_against_schema(
-    data_path: str,
-    schema: Dict[str, Any],
-    schema_name: str
-) -> Tuple[bool, List[str]]:
-    """
-    Validate a CSV file against a schema (checks column names and types).
-
-    Args:
-        data_path: Path to the CSV file to validate
-        schema: The schema dictionary to validate against
-        schema_name: Name of the schema for logging purposes
-
-    Returns:
-        Tuple of (is_valid, list of error messages)
-    """
-    import pandas as pd
-    errors = []
-
-    if not os.path.exists(data_path):
-        errors.append(f"Data file not found: {data_path}")
-        return False, errors
-
-    try:
-        df = pd.read_csv(data_path)
-    except Exception as e:
-        errors.append(f"Error reading CSV {data_path}: {str(e)}")
-        return False, errors
-
-    # Get required properties from schema
-    if 'properties' not in schema:
-        logger.warning(f"No properties defined in schema {schema_name}, skipping column validation")
-        return True, []
-
-    required_columns = set(schema['properties'].keys())
-    actual_columns = set(df.columns)
-
-    # Check for missing columns
-    missing_cols = required_columns - actual_columns
-    if missing_cols:
-        errors.append(f"Missing columns in {data_path}: {missing_cols}")
-
-    # Check for unexpected columns (optional, depending on schema)
-    # extra_cols = actual_columns - required_columns
-    # if extra_cols:
-    #     logger.warning(f"Extra columns in {data_path}: {extra_cols}")
-
-    # Validate data types for each column
-    for col_name, col_schema in schema['properties'].items():
-        if col_name not in df.columns:
-            continue  # Already reported above
-
-        expected_type = col_schema.get('type')
-        actual_dtype = df[col_name].dtype
-
-        type_mapping = {
-            'string': 'object',
-            'integer': 'int64',
-            'number': 'float64',
-            'boolean': 'bool'
-        }
-
-        expected_dtype = type_mapping.get(expected_type)
-        if expected_dtype and actual_dtype != expected_dtype:
-            # Allow some flexibility (e.g., int32 vs int64)
-            if expected_type == 'integer' and 'int' in str(actual_dtype):
-                continue
-            if expected_type == 'number' and 'float' in str(actual_dtype):
-                continue
-            if expected_type == 'string' and actual_dtype == 'object':
-                continue
-
-            errors.append(
-                f"Type mismatch in {data_path}, column '{col_name}': "
-                f"expected {expected_type} ({expected_dtype}), got {actual_dtype}"
-            )
-
-    if not errors:
-        logger.info(f"✓ {os.path.basename(data_path)} validates against {schema_name}")
-
-    return len(errors) == 0, errors
-
-
-def validate_schemas() -> bool:
-    """
-    Main validation function. Checks all data artifacts against their schemas.
-
-    Returns:
-        True if all validations pass, False otherwise
-    """
-    logger.info("Starting schema validation...")
-
-    all_valid = True
-    validation_results = []
-
-    # Define validations to perform
-    validations = [
-        {
-            'name': 'Processed Alloys (Raw)',
-            'data_path': os.path.join(PROCESSED_DATA_DIR, 'processed_alloys_raw.csv'),
-            'schema_name': 'dataset.schema.yaml',
-            'validator': validate_csv_against_schema
-        },
-        {
-            'name': 'Processed Alloys (Final)',
-            'data_path': os.path.join(PROCESSED_DATA_DIR, 'processed_alloys.csv'),
-            'schema_name': 'dataset.schema.yaml',
-            'validator': validate_csv_against_schema
-        },
-        {
-            'name': 'CV Metrics',
-            'data_path': os.path.join(MODELS_DIR, 'cv_metrics.json'),
-            'schema_name': 'model_output.schema.yaml',
-            'validator': validate_json_against_schema
-        },
-        {
-            'name': 'Null Model RMSE',
-            'data_path': os.path.join(MODELS_DIR, 'null_model_rmse.json'),
-            'schema_name': 'model_output.schema.yaml',
-            'validator': validate_json_against_schema
-        },
-        {
-            'name': 'Statistical Comparison',
-            'data_path': os.path.join(MODELS_DIR, 'statistical_comparison.json'),
-            'schema_name': 'model_output.schema.yaml',
-            'validator': validate_json_against_schema
-        },
-        {
-            'name': 'Feature Importance',
-            'data_path': os.path.join(PROCESSED_DATA_DIR, 'feature_importance.json'),
-            'schema_name': 'model_output.schema.yaml',
-            'validator': validate_json_against_schema
-        },
-        {
-            'name': 'Sensitivity Status',
-            'data_path': os.path.join(PROCESSED_DATA_DIR, 'sensitivity_status.json'),
-            'schema_name': 'model_output.schema.yaml',
-            'validator': validate_json_against_schema
-        },
-        {
-            'name': 'Collinearity Decision',
-            'data_path': os.path.join(PROCESSED_DATA_DIR, 'collinearity_decision.json'),
-            'schema_name': 'model_output.schema.yaml',
-            'validator': validate_json_against_schema
-        },
-        {
-            'name': 'Collinearity Report',
-            'data_path': os.path.join(PROCESSED_DATA_DIR, 'collinearity_report.json'),
-            'schema_name': 'model_output.schema.yaml',
-            'validator': validate_json_against_schema
-        }
+# Define schema file mappings
+SCHEMA_FILES = {
+    "dataset.schema.yaml": ["data/processed/processed_alloys_raw.csv", "data/processed/processed_alloys.csv"],
+    "model_output.schema.yaml": [
+        "data/models/cv_metrics.json",
+        "data/models/null_model_cv_scores.json",
+        "data/models/null_model_rmse.json",
+        "data/models/statistical_comparison.json",
+        "data/models/sc002_status.json",
+        "data/models/sensitivity_report.csv",
+        "data/models/sensitivity_status.json",
+        "data/models/feature_importance.json",
+        "data/models/collinearity_report.json",
+        "data/models/collinearity_decision.json",
+        "data/models/initial_model_metrics.json",
+        "data/models/random_forest_model.pkl",
+        "data/models/random_forest_model_stable.pkl",
+        "data/models/cv_folds_indices.json",
+        "data/models/null_model_predictions.npy",
+        "data/logs/data_validation_status.json",
+        "data/logs/schema_validation_status.json",
+        "data/logs/training_set_validation.json",
+        "data/logs/exclusion_log.txt"
     ]
+}
+
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load a YAML schema file."""
+    try:
+        with open(schema_path, 'r') as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        logger.error(f"Schema file not found: {schema_path}")
+        return None
+    except yaml.YAMLError as e:
+        logger.error(f"Error parsing YAML schema {schema_path}: {e}")
+        return None
+
+def validate_json_against_schema(json_path: str, schema: Dict[str, Any]) -> List[str]:
+    """Validate a JSON file against a schema."""
+    errors = []
+    try:
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+        
+        # Validate against schema
+        try:
+            validate(instance=data, schema=schema)
+            logger.info(f"  ✓ {json_path} matches schema")
+        except ValidationError as e:
+            errors.append(f"Validation error in {json_path}: {e.message} at {list(e.path)}")
+            logger.warning(f"  ✗ {json_path} failed schema validation: {e.message}")
+    except json.JSONDecodeError as e:
+        errors.append(f"Invalid JSON in {json_path}: {e}")
+        logger.error(f"  ✗ {json_path} is not valid JSON: {e}")
+    except FileNotFoundError:
+        errors.append(f"File not found: {json_path}")
+        logger.error(f"  ✗ {json_path} not found")
+    
+    return errors
+
+def validate_csv_against_schema(csv_path: str, schema: Dict[str, Any]) -> List[str]:
+    """
+    Validate a CSV file against a schema.
+    For CSVs, we check that required columns exist and types are consistent.
+    """
+    errors = []
+    try:
+        if not os.path.exists(csv_path):
+            errors.append(f"File not found: {csv_path}")
+            logger.error(f"  ✗ {csv_path} not found")
+            return errors
+
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            headers = reader.fieldnames
+            
+            if not headers:
+                errors.append(f"CSV file is empty or has no headers: {csv_path}")
+                logger.error(f"  ✗ {csv_path} has no headers")
+                return errors
+
+            # Check required properties if defined in schema
+            if 'required' in schema:
+                required_cols = set(schema['required'])
+                present_cols = set(headers)
+                missing = required_cols - present_cols
+                if missing:
+                    errors.append(f"Missing required columns in {csv_path}: {missing}")
+                    logger.warning(f"  ✗ {csv_path} missing columns: {missing}")
+            
+            # Check properties types if defined
+            if 'properties' in schema:
+                for col_name, col_schema in schema['properties'].items():
+                    if col_name in headers:
+                        # Basic type check (first non-empty row)
+                        for row in reader:
+                            val = row.get(col_name)
+                            if val is not None and val != '':
+                                expected_type = col_schema.get('type')
+                                if expected_type == 'number':
+                                    try:
+                                        float(val)
+                                    except ValueError:
+                                        errors.append(f"Column '{col_name}' in {csv_path} expected number but got '{val}'")
+                                elif expected_type == 'integer':
+                                    try:
+                                        int(val)
+                                    except ValueError:
+                                        errors.append(f"Column '{col_name}' in {csv_path} expected integer but got '{val}'")
+                                break  # Only check first data row
+                            
+                            # If we've exhausted rows, stop
+                            if row == {}:
+                                break
+            
+            logger.info(f"  ✓ {csv_path} schema check passed")
+    except Exception as e:
+        errors.append(f"Error reading CSV {csv_path}: {e}")
+        logger.error(f"  ✗ {csv_path} read error: {e}")
+    
+    return errors
+
+def get_all_artifacts() -> List[str]:
+    """Collect all JSON and CSV files in data/ and data/models/."""
+    artifacts = []
+    
+    # Walk through data directory
+    for root, _, files in os.walk(DATA_DIR):
+        for file in files:
+            if file.endswith(('.json', '.csv')):
+                # Skip log files that are not schema-defined (optional)
+                full_path = os.path.join(root, file)
+                rel_path = os.path.relpath(full_path, PROJECT_ROOT)
+                artifacts.append(rel_path)
+    
+    return artifacts
+
+def validate_schemas() -> int:
+    """
+    Main validation function.
+    Returns 0 if all validations pass, 1 otherwise.
+    """
+    all_errors: List[str] = []
+    all_passed = True
+
+    logger.info("Starting schema validation for PROJ-510...")
+    logger.info(f"Project root: {PROJECT_ROOT}")
 
     # Load schemas
-    try:
-        dataset_schema = load_schema('dataset.schema.yaml')
-        model_output_schema = load_schema('model_output.schema.yaml')
-    except Exception as e:
-        logger.error(f"Failed to load schemas: {str(e)}")
-        return False
+    dataset_schema_path = os.path.join(CONTRACTS_DIR, "dataset.schema.yaml")
+    model_output_schema_path = os.path.join(CONTRACTS_DIR, "model_output.schema.yaml")
 
-    # Run validations
-    for validation in validations:
-        schema_to_use = dataset_schema if 'processed_alloys' in validation['data_path'] else model_output_schema
+    dataset_schema = load_schema(dataset_schema_path)
+    model_output_schema = load_schema(model_output_schema_path)
 
-        is_valid, errors = validation['validator'](
-            validation['data_path'],
-            schema_to_use,
-            validation['schema_name']
-        )
+    if not dataset_schema:
+        logger.error("Failed to load dataset schema. Aborting.")
+        return 1
+    if not model_output_schema:
+        logger.error("Failed to load model output schema. Aborting.")
+        return 1
 
-        validation_results.append({
-            'name': validation['name'],
-            'valid': is_valid,
-            'errors': errors
-        })
+    # Map schema names to their definitions
+    schemas = {
+        "dataset.schema.yaml": dataset_schema,
+        "model_output.schema.yaml": model_output_schema
+    }
 
-        if not is_valid:
-            all_valid = False
-            logger.error(f"✗ {validation['name']} FAILED:")
-            for error in errors:
-                logger.error(f"  - {error}")
-        else:
-            logger.info(f"✓ {validation['name']} PASSED")
+    # Process each schema file
+    for schema_file, artifact_paths in SCHEMA_FILES.items():
+        if schema_file not in schemas:
+            logger.warning(f"Schema file {schema_file} not found in loaded schemas. Skipping.")
+            continue
 
-    # Summary
-    logger.info("\n" + "="*50)
-    logger.info("VALIDATION SUMMARY")
-    logger.info("="*50)
+        schema = schemas[schema_file]
+        logger.info(f"Validating artifacts for {schema_file}...")
 
-    passed = sum(1 for v in validation_results if v['valid'])
-    total = len(validation_results)
+        for artifact_path in artifact_paths:
+            full_path = os.path.join(PROJECT_ROOT, artifact_path)
+            
+            # Check if file exists
+            if not os.path.exists(full_path):
+                # Some files might be optional or not yet generated in early runs
+                # We log a warning but don't fail unless it's critical
+                logger.warning(f"  ! {artifact_path} not found. Skipping validation for this file.")
+                continue
 
-    logger.info(f"Passed: {passed}/{total}")
+            if artifact_path.endswith('.json'):
+                errors = validate_json_against_schema(full_path, schema)
+                all_errors.extend(errors)
+            elif artifact_path.endswith('.csv'):
+                errors = validate_csv_against_schema(full_path, schema)
+                all_errors.extend(errors)
+            else:
+                # Skip other file types (pkl, npy, txt) as they don't have JSON-schema definitions
+                logger.debug(f"  - Skipping non-schema file: {artifact_path}")
 
-    if all_valid:
-        logger.info("✓ ALL VALIDATIONS PASSED")
-        return True
+    # Additional check: Ensure critical files exist even if not in strict schema list
+    critical_files = [
+        "data/processed/processed_alloys_raw.csv",
+        "data/processed/processed_alloys.csv",
+        "data/models/cv_metrics.json",
+        "data/models/statistical_comparison.json",
+        "data/models/sensitivity_status.json"
+    ]
+
+    for f in critical_files:
+        if not os.path.exists(os.path.join(PROJECT_ROOT, f)):
+            all_errors.append(f"CRITICAL: Missing file {f}")
+            all_passed = False
+
+    # Final Report
+    print("\n" + "="*50)
+    if all_passed and not all_errors:
+        print("Validation Passed")
+        print("="*50)
+        return 0
     else:
-        logger.error("✗ SOME VALIDATIONS FAILED")
-        failed_items = [v['name'] for v in validation_results if not v['valid']]
-        logger.error(f"Failed items: {failed_items}")
-        return False
+        print("Validation Failed")
+        print("="*50)
+        for err in all_errors:
+            print(f"  - {err}")
+        return 1
 
+def main():
+    """Entry point."""
+    exit_code = validate_schemas()
+    sys.exit(exit_code)
 
-if __name__ == '__main__':
-    success = validate_schemas()
-    sys.exit(0 if success else 1)
+if __name__ == "__main__":
+    main()

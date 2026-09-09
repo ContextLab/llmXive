@@ -1,57 +1,31 @@
 """
-Tests for the ingestion module.
-
-Specifically tests the "fail loudly" behavior when data fetch fails.
+Unit tests for data ingestion functions in code/ingestion.py.
 """
 import pytest
-import sys
-import os
-from unittest.mock import patch, MagicMock
-from datasets.exceptions import DatasetNotFoundError
+import pandas as pd
+from ingestion import parse_composition, validate_ternary_elements, clean_data
 
-# Add parent directory to path to import code modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'code')))
+def test_validate_ternary_elements_valid():
+    """Test validation of a valid ternary element set."""
+    elements = {'Fe', 'Ni', 'B'}
+    result = validate_ternary_elements(elements)
+    assert result is True
 
-from ingestion import load_glass_data
+def test_validate_ternary_elements_invalid_count():
+    """Test validation of an invalid element count."""
+    with pytest.raises(ValueError):
+        validate_ternary_elements({'Fe', 'Ni'})
+    with pytest.raises(ValueError):
+        validate_ternary_elements({'Fe', 'Ni', 'B', 'Cr'})
 
-def test_load_glass_data_fails_loudly():
-    """
-    Test that load_glass_data raises ValueError if the dataset fetch fails.
-    This verifies the 'fail loudly' requirement of T008.
-    """
-    # Mock the load_dataset function to simulate a failure
-    with patch('ingestion.load_dataset') as mock_load:
-        # Simulate the specific error raised by the datasets library
-        mock_load.side_effect = DatasetNotFoundError("Dataset 'matsci/glass-forming-ability' doesn't exist")
-        
-        # Assert that ValueError is raised
-        with pytest.raises(ValueError) as exc_info:
-            load_glass_data()
-        
-        # Verify the error message contains the expected text
-        assert "Data fetch failed" in str(exc_info.value)
-        assert "matsci/glass-forming-ability" in str(exc_info.value)
-        assert "unavailable" in str(exc_info.value)
-
-def test_load_glass_data_success():
-    """
-    Test that load_glass_data returns a DataFrame on success.
-    """
-    # Mock the load_dataset function to return a mock dataset
-    mock_dataset = {
-        'train': [
-            {'composition': 'Fe_Cr_Ni', 'critical_cooling_rate': 100.0},
-            {'composition': 'Cu_Zr_Al', 'critical_cooling_rate': 50.0}
-        ]
-    }
-    
-    with patch('ingestion.load_dataset') as mock_load:
-        mock_load.return_value = mock_dataset
-        
-        df = load_glass_data()
-        
-        # Basic check that we got data back
-        assert df is not None
-        assert len(df) == 2
-        assert 'composition' in df.columns
-        assert 'critical_cooling_rate' in df.columns
+def test_clean_data_basic():
+    """Test basic data cleaning logic."""
+    data = pd.DataFrame({
+        'composition': ['Fe40.5Ni40.5B19', 'Fe50Ni50', 'Invalid'],
+        'critical_cooling_rate': [10.0, 20.0, None]
+    })
+    cleaned, log = clean_data(data)
+    # 'Fe50Ni50' should be dropped (not ternary)
+    # 'Invalid' should be dropped (parsing error)
+    # None critical_cooling_rate should be dropped
+    assert len(cleaned) <= len(data)

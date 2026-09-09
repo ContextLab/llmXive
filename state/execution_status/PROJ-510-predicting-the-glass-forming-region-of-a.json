@@ -1,21 +1,21 @@
 {
   "project_id": "PROJ-510-predicting-the-glass-forming-region-of-a",
   "ok": false,
-  "reason": "4 command(s) failed: python code/ingestion.py (rc=1); python code/features.py (rc=1); python code/train.py (rc=1); 2 declared deliverable(s) absent: data/processed/feature_importance.json; data/processed/processed_alloys.csv",
+  "reason": "4 command(s) failed: python code/ingestion.py (rc=1); python code/features.py (rc=1); python code/train.py (rc=1); 4 declared deliverable(s) absent: data/models/sc002_status.json; data/models/statistical_comparison.json; data/processed/processed_alloys.csv",
   "artifacts": [],
   "failures": [
-    "python code/ingestion.py -> rc=1\n    venv/lib/python3.11/site-packages/datasets/load.py\", line 1166, in dataset_module_factory\n    raise DatasetNotFoundError(f\"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.\") from e\ndatasets.exceptions.DatasetNotFoundError: Dataset 'matsci/glass-forming-ability' doesn't exist on the Hub or cannot be accessed.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py\", line 180, i",
-    "python code/features.py -> rc=1\n    Usage: python features.py <input_csv> <output_csv>",
-    "python code/train.py -> rc=1\n    10-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv\n2026-08-31 05:16:36,434 - __main__ - ERROR - Pipeline failed: Processed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/data/processed/processed_alloys.csv. Run ingestion.py first.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py\", line 252, in <module>\n    run_training()\n  File \"/home/runner/work/llmXive/llmXive/project",
-    "python code/analyze.py -> rc=1\n    2026-08-31 05:16:37,817 - INFO - Starting Analysis Pipeline\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py\", line 236, in <module>\n    run_analysis()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/analyze.py\", line 181, in run_analysis\n    model, df = load_model_and_data(model_path, data_path)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/proj"
+    "python code/ingestion.py -> rc=1\n    venv/lib/python3.11/site-packages/datasets/load.py\", line 1166, in dataset_module_factory\n    raise DatasetNotFoundError(f\"Dataset '{path}' doesn't exist on the Hub or cannot be accessed.\") from e\ndatasets.exceptions.DatasetNotFoundError: Dataset 'matsci/glass-forming-ability' doesn't exist on the Hub or cannot be accessed.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/ingestion.py\", line 216, i",
+    "python code/features.py -> rc=1\n    2026-09-09 13:26:21,494 - __main__ - INFO - Starting feature engineering pipeline\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py\", line 286, in <module>\n    run_features()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/features.py\", line 265, in run_features\n    raise FileNotFoundError(f\"Input file not found: {input_path}. Run ingestion.py first.\")\nFileNotFoundError: Input file not found: data/p",
+    "python code/train.py -> rc=1\n    2026-09-09 13:26:23,486 - __main__ - INFO - Starting training pipeline\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py\", line 175, in <module>\n    run_training()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.py\", line 142, in run_training\n    X, y = load_data()\n           ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-510-predicting-the-glass-forming-region-of-a/code/train.p",
+    "python code/analyze.py -> rc=1\n    2026-09-09 13:26:24,944 - __main__ - ERROR - Baseline model not found at data/models/random_forest_model.pkl."
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "total_attempts": 3,
+  "total_attempts": 4,
   "replan_rounds": 0,
   "failure_class": "data_unreachable",
   "evidence": [
     "python code/ingestion.py"
   ],
-  "updated_at": "2026-08-31T05:16:39Z"
+  "updated_at": "2026-09-09T13:26:27Z"
 }

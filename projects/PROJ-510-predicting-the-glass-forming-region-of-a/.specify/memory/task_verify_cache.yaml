@@ -1,3 +1,22 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing the `ingestion.py` script or any change that adds a `ValueError`
+    when the `matsci/glass-forming-ability` dataset cannot be fetched was provided.
+    The required code modification is missing.
+T010a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `test_features.py` file or `test_mixing_enthalpy` unit test is present in
+    the provided artifacts, so the required unit test does not exist or is empty.
+    The implementer has not supplied the test code that should run after T014.
+T010b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `test_features.py` file or the specific `test_size_mismatch` unit test is\
+    \ present; the only evidence is a high\u2011level feature specification, not the\
+    \ required test code or its execution results. The task demands a concrete unit\
+    \ test artifact, which is missing."
 T012b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -16,14 +35,22 @@ T015:
   r: No `features.py` file or any code implementing `atomic_size_mismatch` and `electronegativity_variance`
     was provided; without the artifact we cannot verify that the required computations
     exist or are correct. The task therefore remains unfinished.
-T021:
+T020:
   c: false
-  h: b4402bfab20da3309d5c60de7e77f3a0b472a2c5eb6dd96c616d2d386f09b353
-  r: "The repository contains a `train.py` file, but it is truncated and shows no\
-    \ implementation of k\u2011fold cross\u2011validation or saving of `fold_scores`/`mean_rmse`\
-    \ to `data/models/cv_metrics.json`. Moreover, the required `cv_metrics.json` file\
-    \ does not exist on disk, so the verification command would fail. The task\u2019\
-    s core output is missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, or output file showing that `processed_alloys.csv`
+    was loaded and split with `random_state=42` and `test_size=0.2` is present. The
+    required artifact (e.g., a Python script, Jupyter notebook, or saved train/test
+    CSVs) is missing, so the task is not satisfied.
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, model file, or cross\u2011validation results were supplied.\
+    \ The claim that a `DummyRegressor` was trained on the exact training split from\
+    \ T021 and evaluated with the 5\u2011fold folds from T020b cannot be verified\
+    \ because the required artifacts (training script, saved model, CV scores) are\
+    \ missing. The next implementer must provide the implementation and the resulting\
+    \ CV metrics."
 T029a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -31,14 +58,6 @@ T029a:
     \ if needed\u201D were provided; the implementer\u2019s claim contains only a\
     \ placeholder comment and no concrete implementation or output. Consequently,\
     \ the required stability\u2011check procedure and any retraining logic are missing."
-T029b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or output artifacts (e.g., ingestion script, engineered\
-    \ CSV with \u2265500 rows, trained Random Forest model, or metrics report) were\
-    \ provided, so the required pipeline and model results cannot be verified. The\
-    \ implementer must supply the actual scripts and generated files to satisfy the\
-    \ user stories."
 T030b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,16 +65,17 @@ T030b:
     \ stability (e.g., permutation importance results, sensitivity plots, or stability\
     \ metrics) was provided. The required artifact for User Story\u202F3 is missing,\
     \ so the task is not satisfied."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of running `validate_schemas.py` is provided\u2014there is no log,\
-    \ output file, or confirmation that the script was executed and that all artifacts\
-    \ were checked against their contracts. The required artifact (validation results)\
-    \ is missing."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `REPORT.md` file was supplied; the response contains only the task description
     and no summary document covering data, model performance, feature importance,
     sensitivity analysis, or caveats. The required artifact is missing.
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No data files, model artifacts, analysis outputs, or report were provided; the\
+    \ claim lacks any concrete evidence that the ingestion, training, analysis, and\
+    \ reporting steps were actually run and validated in a clean environment. The\
+    \ required pipeline outputs (e.g., engineered CSV with \u2265500 rows, saved model,\
+    \ cross\u2011validation metrics, importance analysis, and final report) are missing."
