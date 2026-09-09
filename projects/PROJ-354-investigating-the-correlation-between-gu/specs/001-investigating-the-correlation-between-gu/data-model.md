@@ -1,65 +1,92 @@
 # Data Model: Investigating the Correlation Between Gut Microbiome Composition and Cognitive Function in Aging Using UK Biobank Data
 
-## Entities
+## Overview
 
-### Participant
-Represents a UK Biobank cohort member with linked data.
-*   `participant_id`: Unique identifier (string/int).
-*   `age`: Age at baseline (float/int).
-*   `sex`: Biological sex (categorical: 'Male', 'Female').
-*   `bmi`: Body Mass Index (float).
-*   `diet_quality_score`: Composite diet score (float).
-*   `physical_activity_level`: Level of physical activity (categorical/float).
-*   `medication_use`: Flag for medication use (boolean).
-*   `antibiotic_use`: Flag for recent antibiotic use (boolean).
-*   `has_microbiome`: Boolean indicating presence of microbiome data.
-*   `has_cognitive`: Boolean indicating presence of cognitive data.
+This document defines the data structures, transformations, and schemas used throughout the pipeline. All data is generated synthetically to mimic the UK Biobank schema, as no open-access UKB microbiome dataset exists for CI execution.
 
-### MicrobiomeProfile
-Represents the ILR-transformed microbiome composition for a participant.
-*   `participant_id`: Foreign key to Participant.
-*   `ilr_coordinates`: Dictionary or array of ILR-transformed genus-level coordinates (floats).
-*   `sample_date`: Date of sample collection (date).
-*   `sequencing_quality`: Quality metric score (float).
+## Entity Definitions
 
-### CognitiveScore
-Represents standardized cognitive performance metrics.
-*   `participant_id`: Foreign key to Participant.
-*   `reaction_time_ms`: Reaction time in milliseconds (float).
-*   `numeric_memory_score`: Score out of 100 (float/int).
-*   `reasoning_score`: Score out of 100 (float/int).
-*   `test_date`: Date of cognitive testing (date).
+### 1. Participant
 
-### AssociationResult
-Represents the output of the statistical analysis.
-*   `taxon_name`: Name of the genus-level taxon (string).
-*   `cognitive_metric`: Name of the cognitive metric (e.g., "reaction_time").
-*   `effect_size_beta`: Coefficient from the linear model (float).
-*   `unadjusted_p_value`: Raw p-value (float).
-*   `adjusted_p_value`: Benjamini-Hochberg adjusted p-value (float).
-*   `interaction_p_value`: P-value for the Age_Group * Taxon interaction (float, nullable).
-*   `causality_claim`: Always `false` (boolean).
+Represents a single subject in the cohort.
 
-## Data Flow
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `participant_id` | `str` | Unique identifier (UUID) | Primary Key |
+| `age` | `float` | Age in years | [40, 85] |
+| `sex` | `int` | 0=Female, 1=Male | {0, 1} |
+| `bmi` | `float` | Body Mass Index | [15, 45] |
+| `diet_quality` | `float` | Diet quality score | [0, 100] |
+| `physical_activity` | `float` | MET-min/week | > 0 |
+| `medication_use` | `int` | 0=No, 1=Yes | {0, 1} |
+| `antibiotic_use` | `int` | 0=No, 1=Yes (Recent) | {0, 1} |
 
-1.  **Raw Data**: Downloaded from UK Biobank (or provided locally) -> `data/raw/`.
-2.  **Preprocessing**:
-    *   Filter by antibiotic use and data completeness.
-    *   Aggregate to genus-level.
-    *   Apply ILR transformation.
-    *   Output: `data/processed/ilr_microbiome.parquet`, `data/processed/cognitive_scores.parquet`.
-3.  **Analysis**:
-    *   Join preprocessed data.
-    *   Fit linear models.
+### 2. MicrobiomeProfile
+
+ILR-transformed taxonomic coordinates for a participant.
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `participant_id` | `str` | Foreign Key to Participant | PK, FK |
+| `ilr_coords` | `dict[str, float]` | ILR-transformed values for each genus | Sum of coordinates = 0 (orthonormal) |
+| `sequencing_depth` | `int` | Total reads | > 0 |
+| `quality_score` | `float` | Sequencing quality metric | [0, 1] |
+
+### 3. CognitiveScore
+
+Standardized cognitive performance metrics.
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `participant_id` | `str` | Foreign Key to Participant | PK, FK |
+| `reaction_time` | `float` | Mean reaction time (ms) | > 0 |
+| `numeric_memory` | `int` | Score 0-100 | [0, 100] |
+| `reasoning` | `int` | Score 0-100 | [0, 100] |
+| `test_date` | `str` | ISO 8601 date | YYYY-MM-DD |
+
+### 4. AssociationResult
+
+Statistical output from the analysis.
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `taxon` | `str` | Genus name | |
+| `cognitive_metric` | `str` | "reaction_time", "numeric_memory", "reasoning" | |
+| `beta` | `float` | Effect size (coefficient) | |
+| `p_value` | `float` | Unadjusted p-value | (0, 1] |
+| `p_adj` | `float` | Benjamini-Hochberg adjusted p-value | (0, 1] |
+| `interaction_p` | `float` | Interaction term p-value (optional) | (0, 1] |
+| `causality_claim` | `bool` | Always `false` | `false` |
+
+## Transformation Pipeline
+
+### 1. Raw Data Generation
+*   **Input**: Random seed.
+*   **Output**: `data/raw/synthetic_ukb.parquet`.
+*   **Logic**:
+    *   Sample `age`, `sex`, `bmi` from distributions.
+    *   Generate `microbiome_counts` using Dirichlet-Multinomial to simulate 16S sequencing.
+    *   Generate `cognitive_scores` with correlation to `age` and `antibiotic_use`.
+
+### 2. Preprocessing (ILR Transformation)
+*   **Input**: `data/raw/synthetic_ukb.parquet`.
+*   **Output**: `data/processed/ilr_transformed.parquet`.
+*   **Logic**:
+    *   Filter: Exclude participants with `antibiotic_use == 1` or missing data.
+    *   Pseudocount: Add $1 \times 10^{-6}$ to all zero counts.
+    *   Transformation: Apply ILR using a balance tree (e.g., phylogenetic or equal split).
+    *   Result: Orthonormal coordinates.
+
+### 3. Statistical Analysis
+*   **Input**: `data/processed/ilr_transformed.parquet`.
+*   **Output**: `results/associations/main_effects.parquet`.
+*   **Logic**:
+    *   Fit OLS: $Cognitive \sim ILR_{taxon} + Confounders$.
     *   Apply BH correction.
-    *   Output: `results/associations/association_results.parquet`.
-4.  **Visualization**:
-    *   Generate Manhattan plots.
-    *   Output: `results/plots/manhattan_plot.png`.
+    *   Fit Interaction: $Cognitive \sim ILR_{taxon} \times Age\_Group + Confounders$.
 
-## Constraints & Validations
+## File Formats
 
-*   **ILR Coordinates**: Must sum to 0 (mathematical property of ILR).
-*   **P-values**: Must be in range [0, 1].
-*   **Causality**: `causality_claim` must be `false` in all output files.
-*   **Missing Data**: Participants with >2 missing confounder values are excluded.
+*   **Parquet**: Used for all intermediate and final datasets (efficient, schema-preserving).
+*   **YAML**: Used for configuration and schema definitions.
+*   **JSON**: Used for metadata (e.g., `causality_claim`).

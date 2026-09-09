@@ -1,17 +1,17 @@
-# Quickstart: Investigating the Correlation Between Gut Microbiome Composition and Cognitive Function in Aging Using UK Biobank Data
+# Quickstart: Gut Microbiome & Cognitive Function Analysis Pipeline
 
 ## Prerequisites
 
-*   Python 3.10+
-*   Access to UK Biobank data (credentials or local files).
-*   7 GB RAM, 14 GB disk space.
+*   Python 3.11+
+*   `pip` or `conda`
+*   Sufficient free disk space (for temporary processing)
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd <repo-path>
+    cd projects/PROJ-354-investigating-the-correlation-between-gu
     ```
 
 2.  **Create a virtual environment**:
@@ -22,48 +22,64 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -e .
+    # Or manually:
+    pip install pandas numpy scipy scikit-learn statsmodels biom-format pyyaml datasets seaborn matplotlib pytest black ruff
     ```
-
-4.  **Prepare Data**:
-    *   If you have UK Biobank credentials, configure the `config.py` with your credentials.
-    *   If using local files, place `microbiome_data.parquet` and `cognitive_data.parquet` in `data/raw/`.
-    *   **Note**: The `# Verified datasets` block does not provide a direct URL for UK Biobank data. You must obtain this data via the official UK Biobank application or provide it manually.
 
 ## Running the Pipeline
 
-1.  **Download and Preprocess**:
-    ```bash
-    python code/download.py
-    python code/preprocess.py
-    ```
-    *This will filter participants, apply ILR transformation, and save processed data to `data/processed/`.*
+### 1. Generate Synthetic Data
+Since UK Biobank data is access-gated, the pipeline uses a deterministic synthetic generator.
+```bash
+python code/pipelines/download.py --seed 42 --output data/raw/synthetic_ukb.parquet
+```
+*This creates a dataset mimicking UKB structure.*
 
-2.  **Run Statistical Analysis**:
-    ```bash
-    python code/analysis.py
-    ```
-    *This will fit linear models, apply BH correction, and save results to `results/associations/`.*
+### 2. Preprocess Data (ILR Transformation)
+```bash
+python code/pipelines/preprocess.py --input data/raw/synthetic_ukb.parquet --output data/processed/ilr_transformed.parquet
+```
+*This filters out antibiotic users and applies ILR transformation.*
 
-3.  **Generate Visualizations**:
-    ```bash
-    python code/visualize.py
-    ```
-    *This will generate Manhattan plots and save them to `results/plots/`.*
+### 3. Run Analysis
+```bash
+python code/pipelines/analyze.py --input data/processed/ilr_transformed.parquet --output results/associations/
+```
+*This fits linear models, applies BH correction, and generates interaction terms.*
 
-4.  **Run Tests**:
-    ```bash
-    pytest tests/
-    ```
+### 4. Generate Plots
+```bash
+python code/paper/plots.py --input results/associations/main_effects.parquet --output results/plots/
+```
+*Generates Manhattan-style plots.*
 
-## Output
+## Verification
 
-*   `results/associations/association_results.parquet`: Contains all association statistics.
-*   `results/plots/manhattan_plot.png`: Visualization of -log10(p-values).
-*   `results/sensitivity/`: Contains sensitivity analysis outputs.
+Run the test suite to ensure reproducibility:
+```bash
+pytest tests/ -v
+```
+
+### Code Formatting & Linting
+To verify code quality, run `black` and `ruff`:
+```bash
+black code/
+ruff check code/
+```
+*Expected Output: No errors. A linting report is generated in `results/linting_report.txt` (Task T041).*
+
+## Output Structure
+
+*   `data/raw/`: Generated synthetic raw data.
+*   `data/processed/`: ILR-transformed, filtered data.
+*   `results/associations/`: Parquet files with beta coefficients, p-values, and BH-adjusted p-values.
+*   `results/plots/`: PNG/SVG figures (Manhattan plots).
+*   `results/sensitivity/`: Threshold sweep results.
+*   `results/linting_report.txt`: Output from `ruff` and `black` (Task T041).
 
 ## Troubleshooting
 
-*   **Data Missing**: If the pipeline fails due to missing data, ensure you have provided the UK Biobank data files or credentials.
-*   **Memory Error**: If you encounter memory errors, check that you are not loading the entire dataset at once. The code is designed to stream data, but ensure your environment has sufficient RAM.
-*   **ILR Transformation Errors**: Ensure that zero counts are handled with a pseudocount (1e-6) before transformation.
+*   **Memory Error**: The pipeline streams data. If you encounter memory errors, reduce the synthetic cohort size in `code/pipelines/download.py`.
+*   **Missing Dependencies**: Ensure `biom-format` is installed. It may require `scipy` and `numpy` to be installed first.
+*   **Zero Counts**: The pipeline automatically adds a small pseudocount before ILR transformation.

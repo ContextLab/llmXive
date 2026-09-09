@@ -1,0 +1,45 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Association Result Schema
+description: Schema for the output of the taxon-cognitive association analysis.
+type: object
+properties:
+  taxon:
+    type: string
+    description: "Name of the bacterial genus/taxon."
+  cognitive_metric:
+    type: string
+    description: "The cognitive test performed."
+    enum:
+      - "reaction_time"
+      - "numeric_memory"
+      - "reasoning"
+  beta:
+    type: number
+    description: "Effect size (beta coefficient) from the linear model."
+  p_value:
+    type: number
+    description: "Unadjusted p-value."
+    minimum: 0.0
+    maximum: 1.0
+  p_adj:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+    minimum: 0.0
+    maximum: 1.0
+  interaction_p:
+    type: number
+    description: "P-value for the Age_Group * Taxon interaction term."
+    minimum: 0.0
+    maximum: 1.0
+  causality_claim:
+    type: boolean
+    description: "Explicit flag indicating if a causal claim is made (always false)."
+    const: false
+required:
+  - taxon
+  - cognitive_metric
+  - beta
+  - p_value
+  - p_adj
+  - causality_claim
+additionalProperties: false

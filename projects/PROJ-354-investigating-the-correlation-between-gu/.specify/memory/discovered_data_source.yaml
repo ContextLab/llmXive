@@ -1,0 +1,12 @@
+status: none
+intent: UK Biobank Microbiome Release 1 cognitive scores fields 20400 20002 python
+  package dataset
+required_fields:
+- participant_id
+- genus_ilr_coordinates
+- cognitive_score_20400
+- cognitive_score_20002
+- antibiotic_use_flag
+cache_key: 0a6d0acb07bd70b435614052f820ac1d9f33dee52257b9ba6a155307619e6a09
+searched_at: '2026-09-09T00:31:07.527059+00:00'
+retry_count: 1

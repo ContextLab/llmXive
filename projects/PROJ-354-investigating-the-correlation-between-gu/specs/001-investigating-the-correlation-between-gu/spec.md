@@ -58,7 +58,7 @@ The research system must validate findings via interaction term analysis (Age_Gr
 ### Edge Cases
 
 - What happens when a participant has microbiome data but missing cognitive scores (or vice versa)? The system excludes the participant and logs the count.
-- How does the system handle taxa with zero counts in the ILR transformation? The system applies a pseudocount of 1×10⁻⁶ before transformation to avoid log(0).
+- How does the system handle taxa with zero counts in the ILR transformation? The system applies a small pseudocount before transformation to avoid log(0).
 - What happens when the UK Biobank data download exceeds available disk space (~14 GB)? The system streams data in batches and removes intermediate files after processing.
 - How does the system handle participants with incomplete confounder data? The system excludes participants with >2 missing confounder values and logs the exclusion count.
 - What happens when the Benjamini-Hochberg correction produces no significant associations? The system reports the maximum adjusted p-value and effect size range rather than failing.
