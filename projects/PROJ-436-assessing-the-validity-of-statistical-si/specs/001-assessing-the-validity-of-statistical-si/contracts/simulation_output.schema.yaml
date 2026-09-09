@@ -1,0 +1,85 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Output Schema"
+description: "Schema for the aggregated error rates and tipping point results."
+type: "object"
+properties:
+  condition_id:
+    type: "string"
+    description: "Unique identifier for the simulation condition."
+  dataset_id:
+    type: "string"
+    description: "Source dataset identifier."
+  mechanism:
+    type: "string"
+    enum:
+      - "MCAR"
+      - "MAR"
+      - "MNAR"
+    description: "Missing data mechanism."
+  missing_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of missing data."
+  n_iterations:
+    type: "integer"
+    minimum: 1
+    description: "Number of Monte Carlo iterations."
+  error_rate_CC:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Empirical Type I error rate for Complete-Case analysis."
+  error_rate_MI:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Empirical Type I error rate for Multiple Imputation."
+  error_rate_IPW:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Empirical Type I error rate for Inverse Probability Weighting."
+  binomial_p_CC:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value from Binomial test for CC method."
+  adjusted_p_CC:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Benjamini-Hochberg adjusted p-value for CC method."
+  tipping_point_flag:
+    type: "boolean"
+    description: "True if CC error rate exceeds 5.5% and adjusted p-value < 0.05."
+  cc_mi_ratio:
+    type: "number"
+    minimum: 0.0
+    description: "Ratio of CC error rate to MI error rate."
+  validated_tipping_point:
+    type: "boolean"
+    description: "True if cc_mi_ratio > 2.0."
+  validation_status:
+    type: "string"
+    enum:
+      - "PASS"
+      - "FLAGGED"
+      - "SKIPPED"
+    description: "Status of data validity check."
+required:
+  - condition_id
+  - dataset_id
+  - mechanism
+  - missing_rate
+  - n_iterations
+  - error_rate_CC
+  - error_rate_MI
+  - error_rate_IPW
+  - binomial_p_CC
+  - adjusted_p_CC
+  - tipping_point_flag
+  - cc_mi_ratio
+  - validated_tipping_point
+  - validation_status
+additionalProperties: false

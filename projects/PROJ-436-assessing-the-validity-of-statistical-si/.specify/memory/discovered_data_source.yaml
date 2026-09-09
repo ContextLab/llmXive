@@ -1,0 +1,11 @@
+status: none
+intent: download OpenML randomized controlled trial dataset treatment outcome covariates
+  python package dataset
+required_fields:
+- treatment
+- outcome
+- covariate_1
+- covariate_2
+cache_key: 4e0713bb2380d91a1b307a8280c72b76c59fca23169abe79d82e233b9f74e557
+searched_at: '2026-09-09T10:28:47.318328+00:00'
+retry_count: 1

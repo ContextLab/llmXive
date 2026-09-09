@@ -13,7 +13,7 @@ The researcher needs to generate synthetic missing data patterns (MCAR, MAR, MNA
 
 **Why this priority**: This is the core scientific engine. Without the ability to simulate missingness and calculate the resulting error rates, the study cannot identify "tipping points" or validate the robustness of complete-case methods.
 
-**Independent Test**: The system can be tested by running a single simulation loop (e.g., 500 iterations) with a fixed seed, a specific dataset, and a defined missingness rate (e.g., [deferred] MAR), and verifying that the output includes a calculated p-value distribution and an empirical error rate metric.
+**Independent Test**: The system can be tested by running a single simulation loop with a sufficient number of iterations, a fixed seed, a specific dataset, and a defined missingness rate (e.g., [deferred] MAR), and verifying that the output includes a calculated p-value distribution and an empirical error rate metric.
 
 **Acceptance Scenarios**:
 
@@ -31,7 +31,7 @@ The researcher needs to systematically vary missingness rates from [deferred] to
 **Acceptance Scenarios**:
 
 1. **Given** a fixed missingness mechanism (e.g., MNAR), **When** the system runs simulations for missingness rates of [deferred], [deferred], [deferred], [deferred], and [deferred], **Then** the system generates a data series showing the empirical Type I error rate for each step.
-2. **Given** the data series from the previous step, **When** the system compares the error rate at [deferred] missingness against the nominal [deferred] level, **Then** the system identifies and reports a "tipping point" if the error rate exceeds 5.5% (a [deferred] relative increase [deferred]).
+2. **Given** the data series from the previous step, **When** the system compares the error rate at [deferred] missingness against the nominal [deferred] level, **Then** the system identifies and reports a "tipping point" if the error rate exceeds 5.5%.
 
 ### User Story 3 - Compare Complete-Case vs. Imputation Methods (Priority: P3)
 
@@ -56,12 +56,12 @@ The researcher needs to compare the performance of Complete-Case (CC) analysis a
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and load 3-5 public RCT datasets (binary or continuous outcomes) from OpenML or UCI, ensuring the data contains treatment, outcome, and at least two covariates. (See US-1)
-- **FR-002**: System MUST simulate missing data patterns under three distinct mechanisms: MCAR (random), MAR (dependent on observed covariates), and MNAR (dependent on unobserved outcome values). For MNAR, the system MUST first artificially corrupt the outcome variable to create a "true" unobserved state, verify that the corrupted data maintains a zero treatment effect, and then apply the missingness mechanism. (See US-1)
-- **FR-003**: System MUST calculate empirical Type I error rates by permuting treatment labels to establish a true null hypothesis (Randomization Inference) and counting the proportion of p-values < 0.05 across 500 Monte Carlo iterations per condition. (See US-1)
-- **FR-004**: System MUST execute a sensitivity analysis sweeping missingness rates from [deferred] to [deferred] in [deferred] increments and identify the specific rate where the CC error rate exceeds the nominal [deferred] level by >10% relative increase. (See US-2)
-- **FR-005**: System MUST implement and compare three analysis methods: Complete-Case (t-test/Wilcoxon), Multiple Imputation (5 imputations via chained equations), and Inverse Probability Weighting. (See US-3)
-- **FR-006**: System MUST perform a Binomial test on the count of p-values < 0.05 to determine if the empirical Type I error rate significantly deviates from the nominal [deferred] level. (See US-2)
+- **FR-001**: System MUST download and load multiple public RCT datasets (binary or continuous outcomes) from OpenML or UCI, ensuring the data contains treatment, outcome, and at least two covariates. (See US-1)
+- **FR-002**: System MUST simulate missing data patterns under three distinct mechanisms: MCAR (random), MAR (dependent on observed covariates), and MNAR (dependent on unobserved outcome values). To ensure scientific validity, the system MUST first permute treatment labels to establish a true null hypothesis (zero effect) on the original data, and THEN apply the missingness mechanisms. For MNAR, the missingness probability MUST depend on the permuted outcome values. (See US-1)
+- **FR-003**: System MUST calculate empirical Type I error rates by first permuting treatment labels to establish a true null hypothesis (Randomization Inference), and THEN simulating missingness patterns. The system MUST count the proportion of p-values < 0.05 across 500 Monte Carlo iterations per condition. (See US-1)
+- **FR-004**: System MUST execute a sensitivity analysis sweeping missingness rates across a broad range of low to high values in incremental steps. and identify the specific rate where the CC error rate exceeds the nominal [deferred] level by >10% relative increase. (See US-2)
+- **FR-005**: System MUST implement and compare three analysis methods: Complete-Case (t-test/Wilcoxon), Multiple Imputation (imputations via chained equations), and Inverse Probability Weighting. (See US-3)
+- **FR-006**: System MUST perform a Binomial test on the count of p-values < 0.05 to determine if the empirical Type I error rate significantly deviates from the nominal 0.05 level. (See US-2)
 - **FR-007**: System MUST handle binary outcomes by using non-parametric or logistic-based tests instead of t-tests to maintain measurement validity. (See US-1)
 
 ### Key Entities
@@ -74,17 +74,21 @@ The researcher needs to compare the performance of Complete-Case (CC) analysis a
 
 ### Measurable Outcomes
 
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
 - **SC-001**: Empirical Type I error rate for CC under MCAR conditions is measured against the nominal 5% level, with a pass threshold of ≤ 6% (a 20% relative increase over the nominal [deferred] level). (See US-1)
-- **SC-002**: The "tipping point" missingness rate is measured against the condition where CC error rate exceeds 5.5% (a [deferred] relative increase [deferred]). (See US-2)
-- **SC-003**: The deviation of p-value distribution is measured against the theoretical uniform distribution expected under the null using a Binomial test at the 0.05 threshold. (See US-2)
-- **SC-004**: Statistical power under the alternative hypothesis is measured against the expected power of the CC method at 80% (to ensure the simulation is not underpowered). (See US-1)
+- **SC-002**: The "tipping point" missingness rate is measured against the condition where CC error rate exceeds a predefined threshold (a [deferred] relative increase over the nominal [deferred] level). (See US-2)
+- **SC-003**: The deviation of p-value distribution is measured against the theoretical uniform distribution expected under the null using a Binomial test at a standard significance threshold. (See US-2)
+- **SC-004**: Statistical power under the alternative hypothesis is measured against the expected power of the CC method at a conventional target level. (to ensure the simulation is not underpowered). (See US-1)
 - **SC-005**: The relative error inflation of CC vs. MI is measured at the identified tipping point, confirming CC error > 2 * MI error. (See US-3)
 
 ## Assumptions
 
-- **Assumption about data availability**: Public RCT datasets from OpenML/UCI contain sufficient covariates (e.g., age, sex) to construct valid MAR mechanisms. If a dataset lacks these, a `[NEEDS CLARIFICATION]` marker is used, or a synthetic dataset generator is triggered.
-- **Assumption about computational limits**: The simulation (500 iterations x 6 rates x 3 mechanisms x 3 methods) will complete within the 6-hour GitHub Actions free-tier limit (2 CPU, 7GB RAM) by processing datasets in batches and using vectorized operations (numpy/pandas) rather than iterative loops where possible.
+- **Assumption about data availability**: Public RCT datasets from OpenML/UCI contain sufficient covariates (e.g., age, sex) to construct valid MAR mechanisms. If a dataset lacks these, the system generates synthetic covariates correlated with the outcome (correlation r=0.3) to enable the MAR simulation, rather than skipping the dataset or deferring the decision.
+- **Assumption about computational limits**: The simulation (multiple iterations x rates x 3 mechanisms x 3 methods) will complete within the 6-hour GitHub Actions free-tier limit (2 CPU, 7GB RAM) by processing datasets in batches and using vectorized operations (numpy/pandas) rather than iterative loops where possible.
 - **Assumption about statistical validity**: The "ground truth" treatment effect of zero is established via treatment label permutation (Randomization Inference) to ensure exchangeability, rather than assuming the original dataset's structure supports a null hypothesis test without bias.
-- **Assumption about missingness simulation**: For MNAR simulation, the system can generate unobserved outcome values based on the observed distribution to create a dependency, even if the original data is fully observed, provided the corruption process preserves the zero treatment effect.
+- **Assumption about missingness simulation**: For MNAR simulation, the system uses the permuted outcome values (which represent the ground truth under the null) to determine missingness probability. This ensures the mechanism is valid without artificially generating new unobserved values that alter the distribution.
 - **Assumption about method selection**: The system defaults to Wilcoxon rank-sum tests for binary outcomes and t-tests for continuous outcomes to ensure robustness across data types without requiring complex GLM fitting that might exceed CPU limits.
 - **Assumption about power**: The sample sizes of public datasets are assumed to be large enough (N > 100) to provide stable Type I error estimates; if a dataset is too small, the simulation for that specific dataset is skipped and logged.
