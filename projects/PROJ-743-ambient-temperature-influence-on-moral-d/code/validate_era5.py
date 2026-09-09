@@ -2,283 +2,275 @@
 Task T001b: Ingest & Validate ERA5 Sample.
 
 Fetches a specific sample subset (Jan 1 – Jan 7 2016) for London (51.5074, -0.1278)
-using the CDS API with product_type='reanalysis', variable='2m_temperature',
-and grid_resolution='a fine spatial scale'.
-
-Validates the downloaded file and logs results.
+using the CDS API. Saves to data/raw/era5_sample.h5 (HDF5). Validates hourly
+resolution, float data type, and physically plausible temperature range.
+Logs success/failure to results/logs/data_validation_log.txt.
 """
 import os
 import sys
 import logging
 from datetime import datetime
 from pathlib import Path
+
 import cdsapi
 import h5py
 import numpy as np
 
-# Ensure logging is configured
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('results/logs/data_validation_log.txt', mode='a')
-    ]
-)
-logger = logging.getLogger(__name__)
+# Ensure imports from existing project files
+from setup_logging import get_data_quality_logger, ensure_directories
 
-# Configuration for the sample
+# Configuration constants matching task requirements
 TARGET_LAT = 51.5074
 TARGET_LON = -0.1278
-START_DATE = '2016-01-01'
-END_DATE = '2016-01-07'
-OUTPUT_PATH = Path('data/raw/era5_sample.h5')
-LOG_PATH = Path('results/logs/data_validation_log.txt')
+START_DATE = "2016-01-01"
+END_DATE = "2016-01-07"
+VARIABLE = "2m_temperature"
+PRODUCT_TYPE = "reanalysis"
+GRID_RESOLUTION = "fine"  # CDS API often uses 'regular_ll' or specific grid specs, but we pass as requested
+OUTPUT_PATH = Path("data/raw/era5_sample.h5")
+LOG_PATH = Path("results/logs/data_validation_log.txt")
+CHECKSUM_PATH = Path("state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml")
 
-def ensure_directories():
-    """Ensure output directories exist."""
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+# Temperature validity bounds (physically plausible for Earth surface)
+TEMP_MIN_K = 180.0  # ~-93 C
+TEMP_MAX_K = 340.0  # ~+67 C
 
 def setup_logging_custom():
-    """Custom logging setup if needed, though basicConfig handles it."""
-    pass
+    """Custom logger setup for this task."""
+    ensure_directories([OUTPUT_PATH.parent, LOG_PATH.parent])
+    logger = get_data_quality_logger()
+    if not logger.handlers:
+        handler = logging.FileHandler(LOG_PATH)
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    return logger
 
-def log_validation_status(status, message):
-    """Log validation status to the log file."""
-    logger.info(f"[VALIDATION] {status}: {message}")
-    with open(LOG_PATH, 'a') as f:
-        f.write(f"{datetime.now().isoformat()} - {status}: {message}\n")
+def log_validation_status(logger, status, message):
+    """Log validation status and message."""
+    timestamp = datetime.now().isoformat()
+    log_entry = f"[{timestamp}] {status}: {message}"
+    logger.info(log_entry)
+    print(log_entry)
 
-def fetch_era5_sample():
+def fetch_era5_sample(logger):
     """
-    Fetch ERA5 data for London using CDS API.
+    Fetch ERA5 sample data from CDS API.
     Returns the path to the downloaded NetCDF file.
     """
-    logger.info("Initializing CDS API client...")
-    try:
-        # The client reads API key from CDSAPI_RC or environment variable CDS_API_KEY
-        client = cdsapi.Client()
-    except Exception as e:
-        logger.error(f"Failed to initialize CDS client: {e}")
-        raise RuntimeError("CDS API client initialization failed. Check CDS_API_KEY.")
+    # Check for API key
+    api_key = os.environ.get("CDS_API_KEY")
+    if not api_key:
+        log_validation_status(logger, "ERROR", "CDS_API_KEY environment variable not set.")
+        return None
 
-    logger.info(f"Requesting ERA5 data for {TARGET_LAT}, {TARGET_LON} from {START_DATE} to {END_DATE}...")
-    logger.info("Parameters: product_type='reanalysis', variable='2m_temperature', grid_resolution='fine'")
+    netcdf_path = OUTPUT_PATH.with_suffix(".nc")
+    logger.info(f"Fetching ERA5 sample for {TARGET_LAT}, {TARGET_LON} from {START_DATE} to {END_DATE}")
 
     try:
-        # Request the data
-        # Note: 'grid' parameter in CDS API often takes 'lat/lon' or 'lat/lon' format.
-        # The task asks for 'a fine spatial scale', which typically implies a specific grid resolution.
-        # We will request a grid that covers London with high resolution.
-        # CDS API syntax for grid: 'lat/lon' or 'lat1/lon1/lat2/lon2'
-        # We will request a small box around London to ensure high resolution.
-        # However, the standard request for a point often uses a grid definition.
-        # Let's use a standard grid request for the region.
-        
-        # Using a bounding box for the request to ensure we get a grid.
-        # London is approx 51.5, -0.12. Let's take a 0.5 degree box.
-        # CDS API 'grid' parameter: "lat/lon" or "lat1/lon1/lat2/lon2"
-        # We will request a grid of 0.25 degrees (fine scale)
-        
-        request_params = {
-            'product_type': 'reanalysis',
-            'variable': '2m_temperature',
-            'year': '2016',
-            'month': '01',
-            'day': [f'{d:02d}' for d in range(1, 8)],
-            'time': [f'{h:02d}:00' for h in range(24)],
-            'format': 'netcdf',
-            'grid': [51.75, -0.375, 51.25, -0.125], # Box around London
-            'area': [51.75, -0.375, 51.25, -0.125] # Alternative way to specify area
-        }
-        
-        # CDS API often prefers 'area' over 'grid' for regional requests.
-        # Let's use 'area' as it's more standard for reanalysis.
-        # Order: north, west, south, east
-        request_params['area'] = [51.75, -0.375, 51.25, -0.125]
-        del request_params['grid'] # Remove grid if using area
-
-        temp_nc_path = OUTPUT_PATH.with_suffix('.nc')
-        
-        client.retrieve(
+        c = cdsapi.Client()
+        c.retrieve(
             'reanalysis-era5-single-levels',
-            request_params,
-            str(temp_nc_path)
+            {
+                'product_type': PRODUCT_TYPE,
+                'format': 'netcdf',
+                'variable': VARIABLE,
+                'year': '2016',
+                'month': '01',
+                'day': [
+                    '01', '02', '03', '04', '05', '06', '07'
+                ],
+                'time': [
+                    '00:00', '01:00', '02:00', '03:00',
+                    '04:00', '05:00', '06:00', '07:00',
+                    '08:00', '09:00', '10:00', '11:00',
+                    '12:00', '13:00', '14:00', '15:00',
+                    '16:00', '17:00', '18:00', '19:00',
+                    '20:00', '21:00', '22:00', '23:00'
+                ],
+                'area': [
+                    TARGET_LAT + 0.25, TARGET_LON - 0.25,
+                    TARGET_LAT - 0.25, TARGET_LON + 0.25
+                ],
+                'grid': '0.25/0.25', # Fine grid resolution
+                'target': str(netcdf_path)
+            },
         )
-        logger.info(f"Data successfully downloaded to {temp_nc_path}")
-        return str(temp_nc_path)
-
+        log_validation_status(logger, "SUCCESS", f"Downloaded NetCDF to {netcdf_path}")
+        return netcdf_path
     except Exception as e:
-        logger.error(f"Failed to fetch ERA5 data: {e}")
-        raise
+        log_validation_status(logger, "ERROR", f"CDS API request failed: {str(e)}")
+        return None
 
-def convert_netcdf_to_hdf5(nc_path, h5_path):
+def convert_netcdf_to_hdf5(logger, netcdf_path):
     """
-    Convert NetCDF file to HDF5 format with compression.
+    Convert NetCDF to HDF5 format with compression.
+    This is a simplified conversion assuming standard ERA5 structure.
+    In a production environment, xarray would be used, but we stick to minimal deps.
     """
-    logger.info(f"Converting {nc_path} to {h5_path}...")
     try:
         import xarray as xr
-        ds = xr.open_dataset(nc_path)
+        ds = xr.open_dataset(netcdf_path)
         
-        # Save to HDF5 with compression
-        # xarray to_netcdf can save to HDF5 if format='NETCDF4' (which is HDF5 based)
-        # But the task asks for .h5. We can use xarray's to_zarr or save as netcdf4 and rename?
-        # Or use h5py directly. Let's use xarray to save as netcdf4 (HDF5) and ensure extension is .h5
-        # Actually, xarray's to_netcdf with engine='h5netcdf' and format='NETCDF4' is the way.
+        # Select the variable of interest if present
+        if VARIABLE in ds.data_vars:
+            ds = ds[[VARIABLE]]
         
-        ds.to_netcdf(h5_path, engine='h5netcdf', format='NETCDF4')
-        ds.close()
-        
-        # Verify file size
-        if os.path.getsize(h5_path) == 0:
-            raise ValueError("Converted file is empty.")
-            
-        logger.info(f"Conversion successful. File size: {os.path.getsize(h5_path)} bytes")
-        
-        # Remove temporary NetCDF file
-        if os.path.exists(nc_path):
-            os.remove(nc_path)
-            logger.info(f"Removed temporary file {nc_path}")
-            
+        # Save to HDF5
+        ds.to_netcdf(OUTPUT_PATH, engine='h5netcdf', encoding={
+            VARIABLE: {'complevel': 4, 'zlib': True}
+        })
+        log_validation_status(logger, "SUCCESS", f"Converted to HDF5: {OUTPUT_PATH}")
+        return True
     except ImportError:
-        logger.warning("xarray not found. Attempting conversion with h5py directly (simplified).")
-        # Fallback if xarray is not available, though it's standard for this
-        raise RuntimeError("xarray is required for robust NetCDF to HDF5 conversion.")
+        # Fallback if xarray not available: attempt raw copy or error
+        # Since the task requires real data and specific format, we raise if we can't convert properly
+        log_validation_status(logger, "ERROR", "xarray not available for conversion. Cannot produce HDF5.")
+        return False
     except Exception as e:
-        logger.error(f"Conversion failed: {e}")
-        raise
+        log_validation_status(logger, "ERROR", f"Conversion to HDF5 failed: {str(e)}")
+        return False
 
-def validate_hdf5_sample(h5_path):
+def validate_hdf5_sample(logger):
     """
     Validate the HDF5 file:
-    1. Hourly resolution
-    2. Floating-point data type
-    3. Temperature values within plausible range (-100C to +100C)
+    1. Contains hourly resolution.
+    2. Floating-point data type.
+    3. Temperature values within physically plausible range.
     """
-    logger.info(f"Validating {h5_path}...")
-    
-    if not os.path.exists(h5_path):
-        log_validation_status("FAIL", f"File {h5_path} does not exist.")
+    if not OUTPUT_PATH.exists():
+        log_validation_status(logger, "FAIL", f"Output file {OUTPUT_PATH} does not exist.")
         return False
 
     try:
-        with h5py.File(h5_path, 'r') as f:
-            # Check for data variables
-            keys = list(f.keys())
-            logger.info(f"Found keys in HDF5: {keys}")
-            
-            # Look for temperature variable. Usually 'temperature' or 't2m'
-            temp_var_name = None
-            for key in keys:
-                if 'temperature' in key.lower() or 't2m' in key.lower():
-                    temp_var_name = key
-                    break
-            
-            if not temp_var_name:
-                # Try to find any 2D/3D data variable
-                for key in keys:
+        with h5py.File(OUTPUT_PATH, 'r') as f:
+            # Find the data variable
+            data_var = None
+            for key in f.keys():
+                if key != 'coordinates' and key != 'time' and key != 'latitude' and key != 'longitude':
                     if isinstance(f[key], h5py.Dataset):
-                        temp_var_name = key
+                        data_var = key
                         break
             
-            if not temp_var_name:
-                log_validation_status("FAIL", "No temperature data variable found in HDF5 file.")
-                return False
+            if data_var is None:
+                # Try standard ERA5 variable name
+                if VARIABLE in f:
+                    data_var = VARIABLE
+                else:
+                    log_validation_status(logger, "FAIL", "Could not locate temperature data variable in HDF5.")
+                    return False
 
-            dataset = f[temp_var_name]
-            logger.info(f"Validating variable: {temp_var_name}")
+            dataset = f[data_var]
             
             # 1. Check data type
-            dtype = dataset.dtype
-            if not np.issubdtype(dtype, np.floating):
-                log_validation_status("FAIL", f"Data type is {dtype}, expected floating point.")
+            if not np.issubdtype(dataset.dtype, np.floating):
+                log_validation_status(logger, "FAIL", f"Data type is {dataset.dtype}, expected floating point.")
                 return False
-            logger.info(f"Data type check passed: {dtype}")
+            log_validation_status(logger, "PASS", "Data type is floating point.")
 
-            # 2. Check values range
-            # Read data into memory (sample is small)
-            data = dataset[:]
-            min_val = np.nanmin(data)
-            max_val = np.nanmax(data)
-            
-            # Convert Kelvin to Celsius if necessary (ERA5 is usually Kelvin)
-            # ERA5 2m temperature is in Kelvin.
-            # Plausible range in Kelvin: ~200K to ~340K (-73C to +67C)
-            # Task says "physically plausible range".
-            # Let's assume Kelvin and check 200K to 340K.
-            
-            if min_val < 200 or max_val > 340:
-                # Check if it's already Celsius? Unlikely for ERA5.
-                # If it's Celsius, 200 is impossible.
-                # Let's assume Kelvin.
-                log_validation_status("WARN", f"Temperature range {min_val}K to {max_val}K is outside typical 200-340K. Proceeding.")
-            
-            logger.info(f"Value range check passed: {min_val} to {max_val}")
-
-            # 3. Check temporal resolution
-            # We need to find the time dimension.
-            time_var = None
-            for key in keys:
-                if 'time' in key.lower():
-                    time_var = key
+            # 2. Check temporal resolution (approximate via time dimension if available, or just count)
+            # ERA5 single levels usually has a 'time' dimension.
+            time_dim = None
+            for key in f.keys():
+                if key == 'time':
+                    time_dim = f[key]
                     break
             
-            if time_var:
-                time_data = f[time_var][:]
-                # Count unique time steps
-                # If we requested Jan 1-7, hourly, we expect 7 * 24 = 168 steps
-                # But the dataset might be sliced.
-                # We just check that there is a time dimension and it's not empty.
-                logger.info(f"Time dimension found: {time_data.shape}")
-                if time_data.shape[0] > 0:
-                    logger.info("Temporal resolution check passed (non-empty time dimension).")
+            if time_dim is not None:
+                time_size = len(time_dim)
+                if time_size < 24: # Expecting 7 days * 24 hours = 168
+                    log_validation_status(logger, "WARN", f"Time dimension size {time_size} is less than expected (168).")
                 else:
-                    log_validation_status("FAIL", "Time dimension is empty.")
-                    return False
+                    log_validation_status(logger, "PASS", f"Time dimension size {time_size} indicates hourly resolution.")
             else:
-                logger.warning("Time dimension not explicitly found, assuming valid structure.")
+                log_validation_status(logger, "WARN", "No explicit time dimension found, assuming hourly based on request.")
 
-            log_validation_status("PASS", "HDF5 sample validation successful.")
+            # 3. Check temperature range
+            # Read a sample or the whole array if small enough (this sample is small)
+            data = dataset[:]
+            min_val = float(np.nanmin(data))
+            max_val = float(np.nanmax(data))
+            
+            log_validation_status(logger, "INFO", f"Temperature range: {min_val} K to {max_val} K")
+            
+            if min_val < TEMP_MIN_K or max_val > TEMP_MAX_K:
+                log_validation_status(logger, "FAIL", f"Temperature values out of plausible range [{TEMP_MIN_K}, {TEMP_MAX_K}] K.")
+                return False
+            
+            log_validation_status(logger, "PASS", "Temperature values within plausible range.")
+            
             return True
 
     except Exception as e:
-        logger.error(f"Validation failed with exception: {e}")
-        log_validation_status("FAIL", f"Exception during validation: {e}")
+        log_validation_status(logger, "ERROR", f"Validation failed with exception: {str(e)}")
         return False
 
+def update_state_checksum(logger):
+    """Update the state YAML file with the checksum of the new file."""
+    try:
+        import hashlib
+        import yaml
+
+        if not OUTPUT_PATH.exists():
+            return
+
+        # Compute SHA-256
+        sha256_hash = hashlib.sha256()
+        with open(OUTPUT_PATH, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        checksum = sha256_hash.hexdigest()
+
+        # Ensure state directory exists
+        CHECKSUM_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+        # Load existing state or create new
+        if CHECKSUM_PATH.exists():
+            with open(CHECKSUM_PATH, 'r') as f:
+                state = yaml.safe_load(f) or {}
+        else:
+            state = {}
+
+        # Update
+        if 'artifact_hashes' not in state:
+            state['artifact_hashes'] = {}
+        state['artifact_hashes']['era5_sample'] = checksum
+        state['updated_at'] = datetime.now().isoformat()
+
+        with open(CHECKSUM_PATH, 'w') as f:
+            yaml.dump(state, f)
+        
+        log_validation_status(logger, "SUCCESS", f"Updated state checksum for era5_sample: {checksum}")
+
+    except Exception as e:
+        log_validation_status(logger, "ERROR", f"Failed to update state checksum: {str(e)}")
+
 def main():
-    """Main entry point for T001b."""
-    logger.info("Starting T001b: Ingest & Validate ERA5 Sample")
-    ensure_directories()
-    
-    # Step 1: Fetch
-    nc_path = None
-    try:
-        nc_path = fetch_era5_sample()
-    except Exception as e:
-        logger.error(f"Fetching failed: {e}")
-        log_validation_status("FAIL", f"Data fetch failed: {e}")
+    logger = setup_logging_custom()
+    log_validation_status(logger, "INFO", "Starting T001b: Ingest & Validate ERA5 Sample")
+
+    # 1. Fetch
+    netcdf_path = fetch_era5_sample(logger)
+    if not netcdf_path:
+        log_validation_status(logger, "FAIL", "Fetch failed. Aborting.")
         sys.exit(1)
 
-    # Step 2: Convert
-    try:
-        convert_netcdf_to_hdf5(nc_path, str(OUTPUT_PATH))
-    except Exception as e:
-        logger.error(f"Conversion failed: {e}")
-        log_validation_status("FAIL", f"Conversion failed: {e}")
+    # 2. Convert
+    if not convert_netcdf_to_hdf5(logger, netcdf_path):
+        log_validation_status(logger, "FAIL", "Conversion failed. Aborting.")
         sys.exit(1)
 
-    # Step 3: Validate
-    is_valid = validate_hdf5_sample(str(OUTPUT_PATH))
-    
-    if is_valid:
-        logger.info("T001b completed successfully.")
-        sys.exit(0)
-    else:
-        logger.error("T001b validation failed.")
+    # 3. Validate
+    if not validate_hdf5_sample(logger):
+        log_validation_status(logger, "FAIL", "Validation failed. Aborting.")
         sys.exit(1)
+
+    # 4. Update State
+    update_state_checksum(logger)
+
+    log_validation_status(logger, "SUCCESS", "T001b completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

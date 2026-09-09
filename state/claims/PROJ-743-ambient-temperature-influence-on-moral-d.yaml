@@ -4114,3 +4114,194 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T10:00:16Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Moral Machine dataset source availability via GitHub mirror or kaggle-cli
+  claim_id: c_048a1e47
+  context: Task T000 describes fetching the canonical Moral Machine dataset from a
+    direct GitHub mirror or using kaggle-cli if the direct link is unavailable.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moral_Machine_dataset_source_availability_via_GitHub_mirror
+  kind: entity_fact
+  raw_text: The Moral Machine dataset can be fetched from a direct GitHub mirror or
+    using kaggle-cli.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T08:57:54Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: CDS API provides ERA5 2m_temperature reanalysis data
+  claim_id: c_5f99fece
+  context: Task T001b describes fetching a sample subset of ERA5 data using the CDS
+    API with product_type='reanalysis' and variable='2m_temperature'.
+  evidence:
+    entailment_evidence: CDS API provides ERA5 2m temperature reanalysis data
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/CDS_API_provides_ERA5_2m_temperature_reanalysis_data
+  kind: entity_fact
+  raw_text: The Copernicus Climate Data Store (CDS) API provides ERA5 reanalysis data
+    with variables such as 2m_temperature.
+  resolved_value: CDS API provides ERA5 2m_temperature reanalysis data
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T08:57:57Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 dataset hourly temporal resolution
+  claim_id: c_f70335e4
+  context: Task T001b requires validating that the ERA5 sample file contains hourly
+    resolution.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Freely available Global Atmospheric Models such as ERA5 data are generated
+        using Copernicus Climate Change Service Information developed for numerical
+        weather prediction. These models can provide accurate and high-resolution
+        (still is coarse for InSAR studies) parameters for characterizing the atmosphere
+        state. Therefore, these methods are promising and practical techniques for
+        atmospheric noise mitigation in InSAR technique. Based on the combination
+        of different input datasets, the ERA5 is a global atmospheric model calculated
+        by the European Center for Medium-Range Weather Forecasting (ECMWF). Several
+        meteorological parameters are provided, such as pressure, temperature, and
+        relative humidity, at hourly intervals with a horizontal resolution of 0.25
+        degrees and a vertical resolution of 37 intervals from sea level to 50 km.
+      source_id: Atmospheric correction for interferometric synthetic aperture radar
+        technique
+      url: https://en.wikipedia.org/wiki/Atmospheric_correction_for_interferometric_synthetic_aperture_radar_technique
+      value: hourly
+    filled: true
+  kind: entity_fact
+  raw_text: The ERA5 dataset contains hourly temporal resolution data.
+  resolved_value: hourly
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T08:58:21Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Minimum valid response time 100 ms
+  claim_id: c_64125434
+  context: Task T010 defines RESPONSE_TIME_MIN_MS = 100, and Task T017 filters out
+    records with response times < 100 ms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum valid response time is 100 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T08:59:11Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Maximum valid response time 10000 ms
+  claim_id: c_aabf29f2
+  context: Task T010 defines RESPONSE_TIME_MAX_MS = 10000, and Task T017 filters out
+    records with response times > 10,000 ms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum valid response time is 10,000 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T08:59:47Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Minimum valid temperature -50.0 degrees Celsius
+  claim_id: c_9d79c96e
+  context: Task T010 defines TEMPERATURE_MIN = -50.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum valid temperature range is -50.0 degrees Celsius.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:00:22Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: Maximum valid temperature 60.0 degrees Celsius
+  claim_id: c_765b6108
+  context: Task T010 defines TEMPERATURE_MAX = 60.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum valid temperature range is 60.0 degrees Celsius.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:00:48Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: ERA5 data gap exclusion threshold 2 hours
+  claim_id: c_cf4fdd08
+  context: Task T019c states that if the time gap between ERA5 timestamps is greater
+    than 2 hours, the record is excluded.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/ERA5_data_gap_exclusion_threshold_2_hours
+  kind: causal
+  raw_text: ERA5 data gaps greater than 2 hours result in record exclusion during
+    interpolation.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:00:51Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: World Bank API SP.POP.TOTL indicator represents total population
+  claim_id: c_6a9f7126
+  context: Task T028a specifies retrieving age and gender proxies using the World
+    Bank API indicator SP.POP.TOTL for total population.
+  evidence:
+    entailment_evidence: World Bank API SP. TOTL indicator represents total popula
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/World_Bank_API_SP.POP.TOTL_indicator_represents_total_popula
+  kind: entity_fact
+  raw_text: The World Bank API indicator SP.POP.TOTL represents total population.
+  resolved_value: World Bank API SP.POP.TOTL indicator represents total population
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T09:00:57Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: World Bank API SP.POP.TOTL.FE.ZS indicator represents female population
+    percentage
+  claim_id: c_6998e766
+  context: Task T028a specifies retrieving age and gender proxies using the World
+    Bank API indicator SP.POP.TOTL.FE.ZS for female population percentage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/World_Bank_API_SP.POP.TOTL.FE.ZS_indicator_represents_female
+  kind: entity_fact
+  raw_text: The World Bank API indicator SP.POP.TOTL.FE.ZS represents female population
+    percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:01:54Z'

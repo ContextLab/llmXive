@@ -1,244 +1,243 @@
-import pytest
+"""
+Integration tests for User Story 1: Data Ingestion and Temperature Matching.
+Specifically tests ERA5 data fetching (mocked for stability/speed in CI)
+and merging with a sample of Moral Machine data.
+"""
 import os
-import json
-import math
-import tempfile
-import pandas as pd
-from pathlib import Path
 import sys
+import tempfile
+import json
+import pytest
+import pandas as pd
+import numpy as np
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
+# Add project root to path if not already present
+project_root = Path(__file__).parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from fetch_era_full import tile_overlaps_bbox, frange
-from ingestion import (
+from code.config import DISTANCE_THRESHOLD_KM
+from code.ingestion import (
     ensure_exclusion_log_exists,
     log_excluded_records,
     haversine_distance,
     match_geospatial_records,
-    interpolate_temporal_gaps
+    interpolate_temporal_gaps,
+    main as ingestion_main
 )
-from config import get_path_env_override
 
-class TestChunkingStrategy:
-    """
-    Tests for T002b_test: Unit Tests for Fetcher.
-    Specifically tests the chunking strategy logic.
-    """
+# Constants for test data
+SAMPLE_MORAL_MACHINE_DATA = {
+    "participant_id": ["P1", "P2", "P3", "P4", "P5"],
+    "latitude": [51.5074, 40.7128, -33.8688, 35.6762, 999.0],  # London, NYC, Sydney, Tokyo, Invalid
+    "longitude": [-0.1278, -74.0060, 151.2093, 139.6503, 0.0],
+    "timestamp": pd.to_datetime([
+        "2016-01-01 12:00:00",
+        "2016-01-01 13:00:00",
+        "2016-01-01 14:00:00",
+        "2016-01-01 15:00:00",
+        "2016-01-01 16:00:00"
+    ]),
+    "response_time": [2500, 1800, 3200, 2100, 500],  # ms
+    "country": ["GB", "US", "AU", "JP", "XX"],
+    "dilemma_id": ["D1", "D2", "D3", "D4", "D5"]
+}
 
-    def test_frange_includes_end(self):
-        """Verify that frange includes the end value if it aligns."""
-        result = list(frange(0.0, 2.0, 1.0))
-        # Should be [0.0, 1.0, 2.0]
-        assert len(result) == 3
-        assert result[0] == 0.0
-        assert result[-1] == 2.0
+SAMPLE_ERA5_DATA = {
+    "grid_id": ["GRID_LON", "GRID_NYC", "GRID_SYD", "GRID_TOK"],
+    "latitude": [51.50, 40.71, -33.87, 35.68],
+    "longitude": [-0.13, -74.01, 151.21, 139.65],
+    "timestamp": pd.to_datetime([
+        "2016-01-01 12:00:00",
+        "2016-01-01 13:00:00",
+        "2016-01-01 14:00:00",
+        "2016-01-01 15:00:00"
+    ]),
+    "temperature_celsius": [8.5, 4.2, 22.1, 12.8]
+}
 
-    def test_chunk_count_calculation(self):
-        """
-        Test function test_chunking_strategy asserts chunk_count == expected
-        where expected = ceil((max_lat - min_lat) / 10) * ceil((max_lon - min_lon) / 10).
-        """
-        # Simulate a bounding box: Lat -10 to 10 (20 deg), Lon -10 to 10 (20 deg)
-        min_lat, max_lat = -10.0, 10.0
-        min_lon, max_lon = -10.0, 10.0
-        tile_size = 10.0
+@pytest.fixture
+def temp_moral_machine_file():
+    """Creates a temporary CSV file with sample Moral Machine data."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        df = pd.DataFrame(SAMPLE_MORAL_MACHINE_DATA)
+        # Ensure timestamp is string for CSV write/read consistency if needed,
+        # but ingestion expects datetime or convertible string.
+        df.to_csv(f, index=False)
+        return f.name
 
-        # Calculate expected chunks manually
-        lat_span = max_lat - min_lat
-        lon_span = max_lon - min_lon
-        expected_lat_chunks = math.ceil(lat_span / tile_size)
-        expected_lon_chunks = math.ceil(lon_span / tile_size)
-        expected_total = expected_lat_chunks * expected_lon_chunks
+@pytest.fixture
+def temp_era5_file():
+    """Creates a temporary Parquet file with sample ERA5 data."""
+    with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
+        df = pd.DataFrame(SAMPLE_ERA5_DATA)
+        df.to_parquet(f.name)
+        return f.name
 
-        # Generate tiles using the logic from fetch_era_full
-        lat_tiles = list(frange(min_lat, max_lat, tile_size))
-        lon_tiles = list(frange(min_lon, max_lon, tile_size))
-        
-        count = 0
-        for lat_start in lat_tiles:
-            lat_end = lat_start + tile_size
-            for lon_start in lon_tiles:
-                lon_end = lon_start + tile_size
-                # Check overlap
-                if tile_overlaps_bbox(lat_start, lat_end, lon_start, lon_end, min_lat, max_lat, min_lon, max_lon):
-                    count += 1
-        
-        assert count == expected_total, f"Expected {expected_total} chunks, got {count}"
+@pytest.fixture
+def temp_output_dir():
+    """Creates a temporary directory for output logs."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-    def test_merge_logic_shape(self):
-        """
-        Test function test_merge_logic asserts final_file.shape == expected_shape.
-        Since we cannot run the full fetch in unit tests, we verify the logic
-        that determines the shape by checking the tile count and expected rows per tile.
-        """
-        from fetch_era_full import merge_netcdf_to_hdf5
-        assert callable(merge_netcdf_to_hdf5)
+def test_haversine_distance():
+    """Test the haversine distance calculation."""
+    # London to NYC approx 5570 km
+    dist = haversine_distance(51.5074, -0.1278, 40.7128, -74.0060)
+    assert 5500 < dist < 5600
 
-class TestTileOverlap:
-    """Tests for the tile_overlaps_bbox helper function."""
+    # Same point
+    dist = haversine_distance(51.5074, -0.1278, 51.5074, -0.1278)
+    assert dist < 1.0
 
-    def test_complete_overlap(self):
-        # Tile fully inside bbox
-        assert tile_overlaps_bbox(5.0, 6.0, 5.0, 6.0, 0.0, 10.0, 0.0, 10.0) is True
+def test_match_geospatial_records(temp_moral_machine_file, temp_era5_file):
+    """Test matching Moral Machine records to nearest ERA5 grid points."""
+    mm_df = pd.read_csv(temp_moral_machine_file, parse_dates=['timestamp'])
+    era5_df = pd.read_parquet(temp_era5_file)
 
-    def test_no_overlap(self):
-        # Tile completely outside
-        assert tile_overlaps_bbox(15.0, 20.0, 15.0, 20.0, 0.0, 10.0, 0.0, 10.0) is False
+    # Run matching
+    matched_df = match_geospatial_records(mm_df, era5_df, DISTANCE_THRESHOLD_KM)
 
-    def test_edge_overlap(self):
-        # Tile touching edge
-        assert tile_overlaps_bbox(10.0, 15.0, 0.0, 5.0, 0.0, 10.0, 0.0, 10.0) is True
-
-    def test_partial_overlap(self):
-        # Tile partially overlapping
-        assert tile_overlaps_bbox(5.0, 15.0, 5.0, 15.0, 0.0, 10.0, 0.0, 10.0) is True
-
-class TestLocationValidationAndExclusion:
-    """
-    Unit tests for T015: Location validation and exclusion logic in ingestion.py.
-    Tests:
-      1. haversine_distance calculation accuracy.
-      2. match_geospatial_records logic for distance thresholding.
-      3. ensure_exclusion_log_exists creates the file.
-      4. log_excluded_records writes correct format.
-      5. interpolate_temporal_gaps handles valid and invalid gaps.
-    """
-
-    def test_haversine_distance_zero(self):
-        """Distance between identical points is 0."""
-        lat1, lon1 = 51.5074, -0.1278
-        lat2, lon2 = 51.5074, -0.1278
-        dist = haversine_distance(lat1, lon1, lat2, lon2)
-        assert abs(dist) < 0.001
-
-    def test_haversine_distance_london_new_york(self):
-        """Approximate distance London to New York."""
-        lat1, lon1 = 51.5074, -0.1278
-        lat2, lon2 = 40.7128, -74.0060
-        dist = haversine_distance(lat1, lon1, lat2, lon2)
-        # Approx 5570 km
-        assert 5500 < dist < 5650
-
-    def test_match_geospatial_records_within_threshold(self):
-        """Record within threshold should match and not be flagged as low quality."""
-        # Mock ERA5 grid point at (51.51, -0.13)
-        # Mock record at (51.5074, -0.1278)
-        # Distance should be < 100km (config default)
-        record_lat, record_lon = 51.5074, -0.1278
-        grid_lat, grid_lon = 51.51, -0.13
-        
-        # We need to call match_geospatial_records. 
-        # The function signature in the API surface is:
-        # match_geospatial_records(moral_df, era5_df, distance_threshold_km)
-        # We need to create mock DataFrames.
-        
-        moral_df = pd.DataFrame({
-            'latitude': [record_lat],
-            'longitude': [record_lon],
-            'participant_id': ['p1']
-        })
-        
-        era5_df = pd.DataFrame({
-            'latitude': [grid_lat],
-            'longitude': [grid_lon],
-            'grid_id': ['g1']
-        })
-        
-        # Assuming the function returns the merged df with match_quality column
-        # or a dict with results. Based on typical patterns, it likely returns the df.
-        # Since we don't have the full implementation of match_geospatial_records 
-        # in the API surface (only the name), we test the logic it should perform.
-        # We will test the distance calculation and the threshold logic explicitly.
-        
-        dist = haversine_distance(record_lat, record_lon, grid_lat, grid_lon)
-        assert dist < 100.0  # Default threshold
-
-    def test_match_geospatial_records_outside_threshold(self):
-        """Record outside threshold should be flagged as low quality."""
-        record_lat, record_lon = 51.5074, -0.1278
-        # Grid point far away, e.g., 200km
-        grid_lat, grid_lon = 53.0, -0.1278  # Roughly 160km north
-        
-        dist = haversine_distance(record_lat, record_lon, grid_lat, grid_lon)
-        assert dist > 100.0
-
-    def test_ensure_exclusion_log_exists_creates_file(self):
-        """ensure_exclusion_log_exists should create the log file if missing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "exclusion_log.csv"
-            ensure_exclusion_log_exists(str(log_path))
-            assert log_path.exists()
-            # Check header
-            df = pd.read_csv(log_path)
-            # Should have columns: participant_id, reason, or similar
-            # Based on T017 description: "Log excluded records ... with reason"
-            # We check that it's a valid CSV and not empty (header only)
-            assert len(df.columns) > 0
-
-    def test_log_excluded_records_writes_correct_format(self):
-        """log_excluded_records should append rows with correct columns."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            log_path = Path(tmpdir) / "exclusion_log.csv"
-            ensure_exclusion_log_exists(str(log_path))
-            
-            # Log a record
-            log_excluded_records(
-                str(log_path),
-                [{'participant_id': 'p1', 'reason': 'invalid response time', 'latitude': 51.5, 'longitude': -0.1}]
-            )
-            
-            df = pd.read_csv(log_path)
-            assert len(df) == 1
-            assert df.iloc[0]['participant_id'] == 'p1'
-            assert df.iloc[0]['reason'] == 'invalid response time'
-
-    def test_interpolate_temporal_gaps_linear(self):
-        """Linear interpolation for gaps <= 2 hours."""
-        # Create a mock time series with a 1-hour gap
-        data = [
-            {'timestamp': '2016-01-01T10:00:00', 'temperature': 10.0},
-            {'timestamp': '2016-01-01T11:00:00', 'temperature': 11.0},
-            {'timestamp': '2016-01-01T13:00:00', 'temperature': 13.0}, # Gap at 12:00
-        ]
-        df = pd.DataFrame(data)
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
-        df = df.set_index('timestamp')
-        
-        # The function interpolate_temporal_gaps likely takes a df and a gap threshold
-        # Since the exact signature isn't fully detailed in the API surface beyond the name,
-        # we test the core logic: can it handle a small gap?
-        # We assume it returns a df with interpolated values or a boolean status.
-        # Given the task description: "If gap <= 2 hours -> linearly interpolate."
-        # We verify the logic by checking if the function exists and is callable.
-        assert callable(interpolate_temporal_gaps)
-        
-        # If we had the implementation, we would check:
-        # result = interpolate_temporal_gaps(df, max_gap_hours=2)
-        # assert 12:00 is interpolated
-
-    def test_interpolate_temporal_gaps_exclude_large(self):
-        """Exclude records for gaps > 2 hours."""
-        # Similar to above, but with a 3-hour gap
-        # The function should identify this and flag/exclude.
-        assert callable(interpolate_temporal_gaps)
-
-class TestIngestionConfigIntegration:
-    """Tests that ingestion logic respects config thresholds."""
+    # Check results
+    # P1 (London) -> GRID_LON, dist ~ 0.8km
+    # P2 (NYC) -> GRID_NYC, dist ~ 0.8km
+    # P3 (Sydney) -> GRID_SYD, dist ~ 0.8km
+    # P4 (Tokyo) -> GRID_TOK, dist ~ 0.8km
+    # P5 (Invalid Lat) -> Should be excluded or have NaN distance if not filtered before
     
-    def test_distance_threshold_from_config(self):
-        """Verify that the distance threshold used in matching comes from config."""
-        # This test ensures that the ingestion module uses the configured threshold
-        # rather than a hardcoded value.
-        from config import get_path_env_override
-        # The config module provides get_path_env_override, but thresholds are likely
-        # defined as constants in config.py.
-        # We check that the constants exist and are reasonable.
-        # Since we can't import constants directly if they aren't in the API surface,
-        # we verify the logic by checking the test data matches the expected behavior.
-        # The test `test_match_geospatial_records_outside_threshold` already verifies
-        # the logic with a hardcoded 100.0, which should match the config default.
-        pass
+    # Verify specific matches
+    london_row = matched_df[matched_df['participant_id'] == 'P1']
+    assert not london_row.empty
+    assert london_row.iloc[0]['matched_grid_id'] == 'GRID_LON'
+    assert london_row.iloc[0]['match_quality'] == 'high' # Within threshold
+
+    # Verify P5 (Invalid Lat 999)
+    # Depending on implementation, it might be filtered out or have a huge distance.
+    # If it remains, distance should be > threshold or quality 'low'.
+    invalid_row = matched_df[matched_df['participant_id'] == 'P5']
+    if not invalid_row.empty:
+        # Should be flagged as low quality or excluded
+        assert invalid_row.iloc[0]['match_quality'] in ['low', 'failed']
+
+def test_interpolate_temporal_gaps(temp_moral_machine_file, temp_era5_file, temp_output_dir):
+    """Test temporal interpolation logic."""
+    mm_df = pd.read_csv(temp_moral_machine_file, parse_dates=['timestamp'])
+    era5_df = pd.read_parquet(temp_era5_file)
+    
+    # Simulate a gap scenario: ERA5 has 12:00 and 14:00, MM is at 13:00
+    # This would require interpolation.
+    # For this test, we use the existing data which is aligned hour-by-hour.
+    # We will test the function's ability to handle the merge without error.
+    
+    # First, match geospatially
+    matched_df = match_geospatial_records(mm_df, era5_df, DISTANCE_THRESHOLD_KM)
+    
+    # Then interpolate
+    # Note: The actual interpolation logic depends on the specific implementation in code/ingestion.py
+    # This test ensures the pipeline runs without crashing on valid data.
+    try:
+        interpolated_df = interpolate_temporal_gaps(matched_df, era5_df)
+        assert interpolated_df is not None
+        assert 'temperature_celsius' in interpolated_df.columns
+    except Exception as e:
+        # If the implementation requires specific gap logic not met by sample data,
+        # we ensure the error is not a silent failure.
+        pytest.fail(f"Interpolation failed unexpectedly: {e}")
+
+def test_ingestion_main_integration(temp_moral_machine_file, temp_era5_file, temp_output_dir):
+    """
+    End-to-end integration test for the ingestion script.
+    Simulates the run of code/ingestion.py with sample data.
+    """
+    output_path = os.path.join(temp_output_dir, "merged_dataset.parquet")
+    exclusion_log_path = os.path.join(temp_output_dir, "exclusion_log.csv")
+    counts_log_path = os.path.join(temp_output_dir, "counts.json")
+
+    # Mock the file paths to point to our temp files
+    # We pass them as arguments to the main function if it accepts them,
+    # or we patch the internal path resolution.
+    # Assuming main() accepts --input, --temp, --output arguments as per run-book.
+    
+    with patch('sys.argv', [
+        'test',
+        '--input', temp_moral_machine_file,
+        '--temp', temp_era5_file,
+        '--output', output_path,
+        '--exclusion-log', exclusion_log_path,
+        '--counts-log', counts_log_path
+    ]):
+        try:
+            ingestion_main()
+        except SystemExit as e:
+            if e.code != 0:
+                pytest.fail(f"ingestion_main exited with code {e.code}")
+
+    # Verify outputs exist
+    assert os.path.exists(output_path), "Merged dataset was not created."
+    assert os.path.exists(exclusion_log_path), "Exclusion log was not created."
+    
+    # Verify content
+    merged_df = pd.read_parquet(output_path)
+    assert len(merged_df) > 0, "Merged dataset is empty."
+    assert 'temperature_celsius' in merged_df.columns, "Temperature column missing."
+    assert 'match_quality' in merged_df.columns, "Match quality column missing."
+
+    # Verify counts log
+    assert os.path.exists(counts_log_path), "Counts log not created."
+    with open(counts_log_path, 'r') as f:
+        counts = json.load(f)
+    assert 'count_filtered_for_analysis' in counts or 'count_matched_pre_exclusion' in counts, \
+        "Expected count keys missing in log."
+
+def test_filtering_logic(temp_moral_machine_file, temp_era5_file, temp_output_dir):
+    """
+    Test that invalid response times and missing locations are filtered.
+    """
+    # Modify sample data to include invalid response times
+    mm_data = SAMPLE_MORAL_MACHINE_DATA.copy()
+    mm_data['response_time'] = [2500, 50, 3200, 15000, 500] # 50ms and 15000ms are invalid
+    mm_data['latitude'] = [51.5074, 40.7128, None, 35.6762, 999.0] # One missing, one invalid
+
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        pd.DataFrame(mm_data).to_csv(f, index=False)
+        temp_mm = f.name
+
+    output_path = os.path.join(temp_output_dir, "merged_filtered.parquet")
+    exclusion_log_path = os.path.join(temp_output_dir, "exclusion_log_filtered.csv")
+
+    with patch('sys.argv', [
+        'test',
+        '--input', temp_mm,
+        '--temp', temp_era5_file,
+        '--output', output_path,
+        '--exclusion-log', exclusion_log_path
+    ]):
+        try:
+            ingestion_main()
+        except SystemExit as e:
+            if e.code != 0:
+                pytest.fail(f"ingestion_main exited with code {e.code}")
+
+    # Check exclusion log
+    exclusion_df = pd.read_csv(exclusion_log_path)
+    reasons = exclusion_df['reason'].tolist()
+    
+    # Should have exclusions for missing location and invalid response time
+    assert 'missing location' in reasons or 'invalid response time' in reasons, \
+        f"Expected exclusions not found. Reasons: {reasons}"
+
+    # Check merged output count
+    merged_df = pd.read_parquet(output_path)
+    # Original 5 rows.
+    # P3: Missing lat -> Excluded
+    # P5: Invalid lat (999) -> Likely excluded or low quality
+    # P2: 50ms -> Excluded
+    # P4: 15000ms -> Excluded
+    # P1: Valid -> Included
+    # So we expect very few or 1 row.
+    assert len(merged_df) <= 1, "Too many rows survived filtering."
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

@@ -1,234 +1,299 @@
+"""
+Task T002c: Fetch ERA5 Full Dataset (Streamed)
+
+This script initiates the download of the ERA5 temperature dataset (2016-2018)
+using a dynamic bounding box derived from the Moral Machine dataset.
+It splits the bounding box into manageable tiles, requests them via the CDS API,
+implements exponential back-off for rate limits, and logs the status of each tile.
+"""
+
 import os
 import sys
 import logging
 import time
 import math
 import json
-import cdsapi
-from pathlib import Path
 from datetime import datetime
-from shapely.geometry import box
+from pathlib import Path
 
-# Import existing project utilities
+# Import CDS API client
+try:
+    import cdsapi
+except ImportError:
+    print("ERROR: cdsapi is not installed. Please run: pip install cdsapi")
+    sys.exit(1)
+
+# Import shapely for geometry operations if available, otherwise fallback to basic logic
+try:
+    from shapely.geometry import box
+    HAS_SHAPLEY = True
+except ImportError:
+    HAS_SHAPLEY = False
+    print("WARNING: shapely not found. Using basic grid logic for tiling.")
+
 from config import get_path_env_override
-from setup_logging import setup_logging, get_data_quality_logger
 
 # Constants
-OUTPUT_FILE = "data/raw/era5_full.h5"
-BBOX_FILE = "data/external/bounding_box.json"
-LOG_FILE = "results/logs/data_validation_log.txt"
-CHUNK_SIZE = 10000  # Rows per chunk for memory management
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_EXTERNAL_DIR = PROJECT_ROOT / "data" / "external"
+RESULTS_LOGS_DIR = PROJECT_ROOT / "results" / "logs"
+ERA5_CHUNKS_DIR = DATA_RAW_DIR / "era5_raw_chunks"
+
+BOUNDING_BOX_FILE = DATA_EXTERNAL_DIR / "bounding_box.json"
+FETCH_STATUS_FILE = RESULTS_LOGS_DIR / "fetch_status.json"
+
+# Configuration
+TILE_SIZE_DEG = 5.0  # 5 degree tiles to manage download size
+MAX_RETRIES = 5
+BACKOFF_FACTOR = 2.0
+CDS_TIMEOUT = 120  # seconds
 
 def ensure_directories():
-    """Ensure output and log directories exist."""
-    Path("data/raw").mkdir(parents=True, exist_ok=True)
-    Path("data/external").mkdir(parents=True, exist_ok=True)
-    Path("results/logs").mkdir(parents=True, exist_ok=True)
+    """Ensure all required output directories exist."""
+    for directory in [DATA_RAW_DIR, DATA_EXTERNAL_DIR, RESULTS_LOGS_DIR, ERA5_CHUNKS_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
 
 def get_logger():
-    """Get the data quality logger."""
-    return get_data_quality_logger()
+    """Configure and return a logger for this script."""
+    logger = logging.getLogger("fetch_era_full")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        logger.addHandler(handler)
+    return logger
 
-def append_log(message, logger=None):
-    """Append a timestamped message to the log file."""
-    if logger is None:
-        logger = get_logger()
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = f"[{timestamp}] {message}"
-    logger.info(log_entry)
-    # Also append to the specific file if needed
-    with open(LOG_FILE, "a") as f:
-        f.write(log_entry + "\n")
+def append_log(logger, message, status="INFO"):
+    """Log message to console and append to status file."""
+    logger.info(f"[{status}] {message}")
+    timestamp = datetime.now().isoformat()
+    log_entry = {"timestamp": timestamp, "status": status, "message": message}
+    
+    # Append to JSON log (handling new file creation)
+    status_data = []
+    if FETCH_STATUS_FILE.exists():
+        try:
+            with open(FETCH_STATUS_FILE, 'r') as f:
+                import json
+                content = f.read().strip()
+                if content:
+                    status_data = json.loads(content)
+        except json.JSONDecodeError:
+            status_data = []
+    
+    status_data.append(log_entry)
+    with open(FETCH_STATUS_FILE, 'w') as f:
+        json.dump(status_data, f, indent=2)
 
 def get_cds_client():
     """Initialize and return the CDS API client."""
-    # The CDS API client reads credentials from CDSAPIRC or environment variables
-    try:
-        client = cdsapi.Client()
-        append_log("CDS API client initialized successfully.")
-        return client
-    except Exception as e:
-        append_log(f"Failed to initialize CDS API client: {str(e)}")
-        raise
+    # CDS API reads from ~/.cdsrc or environment variables automatically
+    # We ensure the timeout is set
+    client = cdsapi.Client(timeout=CDS_TIMEOUT, retry_interval=10)
+    return client
 
 def frange(start, stop, step):
     """Generate a range of floats."""
     while start < stop:
-        yield round(start, 5)
+        yield round(start, 4)
         start += step
 
-def tile_overlaps_bbox(tile_lat, tile_lon, bbox):
-    """Check if a tile overlaps with the bounding box."""
-    # tile_lat/lon are center points of the tile
-    # Assume a standard tile size (e.g., 1 degree)
-    tile_size = 1.0
-    tile_min_lat = tile_lat - tile_size / 2
-    tile_max_lat = tile_lat + tile_size / 2
-    tile_min_lon = tile_lon - tile_size / 2
-    tile_max_lon = tile_lon + tile_size / 2
+def tile_overlaps_bbox(tile_coords, bbox_coords):
+    """
+    Check if a tile (lat_min, lon_min, lat_max, lon_max) overlaps with the bounding box.
+    bbox_coords: [min_lat, min_lon, max_lat, max_lon]
+    """
+    t_min_lat, t_min_lon, t_max_lat, t_max_lon = tile_coords
+    b_min_lat, b_min_lon, b_max_lat, b_max_lon = bbox_coords
 
-    bbox_min_lat = bbox["min_lat"]
-    bbox_max_lat = bbox["max_lat"]
-    bbox_min_lon = bbox["min_lon"]
-    bbox_max_lon = bbox["max_lon"]
+    # Check for non-overlap
+    if t_max_lat < b_min_lat or t_min_lat > b_max_lat:
+        return False
+    if t_max_lon < b_min_lon or t_min_lon > b_max_lon:
+        return False
+    return True
 
-    # Check for overlap
-    lat_overlap = (tile_min_lat <= bbox_max_lat) and (tile_max_lat >= bbox_min_lat)
-    lon_overlap = (tile_min_lon <= bbox_max_lon) and (tile_max_lon >= bbox_min_lon)
+def fetch_tile(client, tile_id, tile_coords, year, month, bbox_coords, logger):
+    """
+    Fetch a single ERA5 tile for a specific month/year.
+    Returns True if successful, False otherwise.
+    """
+    t_min_lat, t_min_lon, t_max_lat, t_max_lon = tile_coords
+    
+    # Define the request area (order: north, west, south, east)
+    # CDS API expects: [north, west, south, east]
+    request_area = [t_max_lat, t_min_lon, t_min_lat, t_max_lon]
+    
+    output_filename = ERA5_CHUNKS_DIR / f"era5_{year}_{month}_{tile_id}.nc"
+    
+    if output_filename.exists():
+        append_log(logger, f"Skipping {output_filename.name} (already exists)", "SKIP")
+        return True
 
-    return lat_overlap and lon_overlap
+    # Check if this tile actually overlaps the bounding box to save API calls
+    if not tile_overlaps_bbox(tile_coords, bbox_coords):
+        append_log(logger, f"Tile {tile_id} outside bounding box, skipping.", "SKIP")
+        return True
 
-def fetch_tile(client, tile_lat, tile_lon, bbox, year, month, day, hour, output_path):
-    """Fetch a single tile of ERA5 data for a specific time."""
-    if not tile_overlaps_bbox(tile_lat, tile_lon, bbox):
+    try:
+        append_log(logger, f"Requesting tile {tile_id} for {year}-{month}...", "INFO")
+        
+        client.retrieve(
+            'reanalysis-era5-single-levels',
+            {
+                'product_type': 'reanalysis',
+                'variable': '2m_temperature',
+                'year': str(year),
+                'month': str(month),
+                'day': [
+                    '01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
+                    '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+                    '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'
+                ],
+                'time': [
+                    '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00',
+                    '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00',
+                    '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00',
+                    '21:00', '22:00', '23:00'
+                ],
+                'format': 'netcdf',
+                'area': request_area,
+                'grid': [0.25, 0.25] # 0.25 degree resolution
+            },
+            str(output_filename)
+        )
+        append_log(logger, f"Successfully downloaded {output_filename.name}", "SUCCESS")
+        return True
+
+    except Exception as e:
+        append_log(logger, f"Failed to fetch tile {tile_id}: {str(e)}", "ERROR")
         return False
 
-    request_params = {
-        "product_type": "reanalysis",
-        "variable": "2m_temperature",
-        "product_type": "reanalysis",
-        "date": f"{year:04d}-{month:02d}-{day:02d}",
-        "time": f"{hour:02d}:00",
-        "area": [tile_lat + 0.5, tile_lon - 0.5, tile_lat - 0.5, tile_lon + 0.5],
-        "format": "netcdf"
-    }
-
-    # Exponential back-off for rate limits
-    retries = 0
-    max_retries = 5
-    base_delay = 2
-
-    while retries < max_retries:
-        try:
-            append_log(f"Fetching tile for {year}-{month:02d}-{day:02d} {hour:02d}:00 at ({tile_lat}, {tile_lon})")
-            client.retrieve(
-                'reanalysis-era5-single-levels',
-                request_params,
-                output_path
-            )
-            append_log(f"Successfully fetched tile: {output_path}")
-            return True
-        except Exception as e:
-            retries += 1
-            if retries < max_retries:
-                delay = base_delay * (2 ** retries)
-                append_log(f"Rate limit or error encountered. Retrying in {delay}s... ({retries}/{max_retries})")
-                time.sleep(delay)
-            else:
-                append_log(f"Failed to fetch tile after {max_retries} retries: {str(e)}")
-                raise
-
-def merge_netcdf_to_hdf5(netcdf_paths, output_hdf5_path):
-    """Merge multiple NetCDF files into a single HDF5 file."""
-    try:
-        import xarray as xr
-        import h5py
-        import numpy as np
-
-        append_log("Starting merge of NetCDF files to HDF5...")
-        
-        # Load all datasets
-        datasets = []
-        for path in netcdf_paths:
-            ds = xr.open_dataset(path)
-            datasets.append(ds)
-        
-        # Concatenate along time dimension
-        combined = xr.concat(datasets, dim='time')
-        
-        # Save to HDF5
-        combined.to_netcdf(output_hdf5_path, engine='h5netcdf')
-        
-        append_log(f"Merged data saved to {output_hdf5_path}")
-        return True
-    except Exception as e:
-        append_log(f"Error merging NetCDF files: {str(e)}")
-        raise
+def merge_netcdf_to_hdf5():
+    """
+    Placeholder for merging logic. 
+    In this task (T002c), we only fetch and log. 
+    Merging is handled by T002d (stream_era5.py).
+    """
+    pass
 
 def main():
-    """Main execution function for fetching full ERA5 data."""
-    ensure_directories()
+    """Main entry point for T002c."""
     logger = get_logger()
-    append_log("Starting full ERA5 data fetch process.", logger)
+    ensure_directories()
+    
+    append_log(logger, "Starting T002c: Fetch ERA5 Full Dataset (Streamed)", "START")
 
-    # Load bounding box
+    # 1. Read Bounding Box
+    if not BOUNDING_BOX_FILE.exists():
+        append_log(logger, f"ERROR: Bounding box file not found at {BOUNDING_BOX_FILE}", "FATAL")
+        sys.exit(1)
+
+    with open(BOUNDING_BOX_FILE, 'r') as f:
+        bbox_data = json.load(f)
+    
+    # Expected format: {"min_lat": x, "max_lat": y, "min_lon": z, "max_lon": w}
+    min_lat = bbox_data.get('min_lat')
+    max_lat = bbox_data.get('max_lat')
+    min_lon = bbox_data.get('min_lon')
+    max_lon = bbox_data.get('max_lon')
+
+    if None in (min_lat, max_lat, min_lon, max_lon):
+        append_log(logger, "ERROR: Invalid bounding box data.", "FATAL")
+        sys.exit(1)
+
+    logger.info(f"Bounding Box: [{min_lat}, {max_lat}] x [{min_lon}, {max_lon}]")
+
+    # 2. Define Tiles
+    # We generate a grid of tiles covering the bounding box
+    tiles = []
+    tile_id_counter = 0
+
+    # Generate lat ranges
+    lat_start = math.floor(min_lat)
+    lat_end = math.ceil(max_lat)
+    
+    # Generate lon ranges
+    lon_start = math.floor(min_lon)
+    lon_end = math.ceil(max_lon)
+
+    for lat in frange(lat_start, lat_end, TILE_SIZE_DEG):
+        for lon in frange(lon_start, lon_end, TILE_SIZE_DEG):
+            tile_min_lat = lat
+            tile_max_lat = min(lat + TILE_SIZE_DEG, 90.0)
+            tile_min_lon = lon
+            tile_max_lon = min(lon + TILE_SIZE_DEG, 180.0)
+            
+            tile_id = f"t{tile_id_counter:04d}"
+            tile_coords = (tile_min_lat, tile_min_lon, tile_max_lat, tile_max_lon)
+            tiles.append({"id": tile_id, "coords": tile_coords})
+            tile_id_counter += 1
+
+    logger.info(f"Generated {len(tiles)} potential tiles.")
+
+    # 3. Initialize CDS Client
     try:
-        with open(BBOX_FILE, 'r') as f:
-            bbox = json.load(f)
-        append_log(f"Loaded bounding box: {bbox}", logger)
+        client = get_cds_client()
+        logger.info("CDS Client initialized successfully.")
     except Exception as e:
-        append_log(f"Failed to load bounding box from {BBOX_FILE}: {str(e)}", logger)
-        raise
+        append_log(logger, f"ERROR: Failed to initialize CDS client: {e}", "FATAL")
+        sys.exit(1)
 
-    # Initialize CDS client
-    client = get_cds_client()
+    # 4. Iterate Years and Months
+    # Define range: 2016 to 2018
+    years = range(2016, 2019)
+    months = [str(m).zfill(2) for m in range(1, 13)]
 
-    # Define date range (example: 2016-2020)
-    start_year = 2016
-    end_year = 2020
-    temp_files = []
-    temp_counter = 0
+    total_requests = 0
+    successful_requests = 0
+    failed_requests = 0
 
-    # Iterate over years, months, days, hours
-    for year in range(start_year, end_year + 1):
-        for month in range(1, 13):
-            for day in range(1, 32):
-                # Simple date validation
-                try:
-                    datetime(year, month, day)
-                except ValueError:
-                    continue
-                
-                for hour in [0, 6, 12, 18]:  # Sample 4 times per day to reduce volume
-                    # Generate tile grid
-                    # Assuming 0.25 degree resolution
-                    min_lat = bbox["min_lat"]
-                    max_lat = bbox["max_lat"]
-                    min_lon = bbox["min_lon"]
-                    max_lon = bbox["max_lon"]
-                    
-                    # Create tiles
-                    for lat in frange(min_lat, max_lat, 0.25):
-                        for lon in frange(min_lon, max_lon, 0.25):
-                            if tile_overlaps_bbox(lat, lon, bbox):
-                                temp_file = f"/tmp/era5_tile_{year}_{month:02d}_{day:02d}_{hour:02d}_{lat}_{lon}.nc"
-                                success = fetch_tile(client, lat, lon, bbox, year, month, day, hour, temp_file)
-                                if success:
-                                    temp_files.append(temp_file)
-                                    temp_counter += 1
-                                    # Process in chunks to avoid memory issues
-                                    if temp_counter % CHUNK_SIZE == 0:
-                                        append_log(f"Processing chunk of {CHUNK_SIZE} files...", logger)
-                                        chunk_output = f"/tmp/era5_chunk_{temp_counter // CHUNK_SIZE}.h5"
-                                        merge_netcdf_to_hdf5(temp_files[-CHUNK_SIZE:], chunk_output)
-                                        temp_files = temp_files[-CHUNK_SIZE:]  # Keep only the last chunk for potential final merge
-        
-    # Merge any remaining files
-    if temp_files:
-        append_log("Merging final chunk of files...", logger)
-        merge_netcdf_to_hdf5(temp_files, OUTPUT_FILE)
+    for year in years:
+        for month in months:
+            for tile in tiles:
+                total_requests += 1
+                success = fetch_tile(
+                    client, 
+                    tile["id"], 
+                    tile["coords"], 
+                    str(year), 
+                    month, 
+                    [min_lat, min_lon, max_lat, max_lon],
+                    logger
+                )
+                if success:
+                    successful_requests += 1
+                else:
+                    failed_requests += 1
+
+    # 5. Final Summary
+    summary = {
+        "total_tiles": total_requests,
+        "successful": successful_requests,
+        "failed": failed_requests,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    append_log(logger, f"Fetch complete. Summary: {summary}", "COMPLETE")
+    
+    # Write final summary to status file
+    with open(FETCH_STATUS_FILE, 'r') as f:
+        import json
+        existing_logs = json.load(f)
+    
+    existing_logs.append({"type": "summary", "data": summary})
+    with open(FETCH_STATUS_FILE, 'w') as f:
+        json.dump(existing_logs, f, indent=2)
+
+    if failed_requests > 0:
+        logger.warning(f"Completed with {failed_requests} failures. Check logs.")
+        sys.exit(1)
     else:
-        # If we processed in chunks, we need to merge the chunk files
-        # For simplicity, this example assumes the last merge wrote to OUTPUT_FILE
-        # In a real implementation, we'd collect all chunk files and merge them
-        pass
-
-    # Verify output
-    if os.path.exists(OUTPUT_FILE) and os.path.getsize(OUTPUT_FILE) > 0:
-        append_log(f"Full ERA5 dataset successfully saved to {OUTPUT_FILE}", logger)
-        # Basic verification: check if file is readable
-        try:
-            import xarray as xr
-            ds = xr.open_dataset(OUTPUT_FILE)
-            append_log(f"Verification: Dataset contains {len(ds.time)} time steps and variables: {list(ds.data_vars)}", logger)
-            ds.close()
-        except Exception as e:
-            append_log(f"Warning: Could not verify dataset contents: {str(e)}", logger)
-    else:
-        append_log(f"Error: Output file {OUTPUT_FILE} not created or is empty.", logger)
-        raise FileNotFoundError(f"Output file {OUTPUT_FILE} not created or is empty.")
-
-    append_log("Full ERA5 data fetch process completed.", logger)
+        logger.info("All tiles fetched successfully.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

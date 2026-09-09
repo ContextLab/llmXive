@@ -6,6 +6,13 @@ T001b:
     is incomplete/truncated and there is no evidence that it fetched, saved, and validated
     the data as specified. The missing HDF5 file and lack of concrete validation logs
     must be addressed.
+T006:
+  c: false
+  h: 1c41e35d6933686ed8d2874830424cccaa076ff7a6c1bdba2d6106471e6d1213
+  r: "The required files `data/raw/era5_full.parquet` and `data/raw/moral_machine.csv.gz`\
+    \ are missing, yet the log reports a Pass status, and there is no evidence that\
+    \ the gate raised an exception on failure. The validation gate therefore does\
+    \ not meet the task\u2019s requirements."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -71,3 +78,9 @@ T028g:
     \ verifying that `dilemma_choice` is created without referencing `response_time`\
     \ or that it is merged as a fixed effect is present. The implementer must add\
     \ the appropriate test and generate the verification JSON log."
+T055:
+  c: false
+  h: 8628c4475bb9c84a30cde393af4f7489bee0b13ef55f141dec777fcef984a861
+  r: "The required `code/preprocessing.py` file is missing entirely, so there is no\
+    \ wrapper script that can be executed with `python code/preprocessing.py`. Without\
+    \ this artifact the task\u2019s core requirement is not met."

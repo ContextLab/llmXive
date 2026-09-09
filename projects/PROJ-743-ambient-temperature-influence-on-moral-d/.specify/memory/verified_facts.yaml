@@ -1,4 +1,4 @@
-'|contain data era5 hourly resolution sample':
+'|contain data dataset era5 hourly resolution temporal':
   quote: Freely available Global Atmospheric Models such as ERA5 data are generated
     using Copernicus Climate Change Service Information developed for numerical weather
     prediction. These models can provide accurate and high-resolution (still is coarse

@@ -1,380 +1,365 @@
+"""
+Ingestion module for Ambient Temperature Influence on Moral Decision Speed.
+
+This module implements the core data ingestion pipeline:
+1. Load and filter Moral Machine dataset
+2. Geospatial matching with ERA5 temperature data
+3. Temporal interpolation for temperature gaps
+4. Data quality logging and exclusion tracking
+"""
+
 import os
 import sys
 import logging
+import json
 from pathlib import Path
 from typing import Optional, Tuple, Dict, Any
+
 import pandas as pd
 import numpy as np
+import geopandas as gpd
+from shapely.geometry import Point
 
-# Import logging setup from existing project module
-from setup_logging import get_data_quality_logger
+from config import get_path_env_override
+from loaders import load_chunked_parquet, load_parquet_as_df
+from setup_logging import setup_logging, get_data_quality_logger
 
 # Constants
-TEMP_GAP_THRESHOLD_HOURS = 2.0
-EXCLUSION_LOG_PATH = Path("results/logs/exclusion_log.csv")
-MERGED_DATASET_PATH = Path("data/processed/merged_dataset.parquet")
+DISTANCE_THRESHOLD_KM = 100  # From config.py, but kept here for clarity
+TEMPORAL_GAP_HOURS = 2  # Maximum gap for interpolation
 
-# Initialize logger
-logger = get_data_quality_logger()
-
-def ensure_exclusion_log_exists():
-    """Ensure the exclusion log file and directory exist."""
-    EXCLUSION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    if not EXCLUSION_LOG_PATH.exists():
-        # Create empty CSV with headers
-        pd.DataFrame(columns=['record_id', 'reason', 'details']).to_csv(
-            EXCLUSION_LOG_PATH, index=False
-        )
-
-def log_excluded_records(records_to_exclude: list):
-    """
-    Append exclusion records to the CSV log.
+def ensure_exclusion_log_exists(log_path: Path) -> None:
+    """Ensure the exclusion log file exists with proper headers."""
+    if not log_path.parent.exists():
+        log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        records_to_exclude: List of dicts with keys: record_id, reason, details
-    """
-    if not records_to_exclude:
+    if not log_path.exists():
+        df = pd.DataFrame(columns=['participant_id', 'reason', 'timestamp'])
+        df.to_csv(log_path, index=False)
+
+def log_excluded_records(df: pd.DataFrame, reason: str, log_path: Path) -> None:
+    """Log excluded records to the exclusion log."""
+    if df.empty:
         return
-
-    df_exclusion = pd.DataFrame(records_to_exclude)
     
-    # Append to existing CSV without headers if file exists
-    if EXCLUSION_LOG_PATH.exists() and EXCLUSION_LOG_PATH.stat().st_size > 0:
-        df_exclusion.to_csv(EXCLUSION_LOG_PATH, mode='a', header=False, index=False)
-    else:
-        df_exclusion.to_csv(EXCLUSION_LOG_PATH, index=False)
+    excluded = df[['participant_id']].copy()
+    excluded['reason'] = reason
+    excluded['timestamp'] = pd.Timestamp.now()
     
-    logger.info(f"Logged {len(records_to_exclude)} excluded records to {EXCLUSION_LOG_PATH}")
+    existing = pd.read_csv(log_path)
+    updated = pd.concat([existing, excluded], ignore_index=True)
+    updated.to_csv(log_path, index=False)
 
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
-    Calculate the great-circle distance between two points on the Earth (km).
+    Calculate the great-circle distance between two points on Earth.
     
     Args:
-        lat1, lon1: Coordinates of point 1 (degrees)
-        lat2, lon2: Coordinates of point 2 (degrees)
-        
+        lat1, lon1: Coordinates of point 1 in degrees
+        lat2, lon2: Coordinates of point 2 in degrees
+    
     Returns:
         Distance in kilometers
     """
-    R = 6371.0  # Earth radius in km
-    phi1, phi2 = np.radians(lat1), np.radians(lat2)
-    dphi = np.radians(lat2 - lat1)
-    dlambda = np.radians(lon2 - lon1)
-
-    a = np.sin(dphi/2.0)**2 + np.cos(phi1) * np.cos(phi2) * np.sin(dlambda/2.0)**2
+    R = 6371  # Earth's radius in km
+    
+    lat1_rad = np.radians(lat1)
+    lat2_rad = np.radians(lat2)
+    delta_lat = np.radians(lat2 - lat1)
+    delta_lon = np.radians(lon2 - lon1)
+    
+    a = np.sin(delta_lat/2)**2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(delta_lon/2)**2
     c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
-
+    
     return R * c
 
-def match_geospatial_records(moral_df: pd.DataFrame, era5_df: pd.DataFrame, threshold_km: float = 100.0) -> Tuple[pd.DataFrame, list]:
+def match_geospatial_records(moral_df: pd.DataFrame, 
+                             era5_df: pd.DataFrame,
+                             distance_threshold_km: float = DISTANCE_THRESHOLD_KM) -> Tuple[pd.DataFrame, int]:
     """
-    Match Moral Machine records to nearest ERA5 grid point within threshold.
+    Match each Moral Machine record to the nearest ERA5 grid point.
     
     Args:
-        moral_df: Moral Machine dataset with 'latitude', 'longitude'
-        era5_df: ERA5 dataset with 'latitude', 'longitude'
-        threshold_km: Maximum distance threshold in km
-        
+        moral_df: Filtered Moral Machine dataset
+        era5_df: ERA5 temperature dataset with grid_id, latitude, longitude, timestamp
+        distance_threshold_km: Maximum distance for a valid match
+    
     Returns:
-        Tuple of (matched_df, exclusion_log_entries)
+        Tuple of (matched dataframe with distance and match_quality, count_matched_pre_exclusion)
     """
-    exclusion_log_entries = []
+    if moral_df.empty or era5_df.empty:
+        return moral_df, 0
+    
+    # Convert to GeoDataFrames for spatial operations
+    moral_gdf = gpd.GeoDataFrame(
+        moral_df,
+        geometry=gpd.points_from_xy(moral_df['longitude'], moral_df['latitude']),
+        crs="EPSG:4326"
+    )
+    
+    era5_gdf = gpd.GeoDataFrame(
+        era5_df,
+        geometry=gpd.points_from_xy(era5_df['longitude'], era5_df['latitude']),
+        crs="EPSG:4326"
+    )
+    
+    # For each moral record, find nearest ERA5 point
     matched_records = []
+    count_matched_pre_exclusion = 0
+    
+    for idx, moral_row in moral_gdf.iterrows():
+        # Calculate distances to all ERA5 points (this is expensive, optimize if needed)
+        distances = []
+        for era5_idx, era5_row in era5_gdf.iterrows():
+            dist = haversine_distance(
+                moral_row['latitude'], moral_row['longitude'],
+                era5_row['latitude'], era5_row['longitude']
+            )
+            distances.append((era5_idx, dist))
+        
+        if distances:
+            # Find nearest point
+            nearest_idx, min_dist = min(distances, key=lambda x: x[1])
+            count_matched_pre_exclusion += 1
+            
+            # Determine match quality
+            match_quality = 'high' if min_dist <= distance_threshold_km else 'low'
+            
+            # Create matched record
+            matched_record = moral_row.to_dict()
+            matched_record['nearest_era5_grid_id'] = era5_gdf.loc[nearest_idx, 'grid_id']
+            matched_record['nearest_era5_distance_km'] = min_dist
+            matched_record['match_quality'] = match_quality
+            matched_records.append(matched_record)
+    
+    matched_df = pd.DataFrame(matched_records)
+    return matched_df, count_matched_pre_exclusion
 
-    # Ensure ERA5 is indexed by lat/lon for efficient lookup (simplified for this task)
-    # In production, use spatial index (e.g., k-d tree) for large datasets
-    era5_coords = era5_df[['latitude', 'longitude']].drop_duplicates()
-
-    for idx, moral_row in moral_df.iterrows():
-        m_lat = moral_row['latitude']
-        m_lon = moral_row['longitude']
+def interpolate_temporal_gaps(matched_df: pd.DataFrame,
+                              era5_df: pd.DataFrame,
+                              temporal_gap_hours: float = TEMPORAL_GAP_HOURS) -> pd.DataFrame:
+    """
+    Interpolate temperature values for Moral Machine records.
+    
+    Args:
+        matched_df: Moral Machine records with nearest ERA5 grid ID
+        era5_df: ERA5 temperature dataset
+        temporal_gap_hours: Maximum gap for interpolation
+    
+    Returns:
+        DataFrame with interpolated temperature values and gap flags
+    """
+    if matched_df.empty or era5_df.empty:
+        return matched_df
+    
+    result_df = matched_df.copy()
+    result_df['temperature_celsius'] = np.nan
+    result_df['gap_status'] = 'ok'
+    
+    # Group ERA5 data by grid_id for efficient lookup
+    era5_grouped = era5_df.groupby('grid_id')
+    
+    for idx, row in result_df.iterrows():
+        grid_id = row.get('nearest_era5_grid_id')
+        moral_timestamp = row.get('timestamp')
         
-        # Calculate distances to all ERA5 grid points
-        # Optimized: vectorized calculation
-        distances = era5_coords.apply(
-            lambda row: haversine_distance(m_lat, m_lon, row['latitude'], row['longitude']),
-            axis=1
-        )
-        
-        min_dist = distances.min()
-        nearest_idx = distances.idxmin()
-        
-        if min_dist > threshold_km:
-            exclusion_log_entries.append({
-                'record_id': moral_row.get('id', idx),
-                'reason': 'distance > 100km',
-                'details': f"Nearest ERA5 grid point is {min_dist:.2f}km away"
-            })
+        if pd.isna(grid_id) or pd.isna(moral_timestamp):
             continue
         
-        # Get nearest ERA5 record
-        nearest_era5 = era5_df.loc[era5_coords.loc[nearest_idx].name] # Simplified lookup
-        
-        matched_records.append({
-            **moral_row,
-            'era5_lat': nearest_era5['latitude'],
-            'era5_lon': nearest_era5['longitude'],
-            'distance_km': min_dist,
-            'match_quality': 'high' if min_dist < 50 else 'low'
-        })
+        # Get ERA5 data for this grid
+        try:
+            era5_grid_data = era5_grouped.get_group(grid_id)
+            era5_grid_data = era5_grid_data.sort_values('timestamp')
+            
+            # Find surrounding ERA5 timestamps
+            before_mask = era5_grid_data['timestamp'] <= moral_timestamp
+            after_mask = era5_grid_data['timestamp'] >= moral_timestamp
+            
+            before_data = era5_grid_data[before_mask]
+            after_data = era5_grid_data[after_mask]
+            
+            if before_data.empty and after_data.empty:
+                result_df.loc[idx, 'gap_status'] = 'no_data'
+                continue
+            
+            # Get closest timestamps
+            if before_data.empty:
+                nearest_before = after_data.iloc[0]
+                gap_hours = 0  # No gap before
+            elif after_data.empty:
+                nearest_after = before_data.iloc[-1]
+                gap_hours = 0  # No gap after
+            else:
+                nearest_before = before_data.iloc[-1]
+                nearest_after = after_data.iloc[0]
+                gap_hours = (nearest_after['timestamp'] - nearest_before['timestamp']).total_seconds() / 3600
+            
+            if gap_hours > temporal_gap_hours:
+                result_df.loc[idx, 'gap_status'] = 'gap_too_large'
+                continue
+            
+            # Linear interpolation
+            if pd.isna(nearest_before['temperature_celsius']) or pd.isna(nearest_after['temperature_celsius']):
+                # Use whatever is available
+                if not pd.isna(nearest_before['temperature_celsius']):
+                    temp = nearest_before['temperature_celsius']
+                elif not pd.isna(nearest_after['temperature_celsius']):
+                    temp = nearest_after['temperature_celsius']
+                else:
+                    result_df.loc[idx, 'gap_status'] = 'no_temp_data'
+                    continue
+            else:
+                # Linear interpolation
+                t0 = nearest_before['timestamp']
+                t1 = nearest_after['timestamp']
+                t = moral_timestamp
+                
+                if t1 == t0:
+                    temp = nearest_before['temperature_celsius']
+                else:
+                    weight = (t - t0).total_seconds() / (t1 - t0).total_seconds()
+                    temp = nearest_before['temperature_celsius'] + weight * (
+                        nearest_after['temperature_celsius'] - nearest_before['temperature_celsius']
+                    )
+            
+            result_df.loc[idx, 'temperature_celsius'] = temp
+            
+        except Exception as e:
+            logging.warning(f"Error interpolating for record {idx}: {e}")
+            result_df.loc[idx, 'gap_status'] = 'interpolation_error'
+    
+    return result_df
 
-    matched_df = pd.DataFrame(matched_records)
-    return matched_df, exclusion_log_entries
-
-def interpolate_temporal_gaps(merged_df: pd.DataFrame) -> Tuple[pd.DataFrame, list]:
+def capture_pre_filter_count(df: pd.DataFrame, log_path: Path) -> int:
     """
-    Apply linear interpolation for missing ERA5 hourly values.
-    Exclude records if gap > 2 hours.
+    Count records with valid latitude/longitude before filtering.
     
     Args:
-        merged_df: DataFrame with 'timestamp' (datetime) and 'temperature_celsius'
-        
+        df: Raw Moral Machine dataset
+        log_path: Path to counts.json log file
+    
     Returns:
-        Tuple of (cleaned_df, exclusion_log_entries)
+        Count of records with valid location data
     """
-    exclusion_log_entries = []
-    cleaned_records = []
+    valid_location = df[df['latitude'].notna() & df['longitude'].notna()].shape[0]
     
-    # Sort by timestamp to ensure correct interpolation order
-    # Ensure timestamp is datetime
-    if not pd.api.types.is_datetime64_any_dtype(merged_df['timestamp']):
-        merged_df['timestamp'] = pd.to_datetime(merged_df['timestamp'])
+    # Update counts log
+    counts_log = {}
+    if log_path.exists():
+        with open(log_path, 'r') as f:
+            counts_log = json.load(f)
     
-    merged_df = merged_df.sort_values('timestamp')
+    counts_log['count_total_original_valid_location'] = valid_location
     
-    # Group by location to interpolate independently per grid point
-    # Assuming 'era5_lat' and 'era5_lon' identify the grid point
-    grouped = merged_df.groupby(['era5_lat', 'era5_lon'])
+    with open(log_path, 'w') as f:
+        json.dump(counts_log, f, indent=2)
     
-    for (lat, lon), group in grouped:
-        group = group.set_index('timestamp').sort_index()
-        
-        # Reindex to hourly frequency to identify gaps
-        full_range = pd.date_range(start=group.index.min(), end=group.index.max(), freq='H')
-        group_reindexed = group.reindex(full_range)
-        
-        # Identify gaps
-        # A gap is defined as a period where temperature is NaN
-        # We need to check the size of the gap in hours
-        temp_series = group_reindexed['temperature_celsius']
-        
-        # Create a mask for valid data
-        valid_mask = temp_series.notna()
-        
-        # Find indices where data transitions from valid to invalid or vice versa
-        # This helps identify gap boundaries
-        diff = valid_mask.astype(int).diff()
-        gap_start = diff == -1
-        gap_end = diff == 1
-        
-        # Handle edge cases
-        if valid_mask.iloc[0] == False:
-            # Start with a gap
-            pass 
-        
-        # Process gaps
-        # Simple approach: iterate through rows and check consecutive NaNs
-        current_gap_start = None
-        gap_indices = []
-        
-        for i, (ts, val) in enumerate(temp_series.items()):
-            if pd.isna(val):
-                if current_gap_start is None:
-                    current_gap_start = ts
-                gap_indices.append(ts)
-            else:
-                if current_gap_start is not None:
-                    # Gap ended
-                    gap_duration = (ts - current_gap_start).total_seconds() / 3600.0
-                    if gap_duration > TEMP_GAP_THRESHOLD_HOURS:
-                        # Exclude records in this gap
-                        for gap_ts in gap_indices:
-                            # Find original record corresponding to gap_ts
-                            original_row = group.loc[gap_ts] if gap_ts in group.index else None
-                            if original_row is not None:
-                                exclusion_log_entries.append({
-                                    'record_id': original_row.get('id', 'unknown'),
-                                    'reason': 'temporal_gap > 2h',
-                                    'details': f"Gap of {gap_duration:.2f}h at {gap_ts}"
-                                })
-                    else:
-                        # Interpolate
-                        # We will interpolate after processing all gaps
-                        pass
-                    current_gap_start = None
-                    gap_indices = []
-        
-        # Final gap check if ends with NaN
-        if current_gap_start is not None:
-            gap_duration = (temp_series.index[-1] - current_gap_start).total_seconds() / 3600.0
-            if gap_duration > TEMP_GAP_THRESHOLD_HOURS:
-                for gap_ts in gap_indices:
-                    original_row = group.loc[gap_ts] if gap_ts in group.index else None
-                    if original_row is not None:
-                        exclusion_log_entries.append({
-                            'record_id': original_row.get('id', 'unknown'),
-                            'reason': 'temporal_gap > 2h',
-                            'details': f"Gap of {gap_duration:.2f}h at {gap_ts}"
-                        })
-        
-        # Perform interpolation for gaps <= 2h
-        # Use linear interpolation
-        interpolated_series = temp_series.interpolate(method='linear', limit_direction='both')
-        
-        # For rows that were originally NaN but not interpolated (gap > 2h), mark as excluded
-        # Actually, we already excluded them above. Now we just keep the interpolated values.
-        # But we need to be careful: if a gap was > 2h, we excluded those records.
-        # The interpolation should only happen for gaps <= 2h.
-        # The `interpolate` method will fill all NaNs. We need to revert the ones that were > 2h.
-        # However, we already removed those from consideration in the exclusion logic above?
-        # No, we just logged them. We need to drop them from the final dataframe.
-        
-        # Let's refine: 
-        # 1. Identify which indices correspond to gaps > 2h.
-        # 2. Drop those indices from the group before interpolation.
-        # 3. Interpolate the rest.
-        
-        # Re-doing the gap logic more cleanly
-        valid_data = group[['temperature_celsius']].copy()
-        valid_data = valid_data.dropna() # Drop existing NaNs temporarily to find gaps? No.
-        
-        # Better approach: 
-        # 1. Reindex to hourly.
-        # 2. Identify gaps > 2h.
-        # 3. Drop those specific rows from the reindexed dataframe.
-        # 4. Interpolate remaining NaNs.
-        # 5. Merge back with original non-NaN rows? 
-        
-        # Actually, the task says: "EXCLUDE the record if the gap > 2 hours".
-        # This implies if a specific timestamp in the Moral Machine data falls into a gap > 2h, exclude it.
-        # But ERA5 is hourly. If there is a missing hour in ERA5, and the gap to the next available hour is > 2h,
-        # then any Moral Machine record mapped to that missing hour should be excluded.
-        
-        # Let's assume the merged_df already has ERA5 temp for the nearest hour.
-        # If ERA5 has a gap (missing hour), and the gap is > 2h, we exclude.
-        
-        # Simplified logic for this task:
-        # 1. Reindex to hourly.
-        # 2. Find gaps > 2h.
-        # 3. For any Moral Machine record that falls into a gap > 2h, exclude it.
-        # 4. For gaps <= 2h, interpolate the missing value and assign it to the record.
-        
-        # Since we are working with the reindexed series, we can mark which indices are "bad".
-        bad_indices = set()
-        
-        # Re-scan for bad gaps
-        current_gap_start = None
-        gap_indices = []
-        
-        for i, (ts, val) in enumerate(temp_series.items()):
-            if pd.isna(val):
-                if current_gap_start is None:
-                    current_gap_start = ts
-                gap_indices.append(ts)
-            else:
-                if current_gap_start is not None:
-                    gap_duration = (ts - current_gap_start).total_seconds() / 3600.0
-                    if gap_duration > TEMP_GAP_THRESHOLD_HOURS:
-                        bad_indices.update(gap_indices)
-                    current_gap_start = None
-                    gap_indices = []
-        
-        if current_gap_start is not None:
-            gap_duration = (temp_series.index[-1] - current_gap_start).total_seconds() / 3600.0
-            if gap_duration > TEMP_GAP_THRESHOLD_HOURS:
-                bad_indices.update(gap_indices)
-        
-        # Mark bad indices in the original group if they exist
-        # We need to map back to the original Moral Machine records.
-        # The reindexed dataframe has indices that might not be in the original group.
-        # The original group has indices from the Moral Machine dataset.
-        # We need to check if a Moral Machine record's timestamp falls into a bad gap.
-        
-        # Let's assume the merged_df has a 'timestamp' column that aligns with the Moral Machine record time.
-        # We need to check if that timestamp is within a bad gap.
-        
-        # For simplicity in this task, we will assume the 'timestamp' in merged_df is the hour we are trying to fill.
-        # If that hour is in a bad gap, exclude.
-        
-        # We'll create a mask for the current group
-        group_mask = group.index.isin(bad_indices)
-        if group_mask.any():
-            # Log excluded records
-            for bad_ts in group.index[group_mask]:
-                original_row = group.loc[bad_ts]
-                exclusion_log_entries.append({
-                    'record_id': original_row.get('id', 'unknown'),
-                    'reason': 'ERA5 coverage gap',
-                    'details': f"Timestamp {bad_ts} falls in a gap > 2h"
-                })
-            # Drop these rows from the group
-            group = group.drop(group.index[group_mask])
-        
-        # Now interpolate remaining NaNs
-        if not group.empty:
-            group['temperature_celsius'] = group['temperature_celsius'].interpolate(method='linear')
-            
-            # Check for any remaining NaNs (should not happen if all gaps <= 2h were interpolated)
-            remaining_nans = group['temperature_celsius'].isna()
-            if remaining_nans.any():
-                for nan_ts in group.index[remaining_nans]:
-                    original_row = group.loc[nan_ts]
-                    exclusion_log_entries.append({
-                        'record_id': original_row.get('id', 'unknown'),
-                        'reason': 'Low confidence match',
-                        'details': f"Could not interpolate value at {nan_ts}"
-                    })
-                group = group.drop(group.index[remaining_nans])
-            
-            cleaned_records.append(group.reset_index())
-    
-    if cleaned_records:
-        cleaned_df = pd.concat(cleaned_records, ignore_index=True)
-    else:
-        cleaned_df = pd.DataFrame()
-        
-    return cleaned_df, exclusion_log_entries
+    return valid_location
 
 def main():
-    """Main execution function for T020."""
-    logger.info("Starting T020: Time-based interpolation for missing ERA5 values")
+    """Main ingestion pipeline."""
+    logger = setup_logging()
+    data_logger = get_data_quality_logger()
     
-    ensure_exclusion_log_exists()
+    # Paths
+    input_path = Path(get_path_env_override('MORAL_MACHINE_PATH', 'data/raw/moral_machine.csv.gz'))
+    era5_path = Path(get_path_env_override('ERA5_PATH', 'data/raw/era5_full.parquet'))
+    output_path = Path(get_path_env_override('MERGED_OUTPUT_PATH', 'data/processed/merged_dataset.parquet'))
+    exclusion_log_path = Path('results/logs/exclusion_log.csv')
+    counts_log_path = Path('results/logs/counts.json')
+    quality_log_path = Path('results/logs/data_quality_log.json')
     
-    # Load the merged dataset from previous step (T019)
-    # Assuming it exists at MERGED_DATASET_PATH
-    if not MERGED_DATASET_PATH.exists():
-        logger.error(f"Merged dataset not found at {MERGED_DATASET_PATH}. Cannot proceed.")
-        sys.exit(1)
+    # Ensure directories exist
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    try:
-        merged_df = pd.read_parquet(MERGED_DATASET_PATH)
-        logger.info(f"Loaded {len(merged_df)} records from {MERGED_DATASET_PATH}")
-    except Exception as e:
-        logger.error(f"Failed to load merged dataset: {e}")
-        sys.exit(1)
+    # Ensure exclusion log exists
+    ensure_exclusion_log_exists(exclusion_log_path)
     
-    # Ensure required columns exist
-    required_cols = ['timestamp', 'temperature_celsius', 'era5_lat', 'era5_lon']
-    missing_cols = [col for col in required_cols if col not in merged_df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns in merged dataset: {missing_cols}")
-        sys.exit(1)
+    # Load data
+    logger.info(f"Loading Moral Machine data from {input_path}")
+    moral_df = load_parquet_as_df(input_path) if input_path.suffix == '.parquet' else pd.read_csv(input_path)
     
-    # Apply temporal interpolation
-    cleaned_df, exclusion_entries = interpolate_temporal_gaps(merged_df)
+    logger.info(f"Loading ERA5 data from {era5_path}")
+    era5_df = load_parquet_as_df(era5_path)
     
-    # Log excluded records
-    if exclusion_entries:
-        log_excluded_records(exclusion_entries)
-        logger.info(f"Excluded {len(exclusion_entries)} records due to temporal gaps.")
+    # Capture pre-filter count (T017a)
+    pre_filter_count = capture_pre_filter_count(moral_df, counts_log_path)
+    data_logger.info(f"Pre-filter count: {pre_filter_count}")
     
-    # Save cleaned dataset
-    cleaned_df.to_parquet(MERGED_DATASET_PATH, index=False)
-    logger.info(f"Saved cleaned dataset to {MERGED_DATASET_PATH} with {len(cleaned_df)} records")
+    # T017: Load, Filter & Count
+    # Filter 1: Missing location
+    location_mask = moral_df['latitude'].notna() & moral_df['longitude'].notna()
+    missing_location = moral_df[~location_mask]
+    log_excluded_records(missing_location, "missing location", exclusion_log_path)
+    moral_df = moral_df[location_mask]
     
-    logger.info("T020 completed successfully.")
+    # Filter 2: Invalid response time
+    response_time_mask = (moral_df['response_time'] >= 100) & (moral_df['response_time'] <= 10000)
+    invalid_response_time = moral_df[~response_time_mask]
+    log_excluded_records(invalid_response_time, "invalid response time", exclusion_log_path)
+    moral_df = moral_df[response_time_mask]
+    
+    count_filtered_for_analysis = moral_df.shape[0]
+    data_logger.info(f"Post-filter count: {count_filtered_for_analysis}")
+    
+    # T019: Geospatial Matching & Flagging
+    logger.info("Performing geospatial matching...")
+    matched_df, count_matched_pre_exclusion = match_geospatial_records(moral_df, era5_df)
+    
+    # Log pre-exclusion match count (T019a)
+    counts_log = {}
+    if counts_log_path.exists():
+        with open(counts_log_path, 'r') as f:
+            counts_log = json.load(f)
+    counts_log['count_matched_pre_exclusion'] = count_matched_pre_exclusion
+    with open(counts_log_path, 'w') as f:
+        json.dump(counts_log, f, indent=2)
+    
+    data_logger.info(f"Matched pre-exclusion: {count_matched_pre_exclusion}")
+    
+    # Flag low quality matches
+    low_quality_matches = matched_df[matched_df['match_quality'] == 'low']
+    for _, row in low_quality_matches.iterrows():
+        log_entry = {
+            'participant_id': row['participant_id'],
+            'reason': 'distance > 100km',
+            'distance_km': row['nearest_era5_distance_km']
+        }
+        # Append to quality log
+        quality_log = []
+        if quality_log_path.exists():
+            with open(quality_log_path, 'r') as f:
+                quality_log = json.load(f)
+        quality_log.append(log_entry)
+        with open(quality_log_path, 'w') as f:
+            json.dump(quality_log, f, indent=2)
+    
+    # T019c: Interpolate & Flag Gaps
+    logger.info("Performing temporal interpolation...")
+    interpolated_df = interpolate_temporal_gaps(matched_df, era5_df)
+    
+    # Flag records with unresolvable gaps
+    gap_failures = interpolated_df[interpolated_df['gap_status'].isin(['gap_too_large', 'no_data', 'no_temp_data', 'interpolation_error'])]
+    for _, row in gap_failures.iterrows():
+        log_entry = {
+            'participant_id': row['participant_id'],
+            'reason': f"temperature gap issue: {row['gap_status']}"
+        }
+        quality_log = []
+        if quality_log_path.exists():
+            with open(quality_log_path, 'r') as f:
+                quality_log = json.load(f)
+        quality_log.append(log_entry)
+        with open(quality_log_path, 'w') as f:
+            json.dump(quality_log, f, indent=2)
+    
+    # Save intermediate results
+    logger.info(f"Saving merged dataset to {output_path}")
+    interpolated_df.to_parquet(output_path, index=False)
+    
+    logger.info("Ingestion pipeline completed successfully")
+    return output_path
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
