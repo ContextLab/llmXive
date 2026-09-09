@@ -155,7 +155,7 @@ shap
  1. Load the **stable model** (`random_forest_model_stable.pkl`) and the full processed dataset.
  2. **Regression Metric (Constant)**: Compute RMSE on the continuous target using the stable model. This value is invariant to the threshold.
  3. **Classification F1 Stability Sweep**:
- - For each threshold in {, 100, 150} K/s:
+ - For each threshold in {50, 100, 150} K/s:
  - Binarize the target: `y_bin = (critical_cooling_rate >= threshold).astype(int)`.
  - Train a `RandomForestClassifier` on the same features with this binary target (using the same `random_state=42` and the same train-test split as T020). **Do NOT retrain the original regression model.**
  - Compute F1‑score on the held‑out test set and record it.
@@ -200,3 +200,13 @@ shap
 - [ ] T047 [P] **Result Reproducibility Check**: Re-run `code/ingestion.py` and `code/features.py` in a fresh environment and compare the content hash of the output `processed_alloys.csv` against the original run. If hashes differ, raise an error.
 - [ ] T048 [P] **Statistical Significance Gate**: Create a script `code/check_sc002.py` that parses `statistical_comparison.json` and logs a **WARNING** if `sc002_met` is false, ensuring the report explicitly flags the failure (consistent with T024c's non-blocking design). **Do NOT exit with code 1**.
 - [ ] T049 [P] **Sensitivity Gate**: Create a script `code/check_sc003.py` that parses `sensitivity_status.json` and logs a failure if `stability_met` is false, ensuring the report explicitly flags unstable thresholds.
+
+## Phase R: Edge Case & Robustness Handling (New)
+
+**Purpose**: Address specific edge cases and robustness requirements from spec.md to prevent silent failures or data corruption.
+
+- [ ] T050 [US1] **Edge Case: Empty Dataset**: Modify `code/ingestion.py` to explicitly check if the filtered dataset is empty after removing malformed compositions. If empty, raise `ValueError("Dataset is empty after filtering. Check composition parsing logic and data source validity.")`.
+- [ ] T051 [US1] **Edge Case: Unknown Labels**: Ensure `code/ingestion.py` explicitly filters out rows where `glass_forming_label` is "unknown", "mixed", or null, and logs the count of excluded samples to `data/logs/exclusion_log.txt`.
+- [ ] T052 [US1] **Edge Case: Zero Enthalpy**: Verify `code/features.py` handles `mixing_enthalpy == 0` as a valid numeric value (no special error handling required, but ensure no `NaN` propagation).
+- [ ] T053 [US2] **Edge Case: Low Variance Target**: In `code/train.py`, verify that the target variable `critical_cooling_rate` has non-zero variance before training. If variance is 0, raise `ValueError("Target variable has zero variance; cannot train regression model.")`.
+- [ ] T054 [US3] **Edge Case: Collinearity Resolution Failure**: If T029a fails to identify a stable model after dropping collinear features (e.g., all features are collinear), raise a clear `ValueError("Collinearity resolution failed: No stable feature subset found.")` rather than proceeding with an unstable model.
