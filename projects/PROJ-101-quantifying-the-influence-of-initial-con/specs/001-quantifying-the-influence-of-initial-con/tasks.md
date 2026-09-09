@@ -162,6 +162,9 @@
 - [ ] T041 Run `quickstart.md` validation to ensure full pipeline reproducibility
 - [ ] T042 [US1/US2/US3] Implement integration test in `tests/integration/test_pipeline.py` that runs the full N=5 generation and analysis loop, verifying total runtime <= 30s (Addressing US-1 Acceptance Scenario 3). **Note: This task requires US1, US2, and US3 to be implemented.**
 - [ ] T043 [US2] Implement `code/analysis/shadowing.py` to perform Shadowing Lemma Check as a post-generation validation step (not a blocking dependency for FTLE calculation). **Output**: Log validation status. **Dependency**: T018 (Generation).
+- [ ] T044 [P] [US2] Implement `code/analysis/ftle.py` to explicitly log and handle the case where `T` (window size) approaches total trajectory length, ensuring a strict `T < total_length - 10` check is enforced to prevent tangent vector propagation errors.
+- [ ] T046 [P] [US1] Implement `code/data/generator.py` to explicitly handle the case where `sigma_noise > 1.0` by logging a specific "Unphysical Trajectory" event and ensuring the trajectory is discarded without raising an unhandled exception that crashes the entire sweep.
+- [ ] T047 [P] [US3] Implement `code/analysis/regression.py` to explicitly report the scaling exponent relating system dimension (N) to the magnitude of the FTLE bias, ensuring this metric is included in the final `data/processed/results.json` as required by US-3 Acceptance Scenario 3.
 
 ---
 
