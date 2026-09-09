@@ -4,58 +4,56 @@ from pathlib import Path
 
 def main():
     """
-    Create the project directory structure for PROJ-379-predicting-molecular-excitation-waveleng.
-    
-    Creates the following directories relative to the project root:
-    - data/raw
-    - data/processed
-    - code
-    - tests
-    - docs
-    
-    This script is designed to be run from the project root:
-    python code/create_project_dirs.py
+    Create the required project directory structure for PROJ-379.
+    Creates: data/raw, data/processed, code, tests, docs
     """
-    # Define the project root. We assume this script runs from the project root.
-    # If running from elsewhere, we can adjust, but standard practice is project root.
-    project_root = Path.cwd()
+    # Define the project root relative to the current working directory
+    # The task specifies creating these in projects/PROJ-379-predicting-molecular-excitation-waveleng/
+    # We assume the script is run from the repository root or the project root.
+    # To be safe, we create the structure relative to the script's location if not absolute.
     
-    # Define the required directories relative to the project root
-    required_dirs = [
+    base_dir = Path(__file__).resolve().parent.parent
+    project_name = "PROJ-379-predicting-molecular-excitation-waveleng"
+    
+    # If we are already inside the project folder, base_dir might be the project root.
+    # We check if the project folder exists inside base_dir to determine the correct root.
+    if (base_dir / project_name).exists():
+        project_root = base_dir / project_name
+    else:
+        # Assume current directory is the project root or we are running from within the project folder
+        # If the script is in code/, parent is project root.
+        project_root = base_dir
+
+    # Define required directories
+    dirs_to_create = [
         "data/raw",
         "data/processed",
         "code",
         "tests",
         "docs"
     ]
-    
+
     created_count = 0
-    
-    for dir_path_str in required_dirs:
-        dir_path = project_root / dir_path_str
-        
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+    for dir_path in dirs_to_create:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            # Verify it's actually a directory
-            if dir_path.is_dir():
-                print(f"Directory already exists: {dir_path}")
-            else:
-                print(f"Error: Path exists but is not a directory: {dir_path}")
-                sys.exit(1)
-    
-    print(f"Project directory structure ready. Created {created_count} new directories.")
-    
-    # Verify the structure by listing what we expect
-    print("\nVerifying directory structure:")
-    for dir_path_str in required_dirs:
-        dir_path = project_root / dir_path_str
-        if dir_path.exists() and dir_path.is_dir():
-            print(f"  [OK] {dir_path}")
+            print(f"Directory already exists: {full_path}")
+
+    print(f"Project structure verification complete. Created {created_count} new directories.")
+    print(f"Project root: {project_root}")
+
+    # Verify the structure exists by listing the created paths
+    print("\nVerified Directory Structure:")
+    for dir_path in dirs_to_create:
+        full_path = project_root / dir_path
+        if full_path.exists():
+            print(f"  [OK] {full_path}")
         else:
-            print(f"  [FAIL] {dir_path}")
+            print(f"  [FAIL] {full_path}")
             sys.exit(1)
 
 if __name__ == "__main__":

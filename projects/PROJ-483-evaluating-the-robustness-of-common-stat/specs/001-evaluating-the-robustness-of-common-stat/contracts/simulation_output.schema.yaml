@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Output Schema"
+description: "Schema for results/type1_error_rates.csv and power analysis outputs (flat structure)."
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "ID of the dataset used."
+  test_type:
+    type: string
+    enum:
+      - t_test
+      - anova
+      - chi_squared
+    description: "Statistical test performed."
+  dependency_type:
+    type: string
+    enum:
+      - ar1
+      - cluster_effect
+      - none
+    description: "Type of dependency injected."
+  dependency_strength:
+    type: number
+    description: "Strength parameter (rho or block ratio)."
+  n_replications:
+    type: integer
+    description: "Total number of simulations."
+  n_significant:
+    type: integer
+    description: "Number of times p < 0.05."
+  observed_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Observed Type I error rate or Power."
+  ci_lower:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Lower bound of 95% Clopper-Pearson CI."
+  ci_upper:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Upper bound of 95% Clopper-Pearson CI."
+required:
+  - dataset_id
+  - test_type
+  - dependency_type
+  - dependency_strength
+  - n_replications
+  - n_significant
+  - observed_rate
+  - ci_lower
+  - ci_upper
+additionalProperties: false

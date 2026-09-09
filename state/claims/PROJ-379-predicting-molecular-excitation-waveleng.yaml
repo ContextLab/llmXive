@@ -435,3 +435,121 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T07:40:15Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/README.md
+  attempts: 1
+  canonical: Pipeline ingests real UV-Vis spectral data
+  claim_id: c_e41cc0fd
+  context: The pipeline ingests real UV-Vis spectral data, processes it into scaffold-split
+    datasets, trains models on CPU, and performs rigorous statistical evaluation including
+    power analysis and feature attribution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_ingests_real_UV-Vis_spectral_data
+  kind: entity_fact
+  raw_text: The pipeline ingests real UV-Vis spectral data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:32:06Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/README.md
+  attempts: 1
+  canonical: Pipeline fetches UV-Vis data from PubChem and SDBS
+  claim_id: c_30849fbc
+  context: Run the full data pipeline to fetch real UV-Vis data from PubChem/SDBS,
+    process molecules, and generate scaffold splits.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fetches_UV-Vis_data_from_PubChem_and_SDBS
+  kind: entity_fact
+  raw_text: The pipeline fetches real UV-Vis data from PubChem/SDBS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:33:02Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/README.md
+  attempts: 1
+  canonical: Secondary data source is HuggingFace zjunlp/UV-Vis-ML dataset
+  claim_id: c_f8255b5a
+  context: 'Secondary: HuggingFace `zjunlp/UV-Vis-ML` dataset (fallback only)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Secondary_data_source_is_HuggingFace_zjunlp/UV-Vis-ML_datase
+  kind: entity_fact
+  raw_text: The secondary data source is the HuggingFace zjunlp/UV-Vis-ML dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:33:48Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/README.md
+  attempts: 1
+  canonical: System requires Python 3.9 or higher
+  claim_id: c_03faa2db
+  context: 'Requirements: Python 3.9+'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system requires Python 3.9 or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:34:20Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/README.md
+  attempts: 1
+  canonical: Pipeline requires 7GB RAM or less
+  claim_id: c_778239da
+  context: "Memory: \u22647GB RAM"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_requires_7GB_RAM_or_less
+  kind: magnitude
+  raw_text: The pipeline requires no more than 7GB of RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:35:41Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/README.md
+  attempts: 1
+  canonical: Full pipeline execution time is 6 hours or less
+  claim_id: c_ae314131
+  context: "Time: \u22646 hours for full pipeline"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline execution time is 6 hours or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:36:22Z'
+- artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/README.md
+  attempts: 1
+  canonical: Pipeline runs on CPU only
+  claim_id: c_978f61c4
+  context: CPU-only execution (no GPU required)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_on_CPU_only
+  kind: entity_fact
+  raw_text: The pipeline runs on CPU only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:37:11Z'

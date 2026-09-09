@@ -1,24 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or evidence of the required folders (`data/raw`, `data/processed`,\
-    \ `code`, `tests`, `docs`) under `projects/PROJ-379-predicting-molecular-excitation-waveleng/`\
-    \ was provided, so we cannot confirm that the structure was actually created.\
-    \ The implementer must supply a file\u2011system snapshot, `tree` output, or similar\
-    \ proof that these directories exist and are non\u2011empty."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `README.md` file or its contents were provided; therefore there is no evidence\
-    \ that a Quickstart section with environment setup, data fetching, and end\u2011\
-    to\u2011end pipeline instructions exists. The required artifact is missing."
-T010:
-  c: false
-  h: 23964ea64d76c295be50824e14417d5d1104dda166d074396f6c6d2ea19299bd
-  r: "The provided `code/split.py` is truncated (ends mid\u2011statement) and never\
-    \ writes the split indices to `data/processed/split_indices.json`, which is also\
-    \ missing. Consequently the required output file is not produced and the implementation\
-    \ is incomplete."
 T015b:
   c: false
   h: 91d79f95033a2cf98eb958de48756c5edb44397dc90091aa54cf6ec45832c344
@@ -28,13 +7,12 @@ T015b:
     are missing.
 T018:
   c: false
-  h: d73d6c399730e3878e34c2d459e006a5f9ace0d011b811d1d8b1ca5144e089a5
-  r: "The `code/evaluate.py` file shown does not contain any implementation of power\u2011\
-    analysis logic (e.g., checking that the test set size\u202F\u2265\u202F50, computing\
-    \ effect size, determining power status, or writing results). Moreover, the required\
-    \ output file `data/processed/power_analysis.json` is absent from the repository.\
-    \ Both the functional code and the expected artifact are missing, so the task\
-    \ is not satisfied."
+  h: 86f614c446f4dbf84579cf02a3f18d3cb41334148b3ead6d8a956e356fc685a1
+  r: "The `data/processed/power_analysis.json` file does not exist, and the shown\
+    \ portion of `code/evaluate.py` contains no implementation that checks the test\u2011\
+    set size (n\u202F\u2265\u202F50), computes a power\u2011analysis status, or writes\
+    \ those results to the JSON file. The required power\u2011analysis logic and output\
+    \ artifact are missing."
 T022:
   c: false
   h: ba6daf0bf9afd833e0adb6b3e2d7ffcef07f10952eb25cc6be62a9976a53f3af
@@ -44,20 +22,19 @@ T022:
     test implementations.
 T023:
   c: false
-  h: c20fe983b5e35c26cc2b7c49b2a774e42116b5cff80bac82b19ef77b518d7bc5
-  r: "The repository contains a partially\u2011implemented `code/collinearity_check.py`\
-    \ (functions for ECFP correlation and GNN similarity are present, but the script\
-    \ is truncated, never loads data, never creates redundancy masks, and never writes\
-    \ `data/processed/redundancy_masks.json`). The required output file `data/processed/redundancy_masks.json`\
-    \ is absent. Consequently the task\u2019s full requirements are not met."
-T025:
+  h: 5aede10ac01cbfaac5b9b5c017ed7b4ef6168bfc326501ecc0a9b76ab5c7ce6c
+  r: "The `code/collinearity_check.py` file is truncated (ends mid\u2011function)\
+    \ and never creates or writes the required `data/processed/redundancy_masks.json`.\
+    \ The expected generation of per\u2011molecule mask arrays and JSON output is\
+    \ absent, and the output file does not exist."
+T024:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, notebook, or output files were provided that demonstrate the application
-    and verification of masking as required by task T025. Without any tangible artifact
-    (e.g., a script that applies masking to the dataset and a report or logs confirming
-    the mask was correctly applied and validated), the claim cannot be confirmed.
-    The implementer must supply the masking implementation and evidence of its verification.
+  h: f9c774306350ed333d63c4bfa258106a6fedf238e8263243a9d40c32a699bbdc
+  r: "The repository contains a partially\u2011implemented `code/explain.py` (the\
+    \ file is truncated and lacks a script that iterates over the test set and writes\
+    \ results). Moreover, the required output file `data/processed/raw_attribution.json`\
+    \ is absent. Both the implementation and the expected output artifact are missing,\
+    \ so the task is not satisfied."
 T027:
   c: false
   h: 4d464c6ddd80d8d3a46eb8b0ae1b73314440f03e0a11d5e17e51457b474884f3
@@ -66,6 +43,13 @@ T027:
     \ and the required output file `data/processed/metrics.json` is missing from the\
     \ repository. The task\u2019s required keys and output artifact are therefore\
     \ not produced."
+T028a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file was presented in the evidence, nor any excerpt of its\
+    \ contents showing environment\u2011setup, data\u2011fetching, and end\u2011to\u2011\
+    end pipeline instructions in the required directory. The required artifact is\
+    \ missing."
 T029a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,60 +1,91 @@
 # Data Model: Evaluating the Robustness of Common Statistical Tests to Non-Independence in Public Datasets
 
-## Overview
-This document defines the data structures used to load, process, and store simulation results. The model is designed for efficiency (CSV/Parquet) and traceability (checksums).
+## 1. Overview
 
-## Entities
+This document defines the data structures, schemas, and storage formats used in the simulation pipeline. All data flows from `data/raw` (source) to `data/processed` (injected) to `results/` (aggregated metrics).
 
-### 1. DatasetMetadata
-Stores information about the source dataset.
-- `dataset_id`: Unique identifier (e.g., `uci_har_test`)
-- `source_url`: Verified URL from the input block.
-- `file_path`: Relative path in `data/raw/`.
-- `checksum`: SHA-256 hash of the raw file.
-- `sample_size`: Number of rows after initial cleaning/sampling.
-- `variable_types`: Dictionary mapping variable names to types (`continuous`, `categorical`).
+## 2. Entity Definitions
 
-### 2. DependencyConfiguration
-Defines the specific non-independence structure injected.
-- `config_id`: Unique identifier (e.g., `ar1_r0.3`)
-- `structure_type`: Enum (`temporal`, `hierarchical`, `spatial`)
-- `strength`: Float (e.g., `0.3`)
-- `method_params`: Dictionary of method-specific parameters (e.g., `{"block_size": 5}` for hierarchical).
+### 2.1 Dataset (Raw)
+The source data downloaded from verified UCI repositories.
+- **Format**: Parquet or CSV.
+- **Content**: Rows of observations, columns of variables.
+- **Constraints**: No PII. Checksummed.
 
-### 3. SimulationRun
-Tracks a single execution of the Monte Carlo loop.
-- `run_id`: UUID
-- `dataset_id`: FK to `DatasetMetadata`
-- `test_type`: Enum (`t_test`, `anova`, `chi_squared`)
-- `dependency_config_id`: FK to `DependencyConfiguration`
-- `null_hypothesis`: Boolean (True for Type I error, False for Power)
-- `replications`: Integer (Target [deferred])
-- `seed`: Integer (Random seed used)
-- `start_time`, `end_time`: Timestamps.
-- `generation_method`: Enum (`synthetic`, `real`) - Indicates if data was generated from scratch (for Type I error) or sampled from real data (for Power).
+### 2.2 DependencyConfiguration
+A JSON/YAML object defining the injection parameters.
+- **Fields**: `type` (ar1, cluster_effect), `strength` (float), `block_size` (int, if applicable).
+- **Traceability**: This entity is read by `code/dependency_injector.py` (FR-003).
 
-### 4. SimulationResult
-Aggregated metrics for a `SimulationRun`.
-- `result_id`: UUID
-- `run_id`: FK to `SimulationRun`
-- `observed_alpha`: Float (Observed Type I error rate or Power).
-- `lower_ci_95`: Float (Clopper-Pearson lower bound).
-- `upper_ci_95`: Float (Clopper-Pearson upper bound).
-- `logistic_model_coeffs`: JSON (Coefficients from logistic regression of p-value ~ dependency strength).
-- `raw_p_values_path`: Path to the file containing individual p-values for this run (optional, for debugging).
+### 2.3 SimulationRun
+A single execution of the Monte Carlo loop for a specific configuration.
+- **Fields**: `dataset_id`, `test_type`, `dependency_config`, `n_replications`, `seed`.
 
-## Data Flow
+### 2.4 SimulationResult
+The output of a single replication.
+- **Fields**: `p_value`, `significant` (bool), `test_statistic`.
 
-1.  **Ingestion**: Raw data downloaded from verified URLs → `data/raw/` → Checksummed → `DatasetMetadata` created.
-2.  **Preprocessing**: Data cleaned, sampled if necessary, split into features/labels → `data/processed/`.
-3.  **Generation**: For Type I error, synthetic independent data is generated (`generation_method=synthetic`). For Power, real data is used (`generation_method=real`).
-4.  **Injection**: `DependencyConfiguration` applied to generated or real data → New files created (no overwrite).
-5.  **Simulation**: `SimulationRun` executes on injected data → Individual p-values generated.
-6.  **Aggregation**: P-values aggregated into `SimulationResult` → Saved to `results/aggregated.csv` and `results/` directory.
-7.  **Visualization**: `SimulationResult` used to generate plots in `results/plots/`.
+### 2.5 AggregatedMetric
+The summary of results for a configuration.
+- **Fields**: `observed_error_rate`, `lower_ci`, `upper_ci`, `power`, `n_significant`, `n_total`.
 
-## Constraints & Validation
+## 3. File Formats
 
--   **No PII**: All datasets are public; no personal identifiers expected, but a PII scan is run on ingestion.
--   **Immutability**: Once a file is written to `data/raw/` or `data/processed/`, it is never modified. New versions are written with new filenames.
--   **Schema Enforcement**: All output files must match the schemas defined in `contracts/`.
+### 3.1 Input Data
+- **Path**: `data/raw/{dataset_name}.{ext}`
+- **Schema**: Inferred from source.
+- **Checksum**: SHA-256 stored in `state.yaml`.
+
+### 3.2 Dependency Manifest
+- **Path**: `data/dependency_manifest.yaml`
+- **Format**: YAML.
+- **Content**: List of configurations used.
+```yaml
+configurations:
+  - id: config_01
+    dataset_id: uci_wine
+    test_type: t_test
+    dependency:
+      type: cluster_effect
+      strength: 0.3
+    n_replications: 10000
+    seed: 42
+```
+
+### 3.3 Output Results (CSV)
+- **Path**: `results/type1_error_rates.csv`
+- **Columns**: `dataset_id`, `test_type`, `dependency_type`, `strength`, `n_replications`, `n_significant`, `observed_rate`, `ci_lower`, `ci_upper`.
+
+### 3.4 Performance Log
+- **Path**: `results/perf_log.json`
+- **Format**: JSON.
+- **Content**: Execution time, memory peak, CPU usage.
+
+### 3.5 Logistic Regression Models
+- **Path**: `results/logistic_models.pkl`
+- **Format**: Pickle.
+- **Content**: Coefficients from logistic regression of significance vs. dependency strength (Constitution VII).
+
+## 4. Data Flow Diagram
+
+```mermaid
+graph TD
+    A[Verified Dataset URL] -->|Download| B(data/raw/...)
+    B -->|Load| C[Dependency Injector]
+    D[Dependency Config] --> C
+    C -->|Inject Dependency| E(data/processed/...)
+    E -->|Permute Labels| F[Null Constructor]
+    F -->|Run Test| G[Simulator Loop]
+    G -->|10k Reps| H[Aggregator]
+    H -->|Clopper-Pearson| I[results/type1_error_rates.csv]
+    H -->|Logistic Regression| J[results/logistic_models.pkl]
+    I --> K[Plotting Engine]
+    J --> K
+    K --> L[Final Visualizations]
+```
+
+## 5. Constraints & Validations
+
+- **Memory**: Intermediate datasets in `data/processed` must not exceed 6GB.
+- **Reproducibility**: Every file in `results/` must be traceable to a specific `seed` and `manifest` entry.
+- **Integrity**: `results/perf_log.json` must be generated for every run (T032b).

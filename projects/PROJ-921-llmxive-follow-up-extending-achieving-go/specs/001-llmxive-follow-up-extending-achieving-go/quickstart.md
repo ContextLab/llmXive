@@ -2,87 +2,68 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to HuggingFace Hub (for dataset download)
-- (Optional) HuggingFace token for private models (if SU-01 is private)
+-   Python 3.11+
+-   Git
+-   Sufficient RAM (Sufficient memory is recommended for safety.)
+-   Internet access (for dataset download)
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-921-llmxive-follow-up-extending-achieving-go
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` pins versions for `transformers`, `torch`, `bitsandbytes`, `scikit-learn`.*
-
-4. **Set up environment variables** (if needed):
-   ```bash
-   export HF_TOKEN="your_token_here"
-   export RANDOM_SEED=42
-   ```
+1.  **Clone the repository** (or navigate to the project directory).
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: `requirements.txt` pins `torch` to the CPU-only version and `transformers` to a stable release.*
 
 ## Running the Pipeline
 
-The pipeline is designed to run end-to-end. For local testing, you can run individual steps.
+The pipeline is executed via a single entry point script.
 
-### Step 1: Download and Prepare Data
+### 1. Data Download & Validation
 ```bash
-python code/download.py
+python code/data/download.py
 ```
-- Downloads IMO dataset.
-- Constructs OpenSci-Reason dataset (N=100 for CI feasibility).
-- Outputs to `data/raw/` and `data/processed/`.
+This script downloads datasets from verified URLs, computes checksums, and formats them into `data/processed/unified_prompts.jsonl` (converting ScienceQA MCQs to open-ended prompts).
 
-### Step 2: Run Inference
+### 2. Inference (CPU-Only)
 ```bash
-python code/inference.py --model SU-01 --model Baseline --dataset OpenSci --n-candidates 3
+python code/inference/runner.py --model su01 --dataset opensci --n_samples: a sufficiently large number to ensure statistical power.
+python code/inference/runner.py --model baseline --dataset opensci --n_samples 500
 ```
-- Generates responses.
-- Logs failures and truncations.
-- Outputs to `data/processed/inference_results.jsonl`.
+*Note: The SU-01 model weights must be available locally or via HuggingFace. If the model is not found, the script will exit with an error.*
 
-### Step 3: Score Responses
+### 3. Scoring
 ```bash
-python code/scoring.py --input data/processed/inference_results.jsonl
+python code/scoring/proxy_model.py --input data/processed/su01_responses.jsonl --output data/processed/su01_scores.jsonl
+python code/scoring/proxy_model.py --input data/processed/baseline_responses.jsonl --output data/processed/baseline_scores.jsonl
 ```
-- Loads the frozen Llama-3-8B (INT4).
-- Scores responses.
-- Validates against gold standard (if available).
-- Outputs to `data/processed/scores.jsonl`.
+*This step uses the INT quantized Llama-3-8B model. It may take significant time on CPU.*
 
-### Step 4: Statistical Analysis
+### 4. Analysis
 ```bash
-python code/analysis.py
+python code/analysis/stats.py
 ```
-- Computes correlations and t-tests.
-- Generates `data/processed/stats.json`.
+This generates the final statistical report, including the Linear Mixed Effects (LME) model results, dimension independence metrics, and power analysis.
 
-### Step 5: Verify Reproducibility
+## Verification
+
+To verify the proxy model:
 ```bash
-python code/utils.py --checksum
+python code/scoring/validator.py
 ```
-- Generates checksums for all data files.
-- Updates `state/` timestamps.
+This checks the correlation between proxy scores and the `gold_standard` set.
 
 ## Troubleshooting
 
-- **OOM Error**: Reduce `max_new_tokens` or use `INT4` quantization (default).
-- **CUDA Error**: Ensure `device="cpu"` is set in `config.py`.
-- **Dataset Missing**: If IPhO data is missing, the script will error. Provide a local path or a verified URL.
+-   **OOM Error**: Ensure `load_in_4bit=True` is set in `proxy_model.py`. If still failing, reduce `batch_size` to 1 (default).
+-   **Timeout**: If the job exceeds a prolonged duration, check the `truncation_log.jsonl` for excessive token usage.
+-   **Model Not Found**: Ensure `SU-01` weights are present in the expected HuggingFace cache or local path.
 
-## Expected Output
 
-- `data/processed/stats.json`: Contains correlation coefficients, p-values, and power analysis.
-- `logs/pipeline.log`: Detailed execution log.
+## projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/contracts/output_schema.schema.yaml

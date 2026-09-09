@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 1a596a66c31977555f238cd44facd8dd8c99b9bd0f58288a00823b201372dc03
+  artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test.jsonl
+  kind: url
+  value: https://huggingface.co/datasets/nvidia/Nemotron-IMO-Bench/resolve/main/data/test.jsonl
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/nvidia/Nemotron-IMO-Bench/538665379b8b1997731b59e2d9a14cc71936e79a/data%2Ftest.jsonl?%2Fdatasets%2Fnvidia%2FNemotron-IMO-Bench%2Fresolve%2Fmain%2Fdata%2Ftest.jsonl=&etag=%2228be82cabc3867aa698067d064cab06cbd9c2bb3%22
+  verified_at: '2026-09-09T07:01:15.585259Z'
+- artifact_hash: 1a596a66c31977555f238cd44facd8dd8c99b9bd0f58288a00823b201372dc03
+  artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/bigscience/ScienceQA/resolve/main/data/train-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/bigscience/ScienceQA/resolve/main/data/train-00000-of-00001.parquet
+  verified_at: '2026-09-09T07:01:15.585259Z'

@@ -1,0 +1,106 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Output Schema"
+description: "Schema for the final statistical analysis report."
+type: "object"
+properties:
+  lme_analysis:
+    type: "object"
+    description: "Linear Mixed Effects model results."
+    properties:
+      fixed_effect_model_type:
+        type: "number"
+        description: "Coefficient for Model Type fixed effect."
+      fixed_effect_domain:
+        type: "number"
+        description: "Coefficient for Domain fixed effect."
+      interaction_effect:
+        type: "number"
+        description: "Coefficient for Model_Type * Domain interaction."
+      interaction_p_value:
+        type: "number"
+        description: "P-value for the interaction effect."
+      random_effect_variance:
+        type: "number"
+        description: "Variance of the random intercept (Prompt_ID)."
+      method:
+        type: "string"
+        description: "Method used (e.g., LME, REML)."
+    required:
+      - fixed_effect_model_type
+      - fixed_effect_domain
+      - interaction_effect
+      - interaction_p_value
+      - random_effect_variance
+      - method
+  dimension_independence:
+    type: "object"
+    description: "Check for halo effect between Consistency and Novelty/Feasibility."
+    properties:
+      consistency_novelty_corr:
+        type: "number"
+        description: "Correlation between Consistency and Novelty."
+      consistency_feasibility_corr:
+        type: "number"
+        description: "Correlation between Consistency and Feasibility."
+      is_valid:
+        type: "boolean"
+        description: "True if correlations < 0.8."
+    required:
+      - consistency_novelty_corr
+      - consistency_feasibility_corr
+      - is_valid
+  power_analysis:
+    type: "object"
+    properties:
+      power:
+        type: "number"
+        description: "Calculated power for the observed effect size."
+      alpha:
+        type: "number"
+        description: "Significance level (e.g., 0.025)."
+      sample_size:
+        type: "integer"
+        description: "Sample size used."
+      effect_size:
+        type: "number"
+        description: "Cohen's d used for calculation."
+    required:
+      - power
+      - alpha
+      - sample_size
+      - effect_size
+  proxy_validation:
+    type: "object"
+    properties:
+      correlation:
+        type: "number"
+        description: "Correlation between proxy and human scores."
+      is_valid:
+        type: "boolean"
+        description: "True if correlation > 0.6."
+    required:
+      - correlation
+      - is_valid
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      original_interaction_p:
+        type: "number"
+        description: "Interaction p-value with all data."
+      filtered_interaction_p:
+        type: "number"
+        description: "Interaction p-value after excluding low-confidence prompts."
+      excluded_count:
+        type: "integer"
+        description: "Number of prompts excluded."
+    required:
+      - original_interaction_p
+      - filtered_interaction_p
+      - excluded_count
+required:
+  - lme_analysis
+  - dimension_independence
+  - power_analysis
+  - proxy_validation
+  - sensitivity_analysis
+additionalProperties: false

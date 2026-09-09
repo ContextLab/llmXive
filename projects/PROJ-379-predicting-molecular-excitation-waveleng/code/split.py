@@ -27,11 +27,14 @@ def generate_bemis_murcko_scaffold(smiles: str) -> str:
     if mol is None:
         return None
     
-    scaffold = rdMolDescriptors.GetScaffoldForMol(mol)
-    if scaffold is None:
+    try:
+        scaffold = rdMolDescriptors.GetScaffoldForMol(mol)
+        if scaffold is None:
+            return None
+        return Chem.MolToSmiles(scaffold)
+    except Exception as e:
+        logger.warning(f"Failed to generate scaffold for {smiles}: {e}")
         return None
-    
-    return Chem.MolToSmiles(scaffold)
 
 def assign_scaffolds(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -59,7 +62,7 @@ def scaffold_split(df: pd.DataFrame, train_ratio: float = 0.7, val_ratio: float 
     
     Args:
         df: DataFrame with 'scaffold_id'.
-        train_ratio: Fraction for training.
+        train_ratio: Fraction for training (majority).
         val_ratio: Fraction for validation.
         test_ratio: Fraction for testing.
         
@@ -68,8 +71,18 @@ def scaffold_split(df: pd.DataFrame, train_ratio: float = 0.7, val_ratio: float 
     """
     logger.info("Performing scaffold split...")
     
+    # Filter out rows with missing scaffolds
+    valid_mask = df['scaffold_id'].notna()
+    valid_df = df[valid_mask]
+    dropped_count = len(df) - len(valid_df)
+    if dropped_count > 0:
+        logger.warning(f"Dropped {dropped_count} rows with missing scaffolds.")
+    
+    if len(valid_df) == 0:
+        raise ValueError("No valid molecules with scaffolds found for splitting.")
+
     # Group by scaffold
-    scaffold_groups = df.groupby('scaffold_id').indices
+    scaffold_groups = valid_df.groupby('scaffold_id').indices
     
     # Shuffle scaffold groups
     scaffold_ids = list(scaffold_groups.keys())
@@ -80,10 +93,20 @@ def scaffold_split(df: pd.DataFrame, train_ratio: float = 0.7, val_ratio: float 
     n_train = int(n_scaffolds * train_ratio)
     n_val = int(n_scaffolds * val_ratio)
     
+    # Ensure at least one scaffold in val and test if possible
+    if n_val == 0 and n_scaffolds > 1:
+        n_val = 1
+        n_train = max(0, n_scaffolds - 1 - (1 if n_scaffolds > 2 else 0))
+    if (n_val + n_train) >= n_scaffolds:
+        n_test = 1
+        n_val = max(0, n_scaffolds - n_train - n_test)
+    else:
+        n_test = n_scaffolds - n_train - n_val
+
     train_scaffolds = set(scaffold_ids[:n_train])
     val_scaffolds = set(scaffold_ids[n_train:n_train + n_val])
-    test_scaffolds = set(scaffold_ids[n_train + n_val:])
-    
+    test_scaffolds = set(scaffold_ids[n_train + n_val:n_train + n_val + n_test])
+
     # Explicitly verify no overlap
     if train_scaffolds & val_scaffolds:
         raise ValueError("Scaffold overlap detected between train and val splits!")
@@ -92,12 +115,15 @@ def scaffold_split(df: pd.DataFrame, train_ratio: float = 0.7, val_ratio: float 
     if val_scaffolds & test_scaffolds:
         raise ValueError("Scaffold overlap detected between val and test splits!")
     
-    # Assign indices
+    # Assign indices based on valid_df, then map back to original indices if needed
+    # Since we are using indices from valid_df which are a subset of original df indices
+    # We need to be careful. The groupby.indices returns the original indices.
+    
     train_indices = []
     val_indices = []
     test_indices = []
     
-    for idx, row in df.iterrows():
+    for idx, row in valid_df.iterrows():
         scaffold = row['scaffold_id']
         if scaffold in train_scaffolds:
             train_indices.append(idx)

@@ -2,105 +2,112 @@
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline, ensuring type safety and traceability from raw input to final statistical output.
+This document defines the data structures used throughout the research pipeline. All data is stored in JSONL (JSON Lines) format for streaming compatibility and processed into Pandas DataFrames for analysis.
 
-## Entity Definitions
+## Core Entities
 
 ### 1. Prompt
-Represents a single problem statement.
-- `prompt_id`: Unique string identifier.
-- `source`: Dataset name (e.g., "IMO", "OpenSci").
-- `text`: The raw text of the problem.
-- `ground_truth`: Optional string (for Olympiad). Null for OpenSci.
-- `type`: "deterministic" or "ill-structured".
+Represents a single input problem statement.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `prompt_id` | string | Unique identifier (e.g., `imo_001`, `scienceqa_001`) |
+| `text` | string | The full text of the problem/prompt (converted to open-ended for ScienceQA) |
+| `source` | string | Dataset origin (e.g., `Nemotron-IMO-Bench`, `ScienceQA`) |
+| `domain` | string | Category (e.g., `math`, `general_science`) |
+| `is_ill_structured` | boolean | True if from ScienceQA (converted), False if Olympiad |
 
 ### 2. Response
-Represents a model's output.
-- `response_id`: Unique string identifier.
-- `prompt_id`: Foreign key to Prompt.
-- `model_name`: Name of the model (e.g., "SU-01", "Baseline").
-- `text`: Generated text.
-- `token_count`: Number of tokens generated.
-- `truncated`: Boolean (True if `max_tokens` reached).
-- `seed`: Random seed used.
-- `temperature`: Temperature used.
+Represents a model's generated output.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `response_id` | string | Unique identifier |
+| `prompt_id` | string | Foreign key to Prompt |
+| `model_name` | string | `SU-01` or `Baseline` |
+| `text` | string | Generated text |
+| `generation_params` | object | JSON: `{temperature, max_tokens, seed}` |
+| `truncated` | boolean | True if generation hit token limit |
+| `status` | string | `success`, `failure`, `truncated`, `incomplete` |
 
 ### 3. Score
-Represents the evaluation of a Response.
-- `score_id`: Unique string identifier.
-- `response_id`: Foreign key to Response.
-- `novelty`: Integer 1-5.
-- `feasibility`: Integer 1-5.
-- `consistency`: Integer 1-5.
-- `rationale`: String (raw text from proxy model).
-- `confidence`: Float (1.0 - 0.0).
-- `is_low_confidence`: Boolean (True if variance > 1.5 or entropy > 2.0).
+Represents the evaluation of a Response by the proxy model.
 
-### 4. BenchmarkResult
-Aggregated metrics per model.
-- `model_name`: String.
-- `dataset`: String.
-- `metric_name`: String (e.g., "accuracy", "mean_novelty").
-- `value`: Float.
-- `n_samples`: Integer.
-- `p_value`: Float (optional).
-- `confidence_interval`: Tuple (lower, upper).
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `score_id` | string | Unique identifier |
+| `response_id` | string | Foreign key to Response |
+| `novelty` | integer | Score 1-5 |
+| `feasibility` | integer | Score 1-5 |
+| `consistency` | integer | Score 1-5 |
+| `entropy` | float | Mean entropy of logits (for ambiguity check) |
+| `is_low_confidence` | boolean | True if variance > 1.5 or entropy > 2.0 |
+| `raw_output` | string | Full JSON string from proxy model (for audit) |
+| `rationale` | string | Raw text rationale from the proxy model (for audit) |
 
-## File Formats
+### 4. OlympiadResult
+Binary correctness for deterministic problems.
 
-### Input: `data/raw/imo.parquet`
-Standard HuggingFace parquet format.
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `prompt_id` | string | Foreign key to Prompt |
+| `model_name` | string | `SU-01` or `Baseline` |
+| `is_correct` | boolean | 1 if answer matches ground truth, 0 otherwise |
+| `ground_truth` | string | The correct answer (for reference) |
 
-### Intermediate: `data/processed/inference_results.jsonl`
-One JSON object per line.
-```json
-{
-  "prompt_id": "IMO-001",
-  "model_name": "SU-01",
-  "response_id": "resp-001-su",
-  "text": "...",
-  "token_count": 512,
-  "truncated": false
-}
+### 5. GoldStandard
+Human-rated responses for validation.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `response_id` | string | Unique identifier |
+| `human_novelty` | integer | Human score 1-5 |
+| `human_feasibility` | integer | Human score 1-5 |
+| `human_consistency` | integer | Human score 1-5 |
+| `proxy_novelty` | integer | Proxy model score |
+| `proxy_feasibility` | integer | Proxy model score |
+| `proxy_consistency` | integer | Proxy model score |
+
+### 6. LMEResult
+Results from the Linear Mixed Effects model.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `fixed_effect_model_type` | float | Coefficient for Model Type |
+| `fixed_effect_domain` | float | Coefficient for Domain |
+| `interaction_effect` | float | Coefficient for Model_Type * Domain |
+| `interaction_p_value` | float | P-value for interaction effect |
+| `random_effect_variance` | float | Variance of random intercept (Prompt) |
+
+## Data Flow
+
+1.  **Ingestion**: Raw datasets (JSONL/Parquet) → `Prompt` entities.
+2.  **Inference**: `Prompt` + Model → `Response` entities (JSONL).
+3.  **Scoring**: `Response` → Proxy Model → `Score` entities (JSONL).
+4.  **Validation**: `Score` + `GoldStandard` → Correlation metrics.
+5.  **Analysis**: `OlympiadResult` + `Score` + `Prompt` → LME model → `LMEResult`.
+
+## File Layout
+
+```text
+data/
+├── raw/
+│   ├── imo_bench.jsonl          # Downloaded from verified URL
+│   ├── scienceqa_raw.parquet    # Downloaded from verified URL
+│   └── gold_standard.jsonl      # Curated N=50 set
+├── processed/
+│   ├── unified_prompts.jsonl    # Merged Prompt entities (converted ScienceQA)
+│   ├── su01_responses.jsonl     # Responses from SU-01
+│   ├── baseline_responses.jsonl # Responses from Baseline
+│   ├── su01_scores.jsonl        # Scores for SU-01
+│   ├── baseline_scores.jsonl    # Scores for Baseline
+│   ├── olympiad_results.jsonl   # Binary correctness
+│   └── lme_results.json         # Final statistical output
+└── audit/
+    ├── truncation_log.jsonl     # Failed generations
+    ├── ambiguity_log.jsonl      # Low-confidence scores
+    └── audit_log.jsonl          # Comprehensive audit log (FR-007)
 ```
 
-### Output: `data/processed/scores.jsonl`
-```json
-{
-  "response_id": "resp-001-su",
-  "novelty": 3,
-  "feasibility": 4,
-  "consistency": 5,
-  "rationale": "The approach is standard but feasible.",
-  "is_low_confidence": false
-}
-```
 
-### Final: `data/processed/stats.json`
-```json
-{
-  "correlation": {
-    "coefficient": -0.45,
-    "p_value": 0.001,
-    "method": "point_biserial"
-  },
-  "t_test": {
-    "t_stat": -2.34,
-    "p_value": 0.02,
-    "method": "paired_t"
-  },
-  "power_analysis": {
-    "n": 100,
-    "effect_size": 0.5,
-    "power": 0.72
-  }
-}
-```
-
-## Validation Rules
-
-- All `prompt_id`s must be unique across the dataset.
-- `novelty`, `feasibility`, `consistency` must be integers in [1, 5].
-- `truncated` must be boolean.
-- `is_low_confidence` must be boolean.
-- All timestamps in logs must be ISO 8601.
+## projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/quickstart.md

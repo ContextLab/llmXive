@@ -1,175 +1,152 @@
-"""
-Sensitivity Analysis for Decision Thresholds (US3)
-
-This module performs a sweep over MAE decision cutoffs (20, 30, 40, 50, 60 nm)
-to analyze how the decision logic (SC-001 status) varies with the threshold.
-It reads the evaluation results (metrics.json) and the test set predictions
-to re-evaluate the pass/fail status at different thresholds.
-"""
 import os
 import sys
 import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Dict, List, Any, Tuple
 
-# Import shared utilities from the project
-from utils import setup_logging, get_logger
-from evaluate import load_data_splits, load_predictions, compute_metrics
+import pandas as pd
+import numpy as np
 
-# Ensure we are running from the project root or code directory
-# Adjust paths relative to the project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-METRICS_FILE = DATA_PROCESSED / "metrics.json"
-PREDICTIONS_FILE = DATA_PROCESSED / "predictions.json"  # Assumed output from evaluate.py
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger("sensitivity")
 
-def load_predictions_if_exists(path: Path) -> List[Dict[str, Any]]:
-    """Load predictions from file if it exists, otherwise return empty list."""
-    if not path.exists():
-        logging.warning(f"Predictions file not found at {path}. Cannot perform sensitivity analysis on predictions.")
-        return []
-    with open(path, 'r') as f:
-        return json.load(f)
+def load_predictions_if_exists(predictions_path: Path) -> pd.DataFrame:
+    """
+    Load predictions from the evaluation step.
+    Expects a CSV with 'true_lambda' and 'pred_lambda' columns.
+    """
+    if not predictions_path.exists():
+        raise FileNotFoundError(
+            f"Predictions file not found at {predictions_path}. "
+            "Please run code/evaluate.py first to generate predictions."
+        )
+    
+    df = pd.read_csv(predictions_path)
+    required_cols = {"true_lambda", "pred_lambda"}
+    if not required_cols.issubset(df.columns):
+        raise ValueError(
+            f"Predictions file missing required columns. "
+            f"Found: {df.columns}, Required: {required_cols}"
+        )
+    
+    logger.info(f"Loaded predictions: {len(df)} samples from {predictions_path}")
+    return df
 
 def run_sensitivity_sweep(
-    test_targets: List[float],
-    test_predictions: List[float],
-    thresholds: List[int]
-) -> List[Dict[str, Any]]:
+    df: pd.DataFrame, 
+    thresholds: List[float], 
+    output_path: Path
+) -> pd.DataFrame:
     """
-    Perform sensitivity analysis by sweeping over MAE thresholds.
+    Perform a sensitivity sweep over MAE decision cutoffs.
     
-    Args:
-        test_targets: List of actual lambda_max values.
-        test_predictions: List of predicted lambda_max values.
-        thresholds: List of MAE thresholds to evaluate (e.g., [20, 30, 40, 50, 60]).
-        
-    Returns:
-        List of dictionaries containing threshold, calculated MAE, pass rate, and status.
+    For each threshold T in thresholds:
+      1. Calculate absolute error |true - pred|
+      2. Calculate error rate: fraction of samples where error > T
+      3. Record metrics.
+      
+    This verifies the robustness of the model's performance relative to
+    the specific nanometer thresholds (20, 30, 40, 50, 60) defined in US3.
     """
-    if not test_targets or not test_predictions:
-        logging.error("No test targets or predictions provided. Cannot run sensitivity sweep.")
-        return []
-
-    if len(test_targets) != len(test_predictions):
-        raise ValueError("Length of test_targets and test_predictions must match.")
-
+    logger.info(f"Running sensitivity sweep on {len(df)} samples with {len(thresholds)} thresholds")
+    
+    # Calculate absolute errors
+    df["abs_error"] = (df["true_lambda"] - df["pred_lambda"]).abs()
+    
     results = []
-    errors = [abs(t - p) for t, p in zip(test_targets, test_predictions)]
     
-    # Calculate overall MAE for reference
-    overall_mae = sum(errors) / len(errors)
-    logging.info(f"Overall Test MAE: {overall_mae:.2f} nm")
-
     for threshold in thresholds:
-        # Calculate MAE at this threshold? 
-        # The task asks to "Sweep MAE decision cutoffs". 
-        # The decision logic in T016/T026 implies: if MAE < threshold THEN PASS.
-        # So we calculate the MAE of the current model and compare it to the threshold.
-        # However, to show "variation in error rates", we might look at the proportion
-        # of individual samples that are within the threshold.
+        # Calculate error rate for this threshold
+        # Error rate = count(|error| > threshold) / total count
+        error_count = (df["abs_error"] > threshold).sum()
+        total_count = len(df)
+        error_rate = error_count / total_count if total_count > 0 else 0.0
         
-        # Interpretation 1: Check if the aggregate MAE < threshold.
-        # Interpretation 2: Check the percentage of samples where |error| < threshold.
-        # Given "variation in error rates", Interpretation 2 is more informative for sensitivity.
+        # Calculate mean absolute error for context
+        mae = df["abs_error"].mean()
         
-        within_threshold_count = sum(1 for e in errors if e <= threshold)
-        within_threshold_rate = within_threshold_count / len(errors)
-        
-        # Determine SC-001 status based on aggregate MAE vs threshold
-        # (Assuming the standard decision logic: MAE < threshold -> PASS)
-        # Note: The original logic also required p < 0.05, but here we focus on the MAE threshold sweep.
-        # We will report the MAE vs the threshold.
-        status = "PASS" if overall_mae < threshold else "FAIL"
+        # Calculate standard deviation of errors
+        std_error = df["abs_error"].std()
         
         results.append({
             "threshold_nm": threshold,
-            "model_mae": overall_mae,
-            "samples_within_threshold": within_threshold_count,
-            "samples_total": len(errors),
-            "pass_rate_pct": round(within_threshold_rate * 100, 2),
-            "sc001_status_if_threshold_applied": status
+            "error_count": int(error_count),
+            "total_samples": total_count,
+            "error_rate": error_rate,
+            "mae_nm": mae,
+            "std_error_nm": std_error
         })
-        
-        logging.info(f"Threshold {threshold}nm: MAE={overall_mae:.2f}, Pass Rate={within_threshold_rate*100:.1f}%, Status={status}")
-
-    return results
+        logger.info(f"Threshold {threshold} nm: Error Rate = {error_rate:.4f} ({error_count}/{total_count})")
+    
+    # Create result DataFrame
+    result_df = pd.DataFrame(results)
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save to CSV
+    result_df.to_csv(output_path, index=False)
+    logger.info(f"Sensitivity report saved to {output_path}")
+    
+    return result_df
 
 def main():
-    """Main entry point for sensitivity analysis."""
-    parser = argparse.ArgumentParser(description="Perform sensitivity analysis on MAE thresholds.")
-    parser.add_argument("--thresholds", type=int, nargs="+", default=[20, 30, 40, 50, 60],
-                        help="MAE thresholds to sweep (default: 20 30 40 50 60)")
-    parser.add_argument("--output", type=str, default="sensitivity_analysis.json",
-                        help="Output file path for results")
+    parser = argparse.ArgumentParser(description="Run sensitivity analysis on model predictions.")
+    parser.add_argument(
+        "--predictions",
+        type=str,
+        default="data/processed/predictions.csv",
+        help="Path to the predictions CSV file (output of evaluate.py)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/processed/sensitivity_report.csv",
+        help="Path to save the sensitivity report CSV"
+    )
+    parser.add_argument(
+        "--thresholds",
+        type=str,
+        default="20,30,40,50,60",
+        help="Comma-separated list of MAE thresholds (nm) to sweep"
+    )
+    
     args = parser.parse_args()
-
-    setup_logging()
-    logger = get_logger(__name__)
-
-    # Load metrics to get the baseline MAE if predictions file is missing
-    # But for individual error rates, we need predictions
-    predictions_path = DATA_PROCESSED / "predictions.json"
     
-    # Try to load predictions
-    predictions_data = load_predictions_if_exists(predictions_path)
+    # Parse thresholds
+    try:
+        thresholds = [float(t.strip()) for t in args.thresholds.split(",")]
+    except ValueError:
+        logger.error("Invalid thresholds format. Use comma-separated numbers.")
+        sys.exit(1)
     
-    if predictions_data:
-        # Extract targets and predictions from the loaded data
-        # Assuming format: [{"target": float, "prediction": float}, ...]
-        test_targets = [p["target"] for p in predictions_data]
-        test_predictions = [p["prediction"] for p in predictions_data]
-    else:
-        # Fallback: Try to load from metrics.json if it contains aggregate data only?
-        # If we can't get individual errors, we can only report aggregate MAE vs threshold.
-        if METRICS_FILE.exists():
-            with open(METRICS_FILE, 'r') as f:
-                metrics = json.load(f)
-            if "mae" in metrics:
-                logger.warning("Predictions file missing. Running aggregate-only sensitivity analysis.")
-                # We can't calculate pass rates of individual samples without individual errors.
-                # We will simulate a dummy list with the mean error to satisfy the function signature,
-                # but note that pass_rate will be 100% if error < threshold else 0% for a single point?
-                # Better: Just report the aggregate comparison.
-                # Let's create a single dummy error point equal to the MAE to force the logic to work
-                # but clearly label it in the output.
-                test_targets = [0.0]
-                test_predictions = [metrics["mae"]]
-            else:
-                logger.error("metrics.json does not contain 'mae'. Cannot run sensitivity analysis.")
-                sys.exit(1)
-        else:
-            logger.error(f"Neither {predictions_path} nor {METRICS_FILE} found. Cannot run sensitivity analysis.")
-            sys.exit(1)
-
-    # Run the sweep
-    results = run_sensitivity_sweep(test_targets, test_predictions, args.thresholds)
-
-    if not results:
-        logger.error("Sensitivity analysis produced no results.")
+    # Sort thresholds for consistent reporting
+    thresholds = sorted(thresholds)
+    
+    # Define paths
+    predictions_path = Path(args.predictions)
+    output_path = Path(args.output)
+    
+    # Load predictions
+    try:
+        df = load_predictions_if_exists(predictions_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+    
+    # Run sweep
+    try:
+        result_df = run_sensitivity_sweep(df, thresholds, output_path)
+        logger.info("Sensitivity analysis completed successfully.")
+    except Exception as e:
+        logger.error(f"Sensitivity sweep failed: {e}")
         sys.exit(1)
 
-    # Prepare output
-    output_data = {
-        "analysis_type": "sensitivity_sweep",
-        "thresholds_swept": args.thresholds,
-        "results": results,
-        "summary": {
-            "total_samples": len(test_targets),
-            "best_threshold_for_pass": next((r["threshold_nm"] for r in results if r["sc001_status_if_threshold_applied"] == "PASS"), "None"),
-            "threshold_at_50pct_pass": next((r["threshold_nm"] for r in results if r["pass_rate_pct"] >= 50), "None")
-        }
-    }
-
-    # Write output
-    output_path = DATA_PROCESSED / args.output
-    with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-    
-    logger.info(f"Sensitivity analysis complete. Results saved to {output_path}")
-    return 0
-
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

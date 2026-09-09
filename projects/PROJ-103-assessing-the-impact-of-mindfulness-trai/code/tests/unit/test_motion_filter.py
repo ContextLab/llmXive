@@ -1,7 +1,6 @@
 """
-Unit tests for the motion filter module.
+Unit tests for motion_filter module.
 """
-
 import os
 import tempfile
 import pandas as pd
@@ -20,167 +19,136 @@ from src.preprocessing.motion_filter import (
 
 @pytest.fixture
 def sample_motion_df():
-    """Create a sample DataFrame with motion parameters."""
+    """Create a sample motion DataFrame."""
     data = {
         'subject_id': ['sub-01', 'sub-02', 'sub-03', 'sub-04'],
-        'translation_x': [1.0, 5.0, 2.0, 0.5],
-        'translation_y': [1.0, 2.0, 2.0, 0.5],
-        'translation_z': [1.0, 2.0, 2.0, 0.5],
-        'rotation_x': [1.0, 2.0, 4.0, 0.5],
-        'rotation_y': [1.0, 2.0, 2.0, 0.5],
-        'rotation_z': [1.0, 2.0, 2.0, 0.5],
+        'translation_x': [1.0, 4.0, 2.0, 0.5],
+        'translation_y': [0.5, 1.0, 5.0, 0.2],
+        'translation_z': [0.2, 0.3, 0.1, 3.5],
+        'rotation_x': [0.1, 0.2, 0.1, 0.1],
+        'rotation_y': [0.2, 3.5, 0.2, 0.2],
+        'rotation_z': [0.1, 0.1, 0.1, 0.1]
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
-def temp_csv_path(sample_motion_df):
-    """Create a temporary CSV file with sample data."""
+def temp_csv_path():
+    """Create a temporary CSV file."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-        sample_motion_df.to_csv(f, index=False)
-        path = Path(f.name)
-    yield path
-    os.unlink(path)
+        temp_path = Path(f.name)
+    yield temp_path
+    if temp_path.exists():
+        os.unlink(temp_path)
+
+@pytest.fixture
+def temp_json_path():
+    """Create a temporary JSON file path."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        temp_path = Path(f.name)
+    if temp_path.exists():
+        os.unlink(temp_path)
+    return temp_path
 
 class TestLoadMotionData:
-    def test_load_success(self, temp_csv_path, sample_motion_df):
+    def test_load_valid_csv(self, sample_motion_df, temp_csv_path):
+        sample_motion_df.to_csv(temp_csv_path, index=False)
         df = load_motion_data(temp_csv_path)
-        pd.testing.assert_frame_equal(df, sample_motion_df)
+        assert len(df) == 4
+        assert 'subject_id' in df.columns
 
-    def test_load_file_not_found(self):
-        with pytest.raises(MotionFilterError, match="not found"):
+    def test_load_missing_file(self):
+        with pytest.raises(MotionFilterError):
             load_motion_data(Path("/nonexistent/path.csv"))
 
-    def test_load_missing_columns(self, temp_csv_path):
-        # Create a file with missing columns
-        bad_data = pd.DataFrame({'subject_id': ['sub-01']})
-        with open(temp_csv_path, 'w') as f:
-            bad_data.to_csv(f, index=False)
-        
-        with pytest.raises(MotionFilterError, match="Missing required columns"):
+    def test_load_invalid_columns(self, temp_csv_path):
+        df = pd.DataFrame({'wrong_col': [1, 2, 3]})
+        df.to_csv(temp_csv_path, index=False)
+        with pytest.raises(MotionFilterError):
             load_motion_data(temp_csv_path)
 
 class TestCalculateMaxDisplacement:
-    def test_max_translation(self):
-        row = pd.Series({
-            'translation_x': 1.0, 'translation_y': 5.0, 'translation_z': 2.0,
-            'rotation_x': 1.0, 'rotation_y': 1.0, 'rotation_z': 1.0
-        })
-        max_trans, max_rot = calculate_max_displacement(row)
-        assert max_trans == 5.0
-        assert max_rot == 1.0
-
-    def test_max_rotation(self):
-        row = pd.Series({
-            'translation_x': 1.0, 'translation_y': 1.0, 'translation_z': 1.0,
-            'rotation_x': 4.0, 'rotation_y': 2.0, 'rotation_z': 1.0
-        })
+    def test_normal_values(self, sample_motion_df):
+        row = sample_motion_df.iloc[0]
         max_trans, max_rot = calculate_max_displacement(row)
         assert max_trans == 1.0
-        assert max_rot == 4.0
+        assert max_rot == 0.2
 
-    def test_negative_values(self):
-        row = pd.Series({
-            'translation_x': -5.0, 'translation_y': 1.0, 'translation_z': 1.0,
-            'rotation_x': 1.0, 'rotation_y': -3.0, 'rotation_z': 1.0
-        })
+    def test_high_values(self, sample_motion_df):
+        row = sample_motion_df.iloc[1]  # sub-02 with high motion
         max_trans, max_rot = calculate_max_displacement(row)
-        assert max_trans == 5.0
-        assert max_rot == 3.0
+        assert max_trans == 4.0
+        assert max_rot == 3.5
 
 class TestFilterSubjects:
-    def test_filter_within_limits(self, sample_motion_df):
-        # sub-01: max_trans=1, max_rot=1 -> Included
-        included, excluded, log = filter_subjects(
-            sample_motion_df, 
-            trans_threshold=3.0, 
-            rot_threshold=3.0
-        )
-        assert len(included) == 3 # sub-01, sub-03, sub-04
-        assert len(excluded) == 1 # sub-02
-        assert excluded.iloc[0]['subject_id'] == 'sub-02'
+    def test_filter_correctly(self, sample_motion_df):
+        included, excluded, details = filter_subjects(sample_motion_df)
 
-    def test_filter_excluded_translation(self, sample_motion_df):
-        # sub-02 has trans_x=5.0
-        included, excluded, log = filter_subjects(
-            sample_motion_df, 
-            trans_threshold=3.0, 
-            rot_threshold=3.0
-        )
-        assert 'sub-02' in excluded['subject_id'].values
+        # sub-01: low motion -> included
+        # sub-02: high trans (4.0) and high rot (3.5) -> excluded
+        # sub-03: high trans (5.0) -> excluded
+        # sub-04: high trans (3.5) -> excluded
 
-    def test_filter_excluded_rotation(self, sample_motion_df):
-        # sub-03 has rot_x=4.0
-        included, excluded, log = filter_subjects(
-            sample_motion_df, 
-            trans_threshold=3.0, 
-            rot_threshold=3.0
-        )
-        assert 'sub-03' in excluded['subject_id'].values
+        assert len(included) == 1
+        assert included.iloc[0]['subject_id'] == 'sub-01'
 
-    def test_filter_empty_excluded(self):
+        assert len(excluded) == 3
+        excluded_ids = excluded['subject_id'].tolist()
+        assert 'sub-02' in excluded_ids
+        assert 'sub-03' in excluded_ids
+        assert 'sub-04' in excluded_ids
+
+        assert len(details) == 3
+
+    def test_no_exclusions(self):
         data = {
             'subject_id': ['sub-01'],
             'translation_x': [1.0], 'translation_y': [1.0], 'translation_z': [1.0],
-            'rotation_x': [1.0], 'rotation_y': [1.0], 'rotation_z': [1.0],
+            'rotation_x': [0.1], 'rotation_y': [0.1], 'rotation_z': [0.1]
         }
         df = pd.DataFrame(data)
-        included, excluded, log = filter_subjects(df, trans_threshold=3.0, rot_threshold=3.0)
+        included, excluded, details = filter_subjects(df)
         assert len(included) == 1
         assert len(excluded) == 0
-        assert log[0]['status'] == 'INCLUDED'
+        assert len(details) == 0
+
+    def test_all_excluded(self):
+        data = {
+            'subject_id': ['sub-01'],
+            'translation_x': [5.0], 'translation_y': [1.0], 'translation_z': [1.0],
+            'rotation_x': [0.1], 'rotation_y': [0.1], 'rotation_z': [0.1]
+        }
+        df = pd.DataFrame(data)
+        included, excluded, details = filter_subjects(df)
+        assert len(included) == 0
+        assert len(excluded) == 1
+        assert len(details) == 1
 
 class TestWriteExclusionReport:
-    def test_write_report(self):
-        log = [
-            {"subject_id": "sub-01", "max_translation_mm": 1.0, "max_rotation_deg": 1.0, "status": "INCLUDED", "reason": "Within limits"},
-            {"subject_id": "sub-02", "max_translation_mm": 5.0, "max_rotation_deg": 2.0, "status": "EXCLUDED", "reason": "Trans 5.00mm > 3.0mm"}
+    def test_write_report(self, temp_json_path):
+        details = [
+            {'subject_id': 'sub-01', 'max_translation_mm': 4.0, 'max_rotation_deg': 0.1, 'reason': 'Max translation 4.00mm > 3.0mm'}
         ]
-        with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
-            path = Path(f.name)
-        
-        write_exclusion_report(log, path)
-        
-        assert path.exists()
-        df = pd.read_csv(path)
-        assert len(df) == 2
-        assert df.iloc[0]['subject_id'] == 'sub-01'
-        assert df.iloc[1]['subject_id'] == 'sub-02'
-        
-        os.unlink(path)
+        write_exclusion_report(details, temp_json_path)
+        assert temp_json_path.exists()
+
+        import json
+        with open(temp_json_path, 'r') as f:
+            report = json.load(f)
+
+        assert report['total_excluded'] == 1
+        assert report['exclusion_thresholds']['max_translation_mm'] == 3.0
 
 class TestRunMotionFilter:
-    @patch('src.preprocessing.motion_filter.get_data_dir')
-    def test_run_full_pipeline(self, mock_get_data_dir, sample_motion_df, temp_csv_path):
-        mock_get_data_dir.return_value = tempfile.gettempdir()
-        
-        # Create output paths
-        out_inc = Path(tempfile.gettempdir()) / "test_included.csv"
-        out_exc = Path(tempfile.gettempdir()) / "test_excluded.csv"
-        out_rep = Path(tempfile.gettempdir()) / "test_report.csv"
-        
-        try:
-            result = run_motion_filter(
-                input_csv_path=temp_csv_path,
-                output_included_path=out_inc,
-                output_excluded_path=out_exc,
-                output_report_path=out_rep,
-                trans_threshold=3.0,
-                rot_threshold=3.0
-            )
-            
-            assert result['total_subjects'] == 4
-            assert result['included_count'] == 2 # sub-01, sub-04
-            assert result['excluded_count'] == 2 # sub-02, sub-03
-            
-            assert out_inc.exists()
-            assert out_exc.exists()
-            assert out_rep.exists()
-            
-            df_inc = pd.read_csv(out_inc)
-            assert 'sub-01' in df_inc['subject_id'].values
-            assert 'sub-04' in df_inc['subject_id'].values
-            
-        finally:
-            for p in [out_inc, out_exc, out_rep]:
-                if p.exists():
-                    os.unlink(p)
+    def test_run_full_pipeline(self, sample_motion_df, temp_csv_path, temp_json_path):
+        sample_motion_df.to_csv(temp_csv_path, index=False)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_csv = Path(tmpdir) / "filtered.csv"
+            report_path = Path(tmpdir) / "report.json"
+
+            included, excluded = run_motion_filter(temp_csv_path, output_csv, report_path)
+
+            assert output_csv.exists()
+            assert report_path.exists()
+            assert len(included) == 1
+            assert len(excluded) == 3

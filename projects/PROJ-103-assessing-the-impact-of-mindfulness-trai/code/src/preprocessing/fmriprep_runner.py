@@ -1,219 +1,210 @@
 """
 fMRIPrep Docker Runner
 
-Executes fMRIPrep via Docker with CPU-limited thread and memory constraints
-as defined in docker/fmriprep.Dockerfile and project configuration.
+Executes the fMRIPrep container with configuration derived from project settings.
+Handles thread/memory constraints and output directory mapping.
 """
-
 import os
 import subprocess
 import sys
+import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 from src.config.env import get_data_dir, get_config
 
+logger = logging.getLogger(__name__)
+
 
 class FMRIPrepRunnerError(Exception):
-    """Custom exception for fMRIPrep runner errors."""
+    """Custom exception for fMRIPrep runner failures."""
     pass
 
 
 def get_fmriprep_config() -> Dict[str, Any]:
     """
-    Retrieve fMRIPrep specific configuration from settings.
+    Retrieve fMRIPrep specific configuration from the global settings.
     
     Returns:
-        Dict containing thread and memory constraints.
+        Dict containing thread_count, memory_gb, and other relevant params.
     """
     config = get_config()
-    preprocessing_params = config.get("preprocessing_params", {})
     
-    # Default constraints if not explicitly set in config
-    # These align with docker/fmriprep.Dockerfile CPU-limited settings
+    # Default to safe values for CI/runner environments if not specified
+    # but ensure they align with the project's preprocessing_params if available
+    base_config = config.get('preprocessing_params', {})
+    
     return {
-        "nthreads": preprocessing_params.get("nthreads", 2),
-        "mem_mb": preprocessing_params.get("mem_mb", 2048),
-        "omp_nthreads": preprocessing_params.get("omp_nthreads", 2),
-        "smoothing_fwhm": preprocessing_params.get("smoothing_mm", 6),
+        'thread_count': base_config.get('thread_count', 4),
+        'memory_gb': base_config.get('memory_gb', 8),
+        'fmriprep_version': base_config.get('fmriprep_version', '23.1.0'),
+        'participant_label': base_config.get('participant_label', None),
+        'nprocs': base_config.get('nprocs', 4),
+        'omp_nthreads': base_config.get('omp_nthreads', 4),
     }
 
 
 def build_fmriprep_command(
-    dataset_id: str,
-    subject_id: str,
+    dataset_path: Path,
     output_dir: Path,
-    config: Dict[str, Any]
+    analysis_level: str = 'participant',
+    participant_label: Optional[List[str]] = None,
+    config: Optional[Dict[str, Any]] = None
 ) -> List[str]:
     """
-    Build the fMRIPrep Docker command with resource constraints.
+    Construct the docker run command for fMRIPrep.
     
     Args:
-        dataset_id: OpenNeuro dataset identifier (e.g., 'ds000001')
-        subject_id: Subject identifier (e.g., 'sub-01')
-        output_dir: Directory for fMRIPrep outputs
-        config: Configuration dictionary with thread/memory settings
-        
+        dataset_path: Path to the BIDS dataset root.
+        output_dir: Path to the output directory.
+        analysis_level: 'participant', 'group', or 'report'.
+        participant_label: Optional list of subject labels to process.
+        config: Optional config dict overriding defaults.
+    
     Returns:
-        List of command arguments for subprocess execution
+        List of command line arguments.
     """
-    data_dir = get_data_dir()
-    raw_dir = Path(data_dir) / "raw"
+    if config is None:
+        config = get_fmriprep_config()
     
-    # Construct paths
-    dataset_path = raw_dir / dataset_id
-    if not dataset_path.exists():
-        raise FMRIPrepRunnerError(
-            f"Dataset path does not exist: {dataset_path}"
-        )
+    thread_count = config['thread_count']
+    memory_gb = config['memory_gb']
+    fmriprep_version = config['fmriprep_version']
     
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # fMRIPrep Docker command
-    # Using --nthreads and --omp-nthreads for CPU limits
-    # Using --mem-mb for memory limits
     cmd = [
-        "docker", "run", "--rm",
-        "-v", f"{raw_dir}:/data:ro",
-        "-v", f"{output_dir}:/out",
-        "-v", f"{output_dir}/work:/work",
-        "--name", f"fmriprep_{dataset_id}_{subject_id}",
-        "--gpus", "all",  # Optional: enable GPU if available
-        "nipreps/fmriprep:latest",  # Using latest stable version
-        "/data", "/out", "participant",
-        "--participant-label", subject_id,
-        "--skip-bids-validation",  # Assume validation passed earlier
-        "--nthreads", str(config["nthreads"]),
-        "--omp-nthreads", str(config["omp_nthreads"]),
-        "--mem-mb", str(config["mem_mb"]),
-        "--output-spaces", "MNI152NLin2009cAsym",
-        "--fs-license-file", "/opt/freesurfer/license.txt",  # If using FreeSurfer
-        "--verbose",
+        'docker', 'run', '--rm',
+        '-v', f'{dataset_path}:{dataset_path}:ro',
+        '-v', f'{output_dir}:{output_dir}',
+        '-v', '/tmp:/tmp',  # For temporary files
+        '--env', 'OMP_NUM_THREADS={}'.format(config['omp_nthreads']),
+        '--env', 'OPENBLAS_NUM_THREADS={}'.format(config['nprocs']),
+        '--env', 'MKL_NUM_THREADS={}'.format(config['nprocs']),
+        '--env', 'VECLIB_MAXIMUM_THREADS={}'.format(config['nprocs']),
+        '--env', 'NUMEXPR_NUM_THREADS={}'.format(config['nprocs']),
+        '-u', '{}:{}'.format(os.getuid(), os.getgid()),
+        '--name', 'fmriprep_{}'.format(os.getpid()),
+        'nipreps/fmriprep:{}'.format(fmriprep_version),
+        str(dataset_path),
+        'participant',
+        '--output-spaces', 'MNI152NLin2009cAsym',
+        '--fs-no-reconall',
+        '--nprocs', str(config['nprocs']),
+        '--omp-nthreads', str(config['omp_nthreads']),
+        '--mem', '{}MB'.format(int(memory_gb * 1024)),
+        '--use-aroma',
+        '--md-only-boilerplate',
     ]
     
-    # Add smoothing if specified in config
-    if config.get("smoothing_fwhm"):
-        cmd.extend(["--smooth", str(config["smoothing_fwhm"])])
-        
+    if participant_label:
+        for label in participant_label:
+            cmd.extend(['--participant-label', label])
+    
+    cmd.append('--level')
+    cmd.append(analysis_level)
+    
     return cmd
 
 
 def run_fmriprep(
     dataset_id: str,
-    subject_id: str,
-    output_dir: Optional[Path] = None
-) -> Dict[str, Any]:
+    participant_labels: Optional[List[str]] = None,
+    analysis_level: str = 'participant'
+) -> subprocess.CompletedProcess:
     """
-    Execute fMRIPrep for a specific subject in a dataset.
+    Execute the fMRIPrep pipeline for a given dataset.
     
     Args:
-        dataset_id: OpenNeuro dataset identifier
-        subject_id: Subject identifier
-        output_dir: Optional custom output directory
-        
-    Returns:
-        Dict with execution status and output paths
-        
-    Raises:
-        FMRIPrepRunnerError: If Docker is not available or execution fails
-    """
-    config = get_fmriprep_config()
+        dataset_id: The OpenNeuro dataset ID (e.g., 'ds000001').
+        participant_labels: Specific subjects to process.
+        analysis_level: 'participant', 'group', or 'report'.
     
-    if output_dir is None:
-        data_dir = get_data_dir()
-        output_dir = Path(data_dir) / "processed" / dataset_id / subject_id
-        
-    try:
-        cmd = build_fmriprep_command(
-            dataset_id, subject_id, output_dir, config
+    Returns:
+        CompletedProcess instance with returncode and output.
+    
+    Raises:
+        FMRIPrepRunnerError: If Docker is not found or the command fails.
+    """
+    data_dir = get_data_dir()
+    dataset_root = Path(data_dir) / 'raw' / dataset_id
+    output_root = Path(data_dir) / 'processed' / dataset_id
+    
+    if not dataset_root.exists():
+        raise FMRIPrepRunnerError(
+            f"Dataset path not found: {dataset_root}. "
+            "Ensure datasets are downloaded first."
         )
-        
-        # Execute the command
-        print(f"Running fMRIPrep for {dataset_id}/{subject_id}...")
-        print(f"Command: {' '.join(cmd)}")
-        
+    
+    output_root.mkdir(parents=True, exist_ok=True)
+    
+    config = get_fmriprep_config()
+    cmd = build_fmriprep_command(
+        dataset_path=dataset_root,
+        output_dir=output_root,
+        analysis_level=analysis_level,
+        participant_label=participant_labels,
+        config=config
+    )
+    
+    logger.info(f"Executing fMRIPrep for {dataset_id}...")
+    logger.info(f"Command: {' '.join(cmd)}")
+    
+    try:
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            check=True
+            check=False  # We handle errors manually to log them
         )
         
-        # Verify output exists
-        participant_dir = output_dir / "sub-" + subject_id
-        if not participant_dir.exists():
+        if result.returncode != 0:
+            logger.error(f"fMRIPrep failed for {dataset_id}")
+            logger.error(f"STDOUT: {result.stdout}")
+            logger.error(f"STDERR: {result.stderr}")
             raise FMRIPrepRunnerError(
-                f"fMRIPrep output not found: {participant_dir}"
+                f"fMRIPrep failed with code {result.returncode}. "
+                "Check logs for details."
             )
         
-        return {
-            "status": "success",
-            "output_dir": str(output_dir),
-            "dataset_id": dataset_id,
-            "subject_id": subject_id,
-            "command_executed": cmd,
-            "stdout": result.stdout,
-            "stderr": result.stderr
-        }
+        logger.info(f"fMRIPrep completed successfully for {dataset_id}")
+        return result
         
-    except subprocess.CalledProcessError as e:
+    except FileNotFoundError:
         raise FMRIPrepRunnerError(
-            f"fMRIPrep execution failed: {e.stderr}"
-        ) from e
-    except FileNotFoundError as e:
-        raise FMRIPrepRunnerError(
-            f"Docker not found. Please install Docker: {e}"
-        ) from e
+            "Docker executable not found. Please ensure Docker is installed "
+            "and running on this system."
+        )
     except Exception as e:
-        raise FMRIPrepRunnerError(
-            f"Unexpected error during fMRIPrep execution: {str(e)}"
-        ) from e
+        raise FMRIPrepRunnerError(f"Unexpected error running fMRIPrep: {e}")
 
 
 def main():
     """
-    Main entry point for command-line execution.
-    
-    Usage:
-        python -m src.preprocessing.fmriprep_runner --dataset ds000001 --subject sub-01
+    CLI entry point for running fMRIPrep.
+    Expects a dataset ID as the first argument.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(
-        description="Run fMRIPrep preprocessing for a specific subject"
-    )
-    parser.add_argument(
-        "--dataset",
-        required=True,
-        help="OpenNeuro dataset ID (e.g., ds000001)"
-    )
-    parser.add_argument(
-        "--subject",
-        required=True,
-        help="Subject ID (e.g., sub-01)"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default=None,
-        help="Optional custom output directory"
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    args = parser.parse_args()
+    if len(sys.argv) < 2:
+        print("Usage: python -m src.preprocessing.fmriprep_runner <dataset_id> [subject_id]")
+        sys.exit(1)
+    
+    dataset_id = sys.argv[1]
+    subjects = sys.argv[2:] if len(sys.argv) > 2 else None
     
     try:
-        result = run_fmriprep(
-            dataset_id=args.dataset,
-            subject_id=args.subject,
-            output_dir=Path(args.output_dir) if args.output_dir else None
+        run_fmriprep(
+            dataset_id=dataset_id,
+            participant_labels=subjects,
+            analysis_level='participant'
         )
-        print(f"Success: {result['output_dir']}")
-        sys.exit(0)
+        print(f"Successfully processed {dataset_id}")
     except FMRIPrepRunnerError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

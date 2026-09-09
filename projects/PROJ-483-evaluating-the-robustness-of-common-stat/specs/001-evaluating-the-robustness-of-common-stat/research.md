@@ -1,94 +1,88 @@
 # Research: Evaluating the Robustness of Common Statistical Tests to Non-Independence in Public Datasets
 
-## Research Question
-How do non-independence structures (temporal, hierarchical, spatial) in public datasets inflate Type I error rates and reduce statistical power for standard parametric tests (t-test, ANOVA, chi-squared), and which test-structure combinations are most vulnerable?
+## 1. Problem Statement & Gap Analysis
 
-## Dataset Strategy
+Standard statistical tests (t-test, ANOVA, Chi-squared) assume independent and identically distributed (i.i.d.) observations. Public datasets, particularly those derived from longitudinal studies, sensor networks, or clustered populations, frequently violate this assumption through temporal autocorrelation, hierarchical nesting, or spatial clustering.
 
-The project relies exclusively on the following verified datasets. Each dataset is evaluated for suitability based on variable types (continuous for t-test/ANOVA, categorical for chi-squared) and sample size (sufficient for statistical power).
+**The Gap**: While theoretical literature exists on the inflation of Type I error rates under non-independence, there is a lack of **empirical evidence** quantifying this inflation across **real-world public datasets** with varying degrees of dependency strength. Most studies rely on synthetic data generation, which may not capture the complex correlation structures found in actual data.
 
-| Dataset Name | Source URL | Variable Suitability | Notes on Suitability |
+**Research Question**: How does the false-positive rate of standard statistical tests inflate when applied to public datasets with varying degrees of non-independence, and which tests are most vulnerable?
+
+## 2. Dataset Strategy
+
+The project adheres strictly to the **Constitution Principle II (Verified Accuracy)** and the **Verified datasets** block provided in the prompt. No new URLs are invented.
+
+| Dataset Name | Source Type | Verified URL | Suitability for Study |
 |:--- |:--- |:--- |:--- |
-| **UCI HAR** | ` | Continuous (t-test/ANOVA) | Human Activity Recognition; continuous sensor features. Suitable for temporal dependency injection. |
-| **UCI Shopper** | ` | Categorical/Continuous | Transactional data. Suitable for chi-squared (categorical) and t-test (spending). Temporal/Spatial injection applied to features based on transaction ID/timestamp. |
-| **Synthetic Null Generator** | *N/A (Internal)* | Continuous/Categorical | Used for Type I error baseline. Generates independent X and Y, then injects dependency. Replaces invalid "Functional ANOVA" and "UCI DROP" sources. |
+| **UCI Wine Quality (Red)** | UCI / CSV | `https://huggingface.co/datasets/UCI/wine-quality-red/resolve/main/winequality-red.csv` | Contains continuous variables (e.g., alcohol, pH) suitable for t-tests and ANOVA. Large N allows for hierarchical dependency injection. |
+| **UCI HAR (Human Activity)** | UCI / CSV | ` | Time-series sensor data. Ideal for **Temporal (AR(1))** dependency injection. We will use the *window-level* aggregated features as the observation unit, and inject AR(1) dependency across the sequence of windows. |
+| **UCI Adult** | UCI / CSV | `https://huggingface.co/datasets/UCI/adult/resolve/main/adult.csv` | Contains continuous (age, hours) and categorical variables. Suitable for t-tests and Chi-squared. |
 
-**Excluded Datasets**:
-- **Functional ANOVA**: Removed. The source URL points to pre-computed results (JSON), not raw data suitable for dependency injection.
-- **UCI DROP**: Removed. Text-based QA data lacks the continuous/categorical numerical variables required for t-test/ANOVA/chi-squared tests.
-- **AggregatedMetric**: Removed. No verified source found.
+**Data Availability Strategy**:
+- **Download**: All datasets are fetched via `huggingface_hub` or direct HTTP GET to the verified URLs.
+- **Streaming**: If a dataset exceeds available RAM (unlikely for these specific UCI subsets, but possible for full HAR), `datasets.load_dataset(..., streaming=True)` will be used to process chunks.
+- **Null Construction**: For each dataset, we will identify a pair of variables where the null hypothesis is plausibly true (or artificially enforced via permutation) *after* dependency injection.
 
-**Dataset Selection Rationale**:
-- **UCI HAR** and **UCI Shopper** are selected as primary candidates due to their structured nature and verified availability.
-- **Sampling Strategy**: To ensure execution within the 7GB RAM limit, datasets with $N > 10,000$ will be randomly sampled to $N=2,000$ *before* dependency injection. This preserves distributional properties while reducing memory footprint.
-- **Synthetic Data**: For Type I error estimation, we will generate synthetic data under the true null hypothesis (independent X and Y) to ensure the baseline is valid. Real datasets are used for descriptive validation and power analysis.
+**Addressing the "Synthetic Data" Concern**:
+The plan explicitly rejects generating *synthetic* data to replace the dataset. Instead, we use **Real Data + Injected Dependency**.
+1. Download Real Data (UCI).
+2. Inject Dependency (AR(1) for HAR, Cluster-Effect for Wine/Adult) into the real values (specifically, the residuals of a null model).
+3. Apply Permutation to the *injected* data to create the null.
+This satisfies FR-002: "construct a null hypothesis by first injecting the controlled dependency structure into the original data, and THEN applying random permutation."
 
-## Methodology & Simulation Design
+**Dataset Exclusion**:
+- **UCI DROP**: Excluded as it is a reading comprehension dataset without continuous numerical variables suitable for t-tests/ANOVA.
+- **Spatial Dependency**: Dropped for the current verified datasets as none contain explicit spatial coordinates. We will only test Temporal and Hierarchical structures.
 
-### 1. Null Hypothesis Construction (FR-002) - "Generate-then-Inject" Paradigm
-To establish a ground truth of "no effect" while violating the i.i.d. assumption, we strictly follow this protocol. **Permutation of labels on dependent data is explicitly rejected** as it fails to generate a valid null distribution when data points are non-exchangeable.
+## 3. Methodology & Statistical Rigor
 
-**For Type I Error Estimation (T-Test, ANOVA, Chi-Squared):**
-1. **Generate**: Create synthetic data where X (predictor) and Y (outcome) are **independent** and identically distributed (i.i.d.).
- - *Continuous*: Draw X, Y from $N(0, 1)$.
- - *Categorical*: Draw X, Y from independent categorical distributions.
- - *Result*: The null hypothesis ($H_0: \text{no effect}$) is true by construction.
-2. **Inject**: Apply the dependency structure (AR(1), Block Bootstrap, Spatial) **only to X** or **to the error term** of Y.
- - *Crucial*: Do NOT inject dependency into the joint distribution of X and Y in a way that creates a correlation between them. The dependency must exist within the variables themselves (e.g., temporal autocorrelation in X) or within the error structure, while X and Y remain uncorrelated.
- - *Result*: The test assumes independence (i.i.d.), but the data has a dependency structure. The null hypothesis (no effect) remains true.
-3. **Test**: Run the statistical test. A significant result ($p < 0.05$) is a **Type I error**.
+### 3.1 Dependency Injection Methods
+1. **Temporal (AR(1))**: Applied to time-ordered data (HAR).
+ - Model: $X_t = \rho X_{t-1} + \epsilon_t$, where $\rho \in \{0, 0.1, 0.2, 0.3, 0.5\}$.
+ - Implementation: `numpy` vectorized recursion applied to the sequence of window-level features.
+2. **Hierarchical (Cluster-Effect Injection)**: Applied to cross-sectional data (Wine, Adult).
+ - Method: Instead of resampling (Block Bootstrap), we generate correlated noise $\epsilon_i$ with intra-cluster correlation $\rho$ and add it to the residuals of the outcome variable. This induces dependency without altering N or the marginal distribution of the original data.
+ - Implementation: Generate a cluster ID for each observation, then add a cluster-specific random effect + individual noise.
+3. **Spatial**: **Skipped** for this study as no verified datasets have explicit spatial coordinates.
 
-**For Power Analysis (US-3):**
-1. **Generate**: Create data with a true effect (e.g., mean shift $\delta$ in Y based on X).
-2. **Inject**: Apply dependency to X or the error term.
-3. **Test**: Run the statistical test. A significant result is a **True Positive**.
+### 3.2 Null Construction (FR-002)
+The correct approach for testing Type I error under non-independence is to generate data where the *null is true* (no mean difference) but the *error terms are correlated*.
+1. **Fit a Null Model**: Fit a model to the real data assuming no effect (e.g., $Y = \mu + \epsilon$) to extract residuals $\epsilon_{real}$.
+2. **Inject Dependency**: Generate a new error term $\epsilon_{new}$ that has the desired correlation structure (AR(1) or Cluster-Effect) but the same variance as $\epsilon_{real}$.
+3. **Construct Null Data**: Create $Y_{null} = \mu + \epsilon_{new}$.
+4. **Permute Labels**: For the t-test/ANOVA, permute the group labels $X$ relative to $Y_{null}$. This breaks the association while preserving the correlation structure in the error term.
+5. **Run Test**: Perform the statistical test on $(X_{permuted}, Y_{null})$.
 
-**Chi-Squared Specifics**:
-- Generate two independent categorical variables.
-- Apply **Block Bootstrap** to the rows (observations) to induce hierarchical dependency.
-- This violates the i.i.d. assumption of the chi-squared test while keeping the variables conditionally independent.
+This ensures the null hypothesis is true (no mean difference) but the data has the desired non-independence.
 
-### 2. Dependency Injection Mechanisms (FR-003)
-Three structures are implemented with tunable strength $r \in \{, 0.1, 0.2, 0.3, 0.5\}$:
-- **Temporal (AR(1))**: $X_t = r X_{t-1} + \epsilon_t$. Implemented via `numpy` vectorized recursion. Applied to the predictor variable or the error term.
-- **Hierarchical (Block Bootstrap)**: Data is resampled in contiguous blocks of size $B$. Blocks are resampled with replacement to simulate intra-cluster correlation. Applied to the row indices of the dataset.
-- **Spatial (Kernel Smoothing)**:
- - **Proxy**: If a dataset lacks explicit spatial coordinates, a spatial proxy is derived **exclusively from the independent variables (features)**, strictly excluding the outcome variable.
- - **Method**: K-Means clustering on the feature subset to create cluster IDs. Dependency is injected by smoothing values within clusters.
- - **Constraint**: The outcome variable is never used to define the spatial structure, preventing definitional leakage.
+### 3.3 Monte Carlo Simulation
+- **Replications**: $N_{rep} = 10,000$ per configuration (Test $\times$ Dependency $\times$ Strength).
+- **Significance**: $\alpha = 0.05$.
+- **Metric**: Observed Type I Error Rate = (Count of $p < 0.05$) / $N_{rep}$.
+- **Precision Verification**: Calculate the 95% Clopper-Pearson CI width. If width > 0.01 (±0.5%), log a warning (SC-003).
 
-### 3. Monte Carlo Simulation (FR-004, FR-005)
-- **Replications**: 10,000 per configuration.
-- **Tests**: Independent t-test, One-way ANOVA, Chi-squared test.
-- **Metric**: Proportion of $p < 0.05$ (Type I Error) and Proportion of $p < 0.05$ under true effect (Power).
-- **Confidence Intervals**: Clopper-Pearson exact intervals calculated for all error rates.
-- **Logistic Regression**: As per Constitution Principle VII, a logistic regression model (p-value ~ dependency strength) is fitted for each configuration and saved to `results/logistic_models.pkl`.
+### 3.4 Statistical Rigor & Assumptions
+- **Multiple Comparisons**: When testing multiple dependency strengths ($r=0.1, 0.2, 0.3, 0.5$), we will report the trend but **not** adjust the alpha for the simulation itself, as the simulation *is* the experiment to observe the trend. However, if we perform a trend test (e.g., logistic regression of significance vs. $r$), we will report the p-value.
+- **Power Analysis**: For US-3, we will inject a known effect size ($\delta=1.0\sigma$) into the dependent data and measure power.
+- **Collinearity**: If predictors are definitionally related (e.g., sum of parts), we will not claim independent effects. We will report descriptive correlations.
+- **Causal Claims**: None. The study is purely **associational** regarding the relationship between dependency strength and error rate inflation. No causal inference on the dataset variables themselves is claimed.
 
-### 4. Computational Feasibility (SC-004)
-- **Vectorization**: All injection and testing loops are vectorized using `numpy` to avoid Python overhead.
-- **Parallelism**: The replications are split into 4 batches ([deferred] each) processed sequentially to manage RAM, or parallelized via `multiprocessing` with shared memory if the runner allows (tested in CI).
-- **Memory Cap**: Intermediate arrays are deleted immediately after aggregation.
+## 4. Compute Feasibility
 
-## Statistical Rigor & Assumptions
+- **Platform**: GitHub Actions `ubuntu-latest` (2 vCPU, 7GB RAM).
+- **Strategy**:
+ - **CPU-First**: All simulations use `numpy` vectorization. No GPU required for standard statistical tests.
+ - **Memory**: Streaming or chunked processing for HAR if needed. Wine/Adult fit easily.
+ - **Time**: 10,000 replications of a t-test on $N=1000$ takes milliseconds. 10k reps $\times$ 5 dependency levels $\times$ 3 tests $\approx$ 150k tests total. Even with overhead, this is well under a standard workday.
+- **No GPU Escape Hatch Needed**: The statistical tests (t, F, Chi-sq) are lightweight. No transformer fine-tuning or diffusion models are involved.
 
-- **Multiple Comparisons**: As this is a simulation study exploring error rates across conditions, the primary metric is the *observed* error rate. No family-wise error correction is applied to the *simulation results* themselves, as the goal is to measure the raw inflation. However, when reporting "thresholds" where error exceeds a predefined significance level, we will report the specific $r$ value with its confidence interval.
-- **Power Justification**: A large number of replications provide a standard error of $\approx 0.002$ for a true rate of 0.05, satisfying the $\pm$ precision target (SC-003).
-- **Causal Claims**: This is a simulation study. Claims are strictly about the *behavior of statistical tests* under specific data conditions, not about causal relationships in the real world.
-- **Collinearity**: In the spatial proxy method, if the proxy variable is definitionally derived from the outcome, we will report the relationship descriptively and acknowledge the limitation, avoiding claims of "independent" effects. (Note: This is prevented by the "Feature-Only" proxy constraint).
-
-## Edge Case Handling
-
-- **Small Datasets ($N < 20$)**: These datasets will be skipped or flagged. The simulation requires sufficient degrees of freedom for the t-test/ANOVA to be valid.
-- **Normality Violations**: The injected dependency may create non-normal distributions. The plan will report results for the standard tests (which assume normality) and, as a robustness check, the non-parametric equivalents (Mann-Whitney, Kruskal-Wallis) if time permits, but the primary focus remains on the parametric tests as per the spec.
-- **Transaction Data (UCI Shopper)**: Dependency injection is applied to the feature space based on transaction timestamps or customer IDs. The label (purchase) is permuted *after* feature dependency is established to ensure the null is valid.
-
-## Decision Log
+## 5. Decision Rationale
 
 | Decision | Rationale |
 |:--- |:--- |
-| **Use "Generate-then-Inject"** | Resolves the "Inject-then-Permute" flaw. Ensures the null is true by construction while the i.i.d. assumption is violated. |
-| **Synthetic Data for Type I Error** | Replaces invalid "Functional ANOVA" and "UCI DROP" sources. Guarantees a valid ground truth for error rate estimation. |
-| **Feature-Only Spatial Proxy** | Prevents definitional leakage where the outcome influences the spatial structure. |
-| **Vectorized NumPy** | Essential for fitting a large number of replications into 6 hours on 2 cores. |
-| **Sample Large Datasets** | Prevents OOM errors on 7GB RAM runner while maintaining statistical properties. |
-| **Reject Permutation for Type I Error** | Permutation on dependent data fails to generate a valid null distribution; synthetic generation is required. |
+| **Use Real UCI Data** | Satisfies FR-001 and Constitution II. Synthetic data cannot validate robustness on *public dataset* structures. |
+| **Cluster-Effect Injection (vs Block Bootstrap)** | Block Bootstrap resamples data, altering N and distribution. Cluster-Effect Injection adds correlated noise, preserving N and distribution. |
+| **Inject Dependency into Residuals** | Ensures the null hypothesis is true while preserving the correlation structure in the error term. |
+| **10,000 Replications** | Meets SC-003 precision target ($\pm [deferred]$). [deferred] would be too noisy for small error rates. |
+| **Clopper-Pearson CIs** | Required for accurate reporting of rare events (Type I errors) where Wald intervals fail. |
+| **No Spatial Testing** | No verified datasets have spatial coordinates. Forcing a spatial test would be methodologically unsound. |

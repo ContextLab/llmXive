@@ -1,170 +1,118 @@
+"""Test for T013: Epoch Rejection implementation."""
 import os
-import sys
-import pandas as pd
-import numpy as np
-from pathlib import Path
+import csv
 import pytest
-from datetime import datetime
+from pathlib import Path
+import numpy as np
+import mne
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Import the functions we are testing
+from code.preprocess import reject_artifacts, load_config
+from code.utils.logging import EXCLUSION_LOG_PATH
 
-def test_epoch_rejection_creates_exclusion_log():
-    """Test that epoch rejection creates exclusion_log.csv with correct format."""
-    # Import the function we're testing
-    from preprocess import reject_artifacts, save_exclusion_log
-    
-    # Create test data with some epochs exceeding threshold
-    # 32 channels, 10000 samples (10 seconds at 1000 Hz)
-    np.random.seed(42)
-    data = np.random.randn(32, 10000)
-    
-    # Inject high amplitude in some epochs to trigger rejection
-    # Epoch 2 (samples 4000-6000) will have high amplitude
-    data[:, 4000:6000] = 150.0  # Above 100 µV threshold
-    
-    threshold = 100.0  # µV
-    
-    # Run rejection
-    cleaned_data, rejection_log = reject_artifacts(data, threshold)
-    
-    # Verify rejection log has entries
-    assert len(rejection_log) > 0, "Rejection log should contain entries for rejected epochs"
-    
-    # Verify at least one rejection has the correct reason
-    amplitude_rejections = [r for r in rejection_log if r.get('reason') == 'amplitude_threshold']
-    assert len(amplitude_rejections) > 0, "Should have rejections with reason 'amplitude_threshold'"
-    
-    # Verify the rejection log contains required fields
-    for entry in amplitude_rejections:
-        assert 'epoch_index' in entry, "Rejection entry should have epoch_index"
-        assert 'max_amplitude' in entry, "Rejection entry should have max_amplitude"
-        assert 'threshold' in entry, "Rejection entry should have threshold"
-        assert 'reason' in entry, "Rejection entry should have reason"
-        assert 'timestamp' in entry, "Rejection entry should have timestamp"
-        
-        # Verify the amplitude exceeded threshold
-        assert entry['max_amplitude'] > entry['threshold'], "Rejected epoch should have amplitude > threshold"
-        assert entry['reason'] == 'amplitude_threshold', "Reason should be 'amplitude_threshold'"
-    
-    # Verify exclusion log file is created with correct format
-    output_path = 'data/processed/test_exclusion_log.csv'
-    save_exclusion_log(rejection_log, output_path)
-    
-    assert os.path.exists(output_path), "Exclusion log CSV should be created"
-    
-    # Read and verify CSV structure
-    df = pd.read_csv(output_path)
-    
-    required_columns = ['participant_id', 'epoch_index', 'max_amplitude', 'threshold', 'reason', 'timestamp']
-    for col in required_columns:
-        assert col in df.columns, f"CSV should contain column '{col}'"
-    
-    # Verify at least one row with amplitude_threshold reason
-    threshold_rows = df[df['reason'] == 'amplitude_threshold']
-    assert len(threshold_rows) > 0, "CSV should contain at least one row with reason 'amplitude_threshold'"
-    
-    # Clean up test file
-    if os.path.exists(output_path):
-        os.remove(output_path)
 
-def test_amplitude_threshold_logic():
-    """Test that epochs exceeding ±100µV are correctly rejected."""
-    from preprocess import reject_artifacts
-    
-    # Create data with known amplitudes
-    np.random.seed(123)
-    n_channels = 16
-    n_samples = 4000  # 4 seconds at 1000 Hz = 2 epochs of 2 seconds
-    
-    # Low amplitude data (should pass)
-    low_amp_data = np.random.randn(n_channels, 2000) * 50  # ~50 µV
-    
-    # High amplitude data (should fail)
-    high_amp_data = np.random.randn(n_channels, 2000) * 150  # ~150 µV
-    
-    # Combine: first epoch passes, second fails
-    combined_data = np.hstack([low_amp_data, high_amp_data])
-    
-    threshold = 100.0
-    
-    cleaned_data, rejection_log = reject_artifacts(combined_data, threshold)
-    
-    # Should have exactly 1 rejection (the high amplitude epoch)
-    assert len(rejection_log) == 1, f"Expected 1 rejection, got {len(rejection_log)}"
-    
-    # The rejection should be for epoch index 1 (the second epoch)
-    assert rejection_log[0]['epoch_index'] == 1, "Should reject epoch index 1"
-    
-    # The max amplitude should be > 100
-    assert rejection_log[0]['max_amplitude'] > 100, "Max amplitude should exceed threshold"
-    
-    # Cleaned data should only contain the first epoch
-    expected_samples = 2000  # Only first epoch
-    assert cleaned_data.shape[1] == expected_samples, f"Cleaned data should have {expected_samples} samples"
+def test_epoch_rejection_logs_to_csv(tmp_path):
+    """Test that rejected epochs are logged to exclusion_log.csv with reason 'amplitude_threshold'."""
+    # Create a temporary directory for test data
+    test_data_dir = tmp_path / "data" / "raw"
+    test_data_dir.mkdir(parents=True)
+    test_output_dir = tmp_path / "data" / "processed"
+    test_output_dir.mkdir(parents=True)
 
-def test_no_rejections_when_all_pass():
-    """Test that no rejections occur when all epochs are within threshold."""
-    from preprocess import reject_artifacts
-    
-    # Create data with low amplitude
-    np.random.seed(456)
-    data = np.random.randn(32, 4000) * 50  # All ~50 µV
-    
-    threshold = 100.0
-    
-    cleaned_data, rejection_log = reject_artifacts(data, threshold)
-    
-    # Should have no rejections
-    assert len(rejection_log) == 0, "Should have no rejections when all epochs pass"
-    
-    # All data should be preserved
-    assert cleaned_data.shape == data.shape, "All data should be preserved when no rejections"
+    # Create a synthetic EEG file with high amplitude epochs
+    sfreq = 250  # Sampling frequency
+    n_channels = 2
+    n_times = 250 * 120  # 2 minutes of data (60000 samples)
 
-def test_exclusion_log_csv_format():
-    """Test that exclusion_log.csv is created with the exact required format."""
-    from preprocess import save_exclusion_log
-    import pandas as pd
-    
-    # Create sample rejection log
-    rejection_log = [
-        {
-            'participant_id': 'P001',
-            'epoch_index': 5,
-            'max_amplitude': 125.5,
-            'threshold': 100.0,
-            'reason': 'amplitude_threshold',
-            'timestamp': '2026-09-03T10:00:00'
-        },
-        {
-            'participant_id': 'P001',
-            'epoch_index': 12,
-            'max_amplitude': 110.2,
-            'threshold': 100.0,
-            'reason': 'amplitude_threshold',
-            'timestamp': '2026-09-03T10:00:01'
-        }
-    ]
-    
-    output_path = 'data/processed/test_format_exclusion_log.csv'
-    save_exclusion_log(rejection_log, output_path)
-    
-    # Verify file exists
-    assert os.path.exists(output_path), "Exclusion log should be created"
-    
-    # Read CSV
-    df = pd.read_csv(output_path)
-    
-    # Verify required columns
-    required_columns = ['participant_id', 'reason', 'timestamp']
-    for col in required_columns:
-        assert col in df.columns, f"CSV must contain column '{col}'"
-    
-    # Verify reason column contains 'amplitude_threshold'
-    assert all(df['reason'] == 'amplitude_threshold'), "All entries should have reason 'amplitude_threshold'"
-    
-    # Verify row count
-    assert len(df) == 2, "CSV should have 2 rows"
-    
-    # Clean up
-    os.remove(output_path)
+    # Create data with some epochs exceeding 100uV
+    data = np.random.randn(n_channels, n_times) * 50  # Normal data ~50uV
+
+    # Make epoch 5 exceed threshold (150uV)
+    epoch_start = 5 * 250 * 2  # 2-second epoch
+    epoch_end = epoch_start + 250 * 2
+    data[:, epoch_start:epoch_end] = 150  # Exceeds 100uV threshold
+
+    # Create info structure
+    info = mne.create_info(ch_names=[f'EEG{i:03d}' for i in range(n_channels)], sfreq=sfreq, ch_types='eeg')
+    info['subject_info'] = {'subject_id': 'test_participant_001'}
+
+    # Create raw object
+    raw = mne.io.RawArray(data, info)
+
+    # Save to FIF file
+    test_file = test_data_dir / "test_eeg.fif"
+    raw.save(test_file, overwrite=True)
+
+    # Temporarily override EXCLUSION_LOG_PATH to use tmp_path
+    original_path = EXCLUSION_LOG_PATH
+    test_log_path = str(tmp_path / "data" / "processed" / "exclusion_log.csv")
+
+    # Reload module to pick up new path (or patch the function)
+    import code.utils.logging as logging_module
+    logging_module.EXCLUSION_LOG_PATH = test_log_path
+
+    try:
+        # Load config
+        config = load_config()
+        config["artifact_threshold_uV"] = 100.0
+
+        # Run rejection
+        raw_clean = reject_artifacts(raw, threshold=100.0, participant_id="test_participant_001")
+
+        # Verify exclusion log was created
+        assert os.path.exists(test_log_path), f"Exclusion log not created at {test_log_path}"
+
+        # Read and verify log contents
+        with open(test_log_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        assert len(rows) > 0, "Exclusion log is empty"
+
+        # Find the epoch rejection entry
+        epoch_rejection_found = False
+        for row in rows:
+            if row.get('reason') == 'amplitude_threshold':
+                epoch_rejection_found = True
+                assert row.get('participant_id') == 'test_participant_001', "Participant ID mismatch"
+                assert row.get('artifact_type') == 'epoch', "Artifact type should be 'epoch'"
+                break
+
+        assert epoch_rejection_found, "No 'amplitude_threshold' entry found in exclusion log"
+
+    finally:
+        # Restore original path
+        logging_module.EXCLUSION_LOG_PATH = original_path
+
+
+def test_epoch_rejection_removes_high_amplitude_epochs():
+    """Test that epochs exceeding threshold are actually removed from data."""
+    sfreq = 250
+    n_channels = 2
+    n_epochs = 10
+    epoch_duration = 2  # seconds
+    n_times = n_epochs * epoch_duration * sfreq
+
+    # Create data with normal amplitude
+    data = np.random.randn(n_channels, n_times) * 50
+
+    # Make epoch 3 exceed threshold
+    epoch_start = 3 * epoch_duration * sfreq
+    epoch_end = epoch_start + epoch_duration * sfreq
+    data[:, epoch_start:epoch_end] = 150  # Exceeds 100uV
+
+    # Create info and raw
+    info = mne.create_info(ch_names=[f'EEG{i:03d}' for i in range(n_channels)], sfreq=sfreq, ch_types='eeg')
+    raw = mne.io.RawArray(data, info)
+
+    # Apply rejection
+    raw_clean = reject_artifacts(raw, threshold=100.0, participant_id="test")
+
+    # Verify the rejected epoch is removed
+    # Original had 10 epochs, should now have 9
+    original_n_times = raw.n_times
+    clean_n_times = raw_clean.n_times
+
+    # The cleaned data should be shorter by one epoch
+    assert clean_n_times == original_n_times - (epoch_duration * sfreq), \
+        f"Expected {original_n_times - (epoch_duration * sfreq)} samples, got {clean_n_times}"

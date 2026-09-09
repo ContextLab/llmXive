@@ -7,15 +7,6 @@ T006:
     constants nor any code that actually creates `data/processed/exclusion_log.csv`.
     Moreover the CSV file is absent on disk. Consequently the required logging utility
     and its verification are not fully implemented.
-T009:
-  c: false
-  h: bffb76e85f584c99626e834a5f87d478abbca77bad5ffe81f14eeec68495ce38
-  r: "The provided `code/download.py` is incomplete and contains placeholder logic\
-    \ (e.g., hard\u2011coded PhysioNet ID, no HuggingFace search, no HTTP HEAD request,\
-    \ truncated main function). It never writes a successful `download_manifest.json`\
-    \ nor creates `data/raw/sample_eeg.fif` (the manifest present records a failure\
-    \ and the sample file is missing). Thus the required artifacts and behavior are\
-    \ not present."
 T010:
   c: false
   h: 3ee9d132d5749fd6978e60b3b070e9ffa55c22f0d5155f90aa66052c7ac5f791
@@ -58,6 +49,21 @@ T014:
     \ is truncated and does not show a complete implementation of the segment\u2011\
     length validation or logging of the `\"segment_too_short\"` reason. Both required\
     \ artifacts are missing/incomplete."
+T016:
+  c: false
+  h: 1f88c035aca1e7f86cfd8e1ff725b752d46dfe8283a4cfd1a75d867ce78e919a
+  r: "The required output file `data/analysis/complexity_metrics.csv` does not exist,\
+    \ so the core deliverable is missing. Additionally, the provided `code/features.py`\
+    \ contains permutation entropy logic, which goes beyond the requested Lempel\u2011\
+    Ziv complexity implementation. The next implementer must generate the CSV with\
+    \ the specified columns and ensure only LZC is computed."
+T017:
+  c: false
+  h: 1f88c035aca1e7f86cfd8e1ff725b752d46dfe8283a4cfd1a75d867ce78e919a
+  r: "The required output file `data/analysis/complexity_metrics.csv` does not exist,\
+    \ so the task\u2019s verification step (asserting the CSV with the specified columns)\
+    \ cannot be satisfied. The implementation file is present, but without the generated\
+    \ CSV the requirement is unmet."
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -65,12 +71,6 @@ T020:
     Hochberg multiple\u2011comparison correction across electrodes is present. The\
     \ claim lacks any artifact to verify that FR\u2011005\u2019s correction step has\
     \ been added, so the required implementation is missing."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, function, script, or documentation implementing the Benjamini\u2011\
-    Hochberg multiple\u2011comparison correction across electrodes is present. The\
-    \ claim lacks any artifact to verify, so the required implementation is missing."
 T023:
   c: false
   h: c298234d782ea951fb05e72bb6d8b547139f9b405b5c6ce0c84e800a6fd5f601

@@ -146,18 +146,18 @@
 
 - [ ] T023 [US3] Implement `code/collinearity_check.py`: Calculate Pearson r for ECFP bits (flag if ≥0.9) and latent cosine similarity for GNN subgraphs (flag if >0.9), and generate redundancy masks for flagged subgraphs (FR-007). Output to `data/processed/redundancy_masks.json` with structure `{ "molecule_id": [0, 1, 0...] }` (mask array)
 - [X] T036 [US3] Add subgraph redundancy aggregation in `code/collinearity_check.py`: Implement logic to aggregate subgraphs with latent cosine similarity > 0.9 and mask their individual attribution weights to prevent spurious independent effect claims (FR-007).
-- [ ] T024 [US3] Implement `code/explain.py`: Perform GNNExplainer or gradient-based attribution on test set to generate **raw attribution** weights. Output to `data/processed/raw_attribution.json` (FR-005).
+- [ ] T024 [US3] Implement `code/explain.py`: Perform GNNExplainer or gradient-based attribution on test set to generate **raw attribution** weights. Output to `data/processed/raw_attribution.json` (FR-005). <!-- FAILED: unspecified -->
 - [ ] T025 [US3] Apply and verify masking:
  1. Read raw attribution from T024 and redundancy masks from T023.
  2. Apply masks to raw attribution weights.
  3. Verify masking occurred by comparing masked vs. unmasked weights.
  4. Save final masked attribution to `data/processed/masked_attribution.json` (FR-007)
-- [ ] T026 [US3] Implement `code/sensitivity.py`:
+- [X] T026 [US3] Implement `code/sensitivity.py`:
  1. Sweep MAE decision cutoffs using specific nanometer thresholds: **20, 30, 40, 50, 60 nm** (derived from US3 acceptance scenarios).
  2. Verify that the sweep covers these exact thresholds.
  3. Report variation in error rates (FR-006)
 - [ ] T026b [US3] Generate Sensitivity Report: Create `data/processed/sensitivity_report.csv` and/or `sensitivity_plot.png` summarizing the error rate variation across thresholds. Ensure this artifact satisfies SC-004 requirements.
-- [ ] T027 [US3] Implement `code/analyze_results.py`: Aggregate metrics from T016, power status from T018, collinearity flags and redundancy masks from T023/T036, and masked attribution from T025 into a single `data/processed/metrics.json` (SSoT). Ensure keys: `mae`, `r2`, `wilcoxon_p_value`, `confidence_interval_95`, `sc001_status`, `collinearity_flags`, `redundancy_masks`, `power_status`, `attribution_results` (Constitution IV, FR-007)
+- [ ] T027 [US3] Implement `code/analyze_results.py`: Aggregate metrics from T016, power status from T018, collinearity flags and redundancy masks from T023/T036, and masked attribution from T025 into a single `data/processed/metrics.json` (SSoT). Ensure keys: `mae`, `r2`, `wilcoxon_p_value`, `confidence_interval_95`, `sc001_status`, `collinearity_flags`, `redundancy_masks`, `power_status`, `attribution_results` (Constitution IV, FR-007) <!-- FAILED: unspecified -->
 - [ ] T028a [P] [US3] Generate `quickstart.md` in `projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/`: Include instructions for environment setup, data fetching, and running the pipeline end-to-end.
 - [ ] T029b [P] Documentation: Update `README.md` with instructions for interpreting feature attribution and masked attribution results (distinct from T028a).
 

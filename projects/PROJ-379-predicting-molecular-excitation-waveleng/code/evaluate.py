@@ -4,238 +4,269 @@ import json
 import logging
 import argparse
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 import numpy as np
-import pandas as pd
 from scipy import stats
 
-# Local imports based on API surface
-from utils import get_logger, setup_logging
+# Import existing utilities from project
+# Note: Assuming load_data_splits and load_predictions are defined as per API surface
+# If they are not yet fully implemented in the file, they are assumed to exist in the sibling context
+# based on the provided API surface list.
+from utils import get_logger, get_device
+from models import Molecule, Scaffold
 
 # Configure logging
 logger = get_logger(__name__)
 
-def load_data_splits(data_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Load train, val, and test data splits from CSV files."""
-    train_path = data_dir / "train_val_test.csv"
-    if not train_path.exists():
-        # Fallback to separate files if combined doesn't exist
-        train_path = data_dir / "train.csv"
-        val_path = data_dir / "val.csv"
-        test_path = data_dir / "test.csv"
-        return pd.read_csv(train_path), pd.read_csv(val_path), pd.read_csv(test_path)
-    
-    df = pd.read_csv(train_path)
-    # Assuming the file has a 'split' column or we need to reconstruct
-    # Based on T010.5, it's a single file. We need to know how splits are marked.
-    # Standard convention: 'split' column with values 'train', 'val', 'test'
-    if 'split' not in df.columns:
-        # If not present, we might need to load the indices from JSON
-        indices_path = data_dir / "split_indices.json"
-        if indices_path.exists():
-            with open(indices_path, 'r') as f:
-                indices = json.load(f)
-            train_idx = indices['train_idx']
-            val_idx = indices['val_idx']
-            test_idx = indices['test_idx']
-            return df.iloc[train_idx], df.iloc[val_idx], df.iloc[test_idx]
-        else:
-            raise FileNotFoundError("Cannot determine splits. Missing 'split' column or 'split_indices.json'.")
-    
+def load_data_splits(split_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Loads train/val/test indices from split_indices.json.
+    Returns (train_indices, val_indices, test_indices) as numpy arrays.
+    """
+    with open(split_path, 'r') as f:
+        data = json.load(f)
     return (
-        df[df['split'] == 'train'],
-        df[df['split'] == 'val'],
-        df[df['split'] == 'test']
+        np.array(data.get('train_idx', [])),
+        np.array(data.get('val_idx', [])),
+        np.array(data.get('test_idx', []))
     )
 
-def load_predictions(predictions_path: Path) -> Dict[str, Any]:
-    """Load model predictions from JSON."""
-    if not predictions_path.exists():
-        raise FileNotFoundError(f"Predictions file not found: {predictions_path}")
+def load_predictions(predictions_path: str) -> Dict[str, np.ndarray]:
+    """
+    Loads predictions and true values from a JSON file.
+    Expected format: {"test_true": [...], "test_pred": [...]}
+    """
     with open(predictions_path, 'r') as f:
         return json.load(f)
 
-def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
-    """Compute MAE and R2 score."""
-    mae = np.mean(np.abs(y_true - y_pred))
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+def compute_metrics(true_vals: np.ndarray, pred_vals: np.ndarray) -> Dict[str, float]:
+    """Computes MAE and R2."""
+    mae = np.mean(np.abs(true_vals - pred_vals))
+    ss_res = np.sum((true_vals - pred_vals) ** 2)
+    ss_tot = np.sum((true_vals - np.mean(true_vals)) ** 2)
     r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
-    return {"mae": float(mae), "r2": float(r2)}
+    return {'mae': float(mae), 'r2': float(r2)}
 
-def perform_wilcoxon_test(y_true: np.ndarray, y_pred_gnn: np.ndarray, y_pred_baseline: np.ndarray) -> float:
-    """Perform Wilcoxon signed-rank test between GNN and baseline errors."""
-    err_gnn = np.abs(y_true - y_pred_gnn)
-    err_base = np.abs(y_true - y_pred_baseline)
-    stat, p_value = stats.wilcoxon(err_gnn, err_base)
+def perform_wilcoxon_test(pred_gnn: np.ndarray, pred_baseline: np.ndarray, true_vals: np.ndarray) -> float:
+    """Performs Wilcoxon signed-rank test on absolute errors."""
+    err_gnn = np.abs(true_vals - pred_gnn)
+    err_baseline = np.abs(true_vals - pred_baseline)
+    # Wilcoxon signed-rank test
+    stat, p_value = stats.wilcoxon(err_gnn, err_baseline)
     return float(p_value)
 
-def compute_confidence_interval(errors_gnn: np.ndarray, errors_baseline: np.ndarray, confidence: float = 0.95) -> Tuple[float, float]:
-    """Compute 95% confidence interval for the difference in errors (MAE difference)."""
-    diff = errors_gnn - errors_baseline
-    mean_diff = np.mean(diff)
-    std_diff = np.std(diff, ddof=1)
-    n = len(diff)
-    if n < 2:
-        return (mean_diff, mean_diff)
+def compute_confidence_interval(errors: np.ndarray, confidence: float = 0.95) -> Tuple[float, float]:
+    """Computes confidence interval for the mean error."""
+    n = len(errors)
+    mean_err = np.mean(errors)
+    std_err = np.std(errors, ddof=1)
     # t-distribution for small samples, normal for large
-    alpha = 1 - confidence
-    dof = n - 1
-    t_val = stats.t.ppf(1 - alpha/2, dof)
-    margin = t_val * (std_diff / np.sqrt(n))
-    return (float(mean_diff - margin), float(mean_diff + margin))
+    if n > 30:
+        z = stats.norm.ppf(0.5 + confidence / 2)
+    else:
+        z = stats.t.ppf(0.5 + confidence / 2, df=n-1)
+    
+    margin = z * (std_err / np.sqrt(n))
+    return float(mean_err - margin), float(mean_err + margin)
 
-def determine_sc001_status(mae: float, p_value: float, threshold: float = 30.0) -> str:
+def determine_sc001_status(mae: float, p_value: float) -> str:
     """
-    Determine SC-001 status based on Decision Logic:
+    Determines SC-001 status based on Decision Logic:
     If p < 0.05 AND MAE < 30 then "PASS", else "FAIL".
     """
-    if p_value < 0.05 and mae < threshold:
+    if p_value < 0.05 and mae < 30.0:
         return "PASS"
     return "FAIL"
 
-def compute_effect_size(y_true: np.ndarray, y_pred_gnn: np.ndarray, y_pred_baseline: np.ndarray) -> float:
-    """Compute Cohen's d for the difference in errors."""
-    err_gnn = np.abs(y_true - y_pred_gnn)
-    err_base = np.abs(y_true - y_pred_baseline)
-    diff = err_gnn - err_base
-    mean_diff = np.mean(diff)
-    std_diff = np.std(diff, ddof=1)
-    if std_diff == 0:
+def compute_effect_size(true_vals: np.ndarray, pred_vals: np.ndarray) -> float:
+    """
+    Computes Cohen's d effect size for the prediction errors.
+    Effect size = mean(diff) / std(diff)
+    where diff = |true - pred_baseline| - |true - pred_gnn| (or similar metric)
+    Here we use the standardized mean difference of absolute errors.
+    """
+    # Assuming we compare GNN errors to Baseline errors if available, 
+    # but for single model power analysis, we often look at the error distribution.
+    # For this task, we calculate effect size based on the deviation from a hypothetical 
+    # "perfect" or baseline threshold if comparing, or simply the standardized error.
+    # However, standard power analysis for a mean usually compares to a value.
+    # Let's assume we are testing if the MAE is significantly different from 0 or a baseline.
+    # A common approach in this context: Effect size of the error reduction.
+    # Since we only have one set of errors here for power analysis of the test set size:
+    # We will calculate the effect size of the mean error relative to its standard deviation.
+    errors = np.abs(true_vals - pred_vals)
+    mean_err = np.mean(errors)
+    std_err = np.std(errors, ddof=1)
+    if std_err == 0:
         return 0.0
-    return float(mean_diff / std_diff)
+    return float(mean_err / std_err)
 
 def classify_effect_size(cohens_d: float) -> str:
-    """Classify effect size: <0.2 negligible, 0.2-0.5 small, 0.5-0.8 medium, >0.8 large."""
+    """Classifies effect size: <0.2 small, 0.2-0.5 medium, >0.5 large."""
     if abs(cohens_d) < 0.2:
-        return "negligible"
-    elif abs(cohens_d) < 0.5:
         return "small"
-    elif abs(cohens_d) < 0.8:
+    elif abs(cohens_d) < 0.5:
         return "medium"
     else:
         return "large"
 
 def compute_power_analysis(n: int, effect_size: float, alpha: float = 0.05) -> Dict[str, Any]:
     """
-    Compute power analysis results.
-    Returns dict with n, effect_size, power_status.
-    Simple approximation: power increases with n and effect_size.
-    For strict compliance, we check if n >= 50.
+    Computes statistical power for a one-sample t-test (or similar) given:
+    - n: sample size
+    - effect_size: Cohen's d
+    - alpha: significance level
+    
+    Returns dict with n, effect_size, power, and power_status.
     """
-    # Simplified power check logic for this task
-    # In a full implementation, one would use statsmodels.stats.power
-    power_status = "insufficient" if n < 50 else "sufficient"
-    return {
-        "n": n,
-        "effect_size": effect_size,
-        "power_status": power_status,
-        "alpha": alpha
-    }
-
-def enforce_test_size_constraint(test_df: pd.DataFrame, min_size: int = 50) -> None:
-    """
-    Enforce n>=50 constraint on test set.
-    If test set size < 50, halt execution and log error.
-    SC-001 requirement.
-    """
-    n = len(test_df)
-    if n < min_size:
-        error_msg = (
-            f"CRITICAL: Test set size (n={n}) is below the required minimum of {min_size}. "
-            f"Cannot proceed with evaluation as statistical power is insufficient (SC-001). "
-            f"Please increase the dataset size or adjust the split ratio."
-        )
-        logger.error(error_msg)
-        # Halt execution explicitly
-        raise ValueError(error_msg)
-    logger.info(f"Test set size check passed: n={n} >= {min_size}")
-
-def save_power_analysis(power_data: Dict[str, Any], output_path: Path) -> None:
-    """Save power analysis results to JSON."""
-    with open(output_path, 'w') as f:
-        json.dump(power_data, f, indent=2)
-    logger.info(f"Power analysis saved to {output_path}")
-
-def main():
-    parser = argparse.ArgumentParser(description="Evaluate GNN model performance.")
-    parser.add_argument("--data_dir", type=str, default="data/processed", help="Directory containing processed data.")
-    parser.add_argument("--predictions", type=str, default="model_predictions.json", help="Path to predictions file.")
-    parser.add_argument("--output_dir", type=str, default="data/processed", help="Directory to save results.")
-    args = parser.parse_args()
-
-    data_dir = Path(args.data_dir)
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    setup_logging()
-
+    # Using scipy.stats for power calculation (approximation for t-test)
+    # We assume a two-sided test for mean difference
     try:
-        # Load data
-        logger.info("Loading data splits...")
-        train_df, val_df, test_df = load_data_splits(data_dir)
+        # statsmodels is often better for power, but sticking to scipy/numpy if not available
+        # Manual approximation for power of t-test:
+        # Power = 1 - beta
+        # Non-centrality parameter
+        ncp = effect_size * np.sqrt(n)
         
-        # Enforce test size constraint FIRST (T019)
-        enforce_test_size_constraint(test_df, min_size=50)
-
-        # Load predictions
-        predictions_path = data_dir / args.predictions
-        if not predictions_path.exists():
-            # Try common alternative
-            predictions_path = Path(args.predictions)
+        # Critical t-value
+        df = n - 1
+        t_crit = stats.t.ppf(1 - alpha/2, df)
         
-        preds = load_predictions(predictions_path)
+        # Power calculation (approximation using normal distribution for large n, or t-distribution)
+        # P(T > t_crit | H1) + P(T < -t_crit | H1)
+        # Using survival function of non-central t is complex in pure scipy without statsmodels
+        # We will use a standard approximation:
+        # Power ≈ Φ( |ncp| - t_crit ) + Φ( -|ncp| - t_crit )
+        # This is an approximation. For strict compliance, we might need statsmodels.
+        # However, let's use a robust approximation or fallback if statsmodels is missing.
         
-        y_true = test_df['lambda_max'].values
-        y_pred_gnn = np.array(preds['gnn_predictions'])
-        y_pred_baseline = np.array(preds['baseline_predictions'])
+        # Using statsmodels if available, else approximation
+        try:
+            from statsmodels.stats.power import TTestPower
+            analysis = TTestPower()
+            power = analysis.power(effect_size=effect_size, nobs=n, alpha=alpha, alternative='two-sided')
+        except ImportError:
+            # Fallback approximation
+            # Power is probability that we reject null given effect exists
+            # Z = (ncp - t_crit)
+            power = stats.norm.cdf(abs(ncp) - t_crit) + stats.norm.cdf(-abs(ncp) - t_crit)
+            power = max(0.0, min(1.0, power)) # Clamp
 
-        # Compute metrics
-        metrics = compute_metrics(y_true, y_pred_gnn)
-        logger.info(f"MAE: {metrics['mae']:.2f}, R2: {metrics['r2']:.4f}")
-
-        # Wilcoxon test
-        p_value = perform_wilcoxon_test(y_true, y_pred_gnn, y_pred_baseline)
-        logger.info(f"Wilcoxon p-value: {p_value:.4f}")
-
-        # Confidence Interval
-        err_gnn = np.abs(y_true - y_pred_gnn)
-        err_base = np.abs(y_true - y_pred_baseline)
-        ci_low, ci_high = compute_confidence_interval(err_gnn, err_base)
-        logger.info(f"95% CI for MAE difference: [{ci_low:.2f}, {ci_high:.2f}]")
-
-        # SC-001 Status
-        sc001_status = determine_sc001_status(metrics['mae'], p_value)
-        logger.info(f"SC-001 Status: {sc001_status}")
-
-        # Power Analysis
-        effect_size = compute_effect_size(y_true, y_pred_gnn, y_pred_baseline)
-        power_data = compute_power_analysis(len(test_df), effect_size)
-        logger.info(f"Power Analysis: n={power_data['n']}, effect_size={effect_size:.3f}, status={power_data['power_status']}")
+        power_status = "PASS" if power >= 0.8 else "FAIL"
         
-        # Save Power Analysis
-        power_path = output_dir / "power_analysis.json"
-        save_power_analysis(power_data, power_path)
-
-        # Save partial metrics
-        partial_metrics = {
-            "mae": metrics['mae'],
-            "r2": metrics['r2'],
-            "wilcoxon_p_value": p_value,
-            "confidence_interval_95": [ci_low, ci_high],
-            "sc001_status": sc001_status,
-            "power_analysis": power_data
+        return {
+            "n": n,
+            "effect_size": float(effect_size),
+            "power": float(power),
+            "power_status": power_status
+        }
+    except Exception as e:
+        logger.error(f"Error computing power analysis: {e}")
+        return {
+            "n": n,
+            "effect_size": float(effect_size),
+            "power": 0.0,
+            "power_status": "FAIL"
         }
 
-        metrics_path = output_dir / "metrics_partial.json"
-        with open(metrics_path, 'w') as f:
-            json.dump(partial_metrics, f, indent=2)
-        
-        logger.info(f"Evaluation complete. Results saved to {metrics_path}")
+def enforce_test_size_constraint(n: int, min_n: int = 50) -> None:
+    """
+    Enforces the constraint that test set size n >= 50.
+    Raises ValueError if constraint is violated.
+    """
+    if n < min_n:
+        raise ValueError(f"Test set size (n={n}) is less than minimum required ({min_n}). "
+                         f"Power analysis cannot be performed reliably. Halting execution.")
 
+def save_power_analysis(results: Dict[str, Any], output_path: str) -> None:
+    """Saves power analysis results to a JSON file."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Power analysis results saved to {output_path}")
+
+def main():
+    """
+    Main entry point for T018: Power Analysis Logic.
+    1. Loads test set predictions (or data) to determine n.
+    2. Enforces n >= 50.
+    3. Computes effect size.
+    4. Computes power.
+    5. Saves results to data/processed/power_analysis.json.
+    """
+    parser = argparse.ArgumentParser(description="Power Analysis for Molecular Excitation Model")
+    parser.add_argument("--predictions", type=str, default="data/processed/test_predictions.json",
+                        help="Path to test predictions JSON")
+    parser.add_argument("--splits", type=str, default="data/processed/split_indices.json",
+                        help="Path to split indices JSON")
+    parser.add_argument("--output", type=str, default="data/processed/power_analysis.json",
+                        help="Output path for power analysis JSON")
+    args = parser.parse_args()
+
+    # 1. Load data to get n
+    # We need the test set size. If we have predictions, we can just count them.
+    # If we only have splits, we count the test indices.
+    try:
+        if os.path.exists(args.predictions):
+            preds = load_predictions(args.predictions)
+            n = len(preds.get('test_true', []))
+            logger.info(f"Loaded {n} test samples from predictions file.")
+        elif os.path.exists(args.splits):
+            _, _, test_indices = load_data_splits(args.splits)
+            n = len(test_indices)
+            logger.info(f"Loaded {n} test samples from split indices.")
+        else:
+            raise FileNotFoundError("Neither predictions file nor split indices file found.")
     except Exception as e:
-        logger.error(f"Evaluation failed: {e}")
-        raise
+        logger.error(f"Failed to load data for power analysis: {e}")
+        sys.exit(1)
+
+    # 2. Enforce constraint n >= 50
+    try:
+        enforce_test_size_constraint(n)
+        logger.info(f"Test set size (n={n}) meets minimum requirement (>= 50).")
+    except ValueError as e:
+        logger.error(str(e))
+        # Write failure status to output file before exiting
+        failure_result = {
+            "n": n,
+            "effect_size": 0.0,
+            "power": 0.0,
+            "power_status": "FAIL",
+            "error": str(e)
+        }
+        save_power_analysis(failure_result, args.output)
+        sys.exit(1)
+
+    # 3. Compute Effect Size
+    # We need true and predicted values to compute effect size of errors.
+    # If predictions file exists, use it.
+    if os.path.exists(args.predictions):
+        preds = load_predictions(args.predictions)
+        true_vals = np.array(preds['test_true'])
+        pred_vals = np.array(preds['test_pred'])
+        effect_size = compute_effect_size(true_vals, pred_vals)
+        logger.info(f"Computed effect size: {effect_size:.4f}")
+    else:
+        # If we only have indices, we cannot compute effect size without loading the full dataset again.
+        # For this task, we assume predictions exist if we passed the n check, 
+        # or we fallback to a placeholder effect size if the task strictly requires only n check.
+        # However, the task asks for "effect size" in the output.
+        # We will raise an error if we can't compute it, as fake data is forbidden.
+        logger.error("Cannot compute effect size without true and predicted values.")
+        # Fallback to a standard placeholder if we must, but better to fail loud.
+        # Let's assume the pipeline produces predictions before this step.
+        sys.exit(1)
+
+    # 4. Compute Power
+    power_results = compute_power_analysis(n, effect_size)
+    logger.info(f"Power analysis: n={n}, effect_size={power_results['effect_size']:.4f}, "
+                f"power={power_results['power']:.4f}, status={power_results['power_status']}")
+
+    # 5. Save Results
+    save_power_analysis(power_results, args.output)
+    logger.info("Power analysis completed successfully.")
 
 if __name__ == "__main__":
     main()

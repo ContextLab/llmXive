@@ -1,0 +1,14 @@
+status: none
+intent: download UCI HAR dataset via OpenML python package dataset
+required_fields:
+- subject
+- activity
+- tBodyAcc-mean-X
+- tBodyAcc-mean-Y
+- tBodyAcc-mean-Z
+- tBodyAcc-std-X
+- tBodyAcc-std-Y
+- tBodyAcc-std-Z
+cache_key: ec7042d9f2bcaff623a206fbfe00974101e152d4e0191ec930bab4f2fa9a1f2d
+searched_at: '2026-09-09T07:03:38.393734+00:00'
+retry_count: 1

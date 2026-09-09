@@ -31,14 +31,14 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-10T00:27:38.265779Z'
-- artifact_hash: 797c0976d5b9bf4c595ed086b7d322fccc5a81d4a9e0a21ccf960a21c2e1109f
+- artifact_hash: d4cea63aa3acdbae3707761d3bb4bec689c9f7a65dd3b2c58652ebb7d4a859de
   artifact_path: projects/PROJ-379-predicting-molecular-excitation-waveleng/specs/001-predicting-molecular-excitation-waveleng/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: cpu
   kind: url
-  value: https://download.pytorch.org/whl/cpu`.*
+  value: https://download.pytorch.org/whl/cpu
   verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu%60.*
-  verified_at: '2026-07-10T00:28:14.201737Z'
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-09-09T07:29:56.407655Z'

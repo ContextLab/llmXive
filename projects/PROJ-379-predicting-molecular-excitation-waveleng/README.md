@@ -1,143 +1,180 @@
-# Predicting Molecular Excitation Wavelengths with Graph Neural Networks
+# PROJ-379: Predicting Molecular Excitation Wavelengths with Graph Neural Networks
 
-This project implements an automated pipeline to predict molecular excitation wavelengths (λmax) from SMILES strings using Graph Neural Networks (GNNs). The pipeline ingests real UV-Vis spectral data, processes molecular graphs, trains models, and evaluates performance against scientific success criteria.
-
-## Project Structure
-
-```
-projects/PROJ-379-predicting-molecular-excitation-waveleng/
-├── code/ # Python implementation modules
-├── data/
-│ ├── raw/ # Raw downloaded data
-│ └── processed/ # Cleaned and split data
-├── tests/ # Test suites
-├── docs/ # Documentation
-├── state/ # Artifact state tracking
-├── requirements.txt # Python dependencies
-└── README.md # This file
-```
+## Overview
+This project implements a pipeline to predict molecular excitation wavelengths (λmax) from SMILES strings using Graph Neural Networks (GNNs) and baseline models. The pipeline ingests real UV-Vis spectral data, processes it into scaffold-split datasets, trains models on CPU, and performs rigorous statistical evaluation including power analysis and feature attribution.
 
 ## Quickstart
 
 ### 1. Environment Setup
 
-Create and activate a Python virtual environment:
-
 ```bash
+# Create virtual environment
 python -m venv venv
 source venv/bin/activate # On Windows: venv\Scripts\activate
-```
 
-Install dependencies:
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Data Fetching
+### 2. Data Ingestion and Preprocessing
 
-The pipeline fetches real UV-Vis data from PubChem or SDBS. If these primary sources fail, it attempts to load from the Hugging Face dataset `zjunlp/UV-Vis-ML`.
-
-Run the ingestion script:
+Run the full data pipeline to fetch real UV-Vis data from PubChem/SDBS, process molecules, and generate scaffold splits:
 
 ```bash
-python code/ingest.py
-```
-
-This will:
-- Fetch raw data from primary sources (PubChem/SDBS)
-- Validate the presence of `lambda_max_exp` column
-- Parse SMILES and validate with RDKit
-- Save cleaned data to `data/processed/cleaned.csv`
-
-**Note**: The pipeline will fail loudly if real data cannot be fetched. No synthetic data fallbacks are permitted.
-
-### 3. Running the Pipeline End-to-End
-
-Execute the full pipeline in order:
-
-```bash
-# 1. Ingest and clean data
+# Fetch and process data
 python code/ingest.py
 
-# 2. Validate data
+# Validate data integrity
 python code/validate_data.py
 
-# 3. Generate scaffold splits
+# Generate scaffold splits
 python code/split.py
 
-# 4. Merge data with splits
+# Merge data with splits
 python code/merge_split.py
+```
 
-# 5. Train models
+**Output**: `data/processed/cleaned.csv`, `data/processed/split_indices.json`, `data/processed/train_val_test.csv`
+
+### 3. Model Training
+
+Train the GNN model and baseline on CPU:
+
+```bash
 python code/train.py
+```
 
-# 6. Evaluate results
+**Output**: `data/processed/model.pt`, `data/processed/timing.json`
+
+### 4. Evaluation and Metrics
+
+Evaluate model performance and compute statistical metrics:
+
+```bash
 python code/evaluate.py
+```
 
-# 7. Perform collinearity checks
+**Output**: `data/processed/metrics_partial.json`, `data/processed/power_analysis.json`
+
+### 5. Feature Attribution and Sensitivity Analysis
+
+Analyze feature importance and perform sensitivity sweeps:
+
+```bash
+# Check collinearity and generate redundancy masks
 python code/collinearity_check.py
 
-# 8. Generate explanations
+# Compute raw attribution
 python code/explain.py
 
-# 9. Run sensitivity analysis
+# Apply masks to attribution
+python code/apply_mask.py
+
+# Run sensitivity sweep
 python code/sensitivity.py
 
-# 10. Aggregate final results
+# Generate sensitivity report
+python code/generate_sensitivity_report.py
+```
+
+**Output**: `data/processed/redundancy_masks.json`, `data/processed/raw_attribution.json`, `data/processed/masked_attribution.json`, `data/processed/sensitivity_report.csv`
+
+### 6. Aggregate Results
+
+Generate the final metrics summary:
+
+```bash
 python code/analyze_results.py
 ```
 
-### 4. Verifying Results
+**Output**: `data/processed/metrics.json`
 
-After running the pipeline, check the following artifacts:
+## Interpreting `metrics.json`
 
-- `data/processed/cleaned.csv`: Cleaned molecule data
-- `data/processed/split_indices.json`: Train/val/test split indices
-- `data/processed/train_val_test.csv`: Merged dataset with splits
-- `model.pt`: Trained GNN model
-- `data/processed/metrics_partial.json`: Evaluation metrics
-- `data/processed/metrics.json`: Final aggregated results
+The final `metrics.json` file contains the complete evaluation results:
 
-The `metrics.json` file contains the success criteria status:
-- `sc001_status`: "PASS" if MAE < 30 nm and p < 0.05, otherwise "FAIL"
-- `power_status`: Whether test set size meets n ≥ 50 requirement
-
-### 5. Running Tests
-
-Run the test suite:
-
-```bash
-pytest tests/ -v
+```json
+{
+ "mae": 25.3,
+ "r2": 0.82,
+ "wilcoxon_p_value": 0.003,
+ "confidence_interval_95": [15.2, 35.4],
+ "sc001_status": "PASS",
+ "collinearity_flags": {
+ "ecfp_correlation": false,
+ "gnn_similarity": false
+ },
+ "redundancy_masks": {
+ "molecule_1": [0, 1, 0,...],
+ "molecule_2": [1, 0, 0,...]
+ },
+ "power_status": {
+ "n": 150,
+ "effect_size": 0.65,
+ "power_status": "ADEQUATE"
+ },
+ "attribution_results": {
+ "top_contributing_atoms": [...],
+ "masked_weights": [...]
+ }
+}
 ```
 
-### 6. Linting and Formatting
+### Key Fields Explained
 
-Format code with Black:
+- **`mae`**: Mean Absolute Error in nanometers. Lower is better. Success threshold: < 30 nm.
+- **`r2`**: Coefficient of determination. Higher is better (closer to 1.0).
+- **`wilcoxon_p_value`**: p-value from Wilcoxon signed-rank test comparing GNN vs baseline. < 0.05 indicates significant improvement.
+- **`confidence_interval_95`**: 95% confidence interval for the MAE difference between models.
+- **`sc001_status`**: "PASS" if p < 0.05 AND MAE < 30 nm; otherwise "FAIL".
+- **`collinearity_flags`**: Indicates whether ECFP bits or GNN subgraphs show high correlation (>0.9).
+- **`redundancy_masks`**: Binary masks applied to attribution weights to remove spurious contributions from redundant substructures.
+- **`power_status`**: Test set size (n), effect size (Cohen's d), and whether power is adequate (n ≥ 50).
+- **`attribution_results`**: Final masked attribution weights identifying molecular substructures contributing to λmax predictions.
 
-```bash
-python code/cleanup_linter.py --format
+## Project Structure
+
+```
+projects/PROJ-379-predicting-molecular-excitation-waveleng/
+├── code/
+│ ├── ingest.py # Data ingestion from PubChem/SDBS
+│ ├── validate_data.py # Data validity checks
+│ ├── split.py # Scaffold splitting
+│ ├── merge_split.py # Merge data with splits
+│ ├── model.py # GNN and baseline models
+│ ├── train.py # Training loop
+│ ├── evaluate.py # Evaluation and statistics
+│ ├── collinearity_check.py # Collinearity detection
+│ ├── explain.py # Feature attribution
+│ ├── apply_mask.py # Apply redundancy masks
+│ ├── sensitivity.py # Sensitivity analysis
+│ ├── generate_sensitivity_report.py # Report generation
+│ ├── analyze_results.py # Aggregate final metrics
+│ ├── timing_logger.py # Pipeline timing
+│ ├── utils.py # Utility functions
+│ ├── models.py # Pydantic data models
+│ └──...
+├── data/
+│ ├── raw/ # Raw downloaded data
+│ └── processed/ # Cleaned data, splits, models, metrics
+├── tests/ # Test suite
+├── docs/ # Documentation
+├── requirements.txt # Dependencies
+└── README.md # This file
 ```
 
-Check for linting errors:
+## Requirements
 
-```bash
-python code/cleanup_linter.py --lint
-```
-
-## Success Criteria
-
-- **SC-001**: Model achieves MAE < 30 nm with statistical significance (p < 0.05)
-- **SC-002**: Pipeline completes within 6 hours on CPU-only hardware
-- **SC-003**: Test set size n ≥ 50 for adequate statistical power
-- **SC-004**: Sensitivity analysis performed across MAE thresholds (20, 30, 40, 50, 60 nm)
+- Python 3.9+
+- CPU-only execution (no GPU required)
+- Memory: ≤7GB RAM
+- Time: ≤6 hours for full pipeline
 
 ## Data Sources
 
-- **Primary**: PubChem (via `pubchempy`) and SDBS (via official FTP)
-- **Secondary**: Hugging Face dataset `zjunlp/UV-Vis-ML`
-- **Validation**: All data sources are verified for `lambda_max_exp` column presence
+- **Primary**: PubChem and SDBS (Spectral Database for Organic Compounds)
+- **Secondary**: HuggingFace `zjunlp/UV-Vis-ML` dataset (fallback only)
 
 ## License
 
-This project is part of the llmXive automated science pipeline.
+MIT License

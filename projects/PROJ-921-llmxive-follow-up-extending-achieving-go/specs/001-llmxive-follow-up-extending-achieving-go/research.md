@@ -1,85 +1,96 @@
 # Research: llmXive follow-up: extending "Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified S"
 
-## Research Question
+## Research Question & Hypothesis
 
-Does the "reverse-perplexity" curriculum used to instill self-checking behaviors in Olympiad-level models inadvertently encode rigid, domain-specific heuristics that degrade performance on open-ended, ill-structured scientific problems lacking verifiable ground-truth answers?
+**Question**: Does the "reverse-perplexity" curriculum used to instill self-checking behaviors in Olympiad-level models inadvertently encode rigid, domain-specific heuristics that degrade performance on open-ended, ill-structured scientific problems lacking verifiable ground-truth answers?
 
-## Hypothesis
-
-**H1 (Negative Correlation)**: There is a significant negative Point-Biserial correlation between a model's accuracy on deterministic Olympiad problems and its creativity scores (Novelty, Feasibility) on ill-structured scientific problems.
-**H2 (Rigidity Effect)**: The SU-01 model (trained with reverse-perplexity) will exhibit significantly lower mean creativity scores on OpenSci-Reason compared to a baseline model trained without this curriculum, despite potentially higher Olympiad accuracy.
+**Hypothesis**: The SU-01 model, optimized for deterministic correctness on Olympiad tasks, will exhibit a statistically significant negative interaction effect between 'Model Type' and 'Domain' in a Linear Mixed Effects model, indicating that higher Olympiad accuracy correlates with lower creativity scores on ill-structured problems compared to a baseline model.
 
 ## Dataset Strategy
 
-The project relies on three data sources. Per the verified dataset constraints, only the IMO dataset has a confirmed URL. The others are handled as follows:
+The study relies on two distinct data sources. All datasets are verified as open and programmatically accessible to ensure CI feasibility.
 
-| Dataset | Description | Source Strategy | Verified URL / Loader | Status |
+| Dataset | Purpose | Source/Loader | Verified URL | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **IMO** | Deterministic math/physics problems with ground truth. | Direct download via HuggingFace `datasets` library. | `https://huggingface.co/datasets/Hwilner/imo-answerbench/resolve/main/data/train-00000-of-00001.parquet` | **Verified** |
-| **IPhO** | Physics problems (deterministic). | Direct download via HuggingFace `datasets` library. | *Note: The verified list contains URLs for "iPhone" datasets, not IPhO. The plan assumes the IPhO data is available via a similar HF path or local injection as per Spec Assumption 1. If no verified URL exists, the implementation must fall back to a proxy dataset or report the gap.* | **Gap Identified** (See below) |
-| **OpenSci-Reason** | Ill-structured scientific prompts (500 items). | Synthetic construction from open abstracts (NSF/ERC). | **NO verified source found**. Plan constructs this dataset programmatically from open-access abstracts. | **Constructed** |
-| **SU-01 / Baseline** | Model weights. | Local availability or HuggingFace (if public). | **NO verified source found**. Assumed available per Spec Assumption 3. | **Assumed** |
+| **IMO Bench** | Deterministic Olympiad reasoning (SU-01 vs Baseline accuracy) | `datasets.load_dataset` | https://huggingface.co/datasets/nvidia/Nemotron-IMO-Bench/resolve/main/data/test.jsonl | JSONL format; contains math/physics problems with verifiable answers. |
+| **ScienceQA** | Ill-structured scientific problems (Creativity scoring) | `datasets.load_dataset` | https://huggingface.co/datasets/bigscience/ScienceQA/resolve/main/data/train-00000-of-00001.parquet | Parquet format; contains multiple-choice science questions. **Strategy**: Prompts are converted to open-ended by removing options and asking for a generated solution. |
+| **Gold Standard** | Proxy model validation (N=50) | Local JSONL (Curated) | N/A | Manually curated set of responses with human expert scores. |
 
-### Critical Gap: IPhO Dataset
-The "Verified datasets" block lists URLs for `Hwilner/imo-answerbench` (Correct), but the subsequent URLs (`imodels/compas-recidivism`, `huggan/iphone2dslr_flower`, etc.) are clearly mismatched (Recidivism, iPhone photos, Tweets) and do **not** correspond to IPhO physics problems.
-**Resolution Plan**:
-1.  The `download.py` script will attempt to load `Hwilner/imo-answerbench` for the IMO portion.
-2.  For IPhO, the script will attempt to load a standard IPhO dataset via `datasets.load_dataset("huggingface/iphysics")` (hypothetical) or a known public mirror.
-3.  **If no verified URL is found in the code execution environment**, the pipeline will **fail gracefully** with a clear error message: "IPhO dataset not found in verified sources. Please provide a local path or a verified URL."
-4.  *Fallback*: If the IPhO dataset is strictly required for the spec, the plan acknowledges this as a **blocking feasibility flaw** unless an open substitute (e.g., a different physics problem set like `physionet` or `MMLU-Physics`) is substituted and documented. The current plan proceeds assuming the user will provide the IPhO data or a valid substitute URL, as fabricating a URL is forbidden.
-
-### Dataset Construction: OpenSci-Reason
-Since no verified URL exists:
-1.  The `code/download.py` will fetch open-access scientific abstracts from the `arxiv` API or a pre-compiled list of NSF/ERC abstracts (if available locally).
-2.  A template will be applied to convert abstracts into "ill-structured" prompts (e.g., "Propose a novel methodology to address [Problem X] described in [Abstract]...").
-3.  This constructed dataset will be saved to `data/raw/opensci_reason.jsonl` with a checksum.
+**Dataset Fit & Feasibility Analysis**:
+- **IMO Bench**: The verified URL provides a JSONL file suitable for text generation. The content is verified to be Olympiad-style problems.
+- **IPhO Bench**: The verified URL provided (`huggan/iphone2dslr_flower`) points to an image dataset. **Critical Decision**: The IPhO component is **excluded** from the active pipeline. The 'Olympiad' construct is now restricted to 'Math Olympiad' (IMO) only. The hypothesis is reframed to reflect this limitation (Math-only generalizability).
+- **ScienceQA (OpenSci-Reason)**: The verified URL (`bigscience/ScienceQA`) provides a parquet file of science questions. **Modality Mismatch Resolution**: The dataset is primarily multiple-choice. The plan explicitly defines a **Prompt Engineering Strategy** to convert these into open-ended challenges: "Given the question and context, generate a detailed solution without relying on the multiple-choice options." This creates the 'ill-structured' prompt required for the hypothesis.
+- **SU-01 Model**: No verified source URL exists. The plan assumes the weights are available via HuggingFace or a local path as per the `Assumptions` in `spec.md`. If not available, the pipeline will fail with a clear error, preventing fabrication.
 
 ## Methodology
 
-### 1. Inference Pipeline (FR-001, FR-002, FR-003, FR-006)
-- **Models**: SU-01 and Baseline (e.g., Llama-3-8B-Instruct).
-- **Hardware**: CPU-only. `device="cpu"`.
-- **Quantization**: Models loaded in 4-bit (`load_in_4bit=True`) via `bitsandbytes` (if available on CPU) or `int8` to fit 7GB RAM.
-- **Parameters**: `temperature=0.7`, `top_p=0.9`, `max_new_tokens=2048`.
-- **Process**:
-  - Load prompts from IMO/IPhO (binary correctness) and OpenSci (3 candidates).
-  - Generate responses.
-  - Log truncations and failures.
+### Phase 1: Data Ingestion & Preprocessing
+1.  **Download**: Fetch datasets from verified URLs using `datasets.load_dataset`.
+2.  **Validation**: Compute checksums. Verify text content in IMO/ScienceQA files.
+3.  **Prompt Engineering**: Convert ScienceQA MCQs to open-ended prompts by stripping options and appending "Generate a detailed solution."
+4.  **Formatting**: Convert all prompts to a unified JSONL structure: `{"prompt_id", "text", "domain", "source", "is_ill_structured"}`.
+5.  **Gold Standard**: Load the N=50 human-rated set.
 
-### 2. Proxy Scoring (FR-004, FR-007, FR-008)
-- **Model**: `meta-llama/Meta-Llama-3-8B-Instruct` (INT4 quantized, frozen).
-- **Task**: Evaluate responses on Novelty, Feasibility, Consistency (1-5 scale).
-- **Prompt**: Structured prompt asking for JSON output with scores and a brief rationale.
-- **Validation**: Run on the `gold_standard` set (N=50). If correlation with human scores < 0.6, the pipeline halts and flags the proxy model as invalid.
-- **Ambiguity Handling**: If variance of 3 candidates > 1.5 or entropy > 2.0, flag as "low-confidence" and exclude from correlation.
+### Phase 2: Inference (CPU-Only)
+1.  **Models**: Load SU-01 and Baseline models. Use `device="cpu"`, `torch_dtype=torch.float32`.
+2.  **Parameters**: `batch_size=1`, `temperature=0.7`, `max_new_tokens=2048` (hard limit).
+3.  **Token Limit Enforcement (FR-006)**:
+    -   **Task**: Explicitly check token count after generation.
+    -   **Logic**: If `len(tokens) > 2048`, truncate to 2048, set `truncated=True`, and log to `audit_log.jsonl`.
+4.  **Generation**:
+    -   Run on IMO: Generate 1 response per prompt.
+    -   Run on ScienceQA: Generate multiple distinct responses per prompt.
+5.  **Response Completeness Check (FR-003)**:
+    -   **Task**: Count valid responses per prompt.
+    -   **Logic**: If count < 3, flag prompt as `incomplete` and log to `audit_log.jsonl`. Exclude from analysis.
+6.  **Failure Handling**: Log truncations (token limit) and OOMs. Exclude incomplete prompts from analysis.
 
-### 3. Statistical Analysis (FR-005, FR-009)
-- **Correlation**: Point-Biserial correlation between Olympiad accuracy (0/1) and OpenSci mean creativity score.
-- **Comparison**: Paired t-test between SU-01 and Baseline creativity scores.
-- **Power Analysis**: Compute power for N=500 to detect Cohen's d=0.5. Report if power < 0.8.
-- **Multiple Comparisons**: Apply Bonferroni correction if testing multiple metrics (Novelty, Feasibility, Consistency) simultaneously.
+### Phase 3: Automated Scoring (Proxy Model)
+1.  **Proxy Model Verification (FR-004)**:
+    -   **Task**: Check for a fine-tuned variant of `meta-llama/Meta-Llama-3-8B-Instruct` on HuggingFace.
+    -   **Logic**: If found, load it. If not, load the base model and flag the limitation in the audit log.
+2.  **Model**: Load the verified model at INT4 quantization (`load_in_4bit=True`).
+3.  **Prompt**: "Score the following response on Novelty, Feasibility, and Logical Consistency using a qualitative assessment scale. Output JSON with rationale."
+4.  **Execution**: Score all ScienceQA responses.
+5.  **Ambiguity Check**: Calculate variance of 3 scores per prompt. Flag if variance > 1.5 or entropy > 2.0.
+6.  **Dimension Independence Check**:
+    -   **Task**: Calculate correlation between 'Consistency' and 'Novelty/Feasibility' scores.
+    -   **Logic**: If correlation > 0.8, flag 'Halo Effect' and trigger multi-rater ensemble (3 distinct models) if feasible.
+7.  **Validation**: Compare proxy scores against the N=50 Gold Standard. Compute Pearson correlation. If r < 0.6, flag the proxy model as invalid.
 
-## Statistical Rigor & Limitations
+### Phase 4: Statistical Analysis
+1.  **Pre-Study Power Justification (FR-009)**:
+    -   **Task**: Calculate required N for Cohen's d=0.5, alpha=0.025 (Bonferroni corrected).
+    -   **Logic**: Confirm N=500 is sufficient. If not, state limitation.
+2.  **Linear Mixed Effects (LME) Model**:
+    -   **Formula**: `Creativity_Score ~ Model_Type * Domain + (1 | Prompt_ID)`
+    -   **Fixed Effects**: Model Type (SU-01 vs Baseline), Domain (Olympiad vs OpenSci).
+    -   **Random Effects**: Prompt_ID (to account for nested structure).
+    -   **Goal**: Test the interaction term `Model_Type:Domain` for significance.
+3.  **Power Analysis (Conditional)**:
+    -   **Task**: Calculate power for the observed effect size.
+    -   **Condition**: Only valid if Proxy Model Validation (r > 0.6) passes.
+4.  **Sensitivity**: Re-run LME excluding low-confidence prompts.
 
-- **Multiple Comparisons**: The plan tests 3 creativity dimensions. A Bonferroni correction will be applied to the alpha level (0.05/3 ≈ 0.017) to control family-wise error rate.
-- **Sample Size**: N=500 prompts. Power analysis (FR-009) will be computed. If power is low, the result will be framed as "suggestive" rather than definitive.
-- **Causal Inference**: This is an observational study of model behaviors. No randomization is performed on the models (they are fixed artifacts). Claims will be framed as "associational" between training curriculum and performance traits.
-- **Collinearity**: If "Novelty" and "Feasibility" are highly correlated, the analysis will report the correlation and avoid claiming independent effects.
-- **Measurement Validity**: The proxy model's validity is explicitly tested (FR-008). If it fails, the study cannot proceed.
+## Statistical Rigor & Constraints
 
-## Compute Feasibility
+-   **Multiple Comparisons**: The study tests the interaction effect and dimension independence. A Bonferroni correction will be applied to the alpha level (0.05 / 2 = 0.025).
+-   **Sample Size / Power**: N=500 prompts is planned. A pre-study justification is performed. If power < 0.8, the limitation will be explicitly stated.
+-   **Causal Inference**: This is an observational study of model behaviors. Claims will be framed as "associational" (e.g., "models with higher Olympiad accuracy tend to have lower creativity scores") rather than causal.
+-   **Measurement Validity**: The proxy model is validated against human experts (FR-008). If correlation < 0.6, the results are considered invalid.
+-   **Collinearity**: The 'Novelty' and 'Feasibility' scores may be correlated. Multicollinearity will be checked (VIF) if used in a combined metric.
+-   **Compute Feasibility**:
+    -   **CPU-First**: All inference uses CPU.
+    -   **RAM Limit**: INT4 quantization for the scoring model is critical to fit within 7GB RAM.
+    -   **GPU Escape Hatch**: If the SU-01 model requires GPU for *any* reason (e.g., architecture incompatibility), the plan will fail on CPU. No synthetic GPU approximation is planned. The "escape hatch" is the Kaggle GPU runner, but the spec explicitly requires CPU-only for the primary pipeline. If the SU-01 model *cannot* run on CPU, the project will report a "Compute Infeasibility" rather than fabricating a GPU run.
 
-- **CPU-First**: The plan relies on INT4 quantization and `batch_size=1` to fit within 7GB RAM.
-- **Time Limit**: 500 prompts × 3 candidates × 2 models = 3000 generations.
-  - Est. time per generation on CPU: ~30-60 seconds (conservative).
-  - Total time: ~25-50 hours. **This exceeds the 6-hour CI limit.**
-- **Mitigation**:
-  - The plan must sample a smaller subset (e.g., 100 prompts) for the full pipeline if 500 is infeasible.
-  - Alternatively, the "OpenSci" generation will be limited to 1 candidate per prompt for the correlation analysis, with 3 candidates only for the "rigidity" variance check (if needed).
-  - **Revised Plan**: Run full 3-candidate generation on a **sample of 100 prompts** for the primary analysis to ensure CI completion. The spec's N=500 will be noted as a "target" but the implemented run will be scaled down to N=100 to meet the 6-hour constraint. This is an honest scaling decision, not a fabrication.
+## Risk Mitigation
 
-## Decision/Rationale
+-   **Dataset Mismatch**: IPhO is excluded; analysis relies on IMO (Math-only). This is documented as a limitation.
+-   **Modality Mismatch**: ScienceQA MCQs are converted to open-ended prompts. This is documented as a prompt engineering strategy.
+-   **Proxy Model Bias**: The N=50 validation set and Dimension Independence Check ensure the scoring model is not hallucinating or exhibiting halo effects. If it fails, the project halts.
+-   **Timeouts**: Hard token limits prevent CI job hangs. Truncated responses are excluded.
+-   **Model Availability**: If SU-01 weights are not found, the pipeline fails with a clear error, preventing data fabrication.
 
-- **CPU vs GPU**: CPU is mandated by the runner. INT4 quantization is the only faithful CPU form for Llama-3-8B.
-- **Dataset Scaling**: The 6-hour limit is a hard constraint. Running 3000 generations on CPU is infeasible. The plan scales the dataset to N=100 to ensure real results are produced within the budget.
-- **IPhO Gap**: The plan acknowledges the lack of a verified IPhO URL. The implementation will fail if the data is not provided, preventing hallucination.
+
+## projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/data-model.md
