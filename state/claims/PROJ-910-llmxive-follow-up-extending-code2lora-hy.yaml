@@ -553,3 +553,668 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T01:34:25Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: RepoPeftBench sample selection uses seed 42 and takes 10 repositories
+  claim_id: c_13dc5ce1
+  context: Download a verified, deterministic subset of the RepoPeftBench dataset
+    to data/raw/sample_repo. Use code/data/download_repopeftbench.py to fetch a random
+    sample of N=10 repositories (seed=42) from the official dataset using streaming
+    to avoid memory overflow.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The selection strategy uses datasets.load_dataset(..., streaming=True).shuffle(seed=42).take(10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:32:54Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Pre-flight RAM check threshold is 7 GB
+  claim_id: c_9b2727a0
+  context: 'Before allocation, check available RAM using psutil.virtual_memory().available;
+    if < 7 GB, raise MemoryLimitError (Code: E001) with exact log message format:
+    ERROR: E001: Memory Limit Exceeded (7GB) - Pre-flight.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pre-flight_RAM_check_threshold_is_7_GB
+  kind: magnitude
+  raw_text: The pre-flight RAM check raises MemoryLimitError if available RAM is less
+    than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:33:51Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Runtime RAM check threshold is 7 GB
+  claim_id: c_963cd461
+  context: 'Monitor RSS during execution using psutil.Process.memory_info() every
+    5 seconds or at specific function boundaries; if > 7 GB, raise MemoryLimitError
+    (Code: E003) with exact log message format: ERROR: E003: Memory Limit Exceeded
+    (7GB) - Runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime RAM check raises MemoryLimitError if RSS exceeds 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:34:32Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: AST generation latency reduction ratio must be at least 10x
+  claim_id: c_9004d693
+  context: "Compute the latency reduction ratio (AST generation latency from T015\
+    \ / baseline generation latency from T049a) and store a comparison report in data/results/generation_latency_comparison.json.\
+    \ Ensure the reduction is \u2265 10\xD7 as required by SC\u2011001."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/AST_generation_latency_reduction_ratio_must_be_at_least_10x
+  kind: magnitude
+  raw_text: The reduction in generation latency is required to be greater than or
+    equal to 10 times.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:35:28Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test verification asserts p-value < 0.05
+  claim_id: c_e811bb48
+  context: Includes verification step asserting p_value < 0.05 on mock significant
+    data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test_verification_asserts_p-value_%3C_0.0
+  kind: magnitude
+  raw_text: The verification step asserts that the p-value is less than 0.05 on mock
+    significant data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:36:22Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Total runtime limit is 6 hours
+  claim_id: c_861d7e1b
+  context: "Verify that peak RAM stays \u2264 7 GB and total runtime \u2264 6 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_limit_is_6_hours
+  kind: magnitude
+  raw_text: The total runtime is required to be less than or equal to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:37:00Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Latency timer output precision is 3 decimal places
+  claim_id: c_38e65e87
+  context: Output the measured generation time (in seconds) to data/results/ast_generation_latency.json
+    with keys timestamp (ISO 8601 format), duration_seconds (3 decimal precision),
+    feature_set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The latency timer outputs duration_seconds with 3 decimal precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:37:16Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 2
+  canonical: RepoPeftBench dataset schema contains columns repo_id, code, commit_hash
+  claim_id: c_2c8f71e6
+  context: 'Expected Schema: The dataset must contain columns repo_id, code, commit_hash.
+    If schema differs, raise DataFetchError.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RepoPeftBench_dataset_schema_contains_columns_repo_id,_code,
+  kind: entity_fact
+  raw_text: The dataset must contain columns repo_id, code, commit_hash.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:40:03Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Baseline adapter generation time stored in data/results/baseline_generation_latency.json
+  claim_id: c_2d6bee28
+  context: This script must output the baseline adapter to data/adapters/baseline_adapter.safetensors
+    and log generation time to data/results/baseline_generation_latency.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_adapter_generation_time_stored_in_data/results/base
+  kind: entity_fact
+  raw_text: The baseline adapter generation time must be stored in data/results/baseline_generation_latency.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:40:39Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: AST generation latency reduction ratio is at least 10x
+  claim_id: c_05d76bed
+  context: "Ensure the reduction is \u2265 10\xD7 as required by SC\u2011001."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/AST_generation_latency_reduction_ratio_is_at_least_10x
+  kind: magnitude
+  raw_text: The latency reduction ratio must be >= 10x.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:41:22Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage stays at most 7 GB
+  claim_id: c_9773b30f
+  context: "Verify that peak RAM stays \u2264 7 GB and total runtime \u2264 6 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_stays_at_most_7_GB
+  kind: magnitude
+  raw_text: Peak RAM must stay <= 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:42:05Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime is at most 6 hours
+  claim_id: c_90cf7518
+  context: "Verify that peak RAM stays \u2264 7 GB and total runtime \u2264 6 h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_is_at_most_6_hours
+  kind: magnitude
+  raw_text: Total runtime must be <= 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:42:33Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Random sample of RepoPeftBench is 10 repositories
+  claim_id: c_2cd81c42
+  context: Use code/data/download_repopeftbench.py to fetch a random sample of N=10
+    repositories (seed=42) from the official dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random sample of repositories must be N=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:43:15Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Random sample seed for RepoPeftBench is 42
+  claim_id: c_e511fce0
+  context: Use code/data/download_repopeftbench.py to fetch a random sample of N=10
+    repositories (seed=42) from the official dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random sample seed must be 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:44:03Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Memory limit threshold is 7 GB
+  claim_id: c_ff97ea6a
+  context: 'if < 7 GB, raise MemoryLimitError (Code: E001) with exact log message
+    format: ERROR: E001: Memory Limit Exceeded (7GB) - Pre-flight.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory check threshold is 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:44:32Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Runtime memory monitoring interval is 5 seconds
+  claim_id: c_cf03d0a2
+  context: Monitor RSS during execution using psutil.Process.memory_info() every 5
+    seconds or at specific function boundaries.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime memory monitoring interval is 5 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:45:31Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis iterates over feature subsets minimal, cyclomatic,
+    full_ast
+  claim_id: c_55c5c9ba
+  context: 'Iterate over a hardcoded list of feature subsets defined in the task:
+    [''minimal'', ''cyclomatic'', ''full_ast''].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_iterates_over_feature_subsets_minimal,
+  kind: entity_fact
+  raw_text: 'The sensitivity analysis iterates over a hardcoded list of feature subsets:
+    minimal, cyclomatic, full_ast.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:46:11Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: AST generation latency output file is data/results/ast_generation_latency.json
+  claim_id: c_336f4233
+  context: Output the measured generation time (in seconds) to data/results/ast_generation_latency.json
+    with keys timestamp (ISO 8601 format), duration_seconds (3 decimal precision),
+    feature_set.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AST_generation_latency_output_file_is_data/results/ast_gener
+  kind: entity_fact
+  raw_text: The AST generation latency output file is data/results/ast_generation_latency.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:47:15Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Baseline score saved to data/results/baseline_score.json
+  claim_id: c_592a824a
+  context: Implement logic to extract the baseline accuracy score from the neural
+    evaluation results (T021/T024) and save it to data/results/baseline_score.json.
+  evidence:
+    entailment_evidence: Baseline score saved to data/results/baseline score.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Baseline_score_saved_to_data/results/baseline_score.json
+  kind: entity_fact
+  raw_text: The baseline score is saved to data/results/baseline_score.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-09T06:47:51Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Minimal feature set result output to data/results/minimal_feature_set.txt
+  claim_id: c_fcdff870
+  context: Output the result to data/results/minimal_feature_set.txt containing the
+    feature set name.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimal_feature_set_result_output_to_data/results/minimal_fe
+  kind: entity_fact
+  raw_text: The minimal feature set result is output to data/results/minimal_feature_set.txt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:48:41Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Sensitivity summary saved to data/results/sensitivity_summary.csv
+  claim_id: c_4880dde6
+  context: Generate a CSV summary data/results/sensitivity_summary.csv with columns
+    feature_set, accuracy, meets_threshold.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_summary_saved_to_data/results/sensitivity_summar
+  kind: entity_fact
+  raw_text: The sensitivity summary is saved to data/results/sensitivity_summary.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:49:47Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Generation latency comparison stored in data/results/generation_latency_comparison.json
+  claim_id: c_e0c00ee0
+  context: Compute the latency reduction ratio (AST generation latency from T015 /
+    baseline generation latency from T049a) and store a comparison report in data/results/generation_latency_comparison.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generation_latency_comparison_stored_in_data/results/generat
+  kind: entity_fact
+  raw_text: The generation latency comparison is stored in data/results/generation_latency_comparison.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:50:20Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Memory log saved to data/results/memory_log.csv
+  claim_id: c_3956f0a4
+  context: Implement code/utils/memory_monitor.py to measure peak RSS memory usage
+    via the resource module at each pipeline step and log to data/results/memory_log.csv.
+  evidence:
+    entailment_evidence: Memory log saved to data/results/memory log.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Memory_log_saved_to_data/results/memory_log.csv
+  kind: entity_fact
+  raw_text: The memory log is saved to data/results/memory_log.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-09T06:51:09Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Resource summary saved to data/results/resource_summary.csv
+  claim_id: c_f73586fc
+  context: Aggregate peak memory usage logs from data/results/memory_log.csv, compute
+    total runtime per stage, and write a summary data/results/resource_summary.csv.
+  evidence:
+    entailment_evidence: Resource summary saved to data/results/resource summary.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Resource_summary_saved_to_data/results/resource_summary.csv
+  kind: entity_fact
+  raw_text: The resource summary is saved to data/results/resource_summary.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-09T06:51:48Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: AST scores output to data/results/ast_scores.csv
+  claim_id: c_0eeb8b73
+  context: 'Output scores to data/results/ast_scores.csv (columns: task_id, exact_match,
+    latency_ms).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AST_scores_output_to_data/results/ast_scores.csv
+  kind: entity_fact
+  raw_text: The AST scores are output to data/results/ast_scores.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:52:55Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Stats test output saved to data/results/stats.json
+  claim_id: c_a5f9dbf6
+  context: Outputs data/results/stats.json containing p_value, statistic, and test_used.
+  evidence:
+    entailment_evidence: Stats test output saved to data/results/stats.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Stats_test_output_saved_to_data/results/stats.json
+  kind: entity_fact
+  raw_text: The stats test output is saved to data/results/stats.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-09T06:53:38Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Baseline adapter saved to data/adapters/baseline_adapter.safetensors
+  claim_id: c_e81eee03
+  context: This script must output the baseline adapter to data/adapters/baseline_adapter.safetensors
+    and log generation time to data/results/baseline_generation_latency.json.
+  evidence:
+    entailment_evidence: Baseline adapter saved to data/adapters/baseline adapter.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Baseline_adapter_saved_to_data/adapters/baseline_adapter.saf
+  kind: entity_fact
+  raw_text: The baseline adapter is saved to data/adapters/baseline_adapter.safetensors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-09T06:54:37Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Default base model path is TinyLlama-1.1B-Chat-hf
+  claim_id: c_0cd82143
+  context: Implement code/utils/config.py to load random seeds, base model paths (defaulting
+    to 'TinyLlama-1.1B-Chat-hf' if not specified), and RepoPeftBench paths.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default base model path is TinyLlama-1.1B-Chat-hf.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:55:11Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Baseline score JSON contains single key score with float value
+  claim_id: c_b0a156dc
+  context: Ensure baseline_score.json is written by T031a with a single key score
+    (float).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_score_JSON_contains_single_key_score_with_float_val
+  kind: entity_fact
+  raw_text: The baseline score JSON file contains a single key 'score' with a float
+    value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:55:57Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: RepoPeftBench fetched from HuggingFace dataset repo-peft-bench python
+  claim_id: c_06144599
+  context: Implement code/data/download_repopeftbench.py to fetch the RepoPeftBench
+    Python subset from the official HuggingFace dataset (datasets.load_dataset('repo-peft-bench',
+    'python')) or Zenodo mirror.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RepoPeftBench_fetched_from_HuggingFace_dataset_repo-peft-ben
+  kind: entity_fact
+  raw_text: The dataset is fetched from the official HuggingFace dataset repo-peft-bench,
+    python.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:56:42Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Statistical test used is Wilcoxon signed-rank test
+  claim_id: c_0005c645
+  context: Implement code/evaluation/stats.py to perform a Wilcoxon signed-rank test
+    (per SC-005 and T000) on the two score lists. Do NOT fallback to t-test.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: "Mann\u2013Whitney U test"
+      source_id: Q1424533
+      url: https://www.wikidata.org/wiki/Q1424533
+      value: "Mann\u2013Whitney U test"
+    filled: true
+  kind: entity_fact
+  raw_text: The statistical test used is the Wilcoxon signed-rank test.
+  resolved_value: "Mann\u2013Whitney U test"
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T06:57:09Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Latency duration_seconds has 3 decimal precision
+  claim_id: c_cf542ec0
+  context: Output the measured generation time (in seconds) to data/results/ast_generation_latency.json
+    with keys timestamp (ISO 8601 format), duration_seconds (3 decimal precision),
+    feature_set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The latency output format requires 3 decimal precision for duration_seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:57:56Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Pre-flight memory error code is E001
+  claim_id: c_10b3fb47
+  context: 'if < 7 GB, raise MemoryLimitError (Code: E001) with exact log message
+    format: ERROR: E001: Memory Limit Exceeded (7GB) - Pre-flight.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pre-flight_memory_error_code_is_E001
+  kind: entity_fact
+  raw_text: The memory error code for pre-flight check is E001.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:58:33Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Runtime memory error code is E003
+  claim_id: c_1d828e5f
+  context: 'if > 7 GB, raise MemoryLimitError (Code: E003) with exact log message
+    format: ERROR: E003: Memory Limit Exceeded (7GB) - Runtime.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_memory_error_code_is_E003
+  kind: entity_fact
+  raw_text: The memory error code for runtime check is E003.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T06:59:36Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Checkpoint incompatibility error code is E002
+  claim_id: c_f89382d9
+  context: 'if incompatible, raise CheckpointIncompatibilityError (Code: E002) with
+    exact log message format: ERROR: E002: Incompatible Checkpoint: {reason}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Checkpoint_incompatibility_error_code_is_E002
+  kind: entity_fact
+  raw_text: The checkpoint incompatibility error code is E002.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:00:37Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis threshold is 80% of baseline accuracy
+  claim_id: c_43a990be
+  context: 'Goal: Determine the minimum AST feature set required to maintain >80 %
+    of baseline accuracy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis threshold is 80% of baseline accuracy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:00:37Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Statistical significance verification asserts p_value less than 0.05
+    on mock significant data
+  claim_id: c_a2485f7c
+  context: Includes verification step asserting p_value < 0.05 on mock significant
+    data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_significance_verification_asserts_p_value_less_t
+  kind: magnitude
+  raw_text: The statistical significance verification asserts p_value < 0.05 on mock
+    significant data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:01:24Z'

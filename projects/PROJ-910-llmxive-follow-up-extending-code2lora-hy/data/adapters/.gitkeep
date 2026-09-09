@@ -1,2 +1,2 @@
-# This directory is for generated adapter files (.safetensors)
-# Do not commit large adapter files; use .gitkeep to track the directory.
+# This directory stores generated LoRA adapters (.safetensors).
+# Do not commit actual adapter files here.

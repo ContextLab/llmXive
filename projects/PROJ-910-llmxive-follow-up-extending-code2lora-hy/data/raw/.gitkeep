@@ -1,2 +1,2 @@
-# This directory is for raw downloaded data (e.g., RepoPeftBench)
-# Do not commit large data files; use .gitkeep to track the directory.
+# This directory stores raw, unprocessed dataset downloads (e.g., RepoPeftBench).
+# Do not commit actual data files here.

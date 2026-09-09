@@ -1,2 +1,2 @@
-# This directory is for processed data artifacts
-# Do not commit large data files; use .gitkeep to track the directory.
+# This directory stores processed, analysis-ready datasets.
+# Do not commit actual data files here.
