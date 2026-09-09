@@ -45,5 +45,5 @@ As a researcher, I want to analyze model generalization and statistical signific
 
 ## 4. Constraints
 - Training must complete within 6 hours on a 2-core CPU.
-- Memory usage must not exceed 7GB RAM.
+- Memory usage must not exceed available RAM.
 - All data generation must be reproducible via random seeds.
