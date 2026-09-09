@@ -1,136 +1,127 @@
-# Schema Definition: TransitionStateGraph
-# Project: PROJ-005-machine-learned-potentials-for-transition-metal-catalysis
-# Task: T008
-#
-# This schema defines the structure and attributes for graphs representing
-# transition state geometries in the QM9-TS dataset, filtered for Pd, Ni, Cu.
-# It is used for validation in src/data/validate_graphs.py.
+# Schema for TransitionStateGraph used in Machine-Learned Potentials for Transition-Metal Catalysis
+# This schema defines the structure and attributes for graph-based representations of transition states.
+# Used by: src/data/graph_construction.py, src/data/validate_graphs.py, tests/contract/test_graph_schema.py
 
-$schema: "http://json-schema.org/draft-07/schema#"
-title: TransitionStateGraph
-description: |
-  A graph representation of a transition state geometry.
-  Nodes represent atoms, edges represent spatial proximity within a cutoff.
-type: object
+version: "1.0"
+graph_type: "TransitionStateGraph"
+description: "Graph representation of a transition state with atomic nodes and interaction edges"
 
-required:
-  - nodes
-  - edges
-  - metadata
+nodes:
+  description: "Nodes represent atoms in the transition state structure"
+  required_attributes:
+    - name: atomic_number
+      type: integer
+      description: "Atomic number of the element (e.g., 1 for H, 6 for C, 28 for Ni, 46 for Pd, 29 for Cu)"
+      constraints:
+        min: 1
+        max: 118
+    - name: formal_charge
+      type: integer
+      description: "Formal charge of the atom"
+      default: 0
+    - name: element_symbol
+      type: string
+      description: "Chemical symbol of the element"
+      example: "Pd", "C", "H"
+    - name: coordination_number
+      type: float
+      description: "Calculated coordination number based on distance cutoff"
+      validation:
+        warning_threshold: 6.0
+        note: "Values > 6.0 are chemically unusual and flagged by outlier_handler but not excluded from data"
+    - name: ligand_class
+      type: string
+      description: "Classification of the ligand environment"
+      allowed_values:
+        - "Group 13"
+        - "Conventional"
+        - "Unknown"
+      note: "Assigned during graph construction based on ligand analysis"
 
-properties:
-  nodes:
-    type: object
-    description: "Array of node attributes for each atom in the system."
-    required:
-      - atomic_number
-      - formal_charge
-      - position
-      - coordination_number
-      - ligand_class
-    properties:
-      atomic_number:
-        type: array
-        items:
-          type: integer
-        description: "Atomic number (Z) for each atom (e.g., 46 for Pd, 28 for Ni, 29 for Cu)."
-        minItems: 1
-      formal_charge:
-        type: array
-        items:
-          type: integer
-        description: "Formal charge assigned to each atom."
-      position:
-        type: array
-        items:
-          type: object
-          required:
-            - x
-            - y
-            - z
-          properties:
-            x:
-              type: number
-            y:
-              type: number
-            z:
-              type: number
-        description: "3D Cartesian coordinates (Angstroms) for each atom."
-      coordination_number:
-        type: array
-        items:
-          type: number
-        description: "Calculated coordination number based on 3.5 Angstrom cutoff."
-      ligand_class:
-        type: array
-        items:
-          type: string
-          enum: ["Group 13", "Conventional", "Unknown"]
-        description: "Classification of the ligand environment for the central metal."
+  optional_attributes:
+    - name: x
+      type: float
+      description: "Cartesian x-coordinate (Angstroms)"
+    - name: y
+      type: float
+      description: "Cartesian y-coordinate (Angstroms)"
+    - name: z
+      type: float
+      description: "Cartesian z-coordinate (Angstroms)"
+    - name: is_transition_metal
+      type: boolean
+      description: "True if the atom is Pd, Ni, or Cu"
 
-  edges:
-    type: object
-    description: "Array of edge attributes representing pairwise interactions."
-    required:
-      - source
-      - target
-      - distance
-      - edge_type
-    properties:
-      source:
-        type: array
-        items:
-          type: integer
-        description: "Source node indices for edges."
-      target:
-        type: array
-        items:
-          type: integer
-        description: "Target node indices for edges."
-      distance:
-        type: array
-        items:
-          type: number
-        description: "Euclidean distance between connected nodes (Angstroms)."
-      edge_type:
-        type: array
-        items:
-          type: string
-        description: "Type of edge interaction (e.g., 'bond', 'proximity')."
+edges:
+  description: "Edges represent interactions between atoms within a distance cutoff"
+  required_attributes:
+    - name: distance
+      type: float
+      description: "Euclidean distance between connected atoms (Angstroms)"
+      constraints:
+        min: 0.0
+    - name: cutoff_applied
+      type: float
+      description: "The distance cutoff value used to determine this edge"
+      note: "Matches the optimal_cutoff from data/results/cutoff_sensitivity.json"
+    - name: edge_type
+      type: string
+      description: "Type of interaction"
+      allowed_values:
+        - "bond"
+        - "interaction"
+        - "metal-ligand"
 
-  metadata:
-    type: object
-    description: "Global properties of the transition state complex."
-    required:
-      - reaction_id
-      - energy_dft
-      - barrier_height
-      - central_metal
-      - is_outlier
-    properties:
-      reaction_id:
-        type: string
-        description: "Unique identifier for the reaction step (e.g., from QM9-TS)."
-      energy_dft:
-        type: number
-        description: "Total DFT energy of the transition state (eV or Hartree)."
-      barrier_height:
-        type: number
-        description: "Activation barrier height relative to reactants (eV)."
-      central_metal:
-        type: string
-        enum: ["Pd", "Ni", "Cu"]
-        description: "The transition metal center of the complex."
-      is_outlier:
-        type: boolean
-        description: "Flag indicating if the sample has coordination > 6 (excluded from training)."
-      source_dataset:
-        type: string
-        default: "QM9-TS"
-        description: "Source dataset name."
-      cutoff_used:
-        type: number
-        default: 3.5
-        description: "Distance cutoff used for graph construction (Angstroms)."
+graph_metadata:
+  description: "Global properties of the graph"
+  required_attributes:
+    - name: energy_dft
+      type: float
+      description: "Total energy from DFT calculation (eV or Hartree)"
+      unit: "eV"
+      note: "Primary target variable for regression"
+    - name: barrier_height
+      type: float
+      description: "Activation barrier height relative to reactants (eV)"
+      unit: "eV"
+      note: "Primary target variable for regression; derived from energy_dft and reactant energies"
+    - name: reaction_id
+      type: string
+      description: "Unique identifier for the reaction"
+    - name: elementary_step
+      type: string
+      description: "Type of elementary step (e.g., 'oxidative_addition', 'reductive_elimination')"
+    - name: transition_metal
+      type: string
+      description: "The transition metal center (Pd, Ni, or Cu)"
+      allowed_values:
+        - "Pd"
+        - "Ni"
+        - "Cu"
+    - name: num_nodes
+      type: integer
+      description: "Total number of atoms in the graph"
+    - name: num_edges
+      type: integer
+      description: "Total number of edges in the graph"
+    - name: is_outlier
+      type: boolean
+      description: "True if coordination number > 6 (flagged for exclusion from training)"
+      note: "Retained in test set but excluded from training data"
 
-additionalProperties: false
+validation_rules:
+  - rule: "No self-loops allowed"
+    check: "source_node != target_node for all edges"
+  - rule: "Atomic numbers must be valid"
+    check: "1 <= atomic_number <= 118"
+  - rule: "Distances must be non-negative"
+    check: "distance >= 0"
+  - rule: "Energy values must be finite"
+    check: "isfinite(energy_dft) and isfinite(barrier_height)"
+
+file_format:
+  primary: "parquet"
+  location: "data/processed/graphs.parquet"
+  note: "Final canonical file generated after optimal cutoff selection (T016b)"
+  intermediate: "data/processed/graphs_intermediate.parquet"
+  note: "Intermediate file generated with temporary cutoff 3.5Å (T016a)"

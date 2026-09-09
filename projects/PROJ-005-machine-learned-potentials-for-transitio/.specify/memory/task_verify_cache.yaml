@@ -1,3 +1,9 @@
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data/raw/` directory or any checksum\u2011verification script/code was presented.\
+    \ The claim lacks any tangible artifact (files, directory structure, or implementation)\
+    \ that demonstrates the required setup, so the task is not satisfied."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

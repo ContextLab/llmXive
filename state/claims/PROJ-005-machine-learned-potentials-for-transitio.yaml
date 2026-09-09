@@ -215,3 +215,220 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T11:47:20Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: B3LYP/6-31G* single-point calculation on Methane takes 0.45 seconds on
+    Intel Xeon E5-2690 v4 @ 2.60GHz per DOI:10.1063/1.464388
+  claim_id: c_df230a98
+  context: Task T037a requires creating a static file with a pre-verified benchmark
+    value for DFT baseline speed analysis.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Create `data/baseline_dft_time.json` with a verified literature reference
+    time for a single-point B3LYP/6-31G* calculation on Methane (CH4). **Action**:
+    Write a static file with the pre-verified benchmark value: `{ "reference_time_seconds":
+    0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388
+    (Curtiss et al., JCP 1996)", "verified_by": "Plan-Reviewer" }`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:42:09Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Research question focuses on generalizability of predictive models across
+    distinct chemical scaffolds
+  claim_id: c_ac71f9d0
+  context: The research question focuses on evaluating the generalizability of predictive
+    models across distinct chemical scaffolds. The method employs a Leave-Ligand-Scaffold-Out
+    cross-validation strategy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_focuses_on_generalizability_of_predictive
+  kind: entity_fact
+  raw_text: The research question focuses on evaluating the generalizability of predictive
+    models across distinct chemical scaffolds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:43:07Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Method employs Leave-Ligand-Scaffold-Out cross-validation strategy
+  claim_id: c_52d8c3e8
+  context: 'The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy
+    to ensure that test sets contain ligands with scaffolds unseen during training.
+    References: [Citation Placeholder].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_employs_Leave-Ligand-Scaffold-Out_cross-validation_st
+  kind: entity_fact
+  raw_text: The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy
+    to ensure that test sets contain ligands with scaffolds unseen during training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:44:11Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Data scarcity flag created if count is less than 120
+  claim_id: c_b5394c41
+  context: 'Implement scarcity flag logic in src/data/ingest.py. Logic: If count <
+    120, create data/processed/data_scarcity_flag.json with exact schema.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_scarcity_flag_created_if_count_is_less_than_120
+  kind: magnitude
+  raw_text: 'If count < 120, create data/processed/data_scarcity_flag.json with exact
+    schema: { "count": <int>, "status": "scarcity", "threshold": 120 }.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:45:17Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Train 5 SchNet models with 30 epochs and 1e-4 learning rate
+  claim_id: c_51c4d88f
+  context: "Independent Test: Train 5 models (\u226430 epochs, Adam lr=1e-4) on CPU;\
+    \ verify data/processed/predictions.parquet contains finite energies."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train 5 models (\u226430 epochs, Adam lr=1e-4) on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:45:54Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Select descriptors subset where cumulative variance explained is at least
+    0.60
+  claim_id: c_b1e17b95
+  context: 'Implement logic to rank descriptors and calculate variance explained.
+    Specific Logic: Select the smallest subset of top descriptors where cumulative
+    variance_explained >= 0.60.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_descriptors_subset_where_cumulative_variance_explaine
+  kind: magnitude
+  raw_text: Select the smallest subset of top descriptors where cumulative variance_explained
+    >= 0.60.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:46:50Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Literature reference time for single-point B3LYP/6-31G* calculation on
+    Methane
+  claim_id: c_9d0871e2
+  context: 'Create data/baseline_dft_time.json with a verified literature reference
+    time for a single-point B3LYP/6-31G* calculation on Methane (CH4). Action: Write
+    a static file with the pre-verified benchmark value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/baseline_dft_time.json with a verified literature reference
+    time for a single-point B3LYP/6-31G* calculation on Methane (CH4).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:47:23Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Benchmark value 0.45 seconds for B3LYP/6-31G* on Methane on Intel Xeon
+    E5-2690 v4
+  claim_id: c_6ebff79f
+  context: 'Action: Write a static file with the pre-verified benchmark value: { "reference_time_seconds":
+    0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388
+    (Curtiss et al., JCP 1996)" }.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Write a static file with the pre-verified benchmark value: { "reference_time_seconds":
+    0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388
+    (Curtiss et al., JCP 1996)", "verified_by": "Plan-Reviewer" }.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:47:24Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: B3LYP/6-31G* calculation on Methane reference time 0.45 seconds
+  claim_id: c_1647b998
+  context: 'Task T037a requires creating a static file with the pre-verified benchmark
+    value: { "reference_time_seconds": 0.45, "hardware": "Intel Xeon E5-2690 v4 @
+    2.60GHz", "source": "DOI:10.1063/1.464388 (Curtiss et al., JCP 1996)" }.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/baseline_dft_time.json with a verified literature reference
+    time for a single-point B3LYP/6-31G* calculation on Methane (CH4) of 0.45 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:51:00Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: B3LYP/6-31G* on Methane performed on Intel Xeon E5-2690 v4 2.60GHz
+  claim_id: c_1edda581
+  context: Task T037a specifies the hardware for the verified literature reference
+    time as "Intel Xeon E5-2690 v4 @ 2.60GHz".
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline DFT calculation for Methane was performed on Intel Xeon E5-2690
+    v4 @ 2.60GHz hardware.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:51:29Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: 0.45 seconds single-point B3LYP/6-31G* calculation time for Methane on
+    Intel Xeon E5-2690 v4
+  claim_id: c_4e45fdb1
+  context: Create data/baseline_dft_time.json with a verified literature reference
+    time for a single-point B3LYP/6-31G* calculation on Methane (CH4).
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Write a static file with the pre-verified benchmark value: { "reference_time_seconds":
+    0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388
+    (Curtiss et al., JCP 1996)", "verified_by": "Plan-Reviewer" }'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T07:52:08Z'

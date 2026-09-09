@@ -1,10 +1,11 @@
 """
-Structured logging and progress tracking utilities for the llmXive pipeline.
+Structured logging and progress tracking for the ML Potential pipeline.
 
-This module provides:
-- A custom JSON formatter for structured logs.
-- A factory to set up project-specific loggers.
-- Helper functions to log progress, metrics, and error summaries.
+Provides a consistent logging interface across all modules, including:
+- Structured JSON formatting for log lines
+- Progress tracking for long-running operations
+- Metric logging for experiment tracking
+- Error summary aggregation
 """
 
 import logging
@@ -14,83 +15,82 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-from .config import get_project_root
-
 
 class StructuredFormatter(logging.Formatter):
     """
-    A custom logging formatter that outputs log records as JSON lines.
-    This facilitates parsing logs by downstream tools and aggregators.
-
-    The JSON structure includes:
-    - timestamp (ISO 8601)
-    - level
-    - logger_name
-    - message
-    - extra fields (if any)
+    Custom formatter that outputs logs as JSON lines for structured logging.
+    Includes timestamp, level, module, message, and optional extra fields.
     """
 
     def format(self, record: logging.LogRecord) -> str:
-        log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat(),
+        log_entry = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
             "message": record.getMessage(),
         }
 
-        # Add exception info if present
+        # Include exception info if present
         if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
+            log_entry["exception"] = self.formatException(record.exc_info)
 
-        # Add any extra fields passed in the log call
-        if hasattr(record, "extra_data"):
-            log_data["data"] = record.extra_data
+        # Include extra fields if present
+        if hasattr(record, "extra_fields"):
+            log_entry.update(record.extra_fields)
 
-        # Handle standard extra attributes if needed
-        if record.__dict__.get("exc_text"):
-            # Already formatted by standard formatter if we wanted, but we handle above
-            pass
-
-        return json.dumps(log_data)
+        return json.dumps(log_entry)
 
 
 def setup_logger(
     name: str,
-    level: int = logging.INFO,
     log_file: Optional[Union[str, Path]] = None,
-    console: bool = True,
+    level: int = logging.INFO,
+    console_output: bool = True,
+    json_format: bool = True,
 ) -> logging.Logger:
     """
-    Configure and return a logger with JSON formatting.
+    Set up a logger with optional file output and structured formatting.
 
     Args:
-        name: The name of the logger (usually __name__).
-        level: The logging level (e.g., logging.DEBUG).
-        log_file: Optional path to a log file. If provided, logs are written there.
-        console: If True, also logs to stdout.
+        name: Logger name (typically __name__)
+        log_file: Optional path to log file. If provided, logs are written here.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO)
+        console_output: Whether to log to console
+        json_format: Whether to use structured JSON formatting
 
     Returns:
-        A configured logger instance.
+        Configured logger instance
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+    # Clear existing handlers to avoid duplicates
+    logger.handlers.clear()
 
-    formatter = StructuredFormatter()
+    # Create formatter
+    if json_format:
+        formatter = StructuredFormatter()
+    else:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
 
-    if console:
+    # Add console handler if requested
+    if console_output:
         console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(level)
         console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
 
+    # Add file handler if log_file is provided
     if log_file:
         log_path = Path(log_file)
-        # Ensure directory exists
         log_path.parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_path)
+        file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
@@ -99,35 +99,38 @@ def setup_logger(
 
 def log_progress(
     logger: logging.Logger,
-    stage: str,
+    task: str,
     current: int,
     total: int,
     message: Optional[str] = None,
+    level: int = logging.INFO,
 ) -> None:
     """
-    Log a progress update as a structured event.
+    Log progress for a long-running operation.
 
     Args:
-        logger: The logger to use.
-        stage: Name of the current stage (e.g., "Ingestion", "Training").
-        current: Current count (e.g., items processed).
-        total: Total expected count.
-        message: Optional additional context message.
+        logger: Logger instance to use
+        task: Name of the task being performed
+        current: Current progress count
+        total: Total expected count
+        message: Optional additional message
+        level: Log level for this message
     """
-    percentage = (current / total * 100) if total > 0 else 0.0
-    msg = message or f"{stage}: {current}/{total} ({percentage:.1f}%)"
-
-    extra_data = {
-        "stage": stage,
+    progress_data = {
+        "task": task,
         "current": current,
         "total": total,
-        "percentage": round(percentage, 2),
+        "percent": (current / total * 100) if total > 0 else 0,
     }
-    if message:
-        extra_data["details"] = message
 
-    # Create a log record with extra data
-    logger.info(msg, extra={"extra_data": extra_data})
+    if message:
+        progress_data["message"] = message
+
+    logger.log(
+        level,
+        f"Progress: {task} - {current}/{total} ({progress_data['percent']:.1f}%)",
+        extra={"extra_fields": progress_data},
+    )
 
 
 def log_metric(
@@ -135,65 +138,82 @@ def log_metric(
     metric_name: str,
     value: Union[int, float],
     unit: Optional[str] = None,
-    context: Optional[Dict[str, Any]] = None,
+    stage: Optional[str] = None,
+    metadata: Optional[Dict[str, Any]] = None,
 ) -> None:
     """
-    Log a specific metric value in a structured format.
+    Log a metric value for experiment tracking.
 
     Args:
-        logger: The logger to use.
-        metric_name: Name of the metric (e.g., "mae", "accuracy").
-        value: The numeric value.
-        unit: Optional unit string (e.g., "eV").
-        context: Optional dictionary of additional context (e.g., {"epoch": 5}).
+        logger: Logger instance to use
+        metric_name: Name of the metric
+        value: Metric value
+        unit: Optional unit of measurement
+        stage: Optional stage identifier (e.g., "training", "validation", "test")
+        metadata: Optional additional metadata
     """
-    extra_data = {
-        "metric": metric_name,
+    metric_data = {
+        "metric_name": metric_name,
         "value": value,
-        "unit": unit,
     }
-    if context:
-        extra_data["context"] = context
 
-    logger.info(f"Metric: {metric_name} = {value}", extra={"extra_data": extra_data})
+    if unit:
+        metric_data["unit"] = unit
+
+    if stage:
+        metric_data["stage"] = stage
+
+    if metadata:
+        metric_data["metadata"] = metadata
+
+    logger.info(
+        f"Metric: {metric_name} = {value}",
+        extra={"extra_fields": metric_data},
+    )
 
 
 def log_error_summary(
     logger: logging.Logger,
     error_type: str,
-    description: str,
+    message: str,
     details: Optional[Dict[str, Any]] = None,
+    recoverable: bool = False,
 ) -> None:
     """
-    Log an error summary for tracking failures.
+    Log an error summary with optional recovery status.
 
     Args:
-        logger: The logger to use.
-        error_type: Category of error (e.g., "DataError", "ModelError").
-        description: Human-readable description.
-        details: Optional dictionary of technical details.
+        logger: Logger instance to use
+        error_type: Type of error (e.g., "ValidationError", "DataError")
+        message: Human-readable error message
+        details: Optional dictionary of additional error details
+        recoverable: Whether this error is recoverable
     """
-    extra_data = {
+    error_data = {
         "error_type": error_type,
-        "description": description,
+        "recoverable": recoverable,
     }
+
     if details:
-        extra_data["details"] = details
+        error_data["details"] = details
 
-    logger.error(f"Error [{error_type}]: {description}", extra={"extra_data": extra_data})
+    log_level = logging.WARNING if recoverable else logging.ERROR
+
+    logger.log(
+        log_level,
+        f"Error [{error_type}]: {message}",
+        extra={"extra_fields": error_data},
+    )
 
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     """
-    Get a logger instance. If name is not provided, defaults to 'llmXive'.
-    This ensures a consistent logger name across the project.
+    Get an existing logger or create a new one with default configuration.
 
     Args:
-        name: Optional logger name.
+        name: Logger name
 
     Returns:
-        A logger instance.
+        Logger instance
     """
-    if name is None:
-        name = "llmXive"
     return logging.getLogger(name)

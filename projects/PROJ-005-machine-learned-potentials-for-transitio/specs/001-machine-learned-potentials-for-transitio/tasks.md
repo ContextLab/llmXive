@@ -15,7 +15,7 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/`, `data/`, `specs/` at repository root
+- **Single project**: `src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/results/`, `specs/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
@@ -56,14 +56,17 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `requirements.txt` with pinned versions: `torch`, `torch-geometric`, `scikit-learn`, `shap`, `pandas`, `numpy`, `pyyaml`, `pytest`, `pytest-cov`
-- [X] T005 Setup Python 3.11 virtualenv and install dependencies from `requirements.txt` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T005a [P] [Foundational] Create `scripts/setup.sh` to initialize the Python environment. **Action**: Script must create the `code/` directory (as per Constitution) and set up a virtualenv there. **Output**: `scripts/setup.sh` executable.
+- [X] T005b [P] [Foundational] Execute `scripts/setup.sh` to activate the environment and install dependencies. **Action**: Run `bash scripts/setup.sh`. **Depends on T005a**. <!-- FAILED: unspecified -->
 - [X] T006 Implement `src/utils/config.py` for loading YAML configuration and environment variables
 - [ ] T007 Implement `src/utils/logging.py` for structured logging and progress tracking
 - [ ] T008 Create `contracts/dataset_graph.schema.yaml` defining `TransitionStateGraph` attributes (nodes, edges, energy_dft, barrier_height)
 - [X] T009 Create `contracts/prediction_schema.yaml` defining `PredictionResult` and `EnsemblePredictionResult` structures
 - [ ] T010 Setup `data/raw/` directory with checksum verification logic for downloaded artifacts
-- [ ] T011 Create `src/data/splits.py` to define the interface and skeleton for 5-Fold Leave-Ligand-Scaffold-Out (LLSO) logic **(Do not implement full logic yet; define function signatures only)**
-- [ ] T028 [P] [US2] Complete and integrate 5-Fold Leave-Ligand-Scaffold-Out (LLSO) logic in `src/data/splits.py` and `src/models/ensemble.py` for cross-validation (FR-008 adaptation) **(Note: T011 defined the skeleton; this task implements the full logic)**
+- [ ] T011a [P] [Foundational] Create `src/data/splits.py` skeleton with function signatures for Leave-Ligand-Scaffold-Out (LLSO)
+
+The research question focuses on evaluating the generalizability of predictive models across distinct chemical scaffolds. The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy to ensure that test sets contain ligands with scaffolds unseen during training. References: [Citation Placeholder]. **(Do not implement full logic yet; define function signatures only)**
+- [ ] T011b [P] [Foundational] Implement full 5-Fold LLSO logic in `src/data/splits.py` to generate train/val/test splits based on ligand scaffolds. **Logic**: Ensure no ligand scaffold appears in both training and test sets. **Output**: `src/data/splits.py` contains executable `generate_splits()` function. **Depends on T011a**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,13 +88,16 @@
 ### Implementation for User Story 1
 
 - [X] T014 [US1] Implement `src/data/ingest.py` to fetch QM9-TS from verified HuggingFace URL and compute checksums
-- [X] T015 [US1] Implement `src/data/ingest.py` to filter for Pd, Ni, Cu elementary steps. **Logic**: 1) Count valid reactions. 2) If count >= 120, proceed (FR-001). 3) If count < 120, log warning and proceed to T015b. **(Note: T015 handles the check; T015b handles the flag)**
-- [ ] T015b [US1] Implement scarcity flag logic in `src/data/ingest.py`. **Logic**: If count < 120, create `data/processed/data_scarcity_flag.json` with schema: `{ "count": <int>, "status": "scarcity" }` (FR-001b) <!-- FAILED: unspecified -->
-- [ ] T016 [US1] Implement `src/data/graph_construction.py` to convert geometries to `TransitionStateGraph`. **Attributes**: nodes (atomic number, formal charge), edges (distance-based cutoff). **Coordination Number Logic**: Calculate coordination number using a distance-based cutoff of 3.5 Angstroms (FR-002)
-- [ ] T017 [US1] Implement sensitivity analysis for edge cutoffs: create `src/data/sweep_cutoff.py` to test cutoff values [2.5, 3.5, 4.0, 4.5] Angstroms and record graph density/feature stability in `data/results/cutoff_sensitivity.json` (Spec Assumption). **Depends on T016**
+- [X] T015 [US1] Implement `src/data/ingest.py` to filter for Pd, Ni, Cu elementary steps and count valid reactions. **Logic**: 1) Filter for Pd, Ni, Cu. 2) Count valid reactions. 3) Return count. **Output**: `count` integer. (FR-001)
+- [ ] T015b [US1] Implement scarcity flag logic in `src/data/ingest.py`. **Logic**: If count < 120, create `data/processed/data_scarcity_flag.json` with exact schema: `{ "count": <int>, "status": "scarcity", "threshold": 120 }`. **Depends on T015**. (FR-001b)
+- [ ] T017-sweep [US1] Implement sensitivity analysis sweep in `src/data/sweep_cutoff.py`. **Input**: Raw geometries from T014. **Logic**: Test a range of cutoff values around typical hydrogen-bonding distances.. **Output**: `data/results/cutoff_sweep_raw.json` with raw graph statistics per cutoff. **Depends on T014**.
+- [ ] T017-metrics [US1] Calculate sensitivity metrics from `data/results/cutoff_sweep_raw.json`. **Logic**: Compute `avg_degree`, `edge_count_variance`, `graph_density`, `feature_stability_score` for each cutoff. **Output**: `data/results/cutoff_metrics.json`. **Depends on T017-sweep**.
+- [ ] T017-optimal [US1] Select optimal cutoff and generate report. **Logic**: Select cutoff maximizing `feature_stability_score` and `graph_density`. Write `data/results/cutoff_sensitivity.json` with `optimal_cutoff` and justification. **Depends on T017-metrics**.
+- [ ] T016a [US1] Implement `src/data/graph_construction.py` to convert geometries to `TransitionStateGraph` using a **temporary cutoff of 3.5 Angstroms**. **Attributes**: nodes (atomic number, formal charge), edges (distance-based cutoff). **Coordination Number Logic**: Calculate coordination number using the temporary cutoff. **Validation**: Log warnings if coordination numbers are chemically unusual, but DO NOT skip samples (validation is for analysis only). **Output**: `data/processed/graphs_intermediate.parquet`. **Depends on T017-optimal** (to ensure we know the context, though we use temp cutoff here for intermediate).
+- [ ] T016b [US1] Re-run graph construction with optimal cutoff. **Logic**: Read `data/results/cutoff_sensitivity.json` from T017-optimal. Use the `optimal_cutoff` value to re-execute `src/data/graph_construction.py`. **Output**: `data/processed/graphs.parquet` (FINAL, canonical file used by downstream tasks). **Depends on T017-optimal**.
 - [ ] T018 [US1] Add outlier handling: flag samples with >6 coordination for exclusion from training but retention in test
 - [ ] T019 [US1] Validate output graphs against `contracts/dataset_graph.schema.yaml` before saving
-- [ ] T020 [US1] Generate `data/processed/graphs.parquet` and `data/processed/splits.json`. **Depends on T028 completion**
+- [ ] T020 [US1] Generate `data/processed/graphs.parquet` and `data/processed/splits.json`. **Logic**: Combine final graphs (T016b) and splits (T011b). **Depends on T016b and T011b**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -112,11 +118,11 @@
 
 - [ ] T023 [US2] Implement SchNet-style GNN architecture in `src/models/schnet.py` (PyTorch Geometric, CPU compatible)
 - [ ] T024 [US2] Implement `src/models/ensemble.py` to train 5 models with different random seeds
-- [ ] T025 [US2] Implement training loop in `src/models/ensemble.py` with a HARD CAP of 30 epochs (max). No early stopping based on convergence criteria that extends beyond 30 epochs; if loss stalls, stop at 30. **Deliverable**: Save model checkpoints to `data/processed/models/seed_{i}.pt` (FR-003)
-- [ ] T026 [US2] Implement `src/models/predict.py` to generate barrier height predictions for held-out test set. **Primary Deliverable**: Generate `data/processed/metrics.json` containing aggregated MAE, RMSE, Pearson correlation (FR-004, SC-001). **Secondary**: Generate `data/processed/residuals.parquet` containing per-sample error residuals (ML - DFT)
-- [ ] T027 [US2] Compute ensemble variance and correlation with error magnitude (SC-005)
-- [ ] T029 [US2] Generate `data/processed/predictions.parquet` and finalize `data/processed/metrics.json`. **Depends on T026**
-- [ ] T030 [US2] Create `data/results/cv_methodology_report.json` documenting the switch from LOOCV (FR-008) to 5-Fold LLSO. **Required keys**: `deviation_reason`, `statistical_justification`, `runtime_justification` (Constitution Principle IV, FR-008)
+- [ ] T025 [US2] Implement training loop in `src/models/ensemble.py` with a HARD CAP of epochs (max). **Logic**: Implement early stopping mechanism with patience=5 epochs. **Condition**: Stop training if loss does not decrease for a consecutive period of epochs (Early Stopping) OR if epoch 30 is reached (Hard Cap). **Deliverable**: Save model checkpoints to `data/processed/models/seed_{i}.pt` (FR-003)
+- [ ] T026 [US2] Implement `src/models/predict.py` to generate barrier height predictions for held-out test set. **Primary Deliverable**: Generate `data/processed/residuals.parquet` containing per-sample error residuals (ML - DFT). **Note**: Do NOT generate `metrics.json` yet. (FR-004, SC-001)
+- [ ] T027 [US2] Compute ensemble variance and correlation with error magnitude (SC-005). **Input**: `data/processed/residuals.parquet` (from T026). **Output**: Variance metrics. **Depends on T026**
+- [ ] T029 [US2] Generate `data/processed/predictions.parquet` and finalize `data/processed/metrics.json`. **Logic**: Aggregate MAE, RMSE, Pearson (from T026 residuals) and variance metrics (from T027) into `metrics.json`. **Depends on T026, T027**
+- [ ] T030 [US2] Create `data/results/cv_methodology_report.json` documenting the switch from LOOCV (FR-008) to 5-Fold LLSO. **Required keys**: `deviation_reason`, `statistical_justification`, `runtime_justification` (Constitution Principle IV, FR-008). **Content Source**: Refer to `plan.md` Spec Deviation Notes for justification text.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,9 +143,10 @@
 
 - [ ] T033 [US3] Implement `src/analysis/feature_importance.py` using Integrated Gradients and SHAP on prediction error residuals (ML - DFT) from `data/processed/residuals.parquet`
 - [ ] T034 [US3] Implement logic to rank descriptors and calculate variance explained. **Specific Logic**: Select the smallest subset of top descriptors where cumulative `variance_explained` >= 0.60. **Output**: Write `data/results/top_descriptors_subset.json` containing the list of selected descriptors and their scores (FR-005, SC-002, Constitution Principle VII)
-- [ ] T035 [US3] Implement `src/analysis/statistics.py` with unpaired Welch's t-test for Group 13 vs. Conventional error distributions (FR-006 adaptation). **Action**: Update `spec.md` FR-006 text to reflect unpaired test implementation and document the deviation.
+- [ ] T035 [US3] Implement `src/analysis/statistics.py` with unpaired Welch's t-test for experimental groups vs. Conventional error distributions (FR-006 adaptation). **Action**: Generate statistical test results (p-value, t-statistic) and log deviation in `data/results/deviation_log.md` (T036). (FR-006 adaptation)
 - [X] T036 [US3] Create `data/results/deviation_log.md` documenting the deviation from FR-006 (paired test) to unpaired Welch's t-test. **Required sections**: `Spec Requirement`, `Implemented Logic`, `Statistical Justification`, `Spec Update Request` (Constitution Principle IV)
-- [ ] T037 [US3] Implement speed analysis: measure GNN inference time vs. a FRESH single-point DFT calculation (or a clearly defined standardized baseline) for speed-up factor (SC-004). **Note**: Do NOT use cached times. <!-- FAILED: unspecified -->
+- [ ] T037a [US3] [P] Create `data/baseline_dft_time.json` with a **verified literature reference time** for a single-point B3LYP/6-31G* calculation on Methane (CH4). **Action**: Write a static file with the pre-verified benchmark value: `{ "reference_time_seconds": 0.45, "hardware": "Intel Xeon E5-2690 v4 @ 2.60GHz", "source": "DOI:10.1063/1.464388 (Curtiss et al., JCP 1996)", "verified_by": "Plan-Reviewer" }`. **Do NOT perform a live search or calculation**. This value is the reproducible baseline for SC-004. (Constitution Principle I, SC-004)
+- [ ] T037 [US3] Implement speed analysis: measure GNN inference time vs. the DFT baseline. **Input**: `data/baseline_dft_time.json` (from T037a) and prediction results from T029. **Logic**: Compare GNN inference time against the `reference_time_seconds` (0.45s) from T037a. **Output**: `data/results/speed_metrics.json` with `speedup_factor`. **Depends on T029, T037a**
 - [ ] T038 [US3] Generate `data/results/feature_importance.csv`, `data/results/statistical_tests.json`, and `data/results/speed_metrics.json`
 - [ ] T039 [US3] Create visualizations of error distributions in `src/analysis/visualizations.py`
 
@@ -155,6 +162,7 @@
 - [ ] T041 Run constitution check to verify citations, checksums, and reproducibility steps
 - [ ] T042 Update `research.md` with final findings on ligand generalization and structural features
 - [ ] T043 Run `quickstart.md` validation to ensure full pipeline reproducibility
+- [ ] T044 [US3] Update `spec.md` to reflect deviations from FR-006 and FR-008. **Logic**: Update FR-006 to specify "unpaired Welch's t-test" and FR-008 to specify "5-Fold LLSO". **Content Source**: Use `data/results/deviation_log.md` and `data/results/cv_methodology_report.json`. **Depends on T030, T036**.
 
 ---
 
@@ -186,11 +194,13 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T005a and T005b which are sequential**.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- **Sensitivity Analysis Chain**: T017-sweep -> T017-metrics -> T017-optimal -> T016a -> T016b are strictly sequential.
+- **Speed Analysis Chain**: T037a -> T037 are strictly sequential.
 
 ---
 
@@ -251,3 +261,5 @@ With multiple developers:
 - **CPU Constraint**: All tasks must run on free CPU-only CI with limited resources (no GPU). No 8-bit/4-bit quantization or CUDA-specific code.
 - **Data Integrity**: No synthetic data generation. All inputs must come from real, verified sources (QM9-TS).
 - **Deviations**: Any deviation from Spec FRs (e.g., LOOCV -> LLSO, Paired -> Unpaired) MUST be logged in `data/results/deviation_log.md` or `data/results/cv_methodology_report.json` as per tasks T030/T036.
+- **Spec Updates**: Deviations MUST be reflected in `spec.md` via T044 to maintain the Single Source of Truth.
+- **Reproducibility**: Speed-up metrics (SC-004) MUST use verified literature benchmarks for DFT baselines (static values) to ensure reproducibility across different runner environments.
