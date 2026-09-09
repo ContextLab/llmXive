@@ -1,18 +1,23 @@
-T006a:
+T004v:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory structure (`code/{data_generation,training,evaluation,utils}`,
-    `data/{raw,processed}`, `tests/{unit,contract,integration}`, `specs/001-predict-stiffness-cnn/contracts`)
-    or a `tree` command output is provided, so we cannot confirm the directories were
-    created as specified. The implementer must supply the actual directory listing
-    or command output showing the tree and a successful exit code.
-T007s:
+  r: "No evidence was provided that the file `projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predict-stiffness-cnn/spec.md`\
+    \ exists or contains the required strings \u201C128x128 pixels\u201D and \u201C\
+    US-1\u201D. Without the actual spec file content, the verification cannot be confirmed."
+T005v:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No logs, command output, or any other artifact showing that `libfftw3-dev` was
-    installed or that `fftw3-config --version` was run successfully are present. Without
-    such evidence the requirement to install and verify the system dependency cannot
-    be confirmed.
+  r: "The claim references `spec.md` and `plan.md` files, but no contents or excerpts\
+    \ of those files are provided, so we cannot confirm that the strings \u201CANOVA\u201D\
+    \ and \u201CTukey\u201D appear in both. The required evidence (the actual files\
+    \ with the required keywords) is missing."
+T007a:
+  c: false
+  h: 3431907d96f0dc18b47f963580a1e6a768141f7c41186ae462c731495bd10fae
+  r: "The required file `projects/PROJ-506-predicting-material-stiffness-from-micro/code/requirements.txt`\
+    \ does not exist, so the task\u2019s primary deliverable is missing. The implementer\
+    \ only provided other `requirements.txt` files in different locations. The missing\
+    \ file must be created at the specified path with the exact required content."
 T017:
   c: false
   h: b0767252d71cc42dc44d66eee00b8f39589764a18e37b7f8b4141b23a5b57f56
@@ -29,19 +34,19 @@ T017b:
     The required artifact is missing, so the task is not satisfied.
 T017c:
   c: false
-  h: 42d7b0aaed60d53d5565f5d9957acfd798f7006efa99b4c8ce75c5bb95f120c2
-  r: The `generate_microstructures.py` file is truncated and contains a syntax error
-    (`np.random.randin`), never writes metadata to `data/raw/metadata.json`, and the
-    required `metadata.json` file does not exist. Consequently the topology_type label
-    is not recorded as required.
+  h: 6ffc0760abc2eb72b62e133492f2b2b17ded4a7dd76a11db16135aac9e47d294
+  r: The `code/utils/topology_labels.py` file provides the required labeling functions,
+    but there is no evidence that the generator was updated to accept a `topology_type`
+    argument, and the required `data/raw/metadata.json` file is missing entirely.
+    Both the integration step and the metadata recording are absent.
 T018:
   c: false
-  h: eb47157ecefb7a6e57c2592afbd1f8b32d0bbbbc2e6bd171532f93e30cc0bdca
-  r: "The `compute_stiffness.py` file exists but its `main` function is truncated\
-    \ (no code that writes the computed tensors to `data/raw/`), and there is no logic\
-    \ that validates the output against a `dataset.schema.yaml` \u2013 the schema\
-    \ file is missing entirely. Consequently the required output generation and schema\
-    \ validation are not fulfilled."
+  h: fc0128a75a900b9c92ee830f298f5907ccb31afeef2398e92d221706f9bed087
+  r: The `compute_stiffness.py` file exists and calls the FFT homogenization function,
+    but the script is truncated before it writes results to `data/raw/` and performs
+    any validation against a `dataset.schema.yaml`. Moreover, the required `schema.yaml`
+    file is missing from the repository. Both the output step and schema validation
+    are absent, so the task is not fully satisfied.
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

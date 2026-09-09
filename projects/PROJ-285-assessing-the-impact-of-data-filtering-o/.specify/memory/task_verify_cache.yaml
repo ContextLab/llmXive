@@ -14,12 +14,13 @@ T002:
     that flake8/black have been set up. The required artifacts are missing.
 T006:
   c: false
-  h: 7f93f4c291152206260c85ca8b6358947c7b94240a1731b8af902e120a8b9798
-  r: "The `data_loader.py` file contains only a partial implementation of `generate_injection_ground_truth`\
-    \ (it ends abruptly and never reaches the code that writes the CSV). Moreover,\
-    \ the required output file `data/raw/injection_ground_truth.csv` does not exist.\
-    \ The task\u2019s core deliverable\u2014a non\u2011empty injection catalog with\
-    \ the specified columns\u2014is missing."
+  h: d8187778a7612294157f4a95afcb092ff10656217f70b425b0a97c3e6d1c731e
+  r: "The repository contains `code/src/data_loader.py`, but the shown portion only\
+    \ defines dataset loading and does not include any logic that creates synthetic\
+    \ lens injections or writes `data/raw/injection_ground_truth.csv`. Moreover, the\
+    \ required CSV file is absent from the project tree. Consequently, the task\u2019\
+    s core deliverable\u2014a ground\u2011truth injection catalog with the specified\
+    \ columns\u2014is not present."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

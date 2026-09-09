@@ -2575,3 +2575,282 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-05T14:53:48Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 0
+  canonical: significance threshold alpha is 0.05
+  claim_id: c_836dc0ca
+  context: 'Configuration: Define significance threshold alpha = 0.05 and Null Hypothesis
+    H0: mean error is equal across all density groups.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance threshold alpha is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T21:18:30Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: FFT solver convergence threshold is 1e-4
+  claim_id: c_868b17e7
+  context: 'Trigger Conditions: Log ''Solver Convergence Failure'' if residual > 1e-4
+    in FFT solver; Log ''Unphysical Microstructure'' if stiffness < 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FFT solver convergence threshold is 1e-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:20:11Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: batch size calculated to fit within 7GB RAM
+  claim_id: c_80f85b4d
+  context: 'Memory Safety: Implement streaming/chunked processing (batch size calculated
+    to fit within 7GB RAM) and use append-mode CSV writing to avoid loading the entire
+    dataset or log into memory.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_size_calculated_to_fit_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The batch size is calculated to fit within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:20:51Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: provisional degradation threshold is 0.1 MAE per % density
+  claim_id: c_f7c9883c
+  context: 'Threshold: DEGRADATION_THRESHOLD = 0.1 (provisional). Pass/Fail: If slope
+    > DEGRADATION_THRESHOLD, log warning. Output: Append specific numeric value to
+    data/processed/analysis_report.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The provisional degradation threshold is 0.1 MAE per % density.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:21:18Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: 2,000 image files in output directory
+  claim_id: c_7dae0525
+  context: 'Independent Test: The output directory contains at least 2,000 image files.
+    and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/2,000_image_files_in_output_directory
+  kind: magnitude
+  raw_text: The output directory contains at least 2,000 image files.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:21:51Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 0
+  canonical: significance threshold alpha is 0.05
+  claim_id: c_91752a7c
+  context: 'Configuration: Define significance threshold `alpha = 0.05 (Wikipedia:
+    P-value, https://en.wikipedia.org/wiki/P-value)` and Null Hypothesis `H0: mean
+    error is equal across all density groups`.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance threshold alpha is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T21:22:23Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: DEGRADATION_THRESHOLD is 0.1
+  claim_id: c_20a8776b
+  context: 'Threshold: `DEGRADATION_THRESHOLD = 0.1` (provisional). **Pass/Fail**:
+    If slope > `DEGRADATION_THRESHOLD`, log warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The DEGRADATION_THRESHOLD is 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:23:16Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 3
+  canonical: output directory contains at least 2000 image files
+  claim_id: c_9fbdca25
+  context: 'Independent Test: The output directory contains at least 2,000 image files.
+    and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_directory_contains_at_least_2000_image_files
+  kind: magnitude
+  raw_text: The output directory contains at least 2,000 image files.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:24:00Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 3
+  canonical: training completes within 6 hours on 2-core CPU
+  claim_id: c_16554fae
+  context: 'Independent Test: Training completes within 6 hours on 2-core CPU., saves
+    model artifact, and reports MSE/R2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training completes within 6 hours on 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:24:00Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: full pipeline runtime is less than or equal to 6 hours on simulated free-tier
+    constraints
+  claim_id: c_bb5d9959
+  context: "T046 Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints.."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_is_less_than_or_equal_to_6_hours_on_si
+  kind: magnitude
+  raw_text: "Verify full pipeline runtime is \u2264 6 hours on simulated free-tier\
+    \ constraints."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:25:04Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 0
+  canonical: Significance threshold alpha is 0.05
+  claim_id: c_77e9596b
+  context: 'Configuration: Define significance threshold `alpha = 0.05 (Wikipedia:
+    P-value, https://en.wikipedia.org/wiki/P-value)` and Null Hypothesis `H0: mean
+    error is equal across all density groups`.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance threshold alpha is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T21:25:39Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: 2000 image files generated for User Story 1
+  claim_id: c_2597eea5
+  context: 'Independent Test: The output directory contains at least 2,000 image files.
+    and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds.'
+  evidence:
+    entailment_evidence: 2000 image files generated for User Story 1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/2000_image_files_generated_for_User_Story_1
+  kind: magnitude
+  raw_text: The output directory contains at least 2,000 image files.
+  resolved_value: 2000 image files generated for User Story 1
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T21:25:42Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 2
+  canonical: Training completes within 6 hours on 2-core CPU
+  claim_id: c_b3233bbc
+  context: 'Independent Test: Training completes within 6 hours on 2-core CPU., saves
+    model artifact, and reports MSE/R2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training completes within 6 hours on 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:25:42Z'
+- artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
+  attempts: 1
+  canonical: Provisional degradation threshold is 0.1
+  claim_id: c_a8e4eff4
+  context: 'Threshold: `DEGRADATION_THRESHOLD = 0.1` (provisional). **Pass/Fail**:
+    If slope > `DEGRADATION_THRESHOLD`, log warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The provisional degradation threshold is 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T21:25:59Z'

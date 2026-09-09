@@ -18,4 +18,4 @@ properties:
     description: "Absolute error of the prediction"
   density_bin:
     type: string
-    description: "Density bin label (e.g., 'low', 'medium', 'high')"
+    description: "Density bin label (e.g., 'low', 'med', 'high')"

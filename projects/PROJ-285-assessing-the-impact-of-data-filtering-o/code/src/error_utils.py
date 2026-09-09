@@ -1,62 +1,49 @@
 import logging
 from typing import Any, Optional, List
-from .logging_config import get_logger, PipelineError, DataIngestionError
+
+from .logging_config import get_logger, DataIngestionError, ThresholdFilterError
 
 logger = get_logger(__name__)
 
-def validate_not_null(value: Any, field_name: str) -> None:
+
+def validate_not_null(value: Any, field_name: str, context: str = "") -> Any:
     """
-    Validate that a value is not None.
-
-    Args:
-        value: The value to validate.
-        field_name: Name of the field for error reporting.
-
-    Raises:
-        PipelineError: If the value is None.
+    Validates that a value is not None.
+    Raises DataIngestionError if validation fails.
     """
     if value is None:
-        error_msg = f"Field '{field_name}' cannot be None"
-        logger.error(error_msg)
-        raise PipelineError(error_msg)
+        msg = f"Validation failed in {context}: '{field_name}' is None."
+        logger.error(msg)
+        raise DataIngestionError(msg)
+    return value
 
 
-def validate_data_frame_columns(df, required_columns: List[str]) -> None:
+def validate_data_frame_columns(df: Any, required_columns: List[str], context: str = "") -> bool:
     """
-    Validate that a DataFrame contains all required columns.
-
-    Args:
-        df: The DataFrame to validate.
-        required_columns: List of required column names.
-
-    Raises:
-        DataIngestionError: If any required column is missing.
+    Validates that a DataFrame contains all required columns.
+    Returns True if valid, raises DataIngestionError if missing columns.
     """
     if not hasattr(df, 'columns'):
-        error_msg = "Provided object is not a DataFrame"
-        logger.error(error_msg)
-        raise DataIngestionError(error_msg)
+        msg = f"Validation failed in {context}: Object is not a DataFrame."
+        logger.error(msg)
+        raise DataIngestionError(msg)
 
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    if missing_cols:
-        error_msg = f"Missing required columns: {missing_cols}"
-        logger.error(error_msg)
-        raise DataIngestionError(error_msg)
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        msg = f"Validation failed in {context}: Missing columns {missing}."
+        logger.error(msg)
+        raise DataIngestionError(msg)
+    
+    logger.debug(f"Validation passed in {context}: All required columns present.")
+    return True
 
 
-def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
+def safe_divide(numerator: float, denominator: float, default: float = 0.0, context: str = "") -> float:
     """
-    Safely perform division, returning a default value if division by zero.
-
-    Args:
-        numerator: The numerator.
-        denominator: The denominator.
-        default: The value to return if division by zero occurs.
-
-    Returns:
-        float: The result of division or the default value.
+    Performs division safely. Returns default if denominator is zero.
+    Logs a warning if division by zero occurs.
     """
     if denominator == 0:
-        logger.warning(f"Division by zero encountered, returning default value {default}")
+        logger.warning(f"Division by zero in {context}: returning {default}.")
         return default
     return numerator / denominator

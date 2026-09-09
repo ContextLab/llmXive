@@ -2,63 +2,84 @@ import sys
 import re
 from pathlib import Path
 
-def verify_anova_mention():
+def verify_anova_mention(spec_path: str, plan_path: str) -> bool:
     """
-    Verifies that 'spec.md' (FR-007) and 'plan.md' (Methodology) explicitly state
-    'One-way ANOVA and Tukey HSD'.
+    Verify that both the spec and plan files contain mentions of 'ANOVA' and 'Tukey'.
     
+    Args:
+        spec_path: Path to the spec.md file.
+        plan_path: Path to the plan.md file.
+        
     Returns:
-        bool: True if both documents contain the required text, False otherwise.
+        True if both files contain 'ANOVA' and 'Tukey', False otherwise.
+        
+    Raises:
+        AssertionError: If the alignment check fails.
     """
-    project_root = Path(__file__).resolve().parent.parent.parent
-    spec_path = project_root / "specs" / "001-predict-stiffness-cnn" / "spec.md"
-    plan_path = project_root / "specs" / "001-predict-stiffness-cnn" / "plan.md"
-    
-    required_phrase = "One-way ANOVA and Tukey HSD"
-    
-    # Check spec.md
-    spec_found = False
-    if spec_path.exists():
-        content = spec_path.read_text()
-        # Look for FR-007 section context if possible, or just the phrase
-        if required_phrase in content:
-            spec_found = True
-            print(f"✓ Found '{required_phrase}' in spec.md")
-        else:
-            print(f"✗ Missing '{required_phrase}' in spec.md")
-    else:
-        print(f"✗ File not found: {spec_path}")
-    
-    # Check plan.md
-    plan_found = False
-    if plan_path.exists():
-        content = plan_path.read_text()
-        # Look for Methodology section context if possible, or just the phrase
-        if required_phrase in content:
-            plan_found = True
-            print(f"✓ Found '{required_phrase}' in plan.md")
-        else:
-            print(f"✗ Missing '{required_phrase}' in plan.md")
-    else:
-        print(f"✗ File not found: {plan_path}")
-    
-    return spec_found and plan_found
+    try:
+        with open(spec_path, 'r') as f:
+            spec_content = f.read()
+        
+        with open(plan_path, 'r') as f:
+            plan_content = f.read()
+        
+        # Check Spec for ANOVA and Tukey
+        if 'ANOVA' not in spec_content:
+            raise AssertionError("Spec missing 'ANOVA'")
+        if 'Tukey' not in spec_content:
+            raise AssertionError("Spec missing 'Tukey'")
+        
+        # Check Plan for ANOVA and Tukey
+        if 'ANOVA' not in plan_content:
+            raise AssertionError("Plan missing 'ANOVA'")
+        if 'Tukey' not in plan_content:
+            raise AssertionError("Plan missing 'Tukey'")
+        
+        return True
+        
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f"Required file not found: {e.filename}")
+    except AssertionError as e:
+        # Re-raise assertion errors as they are the core logic
+        raise
 
 def main():
-    """Entry point for the verification script."""
-    print("Verifying Spec/Plan Alignment for T005v...")
-    print(f"Required phrase: 'One-way ANOVA and Tukey HSD'")
-    print("-" * 50)
+    """
+    Main entry point for the verification script.
+    Expects paths to spec.md and plan.md as arguments or uses defaults.
+    """
+    # Default paths based on project structure
+    base_path = Path(__file__).resolve().parent.parent.parent
+    spec_path = base_path / "specs" / "001-predict-stiffness-cnn" / "spec.md"
+    plan_path = base_path / "plan.md"
     
-    success = verify_anova_mention()
+    # Allow overriding via command line args
+    if len(sys.argv) >= 3:
+        spec_path = Path(sys.argv[1])
+        plan_path = Path(sys.argv[2])
+    elif len(sys.argv) == 2:
+        spec_path = Path(sys.argv[1])
     
-    print("-" * 50)
-    if success:
-        print("STATUS: VERIFIED - Proceed to Phase 1.")
-        return 0
-    else:
-        print("STATUS: FAILED - Required text missing. Halt and report.")
-        return 1
+    print(f"Verifying Spec: {spec_path}")
+    print(f"Verifying Plan: {plan_path}")
+    
+    try:
+        success = verify_anova_mention(str(spec_path), str(plan_path))
+        if success:
+            print("SUCCESS: Spec and Plan alignment verified (ANOVA/Tukey present).")
+            sys.exit(0)
+        else:
+            print("FAILURE: Alignment check failed.")
+            sys.exit(1)
+    except AssertionError as e:
+        print(f"VERIFICATION FAILED: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"FILE ERROR: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"UNEXPECTED ERROR: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

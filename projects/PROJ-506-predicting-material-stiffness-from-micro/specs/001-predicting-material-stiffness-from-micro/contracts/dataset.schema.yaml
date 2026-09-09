@@ -21,7 +21,10 @@ properties:
     description: "Volume fraction of inclusions"
   topology_type:
     type: string
-    enum: ["random", "aligned", "percolating"]
+    enum:
+      - random
+      - aligned
+      - percolating
     description: "Topological classification"
   shape_factor:
     type: number

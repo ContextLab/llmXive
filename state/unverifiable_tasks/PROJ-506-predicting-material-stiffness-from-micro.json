@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-506-predicting-material-stiffness-from-micro",
+  "tasks": [
+    {
+      "task_key": "T007s",
+      "reject_count": 1,
+      "last_reason": "No logs, command output, or any other artifact showing that `libfftw3-dev` was installed or that `fftw3-config --version` was run successfully are present. Without such evidence the requirement to install and verify the system dependency cannot be confirmed.",
+      "first_seen": "2026-09-09T21:28:12.529522+00:00",
+      "last_seen": "2026-09-09T21:28:12.529522+00:00"
+    },
+    {
+      "task_key": "T006a",
+      "reject_count": 1,
+      "last_reason": "No evidence of the required directory structure (`code/{data_generation,training,evaluation,utils}`, `data/{raw,processed}`, `tests/{unit,contract,integration}`, `specs/001-predict-stiffness-cnn/contracts`) or a `tree` command output is provided, so we cannot confirm the directories were created as specified. The implementer must supply the actual directory listing or command output showing the tree and a successful exit code.",
+      "first_seen": "2026-09-09T21:28:12.530898+00:00",
+      "last_seen": "2026-09-09T21:28:12.530898+00:00"
+    },
+    {
+      "task_key": "T013",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-09T21:28:14.751366+00:00",
+      "last_seen": "2026-09-09T21:28:14.751366+00:00"
+    }
+  ],
+  "updated_at": "2026-09-09T21:28:14.751366+00:00"
+}

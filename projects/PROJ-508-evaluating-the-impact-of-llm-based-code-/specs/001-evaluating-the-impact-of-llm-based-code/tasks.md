@@ -182,7 +182,7 @@
  - **Formula**: `iteration_count ~ llm_adoption_flag + diff_complexity_score + loc + contributors + domain_complexity + (1|repository_id)`
  - **Rationale**: Per updated `spec.md` FR-003 (Task T006) and SC-008.
  - **Note**: Must include `diff_complexity_score` as a covariate in this model.
-- [ ] T034b [US2] **Stratified Analysis**: Implement a secondary analysis in `code/analyze.py` that splits the dataset into "High AI‑Noise" and "Low AI‑Noise" groups to compare effect sizes.
+- [X] T034b [US2] **Stratified Analysis**: Implement a secondary analysis in `code/analyze.py` that splits the dataset into "High AI‑Noise" and "Low AI‑Noise" groups to compare effect sizes.
  - **Action**: Run the models from T034a separately on the two subsets and record the difference in the `llm_adoption_flag` coefficient.
  - **Output**: Generate `data/derived/stratified_results.json` containing the stratified effect sizes and comparison metrics.
  - **Verification**: **CRITICAL**: Verify that `data/derived/stratified_results.json` is actually generated and non-empty before marking this task complete.

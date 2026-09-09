@@ -1,12 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-proj-285"
+name = "lens-filtering-pipeline"
 version = "0.1.0"
-description = "Assessing the Impact of Data Filtering on Gravitational Lens Detection Rates"
-requires-python = ">=3.9"
+description = "Assessing the impact of data filtering on gravitational lens detection rates"
+requires-python = ">=3.8"
 dependencies = [
     "pandas",
     "astropy",
@@ -17,11 +17,12 @@ dependencies = [
     "requests",
     "pyyaml",
     "datasets",
+    "psutil",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py38', 'py39', 'py310']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -44,4 +45,6 @@ line_length = 88
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"

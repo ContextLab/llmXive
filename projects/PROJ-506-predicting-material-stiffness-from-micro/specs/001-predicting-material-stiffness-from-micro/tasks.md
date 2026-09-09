@@ -52,7 +52,7 @@ description: "Task list for feature implementation"
 
 ### Task Status: VERIFICATION (READY)
 
-- [ ] T002v [P] **VERIFY**: **Verify Constitution Principle VI**: Execute `python -c "import re; f=open('projects/PROJ-506-predicting-material-stiffness-from-micro/docs/constitution.md','r'); c=f.read(); assert 'FFT' in c or 'numerical' in c, 'Principle VI missing permission for FFT-based numerical homogenization'"`. **Action**: If assertion passes, mark [X]. If fails, halt and report.
+- [X] T002v [P] **VERIFY**: **Verify Constitution Principle VI**: Execute `python -c "import re; f=open('projects/PROJ-506-predicting-material-stiffness-from-micro/docs/constitution.md','r'); c=f.read(); assert 'FFT' in c or 'numerical' in c, 'Principle VI missing permission for FFT-based numerical homogenization'"`. **Action**: If assertion passes, mark [X]. If fails, halt and report.
 - [ ] T004v [P] **VERIFY**: **Verify Spec Resolution**: Execute `python -c "import re; f=open('projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predict-stiffness-cnn/spec.md','r'); c=f.read(); assert '128x128 pixels' in c and 'US-1' in c, 'FR-001 missing resolution or US-1 ref'"`. **Action**: If assertion passes, mark [X].
 - [ ] T005v [P] **VERIFY**: **Verify Spec/Plan Alignment**: Execute `python -c "import re; s=open('projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predict-stiffness-cnn/spec.md','r').read(); p=open('projects/PROJ-506-predicting-material-stiffness-from-micro/plan.md','r').read(); assert 'ANOVA' in s and 'Tukey' in s and 'ANOVA' in p and 'Tukey' in p, 'FR-007/Plan missing ANOVA/Tukey'"`. **Action**: If assertion passes, mark [X].
 
@@ -80,8 +80,8 @@ description: "Task list for feature implementation"
  seaborn==0.13.0
  ```
  **EOF**
-- [ ] T007b [P] **BLOCKED until T007a is complete**: **Install Dependencies**: Execute `pip install -r code/requirements.txt --index-url https://download.pytorch.org/whl/cpu`. Verify installation with `python -c "import torch; print(torch.__version__)"`. **Dependency**: T007a.
-- [ ] T008 [P] Configure linting and formatting. Create `pyproject.toml` with `ruff` and `black` configuration. Enable rules for `E`, `F`, `W`, `I`, and `N`. Execute `ruff check.` and `black --check.` to verify configuration.
+- [X] T007b [P] **BLOCKED until T007a is complete**: **Install Dependencies**: Execute `pip install -r code/requirements.txt --index-url https://download.pytorch.org/whl/cpu`. Verify installation with `python -c "import torch; print(torch.__version__)"`. **Dependency**: T007a.
+- [X] T008 [P] Configure linting and formatting. Create `pyproject.toml` with `ruff` and `black` configuration. Enable rules for `E`, `F`, `W`, `I`, and `N`. Execute `ruff check.` and `black --check.` to verify configuration.
 
 ---
 
@@ -159,7 +159,7 @@ description: "Task list for feature implementation"
  **EOF**
 - [X] T017b [P] **READY**: **Calculate Topological Metrics**: Implement utility functions in `code/utils/topology_metrics.py` to calculate `shape_factor` and `connectivity` for a given microstructure image. **Calculation**: Use `skimage.measure.morphology` to compute perimeter, area, and Euler number. **Purpose**: Record for Data Hygiene (Constitution Principle III) and Generalization Boundary Disclosure (Principle VII), NOT for stratification. **Note**: These metrics are recorded but NOT used for stratification (stratification is strictly by density and topology per FR-005). **Dependency**: None. **Status**: READY (Unblocks T019, T031).
 - [ ] T017c [P] **READY**: **Define Topology Type Labels**: Implement logic in `code/utils/topology_labels.py` to assign `topology_type` labels ("random", "aligned", "percolating") as **input parameters** to the generator, NOT derived from the image. **Action**: Ensure the generator accepts `topology_type` as an argument and records it in `data/raw/metadata.json`. **Purpose**: Provide the stratification key required by FR-005. **Dependency**: None. **Note**: This task produces the `topology_type` label used for stratification, distinct from T017b's metrics.
-- [ ] T017d [P] **READY**: **Define Density Binning Strategy**: Implement utility function `define_density_bins(density_values)` in `code/utils/binning_utils.py`. **Action**: Define a deterministic binning strategy (e.g., quantile-based or fixed intervals) to discretize continuous `inclusion_density` into labels (e.g., 'low', 'med', 'high') for stratified sampling. **Purpose**: Provide the discrete stratification key required by FR-005 for `StratifiedKFold`. **Dependency**: None. **Note**: This function must be importable by T017 (Generator) and T031 (Stratifier).
+- [X] T017d [P] **READY**: **Define Density Binning Strategy**: Implement utility function `define_density_bins(density_values)` in `code/utils/binning_utils.py`. **Action**: Define a deterministic binning strategy (e.g., quantile-based or fixed intervals) to discretize continuous `inclusion_density` into labels (e.g., 'low', 'med', 'high') for stratified sampling. **Purpose**: Provide the discrete stratification key required by FR-005 for `StratifiedKFold`. **Dependency**: None. **Note**: This function must be importable by T017 (Generator) and T031 (Stratifier).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -169,7 +169,7 @@ description: "Task list for feature implementation"
 
 **Goal**: Generate synthetic microstructure images with known ground truth stiffness (US-1) with varying void/inclusion densities and compute their effective elastic stiffness tensors using FFT-based numerical homogenization.
 
-**Independent Test**: The output directory contains at least 2,000 image files. and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds.
+**Independent Test**: {{claim:c_2597eea5}} and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -237,7 +237,7 @@ description: "Task list for feature implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T035 [P] [US3] **READY**: Implement One-way ANOVA and Tukey HSD functions in `code/evaluation/stats_utils.py` (Plan Methodology Update - primary verification method for FR-007, per verified spec T005v). **Configuration**: Define significance threshold `alpha = 0.05` and Null Hypothesis `H0: mean error is equal across all density groups`. **Action**: If p-value < alpha, reject H0 and report "Significant difference detected".
+- [ ] T035 [P] [US3] **READY**: Implement One-way ANOVA and Tukey HSD functions in `code/evaluation/stats_utils.py` (Plan Methodology Update - primary verification method for FR-007, per verified spec T005v). **Configuration**: Define significance threshold `alpha = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)` and Null Hypothesis `H0: mean error is equal across all density groups`. **Action**: If p-value < alpha, reject H0 and report "Significant difference detected".
 - [ ] T036 [US3] **READY**: **OOD Threshold Definition & Active Testing**: Calculate the `min_training_density` and `max_training_density` from the training set metadata (from T021). Define the OOD range as densities outside the `PHYSICAL_DENSITY_RANGE` OR outside [min, max] if the training set is known to cover the full range. **Action**: Generate and test specific samples at densities slightly below the minimum and slightly above the maximum (absolute offset). to explicitly test the "specific density ranges" required by the spec. Report the specific density values tested, the model predictions, and the calculated degradation rate for each point. Store threshold and test points in `data/processed/ood_config.json`. **Note**: This satisfies the "specific density ranges tested" requirement.
 - [ ] T037 [US3] **READY**: Calculate and report quantitative 'degradation rate' metric for out-of-distribution densities (SC-002). Formula: slope of (MAE vs. density) for densities > `max_training_density` (from T036). Unit: MAE per % density. **Threshold**: `DEGRADATION_THRESHOLD = 0.1` (provisional). **Pass/Fail**: If slope > `DEGRADATION_THRESHOLD`, log warning. Output: Append specific numeric value to `data/processed/analysis_report.md`. **Note**: This task verifies the MODEL's performance. Depends on T029, T020. **Note**: SC-002 is missing from spec.md; this threshold is provisional.
 - [ ] T038a [US3] **READY**: **OOD Flagging Logic**: Implement logic to flag instances where `inclusion_density > max_training_density` or `inclusion_density < min_training_density` (from T036) (FR-008). **Correction**: Flag based strictly on the input density value exceeding the defined OOD threshold.

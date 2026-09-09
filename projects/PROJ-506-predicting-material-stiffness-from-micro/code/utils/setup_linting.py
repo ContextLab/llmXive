@@ -1,151 +1,125 @@
+"""
+Utility script to configure and verify linting (ruff) and formatting (black).
+This script ensures the project adheres to the coding standards defined in pyproject.toml.
+"""
 import subprocess
 import sys
 from pathlib import Path
 from typing import List, Tuple, Optional
 
 def check_command_available(command: str) -> bool:
-    """Check if a command-line tool is available in the system PATH."""
+    """Check if a command is available in the system PATH."""
     try:
-        subprocess.run([command, "--version"], capture_output=True, check=True)
+        subprocess.run(
+            ["which", command],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True,
+            text=True,
+        )
         return True
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except subprocess.CalledProcessError:
         return False
 
-def create_pyproject_config(root: Path) -> Path:
-    """Create or update pyproject.toml with ruff and black configuration."""
-    pyproject_path = root / "pyproject.toml"
+def create_pyproject_config() -> None:
+    """
+    Ensure pyproject.toml exists with correct ruff and black configuration.
+    If missing or incorrect, this function would ideally update it,
+    but for this task, we assume the file is created by the implementer
+    and we verify its existence.
+    """
+    root = Path(__file__).resolve().parent.parent
+    config_file = root / "pyproject.toml"
     
-    config_content = """[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-material-stiffness"
-version = "0.1.0"
-description = "Predicting Material Stiffness from Microstructure Images Using CNNs"
-requires-python = ">=3.10"
-
-[tool.black]
-line-length = 88
-target-version = ['py310']
-include = '\\.pyi?$'
-exclude = '''
-/(
-    \\.git
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
-[tool.ruff]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-# W: pycodestyle warnings
-# N: pep8-naming
-select = ["E", "F", "W", "I", "N"]
-ignore = []
-
-# Allow autofix for all enabled rules (when `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few specific directories
-extend-exclude = [
-    "__pycache__",
-    ".git",
-    ".mypy_cache",
-    ".venv",
-    "build",
-    "dist",
-]
-
-# Same as Black.
-line-length = 88
-
-[tool.ruff.isort]
-known-first-party = ["code"]
-"""
+    if not config_file.exists():
+        raise FileNotFoundError(
+            f"pyproject.toml not found at {config_file}. "
+            "Please create the configuration file before running verification."
+        )
     
-    pyproject_path.write_text(config_content)
-    return pyproject_path
+    content = config_file.read_text()
+    if "[tool.ruff]" not in content or "[tool.black]" not in content:
+        raise ValueError(
+            "pyproject.toml is missing [tool.ruff] or [tool.black] sections. "
+            "Please update the configuration file."
+        )
 
-def validate_config_files(root: Path) -> Tuple[bool, List[str]]:
-    """Verify that ruff and black configurations are valid."""
+def validate_config_files() -> Tuple[bool, List[str]]:
+    """
+    Run ruff check and black --check to verify configuration.
+    Returns (success, errors).
+    """
+    root = Path(__file__).resolve().parent.parent
     errors = []
-    
-    # Check pyproject.toml exists
-    pyproject_path = root / "pyproject.toml"
-    if not pyproject_path.exists():
-        errors.append("pyproject.toml not found")
-        return False, errors
-    
-    # Try to parse it
-    try:
-        import tomllib
-        with open(pyproject_path, "rb") as f:
-            tomllib.load(f)
-    except Exception as e:
-        errors.append(f"Invalid TOML in pyproject.toml: {e}")
-        return False, errors
-    
-    return True, errors
+    success = True
+
+    # Check Ruff
+    if not check_command_available("ruff"):
+        errors.append("Ruff is not installed or not in PATH. Run: pip install ruff")
+        success = False
+    else:
+        try:
+            result = subprocess.run(
+                ["ruff", "check", "."],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if result.returncode != 0:
+                errors.append(f"Ruff check failed:\n{result.stdout}\n{result.stderr}")
+                success = False
+            else:
+                print("Ruff check passed.")
+        except Exception as e:
+            errors.append(f"Error running ruff: {e}")
+            success = False
+
+    # Check Black
+    if not check_command_available("black"):
+        errors.append("Black is not installed or not in PATH. Run: pip install black")
+        success = False
+    else:
+        try:
+            result = subprocess.run(
+                ["black", "--check", "."],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            if result.returncode != 0:
+                errors.append(f"Black check failed:\n{result.stdout}\n{result.stderr}")
+                success = False
+            else:
+                print("Black check passed.")
+        except Exception as e:
+            errors.append(f"Error running black: {e}")
+            success = False
+
+    return success, errors
 
 def main() -> int:
     """Main entry point for the linting setup script."""
-    root = Path(__file__).resolve().parent.parent.parent
+    print("Verifying linting and formatting configuration...")
     
-    print("Setting up linting and formatting configuration...")
-    
-    # Create pyproject.toml
-    config_path = create_pyproject_config(root)
-    print(f"Created/updated configuration at: {config_path}")
-    
-    # Validate configuration
-    is_valid, errors = validate_config_files(root)
-    if not is_valid:
-        for error in errors:
-            print(f"ERROR: {error}")
+    try:
+        create_pyproject_config()
+        print("Configuration file validation passed.")
+    except (FileNotFoundError, ValueError) as e:
+        print(f"Configuration error: {e}")
         return 1
+
+    success, errors = validate_config_files()
     
-    print("Configuration validation passed.")
-    
-    # Check if tools are available
-    ruff_available = check_command_available("ruff")
-    black_available = check_command_available("black")
-    
-    if not ruff_available:
-        print("WARNING: ruff is not installed. Install with: pip install ruff")
+    if success:
+        print("All linting and formatting checks passed.")
+        return 0
     else:
-        print("ruff is available.")
-    
-    if not black_available:
-        print("WARNING: black is not installed. Install with: pip install black")
-    else:
-        print("black is available.")
-    
-    # Run checks if tools are available
-    if ruff_available:
-        print("Running ruff check...")
-        result = subprocess.run(["ruff", "check", "."], cwd=root)
-        if result.returncode != 0:
-            print("ruff check found issues (this is expected if code is not yet compliant).")
-        else:
-            print("ruff check passed.")
-    
-    if black_available:
-        print("Running black --check...")
-        result = subprocess.run(["black", "--check", "."], cwd=root)
-        if result.returncode != 0:
-            print("black --check found issues (this is expected if code is not yet formatted).")
-        else:
-            print("black --check passed.")
-    
-    print("Linting configuration setup complete.")
-    return 0
+        print("Linting/Formatting checks failed:")
+        for err in errors:
+            print(f" - {err}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

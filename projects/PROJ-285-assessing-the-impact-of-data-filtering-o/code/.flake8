@@ -5,9 +5,9 @@ exclude =
     .git,
     __pycache__,
     .eggs,
+    *.egg-info,
     build,
-    dist,
-    *.egg-info
+    dist
 per-file-ignores =
-    # Allow unused imports in __init__.py if any
-    */__init__.py: F401
+    # Allow long lines in data processing scripts where column names might be long
+    code/src/*.py: E501
