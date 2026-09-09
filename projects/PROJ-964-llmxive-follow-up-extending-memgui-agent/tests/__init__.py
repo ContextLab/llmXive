@@ -1,3 +1,3 @@
 """
-Test suite for llmXive follow-up: extending MemGUI-Agent.
+Test Package Root.
 """

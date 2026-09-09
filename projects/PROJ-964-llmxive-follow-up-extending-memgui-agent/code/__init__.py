@@ -1,3 +1,3 @@
 """
-llmXive project package initialization.
+llmXive Project Code Package.
 """

@@ -1,3 +1,3 @@
 """
-Contract tests for interface compliance.
+Contract Tests Package.
 """

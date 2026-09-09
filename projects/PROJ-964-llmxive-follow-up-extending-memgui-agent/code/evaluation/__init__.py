@@ -1,3 +1,4 @@
 """
-Evaluation module for running agents and statistical analysis.
+Evaluation Module.
+Contains runners, statistics, and log merging utilities.
 """

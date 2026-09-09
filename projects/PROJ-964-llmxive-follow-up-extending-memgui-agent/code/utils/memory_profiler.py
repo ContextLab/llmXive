@@ -12,10 +12,16 @@ from pathlib import Path
 from typing import Any, Dict, Optional, Callable, TypeVar
 from contextlib import contextmanager
 
-# Ensure the data/logs directory exists
-LOG_DIR = Path("data/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-LOG_FILE = LOG_DIR / "memory_profile.json"
+# Ensure the data directory exists
+DATA_DIR = Path("data")
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+# Ensure the synthetic_benchmark subdirectory exists
+BENCHMARK_DIR = DATA_DIR / "synthetic_benchmark"
+BENCHMARK_DIR.mkdir(parents=True, exist_ok=True)
+
+# Output file path as specified in T006
+LOG_FILE = BENCHMARK_DIR / "memory_profile.json"
 
 T = TypeVar('T')
 
@@ -49,7 +55,7 @@ def log_metrics(
     metadata: Optional[Dict[str, Any]] = None
 ) -> None:
     """
-    Log memory and latency metrics to data/logs/memory_profile.json.
+    Log memory and latency metrics to data/synthetic_benchmark/memory_profile.json.
 
     Args:
         peak_memory_mb: Peak memory usage in megabytes.

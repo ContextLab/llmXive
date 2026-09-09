@@ -1,167 +1,159 @@
 """
-Execution Log Data Model
+Execution Log Module
 
-Provides a structured dataclass for recording agent decisions,
-trajectory steps, and information decay events.
+Provides data structures for structured decision recording and trajectory execution tracking.
 """
 
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 from datetime import datetime
 import json
-
 from utils.config import get_project_root
-
 
 @dataclass
 class ExecutionLog:
     """
-    A dataclass representing a single step or decision in an agent's execution.
-    
-    This model is used to record structured decision data for analysis,
-    particularly for tracing information decay and dependency link failures.
+    Base data model for recording a single execution decision or step.
     
     Attributes:
-        trajectory_id: Unique identifier for the trajectory this step belongs to.
-        step_index: The integer index of this step within the trajectory (0-based).
-        timestamp: ISO format timestamp of when the log entry was created.
-        agent_type: String identifier for the agent type (e.g., 'baseline', 'recall').
-        current_state: JSON-serializable representation of the agent's current state.
-        action_taken: The action or decision made by the agent at this step.
+        timestamp: ISO format timestamp of the log entry.
+        agent_id: Identifier of the agent that generated the log.
+        trajectory_id: Identifier of the trajectory this log belongs to.
+        step_index: The step number in the trajectory (0-indexed).
+        action: The action taken by the agent.
+        observation: The observation resulting from the action.
         success: Boolean indicating if the step was successful.
-        failure_reason: Optional string explaining why a step failed (if success=False).
-        dependency_links: List of IDs of previous steps this step depends on.
-        context_window: List of strings representing the context provided to the agent.
-        latency_ms: Optional float for step execution latency in milliseconds.
-        metadata: Dictionary for any additional custom fields.
+        memory_snapshot: Optional dictionary containing memory metrics at this step.
+        latency_ms: Execution latency in milliseconds.
+        metadata: Additional key-value pairs for context.
     """
+    timestamp: str
+    agent_id: str
     trajectory_id: str
     step_index: int
-    agent_type: str
-    current_state: Dict[str, Any]
-    action_taken: str
+    action: str
+    observation: str
     success: bool
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-    failure_reason: Optional[str] = None
-    dependency_links: List[str] = field(default_factory=list)
-    context_window: List[str] = field(default_factory=list)
+    memory_snapshot: Optional[Dict[str, Any]] = None
     latency_ms: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the log entry to a dictionary for JSON serialization."""
+        """Convert the log entry to a dictionary for serialization."""
         return {
+            "timestamp": self.timestamp,
+            "agent_id": self.agent_id,
             "trajectory_id": self.trajectory_id,
             "step_index": self.step_index,
-            "timestamp": self.timestamp,
-            "agent_type": self.agent_type,
-            "current_state": self.current_state,
-            "action_taken": self.action_taken,
+            "action": self.action,
+            "observation": self.observation,
             "success": self.success,
-            "failure_reason": self.failure_reason,
-            "dependency_links": self.dependency_links,
-            "context_window": self.context_window,
+            "memory_snapshot": self.memory_snapshot,
             "latency_ms": self.latency_ms,
             "metadata": self.metadata
         }
 
     def to_json(self) -> str:
         """Serialize the log entry to a JSON string."""
-        return json.dumps(self.to_dict(), indent=2, ensure_ascii=False)
+        return json.dumps(self.to_dict(), ensure_ascii=False)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ExecutionLog":
+    def from_dict(cls, data: Dict[str, Any]) -> 'ExecutionLog':
         """Create an ExecutionLog instance from a dictionary."""
         return cls(
+            timestamp=data.get("timestamp", datetime.now().isoformat()),
+            agent_id=data["agent_id"],
             trajectory_id=data["trajectory_id"],
             step_index=data["step_index"],
-            timestamp=data.get("timestamp", datetime.utcnow().isoformat()),
-            agent_type=data["agent_type"],
-            current_state=data["current_state"],
-            action_taken=data["action_taken"],
+            action=data["action"],
+            observation=data["observation"],
             success=data["success"],
-            failure_reason=data.get("failure_reason"),
-            dependency_links=data.get("dependency_links", []),
-            context_window=data.get("context_window", []),
+            memory_snapshot=data.get("memory_snapshot"),
             latency_ms=data.get("latency_ms"),
             metadata=data.get("metadata", {})
         )
-
-    def record_failure(self, reason: str, dependency_id: Optional[str] = None) -> None:
-        """
-        Helper method to mark this step as failed and record the reason.
-        
-        Args:
-            reason: The reason for failure.
-            dependency_id: Optional ID of the specific dependency that caused the failure.
-        """
-        self.success = False
-        self.failure_reason = reason
-        if dependency_id:
-            self.dependency_links.append(dependency_id)
 
 
 @dataclass
 class TrajectoryExecutionLog:
     """
-    Container for a full trajectory's execution logs.
-    
-    This class aggregates individual ExecutionLog entries for a single trajectory
-    and provides methods for serialization and analysis.
+    Aggregated log for an entire trajectory, containing a sequence of ExecutionLogs.
     
     Attributes:
         trajectory_id: Unique identifier for the trajectory.
-        agent_type: Type of agent that executed this trajectory.
-        logs: List of ExecutionLog entries for each step.
+        agent_id: Identifier of the agent that executed the trajectory.
+        start_time: ISO timestamp when the trajectory execution started.
+        end_time: ISO timestamp when the trajectory execution finished.
+        steps: List of ExecutionLog entries for each step.
+        final_success: Boolean indicating if the entire trajectory succeeded.
+        total_latency_ms: Sum of latencies for all steps.
+        dependency_links: List of strings describing dependency links encountered.
     """
     trajectory_id: str
-    agent_type: str
-    logs: List[ExecutionLog] = field(default_factory=list)
+    agent_id: str
+    start_time: str
+    end_time: str
+    steps: List[ExecutionLog] = field(default_factory=list)
+    final_success: bool = True
+    total_latency_ms: float = 0.0
+    dependency_links: List[str] = field(default_factory=list)
 
-    def add_log(self, log_entry: ExecutionLog) -> None:
-        """Add a new log entry to the trajectory."""
-        if log_entry.trajectory_id != self.trajectory_id:
-            raise ValueError(
-                f"Trajectory ID mismatch: expected {self.trajectory_id}, "
-                f"got {log_entry.trajectory_id}"
-            )
-        self.logs.append(log_entry)
-
-    def get_success_rate(self) -> float:
-        """Calculate the success rate for this trajectory."""
-        if not self.logs:
-            return 0.0
-        success_count = sum(1 for log in self.logs if log.success)
-        return success_count / len(self.logs)
-
-    def get_failure_steps(self) -> List[ExecutionLog]:
-        """Return a list of all failed steps in the trajectory."""
-        return [log for log in self.logs if not log.success]
-
-    def to_jsonl(self) -> str:
-        """Serialize all logs to JSONL format (one JSON object per line)."""
-        return "\n".join(log.to_json() for log in self.logs)
+    def add_step(self, step_log: ExecutionLog) -> None:
+        """Add a step log to the trajectory."""
+        self.steps.append(step_log)
+        if step_log.latency_ms is not None:
+            self.total_latency_ms += step_log.latency_ms
+        if not step_log.success:
+            self.final_success = False
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the entire trajectory log to a dictionary."""
+        """Convert the trajectory log to a dictionary."""
         return {
             "trajectory_id": self.trajectory_id,
-            "agent_type": self.agent_type,
-            "total_steps": len(self.logs),
-            "success_rate": self.get_success_rate(),
-            "logs": [log.to_dict() for log in self.logs]
+            "agent_id": self.agent_id,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "steps": [step.to_dict() for step in self.steps],
+            "final_success": self.final_success,
+            "total_latency_ms": self.total_latency_ms,
+            "dependency_links": self.dependency_links
         }
 
-    def save_to_file(self, filepath: Optional[str] = None) -> None:
-        """
-        Save the trajectory logs to a file.
-        
-        Args:
-            filepath: Optional path to save to. If None, uses default path based on trajectory_id.
-        """
-        if filepath is None:
-            project_root = get_project_root()
-            filepath = str(project_root / "data" / "results" / f"{self.trajectory_id}_log.jsonl")
-        
-        with open(filepath, "w", encoding="utf-8") as f:
-            f.write(self.to_jsonl())
+    def to_json(self) -> str:
+        """Serialize the trajectory log to a JSON string."""
+        return json.dumps(self.to_dict(), ensure_ascii=False)
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'TrajectoryExecutionLog':
+        """Create a TrajectoryExecutionLog instance from a dictionary."""
+        steps = [ExecutionLog.from_dict(s) for s in data.get("steps", [])]
+        return cls(
+            trajectory_id=data["trajectory_id"],
+            agent_id=data["agent_id"],
+            start_time=data["start_time"],
+            end_time=data["end_time"],
+            steps=steps,
+            final_success=data.get("final_success", True),
+            total_latency_ms=data.get("total_latency_ms", 0.0),
+            dependency_links=data.get("dependency_links", [])
+        )
+
+    def get_failure_step(self) -> Optional[ExecutionLog]:
+        """Return the first step that failed, or None if all succeeded."""
+        for step in self.steps:
+            if not step.success:
+                return step
+        return None
+
+    def get_step_by_index(self, index: int) -> Optional[ExecutionLog]:
+        """Retrieve a specific step by its index."""
+        if 0 <= index < len(self.steps):
+            return self.steps[index]
+        return None
+
+    def get_memory_at_step(self, index: int) -> Optional[Dict[str, Any]]:
+        """Get memory snapshot at a specific step index."""
+        step = self.get_step_by_index(index)
+        if step and step.memory_snapshot:
+            return step.memory_snapshot
+        return None

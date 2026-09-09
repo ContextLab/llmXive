@@ -1,3 +1,2 @@
-"""
-Integration tests for retrieval workflows.
-"""
+# Integration tests for retrieval module
+pass

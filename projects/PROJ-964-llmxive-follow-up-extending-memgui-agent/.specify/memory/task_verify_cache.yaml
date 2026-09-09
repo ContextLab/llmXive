@@ -8,13 +8,13 @@ T005:
     logging has actually occurred. The implementation must be completed to calculate
     and record the metrics and ensure the JSON file is created.
 T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or module that actually sets deterministic random seeds (e.g.,\
-    \ for `random`, `numpy`, `torch`, etc.) is present. The provided text only describes\
-    \ synthetic benchmark requirements and does not include the required seed\u2011\
-    utility implementation or any evidence that such utilities exist. The task therefore\
-    \ remains unfinished."
+  c: true
+  h: 008f47511774de2bd34388c292c7d9537d3b54afd455595f526e08e8b8572a2b
+  r: "The repository contains a non\u2011empty `code/utils/memory_profiler.py` that\
+    \ defines `log_metrics` (writing the required `peak_memory_mb`, `latency_ms`,\
+    \ and `agent_type` fields) and a context manager for profiling, creating the target\
+    \ `data/synthetic_benchmark/memory_profile.json` on first use. No placeholder\
+    \ or missing functionality is evident."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -23,3 +23,51 @@ T007:
     \ showing a non\u2011empty, correctly structured data model, so the task requirement\
     \ is unmet. The missing piece is a concrete Python dataclass (e.g., `@dataclass\
     \ class ExecutionLog: ...`) that records the necessary fields for decision logging."
+T011:
+  c: false
+  h: 051feafcabc5cb80abb2ca68828614498a71ba1cf32c25bcf20577032fb030e9
+  r: "The repository contains `code/data_generation/synthetic_benchmark.py`, but the\
+    \ file is truncated and does not show a complete generation loop that writes trajectories\
+    \ to disk. Moreover, the required output `data/synthetic_benchmark/trajectories.jsonl`\
+    \ is absent, so the \u226550 valid trajectories have not been persisted. The missing\
+    \ JSONL file (and incomplete script) must be provided for the task to be considered\
+    \ complete."
+T013:
+  c: false
+  h: 9813463151ba7f2ada68bebdad00f4db1a0f70f3cf2b98adfe53f07be289170a
+  r: "The repository contains `code/data_generation/expert_system_validator.py`, but\
+    \ the file is truncated and shows no logic that writes `data/synthetic_benchmark/review_results.json`\
+    \ or creates `needs_human_review.json` on failure. Moreover, the required `data/synthetic_benchmark/review_results.json`\
+    \ file is missing entirely. The task\u2019s output artifacts are therefore not\
+    \ present."
+T013b:
+  c: false
+  h: 6dd3293838b98c09089c851aa6e6e69e83f8955a12d6c87334863f77c5c7b9f7
+  r: "The provided `human_review_consumer.py` is truncated (ends mid\u2011line) and\
+    \ lacks the CLI/HTML review logic and the code that writes human feedback to `data/synthetic_benchmark/review_results.json`.\
+    \ Moreover, the required `review_results.json` file does not exist. The task\u2019\
+    s core functionality is therefore not implemented."
+T020:
+  c: false
+  h: c9c2df212bec0373d8c7c1ee0222b82999ab7485c5e38f569e59ed9ba9dd0ab3
+  r: "The required input `data/synthetic_benchmark/trajectories.jsonl` does not exist,\
+    \ and the expected output `data/results/baseline_execution_logs.jsonl` was not\
+    \ generated. Without these files the runner cannot be exercised, so the task\u2019\
+    s core requirement of executing the baseline agent and recording the failure step\
+    \ with attribution is unmet. The next implementer must provide the synthetic benchmark\
+    \ file and ensure the runner writes the execution logs as specified."
+T024:
+  c: false
+  h: 5d93891cfdf1271cd741e075dbfe144bc0f88fe06a5154ea3a0a4572d6a0395f
+  r: "The required integration test file `tests/integration/retrieval/test_recall_injection.py`\
+    \ does not exist in the repository, so the task\u2019s primary artifact is missing.\
+    \ No further evidence of a test implementation is present."
+T029:
+  c: false
+  h: 5273edd147441eed7b6f6ce452bbe59d0f63cd40adc570dc5ddd7e51cd3e62d7
+  r: "The repository contains a `recall_runner.py` that begins to implement `RunnerProtocol`,\
+    \ but the file is truncated and does not show a complete `run` method or logic\
+    \ to write `data/results/recall_execution_logs.jsonl`. Moreover, the required\
+    \ input file `data/synthetic_benchmark/trajectories.jsonl` and the expected output\
+    \ log file are absent. The task\u2019s core requirement\u2014to execute on the\
+    \ benchmark and generate the execution\u2011log file\u2014is therefore not satisfied."

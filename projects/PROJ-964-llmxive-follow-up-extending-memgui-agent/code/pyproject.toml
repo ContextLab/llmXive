@@ -5,78 +5,79 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-memgui-followup"
 version = "0.1.0"
-description = "Extension of MemGUI-Agent for long-horizon mobile GUI tasks"
+description = "Follow-up research: Extending MemGUI-Agent with proactive long-horizon context"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "transformers",
-    "sentence-transformers",
-    "datasets",
-    "statsmodels",
-    "scipy",
-    "accelerate",
-    "pandas",
-    "pytest",
-    "bitsandbytes",
-    "ruff",
-    "black",
+    "transformers>=4.40.0",
+    "sentence-transformers>=2.7.0",
+    "datasets>=2.18.0",
+    "statsmodels>=0.14.1",
+    "scipy>=1.12.0",
+    "accelerate>=0.29.0",
+    "pandas>=2.2.0",
+    "pytest>=8.1.0",
+    "bitsandbytes>=0.43.0",
 ]
 
-[tool.ruff]
-# Linter configuration
-line-length = 88
-target-version = "py39"
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort (import sorting)
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.3.0",
+    "black>=24.3.0",
+    "mypy>=1.9.0",
 ]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401", "F403"]
-"tests/*" = ["S101"] # assert allowed in tests
-
-[tool.ruff.isort]
-known-first-party = ["data_generation", "agents", "retrieval", "evaluation", "utils"]
-force-sort-within-sections = true
-case-sensitive = true
 
 [tool.black]
-# Black formatting configuration
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py310']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  \.git
+  | \.venv
+  | venv
+  | __pycache__
+  | build
+  | dist
+  | \.mypy_cache
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
+[tool.ruff]
+# Same line length as Black
+line-length = 88
+target-version = "py310"
+src = ["code", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function calls in argument defaults (common in dataclasses)
+    "C901", # Too complex (allowing for now)
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
+[tool.ruff.lint.isort]
+known-first-party = ["agents", "data_generation", "retrieval", "evaluation", "utils"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+scripts_are_modules = true

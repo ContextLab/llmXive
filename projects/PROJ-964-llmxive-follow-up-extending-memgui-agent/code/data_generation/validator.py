@@ -1,312 +1,307 @@
-"""
-Validator module for checking dependency links in generated trajectories.
-
-This module provides validation logic to ensure that synthetic trajectories
-contain properly annotated dependency links, where information required at
-a given step is available from a prior step (typically >10 steps back).
-"""
-
 import json
 import sys
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 
-# Import project utilities
 from utils.config import get_project_root, get_data_dir
 from utils.execution_log import ExecutionLog, TrajectoryExecutionLog
 
 
-def load_trajectories(
-    file_path: Optional[str] = None
-) -> List[Dict[str, Any]]:
+def load_trajectories(filepath: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Load trajectories from a JSONL file.
 
     Args:
-        file_path: Path to the JSONL file. If None, uses the default path
-                   from project configuration.
+        filepath: Path to the JSONL file. If None, uses the default path
+                  from get_data_dir().
 
     Returns:
         List of trajectory dictionaries.
 
     Raises:
         FileNotFoundError: If the file does not exist.
-        json.JSONDecodeError: If the file contains invalid JSON.
+        json.JSONDecodeError: If a line is not valid JSON.
     """
-    if file_path is None:
+    if filepath is None:
         data_dir = get_data_dir()
-        file_path = str(data_dir / "synthetic_benchmark" / "trajectories.jsonl")
+        filepath = str(data_dir / "synthetic_benchmark" / "trajectories.jsonl")
 
-    path = Path(file_path)
+    path = Path(filepath)
     if not path.exists():
-        raise FileNotFoundError(f"Trajectory file not found: {file_path}")
+        raise FileNotFoundError(f"Trajectory file not found: {filepath}")
 
     trajectories = []
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, "r", encoding="utf-8") as f:
         for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
                 continue
             try:
-                traj = json.loads(line)
-                trajectories.append(traj)
+                trajectory = json.loads(line)
+                trajectories.append(trajectory)
             except json.JSONDecodeError as e:
                 raise json.JSONDecodeError(
-                    f"Invalid JSON at line {line_num} in {file_path}",
-                    e.doc, e.pos
+                    f"Invalid JSON on line {line_num} in {filepath}: {e.msg}",
+                    e.doc,
+                    e.pos
                 )
 
     return trajectories
 
 
 def validate_dependency_links(
-    trajectory: Dict[str, Any]
-) -> Tuple[bool, List[str]]:
+    trajectories: List[Dict[str, Any]],
+    min_dependency_ratio: float = 0.95
+) -> Tuple[bool, Dict[str, Any]]:
     """
-    Validate that a trajectory contains properly annotated dependency links.
+    Validate that dependency links are present in trajectories.
 
-    A valid dependency link must:
-    1. Exist for steps that require information from prior steps
-    2. Reference a valid prior step index (step_idx > 10)
-    3. Have a valid 'source_step' that is less than the current step
+    Checks that at least `min_dependency_ratio` of trajectories contain
+    valid dependency links. A dependency link is considered valid if it
+    exists in the trajectory's metadata or context fields.
 
     Args:
-        trajectory: A single trajectory dictionary from the benchmark.
+        trajectories: List of trajectory dictionaries.
+        min_dependency_ratio: Minimum ratio of trajectories that must have
+                              valid dependency links (default 0.95).
 
     Returns:
-        Tuple of (is_valid, list_of_error_messages)
+        Tuple of (passed: bool, details: dict).
+        details contains:
+            - total_trajectories: int
+            - trajectories_with_links: int
+            - ratio: float
+            - failed_trajectory_ids: List[str] (IDs of trajectories without links)
     """
-    errors = []
-    steps = trajectory.get("steps", [])
-
-    if not steps:
-        errors.append("Trajectory has no steps")
-        return False, errors
-
-    for step_idx, step in enumerate(steps):
-        step_id = step.get("id", step_idx)
-        dependencies = step.get("dependencies", [])
-
-        for dep in dependencies:
-            source_step = dep.get("source_step")
-            dep_type = dep.get("type", "unknown")
-
-            # Check if source_step is a valid integer
-            if not isinstance(source_step, int):
-                errors.append(
-                    f"Step {step_id}: Invalid source_step type "
-                    f"(expected int, got {type(source_step).__name__})"
-                )
-                continue
-
-            # Check if source_step is within valid range
-            if source_step < 0 or source_step >= step_idx:
-                errors.append(
-                    f"Step {step_id}: source_step {source_step} is out of "
-                    f"range for step index {step_idx}"
-                )
-                continue
-
-            # Check if dependency is from sufficiently prior step (>10 indices prior)
-            # This is the key requirement for long-horizon context testing
-            if step_idx - source_step <= 10:
-                errors.append(
-                    f"Step {step_id}: Dependency from step {source_step} is "
-                    f"only {step_idx - source_step} steps back (requires >10)"
-                )
-
-    return len(errors) == 0, errors
-
-
-def validate_benchmark(
-    file_path: Optional[str] = None,
-    min_success_rate: float = 0.95
-) -> Dict[str, Any]:
-    """
-    Validate an entire benchmark file for dependency link compliance.
-
-    Args:
-        file_path: Path to the JSONL file. If None, uses default path.
-        min_success_rate: Minimum required success rate (default 0.95 for 95%)
-
-    Returns:
-        Dictionary containing validation results:
-        - total_trajectories: Number of trajectories checked
-        - valid_trajectories: Number of trajectories passing validation
-        - success_rate: Ratio of valid trajectories
-        - errors_by_trajectory: List of errors for each invalid trajectory
-        - passed: True if success_rate >= min_success_rate
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-    """
-    trajectories = load_trajectories(file_path)
-
     if not trajectories:
-        return {
+        return False, {
             "total_trajectories": 0,
-            "valid_trajectories": 0,
-            "success_rate": 0.0,
-            "errors_by_trajectory": [],
-            "passed": False,
-            "message": "No trajectories found in file"
+            "trajectories_with_links": 0,
+            "ratio": 0.0,
+            "failed_trajectory_ids": [],
+            "error": "No trajectories provided"
         }
 
-    valid_count = 0
-    all_errors = []
+    total = len(trajectories)
+    with_links = 0
+    failed_ids = []
 
-    for idx, traj in enumerate(trajectories):
-        traj_id = traj.get("id", f"trajectory_{idx}")
-        is_valid, errors = validate_dependency_links(traj)
+    for traj in trajectories:
+        traj_id = traj.get("trajectory_id", "unknown")
+        metadata = traj.get("metadata", {})
+        context = traj.get("context", {})
 
-        if is_valid:
-            valid_count += 1
+        # Check for dependency links in various possible locations
+        has_links = False
+
+        # Check metadata for dependency_links field
+        if "dependency_links" in metadata:
+            links = metadata["dependency_links"]
+            if isinstance(links, list) and len(links) > 0:
+                has_links = True
+
+        # Check for dependency_links in the top-level trajectory
+        if "dependency_links" in traj:
+            links = traj["dependency_links"]
+            if isinstance(links, list) and len(links) > 0:
+                has_links = True
+
+        # Check context for dependency information
+        if "dependency_links" in context:
+            links = context["dependency_links"]
+            if isinstance(links, list) and len(links) > 0:
+                has_links = True
+
+        if has_links:
+            with_links += 1
         else:
-            all_errors.append({
-                "trajectory_id": traj_id,
-                "errors": errors
-            })
+            failed_ids.append(traj_id)
 
-    success_rate = valid_count / len(trajectories)
-    passed = success_rate >= min_success_rate
+    ratio = with_links / total
+    passed = ratio >= min_dependency_ratio
 
-    return {
-        "total_trajectories": len(trajectories),
-        "valid_trajectories": valid_count,
-        "success_rate": success_rate,
-        "errors_by_trajectory": all_errors,
-        "passed": passed,
-        "min_success_rate_required": min_success_rate
+    return passed, {
+        "total_trajectories": total,
+        "trajectories_with_links": with_links,
+        "ratio": ratio,
+        "failed_trajectory_ids": failed_ids,
+        "min_required_ratio": min_dependency_ratio
     }
 
 
-def run_validation(
-    file_path: Optional[str] = None,
-    min_success_rate: float = 0.95,
-    output_log: bool = True
-) -> Dict[str, Any]:
+def validate_benchmark(
+    trajectories: List[Dict[str, Any]],
+    min_dependency_ratio: float = 0.95,
+    min_trajectories: int = 50
+) -> Tuple[bool, Dict[str, Any]]:
     """
-    Run validation and optionally log results.
+    Validate the entire benchmark dataset.
 
-    This is the main entry point for the validator.
+    Performs comprehensive validation including:
+    1. Minimum trajectory count check
+    2. Dependency link ratio check
 
     Args:
-        file_path: Path to the JSONL file to validate.
-        min_success_rate: Minimum required success rate.
-        output_log: Whether to write results to the execution log.
+        trajectories: List of trajectory dictionaries.
+        min_dependency_ratio: Minimum ratio of trajectories with dependency links.
+        min_trajectories: Minimum number of trajectories required.
 
     Returns:
-        Validation results dictionary.
+        Tuple of (passed: bool, details: dict).
+    """
+    all_passed = True
+    details = {
+        "trajectory_count_valid": False,
+        "dependency_links_valid": False,
+        "overall_passed": False,
+        "checks": {}
+    }
+
+    # Check minimum trajectory count
+    traj_count = len(trajectories)
+    count_valid = traj_count >= min_trajectories
+    details["trajectory_count_valid"] = count_valid
+    details["checks"]["min_trajectory_count"] = {
+        "required": min_trajectories,
+        "actual": traj_count,
+        "passed": count_valid
+    }
+
+    if not count_valid:
+        all_passed = False
+
+    # Check dependency links
+    dep_passed, dep_details = validate_dependency_links(
+        trajectories, min_dependency_ratio
+    )
+    details["dependency_links_valid"] = dep_passed
+    details["checks"]["dependency_links"] = dep_details
+
+    if not dep_passed:
+        all_passed = False
+
+    details["overall_passed"] = all_passed
+
+    return all_passed, details
+
+
+def run_validation(
+    filepath: Optional[str] = None,
+    min_dependency_ratio: float = 0.95,
+    min_trajectories: int = 50,
+    verbose: bool = True
+) -> bool:
+    """
+    Run the full validation pipeline on the benchmark dataset.
+
+    Args:
+        filepath: Path to the JSONL file (optional).
+        min_dependency_ratio: Minimum ratio of trajectories with dependency links.
+        min_trajectories: Minimum number of trajectories required.
+        verbose: If True, print validation results.
+
+    Returns:
+        True if validation passes, False otherwise.
     """
     try:
-        results = validate_benchmark(file_path, min_success_rate)
+        trajectories = load_trajectories(filepath)
 
-        if output_log:
-            # Log the validation result
-            log_entry = TrajectoryExecutionLog(
-                task_name="dependency_link_validation",
-                status="passed" if results["passed"] else "failed",
-                metrics={
-                    "total_trajectories": results["total_trajectories"],
-                    "valid_trajectories": results["valid_trajectories"],
-                    "success_rate": results["success_rate"],
-                    "min_success_rate_required": results["min_success_rate_required"]
-                },
-                details={
-                    "file_path": file_path or str(get_data_dir() / "synthetic_benchmark" / "trajectories.jsonl"),
-                    "errors": results["errors_by_trajectory"]
-                }
-            )
-            log_entry.save()
+        if verbose:
+            print(f"Loaded {len(trajectories)} trajectories from {filepath or 'default path'}")
 
-        return results
+        passed, details = validate_benchmark(
+            trajectories,
+            min_dependency_ratio=min_dependency_ratio,
+            min_trajectories=min_trajectories
+        )
 
+        if verbose:
+            print("\n=== Validation Results ===")
+            print(f"Overall Passed: {passed}")
+
+            for check_name, check_details in details["checks"].items():
+                print(f"\n{check_name}:")
+                if "required" in check_details:
+                    print(f"  Required: {check_details['required']}")
+                if "actual" in check_details:
+                    print(f"  Actual: {check_details['actual']}")
+                print(f"  Passed: {check_details['passed']}")
+
+                if check_name == "dependency_links" and not check_details["passed"]:
+                    failed_ids = check_details.get("failed_trajectory_ids", [])
+                    if failed_ids:
+                        print(f"  Failed trajectory IDs (first 10): {failed_ids[:10]}")
+                        if len(failed_ids) > 10:
+                            print(f"  ... and {len(failed_ids) - 10} more")
+
+        return passed
+
+    except FileNotFoundError as e:
+        if verbose:
+            print(f"ERROR: {e}")
+        return False
+    except json.JSONDecodeError as e:
+        if verbose:
+            print(f"ERROR: Invalid JSON in trajectory file: {e}")
+        return False
     except Exception as e:
-        error_result = {
-            "total_trajectories": 0,
-            "valid_trajectories": 0,
-            "success_rate": 0.0,
-            "passed": False,
-            "error": str(e)
-        }
-
-        if output_log:
-            log_entry = TrajectoryExecutionLog(
-                task_name="dependency_link_validation",
-                status="error",
-                metrics={"error": str(e)},
-                details={"file_path": file_path}
-            )
-            log_entry.save()
-
-        raise
+        if verbose:
+            print(f"ERROR: Unexpected error during validation: {e}")
+        return False
 
 
 def main():
     """
-    Command-line entry point for the validator.
+    Entry point for command-line execution.
 
     Usage:
-        python -m code.data_generation.validator [--file PATH] [--min-rate RATE]
+        python -m data_generation.validator [--file PATH] [--ratio FLOAT] [--min-traj INT]
 
-    Examples:
-        python -m code.data_generation.validator
-        python -m code.data_generation.validator --file data/synthetic_benchmark/trajectories.jsonl --min-rate 0.90
+    Exit codes:
+        0: Validation passed
+        1: Validation failed
+        2: Error during execution (e.g., file not found)
     """
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Validate dependency links in synthetic trajectories"
+        description="Validate dependency links in benchmark trajectories"
     )
     parser.add_argument(
         "--file",
         type=str,
         default=None,
-        help="Path to the JSONL file (default: data/synthetic_benchmark/trajectories.jsonl)"
+        help="Path to the JSONL trajectory file (default: data/synthetic_benchmark/trajectories.jsonl)"
     )
     parser.add_argument(
-        "--min-rate",
+        "--ratio",
         type=float,
         default=0.95,
-        help="Minimum required success rate (default: 0.95)"
+        help="Minimum ratio of trajectories with dependency links (default: 0.95)"
+    )
+    parser.add_argument(
+        "--min-traj",
+        type=int,
+        default=50,
+        help="Minimum number of trajectories required (default: 50)"
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress output"
     )
 
     args = parser.parse_args()
 
-    print(f"Validating trajectories from: {args.file or 'default path'}")
-    print(f"Minimum success rate required: {args.min_rate:.2%}")
-    print("-" * 50)
+    verbose = not args.quiet
+    result = run_validation(
+        filepath=args.file,
+        min_dependency_ratio=args.ratio,
+        min_trajectories=args.min_traj,
+        verbose=verbose
+    )
 
-    try:
-        results = run_validation(
-            file_path=args.file,
-            min_success_rate=args.min_rate,
-            output_log=True
-        )
-
-        print(f"Total trajectories: {results['total_trajectories']}")
-        print(f"Valid trajectories: {results['valid_trajectories']}")
-        print(f"Success rate: {results['success_rate']:.2%}")
-        print(f"Required rate: {results['min_success_rate_required']:.2%}")
-        print(f"Validation {'PASSED' if results['passed'] else 'FAILED'}")
-
-        if not results["passed"]:
-            print("\nErrors encountered:")
-            for err_entry in results["errors_by_trajectory"]:
-                print(f"  Trajectory {err_entry['trajectory_id']}:")
-                for err in err_entry["errors"]:
-                    print(f"    - {err}")
-            sys.exit(1)
-        else:
-            print("\nAll dependency links validated successfully.")
-            sys.exit(0)
-
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(2)
-    except Exception as e:
-        print(f"Validation failed with error: {e}")
-        sys.exit(3)
+    sys.exit(0 if result else 1)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,3 @@
 """
-Unit tests for data generation modules.
+Unit tests for the data generation module.
 """
