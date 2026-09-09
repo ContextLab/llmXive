@@ -1,1 +1,1 @@
-# Reports Package
+"""Reports package."""

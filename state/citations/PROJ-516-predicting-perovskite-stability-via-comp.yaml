@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/bsebench-org/nrel-pulse-diagnostics-2025-raw/3a7b7d6e7a2d425aa67611a30f752cac95ea684d/BSEBENCH_SOURCE.json?%2Fdatasets%2Fbsebench-org%2Fnrel-pulse-diagnostics-2025-raw%2Fresolve%2Fmain%2FBSEBENCH_SOURCE.json=&etag=%224992767d453b219cc7d2967fa61735644b2265bd%22
   verified_at: '2026-07-05T14:22:28.440529Z'
-- artifact_hash: a6e553bb6f544cb627b4fcfe0b4ca445db8de77904800cc73a685dff841d41db
+- artifact_hash: b7a9d42b4bd6497545da21d2e116d06064a5b4fb1854089fa37a798009c20ffa
   artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: 10.5281/zenodo.10972088
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.10972088
-  verified_at: '2026-09-07T22:52:32.384264Z'
+  verified_at: '2026-09-09T16:02:24.822720Z'

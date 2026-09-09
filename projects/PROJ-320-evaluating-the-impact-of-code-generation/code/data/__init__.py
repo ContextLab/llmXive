@@ -1,3 +1,1 @@
-"""
-Data acquisition, classification, and metrics extraction modules.
-"""
+"""Data acquisition and processing module."""

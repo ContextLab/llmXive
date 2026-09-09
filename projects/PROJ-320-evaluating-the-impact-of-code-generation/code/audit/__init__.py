@@ -1,3 +1,1 @@
-"""
-Audit modules for manual validation and error rate calculation.
-"""
+"""Audit and validation module."""

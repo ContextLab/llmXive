@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GRBEvent Schema"
+description: "Schema for a single Gamma-Ray Burst event metadata."
+type: "object"
+properties:
+  grb_id:
+    type: "string"
+    description: "Unique identifier for the GRB (e.g., '090510')."
+  trigger_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the trigger."
+  redshift:
+    type: ["number", "null"]
+    description: "Cosmological redshift. Null if unknown (burst excluded from LIV regression)."
+  fluence:
+    type: "number"
+    minimum: 0
+    description: "Total fluence in erg/cm^2."
+  fluence_rank:
+    type: "integer"
+    minimum: 1
+    description: "Rank by fluence (1 is brightest)."
+  sky_position:
+    type: "object"
+    properties:
+      ra:
+        type: "number"
+        description: "Right Ascension in degrees."
+      dec:
+        type: "number"
+        description: "Declination in degrees."
+    required: ["ra", "dec"]
+required:
+  - grb_id
+  - trigger_time
+  - fluence
+  - fluence_rank
+additionalProperties: false

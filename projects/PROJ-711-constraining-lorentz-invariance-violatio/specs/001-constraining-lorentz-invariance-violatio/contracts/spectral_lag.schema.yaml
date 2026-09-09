@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SpectralLag Schema"
+description: "Schema for a measured spectral lag between energy bands."
+type: "object"
+properties:
+  grb_id:
+    type: "string"
+    description: "Foreign key to GRBEvent."
+  low_band:
+    type: "string"
+    description: "Low energy band (e.g., '8-50')."
+  high_band:
+    type: "string"
+    description: "High energy band (e.g., '200-1000')."
+  lag_ms:
+    type: "number"
+    description: "Measured time delay in milliseconds."
+  uncertainty_ms:
+    type: "number"
+    minimum: 0
+    description: "Statistical uncertainty (95% CI or SE)."
+  ccf_peak_position:
+    type: "number"
+    description: "Bin index of the CCF peak."
+  bootstrap_samples:
+    type: "integer"
+    minimum: 1000
+    description: "Number of bootstrap resamples used."
+  valid:
+    type: "boolean"
+    description: "True if the lag measurement is statistically significant."
+  intrinsic_lag_estimate:
+    type: ["number", "null"]
+    description: "Estimated intrinsic lag component from hierarchical model (ms)."
+required:
+  - grb_id
+  - low_band
+  - high_band
+  - lag_ms
+  - uncertainty_ms
+  - ccf_peak_position
+  - bootstrap_samples
+  - valid
+additionalProperties: false

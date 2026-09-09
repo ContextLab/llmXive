@@ -45,7 +45,7 @@
 - [X] T009 Create `code/audit/manual_validation.py` skeleton for the audit sample size rule (`max(10, ceil(0.10 * N_LLM))`)
 - [X] T031 [US3] Implement `code/analysis/complexity.py` to compute Cyclomatic Complexity and Lines of Code for PR diffs (moved from Phase 5 to ensure data flow)
 - [X] T032 [US3] Implement fallback logic in `code/analysis/complexity.py` to use standard metrics if memory usage > 6GB (Assumption 3)
-- [ ] T033 [US3] Create `code/analysis/save_complexity_scores.py` to output `data/processed/complexity_scores.csv` with `pr_id` and `complexity_score` columns (moved from Phase 5) <!-- FAILED: unspecified -->
+- [ ] T033 [US3] Create `code/analysis/save_complexity_scores.py` to output `data/processed/complexity_scores.csv` with `pr_id` and `complexity_score` columns (moved from Phase 5) <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -90,11 +90,11 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020a [P] [US2] Unit test `test_comment_count_calculation` in `tests/unit/test_metrics.py`
-- [ ] T020b [P] [US2] Unit test `test_time_to_merge_calculation` in `tests/unit/test_metrics.py`
-- [ ] T020c [P] [US2] Unit test `test_review_cycles_calculation` in `tests/unit/test_metrics.py`
-- [ ] T021a [P] [US2] Unit test `test_mann_whitney_u_implementation` in `tests/unit/test_statistical_tests.py`: asserts p-value and statistic output
-- [ ] T021b [P] [US2] Unit test `test_independent_t_test_implementation` in `tests/unit/test_statistical_tests.py`: asserts p-value, t-statistic, and effect size output
+- [X] T020a [P] [US2] Unit test `test_comment_count_calculation` in `tests/unit/test_metrics.py`
+- [X] T020b [P] [US2] Unit test `test_time_to_merge_calculation` in `tests/unit/test_metrics.py`
+- [X] T020c [P] [US2] Unit test `test_review_cycles_calculation` in `tests/unit/test_metrics.py`
+- [X] T021a [P] [US2] Unit test `test_mann_whitney_u_implementation` in `tests/unit/test_statistical_tests.py`: asserts p-value and statistic output
+- [X] T021b [P] [US2] Unit test `test_independent_t_test_implementation` in `tests/unit/test_statistical_tests.py`: asserts p-value, t-statistic, and effect size output
 
 ### Implementation for User Story 2
 

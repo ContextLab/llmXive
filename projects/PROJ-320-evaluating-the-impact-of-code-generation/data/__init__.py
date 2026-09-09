@@ -1,1 +1,1 @@
-# Data Package
+"""Data storage package."""

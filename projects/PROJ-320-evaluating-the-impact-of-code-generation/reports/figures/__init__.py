@@ -1,1 +1,1 @@
-# Figures Storage
+"""Figures and visualizations package."""

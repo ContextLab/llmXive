@@ -1,3 +1,1 @@
-"""
-Utility modules for logging, configuration, seeds, and checksums.
-"""
+"""Utility functions and shared infrastructure."""

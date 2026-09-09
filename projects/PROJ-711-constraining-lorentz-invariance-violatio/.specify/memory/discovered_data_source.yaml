@@ -1,0 +1,19 @@
+status: none
+intent: Fermi Science Support Center Fermi GBM Burst Catalog download python package
+  dataset
+required_fields:
+- GRB_name
+- time_bin_start
+- time_bin_end
+- counts_8_50_keV
+- counts_50_200_keV
+- counts_200_1000_keV
+- background_counts_8_50_keV
+- background_counts_50_200_keV
+- background_counts_200_1000_keV
+- net_counts_8_50_keV
+- net_counts_50_200_keV
+- net_counts_200_1000_keV
+cache_key: 4564bf0f9e919dc4d87500478e034e1d697056e4a0bd44954a21c646c4ce05d9
+searched_at: '2026-09-09T15:32:13.764060+00:00'
+retry_count: 1

@@ -1,0 +1,3 @@
+# This file is intentionally empty as configuration is now in pyproject.toml.
+# It exists to allow `black --config .black.toml` to pass if a legacy config is expected.
+# The active configuration is in pyproject.toml under [tool.black].

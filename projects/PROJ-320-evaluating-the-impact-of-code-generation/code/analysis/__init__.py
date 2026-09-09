@@ -1,3 +1,1 @@
-"""
-Analysis modules for complexity calculation, statistical testing, and visualization.
-"""
+"""Analysis and statistical testing module."""

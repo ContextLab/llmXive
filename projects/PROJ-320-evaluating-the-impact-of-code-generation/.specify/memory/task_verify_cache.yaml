@@ -1,27 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system evidence were provided, so we cannot verify\
-    \ that the required folders (`code/`, `code/data/`, `code/analysis/`, `code/audit/`,\
-    \ `code/utils/`, `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`,\
-    \ `reports/figures/`) actually exist. The implementer must supply a concrete view\
-    \ (e.g., a tree dump or screenshots) showing these directories created and non\u2011\
-    empty."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `__init__.py` files are presented in the provided evidence, and there is no
-    directory listing or file content showing that they exist in every `code/` subdirectory.
-    Without these files, the required Python package structure has not been demonstrated.
-    The implementer must add the missing `__init__.py` files (and show their presence)
-    for all relevant subfolders under `code/`.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or `black` settings)
-    or CI scripts were provided to demonstrate that `ruff` linting and `black` formatting
-    have been set up. The evidence lacks any artifact showing the tools are installed,
-    configured, or integrated, so the task is not satisfied.
 T017:
   c: true
   h: fd8010e664ec58a6e89b39c4a87ea3b9d3ac9f080647efe6de5c36692f444974
@@ -32,17 +8,19 @@ T017:
     exist for the task to be considered fulfilled."
 T019a:
   c: false
-  h: b1d1ab3ec74297906cfd609aadfedafef7ec69e47807f3af9201f682923b8e9f
-  r: "The provided `manual_validation.py` contains sample\u2011size calculation and\
-    \ a partial stratified\u2011sampling function, but there is no implementation\
-    \ of the human\u2011judgment checklist nor any code that writes results to `data/audit/manual_audit_results.json`.\
-    \ Moreover, the required JSON results file is absent. The task\u2019s core requirements\
-    \ are therefore unmet."
-T033:
+  h: c470e3be292eb46051fe4220cde69b33579de822acde7e950411b1753872080f
+  r: "The `manual_validation.py` script is present and includes sample\u2011size calculation\
+    \ and stratified sampling, but the `execute_human_judgment_checklist` function\
+    \ is only a simulated placeholder and does not contain code to write results to\
+    \ `data/audit/manual_audit_results.json`. Moreover, the required `data/audit/manual_audit_results.json`\
+    \ file is missing. The implementation must perform the actual checklist (or a\
+    \ complete simulation) and persist the audit records to the specified JSON file."
+T019b:
   c: false
-  h: 0254cbd6ece26c7d4bdf8492dcea0fbffc0cabfd143039585ee14ac9a0bf2d27
-  r: "The repository contains the required `code/analysis/save_complexity_scores.py`\
-    \ script, but the expected output file `data/processed/complexity_scores.csv`\
-    \ is absent. Without this CSV (with `pr_id` and `complexity_score` columns), the\
-    \ task\u2019s core requirement is not met. The next implementer must run the script\
-    \ (or ensure it writes the file) so that the CSV is created in the specified location."
+  h: 0a66dc642a0428bee97a14ae88242a36116d4dbc38a9562492de875273808c01
+  r: "The repository contains a partially shown `code/audit/manual_validation.py`,\
+    \ but it does not include any code that computes an overall labeling error rate,\
+    \ writes it to `data/audit/error_rate.json`, or raises a `RuntimeError` when the\
+    \ rate exceeds 0.05. Moreover, the required output file `data/audit/error_rate.json`\
+    \ is absent. The implementer must add the error\u2011rate calculation, JSON output,\
+    \ and the threshold\u2011check exception, and ensure the file is created."

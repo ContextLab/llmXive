@@ -1,16 +1,14 @@
 import os
 from pathlib import Path
 
-def main():
+def create_directories():
     """
-    Create the project directory structure for llmXive.
-    This script ensures all required folders exist as per the project specification.
+    Create the required project directory structure for the llmXive pipeline.
+    This ensures all necessary folders exist before data processing begins.
     """
-    # Define the project root (assumed to be the directory containing this script's parent or cwd)
-    # The task requires paths relative to the project root.
-    # We will run this from the project root.
-    root = Path.cwd()
-
+    base_path = Path(".")
+    
+    # Define all required directories relative to the project root
     directories = [
         "code",
         "code/data",
@@ -21,22 +19,25 @@ def main():
         "data/processed",
         "tests/unit",
         "tests/integration",
-        "reports/figures",
+        "reports/figures"
     ]
-
+    
     created_count = 0
     for dir_path in directories:
-        full_path = root / dir_path
+        full_path = base_path / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
             created_count += 1
+            print(f"Created directory: {full_path}")
         else:
             print(f"Directory already exists: {full_path}")
+    
+    print(f"\nTotal directories created: {created_count}")
+    return created_count
 
-    print(f"\nSetup complete. {created_count} new directories created.")
-    return 0
+def main():
+    """Entry point for the directory setup script."""
+    create_directories()
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

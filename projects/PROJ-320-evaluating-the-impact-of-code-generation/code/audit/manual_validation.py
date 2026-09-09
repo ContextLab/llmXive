@@ -1,355 +1,243 @@
-"""
-Manual validation logic for the LLM code review impact study.
-
-This module implements the stratified sampling strategy for manual audit,
-executes the human-judgment checklist simulation (since actual human input
-is external), and calculates the error rate against automated labels.
-
-It adheres to the formula: sample_size = max(min_threshold, ceil(proportion * N_LLM))
-"""
 import os
 import json
 import math
 import random
 import csv
+import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Import from project utils
+# Import existing utilities from the project
 from utils.logging import get_logger, setup_logging
 from utils.config import get_config_summary
-from utils.seeds import set_global_seed, get_seed_manager
+from utils.seeds import get_seed_manager
 
-# Initialize logger
+# Constants for audit logic
+MIN_AUDIT_SAMPLE = 10
+AUDIT_PROPORTION = 0.10
+ERROR_RATE_THRESHOLD = 0.05  # SC-004
+
 logger = get_logger(__name__)
 
-
-def calculate_sample_size(n_llm: int, min_threshold: int = 10, proportion: float = 0.10) -> int:
+def calculate_sample_size(n_llm: int) -> int:
     """
-    Calculate the stratified sample size for manual validation.
-
+    Calculate the manual validation sample size.
     Formula: max(min_threshold, ceil(proportion * N_LLM))
-
-    Args:
-        n_llm: The total number of LLM-classified PRs in the dataset.
-        min_threshold: Minimum number of samples to audit (default 10).
-        proportion: Fraction of population to sample (default 0.10).
-
-    Returns:
-        int: The calculated sample size.
     """
-    if n_llm <= 0:
-        return 0
-    calculated = math.ceil(proportion * n_llm)
-    return max(min_threshold, calculated)
-
+    return max(MIN_AUDIT_SAMPLE, math.ceil(AUDIT_PROPORTION * n_llm))
 
 def select_stratified_sample(
     prs: List[Dict[str, Any]],
-    n_samples: int,
-    seed: int = 42
+    sample_size: int,
+    seed: int
 ) -> List[Dict[str, Any]]:
     """
-    Select a stratified random sample of PRs for manual audit.
-
-    Stratification is based on 'source_type' (llm vs human) to ensure
-    the sample is representative, though the primary focus is on the LLM group
-    as per the audit rule.
-
-    Args:
-        prs: List of PR dictionaries containing classification data.
-        n_samples: Total number of samples to select.
-        seed: Random seed for reproducibility.
-
-    Returns:
-        List[Dict]: Selected sample of PRs.
+    Select a stratified sample of PRs for manual validation.
+    Stratifies by source_type (llm vs human) to ensure representation.
     """
-    set_global_seed(seed)
-    
-    # Separate by source type
+    rng = random.Random(seed)
     llm_prs = [p for p in prs if p.get('source_type') == 'llm']
     human_prs = [p for p in prs if p.get('source_type') == 'human']
 
-    if not llm_prs and not human_prs:
-        return []
-
-    # Determine allocation: prioritize LLMs as per audit focus, 
-    # but maintain proportionality if possible.
-    # Simple stratified approach: proportional allocation based on population.
+    # Calculate proportional sample sizes
     total = len(llm_prs) + len(human_prs)
     if total == 0:
         return []
 
-    n_llm_target = max(1, int(math.ceil(n_samples * len(llm_prs) / total)))
-    n_human_target = n_samples - n_llm_target
+    llm_sample_size = max(1, round(sample_size * len(llm_prs) / total))
+    human_sample_size = sample_size - llm_sample_size
 
     # Ensure we don't exceed available counts
-    n_llm_actual = min(n_llm_target, len(llm_prs))
-    n_human_actual = min(n_human_target, len(human_prs))
+    llm_sample_size = min(llm_sample_size, len(llm_prs))
+    human_sample_size = min(human_sample_size, len(human_prs))
 
-    sample = []
-    
-    # Randomly select from LLMs
-    if n_llm_actual > 0:
-        selected_llm = random.sample(llm_prs, n_llm_actual)
-        sample.extend(selected_llm)
-    
-    # Randomly select from Humans
-    if n_human_actual > 0:
-        selected_human = random.sample(human_prs, n_human_actual)
-        sample.extend(selected_human)
+    # Shuffle and select
+    rng.shuffle(llm_prs)
+    rng.shuffle(human_prs)
 
+    sample = llm_prs[:llm_sample_size] + human_prs[:human_sample_size]
+    rng.shuffle(sample)
     return sample
-
 
 def execute_human_judgment_checklist(sample: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Execute the human-judgment checklist on the selected sample.
-
-    In a real-world scenario, this would involve a human reviewer inspecting
-    the PR diff and metadata. For this implementation, we simulate the checklist
-    by re-evaluating the classification confidence and secondary detector scores
-    to produce a "ground truth" label for the purpose of the audit pipeline.
+    Simulate the execution of a human-judgment checklist.
     
-    NOTE: This function simulates the human judgment logic. In a production
-    research pipeline, this step would be replaced by a human-in-the-loop interface
-    or a manual data entry process. The simulation here uses the 'confidence_score'
-    and 'detector_score' to determine a 'verified_source_type'.
-
-    Checklist Logic (Simulated):
-    1. If confidence_score > 0.9 and detector_score > 0.8 -> Verify as 'llm'
-    2. If confidence_score < 0.4 and detector_score < 0.4 -> Verify as 'human'
-    3. Otherwise, rely on the secondary detector score as the tie-breaker.
-    4. If secondary detector score is ambiguous, default to 'human' (conservative).
-
-    Args:
-        sample: List of PR dictionaries.
-
-    Returns:
-        List[Dict]: PR dictionaries with added 'verified_source_type' and 'audit_notes'.
+    In a real pipeline, this would interface with a human-in-the-loop system
+    or a labeling tool. For this implementation, we simulate the process
+    by re-evaluating the PRs using a deterministic "ground truth" logic
+    based on the secondary detector score and bot signatures, which serves
+    as the proxy for human judgment in this automated research pipeline.
+    
+    Returns a list of audit records with 'human_verdict' (llm/human) and 'notes'.
     """
-    results = []
+    audit_results = []
+    
     for pr in sample:
-        pr_copy = pr.copy()
-        
+        pr_id = pr.get('pr_id')
+        source_type = pr.get('source_type')
         confidence = pr.get('confidence_score', 0.0)
-        detector = pr.get('detector_score', 0.0)
-        original_label = pr.get('source_type', 'unknown')
+        detector_score = pr.get('detector_score', 0.0)
         
-        # Simulated Human Judgment Logic
-        verified_label = original_label
+        # Simulate human judgment logic:
+        # 1. If detector_score is high (> 0.7) and source_type is 'llm', human likely agrees -> 'llm'
+        # 2. If detector_score is low (< 0.3) and source_type is 'human', human likely agrees -> 'human'
+        # 3. If there's a conflict (e.g., source_type='llm' but detector_score < 0.3), 
+        #    we assume the human overrides the bot signature if the code entropy/n-gram suggests human.
+        #    Here, we define 'ground truth' as the detector_score being the more reliable signal 
+        #    for code characteristics, but we respect strong bot signatures.
+        
+        # Simplified Ground Truth Logic for Simulation:
+        # - If has_llm_signature (implied by high confidence in 'llm') AND detector_score > 0.5 -> True LLM
+        # - If has_human_bot signature (implied by high confidence in 'human') AND detector_score < 0.5 -> True Human
+        # - Otherwise, we trust the detector_score as the "human" read of the code complexity/style.
+        
+        # To make this robust for the error rate calculation, we assume the 'detector_score' 
+        # is the "human" proxy for code style.
+        # If source_type is 'llm' but detector_score < 0.4, human would likely mark as 'human'.
+        # If source_type is 'human' but detector_score > 0.6, human would likely mark as 'llm'.
+        
+        human_verdict = source_type
         notes = []
 
-        # Rule 1: High confidence + High detector = Confirm LLM
-        if confidence > 0.9 and detector > 0.8:
-            verified_label = 'llm'
-            notes.append("High confidence and high detector score confirm LLM.")
-        
-        # Rule 2: Low confidence + Low detector = Confirm Human
-        elif confidence < 0.4 and detector < 0.4:
-            verified_label = 'human'
-            notes.append("Low confidence and low detector score confirm Human.")
-        
-        # Rule 3: Ambiguous cases - use detector as tie-breaker
-        else:
-            if detector > 0.6:
-                verified_label = 'llm'
-                notes.append("Detector score overrides ambiguous confidence.")
+        if source_type == 'llm':
+            if detector_score < 0.4:
+                human_verdict = 'human'
+                notes.append("Detector score low, likely human code despite signature")
             else:
-                verified_label = 'human'
-                notes.append("Low detector score suggests Human despite confidence.")
+                notes.append("Signature and detector agree on LLM")
+        elif source_type == 'human':
+            if detector_score > 0.6:
+                human_verdict = 'llm'
+                notes.append("Detector score high, likely LLM code despite signature")
+            else:
+                notes.append("Signature and detector agree on Human")
+        else:
+            # Fallback for ambiguous
+            human_verdict = 'llm' if detector_score > 0.5 else 'human'
+            notes.append("Ambiguous source, used detector score")
 
-        pr_copy['verified_source_type'] = verified_label
-        pr_copy['audit_notes'] = "; ".join(notes)
-        results.append(pr_copy)
+        audit_results.append({
+            'pr_id': pr_id,
+            'automated_label': source_type,
+            'human_verdict': human_verdict,
+            'confidence_score': confidence,
+            'detector_score': detector_score,
+            'notes': "; ".join(notes),
+            'match': source_type == human_verdict
+        })
 
-    return results
-
+    return audit_results
 
 def calculate_error_rate(audit_results: List[Dict[str, Any]]) -> float:
     """
-    Calculate the error rate of the automated classification.
-
-    Error is defined as: |Automated Label != Verified Label| / Total Audited
-    
-    Args:
-        audit_results: List of PR dictionaries with 'source_type' and 'verified_source_type'.
-
-    Returns:
-        float: The calculated error rate (0.0 to 1.0).
+    Calculate the labeling error rate.
+    Error Rate = (Number of mismatches) / (Total audited)
     """
     if not audit_results:
         return 0.0
-
-    errors = 0
-    for pr in audit_results:
-        auto_label = pr.get('source_type')
-        verified_label = pr.get('verified_source_type')
-        if auto_label != verified_label:
-            errors += 1
-
-    return errors / len(audit_results)
-
-
-def save_audit_results(results: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Save the audit results to a JSON file.
-
-    Args:
-        results: List of audit result dictionaries.
-        output_path: Path to the output JSON file.
-    """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2, default=str)
-    
+    mismatches = sum(1 for r in audit_results if not r.get('match', False))
+    return mismatches / len(audit_results)
+
+def save_audit_results(audit_results: List[Dict[str, Any]], output_path: str):
+    """Save the manual validation results to JSON."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(audit_results, f, indent=2)
     logger.info(f"Audit results saved to {output_path}")
 
-
-def save_error_rate(error_rate: float, output_path: str) -> None:
+def save_error_rate(error_rate: float, output_path: str):
     """
-    Save the calculated error rate to a JSON file.
-
-    Args:
-        error_rate: The calculated error rate.
-        output_path: Path to the output JSON file.
+    Save the error rate to JSON.
+    Raises RuntimeError if error_rate > ERROR_RATE_THRESHOLD (SC-004).
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    data = {
-        "error_rate": error_rate,
-        "threshold": 0.05,
-        "status": "passed" if error_rate <= 0.05 else "failed"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    result = {
+        'error_rate': error_rate,
+        'threshold': ERROR_RATE_THRESHOLD,
+        'status': 'pass' if error_rate <= ERROR_RATE_THRESHOLD else 'fail'
     }
-
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
     
-    logger.info(f"Error rate saved to {output_path}: {error_rate}")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Error rate calculated: {error_rate:.4f} (Threshold: {ERROR_RATE_THRESHOLD})")
+    
+    if error_rate > ERROR_RATE_THRESHOLD:
+        raise RuntimeError(
+            f"CRITICAL: Labeling error rate ({error_rate:.4f}) exceeds the maximum "
+            f"allowed threshold ({ERROR_RATE_THRESHOLD}) defined in SC-004. "
+            "Manual validation failed. Aborting pipeline."
+        )
 
-
-def run_manual_validation(
-    input_path: str,
-    audit_output_path: str,
-    error_output_path: str,
-    min_threshold: int = 10,
-    proportion: float = 0.10,
-    seed: int = 42
-) -> float:
-    """
-    Main entry point to run the manual validation pipeline.
-
-    1. Loads the labeled dataset.
-    2. Calculates sample size based on N_LLM.
-    3. Selects a stratified sample.
-    4. Executes the human-judgment checklist (simulated).
-    5. Saves results and calculates error rate.
-
-    Args:
-        input_path: Path to data/processed/prs_labeled.csv.
-        audit_output_path: Path to save data/audit/manual_audit_results.json.
-        error_output_path: Path to save data/audit/error_rate.json.
-        min_threshold: Minimum sample size.
-        proportion: Proportion of population to sample.
-        seed: Random seed.
-
-    Returns:
-        float: The calculated error rate.
-    """
-    logger.info(f"Starting manual validation pipeline.")
-    logger.info(f"Input: {input_path}, Threshold: {min_threshold}, Proportion: {proportion}")
-
-    # Load data
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}. "
-                                "Ensure T017 (save_labeled_dataset) has run first.")
-
+def load_labeled_prs(input_path: str) -> List[Dict[str, Any]]:
+    """Load the labeled dataset from CSV."""
     prs = []
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Labeled dataset not found at {input_path}")
+    
     with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Convert numeric strings to floats
-            row['confidence_score'] = float(row.get('confidence_score', 0))
-            row['detector_score'] = float(row.get('detector_score', 0))
+            # Convert numeric strings to float
+            if 'confidence_score' in row:
+                row['confidence_score'] = float(row['confidence_score'])
+            if 'detector_score' in row:
+                row['detector_score'] = float(row['detector_score'])
             prs.append(row)
+    return prs
 
-    if not prs:
-        logger.warning("No PRs found in input file.")
-        return 0.0
-
-    # Count LLMs
+def run_manual_validation(
+    input_path: str = "data/processed/prs_labeled.csv",
+    audit_output_path: str = "data/audit/manual_audit_results.json",
+    error_rate_output_path: str = "data/audit/error_rate.json"
+):
+    """
+    Main entry point for the manual validation task.
+    1. Loads labeled PRs.
+    2. Calculates sample size.
+    3. Selects stratified sample.
+    4. Executes human judgment checklist.
+    5. Saves audit results.
+    6. Calculates and saves error rate (raising error if threshold exceeded).
+    """
+    setup_logging()
+    logger.info("Starting manual validation pipeline...")
+    
+    # Load data
+    prs = load_labeled_prs(input_path)
     n_llm = sum(1 for p in prs if p.get('source_type') == 'llm')
-    logger.info(f"Total PRs: {len(prs)}, LLM PRs: {n_llm}")
+    logger.info(f"Loaded {len(prs)} PRs. LLM count: {n_llm}")
+    
+    if n_llm == 0:
+        logger.warning("No LLM PRs found. Error rate calculation skipped.")
+        return
 
     # Calculate sample size
-    sample_size = calculate_sample_size(n_llm, min_threshold, proportion)
-    logger.info(f"Calculated sample size: {sample_size}")
-
+    sample_size = calculate_sample_size(n_llm)
+    logger.info(f"Selected sample size: {sample_size}")
+    
     # Select sample
-    sample = select_stratified_sample(prs, sample_size, seed)
-    logger.info(f"Selected {len(sample)} samples for audit.")
-
+    seed_manager = get_seed_manager()
+    sample = select_stratified_sample(prs, sample_size, seed_manager.seed)
+    logger.info(f"Sampled {len(sample)} PRs for manual validation.")
+    
     # Execute checklist
     audit_results = execute_human_judgment_checklist(sample)
-
-    # Save results
+    
+    # Save audit results
     save_audit_results(audit_results, audit_output_path)
-
-    # Calculate error rate
+    
+    # Calculate and save error rate
     error_rate = calculate_error_rate(audit_results)
-    logger.info(f"Calculated error rate: {error_rate:.4f}")
-
-    # Save error rate
-    save_error_rate(error_rate, error_output_path)
-
-    return error_rate
-
+    save_error_rate(error_rate, error_rate_output_path)
+    
+    logger.info("Manual validation completed successfully.")
 
 def main():
     """CLI entry point."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Run manual validation audit.")
-    parser.add_argument("--input", type=str, default="data/processed/prs_labeled.csv",
-                        help="Path to labeled dataset CSV.")
-    parser.add_argument("--audit-output", type=str, default="data/audit/manual_audit_results.json",
-                        help="Path to save audit results.")
-    parser.add_argument("--error-output", type=str, default="data/audit/error_rate.json",
-                        help="Path to save error rate.")
-    parser.add_argument("--threshold", type=int, default=10,
-                        help="Minimum sample size threshold.")
-    parser.add_argument("--proportion", type=float, default=0.10,
-                        help="Proportion of population to sample.")
-    parser.add_argument("--seed", type=int, default=42,
-                        help="Random seed for reproducibility.")
-
-    args = parser.parse_args()
-
-    setup_logging()
-    
-    try:
-        error_rate = run_manual_validation(
-            input_path=args.input,
-            audit_output_path=args.audit_output,
-            error_output_path=args.error_output,
-            min_threshold=args.threshold,
-            proportion=args.proportion,
-            seed=args.seed
-        )
-        
-        if error_rate > 0.05:
-            logger.warning(f"Error rate {error_rate} exceeds threshold 0.05. "
-                           "Final report generation may be blocked.")
-        else:
-            logger.info("Error rate within acceptable limits.")
-            
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        raise
-
+    run_manual_validation()
 
 if __name__ == "__main__":
     main()
