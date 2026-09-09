@@ -5,8 +5,8 @@ import tempfile
 import shutil
 import sys
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add the project root to the path so we can import code.setup_directories
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from code.setup_directories import create_directories
 
@@ -15,15 +15,15 @@ class TestSetupDirectories(unittest.TestCase):
     def setUp(self):
         """Create a temporary directory for testing."""
         self.test_dir = tempfile.mkdtemp()
-        self.test_path = Path(self.test_dir)
+        self.base_path = Path(self.test_dir)
     
     def tearDown(self):
-        """Remove the temporary directory."""
+        """Remove the temporary directory after testing."""
         shutil.rmtree(self.test_dir)
     
-    def test_create_directories_creates_all_required_dirs(self):
+    def test_directories_created(self):
         """Test that all required directories are created."""
-        create_directories(self.test_path)
+        create_directories(self.base_path)
         
         expected_dirs = [
             "code",
@@ -31,37 +31,23 @@ class TestSetupDirectories(unittest.TestCase):
             "data/processed",
             "data/results",
             "data/research",
-            "tests"
+            "tests",
         ]
         
-        for dir_name in expected_dirs:
-            dir_path = self.test_path / dir_name
-            self.assertTrue(dir_path.exists(), f"Directory {dir_path} was not created")
-            self.assertTrue(dir_path.is_dir(), f"{dir_path} exists but is not a directory")
+        for dir_path in expected_dirs:
+            full_path = self.base_path / dir_path
+            self.assertTrue(full_path.exists(), f"Directory {dir_path} was not created")
+            self.assertTrue(full_path.is_dir(), f"{dir_path} exists but is not a directory")
     
-    def test_create_directories_handles_existing_dirs(self):
-        """Test that existing directories don't cause errors."""
-        # Create some directories beforehand
-        (self.test_path / "code").mkdir()
-        (self.test_path / "data").mkdir()
-        (self.test_path / "data" / "raw").mkdir()
+    def test_idempotent_creation(self):
+        """Test that running create_directories twice doesn't cause errors."""
+        create_directories(self.base_path)
+        create_directories(self.base_path)  # Should not raise
         
-        # Should not raise
-        create_directories(self.test_path)
-        
-        # Verify they still exist
-        self.assertTrue((self.test_path / "code").exists())
-        self.assertTrue((self.test_path / "data" / "raw").exists())
-    
-    def test_create_directories_creates_nested_dirs(self):
-        """Test that nested directories are created correctly."""
-        create_directories(self.test_path)
-        
-        # Check nested structure
-        self.assertTrue((self.test_path / "data" / "raw").exists())
-        self.assertTrue((self.test_path / "data" / "processed").exists())
-        self.assertTrue((self.test_path / "data" / "results").exists())
-        self.assertTrue((self.test_path / "data" / "research").exists())
+        # Verify directories still exist
+        expected_dirs = ["code", "data/raw", "data/processed", "data/results", "data/research", "tests"]
+        for dir_path in expected_dirs:
+            self.assertTrue((self.base_path / dir_path).exists())
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

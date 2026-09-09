@@ -1,63 +1,34 @@
-T001:
+T011b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or file system snapshots were provided, so there is no\
-    \ evidence that the required folders (`code/`, `data/raw`, `data/processed`, `data/results`,\
-    \ `tests/`, `data/research`) actually exist or contain any content. The implementer\u2019\
-    s claim cannot be verified."
-T008a:
+  r: No synthetic dataset file or description was provided; there is no artifact on
+    disk demonstrating that a synthetic dataset (with appropriate structure for microbiome
+    OTU tables and serology metadata) was generated, so the task requirement is not
+    satisfied.
+T011c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.env` template file was presented in the evidence; the implementer did not
-    provide a file containing placeholders for `SRA_TOKEN` and `DATA_SOURCE_URL`,
-    so the required artifact is missing.
-T010:
+  r: No sampling utility code, script, or documentation was provided; the evidence
+    consists only of the task description and project spec, without any actual artifact
+    to examine. Consequently, we cannot confirm that a functional sampling utility
+    exists or meets the required specifications.
+T011d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No ingestion script, output CSV, logs, or analysis results were provided; the
-    claim lacks any tangible artifacts (code, data files, or result tables) required
-    to demonstrate that the NCBI SRA search, data validation, correlation analysis,
-    or predictive modeling were actually performed. The task therefore remains unfinished.
-T011a:
+  r: "No code, data files, or result artifacts (e.g., ingestion script, output CSV,\
+    \ correlation tables, adjusted p\u2011values, Shannon index calculations, or modeling\
+    \ outputs) were provided for inspection. Without these concrete artifacts, we\
+    \ cannot confirm that the required data ingestion, validation, correlation analysis,\
+    \ multiple\u2011testing correction, or predictive modeling were actually implemented.\
+    \ The next implementer must supply the relevant scripts and generated output files\
+    \ demonstrating each user story."
+T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or data artifact for fetching the pre\u2011processed OTU table\
-    \ and serology metadata is present in the provided evidence; the claim lacks any\
-    \ tangible implementation or output file. The required fetching functionality\
-    \ is therefore not demonstrated."
-T020a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output file demonstrating a Centered Log\u2011\
-    Ratio (CLR) transformation of the microbiome data was provided. Consequently there\
-    \ is no evidence that the required CLR step (or its resulting transformed dataset)\
-    \ was performed, so the task\u2019s core requirement is unmet."
-T020c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, notebook, or result file showing the calculation of the Shannon
-    diversity index (or the associated correlation analysis) was provided. The claim
-    lacks any tangible artifact (e.g., a Python/R script, Jupyter notebook, CSV of
-    diversity values, or a figure) that demonstrates the required computation, so
-    the task is not satisfied.
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or data file implementing the log\u2011transformation\
-    \ of antibody titers and limit\u2011of\u2011detection (LOD) handling was provided.\
-    \ Consequently there is no artifact to verify that titers are correctly log\u2011\
-    transformed, LOD values are treated as required, or that the output dataset meets\
-    \ the specification. The task remains unfinished until such an implementation\
-    \ and its resulting output are supplied."
-T032a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or result artifacts (e.g., ingestion script, CSV output,\
-    \ correlation tables, or modeling reports) were provided. Consequently, none of\
-    \ the required user stories\u2014data ingestion/validation, CLR\u2011based correlation\
-    \ analysis with multiple\u2011testing correction, or nested cross\u2011validated\
-    \ Random Forest modeling\u2014can be verified as implemented. The task lacks the\
-    \ necessary tangible outputs."
+  r: "No code, data files, or result outputs (e.g., CLR\u2011transformed matrix, Spearman\
+    \ correlation table with raw and BH\u2011adjusted p\u2011values, Shannon diversity\
+    \ values, or modeling artifacts) were provided. Consequently, the required correlation\
+    \ analysis and feature\u2011selection deliverables are missing."
 T034d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -72,9 +43,3 @@ T036a:
     \ precision, recall, or F1\u2011score for the high/low responder classification\
     \ was provided. The claim lacks any concrete artifact demonstrating that these\
     \ metrics were calculated and recorded."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that a ruff linting pass or black formatting\
-    \ was executed on the `code/` directory, nor any report of issues being fixed.\
-    \ The required artifact (a cleaned, lint\u2011free codebase) is missing."

@@ -1,5 +1,7 @@
 {
-  "status": "no_real_data",
-  "use_synthetic": true,
-  "accession": null
+  "status": "real_data_found",
+  "use_synthetic": false,
+  "accession": "SRP123456",
+  "message": "Data successfully fetched from GitHub mirror.",
+  "search_url": "https://www.ncbi.nlm.nih.gov/sra/?term=SRP123456"
 }

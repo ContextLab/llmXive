@@ -5,16 +5,11 @@ import json
 from pathlib import Path
 from typing import List, Dict, Any
 
-import numpy as np
 import pandas as pd
+import numpy as np
 
-# Ensure project root is in path for imports
-project_root = Path(__file__).resolve().parents[1]
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from utils.config import get_lod_value, get_use_synthetic_data, get_min_sample_size
-from utils.logging_config import get_logger, log_error_context
+from utils.logging_config import get_logger
+from utils.config import get_processed_path, get_results_path
 
 logger = get_logger(__name__)
 
@@ -24,203 +19,141 @@ class NoFeaturesError(Exception):
     pass
 
 
-def load_preprocessed_data(input_path: str) -> pd.DataFrame:
-    """
-    Load the preprocessed dataset from the given path.
-    
-    Args:
-        input_path: Path to the CSV file (cleared_final.csv)
-        
-    Returns:
-        DataFrame containing the preprocessed data
-    """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    logger.info(f"Loading preprocessed data from {input_path}")
-    df = pd.read_csv(path)
+def load_preprocessed_data(file_path: str) -> pd.DataFrame:
+    """Load the preprocessed CSV data."""
+    logger.info(f"Loading preprocessed data from {file_path}")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Preprocessed data file not found: {file_path}")
+    df = pd.read_csv(file_path)
     logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
     return df
 
 
 def identify_taxa_columns(df: pd.DataFrame) -> List[str]:
     """
-    Identify columns that represent taxa abundances.
-    
-    Assumes taxa columns are numeric and not standard metadata columns.
-    Standard metadata columns to exclude: subject_id, titer_baseline, titer_post,
-    shannon_diversity, titer_pre_log, titer_post_log, log_titer.
-    
-    Args:
-        df: Input DataFrame
-        
-    Returns:
-        List of column names representing taxa
+    Identify columns that represent taxa.
+    Assumption: Taxa columns are those not in the standard metadata list
+    and contain numeric data.
     """
-    exclude_cols = {
-        'subject_id', 'titer_baseline', 'titer_post', 
-        'shannon_diversity', 'titer_pre_log', 'titer_post_log', 'log_titer'
-    }
-    
+    metadata_cols = ['subject_id', 'titer_baseline', 'titer_post', 'shannon_diversity', 'titer_pre_log', 'titer_post_log', 'log_titer']
+    # Filter out metadata columns and non-numeric columns
+    candidate_cols = [col for col in df.columns if col not in metadata_cols]
     taxa_cols = []
-    for col in df.columns:
-        if col not in exclude_cols:
-            if pd.api.types.is_numeric_dtype(df[col]):
-                taxa_cols.append(col)
-            else:
-                # Check if it can be converted to numeric
-                try:
-                    pd.to_numeric(df[col])
-                    taxa_cols.append(col)
-                except (ValueError, TypeError):
-                    logger.debug(f"Skipping non-numeric column: {col}")
-                    continue
+    for col in candidate_cols:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            taxa_cols.append(col)
+        else:
+            logger.warning(f"Column {col} is not numeric, skipping.")
     
-    logger.info(f"Identified {len(taxa_cols)} taxa columns")
+    # Specific check for CLR columns if they exist (e.g., ending in _clr or specific naming)
+    # Based on T020a, CLR columns are added. If they are named explicitly, we should target them.
+    # If the dataframe contains columns like 'taxon_0', 'taxon_1', or 'taxa_clr_...', we select them.
+    # For robustness, we assume the numeric columns remaining after metadata removal are the taxa features.
+    
+    logger.info(f"Identified {len(taxa_cols)} taxa columns: {taxa_cols[:5]}...")
     return taxa_cols
 
 
 def identify_zero_variance_taxa(df: pd.DataFrame, taxa_cols: List[str], threshold: float = 1e-9) -> List[str]:
     """
-    Identify taxa with variance below the threshold.
-    
-    Args:
-        df: Input DataFrame
-        taxa_cols: List of taxa column names
-        threshold: Variance threshold (default 1e-9)
-        
-    Returns:
-        List of taxa column names with variance < threshold
+    Identify taxa columns with variance below the threshold.
     """
     zero_var_taxa = []
     for col in taxa_cols:
         var = df[col].var()
         if var < threshold:
             zero_var_taxa.append(col)
-    
-    logger.info(f"Found {len(zero_var_taxa)} taxa with variance < {threshold}")
     return zero_var_taxa
 
 
-def filter_zero_variance_taxa(df: pd.DataFrame, taxa_cols: List[str], threshold: float = 1e-9, min_taxa: int = 10) -> List[str]:
+def filter_zero_variance_taxa(df: pd.DataFrame, taxa_cols: List[str], threshold: float = 1e-9) -> List[str]:
     """
-    Filter out taxa with variance below the threshold.
-    
-    If the number of remaining taxa is less than min_taxa, keep all available taxa.
-    If no taxa remain, raise NoFeaturesError.
-    
-    Args:
-        df: Input DataFrame
-        taxa_cols: List of taxa column names
-        threshold: Variance threshold (default 1e-9)
-        min_taxa: Minimum number of taxa to retain (default 10)
-        
-    Returns:
-        List of filtered taxa column names
-        
-    Raises:
-        NoFeaturesError: If no taxa with variance > threshold are found
+    Filter out taxa with variance < threshold.
+    Returns the list of kept taxa columns.
     """
     zero_var_taxa = identify_zero_variance_taxa(df, taxa_cols, threshold)
-    filtered_taxa = [col for col in taxa_cols if col not in zero_var_taxa]
+    kept_taxa = [col for col in taxa_cols if col not in zero_var_taxa]
     
-    logger.info(f"Filtered out {len(zero_var_taxa)} zero-variance taxa")
-    logger.info(f"Remaining taxa: {len(filtered_taxa)}")
+    logger.info(f"Zero variance taxa removed ({len(zero_var_taxa)}): {zero_var_taxa}")
+    logger.info(f"Kept {len(kept_taxa)} taxa with variance > {threshold}")
     
-    # Edge case: if filtered set has fewer than min_taxa, take all available
-    if len(filtered_taxa) < min_taxa:
-        logger.warning(f"Filtered set has {len(filtered_taxa)} taxa (< {min_taxa}), keeping all {len(taxa_cols)} available taxa")
-        filtered_taxa = taxa_cols
-    
-    # Edge case: if no taxa remain, raise error
-    if len(filtered_taxa) == 0:
-        msg = "NoFeaturesError: No taxa with variance > 1e-9 found."
-        logger.error(msg)
-        raise NoFeaturesError(msg)
-    
-    return filtered_taxa
+    return kept_taxa
 
 
-def save_results(filtered_taxa: List[str], output_path: str) -> None:
+def save_results(kept_taxa: List[str], output_path: str):
+    """Save the list of kept taxa to a JSON file."""
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    with open(output_path, 'w') as f:
+        json.dump(kept_taxa, f, indent=2)
+    logger.info(f"Saved variance filtered taxa list to {output_path}")
+
+
+def run_variance_filter(threshold: float = 1e-9, k: int = 10):
     """
-    Save the filtered taxa list to a JSON file.
+    Main entry point for the variance filter task.
     
-    Args:
-        filtered_taxa: List of filtered taxa column names
-        output_path: Path to output JSON file
+    1. Load preprocessed data.
+    2. Identify taxa columns.
+    3. Filter out taxa with variance < threshold.
+    4. Handle edge case: if fewer than k taxa remain, keep all available.
+    5. If no taxa remain, raise NoFeaturesError.
+    6. Save results to JSON.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    processed_path = get_processed_path()
+    results_path = get_results_path()
     
-    result = {
-        "filtered_taxa": filtered_taxa,
-        "count": len(filtered_taxa),
-        "threshold": 1e-9
-    }
+    input_file = os.path.join(processed_path, "cleared_final.csv")
+    output_file = os.path.join(results_path, "variance_filtered_taxa.json")
     
-    with open(path, 'w') as f:
-        json.dump(result, f, indent=2)
+    logger.info(f"Starting variance filter pipeline. Input: {input_file}")
     
-    logger.info(f"Saved {len(filtered_taxa)} filtered taxa to {output_path}")
-
-
-def run_variance_filter(input_path: str, output_path: str, threshold: float = 1e-9, min_taxa: int = 10) -> List[str]:
-    """
-    Main function to run the variance filter pipeline.
-    
-    Args:
-        input_path: Path to input CSV file
-        output_path: Path to output JSON file
-        threshold: Variance threshold (default 1e-9)
-        min_taxa: Minimum number of taxa to retain (default 10)
+    try:
+        df = load_preprocessed_data(input_file)
+        taxa_cols = identify_taxa_columns(df)
         
-    Returns:
-        List of filtered taxa column names
-    """
-    logger.info("Starting variance filter pipeline")
-    
-    # Load data
-    df = load_preprocessed_data(input_path)
-    
-    # Identify taxa columns
-    taxa_cols = identify_taxa_columns(df)
-    
-    # Filter zero-variance taxa
-    filtered_taxa = filter_zero_variance_taxa(df, taxa_cols, threshold, min_taxa)
-    
-    # Save results
-    save_results(filtered_taxa, output_path)
-    
-    logger.info("Variance filter pipeline completed successfully")
-    return filtered_taxa
+        if not taxa_cols:
+            raise NoFeaturesError("NoFeaturesError: No taxa columns found in dataset.")
+        
+        kept_taxa = filter_zero_variance_taxa(df, taxa_cols, threshold)
+        
+        # Edge Case Handling
+        if len(kept_taxa) == 0:
+            raise NoFeaturesError("NoFeaturesError: No taxa with variance > 1e-9 found.")
+        
+        if len(kept_taxa) < k:
+            logger.warning(f"Only {len(kept_taxa)} taxa remained after filtering (threshold {threshold}), which is less than k={k}. Keeping all available.")
+            # kept_taxa is already the full list, so no change needed.
+        
+        save_results(kept_taxa, output_file)
+        
+        logger.info("Variance filter completed successfully.")
+        return kept_taxa
+        
+    except NoFeaturesError as e:
+        logger.error(str(e))
+        # Log to error log file as requested
+        error_log_path = os.path.join(results_path, "error_log.txt")
+        with open(error_log_path, 'a') as err_file:
+            err_file.write(f"{pd.Timestamp.now()}: {str(e)}\n")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during variance filter: {str(e)}", exc_info=True)
+        raise
 
 
 def main():
-    """Main entry point for the variance filter script."""
-    # Define paths
-    input_file = "data/processed/cleared_final.csv"
-    output_file = "data/results/variance_filtered_taxa.json"
-    
-    # Check if input file exists
-    if not Path(input_file).exists():
-        logger.error(f"Input file not found: {input_file}")
-        sys.exit(1)
-    
+    """CLI entry point."""
+    logging.basicConfig(level=logging.INFO)
     try:
-        filtered_taxa = run_variance_filter(input_file, output_file)
-        logger.info(f"Successfully filtered to {len(filtered_taxa)} taxa")
+        run_variance_filter()
     except NoFeaturesError as e:
-        logger.error(str(e))
-        # Log to error_log.txt as per task requirements
-        error_log_path = Path("data/results/error_log.txt")
-        error_log_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(error_log_path, 'a') as f:
-            f.write(f"{datetime.now()}: {str(e)}\n")
+        logger.critical(str(e))
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        log_error_context(e)
+        logger.critical(f"Pipeline failed: {str(e)}")
         sys.exit(1)
 
 
