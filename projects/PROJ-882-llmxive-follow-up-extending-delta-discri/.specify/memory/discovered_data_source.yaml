@@ -1,10 +1,33 @@
-status: none
-intent: GSM8K dataset pip install via huggingface datasets python package dataset
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'import datasets
+
+
+  ds = datasets.load_dataset("nvidia/OpenMathInstruct-1", split="train")
+
+  print(f"RECORDS={len(ds)}")
+
+  print("FIELDS=" + ",".join(ds.column_names))'
+record_count: 7321344
+sample_fields:
+- question
+- expected_answer
+- predicted_answer
+- error_message
+- is_correct
+- generation_type
+- dataset
+- generated_solution
+field_coverage: 0.5
 required_fields:
+- id
 - question
 - answer
-- type
-- id
-cache_key: b112904159e02cc961b8802d0d20f30e9a1bce25f4897123fc3df1e3b046e473
-searched_at: '2026-09-02T20:46:48.177345+00:00'
-retry_count: 1
+- solution
+- correctness_label
+- tokenized_prompt
+- tokenized_solution
+- metadata
+intent: GSM8K and OpenMathInstruct-1 datasets download python package dataset
+cache_key: 18c1a9166312a19c5295c699f41d3f4d0ef5d80bd24e2fcf79cf30568dee1df8

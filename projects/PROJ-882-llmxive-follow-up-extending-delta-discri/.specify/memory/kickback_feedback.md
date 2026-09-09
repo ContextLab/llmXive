@@ -1,12 +1,10 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'science'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T012` (rejected 1x): The provided `download_gsm8k.py` is truncated and does not show the required logic for enforcing a 500‑example target, issuing a warning when fewer than 500 but ≥10 examples are available, and saving the filtered data to `data/raw/gsm8k_verified.parquet`. Moreover, the expected parquet file is absent, indicating the script either was not executed or does not correctly produce the output. The next implementer should ensure the script contains the full download, filtering, target‑size handling, warning, and saving logic, and that the parquet file is generated.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- User Story 3 tasks (e.g., T026b‑Gen, T026b‑Rand, T026, T027, T028, T029) depend on both User Story 1 and User Story 2 outputs. Hence the story block is not independently implementable.
+- FABRICATED-RESULT signal — projects/PROJ-882-llmxive-follow-up-extending-delta-discri/specs/001-llmxive-follow-up-extending-delta-discri/tasks.md: self-declared fabricated metric — “…n `code/eval/interpret.py` on dummy results and verify classification lo…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.
