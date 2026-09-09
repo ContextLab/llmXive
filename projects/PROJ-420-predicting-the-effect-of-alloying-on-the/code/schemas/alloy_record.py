@@ -18,9 +18,11 @@ class AlloyRecord(BaseModel):
     si_fraction: float
     zn_fraction: float
     mn_fraction: float
-    measurement_method: str
     
-    # Optional fields
+    # Optional fields - measurement_method is Optional to allow missing data in raw input
+    # If missing, the record is included in intermediate dataframe but flagged for exclusion in T014
+    measurement_method: Optional[str] = None
+    
     al_fraction: Optional[float] = None
     provenance: Optional[MeasurementProvenance] = None
     record_id: Optional[str] = None
@@ -42,7 +44,8 @@ class ModelMetrics(BaseModel):
 
 def main():
     """Test schema validation."""
-    record = AlloyRecord(
+    # Test with measurement_method provided
+    record_with_method = AlloyRecord(
         poisson_ratio=0.33,
         young_modulus=70.0,
         cu_fraction=0.05,
@@ -52,7 +55,21 @@ def main():
         mn_fraction=0.05,
         measurement_method="Ultrasonic"
     )
-    print(record)
+    print("Record with method:", record_with_method)
+    
+    # Test with measurement_method missing (None) - should be valid for intermediate storage
+    record_without_method = AlloyRecord(
+        poisson_ratio=0.33,
+        young_modulus=70.0,
+        cu_fraction=0.05,
+        mg_fraction=0.05,
+        si_fraction=0.05,
+        zn_fraction=0.05,
+        mn_fraction=0.05,
+        measurement_method=None
+    )
+    print("Record without method:", record_without_method)
+    print("measurement_method is None:", record_without_method.measurement_method is None)
 
 if __name__ == "__main__":
     main()

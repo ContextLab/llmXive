@@ -1,11 +1,12 @@
-T006:
+T009c:
   c: false
-  h: 3712c54cc9321260067968cb882ff2f4de2436455b8b4571b6051aa7023193d1
-  r: "The provided `logging_config.py` defines a JSON formatter and a `LogEntry` dataclass,\
-    \ but the shown code never configures a `RotatingFileHandler` with `maxBytes=10\u202F\
-    MB` and `backupCount=5` pointing to `data/logs/app.log`, nor does it include any\
-    \ test/assertion that log entries conform to the schema or that rotation occurs.\
-    \ Consequently the core requirements are not demonstrated."
+  h: d636b60e92948b20c6291bc496c475a842149502eda6e4163a81b636e6246904
+  r: "The `code/merge.py` file exists but is truncated and does not show a complete\
+    \ implementation of the required deduplication and conflict\u2011resolution logic.\
+    \ Moreover, the essential input files `data/raw/mp_alloys.json`, `data/raw/nist_alloys.json`,\
+    \ and the constants module `code/constants.py` are missing, so the script cannot\
+    \ function as specified. The missing data files and constants, plus the incomplete\
+    \ code, must be provided/fixed for the task to be considered complete."
 T014:
   c: false
   h: dc995f972425f645f30b08c05c2c144194b598347f1b8fcb32646f8594abced5
@@ -16,13 +17,29 @@ T014:
     the required `data/logs/exclusion_log.txt` does not exist. The implementer must
     complete the function with the exact inference logic and ensure the correct log
     entries are written.
+T015c:
+  c: false
+  h: 580b8b4065da45c4e876ffccf0f4074fa520c96fd63b9d94451de0a91f408dff
+  r: "The `code/data/clean.py` file shown does not contain any logic that writes a\
+    \ Parquet file, checks the row count against 50, calls `sys.exit(1)`, or conditions\
+    \ the write on T015b\u2019s success. Moreover, the expected output file `data/processed/alloys_clean.parquet`\
+    \ is absent from the repository. These missing pieces mean the task\u2019s requirements\
+    \ are not satisfied."
 T016:
-  c: true
-  h: eaafccad8ad32f1cc7b1cefe53c0b134cca9c771fc3100e4e980f7bc34c696ef
-  r: "The `code/data/clean.py` file defines a fully\u2011implemented `log_exclusion`\
-    \ function that writes (or creates) `exclusion_log.txt` in the logs directory,\
-    \ adding a CSV header if needed and appending rows in the required `step,count,reason`\
-    \ format. No placeholder or stub code is present, satisfying the task\u2019s specification."
+  c: false
+  h: 889b604103d290238ef572a3f49945a82a9fef8d6790d98cd824e000b820f337
+  r: "`code/data/clean.py` contains the `log_exclusion` function that writes CSV lines\
+    \ to `data/logs/exclusion_log.txt`, satisfying the code\u2011side requirement,\
+    \ but the required output file `data/logs/exclusion_log.txt` is missing from the\
+    \ repository. The task demands the artifact (the log file) to exist (and be non\u2011\
+    empty), which is not provided. The implementer must create the file (or demonstrate\
+    \ its creation) to complete the task."
+T019:
+  c: false
+  h: 93cc70f1ce724a67a5a0f65da77ff7d9ace27634ecc2b4717a68e3741290ef09
+  r: "The repository contains `code/data/clean.py`, but the required output file `data/processed/alloys_ilr.parquet`\
+    \ is absent, so the ILR\u2011transformed data was not saved as specified. Consequently\
+    \ the task\u2019s deliverable is not present."
 T021b:
   c: false
   h: 8b9a790577cc4282f877776dc687b0ad98c3b8bc106e924e3bfecab2705d3044
@@ -72,10 +89,3 @@ T029:
     \ file with the specified fields. Moreover, the expected output file `results/feature_importance_summary.json`\
     \ is absent from the repository. The task\u2019s core requirements are therefore\
     \ unmet."
-T030b:
-  c: false
-  h: 44fdfa48933b6afbfef8d85f4487cfcd749c5702c52aa25ba26c52bfc7c2ffac
-  r: The repository lacks the required `results/final_report.md` file, and `code/main.py`
-    contains no code that applies the regex `r'(associat|correlat)[^\n]*not causal'`
-    to the report or asserts a Pass/Fail boolean in a pytest test. Both the artifact
-    and the validation logic are missing.

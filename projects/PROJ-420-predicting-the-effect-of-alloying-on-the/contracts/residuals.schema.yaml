@@ -1,0 +1,19 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Residuals Schema
+description: Schema for results/residuals.json containing model prediction residuals.
+type: object
+required:
+  - residuals
+  - indices
+properties:
+  residuals:
+    type: array
+    description: List of residual values (observed - predicted).
+    items:
+      type: number
+  indices:
+    type: array
+    description: List of integer indices corresponding to the residuals in the original dataset.
+    items:
+      type: integer
+additionalProperties: false
