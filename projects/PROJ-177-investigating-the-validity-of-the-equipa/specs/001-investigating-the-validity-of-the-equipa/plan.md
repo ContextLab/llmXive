@@ -9,7 +9,7 @@ This project investigates whether driven granular systems obey the Equipartition
 
 **Core Metric Update**: The primary metric for quantifying deviation is the **Degrees-of-Freedom Normalized Energy Ratio**: 
 $$R = \frac{\langle E_{trans} \rangle / DOF_{trans}}{\langle E_{rot} \rangle / DOF_{rot}}$$
-where $DOF_{trans}=3$ and $DOF_{rot}=2$ (for 2D rotation) or 3 (for 3D). A ratio of 1.0 indicates equipartition. 
+where $DOF_{trans}=3$ and $DOF_{rot}=2$ (for 2D rotation) or 3 (for 3D). A ratio indicating equipartition suggests a balanced distribution between the components.. 
 
 The core analysis utilizes:
 1.  **Kolmogorov-Smirnov (KS) tests** (as the primary validation of distribution shape) comparing empirical distributions against a *parameterized* Maxwell-Boltzmann distribution (where T is derived from the observed mean energy).
@@ -95,7 +95,7 @@ projects/PROJ-177-investigating-the-validity-of-the-equipa/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **Streaming Data Loader** | Datasets may exceed available RAM capacity. | Static `load_and_sample` (row limit) is insufficient for full distribution analysis; streaming allows processing full datasets without loading into memory. Windowed buffering supports PSD integration. |
-| **Sensitivity Sweep for Effect Size** | Required to avoid Type II errors without assuming a prior effect size. | A fixed power analysis is impossible without a prior delta. The sweep (0.05 to 0.5) determines the minimum detectable effect given the data. |
+| **Sensitivity Sweep for Effect Size** | Required to avoid Type II errors without assuming a prior effect size. | A fixed power analysis is impossible without a prior delta. The sweep determines the minimum detectable effect given the data. |
 | **PSD-based Vibrational Energy** | $E_{vib}$ must capture driving signal correlations, not just thermal noise. | Simple $1/2 m v_z^2$ fails to isolate the driven component, violating Principle VI. |
 | **Permutation-based FDR** | Frequency bins are dependent. | Standard Benjamini-Hochberg assumes independence; permutation-based FDR accounts for the correlation between bins. |
 
@@ -103,7 +103,7 @@ projects/PROJ-177-investigating-the-validity-of-the-equipa/
 
 ### Phase 1: Setup & Data Acquisition
 - **T076 (Real Data Source Loader)**: **NEW**. Fetches data from Zenodo ID `10.5281/zenodo.1456789`. Must run before T009.
-- **T077 (Sensitivity Sweep for Effect Size)**: **MOVED**. Runs sensitivity sweep for effect size $\delta \in [\text{small}, 0.5]$ to determine minimum detectable effect. **Must run before T024**.
+- **T077 (Sensitivity Sweep for Effect Size)**: **MOVED**. Runs sensitivity sweep for effect size $\delta \in [\text{small}, \text{moderate}]$ to determine minimum detectable effect. **Must run before T024**.
 - **T009 (Streaming Data Loader)**: Implements `datasets.load_dataset(..., streaming=True)` with windowed buffering for PSD. Must run after T076.
 - **T020a (Generate Test Params)**: **NEW**. Generates `artifacts/test_params.json` with Maxwell-Boltzmann and Pareto parameters for unit testing.
 

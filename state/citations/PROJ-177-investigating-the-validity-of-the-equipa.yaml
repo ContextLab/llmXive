@@ -53,3 +53,25 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1456789
   verified_at: '2026-09-06T09:47:57.828775Z'
+- artifact_hash: 81c9919077cf3bd8e0a216ff30bfd8d915862a9ad079fafecbd647a45eb0354a
+  artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.8456789
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.8456789
+  verified_at: '2026-09-09T17:49:11.448509Z'
+- artifact_hash: fa4608c0edc9ad753e6fa9ff546f2e0023af72b49acb7dc78abcfd7e43948328
+  artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1456789
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1456789
+  verified_at: '2026-09-09T17:50:57.292120Z'

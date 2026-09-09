@@ -6,3 +6,4 @@ frequency_bins:
   - 5.0
   - 10.0
 window_size_N: 3
+default_zenodo_id: 10.5281/zenodo.1234567

@@ -1,3 +1,11 @@
+T014a:
+  c: false
+  h: f6deb9d7bffa8405e0667a244c5fee5a63ed4b8f470ab0d9e0cae9e543b8b3de
+  r: "The repository contains a large `code/ingestion.py`, but the snippet shows no\
+    \ concrete function that reads raw logs and writes `data/derived/driving_signals.csv`.\
+    \ Moreover, the required output file `data/derived/driving_signals.csv` is absent\
+    \ from the disk. Without the generated CSV (or a function that creates it), the\
+    \ task\u2019s core requirement is not met."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

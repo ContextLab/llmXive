@@ -1,19 +1,16 @@
 status: none
-intent: download OpenGranular particle tracking dataset or pip install granular physics
-  data python package dataset
+intent: Granular Tracking Data Set v1 Zenodo download python package dataset
 required_fields:
 - timestamp
 - particle_id
-- x_position
-- y_position
-- z_position
-- orientation_theta
+- x
+- y
+- z
+- theta
 - material_type
-- mass
-- moment_of_inertia
-- driving_signal_timestamp
+- driving_timestamp
 - driving_frequency
 - driving_amplitude
-cache_key: 8c85fdc40b75ab815dac3aa9483cb9608b9b856af72bb5abe117dcb9f3b2b222
-searched_at: '2026-09-06T09:33:08.922347+00:00'
+cache_key: b033b4c6ba09ebfa731efafb6b6096161ce021533a36955bb9ea9bed23b36f9b
+searched_at: '2026-09-09T17:47:36.939482+00:00'
 retry_count: 1
