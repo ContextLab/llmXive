@@ -1,24 +1,54 @@
-T016:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, or log output was provided that demonstrates added error handling
-    for missing data or a count of excluded sessions. Without any artifact showing
-    the implementation (e.g., updated preprocessing script with try/except blocks
-    and logging statements), the requirement cannot be verified as met.
-T023:
+  r: No evidence of the required directory tree (`projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/`,
+    `data/raw/`, `data/processed/`, `tests/unit/`, `tests/integration/`, `docs/reports/`)
+    was provided; the implementer did not supply any artifact confirming these folders
+    exist. The task remains unfinished until the specified directories are created
+    and shown.
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing the required fallback to Generalized\
-    \ Least Squares with robust standard errors is present; the only artifacts shown\
-    \ relate to data ingestion and PSW, not to the GLS fallback logic. Consequently,\
-    \ the task\u2019s core requirement is unfulfilled."
-T024:
+  r: The claim provides no evidence of `__init__.py` files in `code/`, `tests/`, or
+    `tests/unit/`; no file listings or contents are shown, so the required artifacts
+    are missing. The task is not satisfied.
+T001c:
+  c: false
+  h: 9057c731efa669fe13caa0b4c865ba316581f20a3e02c1d64430a5c6d13eb32f
+  r: The required file at `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt`
+    does not exist, even though a similarly named `code/requirements.txt` with the
+    correct pinned versions is present elsewhere. The task specifically demanded the
+    file in the `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/`
+    directory, so the implementation is incomplete.
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log output was provided that implements the required logic\
-    \ to detect extreme propensity\u2011score weights and to flag methodological changes\
-    \ in the logs, so the claimed feature cannot be verified. The necessary artifact\
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/flake8
+    settings, `black` config, or related CI scripts) are present, and the provided
+    artifacts pertain only to data processing and modeling, not to the required linting/formatting
+    setup. The task T003 remains unfulfilled.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest configuration files (e.g.,\u202Fpytest.ini,\u202Fconftest.py, or any\
+    \ test modules) were presented for the `projects/PROJ-367-the-influence-of-algorithmic-recommendat/tests/`\
+    \ directory, so the required artifact does not exist or is empty. The task remains\
+    \ unfinished until a proper pytest setup is added."
+T014b:
+  c: false
+  h: a3029c6f7d6f0f42c87808bda0c825e95c0d2bfcab09ef657d2ce9b7fe3c9a5a
+  r: "The repository contains `code/data_generation.py`, but the script is truncated\
+    \ before it writes the DataFrame to CSV, and the required output file `data/raw/synthetic_enrollments.csv`\
+    \ does not exist. Without the generated CSV, the task\u2019s primary deliverable\
     \ is missing."
+T015:
+  c: false
+  h: ae39315697c9fcc158f8c68d2b2f95ece9b52398c9c68fd85cd8ac5280158fbf
+  r: "The required `data/processed/diversity_scores.json` file is absent, and the\
+    \ provided `run_verification_test` checks a different entropy value (\u22480.918)\
+    \ than the task\u2019s expected log\u2082(1.5) \u2248\u202F0.585. Moreover, the\
+    \ shown `main.py` snippet does not contain logic to write the JSON output, so\
+    \ the core requirement is unmet."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,18 +57,24 @@ T025:
     \ associational language and avoid causal phrasing, as required by task T025.\
     \ The implementer must supply the actual report files or verification evidence\
     \ showing compliance with FR\u2011006."
-T028:
+T028a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No sensitivity analysis report table was provided; there is no artifact containing\
-    \ coefficient stability values or p\u2011values across different thresholds, nor\
-    \ any code or output that demonstrates such a table was generated. The claim cannot\
-    \ be verified because the required deliverable is missing."
-T029:
+  r: "No CSV or JSON file containing the sensitivity analysis table is present, and\
+    \ no code or output showing the execution of the sensitivity sweep for thresholds\
+    \ 0.01, 0.05, and 0.1 is provided. The required artifact (the table with `Recommendation_Diversity`\
+    \ coefficients and p\u2011values) is missing."
+T028b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission contains no code, script, notebook, or documentation that adds\
-    \ an E\u2011value calculation to the analysis pipeline; no function implementing\u202F\
-    E\u2011value\u202F=\u202FOR\u202F+\u202F\u221A(OR\xB7(OR\u20111)) or any usage\
-    \ of it as a limitation metric is present. Consequently the required artifact\
-    \ is missing."
+  r: "No code, data file, or report containing the stability metric (\u201CStable\
+    \ at X/Y thresholds\u201D) was provided. Without an artifact that reads the sensitivity\
+    \ table from T028a, counts p\u2011values\u202F<\u202F0.05, and inserts the metric\
+    \ into the final report, the task\u2019s requirement is not satisfied. The implementer\
+    \ must supply the implemented logic and the resulting report excerpt."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., report, figure, or code output) was provided that shows the
+    analysis being expressed as a sensitivity metric for unmeasured confounding rather
+    than a causal effect size. Without such evidence, the requirement cannot be confirmed.

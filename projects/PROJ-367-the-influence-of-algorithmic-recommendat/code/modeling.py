@@ -1,338 +1,297 @@
-"""
-Modeling module for Propensity Score Weighting (PSW) and GLS fallback.
-Implements baseline interest derivation, PSW calculation, weight stability checks,
-and regression fitting.
-"""
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.regression.linear_model import GLS, WLS
 from statsmodels.tools import add_constant
-from typing import Dict, Any, Optional, Tuple, List
+from dataclasses import dataclass
+from typing import Optional, Tuple, Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
 
+@dataclass
 class RegressionResult:
-    """Container for regression results and diagnostics."""
-    def __init__(
-        self,
-        coefficient: float,
-        std_error: float,
-        p_value: float,
-        vif: Optional[Dict[str, float]] = None,
-        weight_stability_flag: bool = False,
-        extreme_weights_info: Optional[Dict[str, Any]] = None,
-        method: str = "PSW",
-        n_obs: int = 0
-    ):
-        self.coefficient = coefficient
-        self.std_error = std_error
-        self.p_value = p_value
-        self.vif = vif or {}
-        self.weight_stability_flag = weight_stability_flag
-        self.extreme_weights_info = extreme_weights_info
-        self.method = method
-        self.n_obs = n_obs
+    """Container for regression analysis results."""
+    coefficient: float
+    std_error: float
+    p_value: float
+    method: str
+    weights_stable: bool
+    extreme_weights_detected: bool
+    max_weight_ratio: float
+    vif_values: Optional[Dict[str, float]] = None
+    diagnostics: Optional[Dict[str, Any]] = None
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "coefficient": self.coefficient,
-            "std_error": self.std_error,
-            "p_value": self.p_value,
-            "vif": self.vif,
-            "weight_stability_flag": self.weight_stability_flag,
-            "extreme_weights_info": self.extreme_weights_info,
-            "method": self.method,
-            "n_obs": self.n_obs
-        }
-
-def derive_baseline_interest_vector(
-    df: pd.DataFrame,
-    history_col: str = "pre_study_history_categories"
-) -> pd.Series:
+def derive_baseline_interest_vector(df: pd.DataFrame, history_col: str = 'pre_study_history') -> np.ndarray:
     """
     Derive baseline interest vector from pre-study history.
-    Calculates the mean diversity score or category distribution from history.
+    
+    Args:
+        df: DataFrame with historical category data
+        history_col: Column name containing historical category lists
+        
+    Returns:
+        Normalized baseline interest vector
     """
     if history_col not in df.columns:
-        logger.warning(f"Column {history_col} not found. Returning zero baseline.")
-        return pd.Series([0.0] * len(df))
+        logger.warning(f"Column '{history_col}' not found. Returning zero vector.")
+        return np.zeros(1)
+    
+    # Flatten all historical categories
+    all_cats = []
+    for cats in df[history_col].dropna():
+        if isinstance(cats, list):
+            all_cats.extend(cats)
+        elif isinstance(cats, str):
+            all_cats.append(cats)
+    
+    if not all_cats:
+        return np.zeros(1)
+    
+    # Create frequency vector (simplified for demonstration)
+    unique_cats = list(set(all_cats))
+    counts = np.array([all_cats.count(c) for c in unique_cats])
+    return counts / counts.sum() if counts.sum() > 0 else np.zeros(1)
 
-    # Simple implementation: mean of history diversity or count of unique categories
-    # Assuming history_col contains lists or strings of categories
-    def calc_baseline(row):
-        cats = row.get(history_col, [])
-        if isinstance(cats, str):
-            cats = cats.split(",")
-        return len(set(cats)) if cats else 0
-
-    return df.apply(calc_baseline, axis=1)
-
-def calculate_propensity_scores(
-    df: pd.DataFrame,
-    treatment_col: str = "algorithmic_recommendation_present",
-    covariates: Optional[List[str]] = None
-) -> pd.Series:
+def calculate_propensity_scores(df: pd.DataFrame, treatment_col: str = 'high_diversity_rec', 
+                                covariates: Optional[list] = None) -> pd.Series:
     """
-    Calculate propensity scores using logistic regression.
+    Calculate propensity scores for treatment assignment.
+    
+    Args:
+        df: DataFrame with treatment and covariate data
+        treatment_col: Column indicating treatment assignment
+        covariates: List of covariate column names
+        
+    Returns:
+        Series of propensity scores
     """
     if covariates is None:
-        covariates = ["learner_diversity_score", "baseline_interest_vector"]
+        covariates = ['learner_diversity_score', 'baseline_interest_vector']
     
-    # Ensure covariates exist
+    # Filter to available columns
     available_covariates = [c for c in covariates if c in df.columns]
+    
     if not available_covariates:
-        logger.warning("No covariates available for propensity score calculation.")
-        # Return uniform propensity if no covariates
-        return pd.Series([0.5] * len(df))
-
-    X = df[available_covariates].fillna(0)
-    X = add_constant(X)
-    y = df[treatment_col].fillna(0)
-
+        logger.warning("No covariates available. Using intercept-only model.")
+        X = sm.add_constant(pd.Series([1] * len(df)))
+    else:
+        X = df[available_covariates]
+        X = sm.add_constant(X)
+    
+    y = df[treatment_col].astype(int)
+    
     # Fit logistic regression
     model = sm.Logit(y, X)
-    result = model.fit(disp=0)
-    return result.predict()
+    result = model.fit(disp=False)
+    
+    return result.fittedvalues
 
-def calculate_stabilized_weights(
-    df: pd.DataFrame,
-    propensity_scores: pd.Series,
-    treatment_col: str = "algorithmic_recommendation_present"
-) -> pd.Series:
+def calculate_stabilized_weights(df: pd.DataFrame, propensity: pd.Series, 
+                                 treatment_col: str = 'high_diversity_rec') -> pd.Series:
     """
-    Calculate stabilized inverse propensity weights.
+    Calculate stabilized inverse probability weights.
+    
+    Args:
+        df: DataFrame with treatment data
+        propensity: Series of propensity scores
+        treatment_col: Column indicating treatment assignment
+        
+    Returns:
+        Series of stabilized weights
     """
-    treatment = df[treatment_col].fillna(0)
-    ps = propensity_scores.clip(0.01, 0.99)  # Avoid division by zero
-
-    # Stabilized weights: P(T=1) / P(T=1|X) for treated, P(T=0) / P(T=0|X) for control
-    p_treatment = treatment.mean()
+    treatment = df[treatment_col].astype(int)
+    ps = propensity.clip(0.01, 0.99)  # Clip to avoid division by zero
     
     weights = np.where(
         treatment == 1,
-        p_treatment / ps,
-        (1 - p_treatment) / (1 - ps)
+        ps.mean() / ps,
+        (1 - ps.mean()) / (1 - ps)
     )
+    
     return pd.Series(weights, index=df.index)
 
-def check_weight_stability(
-    weights: pd.Series,
-    threshold_factor: float = 10.0
-) -> Tuple[bool, Dict[str, Any]]:
+def check_weight_stability(weights: pd.Series, threshold: float = 10.0) -> Tuple[bool, float]:
     """
-    Check for extreme weights that might destabilize the analysis.
-    Flags if max weight > threshold_factor * median weight.
-    
-    Returns:
-        Tuple of (is_stable, info_dict)
-    """
-    median_weight = weights.median()
-    max_weight = weights.max()
-    
-    if median_weight == 0:
-        logger.warning("Median weight is zero, cannot calculate stability ratio.")
-        return True, {"max_weight": max_weight, "median_weight": 0, "ratio": float('inf')}
-
-    ratio = max_weight / median_weight
-    is_stable = ratio <= threshold_factor
-
-    info = {
-        "max_weight": float(max_weight),
-        "median_weight": float(median_weight),
-        "ratio": float(ratio),
-        "threshold_factor": threshold_factor,
-        "is_stable": is_stable,
-        "extreme_count": int((weights > threshold_factor * median_weight).sum())
-    }
-
-    if not is_stable:
-        logger.warning(
-            f"EXTREME WEIGHTS DETECTED: Max weight ({max_weight:.2f}) is {ratio:.2f}x "
-            f"the median weight ({median_weight:.2f}). "
-            f"Threshold factor: {threshold_factor}. "
-            f"Methodological note: Results may be unstable due to high variance in weights. "
-            f"Consider trimming weights or using alternative methods (e.g., GLS)."
-        )
-    else:
-        logger.info(f"Weight stability check passed. Ratio: {ratio:.2f} <= {threshold_factor}")
-
-    return is_stable, info
-
-def fit_weighted_regression(
-    df: pd.DataFrame,
-    outcome_col: str = "learner_diversity_score",
-    treatment_col: str = "algorithmic_recommendation_present",
-    weights: Optional[pd.Series] = None,
-    covariates: Optional[List[str]] = None
-) -> RegressionResult:
-    """
-    Fit weighted linear regression (WLS) with VIF diagnostics.
-    """
-    if covariates is None:
-        covariates = ["baseline_interest_vector"]
-
-    # Prepare data
-    available_covariates = [c for c in covariates if c in df.columns]
-    X_cols = [treatment_col] + available_covariates
-    X = df[X_cols].fillna(0)
-    X = add_constant(X)
-    y = df[outcome_col].fillna(0)
-    
-    if weights is None:
-        weights = pd.Series([1.0] * len(df), index=df.index)
-
-    # Fit WLS
-    model = WLS(y, X, weights=weights)
-    result = model.fit()
-
-    # Calculate VIF
-    vif_data = {}
-    for i, col in enumerate(X.columns):
-        if col != "const":
-            vif_data[col] = variance_inflation_factor(X.values, i)
-
-    # Check for extreme weights if provided
-    is_stable, weight_info = True, {}
-    if weights is not None and len(weights) > 0:
-        is_stable, weight_info = check_weight_stability(weights)
-
-    return RegressionResult(
-        coefficient=float(result.params[treatment_col]),
-        std_error=float(result.bse[treatment_col]),
-        p_value=float(result.pvalues[treatment_col]),
-        vif=vif_data,
-        weight_stability_flag=not is_stable,
-        extreme_weights_info=weight_info if not is_stable else None,
-        method="PSW",
-        n_obs=len(df)
-    )
-
-def fit_gls_fallback(
-    df: pd.DataFrame,
-    outcome_col: str = "learner_diversity_score",
-    treatment_col: str = "algorithmic_recommendation_present",
-    covariates: Optional[List[str]] = None
-) -> RegressionResult:
-    """
-    Fallback to Generalized Least Squares (GLS) with robust standard errors.
-    Used when N < 30 or PSW fails.
-    """
-    if covariates is None:
-        covariates = ["baseline_interest_vector"]
-
-    available_covariates = [c for c in covariates if c in df.columns]
-    X_cols = [treatment_col] + available_covariates
-    X = df[X_cols].fillna(0)
-    X = add_constant(X)
-    y = df[outcome_col].fillna(0)
-
-    # Fit OLS first to get residuals for GLS (simple approach)
-    ols_model = sm.OLS(y, X)
-    ols_result = ols_model.fit()
-
-    # Use GLS with identity covariance for robustness (or heteroskedasticity consistent)
-    # For simplicity, we use OLS with robust SEs which is equivalent to a specific GLS
-    # But to strictly follow GLS, we can assume a structure. Here we use the robust SEs.
-    gls_model = sm.OLS(y, X)
-    gls_result = gls_model.fit(cov_type='HC3')  # Robust standard errors
-
-    vif_data = {}
-    for i, col in enumerate(X.columns):
-        if col != "const":
-            vif_data[col] = variance_inflation_factor(X.values, i)
-
-    logger.info("Falling back to GLS with robust standard errors.")
-
-    return RegressionResult(
-        coefficient=float(gls_result.params[treatment_col]),
-        std_error=float(gls_result.bse[treatment_col]),
-        p_value=float(gls_result.pvalues[treatment_col]),
-        vif=vif_data,
-        weight_stability_flag=False,
-        extreme_weights_info=None,
-        method="GLS",
-        n_obs=len(df)
-    )
-
-def run_ps_analysis(
-    df: pd.DataFrame,
-    outcome_col: str = "learner_diversity_score",
-    treatment_col: str = "algorithmic_recommendation_present",
-    min_n: int = 30,
-    propensity_threshold: float = 10.0
-) -> RegressionResult:
-    """
-    Run the full Propensity Score analysis pipeline.
-    1. Calculate propensity scores
-    2. Calculate stabilized weights
-    3. Check weight stability
-    4. Fit weighted regression or fallback to GLS
+    Check if weights are stable (not extreme).
     
     Args:
-        df: Input dataframe
-        outcome_col: Name of the outcome column
-        treatment_col: Name of the treatment column
-        min_n: Minimum N to use PSW (otherwise fallback to GLS)
-        propensity_threshold: Factor for extreme weight detection
-    
+        weights: Series of propensity weights
+        threshold: Maximum allowed ratio of max weight to median weight
+        
     Returns:
-        RegressionResult object
+        Tuple of (is_stable, max_ratio)
     """
-    logger.info("Starting Propensity Score Analysis.")
+    if len(weights) == 0:
+        return True, 0.0
+    
+    median_weight = weights.median()
+    if median_weight == 0:
+        return False, float('inf')
+    
+    max_weight = weights.max()
+    ratio = max_weight / median_weight
+    
+    is_stable = ratio <= threshold
+    return is_stable, ratio
 
-    if len(df) < min_n:
-        logger.warning(f"N={len(df)} < {min_n}. Falling back to GLS.")
-        return fit_gls_fallback(df, outcome_col, treatment_col)
-
-    # Calculate propensity scores
-    logger.info("Calculating propensity scores...")
-    propensity_scores = calculate_propensity_scores(df, treatment_col)
-
-    # Calculate weights
-    logger.info("Calculating stabilized weights...")
-    weights = calculate_stabilized_weights(df, propensity_scores, treatment_col)
-
-    # Check weight stability (T024 implementation)
-    logger.info("Checking weight stability for extreme values...")
-    is_stable, weight_info = check_weight_stability(weights, propensity_threshold)
-
+def check_weight_stability_and_log(weights: pd.Series, threshold: float = 10.0, 
+                                   logger_name: Optional[str] = None) -> Tuple[bool, float]:
+    """
+    Check weight stability and log methodological warnings if extreme weights detected.
+    
+    This function implements T024: detection of extreme weights and flagging 
+    methodological changes in logs.
+    
+    Args:
+        weights: Series of propensity weights
+        threshold: Maximum allowed ratio of max weight to median weight (default 10.0)
+        logger_name: Optional logger name, defaults to 'modeling'
+        
+    Returns:
+        Tuple of (is_stable, max_ratio)
+    """
+    is_stable, ratio = check_weight_stability(weights, threshold)
+    
+    if logger_name:
+        log_logger = logging.getLogger(logger_name)
+    else:
+        log_logger = logger
+    
     if not is_stable:
-        logger.warning(
-            "Extreme weights detected. Methodological change: "
-            "Weights are unstable. Results should be interpreted with caution. "
-            "Consider trimming weights or switching to GLS."
+        log_logger.warning(
+            f"EXTREME WEIGHTS DETECTED: Max/median weight ratio is {ratio:.2f}, "
+            f"exceeding threshold of {threshold}. "
+            f"Methodological note: Results may be sensitive to model specification "
+            f"and unmeasured confounding. Consider GLS fallback or trimming."
         )
-        # Optionally, one could trim weights here, but for now we proceed with a flag
-        # and let the user know via the log and result object.
+    else:
+        log_logger.info(f"Weight stability check passed: Max/median ratio = {ratio:.2f} <= {threshold}")
+    
+    return is_stable, ratio
 
-    # Fit regression
-    logger.info("Fitting weighted regression...")
-    result = fit_weighted_regression(
-        df, outcome_col, treatment_col, weights=weights
+def fit_weighted_regression(df: pd.DataFrame, outcome_col: str, treatment_col: str, 
+                            weights: pd.Series) -> RegressionResult:
+    """
+    Fit weighted linear regression with diagnostics.
+    
+    Args:
+        df: DataFrame with outcome, treatment, and covariates
+        outcome_col: Name of outcome variable
+        treatment_col: Name of treatment variable
+        weights: Series of weights
+        
+    Returns:
+        RegressionResult with coefficients and diagnostics
+    """
+    X = df[[treatment_col]]
+    X = add_constant(X)
+    y = df[outcome_col]
+    
+    model = WLS(y, X, weights=weights)
+    result = model.fit()
+    
+    # Calculate VIF
+    vif_values = {}
+    for i, col in enumerate(X.columns):
+        vif_values[col] = variance_inflation_factor(X.values, i)
+    
+    return RegressionResult(
+        coefficient=result.params[1] if len(result.params) > 1 else 0,
+        std_error=result.bse[1] if len(result.bse) > 1 else 0,
+        p_value=result.pvalues[1] if len(result.pvalues) > 1 else 1.0,
+        method="WLS",
+        weights_stable=True,
+        extreme_weights_detected=False,
+        max_weight_ratio=1.0,
+        vif_values=vif_values,
+        diagnostics={'n_obs': len(df), 'r_squared': result.rsquared}
     )
 
-    # Attach stability info to result if not already done in fit_weighted_regression
-    # (It is done there, but we ensure the log flag is prominent)
-    if not is_stable:
-        result.extreme_weights_info = weight_info
-        result.weight_stability_flag = True
-
-    logger.info("Propensity Score Analysis complete.")
-    return result
-
-def check_weight_stability_and_log(
-    weights: pd.Series,
-    threshold_factor: float = 10.0
-) -> bool:
+def fit_gls_fallback(df: pd.DataFrame, outcome_col: str, treatment_col: str) -> RegressionResult:
     """
-    Helper function specifically for T024 to detect extreme weights and flag in logs.
-    This wraps check_weight_stability to ensure the logging requirement is met.
+    Fallback to Generalized Least Squares with robust standard errors.
     
+    Args:
+        df: DataFrame with outcome and treatment
+        outcome_col: Name of outcome variable
+        treatment_col: Name of treatment variable
+        
     Returns:
-        True if weights are stable, False otherwise.
+        RegressionResult with GLS coefficients
     """
-    is_stable, info = check_weight_stability(weights, threshold_factor)
-    return is_stable
+    X = df[[treatment_col]]
+    X = add_constant(X)
+    y = df[outcome_col]
+    
+    # Fit GLS (simple version with robust SEs)
+    model = GLS(y, X)
+    result = model.fit(cov_type='HC3')
+    
+    vif_values = {}
+    for i, col in enumerate(X.columns):
+        vif_values[col] = variance_inflation_factor(X.values, i)
+    
+    logger.warning("Fallback to GLS triggered due to PSW instability or small N.")
+    
+    return RegressionResult(
+        coefficient=result.params[1] if len(result.params) > 1 else 0,
+        std_error=result.bse[1] if len(result.bse) > 1 else 0,
+        p_value=result.pvalues[1] if len(result.pvalues) > 1 else 1.0,
+        method="GLS",
+        weights_stable=True,
+        extreme_weights_detected=False,
+        max_weight_ratio=1.0,
+        vif_values=vif_values,
+        diagnostics={'n_obs': len(df), 'r_squared': result.rsquared}
+    )
+
+def run_ps_analysis(df: pd.DataFrame, outcome_col: str = 'learner_diversity_score',
+                    treatment_col: str = 'high_diversity_rec',
+                    propensity_col: str = 'propensity_score',
+                    weight_col: str = 'stabilized_weight') -> RegressionResult:
+    """
+    Run full propensity score analysis with weight stability checks.
+    
+    This function orchestrates PSW calculation, stability checking, and regression.
+    It implements T024 by logging extreme weight detection.
+    
+    Args:
+        df: Processed DataFrame
+        outcome_col: Outcome variable name
+        treatment_col: Treatment variable name
+        propensity_col: Column name for propensity scores
+        weight_col: Column name for stabilized weights
+        
+    Returns:
+        RegressionResult with analysis output
+    """
+    # Calculate propensity scores if not present
+    if propensity_col not in df.columns:
+        logger.info(f"Calculating propensity scores for {treatment_col}")
+        df[propensity_col] = calculate_propensity_scores(df, treatment_col)
+    
+    # Calculate weights if not present
+    if weight_col not in df.columns:
+        logger.info(f"Calculating stabilized weights")
+        df[weight_col] = calculate_stabilized_weights(df, df[propensity_col], treatment_col)
+    
+    # Check weight stability (T024 implementation)
+    weights = df[weight_col]
+    is_stable, max_ratio = check_weight_stability_and_log(weights, threshold=10.0, logger_name='modeling')
+    
+    # Decide method based on stability and sample size
+    if len(df) < 30 or not is_stable:
+        logger.warning(f"PSW unstable or N={len(df)} < 30. Falling back to GLS.")
+        result = fit_gls_fallback(df, outcome_col, treatment_col)
+        result.weights_stable = is_stable
+        result.extreme_weights_detected = not is_stable
+        result.max_weight_ratio = max_ratio
+    else:
+        result = fit_weighted_regression(df, outcome_col, treatment_col, weights)
+        result.weights_stable = is_stable
+        result.extreme_weights_detected = not is_stable
+        result.max_weight_ratio = max_ratio
+    
+    return result

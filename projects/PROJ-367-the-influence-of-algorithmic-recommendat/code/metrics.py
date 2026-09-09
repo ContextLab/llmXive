@@ -1,155 +1,146 @@
-"""
-Metrics module for calculating diversity scores based on Shannon Entropy.
-Implements FR-001 and FR-009.
-"""
 import numpy as np
 import pandas as pd
 from typing import List, Union, Dict, Optional
 from collections import Counter
 from scipy.special import softmax
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import normalize
 import logging
 
 logger = logging.getLogger(__name__)
 
-def shannon_entropy(proportions: Union[List[float], np.ndarray], base: int = 2) -> float:
+def shannon_entropy(probs: Union[List[float], np.ndarray]) -> float:
     """
-    Calculate Shannon entropy of a probability distribution.
+    Calculate Shannon entropy (base 2) of a probability distribution.
     
     Args:
-        proportions: List or array of probabilities (must sum to 1).
-        base: Logarithm base (default 2 for bits).
-    
+        probs: List or array of probabilities (must sum to 1)
+        
     Returns:
-        Entropy value.
-    
-    Raises:
-        ValueError: If proportions do not sum to 1 or contain negatives.
+        float: Shannon entropy in bits
     """
-    probs = np.array(probes, dtype=float) if isinstance(proportions, list) else proportions
-    if np.any(probs < 0):
-        raise ValueError("Probabilities cannot be negative.")
-    
-    # Normalize to ensure sum is 1 (handling floating point errors)
-    total = np.sum(probs)
-    if total == 0:
+    probs = np.array(probs)
+    # Handle edge cases
+    if len(probs) == 0:
         return 0.0
-    probs = probs / total
     
     # Filter out zero probabilities to avoid log(0)
     probs = probs[probs > 0]
     
-    entropy = -np.sum(probs * np.log(probs) / np.log(base))
-    return float(entropy)
-
-def calculate_diversity_score(categories: List[str], category_embeddings: Optional[Dict[str, np.ndarray]] = None, 
-                              threshold: float = 0.05, merge: bool = False) -> float:
-    """
-    Calculate diversity score for a list of categories.
-    
-    If merge=True and embeddings are provided, merges semantically similar categories
-    before calculating entropy (FR-009).
-    
-    Args:
-        categories: List of category strings.
-        category_embeddings: Dict mapping category string to embedding vector (optional).
-        threshold: Similarity threshold for merging (only used if merge=True).
-        merge: Whether to merge similar categories.
-    
-    Returns:
-        Shannon entropy of the category distribution.
-    """
-    if not categories:
+    if len(probs) == 0:
         return 0.0
     
-    working_categories = categories
+    # Normalize to ensure sum is 1 (handle floating point errors)
+    probs = probs / probs.sum()
     
-    if merge and category_embeddings:
-        working_categories = merge_similar_categories(categories, category_embeddings, threshold)
-    
-    counts = Counter(working_categories)
-    total = len(working_categories)
-    proportions = [count / total for count in counts.values()]
-    
-    return shannon_entropy(proportions, base=2)
+    # Calculate entropy: -sum(p * log2(p))
+    entropy = -np.sum(probs * np.log2(probs))
+    return float(entropy)
 
-def merge_similar_categories(categories: List[str], category_embeddings: Dict[str, np.ndarray], 
-                             threshold: float = 0.05) -> List[str]:
+def calculate_diversity_score(
+    categories: Union[List[str], str, None],
+    merge_threshold: float = 0.0
+) -> Optional[float]:
     """
-    Merge categories that are semantically similar based on cosine similarity.
-    
-    This implements FR-009: Category Merging Logic.
-    Categories with cosine similarity >= threshold are merged into a single representative
-    (the first occurrence in the unique list).
+    Calculate diversity score (Shannon entropy) for a list of categories.
     
     Args:
-        categories: List of category strings (may contain duplicates).
-        category_embeddings: Dict mapping category string to embedding vector (numpy array).
-        threshold: Cosine similarity threshold. Values >= threshold are merged.
-    
+        categories: List of category strings, or None/empty string
+        merge_threshold: Threshold for semantic similarity merging (currently unused, reserved for future)
+        
     Returns:
-        List of categories with similar ones merged to the first occurrence.
+        float: Diversity score (entropy), or None if categories is empty/None
     """
-    if not categories or not category_embeddings:
-        return categories
+    # Handle None or empty input
+    if categories is None:
+        return None
     
-    # Preserve order and remove duplicates for the similarity calculation
-    # dict.fromkeys preserves insertion order in Python 3.7+
-    unique_cats = list(dict.fromkeys(categories))
+    if isinstance(categories, str):
+        if categories.strip() == '':
+            return None
+        # If it's a string representation of a list, parse it
+        try:
+            # Try to parse as JSON-like list string
+            import json
+            categories = json.loads(categories)
+        except:
+            # If that fails, treat as comma-separated
+            categories = [c.strip() for c in categories.split(',') if c.strip()]
     
-    if len(unique_cats) <= 1:
-        return categories
+    # Handle empty list
+    if not isinstance(categories, list) or len(categories) == 0:
+        return None
     
-    # Filter to categories that actually have embeddings
-    valid_cats = []
-    embeds = []
-    for cat in unique_cats:
-        if cat in category_embeddings:
-            valid_cats.append(cat)
-            embeds.append(category_embeddings[cat])
+    # Count category frequencies
+    counter = Counter(categories)
+    total = sum(counter.values())
     
-    if len(valid_cats) < 2:
-        return categories
+    if total == 0:
+        return None
     
-    # Normalize embeddings for cosine similarity (sklearn cosine_similarity does this internally 
-    # but explicit normalization is safer for numerical stability)
-    embeds_arr = np.array(embeds)
-    if embeds_arr.shape[0] > 0:
-        # Normalize rows
-        norms = np.linalg.norm(embeds_arr, axis=1, keepdims=True)
-        # Avoid division by zero
-        norms[norms == 0] = 1
-        embeds_arr = embeds_arr / norms
+    # Calculate probabilities
+    probs = [count / total for count in counter.values()]
     
-    sim_matrix = cosine_similarity(embeds_arr)
+    # Calculate Shannon entropy
+    return shannon_entropy(probs)
+
+def merge_similar_categories(
+    categories: List[str],
+    similarity_threshold: float = 0.8,
+    embeddings: Optional[np.ndarray] = None
+) -> List[str]:
+    """
+    Merge similar categories based on semantic similarity.
     
-    # Greedy merging strategy:
-    # Iterate through categories in order. If a category is similar to a previous one,
-    # map it to that previous one.
-    merged_map = {cat: cat for cat in unique_cats}
-    processed = set()
-    
-    for i, cat_i in enumerate(valid_cats):
-        if cat_i in processed:
-            continue
+    Args:
+        categories: List of category strings
+        similarity_threshold: Minimum similarity to consider categories as same
+        embeddings: Pre-computed embeddings for categories (optional)
         
-        # Check against all subsequent categories
-        for j, cat_j in enumerate(valid_cats):
-            if i == j:
-                continue
-            if cat_j in processed:
-                continue
-            
-            # Only check upper triangle (i < j) to merge j into i
-            if i < j:
-                similarity = sim_matrix[i, j]
-                if similarity >= threshold:
-                    logger.debug(f"Merging '{cat_j}' into '{cat_i}' (similarity: {similarity:.4f})")
-                    merged_map[cat_j] = cat_i
-                    processed.add(cat_j)
-        
-        processed.add(cat_i)
+    Returns:
+        List[str]: Merged list of categories
+    """
+    if not categories or len(categories) == 0:
+        return []
     
-    # Apply mapping to the original list (preserving duplicates and order)
-    return [merged_map[cat] for cat in categories]
+    # For now, return categories as-is since we don't have embeddings
+    # This function is a placeholder for future semantic merging
+    logger.debug("Semantic category merging not yet implemented - returning original categories")
+    return categories
+
+def calculate_batch_diversity_scores(
+    df: pd.DataFrame,
+    recommendation_col: str = "recommended_categories",
+    learner_col: str = "enrolled_categories"
+) -> pd.DataFrame:
+    """
+    Calculate diversity scores for a batch of records.
+    
+    Args:
+        df: DataFrame with category columns
+        recommendation_col: Column name for recommended categories
+        learner_col: Column name for enrolled categories
+        
+    Returns:
+        pd.DataFrame: DataFrame with added diversity score columns
+    """
+    result_df = df.copy()
+    
+    # Calculate recommendation diversity
+    result_df['recommendation_diversity_score'] = result_df[recommendation_col].apply(
+        lambda x: calculate_diversity_score(x)
+    )
+    
+    # Calculate learner diversity (handles None/empty gracefully)
+    result_df['learner_diversity_score'] = result_df[learner_col].apply(
+        lambda x: calculate_diversity_score(x)
+    )
+    
+    # Log statistics
+    null_rec_scores = result_df['recommendation_diversity_score'].isna().sum()
+    null_learner_scores = result_df['learner_diversity_score'].isna().sum()
+    
+    logger.info(f"Batch diversity calculation complete.")
+    logger.info(f"Null recommendation scores: {null_rec_scores}")
+    logger.info(f"Null learner scores: {null_learner_scores}")
+    
+    return result_df

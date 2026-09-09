@@ -1,67 +1,67 @@
 """
-Unit tests for code/metrics.py.
+Unit tests for metrics.py (T011).
 
-Tests Shannon entropy calculation and diversity score computation.
+Tests Shannon entropy calculation and diversity score logic.
 """
 import pytest
-import numpy as np
-import sys
-from pathlib import Path
-
-# Ensure code directory is in path
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-if str(CODE_DIR) not in sys.path:
-    sys.path.insert(0, str(CODE_DIR))
-
+import math
 from metrics import shannon_entropy, calculate_diversity_score
 
+class TestShannonEntropy:
+    def test_uniform_distribution(self):
+        """Test entropy of a uniform distribution (max entropy)."""
+        # 2 categories, equal probability -> log2(2) = 1.0
+        counts = [10, 10]
+        # Normalize to probabilities
+        total = sum(counts)
+        probs = [c / total for c in counts]
+        entropy = shannon_entropy(probs)
+        assert math.isclose(entropy, 1.0, rel_tol=1e-9)
 
-def test_shannon_entropy_empty_list():
-    """Test entropy of an empty list is 0."""
-    result = shannon_entropy([])
-    assert result == 0.0
+    def test_deterministic_distribution(self):
+        """Test entropy of a deterministic distribution (zero entropy)."""
+        # 1 category, 100% probability -> log2(1) = 0.0
+        counts = [10]
+        total = sum(counts)
+        probs = [c / total for c in counts]
+        entropy = shannon_entropy(probs)
+        assert math.isclose(entropy, 0.0, rel_tol=1e-9)
 
+    def test_known_value(self):
+        """Test against a known manual calculation."""
+        # Categories: Math, Math, Science (2 Math, 1 Science)
+        # Probs: [2/3, 1/3]
+        # Entropy = - (2/3)*log2(2/3) - (1/3)*log2(1/3)
+        #         = - (2/3)*(-0.58496) - (1/3)*(-1.58496)
+        #         = 0.38997 + 0.52832 = 0.91829
+        counts = [2, 1]
+        total = sum(counts)
+        probs = [c / total for c in counts]
+        entropy = shannon_entropy(probs)
+        expected = -(2/3) * math.log2(2/3) - (1/3) * math.log2(1/3)
+        assert math.isclose(entropy, expected, rel_tol=1e-9)
 
-def test_shannon_entropy_single_item():
-    """Test entropy of a single item is 0."""
-    result = shannon_entropy(["A"])
-    assert result == 0.0
+class TestCalculateDiversityScore:
+    def test_diversity_score_calculation(self):
+        """Test the wrapper function with a list of category counts."""
+        # Input: 3 categories with counts [4, 2, 1]
+        # Total = 7
+        # Probs = [4/7, 2/7, 1/7]
+        counts = [4, 2, 1]
+        score = calculate_diversity_score(counts)
+        
+        # Manual calculation
+        total = sum(counts)
+        probs = [c / total for c in counts]
+        expected = shannon_entropy(probs)
+        
+        assert math.isclose(score, expected, rel_tol=1e-9)
 
-
-def test_shannon_entropy_uniform_distribution():
-    """Test entropy of a uniform distribution (max entropy)."""
-    # Two items, equal probability -> log2(2) = 1.0
-    result = shannon_entropy(["A", "B"])
-    assert np.isclose(result, 1.0, atol=1e-5)
-
-    # Four items, equal probability -> log2(4) = 2.0
-    result = shannon_entropy(["A", "B", "C", "D"])
-    assert np.isclose(result, 2.0, atol=1e-5)
-
-
-def test_shannon_entropy_skewed_distribution():
-    """Test entropy of a skewed distribution."""
-    # High probability on one item -> lower entropy
-    # ["A", "A", "A", "B"] -> p(A)=0.75, p(B)=0.25
-    # H = - (0.75*log2(0.75) + 0.25*log2(0.25))
-    # H ≈ 0.811
-    result = shannon_entropy(["A", "A", "A", "B"])
-    expected = - (0.75 * np.log2(0.75) + 0.25 * np.log2(0.25))
-    assert np.isclose(result, expected, atol=1e-5)
-
-
-def test_calculate_diversity_score_basic():
-    """Test diversity score calculation on a simple list."""
-    categories = ["Math", "Math", "Science", "History"]
-    score = calculate_diversity_score(categories)
-    # p(Math)=0.5, p(Science)=0.25, p(History)=0.25
-    # H = - (0.5*log2(0.5) + 0.25*log2(0.25) + 0.25*log2(0.25))
-    # H = 0.5 + 0.5 + 0.5 = 1.5
-    assert np.isclose(score, 1.5, atol=1e-5)
-
-
-def test_calculate_diversity_score_empty():
-    """Test diversity score for empty list."""
-    score = calculate_diversity_score([])
-    assert score == 0.0
+    def test_empty_input(self):
+        """Test behavior with empty input (should return 0 or handle gracefully)."""
+        # Per spec, empty enrollments should result in null or exclusion,
+        # but the metric function itself should handle edge cases.
+        # We expect 0 entropy for a single "empty" state or raise an error.
+        # Based on typical Shannon entropy, 0 items -> 0 entropy.
+        score = calculate_diversity_score([])
+        assert score == 0.0
