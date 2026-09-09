@@ -3,77 +3,55 @@ import random
 from pathlib import Path
 from typing import Final
 
-# Try to import torch, but don't fail if it's not installed (CPU-only env)
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
-
-# Try to import numpy, but don't fail if it's not installed (it's a dependency)
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-
+# Project Root
 PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
-CODE_DIR: Final[Path] = PROJECT_ROOT / "code"
+
+# Directories
 DATA_DIR: Final[Path] = PROJECT_ROOT / "data"
+DATA_RAW_DIR: Final[Path] = DATA_DIR / "raw"
+DATA_CURATED_DIR: Final[Path] = DATA_DIR / "curated"
+DATA_MOCK_DIR: Final[Path] = DATA_DIR / "mock"
 MODELS_DIR: Final[Path] = PROJECT_ROOT / "models"
 REPORTS_DIR: Final[Path] = PROJECT_ROOT / "reports"
 ERRORS_DIR: Final[Path] = PROJECT_ROOT / "errors"
-LOG_DIR: Final[Path] = PROJECT_ROOT / "data" / "logs"
-TESTS_DIR: Final[Path] = PROJECT_ROOT / "tests"
+LOGS_DIR: Final[Path] = PROJECT_ROOT / "logs"
 
+# Specific paths for convenience
+CURATED_DIR: Final[Path] = DATA_CURATED_DIR
+RAW_DIR: Final[Path] = DATA_RAW_DIR
+
+# Configuration
 RANDOM_SEED: Final[int] = 42
 
-# Filter criteria for data ingestion (US1)
-FILTER_CRITERIA: Final[dict] = {
-    "crystal_structure": "FCC",
-    "diffusion_mode": "self"
-}
-
-def ensure_directories():
+def ensure_directories() -> None:
     """Create all required directories if they do not exist."""
-    dirs = [DATA_DIR, MODELS_DIR, REPORTS_DIR, ERRORS_DIR, LOG_DIR, TESTS_DIR]
+    dirs = [
+        DATA_DIR, DATA_RAW_DIR, DATA_CURATED_DIR, DATA_MOCK_DIR,
+        MODELS_DIR, REPORTS_DIR, ERRORS_DIR, LOGS_DIR
+    ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
 def set_global_seed(seed: int = RANDOM_SEED) -> None:
-    """
-    Enforce a global random seed for reproducibility.
-    Sets seeds for:
-      - Python's built-in `random` module
-      - `numpy` (if available)
-      - `torch` (if available)
-    
-    Logs the seed to `data/logs/execution_log.txt` in the format:
-    SEED: <value>
-    """
-    # Set Python random seed
+    """Set global random seeds for reproducibility."""
     random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    # Note: numpy and torch seeding handled in specific modules if needed
     
-    # Set numpy seed if available
-    if NUMPY_AVAILABLE:
-        np.random.seed(seed)
-    
-    # Set torch seed if available
-    if TORCH_AVAILABLE:
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    
-    # Log the seed
-    ensure_directories()
-    log_path = LOG_DIR / "execution_log.txt"
-    
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(f"SEED: {seed}\n")
+# Filter Criteria
+FILTER_CRITERIA: Final[dict] = {
+    'crystal_structure': 'FCC',
+    'diffusion_mode': 'self'
+}
 
-# Execute seed setting immediately upon import to ensure reproducibility
-# for any subsequent code execution in this pipeline.
-# Only call if numpy is available to avoid circular import issues during setup
-# where numpy might not be installed yet but config is imported.
-if NUMPY_AVAILABLE:
-    set_global_seed(RANDOM_SEED)
+# Data Streaming Config (from T056)
+DATA_STREAMING_CONFIG: Final[dict] = {
+    'STREAMING_CHUNK_SIZE': 1000,
+    'MAX_MEMORY_MB': 6000,
+    'MIN_DATASET_SIZE_FOR_SPLIT': 20,
+    'MIN_DATASET_SIZE_FOR_VALIDATION': 50
+}
+
+# Initialize directories on import if not already done
+# This ensures paths exist for scripts that import config but don't run setup
+ensure_directories()

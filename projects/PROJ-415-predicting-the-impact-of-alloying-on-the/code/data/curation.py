@@ -4,232 +4,224 @@ import logging
 from pathlib import Path
 from typing import Tuple, Optional, List, Dict, Any
 import csv
+import json
+from datetime import datetime
 
-from config import DATA_DIR, LOG_DIR, PROJECT_ROOT
-from utils.constants import get_metallic_radius
-from utils.logging import get_logger
+from config import DATA_DIR, ERRORS_DIR, LOG_DIR
+from utils.constants import get_metallic_radius, ElementData
+from utils.logging import get_logger, log_warning, log_info
 
-# Ensure logger is configured
+# Initialize logger
 logger = get_logger(__name__)
+
+# Define paths
+EXCLUSIONS_LOG_PATH = LOG_DIR / "exclusions.log"
+MISSING_DATA_PATH = ERRORS_DIR / "missing_atomic_data.csv"
+CURATED_OUTPUT_PATH = DATA_DIR / "curated" / "filtered.csv"
+DATA_PROVENANCE_PATH = DATA_DIR / "curated" / "data_provenance.json"
+RAW_PROVENANCE_PATH = DATA_DIR / "raw" / "source_metadata.json"
 
 def load_curated_data() -> pd.DataFrame:
     """
-    Load the filtered dataset from the ingestion step.
-    Expected path: data/curated/filtered.csv
+    Loads the filtered dataset from the ingestion step.
+    Expects data/curated/filtered.csv (intermediate state before curation)
+    or data/raw/fetched_diffusion.csv if ingestion hasn't been run yet in this flow.
+    Based on T012, ingestion outputs to data/curated/filtered.csv.
     """
     input_path = DATA_DIR / "curated" / "filtered.csv"
     if not input_path.exists():
-        raise FileNotFoundError(
-            f"Input file not found: {input_path}. "
-            "Please ensure T013 (ingestion) has run successfully."
-        )
+        # Fallback for initial run if ingestion hasn't written yet, though T012 should have.
+        # If T012 writes to curated/filtered.csv, we read from there.
+        # If the pipeline expects raw data here, we check raw.
+        raw_path = DATA_DIR / "raw" / "fetched_diffusion.csv"
+        if raw_path.exists():
+            logger.warning(f"Intermediate curated file not found. Loading from raw: {raw_path}")
+            return pd.read_csv(raw_path)
+        else:
+            raise FileNotFoundError(f"Neither {input_path} nor {raw_path} found. Run T012 first.")
     
-    logger.info(f"Loading curated data from {input_path}")
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
-    return df
+    return pd.read_csv(input_path)
 
 def validate_atomic_radii(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Validate that atomic radii exist for all solute and host elements.
-    Returns the cleaned dataframe and a list of exclusion records.
+    Checks for missing atomic radii in the constants for solute and host elements.
+    Returns the dataframe and a list of missing data records.
     """
-    exclusions = []
-    valid_rows = []
-    missing_atomic_data = []
+    missing_records = []
+    valid_indices = []
 
-    # Identify columns for host and solute elements
-    # Assuming standard column names from ingestion: 'host_element', 'solute_element'
-    # If column names differ, adjust here based on actual schema
-    host_col = 'host_element'
-    solute_col = 'solute_element'
-
-    if host_col not in df.columns or solute_col not in df.columns:
-        raise ValueError(f"DataFrame missing required columns: '{host_col}' or '{solute_col}'")
+    # Ensure host_id and solute_id columns exist and are strings
+    df['host_id'] = df['host_id'].astype(str)
+    df['solute_id'] = df['solute_id'].astype(str)
 
     for idx, row in df.iterrows():
-        row_id = row.get('row_id', idx)
-        host = str(row[host_col]).strip()
-        solute = str(row[solute_col]).strip()
+        host = row['host_id']
+        solute = row['solute_id']
+        has_host = host in ElementData and ElementData[host].metallic_radius is not None
+        has_solute = solute in ElementData and ElementData[solute].metallic_radius is not None
 
-        # Check if radii are available
-        host_r = get_metallic_radius(host)
-        solute_r = get_metallic_radius(solute)
-
-        if host_r is None:
-            exclusions.append({
-                'row_id': row_id,
-                'reason_code': 'MISSING_ATOMIC_RADIUS_HOST',
-                'element': host
+        if not has_host:
+            missing_records.append({
+                'row_id': idx,
+                'solute_symbol': host,
+                'missing_attribute': 'host_metallic_radius'
             })
-            missing_atomic_data.append({
-                'row_id': row_id,
-                'element': host,
-                'role': 'host'
+        elif not has_solute:
+            missing_records.append({
+                'row_id': idx,
+                'solute_symbol': solute,
+                'missing_attribute': 'solute_metallic_radius'
             })
-            continue
+        else:
+            valid_indices.append(idx)
 
-        if solute_r is None:
-            exclusions.append({
-                'row_id': row_id,
-                'reason_code': 'MISSING_ATOMIC_RADIUS_SOLUTE',
-                'element': solute
-            })
-            missing_atomic_data.append({
-                'row_id': row_id,
-                'element': solute,
-                'role': 'solute'
-            })
-            continue
-
-        valid_rows.append(idx)
-
-    cleaned_df = df.iloc[valid_rows].reset_index(drop=True)
-    return cleaned_df, exclusions, missing_atomic_data
+    valid_df = df.loc[valid_indices].reset_index(drop=True)
+    return valid_df, missing_records
 
 def exclude_missing_concentration(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Exclude rows where solute concentration is missing or invalid.
-    Returns the cleaned dataframe and a list of exclusion records.
+    Excludes rows where concentration is missing or invalid.
     """
-    exclusions = []
-    valid_rows = []
-    concentration_col = 'solute_concentration' # Adjust if column name differs
+    exclusion_records = []
+    valid_indices = []
 
-    if concentration_col not in df.columns:
-        # If column doesn't exist, we assume all rows are valid regarding concentration
-        # or we raise an error depending on strictness. Here we assume valid if missing.
-        logger.warning(f"Column '{concentration_col}' not found in dataframe. Skipping concentration check.")
-        return df, []
-
+    # Check for NaN or None in concentration
     for idx, row in df.iterrows():
-        row_id = row.get('row_id', idx)
-        conc = row[concentration_col]
-
-        # Check for NaN, None, or empty string
-        if pd.isna(conc) or conc == '' or conc is None:
-            exclusions.append({
-                'row_id': row_id,
-                'reason_code': 'MISSING_CONCENTRATION'
+        conc = row.get('concentration')
+        if pd.isna(conc) or conc is None:
+            exclusion_records.append({
+                'row_id': idx,
+                'reason_code': 'MISSING_CONCENTRATION',
+                'row_content': str(row.to_dict())[:100] # Truncated for log
             })
-            continue
-        
-        # Optional: Check for negative values if applicable
-        try:
-            if float(conc) < 0:
-                exclusions.append({
-                    'row_id': row_id,
-                    'reason_code': 'INVALID_CONCENTRATION'
-                })
-                continue
-        except (ValueError, TypeError):
-            exclusions.append({
-                'row_id': row_id,
-                'reason_code': 'INVALID_CONCENTRATION'
-            })
-            continue
+        else:
+            valid_indices.append(idx)
 
-        valid_rows.append(idx)
+    valid_df = df.loc[valid_indices].reset_index(drop=True)
+    return valid_df, exclusion_records
 
-    cleaned_df = df.iloc[valid_rows].reset_index(drop=True)
-    return cleaned_df, exclusions
-
-def log_exclusions(exclusions: List[Dict[str, Any]], missing_atomic_data: List[Dict[str, Any]]) -> None:
+def log_exclusions(exclusion_records: List[Dict[str, Any]], missing_records: List[Dict[str, Any]]) -> int:
     """
-    Log exclusions to data/logs/exclusions.log and atomic data errors to errors/missing_atomic_data.csv.
-    
-    The exclusions.log file MUST have the count of excluded rows as the first line:
-    # EXCLUSION_COUNT: <count>
-    Followed by CSV header and data.
+    Writes exclusion logs to data/logs/exclusions.log and missing data to errors/missing_atomic_data.csv.
+    Returns the total count of excluded rows.
     """
-    # Ensure directories exist
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    ERRORS_DIR = PROJECT_ROOT / "errors"
-    ERRORS_DIR.mkdir(parents=True, exist_ok=True)
+    os.makedirs(LOG_DIR, exist_ok=True)
+    os.makedirs(ERRORS_DIR, exist_ok=True)
 
-    exclusion_log_path = LOG_DIR / "exclusions.log"
-    atomic_errors_path = ERRORS_DIR / "missing_atomic_data.csv"
-
-    total_excluded = len(exclusions)
+    total_excluded = len(exclusion_records) + len(missing_records)
 
     # Write exclusions log
-    logger.info(f"Writing {total_excluded} exclusions to {exclusion_log_path}")
-    with open(exclusion_log_path, 'w', newline='', encoding='utf-8') as f:
+    with open(EXCLUSIONS_LOG_PATH, 'w', newline='') as f:
+        writer = csv.writer(f)
         # First line: Count
         f.write(f"# EXCLUSION_COUNT: {total_excluded}\n")
+        writer.writerow(['row_id', 'reason_code', 'row_content', 'missing_attribute'])
         
-        # CSV Header
-        writer = csv.DictWriter(f, fieldnames=['row_id', 'reason_code', 'element'])
-        writer.writeheader()
+        for rec in exclusion_records:
+            writer.writerow([rec['row_id'], rec['reason_code'], rec['row_content'], ''])
         
-        for record in exclusions:
-            # Normalize record to ensure all fields exist
-            row = {
-                'row_id': record.get('row_id', ''),
-                'reason_code': record.get('reason_code', 'UNKNOWN'),
-                'element': record.get('element', '')
-            }
-            writer.writerow(row)
+        for rec in missing_records:
+            writer.writerow([rec['row_id'], 'MISSING_ATOMIC_RADIUS', '', rec['missing_attribute']])
 
-    # Write missing atomic data errors
-    logger.info(f"Writing {len(missing_atomic_data)} atomic data errors to {atomic_errors_path}")
-    with open(atomic_errors_path, 'w', newline='', encoding='utf-8') as f:
-        if missing_atomic_data:
-            writer = csv.DictWriter(f, fieldnames=['row_id', 'element', 'role'])
-            writer.writeheader()
-            writer.writerows(missing_atomic_data)
-        else:
-            # Write empty file with header if no errors
-            writer = csv.DictWriter(f, fieldnames=['row_id', 'element', 'role'])
-            writer.writeheader()
+    logger.info(f"Logged {total_excluded} exclusions to {EXCLUSIONS_LOG_PATH}")
 
-    logger.info(f"Exclusion logging complete. Total excluded: {total_excluded}")
+    # Write missing atomic data file
+    with open(MISSING_DATA_PATH, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['solute_symbol', 'missing_attribute'])
+        for rec in missing_records:
+            writer.writerow([rec['solute_symbol'], rec['missing_attribute']])
+    
+    logger.info(f"Logged {len(missing_records)} missing atomic data entries to {MISSING_DATA_PATH}")
+    return total_excluded
 
 def run_curation() -> pd.DataFrame:
     """
-    Main orchestration function for data curation.
+    Main curation logic:
     1. Load filtered data.
-    2. Exclude rows with missing concentration.
-    3. Validate and exclude rows with missing atomic radii.
-    4. Log all exclusions.
-    5. Save the final curated dataset.
+    2. Exclude missing concentration.
+    3. Exclude missing atomic radii.
+    4. Log exclusions.
+    5. Save curated data.
+    6. Update data_provenance.json.
     """
-    logger.info("Starting data curation process (T014)")
+    logger.info("Starting curation process...")
     
-    # Step 1: Load data
-    df = load_curated_data()
-    
-    # Step 2: Exclude missing concentration
+    # 1. Load data
+    try:
+        df = load_curated_data()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise
+
+    initial_count = len(df)
+    logger.info(f"Loaded {initial_count} rows for curation.")
+
+    # 2. Exclude missing concentration
     df_conc_clean, conc_exclusions = exclude_missing_concentration(df)
     logger.info(f"Excluded {len(conc_exclusions)} rows due to missing concentration.")
+
+    # 3. Exclude missing atomic radii
+    df_final, radius_missing = validate_atomic_radii(df_conc_clean)
+    logger.info(f"Excluded {len(radius_missing)} rows due to missing atomic radii.")
+
+    # 4. Log exclusions
+    total_excluded = log_exclusions(conc_exclusions, radius_missing)
     
-    # Step 3: Validate atomic radii
-    df_radii_clean, radii_exclusions, missing_atomic_data = validate_atomic_radii(df_conc_clean)
-    logger.info(f"Excluded {len(radii_exclusions)} rows due to missing atomic radii.")
+    final_count = len(df_final)
+    logger.info(f"Curation complete. Rows: {initial_count} -> {final_count} (Excluded: {total_excluded})")
+
+    # 5. Save curated data
+    os.makedirs(CURATED_OUTPUT_PATH.parent, exist_ok=True)
+    df_final.to_csv(CURATED_OUTPUT_PATH, index=False)
+    logger.info(f"Saved curated data to {CURATED_OUTPUT_PATH}")
+
+    # 6. Update data_provenance.json
+    update_provenance(initial_count, final_count)
+
+    return df_final
+
+def update_provenance(initial_count: int, final_count: int):
+    """
+    Updates or creates data/curated/data_provenance.json.
+    Reads source metadata from data/raw/source_metadata.json.
+    """
+    provenance_data = {}
     
-    # Combine all exclusions
-    all_exclusions = conc_exclusions + radii_exclusions
+    # Read raw source metadata if available
+    if RAW_PROVENANCE_PATH.exists():
+        with open(RAW_PROVENANCE_PATH, 'r') as f:
+            raw_meta = json.load(f)
+            provenance_data['source_url'] = raw_meta.get('url', 'Unknown')
+            provenance_data['source_timestamp'] = raw_meta.get('timestamp', 'Unknown')
+            provenance_data['source_type'] = raw_meta.get('source_type', 'real') # Default to real if not specified
+    else:
+        logger.warning("source_metadata.json not found. Setting source_type to 'unknown'.")
+        provenance_data['source_type'] = 'unknown'
+
+    provenance_data['curation_timestamp'] = datetime.now().isoformat()
+    provenance_data['rows_before_curation'] = initial_count
+    provenance_data['rows_after_curation'] = final_count
+    provenance_data['rows_excluded'] = initial_count - final_count
+    provenance_data['filter_criteria'] = {
+        'crystal_structure': 'FCC',
+        'diffusion_mode': 'self'
+    }
+
+    os.makedirs(DATA_PROVENANCE_PATH.parent, exist_ok=True)
+    with open(DATA_PROVENANCE_PATH, 'w') as f:
+        json.dump(provenance_data, f, indent=2)
     
-    # Step 4: Log exclusions
-    log_exclusions(all_exclusions, missing_atomic_data)
-    
-    # Step 5: Save final curated data
-    output_path = DATA_DIR / "curated" / "filtered.csv" # Overwrite or save to new file? 
-    # Spec implies we are curating the output of T013. Let's save to a new file to be safe, 
-    # or overwrite if that's the pipeline flow. T013 output is filtered.csv. 
-    # Let's save the final curated version to the same path or a new 'curated.csv' 
-    # to preserve the intermediate 'filtered.csv'. 
-    # Given T013 output is 'filtered.csv', we will overwrite it with the curated version 
-    # as per typical pipeline progression, or save to 'curated.csv'. 
-    # Let's save to 'curated.csv' to distinguish the curation step.
-    final_output_path = DATA_DIR / "curated" / "curated.csv"
-    
-    df_radii_clean.to_csv(final_output_path, index=False)
-    logger.info(f"Final curated dataset saved to {final_output_path} with {len(df_radii_clean)} rows.")
-    
-    return df_radii_clean
+    logger.info(f"Updated data provenance at {DATA_PROVENANCE_PATH}")
+
+def main():
+    """Entry point for the curation script."""
+    try:
+        run_curation()
+        logger.info("Curation finished successfully.")
+    except Exception as e:
+        logger.error(f"Curation failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
-    # Setup basic logging for direct execution
-    logging.basicConfig(level=logging.INFO)
-    run_curation()
+    main()

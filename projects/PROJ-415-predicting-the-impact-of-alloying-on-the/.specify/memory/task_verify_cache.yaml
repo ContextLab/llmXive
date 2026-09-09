@@ -7,30 +7,9 @@ T014:
     \ Consequently, the task\u2019s core requirements\u2014excluding rows, logging\
     \ exclusions with a count header, and recording atomic data errors\u2014are not\
     \ fulfilled."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, benchmark logs, or timing results are provided to demonstrate that\
-    \ a GridSearch implementation actually completes within 15\u202Fminutes on a 2\u2011\
-    core CPU, so the performance requirement cannot be verified. The required artifact\
-    \ (e.g., optimized GridSearch script with runtime evidence) is missing."
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of new unit test files under `tests/unit/` was provided; the claim
     lacks any actual test code covering the specified edge cases (missing atomic data,
     single host metal). The required artifacts are missing, so the task is not satisfied.
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided only a feature specification unrelated to the task and
-    did not include any validation results for `quickstart.md` nor any checksums of
-    artifacts. No evidence of running the validation or producing checksum documentation
-    is present.
-T072:
-  c: true
-  h: bad652766a42a233ebcd754a30180d16ee970dc1aebbacac306a8b22336e97a9
-  r: "The `code/models/training.py` file contains the `verify_data_provenance()` function\
-    \ that loads `data/curated/data_provenance.json` and raises an error unless `source_type`\
-    \ equals `\"real\"`, satisfying the requested validation check. The missing JSON\
-    \ file is not part of the task\u2019s deliverable."

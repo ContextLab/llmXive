@@ -1,28 +1,6 @@
-- artifact_hash: 44a0b017d761f2cbb79d8ef1aac3f5b7da87c68be6088266d979cc22339b2355
+- artifact_hash: 0ab8e22d6d715dfe37126e44d81ee36fe0e3db32942f982cc1cc462915286e52
   artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.nist.gov/sites/default/files/2023-08/diffusion_data_set.csv`
-  verification_status: mismatch
-  verified_against_url: https://www.nist.gov/sites/default/files/2023-08/diffusion_data_set.csv
-  verified_at: '2026-09-07T17:23:12.359450Z'
-- artifact_hash: 44a0b017d761f2cbb79d8ef1aac3f5b7da87c68be6088266d979cc22339b2355
-  artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.nist.gov/sites/default/files/2023-08/diffusion_data_set.csv
-  verification_status: mismatch
-  verified_against_url: https://www.nist.gov/sites/default/files/2023-08/diffusion_data_set.csv
-  verified_at: '2026-09-07T17:23:12.359450Z'
-- artifact_hash: 44a0b017d761f2cbb79d8ef1aac3f5b7da87c68be6088266d979cc22339b2355
-  artifact_path: projects/PROJ-415-predicting-the-impact-of-alloying-on-the/specs/001-predicting-the-impact-of-alloying-on-the/tasks.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -30,4 +8,4 @@
   value: https://materialsproject.org/static/diffusion_data_v1.csv
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/static/diffusion_data_v1.csv
-  verified_at: '2026-09-07T17:23:12.359450Z'
+  verified_at: '2026-09-09T06:35:42.386204Z'

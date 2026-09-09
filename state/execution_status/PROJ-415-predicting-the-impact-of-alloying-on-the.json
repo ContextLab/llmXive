@@ -1,17 +1,17 @@
 {
   "project_id": "PROJ-415-predicting-the-impact-of-alloying-on-the",
   "ok": false,
-  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/models/training.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026g Error: Cannot train on synthetic data. \"             \"Real dat\u2026\u201d; code/models/training.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026g Error: Cannot train on synthetic data. \"             \"Real dat\u2026\u201d; code/models/training.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026g Error: Cannot train on synthetic data. \"             \"Real dat\u2026\u201d; 2 command(s) failed: python code/data/acquisition.py (rc=1); python code/main.py (rc=1); 2 declared deliverable(s) absent: data/curated/filtered.csv; data/raw/fetched_diffusion.csv",
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/curation.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ning in validation mode (mock data). Skipping strict real-d\u2026\u201d; code/models/training.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026g Error: Cannot train on synthetic data. Real data source requir\u2026\u201d; 2 command(s) failed: python code/data/acquisition.py (rc=1); python code/main.py (rc=1); 3 declared deliverable(s) absent: data/curated/filtered.csv; data/raw/fetched_diffusion.csv; data/raw/source_metadata.json",
   "artifacts": [],
   "failures": [
-    "python code/data/acquisition.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-415-predicting-the-impact-of-alloying-on-the/code/data/acquisition.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-415-predicting-the-impact-of-alloying-on-the/code/main.py\", line 13, in <module>\n    from config import ensure_directories, set_global_seed\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-415-predicting-the-impact-of-alloying-on-the/code/config.py\", line 63, in <module>\n    set_global_seed(RANDOM_SEED)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-415-predicting-the-impact-of-alloying-on-the/code/config.py\", line 45, in set_global_seed\n    import numpy as"
+    "python code/data/acquisition.py -> rc=1\n    2026-09-09 06:25:03,374 - __main__ - INFO - Starting data acquisition with streaming...\n2026-09-09 06:25:03,453 - __main__ - ERROR - Network error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/materialsvirtuallab/materials-database/main/diffusion_data.csv\nData Fetch Failed: Network error - 404 Client Error: Not Found for url: https://raw.githubusercontent.com/materialsvirtuallab/materials-database/main/diffusion_data.csv",
+    "python code/main.py -> rc=1\n    06:25:06,553 - utils.resource_monitor - INFO - RAM usage at stage 'Pipeline_Start': 0.60 GB\n2026-09-09 06:25:06,553 - __main__ - INFO - Phase: Data Acquisition\n2026-09-09 06:25:06,553 - utils.resource_monitor - INFO - RAM usage at stage 'Acquisition_Start': 0.60 GB\n2026-09-09 06:25:06,553 - data.acquisition - INFO - Starting data acquisition with streaming...\n2026-09-09 06:25:06,579 - data.acquisition - ERROR - Network error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/materialsvirtuallab/materials-database/main/diffusion_data.csv\n2026"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-07T16:31:02Z"
+  "updated_at": "2026-09-09T06:25:09Z"
 }

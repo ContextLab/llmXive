@@ -5,3 +5,4 @@ requests  # auto-added: imported by run-book but missing from venv
 scipy  # auto-added: imported by run-book but missing from venv
 scikit-learn  # auto-added: imported by run-book but missing from venv
 torch  # auto-added: imported by run-book but missing from venv
+joblib  # auto-added: imported by run-book but missing from venv
