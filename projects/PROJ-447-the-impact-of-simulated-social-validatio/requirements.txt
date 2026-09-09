@@ -1,0 +1,12 @@
+pandas
+numpy
+scipy
+statsmodels
+scikit-learn
+matplotlib
+seaborn
+pyyaml
+pytest
+semopy
+ruff
+black
