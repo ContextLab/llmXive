@@ -1,3 +1,11 @@
+T005b:
+  c: false
+  h: a9b2e594f46ea7aa6c1ba1caf4b6594f9a269590b4cbc355521ab696885b707c
+  r: "The `code/simulation/logger.py` file does not contain implementations of `setup_logger`,\
+    \ `inject_batch_context`, or `save_seed_config` (the file ends abruptly with a\
+    \ syntax error and missing functions). Consequently, the required `seed_config.json`\
+    \ file is not created, and the unit tests cannot pass. The task\u2019s core functionality\
+    \ is absent."
 T028a:
   c: false
   h: 7c480ebea748c0b882aa42a0b013d00695380b85ac19da470d99cc578e3440eb
@@ -85,16 +93,6 @@ T050:
     \ the required simulation generator, scaling pipeline, statistical test outputs,\
     \ or any aggregated visualizations. Consequently, the task\u2019s core deliverables\
     \ are absent."
-T064:
-  c: false
-  h: 298b1d41597eadef2e1bac295d860e235529aed726f489d03a81d71525acbf19
-  r: "The provided `code/main.py` snippet defines the time\u2011limit constants but\
-    \ does not show any logic that checks elapsed time, writes a partial checkpoint\
-    \ CSV, logs iteration counts, or exits with a specific code. Moreover, the required\
-    \ `results/partial_checkpoint.csv` file is absent, indicating the hard\u2011stop\
-    \ mechanism was not implemented or never triggered. The verification step comparing\
-    \ `completed_iterations` to `target_iterations` is also not present. The task\
-    \ therefore remains unfinished."
 T065:
   c: false
   h: 759ee0a69262705f2a1ca2ead1c276145e0a02b3c86d3051dfff7b334f3e38e8
