@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.11113",
+  "judged_at": "2026-09-09T18:15:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "rationale": "The paper focuses on the theoretical limitations and improvement of evidential deep learning for uncertainty quantification across generic datasets, without addressing the specific domain of materials science, microstructure images, or the prediction of material strength. It fails to meet any inclusion criteria as it does not study the same mechanism, domain variables, or empirical population, nor does it provide a foundational method specifically for the user's materials science application.",
+  "relevant": false
+}

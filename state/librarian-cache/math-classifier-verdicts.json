@@ -719,6 +719,10 @@
     "classified_at": "2026-07-24T21:11:32Z",
     "verdict": false
   },
+  "PROJ-477-predicting-material-strength-from-micros::1.6.0": {
+    "classified_at": "2026-09-09T18:14:43Z",
+    "verdict": false
+  },
   "PROJ-484-the-impact-of-visual-attention-on-recall::1.6.0": {
     "classified_at": "2026-07-11T12:32:06Z",
     "verdict": false

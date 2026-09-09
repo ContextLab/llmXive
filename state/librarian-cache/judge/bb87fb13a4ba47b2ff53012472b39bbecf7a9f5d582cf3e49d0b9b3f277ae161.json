@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1512.00242",
+  "judged_at": "2026-09-09T18:14:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "rationale": "The paper focuses exclusively on the internal mechanics of dropout and pooling strategies in convolutional neural networks using standard computer vision benchmarks (MNIST, CIFAR), without addressing the specific domain of materials science, microstructure images, or the prediction of material strength. It fails to meet any inclusion criteria as it does not study the target mechanism, variables, or empirical population, and is not a foundational method paper specifically for the materials scienc",
+  "relevant": false
+}

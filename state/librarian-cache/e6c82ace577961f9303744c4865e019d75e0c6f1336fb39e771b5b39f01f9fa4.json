@@ -1,0 +1,484 @@
+{
+  "fetched_at": "2026-09-09T18:15:10Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting Material Strength from Microstructure Images with Convolutional Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 74.535,
+    "ended_at": "2026-09-09T18:15:10Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "microstructure-property mapping using deep learning"
+        ],
+        [
+          2,
+          "convolutional neural networks for mechanical property prediction"
+        ],
+        [
+          3,
+          "image-based material strength estimation"
+        ],
+        [
+          4,
+          "deep learning for microstructure characterization"
+        ],
+        [
+          5,
+          "structure-property relationships via computer vision"
+        ],
+        [
+          6,
+          "predicting yield strength from microstructure images"
+        ],
+        [
+          7,
+          "end-to-end learning for material property inference"
+        ],
+        [
+          8,
+          "semantic segmentation of microstructures for property prediction"
+        ],
+        [
+          9,
+          "data-driven modeling of microstructure evolution and strength"
+        ],
+        [
+          10,
+          "transfer learning for materials science image analysis"
+        ],
+        [
+          11,
+          "automated microstructure analysis for mechanical properties"
+        ],
+        [
+          12,
+          "linking microstructure morphology to tensile strength"
+        ],
+        [
+          13,
+          "deep feature extraction from electron microscopy images"
+        ],
+        [
+          14,
+          "predictive modeling of fatigue strength from micrographs"
+        ],
+        [
+          15,
+          "image-to-property regression in metallurgy"
+        ],
+        [
+          16,
+          "machine learning for grain structure analysis"
+        ],
+        [
+          17,
+          "computer vision techniques for materials discovery"
+        ],
+        [
+          18,
+          "multiscale modeling of microstructure and strength"
+        ],
+        [
+          19,
+          "residual networks for material property prediction"
+        ],
+        [
+          20,
+          "generative adversarial networks for microstructure-property optimization"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Material Strength from Microstructure Images with Convolutional Neural Networks materials science": 0,
+        "microstructure-property mapping using deep learning": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "microstructure-property mapping deep learning",
+      "grain boundary segmentation CNN yield strength",
+      "heterogeneous microstructure representation learning",
+      "tensile strength prediction image regression benchmark",
+      "physics-informed neural network microstructure homogenization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2008.06415"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Material Strength from Microstructure Images with Convolutional Neural Networks materials science": 3,
+      "grain boundary segmentation CNN yield strength": 3,
+      "heterogeneous microstructure representation learning": 3,
+      "microstructure-property mapping deep learning": 3,
+      "physics-informed neural network microstructure homogenization": 3,
+      "tensile strength prediction image regression benchmark": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "2009.06819",
+          "rationale": "The paper focuses on natural language processing and information extraction from scientific literature to build databases, which is a distinct construct from the user's question about using convolutional neural networks to predict material strength from microstructure images. It fails to measure the same mechanism, variables, or domain (image-based property prediction) and instead addresses a different problem (text-based data mining), falling under the rejection rule for distinct constructs sha",
+          "title": "MatScIE: An automated tool for the generation of databases of methods and parameters used in the computational materials science literature"
+        },
+        {
+          "primary_pointer": "1512.00242",
+          "rationale": "The paper focuses exclusively on the internal mechanics of dropout and pooling strategies in convolutional neural networks using standard computer vision benchmarks (MNIST, CIFAR), without addressing the specific domain of materials science, microstructure images, or the prediction of material strength. It fails to meet any inclusion criteria as it does not study the target mechanism, variables, or empirical population, and is not a foundational method paper specifically for the materials scienc",
+          "title": "Towards Dropout Training for Convolutional Neural Networks"
+        },
+        {
+          "primary_pointer": "1909.06684",
+          "rationale": "The paper focuses on medical image segmentation of kidney tumors using 3D CT scans, which is an entirely different domain (biomedical imaging) and objective (semantic segmentation) from the user's question regarding predicting material strength from microstructure images in materials science. This falls under the rejection rule for \"Off-domain entirely\" and \"Distinct construct sharing only homonym keywords\" (both use CNNs and images, but the physical mechanisms, data types, and target variables ",
+          "title": "3D Kidneys and Kidney Tumor Semantic Segmentation using Boundary-Aware Networks"
+        },
+        {
+          "primary_pointer": "2306.11113",
+          "rationale": "The paper focuses on the theoretical limitations and improvement of evidential deep learning for uncertainty quantification across generic datasets, without addressing the specific domain of materials science, microstructure images, or the prediction of material strength. It fails to meet any inclusion criteria as it does not study the same mechanism, domain variables, or empirical population, nor does it provide a foundational method specifically for the user's materials science application.",
+          "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice"
+        },
+        {
+          "primary_pointer": "2105.04026",
+          "rationale": "The paper is a theoretical overview of deep learning mathematics and does not measure material strength, analyze microstructure images, or apply CNNs to materials science, failing to satisfy any inclusion criteria (a-f) regarding the specific mechanism, domain, or empirical population. It falls under the rejection rule for being \"off-domain entirely\" regarding the specific application, as it addresses general theoretical properties rather than the user's specific materials science problem.",
+          "title": "The Modern Mathematics of Deep Learning"
+        },
+        {
+          "primary_pointer": "2301.00942",
+          "rationale": "The paper is a general lecture note introducing deep learning concepts through the lens of computational physics, but it does not measure material strength, analyze microstructure images, or apply CNNs to the specific materials science domain requested. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific empirical variables, domain application, or canonical methodology for the user's specific prediction task.",
+          "title": "Deep Learning and Computational Physics (Lecture Notes)"
+        },
+        {
+          "primary_pointer": "2302.04143",
+          "rationale": "The paper is rejected because it is off-domain entirely: it applies deep learning to medical imaging (CT scans of the brain) for clinical stroke treatment, whereas the user's question concerns materials science (predicting material strength from microstructure images). The shared keywords \"images\" and \"deep learning\" refer to distinct constructs in completely different scientific fields with no overlap in mechanism, variables, or empirical population.",
+          "title": "Predicting Thrombectomy Recanalization from CT Imaging Using Deep Learning Models"
+        },
+        {
+          "primary_pointer": "2603.29261",
+          "rationale": "The paper focuses on predicting item price elasticity in retail economics using transactional data, which is an entirely different domain (economics/business) and variable set (price/demand) than the user's question regarding material strength and microstructure images in materials science. This falls under the rejection rule for \"Off-domain entirely\" and \"Distinct construct sharing only homonym keywords\" (both use \"neural networks\" but for unrelated physical and economic phenomena).",
+          "title": "Monodense Deep Neural Model for Determining Item Price Elasticity"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-09T18:13:55Z",
+    "term_input": {
+      "normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+      "raw": "Predicting Material Strength from Microstructure Images with Convolutional Neural Networks materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+          "claimed_authors": [
+            "Deep Ray",
+            "Orazio Pinti",
+            "Assad A. Oberai"
+          ],
+          "claimed_title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.00942"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Deep Learning and Computational Physics (Lecture Notes)')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a continuum model for the dynamics of low angle grain boundaries in two dimensions based on the motion of constituent dislocations of the grain boundaries. The continuum model consists of an equation for the motion of grain boundaries (i.e., motion of the constituent dislocations in the grain boundary normal direction) and equations for the dislocation structure evolution on the grain boundaries. This model is derived from the discrete dislocation dynamics model. The long-range elastic interaction between dislocations is included in the continuum model, which ensures that the dislocation structure on a grain boundary is consistent with the Frank's formula. These evolution of the grain boundary and its dislocation structure are able to describe both normal motion and tangential translation of the grain boundary and grain rotation due to both coupling and sliding. Since the continuum model is based upon dislocation structure, it naturally accounts for the grain boundary shape change during the motion and rotation of the grain boundary by motion and reaction of the constituent dislocations. Using the derived continuum grain boundary dynamics model, simulations are performed for the dynamics of circular and non-circular two dimensional grain boundaries, and the results are validated by discrete dislocation dynamics simulations.",
+          "claimed_authors": [
+            "Luchan Zhang",
+            "Yang Xiang"
+          ],
+          "claimed_title": "Motion of grain boundaries incorporating dislocation structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.01856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Motion of grain boundaries incorporating dislocation structure')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a continuum model to compute the energy of low angle grain boundaries for any given degrees of freedom (arbitrary rotation axis, rotation angle and boundary plane orientation) based on a continuum dislocation structure. In our continuum model, we minimize the grain boundary energy associated with the dislocation structure subject to the constraint of Frank's formula for dislocations with all possible Burgers vectors. This constrained minimization problem is solved by the penalty method by which it is turned into an unconstrained minimization problem. The grain boundary dislocation structure is approximated by a network of straight dislocations that predicts the energy and dislocation densities of the grain boundaries. The grain boundary energy based on the calculated dislocation structure is able to incorporate its anisotropic nature. We use our continuum model to systematically study the energy of $<111>$ low angle grain boundaries in fcc Al with any boundary plane orientation and all six possible Burgers vectors. Comparisons with results of the atomistic simulations show that our continuum model is able to give excellent predictions of the energy and dislocation densities of low angle grain boundaries. We also study the energy of low angle grain boundaries in fcc Al with varying rotation axis while the rest degrees of freedom are fixed. With minor modifications, our model can also apply to dislocation structures and energy of heterogeneous interfaces.",
+          "claimed_authors": [
+            "Luchan Zhang",
+            "Yejun Gu",
+            "Yang Xiang"
+          ],
+          "claimed_title": "Energy of low angle grain boundaries based on continuum dislocation structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.04318"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Energy of low angle grain boundaries based on continuum dislocation structure')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A significant roadblock in multilingual neural language modeling is the lack of labeled non-English data. One potential method for overcoming this issue is learning cross-lingual text representations that can be used to transfer the performance from training on English tasks to non-English tasks, despite little to no task-specific non-English data. In this paper, we explore a natural setup for learning cross-lingual sentence representations: the dual-encoder. We provide a comprehensive evaluation of our cross-lingual representations on a number of monolingual, cross-lingual, and zero-shot/few-shot learning tasks, and also give an analysis of different learned cross-lingual embedding spaces.",
+          "claimed_authors": [
+            "Muthuraman Chidambaram",
+            "Yinfei Yang",
+            "Daniel Cer",
+            "Steve Yuan",
+            "Yun-Hsuan Sung",
+            "Brian Strope",
+            "Ray Kurzweil"
+          ],
+          "claimed_title": "Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.12836"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Learning Cross-Lingual Sentence Representations via a Multi-task Dual-Encoder Model')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a federated learning framework that is designed to robustly deliver good predictive performance across individual clients with heterogeneous data. The proposed approach hinges upon a superquantile-based learning objective that captures the tail statistics of the error distribution over heterogeneous clients. We present a stochastic training algorithm that interleaves differentially private client filtering with federated averaging steps. We prove finite time convergence guarantees for the algorithm: $O(1/\\sqrt{T})$ in the nonconvex case in $T$ communication rounds and $O(\\exp(-T/κ^{3/2}) + κ/T)$ in the strongly convex case with local condition number $κ$. Experimental results on benchmark datasets for federated learning demonstrate that our approach is competitive with classical ones in terms of average error and outperforms them in terms of tail statistics of the error.",
+          "claimed_authors": [
+            "Krishna Pillutla",
+            "Yassine Laguel",
+            "Jérôme Malick",
+            "Zaid Harchaoui"
+          ],
+          "claimed_title": "Federated Learning with Superquantile Aggregation for Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.09429"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Federated Learning with Superquantile Aggregation for Heterogeneous Data')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the rising interest in graph representation learning, a variety of approaches have been proposed to effectively capture a graph's properties. While these approaches have improved performance in graph machine learning tasks compared to traditional graph techniques, they are still perceived as techniques with limited insight into the information encoded in these representations. In this work, we explore methods to interpret node embeddings and propose the creation of a robust evaluation framework for comparing graph representation learning algorithms and hyperparameters. We test our methods on graphs with different properties and investigate the relationship between embedding training parameters and the ability of the produced embedding to recover the structure of the original graph in a downstream task.",
+          "claimed_authors": [
+            "Antonia Gogoglou",
+            "C. Bayan Bruss",
+            "Keegan E. Hines"
+          ],
+          "claimed_title": "On the Interpretability and Evaluation of Graph Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.03081"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='On the Interpretability and Evaluation of Graph Representation Learning')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide a unified analysis of the predictive risk of ridge regression and regularized discriminant analysis in a dense random effects model. We work in a high-dimensional asymptotic regime where $p, n \\to \\infty$ and $p/n \\to γ\\in (0, \\, \\infty)$, and allow for arbitrary covariance among the features. For both methods, we provide an explicit and efficiently computable expression for the limiting predictive risk, which depends only on the spectrum of the feature-covariance matrix, the signal strength, and the aspect ratio $γ$. Especially in the case of regularized discriminant analysis, we find that predictive accuracy has a nuanced dependence on the eigenvalue distribution of the covariance matrix, suggesting that analyses based on the operator norm of the covariance matrix may not be sharp. Our results also uncover several qualitative insights about both methods: for example, with ridge regression, there is an exact inverse relation between the limiting predictive risk and the limiting estimation risk given a fixed signal strength. Our analysis builds on recent advances in random matrix theory.",
+          "claimed_authors": [
+            "Edgar Dobriban",
+            "Stefan Wager"
+          ],
+          "claimed_title": "High-Dimensional Asymptotics of Prediction: Ridge Regression and Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1507.03003"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='High-Dimensional Asymptotics of Prediction: Ridge Regression and Classification')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional image-based survival prediction models rely on discriminative patch labeling which make those methods not scalable to extend to large datasets. Recent studies have shown Multiple Instance Learning (MIL) framework is useful for histopathological images when no annotations are available in classification task. Different to the current image-based survival models that limit to key patches or clusters derived from Whole Slide Images (WSIs), we propose Deep Attention Multiple Instance Survival Learning (DeepAttnMISL) by introducing both siamese MI-FCN and attention-based MIL pooling to efficiently learn imaging features from the WSI and then aggregate WSI-level information to patient-level. Attention-based aggregation is more flexible and adaptive than aggregation techniques in recent survival models. We evaluated our methods on two large cancer whole slide images datasets and our results suggest that the proposed approach is more effective and suitable for large datasets and has better interpretability in locating important patterns and features that contribute to accurate cancer survival predictions. The proposed framework can also be used to assess individual patient's risk and thus assisting in delivering personalized medicine. Codes are available at https://github.com/uta-smile/DeepAttnMISL_MEDIA.",
+          "claimed_authors": [
+            "Jiawen Yao",
+            "Xinliang Zhu",
+            "Jitendra Jonnagaddala",
+            "Nicholas Hawkins",
+            "Junzhou Huang"
+          ],
+          "claimed_title": "Whole Slide Images based Cancer Survival Prediction using Attention Guided Deep Multiple Instance Learning Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.11169"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Whole Slide Images based Cancer Survival Prediction using Attention Guided Deep Multiple Instance Learning Networks')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent deep learning models outperform standard lossy image compression codecs. However, applying these models on a patch-by-patch basis requires that each image patch be encoded and decoded independently. The influence from adjacent patches is therefore lost, leading to block artefacts at low bitrates. We propose the Binary Inpainting Network (BINet), an autoencoder framework which incorporates binary inpainting to reinstate interdependencies between adjacent patches, for improved patch-based compression of still images. When decoding a patch, BINet additionally uses the binarised encodings from surrounding patches to guide its reconstruction. In contrast to sequential inpainting methods where patches are decoded based on previons reconstructions, BINet operates directly on the binary codes of surrounding patches without access to the original or reconstructed image data. Encoding and decoding can therefore be performed in parallel. We demonstrate that BINet improves the compression quality of a competitive deep image codec across a range of compression levels.",
+          "claimed_authors": [
+            "André Nortje",
+            "Willie Brink",
+            "Herman A. Engelbrecht",
+            "Herman Kamper"
+          ],
+          "claimed_title": "BINet: a binary inpainting network for deep patch-based image compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.05189"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='BINet: a binary inpainting network for deep patch-based image compression')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Physics-Informed machine learning models have recently emerged with some interesting and unique features that can be applied to reservoir engineering. In particular, physics-informed neural networks (PINN) leverage the fact that neural networks are a type of universal function approximators that can embed the knowledge of any physical laws that govern a given data-set in the learning process, and can be described by partial differential equations. The transient diffusivity equation is a fundamental equation in reservoir engineering and the general solution to this equation forms the basis for Pressure Transient Analysis (PTA). The diffusivity equation is derived by combining three physical principles, the continuity equation, Darcy's equation, and the equation of state for a slightly compressible liquid. Obtaining general solutions to this equation is imperative to understand flow regimes in porous media. Analytical solutions of the transient diffusivity equation are usually hard to obtain due to the stiff nature of the equation caused by the steep gradients of the pressure near the well. In this work we apply physics-informed neural networks to the one and two dimensional diffusivity equation and demonstrate that decomposing the space domain into very few subdomains can overcome the stiffness problem of the equation. Additionally, we demonstrate that the inverse capabilities of PINNs can estimate missing physics such as permeability and distance from sealing boundary similar to buildup tests without shutting in the well.",
+          "claimed_authors": [
+            "Daniel Badawi",
+            "Eduardo Gildin"
+          ],
+          "claimed_title": "Physics-Informed Neural Network for the Transient Diffusivity Equation in Reservoir Engineering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.17345"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Physics-Informed Neural Network for the Transient Diffusivity Equation in Reservoir Engineering')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Physics-informed neural networks exploit the existing models of the underlying physical systems to generate higher accuracy results with fewer data. Such approaches can help drastically reduce the computation time and generate a good estimate of computationally intensive processes in power systems, such as dynamic security assessment or optimal power flow. Combined with the extraction of worst-case guarantees for the neural network performance, such neural networks can be applied in safety-critical applications in power systems and build a high level of trust among power system operators. This paper takes the first step and applies, for the first time to our knowledge, Physics-Informed Neural Networks with Worst-Case Guarantees for the DC Optimal Power Flow problem. We look for guarantees related to (i) maximum constraint violations, (ii) maximum distance between predicted and optimal decision variables, and (iii) maximum sub-optimality in the entire input domain. In a range of PGLib-OPF networks, we demonstrate how physics-informed neural networks can be supplied with worst-case guarantees and how they can lead to reduced worst-case violations compared with conventional neural networks.",
+          "claimed_authors": [
+            "Rahul Nellikkath",
+            "Spyros Chatzivasileiadis"
+          ],
+          "claimed_title": "Physics-Informed Neural Networks for Minimising Worst-Case Violations in DC Optimal Power Flow",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.00465"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Physics-Informed Neural Networks for Minimising Worst-Case Violations in DC Optimal Power Flow')",
+        "failed_at": "2026-09-09T18:14:45Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammadreza Karamad",
+            "Rishikesh Magar",
+            "Yuting Shi",
+            "Samira Siahrostami",
+            "Ian D. Gates",
+            "Amir Barati Farimani"
+          ],
+          "title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.06415",
+        "summary": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.06415",
+          "http_status": 200,
+          "pdf_sample_score": 0.2959,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-09T18:14:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
