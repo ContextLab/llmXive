@@ -107,8 +107,8 @@ The pipeline must generate publication-ready visualizations showing correlation 
 - The total combined dataset size (microbiome + EEG) will fit within 7 GB RAM and 14 GB disk on GitHub Actions free-tier runner.
 - The analysis will complete within 6 hours on a CPU-only runner (2 cores, ~7 GB RAM) without requiring GPU acceleration.
 - Validated instruments are used for demographic and dietary variables (American Gut Project uses standardized questionnaires).
-- The 20 taxa with the highest mean relative abundance across the whole dataset represent sufficient coverage of the microbiome for exploratory association testing.
-- A pseudocount of 0.5 is appropriate for CLR transformation of sparse microbiome data (community-standard practice).
+- A subset of taxa with the highest mean relative abundance across the whole dataset will be selected to represent sufficient coverage of the microbiome for exploratory association testing.
+- A small pseudocount is appropriate for CLR transformation of sparse microbiome data (community-standard practice).
 - The Benjamini-Hochberg FDR correction with q<0.1 threshold is justified as a balance between type-I and type-II error control for exploratory research.
 - Permutation testing with a sufficient number of iterations provides adequate null distribution resolution for p-value estimation.
 - All statistical findings must be framed as associational (not causal) since this is an observational study without random assignment.

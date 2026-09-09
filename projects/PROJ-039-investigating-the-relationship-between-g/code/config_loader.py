@@ -1,10 +1,3 @@
-"""
-Configuration Loader Module for Gut Microbiome - EEG Alpha Power Analysis
-
-This module provides functions to load and validate preprocessing parameters
-from the preprocess.yaml configuration file.
-"""
-
 import os
 import yaml
 import logging
@@ -13,305 +6,175 @@ from typing import Dict, Any, Optional, List, Union
 
 from config import get_project_root
 
-# Configure logger
 logger = logging.getLogger(__name__)
 
-# Default configuration values
+# Default configuration values matching the project's preprocessing requirements
 DEFAULT_CONFIG = {
-    'eeg': {
-        'filter_bands': {
-            'low_cutoff': 0.5,
-            'high_cutoff': 45.0
-        },
-        'ica': {
-            'method': 'fastica',
-            'n_components': 20,
-            'random_state': 42,
-            'max_iter': 500,
-            'tol': 1.0e-4
-        },
-        'epoch': {
-            'duration_minutes': 2,
-            'alpha_band': {
-                'low': 8.0,
-                'high': 13.0
-            },
-            'valid_epoch_threshold': 0.80
-        }
+    "filter_bands": {
+        "low_pass": 45.0,
+        "high_pass": 1.0,
+        "notch": 50.0
     },
-    'microbiome': {
-        'pseudocount': 0.5,
-        'qiime2': {
-            'version': '2023.5',
-            'genus_level': True
-        }
+    "ica_settings": {
+        "n_components": 20,
+        "method": "fastica",
+        "random_state": 42
     },
-    'matching': {
-        'nearest_neighbor': {
-            'n_neighbors': 5,
-            'metric': 'euclidean'
-        },
-        'propensity_score': {
-            'model_type': 'logistic',
-            'caliper': 0.2
-        },
-        'min_matched_pairs': 10
+    "pseudocount": 0.5,
+    "alpha_band": {
+        "low": 8.0,
+        "high": 13.0
     },
-    'logging': {
-        'level': 'INFO',
-        'output_path': 'artifacts/preprocess.yaml'
+    "epoch_config": {
+        "tmin": -0.2,
+        "tmax": 0.8,
+        "baseline": (None, None),
+        "min_valid_epochs_ratio": 0.8
     },
-    'random_seed': 42
+    "matching_config": {
+        "strata_min_size": 5,
+        "imputation_method": "median"
+    }
 }
-
 
 def load_preprocess_config(config_path: Optional[Union[str, Path]] = None) -> Dict[str, Any]:
     """
-    Load preprocessing configuration from YAML file.
+    Load the preprocessing configuration from artifacts/preprocess.yaml.
+    
+    If the file does not exist, creates it with default values.
     
     Args:
-        config_path: Path to the config file. If None, uses default location.
-        
+        config_path: Optional path to the config file. Defaults to 
+                     artifacts/preprocess.yaml relative to project root.
+                     
     Returns:
-        Dictionary containing the configuration parameters.
-        
-    Raises:
-        FileNotFoundError: If config file does not exist.
-        yaml.YAMLError: If config file is not valid YAML.
+        Dict containing the configuration parameters.
     """
     if config_path is None:
         project_root = get_project_root()
-        config_path = project_root / 'code' / 'preprocess.yaml'
+        config_path = project_root / "artifacts" / "preprocess.yaml"
     else:
         config_path = Path(config_path)
-        
-    if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-        
-    logger.info(f"Loading configuration from {config_path}")
-    
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-        
-    # Merge with defaults to ensure all keys exist
-    merged_config = _deep_merge(DEFAULT_CONFIG, config)
-    
-    logger.debug("Configuration loaded successfully")
-    return merged_config
 
+    # Ensure the directory exists
+    config_path.parent.mkdir(parents=True, exist_ok=True)
 
-def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Recursively merge two dictionaries.
-    
-    Args:
-        base: Base dictionary with default values.
-        override: Override dictionary with user values.
-        
-    Returns:
-        Merged dictionary.
-    """
-    result = base.copy()
-    
-    for key, value in override.items():
-        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
-            result[key] = _deep_merge(result[key], value)
-        else:
-            result[key] = value
+    if config_path.exists():
+        logger.info(f"Loading existing config from {config_path}")
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
             
-    return result
+            # Validate and merge with defaults if keys are missing
+            if not isinstance(config, dict):
+                logger.warning("Config file is not a dictionary, using defaults")
+                config = DEFAULT_CONFIG.copy()
+            else:
+                # Deep merge with defaults to ensure all required keys exist
+                for key, value in DEFAULT_CONFIG.items():
+                    if key not in config:
+                        config[key] = value
+                    elif isinstance(value, dict) and isinstance(config[key], dict):
+                        config[key].update(value)
+        
+        except yaml.YAMLError as e:
+            logger.error(f"Error parsing YAML file: {e}")
+            logger.warning("Regenerating config with defaults")
+            config = DEFAULT_CONFIG.copy()
+    else:
+        logger.info(f"Config file not found at {config_path}. Creating with defaults.")
+        config = DEFAULT_CONFIG.copy()
+        save_preprocess_config(config, config_path)
 
+    return config
 
-def get_filter_bands(config: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
+def save_preprocess_config(config: Dict[str, Any], config_path: Optional[Union[str, Path]] = None) -> None:
     """
-    Get EEG filter band cutoffs.
+    Save the preprocessing configuration to artifacts/preprocess.yaml.
     
     Args:
-        config: Configuration dictionary. If None, loads from file.
-        
-    Returns:
-        Dictionary with 'low_cutoff' and 'high_cutoff' keys.
+        config: The configuration dictionary to save.
+        config_path: Optional path to the config file. Defaults to 
+                     artifacts/preprocess.yaml relative to project root.
     """
-    if config is None:
-        config = load_preprocess_config()
-        
-    return {
-        'low_cutoff': config['eeg']['filter_bands']['low_cutoff'],
-        'high_cutoff': config['eeg']['filter_bands']['high_cutoff']
-    }
+    if config_path is None:
+        project_root = get_project_root()
+        config_path = project_root / "artifacts" / "preprocess.yaml"
+    else:
+        config_path = Path(config_path)
 
+    config_path.parent.mkdir(parents=True, exist_ok=True)
 
-def get_ica_settings(config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    with open(config_path, 'w', encoding='utf-8') as f:
+        yaml.dump(config, f, default_flow_style=False, sort_keys=False)
+
+    logger.info(f"Saved configuration to {config_path}")
+
+def get_filter_bands(config: Dict[str, Any]) -> Dict[str, float]:
+    """Extract filter band settings from config."""
+    return config.get("filter_bands", DEFAULT_CONFIG["filter_bands"])
+
+def get_ica_settings(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract ICA settings from config."""
+    return config.get("ica_settings", DEFAULT_CONFIG["ica_settings"])
+
+def get_pseudocount(config: Dict[str, Any]) -> float:
+    """Extract pseudocount value from config."""
+    return config.get("pseudocount", DEFAULT_CONFIG["pseudocount"])
+
+def get_alpha_band(config: Dict[str, Any]) -> Dict[str, float]:
+    """Extract alpha band settings from config."""
+    return config.get("alpha_band", DEFAULT_CONFIG["alpha_band"])
+
+def get_epoch_config(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract epoch configuration from config."""
+    return config.get("epoch_config", DEFAULT_CONFIG["epoch_config"])
+
+def get_matching_config(config: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract matching/stratification configuration from config."""
+    return config.get("matching_config", DEFAULT_CONFIG["matching_config"])
+
+def validate_config(config: Dict[str, Any]) -> bool:
     """
-    Get ICA processing settings.
+    Validate that the configuration contains all required fields.
     
-    Args:
-        config: Configuration dictionary. If None, loads from file.
-        
     Returns:
-        Dictionary with ICA parameters.
+        True if valid, False otherwise.
     """
-    if config is None:
-        config = load_preprocess_config()
-        
-    return config['eeg']['ica'].copy()
-
-
-def get_pseudocount(config: Optional[Dict[str, Any]] = None) -> float:
-    """
-    Get the pseudocount value for microbiome data.
+    required_keys = ["filter_bands", "ica_settings", "pseudocount", "alpha_band", "epoch_config"]
+    for key in required_keys:
+        if key not in config:
+            logger.error(f"Missing required config key: {key}")
+            return False
     
-    Args:
-        config: Configuration dictionary. If None, loads from file.
-        
-    Returns:
-        Pseudocount value as float.
-    """
-    if config is None:
-        config = load_preprocess_config()
-        
-    return float(config['microbiome']['pseudocount'])
+    # Validate filter_bands structure
+    fb = config.get("filter_bands", {})
+    if not all(k in fb for k in ["low_pass", "high_pass", "notch"]):
+        logger.error("filter_bands missing required fields")
+        return False
 
-
-def get_alpha_band(config: Optional[Dict[str, Any]] = None) -> Dict[str, float]:
-    """
-    Get alpha frequency band definition.
-    
-    Args:
-        config: Configuration dictionary. If None, loads from file.
-        
-    Returns:
-        Dictionary with 'low' and 'high' frequency bounds.
-    """
-    if config is None:
-        config = load_preprocess_config()
-        
-    return {
-        'low': config['eeg']['epoch']['alpha_band']['low'],
-        'high': config['eeg']['epoch']['alpha_band']['high']
-    }
-
-
-def get_epoch_config(config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Get epoching configuration parameters.
-    
-    Args:
-        config: Configuration dictionary. If None, loads from file.
-        
-    Returns:
-        Dictionary with epoch parameters.
-    """
-    if config is None:
-        config = load_preprocess_config()
-        
-    return config['eeg']['epoch'].copy()
-
-
-def get_matching_config(config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """
-    Get cohort matching configuration.
-    
-    Args:
-        config: Configuration dictionary. If None, loads from file.
-        
-    Returns:
-        Dictionary with matching parameters.
-    """
-    if config is None:
-        config = load_preprocess_config()
-        
-    return config['matching'].copy()
-
-
-def validate_config(config: Optional[Dict[str, Any]] = None) -> List[str]:
-    """
-    Validate configuration parameters.
-    
-    Args:
-        config: Configuration dictionary. If None, loads from file.
-        
-    Returns:
-        List of validation error messages. Empty if valid.
-    """
-    if config is None:
-        config = load_preprocess_config()
-        
-    errors = []
-    
-    # Validate filter bands
-    filter_bands = config['eeg']['filter_bands']
-    if filter_bands['low_cutoff'] >= filter_bands['high_cutoff']:
-        errors.append(f"Invalid filter bands: low_cutoff ({filter_bands['low_cutoff']}) must be < high_cutoff ({filter_bands['high_cutoff']})")
-        
     # Validate ICA settings
-    ica = config['eeg']['ica']
-    if ica['n_components'] <= 0:
-        errors.append(f"Invalid ICA n_components: {ica['n_components']} must be positive")
-    if ica['max_iter'] <= 0:
-        errors.append(f"Invalid ICA max_iter: {ica['max_iter']} must be positive")
-        
-    # Validate pseudocount
-    pseudocount = config['microbiome']['pseudocount']
-    if pseudocount <= 0:
-        errors.append(f"Invalid pseudocount: {pseudocount} must be positive")
-        
-    # Validate epoch settings
-    epoch = config['eeg']['epoch']
-    if epoch['duration_minutes'] <= 0:
-        errors.append(f"Invalid epoch duration: {epoch['duration_minutes']} must be positive")
-    if not (0 < epoch['valid_epoch_threshold'] <= 1):
-        errors.append(f"Invalid valid_epoch_threshold: {epoch['valid_epoch_threshold']} must be in (0, 1]")
-        
-    # Validate alpha band
-    alpha_band = epoch['alpha_band']
-    if alpha_band['low'] >= alpha_band['high']:
-        errors.append(f"Invalid alpha band: low ({alpha_band['low']}) must be < high ({alpha_band['high']})")
-        
-    # Validate matching settings
-    matching = config['matching']
-    if matching['nearest_neighbor']['n_neighbors'] <= 0:
-        errors.append(f"Invalid n_neighbors: {matching['nearest_neighbor']['n_neighbors']} must be positive")
-    if matching['min_matched_pairs'] <= 0:
-        errors.append(f"Invalid min_matched_pairs: {matching['min_matched_pairs']} must be positive")
-        
-    return errors
+    ica = config.get("ica_settings", {})
+    if "n_components" not in ica or "method" not in ica:
+        logger.error("ica_settings missing required fields")
+        return False
 
+    return True
 
 def main():
-    """
-    Main function to demonstrate configuration loading and validation.
-    """
-    import sys
+    """Main entry point for creating/initializing the preprocess config."""
+    logging.basicConfig(level=logging.INFO)
     
-    try:
-        config = load_preprocess_config()
-        print("Configuration loaded successfully!")
-        print(f"Filter bands: {get_filter_bands(config)}")
-        print(f"ICA settings: {get_ica_settings(config)}")
-        print(f"Pseudocount: {get_pseudocount(config)}")
-        print(f"Alpha band: {get_alpha_band(config)}")
-        print(f"Epoch config: {get_epoch_config(config)}")
-        print(f"Matching config: {get_matching_config(config)}")
-        
-        errors = validate_config(config)
-        if errors:
-            print("\nValidation errors:")
-            for error in errors:
-                print(f"  - {error}")
-            sys.exit(1)
-        else:
-            print("\nConfiguration validation passed!")
-            
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-    except yaml.YAMLError as e:
-        print(f"YAML Error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
+    config = load_preprocess_config()
+    
+    if validate_config(config):
+        logger.info("Configuration is valid.")
+        logger.info(f"Pseudocount: {get_pseudocount(config)}")
+        logger.info(f"Filter bands: {get_filter_bands(config)}")
+        logger.info(f"ICA settings: {get_ica_settings(config)}")
+    else:
+        logger.error("Configuration validation failed.")
+        exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

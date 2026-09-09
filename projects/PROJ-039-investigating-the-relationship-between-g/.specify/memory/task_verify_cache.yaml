@@ -1,10 +1,23 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains no code defining SHA256 checksum utilities, nor a generated
+    `artifacts/checksums.txt` listing checksums for the files in `data/`. Without
+    these artifacts, the task requirement is not satisfied.
+T011b:
+  c: false
+  h: 433ddc54698537f3beba25064ff68f458404d71f86b9d9d03ae94ed094198525
+  r: "The required artifact `tests/integration/test_strata_exit.py` does not exist\
+    \ in the repository, so no integration test verifying the <5 strata exit condition\
+    \ (exit code\u202F1 and error log) is present. The task therefore remains unfinished."
 T012:
   c: false
-  h: 8acbd842c6869f2d718c7cbe66229aa4d2b430e01fe537912a85a9e54adc93ac
-  r: "The repository contains the `code/preprocess_microbiome.py` script, but the\
-    \ required output file `data/processed/microbiome_features.csv` is missing, so\
-    \ the pipeline\u2019s data\u2011preparation result does not exist. The task is\
-    \ therefore not fully satisfied."
+  h: 26d0f65025cfab64a56797045e8c3df79a5ad3a835f85da110d3e1bf77356c2c
+  r: "The repository contains `code/preprocess_microbiome.py`, but the script is truncated\
+    \ and does not show the required QIIME2 processing, pseudocount application, or\
+    \ checksum handling, and the expected output file `data/processed/microbiome_features.csv`\
+    \ is absent. Without the CSV being generated, the task\u2019s core requirement\
+    \ is unmet."
 T013:
   c: false
   h: f0f97f49284f89a94f656df2b4ad202125359c01ca853c3e28308615ee47ef7f
@@ -19,6 +32,14 @@ T019:
   r: "The required artifact `tests/unit/test_statistics.py` does not exist in the\
     \ repository, so no unit test for the FDR correction (Benjamini\u2011Hochberg\
     \ logic) is present. The task therefore remains unfinished."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or result outputs (e.g., CLR\u2011transformed abundances,\
+    \ Spearman rho/p\u2011values, FDR\u2011corrected q\u2011values, or permutation\
+    \ null distribution) were supplied, so the required Spearman correlation analysis\
+    \ cannot be verified. The implementer must provide the pipeline implementation\
+    \ and its generated results."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

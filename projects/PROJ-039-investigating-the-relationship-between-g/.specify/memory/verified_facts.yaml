@@ -1,5 +1,10 @@
-'|csv data found if matched pair processed valid write':
-  quote: 'P910: Q3920019'
-  source_id: Q28389
-  url: https://www.wikidata.org/wiki/Q28389
-  value: '10'
+'|applied benjamini correction fdr hochberg':
+  quote: FDR level q = 0.05, 0.1, 0.2. For Step 2 of the procedure
+  source_id: '1705.04312'
+  url: https://arxiv.org/abs/1705.04312
+  value: '0.05'
+'|applied pseudocount':
+  quote: '0.5'
+  source_id: Rule of succession
+  url: https://en.wikipedia.org/wiki/Rule_of_succession
+  value: '0.5'
