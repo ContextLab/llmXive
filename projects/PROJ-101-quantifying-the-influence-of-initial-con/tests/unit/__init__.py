@@ -1,1 +1,1 @@
-"""Unit tests for llmXive project components."""
+"""Unit tests package for the chaotic systems analysis pipeline."""

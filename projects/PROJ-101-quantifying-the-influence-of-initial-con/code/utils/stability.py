@@ -1,366 +1,279 @@
 """
-Numerical stability utilities for chaotic system simulations.
+Numerical stability utilities for trajectory analysis.
 
-Provides tools for:
-- Convergence detection (checking if sequences stabilize)
-- Boundedness checks (verifying trajectories stay within physical limits)
-- Divergence rate detection
-- Comprehensive numerical validity reporting
+This module provides functions to check numerical validity, boundedness,
+convergence, and divergence detection for chaotic system trajectories.
 """
-
 import numpy as np
 from typing import Tuple, Optional, List
 from dataclasses import dataclass, field
 import warnings
 import sys
 
-# Import numerical settings from config
-try:
-    from ..config import NumericalSettings, get_full_config
-except ImportError:
-    # Fallback for direct execution/testing
-    from config import NumericalSettings, get_full_config
+# Configure logging
+import logging
+logger = logging.getLogger(__name__)
 
 
 class NumericalStabilityError(Exception):
-    """Base exception for numerical stability issues."""
+    """Exception raised for numerical stability violations."""
     pass
 
 
-class DivergenceError(NumericalStabilityError):
-    """Raised when a trajectory diverges beyond acceptable bounds."""
+class DivergenceError(Exception):
+    """Exception raised when a trajectory diverges beyond acceptable bounds."""
     pass
 
 
-class NonConvergenceError(NumericalStabilityError):
-    """Raised when a sequence fails to converge within tolerance."""
+class NonConvergenceError(Exception):
+    """Exception raised when convergence criteria are not met."""
     pass
 
 
 @dataclass
 class StabilityReport:
-    """
-    Comprehensive report on the numerical stability of a trajectory or sequence.
-
-    Attributes:
-        is_valid: Overall validity flag
-        boundedness_check: Result of boundedness check
-        convergence_check: Result of convergence check (if applicable)
-        divergence_rate: Estimated rate of divergence (if detected)
-        max_value: Maximum absolute value observed
-        mean_value: Mean absolute value observed
-        warnings: List of warning messages
-        details: Dictionary of additional diagnostic information
-    """
-    is_valid: bool
-    boundedness_check: Optional[dict] = None
-    convergence_check: Optional[dict] = None
+    """Container for stability analysis results."""
+    is_stable: bool
+    bounded: bool
+    converged: bool
+    max_value: float
     divergence_rate: Optional[float] = None
-    max_value: Optional[float] = None
-    mean_value: Optional[float] = None
     warnings: List[str] = field(default_factory=list)
     details: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
-        """Convert report to dictionary for serialization."""
+        """Convert report to dictionary."""
         return {
-            'is_valid': self.is_valid,
-            'boundedness_check': self.boundedness_check,
-            'convergence_check': self.convergence_check,
-            'divergence_rate': self.divergence_rate,
-            'max_value': self.max_value,
-            'mean_value': self.mean_value,
-            'warnings': self.warnings,
-            'details': self.details
+            "is_stable": self.is_stable,
+            "bounded": self.bounded,
+            "converged": self.converged,
+            "max_value": self.max_value,
+            "divergence_rate": self.divergence_rate,
+            "warnings": self.warnings,
+            "details": self.details
         }
 
 
 def check_numerical_validity(
-    trajectory: np.ndarray,
-    settings: Optional[NumericalSettings] = None
-) -> StabilityReport:
+    state_vector: np.ndarray,
+    threshold: float = 1e12
+) -> Tuple[bool, List[str]]:
     """
-    Perform a comprehensive numerical validity check on a trajectory.
+    Check if a state vector contains valid numerical values.
 
     Args:
-        trajectory: 2D array of shape (time_steps, dimensions)
-        settings: Numerical settings configuration
+        state_vector: The state vector to check.
+        threshold: Threshold for considering values as overflow.
 
     Returns:
-        StabilityReport with all checks performed
+        Tuple of (is_valid, list_of_warnings).
     """
-    if settings is None:
-        config = get_full_config()
-        settings = config.numerical
+    warnings_list = []
+    is_valid = True
 
-    report = StabilityReport(is_valid=True)
-    report.details['shape'] = trajectory.shape
-    report.details['dtype'] = str(trajectory.dtype)
+    # Check for NaN
+    if np.any(np.isnan(state_vector)):
+        warnings_list.append("State vector contains NaN values")
+        is_valid = False
 
-    # Check for NaN or Inf
-    if np.any(np.isnan(trajectory)):
-        report.is_valid = False
-        report.warnings.append("NaN values detected in trajectory")
-        report.details['nan_count'] = int(np.sum(np.isnan(trajectory)))
+    # Check for Inf
+    if np.any(np.isinf(state_vector)):
+        warnings_list.append("State vector contains Inf values")
+        is_valid = False
 
-    if np.any(np.isinf(trajectory)):
-        report.is_valid = False
-        report.warnings.append("Inf values detected in trajectory")
-        report.details['inf_count'] = int(np.sum(np.isinf(trajectory)))
+    # Check for overflow
+    max_val = np.max(np.abs(state_vector))
+    if max_val > threshold:
+        warnings_list.append(f"State vector values exceed threshold ({max_val:.2e} > {threshold:.2e})")
+        is_valid = False
 
-    # Compute basic statistics
-    report.max_value = float(np.max(np.abs(trajectory)))
-    report.mean_value = float(np.mean(np.abs(trajectory)))
-
-    # Perform boundedness check
-    boundedness_result = check_boundedness(trajectory, settings)
-    report.boundedness_check = boundedness_result
-    if not boundedness_result['is_bounded']:
-        report.is_valid = False
-        report.warnings.append(f"Boundedness check failed: {boundedness_result['reason']}")
-
-    # Perform convergence check (for the last portion of trajectory)
-    if trajectory.shape[0] > settings.convergence_window:
-        convergence_result = check_convergence(
-            trajectory[-settings.convergence_window:],
-            settings
-        )
-        report.convergence_check = convergence_result
-        if not convergence_result['has_converged']:
-            # Not necessarily invalid, but worth noting
-            report.warnings.append("Convergence check indicates non-convergence in final window")
-
-    return report
+    return is_valid, warnings_list
 
 
 def check_boundedness(
-    trajectory: np.ndarray,
-    settings: Optional[NumericalSettings] = None,
-    threshold: Optional[float] = None
-) -> dict:
+    state_vector: np.ndarray,
+    threshold: float = 100.0
+) -> bool:
     """
-    Check if a trajectory remains within physically reasonable bounds.
-
-    For chaotic systems like Lorenz, trajectories should stay within
-    a bounded attractor. This function checks if any point exceeds
-    the specified threshold.
+    Check if a state vector remains within acceptable bounds.
 
     Args:
-        trajectory: 2D array of shape (time_steps, dimensions)
-        settings: Numerical settings (provides default threshold)
-        threshold: Maximum allowed absolute value (overrides settings)
+        state_vector: The state vector to check.
+        threshold: Maximum allowed absolute value.
 
     Returns:
-        Dictionary with 'is_bounded' boolean and 'reason' string
+        True if bounded, False otherwise.
     """
-    if settings is None:
-        config = get_full_config()
-        settings = config.numerical
+    if state_vector.size == 0:
+        return True
 
-    if threshold is None:
-        threshold = settings.boundedness_threshold
+    max_val = np.max(np.abs(state_vector))
+    is_bounded = max_val <= threshold
 
-    max_val = np.max(np.abs(trajectory))
+    if not is_bounded:
+        logger.warning(f"State vector exceeds bound: max(|state|) = {max_val:.2e} > {threshold}")
 
-    if max_val > threshold:
-        # Find when it first exceeded
-        flat_trajectory = np.abs(trajectory)
-        exceeded_mask = flat_trajectory > threshold
-        first_exceed_idx = np.argmax(exceeded_mask.any(axis=1))
-        time_exceeded = first_exceed_idx if exceeded_mask.any() else -1
-
-        return {
-            'is_bounded': False,
-            'reason': f"Trajectory exceeded bound {threshold} at time step {time_exceeded} (max={max_val})",
-            'max_value': float(max_val),
-            'threshold': threshold,
-            'time_exceeded': int(time_exceeded)
-        }
-
-    return {
-        'is_bounded': True,
-        'reason': f"All values within bound {threshold} (max={max_val})",
-        'max_value': float(max_val),
-        'threshold': threshold
-    }
+    return is_bounded
 
 
 def check_convergence(
-    sequence: np.ndarray,
-    settings: Optional[NumericalSettings] = None,
-    window_ratio: float = 0.5
-) -> dict:
+    values: np.ndarray,
+    tol: float = 1e-6,
+    window: int = 10
+) -> bool:
     """
-    Check if a sequence has converged to a stable value.
-
-    Uses relative change over a sliding window to detect convergence.
+    Check if a sequence of values has converged.
 
     Args:
-        sequence: 1D or 2D array (time_steps, dimensions) or (time_steps,)
-        settings: Numerical settings (provides tolerances)
-        window_ratio: Fraction of sequence to use for final convergence check
+        values: Array of values to check.
+        tol: Tolerance for convergence.
+        window: Number of recent values to compare.
 
     Returns:
-        Dictionary with 'has_converged' boolean and diagnostic info
+        True if converged, False otherwise.
     """
-    if settings is None:
-        config = get_full_config()
-        settings = config.numerical
+    if len(values) < window + 1:
+        return False
 
-    if len(sequence.shape) == 1:
-        sequence = sequence.reshape(-1, 1)
+    # Check relative change in the last 'window' values
+    recent_values = values[-window:]
+    max_rel_change = 0.0
 
-    n_steps = sequence.shape[0]
-    window_size = max(int(n_steps * window_ratio), settings.convergence_window)
+    for i in range(1, len(recent_values)):
+        denom = abs(recent_values[i - 1])
+        if denom < 1e-12:
+            rel_change = abs(recent_values[i])
+        else:
+            rel_change = abs(recent_values[i] - recent_values[i - 1]) / denom
+        max_rel_change = max(max_rel_change, rel_change)
 
-    if n_steps < window_size:
-        return {
-            'has_converged': False,
-            'reason': f"Sequence too short ({n_steps}) for convergence check (need >= {window_size})",
-            'window_size': window_size
-        }
+    is_converged = max_rel_change < tol
 
-    # Compute differences in the final window
-    final_window = sequence[-window_size:]
-    differences = np.abs(np.diff(final_window, axis=0))
+    if not is_converged:
+        logger.debug(f"Convergence not achieved: max relative change = {max_rel_change:.2e} > {tol}")
 
-    # Check if max relative change is below tolerance
-    mean_values = np.mean(np.abs(final_window), axis=0)
-    # Avoid division by zero
-    mean_values = np.where(mean_values == 0, 1e-16, mean_values)
-
-    relative_changes = np.max(differences, axis=0) / mean_values
-
-    max_relative_change = np.max(relative_changes)
-
-    if max_relative_change < settings.convergence_tolerance:
-        return {
-            'has_converged': True,
-            'reason': f"Converged with max relative change {max_relative_change:.2e} < {settings.convergence_tolerance}",
-            'max_relative_change': float(max_relative_change),
-            'tolerance': settings.convergence_tolerance,
-            'window_size': window_size
-        }
-    else:
-        return {
-            'has_converged': False,
-            'reason': f"Did not converge: max relative change {max_relative_change:.2e} >= {settings.convergence_tolerance}",
-            'max_relative_change': float(max_relative_change),
-            'tolerance': settings.convergence_tolerance,
-            'window_size': window_size
-        }
+    return is_converged
 
 
 def detect_divergence_rate(
     trajectory: np.ndarray,
-    settings: Optional[NumericalSettings] = None
-) -> Tuple[Optional[float], dict]:
+    time_steps: Optional[np.ndarray] = None
+) -> Optional[float]:
     """
-    Estimate the rate of divergence for a trajectory.
-
-    Uses linear regression on log(abs(value)) vs time to estimate
-    exponential growth rate (Lyapunov-like exponent).
+    Estimate the divergence rate of a trajectory.
 
     Args:
-        trajectory: 2D array of shape (time_steps, dimensions)
-        settings: Numerical settings
+        trajectory: 2D array of shape (n_steps, n_dims).
+        time_steps: Optional array of time values.
 
     Returns:
-        Tuple of (divergence_rate, diagnostics)
-        divergence_rate is None if no divergence detected or insufficient data
+        Estimated divergence rate (Lyapunov-like), or None if undetectable.
     """
-    if trajectory.shape[0] < 10:
-        return None, {'reason': 'Insufficient data points for divergence analysis'}
+    if trajectory.ndim != 2 or trajectory.shape[0] < 2:
+        return None
 
-    # Use the norm of the state vector over time
+    n_steps, n_dims = trajectory.shape
+
+    # Use default time steps if not provided
+    if time_steps is None:
+        time_steps = np.arange(n_steps)
+
+    # Compute norm at each step
     norms = np.linalg.norm(trajectory, axis=1)
 
-    # Avoid log(0)
-    norms_safe = np.where(norms == 0, 1e-16, norms)
-    log_norms = np.log(norms_safe)
+    # Filter out zero or near-zero norms to avoid log issues
+    valid_mask = norms > 1e-12
+    if np.sum(valid_mask) < 2:
+        return None
 
-    # Linear regression: log_norms = rate * time + intercept
-    time_steps = np.arange(len(log_norms))
+    valid_times = time_steps[valid_mask]
+    valid_norms = norms[valid_mask]
 
-    # Compute slope using least squares
-    n = len(time_steps)
-    sum_x = np.sum(time_steps)
-    sum_y = np.sum(log_norms)
-    sum_xy = np.sum(time_steps * log_norms)
-    sum_xx = np.sum(time_steps ** 2)
+    # Log-transform
+    log_norms = np.log(valid_norms)
 
-    denominator = n * sum_xx - sum_x ** 2
-    if abs(denominator) < 1e-16:
-        return None, {'reason': 'Cannot compute regression: denominator too small'}
-
-    rate = (n * sum_xy - sum_x * sum_y) / denominator
-    intercept = (sum_y - rate * sum_x) / n
-
-    # Compute R-squared
-    y_pred = rate * time_steps + intercept
-    ss_res = np.sum((log_norms - y_pred) ** 2)
-    ss_tot = np.sum((log_norms - np.mean(log_norms)) ** 2)
-    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
-
-    diagnostics = {
-        'rate': float(rate),
-        'intercept': float(intercept),
-        'r_squared': float(r_squared),
-        'initial_norm': float(norms[0]),
-        'final_norm': float(norms[-1]),
-        'total_growth': float(norms[-1] / norms[0]) if norms[0] > 0 else float('inf')
-    }
-
-    # Determine if this indicates divergence
-    is_diverging = rate > settings.divergence_rate_threshold
-    diagnostics['is_diverging'] = is_diverging
-    diagnostics['threshold'] = settings.divergence_rate_threshold
-
-    if is_diverging:
-        return rate, diagnostics
-    else:
-        return None, diagnostics
+    # Simple linear fit to estimate growth rate
+    try:
+        # Fit log_norm = rate * time + intercept
+        coeffs = np.polyfit(valid_times, log_norms, 1)
+        rate = coeffs[0]
+        return rate
+    except (ValueError, np.linalg.LinAlgError):
+        return None
 
 
 def validate_trajectory(
     trajectory: np.ndarray,
-    settings: Optional[NumericalSettings] = None,
-    raise_on_error: bool = False
+    max_bound: float = 100.0,
+    min_steps: int = 100,
+    check_convergence: bool = False,
+    convergence_tol: float = 1e-6
 ) -> StabilityReport:
     """
-    Validate a trajectory against all numerical stability criteria.
-
-    This is a convenience function that combines all checks and
-    optionally raises exceptions.
+    Perform a comprehensive validation of a trajectory.
 
     Args:
-        trajectory: 2D array of shape (time_steps, dimensions)
-        settings: Numerical settings
-        raise_on_error: If True, raise exceptions on failures
+        trajectory: 2D array of shape (n_steps, n_dims).
+        max_bound: Maximum allowed absolute value for any state component.
+        min_steps: Minimum required number of time steps.
+        check_convergence: Whether to check for convergence.
+        convergence_tol: Tolerance for convergence check.
 
     Returns:
-        StabilityReport
-
-    Raises:
-        NumericalStabilityError: If trajectory contains NaN/Inf and raise_on_error=True
-        DivergenceError: If trajectory diverges and raise_on_error=True
-        NonConvergenceError: If trajectory doesn't converge and raise_on_error=True
+        StabilityReport with validation results.
     """
-    report = check_numerical_validity(trajectory, settings)
+    warnings_list = []
+    is_stable = True
+    bounded = True
+    converged = True
 
-    if raise_on_error:
-        if not report.is_valid:
-            if any("NaN" in w or "Inf" in w for w in report.warnings):
-                raise NumericalStabilityError(f"Invalid trajectory: {report.warnings}")
-            if any("Boundedness" in w for w in report.warnings):
-                raise DivergenceError(f"Trajectory diverged: {report.warnings}")
+    # Check dimensions
+    if trajectory.ndim != 2:
+        warnings_list.append(f"Trajectory should be 2D, got {trajectory.ndim}D")
+        is_stable = False
 
-        # Check divergence rate
-        if trajectory.shape[0] >= 10:
-            rate, diag = detect_divergence_rate(trajectory, settings)
-            if rate is not None and rate > settings.divergence_rate_threshold * 2:
-                raise DivergenceError(
-                    f"Excessive divergence rate detected: {rate:.4f} > {settings.divergence_rate_threshold * 2}"
-                )
+    n_steps, n_dims = trajectory.shape
 
-    return report
+    # Check minimum steps
+    if n_steps < min_steps:
+        warnings_list.append(f"Trajectory too short: {n_steps} < {min_steps} steps")
+        is_stable = False
+
+    # Check numerical validity
+    is_valid, validity_warnings = check_numerical_validity(trajectory.flatten())
+    warnings_list.extend(validity_warnings)
+    if not is_valid:
+        is_stable = False
+
+    # Check boundedness
+    max_val = np.max(np.abs(trajectory))
+    if max_val > max_bound:
+        bounded = False
+        warnings_list.append(f"Trajectory exceeds bound: {max_val:.2e} > {max_bound}")
+        is_stable = False
+
+    # Check convergence if requested
+    if check_convergence and n_steps > 10:
+        # Use the norm of the state for convergence check
+        norms = np.linalg.norm(trajectory, axis=1)
+        converged = check_convergence(norms, tol=convergence_tol)
+        if not converged:
+            warnings_list.append("Trajectory does not appear to have converged")
+
+    # Detect divergence rate
+    divergence_rate = detect_divergence_rate(trajectory)
+
+    return StabilityReport(
+        is_stable=is_stable,
+        bounded=bounded,
+        converged=converged,
+        max_value=float(max_val),
+        divergence_rate=divergence_rate,
+        warnings=warnings_list,
+        details={
+            "n_steps": n_steps,
+            "n_dims": n_dims,
+            "min_value": float(np.min(trajectory)),
+            "mean_norm": float(np.mean(np.linalg.norm(trajectory, axis=1)))
+        }
+    )

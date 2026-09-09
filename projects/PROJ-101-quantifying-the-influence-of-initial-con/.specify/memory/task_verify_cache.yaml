@@ -1,16 +1,68 @@
-T027:
-  c: false
-  h: 325b0518c63193aece10ad85c87e00886b731c2eeeed2baa80f8016e781300f8
-  r: The `code/analysis/ftle.py` file does not contain any logic that writes exponent
-    values, window sizes, and noise levels to `data/processed/ftle_results.json`,
-    and the expected JSON output file is absent from the repository. Consequently
-    the required artifact is missing and the task is not fulfilled.
-T045:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, output files, or aggregated results were provided; the claim lacks\
-    \ any artifact showing that the FTLE algorithm was run for the required T values\
-    \ and that the results were collected into a structured format. The implementer\
-    \ must supply the execution script, the generated FTLE data for T\u202F=\u202F\
-    500,\u202F1000,\u202F5000 (or similar), and the aggregated output (e.g., CSV/JSON)\
-    \ to satisfy the task."
+  r: No evidence of the required directories (`code/`, `tests/`, `data/raw/`, `data/processed/`,
+    `state/`) is presented; the claim lacks any artifact confirming that the directory
+    structure exists. The implementer must create and show these folders.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit/` and `tests/integration/` directories
+    is provided; the claim lacks any artifact showing that these folders exist in
+    the repository. The implementer must add the two directories (with at least placeholder
+    files if needed) and present a file listing or similar proof.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest configuration or fixture code (e.g., a `conftest.py` defining a seed
+    fixture and a temporary directory fixture) was provided; the evidence contains
+    only the task description, so the required artifact is missing.
+T037c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing the `quickstart.md` file was provided, nor any excerpt demonstrating
+    that the CLI arguments `--noise-level` and `--N` were added. Without the updated
+    documentation file, the task requirement cannot be verified as satisfied.
+T037d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `README.md` file or its contents were provided, and there is no evidence that
+    it has been updated with the required full pipeline run instructions. The implementer
+    must supply the actual README file showing the complete usage steps.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation showing any cleanup or refactoring were provided;\
+    \ the only material present is the feature specification for chaotic-system analysis,\
+    \ which does not contain the required cleaned\u2011up code artifacts. Consequently\
+    \ the task\u2019s deliverable (refactored, readable code) is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation showing that trials have been parallelized\
+    \ with Python\u2019s `multiprocessing` module is present. The claim lacks any\
+    \ artifact (e.g., a multiprocessing implementation, benchmark results, or updated\
+    \ pipeline) to verify that the performance optimization was actually performed."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the task description and specification excerpt; there\
+    \ is no evidence of any new or modified files under `tests/unit/` containing unit\
+    \ tests for high\u2011noise or non\u2011chaotic parameter edge cases. Without\
+    \ actual test code present, the requirement of adding additional unit tests is\
+    \ not satisfied."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file or validation log was provided, and there is no evidence\
+    \ that the pipeline was actually run and reproduced. The required artifact (a\
+    \ validated quickstart guide demonstrating end\u2011to\u2011end reproducibility)\
+    \ is missing, so the task is not satisfied."
+T047:
+  c: false
+  h: 9c20728b0fc6c7d1e03fbbb14f0543478b5297560f8d7bc7eae7c2a779a449ff
+  r: "The repository contains a `code/analysis/regression.py` file, but it is truncated\
+    \ and does not show any logic that computes the scaling exponent of FTLE bias\
+    \ versus system dimension nor writes that metric to `data/processed/results.json`.\
+    \ Moreover, the required `data/processed/results.json` file is completely missing.\
+    \ Consequently, the task\u2019s core requirement is not fulfilled."

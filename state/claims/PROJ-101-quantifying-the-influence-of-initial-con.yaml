@@ -1,0 +1,358 @@
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Run loop for N equals 5
+  claim_id: c_54456931
+  context: 'Implement code/main.py logic to trigger the full generation loop. Deliverable:
+    Run loop for N \in {, 5} (restricted to plan scope) and sigma $\in$ {a range of
+    small to moderate values}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run loop for N \in {5} and sigma \in {a range of small to moderate values}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:00:14Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Number of trials k is 50 for sigma less than 0.01 and 30 otherwise
+  claim_id: c_b7191009
+  context: 'Trial Logic: For each noise level, determine k as: if sigma < 0.01 then
+    k=50 else k=30. Run k trials per level.'
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: if sigma < 0.01 then k=50 else k=30
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T16:00:15Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Unit test verify error less than 1e-9 against reference
+  claim_id: c_e6eb449f
+  context: Unit test for clean trajectory numerical precision in tests/unit/test_generator.py
+    (verify error < 1e-9 against reference)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_verify_error_less_than_1e-9_against_reference
+  kind: magnitude
+  raw_text: Verify error < 1e-9 against reference
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:00:40Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Unit test verify mean and variance match sigma_noise
+  claim_id: c_5daab73f
+  context: Unit test for noise injection statistics in tests/unit/test_generator.py
+    (verify mean/variance match sigma_noise)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_verify_mean_and_variance_match_sigma_noise
+  kind: entity_fact
+  raw_text: verify mean/variance match sigma_noise
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:01:11Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Unit test verify HighNoiseWarning at sigma greater than 0.1
+  claim_id: c_6b619c9a
+  context: Unit test for 'unphysical' flagging and 'high-noise' warning in tests/unit/test_generator.py
+    (verify HighNoiseWarning at sigma > 0.1 and UnphysicalTrajectoryError at sigma
+    > 1.0 or divergence)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_verify_HighNoiseWarning_at_sigma_greater_than_0.1
+  kind: magnitude
+  raw_text: verify HighNoiseWarning at sigma > 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:01:32Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Unit test verify UnphysicalTrajectoryError at sigma greater than 1.0
+    or divergence
+  claim_id: c_af710770
+  context: Unit test for 'unphysical' flagging and 'high-noise' warning in tests/unit/test_generator.py
+    (verify HighNoiseWarning at sigma > 0.1 and UnphysicalTrajectoryError at sigma
+    > 1.0 or divergence)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_verify_UnphysicalTrajectoryError_at_sigma_greater
+  kind: magnitude
+  raw_text: verify UnphysicalTrajectoryError at sigma > 1.0 or divergence
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:02:00Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Raise HighNoiseWarning if sigma_noise greater than 0.1
+  claim_id: c_a7fe2868
+  context: 'Implement code/data/generator.py noise check logic: Raise HighNoiseWarning
+    if sigma_noise > 0.1; Raise UnphysicalTrajectoryError if sigma_noise > 1.0 OR
+    if max(|state_vector|) > 100 (attractor bound).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_HighNoiseWarning_if_sigma_noise_greater_than_0.1
+  kind: magnitude
+  raw_text: Raise HighNoiseWarning if sigma_noise > 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:02:20Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Raise UnphysicalTrajectoryError if sigma_noise greater than 1.0
+  claim_id: c_8abd2705
+  context: 'Implement code/data/generator.py noise check logic: Raise HighNoiseWarning
+    if sigma_noise > 0.1; Raise UnphysicalTrajectoryError if sigma_noise > 1.0 OR
+    if max(|state_vector|) > 100 (attractor bound).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_UnphysicalTrajectoryError_if_sigma_noise_greater_than
+  kind: magnitude
+  raw_text: Raise UnphysicalTrajectoryError if sigma_noise > 1.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:02:41Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Raise UnphysicalTrajectoryError if max absolute state vector greater
+    than 100
+  claim_id: c_d62dacac
+  context: 'Implement code/data/generator.py noise check logic: Raise HighNoiseWarning
+    if sigma_noise > 0.1; Raise UnphysicalTrajectoryError if sigma_noise > 1.0 OR
+    if max(|state_vector|) > 100 (attractor bound).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_UnphysicalTrajectoryError_if_max_absolute_state_vector
+  kind: magnitude
+  raw_text: Raise UnphysicalTrajectoryError if max(|state_vector|) > 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:02:50Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Run 50 trials for sigma less than 0.01 and 30 trials otherwise
+  claim_id: c_42dd396e
+  context: 'For each noise level, determine k as: if sigma < 0.01 then k=50 else k=30.
+    Run k trials per level.'
+  evidence:
+    asserted: '50.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: Run k trials per level with k=50 for sigma < 0.01 and k=30 otherwise
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T16:02:50Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Unit test verify error less than 5 percent at T equals 5000
+  claim_id: c_02f11bc8
+  context: Unit test for FTLE convergence on clean trajectory in tests/unit/test_ftle.py
+    (verify error < 5% at T=5000)
+  evidence:
+    candidates:
+    - - T equals
+      - 5000.0
+    - - Unit test verify error less than
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Unit_test_verify_error_less_than_5_percent_at_T_equals_5000
+  kind: magnitude
+  raw_text: Verify error < 5% at T=5000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-09T16:03:12Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Stop Richardson extrapolation when relative change less than 1e-6
+  claim_id: c_e98e0019
+  context: 'Method: Integrate trajectory with step sizes h, h/2, h/4 using 4th order
+    extrapolation. Stop when relative change |lambda_{k} - lambda_{k-1}| / |lambda_{k-1}|
+    < 1e-6.'
+  evidence:
+    asserted: 1e-06
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: Stop when relative change |lambda_k - lambda_{k-1}| / |lambda_{k-1}| <
+    1e-6
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T16:03:12Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Raise NonChaoticSystemError if lambda_max less than or equal to 0
+  claim_id: c_1c9f3861
+  context: 'Implement code/analysis/baseline.py logic to detect non-chaotic regimes:
+    Compute numerical lambda_max for the specific configuration; if lambda_max <=
+    0, raise NonChaoticSystemError with message ''Non-chaotic regime detected: lambda_max={lambda_max}
+    <= 0''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_NonChaoticSystemError_if_lambda_max_less_than_or_equal
+  kind: magnitude
+  raw_text: if lambda_max <= 0, raise NonChaoticSystemError
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:03:34Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Run FTLE algorithm across T equals 500, 1000, and 5000
+  claim_id: c_86399902
+  context: 'Implement execution of the sliding window sweep: Run the FTLE algorithm
+    (T022/T023) across T \in \{500, 1000, 5000\} for all trials generated in T018.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the FTLE algorithm across T \in {500, 1000, 5000}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:03:50Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Ensure T less than total_length minus 10
+  claim_id: c_57520d41
+  context: Implement code/analysis/ftle.py sliding window logic for T \in \{500, 1000,
+    5000\} ensuring T < total_length - 10 (strict multi-step offset as per Edge Cases)
+    to allow for tangent vector propagation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_T_less_than_total_length_minus_10
+  kind: magnitude
+  raw_text: ensure T < total_length - 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:04:30Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Unit test assert p_value less than 0.05 for synthetic dataset
+  claim_id: c_76a9be50
+  context: 'Unit test for regression statistical significance in tests/unit/test_regression.py.
+    Function: test_regression_p_value_significance. Assertion: assert p_value < 0.05
+    for a synthetic dataset with known bias; verify effect_size is calculated correctly.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_assert_p_value_less_than_0.05_for_synthetic_datase
+  kind: magnitude
+  raw_text: assert p_value < 0.05 for a synthetic dataset with known bias
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:05:38Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Verify 50 trials for sigma less than 0.01 and at least 30 for sigma greater
+    than or equal to 0.01
+  claim_id: c_7e04582b
+  context: "Implement code/analysis/regression.py to ensure k(\u03C3) independent\
+    \ trials per noise level are available in data/raw/, where k=50 for \u03C3 < 0.01\
+    \ and k \u2265 30 for \u03C3 \u2265 0.01, covering the full noise range defined\
+    \ in T018."
+  evidence:
+    asserted: '50.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: verify k=50 for sigma < 0.01 and k >= 30 for sigma >= 0.01
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T16:05:38Z'
+- artifact_path: projects/PROJ-101-quantifying-the-influence-of-initial-con/specs/001-quantifying-the-influence-of-initial-con/tasks.md
+  attempts: 1
+  canonical: Integration test verify total runtime less than or equal to 30 seconds
+  claim_id: c_690a18d5
+  context: Implement integration test in tests/integration/test_pipeline.py that runs
+    the full N=5 generation and analysis loop, verifying total runtime <= 30s (Addressing
+    US-1 Acceptance Scenario 3).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_verify_total_runtime_less_than_or_equal_to
+  kind: magnitude
+  raw_text: verify total runtime <= 30s
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T16:05:55Z'

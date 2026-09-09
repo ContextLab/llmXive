@@ -1,1 +1,1 @@
-"""Integration tests for llmXive project pipelines."""
+"""Integration tests package for the chaotic systems analysis pipeline."""

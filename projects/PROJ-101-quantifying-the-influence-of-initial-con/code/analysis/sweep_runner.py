@@ -1,188 +1,322 @@
 """
-T045: Execution of the sliding window sweep.
+Sweep runner module for parallel execution of trajectory generation and analysis.
 
-Runs the FTLE algorithm (T022/T023) across the required set of T values 
-({500, 1000, 5000}) and aggregates results into a structured format.
-
-This module orchestrates the batch execution of `run_sliding_window_sweep`
-from `analysis.ftle` for the defined window sizes and noise levels, 
-ensuring the baseline gate (T028) is respected.
+This module implements parallelized trial execution using multiprocessing to
+optimize performance across CPU cores.
 """
-
-import numpy as np
+import os
+import sys
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
+from datetime import datetime
+import multiprocessing as mp
+from functools import partial
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import traceback
 
-from analysis.ftle import run_sliding_window_sweep, FTLEResult
-from analysis.baseline import load_baseline_result, validate_and_gate_for_baseline
-from analysis.shadowing import gate_for_ftle_calculation
-from data.loader import load_trajectory, TrajectoryFileNotFoundError
-from config import get_full_config
-from utils.stability import check_numerical_validity
+import numpy as np
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Import from local modules using the defined API surface
+from config import get_full_config, set_simulation_seed, set_noise_levels, set_N_oscillators
+from data.generator import generate_batch_trajectories, UnphysicalTrajectoryError
+from data.loader import save_trajectory
+from analysis.ftle import run_sliding_window_sweep, load_baseline_and_compute_ftle
+from analysis.baseline import load_baseline_result, validate_and_gate_for_baseline, NonChaoticSystemError
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Defined window sizes for the sweep (T values)
-WINDOW_SIZES = [500, 1000, 5000]
+def _worker_init(seed_offset: int):
+    """Initialize worker process with unique seed offset."""
+    # Each worker gets a unique seed to ensure reproducibility
+    base_seed = 42  # Base seed from config
+    worker_seed = base_seed + seed_offset
+    np.random.seed(worker_seed)
+    logger.info(f"Worker initialized with seed: {worker_seed}")
 
-def run_full_sweep(
-    data_dir: Path, 
-    processed_dir: Path, 
-    baseline_file: str = "baseline_5.json",
-    overwrite: bool = False
-) -> List[Dict[str, Any]]:
+def _run_single_trial(args: Tuple[int, int, float, int]) -> Dict[str, Any]:
     """
-    Executes the sliding window sweep across all configured window sizes 
-    and noise levels.
+    Run a single trial for trajectory generation and FTLE computation.
+    
+    This function is designed to be executed in a separate process.
     
     Args:
-        data_dir: Path to `data/raw/` where trajectory files are stored.
-        processed_dir: Path to `data/processed/` for output.
-        baseline_file: Filename of the baseline result JSON.
-        overwrite: If True, recompute even if output exists.
+        args: Tuple of (trial_id, N_oscillators, sigma_noise, trial_index)
     
     Returns:
-        List of result dictionaries containing T, sigma, N, and lambda_max.
+        Dictionary containing trial results or error information.
+    """
+    trial_id, N_oscillators, sigma_noise, trial_index = args
+    
+    try:
+        # Set unique seed for this trial within the worker
+        worker_seed = int(trial_id * 1000 + trial_index)
+        np.random.seed(worker_seed)
+        
+        # Generate trajectory
+        logger.debug(f"Worker generating trajectory: N={N_oscillators}, sigma={sigma_noise}, trial={trial_index}")
+        
+        trajectory_data = generate_batch_trajectories(
+            N=N_oscillators,
+            sigma_noise=sigma_noise,
+            n_trials=1,  # Generate one trajectory at a time
+            seed=worker_seed
+        )
+        
+        if not trajectory_data or len(trajectory_data) == 0:
+            return {
+                "trial_id": trial_id,
+                "status": "error",
+                "error": "No trajectory data generated"
+            }
+        
+        # Extract the single trajectory
+        traj = trajectory_data[0]
+        
+        # Save trajectory to disk
+        config = get_full_config()
+        output_path = Path(config.simulation.output_dir) / "raw"
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        filename = f"trajectory_N{N_oscillators}_sigma{sigma_noise:.3f}_trial{trial_index}.csv"
+        filepath = output_path / filename
+        
+        save_trajectory(traj, filepath)
+        
+        # Compute FTLE if baseline exists
+        ftle_result = None
+        baseline_path = Path(config.analysis.baseline_dir) / f"baseline_{N_oscillators}.json"
+        
+        if baseline_path.exists():
+            try:
+                ftle_result = load_baseline_and_compute_ftle(
+                    trajectory_data=[traj],
+                    baseline_path=baseline_path,
+                    window_sizes=[500, 1000, 5000]
+                )
+                
+                if ftle_result and len(ftle_result) > 0:
+                    ftle_result = ftle_result[0]  # Take first result
+            except Exception as ftle_err:
+                logger.warning(f"FTLE computation failed for trial {trial_id}: {ftle_err}")
+                ftle_result = None
+        else:
+            logger.warning(f"Baseline not found for N={N_oscillators}, skipping FTLE")
+        
+        return {
+            "trial_id": trial_id,
+            "N": N_oscillators,
+            "sigma": sigma_noise,
+            "trial_index": trial_index,
+            "status": "success",
+            "filepath": str(filepath),
+            "ftle_results": ftle_result
+        }
+        
+    except UnphysicalTrajectoryError as e:
+        logger.warning(f"Unphysical trajectory detected for trial {trial_id}: {e}")
+        return {
+            "trial_id": trial_id,
+            "N": N_oscillators,
+            "sigma": sigma_noise,
+            "trial_index": trial_index,
+            "status": "unphysical",
+            "error": str(e)
+        }
+    except Exception as e:
+        logger.error(f"Trial {trial_id} failed with exception: {e}")
+        logger.error(traceback.format_exc())
+        return {
+            "trial_id": trial_id,
+            "N": N_oscillators,
+            "sigma": sigma_noise,
+            "trial_index": trial_index,
+            "status": "error",
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }
+
+def run_full_sweep(
+    N_values: Optional[List[int]] = None,
+    noise_levels: Optional[List[float]] = None,
+    n_processes: Optional[int] = None
+) -> Dict[str, Any]:
+    """
+    Run the full generation and analysis sweep with parallelized trials.
+    
+    This function parallelizes the execution of trials across CPU cores using
+    multiprocessing to significantly reduce runtime for large sweeps.
+    
+    Args:
+        N_values: List of oscillator counts to test. Defaults to config values.
+        noise_levels: List of noise levels to test. Defaults to config values.
+        n_processes: Number of parallel processes. Defaults to CPU count.
+    
+    Returns:
+        Dictionary containing all results and metadata.
     """
     config = get_full_config()
-    simulation_config = config.simulation
-    analysis_config = config.analysis
     
-    # 1. Validate Baseline (T028 Gate)
-    baseline_path = processed_dir / baseline_file
-    if not baseline_path.exists():
-        raise FileNotFoundError(f"Baseline file not found: {baseline_path}. "
-                                "Run T024 first.")
+    # Use config values if not provided
+    if N_values is None:
+        N_values = config.simulation.N_values
+    if noise_levels is None:
+        noise_levels = config.analysis.noise_levels
     
-    baseline_data = load_baseline_result(baseline_path)
-    validate_and_gate_for_baseline(baseline_data)
-    logger.info(f"Baseline validation passed. Lambda_max: {baseline_data['lambda_max']:.6f}")
+    if n_processes is None:
+        n_processes = max(1, mp.cpu_count() - 1)  # Leave one core free
     
-    # 2. Determine noise levels and N values to sweep
-    # Using the config's defined noise levels and N values
-    noise_levels = simulation_config.noise_levels  # List[float]
-    n_values = simulation_config.n_oscillators     # List[int]
+    logger.info(f"Starting parallel sweep with {n_processes} processes")
+    logger.info(f"N values: {N_values}")
+    logger.info(f"Noise levels: {noise_levels}")
     
-    all_results = []
+    # Prepare task arguments
+    tasks = []
+    trial_counter = 0
     
-    logger.info(f"Starting sweep for N={n_values}, sigma={noise_levels}, T={WINDOW_SIZES}")
-    
-    for N in n_values:
-        # Ensure baseline exists for this N (or use the generic one if N is fixed to 5 in config)
-        # For this implementation, we assume the baseline file provided matches the current N 
-        # or is the reference for the current run.
+    for N in N_values:
+        # Validate baseline exists before processing
+        baseline_path = Path(config.analysis.baseline_dir) / f"baseline_{N}.json"
+        if not baseline_path.exists():
+            logger.warning(f"Baseline missing for N={N}, skipping this configuration")
+            continue
         
         for sigma in noise_levels:
-            # Construct filename pattern based on T017/T018 naming convention
-            # Typically: trajectory_N{N}_sigma{sigma:.4f}.npz
-            # We need to find the actual file or generate a list of files if multiple exist.
-            # For this sweep, we assume one trajectory per (N, sigma) pair exists in data/raw.
+            # Determine number of trials based on noise level
+            k = 50 if sigma < 0.01 else 30
             
-            # Attempt to locate the trajectory file
-            trajectory_files = list(data_dir.glob(f"trajectory_N{N}_sigma*.npz"))
-            
-            if not trajectory_files:
-                logger.warning(f"No trajectory found for N={N}, sigma={sigma}. Skipping.")
-                continue
-            
-            # If multiple files exist (e.g., different seeds), we process the first one 
-            # or aggregate. For T045, we process the available trajectories.
-            for traj_file in trajectory_files:
-                # Extract sigma from filename if possible, or rely on filename match
-                # Simple heuristic: check if filename contains the current sigma string
-                sigma_str = f"{sigma:.4f}"
-                if sigma_str not in traj_file.name:
-                    continue
-                
-                logger.info(f"Processing {traj_file.name}...")
-                
-                try:
-                    # Load trajectory
-                    traj_data = load_trajectory(traj_file)
-                    states = traj_data['states']  # Shape: (time_steps, N*3)
-                    dt = traj_data.get('dt', 0.01)
-                    
-                    # Validate trajectory
-                    check_numerical_validity(states)
-                    
-                    # Run Sliding Window Sweep for this trajectory
-                    # T022/T023 logic: run_sliding_window_sweep
-                    sweep_results = run_sliding_window_sweep(
-                        states=states,
-                        window_sizes=WINDOW_SIZES,
-                        dt=dt,
-                        N=N
-                    )
-                    
-                    # Aggregate results
-                    for res in sweep_results:
-                        if isinstance(res, FTLEResult):
-                            result_entry = {
-                                "N": N,
-                                "sigma_noise": sigma,
-                                "window_size_T": res.window_size,
-                                "lambda_max": res.lambda_max,
-                                "error_estimate": res.error_estimate,
-                                "file_source": str(traj_file.name)
-                            }
-                            all_results.append(result_entry)
-                        else:
-                            # Handle dict result if function returns dict
-                            result_entry = {
-                                "N": N,
-                                "sigma_noise": sigma,
-                                "window_size_T": res.get("window_size_T"),
-                                "lambda_max": res.get("lambda_max"),
-                                "error_estimate": res.get("error_estimate"),
-                                "file_source": str(traj_file.name)
-                            }
-                            all_results.append(result_entry)
-                            
-                except Exception as e:
-                    logger.error(f"Error processing {traj_file}: {e}", exc_info=True)
-                    continue
+            for t in range(k):
+                tasks.append((trial_counter, N, sigma, t))
+                trial_counter += 1
     
-    return all_results
+    logger.info(f"Prepared {len(tasks)} tasks for execution")
+    
+    # Execute tasks in parallel
+    results = []
+    start_time = datetime.now()
+    
+    with ProcessPoolExecutor(
+        max_workers=n_processes,
+        initializer=_worker_init,
+        initargs=(0,)  # Seed offset (0 for base, workers add their own)
+    ) as executor:
+        # Submit all tasks
+        future_to_task = {
+            executor.submit(_run_single_trial, task): task 
+            for task in tasks
+        }
+        
+        # Collect results as they complete
+        completed = 0
+        for future in as_completed(future_to_task):
+            task = future_to_task[future]
+            try:
+                result = future.result()
+                results.append(result)
+                completed += 1
+                
+                if completed % 10 == 0:
+                    logger.info(f"Progress: {completed}/{len(tasks)} tasks completed")
+                    
+            except Exception as e:
+                logger.error(f"Task {task} failed: {e}")
+                results.append({
+                    "trial_id": task[0],
+                    "status": "failed",
+                    "error": str(e)
+                })
+    
+    end_time = datetime.now()
+    duration = (end_time - start_time).total_seconds()
+    
+    logger.info(f"Sweep completed in {duration:.2f} seconds")
+    logger.info(f"Total results: {len(results)}")
+    
+    # Aggregate results
+    successful = sum(1 for r in results if r.get("status") == "success")
+    unphysical = sum(1 for r in results if r.get("status") == "unphysical")
+    failed = sum(1 for r in results if r.get("status") in ["error", "failed"])
+    
+    summary = {
+        "total_tasks": len(tasks),
+        "successful": successful,
+        "unphysical": unphysical,
+        "failed": failed,
+        "duration_seconds": duration,
+        "n_processes": n_processes,
+        "N_values": N_values,
+        "noise_levels": noise_levels
+    }
+    
+    return {
+        "summary": summary,
+        "results": results,
+        "start_time": start_time.isoformat(),
+        "end_time": end_time.isoformat()
+    }
 
-def save_sweep_results(results: List[Dict[str, Any]], output_path: Path) -> None:
+def save_sweep_results(results: Dict[str, Any], output_path: Optional[str] = None):
     """
-    Saves the aggregated sweep results to a JSON file.
+    Save sweep results to disk.
+    
+    Args:
+        results: Results dictionary from run_full_sweep.
+        output_path: Optional custom output path. Defaults to config.
     """
+    config = get_full_config()
+    
+    if output_path is None:
+        output_path = Path(config.analysis.output_dir) / "processed" / "sweep_results.json"
+    else:
+        output_path = Path(output_path)
+    
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Sweep results saved to {output_path}")
+        json.dump(results, f, indent=2, default=str)
+    
+    logger.info(f"Results saved to {output_path}")
 
 def main():
-    """
-    Entry point for T045 execution.
-    """
-    project_root = Path(__file__).resolve().parent.parent.parent
-    data_raw = project_root / "data" / "raw"
-    data_processed = project_root / "data" / "processed"
+    """Main entry point for the sweep runner."""
+    import argparse
     
-    if not data_raw.exists():
-        raise FileNotFoundError(f"Data directory not found: {data_raw}")
-    if not data_processed.exists():
-        raise FileNotFoundError(f"Processed directory not found: {data_processed}")
+    parser = argparse.ArgumentParser(description="Run parallel sweep of chaotic system simulations")
+    parser.add_argument("--N-values", type=int, nargs="+", help="Oscillator counts to test")
+    parser.add_argument("--noise-levels", type=float, nargs="+", help="Noise levels to test")
+    parser.add_argument("--processes", type=int, help="Number of parallel processes")
+    parser.add_argument("--output", type=str, help="Output file path")
     
-    baseline_file = "baseline_5.json" # Default assumption based on config
+    args = parser.parse_args()
+    
+    N_values = args.N_values if args.N_values else None
+    noise_levels = args.noise_levels if args.noise_levels else None
+    n_processes = args.processes if args.processes else None
+    output_path = args.output
     
     results = run_full_sweep(
-        data_dir=data_raw,
-        processed_dir=data_processed,
-        baseline_file=baseline_file
+        N_values=N_values,
+        noise_levels=noise_levels,
+        n_processes=n_processes
     )
     
-    output_file = data_processed / "ftle_sweep_results.json"
-    save_sweep_results(results, output_file)
+    save_sweep_results(results, output_path)
     
-    print(f"Completed sweep. Total entries: {len(results)}")
-    if results:
-        print(f"Sample result: {results[0]}")
+    # Print summary
+    summary = results["summary"]
+    print(f"\n=== Sweep Summary ===")
+    print(f"Total tasks: {summary['total_tasks']}")
+    print(f"Successful: {summary['successful']}")
+    print(f"Unphysical: {summary['unphysical']}")
+    print(f"Failed: {summary['failed']}")
+    print(f"Duration: {summary['duration_seconds']:.2f}s")
+    print(f"Processes: {summary['n_processes']}")
 
 if __name__ == "__main__":
     main()

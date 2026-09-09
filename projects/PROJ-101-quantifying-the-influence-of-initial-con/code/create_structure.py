@@ -1,19 +1,12 @@
 """
-Script to initialize the project directory structure.
-Creates the required folders for code, tests, data, and state management.
+Script to create the project directory structure.
+This script ensures all required directories exist for the llmXive pipeline.
 """
 import os
 from pathlib import Path
 
 def main():
-    """
-    Creates the following directory structure relative to the project root:
-    - code/
-    - tests/
-    - data/raw/
-    - data/processed/
-    - state/
-    """
+    """Create the required directory structure."""
     root = Path(__file__).parent.parent
     
     directories = [
@@ -21,7 +14,13 @@ def main():
         "tests",
         "data/raw",
         "data/processed",
-        "state"
+        "state",
+        "code/utils",
+        "code/data",
+        "code/analysis",
+        "tests/unit",
+        "tests/integration",
+        "figures",
     ]
     
     created_count = 0
@@ -29,13 +28,13 @@ def main():
         full_path = root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+            print(f"Created directory: {full_path.relative_to(root)}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
+            print(f"Directory already exists: {full_path.relative_to(root)}")
     
-    print(f"Directory structure initialization complete. Created {created_count} new directories.")
-    return 0
+    print(f"\nTotal new directories created: {created_count}")
+    print("Directory structure verification complete.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()
