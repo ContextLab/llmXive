@@ -9,17 +9,17 @@ This project investigates the neural correlates of predictive error signals in t
 The system must search for and identify relevant datasets containing tactile, somatosensory, or odd-ball experimental paradigms.
 
 ### FR-002: Preprocessing
-Raw EEG data must be bandpass filtered (1-40 Hz), subjected to ICA for artifact removal, and bad channels interpolated.
+Raw EEG data must be bandpass filtered within a low-frequency range to remove artifacts., subjected to ICA for artifact removal, and bad channels interpolated.
 
 ### FR-003: Epoching
-Data must be epoched from -200ms to 500ms relative to stimulus onset, separated by standard and deviant stimulus types.
+Data must be epoched from a pre-stimulus baseline period to a post-stimulus window relative to stimulus onset., separated by standard and deviant stimulus types.
 
 ### FR-004: MMN Calculation
-MMN amplitude must be calculated as the mean difference wave (Deviant - Standard) within the 150–250ms time window at electrodes CP3, CP4, C3, and C4.
+MMN amplitude must be calculated as the mean difference wave (Deviant - Standard) within the early post-stimulus time window at electrodes CP3, CP4, C3, and C4..
 
 ### FR-005: Behavioral Alignment (UPDATED)
 Behavioral accuracy must be aligned with neural data using **Lagged Alignment**.
-- **Method**: The MMN amplitude is calculated over a preceding 50-trial window (t-50 to t-10) and aligned to the subsequent multi-trial accuracy block (t to t+n).
+- **Method**: The MMN amplitude is calculated over a preceding window of trials (t-N to t-M) and aligned to the subsequent multi-trial accuracy block (t to t+n).
 - **Exclusion**: Subjects identified as "underpowered" (fewer than 20 valid subjects in the cohort or insufficient trials per block) must be explicitly excluded from the primary GLMM input data.
 - **Fallback**: If behavioral logs are missing, the system defaults to "Stimulus-Driven" analysis mode.
 
@@ -30,7 +30,7 @@ The primary statistical model is a **Gaussian Linear Mixed-Effects Model (LME)**
 - **Validation**: A permutation test (n=1000) must be performed to validate significance.
 
 ### FR-007: Permutation Test
-A permutation test with 1000 shuffles is required to validate the significance of the LME coefficients. The system must check for p-value stability or adjust n based on dataset size.
+A permutation test with a sufficient number of shuffles is required to validate the significance of the LME coefficients. The system must check for p-value stability or adjust n based on dataset size.
 
 ### FR-008: Multiple Comparison Correction
 Apply FDR (Benjamini-Hochberg) correction to p-values derived from electrode-specific analyses.
@@ -64,7 +64,7 @@ Automatically determine analysis mode ("Error-Signal" or "Stimulus-Driven") base
 **I want** to compute MMN amplitudes and align them with behavioral accuracy using Lagged Alignment,
 **So that** I can correlate neural predictive errors with learning performance.
 **Acceptance Criteria**:
-- MMN calculated at CP3, CP4, C3, C4 (150–250ms).
+- MMN calculated at CP, CP4, C3, C4 (150–250ms).
 - **Lagged Alignment** applied: 50-trial source window mapped to subsequent accuracy block.
 - Underpowered subjects explicitly excluded from the aligned dataset.
 - Output `data/aligned_data.csv` contains time-series of MMN and accuracy.

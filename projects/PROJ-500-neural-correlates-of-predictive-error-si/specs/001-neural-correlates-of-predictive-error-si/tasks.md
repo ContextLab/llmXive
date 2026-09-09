@@ -49,8 +49,9 @@
  1. If `response_correctness` exists -> set `analysis_mode` to "error_signal".
  2. If only `stimulus_type` exists -> set `analysis_mode` to "stimulus_driven" and log fallback warning (Pipeline continues).
  3. If neither exists -> log error and skip dataset.
- **Verification**: Confirm file exists, contains valid JSON, and `analysis_mode` key is present with a valid value. (Merged T022 logic here).
-- [X] T004 [P] [US1] Log warning and skip datasets with missing metadata rather than crashing (FR-011)
+ **Exclusion Requirement**: Explicitly apply Constitution Principle VII (exclude underpowered subjects) to **BOTH** "error_signal" and "stimulus_driven" modes before generating the report.
+ **Verification**: Confirm file exists, contains valid JSON, `analysis_mode` key is present, and excluded subjects are logged.
+- [ ] T004 [P] [US1] Log warning and skip datasets with missing metadata rather than crashing (FR-011)
 
 ---
 
@@ -58,8 +59,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T005c [P] Initialize Git repository and configure `.gitignore`. **Commands**: `git init`, `git add.`, `git commit -m 'init'`. **Constraint**: Must also generate initial `state/projects/PROJ-500-neural-correlates-of-predictive-error-si.yaml` with content hashes for `requirements.txt` and `pyproject.toml` to satisfy Constitution Principle V. (Moved to start of Phase 1, removed [P] flag for logical flow).
-- [X] T005a [P] Create project directory structure (`src/`, `tests/`, `contracts/`, `data/`, `analysis/`)
+- [ ] T005c Initialize Git repository in `src/`. **Commands**: `git init`. **Constraint**: Must be executed before any other git operations.
+- [ ] T005d Generate initial `state/projects/PROJ-500-neural-correlates-of-predictive-error-si.yaml` with content hashes for `requirements.txt` and `pyproject.toml` to satisfy Constitution Principle V. **Dependency**: T005c (Git Init). **Note**: Sequential execution required to ensure directory structure is ready.
+- [ ] T005a [P] Create project directory structure (`src/`, `tests/`, `contracts/`, `data/`, `analysis/`)
 - [X] T005b [P] Initialize Python 3.11 project with `pyproject.toml` and `requirements.txt` (dependencies: `mne`, `pandas`, `numpy`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `datasets`, `joblib`)
 - [X] T006 [P] Configure linting (`ruff`) and formatting (`black`) tools (Create `ruff.toml` and `pyproject.toml` [tool.black] sections)
 
@@ -74,11 +76,10 @@
 - [ ] T009a [P] Create base data schema `contracts/aligned_data.schema.yaml`. **Fields**: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial`, `analysis_mode`.
 - [ ] T009b [P] Create base data schema `contracts/model_output.schema.yaml`. **Fields**: `coefficients`, `p_values`, `fdr_p_values`, `permutation_p_value`.
 - [X] T010 [P] Setup environment variable validation and error handling infrastructure (Create `src/utils/env_validator.py` to check `DATA_DIR`, `SEED`, `RAM_LIMIT`)
-- [X] T007 [P] Setup configuration management (`src/utils/config.py`) for paths, seeds, and parameters (Low-frequency to Hz filter, –250ms window)
+- [X] T007 [P] Setup configuration management (`src/utils/config.py`) for paths, seeds, and parameters (Low-frequency to Hz filter, –250ms window, `ACCURACY_BLOCK_SIZE`)
 - [X] T008 [P] Implement structured logging (`src/utils/logging.py`) with JSON output for pipeline traceability
 - [X] T011 [P] Implement checksum utility (`src/utils/checksum.py`) for data hygiene (FR-009, Constitution III)
-- [X] T012 [P] [US1] Contract test for data schema validation in `tests/contract/test_schemas.py`. **Dependency**: Requires T009a/b completion.
-- [X] T013 [P] [US1] Integration test for full ingestion pipeline on a small OpenNeuro sample in `tests/integration/test_pipeline.py`. **Verification**: Ensure the test confirms that datasets/subjects flagged as "underpowered" (<20 subjects) are explicitly excluded from the primary GLMM input data. **Dependency**: Requires T009a/b completion.
+- [ ] T012 [P] Contract test for data schema validation in `tests/contract/test_schemas.py`. **Dependency**: Requires T009a/b completion.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -94,15 +95,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T012 [P] [US1] Contract test for data schema validation in `tests/contract/test_schemas.py`
-- [X] T013 [P] [US1] Integration test for full ingestion pipeline on a small OpenNeuro sample in `tests/integration/test_pipeline.py`. **Verification**: Ensure the test confirms that datasets/subjects flagged as "underpowered" (<20 subjects) are explicitly excluded from the primary GLMM input data. **Dependency**: Requires T009a/b completion.
+- [ ] T013 [P] [US1] Integration test for full ingestion pipeline on a small OpenNeuro sample in `tests/integration/test_pipeline.py`. **Verification**: Ensure the test confirms that datasets/subjects flagged as "underpowered" are explicitly excluded. **Exclusion Logic**: Must verify BOTH (1) cohort size < 20 subjects AND (2) insufficient trials per condition (<500 trials/condition) as per Spec FR-005 and Constitution Principle VII. **Dependency**: Requires T009a/b, T014, T015, T016 completion.
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
-- [X] T015 [US1] Implement preprocessing module in `src/data/preprocess.py` (–40 Hz bandpass, ICA artifact removal, bad channel interpolation) (FR-002)
-- [X] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` with columns: `subject_id`, `reason`. **Logic**: Explicitly filter `aligned_data.csv` generation (T026) to remove these subjects from the primary GLMM input (Constitution VII, Plan Phase 0.5). **Verification**: Confirm `excluded_subjects.csv` exists and `aligned_data.csv` (T026) contains none of these IDs.
-- [X] T018 [US1] Implement epoching logic in `src/data/preprocess.py` (-200ms to 500ms, standard/deviant separation based on metadata) (FR-003)
+- [ ] T014 [US1] Implement streaming data downloader in `src/data/ingest.py` (chunked buffering, delete raw files post-processing, FR-001, FR-009)
+- [ ] T015 [US1] Implement preprocessing module in `src/data/preprocess.py` (–Hz bandpass, ICA artifact removal, bad channel interpolation) (FR-002)
+- [ ] T016 [US1] Implement artifact rejection logic (trial count loss ≤ 5%) and underpowered dataset flagging (<20 subjects OR <500 trials/condition) in `src/data/preprocess.py`. **Deliverable**: Write excluded subject IDs to `data/excluded_subjects.csv` with columns: `subject_id`, `reason` (must explicitly state if excluded due to subject count <20 OR trial count <500). **Logic**: Explicitly filter `aligned_data.csv` generation (T024) to remove these subjects from the primary GLMM input (Constitution VII, Plan Phase 0.5). **Verification**: Confirm `excluded_subjects.csv` exists and contains entries for BOTH exclusion criteria (subject count AND trial count) where applicable.
+- [ ] T017 [US1] Implement epoching logic in `src/data/preprocess.py` (ms to 500ms, standard/deviant separation based on metadata) (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -116,16 +116,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Contract test for aligned_data schema in `tests/contract/test_schemas.py`
-- [X] T020 [P] [US2] Integration test for lagged alignment logic in `tests/integration/test_alignment.py`. **Verification**: Must validate that `data/interim_lagged_mmns.csv` is generated with the exact schema: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial`, and that the lagged logic (50-trial source window -> subsequent accuracy block) is correctly applied.
+- [ ] T018 [P] [US2] Contract test for aligned_data schema in `tests/contract/test_schemas.py`
+- [ ] T019 [P] [US2] Integration test for lagged alignment logic in `tests/integration/test_alignment.py`. **Verification**: Must validate that `data/interim_lagged_mmns.csv` is generated with the exact schema: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial`, and that the lagged logic (50-trial source window -> subsequent accuracy block) is correctly applied.
 
 ### Implementation for User Story 2
 
-- [X] T021 [P] [US2] Implement MMN amplitude calculator (Standard) in `src/data/align.py` (mean difference wave early-mid latency at CP3, CP4, C3, C4) (FR-004)
-- [ ] T023 [US2] Implement behavioral binning logic in `src/data/align.py`. **Logic**: Calculate accuracy over **10-trial blocks** (t to t+10) as defined in Plan Phase 2 and Spec FR-005. **Output**: `data/accuracy_blocks.csv` (Schema: `subject_id`, `block_id`, `accuracy`, `trial_start`, `trial_end`). **Verification**: Confirm file exists and contains valid accuracy values for 10-trial windows. <!-- FAILED: unspecified -->
-- [ ] T024 [US2] Implement **Lagged Alignment** logic in `src/data/align.py`: Calculate MMN over a preceding **50-trial window** (t-50 to t-10) and align to the **subsequent 10-trial accuracy block** (t to t+10) generated by T023. **Deliverable**: Write intermediate artifact to `data/interim_lagged_mmns.csv` with columns: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial` (Plan Methodological Correction). **Dependency**: Requires T023 output.
-- [ ] T025 [US2] Implement exclusion logic for blocks with <10 valid trials and NaN handling for excessive artifact rejection. **Logic**: Filter `interim_lagged_mmns.csv` and `accuracy_blocks.csv` to remove invalid blocks. **Deliverable**: Produce filtered versions of these files for T026. **Verification**: Confirm no blocks with <10 trials exist in filtered files.
-- [ ] T026 [US2] Finalize and Write Aligned Dataset: Merge filtered `data/interim_lagged_mmns.csv` (T025) with filtered `data/accuracy_blocks.csv` (T025), apply underpowered subject filter (from T016 `excluded_subjects.csv`), and generate final `data/aligned_data.csv` (FR-011, FR-012). **Verification**: Ensure `aligned_data.csv` contains no excluded subjects, matches the schema, and has no NaN values in critical columns.
+- [ ] T020 [P] [US2] Implement MMN amplitude calculator in `src/data/align.py`. **Requirement**: Calculate mean difference wave (Deviant - Standard) **explicitly at electrodes CP3, CP4, C3, and C4** within the –250ms window (FR-004). **Deliverable**: Output must be a DataFrame with distinct columns/rows for each of the four electrodes. **Verification**: Verify output file contains columns/rows for CP3, CP4, C3, C4. Do NOT calculate a single global average.
+- [ ] T021 [US2] Implement behavioral binning logic in `src/data/align.py`. **Logic**: Calculate accuracy over a **configurable multi-trial block** (t to t+n) defined in `src/utils/config.py` as `ACCURACY_BLOCK_SIZE` (FR-005, Plan Phase 2). **Output**: `data/accuracy_blocks.csv` (Schema: `subject_id`, `block_id`, `accuracy`, `trial_start`, `trial_end`). **Verification**: Confirm file exists and contains valid accuracy values for the configured window size.
+- [ ] T022 [US2] Implement **Lagged Alignment** logic in `src/data/align.py`: Calculate MMN over a preceding fixed-length trial window (t-N to t-M) and align to the **subsequent accuracy block** (t to t+n) generated by T021. **Deliverable**: Write intermediate artifact to `data/interim_lagged_mmns.csv` with columns: `subject_id`, `block_id`, `mmn_amplitude`, `source_window_start_trial` (Spec FR-005, Plan Phase 2). **Dependency**: Requires T021 output.
+- [ ] T022b [US2] Implement **Learning_Phase** feature generation in `src/data/align.py`. **Logic**: Bin trial blocks into discrete phases (e.g., "Early", "Late") based on `block_id` or cumulative trial count to create the `Learning_Phase` predictor required for the LME model (FR-006). **Output**: Add `learning_phase` column to `data/interim_lagged_mmns.csv` or create `data/learning_phases.csv`. **Verification**: Confirm `learning_phase` column exists and contains valid categorical values.
+- [ ] T023 [US2] Implement exclusion logic for blocks with <10 valid trials and NaN handling for excessive artifact rejection. **Logic**: Filter `interim_lagged_mmns.csv` and `accuracy_blocks.csv` to remove invalid blocks. **Deliverable**: Produce filtered versions of these files for T024. **Verification**: Confirm no blocks with <10 trials exist in filtered files.
+- [ ] T024 [US2] Finalize and Write Aligned Dataset: **Dependency**: Explicitly consume `excluded_subjects.csv` from T016 **BEFORE** merging with filtered data from T023. **Logic**: Merge filtered `data/interim_lagged_mmns.csv` (T023) with filtered `data/accuracy_blocks.csv` (T023), apply underpowered subject filter (from T016), and **perform a final re-verification** that the merged dataset contains no subjects/blocks violating the trial count threshold (<500 trials/condition) before writing. **Deliverable**: Generate final `data/aligned_data.csv` (FR-011, FR-012). **Verification**: Ensure `aligned_data.csv` contains no excluded subjects, matches the schema, has no NaN values, and passes the final trial count re-verification.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -139,17 +140,21 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T027 [P] [US3] Contract test for model_output schema in `tests/contract/test_schemas.py`
-- [X] T028 [P] [US3] Unit test for permutation test implementation in `tests/unit/test_model.py`. **Verification**: Must verify that the permutation test includes a logic check for sufficiency (e.g., stability of p-value with increasing n) or dynamically adjusts n based on dataset size.
+- [ ] T025 [P] [US3] Contract test for model_output schema in `tests/contract/test_schemas.py`
+- [ ] T026 [P] [US3] Unit test for permutation test implementation in `tests/unit/test_model.py`. **Verification**: Must verify that the permutation test includes a logic check for p-value stability or dynamically adjusts n based on dataset size.
 
 ### Implementation for User Story 3
 
-- [X] T029 [US3] Implement Gaussian LME fitting in `src/analysis/model.py` (`MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)`) consuming `data/aligned_data.csv` (Plan Correction, Spec FR-006 Updated). **Note**: Assumes Spec v1.1 is the SSoT. **Dependency**: Requires `aligned_data.csv` from T026.
-- [X] T030 [P] [US3] Implement multiple-comparison correction using **FDR (Benjamini-Hochberg)** for electrodes in `src/analysis/model.py` (FR-008). **Dependency**: Requires T029 output.
-- [X] T031 [US3] Implement permutation test (n=1000 shuffles) in `src/analysis/model.py` to validate significance. **Verification**: Include logic to check if n=1000 is sufficient (e.g., by checking **coefficient variance < 5% across 3 runs** OR dynamically adjusting n) as per Spec FR-007. **Dependency**: Requires T029 output.
-- [X] T032 [US3] Implement sensitivity analysis in `src/analysis/robustness.py` (sweep time window ±10ms: 140–240ms, 160–260ms) (FR-010)
-- [X] T033 [US3] Implement exclusion logic for subjects with zero accuracy to avoid singularity
-- [X] T034 [US3] Generate `analysis/results/model_output.json` with coefficients, p-values, and robustness metrics (SC-001, SC-002, SC-003)
+- [ ] T027 [US3] Implement Gaussian LME fitting in `src/analysis/model.py` (`MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)`) consuming `data/aligned_data.csv` (Plan Correction, Spec FR-006 Updated). **Note**: Assumes Spec v1.1 is the SSoT. **Dependency**: Requires `aligned_data.csv` from T024 and `Learning_Phase` feature from T022b.
+- [ ] T028 [P] [US3] Implement multiple-comparison correction using **FDR (Benjamini-Hochberg)** for electrodes in `src/analysis/model.py` (FR-008). **Dependency**: Requires T027 output.
+- [ ] T029 [US3] Implement permutation test in `src/analysis/model.py`. **Logic**:
+ 1. Run a pilot permutation test (n=100) to check p-value stability.
+ 2. **Stability Metric**: Calculate variance of p-values across pilot runs. If variance > 0.05, the result is unstable.
+ 3. **Dynamic Adjustment**: If unstable, double n (n=200, 400, 800...) up to a cap of a sufficiently large number until stable or cap reached. If stable, proceed with final test using current n.
+ 4. If n=1000 is stable, proceed with n=1000.
+ **Deliverable**: Write `analysis/results/permutation_stability_log.json` containing the pilot variance, final n used, and final p-value. **Verification**: Confirm log file exists and shows the dynamic adjustment logic was executed (or that n=1000 was stable).
+- [ ] T030 [US3] Implement sensitivity analysis in `src/analysis/robustness.py` (sweep time window ±10ms: 140–240ms, 160–260ms) (FR-010)
+- [ ] T031 [US3] Generate `analysis/results/model_output.json` with coefficients, p-values, and robustness metrics. **Traceability**: Output must be derived from and traceable to Functional Requirements FR-006, FR-007, and FR-010. **Verification**: Ensure JSON contains all required fields and matches the schema from T009b.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -159,12 +164,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Documentation updates in `docs/` and `README.md` including `quickstart.md`
-- [X] T036a [P] Refactor `src/data/ingest.py` to use streaming buffers ensuring peak RAM ≤ 7 GB. **Verification**: Run pipeline with memory profiling and log peak usage < 7GB. (FR-009)
-- [X] T036b [P] Refactor `src/analysis/model.py` to process subjects in batches ensuring peak RAM ≤ 7 GB. **Verification**: Run pipeline with memory profiling and log peak usage < 7GB. (FR-009)
-- [ ] T037 [P] Performance optimization: Verify full pipeline runtime ≤6 hours on 2-core CPU (FR-009, SC-005)
-- [ ] T038 [P] Additional unit tests for edge cases (missing metadata, zero accuracy) in `tests/unit/`
-- [ ] T039 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T032 [P] Documentation updates in `docs/` and `README.md` including `quickstart.md`
+- [ ] T033a [P] Refactor `src/data/ingest.py` to use streaming buffers ensuring peak RAM ≤ 7 GB. **Verification**: Run pipeline with memory profiling and log peak usage < 7GB. (FR-009)
+- [ ] T033b [P] Refactor `src/analysis/model.py` to process subjects in batches ensuring peak RAM ≤ 7 GB. **Verification**: Run pipeline with memory profiling and log peak usage < 7GB. (FR-009)
+- [ ] T034 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T035 [P] Additional unit tests for edge cases (missing metadata, handling zero accuracy values to prevent division errors) in `tests/unit/`
+- [ ] T036 Verify full pipeline runtime ≤6 hours on 2-core CPU. **Verification**: Run full pipeline on sample dataset, log runtime to `analysis/runtime.log`, and confirm ≤6 hours. **Dependency**: Requires completion of Phases 0-5. (FR-009, SC-005)
 
 ---
 
@@ -196,7 +201,7 @@
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
+- All Setup tasks marked [P] can run in parallel (except T005c)
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
@@ -263,4 +268,4 @@ With multiple developers:
 - **Spec Alignment**: Spec v1.1 is the Single Source of Truth (Gaussian LME, Lagged Alignment). No spec amendment tasks are required.
 - **Data Integrity**: All data loading tasks must fail loudly on missing real data; synthetic fallbacks are strictly prohibited.
 - **Resource Management**: Streaming and chunking must be used for all large dataset operations to adhere to 7GB RAM limits.
-- **Missing Tasks**: T017 (Topographic Correlation) and T027a (Spec Amendment) have been removed as they were unapproved scope or governance violations.
+- **Missing Tasks**: T017 (Topographic Correlation) has been removed as it was unapproved scope.

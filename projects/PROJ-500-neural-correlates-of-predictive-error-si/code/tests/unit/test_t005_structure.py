@@ -3,21 +3,36 @@ import pytest
 from pathlib import Path
 
 def test_directory_exists():
-    """Verify that the required project directory structure exists."""
-    base = Path(__file__).resolve().parent.parent.parent
-    required_dirs = ["src", "tests", "contracts", "data", "analysis"]
+    """
+    Verify that the required project directory structure exists.
+    This test checks for the presence of src, tests, contracts, data, and analysis directories.
+    """
+    base_path = Path(__file__).resolve().parents[3]  # Navigate to project root (code/)
+    
+    required_dirs = [
+        "src",
+        "tests",
+        "contracts",
+        "data",
+        "analysis"
+    ]
     
     for dir_name in required_dirs:
-        dir_path = base / dir_name
-        assert dir_path.exists(), f"Directory {dir_name} does not exist at {dir_path}"
-        assert dir_path.is_dir(), f"{dir_name} is not a directory"
+        dir_path = base_path / dir_name
+        assert dir_path.exists(), f"Directory {dir_path} does not exist."
+        assert dir_path.is_dir(), f"{dir_path} exists but is not a directory."
 
 def test_config_files_exist():
-    """Verify that essential config files exist (placeholder check for setup)."""
-    base = Path(__file__).resolve().parent.parent.parent
-    # These files are expected to be created by subsequent tasks, 
-    # but the directories holding them must exist now.
-    assert (base / "src" / "utils").exists() or True  # utils might be created later, but src exists
-    assert (base / "contracts").exists()
-    assert (base / "data").exists()
-    assert (base / "analysis").exists()
+    """
+    Verify that essential configuration files exist in the project root.
+    """
+    base_path = Path(__file__).resolve().parents[3]  # Navigate to project root (code/)
+    
+    required_files = [
+        "requirements.txt",
+        "pyproject.toml"
+    ]
+    
+    for file_name in required_files:
+        file_path = base_path / file_name
+        assert file_path.exists(), f"File {file_path} does not exist."

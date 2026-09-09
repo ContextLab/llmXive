@@ -1,3 +1,30 @@
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided that demonstrate the system\
+    \ detecting missing metadata, issuing a warning, and skipping the affected dataset\
+    \ instead of crashing. Without such an artifact, the requirement of FR\u2011011\
+    \ cannot be verified as satisfied."
+T005a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`src/`, `tests/`, `contracts/`, `data/`,\
+    \ `analysis/`) is present; the implementer provided no file\u2011system listing\
+    \ or screenshots showing that the project structure exists. The task remains undone\
+    \ until the specified folder hierarchy is created and verified."
+T005c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Git repository being initialized in the `src/` directory is
+    provided (e.g., no `.git` folder, no `git init` command output, or related commit
+    history). Without such artifact, the requirement that `git init` be run before
+    any other Git operations is not satisfied.
+T005d:
+  c: false
+  h: 3f4e25fb9a3a1a11cbb3edc4c579df18664d45cf931d7eb32a00c7f32e21e33c
+  r: "The required `state/projects/PROJ-500-neural-correlates-of-predictive-error-si.yaml`\
+    \ file does not exist, so no content hashes for `requirements.txt` and `pyproject.toml`\
+    \ are provided. The task\u2019s core artifact is missing."
 T006:
   c: false
   h: 4fa292b7ba97d2cdae98c01b7aab5fbb9bad51cc7544b7186b06f448f662473a
@@ -26,10 +53,3 @@ T035:
     referenced in the evidence, so the required documentation updates are missing.
     The implementer must add and populate these files with the appropriate project
     documentation.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No runtime benchmark, log file, or report is present that demonstrates the full\
-    \ pipeline completing in \u22646\u202Fhours on a 2\u2011core CPU. The required\
-    \ performance verification artifact is missing, so the task\u2019s requirement\
-    \ is not satisfied."

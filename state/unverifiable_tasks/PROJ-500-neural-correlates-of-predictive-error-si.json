@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-500-neural-correlates-of-predictive-error-si",
+  "tasks": [
+    {
+      "task_key": "T009a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-09T02:51:53.339967+00:00",
+      "last_seen": "2026-09-09T02:51:53.339967+00:00"
+    },
+    {
+      "task_key": "T009b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-09T02:51:53.341011+00:00",
+      "last_seen": "2026-09-09T02:51:53.341011+00:00"
+    }
+  ],
+  "updated_at": "2026-09-09T02:51:53.341011+00:00"
+}
