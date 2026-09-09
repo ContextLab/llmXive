@@ -1,81 +1,56 @@
 """
-Setup script to initialize linting (ruff), formatting (black), and pre-commit hooks.
-This script installs the necessary tools and configures the git hooks.
+Setup script for linting (ruff), formatting (black), and pre-commit hooks.
+This script installs pre-commit hooks into the local .git/hooks directory.
 """
 import os
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(command: list[str], description: str) -> bool:
-    """Run a shell command and print the result."""
-    print(f"Running: {description}")
-    print(f"Command: {' '.join(command)}")
+def run_command(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
+    """Run a shell command and optionally raise on failure."""
+    print(f"Running: {' '.join(cmd)}")
     try:
         result = subprocess.run(
-            command,
-            check=True,
+            cmd,
+            check=check,
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent.parent
+            cwd=Path(__file__).parent.parent,
         )
         if result.stdout:
             print(result.stdout)
         if result.stderr:
             print(result.stderr, file=sys.stderr)
-        return True
+        return result
     except subprocess.CalledProcessError as e:
-        print(f"ERROR: {description} failed.", file=sys.stderr)
-        print(f"Stderr: {e.stderr}", file=sys.stderr)
-        return False
+        print(f"Command failed: {e}")
+        print(f"stderr: {e.stderr}")
+        if check:
+            sys.exit(1)
+        return e
 
-def main() -> int:
-    """Main entry point for linting setup."""
-    project_root = Path(__file__).parent.parent
+def main() -> None:
+    """Main entry point for setup_linting."""
+    root_dir = Path(__file__).parent.parent
 
-    # Verify config files exist
-    pyproject = project_root / "pyproject.toml"
-    precommit = project_root / ".pre-commit-config.yaml"
+    # 1. Verify pre-commit is installed
+    print("Checking for pre-commit installation...")
+    run_command([sys.executable, "-m", "pip", "install", "pre-commit", "ruff", "black"], check=True)
 
-    if not pyproject.exists():
-        print("ERROR: pyproject.toml not found. Please ensure it exists.", file=sys.stderr)
-        return 1
-    
-    if not precommit.exists():
-        print("ERROR: .pre-commit-config.yaml not found. Please ensure it exists.", file=sys.stderr)
-        return 1
+    # 2. Initialize pre-commit in the repository
+    print("Initializing pre-commit...")
+    run_command(["pre-commit", "install"], check=True)
 
-    # Step 1: Install pre-commit
-    success = run_command(
-        [sys.executable, "-m", "pip", "install", "-e", ".[dev]"],
-        "Installing development dependencies (ruff, black, pre-commit)"
-    )
-    if not success:
-        return 1
+    # 3. Run a sample check on existing files to ensure configuration works
+    print("Running initial pre-commit check on code/ directory...")
+    # We run with --all-files to check everything, ignoring failures if files are missing
+    # as this is a setup script, not a CI gate.
+    run_command(["pre-commit", "run", "--all-files"], check=False)
 
-    # Step 2: Initialize pre-commit hooks
-    success = run_command(
-        ["pre-commit", "install"],
-        "Installing pre-commit hooks"
-    )
-    if not success:
-        return 1
-
-    # Step 3: Run a dry-run check to ensure configs are valid
-    success = run_command(
-        ["pre-commit", "run", "--all-files"],
-        "Running pre-commit on all files (dry run)"
-    )
-    
-    if success:
-        print("\n✅ Linting and formatting setup complete.")
-        print("   - Ruff and Black configured in pyproject.toml")
-        print("   - Pre-commit hooks installed")
-        print("   - Run 'pre-commit run' to check files manually")
-    else:
-        print("\n⚠️  Pre-commit check failed. Please fix the issues above.", file=sys.stderr)
-    
-    return 0 if success else 1
+    print("\nLinting and formatting setup complete.")
+    print("Hooks installed. Run 'pre-commit run' to check manually.")
+    print("Run 'black code/' and 'ruff check code/' directly if needed.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

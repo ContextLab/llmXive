@@ -1,117 +1,88 @@
 """
-Configuration management for the llmXive research pipeline.
+Configuration module for the Visual Priming project.
 
-Provides centralized path management and random seed pinning for reproducibility.
+Defines base paths for data directories, state management, and
+ensures reproducibility by pinning random seeds across libraries.
 """
 import os
 import random
 from pathlib import Path
 from typing import Any, Dict, Optional
+
 import numpy as np
 
-# Project root relative to this file
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Project Root (assumed to be the directory containing 'code' and 'data')
+_PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
 
-# Base directories as defined in plan.md and tasks.md
-_DATA_RAW = _PROJECT_ROOT / "data" / "raw"
-_DATA_PROCESSED = _PROJECT_ROOT / "data" / "processed"
-_DATA_PRIMES = _PROJECT_ROOT / "data" / "primes"
-_DATA_TARGETS = _PROJECT_ROOT / "data" / "targets"
-_STATE_DIR = _PROJECT_ROOT / "state"
+# Base Directory Paths
+_PATHS: Dict[str, Path] = {
+    "raw": _PROJECT_ROOT / "data" / "raw",
+    "processed": _PROJECT_ROOT / "data" / "processed",
+    "primes": _PROJECT_ROOT / "data" / "primes",
+    "targets": _PROJECT_ROOT / "data" / "targets",
+    "state": _PROJECT_ROOT / "state" / "projects" / "PROJ-345",
+}
 
-# Default random seed for reproducibility
-_DEFAULT_SEED = 42
+# Default Random Seed for Reproducibility
+_RANDOM_SEED: int = 42
 
-# Cache for resolved paths
-_PATH_CACHE: Dict[str, Path] = {}
-
-def get_path(name: str) -> Path:
+def ensure_directories() -> None:
     """
-    Retrieve a configured directory path by logical name.
+    Creates all base data and state directories if they do not exist.
+    
+    This function is idempotent and safe to call multiple times.
+    """
+    for path in _PATHS.values():
+        path.mkdir(parents=True, exist_ok=True)
+
+def get_path(key: str) -> Path:
+    """
+    Retrieves the Path object for a given directory key.
     
     Args:
-        name: Logical name of the directory (e.g., 'raw', 'processed', 'primes', 'targets', 'state')
-    
+        key: The directory identifier (e.g., 'raw', 'processed', 'primes').
+            
     Returns:
-        Absolute Path object for the requested directory.
-    
+        The absolute Path object.
+        
     Raises:
-        ValueError: If the requested name is not configured.
+        KeyError: If the key is not recognized.
     """
-    if name in _PATH_CACHE:
-        return _PATH_CACHE[name]
-    
-    mapping = {
-        "raw": _DATA_RAW,
-        "processed": _DATA_PROCESSED,
-        "primes": _DATA_PRIMES,
-        "targets": _DATA_TARGETS,
-        "state": _STATE_DIR,
-    }
-    
-    if name not in mapping:
-        raise ValueError(f"Unknown path name: {name}. Available: {list(mapping.keys())}")
-    
-    _PATH_CACHE[name] = mapping[name]
-    return mapping[name]
+    if key not in _PATHS:
+        raise KeyError(f"Unknown path key: {key}. Available keys: {list(_PATHS.keys())}")
+    return _PATHS[key]
 
-def set_seed(seed: Optional[int] = None) -> int:
+def get_all_base_paths() -> Dict[str, Path]:
     """
-    Set random seeds for reproducibility across Python, NumPy, and random modules.
-    
-    Args:
-        seed: Integer seed value. If None, uses the default seed (_DEFAULT_SEED).
+    Returns a copy of all configured base paths.
     
     Returns:
-        The seed value that was set.
+        Dictionary mapping directory keys to Path objects.
+    """
+    return _PATHS.copy()
+
+def set_seed(seed: Optional[int] = None) -> None:
+    """
+    Sets the random seed for reproducibility across Python, NumPy, and random modules.
+    
+    Args:
+        seed: The integer seed to use. If None, uses the default _RANDOM_SEED.
     """
     if seed is None:
-        seed = _DEFAULT_SEED
+        seed = _RANDOM_SEED
     
     random.seed(seed)
     np.random.seed(seed)
     
-    # Log the seed for reproducibility tracking
-    import logging
-    logging.getLogger(__name__).info(f"Random seed set to: {seed}")
+    # Log the seed setting for audit purposes (using standard print or logging if configured)
+    # We avoid importing logging here to prevent circular dependencies during early init
+    # unless explicitly needed.
     
-    return seed
-
-def ensure_directories(paths: Optional[list] = None) -> None:
+def get_seed() -> int:
     """
-    Ensure that the specified directories exist, creating them if necessary.
-    
-    Args:
-        paths: List of logical path names to ensure. If None, ensures all configured paths.
-    """
-    if paths is None:
-        paths = ["raw", "processed", "primes", "targets", "state"]
-    
-    for name in paths:
-        try:
-            path = get_path(name)
-            path.mkdir(parents=True, exist_ok=True)
-            import logging
-            logging.getLogger(__name__).debug(f"Ensured directory exists: {path}")
-        except ValueError as e:
-            logging.getLogger(__name__).warning(f"Skipping unknown path '{name}': {e}")
-        except OSError as e:
-            import logging
-            logging.getLogger(__name__).error(f"Failed to create directory {name}: {e}")
-            raise
-
-# Convenience function to get all base directories
-def get_all_base_paths() -> Dict[str, Path]:
-    """
-    Get a dictionary of all configured base paths.
+    Returns the currently configured random seed.
     
     Returns:
-        Dictionary mapping logical names to Path objects.
+        The integer seed value.
     """
-    return {
-        "raw": get_path("raw"),
-        "processed": get_path("processed"),
-        "primes": get_path("primes"),
-        "targets": get_path("targets"),
-        "state": get_path("state"),
-    }
+    return _RANDOM_SEED

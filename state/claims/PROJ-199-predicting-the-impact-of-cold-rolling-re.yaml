@@ -1931,3 +1931,219 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T18:05:23Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Benchmark validation delta threshold 0.05 against Rosenstock et al. 2018
+  claim_id: c_6da95f6d
+  context: Task T018b implements explicit benchmark comparison logic against Rosenstock
+    et al. (2018) values. The logic requires verifying that the absolute difference
+    (delta) between calculated and benchmark volume fractions is less than or equal
+    to 0.05 for all components.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that delta <= 0.05 for all components (Brass, Copper, S, Goss)
+    when comparing calculated volume fractions to Rosenstock et al. (2018) benchmark
+    values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:59:49Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Mass balance check sum equals 1.0 plus or minus 0.01
+  claim_id: c_391e1c7d
+  context: "Task T019 requires implementing a mass balance check to explicitly verify\
+    \ that the sum of major components and the random fraction equals 1.0 \xB1 0.01\
+    \ for every sample. Samples failing this check are flagged as invalid."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sum of major components (Brass, Copper, S, Goss) plus the 'random'\
+    \ fraction must equal 1.0 \xB1 0.01 for every sample."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:01:47Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Predictive model R squared threshold 0.85
+  claim_id: c_50d9b88f
+  context: "User Story 3 goal states the objective is to train predictive models to\
+    \ estimate texture descriptors with high accuracy, specifically defined as R\xB2\
+    \ \u2265 0.85."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predictive_model_R_squared_threshold_0.85
+  kind: magnitude
+  raw_text: "Predictive models must achieve an R\xB2 of at least 0.85 on the held-out\
+    \ test set."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:02:27Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: R squared variation tolerance 0.02 across 0.01 0.05 0.1
+  claim_id: c_bafb86f9
+  context: "Task T030 and T031 require performing a sensitivity analysis with interpolation\
+    \ tolerances of 0.01, 0.05, and 0.1. The stability check verifies that the variation\
+    \ in R\xB2 across these tolerances is less than or equal to 0.02."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "R\xB2 variation across swept interpolation tolerances {0.01, 0.05, 0.1}\
+    \ must be \u2264 0.02."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:03:44Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Exclude samples with greater than 50 percent low reliability points
+  claim_id: c_fcbc23c7
+  context: Task T014 logic includes an exclusion mechanism that flags and excludes
+    samples from the final training set if more than 50% of their points are filtered
+    due to low confidence.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_samples_with_greater_than_50_percent_low_reliability
+  kind: magnitude
+  raw_text: Samples where greater than 50% of points are filtered as 'low reliability'
+    must be excluded from the final training set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:04:51Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Filter points with confidence index less than 0.1
+  claim_id: c_d20d2d65
+  context: Task T014 and T009a specify that the preprocessing pipeline filters out
+    individual data points with a confidence index below 0.1 while keeping the sample
+    object valid.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_points_with_confidence_index_less_than_0.1
+  kind: magnitude
+  raw_text: Point filtering logic must remove individual data points with a confidence
+    index less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:05:50Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Search window 5 degrees around central values
+  claim_id: c_348250ac
+  context: "Task T018 describes implementing a configurable search window of \xB1\
+    5 degrees around the central Euler angle values to account for lattice rotation\
+    \ spread when calculating volume fractions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The search window for texture component calculation is configured as\
+    \ \xB15 degrees around central values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:06:33Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Symmetry equivalent regions match tolerance 2 percent
+  claim_id: c_b33f8305
+  context: "Task T035 requires verifying that the sum of intensities in symmetry-equivalent\
+    \ regions matches within a tolerance of \xB12% using available volume fractions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Symmetry-equivalent regions must match within a tolerance of \xB12%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:06:33Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Brass Euler angle ranges 35 to 45 55 to 65 0 to 90
+  claim_id: c_04297de6
+  context: Task T018 defines the specific Euler angle ranges (phi1, Phi, phi2 in degrees)
+    for the Brass component as [35, 45, 55, 65, 0, 90].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for the Brass component are [35, 45, 55, 65, 0, 90]
+    degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:07:10Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Copper Euler angle ranges 39 to 39 39 to 39 0 to 0
+  claim_id: c_c6d3736a
+  context: Task T018 defines the specific Euler angle ranges for the Copper component,
+    identified as a point component, as [39, 39, 39, 39, 0, 0].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for the Copper component are [39, 39, 39, 39, 0, 0]
+    degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:07:46Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: S component Euler angle ranges 59 to 59 37 to 37 63 to 63
+  claim_id: c_40b0c7f6
+  context: Task T018 defines the specific Euler angle ranges for the S component,
+    identified as a point component, as [59, 59, 37, 37, 63, 63].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for the S component are [59, 59, 37, 37, 63, 63] degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:09:29Z'
+- artifact_path: projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/specs/001-predicting-the-impact-of-cold-rolling-re/tasks.md
+  attempts: 1
+  canonical: Goss component Euler angle ranges 0 to 0 45 to 45 90 to 90
+  claim_id: c_f7a29224
+  context: Task T018 defines the specific Euler angle ranges for the Goss component,
+    identified as a point component, as [0, 0, 45, 45, 90, 90].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Euler angle ranges for the Goss component are [0, 0, 45, 45, 90, 90] degrees.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T04:09:54Z'

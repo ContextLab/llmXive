@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Implement `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/download.py` to fetch MemLens dataset from HuggingFace and compute SHA-256 checksums
-- [ ] T005 Implement state update logic in `download.py` to write artifact hashes to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`
+- [X] T005 Implement state update logic in `download.py` to write artifact hashes to `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`
 - [X] T006 Create base data loading utilities and schema validators in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
 - [X] T007 Configure logging infrastructure to track `detection_status` and fallback events in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/utils/logger.py`
 
@@ -75,7 +75,7 @@
 - [X] T008 [P] [US1] Implement MSR/TR filtering logic in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py` (FR-001)
 - [X] T009 [P] [US1] Implement Coarse store construction (text summaries only) with sentence-transformer embeddings in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
 - [X] T010 [P] [US1] Implement Medium store construction (summaries + global CLIP embeddings) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py`
-- [ ] T011 [US1] Implement YOLOv8-Tiny object detection and fallback logic; check for existence of ground-truth bounding boxes in MemLens dataset (log 'N/A' if missing); calculate Object Detection Recall (TP/(TP+FN)) only if GT exists; write results to `data/processed/metrics/detection_recall.json` (FR-008, FR-009, Edge Case)
+- [X] T011 [US1] Implement YOLOv8-Tiny object detection and fallback logic; check for existence of ground-truth bounding boxes in MemLens dataset (log 'N/A' if missing); calculate Object Detection Recall (TP/(TP+FN)) only if GT exists; write results to `data/processed/metrics/detection_recall.json` (FR-008, FR-009, Edge Case)
 - [ ] T011B [US1] Implement logic to explicitly set `detection_status` for ALL samples: 'success' if YOLO detects ≥1 object, 'zero_detection' if YOLO runs but detects 0 objects, 'fallback' if YOLO fails; ensure this flag is written to the Fine store for all entries (Edge Case, Plan Complexity Tracking)
 - [X] T012 [US1] Implement LLM-based natural language captioning for detected objects (NO templates) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/preprocessing.py` <!-- ATOMIZE: requested -->
 - [ ] T013 [US1] Implement Fine store construction (object captions + bounding boxes) ensuring coordinates are stored as metadata ONLY and explicitly excluded from similarity calculation (Plan Phase 2, FR-002)
@@ -103,8 +103,8 @@
 - [ ] T021 [US2] Implement stratification logic to filter out `detection_status: fallback` AND `detection_status: zero_detection` samples for the primary test in the codebase.
 - [X] T022 [US2] Implement paired Wilcoxon signed-rank test for Fine vs. Coarse accuracy distributions in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py` (FR-006, Depends: T020)
 - [X] T024 [US2] Implement significance flagging (p < 0.05) and effect size calculation in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py`
-- [ ] T025 [US2] Implement handling for insufficient sample size (n < 30) to report descriptive stats only in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py` (Edge Case)
-- [ ] T026 [US2] Generate final comparison report (mean accuracy, std, p-value, effect size) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py`
+- [X] T025 [US2] Implement handling for insufficient sample size (n < 30) to report descriptive stats only in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/stats.py` (Edge Case)
+- [X] T026 [US2] Generate final comparison report (mean accuracy, std, p-value, effect size) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,13 +118,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Integrate strict memory monitoring hooks in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` to log peak RAM per inference (FR-005, Depends: T016)
-- [ ] T028 [US3] Implement fallback logic to 16-bit precision or smaller model (TinyLlama) if 4-bit quantization exceeds RAM limits in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py`
+- [X] T027 [US3] Integrate strict memory monitoring hooks in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py` to log peak RAM per inference (FR-005, Depends: T016)
+- [X] T028 [US3] Implement fallback logic to 16-bit precision or smaller model (TinyLlama) if 4-bit quantization exceeds RAM limits in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/inference.py`
 - [ ] T029 [US3] Implement chunked processing for large datasets to prevent OOM in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/main.py` (Depends: T019)
 - [ ] T030 [US3] Implement timeout guards and early exit if estimated runtime > 6 hours in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/main.py`
-- [ ] T031 [US3] Generate resource usage report (CPU time, peak RAM, total duration) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (FR-005, SC-003)
-- [ ] T034 [US3] Compute retrieval latency relative to Coarse baseline (Fine/Medium - Coarse) / Coarse and flag deviations in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (SC-004, Depends: T018)
-- [ ] T035 [US2] Calculate composite metric: (1) Relative improvement in accuracy (Fine vs Coarse) AND (2) Object Detection Recall; implement logic to check if Recall ≥ 0.6: if YES write status 'VALID', if NO write status 'INVALID' and HALT pipeline; write to `data/processed/metrics/composite_fidelity.json` (SC-005, FR-009, Depends: T020, T011)
+- [X] T031 [US3] Generate resource usage report (CPU time, peak RAM, total duration) in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (FR-005, SC-003)
+- [X] T034 [US3] Compute retrieval latency relative to Coarse baseline (Fine/Medium - Coarse) / Coarse and flag deviations in `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/code/evaluation.py` (SC-004, Depends: T018)
+- [X] T035 [US2] Calculate composite metric: (1) Relative improvement in accuracy (Fine vs Coarse) AND (2) Object Detection Recall; implement logic to check if Recall ≥ 0.6: if YES write status 'VALID', if NO write status 'INVALID' and HALT pipeline; write to `data/processed/metrics/composite_fidelity.json` (SC-005, FR-009, Depends: T020, T011)
 
 **Checkpoint**: All user stories should now be independently functional
 

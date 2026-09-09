@@ -1,0 +1,6 @@
+PROJ-826-llmxive-follow-up-extending-memlens-benc:
+  artifacts:
+    data/raw/memlens_train.parquet:
+      sha256: 'placeholder_hash_will_be_updated_on_run'
+      size_bytes: 0
+  last_updated: '2024-01-01T00:00:00Z'

@@ -956,3 +956,162 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T18:37:46Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Validate average coordination against reference value 4.00 with tolerance
+    0.05
+  claim_id: c_72e1fbde
+  context: "Flag 'Physical Anomaly' for any atom with coordination > 6 (do not halt).\
+    \ Validate average coordination against reference value (4.00 \xB1 0.05) and flag\
+    \ result."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate average coordination against reference value (4.00 \xB1 0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:36:40Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Verify bottleneck density stability with threshold sweep 0.5
+  claim_id: c_6c1c4cb9
+  context: "Integration test for sensitivity analysis in tests/integration/test_sensitivity.py\
+    \ (Verifies bottleneck density stability with threshold sweep \xB10.5)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify bottleneck density stability with threshold sweep \xB10.5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:15Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Verify runtime less than or equal to 30 minutes on 4000-atom system
+  claim_id: c_cd2ceae9
+  context: "Integration test for runtime threshold in tests/integration/test_runtime_threshold.py\
+    \ (Verifies \u226430 mins on 4000-atom system)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_less_than_or_equal_to_30_minutes_on_4000-atom
+  kind: magnitude
+  raw_text: "Verify \u226430 mins on 4000-atom system"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:31Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Verify output accuracy against manual calculation with absolute difference
+    less than 1e-6
+  claim_id: c_4aa133a1
+  context: Unit test for Bootstrap resampling in tests/unit/test_bootstrap.py (Verifies
+    multiple iterations and CI calculation accuracy vs manual calculation with |output
+    - manual| < 1e-6).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_accuracy_against_manual_calculation_with_absol
+  kind: magnitude
+  raw_text: Verify accuracy vs manual calculation with |output - manual| < 1e-6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:38:54Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Aggregate metrics across system sizes 1000, 2000, and 4000 atoms
+  claim_id: c_99b60e2b
+  context: "Aggregate topology, VDOS, and \u03BA data across three distinct system\
+    \ sizes: N=1000, N=2000, N=4000 (per Spec FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Aggregate metrics across three distinct system sizes: N=1000, N=2000,
+    N=4000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:39:10Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Flag Low Power warning if statistical power is less than 0.8
+  claim_id: c_13aa98d5
+  context: Add 'Low Power' warning logic if power < 0.8 (SC-002).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_Low_Power_warning_if_statistical_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: Flag 'Low Power' if power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:42:51Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: High frequency peak at -15 THz
+  claim_id: c_4e7e587e
+  context: Add validation for acoustic modes (non-zero low-freq) and high-freq peak
+    (-15 THz) in src/services/vdos_calculator.py (US-2 Acceptance 1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: High-freq peak at -15 THz
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:43:35Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Flag physical anomaly for atom coordination greater than 6
+  claim_id: c_d57e917a
+  context: Flag 'Physical Anomaly' for any atom with coordination > 6 (do not halt).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_physical_anomaly_for_atom_coordination_greater_than_6
+  kind: magnitude
+  raw_text: Flag 'Physical Anomaly' for any atom with coordination > 6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:44:27Z'
+- artifact_path: projects/PROJ-260-investigating-the-influence-of-network-s/specs/001-investigating-the-influence-of-network-s/tasks.md
+  attempts: 1
+  canonical: Process chunks for datasets larger than 7GB without loading full dataset
+    into RAM
+  claim_id: c_4591c890
+  context: Implement streaming logic for large datasets (if >7GB) using datasets.load_dataset(...,
+    streaming=True).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Process_chunks_for_datasets_larger_than_7GB_without_loading
+  kind: entity_fact
+  raw_text: Process chunks to compute RDF/Topology without loading full dataset into
+    RAM if >7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T03:45:04Z'

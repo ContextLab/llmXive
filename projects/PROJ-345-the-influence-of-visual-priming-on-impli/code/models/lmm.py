@@ -1,247 +1,231 @@
+"""
+Linear Mixed-Effects Model (LMM) implementation for associative analysis.
+
+This module fits LMMs to study the association between prime valence, 
+stimulus ambiguity, and response times. All outputs explicitly frame 
+findings as "associational" per FR-003, avoiding causal language.
+"""
 import logging
 import warnings
 from typing import Dict, Any, Optional, List, Tuple
 import pandas as pd
 import numpy as np
 from statsmodels.regression.mixed_linear_model import MixedLM
-from config import get_path
+from config import get_path, get_seed, set_seed
+import json
+from pathlib import Path
+import os
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def aggregate_to_stimulus_level(data: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregate data to Stimulus level (mean response time per stimulus per participant).
+    Aggregate data to stimulus level (mean response time per stimulus per participant).
+    
+    This ensures within-stimulus variance is preserved for the LMM.
     
     Args:
-        data: DataFrame with trial-level data including participant_id, stimulus_id, response_time
-        
+        data: DataFrame with trial-level data including response_time, stimulus_id, participant_id.
+    
     Returns:
-        DataFrame with aggregated mean response time per stimulus per participant
+        DataFrame aggregated to stimulus level.
     """
     if data.empty:
-        logger.warning("Input data is empty for aggregation")
-        return data
-        
-    # Ensure required columns exist
-    required_cols = ['participant_id', 'stimulus_id', 'response_time']
-    missing_cols = [col for col in required_cols if col not in data.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns for aggregation: {missing_cols}")
-        
-    # Aggregate to stimulus level per participant
-    aggregated = data.groupby(['participant_id', 'stimulus_id']).agg({
+        raise ValueError("Input data is empty; cannot aggregate.")
+    
+    required_cols = ['response_time', 'stimulus_id', 'participant_id']
+    missing = [col for col in required_cols if col not in data.columns]
+    if missing:
+        raise ValueError(f"Missing required columns for aggregation: {missing}")
+    
+    # Aggregate mean response time per stimulus per participant
+    aggregated = data.groupby(['stimulus_id', 'participant_id']).agg({
         'response_time': 'mean',
-        # Keep other relevant columns if needed (e.g., prime_valence, stimulus_ambiguity)
-        'prime_condition': 'first',
-        'prime_valence': 'first',
+        'prime_valence': 'first',  # Assuming constant per stimulus
         'stimulus_ambiguity': 'first'
     }).reset_index()
     
-    logger.info(f"Aggregated {len(data)} trials to {len(aggregated)} stimulus-participant combinations")
+    logger.info(f"Aggregated {len(data)} trials to {len(aggregated)} stimulus-participant pairs.")
     return aggregated
 
 def fit_lmm_with_retry(
     data: pd.DataFrame,
-    formula: str,
-    random_effect: str,
+    formula: str = "response_time ~ prime_valence * stimulus_ambiguity",
+    re_formula: str = "1",
     max_retries: int = 3
 ) -> Tuple[Optional[MixedLM], Dict[str, Any]]:
     """
-    Fit Linear Mixed-Effects Model with retry logic for convergence issues.
+    Fit LMM with optimizer retry logic on convergence failure.
+    
+    All results are framed as associational.
     
     Args:
-        data: Aggregated DataFrame
-        formula: Model formula (e.g., 'mean_response_time ~ prime_valence * stimulus_ambiguity')
-        random_effect: Random effect specification (e.g., 'participant_id')
-        max_retries: Maximum number of optimizer attempts
-        
+        data: Aggregated DataFrame.
+        formula: Fixed effects formula.
+        re_formula: Random effects formula.
+        max_retries: Number of optimizer attempts.
+    
     Returns:
-        Tuple of (model results or None, metadata dict with convergence info)
+        Tuple of (fitted model, metadata dict with convergence info).
     """
     if data.empty:
-        logger.error("Cannot fit LMM on empty data")
-        return None, {'status': 'failed', 'reason': 'empty_data'}
-        
-    # Ensure numeric columns are numeric
-    for col in data.columns:
-        if col not in ['participant_id', 'stimulus_id']:
-            try:
-                data[col] = pd.to_numeric(data[col], errors='coerce')
-            except Exception:
-                pass
-                
-    # Drop rows with missing values in required columns
-    initial_rows = len(data)
-    data_clean = data.dropna(subset=formula.split('~')[0].split() + [formula.split('~')[1].split()[0]])
-    if len(data_clean) < initial_rows:
-        logger.warning(f"Dropped {initial_rows - len(data_clean)} rows with missing values")
-        
-    if len(data_clean) == 0:
-        return None, {'status': 'failed', 'reason': 'no_valid_data_after_cleaning'}
-        
-    # Prepare endog and exog
-    try:
-        # Use statsmodels formula API
-        from statsmodels.formula.api import mixedlm
-        
-        result = None
-        last_error = None
-        convergence_status = 'failed'
-        
-        # Try different optimizers
-        optimizers = ['lbfgs', 'bfgs', 'newton', 'cg']
-        
-        for i, method in enumerate(optimizers[:max_retries]):
-            try:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    result = mixedlm(formula, data_clean, groups=data_clean[random_effect], method=method).fit()
-                    
-                if result.converged:
-                    convergence_status = 'converged'
-                    logger.info(f"LMM converged on attempt {i+1} with method: {method}")
-                    break
-                else:
-                    logger.warning(f"LMM did not converge on attempt {i+1} with method: {method}")
-                    
-            except Exception as e:
-                last_error = e
-                logger.warning(f"Attempt {i+1} failed with method {method}: {str(e)}")
-                continue
-                
-        if result is None:
-            logger.error("LMM failed to converge after all retry attempts")
-            return None, {'status': 'failed', 'reason': 'no_convergence', 'last_error': str(last_error)}
-            
-        # Extract key results
-        results_dict = {
-            'status': 'success',
-            'converged': result.converged,
-            'method': result.method,
-            'iterations': result.ncov_params,
-            'aic': result.aic,
-            'bic': result.bic,
-            'params': result.params.to_dict(),
-            'pvalues': result.pvalues.to_dict(),
-            'rsquared': getattr(result, 'rsquared', None)
-        }
-        
-        return result, results_dict
-        
-    except Exception as e:
-        logger.error(f"Error fitting LMM: {str(e)}")
-        return None, {'status': 'failed', 'reason': str(e)}
-
-def run_lmm_analysis(
-    data: pd.DataFrame,
-    formula: str = "response_time ~ prime_valence * stimulus_ambiguity",
-    random_effect: str = "participant_id"
-) -> Dict[str, Any]:
-    """
-    Run complete LMM analysis pipeline with associational framing.
+        raise ValueError("Data is empty; cannot fit LMM.")
     
-    This function fits the model, extracts results, and ensures all outputs
-    are framed as "associational" rather than causal per FR-003.
-    
-    Args:
-        data: Preprocessed and aggregated data
-        formula: Model formula
-        random_effect: Random effect grouping variable
-        
-    Returns:
-        Dictionary containing model results and metadata
-    """
-    logger.info("Starting LMM analysis with associational framing")
-    
-    # Fit model
-    model_result, metadata = fit_lmm_with_retry(data, formula, random_effect)
-    
-    if model_result is None:
-        logger.error("LMM analysis failed: could not fit model")
-        return {
-            'status': 'failed',
-            'reason': metadata.get('reason', 'unknown'),
-            'framing_note': 'Analysis aborted due to model fitting failure'
-        }
-    
-    # Extract fixed effects with associational language
-    params = model_result.params
-    pvalues = model_result.pvalues
-    
-    # Build results with explicit associational framing
-    results = {
-        'status': 'success',
-        'framing_note': 'Results represent statistical associations, not causal effects. Per FR-003, findings are observational in nature.',
-        'model_info': {
-            'formula': formula,
-            'random_effect': random_effect,
-            'converged': metadata['converged'],
-            'method': metadata['method'],
-            'aic': metadata['aic'],
-            'bic': metadata['bic']
-        },
-        'fixed_effects': [],
-        'associational_interpretation': {
-            'prime_valence': f"Association between prime valence and response time (b={params.get('prime_valence', 0):.4f}, p={pvalues.get('prime_valence', 1):.4f})",
-            'stimulus_ambiguity': f"Association between stimulus ambiguity and response time (b={params.get('stimulus_ambiguity', 0):.4f}, p={pvalues.get('stimulus_ambiguity', 1):.4f})",
-            'interaction': f"Association of interaction term (b={params.get('prime_valence:stimulus_ambiguity', 0):.4f}, p={pvalues.get('prime_valence:stimulus_ambiguity', 1):.4f})"
-        }
+    set_seed(get_seed())
+    metadata = {
+        "formula": formula,
+        "re_formula": re_formula,
+        "converged": False,
+        "attempts": 0,
+        "final_optimizer": None,
+        "message": ""
     }
     
-    # Format fixed effects
-    for param_name, param_value in params.items():
-        if param_name != 'Intercept':
-            p_val = pvalues.get(param_name, 1.0)
-            results['fixed_effects'].append({
-                'term': param_name,
-                'coefficient': float(param_value),
-                'p_value': float(p_val),
-                'interpretation': f"Observed association for {param_name}"
-            })
+    # Define optimizers to try
+    optimizers = ['lbfgs', 'bfgs', 'cg', 'newton']
     
-    logger.info(f"LMM analysis completed. Framing: Associational (not causal)")
-    return results
+    for attempt, optimizer in enumerate(optimizers[:max_retries]):
+        metadata["attempts"] = attempt + 1
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                
+                # Fit the model
+                model = MixedLM.from_formula(
+                    formula,
+                    data=data,
+                    groups="participant_id",
+                    re_formula=re_formula
+                )
+                
+                result = model.fit(method=optimizer)
+                
+                if result.converged:
+                    metadata["converged"] = True
+                    metadata["final_optimizer"] = optimizer
+                    metadata["message"] = "Model converged successfully."
+                    logger.info(f"LMM converged on attempt {attempt + 1} with optimizer '{optimizer}'.")
+                    return result, metadata
+                else:
+                    logger.warning(f"LMM attempt {attempt + 1} with '{optimizer}' did not converge.")
+                    
+        except Exception as e:
+            logger.warning(f"LMM attempt {attempt + 1} with '{optimizer}' failed: {str(e)}")
+            continue
+    
+    metadata["message"] = "Model failed to converge after all optimizer attempts."
+    logger.error("LMM failed to converge after all optimizer attempts.")
+    return None, metadata
+
+def _format_associational_summary(result: MixedLM) -> Dict[str, Any]:
+    """
+    Format model results with explicit associational language.
+    
+    Args:
+        result: Fitted MixedLM result.
+    
+    Returns:
+        Dictionary of formatted results with associational framing.
+    """
+    params = result.params
+    conf_int = result.conf_int()
+    
+    formatted = {
+        "interpretation_note": "These results describe associations between variables and should not be interpreted as causal effects.",
+        "fixed_effects": {}
+    }
+    
+    for param_name, coef in params.items():
+        if param_name.startswith("Intercept"):
+            continue
+        
+        # Format associational language
+        direction = "positive" if coef > 0 else "negative"
+        formatted["fixed_effects"][param_name] = {
+            "coefficient": float(coef),
+            "std_error": float(conf_int.loc[param_name, 1] - conf_int.loc[param_name, 0]) / 2,
+            "direction": direction,
+            "interpretation": f"A {direction} association was observed between '{param_name}' and response time.",
+            "causal_warning": "This finding is associational; no causal claims are made per FR-003."
+        }
+    
+    return formatted
+
+def run_lmm_analysis(
+    input_path: str,
+    output_path: str,
+    formula: str = "response_time ~ prime_valence * stimulus_ambiguity"
+) -> Dict[str, Any]:
+    """
+    Run full LMM analysis pipeline.
+    
+    Outputs are explicitly framed as associational.
+    
+    Args:
+        input_path: Path to aggregated data CSV.
+        output_path: Path to save results JSON.
+        formula: Fixed effects formula.
+    
+    Returns:
+        Analysis results dictionary.
+    """
+    logger.info(f"Loading data from {input_path}")
+    data = pd.read_csv(input_path)
+    
+    logger.info("Aggregating to stimulus level")
+    aggregated = aggregate_to_stimulus_level(data)
+    
+    logger.info("Fitting LMM with retry logic")
+    result, metadata = fit_lmm_with_retry(aggregated, formula=formula)
+    
+    analysis_results = {
+        "status": "success" if result else "failed",
+        "metadata": metadata,
+        "associational_framing": True,
+        "causal_claims": False,
+        "formula": formula,
+        "interpretation": "All reported effects are associational in nature. No causal inference is implied."
+    }
+    
+    if result:
+        analysis_results["results"] = _format_associational_summary(result)
+        analysis_results["summary"] = (
+            f"The analysis identified {len(result.params) - 1} fixed effects. "
+            "These results describe statistical associations between prime valence, stimulus ambiguity, "
+            "and response times. Per FR-003, these findings are strictly associational and do not imply causation."
+        )
+    else:
+        analysis_results["error"] = metadata["message"]
+    
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Saving results to {output_path}")
+    with open(output_path, 'w') as f:
+        json.dump(analysis_results, f, indent=2)
+    
+    return analysis_results
 
 def main():
     """Main entry point for LMM analysis."""
-    logger.info("Running LMM analysis main pipeline")
+    logging.basicConfig(level=logging.INFO)
     
-    # Load data from processed linked trials
-    processed_path = get_path('data/processed/linked_trials.csv')
-    if not processed_path.exists():
-        logger.error(f"Data file not found: {processed_path}")
-        print("Error: linked_trials.csv not found. Run data ingestion first.")
-        return
-        
+    input_file = get_path("data/processed/linked_trials.csv")
+    output_file = get_path("state/lmm_results.json")
+    
+    if not os.path.exists(input_file):
+        logger.error(f"Input file not found: {input_file}")
+        return 1
+    
     try:
-        data = pd.read_csv(processed_path)
-        logger.info(f"Loaded {len(data)} trials from {processed_path}")
-        
-        # Aggregate to stimulus level
-        aggregated_data = aggregate_to_stimulus_level(data)
-        
-        # Run LMM analysis
-        results = run_lmm_analysis(
-            aggregated_data,
-            formula="response_time ~ prime_valence * stimulus_ambiguity",
-            random_effect="participant_id"
-        )
-        
-        # Save results
-        output_path = get_path('data/processed/lmm_results.json')
-        import json
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        logger.info(f"LMM results saved to {output_path}")
-        print(f"\nLMM Analysis Complete")
-        print(f"Framing: {results.get('framing_note', 'Associational (not causal)')}")
-        print(f"Status: {results['status']}")
-        
+        results = run_lmm_analysis(input_file, output_file)
+        logger.info("LMM analysis completed successfully.")
+        logger.info(results["summary"])
+        return 0
     except Exception as e:
-        logger.error(f"Error in LMM analysis: {str(e)}")
-        raise
+        logger.error(f"LMM analysis failed: {str(e)}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

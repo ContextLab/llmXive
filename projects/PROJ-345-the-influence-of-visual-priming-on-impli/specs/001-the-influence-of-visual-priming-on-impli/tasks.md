@@ -170,11 +170,11 @@ The Plan's "Critical Design Change #2" (requiring human-rated ambiguity only) is
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T038 [P] Documentation updates in `docs/` and `quickstart.md`
-- [ ] T039 Code cleanup and refactoring of `data/` and `models/` modules
-- [~] T040 Performance optimization: Ensure data chunking/sampling logic handles datasets >7GB RAM
-- [~] T041 [P] Additional unit tests for edge cases (missing metadata, high collinearity) in `tests/unit/`
-- [~] T042 Security hardening: Verify no PII leakage in `data/processed/` outputs
-- [~] T043 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T039 Code cleanup and refactoring of `data/` and `models/` modules <!-- ATOMIZE: requested -->
+- [ ] T040 Performance optimization: Ensure data chunking/sampling logic handles datasets >7GB RAM
+- [ ] T041 [P] Additional unit tests for edge cases (missing metadata, high collinearity) in `tests/unit/`
+- [ ] T042 Security hardening: Verify no PII leakage in `data/processed/` outputs
+- [ ] T043 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 

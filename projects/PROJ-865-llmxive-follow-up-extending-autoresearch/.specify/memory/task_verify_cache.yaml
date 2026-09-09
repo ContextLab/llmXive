@@ -82,10 +82,11 @@ T084:
     \ the task\u2019s core execution and verification requirements are not satisfied."
 T085:
   c: false
-  h: 447e0864dd5dd7b656eef6add93f04505714934088ec2dca343c3f0a4d77c9df
-  r: "The required output files `data/derived/full_rules_library.json` and `data/derived/full_regression_results.json`\
-    \ are missing, so the full pipeline execution is not demonstrated. The existing\
-    \ `full_results.csv` alone does not satisfy the task\u2019s output requirements."
+  h: fec661fb0da89c7b9e1bc8c878c20993e5ae64bbb4ecf47b97085ce1e5600357
+  r: "The required output artifacts `data/derived/full_rules_library.json`, `data/derived/full_results.csv`,\
+    \ and `data/derived/full_regression_results.json` are absent from the repository.\
+    \ Consequently the full\u2011scale pipeline execution was not demonstrated, and\
+    \ the task\u2019s deliverables are not satisfied."
 T086:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,86 +1,111 @@
-# PROJ-345: The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli
+# The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli
 
-## Overview
-This project implements a reproducible pipeline to investigate how visual priming influences implicit attitudes towards ambiguous social stimuli. It ingests public IAT datasets, derives stimulus metadata (valence and ambiguity), and fits Linear Mixed-Effects Models (LMM) to analyze response times.
+## Project Overview
 
-## Architecture
-- **Data Ingestion**: `code/data/ingest.py` downloads and validates raw IAT data.
-- **Linkage**: `code/data/linkage.py` maps trial IDs to stimulus images.
-- **Preprocessing**: `code/data/preprocess.py` derives valence/ambiguity and checks for confounding.
-- **Modeling**: `code/models/lmm.py` fits LMMs with retry logic.
-- **Metrics**: `code/models/metrics.py` calculates VIF, effect sizes, and sensitivity analysis.
-- **Visualization**: `code/viz/plots.py` generates interaction plots and coefficient tables.
-- **Reporting**: `code/reports/generate_report.py` compiles results into a PDF.
+This research project investigates how visual priming influences implicit attitudes towards ambiguous social stimuli. The study utilizes a multi-phase approach to data ingestion, statistical modeling, and reporting, ensuring rigorous adherence to scientific principles and reproducibility.
 
-## Directory Structure
+## Key Features
+
+- **Data Ingestion**: Automated downloading and processing of IAT datasets from verified OSF/HF sources.
+- **Stimulus Metadata Extraction**: Mapping trial data to visual stimulus metadata with integrity checks.
+- **Statistical Modeling**: Linear Mixed-Effects Models (LMM) with proper random effects structure and confounding checks.
+- **Reporting**: Automated generation of PDF reports with interaction plots, coefficient tables, and sensitivity analyses.
+
+## Project Structure
+
 ```
 .
-├── code/ # Source code modules
-│ ├── data/ # Ingestion, preprocessing, linkage
-│ ├── models/ # Statistical modeling and metrics
+├── code/ # Source code
+│ ├── data/ # Data ingestion and preprocessing
+│ ├── models/ # Statistical modeling
 │ ├── reports/ # Report generation
-│ ├── viz/ # Visualization utilities
+│ ├── viz/ # Visualization
+│ ├── state/ # State management
+│ ├── security/ # Security and PII scanning
+│ ├── validation/ # Validation scripts
 │ ├── config.py # Configuration and paths
-│ └── main.py # Entry point with PII scanning
-├── data/ # Data storage
-│ ├── raw/ # Downloaded raw datasets
-│ ├── processed/ # Cleaned and linked data
-│ ├── primes/ # Prime stimulus images
-│ └── targets/ # Target stimulus images
-├── state/ # Versioning and checksums
+│ └── main.py # Entry point
+├── data/ # Data directories
+│ ├── raw/ # Raw downloaded data
+│ ├── processed/ # Processed data
+│ ├── primes/ # Prime stimuli
+│ └── targets/ # Target stimuli
 ├── docs/ # Documentation
-└── tests/ # Unit and integration tests
+├── state/ # State management files
+├── tests/ # Test suite
+├── requirements.txt # Dependencies
+├── quickstart.md # Quick start guide
+└── README.md # This file
 ```
 
-## Setup Instructions
-1. **Clone the repository**:
+## Installation
+
+1. Clone the repository:
  ```bash
- git clone <repo-url>
- cd PROJ-345-the-influence-of-visual-priming-on-impli
+ git clone <repository-url>
+ cd <project-directory>
  ```
 
-2. **Create a virtual environment**:
+2. Create a Python 3.11 virtual environment:
  ```bash
- python3.11 -m venv venv
- source venv/bin/activate
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-4. **Run setup scripts**:
- ```bash
- python code/run_setup.py
- python code/run_state_init.py
- ```
-
 ## Usage
-### Full Pipeline
-Run the entire pipeline from ingestion to reporting:
+
+### Running the Pipeline
+
+The main entry point is `code/main.py`. It orchestrates the entire pipeline from data ingestion to report generation.
+
 ```bash
 python code/main.py
 ```
 
 ### Individual Components
-- **Ingest Data**: `python code/data/ingest.py`
-- **Preprocess**: `python code/data/preprocess.py`
-- **Model**: `python code/models/lmm.py`
-- **Generate Report**: `python code/reports/generate_report.py`
 
-## Output Artifacts
-- `data/processed/linked_trials.csv`: Trial-level data with stimulus linkage.
-- `data/processed/stimulus_metadata.csv`: Derived valence and ambiguity scores.
-- `data/processed/confounding_report.json`: Confounding check results.
-- `data/processed/sensitivity_analysis.csv`: Alpha sensitivity analysis.
-- `state/model_convergence_metrics.json`: Model convergence statistics.
-- `reports/output_report.pdf`: Final analysis report.
+- **Data Ingestion**: `python code/data/ingest.py`
+- **Preprocessing**: `python code/data/preprocess.py`
+- **Modeling**: `python code/models/lmm.py`
+- **Reporting**: `python code/reports/generate_report.py`
+- **Validation**: `python code/validation/validate_quickstart.py`
 
-## Contributing
-1. Ensure all tests pass: `pytest tests/`
-2. Format code: `black code/`
-3. Lint code: `ruff check code/`
+### Configuration
+
+Edit `code/config.py` to modify paths, random seeds, and other configuration parameters.
+
+## Testing
+
+Run the test suite with:
+
+```bash
+pytest tests/
+```
+
+## Reproducibility
+
+This project adheres to strict reproducibility guidelines:
+
+- All random seeds are pinned.
+- Data sources are verified and checksums are recorded.
+- State management ensures version control of all artifacts.
+- All analyses are associational, with explicit limitations noted.
+
+## Limitations
+
+- **Observational Nature**: Findings are associational, not causal.
+- **Derived Prime Valence**: Prime valence scores are derived via CPU-optimized VAD regression models, which may introduce approximation errors.
+- **Synthetic Ambiguity**: When human-rated ambiguity is unavailable, synthetic derivation is used, which may not fully capture human perception.
 
 ## License
-This project is for research purposes only.
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## Contributing
+
+Contributions are welcome! Please follow the project's coding standards and submit pull requests for review.

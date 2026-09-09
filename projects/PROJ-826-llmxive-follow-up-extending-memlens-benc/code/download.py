@@ -5,22 +5,12 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Optional
 
-# Ensure imports work whether run as module or script in project root
-try:
-    from utils.logger import get_logger
-except ImportError:
-    # Fallback for direct execution if path not configured
-    import logging
-    def get_logger(name):
-        return logging.getLogger(name)
+import config
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-PROJECT_ROOT = Path(__file__).parent.parent
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
-STATE_FILE = STATE_DIR / "PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml"
-
-def calculate_sha256(file_path: Path) -> str:
+def calculate_sha256(file_path: str) -> str:
     """Calculate SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -28,135 +18,117 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_memlens_dataset(output_dir: Path) -> List[Path]:
+def download_memlens_dataset(output_dir: str) -> Dict[str, str]:
     """
-    Download MemLens dataset from HuggingFace.
-    Returns list of downloaded file paths.
+    Fetch MemLens dataset from HuggingFace.
+    Returns a dict mapping file paths to their local locations.
     """
     from datasets import load_dataset
-    import tempfile
 
-    logger.info("Downloading MemLens dataset from HuggingFace...")
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    logger.info("Loading MemLens dataset from HuggingFace...")
     try:
-        # Load the dataset (streaming to avoid full download if large)
-        # Using the specific MemLens dataset identifier
-        dataset = load_dataset("memlens/memlens", split="train", streaming=True)
+        # Load the dataset
+        dataset = load_dataset("memlens/memlens", split="train")
         
-        # Create output directory
-        output_dir.mkdir(parents=True, exist_ok=True)
+        # Save to parquet for stability and checksumming
+        data_file = output_path / "memlens_train.parquet"
+        dataset.to_parquet(str(data_file))
         
-        downloaded_files = []
-        
-        # Download and save a representative sample or full dataset
-        # For this implementation, we'll download the first 100 samples for testing
-        # In production, this would be the full dataset
-        count = 0
-        max_samples = 100  # Limit for testing purposes
-        
-        for sample in dataset:
-            if count >= max_samples:
-                break
-            
-            # Save image if present
-            if 'image' in sample and sample['image']:
-                img_path = output_dir / f"image_{count}.jpg"
-                sample['image'].save(img_path)
-                downloaded_files.append(img_path)
-            
-            # Save text data
-            txt_path = output_dir / f"data_{count}.json"
-            import json
-            with open(txt_path, 'w', encoding='utf-8') as f:
-                json.dump(sample, f, ensure_ascii=False, indent=2)
-            downloaded_files.append(txt_path)
-            
-            count += 1
-            
-        logger.info(f"Downloaded {count} samples to {output_dir}")
-        return downloaded_files
-        
+        logger.info(f"Dataset saved to {data_file}")
+        return {"dataset": str(data_file)}
     except Exception as e:
         logger.error(f"Failed to download dataset: {e}")
         raise
 
-def compute_checksums(file_paths: List[Path]) -> Dict[str, str]:
-    """Compute checksums for all files."""
+def compute_checksums(file_paths: List[str]) -> Dict[str, str]:
+    """Compute SHA-256 checksums for a list of files."""
     checksums = {}
-    for file_path in file_paths:
-        if file_path.exists():
-            checksums[file_path.name] = calculate_sha256(file_path)
+    for path in file_paths:
+        if os.path.exists(path):
+            checksums[path] = calculate_sha256(path)
+            logger.info(f"Checksum for {path}: {checksums[path]}")
         else:
-            logger.warning(f"File not found for checksum: {file_path}")
+            logger.warning(f"File not found for checksum: {path}")
     return checksums
 
-def update_state_file(checksums: Dict[str, str], artifact_type: str = "dataset") -> None:
+def update_state_file(artifact_paths: List[str], state_file_path: str) -> Dict[str, Any]:
     """
-    Update the state YAML file with artifact hashes.
+    Update the project state YAML file with artifact hashes.
+    Creates the file if it doesn't exist.
     
     Args:
-        checksums: Dictionary mapping filenames to their SHA-256 hashes
-        artifact_type: Type of artifact (e.g., 'dataset', 'model', 'store')
+        artifact_paths: List of file paths to hash and record
+        state_file_path: Path to the state YAML file to update
+        
+    Returns:
+        The updated state dictionary
     """
-    # Ensure state directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    state_path = Path(state_file_path)
+    state_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Load existing state or create new
-    state = {}
-    if STATE_FILE.exists():
+    # Load existing state or initialize new
+    state_data = {}
+    if state_path.exists():
         try:
-            with open(STATE_FILE, 'r', encoding='utf-8') as f:
-                state = yaml.safe_load(f) or {}
+            with open(state_path, 'r') as f:
+                state_data = yaml.safe_load(f) or {}
         except Exception as e:
-            logger.warning(f"Could not load existing state file: {e}")
-            state = {}
+            logger.warning(f"Could not read existing state file: {e}. Starting fresh.")
+            state_data = {}
     
-    # Initialize artifact type section if not exists
-    if artifact_type not in state:
-        state[artifact_type] = {}
+    # Ensure project key exists
+    project_id = config.PROJECT_ID
+    if project_id not in state_data:
+        state_data[project_id] = {
+            "artifacts": {},
+            "last_updated": None
+        }
     
-    # Update with new checksums
-    state[artifact_type]["files"] = checksums
-    state[artifact_type]["updated_at"] = os.popen("date -Iseconds").read().strip()
-    state[artifact_type]["status"] = "verified"
+    # Compute hashes and update
+    current_time = os.popen("date -u +%Y-%m-%dT%H:%M:%SZ").read().strip()
+    state_data[project_id]["last_updated"] = current_time
+    
+    for path in artifact_paths:
+        if os.path.exists(path):
+            file_hash = calculate_sha256(path)
+            state_data[project_id]["artifacts"][path] = {
+                "sha256": file_hash,
+                "size_bytes": os.path.getsize(path)
+            }
+            logger.info(f"Recorded hash for {path}: {file_hash}")
+        else:
+            logger.warning(f"Artifact not found, skipping: {path}")
     
     # Write updated state
-    with open(STATE_FILE, 'w', encoding='utf-8') as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+    with open(state_path, 'w') as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
     
-    logger.info(f"State file updated: {STATE_FILE}")
-    logger.info(f"Updated {len(checksums)} checksums for {artifact_type}")
+    logger.info(f"State file updated: {state_path}")
+    return state_data
 
 def main():
-    """Main function to download dataset and update state."""
-    logger.info("Starting MemLens dataset download and state update...")
+    """Main entry point for downloading and state management."""
+    project_root = Path(config.PROJECT_ROOT)
+    data_dir = project_root / "data" / "raw"
+    state_file = project_root / "state" / "projects" / f"{config.PROJECT_ID}.yaml"
     
-    # Define output directory for raw data
-    raw_data_dir = PROJECT_ROOT / "data" / "raw" / "memlens"
-    raw_data_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure directories exist
+    data_dir.mkdir(parents=True, exist_ok=True)
     
-    try:
-        # Download dataset
-        downloaded_files = download_memlens_dataset(raw_data_dir)
-        
-        if not downloaded_files:
-            logger.error("No files were downloaded. Aborting state update.")
-            sys.exit(1)
-        
-        # Compute checksums
-        checksums = compute_checksums(downloaded_files)
-        
-        if not checksums:
-            logger.error("No checksums computed. Aborting state update.")
-            sys.exit(1)
-        
-        # Update state file
-        update_state_file(checksums, artifact_type="memlens_dataset")
-        
-        logger.info("Dataset download and state update completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+    # Download dataset
+    downloaded_files = download_memlens_dataset(str(data_dir))
+    
+    # Compute checksums
+    checksums = compute_checksums(list(downloaded_files.values()))
+    
+    # Update state file
+    update_state_file(list(downloaded_files.values()), str(state_file))
+    
+    logger.info("Download and state update complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

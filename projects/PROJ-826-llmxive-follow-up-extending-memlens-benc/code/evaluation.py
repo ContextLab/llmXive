@@ -5,204 +5,218 @@ import logging
 import traceback
 import resource
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Union
-from dataclasses import dataclass, asdict
+from typing import Dict, List, Any, Optional, Tuple
 import numpy as np
 
-# Importing from sibling modules based on API surface
-# Note: inference and retrieval modules are assumed to exist based on task list
-# We will import the necessary types if they are defined there, or define local ones if needed.
-# Based on API surface, we have `from inference import ...` but we don't see the content.
-# We assume `generate_answer` returns a string or a dict with 'answer' key.
-# We assume `run_inference_pipeline` returns a list of results.
+from utils.logger import get_logger, log_resource_usage
 
-# Local imports for data handling
-import config
+# Configure logger
+logger = get_logger("evaluation")
 
-# Setup logging
-logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
-
-@dataclass
 class ResourceMetrics:
-    """Dataclass to hold resource usage metrics."""
-    peak_ram_mb: float
-    cpu_time_seconds: float
-    wall_time_seconds: float
-    strategy: str
-    sample_count: int
+    """Container for resource usage metrics."""
+    def __init__(self, strategy: str, peak_ram_mb: float, cpu_time_sec: float, duration_sec: float, latency_sec: float = 0.0):
+        self.strategy = strategy
+        self.peak_ram_mb = peak_ram_mb
+        self.cpu_time_sec = cpu_time_sec
+        self.duration_sec = duration_sec
+        self.latency_sec = latency_sec
 
-def get_resource_usage() -> Dict[str, float]:
-    """
-    Get current resource usage (RAM, CPU time).
-    Returns a dictionary with 'peak_ram_mb', 'cpu_time_seconds'.
-    """
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    # maxrss is in kilobytes on Linux/macOS
-    peak_ram_kb = usage.ru_maxrss
-    peak_ram_mb = peak_ram_kb / 1024.0
-    cpu_time = usage.ru_utime + usage.ru_stime
-    return {
-        "peak_ram_mb": peak_ram_mb,
-        "cpu_time_seconds": cpu_time
-    }
-
-def record_strategy_execution(strategy_name: str, start_time: float, end_time: float, sample_count: int) -> ResourceMetrics:
-    """
-    Record execution metrics for a specific strategy.
-    """
-    current_usage = get_resource_usage()
-    return ResourceMetrics(
-        peak_ram_mb=current_usage["peak_ram_mb"],
-        cpu_time_seconds=current_usage["cpu_time_seconds"],
-        wall_time_seconds=end_time - start_time,
-        strategy=strategy_name,
-        sample_count=sample_count
-    )
-
-def save_metrics_to_disk(metrics: ResourceMetrics, output_path: str) -> None:
-    """
-    Save metrics to a JSON file.
-    """
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    metrics_dict = asdict(metrics)
-    with open(output_path, 'w') as f:
-        json.dump(metrics_dict, f, indent=2)
-    logger.info(f"Metrics saved to {output_path}")
-
-def load_metrics_from_disk(input_path: str) -> ResourceMetrics:
-    """
-    Load metrics from a JSON file.
-    """
-    with open(input_path, 'r') as f:
-        data = json.load(f)
-    return ResourceMetrics(**data)
-
-def calculate_accuracy(predictions: List[str], ground_truth: List[str]) -> Dict[str, Any]:
-    """
-    Calculate accuracy metrics between predictions and ground truth.
-    
-    Args:
-        predictions: List of predicted answers (strings).
-        ground_truth: List of ground truth answers (strings).
-        
-    Returns:
-        Dictionary containing:
-            - exact_match_ratio: float
-            - total_samples: int
-            - matches: int
-            - mismatches: int
-    """
-    if len(predictions) != len(ground_truth):
-        raise ValueError(f"Length mismatch: predictions ({len(predictions)}) vs ground_truth ({len(ground_truth)})")
-    
-    if len(predictions) == 0:
+    def to_dict(self) -> Dict[str, Any]:
         return {
-            "exact_match_ratio": 0.0,
-            "total_samples": 0,
-            "matches": 0,
-            "mismatches": 0,
-            "accuracy": 0.0
+            "strategy": self.strategy,
+            "peak_ram_mb": self.peak_ram_mb,
+            "cpu_time_sec": self.cpu_time_sec,
+            "duration_sec": self.duration_sec,
+            "latency_sec": self.latency_sec
         }
 
-    matches = 0
-    mismatches = 0
-    
-    # Normalize strings for comparison (strip whitespace, lowercase)
-    # This is a simple normalization; real evaluation might use more complex NLP metrics
-    for pred, gt in zip(predictions, ground_truth):
-        if isinstance(pred, dict):
-            pred = pred.get('answer', str(pred))
-        if isinstance(gt, dict):
-            gt = gt.get('answer', str(gt))
-        
-        pred_clean = str(pred).strip().lower()
-        gt_clean = str(gt).strip().lower()
-        
-        if pred_clean == gt_clean:
-            matches += 1
-        else:
-            mismatches += 1
-    
-    accuracy = matches / len(predictions)
-    
-    return {
-        "exact_match_ratio": accuracy,
-        "total_samples": len(predictions),
-        "matches": matches,
-        "mismatches": mismatches,
-        "accuracy": accuracy
-    }
+def get_resource_usage() -> Tuple[float, float]:
+    """Get current resource usage (RAM in MB, CPU time in seconds)."""
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    peak_ram_mb = usage.ru_maxrss / 1024.0  # Convert KB to MB (Linux)
+    cpu_time_sec = usage.ru_utime + usage.ru_stime
+    return peak_ram_mb, cpu_time_sec
 
-def run_evaluation_pipeline(
-    predictions_coarse: List[str],
-    predictions_medium: List[str],
-    predictions_fine: List[str],
-    ground_truth: List[str],
-    output_dir: str = "data/processed/metrics"
+def record_strategy_execution(
+    strategy: str,
+    start_time: float,
+    end_time: float,
+    peak_ram_mb: float,
+    cpu_time_sec: float,
+    latency_sec: float = 0.0
+) -> ResourceMetrics:
+    """Record metrics for a specific strategy execution."""
+    duration_sec = end_time - start_time
+    metrics = ResourceMetrics(
+        strategy=strategy,
+        peak_ram_mb=peak_ram_mb,
+        cpu_time_sec=cpu_time_sec,
+        duration_sec=duration_sec,
+        latency_sec=latency_sec
+    )
+    logger.info(f"Recorded metrics for {strategy}: RAM={peak_ram_mb:.2f}MB, CPU={cpu_time_sec:.2f}s, Latency={latency_sec:.2f}s")
+    return metrics
+
+def save_metrics_to_disk(metrics_list: List[ResourceMetrics], output_path: str) -> None:
+    """Save a list of ResourceMetrics to a JSON file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    data = [m.to_dict() for m in metrics_list]
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Saved metrics to {output_path}")
+
+def load_metrics_from_disk(input_path: str) -> List[ResourceMetrics]:
+    """Load ResourceMetrics from a JSON file."""
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Metrics file not found: {input_path}")
+    
+    with open(input_path, 'r') as f:
+        data = json.load(f)
+    
+    return [
+        ResourceMetrics(
+            strategy=m["strategy"],
+            peak_ram_mb=m["peak_ram_mb"],
+            cpu_time_sec=m["cpu_time_sec"],
+            duration_sec=m["duration_sec"],
+            latency_sec=m.get("latency_sec", 0.0)
+        )
+        for m in data
+    ]
+
+def calculate_accuracy(predictions: List[str], ground_truths: List[str]) -> float:
+    """Calculate accuracy (exact match or fuzzy match logic)."""
+    if not predictions or not ground_truths or len(predictions) != len(ground_truths):
+        raise ValueError("Invalid prediction/ground truth lists for accuracy calculation.")
+    
+    matches = sum(1 for p, g in zip(predictions, ground_truths) if p.strip().lower() == g.strip().lower())
+    return matches / len(predictions)
+
+def compute_retrieval_latency_relative(
+    metrics: List[ResourceMetrics],
+    baseline_strategy: str = "Coarse"
 ) -> Dict[str, Any]:
     """
-    Run the full evaluation pipeline comparing Coarse, Medium, and Fine strategies.
+    Compute retrieval latency relative to Coarse baseline: (Strategy - Coarse) / Coarse.
+    Flags deviations where relative latency > 0.5 (50% overhead).
+    
+    SC-004: Compute retrieval latency relative to Coarse baseline (Fine/Medium - Coarse) / Coarse
+    and flag deviations.
     
     Args:
-        predictions_coarse: List of answers from Coarse store retrieval.
-        predictions_medium: List of answers from Medium store retrieval.
-        predictions_fine: List of answers from Fine store retrieval.
-        ground_truth: List of ground truth answers.
-        output_dir: Directory to save results.
-        
+        metrics: List of ResourceMetrics for all strategies (Coarse, Medium, Fine).
+        baseline_strategy: The strategy to use as the baseline (default: "Coarse").
+    
     Returns:
-        Dictionary containing evaluation results for all strategies.
+        Dictionary containing relative latency calculations and deviation flags.
     """
-    logger.info("Starting evaluation pipeline...")
+    if not metrics:
+        logger.warning("No metrics provided for relative latency calculation.")
+        return {"error": "No metrics provided"}
+
+    # Group metrics by strategy
+    strategy_map: Dict[str, ResourceMetrics] = {m.strategy: m for m in metrics}
     
-    results = {}
+    if baseline_strategy not in strategy_map:
+        raise ValueError(f"Baseline strategy '{baseline_strategy}' not found in metrics. Available: {list(strategy_map.keys())}")
     
-    # Calculate accuracy for each strategy
-    logger.info("Calculating accuracy for Coarse strategy...")
-    results['coarse'] = calculate_accuracy(predictions_coarse, ground_truth)
+    baseline_metrics = strategy_map[baseline_strategy]
+    baseline_latency = baseline_metrics.latency_sec
     
-    logger.info("Calculating accuracy for Medium strategy...")
-    results['medium'] = calculate_accuracy(predictions_medium, ground_truth)
-    
-    logger.info("Calculating accuracy for Fine strategy...")
-    results['fine'] = calculate_accuracy(predictions_fine, ground_truth)
-    
-    # Ensure output directory exists
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
-    # Save detailed results
-    output_path = os.path.join(output_dir, "accuracy_results.json")
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Evaluation results saved to {output_path}")
-    
-    # Summary logging
-    logger.info(f"Coarse Accuracy: {results['coarse']['accuracy']:.4f}")
-    logger.info(f"Medium Accuracy: {results['medium']['accuracy']:.4f}")
-    logger.info(f"Fine Accuracy: {results['fine']['accuracy']:.4f}")
-    
+    if baseline_latency <= 0:
+        logger.warning(f"Baseline latency for {baseline_strategy} is {baseline_latency}. Cannot compute relative difference.")
+        return {
+            "baseline_strategy": baseline_strategy,
+            "baseline_latency_sec": baseline_latency,
+            "relative_latencies": {},
+            "deviations": {}
+        }
+
+    results = {
+        "baseline_strategy": baseline_strategy,
+        "baseline_latency_sec": baseline_latency,
+        "relative_latencies": {},
+        "deviations": {}
+    }
+
+    for strategy_name, metric in strategy_map.items():
+        if strategy_name == baseline_strategy:
+            continue
+        
+        strategy_latency = metric.latency_sec
+        relative_latency = (strategy_latency - baseline_latency) / baseline_latency
+        
+        # Flag deviations: if relative latency > 0.5 (50% overhead)
+        is_deviation = relative_latency > 0.5
+        
+        results["relative_latencies"][strategy_name] = {
+            "absolute_latency_sec": strategy_latency,
+            "relative_latency_ratio": round(relative_latency, 4),
+            "percent_overhead": round(relative_latency * 100, 2)
+        }
+        
+        results["deviations"][strategy_name] = {
+            "is_deviation": is_deviation,
+            "threshold": 0.5,
+            "message": f"High overhead detected for {strategy_name}: {relative_latency*100:.2f}% increase over {baseline_strategy}" if is_deviation else "Within acceptable limits"
+        }
+        
+        logger.info(f"Relative Latency [{strategy_name} vs {baseline_strategy}]: {relative_latency:.4f} ({results['relative_latencies'][strategy_name]['percent_overhead']}% overhead). Deviation: {is_deviation}")
+
     return results
 
-def main():
+def run_evaluation_pipeline(
+    metrics_input_path: str,
+    output_dir: str,
+    baseline_strategy: str = "Coarse"
+) -> Dict[str, Any]:
     """
-    Main entry point for evaluation.
-    This is a placeholder for CLI execution.
-    In a real scenario, this would load predictions and ground truth from files.
-    """
-    logger.info("Evaluation module loaded. Use run_evaluation_pipeline() to evaluate results.")
+    Run the full evaluation pipeline including relative latency computation.
     
-    # Example usage (commented out as it requires real data)
-    # predictions = ["answer1", "answer2", "answer3"]
-    # ground_truth = ["answer1", "answer2", "answer3"]
-    # results = calculate_accuracy(predictions, ground_truth)
-    # print(json.dumps(results, indent=2))
+    Args:
+        metrics_input_path: Path to the JSON file containing raw metrics.
+        output_dir: Directory to save the evaluation reports.
+        baseline_strategy: Strategy to use as baseline for relative latency.
+    
+    Returns:
+        Dictionary containing the full evaluation results.
+    """
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    
+    # Load metrics
+    metrics = load_metrics_from_disk(metrics_input_path)
+    
+    # Compute relative latency
+    relative_latency_results = compute_retrieval_latency_relative(metrics, baseline_strategy)
+    
+    # Save relative latency results
+    relative_latency_output_path = os.path.join(output_dir, "relative_latency_report.json")
+    with open(relative_latency_output_path, 'w') as f:
+        json.dump(relative_latency_results, f, indent=2)
+    
+    logger.info(f"Saved relative latency report to {relative_latency_output_path}")
+    
+    return relative_latency_results
+
+def main():
+    """Main entry point for evaluation script."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Run evaluation pipeline and compute relative latency.")
+    parser.add_argument("--metrics-path", type=str, required=True, help="Path to input metrics JSON file.")
+    parser.add_argument("--output-dir", type=str, default="data/processed/metrics", help="Output directory for reports.")
+    parser.add_argument("--baseline", type=str, default="Coarse", help="Baseline strategy name.")
+    
+    args = parser.parse_args()
+    
+    try:
+        results = run_evaluation_pipeline(args.metrics_path, args.output_dir, args.baseline)
+        print(json.dumps(results, indent=2))
+    except Exception as e:
+        logger.error(f"Evaluation pipeline failed: {e}", exc_info=True)
+        traceback.print_exc()
+        raise
 
 if __name__ == "__main__":
     main()

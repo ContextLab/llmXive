@@ -113,7 +113,7 @@
  - Construct bond network based on cutoff
  - Compute local metrics (coordination number, bond angle variance)
  - **Flag "Physical Anomaly" for any atom with coordination > 6** (do not halt)
- - Validate average coordination against reference value (4.00 ± 0.05) [UNRESOLVED-CLAIM: c_440ce963 — status=not_enough_info] and flag result
+ - Validate average coordination against reference value (4.00 ± 0.05) [UNRESOLVED-CLAIM: c_72e1fbde — status=not_enough_info] and flag result
  - Output `data/derived/topology/` CSVs
 - [ ] T018 [US1] Add logging for topology extraction steps and RDF cutoff decisions (US-1 Edge Cases)
 - [ ] T019 [US1] Create `tests/integration/test_full_topology.py` to verify end-to-end extraction on a small reference file
