@@ -1,1 +1,3 @@
-# Contract tests package initialization
+"""
+Contract tests ensuring data schemas and APIs match specifications.
+"""

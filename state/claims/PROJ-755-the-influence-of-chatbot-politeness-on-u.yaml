@@ -556,3 +556,602 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-30T10:54:49Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Pipeline proceeds if dataset has quality_rating variable
+  claim_id: c_98d93a03
+  context: 'Strict Abort Logic: The pipeline MUST proceed with any dataset that has
+    the required quality_rating variable. The pipeline MUST ONLY abort if ALL three
+    datasets fail to download OR ALL three datasets are downloaded but lack the quality_rating
+    variable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_proceeds_if_dataset_has_quality_rating_variable
+  kind: entity_fact
+  raw_text: The pipeline MUST proceed with any dataset that has the required quality_rating
+    variable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:16:41Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Required datasets are HCI_P2, Persona-Chat, and EmpatheticDialogues
+  claim_id: c_13cfc5e2
+  context: 'Goal: Download HCI_P2, Persona-Chat, and EmpatheticDialogues datasets.
+    Filter for completeness, and compute mean politeness scores per conversation using
+    jfiedler/politeness-bert on CPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Required_datasets_are_HCI_P2,_Persona-Chat,_and_EmpatheticDi
+  kind: entity_fact
+  raw_text: The HCI_P2, Persona-Chat, and EmpatheticDialogues datasets are the required
+    sources.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:18:09Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Politeness scoring uses jfiedler/politeness-bert on CPU
+  claim_id: c_e2c9c84b
+  context: 'Goal: Download HCI_P2, Persona-Chat, and EmpatheticDialogues datasets.
+    Filter for completeness, and compute mean politeness scores per conversation using
+    jfiedler/politeness-bert on CPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Politeness_scoring_uses_jfiedler/politeness-bert_on_CPU
+  kind: entity_fact
+  raw_text: The jfiedler/politeness-bert model is used for politeness scoring on CPU.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:18:47Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Model file size verified to be <= 100MB
+  claim_id: c_d95562e3
+  context: "Score: Load jfiedler/politeness-bert (Revision: main, Cache: data/models).\
+    \ Verify model file size \u2264 100MB. Iterate through utterances in batches."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_file_size_verified_to_be_%3C=_100MB
+  kind: magnitude
+  raw_text: The model file size is verified to be less than or equal to 100MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:19:29Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: MemoryError raised if dataset size > 6GB
+  claim_id: c_9a03e2d5
+  context: 'Memory Check: If dataset size > 6GB, raise MemoryError with message Dataset
+    exceeds memory limit. Please reduce sample size or use streaming. Do NOT use Dask.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MemoryError_raised_if_dataset_size_%3E_6GB
+  kind: entity_fact
+  raw_text: If dataset size exceeds 6GB, a MemoryError is raised.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:19:52Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Subgroups excluded if n < 30
+  claim_id: c_71e98451
+  context: 'Gate Condition: If ANY subgroup (e.g., Male, Female, Age 18-25) has n
+    < 30, log that US3 will be skipped for that specific group. Do NOT halt the pipeline
+    for the main analysis.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subgroups_excluded_if_n_%3C_30
+  kind: magnitude
+  raw_text: Subgroups with fewer than 30 dialogues are excluded from analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:20:22Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Bonferroni used if hypothesis tests <= 3
+  claim_id: c_b533c272
+  context: 'Selection Logic: Default: Use Benjamini-Hochberg (BH) correction. Switch
+    Condition: If the number of hypothesis tests (N) <= 3, switch to Bonferroni correction.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_used_if_hypothesis_tests_%3C=_3
+  kind: magnitude
+  raw_text: If the number of hypothesis tests is less than or equal to 3, Bonferroni
+    correction is used instead of Benjamini-Hochberg.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:21:23Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Citations Nass & Moon 2000 and Bickmore & Picard 2005 validate quality_rating
+    as trust proxy
+  claim_id: c_9ccc8cbd
+  context: 'Citation Requirement: Include explicit citation to HCI literature (Nass
+    & Moon, 2000; Bickmore & Picard, 2005) validating quality_rating as a trust proxy
+    within the code comments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nass & Moon (2000) and Bickmore & Picard (2005) are cited as validating
+    quality_rating as a trust proxy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:21:40Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: textstat used as fallback if LIWC-2015 acquisition fails
+  claim_id: c_3198c89d
+  context: 'Mandatory Fallback: If Acquisition Fails: Log WARNING LIWC-2015 Acquisition
+    Failed. Using textstat as mandatory fallback for FR-005. and proceed with textstat
+    for the robustness check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If LIWC-2015 acquisition fails, the textstat classifier is used as a mandatory
+    fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:22:02Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Target correlation coefficient threshold is 0.80
+  claim_id: c_272c9b70
+  context: 'Verify: Check if correlation_r >= 0.80. Log SC-004 MET or SC-004 NOT MET.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target correlation coefficient threshold is 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:22:40Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Peak memory usage verified to be < 7GB
+  claim_id: c_932b34cb
+  context: 'Performance optimization: verify memory usage < 7GB during peak BERT inference
+    using memory_profiler.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_verified_to_be_%3C_7GB
+  kind: magnitude
+  raw_text: Peak memory usage is verified to be less than 7GB during BERT inference.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:23:18Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime target < 6 hours
+  claim_id: c_1b08fdb5
+  context: 'Logic: Run the CI workflow. Verify runtime < 6h and RAM < 7GB. Capture
+    metrics.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_target_%3C_6_hours
+  kind: magnitude
+  raw_text: The full pipeline runtime target is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:23:37Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Full pipeline RAM target < 7GB
+  claim_id: c_e2f5c2c4
+  context: 'Logic: Run the CI workflow. Verify runtime < 6h and RAM < 7GB. Capture
+    metrics.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_RAM_target_%3C_7GB
+  kind: magnitude
+  raw_text: The full pipeline RAM target is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:24:02Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: BERT inference restricted to CPU only
+  claim_id: c_3f53dc19
+  context: 'Constraint: All BERT inference must be CPU-only (no CUDA); use batch processing
+    to stay under available RAM limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BERT_inference_restricted_to_CPU_only
+  kind: entity_fact
+  raw_text: BERT inference is restricted to CPU only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:24:24Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Memory limit is approximately 6GB
+  claim_id: c_6f692c8c
+  context: 'Constraint: Memory limit is ~6GB; if exceeded, the pipeline MUST raise
+    a MemoryError and stop (no Dask fallback).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The regular variant is powered by the Samsung Exynos 9610, while the
+        "s" variant is powered by Samsung Exynos 9611. It is sold in 4GB or 6GB of
+        RAM and 64GB or 128GB of internal storage (which both use UFS 2.1) configurations,
+        both of which can be expanded via a microSD card up to 512GB.
+      source_id: Samsung Galaxy A50
+      url: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
+      value: 6GB
+    filled: true
+  kind: entity_fact
+  raw_text: The memory limit is approximately 6GB.
+  resolved_value: 6GB
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T23:24:35Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 0
+  canonical: Memory limit is 6GB
+  claim_id: c_eaaa50ae
+  context: 'Constraint: Memory limit is ~6GB; if exceeded, the pipeline MUST raise
+    a MemoryError and stop (no Dask fallback).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The regular variant is powered by the Samsung Exynos 9610, while the
+        "s" variant is powered by Samsung Exynos 9611. It is sold in 4GB or 6GB of
+        RAM and 64GB or 128GB of internal storage (which both use UFS 2.1) configurations,
+        both of which can be expanded via a microSD card up to 512GB.
+      source_id: Samsung Galaxy A50
+      url: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
+      value: 6GB
+    filled: true
+  kind: entity_fact
+  raw_text: The memory limit is approximately 6GB.
+  resolved_value: 6GB
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T23:29:54Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Pipeline proceeds if any dataset has quality_rating variable
+  claim_id: c_fb14cd21
+  context: 'Strict Abort Logic: The pipeline MUST proceed with any dataset that has
+    the required quality_rating variable. The pipeline MUST ONLY abort if ALL three
+    datasets fail to download OR ALL three datasets are downloaded but lack the quality_rating
+    variable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_proceeds_if_any_dataset_has_quality_rating_variable
+  kind: entity_fact
+  raw_text: The pipeline MUST proceed with any dataset that has the required quality_rating
+    variable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:29:55Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 2
+  canonical: Pipeline aborts only if all three datasets fail or lack quality_rating
+  claim_id: c_2fea64f1
+  context: 'Strict Abort Logic: The pipeline MUST proceed with any dataset that has
+    the required quality_rating variable. The pipeline MUST ONLY abort if ALL three
+    datasets fail to download OR ALL three datasets are downloaded but lack the quality_rating
+    variable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_only_if_all_three_datasets_fail_or_lack_qual
+  kind: entity_fact
+  raw_text: The pipeline MUST ONLY abort if ALL three datasets fail to download OR
+    ALL three datasets are downloaded but lack the quality_rating variable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:29:57Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 2
+  canonical: Pipeline proceeds with single valid dataset
+  claim_id: c_399264ca
+  context: If a dataset is downloaded but lacks the variable, it is excluded from
+    the merged set, and the pipeline continues with the remaining valid datasets.
+    If only one dataset is valid, proceed with that one.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_proceeds_with_single_valid_dataset
+  kind: entity_fact
+  raw_text: If only one dataset is valid, the pipeline proceeds with that one.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:29:59Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Use jfiedler/politeness-bert model on CPU
+  claim_id: c_a28f36d4
+  context: 'Goal: Download HCI_P2, Persona-Chat, and EmpatheticDialogues datasets.
+    Filter for completeness, and compute mean politeness scores per conversation using
+    jfiedler/politeness-bert on CPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_jfiedler/politeness-bert_model_on_CPU
+  kind: entity_fact
+  raw_text: The pipeline uses the jfiedler/politeness-bert model on CPU.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:30:18Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: 'Dataset sources: HuggingFaceH4/hci_p2, Persona-Chat, EmpatheticDialogues'
+  claim_id: c_8105fd05
+  context: 'Sources: HuggingFaceH4/hci_p2, Persona-Chat, EmpatheticDialogues.'
+  evidence:
+    entailment_evidence: 'Dataset sources: HuggingFaceH4/hci p2, Persona-Chat, Empathe'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_sources:_HuggingFaceH4/hci_p2,_Persona-Chat,_Empathe
+  kind: entity_fact
+  raw_text: The sources for the datasets are HuggingFaceH4/hci_p2, Persona-Chat, and
+    EmpatheticDialogues.
+  resolved_value: 'Dataset sources: HuggingFaceH4/hci_p2, Persona-Chat, EmpatheticDialogues'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T23:30:21Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Model file size limit 100MB
+  claim_id: c_7e3a1fd4
+  context: "Score: Load jfiedler/politeness-bert (Revision: main, Cache: data/models).\
+    \ Verify model file size \u2264 100MB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_file_size_limit_100MB
+  kind: magnitude
+  raw_text: The model file size must be less than or equal to 100MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:30:51Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Raise MemoryError if dataset size > 6GB
+  claim_id: c_da225623
+  context: 'Memory Check: If dataset size > 6GB, raise MemoryError with message Dataset
+    exceeds memory limit. Please reduce sample size or use streaming.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_MemoryError_if_dataset_size_%3E_6GB
+  kind: magnitude
+  raw_text: If dataset size is greater than 6GB, raise a MemoryError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:31:14Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Switch to Bonferroni correction if N <= 3
+  claim_id: c_6f7178fe
+  context: 'Switch Condition: If the number of hypothesis tests (N) <= 3, switch to
+    Bonferroni correction.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_Bonferroni_correction_if_N_%3C=_3
+  kind: magnitude
+  raw_text: If the number of hypothesis tests (N) is less than or equal to 3, switch
+    to Bonferroni correction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:32:24Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: 'Primary CLMM formula: quality_rating ~ politeness + conversation_length
+    + (1|user_id)'
+  claim_id: c_cd7eb87c
+  context: 'Fit Primary: Fit CLMM via rpy2 (formula: quality_rating ~ politeness +
+    conversation_length + (1|user_id)) with lme4.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: user_id)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Primary_CLMM_formula:_quality_rating_~_politeness_+_conversa
+    source_value: https://en.wikipedia.org/wiki/Primary_CLMM_formula:_quality_rating_~_politeness_+_conversa
+    subject: 'Primary CLMM formula: quality_rating ~ politeness + conversation_length
+      + (1'
+  kind: relational
+  raw_text: The formula for the primary CLMM is quality_rating ~ politeness + conversation_length
+    + (1|user_id).
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:32:57Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Use textstat fallback if LIWC-2015 acquisition fails
+  claim_id: c_5fd716db
+  context: 'If Acquisition Fails: Log WARNING LIWC-2015 Acquisition Failed. Using
+    textstat as mandatory fallback for FR-005. and proceed with textstat for the robustness
+    check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the LIWC-2015 acquisition fails, the system must use textstat as a
+    mandatory fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:33:16Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Validation report includes demographic_completeness_pct
+  claim_id: c_68c348e0
+  context: 'Generate data/processed/validation_report.json with schema: status, demographic_completeness_pct,
+    total_sample_size, primary_analysis_valid, missing_fields, subgroup_counts, subgroups_eligible,
+    subgroups_excluded, gate_status.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_report_includes_demographic_completeness_pct
+  kind: entity_fact
+  raw_text: The validation report must include a field for demographic_completeness_pct.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:33:45Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Cite Nass & Moon 2000 and Bickmore & Picard 2005
+  claim_id: c_422c1ef0
+  context: 'Citation Requirement: Include explicit citation to HCI literature (Nass
+    & Moon, 2000; Bickmore & Picard, 2005) validating quality_rating as a trust proxy
+    within the code comments.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The code must include an explicit citation to Nass & Moon, 2000 and Bickmore
+    & Picard, 2005.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:34:06Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Target variable is robustness model (LIWC or textstat)
+  claim_id: c_51dc4336
+  context: 'Target Variable: Use the available robustness model (LIWC or textstat)
+    for the correlation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_variable_is_robustness_model_(LIWC_or_textstat)
+  kind: entity_fact
+  raw_text: The target variable for correlation calculation is the available robustness
+    model (LIWC or textstat).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:34:30Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Use Spearman rank correlation for ordinal data
+  claim_id: c_b5dd4798
+  context: 'Rationale: Spearman is used for ordinal data consistency (Likert 1-5)
+    to match SC-004 intent.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Spearman_rank_correlation_for_ordinal_data
+  kind: entity_fact
+  raw_text: Spearman rank correlation is used for ordinal data consistency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:35:02Z'
+- artifact_path: projects/PROJ-755-the-influence-of-chatbot-politeness-on-u/specs/001-the-influence-of-chatbot-politeness-on-u/tasks.md
+  attempts: 1
+  canonical: Verify correlation_r >= 0.80
+  claim_id: c_160b90a8
+  context: 'Verify: Check if correlation_r >= 0.80. Log SC-004 MET or SC-004 NOT MET.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_correlation_r_%3E=_0.80
+  kind: magnitude
+  raw_text: The system must verify if the correlation_r is greater than or equal to
+    0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T23:35:57Z'

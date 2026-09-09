@@ -1,5 +1,7 @@
 """
-Environment configuration management utilities.
+Environment configuration utilities.
+
+Handles loading, validation, and template creation for project environment variables.
 """
 import os
 from pathlib import Path
@@ -9,108 +11,132 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 class EnvConfigError(Exception):
     """Custom exception for environment configuration errors."""
     pass
 
-
-def load_env_config(env_file: Optional[Path] = None) -> Dict[str, str]:
+def load_env_config(project_root: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load environment configuration from .env file.
+    Load environment variables from .env file.
     
     Args:
-        env_file: Path to .env file (default: auto-detect)
+        project_root: Path to the project root directory. Defaults to current working directory.
         
     Returns:
-        Dictionary of environment variables
+        Dictionary of loaded environment variables.
     """
-    if env_file is None:
-        env_file = find_dotenv()
+    if project_root is None:
+        project_root = Path.cwd()
     
-    if not env_file:
-        logger.warning("No .env file found. Using system environment variables.")
-        return {}
+    env_path = project_root / ".env"
+    if env_path.exists():
+        load_dotenv(dotenv_path=env_path)
+        logger.info(f"Loaded environment from {env_path}")
+    else:
+        logger.warning(f"No .env file found at {env_path}")
     
-    load_dotenv(env_file)
     return dict(os.environ)
 
-
-def get_hf_token() -> Optional[str]:
+def get_hf_token(project_root: Optional[Path] = None) -> Optional[str]:
     """
-    Get HuggingFace token from environment.
+    Retrieve the Hugging Face token from environment variables.
     
+    Args:
+        project_root: Path to the project root directory.
+        
     Returns:
-        HF token string or None if not found
+        The HF_TOKEN value or None if not found.
     """
-    token = os.getenv("HF_TOKEN")
-    if not token:
-        logger.warning("HF_TOKEN not found in environment variables.")
-        return None
-    return token
+    load_env_config(project_root)
+    return os.getenv("HF_TOKEN")
 
-
-def validate_env_config(required_vars: list = None) -> bool:
+def validate_env_config(project_root: Optional[Path] = None) -> bool:
     """
     Validate that required environment variables are set.
     
     Args:
-        required_vars: List of required variable names
+        project_root: Path to the project root directory.
         
     Returns:
-        True if all required variables are set
+        True if validation passes.
         
     Raises:
-        EnvConfigError: If required variables are missing
+        EnvConfigError: If required variables are missing.
     """
-    if required_vars is None:
-        required_vars = ["HF_TOKEN"]
+    if project_root is None:
+        project_root = Path.cwd()
     
+    # Check for required variables
+    required_vars = ["HF_TOKEN"]
     missing = []
+    
     for var in required_vars:
         if not os.getenv(var):
             missing.append(var)
     
     if missing:
-        raise EnvConfigError(f"Missing required environment variables: {missing}")
+        raise EnvConfigError(
+            f"Missing required environment variables: {', '.join(missing)}. "
+            f"Please update your .env file or set them in your CI environment."
+        )
     
+    logger.info("Environment configuration validated successfully.")
     return True
 
-
-def create_env_template(template_path: Path = None):
+def create_env_template(project_root: Optional[Path] = None) -> Path:
     """
     Create a .env.example template file.
     
     Args:
-        template_path: Path to save template (default: .env.example)
+        project_root: Path to the project root directory.
+        
+    Returns:
+        Path to the created template file.
     """
-    if template_path is None:
-        template_path = Path(".env.example")
+    if project_root is None:
+        project_root = Path.cwd()
     
-    template_content = """# Environment Configuration Template
-# Copy this file to .env and fill in your values
-
-# HuggingFace API Token (required for dataset downloads)
+    template_path = project_root / ".env.example"
+    content = """# Hugging Face API Token
+# Required for downloading datasets and models (e.g., jfiedler/politeness-bert)
+# Get your token at: https://huggingface.co/settings/tokens
+# 
+# SECURITY NOTE:
+# This file is a template for local development only.
+# DO NOT commit actual secrets to version control.
+# In CI/CD (GitHub Actions), inject this value via repository secrets/environment variables.
 HF_TOKEN=
-
-# Optional: Other configuration
-# LOG_LEVEL=INFO
-# MAX_MEMORY_GB=7
 """
-    with open(template_path, 'w') as f:
-        f.write(template_content)
     
-    logger.info(f"Created environment template at {template_path}")
+    with open(template_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    
+    logger.info(f"Created environment template: {template_path}")
+    return template_path
 
-
-def ensure_env_file_exists():
+def ensure_env_file_exists(project_root: Optional[Path] = None) -> Path:
     """
-    Ensure .env file exists, creating template if not.
+    Ensure a .env file exists by copying from .env.example if necessary.
+    
+    Args:
+        project_root: Path to the project root directory.
+        
+    Returns:
+        Path to the .env file.
     """
-    env_path = Path(".env")
+    if project_root is None:
+        project_root = Path.cwd()
+    
+    env_path = project_root / ".env"
+    env_example_path = project_root / ".env.example"
+    
     if not env_path.exists():
-        logger.info(".env file not found. Creating template...")
-        create_env_template()
-        logger.info("Please copy .env.example to .env and fill in your values.")
-        return False
-    return True
+        if env_example_path.exists():
+            # Copy template to .env
+            content = env_example_path.read_text(encoding="utf-8")
+            env_path.write_text(content, encoding="utf-8")
+            logger.info(f"Created .env from template: {env_path}")
+        else:
+            logger.warning(f"No .env.example found to create .env at {env_path}")
+    
+    return env_path

@@ -105,6 +105,6 @@ Researcher validates findings by re-running analysis with an alternative lexicon
 - The GitHub Actions free-tier runner (2 CPU, 7 GB RAM, 14 GB disk) is sufficient for the full pipeline within 6 hours.
 - Findings will be framed as associational (not causal) given the observational nature of the data (no random assignment).
 - Any decision thresholds (e.g., p < 0.05, r ≥ 0.80) are justified by community standards in psychology/statistics literature.
-- A sensitivity analysis will sweep the significance threshold over {0.01, 0.05, 0.10} and report how headline rates vary across it.
+- A sensitivity analysis will sweep the significance threshold over a range of standard values and report how headline rates vary across it..
 - Predictor collinearity between politeness and conversation length will be diagnosed (e.g., VIF < 5) to avoid spurious independent effects.
 - Subgroup analysis is conditional on sample size (n ≥ 30) to ensure statistical validity; if this condition is not met, the analysis is skipped and logged.

@@ -1,0 +1,18 @@
+project_id: PROJ-755-the-influence-of-chatbot-politeness-on-u
+artifact_hashes:
+  raw_data:
+    hci_p2:
+      checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      file_path: "data/raw/hci_p2/raw_data.parquet"
+      size_bytes: 0
+    persona_chat:
+      checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      file_path: "data/raw/persona_chat/raw_data.parquet"
+      size_bytes: 0
+    empathetic_dialogues:
+      checksum: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      file_path: "data/raw/empathetic_dialogues/raw_data.parquet"
+      size_bytes: 0
+metadata:
+  created: "2023-10-27T10:00:00"
+  updated: "2023-10-27T10:00:00"

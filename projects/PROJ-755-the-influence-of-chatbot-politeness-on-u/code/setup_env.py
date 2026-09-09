@@ -1,8 +1,8 @@
 """
-Environment Setup Utility for PROJ-755.
+Setup environment configuration management.
 
-This script ensures the existence of the .env file and validates the configuration.
-It is intended to be run during the initial setup phase or as a helper for developers.
+This script ensures the .env template exists and provides utilities
+for managing environment variables required for the project.
 """
 import os
 import sys
@@ -13,40 +13,42 @@ def main():
     """
     Main entry point for environment setup.
     
-    1. Checks if .env exists. If not, copies .env.example to .env.
-    2. Validates that HF_TOKEN is set if the .env file is present.
+    1. Ensures the .env.example template exists in the project root.
+    2. Validates the current environment configuration if .env exists.
+    3. Prints instructions for local vs CI configuration.
     """
     project_root = Path(__file__).resolve().parent.parent
-    env_path = project_root / ".env"
     env_example_path = project_root / ".env.example"
+    env_path = project_root / ".env"
 
-    print(f"Checking environment configuration at: {env_path}")
+    print(f"Setting up environment configuration in {project_root}...")
 
-    if not env_path.exists():
-        if env_example_path.exists():
-            print(".env file not found. Creating from .env.example...")
-            # Copy contents manually to ensure it's a new file, not a link
-            with open(env_example_path, 'r') as f_src:
-                content = f_src.read()
-            with open(env_path, 'w') as f_dst:
-                f_dst.write(content)
-            print(f"Created {env_path}. Please edit this file to add your HF_TOKEN.")
-        else:
-            print("ERROR: .env.example not found. Cannot create .env.")
+    # Ensure template exists
+    if not env_example_path.exists():
+        print("Creating .env.example template...")
+        create_env_template(project_root)
+        print(f"Created: {env_example_path}")
+    else:
+        print(f"Template already exists: {env_example_path}")
+
+    # Validate current env if it exists
+    if env_path.exists():
+        print("Validating existing .env configuration...")
+        try:
+            validate_env_config(project_root)
+            print("Configuration valid.")
+        except EnvConfigError as e:
+            print(f"Configuration error: {e}")
             sys.exit(1)
     else:
-        print(".env file exists.")
+        print("No .env file found. Creating a copy of the template for local development...")
+        ensure_env_file_exists(project_root)
+        print(f"Created: {env_path} (copy of .env.example)")
 
-    # Validate configuration
-    try:
-        validate_env_config(env_path)
-        print("Environment configuration is valid.")
-    except EnvConfigError as e:
-        print(f"WARNING: {e}")
-        print("Note: HF_TOKEN is required for downloading datasets. "
-              "If running in CI, ensure HF_TOKEN is set as an environment variable.")
-        # We do not exit here, as the pipeline might run in a mode that doesn't require the token immediately
-        # or might fail later with a clearer error if the token is actually needed.
+    print("\n--- Configuration Instructions ---")
+    print("Local Development: Edit the .env file with your HF_TOKEN.")
+    print("CI/CD (GitHub Actions): Inject HF_TOKEN via repository secrets.")
+    print("----------------------------------")
 
 if __name__ == "__main__":
     main()

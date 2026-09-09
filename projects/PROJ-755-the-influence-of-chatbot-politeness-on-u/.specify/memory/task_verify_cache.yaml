@@ -1,24 +1,80 @@
-T010:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No .env template file containing an HF_TOKEN placeholder was provided; the required
-    configuration artifact is missing, so the environment setup task is not satisfied.
-T011:
-  c: false
-  h: 52154a19b161c7453196337a64787505998895a7b49962fc24de956267bbe8da
-  r: The `code/utils/schema_validator.py` file exists, but the required contract schema
-    (`contracts/dataset.schema.yaml`) is missing, so the validator cannot actually
-    validate against the intended schema. Additionally, the provided code is truncated
-    and does not show full validation logic against that contract. The missing contract
-    file must be added (and the validator confirmed to use it) for the task to be
-    complete.
-T011c:
+  r: "No evidence of the required directories (`data/raw`, `data/processed`, `data/models`)\
+    \ was provided; the artifact list is empty, so the task of creating those folders\
+    \ has not been demonstrated. The implementer must add the three directories to\
+    \ the repository (and ensure they are non\u2011empty or at least present) for\
+    \ the task to be considered complete."
+T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file containing the required Minimum Detectable Effect (MDE)
-    estimation results is present in the provided evidence; the implementer did not
-    supply the updated document or any excerpt thereof. The task therefore remains
-    unfinished.
+  r: "No evidence was provided that the required directories `code` and `code/utils`\
+    \ actually exist in the repository; the response contains only the task description\
+    \ and no file\u2011system listing or screenshots showing those folders. The implementer\
+    \ must create the two directories (with at least placeholder files) and provide\
+    \ proof they are present."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no evidence that the required directories (`tests`, `tests/contract`,\
+    \ `tests/unit`, `tests/integration`) actually exist in the repository, nor any\
+    \ files inside them. The implementer\u2019s claim is unsupported; the task remains\
+    \ undone until those directories are created and populated (even with placeholder\
+    \ files)."
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the required `docs` and `state` directories actually\
+    \ exist in the repository; the response contains only the task description and\
+    \ specifications, with no file\u2011system listing or screenshots showing those\
+    \ folders. The implementer must create the two directories (and ensure they are\
+    \ non\u2011empty or contain at least placeholder files) and provide proof of their\
+    \ presence."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black/Ruff
+    settings, `.flake8`, or similar) are present in the provided evidence, so the
+    requirement to configure ruff/flake8 and Black has not been demonstrated.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No GitHub Actions workflow file (e.g., `.github/workflows/ci.yml`) was presented,\
+    \ nor any description of its contents showing installation of R\u2011base and\
+    \ Python dependencies. Without the actual CI configuration artifact, the requirement\
+    \ cannot be confirmed as satisfied."
+T004b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI configuration, script, or command file was provided that shows system\u2011\
+    level installation of the R packages `lme4` and `ordinal`. Without such an artifact,\
+    \ we cannot confirm that the R environment setup task was actually implemented.\
+    \ The required evidence (e.g., a `.github/workflows/*.yml` snippet or shell script\
+    \ invoking `Rscript -e \"install.packages(...)\"`) is missing."
+T010b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.env` template file (or any other environment configuration artifact) was\
+    \ presented or described, so the required setup for managing the `HF_TOKEN` is\
+    \ missing. The implementer must add a non\u2011empty `.env` (or similar) template\
+    \ containing at least a placeholder for `HF_TOKEN`."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation scripts, functions, or logs for the three data sources are present;
+    the implementer provided only the task description without any concrete artifact
+    (code, output files, or documentation) demonstrating that dataset validation logic
+    has been implemented. The required validation logic is therefore missing.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or storage artifacts were provided to demonstrate that\
+    \ the Persona\u2011Chat and EmpatheticDialogues datasets have been downloaded,\
+    \ filtered for completeness, and saved in a structured format. Consequently the\
+    \ requirement to \u201Cfinalize storage for valid datasets\u201D cannot be verified.\
+    \ The implementer must supply the download/filter script and the resulting stored\
+    \ dataset (or a sample) along with logs showing excluded incomplete dialogues."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

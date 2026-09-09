@@ -1,57 +1,52 @@
 # The Influence of Chatbot Politeness on User-Perceived Quality
 
 ## Project Overview
-This project investigates the relationship between chatbot politeness and user-perceived quality using the HCI_P2 dataset. It implements a robust statistical pipeline including data acquisition, politeness scoring, cumulative link mixed-effects modeling (CLMM), and robustness analysis.
+
+This project investigates the correlation between chatbot politeness (measured via BERT-based models and lexicon dictionaries) and user-perceived quality ratings. It implements a reproducible scientific pipeline involving data acquisition from Hugging Face, politeness scoring, statistical modeling (CLMM), and robustness analysis.
+
+## Prerequisites
+
+- Python 3.9+
+- R (with `lme4` and `ordinal` packages)
+- Hugging Face account (for dataset/model access)
 
 ## Environment Configuration
 
 ### Local Development
-To run this project locally, you must configure your environment variables.
 
-1. Create a `.env` file in the project root based on the template:
+1. Copy the environment template:
  ```bash
- cp code/.env.example.env
+ cp.env.example.env
  ```
 2. Edit `.env` and add your Hugging Face token:
  ```
  HF_TOKEN=your_actual_token_here
  ```
+3. Install Python dependencies:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-**Important**: The `.env` file contains sensitive credentials and must never be committed to version control. It is excluded via `.gitignore`.
+### CI/CD (GitHub Actions)
 
-### CI/CD and Reproducibility
-For GitHub Actions and other CI environments, secrets must be injected via the platform's secret management system (e.g., GitHub Repository Secrets).
-
-- Do **not** rely on `.env` files in CI.
-- This ensures the pipeline runs reproducibly on fresh runners without local state, adhering to **Constitution Principle I**.
-
-Example GitHub Actions usage:
-```yaml
-env:
- HF_TOKEN: ${{ secrets.HF_TOKEN }}
-```
-
-## Installation
-1. Install dependencies: `pip install -r requirements.txt`
-2. Ensure R and required packages (`lme4`, `ordinal`) are installed for CLMM analysis.
+For automated runs, do **not** use a `.env` file. Instead, configure the Hugging Face token as a GitHub Secret:
+1. Go to Repository Settings > Secrets and variables > Actions.
+2. Create a new secret named `HF_TOKEN`.
+3. Reference it in the workflow file (e.g., `.github/workflows/ci.yml`) using `${{ secrets.HF_TOKEN }}`.
 
 ## Usage
-Run the pipeline scripts in order:
-```bash
-python code/01_download_and_score.py
-python code/02_fit_clmm.py
-python code/03_robustness_analysis.py
-```
 
-## Project Structure
-- `code/`: Source code for the pipeline
-- `data/`: Raw and processed data (excluded from git)
+See `docs/quickstart.md` for a step-by-step guide to running the full pipeline.
+
+## Directory Structure
+
+- `code/`: Python scripts and utilities
+- `data/`: Raw and processed datasets
 - `tests/`: Unit and integration tests
 - `contracts/`: Schema definitions
-- `docs/`: Documentation
+- `specs/`: Research design documents
+- `state/`: Project state tracking (checksums, logs)
 
 ## License
-[License Information]
 
-## Contributors
-[Contributor List]
+MIT

@@ -1,31 +1,9 @@
-[project]
-name = "llmxive-research"
-version = "0.1.0"
-description = "Automated science pipeline for research"
-requires-python = ">=3.8"
-dependencies = [
-    "transformers",
-    "datasets",
-    "statsmodels",
-    "pandas",
-    "scikit-learn",
-    "numpy",
-    "pyyaml",
-    "tqdm",
-    "rpy2",
-    "textstat",
-    "evalue",
-]
+# Project configuration
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.black]
 line-length = 88
-target-version = ['py38']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-    # The following are specific to Black, you probably don't want those.
-    | blib2to3
-    | tests/data
-    | profiling
-)/
-'''
+target-version = ["py39", "py310", "py311"]
+skip-magic-trailing-comma = false
