@@ -45,3 +45,32 @@ T042:
     \ evidence, and there is no commit log showing the required changes. The task\u2019\
     s deliverables (installation instructions, usage examples, data requirements,\
     \ and a 5\u2011minute quickstart guide) are therefore missing."
+T043a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest execution logs, coverage reports, or any test output files are present
+    in the repository. The claim that `pytest --cov` was run on `src/` and `tests/`
+    cannot be verified because the required artifacts (e.g., console output, `.coverage`
+    file, HTML report) are missing. The task therefore remains incomplete.
+T043b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No coverage report file for the `src/` modules is present in the provided evidence,\
+    \ and there is no content showing line\u2011coverage percentages. Consequently,\
+    \ the requirement to verify that a coverage report exists and indicates >80\u202F\
+    % line coverage cannot be confirmed."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No source files, validation code, or unit\u2011test files were presented; the\
+    \ claim that all public functions in `src/` now perform null/type/range checks\
+    \ and raise `ValueError`, together with accompanying tests, cannot be verified\
+    \ from the provided evidence. The required artifacts are missing."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, output files, or documentation of the run of `quickstart.md`\
+    \ in a fresh virtual environment are present. The required evidence that the pipeline\
+    \ completed end\u2011to\u2011end and produced the expected artifacts (e.g., downloaded\
+    \ genomes, preprocessed matrices, model files, performance reports) is missing,\
+    \ so the task is not satisfied."

@@ -4,165 +4,108 @@ import sys
 import hashlib
 import json
 from datetime import datetime
-from typing import Optional
-from PIL import Image, ExifTags
+from PIL import Image
+from io import BytesIO
 
 # Global seed state
-_global_seed = None
+_seed_config = {
+    "seed": 42,
+    "initialized": False
+}
 
 def get_logger(name: str) -> logging.Logger:
-    """
-    Configures and returns a logger with a specific format.
-    """
+    """Get a configured logger instance."""
     logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
-
-    logger.setLevel(logging.INFO)
-    
-    # Console Handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    ch.setFormatter(formatter)
-    
-    logger.addHandler(ch)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
     return logger
 
-def log_structured_error(error_type: str, message: str, details: Optional[dict] = None):
-    """
-    Logs a specific error with structured JSON message as per Edge Cases in spec.md.
-    """
+def log_structured_error(error_type: str, message: str, details: dict = None):
+    """Log specific errors as structured JSON."""
     logger = get_logger(__name__)
-    error_data = {
+    log_entry = {
+        "timestamp": datetime.now().isoformat(),
         "error_type": error_type,
         "message": message,
-        "timestamp": datetime.now().isoformat(),
         "details": details or {}
     }
-    logger.error(json.dumps(error_data))
+    logger.error(json.dumps(log_entry))
 
-def compute_file_checksum(filepath: str) -> str:
-    """
-    Computes SHA256 checksum of a file.
-    """
+def compute_file_checksum(file_path: str) -> str:
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(filepath, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        log_structured_error("file_not_found", f"Checksum failed: {filepath}")
-        raise
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def init_seed_config(seed: int):
-    """
-    Initializes the global random seed configuration.
-    """
-    global _global_seed
-    _global_seed = seed
-    logging.info(f"Global seed initialized to {seed}")
+def init_seed_config(seed: int = 42):
+    """Initialize global random seed."""
+    _seed_config["seed"] = seed
+    _seed_config["initialized"] = True
 
-def set_random_seed(seed: int):
-    """
-    Sets the random seed for numpy and random modules.
-    """
+def set_random_seed(seed: int = None):
+    """Set random seed for reproducibility."""
     import random
     import numpy as np
+    if seed is None:
+        seed = _seed_config["seed"]
     random.seed(seed)
     np.random.seed(seed)
 
 def get_global_seed() -> int:
-    """
-    Returns the global seed if set, otherwise defaults to 42.
-    """
-    global _global_seed
-    if _global_seed is None:
-        return 42
-    return _global_seed
+    """Get the current global seed."""
+    return _seed_config["seed"]
 
-def sanitize_image_pii(image_dir: str) -> int:
+def sanitize_image_pii(image_path: str, output_path: str = None) -> str:
     """
-    Implements PII Sanitization (Task T016):
-    1. Renames all images in `image_dir` to `img_<sha256_hash>.jpg`.
-    2. Strips all EXIF data from images using Pillow.
-    3. Logs the count of sanitized images.
-    
-    Args:
-        image_dir (str): Path to the directory containing images.
-        
-    Returns:
-        int: Number of images successfully sanitized.
+    Sanitize image PII by stripping EXIF data and renaming.
+    Returns the new sanitized file path.
     """
     logger = get_logger(__name__)
-    sanitized_count = 0
     
-    if not os.path.exists(image_dir):
-        log_structured_error("image_processing_failures", f"Directory not found: {image_dir}")
-        return 0
-
-    files = [f for f in os.listdir(image_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff'))]
-    
-    if not files:
-        logger.warning(f"No image files found in {image_dir}")
-        return 0
-
-    for filename in files:
-        old_path = os.path.join(image_dir, filename)
+    if not os.path.exists(image_path):
+        logger.error(f"Image not found: {image_path}")
+        return None
         
-        # Compute SHA256 of the file content
-        try:
-            file_hash = compute_file_checksum(old_path)
-        except Exception as e:
-            log_structured_error("image_processing_failures", f"Failed to compute checksum for {filename}", {"error": str(e)})
-            continue
-        
-        new_filename = f"img_{file_hash}.jpg"
-        new_path = os.path.join(image_dir, new_filename)
-        
-        # Skip if already sanitized (hash matches filename pattern)
-        if filename.startswith("img_") and filename.endswith(".jpg") and len(filename) == 40: # 8 (img_) + 32 (hash) + 4 (.jpg)
-            # Verify it's actually the hash of itself to avoid double processing
-            try:
-                current_hash = compute_file_checksum(old_path)
-                if filename == f"img_{current_hash}.jpg":
-                    logger.debug(f"Skipping already sanitized image: {filename}")
-                    continue
-            except:
-                pass
-
-        try:
-            # Open image and strip EXIF
-            with Image.open(old_path) as img:
-                # Convert to RGB if necessary (e.g., for PNGs with alpha or CMYK JPEGs)
-                if img.mode in ('RGBA', 'P', 'LA'):
-                    img = img.convert('RGB')
-                elif img.mode == 'CMYK':
-                    img = img.convert('RGB')
+    try:
+        with Image.open(image_path) as img:
+            # Extract basic info
+            info = img.info
+            mode = img.mode
+            size = img.size
+            
+            # Create new image without EXIF
+            new_img = Image.new(mode, size)
+            new_img.putdata(list(img.getdata()))
+            
+            # Generate sanitized name
+            base_name = os.path.basename(image_path)
+            file_ext = os.path.splitext(base_name)[1]
+            file_hash = hashlib.sha256(base_name.encode()).hexdigest()[:16]
+            sanitized_name = f"img_{file_hash}{file_ext}"
+            
+            if output_path is None:
+                output_dir = os.path.dirname(image_path)
+                output_path = os.path.join(output_dir, sanitized_name)
+            else:
+                # Ensure output path has correct extension if needed
+                if not output_path.endswith(file_ext):
+                    output_path += file_ext
                 
-                # Save without EXIF data
-                # Explicitly setting exif=None ensures no metadata is copied
-                img.save(new_path, "JPEG", exif=None, quality=95)
+            # Save without EXIF
+            new_img.save(output_path, format=img.format)
             
-            # Remove the old file
-            os.remove(old_path)
+            logger.info(f"Sanitized image: {image_path} -> {output_path}")
+            return output_path
             
-            # If the new name is different from the old name (and not just a rename to hash), remove old
-            # Note: We already removed old_path above. If new_path == old_path, we have a problem, 
-            # but the logic above prevents that unless the hash happens to match the filename exactly.
-            
-            sanitized_count += 1
-            logger.info(f"Sanitized and renamed: {filename} -> {new_filename}")
-            
-        except Exception as e:
-            log_structured_error("image_processing_failures", f"Failed to sanitize image {filename}", {"error": str(e)})
-            continue
-
-    logger.info(f"PII Sanitization complete. {sanitized_count} images processed.")
-    return sanitized_count
+    except Exception as e:
+        logger.error(f"Failed to sanitize image {image_path}: {e}")
+        return None

@@ -1,35 +1,30 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
-
 **Verdict**: concern
 
-The question asks whether "knowledge" of physics and geometry can be transferred from a heavy generative model to a lightweight one, which touches on a substantive scientific relationship (the sufficiency of latent representations for control). However, the framing is heavily fixated on implementation constraints ("CPU-constrained," "deterministic," "feed-forward") and a specific architectural comparison (diffusion vs. MLP) rather than the underlying nature of the representation itself. The core inquiry risks becoming a benchmark evaluation of a specific distillation pipeline rather than a generalizable finding about 4D world models.
+The question partially targets a substantive scientific inquiry regarding the sufficiency of 4D latent representations for encoding causal physical structure. However, the second clause ("what is the fundamental performance gap...") frames the investigation as a direct benchmark between two specific architectural classes (iterative diffusion vs. single-pass feed-forward) rather than a general inquiry into the nature of the latent space itself. The answer to the performance gap is largely a function of the specific model choices and training regimes rather than a discovery about the underlying physics.
 
 ### Circularity check
-
 **Verdict**: pass
 
-The predictor is the latent embedding derived from the frozen RynnWorld-4D encoder, while the predicted variable is the end-effector velocity command (ground truth) used for training and the resulting spatial precision (measured via the physics engine). These are independent sources: the latent features are a compressed summary of visual/depth inputs, and the control targets are derived from the task's physical requirements and simulation state, not from the latent space itself.
+The predictor (feed-forward policy) and the predicted variable (end-effector velocity commands) are derived from independent sources: the policy learns from the frozen latent features, while the ground-truth commands come from the simulation physics engine and dataset annotations. There is no mechanical guarantee that the feed-forward model will succeed solely because the inputs and outputs are derived from the same signal; the "distillation" aspect implies a genuine test of information preservation.
 
 ### Triviality check
-
 **Verdict**: pass
 
-Both outcomes are informative: a positive result would demonstrate that high-fidelity generative priors are over-parameterized for execution, validating efficient distillation strategies for edge robotics. A null result (significant performance drop) would be equally valuable, indicating that the diffusion process's iterative refinement or stochasticity is essential for handling the specific uncertainties of the task, thereby defining the limits of deterministic distillation.
+Both outcomes are informative: a null result (large performance drop) would suggest that the generative diffusion process is essential for capturing non-linear causal dynamics that feed-forward networks cannot approximate, even with rich latents. Conversely, a positive result (small gap) would validate the hypothesis that the heavy generative component is redundant for execution, supporting the field's move toward efficient distillation. Neither outcome is predetermined by current domain knowledge.
 
 ### Question-narrowing check
-
 **Verdict**: concern
 
-The question explicitly names the implementation constraint ("CPU-constrained policy execution") and the specific architecture ("lightweight, deterministic feed-forward controller") as the primary variables of interest. While this defines the engineering scope, it obscures the broader domain question: "To what extent do 4D latent representations encode the causal structure of manipulation tasks required for deterministic control?" The current phrasing asks if a specific CPU setup works, rather than what the representation *is* capable of supporting.
+The first part of the question ("To what extent do... encode...") is a valid domain question about representation quality. However, the second part narrows the scope significantly to a comparison of "iterative diffusion-based policies" versus "single-pass feed-forward regressors." This risks turning the project into a specific engineering benchmark (Model A vs. Model B) rather than a study of the 4D latent space's capabilities. The question should focus on the *capacity* of the latents, using the architectures only as probes, not as the primary subject of the inquiry.
 
 ### Overall verdict
-
 **Verdict**: validator_revise
 
-The project addresses a valid and important problem (efficient deployment of world models), but the research question is currently framed as a system benchmark rather than a scientific inquiry into representation sufficiency. The question needs to be reframed to focus on the properties of the latent space and the limits of deterministic control, treating the CPU/MLP constraint as the experimental condition rather than the question itself.
+The core idea is sound, but the research question is currently framed as a method-comparison benchmark rather than a fundamental inquiry into the representational power of 4D world models. To fix this, the question must be reframed to ask about the limits of the latent representation itself, treating the architectural comparison as the *means* to answer that question rather than the question itself.
 
 [REVISED]
-To what extent do 4D latent representations from generative world models encode the causal physical structure necessary for deterministic control, and what is the fundamental performance gap between iterative diffusion-based policies and single-pass feed-forward regressors when both operate on the same frozen latent features?
+To what extent do 4D latent representations from generative world models encode the causal physical structure necessary for deterministic control, and can this encoded information be fully recovered by non-generative, single-pass architectures without significant loss of control fidelity?
 [/REVISED]

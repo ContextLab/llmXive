@@ -2987,3 +2987,470 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-06T15:53:14Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Download 150 workspace images from Unsplash API
+  claim_id: c_7782bc36
+  context: 'Fetch Workspace Images: Query Unsplash API for workspace images using
+    keywords: ''home office'', ''desk'', ''workspace'', ''remote work'', ''study room''.
+    Download N=150 images.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download N=150 images from Unsplash API.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:47:37Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Generate synthetic dataset with at least 100 records
+  claim_id: c_253cb6b5
+  context: "Fallback Simulation: If real linked dataset NOT found... Generate synthetic\
+    \ participant records (N \u2265 100) with participant_id, reaction_time, accuracy,\
+    \ and visual_complexity."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_dataset_with_at_least_100_records
+  kind: magnitude
+  raw_text: "Generate synthetic participant records with N \u2265 100."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:48:43Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Verify missing values in reaction_time and accuracy are less than or
+    equal to 5 percent
+  claim_id: c_affe735e
+  context: 'VERIFY DATA INTEGRITY: Run validation on data/processed/merged_data.csv
+    to ensure: No missing values in reaction_time or accuracy > 5%.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_missing_values_in_reaction_time_and_accuracy_are_less
+  kind: magnitude
+  raw_text: Verify dataset contains no missing values in reaction_time or accuracy
+    > 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:49:18Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Perform bootstrap resampling with at least 1000 iterations
+  claim_id: c_aa171bef
+  context: "Implement bootstrap resampling (\u22651000 iterations) for CIs using scipy.stats.bootstrap."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Perform_bootstrap_resampling_with_at_least_1000_iterations
+  kind: magnitude
+  raw_text: Perform bootstrap resampling with at least 1000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:50:13Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Perform PCA when maximum Variance Inflation Factor is greater than or
+    equal to 5
+  claim_id: c_ac9fe19f
+  context: 'PCA Decision: If max(VIF) >= 5, perform PCA and extract pca_component_1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Perform_PCA_when_maximum_Variance_Inflation_Factor_is_greate
+  kind: magnitude
+  raw_text: Perform PCA if max(VIF) >= 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:50:44Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Generate 6 rows per binning strategy in binning results
+  claim_id: c_8869c42c
+  context: Ensure exactly 6 rows are generated for each binning strategy (one for
+    each predictor-outcome pair) to satisfy FR-010.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 6 rows for each binning strategy in binning_results.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:51:13Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Holm S 1979 A Simple Sequentially Rejective Multiple Test Procedure Scandinavian
+    Journal of Statistics
+  claim_id: c_cdb3f67c
+  context: '1. Holm-Bonferroni: Holm, S. (1979). ''A Simple Sequentially Rejective
+    Multiple Test Procedure''. Scandinavian Journal of Statistics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Holm, S. (1979) published 'A Simple Sequentially Rejective Multiple Test
+    Procedure' in Scandinavian Journal of Statistics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:51:50Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Canny J 1986 A Computational Approach to Edge Detection IEEE TPAMI
+  claim_id: c_54d1e1ae
+  context: '2. OpenCV Edge Detection: Canny, J. (1986). ''A Computational Approach
+    to Edge Detection''. IEEE TPAMI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Canny, J. (1986) published 'A Computational Approach to Edge Detection'
+    in IEEE TPAMI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:52:14Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Shannon C E 1948 A Mathematical Theory of Communication
+  claim_id: c_3ee8caf3
+  context: '3. Color Entropy: Shannon, C.E. (1948). ''A Mathematical Theory of Communication''.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '"A Mathematical Theory of Communication" is an article by mathematician
+        Claude Shannon published in Bell System Technical Journal in 1948. It was
+        renamed The Mathematical Theory of Communication in the 1949 book of the same
+        name, a small but significant title change after realizing the generality
+        of this work. It has tens of thousands of citations, being one of the most
+        influential and cited scientific papers of all time, as it gave rise to the
+        field of information theory, with Scientific American referring to the paper
+        as the "Magna Carta of the Information Age", while the electrical engineer
+        Robert G. Gallager called the paper a "blueprint for the digital era". Historian
+        James Gleick rated the paper as the most important development of 1948, placing
+        the transistor second in the same time period, with Gleick emphasizing that
+        the paper by Shannon was "even more profound and more fundamental" than the
+        transistor.'
+      source_id: A Mathematical Theory of Communication
+      url: https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication
+      value: '1948'
+    filled: true
+  kind: numeric
+  raw_text: Shannon, C.E. (1948) published 'A Mathematical Theory of Communication'.
+  resolved_value: '1948'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T00:52:28Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Wasserstein and Lazar ASA Statement on p-values
+  claim_id: c_8c90b463
+  context: '5. p<0.05 Threshold: ASA Statement on p-values (Wasserstein & Lazar, n.d.).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wasserstein_and_Lazar_ASA_Statement_on_p-values
+  kind: entity_fact
+  raw_text: Wasserstein and Lazar published the ASA Statement on p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:52:58Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Alpha threshold justification minimum length 150 words
+  claim_id: c_17ffac58
+  context: 'Minimum length: 150 words.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alpha_threshold_justification_minimum_length_150_words
+  kind: magnitude
+  raw_text: Alpha threshold justification must be at least 150 words.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:53:29Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Download 150 workspace images from Unsplash API
+  claim_id: c_9cb0e2ae
+  context: 'If no linked dataset found, fetch real cognitive data and workspace images.
+    Fetch Workspace Images: Query Unsplash API for workspace images using keywords...
+    Download N=150 images.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Download N=150 images from Unsplash API using keywords: ''home office'',
+    ''desk'', ''workspace'', ''remote work'', ''study room''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:55:44Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Generate at least 100 synthetic participant records with negative correlation
+    between visual complexity and reaction time
+  claim_id: c_828b859f
+  context: "Fallback Simulation: If real linked dataset NOT found... Generate synthetic\
+    \ participant records (N \u2265 100)... Use Cholesky decomposition with a covariance\
+    \ matrix targeting a negative correlation between visual_complexity and reaction_time."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_100_synthetic_participant_records_with_neg
+  kind: magnitude
+  raw_text: "Generate synthetic participant records with N \u2265 100 simulating a\
+    \ negative correlation between visual_complexity and reaction_time."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:57:02Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Perform bootstrap resampling with at least 1000 iterations for 95% confidence
+    intervals
+  claim_id: c_6e3aa6a2
+  context: "Bootstrap: Implement bootstrap resampling (\u22651000 iterations) for\
+    \ CIs using scipy.stats.bootstrap. ... Implement bootstrap resampling (\u2265\
+    1000 iterations) in code/03_analysis.py using scipy.stats.bootstrap with arguments\
+    \ vectorized=True, confidence_level=0.95, n_resamples=1000."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Perform_bootstrap_resampling_with_at_least_1000_iterations_f
+  kind: magnitude
+  raw_text: Perform bootstrap resampling with at least 1000 iterations to compute
+    95% confidence intervals for correlation coefficients.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:57:34Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Use 0.95 confidence level for bootstrap intervals
+  claim_id: c_5c3f0548
+  context: Implement bootstrap resampling... with arguments vectorized=True, confidence_level=0.95,
+    n_resamples=1000.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: a first sample can take any value between 0 and 0.95. The exact value
+        depends on the two
+      source_id: '1710.08708'
+      url: https://arxiv.org/abs/1710.08708
+      value: '0.95'
+    filled: true
+  kind: numeric
+  raw_text: Use a confidence level of 0.95 for bootstrap confidence intervals.
+  resolved_value: '0.95'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T00:58:01Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Apply Holm-Bonferroni correction to p-values using scipy.stats.multitest.multipletests
+  claim_id: c_a91a732b
+  context: 'Holm-Bonferroni: Apply correction to all p-values using scipy.stats.multitest.multipletests(method=holm).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Holm-Bonferroni_correction_to_p-values_using_scipy.sta
+  kind: entity_fact
+  raw_text: Apply Holm-Bonferroni correction to all p-values using scipy.stats.multitest.multipletests(method=holm).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:58:20Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Perform PCA if max VIF is at least 5
+  claim_id: c_b0b8ef0a
+  context: 'PCA Decision: If max(VIF) >= 5, perform PCA and extract pca_component_1.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Perform_PCA_if_max_VIF_is_at_least_5
+  kind: magnitude
+  raw_text: Perform PCA if the maximum Variance Inflation Factor (VIF) is greater
+    than or equal to 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:58:47Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Use 0.25 confidence threshold for YOLOv8 object counting
+  claim_id: c_8dd893a8
+  context: 'Object Count: Implement using ultralytics YOLOvn (nano) in CPU mode. CRITICAL:
+    Use weights file yolov8n.pt and confidence threshold 0.25.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a confidence threshold of 0.25 for YOLOv8 object counting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:59:05Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Use 256 bins for color entropy calculation
+  claim_id: c_bfddea28
+  context: 'Color Entropy: Implement using np.histogram on flattened RGB channels
+    (bins=256) to compute entropy as -sum(p * log2(p)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 256 bins for color entropy calculation using np.histogram on flattened
+    RGB channels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T00:59:25Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Generate alpha threshold justification with minimum 150 words
+  claim_id: c_c476df18
+  context: 'Alpha Threshold Justification... Minimum length: 150 words.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a summary table of p-values with a minimum length of 150 words.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:00:07Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Generate binning results with exactly 6 rows per strategy
+  claim_id: c_1c7b1f69
+  context: 'CRITICAL: Ensure exactly 6 rows are generated for each binning strategy
+    (one for each predictor-outcome pair) to satisfy FR-010.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate binning results with exactly 6 rows for each binning strategy.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:05:00Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni citation is Holm 1979
+  claim_id: c_d6ab590e
+  context: 'Create data/citations.yaml with verified primary sources for: 1. Holm-Bonferroni:
+    Holm, S. (1979). ''A Simple Sequentially Rejective Multiple Test Procedure''.
+    Scandinavian Journal of Statistics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Holm-Bonferroni correction is based on Holm, S. (1979). 'A Simple Sequentially
+    Rejective Multiple Test Procedure'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:09:27Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Canny edge detection citation is Canny 1986
+  claim_id: c_409bb8c1
+  context: 'Create data/citations.yaml with verified primary sources for: 2. OpenCV
+    Edge Detection: Canny, J. (1986). ''A Computational Approach to Edge Detection''.
+    IEEE TPAMI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OpenCV Edge Detection is based on Canny, J. (1986). 'A Computational Approach
+    to Edge Detection'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:11:59Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: Shannon entropy citation is Shannon 1948
+  claim_id: c_7e020bdb
+  context: 'Create data/citations.yaml with verified primary sources for: 3. Color
+    Entropy: Shannon, C.E. (1948 (Wikipedia: A Mathematical Theory of Communication,
+    https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication)). ''A Mathematical
+    Theory of Communication''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Color Entropy is based on Shannon, C.E. (1948). 'A Mathematical Theory
+    of Communication'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:13:23Z'
+- artifact_path: projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/specs/001-the-impact-of-visual-distraction-on-cogn/tasks.md
+  attempts: 1
+  canonical: YOLOv8 citation is Redmon et al.
+  claim_id: c_01f352a6
+  context: 'Create data/citations.yaml with verified primary sources for: 4. YOLOv8:
+    Redmon, J., et al. (n.d.) and Ultralytics YOLOv8 documentation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLOv8_citation_is_Redmon_et_al.
+  kind: entity_fact
+  raw_text: YOLOv8 is based on Redmon, J., et al. and Ultralytics YOLOv8 documentation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:13:54Z'

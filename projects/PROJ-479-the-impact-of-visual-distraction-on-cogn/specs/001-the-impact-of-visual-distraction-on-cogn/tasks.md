@@ -52,7 +52,7 @@ description: "Task list template for feature implementation"
 - [X] T017 [P] Create `data/citations.yaml` with verified primary sources for:
  1. **Holm-Bonferroni**: Holm, S. (1979). "A Simple Sequentially Rejective Multiple Test Procedure". Scandinavian Journal of Statistics.
  2. **OpenCV Edge Detection**: Canny, J. (1986). "A Computational Approach to Edge Detection". IEEE TPAMI.
- 3. **Color Entropy**: Shannon, C.E. (1948). "A Mathematical Theory of Communication".
+ 3. **Color Entropy**: Shannon, C.E. (1948 (Wikipedia: A Mathematical Theory of Communication, https://en.wikipedia.org/wiki/A_Mathematical_Theory_of_Communication)). "A Mathematical Theory of Communication".
  4. **YOLOv8**: Redmon, J., et al. (n.d.) and Ultralytics YOLOv8 documentation.
  5. **p<0.05 Threshold**: ASA Statement on p-values (Wasserstein & Lazar, n.d.).
  6. **Verification**: Validate YAML syntax and ensure all citations are primary sources (not Wikipedia).
@@ -128,12 +128,12 @@ description: "Task list template for feature implementation"
  2. **Verification**: Ensure function passes unit test T021.
  **DEPENDS ON: T018 (Data Ready)**. **FR Tags**: [FR-002], [SC-006].
 
-- [ ] T026b [US2] **IMPLEMENT COLOR ENTROPY**: Implement `code/02_visual_metrics.py` function `compute_color_entropy`.
+- [X] T026b [US2] **IMPLEMENT COLOR ENTROPY**: Implement `code/02_visual_metrics.py` function `compute_color_entropy`. <!-- FAILED: unspecified -->
  1. **Color Entropy**: Implement using `np.histogram` on flattened RGB channels (bins=256) to compute entropy as `-sum(p * log2(p))`.
  2. **Verification**: Ensure function passes unit test T022.
  **DEPENDS ON: T018 (Data Ready)**. **FR Tags**: [FR-003], [SC-006].
 
-- [ ] T026c [US2] **IMPLEMENT OBJECT COUNT**: Implement `code/02_visual_metrics.py` function `compute_object_count`.
+- [X] T026c [US2] **IMPLEMENT OBJECT COUNT**: Implement `code/02_visual_metrics.py` function `compute_object_count`.
  1. **Object Count**: Implement using `ultralytics` YOLOvn (nano) in CPU mode. **CRITICAL**: Use weights file `yolov8n.pt` and confidence threshold `0.25`. If the model fails, times out, or returns no objects for an image, assign NaN to the object count for that image. DO NOT impute a proxy value.
  2. **Verification**: Ensure function passes unit test T023.
  **DEPENDS ON: T018 (Data Ready)**. **FR Tags**: [FR-004], [SC-006].

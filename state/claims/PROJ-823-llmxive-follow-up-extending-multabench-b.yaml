@@ -2257,3 +2257,205 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-01T21:05:07Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 0
+  canonical: MulTaBench paper supplementary material located at arXiv:2605.10616
+  claim_id: c_9fe6f065
+  context: 'Steps to acquire data/raw/multabench_baselines.csv: 1. Locate the supplementary
+    material for the MulTaBench paper (arXiv:2605.10616). 2. Download the archive
+    containing multabench_baselines.csv.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Locate the supplementary material for the MulTaBench paper (arXiv:2605.10616).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T01:25:32Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 0
+  canonical: MulTaBench paper supplementary material located at arXiv:2605.10616
+  claim_id: c_4b403b65
+  context: 'Steps to acquire data/raw/multabench_baselines.csv: Locate the supplementary
+    material for the MulTaBench paper (arXiv:2605.10616). Download the archive containing
+    multabench_baselines.csv.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Locate the supplementary material for the MulTaBench paper (arXiv:2605.10616).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T01:30:57Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: MulTaBench baselines file named multabench_baselines.csv
+  claim_id: c_c424e6c4
+  context: Download the archive containing multabench_baselines.csv. Unzip the archive.
+    Place multabench_baselines.csv in data/raw/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MulTaBench_baselines_file_named_multabench_baselines.csv
+  kind: entity_fact
+  raw_text: The MulTaBench baselines file is named multabench_baselines.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:31:44Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Sensitivity seeds are 123, 456, 789, 1011
+  claim_id: c_b326ab74
+  context: 'Explicitly define and pin a set of sensitivity seeds in a SENSITIVITY_SEEDS
+    constant to ensure deterministic reproducibility across all runs. Specific Seeds:
+    [123, 456, 789, 1011].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity seeds are [123, 456, 789, 1011].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:32:36Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Primary baseline random seed is 42
+  claim_id: c_e670b85f
+  context: Implement code/pipelines/run_baseline.py to generate embeddings for ALL
+    available datasets in the pipeline with random_seed=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed for the primary baseline is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:33:37Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Zero variance threshold is 1e-9
+  claim_id: c_16c6232a
+  context: If a dataset has zero variance in a specific feature (variance < 1e-9),
+    SKIP ONLY that feature in the metadata stats for correlation analysis. Use ZERO_VAR_THRESHOLD
+    = 1e-9 from code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The zero variance threshold is 1e-9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:34:24Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Initial subset selection limit is 20 datasets
+  claim_id: c_6c6a2206
+  context: If N > 20, select the first 20 alphabetically to ensure runtime feasibility
+    and compliance with Spec US-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial subset selection limit is 20 datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:35:08Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: User Story 1 independent test completion time limit is 60 minutes
+  claim_id: c_5c8a6722
+  context: 'Independent Test: Verify script completes within 60 mins on a sample of
+    datasets, outputs valid parquet files, and no CUDA errors occur.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 1 requires completion within 60 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:36:06Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: User Story 2 independent test memory limit is 7GB
+  claim_id: c_815f16be
+  context: 'Independent Test: Verify training loss converges on a single dataset within
+    10 epochs on CPU and memory usage < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/User_Story_2_independent_test_memory_limit_is_7GB
+  kind: magnitude
+  raw_text: The independent test for User Story 2 requires memory usage less than
+    7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:36:57Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: User Story 2 independent test convergence limit is 10 epochs
+  claim_id: c_ae4fb7fb
+  context: 'Independent Test: Verify training loss converges on a single dataset within
+    10 epochs on CPU and memory usage < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 2 requires convergence within 10 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:37:33Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Baseline consistency check warning threshold is 0.001
+  claim_id: c_a6311314
+  context: If abs(primary_metric - aggregated_metric_seed42) > 0.001, log a warning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The warning threshold for baseline consistency check is 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:38:13Z'
+- artifact_path: projects/PROJ-823-llmxive-follow-up-extending-multabench-b/specs/001-llmxive-follow-up-extending-multabench-b/tasks.md
+  attempts: 1
+  canonical: Small sample warning threshold for correlation analysis is 30 datasets
+  claim_id: c_35ff2192
+  context: If N < 30 after exclusions, append a Small Sample Warning to the output
+    report explicitly stating the limitation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The small sample warning threshold for correlation analysis is 30 datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T01:39:06Z'
