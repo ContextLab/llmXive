@@ -4,254 +4,228 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Any
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 from scipy import stats
 
-def setup_logging(log_file: str = "data/processed/correlation.log") -> logging.Logger:
+# Project root resolution
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+
+def setup_logging() -> logging.Logger:
     """Configure logging for the correlation analysis module."""
     logger = logging.getLogger("correlation_analysis")
     logger.setLevel(logging.INFO)
-    
     if not logger.handlers:
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(logging.INFO)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-        
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        fh.setFormatter(formatter)
-        ch.setFormatter(formatter)
-        
-        logger.addHandler(fh)
-        logger.addHandler(ch)
-    
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
+        logger.addHandler(handler)
     return logger
 
-def load_roi_betas(filepath: str = "data/processed/roi_betas.csv") -> pd.DataFrame:
+def load_roi_betas(
+    logger: logging.Logger, input_path: Path = None
+) -> pd.DataFrame:
     """
-    Load auditory cortex activation (beta values) from the ROI extraction output.
-    
-    Expected columns: subject_id, mean_beta (or similar numeric column).
-    Raises FileNotFoundError if the file does not exist.
+    Load auditory cortex beta values from T028 output.
+    Expected columns: subject_id, beta_value (or similar numeric column).
     """
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Required ROI beta file not found: {filepath}")
-    
-    df = pd.read_csv(filepath)
-    # Ensure subject_id is string for merging
-    if 'subject_id' in df.columns:
-        df['subject_id'] = df['subject_id'].astype(str)
+    if input_path is None:
+        input_path = DATA_PROCESSED / "roi_betas.csv"
+
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {input_path}. "
+            "Ensure T028 has been executed successfully."
+        )
+
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded ROI betas from {input_path}: {len(df)} rows")
     return df
 
-def load_learning_rate_slopes(filepath: str = "data/processed/learning_rates.csv") -> pd.DataFrame:
+def load_learning_rate_slopes(
+    logger: logging.Logger, input_path: Path = None
+) -> pd.DataFrame:
     """
-    Load global learning rate proxy (slope) from the behavioral analysis output.
-    
+    Load learning rate slopes from T032 output.
     Expected columns: subject_id, slope (or similar numeric column).
-    Raises FileNotFoundError if the file does not exist.
     """
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Required learning rate file not found: {filepath}")
-    
-    df = pd.read_csv(filepath)
-    if 'subject_id' in df.columns:
-        df['subject_id'] = df['subject_id'].astype(str)
+    if input_path is None:
+        input_path = DATA_PROCESSED / "learning_rates.csv"
+
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {input_path}. "
+            "Ensure T032 has been executed successfully."
+        )
+
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded learning rates from {input_path}: {len(df)} rows")
     return df
 
 def calculate_pearson_correlation(
-    roi_betas: pd.DataFrame, 
-    learning_rates: pd.DataFrame,
-    roi_col: str = 'mean_beta',
-    slope_col: str = 'slope'
-) -> Tuple[float, float, pd.DataFrame]:
+    logger: logging.Logger,
+    betas_df: pd.DataFrame,
+    slopes_df: pd.DataFrame,
+    key_col: str = "subject_id",
+    beta_col: str = "beta_value",
+    slope_col: str = "slope",
+) -> Dict[str, Any]:
     """
-    Calculate Pearson correlation between auditory cortex activation and learning rate.
-    
-    Args:
-        roi_betas: DataFrame with subject_id and beta values.
-        learning_rates: DataFrame with subject_id and slope values.
-        roi_col: Column name in roi_betas containing the beta values.
-        slope_col: Column name in learning_rates containing the slope values.
-        
-    Returns:
-        Tuple of (correlation_coefficient, p_value, merged_dataframe).
-        
-    Raises:
-        ValueError: If there are fewer than 2 valid pairs of data points.
+    Calculate Pearson correlation between auditory cortex activation (beta)
+    and learning rate slope.
+
+    Returns a dictionary with:
+      - r: correlation coefficient
+      - p_value: p-value for the correlation
+      - ci_lower: lower bound of 95% CI (Fisher Z-transform)
+      - ci_upper: upper bound of 95% CI
+      - n: number of paired observations
     """
     # Merge on subject_id
-    merged = pd.merge(
-        roi_betas[['subject_id', roi_col]],
-        learning_rates[['subject_id', slope_col]],
-        on='subject_id',
-        how='inner'
+    merged = pd.merge(betas_df, slopes_df, on=key_col, how="inner")
+
+    if len(merged) < 3:
+        logger.warning(
+            f"Insufficient data for correlation: only {len(merged)} subjects found."
+        )
+        raise ValueError(
+            "Need at least 3 subjects to calculate Pearson correlation and CI."
+        )
+
+    x = merged[slope_col].dropna()
+    y = merged[beta_col].dropna()
+
+    # Ensure alignment after dropna
+    common_idx = x.index.intersection(y.index)
+    x = x.loc[common_idx]
+    y = y.loc[common_idx]
+
+    if len(x) < 3:
+        raise ValueError(
+            "After dropping NaNs, insufficient data points remain for correlation."
+        )
+
+    logger.info(f"Performing Pearson correlation on {len(x)} paired observations.")
+
+    r, p_value = stats.pearsonr(x, y)
+
+    # Fisher Z-transform for 95% CI
+    z = 0.5 * np.log((1 + r) / (1 - r))
+    se_z = 1.0 / np.sqrt(len(x) - 3)
+    z_lower = z - 1.96 * se_z
+    z_upper = z + 1.96 * se_z
+
+    ci_lower = (np.exp(2 * z_lower) - 1) / (np.exp(2 * z_lower) + 1)
+    ci_upper = (np.exp(2 * z_upper) - 1) / (np.exp(2 * z_upper) + 1)
+
+    result = {
+        "r": float(r),
+        "p_value": float(p_value),
+        "ci_lower": float(ci_lower),
+        "ci_upper": float(ci_upper),
+        "n": int(len(x)),
+    }
+
+    logger.info(
+        f"Correlation result: r={r:.4f}, p={p_value:.4f}, "
+        f"95% CI [{ci_lower:.4f}, {ci_upper:.4f}]"
     )
-    
-    if len(merged) < 2:
-        raise ValueError(f"Insufficient data points for correlation (n={len(merged)}). "
-                         "Need at least 2 subjects with both ROI beta and learning rate data.")
-    
-    x = merged[roi_col].values
-    y = merged[slope_col].values
-    
-    # Remove NaNs if any exist in the merged columns
-    mask = ~(np.isnan(x) | np.isnan(y))
-    x_clean = x[mask]
-    y_clean = y[mask]
-    
-    if len(x_clean) < 2:
-        raise ValueError(f"Insufficient valid data points after NaN removal (n={len(x_clean)}).")
-    
-    r, p_value = stats.pearsonr(x_clean, y_clean)
-    
-    return r, p_value, merged
+
+    return result
 
 def generate_scatter_plot(
-    data: pd.DataFrame,
-    roi_col: str = 'mean_beta',
-    slope_col: str = 'slope',
-    output_path: str = "figures/correlation_scatter.png",
-    correlation_val: float = None,
-    p_value: float = None
+    logger: logging.Logger,
+    betas_df: pd.DataFrame,
+    slopes_df: pd.DataFrame,
+    key_col: str = "subject_id",
+    beta_col: str = "beta_value",
+    slope_col: str = "slope",
+    output_path: Path = None,
 ) -> None:
     """
-    Generate a scatter plot of ROI beta vs. learning rate slope.
-    
-    Args:
-        data: Merged DataFrame containing subject data.
-        roi_col: Column name for x-axis (ROI beta).
-        slope_col: Column name for y-axis (Learning rate slope).
-        output_path: Path to save the plot.
-        correlation_val: Optional correlation coefficient to display on plot.
-        p_value: Optional p-value to display on plot.
+    Generate a scatter plot of RT slope vs. Beta values with regression line.
+    Saved to figures/brain_behavior_correlation.png (default).
     """
     import matplotlib.pyplot as plt
-    
-    plt.figure(figsize=(10, 6))
-    plt.scatter(data[roi_col], data[slope_col], alpha=0.7, edgecolors='k')
-    
-    plt.xlabel('Auditory Cortex Activation (Mean Beta)')
-    plt.ylabel('Global Learning Rate Slope (ms/trial)')
-    plt.title('Brain-Behavior Correlation: Auditory Activation vs. Learning Rate')
-    
-    if correlation_val is not None and p_value is not None:
-        annotation = f'r = {correlation_val:.3f}, p = {p_value:.3f}'
-        plt.text(0.05, 0.95, annotation, transform=plt.gca().transAxes,
-                 verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-    
-    plt.grid(True, linestyle='--', alpha=0.6)
-    
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+
+    if output_path is None:
+        figures_dir = PROJECT_ROOT / "figures"
+        figures_dir.mkdir(exist_ok=True)
+        output_path = figures_dir / "brain_behavior_correlation.png"
+
+    merged = pd.merge(betas_df, slopes_df, on=key_col, how="inner")
+    x = merged[slope_col].dropna()
+    y = merged[beta_col].dropna()
+    common_idx = x.index.intersection(y.index)
+    x = x.loc[common_idx]
+    y = y.loc[common_idx]
+
+    if len(x) < 2:
+        logger.error("Not enough data to generate scatter plot.")
+        return
+
+    plt.figure(figsize=(8, 6))
+    plt.scatter(x, y, alpha=0.7, edgecolors="k", s=60, label="Subjects")
+
+    # Fit regression line
+    z = np.polyfit(x, y, 1)
+    p = np.poly1d(z)
+    x_line = np.linspace(x.min(), x.max(), 100)
+    plt.plot(x_line, p(x_line), "r--", label=f"Fit: y={z[0]:.3f}x+{z[1]:.3f}")
+
+    plt.xlabel("Learning Rate Slope (ms/trial)")
+    plt.ylabel("Auditory Cortex Beta Value")
+    plt.title("Brain-Behavior Correlation: Learning Rate vs. Auditory Activation")
+    plt.legend()
+    plt.grid(True, linestyle=":", alpha=0.6)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
     plt.close()
+
+    logger.info(f"Scatter plot saved to {output_path}")
 
 def main():
     """
-    Main entry point for Task T033: Calculate Pearson correlation between
+    Main entry point for T033: Calculate Pearson correlation between
     auditory cortex activation and learning rate proxy.
-    
-    Reads:
-      - data/processed/roi_betas.csv
-      - data/processed/learning_rates.csv
-    
-    Writes:
-      - figures/correlation_scatter.png
-      - data/processed/correlation_results.json
-      - data/processed/correlation_data.csv (merged data)
     """
     logger = setup_logging()
-    logger.info("Starting Task T033: Pearson Correlation Analysis")
-    
-    # File paths
-    roi_betas_path = "data/processed/roi_betas.csv"
-    learning_rates_path = "data/processed/learning_rates.csv"
-    output_plot = "figures/correlation_scatter.png"
-    output_json = "data/processed/correlation_results.json"
-    output_csv = "data/processed/correlation_data.csv"
-    
+    logger.info("Starting T033: Brain-Behavior Correlation Analysis")
+
     try:
-        # Load data
-        logger.info(f"Loading ROI betas from {roi_betas_path}")
-        roi_betas = load_roi_betas(roi_betas_path)
-        logger.info(f"Loaded {len(roi_betas)} ROI beta records")
-        
-        logger.info(f"Loading learning rates from {learning_rates_path}")
-        learning_rates = load_learning_rate_slopes(learning_rates_path)
-        logger.info(f"Loaded {len(learning_rates)} learning rate records")
-        
-        # Determine column names dynamically if standard names differ
-        # Look for the first numeric column that isn't subject_id
-        roi_col = None
-        for col in roi_betas.columns:
-            if col != 'subject_id' and pd.api.types.is_numeric_dtype(roi_betas[col]):
-                roi_col = col
-                break
-        
-        slope_col = None
-        for col in learning_rates.columns:
-            if col != 'subject_id' and pd.api.types.is_numeric_dtype(learning_rates[col]):
-                slope_col = col
-                break
-        
-        if not roi_col or not slope_col:
-            raise ValueError("Could not identify numeric columns for ROI beta or learning rate slope.")
-        
-        logger.info(f"Using columns: ROI='{roi_col}', Slope='{slope_col}'")
-        
+        # Load inputs
+        betas_df = load_roi_betas(logger)
+        slopes_df = load_learning_rate_slopes(logger)
+
         # Calculate correlation
-        logger.info("Calculating Pearson correlation...")
-        r, p_val, merged_data = calculate_pearson_correlation(
-            roi_betas, learning_rates, roi_col=roi_col, slope_col=slope_col
-        )
-        
-        logger.info(f"Correlation Results: r = {r:.4f}, p = {p_val:.4f}")
-        
+        result = calculate_pearson_correlation(logger, betas_df, slopes_df)
+
         # Save results to JSON
-        results = {
-            "task_id": "T033",
-            "correlation_coefficient": float(r),
-            "p_value": float(p_val),
-            "n_subjects": len(merged_data),
-            "roi_column": roi_col,
-            "slope_column": slope_col
-        }
-        
-        with open(output_json, 'w') as f:
-            json.dump(results, f, indent=2)
-        logger.info(f"Saved correlation results to {output_json}")
-        
-        # Save merged data to CSV
-        merged_data.to_csv(output_csv, index=False)
-        logger.info(f"Saved merged data to {output_csv}")
-        
-        # Generate plot
-        logger.info(f"Generating scatter plot at {output_plot}")
-        generate_scatter_plot(
-            merged_data, 
-            roi_col=roi_col, 
-            slope_col=slope_col,
-            output_path=output_plot,
-            correlation_val=r,
-            p_value=p_val
-        )
-        logger.info(f"Saved scatter plot to {output_plot}")
-        
-        logger.info("Task T033 completed successfully.")
-        
+        output_path = DATA_PROCESSED / "correlation_results.json"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, "w") as f:
+            json.dump(result, f, indent=2)
+
+        logger.info(f"Correlation results saved to {output_path}")
+
+        # Generate scatter plot
+        generate_scatter_plot(logger, betas_df, slopes_df)
+
+        logger.info("T033 completed successfully.")
+
     except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        logger.error("Ensure T028 (roi_betas.csv) and T032 (learning_rates.csv) have been run successfully.")
+        logger.error(str(e))
         sys.exit(1)
     except ValueError as e:
-        logger.error(f"Data processing error: {e}")
+        logger.error(f"Data error: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.exception(f"Unexpected error during T033: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

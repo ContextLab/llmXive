@@ -43,6 +43,22 @@ T020:
     \ a Python module, command\u2011line script, or the resulting NIfTI contrast files)\
     \ the claim cannot be verified. The implementer must provide the implementation\
     \ and the saved contrast map files."
+T031:
+  c: false
+  h: 9bcf4d452a11b590f36f26aa322af54da617c455e53abe5fb2aef969d85b3a7b
+  r: "The repository contains `code/behavior.py`, but the file is truncated and does\
+    \ not include a complete implementation that reads all `data/raw/*/events.tsv`\
+    \ files and writes `data/processed/behavioral_metrics.csv`. Moreover, the required\
+    \ output file `data/processed/behavioral_metrics.csv` is absent. The task\u2019\
+    s core deliverable\u2014generating a CSV of mean RTs per subject\u2014is therefore\
+    \ not fulfilled."
+T034:
+  c: false
+  h: 6c55231e733cb8bd74dff869a08aca5ffd3227a58ed29d8833a450e74b807d5e
+  r: "The repository contains a `code/viz.py` file, but it only generates a dummy\
+    \ scatter plot with hard\u2011coded points and does not compute or plot the required\
+    \ regression line or confidence interval. Moreover, the expected output file `figures/brain_behavior_correlation.png`\
+    \ is absent. The visualization script therefore does not fulfill the specification."
 T036a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
