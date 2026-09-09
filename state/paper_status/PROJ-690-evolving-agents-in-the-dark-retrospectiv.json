@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-09-09T08:20:44.381671+00:00"
+    "audited_at": "2026-09-09T08:55:40.219383+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-690-evolving-agents-in-the-dark-retrospectiv",
-  "updated_at": "2026-09-09T08:20:44.381683+00:00"
+  "updated_at": "2026-09-09T08:55:40.219395+00:00"
 }
