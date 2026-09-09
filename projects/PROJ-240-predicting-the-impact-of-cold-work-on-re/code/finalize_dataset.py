@@ -1,8 +1,8 @@
 """
 Finalize the dataset for modeling.
 
-This script loads the engineered features, enforces row limits,
-and saves the final dataset ready for model training.
+This script loads the engineered features, enforces the row cap,
+and saves the final dataset artifact.
 """
 import os
 import sys
@@ -11,87 +11,82 @@ from typing import Optional
 import pandas as pd
 import numpy as np
 
-from config import get_project_root, get_max_rows
+from config import get_project_root, get_max_rows, get_random_seed
 
-def load_engineered_data() -> pd.DataFrame:
+def load_engineered_data(input_path: str) -> pd.DataFrame:
     """
     Load the engineered features dataset.
-    
+
+    Args:
+        input_path: Path to the engineered features CSV.
+
     Returns:
-        pd.DataFrame: The engineered features dataset.
-    
-    Raises:
-        FileNotFoundError: If the engineered features file does not exist.
+        DataFrame with engineered features.
     """
-    project_root = get_project_root()
-    input_path = project_root / "data" / "processed" / "engineered_features.csv"
-    
-    if not input_path.exists():
+    if not os.path.exists(input_path):
         raise FileNotFoundError(f"Engineered features file not found: {input_path}")
     
-    return pd.read_csv(input_path)
+    df = pd.read_csv(input_path)
+    return df
 
 def enforce_row_cap(df: pd.DataFrame, max_rows: Optional[int] = None) -> pd.DataFrame:
     """
     Enforce the maximum row cap on the dataset.
-    
+
     Args:
-        df: The input DataFrame.
-        max_rows: The maximum number of rows allowed. If None, uses config value.
-    
+        df: Input DataFrame.
+        max_rows: Maximum number of rows allowed.
+
     Returns:
-        pd.DataFrame: The DataFrame capped at max_rows.
+        DataFrame with enforced row cap.
     """
     if max_rows is None:
         max_rows = get_max_rows()
     
     if len(df) > max_rows:
-        print(f"Dataset has {len(df)} rows, capping to {max_rows}.")
-        return df.head(max_rows)
+        print(f"Dataset has {len(df)} rows. Applying cap of {max_rows} rows.")
+        # Use a deterministic seed for reproducibility
+        np.random.seed(get_random_seed())
+        indices = np.random.choice(len(df), max_rows, replace=False)
+        df = df.iloc[indices].reset_index(drop=True)
     
     return df
 
-def save_final_dataset(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
+def save_final_dataset(df: pd.DataFrame, output_path: str) -> None:
     """
     Save the final dataset to CSV.
-    
+
     Args:
-        df: The final dataset DataFrame.
-        output_path: The output path. If None, uses default project path.
-    
-    Returns:
-        Path: The path to the saved file.
+        df: DataFrame to save.
+        output_path: Path to save the final dataset.
     """
-    if output_path is None:
-        project_root = get_project_root()
-        output_path = project_root / "data" / "processed" / "final_dataset.csv"
-    
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     
     df.to_csv(output_path, index=False)
     print(f"Final dataset saved to {output_path} with {len(df)} rows.")
-    return output_path
 
 def main():
-    """
-    Main entry point for the finalize dataset pipeline.
-    """
-    try:
-        # Load engineered data
-        df = load_engineered_data()
-        
-        # Enforce row cap
-        df_capped = enforce_row_cap(df)
-        
-        # Save final dataset
-        save_final_dataset(df_capped)
-        
-        print("Finalize dataset pipeline completed successfully.")
-        return 0
-    except Exception as e:
-        print(f"Error in finalize dataset pipeline: {e}", file=sys.stderr)
-        return 1
+    """Main entry point for finalizing the dataset."""
+    project_root = get_project_root()
+    
+    # Define paths
+    input_path = project_root / "data" / "processed" / "engineered_features.csv"
+    output_path = project_root / "data" / "processed" / "final_dataset.csv"
+    
+    # Load engineered data
+    print(f"Loading engineered features from {input_path}...")
+    df = load_engineered_data(str(input_path))
+    
+    # Enforce row cap
+    df = enforce_row_cap(df)
+    
+    # Save final dataset
+    save_final_dataset(df, str(output_path))
+    
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

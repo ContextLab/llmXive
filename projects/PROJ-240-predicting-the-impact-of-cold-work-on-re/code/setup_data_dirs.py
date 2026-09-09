@@ -2,27 +2,24 @@ import os
 from pathlib import Path
 
 def main():
-    """
-    Create data subdirectories: data/raw, data/processed, data/split.
-    Create .gitkeep files in all new directories to ensure they are tracked by version control.
-    """
-    # Determine project root relative to this script's location
-    script_dir = Path(__file__).resolve().parent
+    """Create data subdirectories and .gitkeep files."""
+    # Determine project root relative to this script location
+    script_dir = Path(__file__).parent.resolve()
     project_root = script_dir.parent
+    data_dir = project_root / "data"
 
-    data_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "split",
-    ]
+    subdirs = ["raw", "processed", "split"]
 
-    for dir_path in data_dirs:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        gitkeep_path = dir_path / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.touch()
-        print(f"Ensured directory exists: {dir_path}")
-        print(f"Ensured .gitkeep exists: {gitkeep_path}")
+    for subdir in subdirs:
+        target_path = data_dir / subdir
+        target_path.mkdir(parents=True, exist_ok=True)
+        
+        # Create .gitkeep to ensure directory is tracked in git
+        gitkeep_path = target_path / ".gitkeep"
+        gitkeep_path.touch(exist_ok=True)
+        
+        print(f"Created directory: {target_path}")
+        print(f"Created .gitkeep: {gitkeep_path}")
 
     print("Data subdirectories setup complete.")
 

@@ -1,6 +1,7 @@
 """
 Feature Engineering Pipeline (T019).
 Calculates interaction features and ensures temperature is present.
+Implements chunked loading for large files (T044).
 """
 import os
 import sys
@@ -55,11 +56,8 @@ def ensure_temperature_feature(df: pd.DataFrame) -> pd.DataFrame:
     Ensure annealing_temp_K is present as a direct feature (T019).
     """
     if 'annealing_temp_K' not in df.columns:
-        # If missing, we might need to generate or raise error.
-        # Assuming it exists in the input from T006.
         raise ValueError("annealing_temp_K is missing from the dataset. It must be present as a direct feature.")
     
-    # If it exists, ensure it's numeric
     df['annealing_temp_K'] = pd.to_numeric(df['annealing_temp_K'], errors='coerce')
     return df
 
@@ -68,9 +66,31 @@ def validate_dataset_size(df: pd.DataFrame):
     if len(df) > 10000:
         raise ValueError(f"Dataset size ({len(df)}) exceeds cap of 10000 rows.")
 
+def load_data_chunked(input_path: Path) -> pd.DataFrame:
+    """
+    Load data using chunked reading if file size > 5MB (T044).
+    """
+    file_size_bytes = input_path.stat().st_size
+    file_size_mb = file_size_bytes / (1024 * 1024)
+    
+    print(f"Input file size: {file_size_mb:.2f} MB")
+    
+    if file_size_mb > 5.0:
+        print("File size > 5MB. Using chunked loading (chunksize=1000).")
+        chunks = []
+        for chunk in pd.read_csv(input_path, chunksize=1000):
+            chunks.append(chunk)
+        df = pd.concat(chunks, ignore_index=True)
+    else:
+        print("File size <= 5MB. Loading directly.")
+        df = pd.read_csv(input_path)
+        
+    return df
+
 def run_engineering_pipeline():
     """
     Orchestrate engineering pipeline (T019).
+    Implements chunked loading (T044).
     """
     project_root = get_project_root()
     input_path = project_root / "data" / "processed" / "validated.csv"
@@ -79,8 +99,8 @@ def run_engineering_pipeline():
     if not input_path.exists():
         raise FileNotFoundError(f"Input data not found: {input_path}. Run T013-T018 first.")
 
-    # Load
-    df = pd.read_csv(input_path)
+    # Load with chunking logic (T044)
+    df = load_data_chunked(input_path)
     print(f"Loaded {len(df)} rows for engineering.")
 
     # Validate Size

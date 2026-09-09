@@ -1,63 +1,83 @@
-"""
-Train Random Forest model, perform CV, evaluate, and save metrics (T024, T025, T026, T027).
-This script produces the model artifact and the internal metrics file required by T028.
-"""
 import json
 import os
 import sys
 import pickle
+import time
 from pathlib import Path
 from typing import Tuple, Dict, Any, Optional
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import mean_absolute_error, r2_score
-
-# Ensure project root is in path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
 from config import get_project_root, get_random_seed, get_data_split_ratio
 
-def load_final_dataset(data_path: Path) -> pd.DataFrame:
-    """Load the final dataset from T020."""
-    if not data_path.exists():
-        raise FileNotFoundError(f"Final dataset not found: {data_path}")
-    return pd.read_csv(data_path)
+def load_final_dataset(filepath: Optional[str] = None) -> pd.DataFrame:
+    """Load the final processed dataset."""
+    if filepath is None:
+        project_root = get_project_root()
+        filepath = os.path.join(project_root, "data", "processed", "final_dataset.csv")
+    
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"Final dataset not found at {filepath}")
+    
+    return pd.read_csv(filepath)
 
 def split_data(df: pd.DataFrame, target_col: str = "time_to_peak_min") -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
-    Split data into train/test sets (80/20) stratified on binned target.
+    Split data into train/test sets.
+    Stratifies on binned target variable to ensure distribution preservation.
     """
     seed = get_random_seed()
-    ratio = get_data_split_ratio() # e.g., 0.2 for test size
-
-    # Create bins for stratification
-    df_temp = df.copy()
-    df_temp['bin'] = pd.qcut(df_temp[target_col], q=5, duplicates='drop')
-
-    train_df, test_df = train_test_split(
-        df_temp,
-        test_size=ratio,
-        random_state=seed,
-        stratify=df_temp['bin']
+    test_size = get_data_split_ratio()
+    
+    # Bin the target for stratification if variance exists
+    if df[target_col].std() > 0:
+        try:
+            # Create 10 bins for stratification
+            bins = pd.qcut(df[target_col], q=10, duplicates='drop')
+            stratify = bins
+        except ValueError:
+            # Fallback if qcut fails (e.g., too few unique values)
+            stratify = None
+            print("Warning: Stratification failed, using non-stratified split.")
+    else:
+        stratify = None
+    
+    X = df.drop(columns=[target_col])
+    y = df[target_col]
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=seed, stratify=stratify
     )
+    
+    return X_train, X_test, y_train, y_test
 
-    # Drop the bin column before returning features
-    train_features = train_df.drop(columns=[target_col, 'bin'])
-    test_features = test_df.drop(columns=[target_col, 'bin'])
-    train_target = train_df[target_col]
-    test_target = test_df[target_col]
-
-    return train_features, test_features, train_target, test_target
+def detect_pure_aluminum(df: pd.DataFrame) -> bool:
+    """
+    Detect if the dataset represents pure aluminum (zero variance in composition).
+    Checks Mn, Mg, Si, Cu columns.
+    """
+    composition_cols = ["Mn_wt", "Mg_wt", "Si_wt", "Cu_wt"]
+    # Ensure columns exist
+    if not all(col in df.columns for col in composition_cols):
+        return False
+    
+    # Check if std dev is effectively zero for all composition columns
+    return all(df[col].std() < 1e-9 for col in composition_cols)
 
 def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestRegressor:
-    """Train a Random Forest Regressor."""
+    """
+    Train a Random Forest Regressor.
+    Parameters: n_estimators=100, max_depth=None (default) to ensure runtime < 60 min on 10k rows.
+    """
+    # T043: Explicitly set n_estimators=100 and max_depth=None
     model = RandomForestRegressor(
         n_estimators=100,
+        max_depth=None,
         random_state=get_random_seed(),
-        n_jobs=-1 # Use all available CPU cores
+        n_jobs=-1  # Use all available CPU cores
     )
     model.fit(X_train, y_train)
     return model
@@ -65,14 +85,14 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series) -> RandomForestRegres
 def cross_validate_model(model: RandomForestRegressor, X: pd.DataFrame, y: pd.Series) -> Tuple[float, float]:
     """
     Perform 5-fold cross-validation.
-    Returns mean R2 and std R2.
+    Returns mean R2 and standard deviation.
     """
-    scores = cross_val_score(model, X, y, cv=5, scoring='r2')
+    scores = cross_val_score(model, X, y, cv=5, scoring='r2', n_jobs=-1)
     return scores.mean(), scores.std()
 
 def evaluate_model(model: RandomForestRegressor, X_test: pd.DataFrame, y_test: pd.Series) -> Tuple[float, float]:
     """
-    Evaluate model on held-out test set.
+    Evaluate model on test set.
     Returns MAE and R2.
     """
     y_pred = model.predict(X_test)
@@ -80,101 +100,96 @@ def evaluate_model(model: RandomForestRegressor, X_test: pd.DataFrame, y_test: p
     r2 = r2_score(y_test, y_pred)
     return mae, r2
 
-def save_model(model: RandomForestRegressor, model_path: Path):
-    """Save model to pickle file (T027)."""
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(model_path, 'wb') as f:
+def save_model(model: RandomForestRegressor, filepath: Optional[str] = None):
+    """Save the trained model using pickle protocol 4."""
+    if filepath is None:
+        project_root = get_project_root()
+        filepath = os.path.join(project_root, "artifacts", "models", "kinetic_model.pkl")
+    
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, "wb") as f:
         pickle.dump(model, f, protocol=4)
 
-def save_metrics(metrics: Dict[str, Any], metrics_path: Path):
-    """Save metrics to JSON file (internal for T028)."""
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(metrics_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-
-def detect_pure_aluminum(df: pd.DataFrame) -> bool:
-    """
-    Detect if the dataset is pure aluminum (zero variance in composition columns).
-    """
-    composition_cols = ['Mn_wt', 'Mg_wt', 'Si_wt', 'Cu_wt']
-    # Check if all composition columns exist
-    if not all(col in df.columns for col in composition_cols):
-        return False
+def save_metrics(metrics: Dict[str, Any], filepath: Optional[str] = None):
+    """Save training metrics to JSON."""
+    if filepath is None:
+        project_root = get_project_root()
+        filepath = os.path.join(project_root, "artifacts", "reports", "training_metrics.json")
     
-    # Check if standard deviation is zero for all composition columns
-    for col in composition_cols:
-        if df[col].std() != 0:
-            return False
-    return True
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, "w") as f:
+        json.dump(metrics, f, indent=2)
 
 def run_training_pipeline():
     """
-    Orchestrate the training pipeline:
-    1. Load final dataset
-    2. Detect pure aluminum
-    3. Split data
+    Main pipeline for training:
+    1. Load data
+    2. Split data
+    3. Detect pure aluminum
     4. Train model
     5. Cross-validate
-    6. Evaluate
+    6. Evaluate on test set
     7. Save model and metrics
     """
-    project_root = get_project_root()
-    data_path = project_root / "data" / "processed" / "final_dataset.csv"
-    model_path = project_root / "artifacts" / "models" / "kinetic_model.pkl"
-    metrics_path = project_root / "artifacts" / "reports" / "training_metrics_internal.json"
-
-    if not data_path.exists():
-        raise FileNotFoundError(f"Final dataset not found at {data_path}. Run T020 first.")
-
-    # 1. Load data
-    df = load_final_dataset(data_path)
+    print("Starting training pipeline...")
+    
+    # 1. Load Data
+    df = load_final_dataset()
     print(f"Loaded dataset with {len(df)} rows.")
-
-    # 2. Detect pure aluminum
-    pure_aluminum = detect_pure_aluminum(df)
-    if pure_aluminum:
-        print("WARNING: Pure aluminum dataset detected (zero variance in composition).")
-        print("Skipping interaction importance calculation (handled in T029/T038).")
-
-    # 3. Split data
+    
+    # Validate size limit (FR-003)
+    if len(df) > 10000:
+        print(f"Warning: Dataset size {len(df)} exceeds 10000. Truncating.")
+        df = df.head(10000)
+    
+    # 2. Split Data
     X_train, X_test, y_train, y_test = split_data(df)
     print(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
-
-    # 4. Train model
-    print("Training Random Forest model...")
+    
+    # 3. Detect Pure Aluminum
+    is_pure_al = detect_pure_aluminum(df)
+    if is_pure_al:
+        print("Detected Pure Aluminum dataset (zero variance in composition).")
+        print("Warning: Interaction terms may be invalid. Proceeding with main effects only logic if applicable.")
+    
+    # 4. Train Model
+    start_time = time.time()
     model = train_model(X_train, y_train)
-
-    # 5. Cross-validate
-    print("Performing 5-fold cross-validation...")
+    training_duration = time.time() - start_time
+    print(f"Model training completed in {training_duration:.2f} seconds.")
+    
+    # 5. Cross-Validate
     cv_mean, cv_std = cross_validate_model(model, X_train, y_train)
-    print(f"CV R2: {cv_mean:.4f} (+/- {cv_std:.4f})")
-
+    print(f"Cross-Validation R2: {cv_mean:.4f} (+/- {cv_std:.4f})")
+    
     # 6. Evaluate
-    print("Evaluating on test set...")
     test_mae, test_r2 = evaluate_model(model, X_test, y_test)
     print(f"Test MAE: {test_mae:.4f}, Test R2: {test_r2:.4f}")
-
-    # 7. Save artifacts
-    save_model(model, model_path)
-    print(f"Model saved to {model_path}")
-
+    
+    # 7. Save Artifacts
     metrics = {
-        "cv_r2_mean": cv_mean,
-        "cv_r2_std": cv_std,
-        "test_mae": test_mae,
-        "test_r2": test_r2,
-        "pure_aluminum_flag": pure_aluminum
+        "cv_r2_mean": float(cv_mean),
+        "cv_r2_std": float(cv_std),
+        "test_mae": float(test_mae),
+        "test_r2": float(test_r2),
+        "pure_aluminum_flag": is_pure_al,
+        "training_duration_seconds": float(training_duration),
+        "n_estimators": 100,
+        "max_depth": None
     }
-    save_metrics(metrics, metrics_path)
-    print(f"Internal metrics saved to {metrics_path}")
-
+    
+    save_model(model)
+    save_metrics(metrics)
+    
+    print("Training pipeline completed successfully.")
     return metrics
 
 def main():
+    """Entry point for the training script."""
     try:
         run_training_pipeline()
     except Exception as e:
-        print(f"Error in training pipeline: {e}", file=sys.stderr)
+        print(f"Error during training pipeline: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

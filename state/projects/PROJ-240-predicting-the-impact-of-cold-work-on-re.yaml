@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T07:16:50.555861Z'
-current_stage: analyzed
+current_stage: tasked
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-240-predicting-the-impact-of-cold-work-on-re
-last_run_id: c3b75fce-c7b0-4b7e-a6b2-ec2fce6b7f11
+last_run_id: 92adc8ef-608a-413a-81ab-3584391c4fce
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/specs/001-predicting-the-impact-of-cold-work-on-re
 title: Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum
   Alloys
-updated_at: '2026-09-08T20:51:27.646438Z'
+updated_at: '2026-09-09T06:00:25.625953Z'

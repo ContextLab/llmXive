@@ -1,49 +1,41 @@
-"""
-Directory creation for project artifacts.
-
-Creates the necessary directory structure for storing models,
-reports, figures, and processed data.
-"""
 import os
 from pathlib import Path
 
+
 def main():
     """
-    Create all required artifact directories.
-    
-    Creates directories under the project root for:
-    - data/raw, data/processed, data/split
-    - artifacts/models, artifacts/reports, artifacts/figures
+    Create the required artifacts subdirectories:
+    - artifacts/models
+    - artifacts/reports
+    - artifacts/figures
+
+    Creates .gitkeep files in each directory to ensure they are tracked by git.
     """
-    # Get project root
-    project_root = Path(__file__).parent.parent
-    
-    # Define directory structure
-    directories = [
-        "data/raw",
-        "data/processed",
-        "data/split",
-        "artifacts/models",
-        "artifacts/reports",
-        "artifacts/figures",
-    ]
-    
-    # Create directories
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
-    
-    # Create .gitkeep files to ensure directories are tracked
-    gitkeep_path = project_root / "data" / ".gitkeep"
-    if not gitkeep_path.exists():
-        gitkeep_path.touch()
-        print(f"Created .gitkeep in data/")
+    # Determine the project root based on the script location
+    # The script is located at code/create_artifact_dirs.py
+    # Project root is two levels up
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+    artifacts_root = project_root / "artifacts"
+
+    # Define the required subdirectories
+    subdirs = ["models", "reports", "figures"]
+
+    for subdir_name in subdirs:
+        dir_path = artifacts_root / subdir_name
         
-    gitkeep_path = project_root / "artifacts" / ".gitkeep"
-    if not gitkeep_path.exists():
+        # Create the directory if it doesn't exist
+        os.makedirs(dir_path, exist_ok=True)
+        
+        # Create .gitkeep file
+        gitkeep_path = dir_path / ".gitkeep"
         gitkeep_path.touch()
-        print(f"Created .gitkeep in artifacts/")
+        
+        print(f"Created directory: {dir_path}")
+        print(f"Created .gitkeep: {gitkeep_path}")
+
+    print("Artifact directory structure created successfully.")
+
 
 if __name__ == "__main__":
     main()
