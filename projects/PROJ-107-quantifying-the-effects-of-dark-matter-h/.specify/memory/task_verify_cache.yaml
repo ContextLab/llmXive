@@ -34,9 +34,49 @@ T010:
     \ Without this file, the task\u2019s core requirement is not satisfied."
 T017:
   c: false
-  h: 8bad2baedd9c92d581edc62550674c94f7f02113d9e5949e420e3c35cd17d63d
-  r: "The repository contains a `pipeline_runner.py` file, but the provided excerpt\
-    \ is truncated and does not demonstrate the required aggregation, validation of\
-    \ axial ratios, logging of excluded haloes, or writing of `data/processed/halo_shapes.csv`.\
-    \ Moreover, the expected output CSV file is absent from the `data/processed` directory.\
-    \ The task\u2019s core requirements are therefore not met."
+  h: 1a9d90cfbeaead29fb7281b53d39611293e7b82b10763716ed3f5b7b98897fea
+  r: The provided `pipeline_runner.py` is truncated and does not show the required
+    aggregation of chunk results, validation of axial ratios, logging of excluded
+    haloes, or writing of `data/processed/halo_shapes.csv`. Moreover, the expected
+    output CSV file is absent from the repository. Both the implementation and the
+    required output artifact are missing.
+T023:
+  c: false
+  h: fe740545a96e1255562c14ff1c735b28d4a1f67dd05444502e5eadd2a16242fc
+  r: The required `data/processed/halo_shapes.csv` file is absent, and the provided
+    `code/analysis/stats.py` (shown excerpt) contains no implementation of a linear
+    regression that uses `triaxiality`, `b_a_ratio`, and controls for halo mass. Both
+    the data input and the specific regression functionality are missing.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided that demonstrate the addition\
+    \ of logging for null\u2011hypothesis rejection flags (p\u202F<\u202F0.01). The\
+    \ implementer\u2019s claim lacks any concrete artifact (e.g., modified source\
+    \ files, unit tests, or example log output) to verify that the required logging\
+    \ was actually implemented."
+T030:
+  c: false
+  h: fdb1717ae93d7fd8c75c8e4383060c3edc15b1296c7c9a9572e63e3018650242
+  r: "The repository contains `code/analysis/sensitivity.py`, but the provided excerpt\
+    \ is truncated and does not show the full sweep, p\u2011value variance calculation,\
+    \ CSV output, or metadata update. Moreover, `data/processed/sensitivity_report.csv`\
+    \ is absent, and `data/metadata.yaml` shows no flag or status change for SC\u2011\
+    003. These missing artifacts mean the task\u2019s requirements are not satisfied."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No sensitivity report was supplied; there is no document, figure, or data file\
+    \ that compares significance rates and p\u2011value variance across different\
+    \ thresholds, nor any indication that it builds on the output of T030. Consequently\
+    \ the required artifact is missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files implementing the comparison between\
+    \ TNG\u2011100, Millennium\u2011II, and the WDM dataset are present. The task\
+    \ required a concrete implementation (e.g., a function or pipeline) that consumes\
+    \ the analysis results from T031\u2011Analyze and T031\u2011WDM\u2011Analyze and\
+    \ produces cross\u2011dataset comparison metrics or visualizations, but no such\
+    \ artifact is provided. The implementer must supply the actual implementation\
+    \ and its results."

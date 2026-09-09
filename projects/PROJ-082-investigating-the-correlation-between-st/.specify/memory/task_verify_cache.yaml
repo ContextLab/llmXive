@@ -1,13 +1,3 @@
-T008c:
-  c: false
-  h: 721cf7c4cc604e49985310781534563987ee46ed8ae746995566b49585af1884
-  r: "The provided `tract_counter.py` is truncated (it ends mid\u2011statement) so\
-    \ we cannot verify that it writes `{\"k\": 0}` when the input CSV is missing or\
-    \ empty, nor that it creates the required `data/derived/tract_count.json`. The\
-    \ script\u2019s full logic for handling the missing/empty case and actually saving\
-    \ the JSON output is absent. The missing input CSV and output JSON on disk are\
-    \ expected, but the implementation must demonstrably handle those cases, which\
-    \ the current artifact does not show."
 T012b:
   c: false
   h: 035c3490cf45b9f8035409b98a9dc315a3ef4fa643e384f5eba639a9c9ea9d71

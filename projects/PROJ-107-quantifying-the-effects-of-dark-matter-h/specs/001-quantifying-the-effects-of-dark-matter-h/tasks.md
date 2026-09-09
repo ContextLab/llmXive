@@ -75,12 +75,12 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [US1] Unit test for inertia tensor singularity handling in `code/tests/test_inertia.py`. **Depends on T012 completion** (Interface definition must exist before testing). <!-- ATOMIZE: requested -->
-- [ ] T010 [P] [US1] Integration test for TNG-100 download and chunk processing in `code/tests/test_pipeline.py`
+- [X] T009 [US1] Unit test for inertia tensor singularity handling in `code/tests/test_inertia.py`. **Depends on T012 completion** (Interface definition must exist before testing). <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Integration test for TNG-100 download and chunk processing in `code/tests/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement TNG-100 data fetcher in `code/ingestion/tng_loader.py`: Fetch static HDF files from `https://www.tng-project.org/api/v2/snapshots/000/halos` (specifically the list of HDF5 files for Snapshot 000) using `requests`, handling pagination and checksums. **Note**: Use the API to retrieve the list of files, then download specific HDF5 files.
+- [X] T011 [P] [US1] Implement TNG-100 data fetcher in `code/ingestion/tng_loader.py`: Fetch static HDF files from `https://www.tng-project.org/api/v2/snapshots/000/halos` (specifically the list of HDF5 files for Snapshot 000) using `requests`, handling pagination and checksums. **Note**: Use the API to retrieve the list of files, then download specific HDF5 files.
 - [X] T012 [P] [US1] Implement reduced inertia tensor calculation in `code/processing/inertia_tensor.py` (eigenvalue decomposition)
 - [X] T013 [US1] Implement shape metrics derivation (axial ratios, triaxiality) in `code/processing/shape_metrics.py`
 - [X] T014 [US1] Implement halo filtering logic (exclude N < 10,000 particles) in `code/processing/shape_metrics.py`
@@ -109,11 +109,11 @@
 - [X] T020 [US2] Implement shape binning logic (c/a < 0.5, 0.5-0.8, > 0.8) in `code/processing/shape_metrics.py`. **Depends on T013/T014 output**.
 - [X] T021 [US2] Implement mass-matching algorithm in `code/analysis/stats.py`: Use Nearest-Neighbor Matching with a moderate mass tolerance to control for confounding. **Do not use Propensity Score Stratification**.
 - [X] T022 [US2] Implement non-parametric tests (Kruskal-Wallis, Mann-Whitney U, KS) in `code/analysis/stats.py`
-- [~] T023 [US2] Implement linear regression with mass control in `code/analysis/stats.py`: Perform regression of galaxy property ~ continuous shape parameters (**specifically 'triaxiality' and 'b_a_ratio' columns from `data/processed/halo_shapes.csv`**) controlling for halo mass.
+- [ ] T023 [US2] Implement linear regression with mass control in `code/analysis/stats.py`: Perform regression of galaxy property ~ continuous shape parameters (**specifically 'triaxiality' and 'b_a_ratio' columns from `data/processed/halo_shapes.csv`**) controlling for halo mass.
 - [X] T024 [US2] Implement Bonferroni correction for multiple comparisons in `code/analysis/stats.py`
 - [X] T025 [US2] Create analysis script to generate `data/processed/statistical_results.csv`
-- [~] T026 [US2] Add metadata flag `associational_only=true` to **ALL** output datasets: `data/processed/halo_shapes.csv`, `data/processed/statistical_results.csv`, `data/processed/sensitivity_report.csv`, `data/processed/millennium_results.csv`, and `data/processed/alignment_angles.csv`. **Note**: This task must be completed before T030 and T038 generate their files, or T030/T038 must integrate this logic.
-- [~] T027 [US2] Add logging for null hypothesis rejection flags (p < 0.01)
+- [ ] T026 [US2] Add metadata flag `associational_only=true` to **ALL** output datasets: `data/processed/halo_shapes.csv`, `data/processed/statistical_results.csv`, `data/processed/sensitivity_report.csv`, `data/processed/millennium_results.csv`, and `data/processed/alignment_angles.csv`. **Note**: This task must be completed before T030 and T038 generate their files, or T030/T038 must integrate this logic.
+- [ ] T027 [US2] Add logging for null hypothesis rejection flags (p < 0.01)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,14 +134,14 @@
 ### Implementation for User Story 3
 
 - [X] T029 [US3] Implement Millennium-II and WDM variant data fetcher in `code/ingestion/millennium_loader.py`. **Action**: Attempt to fetch Millennium-II and WDM variant snapshots. **If URLs are unverified or data is missing**: Log the specific gap to `data/metadata.yaml` and the final report, mark SC-004 as 'Not Measurable' in the report, and proceed with TNG-100 only. **Do not skip by design**; the task is to attempt fetch and log the specific gap.
-- [~] T030 [US3] Implement sensitivity analysis script in `code/analysis/sensitivity.py`: Sweep thresholds over a representative set of values spanning low to high confidence levels. Compute stats for each, output `data/processed/sensitivity_report.csv`. **Action**: Calculate the p-value variance across the set and verify it is ≤ 0.001 per SC-003. **If variance > 0.001**: Flag the result as 'FAILED_SC-003' in the report and update `data/metadata.yaml`. **Depends on T026** to ensure flag is applied.
+- [ ] T030 [US3] Implement sensitivity analysis script in `code/analysis/sensitivity.py`: Sweep thresholds over a representative set of values spanning low to high confidence levels. Compute stats for each, output `data/processed/sensitivity_report.csv`. **Action**: Calculate the p-value variance across the set and verify it is ≤ 0.001 per SC-003. **If variance > 0.001**: Flag the result as 'FAILED_SC-003' in the report and update `data/metadata.yaml`. **Depends on T026** to ensure flag is applied.
 - [ ] T031-Fetch [US3] Create script to fetch Millennium-II data (if available) and output `data/raw/millennium/`. **Depends on T029**.
 - [ ] T031-Process [US3] Run ingestion and shape computation pipeline on Millennium-II data (if fetched). **Depends on T031-Fetch**.
 - [ ] T031-Analyze [US3] Run full statistical analysis on Millennium-II data (if processed) and output `data/processed/millennium_results.csv`. **Depends on T031-Process**.
 - [ ] T031-WDM-Fetch [US3] Attempt to fetch WDM variant snapshots (if available). **If missing**: Log gap to `data/metadata.yaml`, mark SC-004 as 'Not Measurable', and proceed. **Depends on T029**.
 - [ ] T031-WDM-Analyze [US3] Run full statistical analysis on WDM data (if fetched) and output `data/processed/wdm_results.csv`. **Depends on T031-WDM-Fetch**.
-- [~] T032 [US3] Generate sensitivity report comparing significance rates and p-value variance across thresholds. **Depends on T030**.
-- [~] T033 [US3] Implement cross-dataset comparison logic (TNG-100 vs Millennium-II vs WDM). **Depends on T031-Analyze and T031-WDM-Analyze**. <!-- FAILED: unspecified -->
+- [ ] T032 [US3] Generate sensitivity report comparing significance rates and p-value variance across thresholds. **Depends on T030**.
+- [ ] T033 [US3] Implement cross-dataset comparison logic (TNG-100 vs Millennium-II vs WDM). **Depends on T031-Analyze and T031-WDM-Analyze**. <!-- FAILED: unspecified -->
 - [~] T034 [US3] Update final report generation to include robustness conclusions.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -163,10 +163,10 @@
 ### Implementation for User Story 4
 
 - [X] T036 [US4] Implement spin vector and major axis calculation in `code/processing/alignment.py`. **Depends on T017**.
-- [ ] T037 [US4] Implement misalignment angle computation (halo-galaxy pairs) in `code/processing/alignment.py`.
+- [X] T037 [US4] Implement misalignment angle computation (halo-galaxy pairs) in `code/processing/alignment.py`.
 - [ ] T038 [US4] Create script to generate `data/processed/alignment_angles.csv`. **Must apply `associational_only=true` flag to this file (integrate T026 logic)**. **Depends on T026**.
-- [ ] T039 [US4] Implement correlation analysis for misalignment angles vs galaxy properties (SFR, radius).
-- [ ] T040 [US4] Integrate misalignment results into final statistical report.
+- [~] T039 [US4] Implement correlation analysis for misalignment angles vs galaxy properties (SFR, radius).
+- [~] T040 [US4] Integrate misalignment results into final statistical report.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -176,7 +176,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Documentation updates in `docs/` and `README.md`
+- [~] T041 [P] Documentation updates in `docs/` and `README.md`
 - [ ] T042 Code cleanup and refactoring
 - [ ] T043 Performance optimization (ensure <6h runtime on 2 CPU/7GB RAM)
 - [ ] T044 [P] Additional unit tests for edge cases (singular matrices, outliers)

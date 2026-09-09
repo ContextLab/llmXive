@@ -44,3 +44,30 @@ T024:
     V range and the known 4\u202FV mapping limitation. The implementer must supply\
     \ the actual implementation (e.g., a script or notebook) and its output demonstrating\
     \ the identified descriptors and the required spec commentary."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or output artifact implementing the rank\u2011stability\
+    \ check is present; the claim provides no evidence that the top\u20113 descriptor\
+    \ rankings are verified to shift by \u22641 position across the sweep. The required\
+    \ implementation and its validation are missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a final report file or snippet) containing the required warning
+    flag is provided; without evidence of the statement being added to the report,
+    the task is not satisfied. The implementer must supply the updated report showing
+    the exact warning text.
+T035b:
+  c: false
+  h: decc946541c5b8e8412ff0238a826a4670ac7386e31581b5ecf0df3d0d220b32
+  r: The required file `docs/research.md` is missing from the repository, so no methodology,
+    data source information, or deviation note has been provided. The task cannot
+    be considered completed until the file exists and contains the specified content.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No cleaned or refactored code files from the `code/` directory were provided;
+    there is no evidence of changes, documentation, or tests that would demonstrate
+    the claimed cleanup. The implementer must supply the updated `code/` modules (e.g.,
+    revised .py files, a changelog, or a diff) showing the refactoring work.

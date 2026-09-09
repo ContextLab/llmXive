@@ -1,1 +1,3 @@
-# Tests package
+"""
+Test suite for the research pipeline.
+"""

@@ -1,6 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T076** — The provided `code/data/audit_trail.py` is truncated (the `log_attempt` entry dictionary is incomplete) and thus does not contain a functional implementation. Moreover, there is no evidence that `data_source_report.md` references the audit trail as required. The task’s required artifacts are either missing or not fully realized.
-- **T078** — The provided `tests/integration/test_narrative_pivot.py` file is present, but the excerpt stops before any test function or assertions are shown. There is no visible code that runs the pipeline, checks `meta_results.json` for `synthesis_mode: "narrative"` and `pivot_reason: "Insufficient studies"`, or asserts that `forest_plot.png`, Egger’s test output, and Bonferroni correction files are absent. The required verification logic is therefore missing.

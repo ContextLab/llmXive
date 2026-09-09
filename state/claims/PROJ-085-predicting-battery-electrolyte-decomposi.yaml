@@ -623,3 +623,109 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T23:14:52Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Dalton unit defined on Wikipedia
+  claim_id: c_3785cb6a
+  context: 'Create code/utils/constants.py with: 1. {{claim:c_1a09f818}} (Wikipedia:
+    Dalton (unit), https://en.wikipedia.org/wiki/Dalton_(unit))'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dalton_unit_defined_on_Wikipedia
+  kind: entity_fact
+  raw_text: 'Wikipedia: Dalton (unit), https://en.wikipedia.org/wiki/Dalton_(unit)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T18:40:45Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: DFT electrolyte dataset ID materialsproject/mp-dft-electrolytes
+  claim_id: c_6c79e134
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFT_electrolyte_dataset_ID_materialsproject/mp-dft-electroly
+  kind: entity_fact
+  raw_text: 'HuggingFace dataset ID: materialsproject/mp-dft-electrolytes'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T18:41:07Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset materialsproject/mp-dft-electrolytes used for DFT
+    data
+  claim_id: c_475eed91
+  context: 'Implement code/data/ingestion.py to fetch and filter DFT data from HuggingFace
+    dataset ID: materialsproject/mp-dft-electrolytes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_materialsproject/mp-dft-electrolytes_use
+  kind: entity_fact
+  raw_text: The project uses the materialsproject/mp-dft-electrolytes dataset from
+    HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T18:42:53Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Python 3.10 project
+  claim_id: c_f784eb66
+  context: Initialize Python 3.10 project with requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T18:43:30Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Dataset includes EC, DMC, and LiPF6 molecules
+  claim_id: c_9a79cfb2
+  context: Ingest pre-computed DFT structures from HuggingFace/NOMAD, filter for EC/DMC/LiPF6.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_includes_EC,_DMC,_and_LiPF6_molecules
+  kind: entity_fact
+  raw_text: The dataset includes EC, DMC, and LiPF6 molecules.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T18:43:57Z'
+- artifact_path: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi/tasks.md
+  attempts: 1
+  canonical: Potentials analyzed at 0V, 2V, and 4V
+  claim_id: c_40f85431
+  context: Populate code/utils/reactions.yaml with hardcoded reaction data for EC,
+    DMC, LiPF6 at potentials 0V, 2V, 4V.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Potentials_analyzed_at_0V,_2V,_and_4V
+  kind: entity_fact
+  raw_text: The project analyzes potentials at 0V, 2V, and 4V.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T18:44:19Z'

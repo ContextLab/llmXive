@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
@@ -8,142 +9,111 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from config import get_project_root, get_validation_dir, get_processed_dir
-from models.evaluator import load_model_artifacts
-from data.binning import load_processed_features
+from utils.logging_config import get_logger
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def load_importance_data() -> Optional[pd.DataFrame]:
+def load_importance_data(importance_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Load model artifacts and extract permutation importance for low and high potential bins.
-    Returns a DataFrame with feature names and importance scores for each bin.
+    Load feature importance data from the model run JSON file.
+    Expects a structure like:
+    {
+      "bins": {
+        "low_potential": {"feature_importance": {...}},
+        "high_potential": {"feature_importance": {...}}
+      }
+    }
     """
-    try:
-        # Load the model artifacts which contain importance data
-        artifacts_path = get_processed_dir() / "model_run.json"
-        if not artifacts_path.exists():
-            logger.error(f"Model artifacts not found at {artifacts_path}. Run trainer first.")
-            return None
+    if importance_path is None:
+        processed_dir = get_processed_dir()
+        importance_path = str(processed_dir / "model_run.json")
 
-        model_data = load_model_artifacts()
-        
-        if 'importance' not in model_data:
-            logger.error("No importance data found in model artifacts.")
-            return None
+    if not os.path.exists(importance_path):
+        raise FileNotFoundError(f"Importance data file not found: {importance_path}")
 
-        # Structure expected: {'low': {feature: score}, 'high': {feature: score}}
-        importance_data = model_data.get('importance', {})
-        
-        if 'low' not in importance_data or 'high' not in importance_data:
-            logger.error("Importance data missing 'low' or 'high' bin keys.")
-            return None
+    with open(importance_path, 'r') as f:
+        data = json.load(f)
 
-        # Convert to DataFrame
-        df = pd.DataFrame({
-            'feature': list(importance_data['low'].keys()),
-            'low_importance': list(importance_data['low'].values()),
-            'high_importance': list(importance_data['high'].values())
-        })
-        
-        return df
-        
-    except Exception as e:
-        logger.error(f"Error loading importance data: {e}")
-        return None
+    bins_data = data.get("bins", {})
+    
+    rows = []
+    for bin_name, bin_info in bins_data.items():
+        importance_dict = bin_info.get("feature_importance", {})
+        for feature, importance in importance_dict.items():
+            rows.append({
+                "bin": bin_name,
+                "feature": feature,
+                "importance": importance
+            })
+
+    df = pd.DataFrame(rows)
+    if df.empty:
+        raise ValueError("No feature importance data found in the model run file.")
+    
+    return df
 
 def get_top_features(df: pd.DataFrame, n_top: int = 10) -> pd.DataFrame:
     """
-    Select the top N features based on average importance across both bins.
+    Get the top N features by importance for each bin.
     """
-    if df is None or df.empty:
-        return pd.DataFrame()
-
-    df['avg_importance'] = (df['low_importance'] + df['high_importance']) / 2
-    df_sorted = df.sort_values(by='avg_importance', ascending=False)
-    return df_sorted.head(n_top)
-
-def create_heatmap(df: pd.DataFrame, output_path: Path) -> bool:
-    """
-    Create a heatmap visualization of top features per bin and save to file.
-    """
-    if df is None or df.empty:
-        logger.error("No data provided for heatmap.")
-        return False
-
-    # Prepare data for heatmap: index=features, columns=bins
-    heatmap_data = df.set_index('feature')[['low_importance', 'high_importance']]
+    top_features = []
+    for bin_name in df["bin"].unique():
+        bin_df = df[df["bin"] == bin_name].nlargest(n_top, "importance")
+        top_features.append(bin_df)
     
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not top_features:
+        return pd.DataFrame(columns=["bin", "feature", "importance"])
+    
+    return pd.concat(top_features, ignore_index=True)
 
-    # Set style
-    sns.set_theme(style="white")
+def create_heatmap(df: pd.DataFrame, output_path: Optional[str] = None) -> None:
+    """
+    Create a heatmap of top features per bin and save to file.
+    """
+    if df.empty:
+        raise ValueError("Cannot create heatmap from empty dataframe.")
+
+    # Pivot the data to have bins as rows and features as columns
+    pivot_df = df.pivot_table(index="feature", columns="bin", values="importance", aggfunc='first')
+    
+    # Sort by mean importance to make the heatmap more readable
+    pivot_df = pivot_df.loc[pivot_df.mean(axis=1).sort_values(ascending=False).index]
+
     plt.figure(figsize=(10, 8))
+    sns.heatmap(pivot_df, annot=True, fmt=".3f", cmap="YlGnBu", linewidths=.5)
+    plt.title("Feature Importance Heatmap by Potential Bin")
+    plt.ylabel("Feature")
+    plt.xlabel("Potential Bin")
     
-    # Create heatmap
-    ax = sns.heatmap(
-        heatmap_data,
-        annot=True,
-        fmt=".3f",
-        cmap="YlGnBu",
-        linewidths=.5,
-        cbar_kws={'label': 'Permutation Importance'}
-    )
+    if output_path is None:
+        validation_dir = get_validation_dir()
+        output_path = str(validation_dir / "feature_importance_heatmap.png")
     
-    plt.title('Feature Importance: Low (0-2V) vs High (4V) Potential Bins', fontsize=14)
-    plt.ylabel('Top Features')
-    plt.xlabel('Potential Bin')
-    
-    # Rotate x-axis labels if needed
-    plt.xticks(rotation=0)
-    plt.yticks(rotation=0)
-    
-    # Save
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.savefig(output_path, dpi=300)
     plt.close()
-    
     logger.info(f"Heatmap saved to {output_path}")
-    return True
 
-def run_visualization_pipeline() -> bool:
+def run_visualization_pipeline(importance_path: Optional[str] = None, output_path: Optional[str] = None, n_top: int = 10) -> None:
     """
-    Main pipeline to generate the feature importance heatmap.
+    Run the full pipeline to load importance data, filter top features, and create heatmap.
     """
     logger.info("Starting feature importance visualization pipeline...")
     
-    # Load data
-    importance_df = load_importance_data()
-    if importance_df is None:
-        logger.error("Failed to load importance data. Aborting.")
-        return False
-    
-    # Get top features
-    top_df = get_top_features(importance_df, n_top=10)
-    if top_df.empty:
-        logger.error("No features found. Aborting.")
-        return False
-    
-    # Define output path
-    output_dir = get_validation_dir()
-    output_path = output_dir / "feature_importance_heatmap.png"
-    
-    # Create and save heatmap
-    success = create_heatmap(top_df, output_path)
-    
-    if success:
-        logger.info("Visualization pipeline completed successfully.")
-    else:
-        logger.error("Visualization pipeline failed.")
+    try:
+        importance_df = load_importance_data(importance_path)
+        logger.info(f"Loaded {len(importance_df)} importance records.")
         
-    return success
+        top_df = get_top_features(importance_df, n_top=n_top)
+        logger.info(f"Selected top {n_top} features per bin.")
+        
+        create_heatmap(top_df, output_path)
+        
+        logger.info("Feature importance visualization pipeline completed successfully.")
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     run_visualization_pipeline()

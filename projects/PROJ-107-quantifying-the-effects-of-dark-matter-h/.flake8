@@ -1,4 +1,16 @@
 [flake8]
-max-line-length = 100
-exclude = .git,__pycache__,build,dist
-ignore = E501,W503
+max-line-length = 88
+extend-ignore = E501, B008
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info,
+    .tox,
+    .venv
+per-file-ignores =
+    code/__init__.py:F401
+    code/tests/*:D100,D101,D102,D103
+max-complexity = 15
