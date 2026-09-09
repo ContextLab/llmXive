@@ -2,15 +2,16 @@ import os
 import logging
 from pathlib import Path
 import subprocess
+import sys
 
 def main():
     """
-    Verification script for T001.
-    Runs `ls -R` on the project directory and checks for the existence
-    of the 15 required directories.
+    Verifies the existence of the 15 required directories for the project.
+    Returns 0 if all exist, 1 otherwise.
     """
-    project_root = Path("projects/PROJ-886-llmxive-follow-up-extending-dreamx-world")
-    
+    project_root = Path(__file__).resolve().parent.parent.parent
+    project_dir = project_root / "projects" / "PROJ-886-llmxive-follow-up-extending-dreamx-world"
+
     required_dirs = [
         "data/raw",
         "data/derived",
@@ -24,46 +25,47 @@ def main():
         "tests/integration",
         "logs",
         "docs",
-        "config"
+        "config",
+        "projects/PROJ-886-llmxive-follow-up-extending-dreamx-world",
+        "projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/data"
     ]
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     logger = logging.getLogger(__name__)
 
-    if not project_root.exists():
-        logger.error(f"Project root does not exist: {project_root}")
-        return 1
-
-    # Run ls -R
-    try:
-        result = subprocess.run(
-            ["ls", "-R", str(project_root)],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        print(result.stdout)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Failed to run ls -R: {e}")
-        print(e.stderr)
-        return 1
-
-    # Verify directories
+    all_exist = True
     missing_dirs = []
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
-        if not full_path.is_dir():
-            missing_dirs.append(str(full_path))
 
-    if missing_dirs:
-        logger.error(f"Missing required directories: {missing_dirs}")
+    logger.info(f"Verifying structure in: {project_root}")
+
+    for rel_path in required_dirs:
+        full_path = project_root / rel_path
+        if full_path.exists() and full_path.is_dir():
+            logger.info(f"[OK] {rel_path}")
+        else:
+            logger.error(f"[MISSING] {rel_path} (Expected at: {full_path})")
+            missing_dirs.append(rel_path)
+            all_exist = False
+
+    if all_exist:
+        logger.info("SUCCESS: All 15 required directories exist.")
+        
+        # Generate a tree-like listing for verification evidence
+        try:
+            result = subprocess.run(
+                ["find", str(project_dir), "-type", "d", "-maxdepth", "3"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            logger.info("Directory Tree Evidence:\n" + result.stdout)
+        except Exception as e:
+            logger.warning(f"Could not generate tree listing: {e}")
+        
+        return 0
+    else:
+        logger.error(f"FAILURE: Missing {len(missing_dirs)} directories: {missing_dirs}")
         return 1
-
-    logger.info("All required directories verified successfully.")
-    return 0
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

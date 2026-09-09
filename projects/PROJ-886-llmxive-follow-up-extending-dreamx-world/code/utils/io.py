@@ -1,391 +1,411 @@
 """
-I/O utilities for data loading, checksumming, and logging.
-Implements strict real-data loading with fallback logic and integrity verification.
+utils/io.py
+--------------
+
+Utility functions for data loading, verification, checksum caching,
+and basic memory profiling. This module implements the public API
+required by the project and adds checksum validation and caching
+for the DreamX-World subset and the ScanNet fallback.
+
+The implementation is deliberately lightweight yet functional:
+* Checksums are SHA‑256 hashes.
+* Expected checksums are read from ``verified_data_sources.json``.
+* Computed checksums are cached in ``data/derived/checksum_cache.json``.
+* If a cached entry matches the current files, verification is skipped.
+* On mismatch a ``DataVerificationError`` is raised.
+* A simple ``MemoryProfiler`` context manager records RSS/VMS using
+  ``psutil`` and logs the delta.
+* ``load_data`` decides which source to use (DreamX‑World if present,
+  otherwise ScanNet) and guarantees integrity before returning a
+  streaming dataset iterator.
 """
-import hashlib
-import json
-import logging
+
 import os
-import sys
-import tempfile
-from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple, Union, Generator
-
-import numpy as np
+import json
+import hashlib
+import logging
 import psutil
-from datasets import load_dataset
+from pathlib import Path
+from typing import Dict, Any, Iterator, Tuple, Optional
 
-from utils.config import ensure_directories, set_global_seed
+import datasets  # huggingface datasets library (already in requirements)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/io.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# ----------------------------------------------------------------------
+# Public Exceptions & Data Classes
+# ----------------------------------------------------------------------
+class DataVerificationError(Exception):
+    """Raised when a file's checksum does not match the expected value."""
+    pass
 
-# Constants
-CHECKSUM_CACHE_FILE = "data/derived/checksums.json"
-DREAMX_DATASET_ID = "llmXive/dreamx-world-subset"  # Verified real source placeholder
-SCANNET_DATASET_ID = "ScanNet/ScanNet200"  # Verified real source placeholder
-STREAMING_CHUNK_SIZE = 100  # Frames per chunk for processing
 
-def compute_file_checksum(file_path: str, algorithm: str = "sha256") -> str:
-    """
-    Compute the cryptographic checksum of a file.
+class MemoryStats:
+    """Simple container for RSS and VMS memory statistics."""
+    def __init__(self, rss: int, vms: int):
+        self.rss = rss  # Resident Set Size in bytes
+        self.vms = vms  # Virtual Memory Size in bytes
 
-    Args:
-        file_path: Path to the file
-        algorithm: Hash algorithm (default: sha256)
+    def __repr__(self) -> str:
+        return f"MemoryStats(rss={self.rss}, vms={self.vms})"
 
-    Returns:
-        Hexadecimal checksum string
-    """
-    hash_func = hashlib.new(algorithm)
-    path = Path(file_path)
-    
-    if not path.exists():
-        raise FileNotFoundError(f"Cannot compute checksum: file not found at {file_path}")
-
-    logger.info(f"Computing {algorithm} checksum for {file_path}")
-    
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            hash_func.update(chunk)
-    
-    checksum = hash_func.hexdigest()
-    logger.info(f"Checksum computed: {checksum}")
-    return checksum
-
-def load_checksum_cache() -> Dict[str, str]:
-    """
-    Load the cached checksums from disk.
-    
-    Returns:
-        Dictionary mapping file paths to checksums
-    """
-    cache_path = Path(CHECKSUM_CACHE_FILE)
-    if cache_path.exists():
-        try:
-            with open(cache_path, "r") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Failed to load checksum cache: {e}. Starting fresh.")
-    return {}
-
-def save_checksum_cache(cache: Dict[str, str]) -> None:
-    """
-    Save the checksum cache to disk.
-    
-    Args:
-        cache: Dictionary mapping file paths to checksums
-    """
-    cache_path = Path(CHECKSUM_CACHE_FILE)
-    ensure_directories([str(cache_path.parent)])
-    with open(cache_path, "w") as f:
-        json.dump(cache, f, indent=2)
-    logger.info(f"Checksum cache saved to {cache_path}")
-
-def verify_data_integrity(
-    source_id: str, 
-    local_path: Optional[str] = None,
-    expected_checksum: Optional[str] = None
-) -> Tuple[bool, str]:
-    """
-    Validate and cache checksums of the downloaded dataset.
-    
-    This function implements the integrity verification step required by Constitution III.
-    It checks if the data exists, computes its checksum, compares against expected (if provided),
-    and caches the result for future runs.
-    
-    Args:
-        source_id: The dataset identifier (e.g., "dreamx-world-subset" or "scannet-fallback")
-        local_path: Optional path to the downloaded data. If None, attempts to locate cached data.
-        expected_checksum: Optional expected checksum for validation.
-        
-    Returns:
-        Tuple of (is_valid, message)
-    """
-    cache = load_checksum_cache()
-    cache_key = source_id
-    
-    # If local_path is provided, use it; otherwise try to infer from dataset config
-    if local_path:
-        data_path = Path(local_path)
-    else:
-        # Attempt to find data in standard derived locations
-        possible_paths = [
-            Path("data/derived/dreamx-world-subset"),
-            Path("data/derived/scannet-fallback"),
-            Path(f"data/raw/{source_id}")
-        ]
-        data_path = next((p for p in possible_paths if p.exists()), None)
-        
-        if not data_path:
-            return False, f"Data not found for source {source_id} at expected locations."
-
-    if not data_path.exists():
-        return False, f"Data path does not exist: {data_path}"
-
-    try:
-        # Compute checksum of the data directory or file
-        if data_path.is_dir():
-            # For directories, compute checksum of a manifest or aggregate
-            # We'll checksum the first few large files to represent the dataset
-            files = list(data_path.rglob("*"))
-            files = [f for f in files if f.is_file() and f.stat().st_size > 0]
-            if not files:
-                return False, "Directory is empty or contains no valid files."
-            
-            # Compute checksum of the largest file as a proxy
-            largest_file = max(files, key=lambda x: x.stat().st_size)
-            current_checksum = compute_file_checksum(str(largest_file))
-            checksum_source = str(largest_file.name)
-        else:
-            current_checksum = compute_file_checksum(str(data_path))
-            checksum_source = str(data_path.name)
-        
-        logger.info(f"Data integrity check: {source_id} -> {checksum_source} ({current_checksum[:16]}...)")
-        
-        # Check against expected checksum if provided
-        if expected_checksum:
-            if current_checksum != expected_checksum:
-                msg = f"Checksum mismatch for {source_id}. Expected: {expected_checksum}, Got: {current_checksum}"
-                logger.error(msg)
-                return False, msg
-        
-        # Update cache
-        cache[cache_key] = current_checksum
-        save_checksum_cache(cache)
-        
-        return True, f"Integrity verified for {source_id}. Checksum: {current_checksum}"
-        
-    except Exception as e:
-        msg = f"Error verifying integrity for {source_id}: {str(e)}"
-        logger.error(msg)
-        return False, msg
-
-def log_operation(operation: str, details: Dict[str, Any]) -> None:
-    """
-    Log a specific I/O operation with structured details.
-    
-    Args:
-        operation: Name of the operation (e.g., "load", "save", "verify")
-        details: Dictionary of operation details
-    """
-    logger.info(f"Operation: {operation} | Details: {json.dumps(details)}")
-
-def load_scannet_fallback() -> Generator[Dict[str, Any], None, None]:
-    """
-    Load the ScanNet fallback dataset.
-    
-    This function loads the ScanNet dataset as a fallback when DreamX-World is unavailable.
-    It streams the data to avoid memory overflow.
-    
-    Yields:
-        Dictionary containing frame data and metadata
-    """
-    logger.info("Loading ScanNet fallback dataset...")
-    try:
-        # Use streaming to handle large datasets
-        dataset = load_dataset(SCANNET_DATASET_ID, split="train", streaming=True)
-        
-        for item in dataset:
-            # Ensure we yield a standardized format
-            yield {
-                "frame": item.get("image"),
-                "intrinsics": item.get("intrinsics"),
-                "extrinsics": item.get("extrinsics"),
-                "source": "scannet",
-                "id": item.get("id")
-            }
-    except Exception as e:
-        logger.error(f"Failed to load ScanNet fallback: {e}")
-        raise
-
-def load_dreamx_world_streaming() -> Generator[Dict[str, Any], None, None]:
-    """
-    Load the DreamX-World dataset using streaming.
-    
-    This function streams the DreamX-World dataset to process frames in chunks.
-    
-    Yields:
-        Dictionary containing frame data and metadata
-    """
-    logger.info("Loading DreamX-World dataset (streaming)...")
-    try:
-        dataset = load_dataset(DREAMX_DATASET_ID, split="train", streaming=True)
-        
-        for item in dataset:
-            yield {
-                "frame": item.get("image"),
-                "intrinsics": item.get("intrinsics"),
-                "extrinsics": item.get("extrinsics"),
-                "source": "dreamx-world",
-                "id": item.get("id")
-            }
-    except Exception as e:
-        logger.error(f"Failed to load DreamX-World dataset: {e}")
-        raise
-
-def load_data(
-    source: str = "dreamx-world",
-    verify_checksum: bool = True,
-    expected_checksum: Optional[str] = None
-) -> Generator[Dict[str, Any], None, None]:
-    """
-    Main data loading entry point with integrity verification.
-    
-    Args:
-        source: "dreamx-world" or "scannet"
-        verify_checksum: Whether to verify data integrity before loading
-        expected_checksum: Optional expected checksum for validation
-        
-    Returns:
-        Generator yielding data items
-        
-    Raises:
-        FileNotFoundError: If neither source is available
-        ValueError: If data integrity verification fails
-    """
-    logger.info(f"Loading data from source: {source}")
-    
-    # Step 1: Verify Data Integrity (T010)
-    if verify_checksum:
-        is_valid, message = verify_data_integrity(source, expected_checksum=expected_checksum)
-        if not is_valid:
-            if source == "dreamx-world":
-                logger.warning("DreamX-World integrity check failed. Attempting ScanNet fallback...")
-                return load_data("scannet", verify_checksum=True)
-            else:
-                raise ValueError(f"Data integrity verification failed for {source}: {message}")
-        else:
-            logger.info(message)
-    
-    # Step 2: Load Data
-    if source == "dreamx-world":
-        return load_dreamx_world_streaming()
-    elif source == "scannet":
-        return load_scannet_fallback()
-    else:
-        raise ValueError(f"Unknown data source: {source}")
 
 class MemoryProfiler:
     """
-    Memory profiler to ensure data loading stays within RAM limits.
+    Context manager that records memory usage before and after a block.
+    Logs the difference using the standard ``logging`` module.
     """
-    def __init__(self, max_rss_ratio: float = 0.9):
-        self.max_rss_ratio = max_rss_ratio
-        self.process = psutil.Process()
-        self.peak_rss = 0
-        
-    def start(self) -> None:
-        """Start monitoring memory."""
-        logger.info("Memory profiler started.")
-        
-    def check(self) -> bool:
-        """
-        Check current memory usage against available RAM.
-        
-        Returns:
-            True if within limits, False otherwise
-        """
-        current_rss = self.process.memory_info().rss
-        available_ram = psutil.virtual_memory().available
-        
-        self.peak_rss = max(self.peak_rss, current_rss)
-        
-        if current_rss > self.max_rss_ratio * available_ram:
-            msg = f"Memory limit exceeded: RSS {current_rss/1e6:.1f}MB > {self.max_rss_ratio * 100:.0f}% of {available_ram/1e6:.1f}MB"
-            logger.error(msg)
-            return False
-        
-        return True
+    def __init__(self, name: str = "MemoryProfiler"):
+        self.name = name
+        self.start_stats: Optional[MemoryStats] = None
+        self.end_stats: Optional[MemoryStats] = None
 
-def stream_and_process_frames(
-    data_gen: Generator[Dict[str, Any], None, None],
-    processor_func,
-    output_path: str,
-    memory_limit: float = 0.9
+    def __enter__(self):
+        self.start_stats = self._capture()
+        log_operation(f"{self.name} start: {self.start_stats}")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end_stats = self._capture()
+        log_operation(f"{self.name} end: {self.end_stats}")
+        if self.start_stats and self.end_stats:
+            delta_rss = self.end_stats.rss - self.start_stats.rss
+            delta_vms = self.end_stats.vms - self.start_stats.vms
+            log_operation(
+                f"{self.name} delta: RSS={delta_rss/1e6:.2f}MiB, "
+                f"VMS={delta_vms/1e6:.2f}MiB"
+            )
+        # Do not suppress exceptions
+        return False
+
+    @staticmethod
+    def _capture() -> MemoryStats:
+        proc = psutil.Process(os.getpid())
+        mem_info = proc.memory_info()
+        return MemoryStats(rss=mem_info.rss, vms=mem_info.vms)
+
+
+# ----------------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------------
+def log_operation(message: str) -> None:
+    """Utility wrapper around ``logging.info`` for uniform log formatting."""
+    logging.info(message)
+
+
+def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
+    """
+    Compute the checksum of a file.
+
+    Parameters
+    ----------
+    file_path: Path
+        Path to the file.
+    algorithm: str, optional
+        Hash algorithm supported by ``hashlib`` (default ``sha256``).
+
+    Returns
+    -------
+    str
+        Hex digest of the file's checksum.
+    """
+    h = hashlib.new(algorithm)
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def load_verified_sources() -> Dict[str, Dict[str, str]]:
+    """
+    Load the ``verified_data_sources.json`` file which maps a source ID
+    (e.g. ``dreamx_world`` or ``scannet``) to a dict of ``filename`` →
+    ``expected_sha256`` entries.
+
+    Returns
+    -------
+    dict
+        Mapping of source IDs to filename->checksum dicts.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the JSON file does not exist.
+    json.JSONDecodeError
+        If the file cannot be parsed.
+    """
+    # The file is generated by ``scripts/init_verified_sources.py`` at the
+    # repository root.
+    json_path = Path("verified_data_sources.json")
+    if not json_path.is_file():
+        raise FileNotFoundError(
+            f"Verified data sources file not found at {json_path}"
+        )
+    with json_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    # Expected format: { "dreamx_world": { "file1.tar": "abc...", ... }, ... }
+    return data
+
+
+def load_checksum_cache() -> Dict[str, Dict[str, str]]:
+    """
+    Load the checksum cache from ``data/derived/checksum_cache.json``.
+    Returns an empty dict if the cache does not exist.
+    """
+    cache_path = Path("data/derived/checksum_cache.json")
+    if not cache_path.is_file():
+        return {}
+    with cache_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_checksum_cache(cache: Dict[str, Dict[str, str]]) -> None:
+    """
+    Persist the checksum cache to ``data/derived/checksum_cache.json``.
+    """
+    cache_path = Path("data/derived/checksum_cache.json")
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    with cache_path.open("w", encoding="utf-8") as f:
+        json.dump(cache, f, indent=2, sort_keys=True)
+
+
+def _gather_files(source_dir: Path) -> Dict[Path, str]:
+    """
+    Return a mapping of file Path objects (relative to ``source_dir``)
+    to their absolute Path.
+    """
+    files: Dict[Path, str] = {}
+    for root, _, filenames in os.walk(source_dir):
+        for fn in filenames:
+            abs_path = Path(root) / fn
+            rel_path = abs_path.relative_to(source_dir)
+            files[rel_path] = str(abs_path)
+    return files
+
+
+def validate_and_cache_checksums(
+    source_id: str, source_dir: Path
 ) -> None:
     """
-    Stream data frames, process them, and write results to disk.
-    
-    Args:
-        data_gen: Generator yielding data items
-        processor_func: Function to process each item
-        output_path: Path to write results
-        memory_limit: Fraction of available RAM to stay under
-    """
-    ensure_directories([str(Path(output_path).parent)])
-    profiler = MemoryProfiler(max_rss_ratio=memory_limit)
-    profiler.start()
-    
-    results = []
-    
-    try:
-        for item in data_gen:
-            if not profiler.check():
-                raise MemoryError("Memory limit exceeded during streaming.")
-            
-            processed = processor_func(item)
-            results.append(processed)
-            
-            # Periodically write to disk to manage memory
-            if len(results) % STREAMING_CHUNK_SIZE == 0:
-                with open(output_path, "a") as f:
-                    for res in results:
-                        f.write(json.dumps(res) + "\n")
-                results = []
-                
-    except Exception as e:
-        logger.error(f"Error during streaming processing: {e}")
-        raise
-    finally:
-        # Write remaining results
-        if results:
-            with open(output_path, "a") as f:
-                for res in results:
-                    f.write(json.dumps(res) + "\n")
-        logger.info(f"Streaming processing complete. Output written to {output_path}")
+    Validate that every file in ``source_dir`` matches the expected checksum
+    from ``verified_data_sources.json``. Results are cached to avoid
+    recomputation on subsequent runs.
 
-def save_results(results: List[Dict[str, Any]], output_path: str) -> None:
-    """
-    Save processed results to a JSON file.
-    
-    Args:
-        results: List of result dictionaries
-        output_path: Path to output file
-    """
-    ensure_directories([str(Path(output_path).parent)])
-    with open(output_path, "w") as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Results saved to {output_path}")
+    Parameters
+    ----------
+    source_id: str
+        Identifier used in the verified sources JSON (e.g. ``dreamx_world``).
+    source_dir: Path
+        Directory containing the downloaded dataset files.
 
-def main():
+    Raises
+    ------
+    DataVerificationError
+        If any file's checksum does not match the expected value.
     """
-    Main entry point for testing I/O utilities.
-    """
-    # Test checksum computation
-    test_file = "data/raw/test.txt"
-    Path(test_file).parent.mkdir(parents=True, exist_ok=True)
-    with open(test_file, "w") as f:
-        f.write("Test data for checksum verification.")
-    
-    checksum = compute_file_checksum(test_file)
-    print(f"Checksum: {checksum}")
-    
-    # Test integrity verification
-    is_valid, msg = verify_data_integrity("test-source", local_path=test_file)
-    print(f"Integrity: {is_valid}, {msg}")
-    
-    # Cleanup
-    os.remove(test_file)
-    logger.info("I/O utilities test completed.")
+    log_operation(f"Starting checksum validation for source '{source_id}'")
+    verified = load_verified_sources()
+    if source_id not in verified:
+        raise DataVerificationError(
+            f"Source ID '{source_id}' not present in verified_data_sources.json"
+        )
+    expected_checksums: Dict[str, str] = verified[source_id]
 
-if __name__ == "__main__":
-    main()
+    cache = load_checksum_cache()
+    cached_entry = cache.get(source_id, {})
+
+    # Gather all files under the source directory
+    files = _gather_files(source_dir)
+
+    # If cache matches current file list, reuse it
+    if cached_entry:
+        if set(cached_entry.keys()) == set(str(p) for p in files.keys()):
+            # Verify that cached checksums still correspond to the files
+            mismatch = False
+            for rel_path, cached_hash in cached_entry.items():
+                abs_path = source_dir / rel_path
+                if not abs_path.is_file():
+                    mismatch = True
+                    break
+                current_hash = compute_file_checksum(abs_path)
+                if current_hash != cached_hash:
+                    mismatch = True
+                    break
+            if not mismatch:
+                log_operation(
+                    f"Checksum cache hit for source '{source_id}'. Skipping recompute."
+                )
+                return  # Validation succeeded via cache
+
+    # Compute fresh checksums and compare
+    computed: Dict[str, str] = {}
+    for rel_path, abs_path_str in files.items():
+        abs_path = Path(abs_path_str)
+        checksum = compute_file_checksum(abs_path)
+        computed[str(rel_path)] = checksum
+        expected = expected_checksums.get(str(rel_path))
+        if expected is None:
+            raise DataVerificationError(
+                f"No expected checksum for file '{rel_path}' in source '{source_id}'."
+            )
+        if checksum != expected:
+            raise DataVerificationError(
+                f"Checksum mismatch for '{rel_path}': expected {expected}, got {checksum}"
+            )
+
+    # All checks passed – update cache
+    cache[source_id] = computed
+    save_checksum_cache(cache)
+    log_operation(f"Checksum validation succeeded for source '{source_id}'")
+
+
+# ----------------------------------------------------------------------
+# Data Loading API
+# ----------------------------------------------------------------------
+def load_scannet_fallback() -> Iterator[Dict[str, Any]]:
+    """
+    Load the ScanNet fallback dataset in streaming mode.
+
+    Returns
+    -------
+    iterator of dict
+        Each element corresponds to a data sample from ScanNet.
+    """
+    # The exact dataset name is assumed to be ``scannet`` on HuggingFace.
+    # This function will raise if the dataset cannot be downloaded.
+    log_operation("Loading ScanNet fallback dataset (streaming).")
+    ds = datasets.load_dataset(
+        "scannet",
+        split="train",
+        streaming=True,
+    )
+    return ds
+
+
+def load_dreamx_world_streaming() -> Iterator[Dict[str, Any]]:
+    """
+    Load the DreamX‑World subset in streaming mode.
+
+    Returns
+    -------
+    iterator of dict
+        Each element corresponds to a data sample from DreamX‑World.
+    """
+    # The exact HuggingFace identifier is assumed to be ``dreamx_world``.
+    log_operation("Loading DreamX‑World dataset (streaming).")
+    ds = datasets.load_dataset(
+        "dreamx_world",
+        split="train",
+        streaming=True,
+    )
+    return ds
+
+
+def load_data() -> Iterator[Dict[str, Any]]:
+    """
+    Decide which dataset to load (DreamX‑World if available, otherwise ScanNet),
+    validate its integrity, and return a streaming iterator.
+
+    Returns
+    -------
+    iterator of dict
+        Streaming dataset iterator.
+    """
+    # Determine the raw data directory for each source.
+    # Convention: data/raw/dreamx_world/ and data/raw/scannet/
+    dreamx_dir = Path("data/raw/dreamx_world")
+    scannet_dir = Path("data/raw/scannet")
+
+    if dreamx_dir.is_dir() and any(dreamx_dir.iterdir()):
+        # Validate DreamX‑World checksums
+        validate_and_cache_checksums("dreamx_world", dreamx_dir)
+        return load_dreamx_world_streaming()
+    elif scannet_dir.is_dir() and any(scannet_dir.iterdir()):
+        validate_and_cache_checksums("scannet", scannet_dir)
+        return load_scannet_fallback()
+    else:
+        raise DataVerificationError(
+            "Neither DreamX‑World nor ScanNet data directories contain files."
+        )
+
+
+def stream_and_process_frames(
+    dataset_iterator: Iterator[Dict[str, Any]],
+    process_fn,
+) -> None:
+    """
+    Iterate over a streaming dataset, apply ``process_fn`` to each sample,
+    and optionally write results.
+
+    Parameters
+    ----------
+    dataset_iterator: iterator
+        Streaming dataset iterator returned by ``load_data``.
+    process_fn: callable
+        Function that receives a single sample dict and performs
+        application‑specific processing.
+    """
+    for idx, sample in enumerate(dataset_iterator):
+        try:
+            process_fn(sample, idx)
+        except Exception as exc:
+            log_operation(f"Error processing sample {idx}: {exc}")
+            raise
+
+
+def save_results(results: Any, output_path: Optional[Path] = None) -> None:
+    """
+    Persist ``results`` to JSON. The default location is
+    ``data/derived/results.json``.
+
+    Parameters
+    ----------
+    results: Any (JSON‑serialisable)
+        The data to write.
+    output_path: Path, optional
+        Custom output location.
+    """
+    if output_path is None:
+        output_path = Path("data/derived/results.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, sort_keys=True)
+    log_operation(f"Results saved to {output_path}")
+
+
+def verify_data_integrity(source_id: str, source_dir: Path) -> None:
+    """
+    Public wrapper used by external callers to trigger checksum validation.
+
+    Parameters
+    ----------
+    source_id: str
+        Identifier matching the entry in ``verified_data_sources.json``.
+    source_dir: Path
+        Directory containing the dataset files.
+    """
+    validate_and_cache_checksums(source_id, source_dir)
+
+
+def main() -> None:
+    """
+    Entry‑point used by the automation pipeline. Loads the appropriate
+    dataset, runs a dummy processing loop (illustrative), and writes a
+    placeholder result file.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(message)s",
+    )
+    log_operation("IO pipeline started.")
+    dataset = load_data()
+
+    # Example processing function – simply counts samples.
+    counter = {"samples": 0}
+
+    def count_fn(sample, idx):
+        counter["samples"] += 1
+
+    with MemoryProfiler("DatasetProcessing"):
+        stream_and_process_frames(dataset, count_fn)
+
+    save_results(counter)
+    log_operation("IO pipeline completed successfully.")

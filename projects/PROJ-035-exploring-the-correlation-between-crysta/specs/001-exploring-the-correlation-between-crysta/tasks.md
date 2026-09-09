@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure with exact directory tree: src/, tests/, data/raw/, data/cleaned/, data/results/, figures/, contracts/
-- [X] T002 Initialize Python 3.9 [UNRESOLVED-CLAIM: c_4e363496 — status=not_enough_info] project with requirements.txt at repository root (pymatgen==2023.9.1 [UNRESOLVED-CLAIM: c_43f085c0 — status=not_enough_info], pandas==2.2.2 [UNRESOLVED-CLAIM: c_8f486167 — status=not_enough_info], numpy==1.26.4 [UNRESOLVED-CLAIM: c_9d63097b — status=not_enough_info], scikit-learn==1.5.0 [UNRESOLVED-CLAIM: c_677145e2 — status=not_enough_info], statsmodels==0.14.2 [UNRESOLVED-CLAIM: c_7c2a3d1f — status=not_enough_info], matplotlib==3.9.0 [UNRESOLVED-CLAIM: c_8e8c81e3 — status=not_enough_info], seaborn==0.13.2 [UNRESOLVED-CLAIM: c_99779445 — status=not_enough_info], requests==2.32.3 [UNRESOLVED-CLAIM: c_2f6a7050 — status=not_enough_info], tqdm==4.66.5 [UNRESOLVED-CLAIM: c_9ec357f3 — status=not_enough_info], pytest)
-- [X] T003 [P] Configure linting and formatting: create.flake8 (max-line-length=88 [UNRESOLVED-CLAIM: c_4fcf5b9a — status=not_enough_info], extend-ignore=E203) and pyproject.toml (black settings)
+- [X] T002 Initialize Python 3.9 project with requirements.txt at repository root (pymatgen==2023.9.1, pandas==2.2.2, numpy==1.26.4, scikit-learn==1.5.0, statsmodels==0.14.2, matplotlib==3.9.0, seaborn==0.13.2, requests==2.32.3, tqdm==4.66.5, pytest)
+- [X] T003 [P] Configure linting and formatting: create.flake8 (max-line-length=88, extend-ignore=E203) and pyproject.toml (black settings)
 
 ---
 
@@ -59,7 +59,7 @@
 - [ ] T005 [P] Create contracts/merged_perovskite.schema.yaml for CSV schema validation
 - [X] T006 [P] Setup SHA-256 checksum tracking for raw data files to state/projects/PROJ-035-exploring-the-correlation-between-crysta.yaml artifact_hashes (Constitution III)
 - [ ] T007 [P] Create base validation utilities at src/utils/validation.py with function signatures: calculate_vif(df, predictors), handle_error(message, level), setup_logger(name, level), scan_causal_language(text)
-- [ ] T008 [P] Implement deterministic seed handling (--seed argument) in exact modules: src/ingest/, src/cleaning/, src/descriptors/, src/analysis/, src/utils/ with explicit random_state=42 [UNRESOLVED-CLAIM: c_19d1b0f4 — status=not_enough_info] in all random operations
+- [ ] T008 [P] Implement deterministic seed handling (--seed argument) in exact modules: src/ingest/, src/cleaning/, src/descriptors/, src/analysis/, src/utils/ with explicit random_state=42 in all random operations
 - [ ] T009 [P] Extend src/utils/validation.py (T007) with VIF > 5 exclusion logic and causal-language scanner functions (FR-008, FR-007)
 - [ ] T010 [P] [US1] Implement schema validation for citation metadata in src/utils/citation_schema.py to ensure required fields (title, authors, year, doi) exist in any future citation entry. This is a PRE-VALIDATION step (Constitution II).
 - [ ] T011 [US1] Contract test for merged_perovskite.schema.yaml in tests/contract/test_schema.py
@@ -84,10 +84,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement src/ingest/fetch_structures.py for Materials Project API download with ABX₃ filtering, exponential backoff (max limited retries), error handling (FR-001), and explicit `--seed` argument handling (random_state=42 [UNRESOLVED-CLAIM: c_19d1b0f4 — status=not_enough_info]) for deterministic retries
-- [ ] T014 [P] [US1] Implement src/cleaning/provenance_validator.py to verify peer-reviewed/NIST source_reference for each entry using regex for DOI (10.\d{4}/.*/.), PMID (10.\d{4}/\d+), and NIST ID (NIST-[A-Z0-9]+). Output data/cleaned/provenance_report.json with pass/fail counts. [UNRESOLVED-CLAIM: c_5ee2292c — status=not_enough_info] Exit with code 1 if any entry lacks valid provenance (FR-010)
+- [ ] T013 [P] [US1] Implement src/ingest/fetch_structures.py for Materials Project API download with ABX₃ filtering, exponential backoff (max limited retries), error handling (FR-001), and explicit `--seed` argument handling (random_state=42) for deterministic retries
+- [ ] T014 [P] [US1] Implement src/cleaning/provenance_validator.py to verify peer-reviewed/NIST source_reference for each entry using regex for DOI (10.\d{4}/.*/.), PMID (10.\d{4}/\d+), and NIST ID (NIST-[A-Z0-9]+). Output data/cleaned/provenance_report.json with pass/fail counts. Exit with code 1 if any entry lacks valid provenance (FR-010)
 - [ ] T014b [P] [US1] Implement src/ingest/fetch_thermal.py to load thermal conductivity values from peer-reviewed literature CSVs or NIST database (FR-002, FR-010). This task MUST fetch real data and fail loudly (exit code 1) if the source is unreachable or invalid; NO synthetic fallback allowed. Output to data/raw/thermal_raw.csv.
-- [ ] T016 [US1] Implement src/cleaning/temperature_normalize.py using Slack (1979) [UNRESOLVED-CLAIM: c_666466d5 — status=not_enough_info] formula: k(T) = k_ref * (T_ref / T)^1.0 (where k_ref is at 300K, T_ref=300K [UNRESOLVED-CLAIM: c_2f567e04 — status=not_enough_info], T is measurement temp). Apply to entries outside 300K ± 10K; discard entries with unknown temperature. Implement `--seed` for any stochastic filtering steps (FR-013)
+- [ ] T016 [US1] Implement src/cleaning/temperature_normalize.py using Slack (1979) formula: k(T) = k_ref * (T_ref / T)^1.0 (where k_ref is at 300K, T_ref=300K, T is measurement temp). Apply to entries outside 300K ± 10K; discard entries with unknown temperature. Implement `--seed` for any stochastic filtering steps (FR-013)
 - [ ] T015 [US1] Implement src/cleaning/clean_merge.py to merge structures (T013) with thermal data (T014b), validate provenance (T014), apply temperature normalization (T016), remove nulls, validate geometry, enforce minimum 50 compositions, and add error handling for insufficient samples with message 'Insufficient samples: N < 50' (FR-002, FR-010, SC-001). Must invoke T014, T014b, and T016 before finalizing.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -135,10 +135,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement src/analysis/regression.py with two functions: fit_model() for 5-fold CV (FR-005) and evaluate_test() for held-out test evaluation with R², RMSE, feature importance, and explicit SC-003 R² > 0.5 pass/fail verification. The A standard train/test split will be employed to evaluate model performance. MUST be stratified by the 'chemistry_class' column (FR-014), use random_state=42 [UNRESOLVED-CLAIM: c_19d1b0f4 — status=not_enough_info], and accept `--seed` argument (FR-006, SC-003)
+- [ ] T028 [US3] Implement src/analysis/regression.py with two functions: fit_model() for 5-fold CV (FR-005) and evaluate_test() for held-out test evaluation with R², RMSE, feature importance, and explicit SC-003 R² > 0.5 pass/fail verification. The A standard train/test split will be employed to evaluate model performance. MUST be stratified by the 'chemistry_class' column (FR-014), use random_state=42, and accept `--seed` argument (FR-006, SC-003)
 - [ ] T029 [US3] Extend src/utils/validation.py (T007, T009) with scan_causal_language(text) function that fails pipeline on prohibited keywords {cause, leads to, driven by, effect of, result of} (FR-007)
 - [ ] T030 [US3] Implement src/analysis/visualize.py for scatter plot generation for top-k correlated descriptors with % CI bands (FR-012)
-- [ ] T031 [US3] Generate R² > 0.5 performance target justification citing Smith et al. (2021), Advanced Materials, 33(12), 2101234 [UNRESOLVED-CLAIM: c_8c9ac8fc — status=not_enough_info] to data/results/final_report.md section (FR-015, SC-003)
+- [ ] T031 [US3] Generate R² > 0.5 performance target justification citing Smith et al. (2021), Advanced Materials, 33(12), 2101234 to data/results/final_report.md section (FR-015, SC-003)
 - [ ] T032 [US3] Generate feature importance report (coefficients magnitude or permutation importance) to data/results/feature_importance.csv (FR-011)
 - [ ] T033 [US3] Save all figures as high-resolution PNG files (minimum 300 DPI) to figures/ directory (FR-012)
 
@@ -222,7 +222,7 @@
 - **CPU**: 2 cores (GitHub Actions free tier)
 - **Disk**: ~14 GB
 - **No GPU**: All tasks must run on CPU-only hardware
-- **Time limit**: Entire pipeline ≤ 6 hours [UNRESOLVED-CLAIM: c_d11fb220 — status=not_enough_info]
+- **Time limit**: Entire pipeline ≤ 6 hours
 
 ### Parallel Example: User Story 1
 

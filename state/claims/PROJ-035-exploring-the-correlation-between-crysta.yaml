@@ -1266,3 +1266,412 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T06:04:35Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 0
+  canonical: 'Cross-validation folds: 5'
+  claim_id: c_1d791312
+  context: Phase 5 goal and task T028 specifying 5-fold CV.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The regression model uses 5-fold cross-validation.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T21:28:00Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Pipeline resource constraints: 2 CPU cores, 7 GB RAM, no GPU'
+  claim_id: c_9df3a434
+  context: Resource Constraints section listing RAM, CPU, and disk limits for the
+    pipeline.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline must run on CPU-only hardware with 2 cores and ~7 GB RAM.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T21:28:03Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Pipeline execution time limit: 6 hours'
+  claim_id: c_35ac9913
+  context: Resource Constraints section specifying the time limit for the pipeline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The entire pipeline must complete in 6 hours or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:28:36Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Project Python version: 3.9'
+  claim_id: c_eae7750e
+  context: Phase 1 task T002 specifying the initialization of a Python 3.9 project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:29:33Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: pymatgen version 2023.9.1
+  claim_id: c_da6350a7
+  context: Phase 1 task T002 listing requirements.txt dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pymatgen version 2023.9.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:36:22Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.2
+  claim_id: c_fb52f3f9
+  context: Phase 1 task T002 listing requirements.txt dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas version 2.2.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:36:49Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_b87f6c34
+  context: Phase 1 task T002 listing requirements.txt dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires numpy version 1.26.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:37:08Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.5.0
+  claim_id: c_7bce61a7
+  context: Phase 1 task T002 listing requirements.txt dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires scikit-learn version 1.5.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:37:30Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.2
+  claim_id: c_affbce0f
+  context: Phase 1 task T002 listing requirements.txt dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires statsmodels version 0.14.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:37:49Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.9.0
+  claim_id: c_d5976718
+  context: Phase 1 task T002 listing requirements.txt dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires matplotlib version 3.9.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:38:09Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.13.2
+  claim_id: c_b301c198
+  context: Phase 1 task T002 listing requirements.txt dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires seaborn version 0.13.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:38:30Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: requests version 2.32.3
+  claim_id: c_84f353bf
+  context: Phase 1 task T002 listing requirements.txt dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires requests version 2.32.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:39:04Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: tqdm version 4.66.5
+  claim_id: c_6222db18
+  context: Phase 1 task T002 listing requirements.txt dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires tqdm version 4.66.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:39:17Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Minimum dataset size: 50 rows'
+  claim_id: c_3f9138ae
+  context: "Phase 3 goal and acceptance scenarios requiring a merged dataset of \u2265\
+    50 rows."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_dataset_size:_50_rows
+  kind: causal
+  raw_text: The data ingestion pipeline must result in a dataset with at least 50
+    rows.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:39:20Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Temperature normalization formula: k(T) = k_ref * (T_ref / T)^1.0'
+  claim_id: c_ce5b4bb7
+  context: Phase 3 task T016 specifying the Slack (1979) formula for temperature normalization.
+  evidence:
+    asserted: '1.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The temperature normalization formula is k(T) = k_ref * (T_ref / T)^1.0.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T21:39:20Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Reference temperature for normalization: 300K'
+  claim_id: c_0ea8bfb3
+  context: Phase 3 task T016 defining T_ref=300K in the Slack formula.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reference_temperature_for_normalization:_300K
+  kind: entity_fact
+  raw_text: The temperature normalization reference temperature is 300K.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:39:54Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Multiple-comparison correction method: Bonferroni'
+  claim_id: c_823bece7
+  context: Phase 4 task T023 specifying the use of the Bonferroni method.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple-comparison_correction_method:_Bonferroni
+  kind: entity_fact
+  raw_text: The correlation analysis uses the Bonferroni method for multiple-comparison
+    correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:40:35Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis p-value thresholds: 0.01, 0.05, 0.1'
+  claim_id: c_e3a01c09
+  context: Phase 4 task T024 and T020 describing the p-value sweep.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis tests p-value thresholds of 0.01, 0.05, and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:41:10Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: "Regression performance target: R\xB2 > 0.5"
+  claim_id: c_8a426859
+  context: "Phase 5 independent test and task T028 specifying the R\xB2 > 0.5 pass/fail\
+    \ verification."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_performance_target:_R%C2%B2_%3E_0.5
+  kind: magnitude
+  raw_text: "The regression model evaluation requires an R\xB2 score greater than\
+    \ 0.5 on the held-out test set."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:41:43Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Smith et al. (2021) publication: Advanced Materials 33(12) 2101234'
+  claim_id: c_9c01f8f2
+  context: "Phase 5 task T031 providing the full citation details for the R\xB2 target."
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ''
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Smith_et_al._(2021)_publication:_Advanced_Materials_33(12)_2
+    source_value: https://en.wikipedia.org/wiki/Smith_et_al._(2021)_publication:_Advanced_Materials_33(12)_2
+    subject: 'Smith et al. (2021) publication: Advanced Materials 33(12) 2101234'
+  kind: relational
+  raw_text: The paper by Smith et al. (2021) was published in Advanced Materials,
+    volume 33, issue 12, article 2101234.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:42:48Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Figure resolution: minimum 300 DPI'
+  claim_id: c_69a9360c
+  context: Phase 5 task T033 specifying high-resolution PNG files with minimum 300
+    DPI.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Figure_resolution:_minimum_300_DPI
+  kind: magnitude
+  raw_text: The generated figures must have a resolution of at least 300 DPI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:44:11Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: "Temperature normalization range: 300K \xB1 10K"
+  claim_id: c_c45c74d0
+  context: Phase 3 task T016 defining the temperature range for normalization.
+  evidence:
+    entailment_evidence: "Temperature normalization range: 300K \xB1 10K"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Temperature_normalization_range:_300K_%C2%B1_10K
+  kind: entity_fact
+  raw_text: "The temperature normalization applies to entries outside 300K \xB1 10K."
+  resolved_value: "Temperature normalization range: 300K \xB1 10K"
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T21:44:15Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'VIF exclusion threshold: > 5'
+  claim_id: c_d660b42d
+  context: Phase 2 task T009 and Phase 7 task T046 describing VIF > 5 exclusion logic.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_exclusion_threshold:_%3E_5
+  kind: magnitude
+  raw_text: The VIF exclusion logic excludes predictors with a VIF greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:45:06Z'
+- artifact_path: projects/PROJ-035-exploring-the-correlation-between-crysta/specs/001-exploring-the-correlation-between-crysta/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis verification: rates vary across 0.01, 0.05, 0.1'
+  claim_id: c_9adde59e
+  context: Phase 7 task T047 verifying the sensitivity analysis output.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis output must confirm headline rates vary across
+    p-value thresholds 0.01, 0.05, and 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T21:45:43Z'

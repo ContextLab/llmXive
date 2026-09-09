@@ -1,47 +1,60 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Result Schema"
-description: "Schema for the final causal inference output."
+title: "AnalysisResult"
 type: "object"
 properties:
-  method:
-    type: "string"
-    description: "Methodology used (PSM, DiD, or Skipped_DiD_Data_Unavailable)."
-    enum: ["PSM", "DiD", "Skipped_DiD_Data_Unavailable"]
   att_estimate:
     type: "number"
-    description: "Average Treatment Effect on the Treated (on log(energy_cost))."
+    description: "Estimated Average Treatment Effect on the Treated"
   p_value:
     type: "number"
-    description: "Two-tailed p-value."
     minimum: 0
     maximum: 1
-  ci_lower:
-    type: "number"
-    description: "Lower bound of 95% confidence interval."
-  ci_upper:
-    type: "number"
-    description: "Upper bound of 95% confidence interval."
-  caliper_used:
-    type: "number"
-    description: "Propensity score caliper value."
+    description: "P-value from OLS regression"
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval [lower, upper]"
+  methodology_used:
+    type: "string"
+    enum:
+      - "PSM"
+      - "DiD_Fallback_Not_Available"
+    description: "Methodology used for estimation"
+  sensitivity_sweep_data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        caliper:
+          type: "number"
+        att_estimate:
+          type: "number"
+        p_value:
+          type: "number"
+      required:
+        - "caliper"
+        - "att_estimate"
+        - "p_value"
+    description: "Results from sensitivity analysis across calipers"
   balance_status:
-    type: "boolean"
-    description: "True if all SMD <= 0.1."
-  sample_size_treated:
-    type: "integer"
-    description: "Number of treated units in final sample."
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Standardized mean difference (SMD) for each covariate"
+  placebo_test_result:
+    type: "number"
     minimum: 0
-  sample_size_control:
-    type: "integer"
-    description: "Number of control units in final sample."
-    minimum: 0
+    maximum: 1
+    description: "P-value from placebo test on pre-treatment covariate"
 required:
-  - method
-  - att_estimate
-  - p_value
-  - ci_lower
-  - ci_upper
-  - balance_status
-  - sample_size_treated
-  - sample_size_control
+  - "att_estimate"
+  - "p_value"
+  - "confidence_interval"
+  - "methodology_used"
+  - "sensitivity_sweep_data"
+  - "balance_status"
+  - "placebo_test_result"
 additionalProperties: false

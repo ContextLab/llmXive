@@ -16,7 +16,7 @@ properties:
     minimum: 0
   log_energy_cost:
     type: "number"
-    description: "Natural log of energy cost (Primary Causal Outcome)."
+    description: "Natural log of energy cost (Primary Causal Outcome, after winsorization)."
   energy_cost_burden:
     type: "number"
     description: "Energy cost burden (Cost/Income) - Descriptive Only."
@@ -38,22 +38,36 @@ properties:
     maximum: 1
   home_value:
     type: "number"
-    description: "Estimated home value in USD."
+    description: "Tract-level median home value in USD (Proxy)."
     minimum: 0
   home_value_change:
     type: "number"
-    description: "Change in home value (if longitudinal data exists)."
-    minimum: -1000000
+    nullable: true
+    description: "Not available in cross-sectional data. Set to null."
   weight:
     type: "number"
     description: "Survey weight."
     minimum: 0
+  age:
+    type: "integer"
+    description: "Age of head of household."
+  race:
+    type: "string"
+    description: "Race of head of household."
+  education:
+    type: "string"
+    description: "Education level of head of household."
+  years_in_residence:
+    type: "integer"
+    description: "Years in residence (Pre-treatment covariate for placebo test)."
 required:
   - household_id
   - income
   - energy_cost
+  - log_energy_cost
   - housing_type
   - location
   - treatment
-  - log_energy_cost
+  - propensity_score
+  - home_value
 additionalProperties: false

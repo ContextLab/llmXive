@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational psychology experiment to test whether increasing a user's perception of agency (even when illusory) increases trust in AI recommendations. The system consists of two distinct components: (1) an experimental task interface (simulated for this implementation) that randomizes participants into High Agency, Low Agency, or Control conditions and captures behavioral adherence and psychometric trust scores (Lee & See, 2004); and (2) a reproducible statistical analysis pipeline that performs planned directional contrasts, pairwise comparisons with family-wise error correction (Tukey), and sensitivity analyses on exclusion thresholds. The implementation adheres to the project constitution by enforcing reproducibility via pinned seeds, verifying all citations against primary sources, and ensuring data hygiene via checksums.
+This project implements a computational psychology experiment to test whether increasing a user's perception of agency (even when illusory) increases trust in AI recommendations. The system consists of two distinct components: () an experimental task interface (simulated for this implementation) that randomizes participants into High Agency, Low Agency, or Control conditions and captures behavioral adherence and psychometric trust scores (Lee & See, 2004); and (2) a reproducible statistical analysis pipeline that performs planned directional contrasts, pairwise comparisons with family-wise error correction (Tukey), and sensitivity analyses on exclusion thresholds. The implementation adheres to the project constitution by enforcing reproducibility via pinned seeds, verifying all citations against primary sources, and ensuring data hygiene via checksums.
 
 **Critical Distinction**: This implementation uses **simulated data** solely to validate the *pipeline logic* (code correctness, statistical formulas). It **cannot** validate the causal hypothesis regarding human psychology. The statistical pipeline is designed to process **real human data** (e.g., from Prolific/MTurk) when available, which is required for hypothesis testing. The plan explicitly separates "Pipeline Validation" (Phase 1, simulated) from "Hypothesis Testing" (future phase, real data).
 
@@ -138,7 +138,7 @@ projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/
     *   **Unified Correction Strategy**: To control the family-wise error rate for the entire set of inferences (2 planned contrasts + 3 pairwise comparisons = 5 tests), apply a **Holm-Bonferroni correction** to all 5 p-values. This prevents Type I error inflation that would occur from running separate corrections.
     *   **Decision Tree**: Report results for all 5 tests with the unified adjusted p-values.
 6.  **Effect Sizes**: Calculate Cohen's d for all significant pairwise comparisons (FR-004).
-7.  **Sensitivity Analysis**: Execute `code/analysis/sensitivity.py` sweeping the `Attention_Score` threshold across a range of increasing values to verify result stability (FR-006). The `Attention_Score` is derived from the 5 attention questions, making the threshold sweep mathematically valid.
+7.  **Sensitivity Analysis**: Execute `code/analysis/sensitivity.py` sweeping the `Attention_Score` threshold across a range of increasing values to verify result stability (FR-006). The `Attention_Score` is derived from the attention questions, making the threshold sweep mathematically valid.
 
 ### Phase 3: Reporting & Validation
 *Goal: Generate the final report and validate against contracts.*
