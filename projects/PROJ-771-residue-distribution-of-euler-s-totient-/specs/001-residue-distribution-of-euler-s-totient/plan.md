@@ -15,9 +15,9 @@ Crucially, the statistical analysis **does not** test a naive uniformity hypothe
 **Primary Dependencies**: `numpy` (array operations), `scipy` (statistics), `matplotlib` (visualization), `pytest` (testing), `psutil` (memory monitoring).  
 **Storage**: Local file system (`data/` for computed residues, `results/` for plots/reports). No external database.  
 **Testing**: `pytest` with unit tests for sieve correctness and integration tests for statistical pipeline.  
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, ~7 GB RAM, no GPU).  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPU cores, ~7 GB RAM, no GPU).  
 **Project Type**: CLI/Computational Research Tool.  
-**Performance Goals**: Complete computation for $N=5,000,000$ within 1 hour; peak memory < 6 GB (% of 7 GB limit).  
+**Performance Goals**: Complete computation for $N=5,000,000$ within 1 hour; peak memory < 6 GB (% of GB limit).  
 **Constraints**: Strict adherence to arbitrary-precision arithmetic; no GPU usage; deterministic execution (random seeds pinned).  
 **Scale/Scope**: Processing $N$ up to several million integers; supporting specific prime moduli.
 

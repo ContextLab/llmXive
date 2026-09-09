@@ -1,1 +1,1 @@
-"""Integration tests for the residue distribution analysis pipeline."""
+"""Integration tests package for the residue distribution analysis pipeline."""
